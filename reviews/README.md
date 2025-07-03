@@ -7,7 +7,7 @@ This folder contains a repository of formal reviews. Each project is associated 
   - *Code*: reviews of associated code
 
 Reviews are named as follows: `A__B-C-D__E.md`, where:
-  - `A` is the author name of the reviewer. This should be the name of the LLM (e.g., `claude-sonnet-4`) or human (e.g., `jeremy-r-manning`) who wrote the *initial* review.
+  - `A` is the author name of the reviewer. This should be the lowercase GitHub username of the LLM (e.g., `claude`) or human (e.g., `jeremymanning`) who wrote the *initial* review. If no GitHub profile is available, use the lowercase model name (e.g., `claude-sonnet-4`) or human name (e.g., `jeremy-r-manning`) instead, with spaces replaced by "-".
   - `B` is the current month, expressed as 2 digits (e.g., `01` for January, `03` for March, etc.)
   - `C` is the current day of the month, expressed as 2 digits (e.g., `05` for the 5th day of the month, `28` for the 28th day of the month)
   - `D` is the current year, expressed as 4 digits (e.g., `2025`)
@@ -15,5 +15,7 @@ Reviews are named as follows: `A__B-C-D__E.md`, where:
 
 # Table of Contents
 
-| Unique Project ID | Project Name | Unique Review ID | Link(s) to GitHub issues | Link to technical design document | Link to implementation plan | Link to review | Contributing author(s) |
-|-------------------|--------------|------------------|--------------------------|-----------------------------------|-----------------------------|----------------|------------------------|
+Contributors list should be chronological in a comma-separated list, and individuals should be listed by GitHub username with a markdown link to their GitHub profile (e.g., `[jeremymanning](https://github.com/jeremymanning)`). The "Link to Resources Being Reviewed" column should be filled in using a markdown link to the source document (e.g., `[Design](<link to doc>)`). Link text must be one of: "Design", "Implementation", "Paper", or "Code".
+
+| Unique Project ID | Project Name | Unique Review ID | Link(s) to GitHub issues | Link to Resource Being Reviewed | Link to Review | Contributing Author(s) |
+|-------------------|--------------|------------------|--------------------------|---------------------------------|----------------|------------------------|
