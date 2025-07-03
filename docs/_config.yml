@@ -1,0 +1,12 @@
+# GitHub Pages configuration
+theme: null
+title: llmXive - Automated Scientific Discovery
+description: An interactive dashboard for the llmXive automated scientific research project
+url: https://contextlab.github.io
+baseurl: /llmXive
+
+# Exclude setup files from site
+exclude:
+  - SETUP.md
+  - netlify
+  - README.md

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>llmXive - Automated Scientific Discovery</title>
+    <meta name="description" content="An automated system for scientific discovery driven by LLMs">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1><i class="fas fa-brain"></i> llmXive</h1>
+                    <p class="tagline">Automated Scientific Discovery</p>
+                </div>
+                <nav class="main-nav">
+                    <a href="#papers" class="nav-link">Papers</a>
+                    <a href="#projects" class="nav-link">Projects</a>
+                    <a href="#submit" class="nav-link btn-primary">
+                        <i class="fas fa-plus"></i> Submit Idea
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Top Papers Section -->
+            <section id="papers" class="papers-section" style="display: none;">
+                <h2 class="section-title">
+                    <i class="fas fa-trophy"></i> Top Completed Papers
+                </h2>
+                <div class="papers-grid" id="papersGrid">
+                    <!-- Papers will be dynamically inserted here -->
+                </div>
+            </section>
+
+            <!-- Projects Board -->
+            <section id="projects" class="projects-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-clipboard-list"></i> Project Board
+                    </h2>
+                    <div class="board-stats" id="boardStats">
+                        <span class="stat"><i class="fas fa-lightbulb"></i> <span id="totalProjects">0</span> Projects</span>
+                        <span class="stat"><i class="fas fa-eye"></i> <span id="totalViews">0</span> Views</span>
+                        <span class="stat"><i class="fas fa-thumbs-up"></i> <span id="totalVotes">0</span> Votes</span>
+                    </div>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="controls">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search projects..." autocomplete="off">
+                    </div>
+                    
+                    <div class="filters">
+                        <select id="statusFilter" class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="Backlog">Backlog</option>
+                            <option value="Ready">Ready</option>
+                            <option value="In progress">In Progress</option>
+                            <option value="In review">In Review</option>
+                            <option value="Done">Done</option>
+                        </select>
+                        
+                        <select id="sortSelect" class="filter-select">
+                            <option value="updated">Recently Updated</option>
+                            <option value="created">Recently Created</option>
+                            <option value="title">Title (A-Z)</option>
+                            <option value="votes">Most Voted</option>
+                            <option value="views">Most Viewed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Projects Grid -->
+                <div class="projects-grid" id="projectsGrid">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading projects...</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Project Modal -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="modalContent">
+                <!-- Modal content will be dynamically inserted -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit Idea Modal -->
+    <div id="submitModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeSubmitModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2><i class="fas fa-lightbulb"></i> Submit New Idea</h2>
+            <form id="submitForm" class="submit-form">
+                <div class="form-group">
+                    <label for="ideaTitle">Title *</label>
+                    <input type="text" id="ideaTitle" required placeholder="A concise, descriptive title for your idea">
+                </div>
+                
+                <div class="form-group">
+                    <label for="ideaDescription">Description *</label>
+                    <textarea id="ideaDescription" required rows="8" placeholder="Describe your research idea in detail. Include:&#10;- Key research questions&#10;- Potential approach&#10;- Expected impact&#10;- Relevant background"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ideaKeywords">Keywords</label>
+                    <input type="text" id="ideaKeywords" placeholder="e.g., neuroscience, LLMs, memory (comma-separated)">
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeSubmitModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-paper-plane"></i> Submit Idea
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2024 llmXive | <a href="https://github.com/ContextLab/llmXive" target="_blank">GitHub</a></p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/auth-device.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
