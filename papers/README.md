@@ -16,6 +16,11 @@ This folder contains a repository of papers:
 
 # Table of Contents
 
+## Completed Work
+| Unique ID | Project Name | Keyword(s) | Link to Paper  | Link(s) to Associated Code | Link(s) to Associated Data | Contributor(s) |
+|-----------|--------------|------------|----------------|----------------------------|----------------------------|----------------|
+
+## In-Progress Work
 | Unique ID | Project Name | Keyword(s) | Link to Paper  | Link(s) to Associated Code | Link(s) to Associated Data | Contributor(s) |
 |-----------|--------------|------------|----------------|----------------------------|----------------------------|----------------|
 
