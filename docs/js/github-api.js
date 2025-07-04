@@ -184,11 +184,23 @@ class GitHubAPI {
         const statusMap = {
             'backlog': 'Backlog',
             'ready': 'Ready',
+            'in progress': 'In Progress',
             'in-progress': 'In Progress',
+            'in review': 'In Review',
             'in-review': 'In Review',
-            'done': 'Done'
+            'done': 'Done',
+            'completed': 'Done'
         };
         
+        // Check for exact matches first
+        for (const label of labels) {
+            const labelName = label.name.toLowerCase();
+            if (statusMap[labelName]) {
+                return statusMap[labelName];
+            }
+        }
+        
+        // Then check for partial matches
         for (const label of labels) {
             const labelName = label.name.toLowerCase();
             for (const [key, status] of Object.entries(statusMap)) {

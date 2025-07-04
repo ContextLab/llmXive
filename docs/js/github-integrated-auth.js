@@ -448,40 +448,104 @@ class GitHubIntegratedAuth {
         return modal.querySelector('.auth-modal-content');
     }
     
-    // Vote on issue
+    // Vote on issue with toggle support
     async vote(issueNumber, reaction) {
         if (!this.isAuthenticated()) {
             this.login();
-            return false;
+            return { success: false };
         }
         
         try {
-            const response = await fetch(
+            // First, get user's existing reactions
+            const reactionsResponse = await fetch(
                 `https://api.github.com/repos/${CONFIG.github.owner}/${CONFIG.github.repo}/issues/${issueNumber}/reactions`,
                 {
-                    method: 'POST',
                     headers: {
                         ...this.getAuthHeaders(),
                         'Accept': 'application/vnd.github.squirrel-girl-preview+json'
-                    },
-                    body: JSON.stringify({ content: reaction })
+                    }
                 }
             );
             
-            if (response.ok) {
-                this.showToast('Vote recorded!', 'success');
-                return true;
-            } else if (response.status === 401) {
-                this.logout();
-                this.login();
-                return false;
+            if (!reactionsResponse.ok) {
+                throw new Error('Failed to fetch reactions');
             }
+            
+            const reactions = await reactionsResponse.json();
+            const currentUser = this.getUser();
+            const userReactions = reactions.filter(r => r.user.login === currentUser.login);
+            
+            // Find existing reaction of same type
+            const existingReaction = userReactions.find(r => r.content === reaction);
+            // Find opposite reaction
+            const oppositeReaction = reaction === '+1' 
+                ? userReactions.find(r => r.content === '-1')
+                : userReactions.find(r => r.content === '+1');
+            
+            // Remove opposite reaction if exists
+            if (oppositeReaction) {
+                await fetch(
+                    `https://api.github.com/repos/${CONFIG.github.owner}/${CONFIG.github.repo}/issues/${issueNumber}/reactions/${oppositeReaction.id}`,
+                    {
+                        method: 'DELETE',
+                        headers: {
+                            ...this.getAuthHeaders(),
+                            'Accept': 'application/vnd.github.squirrel-girl-preview+json'
+                        }
+                    }
+                );
+            }
+            
+            let action = 'added';
+            
+            if (existingReaction) {
+                // Toggle off - remove existing reaction
+                await fetch(
+                    `https://api.github.com/repos/${CONFIG.github.owner}/${CONFIG.github.repo}/issues/${issueNumber}/reactions/${existingReaction.id}`,
+                    {
+                        method: 'DELETE',
+                        headers: {
+                            ...this.getAuthHeaders(),
+                            'Accept': 'application/vnd.github.squirrel-girl-preview+json'
+                        }
+                    }
+                );
+                action = 'removed';
+                this.showToast('Vote removed', 'info');
+            } else {
+                // Add new reaction
+                const response = await fetch(
+                    `https://api.github.com/repos/${CONFIG.github.owner}/${CONFIG.github.repo}/issues/${issueNumber}/reactions`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            ...this.getAuthHeaders(),
+                            'Accept': 'application/vnd.github.squirrel-girl-preview+json'
+                        },
+                        body: JSON.stringify({ content: reaction })
+                    }
+                );
+                
+                if (!response.ok) {
+                    throw new Error('Failed to add reaction');
+                }
+                
+                this.showToast('Vote recorded!', 'success');
+            }
+            
+            return { 
+                success: true, 
+                action: action,
+                removedOpposite: !!oppositeReaction 
+            };
+            
         } catch (error) {
             console.error('Vote error:', error);
-            // Fallback to GitHub redirect
-            window.open(`https://github.com/${CONFIG.github.owner}/${CONFIG.github.repo}/issues/${issueNumber}`, '_blank');
-            this.showToast('Please vote on the GitHub issue page', 'info');
-            return false;
+            if (error.message.includes('401')) {
+                this.logout();
+                this.login();
+            }
+            return { success: false, error: error.message };
         }
     }
     
@@ -525,6 +589,58 @@ class GitHubIntegratedAuth {
             });
             window.open(`https://github.com/${CONFIG.github.owner}/${CONFIG.github.repo}/issues/new?${params}`, '_blank');
             return null;
+        }
+    }
+    
+    // Add comment to issue
+    async addComment(issueNumber, comment) {
+        if (!this.isAuthenticated()) {
+            this.login();
+            return { success: false };
+        }
+        
+        try {
+            const response = await fetch(
+                `https://api.github.com/repos/${CONFIG.github.owner}/${CONFIG.github.repo}/issues/${issueNumber}/comments`,
+                {
+                    method: 'POST',
+                    headers: this.getAuthHeaders(),
+                    body: JSON.stringify({ body: comment })
+                }
+            );
+            
+            if (response.ok) {
+                const commentData = await response.json();
+                this.showToast('Comment added!', 'success');
+                return { success: true, comment: commentData };
+            } else if (response.status === 401) {
+                this.logout();
+                this.login();
+                return { success: false };
+            }
+        } catch (error) {
+            console.error('Comment error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+    // Get comments for issue
+    async getComments(issueNumber) {
+        try {
+            const response = await fetch(
+                `https://api.github.com/repos/${CONFIG.github.owner}/${CONFIG.github.repo}/issues/${issueNumber}/comments`,
+                {
+                    headers: this.getAuthHeaders()
+                }
+            );
+            
+            if (response.ok) {
+                return await response.json();
+            }
+            return [];
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+            return [];
         }
     }
     

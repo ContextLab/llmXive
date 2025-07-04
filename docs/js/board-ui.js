@@ -206,6 +206,9 @@ class BoardUI {
         window.api.trackView(issueNumber);
         project.views = window.api.getViews(issueNumber);
         
+        // Load comments
+        const comments = await window.githubAuth.getComments(issueNumber);
+        
         const modalContent = document.getElementById('modalContent');
         modalContent.innerHTML = `
             <div class="modal-header">
@@ -258,6 +261,43 @@ class BoardUI {
                     <i class="fas fa-eye"></i> ${project.views} views
                 </div>
             </div>
+            
+            <div class="comments-section">
+                <h3><i class="fas fa-comments"></i> Comments (${comments.length})</h3>
+                
+                ${window.githubAuth && window.githubAuth.isAuthenticated() ? `
+                    <div class="add-comment">
+                        <textarea id="newComment" placeholder="Add a comment..." rows="3"></textarea>
+                        <button onclick="ui.addComment(${project.number})" class="btn-primary">
+                            <i class="fas fa-paper-plane"></i> Post Comment
+                        </button>
+                    </div>
+                ` : `
+                    <div class="login-prompt">
+                        <p>Login to add comments</p>
+                        <button onclick="window.githubAuth.login()" class="btn-github-small">
+                            <i class="fab fa-github"></i> Login with GitHub
+                        </button>
+                    </div>
+                `}
+                
+                <div class="comments-list">
+                    ${comments.length > 0 ? comments.map(comment => `
+                        <div class="comment">
+                            <div class="comment-header">
+                                <img src="${comment.user.avatar_url}" alt="${comment.user.login}" class="comment-avatar">
+                                <div class="comment-meta">
+                                    <strong>${comment.user.login}</strong>
+                                    <span class="comment-date">${this.formatDate(comment.created_at)}</span>
+                                </div>
+                            </div>
+                            <div class="comment-body">
+                                ${this.renderMarkdown(comment.body)}
+                            </div>
+                        </div>
+                    `).join('') : '<p class="no-comments">No comments yet. Be the first!</p>'}
+                </div>
+            </div>
         `;
         
         document.getElementById('projectModal').classList.add('active');
@@ -267,23 +307,51 @@ class BoardUI {
     async vote(issueNumber, reaction) {
         // Try OAuth voting first, fallback to redirect
         if (window.githubAuth && window.githubAuth.vote) {
-            const success = await window.githubAuth.vote(issueNumber, reaction);
-            if (success) {
-                // Update UI optimistically
+            const result = await window.githubAuth.vote(issueNumber, reaction);
+            if (result.success) {
+                // Update UI based on action
                 const project = this.projects.find(p => p.number === issueNumber);
                 if (project) {
-                    if (reaction === '+1') {
-                        project.votes.up++;
-                    } else {
-                        project.votes.down++;
+                    if (!project.userReactions) {
+                        project.userReactions = { up: false, down: false };
                     }
+                    
+                    // Update vote counts and user reactions
+                    if (reaction === '+1') {
+                        if (result.action === 'removed') {
+                            project.votes.up--;
+                            project.userReactions.up = false;
+                        } else {
+                            project.votes.up++;
+                            project.userReactions.up = true;
+                            // Remove opposite if it was removed
+                            if (result.removedOpposite) {
+                                project.votes.down--;
+                                project.userReactions.down = false;
+                            }
+                        }
+                    } else {
+                        if (result.action === 'removed') {
+                            project.votes.down--;
+                            project.userReactions.down = false;
+                        } else {
+                            project.votes.down++;
+                            project.userReactions.down = true;
+                            // Remove opposite if it was removed
+                            if (result.removedOpposite) {
+                                project.votes.up--;
+                                project.userReactions.up = false;
+                            }
+                        }
+                    }
+                    
                     this.renderProjects();
                     if (document.getElementById('projectModal').classList.contains('active')) {
                         this.showProject(issueNumber);
                     }
                 }
                 // Reload data after a delay to get accurate counts
-                setTimeout(() => this.loadProjects(), 2000);
+                setTimeout(() => this.loadProjects(), 3000);
             }
         } else if (window.githubAuth && window.githubAuth.voteOnIssue) {
             // Fallback to redirect
@@ -419,6 +487,25 @@ class BoardUI {
             .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
             .replace(/`([^`]+)`/g, '<code>$1</code>')
             .replace(/\n/g, '<br>');
+    }
+    
+    // Add comment to issue
+    async addComment(issueNumber) {
+        const textarea = document.getElementById('newComment');
+        const comment = textarea.value.trim();
+        
+        if (!comment) {
+            this.showToast('Please enter a comment', 'error');
+            return;
+        }
+        
+        const result = await window.githubAuth.addComment(issueNumber, comment);
+        
+        if (result.success) {
+            textarea.value = '';
+            // Refresh the modal to show the new comment
+            await this.showProject(issueNumber);
+        }
     }
     
     showToast(message, type = 'info') {
