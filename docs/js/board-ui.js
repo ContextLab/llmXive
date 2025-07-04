@@ -8,6 +8,7 @@ class BoardUI {
         this.projects = [];
         this.filteredProjects = [];
         this.columns = ['Backlog', 'Ready', 'In Progress', 'In Review'];
+        this.votingInProgress = new Set(); // Track votes in progress
         
         this.initializeEventListeners();
         this.renderColumns();
@@ -174,10 +175,12 @@ class BoardUI {
                 
                 <div class="project-actions">
                     <button class="vote-btn ${userReacted.up ? 'active' : ''}" 
+                            id="vote-up-${project.number}"
                             onclick="event.stopPropagation(); ui.vote(${project.number}, '+1')">
                         <i class="fas fa-thumbs-up"></i> ${project.votes.up}
                     </button>
                     <button class="vote-btn ${userReacted.down ? 'active' : ''}" 
+                            id="vote-down-${project.number}"
                             onclick="event.stopPropagation(); ui.vote(${project.number}, '-1')">
                         <i class="fas fa-thumbs-down"></i> ${project.votes.down}
                     </button>
@@ -249,10 +252,12 @@ class BoardUI {
             <div class="modal-footer">
                 <div class="vote-section">
                     <button class="vote-btn large ${project.userReactions?.up ? 'active' : ''}" 
+                            id="modal-vote-up-${project.number}"
                             onclick="ui.vote(${project.number}, '+1')">
                         <i class="fas fa-thumbs-up"></i> ${project.votes.up}
                     </button>
                     <button class="vote-btn large ${project.userReactions?.down ? 'active' : ''}" 
+                            id="modal-vote-down-${project.number}"
                             onclick="ui.vote(${project.number}, '-1')">
                         <i class="fas fa-thumbs-down"></i> ${project.votes.down}
                     </button>
@@ -305,6 +310,25 @@ class BoardUI {
     
     // Vote on project
     async vote(issueNumber, reaction) {
+        // Prevent multiple simultaneous votes on same issue
+        const voteKey = `${issueNumber}-${reaction}`;
+        if (this.votingInProgress.has(voteKey)) {
+            return;
+        }
+        
+        this.votingInProgress.add(voteKey);
+        
+        // Add loading state to buttons (both card and modal)
+        const buttonIds = reaction === '+1' 
+            ? [`vote-up-${issueNumber}`, `modal-vote-up-${issueNumber}`]
+            : [`vote-down-${issueNumber}`, `modal-vote-down-${issueNumber}`];
+        
+        const buttons = buttonIds.map(id => document.getElementById(id)).filter(b => b);
+        buttons.forEach(button => {
+            button.disabled = true;
+            button.style.opacity = '0.6';
+        });
+        
         // Try OAuth voting first, fallback to redirect
         if (window.githubAuth && window.githubAuth.vote) {
             const result = await window.githubAuth.vote(issueNumber, reaction);
@@ -353,9 +377,21 @@ class BoardUI {
                 // Reload data after a delay to get accurate counts
                 setTimeout(() => this.loadProjects(), 3000);
             }
+            // Remove from voting set after completion
+            this.votingInProgress.delete(voteKey);
+            // Re-enable buttons
+            buttons.forEach(button => {
+                button.disabled = false;
+                button.style.opacity = '1';
+            });
         } else if (window.githubAuth && window.githubAuth.voteOnIssue) {
             // Fallback to redirect
             window.githubAuth.voteOnIssue(issueNumber, reaction);
+            this.votingInProgress.delete(voteKey);
+            buttons.forEach(button => {
+                button.disabled = false;
+                button.style.opacity = '1';
+            });
         }
     }
     

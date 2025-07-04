@@ -630,6 +630,24 @@ a:hover {
     padding: 2rem;
 }
 
+/* Submit Modal Header */
+#submitModal h2 {
+    padding: 2rem 2rem 0 2rem;
+    margin: 0 0 1rem 0;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+#submitModal .modal-content {
+    padding: 0;
+}
+
+#submitModal .fa-lightbulb {
+    color: var(--primary-color);
+}
+
 .form-group {
     margin-bottom: 1.5rem;
 }
