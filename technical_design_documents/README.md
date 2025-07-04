@@ -7,4 +7,5 @@ This folder contains a repository of technical design documents of projects and 
 | Unique ID | Project Name | Current Status | Link(s) to GitHub issues | Link to technical design document | Contributors |
 |-----------|--------------|----------------|--------------------------|-----------------------------------|--------------|
 | llmxive-auto-001 | llmXive Automation System | Backlog | [#21](https://github.com/ContextLab/llmXive/issues/21) | [Design](llmXive_automation/design.md) | [claude](https://github.com/claude) |
+| biology-20250704-001 | Project biology-20250704-001 | Backlog | [#30](https://github.com/ContextLab/llmXive/issues/30) | [Design](/biology-20250704-001/design.md) | [llm-automation](https://github.com/llm-automation) |
 
