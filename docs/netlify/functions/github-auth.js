@@ -1,6 +1,8 @@
 // Netlify Function for GitHub OAuth
 // This keeps the client_secret secure on the server side
 
+const fetch = require('node-fetch');
+
 exports.handler = async (event, context) => {
     // Only allow POST
     if (event.httpMethod !== 'POST') {

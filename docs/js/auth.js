@@ -3,7 +3,9 @@ class GitHubAuth {
     constructor() {
         // GitHub OAuth App settings (you'll need to create an OAuth App)
         this.clientId = 'YOUR_GITHUB_OAUTH_CLIENT_ID'; // Replace with actual client ID
-        this.redirectUri = 'https://contextlab.github.io/llmXive/';
+        
+        // Auto-detect redirect URI based on current location
+        this.redirectUri = window.location.origin + window.location.pathname;
         this.scope = 'public_repo'; // Only need public repo access
         
         // Check for existing auth
