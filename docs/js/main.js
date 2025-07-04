@@ -5,35 +5,9 @@
     // Load projects on page load
     async function loadProjects() {
         try {
-            // Show loading state
-            ui.projectsGrid.innerHTML = `
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <p>Loading projects...</p>
-                </div>
-            `;
-            
-            // Fetch projects
-            const projects = await api.fetchProjectIssues();
-            
-            // Display projects
-            ui.displayProjects(projects);
-            
-            // Load papers (if any)
-            const papers = await api.fetchCompletedPapers();
-            ui.displayPapers(papers);
-            
+            await window.ui.loadProjects();
         } catch (error) {
             console.error('Error loading projects:', error);
-            ui.projectsGrid.innerHTML = `
-                <div class="error-state">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <p>Failed to load projects</p>
-                    <button onclick="loadProjects()" class="btn-secondary">
-                        <i class="fas fa-redo"></i> Retry
-                    </button>
-                </div>
-            `;
         }
     }
     
@@ -75,52 +49,26 @@
                 document.querySelectorAll('.modal.active').forEach(modal => {
                     modal.classList.remove('active');
                 });
+                document.querySelector('.auth-modal')?.remove();
             }
             
             // Focus search with Ctrl/Cmd + K
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault();
-                ui.searchInput.focus();
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) searchInput.focus();
             }
-        });
-        
-        // Add loading states to forms
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', function() {
-                const submitBtn = this.querySelector('button[type="submit"]');
-                if (submitBtn && !submitBtn.disabled) {
-                    submitBtn.classList.add('loading');
-                }
-            });
         });
         
         // Handle offline/online states
         window.addEventListener('offline', () => {
-            ui.showToast('You are offline. Some features may not work.', 'warning');
+            window.ui.showToast('You are offline. Some features may not work.', 'error');
         });
         
         window.addEventListener('online', () => {
-            ui.showToast('Back online!', 'success');
+            window.ui.showToast('Back online!', 'success');
             loadProjects();
         });
-        
-        // Performance optimization: Lazy load images
-        if ('IntersectionObserver' in window) {
-            const imageObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        img.src = img.dataset.src;
-                        img.classList.remove('lazy');
-                        observer.unobserve(img);
-                    }
-                });
-            });
-            
-            document.querySelectorAll('img.lazy').forEach(img => {
-                imageObserver.observe(img);
-            });
-        }
         
         // Add pull-to-refresh on mobile
         let touchStartY = 0;
@@ -135,7 +83,7 @@
             
             if (touchEndY - touchStartY > 100 && window.scrollY === 0) {
                 loadProjects();
-                ui.showToast('Refreshing...', 'info');
+                window.ui.showToast('Refreshing...', 'info');
             }
         }, { passive: true });
         
@@ -144,7 +92,7 @@
             window.DEBUG = true;
             console.log('Debug mode enabled');
             console.log('Config:', CONFIG);
-            console.log('Auth:', window.auth);
+            console.log('Auth:', window.githubAuth);
             console.log('API:', window.api);
             console.log('UI:', window.ui);
         }
@@ -158,11 +106,6 @@
         navigator.serviceWorker.register('/llmXive/sw.js').catch(err => {
             console.log('Service worker registration failed:', err);
         });
-    }
-    
-    // Analytics (optional)
-    if (window.location.hostname === 'contextlab.github.io') {
-        // Add analytics code here if needed
     }
     
 })();
