@@ -38,11 +38,11 @@ class ModelManager:
         
         # Known good fallback models
         self.fallback_models = [
-            "microsoft/Phi-3.5-mini-instruct",
-            "Qwen/Qwen2.5-1.5B-Instruct", 
-            "google/gemma-2-2b-it",
-            "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-            "stabilityai/stablelm-2-zephyr-1_6b"
+            "TinyLlama/TinyLlama-1.1B-Chat-v1.0",  # Most stable
+            "google/gemma-2b-it",  # Good alternative
+            "microsoft/phi-2",  # Older but stable
+            "Qwen/Qwen1.5-0.5B-Chat",  # Very small
+            "microsoft/Phi-3.5-mini-instruct"  # Last resort
         ]
         
     def get_suitable_model(self) -> Tuple[PreTrainedModel, PreTrainedTokenizer]:

@@ -129,16 +129,25 @@ class ConversationManager:
                 
                 # Generate
                 with torch.no_grad():
+                    # Prepare generation kwargs
+                    gen_kwargs = {
+                        "max_new_tokens": max_new_tokens,
+                        "temperature": temperature,
+                        "do_sample": True,
+                        "top_p": 0.95,
+                        "top_k": 50,
+                        "repetition_penalty": 1.1,
+                        "pad_token_id": self.tokenizer.pad_token_id,
+                        "eos_token_id": self.tokenizer.eos_token_id
+                    }
+                    
+                    # Disable cache for models with known issues
+                    if "phi" in self.model_name.lower():
+                        gen_kwargs["use_cache"] = False
+                        
                     outputs = self.model.generate(
                         **inputs,
-                        max_new_tokens=max_new_tokens,
-                        temperature=temperature,
-                        do_sample=True,
-                        top_p=0.95,
-                        top_k=50,
-                        repetition_penalty=1.1,
-                        pad_token_id=self.tokenizer.pad_token_id,
-                        eos_token_id=self.tokenizer.eos_token_id
+                        **gen_kwargs
                     )
                 
                 # Decode response
