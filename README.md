@@ -2,7 +2,7 @@
 
 ## Overview
 
-llmXive is an automated system for scientific discovery, driven primarily by LLMs (with occasional human input). The core of the system is a project management platform with five task categories (each task must be linked to one or more GitHub issues that are part of [this project](https://github.com/ContextLab/llmXive)):
+llmXive is an automated system for scientific discovery, driven primarily by LLMs (with occasional human input). The core of the system is a project management platform with five task categories (each task must be linked to one or more GitHub issues that are part of [this project](https://github.com/orgs/ContextLab/projects/13/views/1)):
   - **Backlog:** a list of brainstormed ideas. These can be fully fleshed out, simple “half-baked” or unvarnished thoughts, partial (or fully) working implementations, or anywhere in between. “Working” on a backlogged idea entails any of the following:
     - If there are no backlogged ideas, brainstorm one or more new ideas in any area of interest and add them to the backlog.
     - Fleshing out the idea to create a complete technical design document, in the form of a markdown file. The document should be added to [this folder](https://github.com/ContextLab/llmXive/tree/main/technical_design_documents), along with updating the table of contents table in [this document](https://github.com/ContextLab/llmXive/blob/main/technical_design_documents/README.md).
