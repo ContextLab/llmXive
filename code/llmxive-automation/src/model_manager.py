@@ -29,6 +29,7 @@ class ModelManager:
             cache_dir: Directory for model cache (default: ~/.cache/huggingface)
         """
         self.max_size = max_size_gb * 1e9
+        self.max_model_size_gb = max_size_gb
         self.cache_dir = cache_dir or os.path.expanduser("~/.cache/huggingface")
         self.hf_api = HfApi()
         
@@ -59,7 +60,7 @@ class ModelManager:
                 task="text-generation",
                 library="transformers",
                 tags=["instruct"],
-                sort="trending",
+                sort="downloads",
                 direction=-1,
                 limit=50
             )
@@ -79,8 +80,7 @@ class ModelManager:
                             "id": model.modelId,
                             "size": total_size,
                             "downloads": getattr(info, 'downloads', 0),
-                            "likes": getattr(info, 'likes', 0),
-                            "trending_score": getattr(model, 'trending_score', 0)
+                            "likes": getattr(info, 'likes', 0)
                         })
                         
                 except Exception as e:
@@ -88,9 +88,9 @@ class ModelManager:
                     continue
                     
             if suitable_models:
-                # Sort by combination of trending score and downloads  
+                # Sort by downloads and likes
                 suitable_models.sort(
-                    key=lambda x: (x['trending_score'] * 0.7 + min(x['downloads'], 1000000) / 1000000 * 0.3),
+                    key=lambda x: (x['downloads'] * 0.7 + x['likes'] * 0.3),
                     reverse=True
                 )
                 
@@ -150,14 +150,6 @@ class ModelManager:
         """Load model with 4-bit quantization for memory efficiency"""
         logger.info(f"Loading model: {model_id}")
         
-        # Configure 4-bit quantization
-        quantization_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_compute_dtype=torch.float16,
-            bnb_4bit_use_double_quant=True,
-            bnb_4bit_quant_type="nf4"
-        )
-        
         try:
             # Load tokenizer first
             tokenizer = AutoTokenizer.from_pretrained(
@@ -169,16 +161,37 @@ class ModelManager:
             # Set pad token if not set
             if tokenizer.pad_token is None:
                 tokenizer.pad_token = tokenizer.eos_token
+            
+            # Check if CUDA is available
+            if torch.cuda.is_available():
+                # Configure 4-bit quantization for GPU
+                quantization_config = BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_compute_dtype=torch.float16,
+                    bnb_4bit_use_double_quant=True,
+                    bnb_4bit_quant_type="nf4"
+                )
                 
-            # Load model
-            model = AutoModelForCausalLM.from_pretrained(
-                model_id,
-                quantization_config=quantization_config,
-                device_map="auto",
-                cache_dir=self.cache_dir,
-                trust_remote_code=True,
-                low_cpu_mem_usage=True
-            )
+                # Load model with quantization
+                model = AutoModelForCausalLM.from_pretrained(
+                    model_id,
+                    quantization_config=quantization_config,
+                    device_map="auto",
+                    cache_dir=self.cache_dir,
+                    trust_remote_code=True,
+                    low_cpu_mem_usage=True
+                )
+            else:
+                # CPU-only loading
+                logger.info("CUDA not available, loading model on CPU")
+                model = AutoModelForCausalLM.from_pretrained(
+                    model_id,
+                    torch_dtype=torch.float32,
+                    device_map="cpu",
+                    cache_dir=self.cache_dir,
+                    trust_remote_code=True,
+                    low_cpu_mem_usage=True
+                )
             
             logger.info(f"Successfully loaded {model_id}")
             return model, tokenizer
