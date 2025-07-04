@@ -75,13 +75,20 @@ class ModelManager:
                     # Estimate size
                     total_size = self._estimate_model_size(info)
                     
-                    if total_size < self.max_size and self._validate_model_capabilities(info):
+                    size_gb = total_size / 1e9
+                    
+                    if total_size > 0 and total_size < self.max_size and self._validate_model_capabilities(info):
+                        logger.debug(f"Found suitable model: {model.modelId} (size: {size_gb:.2f}GB)")
                         suitable_models.append({
                             "id": model.modelId,
                             "size": total_size,
+                            "size_gb": size_gb,
                             "downloads": getattr(info, 'downloads', 0),
                             "likes": getattr(info, 'likes', 0)
                         })
+                    else:
+                        if total_size >= self.max_size:
+                            logger.debug(f"Model too large: {model.modelId} ({size_gb:.2f}GB > {self.max_model_size_gb}GB)")
                         
                 except Exception as e:
                     logger.debug(f"Error checking model {model.modelId}: {e}")
@@ -116,8 +123,10 @@ class ModelManager:
         if hasattr(model_info, 'siblings'):
             for file in model_info.siblings:
                 if hasattr(file, 'rfilename') and hasattr(file, 'size'):
-                    if file.rfilename.endswith(('.safetensors', '.bin', '.pt', '.pth')):
-                        total_size += file.size
+                    filename = getattr(file, 'rfilename', '')
+                    size = getattr(file, 'size', 0)
+                    if filename.endswith(('.safetensors', '.bin', '.pt', '.pth')):
+                        total_size += size
                         
         # If no size info, estimate from config
         if total_size == 0 and hasattr(model_info, 'config') and model_info.config:
@@ -130,17 +139,38 @@ class ModelManager:
                     # Rough estimate: 2 bytes per parameter (fp16)
                     total_size = config[field] * 2
                     break
+        
+        # If still no size, check model card for common size patterns
+        if total_size == 0:
+            model_id = model_info.modelId.lower()
+            # Common size patterns in model names
+            if '7b' in model_id:
+                total_size = 7 * 1e9 * 2  # ~14GB for 7B model
+            elif '3b' in model_id or '3.5b' in model_id:
+                total_size = 3.5 * 1e9 * 2  # ~7GB for 3.5B model
+            elif '2b' in model_id:
+                total_size = 2 * 1e9 * 2  # ~4GB for 2B model
+            elif '1b' in model_id or '1.1b' in model_id:
+                total_size = 1.1 * 1e9 * 2  # ~2.2GB for 1.1B model
+            elif '0.5b' in model_id or '500m' in model_id:
+                total_size = 0.5 * 1e9 * 2  # ~1GB for 0.5B model
                     
         return total_size
         
     def _validate_model_capabilities(self, model_info) -> bool:
         """Check if model has required capabilities"""
+        model_id = model_info.modelId
+        
+        # Exclude GGUF/GGML models (not compatible with transformers)
+        if any(x in model_id.lower() for x in ['gguf', 'ggml', 'gptq']):
+            return False
+            
         # Check tags
         tags = getattr(model_info, 'tags', [])
         
         required_indicators = [
             any(tag in tags for tag in ['instruct', 'chat', 'conversational', 'instruction-tuned']),
-            'instruct' in model_info.modelId.lower() or 'chat' in model_info.modelId.lower(),
+            'instruct' in model_id.lower() or 'chat' in model_id.lower(),
             getattr(model_info, 'pipeline_tag', '') == 'text-generation'
         ]
         
