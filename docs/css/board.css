@@ -1,13 +1,11 @@
 /* Board Column Layout */
 .board-columns {
     display: grid;
-    grid-template-columns: repeat(4, minmax(300px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 24px;
-    margin: 30px -20px 0;
-    padding: 0 20px;
+    margin-top: 30px;
     min-height: 600px;
-    width: calc(100% + 40px);
-    overflow-x: auto;
+    width: 100%;
 }
 
 .board-column {
@@ -512,6 +510,44 @@
     }
 }
 
+/* Modal Styles */
+.issue-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.issue-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.modal-body {
+    padding: 20px 0;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.vote-section {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.vote-btn.large {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
 /* Modal Close Button */
 .modal-close {
     position: absolute;
@@ -649,4 +685,84 @@
 .auth-option .btn-primary,
 .auth-option .btn-secondary {
     margin-top: 12px;
+}
+
+/* Auth Options Grid */
+.auth-options {
+    display: grid;
+    gap: 20px;
+    margin: 24px 0;
+}
+
+.auth-option.primary {
+    background: #e3f2fd;
+    border-color: #1976d2;
+}
+
+/* Device Flow Styles */
+.device-flow {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.device-code-display {
+    margin: 24px 0;
+}
+
+.code-box {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    padding: 16px 24px;
+    background: #f5f5f5;
+    border: 2px dashed #1976d2;
+    border-radius: 8px;
+    margin: 12px 0;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.device-steps {
+    text-align: left;
+    max-width: 400px;
+    margin: 24px auto;
+}
+
+.device-steps ol {
+    padding-left: 20px;
+    line-height: 1.8;
+}
+
+.device-waiting {
+    margin-top: 24px;
+    color: #666;
+}
+
+.device-waiting i {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+/* Backend Required */
+.backend-required {
+    text-align: center;
+    padding: 20px;
+}
+
+.backend-required code {
+    display: block;
+    margin: 12px 0;
+    padding: 8px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.link-primary {
+    color: #1976d2;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.link-primary:hover {
+    text-decoration: underline;
 }

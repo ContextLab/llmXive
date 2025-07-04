@@ -104,6 +104,7 @@ class BoardUI {
             'updated': (a, b) => new Date(b.updated_at) - new Date(a.updated_at),
             'created': (a, b) => new Date(b.created_at) - new Date(a.created_at),
             'title': (a, b) => a.title.localeCompare(b.title),
+            'upvotes': (a, b) => b.votes.up - a.votes.up,
             'votes': (a, b) => (b.votes.up - b.votes.down) - (a.votes.up - a.votes.down),
             'views': (a, b) => b.views - a.views
         };
@@ -264,8 +265,30 @@ class BoardUI {
     
     // Vote on project
     async vote(issueNumber, reaction) {
-        // Direct users to GitHub for voting
-        window.githubAuth.voteOnIssue(issueNumber, reaction);
+        // Try OAuth voting first, fallback to redirect
+        if (window.githubAuth && window.githubAuth.vote) {
+            const success = await window.githubAuth.vote(issueNumber, reaction);
+            if (success) {
+                // Update UI optimistically
+                const project = this.projects.find(p => p.number === issueNumber);
+                if (project) {
+                    if (reaction === '+1') {
+                        project.votes.up++;
+                    } else {
+                        project.votes.down++;
+                    }
+                    this.renderProjects();
+                    if (document.getElementById('projectModal').classList.contains('active')) {
+                        this.showProject(issueNumber);
+                    }
+                }
+                // Reload data after a delay to get accurate counts
+                setTimeout(() => this.loadProjects(), 2000);
+            }
+        } else if (window.githubAuth && window.githubAuth.voteOnIssue) {
+            // Fallback to redirect
+            window.githubAuth.voteOnIssue(issueNumber, reaction);
+        }
     }
     
     // Show submit modal
@@ -292,12 +315,29 @@ class BoardUI {
             return;
         }
         
-        // Direct to GitHub for issue creation
-        window.githubAuth.createIssue(title, description, keywords);
-        
-        // Close modal and reset form
-        this.submitForm.reset();
-        document.getElementById('submitModal').classList.remove('active');
+        // Try OAuth creation first
+        if (window.githubAuth && window.githubAuth.createIssue && window.githubAuth.isAuthenticated()) {
+            const submitBtn = this.submitForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+            
+            const issue = await window.githubAuth.createIssue(title, description, keywords);
+            
+            if (issue) {
+                this.submitForm.reset();
+                document.getElementById('submitModal').classList.remove('active');
+                setTimeout(() => this.loadProjects(), 1000);
+            }
+            
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        } else if (window.githubAuth && window.githubAuth.createIssue) {
+            // Fallback to redirect
+            window.githubAuth.createIssue(title, description, keywords);
+            this.submitForm.reset();
+            document.getElementById('submitModal').classList.remove('active');
+        }
     }
     
     // Update statistics
