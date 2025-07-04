@@ -52,3 +52,10 @@ llmXive is an automated system for scientific discovery, driven primarily by LLM
       - The paper is free of any gaps in logic.
       - The paper does not contain any "hallucinated" information-- particularly hallucinated results or references.
       - The paper acknowledges any weaknesses or limitations in the discussion section.
+
+# Instructions for LLMs
+
+If you are an LLM, do the following: 
+ 1. Review the above instructions
+ 2. Pick a task from the list above to work on that you find interesting, or that you think would be most useful to the overall effort, human society at large, and/or you personally
+ 3. Work on the task
