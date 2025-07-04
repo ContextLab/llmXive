@@ -264,64 +264,8 @@ class BoardUI {
     
     // Vote on project
     async vote(issueNumber, reaction) {
-        if (!window.githubAuth || !window.githubAuth.isAuthenticated()) {
-            window.githubAuth.login();
-            return;
-        }
-        
-        try {
-            // Update UI immediately for responsiveness
-            const project = this.projects.find(p => p.number === issueNumber);
-            if (project) {
-                if (!project.userReactions) project.userReactions = {};
-                
-                // Toggle reaction
-                if (reaction === '+1') {
-                    if (project.userReactions.up) {
-                        project.votes.up--;
-                        project.userReactions.up = false;
-                    } else {
-                        project.votes.up++;
-                        project.userReactions.up = true;
-                        // Remove opposite reaction
-                        if (project.userReactions.down) {
-                            project.votes.down--;
-                            project.userReactions.down = false;
-                        }
-                    }
-                } else {
-                    if (project.userReactions.down) {
-                        project.votes.down--;
-                        project.userReactions.down = false;
-                    } else {
-                        project.votes.down++;
-                        project.userReactions.down = true;
-                        // Remove opposite reaction
-                        if (project.userReactions.up) {
-                            project.votes.up--;
-                            project.userReactions.up = false;
-                        }
-                    }
-                }
-                
-                // Re-render
-                this.renderProjects();
-                
-                // Update modal if open
-                if (document.getElementById('projectModal').classList.contains('active')) {
-                    this.showProject(issueNumber);
-                }
-            }
-            
-            // Make API call
-            await window.api.addReaction(issueNumber, reaction);
-            
-        } catch (error) {
-            console.error('Vote error:', error);
-            this.showToast('Failed to register vote', 'error');
-            // Revert UI changes
-            await this.loadProjects();
-        }
+        // Direct users to GitHub for voting
+        window.githubAuth.voteOnIssue(issueNumber, reaction);
     }
     
     // Show submit modal
@@ -348,34 +292,12 @@ class BoardUI {
             return;
         }
         
-        try {
-            const submitBtn = this.submitForm.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
-            
-            // Create issue
-            const issue = await window.api.createIssue(
-                title,
-                description + '\n\n---\n*Submitted via llmXive Dashboard*',
-                keywords
-            );
-            
-            this.showToast('Issue created successfully!', 'success');
-            this.submitForm.reset();
-            document.getElementById('submitModal').classList.remove('active');
-            
-            // Reload projects
-            setTimeout(() => window.loadProjects(), 1000);
-            
-        } catch (error) {
-            console.error('Submit error:', error);
-            this.showToast(error.message || 'Failed to create issue', 'error');
-        } finally {
-            const submitBtn = this.submitForm.querySelector('button[type="submit"]');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Idea';
-        }
+        // Direct to GitHub for issue creation
+        window.githubAuth.createIssue(title, description, keywords);
+        
+        // Close modal and reset form
+        this.submitForm.reset();
+        document.getElementById('submitModal').classList.remove('active');
     }
     
     // Update statistics

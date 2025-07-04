@@ -187,7 +187,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -203,15 +203,94 @@
 }
 
 .auth-modal-content {
-    background: var(--card-bg);
+    background: white;
     border-radius: 16px;
     padding: 32px;
-    max-width: 480px;
+    max-width: 540px;
     width: 90%;
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.light-modal {
+    color: #1a1a1a;
+}
+
+.light-modal h3 {
+    color: #1a1a1a;
+    font-size: 24px;
+    margin-bottom: 12px;
+}
+
+.light-modal h4 {
+    color: #333;
+    font-size: 18px;
+    margin-bottom: 12px;
+}
+
+.auth-intro {
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.login-options {
+    display: grid;
+    gap: 24px;
+    margin: 24px 0;
+}
+
+.login-option {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+}
+
+.login-option h4 {
+    margin-bottom: 16px;
+}
+
+.helper-text {
+    color: #6c757d;
+    font-size: 14px;
+    margin-top: 12px;
+}
+
+.why-github {
+    background: #f0f9ff;
+    border: 1px solid #cfe2ff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 24px;
+}
+
+.why-github h4 {
+    color: #0969da;
+    margin-bottom: 12px;
+}
+
+.why-github ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.why-github li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: #495057;
+}
+
+.why-github li i {
+    color: #28a745;
+    font-size: 14px;
 }
 
 .auth-tabs {
@@ -423,7 +502,7 @@
     right: 16px;
     background: none;
     border: none;
-    color: var(--text-secondary);
+    color: #6c757d;
     font-size: 20px;
     cursor: pointer;
     padding: 8px;
@@ -432,8 +511,17 @@
 }
 
 .modal-close:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.05);
+    color: #000;
+}
+
+.light-modal .modal-close {
+    color: #6c757d;
+}
+
+.light-modal .modal-close:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #000;
 }
 
 /* GitHub Login */
@@ -463,19 +551,20 @@
     align-items: center;
     gap: 8px;
     transition: all 0.3s ease;
-    margin: 20px 0;
+    text-decoration: none;
 }
 
 .btn-github:hover {
     background: #1a1e22;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    color: white;
 }
 
-.btn-github-small {
-    background: #24292e;
-    color: white;
-    border: none;
+.btn-github-nav {
+    background: transparent;
+    color: #24292e;
+    border: 1px solid #d1d5da;
     padding: 8px 16px;
     border-radius: 6px;
     font-size: 14px;
@@ -485,10 +574,34 @@
     align-items: center;
     gap: 6px;
     transition: all 0.3s ease;
+    text-decoration: none;
 }
 
-.btn-github-small:hover {
-    background: #1a1e22;
+.btn-github-nav:hover {
+    background: #f6f8fa;
+    border-color: #24292e;
+    color: #24292e;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    color: white;
 }
 
 .auth-instructions {
