@@ -101,11 +101,11 @@ window.projectBoardDirectFix = {
         // First run the test
         await this.testDirectQuery();
         
-        // Override fetchIssues with direct project board lookup
-        if (window.githubAPI) {
-            const originalFetch = window.githubAPI.fetchIssues.bind(window.githubAPI);
+        // Override fetchProjectIssues with direct project board lookup
+        if (window.api) {
+            const originalFetch = window.api.fetchProjectIssues.bind(window.api);
             
-            window.githubAPI.fetchIssues = async function() {
+            window.api.fetchProjectIssues = async function() {
                 console.log('Fetching issues with direct project board status...');
                 
                 // Get issues first

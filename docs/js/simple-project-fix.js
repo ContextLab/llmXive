@@ -18,12 +18,12 @@
     
     async function applyFix() {
         // Wait for githubAPI to be available
-        await waitFor(() => window.githubAPI && window.githubAPI.fetchIssues);
+        await waitFor(() => window.api && window.api.fetchProjectIssues);
         
         console.log('Overriding getStatusFromLabels to prevent Backlog default...');
         
         // Override getStatusFromLabels to return null instead of 'Backlog'
-        window.githubAPI.getStatusFromLabels = function(labels) {
+        window.api.getStatusFromLabels = function(labels) {
             console.log('getStatusFromLabels called with:', labels.map(l => l.name));
             
             const statusMap = {
