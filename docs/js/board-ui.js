@@ -210,7 +210,13 @@ class BoardUI {
         project.views = window.api.getViews(issueNumber);
         
         // Load comments
-        const comments = await window.githubAuth.getComments(issueNumber);
+        let comments = [];
+        try {
+            comments = await window.githubAuth.getComments(issueNumber);
+        } catch (error) {
+            console.error('Error loading comments:', error);
+            comments = [];
+        }
         
         const modalContent = document.getElementById('modalContent');
         modalContent.innerHTML = `

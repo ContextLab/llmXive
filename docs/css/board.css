@@ -548,6 +548,59 @@ body .main-content .projects-section .board-columns {
     padding: 20px 0;
 }
 
+.issue-content {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #333;
+    margin: 20px 0;
+}
+
+.issue-keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+/* Modal Content - Light Theme Override */
+#modalContent .modal-header {
+    margin-bottom: 20px;
+}
+
+#modalContent .modal-header h2 {
+    font-size: 24px;
+    color: #1a1a1a;
+    margin: 0 0 12px 0;
+}
+
+#modalContent .modal-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+#modalContent .project-status {
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+#modalContent .btn-text {
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#modalContent .btn-text:hover {
+    color: #333;
+}
+
 .modal-footer {
     display: flex;
     justify-content: space-between;
@@ -565,6 +618,14 @@ body .main-content .projects-section .board-columns {
 .vote-btn.large {
     padding: 8px 16px;
     font-size: 14px;
+}
+
+.view-count {
+    color: #6c757d;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 /* Modal Close Button */
@@ -674,6 +735,26 @@ body .main-content .projects-section .board-columns {
 .btn-secondary:hover {
     background: #5a6268;
     color: white;
+}
+
+.btn-github-small {
+    background: #24292e;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.btn-github-small:hover {
+    background: #1a1e22;
+    transform: translateY(-1px);
 }
 
 .auth-instructions {
