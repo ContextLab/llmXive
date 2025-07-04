@@ -286,8 +286,7 @@ class GitHubIntegratedAuth {
             // Try common proxy services first
             const proxyUrls = [
                 // Add your deployed service URL here:
-                // 'https://your-app.herokuapp.com/authenticate/',
-                // 'https://your-netlify-site.netlify.app/.netlify/functions/github-auth?code=',
+                'https://llmxive-auth.herokuapp.com/authenticate/',
                 
                 // Fallback - show instructions
                 null
