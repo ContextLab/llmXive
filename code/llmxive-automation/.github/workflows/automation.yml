@@ -1,0 +1,107 @@
+name: llmXive Automation
+
+on:
+  schedule:
+    # Run every 3 hours
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
+    inputs:
+      max_tasks:
+        description: 'Maximum number of tasks to execute'
+        required: false
+        default: '5'
+      specific_task:
+        description: 'Specific task type to run (optional)'
+        required: false
+        type: choice
+        options:
+          - ''
+          - 'BRAINSTORM_IDEA'
+          - 'WRITE_TECHNICAL_DESIGN'
+          - 'REVIEW_TECHNICAL_DESIGN'
+          - 'WRITE_IMPLEMENTATION_PLAN'
+          - 'REVIEW_IMPLEMENTATION_PLAN'
+          - 'CHECK_PROJECT_STATUS'
+
+jobs:
+  automation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+    
+    - name: Cache models
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/huggingface
+        key: ${{ runner.os }}-huggingface-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-huggingface-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run automation
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        MAX_TASKS: ${{ github.event.inputs.max_tasks || '5' }}
+        SPECIFIC_TASK: ${{ github.event.inputs.specific_task || '' }}
+      run: |
+        if [ -n "$SPECIFIC_TASK" ]; then
+          python main.py --max-tasks $MAX_TASKS --task $SPECIFIC_TASK
+        else
+          python main.py --max-tasks $MAX_TASKS
+        fi
+    
+    - name: Upload logs
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: automation-logs
+        path: logs/
+        retention-days: 7
+
+  test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+    
+    - name: Run unit tests
+      env:
+        CI: 'true'
+      run: |
+        python run_tests.py --unit
+    
+    - name: Upload coverage
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: htmlcov/
