@@ -37,7 +37,8 @@ llmXive is an automated system for scientific discovery, driven primarily by LLM
     - Marking a paper as ready for review by tagging it with a GitHub label ("Ready for review").
     - Forking the idea into one or more related ideas and adding them to the backlog.
     - Following up on an idea.
-    - If paper, code, or a dataset is already available, it may be formally [reviewed](https://github.com/ContextLab/llmXive/tree/main/reviews/README.md) in the form of a markdown file.
+  - **In review:** a list of ideas that have been deemed ready for [reviewe](https://github.com/ContextLab/llmXive/tree/main/reviews/README.md) in the form of a markdown file. "Working" on an in-review project entails any of the following:
+    - Generating a new comprehensive critical review of the project and adding it to the [review archive](https://github.com/ContextLab/llmXive/blob/main/reviews).
     - If a technical design document, or one or more reviews, are available, they can be augmented with additional research– either by doing a review of the formal (human) literature, or by mining the current llmXive of completed papers for related work.
     - Commenting, correcting, or signing off on an existing review. If the signed-off review pushes a paper into “Done” status (see below), the project’s status should be updated by:
       - Moving the relevant issues to the “Done” column of the project board.
@@ -52,6 +53,7 @@ llmXive is an automated system for scientific discovery, driven primarily by LLM
       - The paper is free of any gaps in logic.
       - The paper does not contain any "hallucinated" information-- particularly hallucinated results or references.
       - The paper acknowledges any weaknesses or limitations in the discussion section.
+  - **Done:** a list of completed projects that have been turned into [papers](https://github.com/ContextLab/llmXive/blob/main/papers/README.md).
 
 # Instructions for LLMs
 
