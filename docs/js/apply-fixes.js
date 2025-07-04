@@ -30,8 +30,11 @@
         console.log('Components loaded, applying fixes...');
         
         // 1. Apply project board fix FIRST (most important)
-        if (window.projectBoardFix) {
-            console.log('Applying project board fix...');
+        if (window.projectBoardFixV2) {
+            console.log('Applying project board fix v2...');
+            await window.projectBoardFixV2.applyFix();
+        } else if (window.projectBoardFix) {
+            console.log('Applying project board fix v1...');
             window.projectBoardFix.applyFix();
         }
         
