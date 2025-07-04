@@ -264,37 +264,125 @@ class GitHubIntegratedAuth {
         if (code && state === localStorage.getItem('oauth_state')) {
             // Clean URL
             window.history.replaceState({}, document.title, window.location.pathname);
-            
-            // Show message about needing backend
-            this.showBackendRequired(code);
             localStorage.removeItem('oauth_state');
+            
+            // Try to exchange code for token
+            await this.exchangeCodeForToken(code);
+        }
+    }
+    
+    // Exchange authorization code for access token
+    async exchangeCodeForToken(code) {
+        // Show loading state
+        const modal = this.createModal();
+        modal.innerHTML = `
+            <div class="oauth-loading">
+                <h3><i class="fas fa-spinner fa-spin"></i> Completing Login...</h3>
+                <p>Please wait while we authenticate you.</p>
+            </div>
+        `;
+        
+        try {
+            // Try common proxy services first
+            const proxyUrls = [
+                // Add your deployed service URL here:
+                // 'https://your-app.herokuapp.com/authenticate/',
+                // 'https://your-netlify-site.netlify.app/.netlify/functions/github-auth?code=',
+                
+                // Fallback - show instructions
+                null
+            ];
+            
+            let token = null;
+            
+            for (const proxyUrl of proxyUrls) {
+                if (!proxyUrl) break;
+                
+                try {
+                    const response = await fetch(proxyUrl + code);
+                    const data = await response.json();
+                    
+                    if (data.token || data.access_token) {
+                        token = data.token || data.access_token;
+                        break;
+                    }
+                } catch (e) {
+                    console.log('Proxy failed:', proxyUrl);
+                }
+            }
+            
+            if (token) {
+                await this.handleTokenReceived(token);
+            } else {
+                // No working proxy found, show setup instructions
+                this.showBackendRequired(code);
+            }
+            
+        } catch (error) {
+            console.error('OAuth exchange error:', error);
+            this.showBackendRequired(code);
         }
     }
     
     // Show backend required message
     showBackendRequired(code) {
-        const modal = document.createElement('div');
-        modal.className = 'auth-modal active';
+        const modal = this.createModal();
         modal.innerHTML = `
-            <div class="auth-modal-content light-modal">
-                <button class="modal-close" onclick="this.parentElement.parentElement.remove()">
-                    <i class="fas fa-times"></i>
-                </button>
-                <div class="backend-required">
-                    <h3><i class="fas fa-server"></i> Backend Required</h3>
-                    <p>OAuth authentication requires a backend server to exchange the code for a token.</p>
-                    <p>Your authorization code: <code>${code}</code></p>
-                    <p>Please use one of these alternatives:</p>
-                    <button onclick="window.githubAuth.showTokenAuth()" class="btn-primary">
-                        <i class="fas fa-key"></i> Use Personal Access Token
+            <button class="modal-close" onclick="this.parentElement.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="backend-required">
+                <h3><i class="fas fa-server"></i> One More Step!</h3>
+                <p>To complete OAuth setup, you need to deploy a simple auth proxy.</p>
+                
+                <div class="setup-options">
+                    <div class="setup-option">
+                        <h4>Option 1: Quick Setup with Gatekeeper (5 min)</h4>
+                        <ol>
+                            <li>
+                                <a href="https://heroku.com/deploy?template=https://github.com/prose/gatekeeper" 
+                                   target="_blank" class="btn-primary">
+                                    <i class="fas fa-rocket"></i> Deploy to Heroku
+                                </a>
+                            </li>
+                            <li>Use these settings:
+                                <ul>
+                                    <li>OAUTH_CLIENT_ID: <code>Ov23liY5hzeo5JVmlzcH</code></li>
+                                    <li>OAUTH_CLIENT_SECRET: <em>Your secret from GitHub</em></li>
+                                    <li>REDIRECT_URI: <code>https://contextlab.github.io/llmXive/</code></li>
+                                </ul>
+                            </li>
+                            <li>Update the proxy URL in <code>github-integrated-auth.js</code></li>
+                        </ol>
+                    </div>
+                    
+                    <div class="setup-option">
+                        <h4>Option 2: Read the Setup Guide</h4>
+                        <a href="OAUTH_SETUP_GUIDE.md" target="_blank" class="btn-secondary">
+                            <i class="fas fa-book"></i> View Setup Guide
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="divider">OR</div>
+                
+                <p>Use an alternative authentication method:</p>
+                <div class="auth-alternatives">
+                    <button onclick="window.githubAuth.showTokenAuth()" class="btn-secondary">
+                        <i class="fas fa-key"></i> Personal Access Token
                     </button>
                     <button onclick="window.githubAuth.startDeviceFlow()" class="btn-secondary">
-                        <i class="fas fa-mobile-alt"></i> Use Device Flow
+                        <i class="fas fa-mobile-alt"></i> Device Flow
                     </button>
                 </div>
+                
+                <details class="debug-info">
+                    <summary>Debug Info</summary>
+                    <p>Authorization code: <code>${code}</code></p>
+                    <p>This code expires in 10 minutes.</p>
+                </details>
             </div>
         `;
-        document.body.appendChild(modal);
     }
     
     // Authenticate with token

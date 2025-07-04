@@ -766,3 +766,89 @@
 .link-primary:hover {
     text-decoration: underline;
 }
+
+/* Setup Options */
+.setup-options {
+    display: grid;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.setup-option {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.setup-option h4 {
+    margin-bottom: 12px;
+    color: #495057;
+}
+
+.setup-option ol {
+    margin: 12px 0;
+    padding-left: 20px;
+}
+
+.setup-option ul {
+    margin: 8px 0 8px 20px;
+    font-size: 14px;
+}
+
+.setup-option code {
+    background: #e9ecef;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+.divider {
+    text-align: center;
+    margin: 24px 0;
+    position: relative;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: #dee2e6;
+}
+
+.divider::before {
+    left: 0;
+}
+
+.divider::after {
+    right: 0;
+}
+
+.auth-alternatives {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 16px 0;
+}
+
+.debug-info {
+    margin-top: 24px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.debug-info summary {
+    cursor: pointer;
+    color: #6c757d;
+}
+
+.debug-info code {
+    font-size: 12px;
+}
