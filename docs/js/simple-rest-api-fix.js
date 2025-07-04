@@ -108,12 +108,11 @@
                 if (status && grouped[status]) {
                     grouped[status].push(project);
                 } else if (!status) {
-                    // Put in "No Status" for debugging
-                    grouped['No Status'].push(project);
-                    console.log(`Issue #${project.number} has no status`);
+                    // Put issues with no status in Backlog
+                    grouped['Backlog'].push(project);
+                    console.log(`Issue #${project.number} has no status, putting in Backlog`);
                 } else {
                     // Default to Backlog for unrecognized statuses
-                    grouped['Backlog'] = grouped['Backlog'] || [];
                     grouped['Backlog'].push(project);
                     console.warn(`Issue #${project.number} has unrecognized status "${status}", putting in Backlog`);
                 }
@@ -143,8 +142,8 @@
                         </div>
                     `;
                 } else {
-                    // Use createProjectCard method
-                    container.innerHTML = projects.map(project => this.createProjectCard(project)).join('');
+                    // Use renderProjectCard method
+                    container.innerHTML = projects.map(project => this.renderProjectCard(project)).join('');
                 }
             });
             
