@@ -3,6 +3,7 @@
 import re
 import json
 import logging
+from datetime import datetime
 from typing import Optional, Dict, List, Any, Union
 
 logger = logging.getLogger(__name__)
@@ -69,7 +70,10 @@ class ResponseParser:
             if match:
                 try:
                     score = extractor(match)
-                    if 0 <= score <= 1.0:
+                    # Allow scores up to 10 and normalize to 0-1
+                    if 0 <= score <= 10:
+                        if score > 1.0:
+                            score = score / 10.0  # Normalize to 0-1 range
                         return score
                 except ValueError:
                     continue
@@ -134,6 +138,40 @@ class ResponseParser:
         """Parse brainstorming response"""
         result = {}
         
+        # Check for Title/Idea format (used in FORK_IDEA)
+        title_match = re.search(r'Title:\s*(.+?)(?:\n|$)', text, re.IGNORECASE)
+        if title_match:
+            # Parse Title/Idea format
+            idea_match = re.search(r'Idea:\s*(.+?)(?:\n|$)', text, re.IGNORECASE)
+            if idea_match:
+                result['idea'] = idea_match.group(1).strip()
+            else:
+                result['idea'] = title_match.group(1).strip()
+                
+            # Extract other fields
+            field_match = re.search(r'Field:\s*(.+?)(?:\n|$)', text, re.IGNORECASE)
+            if field_match:
+                result['field'] = field_match.group(1).strip()
+                
+            # Generate ID from field
+            if 'field' in result:
+                field_short = result['field'].lower().replace(' ', '-')[:20]
+                date_str = datetime.now().strftime('%Y%m%d')
+                result['id'] = f"{field_short}-{date_str}-001"
+                
+            # Extract keywords
+            keywords_match = re.search(r'Keywords?:\s*(.+?)(?:\n|$)', text, re.IGNORECASE)
+            if keywords_match:
+                result['keywords'] = keywords_match.group(1).strip()
+            else:
+                # Generate keywords from idea
+                words = result.get('idea', '').lower().split()[:5]
+                result['keywords'] = ', '.join(words)
+                
+            if 'field' in result and 'idea' in result:
+                return result
+        
+        # Try standard format
         # Required fields
         fields = ['field', 'idea', 'id', 'keywords']
         
@@ -169,12 +207,12 @@ class ResponseParser:
         result = {}
         
         # Extract strengths
-        strengths_match = re.search(r'Strengths?:?\s*\n((?:[-*•]\s*.+\n?)+)', text, re.MULTILINE)
+        strengths_match = re.search(r'Strengths?:?\s*\n((?:[-*•]\s*.+\n?)+)', text, re.MULTILINE | re.IGNORECASE)
         if strengths_match:
             result['strengths'] = strengths_match.group(1).strip()
             
         # Extract concerns
-        concerns_match = re.search(r'Concerns?:?\s*\n((?:[-*•]\s*.+\n?)+)', text, re.MULTILINE)
+        concerns_match = re.search(r'Concerns?:?\s*\n((?:[-*•]\s*.+\n?)+)', text, re.MULTILINE | re.IGNORECASE)
         if concerns_match:
             result['concerns'] = concerns_match.group(1).strip()
             
