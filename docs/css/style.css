@@ -835,6 +835,46 @@ a:hover {
     margin-right: 0.5rem;
 }
 
+/* Simple Auth Styles */
+.username-input {
+    width: 100%;
+    padding: 0.75rem;
+    margin: 1rem 0;
+    border: 1px solid var(--gray-300);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+}
+
+.auth-note {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    margin-top: 1rem;
+}
+
+.vote-instruction ol {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.github-hint {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--gray-200);
+}
+
+.github-hint i {
+    color: var(--primary-color);
+}
+
+/* Simplified user menu */
+.user-menu i {
+    color: var(--gray-600);
+    margin-right: 0.5rem;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .controls {

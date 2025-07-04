@@ -1,5 +1,5 @@
-// UI Components and Interactions
-class UI {
+// Simplified UI - Leverages GitHub's native features
+class SimpleUI {
     constructor() {
         this.projectsGrid = document.getElementById('projectsGrid');
         this.papersGrid = document.getElementById('papersGrid');
@@ -22,7 +22,7 @@ class UI {
             clearTimeout(this.searchDebounce);
             this.searchDebounce = setTimeout(() => {
                 this.filterProjects();
-            }, CONFIG.ui.debounceDelay);
+            }, 300);
         });
         
         // Filters
@@ -53,8 +53,6 @@ class UI {
         this.projects = projects;
         this.filteredProjects = projects;
         this.filterProjects();
-        
-        // Update stats
         this.updateStats();
     }
     
@@ -64,13 +62,11 @@ class UI {
         const statusFilter = this.statusFilter.value;
         
         this.filteredProjects = this.projects.filter(project => {
-            // Search filter
             const matchesSearch = !searchTerm || 
                 project.title.toLowerCase().includes(searchTerm) ||
-                project.body.toLowerCase().includes(searchTerm) ||
+                (project.body || '').toLowerCase().includes(searchTerm) ||
                 project.keywords.some(k => k.toLowerCase().includes(searchTerm));
             
-            // Status filter
             const matchesStatus = !statusFilter || project.projectStatus === statusFilter;
             
             return matchesSearch && matchesStatus;
@@ -125,7 +121,7 @@ class UI {
                 </div>
                 
                 <p class="project-description">
-                    ${this.truncateText(this.escapeHtml(project.body), CONFIG.ui.maxDescriptionLength)}
+                    ${this.truncateText(this.escapeHtml(project.body || ''), 200)}
                 </p>
                 
                 <div class="project-meta">
@@ -139,7 +135,7 @@ class UI {
                         <i class="fas fa-thumbs-down"></i> ${project.votes.down}
                     </span>
                     <span class="meta-item">
-                        <i class="fas fa-clock"></i> ${this.formatDate(project.updated_at)}
+                        <i class="fas fa-comment"></i> ${project.comments}
                     </span>
                 </div>
                 
@@ -163,26 +159,23 @@ class UI {
         window.api.trackView(issueNumber);
         project.views = window.api.getViews(issueNumber);
         
-        // Fetch full issue details
-        const issue = await window.api.fetchIssue(issueNumber);
-        
         // Update modal content
         const modalContent = document.getElementById('modalContent');
         modalContent.innerHTML = `
             <div class="modal-project-header">
-                <h2 class="modal-project-title">${this.escapeHtml(issue.title)}</h2>
+                <h2 class="modal-project-title">${this.escapeHtml(project.title)}</h2>
                 <div class="modal-project-meta">
                     <span class="project-status status-${project.projectStatus.toLowerCase().replace(' ', '-')}">
                         ${project.projectStatus}
                     </span>
-                    <span><i class="fas fa-user"></i> ${issue.user.login}</span>
-                    <span><i class="fas fa-calendar"></i> ${this.formatDate(issue.created_at)}</span>
+                    <span><i class="fas fa-user"></i> ${project.user.login}</span>
+                    <span><i class="fas fa-calendar"></i> ${this.formatDate(project.created_at)}</span>
                     <span><i class="fas fa-eye"></i> ${project.views} views</span>
                 </div>
             </div>
             
             <div class="modal-project-content">
-                ${this.renderMarkdown(issue.body)}
+                ${this.renderMarkdown(project.body || '')}
             </div>
             
             ${project.keywords.length > 0 ? `
@@ -195,21 +188,24 @@ class UI {
             
             <div class="modal-actions">
                 <div class="vote-buttons">
-                    <button class="vote-btn upvote ${this.hasVoted(issueNumber, 'up') ? 'active' : ''}" 
-                            onclick="ui.vote(${issueNumber}, 'up')">
+                    <button class="vote-btn upvote" onclick="ui.vote(${issueNumber}, 'up')">
                         <i class="fas fa-thumbs-up"></i>
                         <span>${project.votes.up}</span>
                     </button>
-                    <button class="vote-btn downvote ${this.hasVoted(issueNumber, 'down') ? 'active' : ''}"
-                            onclick="ui.vote(${issueNumber}, 'down')">
+                    <button class="vote-btn downvote" onclick="ui.vote(${issueNumber}, 'down')">
                         <i class="fas fa-thumbs-down"></i>
                         <span>${project.votes.down}</span>
                     </button>
                 </div>
                 
-                <a href="${issue.html_url}" target="_blank" class="btn-secondary">
+                <a href="${project.html_url}" target="_blank" class="btn-secondary">
                     <i class="fab fa-github"></i> View on GitHub
                 </a>
+            </div>
+            
+            <div class="github-hint">
+                <i class="fas fa-info-circle"></i>
+                Click the thumbs up/down buttons to vote on GitHub
             </div>
         `;
         
@@ -217,46 +213,14 @@ class UI {
         document.getElementById('projectModal').classList.add('active');
     }
     
-    // Vote on project
-    async vote(issueNumber, type) {
-        if (!window.auth || !window.auth.isAuthenticated()) {
-            this.showAuthPrompt();
-            return;
-        }
-        
-        try {
-            // Add reaction
-            const reaction = type === 'up' ? 'THUMBS_UP' : 'THUMBS_DOWN';
-            await window.api.addReaction(issueNumber, reaction);
-            
-            // Update UI
-            const project = this.projects.find(p => p.number === issueNumber);
-            if (project) {
-                project.votes = window.api.getVotes(issueNumber);
-                this.renderProjects();
-                
-                // Update modal if open
-                if (document.getElementById('projectModal').classList.contains('active')) {
-                    this.showProject(issueNumber);
-                }
-            }
-            
-            // Save vote state
-            this.saveVoteState(issueNumber, type);
-            
-        } catch (error) {
-            console.error('Vote error:', error);
-            this.showToast('Failed to register vote', 'error');
-        }
+    // Vote on project - redirect to GitHub
+    vote(issueNumber, type) {
+        // Use the simple auth approach
+        window.simpleAuth.voteOnIssue(issueNumber, type);
     }
     
     // Show submit modal
     showSubmitModal() {
-        if (!window.auth || !window.auth.isAuthenticated()) {
-            this.showAuthPrompt();
-            return;
-        }
-        
         document.getElementById('submitModal').classList.add('active');
     }
     
@@ -276,65 +240,15 @@ class UI {
             return;
         }
         
-        try {
-            // Show loading state
-            const submitBtn = this.submitForm.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-            
-            // Create issue
-            const issue = await window.api.createIssue(title, description, keywords);
-            
-            // Success
-            this.showToast('Idea submitted successfully!', 'success');
-            this.submitForm.reset();
-            document.getElementById('submitModal').classList.remove('active');
-            
-            // Refresh projects
-            window.loadProjects();
-            
-        } catch (error) {
-            console.error('Submit error:', error);
-            this.showToast(error.message || 'Failed to submit idea', 'error');
-        } finally {
-            // Reset button
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-        }
-    }
-    
-    // Display papers
-    displayPapers(papers) {
-        if (papers.length === 0) {
-            document.getElementById('papers').style.display = 'none';
-            return;
-        }
+        // Use simple auth to create issue
+        window.simpleAuth.createIssue(title, description, keywords);
         
-        document.getElementById('papers').style.display = 'block';
-        this.papersGrid.innerHTML = papers.slice(0, 10).map((paper, index) => `
-            <div class="paper-card">
-                <div class="paper-rank">${index + 1}</div>
-                <h3 class="paper-title">${this.escapeHtml(paper.title)}</h3>
-                <p class="paper-authors">${this.escapeHtml(paper.authors.join(', '))}</p>
-                
-                <div class="paper-links">
-                    <a href="${paper.pdfUrl}" target="_blank" class="paper-link">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </a>
-                    ${paper.codeUrl ? `
-                        <a href="${paper.codeUrl}" target="_blank" class="paper-link">
-                            <i class="fas fa-code"></i> Code
-                        </a>
-                    ` : ''}
-                    ${paper.dataUrl ? `
-                        <a href="${paper.dataUrl}" target="_blank" class="paper-link">
-                            <i class="fas fa-database"></i> Data
-                        </a>
-                    ` : ''}
-                </div>
-            </div>
-        `).join('');
+        // Close modal and reset form
+        this.submitForm.reset();
+        document.getElementById('submitModal').classList.remove('active');
+        
+        // Show info about refresh
+        this.showToast('After creating your issue on GitHub, refresh this page to see it here!', 'info');
     }
     
     // Update statistics
@@ -383,7 +297,7 @@ class UI {
     }
     
     renderMarkdown(text) {
-        // Simple markdown rendering (in production, use a proper library)
+        // Simple markdown rendering
         return text
             .replace(/^### (.*$)/gim, '<h3>$1</h3>')
             .replace(/^## (.*$)/gim, '<h2>$1</h2>')
@@ -395,32 +309,20 @@ class UI {
             .replace(/\n/g, '<br>');
     }
     
-    // Vote state management
-    hasVoted(issueNumber, type) {
-        const voteState = JSON.parse(localStorage.getItem('vote_state') || '{}');
-        return voteState[issueNumber] === type;
-    }
-    
-    saveVoteState(issueNumber, type) {
-        const voteState = JSON.parse(localStorage.getItem('vote_state') || '{}');
-        voteState[issueNumber] = type;
-        localStorage.setItem('vote_state', JSON.stringify(voteState));
-    }
-    
-    // Auth prompt
-    showAuthPrompt() {
-        this.showToast('Please login with GitHub to continue', 'info');
-        window.auth.login();
-    }
-    
     // Toast notifications
     showToast(message, type = 'info') {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-        toast.textContent = message;
+        toast.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
         document.body.appendChild(toast);
         
         setTimeout(() => toast.remove(), 5000);
+    }
+    
+    // Display papers (placeholder)
+    displayPapers(papers) {
+        // Hide papers section if no papers
+        document.getElementById('papers').style.display = 'none';
     }
 }
 
@@ -434,4 +336,4 @@ function closeSubmitModal() {
 }
 
 // Initialize UI
-window.ui = new UI();
+window.ui = new SimpleUI();
