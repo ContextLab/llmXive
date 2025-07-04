@@ -68,7 +68,7 @@ jobs:
     
     - name: Upload logs
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: automation-logs
         path: logs/
@@ -101,7 +101,7 @@ jobs:
         python run_tests.py --unit
     
     - name: Upload coverage
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-report
         path: htmlcov/
