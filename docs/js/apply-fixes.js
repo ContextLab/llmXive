@@ -29,16 +29,16 @@
         
         console.log('Components loaded, applying fixes...');
         
-        // 1. Apply GitHub API fixes for project board status
-        if (window.githubAPIFixes && window.githubAPI) {
-            console.log('Applying GitHub API fixes...');
-            window.githubAPIFixes.applyFixes(window.githubAPI);
+        // 1. Apply project board fix FIRST (most important)
+        if (window.projectBoardFix) {
+            console.log('Applying project board fix...');
+            window.projectBoardFix.applyFix();
         }
         
-        // 2. Apply voting system fixes
-        if (window.votingFixes && window.ui && window.githubAuth) {
-            console.log('Applying voting fixes...');
-            window.votingFixes.applyFixes(window.ui, window.githubAuth);
+        // 2. Apply voting system refactor (replaces old voting fixes)
+        if (window.votingSystemRefactor && window.ui && window.githubAuth) {
+            console.log('Applying voting system refactor...');
+            window.votingSystemRefactor.applyFix();
         }
         
         // 3. Apply board UI fixes for author display
@@ -46,6 +46,8 @@
             console.log('Applying board UI fixes...');
             window.boardUIFixes.applyFixes(window.ui);
         }
+        
+        // Note: Removed old githubAPIFixes as it's replaced by projectBoardFix
         
         // 4. Override the main loadProjects function to include all enhancements
         if (window.ui) {
