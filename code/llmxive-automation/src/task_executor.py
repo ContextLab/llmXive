@@ -221,7 +221,7 @@ Idea: """
         labels = ["backlog", "idea", "Score: 0"]
 
         issue = self.github.create_issue(
-            title=f"[Idea] {idea[:80]}..." if len(idea) > 80 else f"[Idea] {idea}",
+            title=f"{idea[:80]}..." if len(idea) > 80 else idea,
             body=issue_body,
             labels=labels
         )
@@ -2246,7 +2246,7 @@ For each, provide the same format as the original."""
 *This idea was forked by the llmXive automation system.*"""
 
                     issue = self.github.create_issue(
-                        title=f"[Idea] {parsed['idea'][:80]}...",
+                        title=f"{parsed['idea'][:80]}..." if len(parsed['idea']) > 80 else parsed['idea'],
                         body=issue_body,
                         labels=["backlog", "idea", "Score: 0", "forked"]
                     )

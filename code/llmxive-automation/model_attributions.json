@@ -1,23 +1,101 @@
 {
   "models": {
+    "claude-3-sonnet-20240229": {
+      "first_contribution": "2025-07-04T00:00:00.000000",
+      "total_contributions": 6,
+      "contributions_by_type": {
+        "idea": 6
+      },
+      "last_contribution": "2025-07-04T15:51:51.000000"
+    },
     "TinyLlama/TinyLlama-1.1B-Chat-v1.0": {
       "first_contribution": "2025-07-04T11:51:51.801759",
       "total_contributions": 1,
       "contributions_by_type": {
         "idea": 1
       },
-      "last_contribution": "2025-07-04T11:51:51.801768"
-    },
-    "microsoft/phi-2": {
-      "first_contribution": "2025-07-04T11:56:12.822726",
-      "total_contributions": 2,
-      "contributions_by_type": {
-        "idea": 2
-      },
-      "last_contribution": "2025-07-04T11:56:12.823942"
+      "last_contribution": "2025-07-04T11:51:51.801759"
     }
   },
   "contributions": [
+    {
+      "id": "claude-3-sonnet-20240229_23",
+      "model_id": "claude-3-sonnet-20240229",
+      "timestamp": "2025-07-04T15.00:00.000000",
+      "task_type": "BRAINSTORM_IDEA",
+      "contribution_type": "idea",
+      "reference": "issue-23",
+      "metadata": {
+        "field": "physics",
+        "idea_title": "Quantum Machine Learning Approaches to Understanding Superconductivity",
+        "attribution_note": "Generated during initial llmXive ideation phase"
+      }
+    },
+    {
+      "id": "claude-3-sonnet-20240229_24",
+      "model_id": "claude-3-sonnet-20240229",
+      "timestamp": "2025-07-04T15.10:00.000000",
+      "task_type": "BRAINSTORM_IDEA",
+      "contribution_type": "idea",
+      "reference": "issue-24",
+      "metadata": {
+        "field": "engineering",
+        "idea_title": "Developing new methods to synthesize high-performance membranes using sustainable materials",
+        "attribution_note": "Generated during initial llmXive ideation phase"
+      }
+    },
+    {
+      "id": "claude-3-sonnet-20240229_25",
+      "model_id": "claude-3-sonnet-20240229",
+      "timestamp": "2025-07-04T15.20:00.000000",
+      "task_type": "BRAINSTORM_IDEA",
+      "contribution_type": "idea",
+      "reference": "issue-25",
+      "metadata": {
+        "field": "ocean science",
+        "idea_title": "Understanding Oceanic Phytoplankton Communities through Remote Sensing Techniques",
+        "attribution_note": "Generated during initial llmXive ideation phase"
+      }
+    },
+    {
+      "id": "claude-3-sonnet-20240229_26",
+      "model_id": "claude-3-sonnet-20240229",
+      "timestamp": "2025-07-04T15.30:00.000000",
+      "task_type": "BRAINSTORM_IDEA",
+      "contribution_type": "idea",
+      "reference": "issue-26",
+      "metadata": {
+        "field": "neuroscience",
+        "idea_title": "The Role of Mindfulness in Improving Social Skills Among Children with Autism Spectrum Disorder",
+        "attribution_note": "Generated during initial llmXive ideation phase"
+      }
+    },
+    {
+      "id": "claude-3-sonnet-20240229_27",
+      "model_id": "claude-3-sonnet-20240229",
+      "timestamp": "2025-07-04T15.40:00.000000",
+      "task_type": "BRAINSTORM_IDEA",
+      "contribution_type": "idea",
+      "reference": "issue-27",
+      "metadata": {
+        "field": "agriculture",
+        "idea_title": "The Use of Climate-Smart Agricultural Practices in Rural Areas to Improve Crop Yields and Reduce Environmental Footprint",
+        "attribution_note": "Generated during initial llmXive ideation phase"
+      }
+    },
+    {
+      "id": "claude-3-sonnet-20240229_28",
+      "model_id": "claude-3-sonnet-20240229",
+      "timestamp": "2025-07-04T15.50:00.000000",
+      "task_type": "BRAINSTORM_IDEA",
+      "contribution_type": "idea",
+      "reference": "issue-28",
+      "metadata": {
+        "field": "environmental science",
+        "idea_title": "Investigating the Potential Benefits of Ecotourism in Regenerating Deforested Areas",
+        "attribution_note": "Generated during initial llmXive ideation phase"
+      }
+    },
     {
       "id": "TinyLlama-TinyLlama-1.1B-Chat-v1.0_20250704_115151",
       "model_id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
@@ -28,33 +106,8 @@
       "metadata": {
         "field": "environmental science",
         "idea_id": "environmental-science-20250704-001",
-        "keywords": "investigating, potential, benefits, ecotourism, regenerating"
-      }
-    },
-    {
-      "id": "microsoft-phi-2_20250704_115612",
-      "model_id": "microsoft/phi-2",
-      "timestamp": "2025-07-04T11:56:12.822730",
-      "task_type": "BRAINSTORM_IDEA",
-      "contribution_type": "idea",
-      "reference": "issue-123",
-      "metadata": {
-        "field": "medicine",
-        "idea_id": "medicine-20250704-001",
-        "keywords": "neuroscience, brain-computer, interface, quantum, computing"
-      }
-    },
-    {
-      "id": "microsoft-phi-2_20250704_115612",
-      "model_id": "microsoft/phi-2",
-      "timestamp": "2025-07-04T11:56:12.823943",
-      "task_type": "BRAINSTORM_IDEA",
-      "contribution_type": "idea",
-      "reference": "issue-<Mock name='mock().number' id='13575107696'>",
-      "metadata": {
-        "field": "robotics",
-        "idea_id": "robotics-20250704-001",
-        "keywords": "invalid, response, format"
+        "keywords": "investigating, potential, benefits, ecotourism, regenerating",
+        "attribution_note": "Generated during llmXive automation testing"
       }
     }
   ]
