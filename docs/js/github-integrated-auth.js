@@ -286,7 +286,7 @@ class GitHubIntegratedAuth {
             // Try common proxy services first
             const proxyUrls = [
                 // Add your deployed service URL here:
-                'https://llmxive-auth.herokuapp.com/authenticate/',
+                'https://llmxive-auth-b300c94fab60.herokuapp.com/authenticate/',
                 
                 // Fallback - show instructions
                 null
