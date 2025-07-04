@@ -1,9 +1,10 @@
-"""Pytest configuration and fixtures for llmXive automation tests"""
+"""Pytest configuration and fixtures for llmXive automation tests - REAL tests only, no mocks!"""
 
 import os
 import sys
 import pytest
-from unittest.mock import Mock, MagicMock, patch
+import tempfile
+import shutil
 from datetime import datetime
 
 # Add src to path
@@ -15,230 +16,215 @@ from src.github_handler import GitHubHandler
 from src.response_parser import ResponseParser
 from src.task_executor import TaskExecutor
 from src.orchestrator import LLMXiveOrchestrator
+from src.model_attribution import ModelAttributionTracker
+
+
+@pytest.fixture(scope="session")
+def real_small_model():
+    """Load a real small model for testing - session scoped to avoid reloading"""
+    print("\nLoading real model for test session...")
+    model_mgr = ModelManager(max_size_gb=1.5)
+    
+    # Use TinyLlama as it's small and reliable
+    model, tokenizer = model_mgr._load_model("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
+    return model, tokenizer
 
 
 @pytest.fixture
-def mock_github_token():
-    """Mock GitHub token"""
-    return "ghp_test_token_12345"
+def real_github():
+    """Create real GitHub handler - uses CLI fallback if no token"""
+    test_repo = os.environ.get('TEST_REPO', 'ContextLab/llmXive')
+    token = os.environ.get('GITHUB_TOKEN')
+    
+    if not token:
+        print("Note: No GITHUB_TOKEN set, using CLI fallback")
+    
+    return GitHubHandler(token=token, repo_name=test_repo)
 
 
 @pytest.fixture
-def mock_hf_token():
-    """Mock HuggingFace token"""
-    return "hf_test_token_12345"
+def real_conversation_manager(real_small_model):
+    """Create real conversation manager with actual model"""
+    model, tokenizer = real_small_model
+    return ConversationManager(model, tokenizer)
 
 
 @pytest.fixture
-def mock_model():
-    """Mock a small HuggingFace model"""
-    model = MagicMock()
-    model.name_or_path = "microsoft/phi-2"
-    model.config = MagicMock()
-    model.config.max_position_embeddings = 2048
-    return model
-
-
-@pytest.fixture
-def mock_tokenizer():
-    """Mock tokenizer"""
-    tokenizer = MagicMock()
-    tokenizer.model_max_length = 2048
-    tokenizer.encode = Mock(return_value=[1, 2, 3, 4, 5])
-    tokenizer.decode = Mock(return_value="Mock response")
-    tokenizer.pad_token_id = 0
-    tokenizer.eos_token_id = 1
-    return tokenizer
-
-
-@pytest.fixture
-def mock_github_handler(mock_github_token):
-    """Mock GitHub handler"""
-    with patch('src.github_handler.Github'):
-        handler = GitHubHandler(mock_github_token)
-        
-        # Mock common methods
-        handler.get_file_content = Mock(return_value="Mock file content")
-        handler.create_file = Mock(return_value=True)
-        handler.update_file = Mock(return_value=True)
-        handler.file_exists = Mock(return_value=False)
-        handler.create_issue = Mock()
-        handler.get_issue = Mock()
-        handler.get_open_issues = Mock(return_value=[])
-        handler.get_backlog_ideas = Mock(return_value=[])
-        
-        return handler
+def real_task_executor(real_conversation_manager, real_github):
+    """Create real task executor with actual components"""
+    return TaskExecutor(real_conversation_manager, real_github)
 
 
 @pytest.fixture
 def response_parser():
-    """Response parser instance"""
+    """Response parser instance - this is a pure logic component"""
     return ResponseParser()
 
 
 @pytest.fixture
-def conversation_manager(mock_model, mock_tokenizer):
-    """Mock conversation manager"""
-    manager = ConversationManager(mock_model, mock_tokenizer)
-    manager.query_model = Mock(return_value="Mock LLM response")
-    return manager
+def real_orchestrator():
+    """Create real orchestrator with actual components"""
+    token = os.environ.get('GITHUB_TOKEN')
+    return LLMXiveOrchestrator(
+        github_token=token,
+        model_size_gb=1.5,  # Use small model for tests
+        specific_model="TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+    )
 
 
 @pytest.fixture
-def task_executor(conversation_manager, mock_github_handler):
-    """Task executor with mocked dependencies"""
-    return TaskExecutor(conversation_manager, mock_github_handler)
+def test_workspace(tmp_path):
+    """Create a temporary workspace for test files"""
+    workspace = tmp_path / "test_workspace"
+    workspace.mkdir()
+    
+    # Create some test structure
+    (workspace / "papers").mkdir()
+    (workspace / "code").mkdir()
+    (workspace / "data").mkdir()
+    (workspace / "technical_design_documents").mkdir()
+    (workspace / "implementation_plans").mkdir()
+    (workspace / "reviews").mkdir()
+    
+    # Create a sample README
+    readme_content = """# Test Project
+
+## Papers
+
+| ID | Title | Status | Contributors | Date |
+|----|-------|---------|--------------|------|
+| test-001 | Test Paper | Done | @testuser | 2024-01-15 |
+"""
+    (workspace / "papers" / "README.md").write_text(readme_content)
+    
+    yield workspace
+    
+    # Cleanup
+    shutil.rmtree(workspace)
 
 
 @pytest.fixture
-def orchestrator(mock_github_token, mock_hf_token):
-    """Orchestrator with mocked dependencies"""
-    with patch('src.orchestrator.ModelManager'):
-        orch = LLMXiveOrchestrator(
-            github_token=mock_github_token,
-            hf_token=mock_hf_token
-        )
-        return orch
+def real_attribution_tracker(tmp_path):
+    """Create real attribution tracker with temporary file"""
+    tracker_file = tmp_path / "test_attributions.json"
+    tracker = ModelAttributionTracker(str(tracker_file))
+    
+    yield tracker
+    
+    # Cleanup
+    if tracker_file.exists():
+        tracker_file.unlink()
 
 
 @pytest.fixture
-def sample_issue():
-    """Sample GitHub issue"""
-    issue = MagicMock()
-    issue.number = 123
-    issue.title = "[Idea] Test Research Idea"
-    issue.body = """**Field**: Machine Learning
-**Description**: A novel approach to test research
-**Suggested ID**: ml-test-001
-**Keywords**: machine learning, testing, automation"""
-    issue.labels = [MagicMock(name="backlog"), MagicMock(name="Score: 0")]
-    issue.created_at = datetime.now()
-    issue.updated_at = datetime.now()
-    issue.comments = 0
-    issue.html_url = "https://github.com/ContextLab/llmXive/issues/123"
-    return issue
+def sample_github_issue_data():
+    """Sample issue data that matches real GitHub issue structure"""
+    return {
+        'number': 999,
+        'title': 'Test Research Idea: Quantum Computing Applications',
+        'body': """**Field**: Quantum Computing
+**Description**: Exploring novel quantum algorithms for optimization
+**Suggested ID**: quantum-opt-001
+**Keywords**: quantum computing, optimization, algorithms""",
+        'state': 'open',
+        'labels': ['backlog', 'Score: 0'],
+        'created_at': datetime.now().isoformat(),
+        'updated_at': datetime.now().isoformat(),
+        'html_url': 'https://github.com/ContextLab/llmXive/issues/999',
+        'user': {'login': 'testuser'},
+        'comments': 0
+    }
 
 
 @pytest.fixture
 def sample_design_document():
-    """Sample technical design document"""
-    return """# Technical Design Document: ML Test Project
+    """Sample technical design document content"""
+    return """# Technical Design Document: Quantum Optimization Framework
 
-**Project ID**: ml-test-001
+**Project ID**: quantum-opt-001
 **Date**: 2024-01-15
 **Author**: LLM (Automated)
 
 ## Abstract
-This document outlines a novel approach to machine learning testing...
+This document outlines a novel quantum computing framework for solving optimization problems...
 
 ## Introduction
-Background and motivation for the research...
+Background and motivation for quantum optimization research...
 
 ## Proposed Approach
-Technical framework and methodology...
+Technical framework leveraging quantum annealing and gate-based algorithms...
 
 ## Implementation Strategy
-Key components and requirements...
+Key components including quantum circuit design and classical preprocessing...
 
 ## Evaluation Plan
-Success metrics and validation methods...
+Benchmarking against classical algorithms on standard optimization problems...
 
 ## Timeline and Milestones
-Project schedule...
+- Month 1-2: Algorithm development
+- Month 3-4: Implementation
+- Month 5-6: Testing and optimization
 """
 
 
 @pytest.fixture
-def sample_brainstorm_response():
-    """Sample LLM response for brainstorming"""
-    return """Field: Neuroscience
-Idea: Develop a novel brain-computer interface using quantum computing principles to decode neural signals with unprecedented accuracy. This approach would combine quantum entanglement theory with neural network architectures to create a more efficient signal processing system. The expected impact includes enabling paralyzed patients to control external devices with near-natural precision.
-ID: neuro-quantum-bci-001
-Keywords: neuroscience, quantum computing, brain-computer interface, neural decoding, medical devices"""
-
-
-@pytest.fixture
-def sample_review_response():
-    """Sample LLM response for review"""
-    return """Strengths:
-- Clear research objectives and well-defined methodology
-- Novel approach combining two cutting-edge fields
-- Strong potential for clinical impact
-- Comprehensive evaluation plan
-
-Concerns:
-- Quantum computing requirements may be prohibitive
-- Limited discussion of ethical considerations
-- Timeline seems optimistic given complexity
-
-Recommendation: Accept
-Score: 0.7
-Summary: This is a promising interdisciplinary proposal that merges quantum computing with neuroscience, though implementation challenges need addressing."""
-
-
-# Test data fixtures
-@pytest.fixture
-def test_data_dir(tmp_path):
-    """Create temporary test data directory"""
+def test_data_files(tmp_path):
+    """Create temporary test data files"""
     data_dir = tmp_path / "test_data"
     data_dir.mkdir()
     
-    # Create sample files
-    (data_dir / "sample.txt").write_text("Sample test data")
-    (data_dir / "code.py").write_text("def hello():\n    return 'world'")
+    # Create various test files
+    (data_dir / "sample.txt").write_text("Sample test data for processing")
+    
+    (data_dir / "test_code.py").write_text("""
+def factorial(n):
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)
+
+def test_factorial():
+    assert factorial(5) == 120
+    assert factorial(0) == 1
+""")
+    
+    (data_dir / "data.csv").write_text("""x,y
+1,2
+3,4
+5,6
+""")
     
     return data_dir
 
 
-@pytest.fixture
-def mock_llm_responses():
-    """Dictionary of mock LLM responses for different task types"""
-    return {
-        "BRAINSTORM_IDEA": """Field: Computational Biology
-Idea: Create an AI system that predicts protein folding patterns using graph neural networks.
-ID: compbio-protein-gnn-001
-Keywords: protein folding, graph neural networks, computational biology""",
-        
-        "WRITE_CODE": """```python
-def analyze_protein_structure(sequence):
-    \"\"\"Analyze protein structure from amino acid sequence.\"\"\"
-    # Implementation here
-    return {"structure": "alpha-helix", "confidence": 0.95}
-```""",
-        
-        "WRITE_TESTS": """```python
-import pytest
-from protein_analyzer import analyze_protein_structure
-
-def test_analyze_protein_structure():
-    result = analyze_protein_structure("MKTAYIAKQRQISFVKSHFSRQ")
-    assert result["confidence"] > 0.8
-    assert "structure" in result
-```""",
-        
-        "REVIEW_CODE": """Status: PASS
-Issues Found:
-- Missing error handling for invalid sequences
-
-Suggestions:
-- Add input validation
-- Include more comprehensive tests
-
-Code Quality Score: 8/10
-Summary: Well-structured code with minor improvements needed."""
-    }
-
-
 @pytest.fixture(autouse=True)
-def reset_mocks():
-    """Reset all mocks before each test"""
-    yield
-    # Cleanup after test if needed
-
-
-@pytest.fixture
 def capture_logs(caplog):
-    """Capture log output for testing"""
+    """Capture log output for all tests"""
     import logging
     caplog.set_level(logging.DEBUG)
     return caplog
+
+
+@pytest.fixture
+def env_backup():
+    """Backup and restore environment variables"""
+    backup = os.environ.copy()
+    yield
+    os.environ.clear()
+    os.environ.update(backup)
+
+
+# Markers for different test types
+def pytest_configure(config):
+    """Configure custom pytest markers"""
+    config.addinivalue_line(
+        "markers", "integration: mark test as integration test (requires external services)"
+    )
+    config.addinivalue_line(
+        "markers", "slow: mark test as slow (may take several seconds)"
+    )
+    config.addinivalue_line(
+        "markers", "requires_github: mark test as requiring GitHub access"
+    )
+    config.addinivalue_line(
+        "markers", "requires_model: mark test as requiring model loading"
+    )

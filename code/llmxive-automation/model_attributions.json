@@ -10,11 +10,11 @@
     },
     "TinyLlama/TinyLlama-1.1B-Chat-v1.0": {
       "first_contribution": "2025-07-04T11:51:51.801759",
-      "total_contributions": 1,
+      "total_contributions": 3,
       "contributions_by_type": {
-        "idea": 1
+        "idea": 3
       },
-      "last_contribution": "2025-07-04T11:51:51.801759"
+      "last_contribution": "2025-07-04T12:45:51.980936"
     }
   },
   "contributions": [
@@ -108,6 +108,32 @@
         "idea_id": "environmental-science-20250704-001",
         "keywords": "investigating, potential, benefits, ecotourism, regenerating",
         "attribution_note": "Generated during llmXive automation testing"
+      }
+    },
+    {
+      "id": "TinyLlama-TinyLlama-1.1B-Chat-v1.0_20250704_124524",
+      "model_id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+      "timestamp": "2025-07-04T12:45:24.197345",
+      "task_type": "BRAINSTORM_IDEA",
+      "contribution_type": "idea",
+      "reference": "issue-29",
+      "metadata": {
+        "field": "energy",
+        "idea_id": "energy-20250704-001",
+        "keywords": "\"developing, solutions, address, energy, inequity"
+      }
+    },
+    {
+      "id": "TinyLlama-TinyLlama-1.1B-Chat-v1.0_20250704_124551",
+      "model_id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+      "timestamp": "2025-07-04T12:45:51.980940",
+      "task_type": "BRAINSTORM_IDEA",
+      "contribution_type": "idea",
+      "reference": "issue-30",
+      "metadata": {
+        "field": "biology",
+        "idea_id": "biology-20250704-001",
+        "keywords": "exploring, mechanisms, regulation, different, abstract"
       }
     }
   ]

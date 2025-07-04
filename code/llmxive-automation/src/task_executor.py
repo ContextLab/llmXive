@@ -252,6 +252,47 @@ Idea: """
             
             self.github.create_issue_comment(issue.number, attribution_comment)
             
+            # Add issue to project board
+            try:
+                import subprocess
+                # Add to project
+                cmd = [
+                    'gh', 'project', 'item-add', '13',
+                    '--owner', 'ContextLab',
+                    '--url', issue.html_url
+                ]
+                result = subprocess.run(cmd, capture_output=True, text=True)
+                
+                if result.returncode == 0:
+                    logger.info(f"Added issue #{issue.number} to project board")
+                    
+                    # Set status to Backlog
+                    # Get the item ID for this issue
+                    cmd = ['gh', 'project', 'item-list', '13', '--owner', 'ContextLab', '--format', 'json']
+                    result = subprocess.run(cmd, capture_output=True, text=True)
+                    
+                    if result.returncode == 0:
+                        import json
+                        data = json.loads(result.stdout)
+                        for item in data.get('items', []):
+                            if item.get('content', {}).get('number') == issue.number:
+                                item_id = item['id']
+                                # Set status to Backlog
+                                cmd = [
+                                    'gh', 'project', 'item-edit',
+                                    '--id', item_id,
+                                    '--field-id', 'PVTSSF_lADOAVVqQM4A9CYqzgw2-6c',  # Status field
+                                    '--project-id', 'PVT_kwDOAVVqQM4A9CYq',
+                                    '--single-select-option-id', 'f75ad846'  # Backlog
+                                ]
+                                subprocess.run(cmd, capture_output=True, text=True)
+                                logger.info(f"Set issue #{issue.number} status to Backlog")
+                                break
+                else:
+                    logger.warning(f"Failed to add issue to project board: {result.stderr}")
+            except Exception as e:
+                logger.warning(f"Could not add issue to project board: {e}")
+            
             return {
                 "success": True,
                 "issue_number": issue.number,

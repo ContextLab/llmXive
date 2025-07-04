@@ -190,36 +190,108 @@ class ModelManager:
             if tokenizer.pad_token is None:
                 tokenizer.pad_token = tokenizer.eos_token
             
+            # Try different loading strategies to handle compatibility issues
+            model = None
+            loading_error = None
+            
+            # Monkey patch for TinyLlama tensor parallelism issue
+            if "TinyLlama" in model_id:
+                try:
+                    # Load config first and fix the issue
+                    from transformers import AutoConfig
+                    config = AutoConfig.from_pretrained(model_id, cache_dir=self.cache_dir)
+                    # Set tensor parallelism attributes to avoid the error
+                    config.base_model_tp_plan = None
+                    config.base_model_pp_plan = None
+                except Exception as e:
+                    logger.debug(f"Could not patch config: {e}")
+            
             # Check if CUDA is available
             if torch.cuda.is_available():
-                # Configure 4-bit quantization for GPU
-                quantization_config = BitsAndBytesConfig(
-                    load_in_4bit=True,
-                    bnb_4bit_compute_dtype=torch.float16,
-                    bnb_4bit_use_double_quant=True,
-                    bnb_4bit_quant_type="nf4"
-                )
+                try:
+                    # Configure 4-bit quantization for GPU
+                    quantization_config = BitsAndBytesConfig(
+                        load_in_4bit=True,
+                        bnb_4bit_compute_dtype=torch.float16,
+                        bnb_4bit_use_double_quant=True,
+                        bnb_4bit_quant_type="nf4"
+                    )
+                    
+                    # Load model with quantization
+                    model = AutoModelForCausalLM.from_pretrained(
+                        model_id,
+                        quantization_config=quantization_config,
+                        device_map="auto",
+                        cache_dir=self.cache_dir,
+                        trust_remote_code=True,
+                        low_cpu_mem_usage=True
+                    )
+                except Exception as e:
+                    logger.warning(f"GPU loading failed: {e}")
+                    loading_error = e
+            
+            # If GPU loading failed or not available, try CPU
+            if model is None:
+                logger.info("Loading model on CPU")
                 
-                # Load model with quantization
-                model = AutoModelForCausalLM.from_pretrained(
-                    model_id,
-                    quantization_config=quantization_config,
-                    device_map="auto",
-                    cache_dir=self.cache_dir,
-                    trust_remote_code=True,
-                    low_cpu_mem_usage=True
-                )
-            else:
-                # CPU-only loading
-                logger.info("CUDA not available, loading model on CPU")
-                model = AutoModelForCausalLM.from_pretrained(
-                    model_id,
-                    torch_dtype=torch.float32,
-                    device_map="cpu",
-                    cache_dir=self.cache_dir,
-                    trust_remote_code=True,
-                    low_cpu_mem_usage=True
-                )
+                # Try different configurations to handle compatibility issues
+                loading_configs = []
+                
+                # If we have a patched config for TinyLlama, use it
+                if "TinyLlama" in model_id and 'config' in locals():
+                    loading_configs.extend([
+                        # Config with patched config object
+                        {
+                            "config": config,
+                            "torch_dtype": torch.float32,
+                            "cache_dir": self.cache_dir,
+                            "trust_remote_code": True,
+                            "low_cpu_mem_usage": True
+                        },
+                        {
+                            "config": config,
+                            "torch_dtype": torch.float32,
+                            "cache_dir": self.cache_dir
+                        }
+                    ])
+                
+                # Standard configs for all models
+                loading_configs.extend([
+                    # Config 1: Basic CPU loading without device_map
+                    {
+                        "torch_dtype": torch.float32,
+                        "cache_dir": self.cache_dir,
+                        "trust_remote_code": True,
+                        "low_cpu_mem_usage": True
+                    },
+                    # Config 2: With explicit device map
+                    {
+                        "torch_dtype": torch.float32,
+                        "device_map": "cpu",
+                        "cache_dir": self.cache_dir,
+                        "trust_remote_code": True,
+                        "low_cpu_mem_usage": True
+                    },
+                    # Config 3: Minimal config
+                    {
+                        "torch_dtype": torch.float32,
+                        "cache_dir": self.cache_dir
+                    }
+                ])
+                
+                for i, config in enumerate(loading_configs):
+                    try:
+                        logger.debug(f"Trying loading config {i+1}")
+                        model = AutoModelForCausalLM.from_pretrained(model_id, **config)
+                        logger.info(f"Successfully loaded with config {i+1}")
+                        break
+                    except Exception as e:
+                        logger.debug(f"Config {i+1} failed: {e}")
+                        loading_error = e
+                        continue
+            
+            if model is None:
+                raise RuntimeError(f"Failed to load {model_id} with any configuration. Last error: {loading_error}")
             
             logger.info(f"Successfully loaded {model_id}")
             return model, tokenizer

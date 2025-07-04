@@ -221,11 +221,21 @@ class ConversationManager:
         
     def _extract_response(self, full_response: str, prompt: str) -> str:
         """Extract only the assistant's response from the full output"""
-        # Remove the prompt from the response
-        if prompt in full_response:
-            response = full_response.split(prompt)[-1].strip()
-        else:
-            response = full_response
+        # For models that include the full conversation, extract just the assistant's part
+        response = full_response
+        
+        # Try to find assistant marker and extract content after it
+        assistant_markers = ["<|assistant|>", "Assistant:", "assistant\n", "model\n"]
+        for marker in assistant_markers:
+            if marker in response:
+                parts = response.split(marker)
+                if len(parts) > 1:
+                    response = parts[-1].strip()
+                    break
+        
+        # If the original prompt format is still in the response, try to remove it
+        if prompt in response:
+            response = response.split(prompt)[-1].strip()
             
         # Remove system/user prompt artifacts
         if "<|system|>" in response:
