@@ -24,6 +24,14 @@ class BoardUI {
             }, 300);
         });
         
+        // Sort dropdown
+        const sortSelect = document.getElementById('sortSelect');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', (e) => {
+                this.sortProjects(e.target.value);
+            });
+        }
+        
         // Submit form
         this.submitForm.addEventListener('submit', (e) => this.handleSubmit(e));
         
@@ -88,6 +96,22 @@ class BoardUI {
         });
         
         this.renderProjects();
+    }
+    
+    // Sort projects
+    sortProjects(sortBy) {
+        const sortFunctions = {
+            'updated': (a, b) => new Date(b.updated_at) - new Date(a.updated_at),
+            'created': (a, b) => new Date(b.created_at) - new Date(a.created_at),
+            'title': (a, b) => a.title.localeCompare(b.title),
+            'votes': (a, b) => (b.votes.up - b.votes.down) - (a.votes.up - a.votes.down),
+            'views': (a, b) => b.views - a.views
+        };
+        
+        if (sortFunctions[sortBy]) {
+            this.projects.sort(sortFunctions[sortBy]);
+            this.filterProjects();
+        }
     }
     
     // Render projects in columns
