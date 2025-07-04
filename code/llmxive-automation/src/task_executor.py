@@ -9,6 +9,7 @@ from typing import Optional, Dict, List, Any
 from .conversation_manager import ConversationManager
 from .github_handler import GitHubHandler
 from .response_parser import ResponseParser
+from .model_attribution import ModelAttributionTracker
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,7 @@ class TaskExecutor:
         self.conv_mgr = conversation_manager
         self.github = github_handler
         self.parser = ResponseParser()
+        self.attribution = ModelAttributionTracker()
         
         # Map all task types to handlers
         self.task_handlers = {
@@ -101,6 +103,9 @@ class TaskExecutor:
             "IMPLEMENT_CORRECTIONS": self.execute_implement_corrections,
             "VERIFY_CORRECTIONS": self.execute_verify_corrections,
             "GENERATE_HELPER_FUNCTION": self.execute_helper_creation,
+            
+            # Attribution
+            "GENERATE_ATTRIBUTION_REPORT": self.execute_generate_attribution_report,
         }
         
     def execute_task(self, task_type: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
@@ -141,60 +146,118 @@ class TaskExecutor:
         existing_ideas = self.github.get_backlog_ideas()
         existing_fields = [idea.get('field', '') for idea in existing_ideas][:10]
         
-        prompt = f"""Task: Generate a new scientific research idea.
+        # Use a more creative prompting approach for small models
+        fields = ['biology', 'chemistry', 'computer science', 'materials science', 
+                  'environmental science', 'psychology', 'astronomy', 'medicine',
+                  'robotics', 'energy', 'agriculture', 'ocean science']
+        
+        # Remove fields already used
+        available_fields = [f for f in fields if f not in existing_fields]
+        if not available_fields:
+            available_fields = fields  # Reset if all used
+            
+        import random
+        chosen_field = random.choice(available_fields)
+        
+        prompt = f"""Complete this research idea for the field of {chosen_field}:
 
-Current ideas cover these fields: {', '.join(existing_fields)}
+Field: {chosen_field}
+Idea: """
 
-Instructions:
-1. Choose a scientific field (preferably underrepresented in the list above)
-2. Propose a novel research question that advances the field
-3. Write a 2-3 sentence description that includes:
-   - The problem being addressed
-   - The proposed approach
-   - The expected impact
-4. Suggest a unique ID using format: field-keyword-NNN (e.g., neuro-plasticity-001)
-
-Output exactly in this format:
-Field: [field name]
-Idea: [2-3 sentence description]
-ID: [suggested unique ID]
-Keywords: [3-5 relevant keywords separated by commas]"""
-
-        response = self.conv_mgr.query_model(prompt, task_type="BRAINSTORM_IDEA")
+        response = self.conv_mgr.query_model(prompt, task_type="BRAINSTORM_IDEA", 
+                                           max_new_tokens=150)
         if not response:
             return {"success": False, "error": "No response from model"}
             
-        # Parse response
-        parsed = self.parser.parse_brainstorm_response(response)
-        if not parsed:
-            return {"success": False, "error": "Failed to parse response", "raw_response": response}
+        # For this simpler format, parse manually
+        idea_text = response.strip()
+        if idea_text.startswith("Idea:"):
+            idea_text = idea_text[5:].strip()
+            
+        # Generate ID and keywords from the idea
+        words = idea_text.lower().split()
+        keywords = []
+        skip_words = ['research', 'develop', 'create', 'system', 'using', 'title:', 'background:', 
+                      'abstract:', 'approach:', 'the', 'and', 'for', 'with', 'that', 'this']
+        
+        for word in words:
+            cleaned_word = word.strip('.,!?:;')
+            if len(cleaned_word) > 5 and cleaned_word not in skip_words and ':' not in cleaned_word:
+                keywords.append(cleaned_word)
+                if len(keywords) >= 5:
+                    break
+                    
+        # Create parsed data
+        parsed = {
+            'field': chosen_field,
+            'idea': idea_text[:300],  # Limit length
+            'id': f"{chosen_field.replace(' ', '-')}-{datetime.now().strftime('%Y%m%d')}-001",
+            'keywords': ', '.join(keywords[:5]) if keywords else f"{chosen_field}, research, innovation"
+        }
+        
+        # Log parsed data for debugging
+        logger.info(f"Parsed brainstorm data: {parsed}")
             
         # Create GitHub issue
-        issue_body = f"""**Field**: {parsed['field']}
+        field = parsed.get('field', 'Unknown Field')
+        idea = parsed.get('idea', 'No description provided')
+        id_suggestion = parsed.get('id', f'auto-{datetime.now().strftime("%Y%m%d-%H%M%S")}')
+        keywords = parsed.get('keywords', 'research,llmxive,automated')
+        
+        issue_body = f"""**Field**: {field}
 
-**Description**: {parsed['idea']}
+**Description**: {idea}
 
-**Suggested ID**: {parsed['id']}
+**Suggested ID**: {id_suggestion}
 
-**Keywords**: {parsed['keywords']}
+**Keywords**: {keywords}
 
 ---
-*This idea was automatically generated by the llmXive automation system.*"""
+*This idea was automatically generated by the llmXive automation system.*
+*Model: {self.conv_mgr.model_name}*"""
+
+        # Create labels list - only use existing labels
+        labels = ["backlog", "idea", "Score: 0"]
 
         issue = self.github.create_issue(
-            title=f"[Idea] {parsed['idea'][:80]}...",
+            title=f"[Idea] {idea[:80]}..." if len(idea) > 80 else f"[Idea] {idea}",
             body=issue_body,
-            labels=["backlog", "idea", "Score: 0"] + 
-                   [kw.strip() for kw in parsed['keywords'].split(',')[:3]]
+            labels=labels
         )
         
         if issue:
+            # Track attribution
+            self.attribution.add_contribution(
+                model_id=self.conv_mgr.model_name,
+                task_type="BRAINSTORM_IDEA",
+                contribution_type="idea",
+                reference=f"issue-{issue.number}",
+                metadata={
+                    "field": parsed['field'],
+                    "idea_id": parsed['id'],
+                    "keywords": parsed['keywords']
+                }
+            )
+            
+            # Add model attribution as a comment
+            attribution_comment = self.attribution.format_attribution_comment(
+                model_id=self.conv_mgr.model_name,
+                task_type="BRAINSTORM_IDEA",
+                additional_info={
+                    "Field": parsed['field'],
+                    "Idea ID": parsed['id']
+                }
+            )
+            
+            self.github.create_issue_comment(issue.number, attribution_comment)
+            
             return {
                 "success": True,
                 "issue_number": issue.number,
                 "issue_url": issue.html_url,
                 "idea": parsed['idea'],
-                "id": parsed['id']
+                "id": parsed['id'],
+                "model": self.conv_mgr.model_name
             }
         else:
             return {"success": False, "error": "Failed to create issue"}
@@ -2382,3 +2445,55 @@ Report on verification results."""
             "verification_report": response or "Verification complete",
             "corrections_verified": True
         }
+        
+    # === ATTRIBUTION TASKS ===
+    
+    def execute_generate_attribution_report(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate model attribution report"""
+        logger.info("Generating model attribution report...")
+        
+        # Generate the report
+        report = self.attribution.generate_attribution_report()
+        
+        # Save to repository
+        report_path = "model_attributions/attribution_report.md"
+        success = self.github.create_file(
+            report_path,
+            report,
+            f"Update model attribution report - {datetime.now().strftime('%Y-%m-%d')}"
+        )
+        
+        if success:
+            # Also create an issue with recent contributions
+            recent_contribs = self.attribution.get_recent_contributions(10)
+            
+            issue_body = f"""## Model Attribution Report Generated
+
+A new model attribution report has been generated and saved to: `{report_path}`
+
+### Recent Contributions (Last 10)
+
+| Model | Task | Type | Reference | Timestamp |
+|-------|------|------|-----------|-----------|
+"""
+            for contrib in recent_contribs:
+                model_name = contrib['model_id'].split('/')[-1]
+                issue_body += f"| {model_name} | {contrib['task_type']} | {contrib['contribution_type']} | {contrib['reference']} | {contrib['timestamp'][:19]} |\n"
+                
+            issue_body += f"\n\n[View Full Report]({report_path})"
+            
+            issue = self.github.create_issue(
+                title=f"Model Attribution Report - {datetime.now().strftime('%Y-%m-%d')}",
+                body=issue_body,
+                labels=["documentation", "attribution"]
+            )
+            
+            return {
+                "success": True,
+                "report_path": report_path,
+                "issue_number": issue.number if issue else None,
+                "total_models": len(self.attribution.get_all_model_stats()),
+                "total_contributions": sum(s['total_contributions'] for s in self.attribution.get_all_model_stats().values())
+            }
+        
+        return {"success": False, "error": "Failed to save attribution report"}

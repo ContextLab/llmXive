@@ -29,9 +29,13 @@ logger = logging.getLogger(__name__)
               help='Maximum number of tasks to execute')
 @click.option('--task', type=str,
               help='Specific task type to run (optional)')
+@click.option('--model', type=str,
+              help='Specific model to use (e.g., microsoft/Phi-3-medium-4k-instruct)')
+@click.option('--model-size-gb', type=float, default=None,
+              help='Maximum model size in GB (default: 3.5 for GitHub Actions, 20 for local)')
 @click.option('--dry-run', is_flag=True,
               help='Show what would be done without executing')
-def main(github_token, hf_token, max_tasks, task, dry_run):
+def main(github_token, hf_token, max_tasks, task, model, model_size_gb, dry_run):
     """Run llmXive automation system"""
     
     logger.info("=== llmXive Automation Starting ===")
@@ -40,11 +44,15 @@ def main(github_token, hf_token, max_tasks, task, dry_run):
     
     if task:
         logger.info(f"Specific task: {task}")
+    if model:
+        logger.info(f"Using model: {model}")
+    if model_size_gb:
+        logger.info(f"Max model size: {model_size_gb}GB")
     
-    # Validate tokens
+    # Check for GitHub access
     if not github_token:
-        logger.error("GitHub token is required. Set GITHUB_TOKEN environment variable.")
-        sys.exit(1)
+        logger.info("No GitHub token found. Attempting to use GitHub CLI (gh)...")
+        logger.info("Make sure you're authenticated with: gh auth login")
     
     if dry_run:
         logger.info("[DRY RUN MODE - No changes will be made]")
@@ -55,11 +63,19 @@ def main(github_token, hf_token, max_tasks, task, dry_run):
         return
     
     try:
+        # Determine model size limit
+        if model_size_gb is None:
+            # Default to 20GB for local, 3.5GB for CI
+            import os
+            model_size_gb = 3.5 if os.environ.get('CI') == 'true' else 20.0
+            
         # Initialize orchestrator
         logger.info("Initializing orchestrator...")
         orchestrator = LLMXiveOrchestrator(
             github_token=github_token,
-            hf_token=hf_token
+            hf_token=hf_token,
+            model_size_gb=model_size_gb,
+            specific_model=model
         )
         
         # Run automation cycle

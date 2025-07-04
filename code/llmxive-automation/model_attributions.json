@@ -1,0 +1,61 @@
+{
+  "models": {
+    "TinyLlama/TinyLlama-1.1B-Chat-v1.0": {
+      "first_contribution": "2025-07-04T11:51:51.801759",
+      "total_contributions": 1,
+      "contributions_by_type": {
+        "idea": 1
+      },
+      "last_contribution": "2025-07-04T11:51:51.801768"
+    },
+    "microsoft/phi-2": {
+      "first_contribution": "2025-07-04T11:56:12.822726",
+      "total_contributions": 2,
+      "contributions_by_type": {
+        "idea": 2
+      },
+      "last_contribution": "2025-07-04T11:56:12.823942"
+    }
+  },
+  "contributions": [
+    {
+      "id": "TinyLlama-TinyLlama-1.1B-Chat-v1.0_20250704_115151",
+      "model_id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+      "timestamp": "2025-07-04T11:51:51.801769",
+      "task_type": "BRAINSTORM_IDEA",
+      "contribution_type": "idea",
+      "reference": "issue-28",
+      "metadata": {
+        "field": "environmental science",
+        "idea_id": "environmental-science-20250704-001",
+        "keywords": "investigating, potential, benefits, ecotourism, regenerating"
+      }
+    },
+    {
+      "id": "microsoft-phi-2_20250704_115612",
+      "model_id": "microsoft/phi-2",
+      "timestamp": "2025-07-04T11:56:12.822730",
+      "task_type": "BRAINSTORM_IDEA",
+      "contribution_type": "idea",
+      "reference": "issue-123",
+      "metadata": {
+        "field": "medicine",
+        "idea_id": "medicine-20250704-001",
+        "keywords": "neuroscience, brain-computer, interface, quantum, computing"
+      }
+    },
+    {
+      "id": "microsoft-phi-2_20250704_115612",
+      "model_id": "microsoft/phi-2",
+      "timestamp": "2025-07-04T11:56:12.823943",
+      "task_type": "BRAINSTORM_IDEA",
+      "contribution_type": "idea",
+      "reference": "issue-<Mock name='mock().number' id='13575107696'>",
+      "metadata": {
+        "field": "robotics",
+        "idea_id": "robotics-20250704-001",
+        "keywords": "invalid, response, format"
+      }
+    }
+  ]
+}

@@ -36,13 +36,11 @@ class ModelManager:
         # Ensure cache directory exists
         os.makedirs(self.cache_dir, exist_ok=True)
         
-        # Known good fallback models
+        # Known good fallback models (ordered by size/capability)
+        # For now, stick with TinyLlama which works reliably
         self.fallback_models = [
-            "TinyLlama/TinyLlama-1.1B-Chat-v1.0",  # Most stable
-            "google/gemma-2b-it",  # Good alternative
-            "microsoft/phi-2",  # Older but stable
-            "Qwen/Qwen1.5-0.5B-Chat",  # Very small
-            "microsoft/Phi-3.5-mini-instruct"  # Last resort
+            "TinyLlama/TinyLlama-1.1B-Chat-v1.0",  # Most stable and accessible
+            "Qwen/Qwen1.5-0.5B-Chat",  # Very small alternative
         ]
         
     def get_suitable_model(self) -> Tuple[PreTrainedModel, PreTrainedTokenizer]:

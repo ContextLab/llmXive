@@ -142,7 +142,8 @@ class ResponseParser:
             patterns = [
                 rf"{field}:\s*(.+?)(?:\n|$)",
                 rf"\*\*{field}\*\*:\s*(.+?)(?:\n|$)",
-                rf"{field.title()}:\s*(.+?)(?:\n|$)"
+                rf"{field.title()}:\s*(.+?)(?:\n|$)",
+                rf"{field.upper()}:\s*(.+?)(?:\n|$)"
             ]
             
             for pattern in patterns:

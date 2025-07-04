@@ -18,21 +18,25 @@ logger = logging.getLogger(__name__)
 class LLMXiveOrchestrator:
     """Main orchestration for the automation system"""
     
-    def __init__(self, github_token: str, hf_token: Optional[str] = None,
-                 model_cache_dir: Optional[str] = None):
+    def __init__(self, github_token: Optional[str] = None, hf_token: Optional[str] = None,
+                 model_cache_dir: Optional[str] = None, model_size_gb: float = 3.5,
+                 specific_model: Optional[str] = None):
         """
         Initialize orchestrator
         
         Args:
-            github_token: GitHub access token
+            github_token: GitHub access token (optional - will use gh CLI if not provided)
             hf_token: HuggingFace token (optional)
             model_cache_dir: Directory for model cache
+            model_size_gb: Maximum model size in GB
+            specific_model: Specific model to use instead of auto-selection
         """
         self.github_token = github_token
         self.hf_token = hf_token
+        self.specific_model = specific_model
         
         # Initialize components
-        self.model_mgr = ModelManager(cache_dir=model_cache_dir)
+        self.model_mgr = ModelManager(max_size_gb=model_size_gb, cache_dir=model_cache_dir)
         self.github = GitHubHandler(github_token)
         
         # Task queue and logs
@@ -48,7 +52,14 @@ class LLMXiveOrchestrator:
     def initialize_model(self):
         """Load model and initialize conversation manager"""
         logger.info("Loading model...")
-        self.model, self.tokenizer = self.model_mgr.get_suitable_model()
+        
+        if self.specific_model:
+            # Load specific model requested by user
+            logger.info(f"Loading specific model: {self.specific_model}")
+            self.model, self.tokenizer = self.model_mgr._load_model(self.specific_model)
+        else:
+            # Auto-select model
+            self.model, self.tokenizer = self.model_mgr.get_suitable_model()
         
         # Initialize conversation manager
         self.conv_mgr = ConversationManager(self.model, self.tokenizer)

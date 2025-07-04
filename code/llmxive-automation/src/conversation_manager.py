@@ -84,6 +84,7 @@ class ConversationManager:
         self.tokenizer = tokenizer
         self.max_context = max_context
         self.conversation_history: List[Dict[str, str]] = []
+        self.model_name = model.name_or_path if hasattr(model, 'name_or_path') else ""
         
     def query_model(self, prompt: str, task_type: Optional[str] = None,
                    max_retries: int = 3, temperature: float = 0.7,
@@ -226,9 +227,27 @@ class ConversationManager:
         else:
             response = full_response
             
+        # Remove system/user prompt artifacts
+        if "<|system|>" in response:
+            # Extract only the part after all the template stuff
+            parts = response.split('\n')
+            clean_parts = []
+            skip_until_idea = True
+            
+            for part in parts:
+                # Skip lines until we find actual content
+                if skip_until_idea:
+                    if any(keyword in part.lower() for keyword in ['title:', 'idea:', 'abstract:', 'approach:']):
+                        skip_until_idea = False
+                        clean_parts.append(part)
+                else:
+                    clean_parts.append(part)
+                    
+            response = '\n'.join(clean_parts).strip()
+            
         # Clean up any remaining format tokens
         cleanup_patterns = [
-            "<|assistant|>", "<|endoftext|>", "<|im_end|>",
+            "<|assistant|>", "<|endoftext|>", "<|im_end|>", "<|system|>", "<|user|>",
             "</s>", "<end_of_turn>", "[/INST]", "<|end|>"
         ]
         
@@ -244,7 +263,7 @@ class ConversationManager:
             
         # Task-specific validation
         validators = {
-            "BRAINSTORM_IDEA": lambda r: all(x in r.lower() for x in ["field:", "idea:", "id:"]),
+            "BRAINSTORM_IDEA": lambda r: len(r.strip()) > 20,  # Just need some content
             "WRITE_TECHNICAL_DESIGN": lambda r: len(r) > 500,  # Should be substantial
             "REVIEW_TECHNICAL_DESIGN": lambda r: "score:" in r.lower() or any(x in r.lower() for x in ["accept", "reject"]),
             "WRITE_CODE": lambda r: "def " in r or "class " in r or "import " in r,

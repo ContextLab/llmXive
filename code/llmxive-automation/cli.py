@@ -48,14 +48,16 @@ logger = logging.getLogger(__name__)
               default=os.path.expanduser("~/.cache/huggingface"),
               help='Directory for model cache')
 @click.option('--verbose', '-v', is_flag=True, help='Enable verbose logging')
+@click.option('--model', type=str, help='Specific model to use')
+@click.option('--model-size-gb', type=float, help='Maximum model size in GB')
 def main(github_token, hf_token, max_tasks, task, issue, project_id, 
-         dry_run, model_cache, verbose):
+         dry_run, model_cache, verbose, model, model_size_gb):
     """Run llmXive automation locally"""
     
-    # Validate tokens
+    # Check for GitHub access
     if not github_token:
-        click.echo("Error: GitHub token is required. Set GITHUB_TOKEN environment variable.")
-        sys.exit(1)
+        click.echo("Note: No GitHub token found. Attempting to use GitHub CLI (gh)...")
+        click.echo("Make sure you're authenticated with: gh auth login")
         
     # Set logging level
     if verbose:
@@ -66,6 +68,10 @@ def main(github_token, hf_token, max_tasks, task, issue, project_id,
     click.echo(f"Max tasks: {max_tasks}")
     click.echo(f"Specific task: {task or 'Auto'}")
     click.echo(f"Model cache: {model_cache}")
+    if model:
+        click.echo(f"Specific model: {model}")
+    if model_size_gb:
+        click.echo(f"Max model size: {model_size_gb} GB")
     
     if dry_run:
         click.echo("\n[DRY RUN MODE - No changes will be made]")
@@ -90,7 +96,9 @@ def main(github_token, hf_token, max_tasks, task, issue, project_id,
         orchestrator = LLMXiveOrchestrator(
             github_token=github_token,
             hf_token=hf_token,
-            model_cache_dir=model_cache
+            model_cache_dir=model_cache,
+            model_size_gb=model_size_gb,
+            specific_model=model
         )
         
         # Build task context if specific task

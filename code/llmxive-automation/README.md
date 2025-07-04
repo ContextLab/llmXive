@@ -13,6 +13,7 @@ This system automates the entire llmXive workflow from idea generation to paper 
 - **Complete Task Coverage**: Supports 40+ task types covering the entire research pipeline
 - **Self-Correcting**: Can identify and implement improvements to its own outputs
 - **GitHub Integration**: Full integration with issues, labels, and project boards
+- **Model Attribution**: Tracks and credits all model contributions with detailed attribution system
 
 ## Installation
 
@@ -43,6 +44,30 @@ python main.py --task BRAINSTORM_IDEA
 # Use CLI for more control
 python cli.py --help
 ```
+
+### Using Larger Models Locally
+
+When running locally, you can use larger models since you have more RAM available:
+
+```bash
+# Use a specific larger model
+python cli.py \
+    --model "microsoft/Phi-3-medium-4k-instruct" \
+    --model-size-gb 20 \
+    --max-tasks 3
+
+# Or let the system auto-select from larger models
+python cli.py --model-size-gb 20 --max-tasks 5
+
+# Run the demo script
+./run_local_demo.sh
+```
+
+Popular models for local execution:
+- `microsoft/Phi-3-medium-4k-instruct` (4B params, ~8GB)
+- `meta-llama/Llama-2-7b-chat-hf` (7B params, ~14GB)
+- `mistralai/Mistral-7B-Instruct-v0.2` (7B params, ~14GB)
+- `google/gemma-7b-it` (7B params, ~14GB)
 
 ### GitHub Actions
 
@@ -127,8 +152,10 @@ src/
 ├── model_manager.py      # HuggingFace model selection and loading
 ├── conversation_manager.py # Model-specific prompt formatting
 ├── github_handler.py     # GitHub API operations
+├── github_cli_handler.py # GitHub CLI fallback operations
 ├── response_parser.py    # Parse various LLM output formats
 ├── task_executor.py      # Execute all task types
+├── model_attribution.py  # Track and attribute model contributions
 └── orchestrator.py       # Main automation logic
 
 tests/
@@ -144,10 +171,17 @@ tests/
 - `CUDA_VISIBLE_DEVICES` - Control GPU usage
 
 ### Model Selection Criteria
-- Size < 3.5GB (for GitHub Actions runners)
+- Size < 3.5GB (for GitHub Actions runners) or configurable limit for local runs
 - Has "instruct" or "chat" tags
 - Trending on HuggingFace
 - Supports text generation
+
+### Command Line Options
+- `--model` - Specify exact model to use (e.g., "microsoft/Phi-3-medium-4k-instruct")
+- `--model-size-gb` - Set maximum model size in GB (default: 3.5 for CI, 20 for local)
+- `--max-tasks` - Maximum number of tasks to execute in one run
+- `--task` - Run a specific task type instead of auto-selecting
+- `--dry-run` - Show what would be done without executing
 
 ## Contributing
 
@@ -171,6 +205,29 @@ tests/
 ### GitHub API Rate Limits
 - Ensure GITHUB_TOKEN has appropriate permissions
 - The system implements rate limiting automatically
+
+## Model Attribution
+
+The system includes comprehensive model attribution tracking:
+
+### Viewing Attribution Data
+
+```bash
+# Generate attribution report
+python scripts/generate_attribution_report.py
+
+# View attribution data directly
+cat model_attributions.json
+```
+
+### How Attribution Works
+
+1. **Automatic Tracking**: Every model contribution is recorded with timestamp, task type, and reference
+2. **GitHub Comments**: Issues/PRs created by models receive attribution comments
+3. **Reports**: Generate reports showing model contributions over time
+4. **Statistics**: Track contributions by type, model performance, and activity patterns
+
+See [docs/model_attribution.md](docs/model_attribution.md) for detailed documentation.
 
 ## License
 
