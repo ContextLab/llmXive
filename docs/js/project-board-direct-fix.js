@@ -42,11 +42,23 @@ window.projectBoardDirectFix = {
         `;
         
         try {
+            // Get auth headers if available
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+            
+            // Add auth if available from githubAuth
+            if (window.githubAuth && window.githubAuth.isAuthenticated()) {
+                const authHeaders = window.githubAuth.getAuthHeaders();
+                Object.assign(headers, authHeaders);
+                console.log('Using authenticated request');
+            } else {
+                console.log('Making unauthenticated request (may hit rate limits)');
+            }
+            
             const response = await fetch('https://api.github.com/graphql', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: headers,
                 body: JSON.stringify({ query })
             });
             
@@ -224,11 +236,23 @@ window.projectBoardDirectFix = {
         `;
         
         try {
+            // Get auth headers if available
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+            
+            // Add auth if available from githubAuth
+            if (window.githubAuth && window.githubAuth.isAuthenticated()) {
+                const authHeaders = window.githubAuth.getAuthHeaders();
+                Object.assign(headers, authHeaders);
+                console.log('Using authenticated request');
+            } else {
+                console.log('Making unauthenticated request (may hit rate limits)');
+            }
+            
             const response = await fetch('https://api.github.com/graphql', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: headers,
                 body: JSON.stringify({ query })
             });
             
