@@ -1,8 +1,15 @@
+/* Override default grid when showing board columns */
+#projectsGrid {
+    display: block !important;
+    grid-template-columns: none !important;
+    gap: 0 !important;
+}
+
 /* Board Column Layout */
 .board-columns {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
+    gap: 20px;
     margin-top: 30px;
     min-height: 600px;
     width: 100%;
@@ -15,6 +22,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    min-width: 0; /* Allow columns to shrink */
 }
 
 .column-header {
@@ -474,21 +482,15 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1600px) {
-    .board-columns {
-        grid-template-columns: repeat(4, minmax(280px, 1fr));
-    }
-}
-
 @media (max-width: 1400px) {
     .board-columns {
-        grid-template-columns: repeat(3, minmax(320px, 1fr));
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
 @media (max-width: 1024px) {
     .board-columns {
-        grid-template-columns: repeat(2, minmax(340px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
@@ -496,9 +498,6 @@
     .board-columns {
         grid-template-columns: 1fr;
         gap: 16px;
-        margin: 20px 0;
-        padding: 0;
-        width: 100%;
     }
     
     .column-content {
