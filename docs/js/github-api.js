@@ -192,24 +192,32 @@ class GitHubAPI {
             'completed': 'Done'
         };
         
-        // Check for exact matches first
+        // Debug logging
+        if (labels.length > 0) {
+            console.log('Checking labels for status:', labels.map(l => l.name));
+        }
+        
+        // Check for exact matches first (case-insensitive)
         for (const label of labels) {
-            const labelName = label.name.toLowerCase();
+            const labelName = label.name.toLowerCase().trim();
             if (statusMap[labelName]) {
+                console.log(`Found exact status match: "${label.name}" -> "${statusMap[labelName]}"`);
                 return statusMap[labelName];
             }
         }
         
         // Then check for partial matches
         for (const label of labels) {
-            const labelName = label.name.toLowerCase();
+            const labelName = label.name.toLowerCase().trim();
             for (const [key, status] of Object.entries(statusMap)) {
                 if (labelName.includes(key)) {
+                    console.log(`Found partial status match: "${label.name}" contains "${key}" -> "${status}"`);
                     return status;
                 }
             }
         }
         
+        console.log('No status label found, defaulting to Backlog');
         return 'Backlog'; // Default
     }
     
@@ -220,7 +228,8 @@ class GitHubAPI {
         // Get from labels (exclude status labels)
         issue.labels.forEach(label => {
             const name = label.name.toLowerCase();
-            if (!['backlog', 'ready', 'in-progress', 'in-review', 'done'].some(s => name.includes(s))) {
+            // More comprehensive status label exclusion
+            if (!['backlog', 'ready', 'in progress', 'in-progress', 'in review', 'in-review', 'done', 'completed'].some(s => name === s || name.includes(s))) {
                 keywords.push(label.name);
             }
         });
