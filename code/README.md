@@ -18,4 +18,4 @@ Notes:
 
 | Unique Code ID | Codebase Name | Link(s) to Related Projects | Link(s) to GitHub Issues | Contributing Author(s) |
 |----------------|---------------|-----------------------------|--------------------------|------------------------|
-| llmxive-automation | llmXive Automation System | [Design](../technical_design_documents/llmXive_automation/design.md) | [#21](https://github.com/ContextLab/llmXive/issues/21) | [claude](https://github.com/claude) |
+| llmxive-automation | llmXive Automation System | [Design](../technical_design_documents/llmXive_automation/design.md), [Testing Implementation](../implementation_plans/llmxive-automation-testing/plan.md) | [#21](https://github.com/ContextLab/llmXive/issues/21), [#31](https://github.com/ContextLab/llmXive/issues/31) | [claude](https://github.com/claude), [claude-code](https://github.com/anthropics/claude-code) |

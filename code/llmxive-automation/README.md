@@ -35,15 +35,33 @@ pip install -r requirements.txt
 export GITHUB_TOKEN=your_github_token
 export HF_TOKEN=your_huggingface_token  # Optional
 
-# Run full automation cycle
+# Run full automation cycle (original orchestrator)
 python main.py --max-tasks 5
 
-# Run specific task
-python main.py --task BRAINSTORM_IDEA
+# Run with the new pipeline orchestrator
+python main.py --use-pipeline --max-tasks 5
+
+# Run specific task with pipeline orchestrator
+python main.py --use-pipeline --task BRAINSTORM_IDEA
+
+# Work on specific project
+python main.py --use-pipeline --project-id quantum-materials-2025
+
+# Use specific model
+python main.py --use-pipeline --model microsoft/Phi-3-medium-4k-instruct
 
 # Use CLI for more control
 python cli.py --help
 ```
+
+### Pipeline Orchestrator
+
+The new pipeline orchestrator provides better project tracking and stage management:
+
+- **Project Selection**: Automatically selects the highest priority project based on stage, score, and staleness
+- **Stage-Aware Tasks**: Generates appropriate tasks based on the current project stage
+- **Score Tracking**: Integrates with the scoring system to track project advancement
+- **Structured Execution**: Follows the same patterns as our comprehensive test pipeline
 
 ### Using Larger Models Locally
 

@@ -1,0 +1,368 @@
+# Full pipeline test scenario with proper stage transitions
+name: "Full Pipeline Test - Fixed"
+project_id: "test-synthetic-timeseries-2025"
+description: "Complete end-to-end test of llmXive pipeline with fixed stage transitions"
+
+# Define the models used in this test
+models:
+  - id: "enthusiastic_reviewer"
+    name: "Enthusiastic Test Reviewer"
+    personality: "Always positive and encouraging"
+    
+  - id: "critical_reviewer" 
+    name: "Critical Test Reviewer"
+    personality: "Finds issues and requests changes"
+    
+  - id: "supportive_reviewer"
+    name: "Supportive Test Reviewer"  
+    personality: "Generally positive with minor suggestions"
+    
+  - id: "domain_expert"
+    name: "Domain Expert Test Model"
+    personality: "Technical expert who creates content"
+
+steps:
+  # Stage 1: Ideation (BACKLOG)
+  - number: 1
+    description: "Generate project idea"
+    task_type: "BRAINSTORM"
+    model: "enthusiastic_reviewer"
+    validates:
+      creates_issue: true
+      adds_labels: ["idea", "stage: backlog"]
+      score: 0
+
+  - number: 2
+    description: "Create GitHub issue"
+    task_type: "CREATE_ISSUE"
+    validates:
+      issue_created: true
+      project_board: "Backlog"
+
+  - number: 3
+    description: "Add initial labels"
+    task_type: "ADD_LABELS"
+    validates:
+      labels: ["idea", "stage: backlog", "score: 0"]
+
+  - number: 4
+    description: "Initialize project structure"
+    task_type: "INIT_PROJECT"
+    validates:
+      project_id: "test-synthetic-timeseries-2025"
+
+  # Technical Design Phase
+  - number: 5
+    description: "Create technical design document"
+    task_type: "CREATE_TECHNICAL_DESIGN"
+    model: "domain_expert"
+    validates:
+      creates_file: "technical_design_documents/test-synthetic-timeseries-2025/design.md"
+      updates_readme: true
+      score: 0
+
+  - number: 6
+    description: "First design review (positive)"
+    task_type: "REVIEW_TECHNICAL_DESIGN"
+    model: "enthusiastic_reviewer"
+    response_type: "positive"
+    validates:
+      score: 0.5
+      adds_comment: true
+      creates_review_file: true
+
+  - number: 7
+    description: "Second design review (positive)"
+    task_type: "REVIEW_TECHNICAL_DESIGN"
+    model: "supportive_reviewer"
+    response_type: "positive"
+    validates:
+      score: 1.0
+      adds_comment: true
+
+  - number: 8
+    description: "Critical design review"
+    task_type: "REVIEW_TECHNICAL_DESIGN"
+    model: "critical_reviewer"
+    response_type: "critical"
+    validates:
+      score: 0
+      adds_labels: ["critical-issue-identified", "needs-revision"]
+      stage_remains: "backlog"
+
+  - number: 9
+    description: "Fix critical issues in design"
+    task_type: "UPDATE_TECHNICAL_DESIGN"
+    model: "domain_expert"
+    validates:
+      updates_file: "technical_design_documents/test-synthetic-timeseries-2025/design.md"
+      removes_labels: ["critical-issue-identified"]
+
+  - number: 10
+    description: "Re-review after fixes (10 positive reviews)"
+    task_type: "BULK_REVIEW"
+    review_count: 10
+    all_positive: true
+    validates:
+      score: 5.0
+      adds_labels: ["ready-to-advance", "score: 5.0"]
+
+  - number: 11
+    description: "Advance to Ready stage"
+    task_type: "ADVANCE_STAGE"
+    validates:
+      stage: "ready"
+      project_board: "Ready"
+      removes_labels: ["stage: backlog"]
+      adds_labels: ["stage: ready"]
+
+  # Stage 2: Planning (READY)
+  - number: 12
+    description: "Create implementation plan"
+    task_type: "CREATE_IMPLEMENTATION_PLAN"
+    model: "domain_expert"
+    validates:
+      creates_file: "implementation_plans/test-synthetic-timeseries-2025/plan.md"
+      updates_readme: true
+      resets_score: true
+      score: 0
+
+  - number: 13
+    description: "Review implementation plan (negative)"
+    task_type: "REVIEW_IMPLEMENTATION_PLAN"
+    model: "critical_reviewer"
+    response_type: "negative"
+    validates:
+      score: 0
+      adds_comment: true
+
+  - number: 14
+    description: "Review implementation plan (positive)"
+    task_type: "REVIEW_IMPLEMENTATION_PLAN"
+    model: "domain_expert"
+    response_type: "positive"
+    validates:
+      score: 0.5
+
+  - number: 15
+    description: "Update plan based on feedback"
+    task_type: "UPDATE_IMPLEMENTATION_PLAN"
+    model: "domain_expert"
+    validates:
+      updates_file: "implementation_plans/test-synthetic-timeseries-2025/plan.md"
+
+  - number: 16
+    description: "Final plan reviews (10 positive)"
+    task_type: "BULK_REVIEW"
+    review_count: 10
+    all_positive: true
+    validates:
+      score: 5.5
+      stage_advances: true
+
+  - number: 17
+    description: "Advance to In Progress"
+    task_type: "ADVANCE_STAGE"
+    validates:
+      stage: "in_progress"
+      project_board: "In Progress"
+      adds_labels: ["stage: in-progress"]
+
+  # Stage 3: Implementation (IN_PROGRESS)
+  - number: 18
+    description: "Generate initial code"
+    task_type: "GENERATE_CODE"
+    model: "domain_expert"
+    validates:
+      creates_files:
+        - "code/test-synthetic-timeseries-2025/helpers/timeseries_generator.py"
+        - "code/test-synthetic-timeseries-2025/helpers/pattern_analyzer.py"
+
+  - number: 19
+    description: "Write tests"
+    task_type: "WRITE_TESTS"
+    model: "domain_expert"
+    validates:
+      creates_files:
+        - "code/test-synthetic-timeseries-2025/tests/test_generators.py"
+        - "code/test-synthetic-timeseries-2025/tests/test_analyzers.py"
+
+  - number: 20
+    description: "Run tests (some fail)"
+    task_type: "RUN_TESTS"
+    test_result: "fail"
+    validates:
+      test_status: "failed"
+      failing_tests: 2
+
+  - number: 21
+    description: "Debug and fix code"
+    task_type: "DEBUG_CODE"
+    model: "domain_expert"
+    validates:
+      updates_files:
+        - "code/test-synthetic-timeseries-2025/helpers/timeseries_generator.py"
+        - "code/test-synthetic-timeseries-2025/helpers/pattern_analyzer.py"
+
+  - number: 22
+    description: "Run tests (all pass)"
+    task_type: "RUN_TESTS"
+    test_result: "pass"
+    validates:
+      test_status: "passed"
+      all_tests_pass: true
+
+  - number: 23
+    description: "Generate synthetic data"
+    task_type: "GENERATE_DATA"
+    model: "domain_expert"
+    validates:
+      creates_files:
+        - "data/test-synthetic-timeseries-2025/synthetic_data.npz"
+        - "data/test-synthetic-timeseries-2025/metadata.json"
+
+  - number: 24
+    description: "Run analysis"
+    task_type: "RUN_ANALYSIS"
+    model: "domain_expert"
+    validates:
+      creates_files:
+        - "code/test-synthetic-timeseries-2025/results/analysis_results.json"
+
+  - number: 25
+    description: "Create figures"
+    task_type: "CREATE_FIGURES"
+    model: "domain_expert"
+    validates:
+      creates_files:
+        - "papers/test-synthetic-timeseries-2025/figures/figure1.png"
+        - "papers/test-synthetic-timeseries-2025/figures/figure2.png"
+
+  # Stage 4: Paper Writing
+  - number: 26
+    description: "Write Introduction"
+    task_type: "WRITE_PAPER_SECTION"
+    section: "introduction"
+    model: "enthusiastic_reviewer"
+    validates:
+      creates_file: "papers/test-synthetic-timeseries-2025/sections/introduction.tex"
+
+  - number: 27
+    description: "Write Methods"
+    task_type: "WRITE_PAPER_SECTION"
+    section: "methods"
+    model: "domain_expert"
+    validates:
+      creates_file: "papers/test-synthetic-timeseries-2025/sections/methods.tex"
+
+  - number: 28
+    description: "Write Results"
+    task_type: "WRITE_PAPER_SECTION"
+    section: "results"
+    model: "domain_expert"
+    validates:
+      creates_file: "papers/test-synthetic-timeseries-2025/sections/results.tex"
+
+  - number: 29
+    description: "Write Discussion"
+    task_type: "WRITE_PAPER_SECTION"
+    section: "discussion"
+    model: "supportive_reviewer"
+    validates:
+      creates_file: "papers/test-synthetic-timeseries-2025/sections/discussion.tex"
+
+  - number: 30
+    description: "Write Abstract"
+    task_type: "WRITE_PAPER_SECTION"
+    section: "abstract"
+    model: "enthusiastic_reviewer"
+    validates:
+      creates_file: "papers/test-synthetic-timeseries-2025/sections/abstract.tex"
+
+  - number: 31
+    description: "Compile paper draft"
+    task_type: "COMPILE_PAPER"
+    validates:
+      creates_file: "papers/test-synthetic-timeseries-2025/paper.tex"
+
+  - number: 32
+    description: "Signal completion (2 reviews to advance)"
+    task_type: "REVIEW_PAPER"
+    model: "domain_expert"
+    response_type: "positive"
+    repeat: 2
+    validates:
+      score: 1.0
+      adds_comment: true
+
+  - number: 33
+    description: "Advance to In Review"
+    task_type: "ADVANCE_STAGE"
+    validates:
+      stage: "in_review"
+      project_board: "In Review"
+      adds_labels: ["stage: in-review"]
+      resets_score: true
+
+  # Stage 5: In Review (IN_REVIEW)
+  - number: 34
+    description: "Comprehensive paper reviews (3 reviews)"
+    task_type: "REVIEW_PAPER"
+    review_count: 3
+    mixed_reviews: true
+    validates:
+      review_count: 3
+
+  - number: 35
+    description: "Revise paper based on feedback"
+    task_type: "REVISE_PAPER"
+    model: "domain_expert"
+    validates:
+      updates_file: "papers/test-synthetic-timeseries-2025/paper.tex"
+
+  - number: 36
+    description: "Final acceptance reviews (10 positive)"
+    task_type: "BULK_REVIEW"
+    review_count: 10
+    all_positive: true
+    validates:
+      score: 5.0
+      ready_to_publish: true
+
+  - number: 37
+    description: "Compile final PDF"
+    task_type: "COMPILE_PDF"
+    validates:
+      creates_file: "papers/test-synthetic-timeseries-2025/paper.pdf"
+
+  - number: 38
+    description: "Organize code repository"
+    task_type: "ORGANIZE_CODE"
+    validates:
+      creates_files:
+        - "code/test-synthetic-timeseries-2025/README.md"
+        - "code/test-synthetic-timeseries-2025/requirements.txt"
+
+  - number: 39
+    description: "Update all README files"
+    task_type: "UPDATE_READMES"
+    validates:
+      updates_files:
+        - "papers/README.md"
+        - "code/README.md"
+        - "data/README.md"
+
+  - number: 40
+    description: "Move to Done"
+    task_type: "ADVANCE_STAGE"
+    validates:
+      stage: "done"
+      project_board: "Done"
+      adds_labels: ["stage: done", "completed"]
+
+  - number: 41
+    description: "Verify web interface update"
+    task_type: "VERIFY_WEB"
+    validates:
+      web_shows_completed: true
+      pdf_link_exists: true

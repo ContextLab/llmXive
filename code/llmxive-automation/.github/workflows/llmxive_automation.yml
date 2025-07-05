@@ -1,0 +1,85 @@
+name: llmXive Automation
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      max_tasks:
+        description: 'Maximum number of tasks to execute'
+        required: false
+        default: '5'
+      specific_task:
+        description: 'Specific task type to run (optional)'
+        required: false
+      project_id:
+        description: 'Specific project ID to work on (optional)'
+        required: false
+      model:
+        description: 'Specific model to use (optional)'
+        required: false
+
+jobs:
+  automation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Run automation with pipeline orchestrator
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      run: |
+        # Set parameters
+        MAX_TASKS="${{ github.event.inputs.max_tasks || '5' }}"
+        TASK="${{ github.event.inputs.specific_task || '' }}"
+        PROJECT_ID="${{ github.event.inputs.project_id || '' }}"
+        MODEL="${{ github.event.inputs.model || '' }}"
+        
+        # Build command
+        CMD="python main.py --use-pipeline --max-tasks $MAX_TASKS"
+        
+        if [ -n "$TASK" ]; then
+          CMD="$CMD --task $TASK"
+        fi
+        
+        if [ -n "$PROJECT_ID" ]; then
+          CMD="$CMD --project-id $PROJECT_ID"
+        fi
+        
+        if [ -n "$MODEL" ]; then
+          CMD="$CMD --model $MODEL"
+        fi
+        
+        # Run automation
+        echo "Running: $CMD"
+        $CMD
+        
+    - name: Upload logs
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: automation-logs
+        path: logs/
+        retention-days: 30

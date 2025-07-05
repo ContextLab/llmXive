@@ -1,0 +1,62 @@
+{
+  "scenario": "tests/scenarios/full_pipeline_test_fixed.yaml",
+  "start_time": "2025-07-04T18:28:35.202254",
+  "result": {
+    "success": false,
+    "total_steps": 41,
+    "completed_steps": 41,
+    "duration_seconds": 0.005949,
+    "errors": [],
+    "warnings": [
+      "No models specified for review"
+    ],
+    "validation_summary": {
+      "total_checks": 28,
+      "passed_checks": 14,
+      "failed_checks": 14,
+      "errors": 7,
+      "warnings": 1,
+      "info": 17,
+      "by_category": {
+        "file_validations": {
+          "total": 4,
+          "passed": 0,
+          "failed": 4,
+          "errors": 4,
+          "warnings": 0
+        },
+        "github_validations": {
+          "total": 24,
+          "passed": 14,
+          "failed": 10,
+          "errors": 3,
+          "warnings": 1
+        }
+      },
+      "pass_rate": 50.0,
+      "overall_status": "FAILED"
+    }
+  },
+  "final_state": {
+    "project_id": "test-synthetic-timeseries-2025",
+    "stage": "done",
+    "score": 0.0,
+    "artifacts": [
+      "technical_design",
+      "technical_design_document",
+      "implementation_plan",
+      "code",
+      "tests",
+      "data",
+      "analysis",
+      "figures",
+      "paper",
+      "paper_draft",
+      "code_repository",
+      "pdf",
+      "readme_updates",
+      "paper_pdf"
+    ],
+    "history_length": 41
+  }
+}

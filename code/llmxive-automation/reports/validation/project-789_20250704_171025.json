@@ -1,0 +1,500 @@
+{
+  "project_id": "project-789",
+  "timestamp": "2025-07-04T21:10:25.284661+00:00",
+  "summary": {
+    "total_checks": 42,
+    "passed_checks": 27,
+    "failed_checks": 15,
+    "errors": 8,
+    "warnings": 0,
+    "info": 26,
+    "by_category": {
+      "file_validations": {
+        "total": 7,
+        "passed": 0,
+        "failed": 7,
+        "errors": 7,
+        "warnings": 0
+      },
+      "github_validations": {
+        "total": 35,
+        "passed": 27,
+        "failed": 8,
+        "errors": 1,
+        "warnings": 0
+      }
+    },
+    "pass_rate": 64.28571428571429,
+    "overall_status": "FAILED"
+  },
+  "file_validations": {
+    "technical_design": {
+      "item_type": "technical_design",
+      "item_id": "project-789",
+      "passed": false,
+      "has_warnings": false,
+      "passed_count": 0,
+      "failed_count": 1,
+      "checks": [
+        {
+          "name": "directory_exists_project-789",
+          "passed": false,
+          "message": "Directory not found: technical_design_documents/project-789",
+          "severity": "error",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284683+00:00"
+        }
+      ],
+      "metadata": {}
+    },
+    "implementation_plan": {
+      "item_type": "implementation_plan",
+      "item_id": "project-789",
+      "passed": false,
+      "has_warnings": false,
+      "passed_count": 0,
+      "failed_count": 1,
+      "checks": [
+        {
+          "name": "directory_exists_project-789",
+          "passed": false,
+          "message": "Directory not found: implementation_plans/project-789",
+          "severity": "error",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284694+00:00"
+        }
+      ],
+      "metadata": {}
+    },
+    "code": {
+      "item_type": "code",
+      "item_id": "project-789",
+      "passed": false,
+      "has_warnings": false,
+      "passed_count": 0,
+      "failed_count": 1,
+      "checks": [
+        {
+          "name": "directory_exists_project-789",
+          "passed": false,
+          "message": "Directory not found: code/project-789",
+          "severity": "error",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284702+00:00"
+        }
+      ],
+      "metadata": {}
+    },
+    "paper": {
+      "item_type": "paper",
+      "item_id": "project-789",
+      "passed": false,
+      "has_warnings": false,
+      "passed_count": 0,
+      "failed_count": 1,
+      "checks": [
+        {
+          "name": "directory_exists_project-789",
+          "passed": false,
+          "message": "Directory not found: papers/project-789",
+          "severity": "error",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284710+00:00"
+        }
+      ],
+      "metadata": {}
+    },
+    "review_project-789/Design/alice__01-15-2025__M.md": {
+      "item_type": "review",
+      "item_id": "project-789/Design/alice__01-15-2025__M.md",
+      "passed": false,
+      "has_warnings": false,
+      "passed_count": 0,
+      "failed_count": 1,
+      "checks": [
+        {
+          "name": "file_exists_alice__01-15-2025__M.md",
+          "passed": false,
+          "message": "File not found: reviews/project-789/Design/alice__01-15-2025__M.md",
+          "severity": "error",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284721+00:00"
+        }
+      ],
+      "metadata": {}
+    },
+    "review_project-789/Implementation/bob__01-18-2025__A.md": {
+      "item_type": "review",
+      "item_id": "project-789/Implementation/bob__01-18-2025__A.md",
+      "passed": false,
+      "has_warnings": false,
+      "passed_count": 0,
+      "failed_count": 1,
+      "checks": [
+        {
+          "name": "file_exists_bob__01-18-2025__A.md",
+          "passed": false,
+          "message": "File not found: reviews/project-789/Implementation/bob__01-18-2025__A.md",
+          "severity": "error",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284729+00:00"
+        }
+      ],
+      "metadata": {}
+    },
+    "data": {
+      "item_type": "data",
+      "item_id": "project-789",
+      "passed": false,
+      "has_warnings": false,
+      "passed_count": 0,
+      "failed_count": 1,
+      "checks": [
+        {
+          "name": "directory_exists_project-789",
+          "passed": false,
+          "message": "Directory not found: data/project-789",
+          "severity": "error",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284739+00:00"
+        }
+      ],
+      "metadata": {}
+    }
+  },
+  "github_validations": {
+    "issue": {
+      "item_type": "github_issue",
+      "item_id": "789",
+      "passed": true,
+      "has_warnings": false,
+      "passed_count": 5,
+      "failed_count": 1,
+      "checks": [
+        {
+          "name": "issue_state",
+          "passed": true,
+          "message": "Issue is open",
+          "severity": "error",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284742+00:00"
+        },
+        {
+          "name": "title_format",
+          "passed": true,
+          "message": "Title is valid",
+          "severity": "warning",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284744+00:00"
+        },
+        {
+          "name": "has_description",
+          "passed": true,
+          "message": "Description present",
+          "severity": "warning",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284745+00:00"
+        },
+        {
+          "name": "stage_label",
+          "passed": true,
+          "message": "Stage label for in_review found",
+          "severity": "error",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284748+00:00"
+        },
+        {
+          "name": "has_project_id",
+          "passed": false,
+          "message": "Project ID not found",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284763+00:00"
+        },
+        {
+          "name": "has_assignees",
+          "passed": true,
+          "message": "Assignees present",
+          "severity": "warning",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284765+00:00"
+        }
+      ],
+      "metadata": {}
+    },
+    "labels": {
+      "item_type": "github_labels",
+      "item_id": "unknown",
+      "passed": false,
+      "has_warnings": false,
+      "passed_count": 8,
+      "failed_count": 7,
+      "checks": [
+        {
+          "name": "has_label_backlog",
+          "passed": true,
+          "message": "Required label 'backlog' exists",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284769+00:00"
+        },
+        {
+          "name": "has_label_ready",
+          "passed": true,
+          "message": "Required label 'ready' exists",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284770+00:00"
+        },
+        {
+          "name": "has_label_in-progress",
+          "passed": true,
+          "message": "Required label 'in-progress' exists",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284771+00:00"
+        },
+        {
+          "name": "has_label_in-review",
+          "passed": true,
+          "message": "Required label 'in-review' exists",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284772+00:00"
+        },
+        {
+          "name": "has_label_done",
+          "passed": true,
+          "message": "Required label 'done' exists",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284773+00:00"
+        },
+        {
+          "name": "has_label_needs-review",
+          "passed": true,
+          "message": "Required label 'needs-review' exists",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284774+00:00"
+        },
+        {
+          "name": "has_label_critical-review",
+          "passed": true,
+          "message": "Required label 'critical-review' exists",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284775+00:00"
+        },
+        {
+          "name": "has_label_blocked",
+          "passed": false,
+          "message": "Required label 'blocked' missing",
+          "severity": "error",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284776+00:00"
+        },
+        {
+          "name": "has_label_bug",
+          "passed": false,
+          "message": "Recommended label 'bug' missing",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284777+00:00"
+        },
+        {
+          "name": "has_label_enhancement",
+          "passed": false,
+          "message": "Recommended label 'enhancement' missing",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284778+00:00"
+        },
+        {
+          "name": "has_label_documentation",
+          "passed": false,
+          "message": "Recommended label 'documentation' missing",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284779+00:00"
+        },
+        {
+          "name": "has_label_help-wanted",
+          "passed": false,
+          "message": "Recommended label 'help-wanted' missing",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284779+00:00"
+        },
+        {
+          "name": "has_label_question",
+          "passed": false,
+          "message": "Recommended label 'question' missing",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284780+00:00"
+        },
+        {
+          "name": "has_label_wontfix",
+          "passed": false,
+          "message": "Recommended label 'wontfix' missing",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284781+00:00"
+        },
+        {
+          "name": "no_duplicate_labels",
+          "passed": true,
+          "message": "No duplicate labels",
+          "severity": "warning",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284784+00:00"
+        }
+      ],
+      "metadata": {}
+    },
+    "board": {
+      "item_type": "project_board",
+      "item_id": "Research Projects",
+      "passed": true,
+      "has_warnings": false,
+      "passed_count": 11,
+      "failed_count": 0,
+      "checks": [
+        {
+          "name": "has_column_backlog",
+          "passed": true,
+          "message": "Column 'Backlog' exists",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284788+00:00"
+        },
+        {
+          "name": "has_column_ready",
+          "passed": true,
+          "message": "Column 'Ready' exists",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284789+00:00"
+        },
+        {
+          "name": "has_column_in_progress",
+          "passed": true,
+          "message": "Column 'In Progress' exists",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284790+00:00"
+        },
+        {
+          "name": "has_column_in_review",
+          "passed": true,
+          "message": "Column 'In Review' exists",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284791+00:00"
+        },
+        {
+          "name": "has_column_done",
+          "passed": true,
+          "message": "Column 'Done' exists",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284792+00:00"
+        },
+        {
+          "name": "no_orphaned_cards",
+          "passed": true,
+          "message": "All cards in valid columns",
+          "severity": "warning",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284793+00:00"
+        },
+        {
+          "name": "column_ready_status",
+          "passed": true,
+          "message": "Column 'Ready' has 0 cards",
+          "severity": "info",
+          "details": {
+            "count": 0,
+            "empty": true
+          },
+          "timestamp": "2025-07-04T21:10:25.284798+00:00"
+        },
+        {
+          "name": "column_in_progress_status",
+          "passed": true,
+          "message": "Column 'In Progress' has 0 cards",
+          "severity": "info",
+          "details": {
+            "count": 0,
+            "empty": true
+          },
+          "timestamp": "2025-07-04T21:10:25.284799+00:00"
+        },
+        {
+          "name": "column_in_review_status",
+          "passed": true,
+          "message": "Column 'In Review' has 0 cards",
+          "severity": "info",
+          "details": {
+            "count": 0,
+            "empty": true
+          },
+          "timestamp": "2025-07-04T21:10:25.284800+00:00"
+        },
+        {
+          "name": "card_issue_linkage",
+          "passed": true,
+          "message": "All cards properly linked",
+          "severity": "warning",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284801+00:00"
+        },
+        {
+          "name": "column_order",
+          "passed": true,
+          "message": "Column order correct",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284803+00:00"
+        }
+      ],
+      "metadata": {}
+    },
+    "consistency": {
+      "item_type": "stage_consistency",
+      "item_id": "project-789",
+      "passed": true,
+      "has_warnings": false,
+      "passed_count": 3,
+      "failed_count": 0,
+      "checks": [
+        {
+          "name": "label_stage_match",
+          "passed": true,
+          "message": "Issue label matches stage in_review: True",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284807+00:00"
+        },
+        {
+          "name": "column_stage_match",
+          "passed": true,
+          "message": "Project column 'In Review' matches stage in_review",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284808+00:00"
+        },
+        {
+          "name": "score_stage_consistency",
+          "passed": true,
+          "message": "Score 4.5 is appropriate for stage in_review",
+          "severity": "info",
+          "details": null,
+          "timestamp": "2025-07-04T21:10:25.284811+00:00"
+        }
+      ],
+      "metadata": {}
+    }
+  }
+}
