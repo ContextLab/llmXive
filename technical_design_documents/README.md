@@ -13,4 +13,5 @@ This folder contains a repository of technical design documents of projects and 
 | agriculture-20250704-001 | Project agriculture-20250704-001 | Backlog | [#27](https://github.com/ContextLab/llmXive/issues/27) | [Design](/agriculture-20250704-001/design.md) | [llm-automation](https://github.com/llm-automation) |
 | psychology-20250704-001 | Project psychology-20250704-001 | Backlog | [#26](https://github.com/ContextLab/llmXive/issues/26) | [Design](/psychology-20250704-001/design.md) | [llm-automation](https://github.com/llm-automation) |
 | chemistry-20250704-001 | Project chemistry-20250704-001 | Backlog | [#33](https://github.com/ContextLab/llmXive/issues/33) | [Design](/chemistry-20250704-001/design.md) | [llm-automation](https://github.com/llm-automation) |
+| materials-science-20250705-001 | Project materials-science-20250705-001 | Backlog | [#37](https://github.com/ContextLab/llmXive/issues/37) | [Design](/materials-science-20250705-001/design.md) | [llm-automation](https://github.com/llm-automation) |
 
