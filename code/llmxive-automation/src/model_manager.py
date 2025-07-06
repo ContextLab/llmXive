@@ -169,7 +169,7 @@ class ModelManager:
                 if hasattr(file, 'rfilename') and hasattr(file, 'size'):
                     filename = getattr(file, 'rfilename', '')
                     size = getattr(file, 'size', 0)
-                    if filename.endswith(('.safetensors', '.bin', '.pt', '.pth')):
+                    if filename.endswith(('.safetensors', '.bin', '.pt', '.pth')) and size is not None:
                         total_size += size
                         
         # If no size info, estimate from config

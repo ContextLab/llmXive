@@ -19,7 +19,7 @@ class LLMXiveOrchestrator:
     """Main orchestration for the automation system"""
     
     def __init__(self, github_token: Optional[str] = None, hf_token: Optional[str] = None,
-                 model_cache_dir: Optional[str] = None, model_size_gb: float = 3.5,
+                 model_cache_dir: Optional[str] = None, model_size_gb: float = 3.0,
                  specific_model: Optional[str] = None):
         """
         Initialize orchestrator
