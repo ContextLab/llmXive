@@ -17,4 +17,5 @@ This folder contains a repository of technical design documents of projects and 
 | robotics-20250705-001 | Project robotics-20250705-001 | Backlog | [#36](https://github.com/ContextLab/llmXive/issues/36) | [Design](/robotics-20250705-001/design.md) | [llm-automation](https://github.com/llm-automation) |
 | computer-science-20250705-001 | Project computer-science-20250705-001 | Backlog | [#35](https://github.com/ContextLab/llmXive/issues/35) | [Design](/computer-science-20250705-001/design.md) | [llm-automation](https://github.com/llm-automation) |
 | psychology-20250706-001 | Project psychology-20250706-001 | Backlog | [#40](https://github.com/ContextLab/llmXive/issues/40) | [Design](psychology-20250706-001/design.md) | Qwen/Qwen2.5-3B-Instruct |
+| ocean-science-20250706-001 | Project ocean-science-20250706-001 | Backlog | [#39](https://github.com/ContextLab/llmXive/issues/39) | [Design](ocean-science-20250706-001/design.md) | Qwen/Qwen2.5-3B-Instruct |
 
