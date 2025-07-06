@@ -35,17 +35,21 @@ class GitHubAPI {
             const issues = await response.json();
             
             // Filter out pull requests and enrich data
-            const enrichedIssues = issues
+            const enrichedIssues = await Promise.all(issues
                 .filter(issue => !issue.pull_request)
-                .map(issue => ({
-                    ...issue,
-                    projectStatus: this.getStatusFromLabels(issue.labels),
-                    keywords: this.extractKeywords(issue),
-                    views: this.getViews(issue.number),
-                    votes: {
-                        up: issue.reactions['+1'] || 0,
-                        down: issue.reactions['-1'] || 0
-                    }
+                .map(async issue => {
+                    const realAuthor = await this.getRealAuthor(issue);
+                    return {
+                        ...issue,
+                        projectStatus: this.getStatusFromLabels(issue.labels),
+                        keywords: this.extractKeywords(issue),
+                        views: this.getViews(issue.number),
+                        votes: {
+                            up: issue.reactions['+1'] || 0,
+                            down: issue.reactions['-1'] || 0
+                        },
+                        realAuthor: realAuthor
+                    };
                 }));
             
             return enrichedIssues;
@@ -54,6 +58,134 @@ class GitHubAPI {
             console.error('Error fetching issues:', error);
             throw error;
         }
+    }
+    
+    // Get real author from comments attribution
+    async getRealAuthor(issue) {
+        try {
+            // If the issue author is github-actions[bot] or similar automation, look for attribution in comments
+            if (this.isAutomationBot(issue.user.login)) {
+                const comments = await window.githubAuth.getComments(issue.number);
+                
+                // Look for attribution patterns in comments
+                for (const comment of comments) {
+                    const attribution = this.extractAttribution(comment.body);
+                    if (attribution) {
+                        return {
+                            name: attribution,
+                            type: this.isHumanAuthor(attribution) ? 'human' : 'ai',
+                            source: 'attribution'
+                        };
+                    }
+                }
+                
+                // Look for attribution in issue body
+                const bodyAttribution = this.extractAttribution(issue.body);
+                if (bodyAttribution) {
+                    return {
+                        name: bodyAttribution,
+                        type: this.isHumanAuthor(bodyAttribution) ? 'human' : 'ai',
+                        source: 'body'
+                    };
+                }
+                
+                // Default to automation system
+                return {
+                    name: 'llm-automation',
+                    type: 'ai',
+                    source: 'default'
+                };
+            }
+            
+            // For human authors, check if they're actually LLM-generated content
+            if (issue.user.login === 'jeremymanning') {
+                const comments = await window.githubAuth.getComments(issue.number);
+                
+                // Look for LLM attribution in comments or body
+                for (const comment of comments) {
+                    const attribution = this.extractAttribution(comment.body);
+                    if (attribution && !this.isHumanAuthor(attribution)) {
+                        return {
+                            name: attribution,
+                            type: 'ai',
+                            source: 'override'
+                        };
+                    }
+                }
+                
+                const bodyAttribution = this.extractAttribution(issue.body);
+                if (bodyAttribution && !this.isHumanAuthor(bodyAttribution)) {
+                    return {
+                        name: bodyAttribution,
+                        type: 'ai',
+                        source: 'override'
+                    };
+                }
+            }
+            
+            // Default to the GitHub user
+            return {
+                name: issue.user.login,
+                type: this.isHumanAuthor(issue.user.login) ? 'human' : 'ai',
+                source: 'github'
+            };
+            
+        } catch (error) {
+            console.error('Error getting real author:', error);
+            return {
+                name: issue.user.login,
+                type: 'unknown',
+                source: 'error'
+            };
+        }
+    }
+    
+    // Check if user is an automation bot
+    isAutomationBot(username) {
+        const automationIndicators = [
+            'github-actions[bot]',
+            'github-actions',
+            'dependabot[bot]',
+            'dependabot'
+        ];
+        return automationIndicators.some(indicator => username.toLowerCase().includes(indicator.toLowerCase()));
+    }
+    
+    // Extract attribution from text
+    extractAttribution(text) {
+        if (!text) return null;
+        
+        // Look for various attribution patterns
+        const patterns = [
+            /(?:Author|Reviewer|Generated by):\s*([^\n\r,]+)/i,
+            /\*\*(?:Author|Reviewer|Generated by)\*\*:\s*([^\n\r,]+)/i,
+            /(?:by|from)\s+(claude|gpt|qwen|llama|tinyllama|hermes|phi|mistral|openai|anthropic)[\s-]?[^\s\n\r,]*/i,
+            /(?:model|llm):\s*([^\n\r,]+)/i,
+            /Generated with.*?\[(.*?)\]/i
+        ];
+        
+        for (const pattern of patterns) {
+            const match = text.match(pattern);
+            if (match && match[1]) {
+                return match[1].trim();
+            }
+        }
+        
+        return null;
+    }
+    
+    // Check if author name indicates human vs AI
+    isHumanAuthor(name) {
+        if (!name) return false;
+        
+        const aiIndicators = [
+            'claude', 'gpt', 'openai', 'anthropic', 'llm', 'automation',
+            'qwen', 'llama', 'mistral', 'tinyllama', 'hermes', 'phi',
+            'chatgpt', 'copilot', 'assistant'
+        ];
+        
+        const nameLower = name.toLowerCase();
+        return !aiIndicators.some(indicator => nameLower.includes(indicator));
     }
     
     // Create a new issue

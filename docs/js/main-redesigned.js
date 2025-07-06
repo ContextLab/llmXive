@@ -38,6 +38,15 @@ function setupEventListeners() {
         });
     });
     
+    // Submit idea button
+    const submitBtn = document.querySelector('a[href="#submit"]');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showSubmitModal();
+        });
+    }
+    
     // Search inputs
     setupSearchListeners();
     
@@ -69,20 +78,18 @@ function setupSearchListeners() {
 }
 
 function setupFilterListeners() {
-    const filterSelects = [
-        'backlogStatusFilter',
-        'backlogSortSelect',
-        'designsSortSelect',
-        'plansSortSelect', 
-        'papersInProgressSortSelect',
-        'papersCompletedSortSelect'
-    ];
+    const filterMapping = {
+        'backlogSortSelect': 'backlog',
+        'designsSortSelect': 'designs',
+        'plansSortSelect': 'plans',
+        'papersInProgressSortSelect': 'papersInProgress',
+        'papersCompletedSortSelect': 'papersCompleted'
+    };
     
-    filterSelects.forEach(selectId => {
+    Object.entries(filterMapping).forEach(([selectId, section]) => {
         const select = document.getElementById(selectId);
         if (select) {
             select.addEventListener('change', (e) => {
-                const section = selectId.replace(/Sort|Status|Filter/g, '').replace('Select', '').replace('backlog', 'backlog').replace('designs', 'designs').replace('plans', 'plans').replace('papersInProgress', 'papers-in-progress').replace('papersCompleted', 'papers-completed');
                 applySorting(section);
             });
         }
@@ -221,10 +228,19 @@ async function loadPlansData() {
 
 async function loadPapersData() {
     try {
-        // TODO: Implement proper papers loading
-        // For now, return empty arrays to prevent errors
-        allData.papersInProgress = [];
-        allData.papersCompleted = [];
+        // For now, filter backlog data to simulate papers
+        // In reality, these would come from the papers/ directory
+        await loadBacklogData(); // Ensure backlog is loaded first
+        
+        allData.papersInProgress = allData.backlog.filter(item => {
+            const status = item.projectStatus || 'Backlog';
+            return status === 'In Progress' || status === 'In Review';
+        });
+        
+        allData.papersCompleted = allData.backlog.filter(item => {
+            const status = item.projectStatus || 'Backlog';
+            return status === 'Done';
+        });
         
         console.log(`Loaded ${allData.papersInProgress.length} in-progress papers, ${allData.papersCompleted.length} completed papers`);
     } catch (error) {
@@ -341,8 +357,11 @@ function createBacklogCard(item) {
             </div>
             <div class="card-footer">
                 <div class="card-author">
-                    <img src="${item.user.avatar_url}" alt="${item.user.login}" class="meta-avatar">
-                    ${item.user.login}
+                    ${item.realAuthor && item.realAuthor.type === 'ai' ? 
+                        `<i class="fas fa-robot"></i>` : 
+                        `<img src="${item.user.avatar_url}" alt="${item.user.login}" class="meta-avatar">`}
+                    ${item.realAuthor ? item.realAuthor.name : item.user.login}
+                    ${item.realAuthor && item.realAuthor.type === 'ai' ? '<span class="author-type">(AI)</span>' : ''}
                 </div>
                 <div class="card-links">
                     <a href="${item.html_url}" class="card-link" onclick="event.stopPropagation();">
@@ -419,28 +438,35 @@ function createPlanCard(item) {
 }
 
 function createPaperCard(item) {
+    const status = item.projectStatus || 'Backlog';
+    const statusClass = status.toLowerCase().replace(' ', '-');
+    
     return `
-        <div class="card" onclick="openPaperModal('${item.id}')">
+        <div class="card" onclick="openIssueModal(${item.number})">
             <div class="card-header">
                 <h3 class="card-title">${escapeHtml(item.title)}</h3>
-                <div class="card-status ${item.status.toLowerCase().replace(' ', '-')}">${item.status}</div>
+                <div class="card-status ${statusClass}">${status}</div>
             </div>
             <div class="card-meta">
-                <span><i class="fas fa-calendar"></i> ${formatDate(item.date)}</span>
-                <span><i class="fas fa-users"></i> ${item.contributors.length} contributors</span>
+                <span><i class="fas fa-calendar"></i> ${formatDate(item.created_at)}</span>
+                <span><i class="fas fa-comments"></i> ${item.comments || 0}</span>
+                <span><i class="fas fa-thumbs-up"></i> ${item.votes?.up || 0}</span>
             </div>
             <div class="card-description">
-                ${escapeHtml(item.abstract || item.description || 'Research paper').substring(0, 200)}...
+                ${escapeHtml(item.body || 'No description provided').substring(0, 200)}...
             </div>
             <div class="card-footer">
                 <div class="card-author">
-                    <i class="fas fa-file-alt"></i>
-                    ${item.contributors.slice(0, 2).join(', ')}${item.contributors.length > 2 ? '...' : ''}
+                    ${item.realAuthor && item.realAuthor.type === 'ai' ? 
+                        `<i class="fas fa-robot"></i>` : 
+                        `<img src="${item.user.avatar_url}" alt="${item.user.login}" class="meta-avatar">`}
+                    ${item.realAuthor ? item.realAuthor.name : item.user.login}
+                    ${item.realAuthor && item.realAuthor.type === 'ai' ? '<span class="author-type">(AI)</span>' : ''}
                 </div>
                 <div class="card-links">
-                    ${item.paperUrl ? `<a href="${item.paperUrl}" class="card-link" onclick="event.stopPropagation();"><i class="fas fa-file-pdf"></i> Paper</a>` : ''}
-                    ${item.codeUrl ? `<a href="${item.codeUrl}" class="card-link" onclick="event.stopPropagation();"><i class="fas fa-code"></i> Code</a>` : ''}
-                    ${item.dataUrl ? `<a href="${item.dataUrl}" class="card-link" onclick="event.stopPropagation();"><i class="fas fa-database"></i> Data</a>` : ''}
+                    <a href="${item.html_url}" class="card-link" onclick="event.stopPropagation();">
+                        <i class="fas fa-external-link-alt"></i> GitHub
+                    </a>
                 </div>
             </div>
         </div>
@@ -477,7 +503,9 @@ function escapeHtml(text) {
 // Modal functions (placeholders)
 function openIssueModal(issueNumber) {
     console.log('Opening issue modal for:', issueNumber);
-    // Will be implemented by document-viewer.js
+    if (window.documentViewer) {
+        window.documentViewer.openDocument('issue', issueNumber);
+    }
 }
 
 function openDesignModal(designId) {
@@ -506,12 +534,12 @@ async function handleIdeaSubmission(event) {
     try {
         console.log('Submitting idea:', { title, description, keywords });
         
-        // Submit via GitHub API
-        const result = await githubAPI.createIssue({
+        // Submit via GitHub API using the correct method
+        const result = await window.api.createIssue(
             title,
-            body: `**Description**: ${description}\n\n**Keywords**: ${keywords}\n\n---\n*Submitted via llmXive web interface*`,
-            labels: ['backlog', 'idea', 'Score: 0']
-        });
+            `**Description**: ${description}\n\n**Keywords**: ${keywords}\n\n---\n*Submitted via llmXive web interface*`,
+            ['backlog', 'idea', 'Score: 0']
+        );
         
         if (result) {
             alert('Idea submitted successfully!');
@@ -532,10 +560,19 @@ async function handleIdeaSubmission(event) {
 }
 
 // Modal management
+function showSubmitModal() {
+    const modal = document.getElementById('submitModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
 function closeSubmitModal() {
     const modal = document.getElementById('submitModal');
     if (modal) {
         modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
     }
 }
 
@@ -555,7 +592,74 @@ function filterSection(section, searchTerm) {
 
 function applySorting(section) {
     console.log(`Applying sorting to ${section}`);
-    // Implementation depends on current data and sort selection
+    
+    const sortSelect = document.getElementById(`${section}SortSelect`);
+    if (!sortSelect) return;
+    
+    const sortBy = sortSelect.value;
+    let dataArray;
+    
+    // Get the appropriate data array
+    switch (section) {
+        case 'backlog':
+            dataArray = allData.backlog;
+            break;
+        case 'designs':
+            dataArray = allData.designs;
+            break;
+        case 'plans':
+            dataArray = allData.plans;
+            break;
+        case 'papersInProgress':
+        case 'papers-in-progress':
+            dataArray = allData.papersInProgress;
+            break;
+        case 'papersCompleted':
+        case 'papers-completed':
+            dataArray = allData.papersCompleted;
+            break;
+        default:
+            return;
+    }
+    
+    // Apply sorting
+    const sortFunctions = {
+        'updated': (a, b) => new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at),
+        'created': (a, b) => new Date(b.created_at) - new Date(a.created_at),
+        'title': (a, b) => a.title.localeCompare(b.title),
+        'upvotes': (a, b) => (b.votes?.up || 0) - (a.votes?.up || 0),
+        'status': (a, b) => {
+            const statusOrder = ['Backlog', 'Ready', 'In Progress', 'In Review', 'Done'];
+            const aStatus = a.projectStatus || 'Backlog';
+            const bStatus = b.projectStatus || 'Backlog';
+            return statusOrder.indexOf(aStatus) - statusOrder.indexOf(bStatus);
+        }
+    };
+    
+    if (sortFunctions[sortBy]) {
+        dataArray.sort(sortFunctions[sortBy]);
+        
+        // Re-render the section
+        switch (section) {
+            case 'backlog':
+                renderBacklog();
+                break;
+            case 'designs':
+                renderDesigns();
+                break;
+            case 'plans':
+                renderPlans();
+                break;
+            case 'papersInProgress':
+            case 'papers-in-progress':
+                renderPapersInProgress();
+                break;
+            case 'papersCompleted':
+            case 'papers-completed':
+                renderPapersCompleted();
+                break;
+        }
+    }
 }
 
 // Export for other modules
@@ -565,3 +669,6 @@ window.mainApp = {
     currentSection,
     allData
 };
+
+// Make allData available globally for document viewer
+window.allData = allData;

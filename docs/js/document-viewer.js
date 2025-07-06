@@ -67,24 +67,36 @@ const DocumentViewer = {
     },
     
     async loadIssue(issueNumber) {
-        const issue = await githubAPI.getIssue(issueNumber);
-        
-        return {
-            type: 'issue',
-            title: issue.title,
-            meta: {
-                'Issue Number': `#${issue.number}`,
-                'Created': new Date(issue.created_at).toLocaleDateString(),
-                'Author': issue.user.login,
-                'Status': this.getIssueStatus(issue.labels),
-                'Comments': issue.comments
-            },
-            content: this.formatMarkdown(issue.body || 'No description provided'),
-            links: [
-                { text: 'View on GitHub', url: issue.html_url, icon: 'external-link-alt' }
-            ],
-            allowReview: false // Issues don't get human reviews through this interface
-        };
+        try {
+            // Get the issue from the currently loaded backlog data
+            const issue = allData.backlog.find(item => item.number === issueNumber);
+            
+            if (!issue) {
+                throw new Error('Issue not found');
+            }
+            
+            return {
+                type: 'issue',
+                title: issue.title,
+                meta: {
+                    'Issue Number': `#${issue.number}`,
+                    'Created': new Date(issue.created_at).toLocaleDateString(),
+                    'Author': issue.realAuthor ? issue.realAuthor.name : issue.user.login,
+                    'Status': issue.projectStatus || 'Backlog',
+                    'Comments': issue.comments || 0,
+                    'Upvotes': issue.votes?.up || 0
+                },
+                content: this.formatMarkdown(issue.body || 'No description provided'),
+                links: [
+                    { text: 'View on GitHub', url: issue.html_url, icon: 'external-link-alt' }
+                ],
+                allowReview: true, // Allow reviews for ideas
+                reviewType: 'Idea'
+            };
+        } catch (error) {
+            console.error('Error loading issue:', error);
+            throw new Error(`Failed to load issue: ${error.message}`);
+        }
     },
     
     async loadDesign(designId) {
@@ -186,20 +198,34 @@ const DocumentViewer = {
                 <div class="document-body">
                     ${documentData.content}
                 </div>
+                
+                ${documentData.allowReview ? `
+                    <div class="document-actions">
+                        <button class="btn-primary" onclick="documentViewer.showReviewForm()">
+                            <i class="fas fa-star"></i> Add Review
+                        </button>
+                    </div>
+                ` : ''}
             </div>
         `;
         
         modalContent.innerHTML = html;
         
-        // Show/hide human review section
+        // Initially hide the human review section
         const reviewSection = document.getElementById('humanReviewSection');
         if (reviewSection) {
+            reviewSection.style.display = 'none';
             if (documentData.allowReview) {
-                reviewSection.style.display = 'block';
                 this.setupReviewForm(documentData);
-            } else {
-                reviewSection.style.display = 'none';
             }
+        }
+    },
+    
+    showReviewForm() {
+        const reviewSection = document.getElementById('humanReviewSection');
+        if (reviewSection) {
+            reviewSection.style.display = 'block';
+            reviewSection.scrollIntoView({ behavior: 'smooth' });
         }
     },
     

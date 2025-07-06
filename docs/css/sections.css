@@ -191,6 +191,21 @@
     object-fit: cover;
 }
 
+/* Document viewer styles */
+.document-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f1f3f4;
+    text-align: center;
+}
+
+/* Author type indicator */
+.author-type {
+    font-size: 0.75rem;
+    color: #657786;
+    margin-left: 0.25rem;
+}
+
 .card-links {
     display: flex;
     gap: 0.5rem;
