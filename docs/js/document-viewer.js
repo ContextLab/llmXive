@@ -117,9 +117,11 @@ const DocumentViewer = {
     
     async loadDesign(designId) {
         // Get design from loaded data
-        const design = window.allData?.designs?.find(d => d.id === designId);
+        console.log('Looking for design:', designId, 'in data:', window.allData?.designs);
+        const design = window.allData?.designs?.find(d => d.id === designId || d.id === String(designId));
         if (!design) {
-            throw new Error('Design not found');
+            console.error('Design not found. Available designs:', window.allData?.designs?.map(d => ({id: d.id, title: d.title})));
+            throw new Error(`Design not found: ${designId}`);
         }
         
         let content = 'Design document content would be loaded here.';
@@ -156,9 +158,11 @@ const DocumentViewer = {
     
     async loadPlan(planId) {
         // Get plan from loaded data
-        const plan = window.allData?.plans?.find(p => p.id === planId);
+        console.log('Looking for plan:', planId, 'in data:', window.allData?.plans);
+        const plan = window.allData?.plans?.find(p => p.id === planId || p.id === String(planId));
         if (!plan) {
-            throw new Error('Plan not found');
+            console.error('Plan not found. Available plans:', window.allData?.plans?.map(p => ({id: p.id, title: p.title})));
+            throw new Error(`Plan not found: ${planId}`);
         }
         
         let content = 'Implementation plan content would be loaded here.';
@@ -195,9 +199,12 @@ const DocumentViewer = {
     
     async loadPaper(paperId) {
         // Get paper from loaded data
-        const paper = [...(window.allData?.papersCompleted || []), ...(window.allData?.papersInProgress || [])].find(p => p.id === paperId);
+        const allPapers = [...(window.allData?.papersCompleted || []), ...(window.allData?.papersInProgress || [])];
+        console.log('Looking for paper:', paperId, 'in data:', allPapers);
+        const paper = allPapers.find(p => p.id === paperId || p.id === String(paperId));
         if (!paper) {
-            throw new Error('Paper not found');
+            console.error('Paper not found. Available papers:', allPapers.map(p => ({id: p.id, title: p.title})));
+            throw new Error(`Paper not found: ${paperId}`);
         }
         
         let content = 'Paper content would be loaded here.';

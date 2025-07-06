@@ -23,21 +23,14 @@ const ContributorsModule = {
         try {
             console.log('Loading contributors data...');
             
-            // Load from multiple sources
-            const [issueContributors, designContributors, reviewContributors, modelAttributions] = await Promise.all([
-                this.loadIssueContributors(),
-                this.loadDesignContributors(),
-                this.loadReviewContributors(),
-                this.loadModelAttributions()
-            ]);
-            
-            // Combine and process all contributor data
-            this.contributorsData = this.processContributorData({
-                issues: issueContributors,
-                designs: designContributors,
-                reviews: reviewContributors,
-                models: modelAttributions
-            });
+            // Use the contributors data loaded by the main app
+            if (window.allData && window.allData.contributors) {
+                this.contributorsData = this.convertToContributorsFormat(window.allData.contributors);
+            } else {
+                // Fallback to loading directly if main app data not available
+                this.contributorsData = await window.api.loadContributors();
+                this.contributorsData = this.convertToContributorsFormat(this.contributorsData);
+            }
             
             console.log('Contributors loaded:', this.contributorsData);
             this.render();
@@ -46,6 +39,23 @@ const ContributorsModule = {
             console.error('Error loading contributors:', error);
             this.showError();
         }
+    },
+    
+    convertToContributorsFormat(contributors) {
+        return contributors.map(contributor => ({
+            name: contributor.name,
+            type: contributor.type,
+            avatar: contributor.avatar,
+            areas: contributor.areas || [],
+            contributions: {
+                ideas: contributor.contributions.filter(c => c.type === 'idea').length,
+                designs: contributor.contributions.filter(c => c.type === 'design').length,
+                implementations: contributor.contributions.filter(c => c.type === 'plan').length,
+                reviews: contributor.contributions.filter(c => c.type === 'review').length,
+                papers: contributor.contributions.filter(c => c.type === 'paper').length
+            },
+            total: contributor.totalContributions || contributor.contributions.length
+        }));
     },
     
     async loadIssueContributors() {
@@ -332,6 +342,10 @@ const ContributorsModule = {
                     avatarElement.innerHTML = `<img src="${contributor.avatar}" alt="${contributor.name}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
                 }
                 
+                // Make podium item clickable
+                element.style.cursor = 'pointer';
+                element.onclick = () => this.showContributorDetails(contributor.name);
+                
                 element.style.display = 'block';
             } else {
                 element.style.display = 'none';
@@ -359,7 +373,7 @@ const ContributorsModule = {
             const isTopThree = rank <= 3;
             
             return `
-                <div class="leaderboard-item">
+                <div class="leaderboard-item clickable" onclick="contributorsModule.showContributorDetails('${contributor.name}')">
                     <div class="leaderboard-rank ${isTopThree ? 'top-3' : ''}">${rank}</div>
                     <div class="leaderboard-contributor">
                         <div class="leaderboard-avatar">
@@ -437,6 +451,109 @@ const ContributorsModule = {
         };
         
         requestAnimationFrame(animate);
+    },
+    
+    showContributorDetails(contributorName) {
+        // Find the contributor in our original data
+        const contributor = window.allData?.contributors?.find(c => c.name === contributorName);
+        if (!contributor) {
+            console.error('Contributor not found:', contributorName);
+            return;
+        }
+        
+        // Create modal content with detailed contributions
+        const modalContent = `
+            <div class="contributor-details-modal">
+                <div class="contributor-header">
+                    <div class="contributor-avatar-large">
+                        ${contributor.avatar ? 
+                            `<img src="${contributor.avatar}" alt="${contributor.name}">` :
+                            `<i class="fas fa-${contributor.type === 'human' ? 'user' : 'robot'}"></i>`
+                        }
+                    </div>
+                    <div class="contributor-info">
+                        <h2>${contributor.name}</h2>
+                        <div class="contributor-type ${contributor.type}">
+                            <i class="fas fa-${contributor.type === 'human' ? 'user' : 'robot'}"></i>
+                            ${contributor.type.charAt(0).toUpperCase() + contributor.type.slice(1)} Contributor
+                        </div>
+                        <div class="contribution-summary">
+                            <span class="total-contributions">${contributor.totalContributions} total contributions</span>
+                            <span class="active-areas">Active in: ${contributor.areas.join(', ')}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contributions-list">
+                    <h3><i class="fas fa-list"></i> All Contributions</h3>
+                    ${contributor.contributions.length > 0 ? `
+                        <div class="contributions-by-type">
+                            ${this.groupContributionsByType(contributor.contributions).map(group => `
+                                <div class="contribution-group">
+                                    <h4><i class="fas fa-${this.getTypeIcon(group.type)}"></i> ${group.type.charAt(0).toUpperCase() + group.type.slice(1)}s (${group.items.length})</h4>
+                                    <ul class="contribution-items">
+                                        ${group.items.map(item => `
+                                            <li>
+                                                <a href="${item.url || '#'}" target="_blank" class="contribution-link">
+                                                    ${item.title}
+                                                </a>
+                                                ${item.status ? `<span class="contribution-status">${item.status}</span>` : ''}
+                                                ${item.date ? `<span class="contribution-date">${new Date(item.date).toLocaleDateString()}</span>` : ''}
+                                            </li>
+                                        `).join('')}
+                                    </ul>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : '<p>No detailed contributions available.</p>'}
+                </div>
+            </div>
+        `;
+        
+        // Show in document modal
+        this.showModal('Contributor Details', modalContent);
+    },
+    
+    groupContributionsByType(contributions) {
+        const groups = {};
+        contributions.forEach(contribution => {
+            if (!groups[contribution.type]) {
+                groups[contribution.type] = [];
+            }
+            groups[contribution.type].push(contribution);
+        });
+        
+        return Object.entries(groups).map(([type, items]) => ({ type, items }));
+    },
+    
+    getTypeIcon(type) {
+        const icons = {
+            'idea': 'lightbulb',
+            'design': 'drafting-compass',
+            'plan': 'project-diagram',
+            'paper': 'file-alt',
+            'review': 'star'
+        };
+        return icons[type] || 'circle';
+    },
+    
+    showModal(title, content) {
+        // Reuse the document modal
+        const modal = document.getElementById('documentModal');
+        const modalContent = document.getElementById('documentModalContent');
+        
+        if (modal && modalContent) {
+            modalContent.innerHTML = `
+                <div class="document-header">
+                    <h2 class="document-title">${title}</h2>
+                </div>
+                <div class="document-body">
+                    ${content}
+                </div>
+            `;
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
     },
     
     showError() {

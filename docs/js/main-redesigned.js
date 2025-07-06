@@ -255,9 +255,8 @@ async function loadReviewsData() {
 
 async function loadContributorsData() {
     try {
-        // TODO: Implement proper contributors loading
-        // For now, return empty array to prevent errors
-        allData.contributors = [];
+        // Load contributors from all README tables
+        allData.contributors = await window.api.loadContributors();
         
         console.log(`Loaded ${allData.contributors.length} contributors`);
     } catch (error) {
@@ -324,7 +323,7 @@ function renderPapersCompleted() {
     if (!grid) return;
     
     if (allData.papersCompleted.length === 0) {
-        grid.innerHTML = createEmptyState('No completed papers found', 'trophy');
+        grid.innerHTML = createEmptyState('No completed papers found', 'robot');
         return;
     }
     
@@ -377,23 +376,26 @@ function createBacklogCard(item) {
 }
 
 function createDesignCard(item) {
+    const title = item.title || 'Untitled Design';
+    const author = item.author || 'Unknown';
+    
     return `
         <div class="card" onclick="openDocumentModal('${item.id}', 'design')">
             <div class="card-header">
-                <h3 class="card-title">${escapeHtml(item.title)}</h3>
+                <h3 class="card-title">${escapeHtml(title)}</h3>
                 <div class="card-status design">Design</div>
             </div>
             <div class="card-meta">
                 <span><i class="fas fa-calendar"></i> ${item.date || 'Unknown date'}</span>
-                <span><i class="fas fa-user"></i> ${item.author}</span>
+                <span><i class="fas fa-user"></i> ${author}</span>
             </div>
             <div class="card-description">
-                Technical design document for ${escapeHtml(item.title)}
+                Technical design document for ${escapeHtml(title)}
             </div>
             <div class="card-footer">
                 <div class="card-author">
                     <i class="fas fa-drafting-compass"></i>
-                    ${item.author}
+                    ${author}
                 </div>
                 <div class="card-links">
                     ${item.issueUrl ? `<a href="${item.issueUrl}" class="card-link" onclick="event.stopPropagation();">
@@ -409,23 +411,26 @@ function createDesignCard(item) {
 }
 
 function createPlanCard(item) {
+    const title = item.title || 'Untitled Plan';
+    const author = item.author || 'Unknown';
+    
     return `
         <div class="card" onclick="openDocumentModal('${item.id}', 'plan')">
             <div class="card-header">
-                <h3 class="card-title">${escapeHtml(item.title)}</h3>
+                <h3 class="card-title">${escapeHtml(title)}</h3>
                 <div class="card-status ready">Ready</div>
             </div>
             <div class="card-meta">
                 <span><i class="fas fa-calendar"></i> ${item.date || 'Unknown date'}</span>
-                <span><i class="fas fa-user"></i> ${item.author}</span>
+                <span><i class="fas fa-user"></i> ${author}</span>
             </div>
             <div class="card-description">
-                Implementation plan for ${escapeHtml(item.title)}
+                Implementation plan for ${escapeHtml(title)}
             </div>
             <div class="card-footer">
                 <div class="card-author">
                     <i class="fas fa-project-diagram"></i>
-                    ${item.author}
+                    ${author}
                 </div>
                 <div class="card-links">
                     ${item.issueUrl ? `<a href="${item.issueUrl}" class="card-link" onclick="event.stopPropagation();">

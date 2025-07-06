@@ -129,6 +129,10 @@ a:hover {
     color: var(--primary-color);
 }
 
+.nav-link i {
+    font-size: 1.1rem;
+}
+
 /* Buttons */
 .btn-primary, .btn-secondary {
     display: inline-flex;

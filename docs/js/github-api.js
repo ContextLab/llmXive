@@ -494,13 +494,13 @@ class GitHubAPI {
             const plans = this.parseMarkdownTable(readme, 'Table of Contents');
             
             return plans.map(plan => ({
-                id: plan['Project ID'] || plan.ID,
-                title: plan.Title || plan['Project Title'],
-                author: plan.Author || plan.Contributor,
-                date: plan.Date,
-                issueUrl: this.extractLinkFromMarkdown(plan.Issue || plan['GitHub Issue']),
-                planUrl: this.extractLinkFromMarkdown(plan.Plan || plan['Implementation Plan']),
-                status: 'ready',
+                id: plan['Unique ID'] || plan.ID,
+                title: plan['Project Name'] || plan.Title,
+                author: plan['Contributor(s)'] || plan.Contributors || plan.Author,
+                date: null, // No date column in current table
+                issueUrl: this.extractLinkFromMarkdown(plan['Link(s) to GitHub issues'] || plan.Issue),
+                planUrl: this.extractLinkFromMarkdown(plan['Link to implementation plan'] || plan.Plan),
+                status: plan['Current Status'] || 'ready',
                 type: 'plan'
             }));
         } catch (error) {
@@ -516,13 +516,13 @@ class GitHubAPI {
             const designs = this.parseMarkdownTable(readme, 'Table of Contents');
             
             return designs.map(design => ({
-                id: design['Project ID'] || design.ID,
-                title: design.Title || design['Project Title'],
-                author: design.Author || design.Contributor,
-                date: design.Date,
-                issueUrl: this.extractLinkFromMarkdown(design.Issue || design['GitHub Issue']),
-                designUrl: this.extractLinkFromMarkdown(design.Design || design['Technical Design']),
-                status: 'design',
+                id: design['Unique ID'] || design.ID,
+                title: design['Project Name'] || design.Title,
+                author: design['Contributors'] || design.Author,
+                date: null, // No date column in current table
+                issueUrl: this.extractLinkFromMarkdown(design['Link(s) to GitHub issues'] || design.Issue),
+                designUrl: this.extractLinkFromMarkdown(design['Link to technical design document'] || design.Design),
+                status: design['Current Status'] || 'design',
                 type: 'design'
             }));
         } catch (error) {
@@ -556,6 +556,154 @@ class GitHubAPI {
         if (!text) return null;
         const match = text.match(/\[.*?\]\((.*?)\)/);
         return match ? match[1] : null;
+    }
+    
+    // Load contributors aggregated from all README tables
+    async loadContributors() {
+        try {
+            const contributors = new Map();
+            
+            // Get contributors from backlog (GitHub issues)
+            const issues = await this.fetchProjectIssues();
+            issues.forEach(issue => {
+                if (issue.realAuthor) {
+                    const name = issue.realAuthor.name;
+                    if (!contributors.has(name)) {
+                        contributors.set(name, {
+                            name: name,
+                            type: issue.realAuthor.type,
+                            avatar: issue.realAuthor.type === 'human' ? issue.user.avatar_url : null,
+                            areas: new Set(),
+                            contributions: []
+                        });
+                    }
+                    contributors.get(name).areas.add('Ideas');
+                    contributors.get(name).contributions.push({
+                        type: 'idea',
+                        title: issue.title,
+                        url: issue.html_url,
+                        date: issue.created_at
+                    });
+                }
+            });
+            
+            // Get contributors from papers
+            const papersData = await this.loadPapers();
+            [...papersData.completed, ...papersData.inProgress].forEach(paper => {
+                if (paper.authors) {
+                    const authors = paper.authors.split(',').map(a => a.trim());
+                    authors.forEach(author => {
+                        if (!contributors.has(author)) {
+                            contributors.set(author, {
+                                name: author,
+                                type: this.isHumanAuthor(author) ? 'human' : 'ai',
+                                avatar: null,
+                                areas: new Set(),
+                                contributions: []
+                            });
+                        }
+                        contributors.get(author).areas.add('Papers');
+                        contributors.get(author).contributions.push({
+                            type: 'paper',
+                            title: paper.title,
+                            url: paper.paperUrl,
+                            date: null,
+                            status: paper.status
+                        });
+                    });
+                }
+            });
+            
+            // Get contributors from technical designs
+            const designs = await this.loadTechnicalDesigns();
+            designs.forEach(design => {
+                if (design.author) {
+                    const authors = design.author.split(',').map(a => a.trim());
+                    authors.forEach(author => {
+                        if (!contributors.has(author)) {
+                            contributors.set(author, {
+                                name: author,
+                                type: this.isHumanAuthor(author) ? 'human' : 'ai',
+                                avatar: null,
+                                areas: new Set(),
+                                contributions: []
+                            });
+                        }
+                        contributors.get(author).areas.add('Designs');
+                        contributors.get(author).contributions.push({
+                            type: 'design',
+                            title: design.title,
+                            url: design.designUrl,
+                            date: null
+                        });
+                    });
+                }
+            });
+            
+            // Get contributors from implementation plans
+            const plans = await this.loadImplementationPlans();
+            plans.forEach(plan => {
+                if (plan.author) {
+                    const authors = plan.author.split(',').map(a => a.trim());
+                    authors.forEach(author => {
+                        if (!contributors.has(author)) {
+                            contributors.set(author, {
+                                name: author,
+                                type: this.isHumanAuthor(author) ? 'human' : 'ai',
+                                avatar: null,
+                                areas: new Set(),
+                                contributions: []
+                            });
+                        }
+                        contributors.get(author).areas.add('Implementations');
+                        contributors.get(author).contributions.push({
+                            type: 'plan',
+                            title: plan.title,
+                            url: plan.planUrl,
+                            date: null
+                        });
+                    });
+                }
+            });
+            
+            // Get contributors from reviews
+            const reviews = await this.loadReviews();
+            reviews.forEach(review => {
+                if (review.reviewer) {
+                    const name = review.reviewer;
+                    if (!contributors.has(name)) {
+                        contributors.set(name, {
+                            name: name,
+                            type: this.isHumanAuthor(name) ? 'human' : 'ai',
+                            avatar: null,
+                            areas: new Set(),
+                            contributions: []
+                        });
+                    }
+                    contributors.get(name).areas.add('Reviews');
+                    contributors.get(name).contributions.push({
+                        type: 'review',
+                        title: `${review.type} Review`,
+                        url: review.reviewUrl,
+                        date: review.date,
+                        reviewType: review.type
+                    });
+                }
+            });
+            
+            // Convert to array and sort by contribution count
+            const contributorsArray = Array.from(contributors.values()).map(contributor => ({
+                ...contributor,
+                areas: Array.from(contributor.areas),
+                totalContributions: contributor.contributions.length
+            })).sort((a, b) => b.totalContributions - a.totalContributions);
+            
+            return contributorsArray;
+            
+        } catch (error) {
+            console.error('Error loading contributors:', error);
+            return [];
+        }
     }
     
     // Create a new file in the repository
