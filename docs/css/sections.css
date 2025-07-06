@@ -184,6 +184,13 @@
     gap: 0.5rem;
 }
 
+.meta-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
 .card-links {
     display: flex;
     gap: 0.5rem;

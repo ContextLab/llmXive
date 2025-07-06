@@ -1,7 +1,7 @@
 // Main JavaScript for redesigned llmXive site
 
 // Global state
-let currentSection = 'backlog';
+let currentSection = 'papers-completed';
 let allData = {
     backlog: [],
     designs: [],
@@ -26,7 +26,7 @@ function initializeApp() {
     loadAllData();
     
     // Show default section
-    showSection('backlog');
+    showSection('papers-completed');
 }
 
 function setupEventListeners() {
@@ -179,11 +179,11 @@ async function loadSectionData(sectionName) {
 
 async function loadBacklogData() {
     try {
-        // Load from GitHub API
-        const issues = await githubAPI.getIssues();
+        // Load from GitHub API using existing working method
+        const issues = await window.api.fetchProjectIssues();
         allData.backlog = issues.filter(issue => {
-            const labels = issue.labels.map(l => l.name);
-            return !labels.includes('done');
+            const status = issue.projectStatus || 'Backlog';
+            return status !== 'Done';
         });
         
         console.log(`Loaded ${allData.backlog.length} backlog items`);
@@ -195,9 +195,9 @@ async function loadBacklogData() {
 
 async function loadDesignsData() {
     try {
-        // Load from README table and GitHub files
-        const designs = await githubAPI.getTechnicalDesigns();
-        allData.designs = designs;
+        // TODO: Implement proper technical designs loading
+        // For now, return empty array to prevent errors
+        allData.designs = [];
         
         console.log(`Loaded ${allData.designs.length} technical designs`);
     } catch (error) {
@@ -208,9 +208,9 @@ async function loadDesignsData() {
 
 async function loadPlansData() {
     try {
-        // Load from README table and GitHub files
-        const plans = await githubAPI.getImplementationPlans();
-        allData.plans = plans;
+        // TODO: Implement proper implementation plans loading
+        // For now, return empty array to prevent errors
+        allData.plans = [];
         
         console.log(`Loaded ${allData.plans.length} implementation plans`);
     } catch (error) {
@@ -221,10 +221,10 @@ async function loadPlansData() {
 
 async function loadPapersData() {
     try {
-        // Load from README tables
-        const papers = await githubAPI.getPapers();
-        allData.papersInProgress = papers.filter(p => p.status === 'in-progress');
-        allData.papersCompleted = papers.filter(p => p.status === 'completed');
+        // TODO: Implement proper papers loading
+        // For now, return empty arrays to prevent errors
+        allData.papersInProgress = [];
+        allData.papersCompleted = [];
         
         console.log(`Loaded ${allData.papersInProgress.length} in-progress papers, ${allData.papersCompleted.length} completed papers`);
     } catch (error) {
@@ -236,9 +236,9 @@ async function loadPapersData() {
 
 async function loadContributorsData() {
     try {
-        // Load contributor data from various sources
-        const contributors = await githubAPI.getContributors();
-        allData.contributors = contributors;
+        // TODO: Implement proper contributors loading
+        // For now, return empty array to prevent errors
+        allData.contributors = [];
         
         console.log(`Loaded ${allData.contributors.length} contributors`);
     } catch (error) {
@@ -322,8 +322,7 @@ function renderContributors() {
 
 // Card creation functions
 function createBacklogCard(item) {
-    const labels = item.labels.map(l => l.name);
-    const status = getStatusFromLabels(labels);
+    const status = item.projectStatus || 'Backlog';
     const statusClass = status.toLowerCase().replace(' ', '-');
     
     return `
@@ -334,15 +333,15 @@ function createBacklogCard(item) {
             </div>
             <div class="card-meta">
                 <span><i class="fas fa-calendar"></i> ${formatDate(item.created_at)}</span>
-                <span><i class="fas fa-comments"></i> ${item.comments}</span>
-                <span><i class="fas fa-thumbs-up"></i> ${getUpvotes(item)}</span>
+                <span><i class="fas fa-comments"></i> ${item.comments || 0}</span>
+                <span><i class="fas fa-thumbs-up"></i> ${item.votes?.up || 0}</span>
             </div>
             <div class="card-description">
                 ${escapeHtml(item.body || 'No description provided').substring(0, 200)}...
             </div>
             <div class="card-footer">
                 <div class="card-author">
-                    <i class="fas fa-user"></i>
+                    <img src="${item.user.avatar_url}" alt="${item.user.login}" class="meta-avatar">
                     ${item.user.login}
                 </div>
                 <div class="card-links">
@@ -459,20 +458,6 @@ function createEmptyState(message, icon) {
     `;
 }
 
-function getStatusFromLabels(labels) {
-    if (labels.includes('in-progress')) return 'In Progress';
-    if (labels.includes('ready')) return 'Ready';
-    if (labels.includes('backlog')) return 'Backlog';
-    return 'Unknown';
-}
-
-function getUpvotes(item) {
-    // Count thumbs up reactions
-    if (item.reactions && item.reactions['+1']) {
-        return item.reactions['+1'];
-    }
-    return 0;
-}
 
 function formatDate(dateString) {
     const date = new Date(dateString);

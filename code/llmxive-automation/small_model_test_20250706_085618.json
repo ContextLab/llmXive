@@ -1,0 +1,629 @@
+{
+  "timestamp": "2025-07-06T08:28:05.335445",
+  "max_size_gb": 3.0,
+  "models_tested": 10,
+  "test_types": [
+    "code_generation",
+    "scientific_reasoning",
+    "review_task",
+    "math_reasoning",
+    "creative_writing"
+  ],
+  "results": {
+    "Qwen/Qwen2.5-1.5B-Instruct": {
+      "model_id": "Qwen/Qwen2.5-1.5B-Instruct",
+      "loading": {
+        "success": true,
+        "load_time": 96.7942407131195,
+        "model_name": "Qwen/Qwen2.5-1.5B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "vocab_size": 151643,
+        "num_parameters": 1543714304,
+        "num_parameters_str": "1.54B"
+      },
+      "tests": {
+        "code_generation": {
+          "success": true,
+          "response_length": 97,
+          "word_count": 13,
+          "generation_time": 2.8653430938720703,
+          "keyword_score": 0.5,
+          "found_keywords": [
+            "def",
+            "factorial"
+          ],
+          "parse_success": true,
+          "parsed_result": {
+            "preview": "```python\ndef factorial(n):\n    \"\"\"\n    Calculate the factorial of a given non-negative integer n"
+          },
+          "response_preview": "```python\ndef factorial(n):\n    \"\"\"\n    Calculate the factorial of a given non-negative integer n"
+        },
+        "scientific_reasoning": {
+          "success": false,
+          "error": "No response generated",
+          "generation_time": 8.621558666229248
+        },
+        "review_task": {
+          "success": true,
+          "response_length": 117,
+          "word_count": 16,
+          "generation_time": 3.0190589427948,
+          "keyword_score": 0.2,
+          "found_keywords": [
+            "protein"
+          ],
+          "parse_success": false,
+          "parsed_result": null,
+          "response_preview": "### Evaluation of the Research Proposal: \"Machine Learning for Protein Folding Prediction\"\n\n#### Scientific Merit and"
+        },
+        "math_reasoning": {
+          "success": true,
+          "response_length": 89,
+          "word_count": 14,
+          "generation_time": 2.9574620723724365,
+          "keyword_score": 0.2,
+          "found_keywords": [
+            "speed"
+          ],
+          "parse_success": false,
+          "parsed_result": null,
+          "response_preview": "To solve this problem step-by-step:\n\n**Step 1:** Determine the initial speed of the train"
+        },
+        "creative_writing": {
+          "success": true,
+          "response_length": 108,
+          "word_count": 15,
+          "generation_time": 2.9341959953308105,
+          "keyword_score": 0.4,
+          "found_keywords": [
+            "species",
+            "bioluminescent"
+          ],
+          "parse_success": true,
+          "parsed_result": {
+            "preview": "In this narrative-driven study, we introduce the discovery of a previously unknown species of biolum..."
+          },
+          "response_preview": "In this narrative-driven study, we introduce the discovery of a previously unknown species of bioluminescent"
+        }
+      }
+    },
+    "Qwen/Qwen2.5-0.5B-Instruct": {
+      "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+      "loading": {
+        "success": true,
+        "load_time": 31.12025785446167,
+        "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "vocab_size": 151643,
+        "num_parameters": 494032768,
+        "num_parameters_str": "494.0M"
+      },
+      "tests": {
+        "code_generation": {
+          "success": true,
+          "response_length": 97,
+          "word_count": 11,
+          "generation_time": 1.0293269157409668,
+          "keyword_score": 0.5,
+          "found_keywords": [
+            "def",
+            "factorial"
+          ],
+          "parse_success": true,
+          "parsed_result": {
+            "preview": "```python\ndef calculate_factorial(n):\n    \"\"\"\n    Calculate the factorial of a given non-negative"
+          },
+          "response_preview": "```python\ndef calculate_factorial(n):\n    \"\"\"\n    Calculate the factorial of a given non-negative"
+        },
+        "scientific_reasoning": {
+          "success": false,
+          "error": "No response generated",
+          "generation_time": 3.0832998752593994
+        },
+        "review_task": {
+          "success": true,
+          "response_length": 109,
+          "word_count": 16,
+          "generation_time": 1.1062779426574707,
+          "keyword_score": 0.2,
+          "found_keywords": [
+            "protein"
+          ],
+          "parse_success": false,
+          "parsed_result": null,
+          "response_preview": "### Review of the Research Proposal \"Machine Learning for Protein Folding Prediction\"\n\n#### 1. Scientific Mer"
+        },
+        "math_reasoning": {
+          "success": true,
+          "response_length": 86,
+          "word_count": 13,
+          "generation_time": 1.0695469379425049,
+          "keyword_score": 0.2,
+          "found_keywords": [
+            "speed"
+          ],
+          "parse_success": false,
+          "parsed_result": null,
+          "response_preview": "Let's solve this problem step-by-step.\n\n1. **Calculate the initial speed of the train:"
+        },
+        "creative_writing": {
+          "success": true,
+          "response_length": 73,
+          "word_count": 11,
+          "generation_time": 1.0524160861968994,
+          "keyword_score": 0.4,
+          "found_keywords": [
+            "species",
+            "ocean"
+          ],
+          "parse_success": true,
+          "parsed_result": {
+            "preview": "\"Unveiling the Secrets of Deep-ocean Bioluminescence: A New Species of Bi"
+          },
+          "response_preview": "\"Unveiling the Secrets of Deep-ocean Bioluminescence: A New Species of Bi"
+        }
+      }
+    },
+    "google/gemma-2-2b-it": {
+      "model_id": "google/gemma-2-2b-it",
+      "loading": {
+        "success": false,
+        "error": "You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/google/gemma-2-2b-it.\n401 Client Error. (Request ID: Root=1-686a6c7b-317e531f36ff74663496d580;a4df6613-1e09-4bfe-b01e-aebff6e4c4ba)\n\nCannot access gated repo for url https://huggingface.co/google/gemma-2-2b-it/resolve/main/config.json.\nAccess to model google/gemma-2-2b-it is restricted. You must have access to it and be authenticated to access it. Please log in.",
+        "load_time": 0.10495805740356445
+      },
+      "tests": {}
+    },
+    "microsoft/Phi-3-mini-4k-instruct": {
+      "model_id": "microsoft/Phi-3-mini-4k-instruct",
+      "loading": {
+        "success": true,
+        "load_time": 3.5058329105377197,
+        "model_name": "microsoft/Phi-3-mini-4k-instruct",
+        "tokenizer_class": "LlamaTokenizerFast",
+        "vocab_size": 32000,
+        "num_parameters": 3821079552,
+        "num_parameters_str": "3.82B"
+      },
+      "tests": {
+        "code_generation": {
+          "success": true,
+          "response_length": 298,
+          "word_count": 39,
+          "generation_time": 15.428652048110962,
+          "keyword_score": 0.75,
+          "found_keywords": [
+            "def",
+            "factorial",
+            "recursion"
+          ],
+          "parse_success": true,
+          "parsed_result": {
+            "preview": "You are an expert software engineer. Write clean, efficient, well-documented code that follows best ..."
+          },
+          "response_preview": "You are an expert software engineer. Write clean, efficient, well-documented code that follows best practices. Write a Python function that calculates the factorial of a number using recursion. Includ..."
+        },
+        "scientific_reasoning": {
+          "success": true,
+          "response_length": 363,
+          "word_count": 51,
+          "generation_time": 15.785434007644653,
+          "keyword_score": 0.6,
+          "found_keywords": [
+            "photosynthesis",
+            "chlorophyll",
+            "light"
+          ],
+          "parse_success": true,
+          "parsed_result": {
+            "preview": "You are a technical writer. Describe methodologies clearly and precisely, including all necessary de..."
+          },
+          "response_preview": "You are a technical writer. Describe methodologies clearly and precisely, including all necessary details for reproduction. Explain the process of photosynthesis in plants, including the chemical equa..."
+        },
+        "review_task": {
+          "success": true,
+          "response_length": 588,
+          "word_count": 75,
+          "generation_time": 23.366641998291016,
+          "keyword_score": 1.0,
+          "found_keywords": [
+            "strength",
+            "concern",
+            "recommend",
+            "score",
+            "protein"
+          ],
+          "parse_success": false,
+          "parsed_result": null,
+          "response_preview": "You are a rigorous scientific reviewer. Evaluate technical designs for clarity, feasibility, novelty, and potential impact. Be constructive but critical. Review this research proposal:\n\nTitle: Machine..."
+        },
+        "math_reasoning": {
+          "success": true,
+          "response_length": 369,
+          "word_count": 65,
+          "generation_time": 17.899298191070557,
+          "keyword_score": 1.0,
+          "found_keywords": [
+            "120",
+            "distance",
+            "speed",
+            "total",
+            "km"
+          ],
+          "parse_success": false,
+          "parsed_result": null,
+          "response_preview": "You are a creative scientific researcher. Generate novel, feasible research ideas that advance human knowledge. Be specific and technical. Solve this step by step: If a train travels 120 km in 2 hours..."
+        },
+        "creative_writing": {
+          "success": true,
+          "response_length": 308,
+          "word_count": 46,
+          "generation_time": 16.622493028640747,
+          "keyword_score": 0.8,
+          "found_keywords": [
+            "species",
+            "bioluminescent",
+            "bacteria",
+            "ocean"
+          ],
+          "parse_success": true,
+          "parsed_result": {
+            "preview": "You are an academic editor. Write concise, informative abstracts that capture the essence of researc..."
+          },
+          "response_preview": "You are an academic editor. Write concise, informative abstracts that capture the essence of research. Write a short abstract for a fictional research paper about discovering a new species of biolumin..."
+        }
+      }
+    },
+    "microsoft/Phi-3.5-mini-instruct": {
+      "model_id": "microsoft/Phi-3.5-mini-instruct",
+      "loading": {
+        "success": true,
+        "load_time": 212.87758803367615,
+        "model_name": "microsoft/Phi-3.5-mini-instruct",
+        "tokenizer_class": "LlamaTokenizerFast",
+        "vocab_size": 32000,
+        "num_parameters": 3821079552,
+        "num_parameters_str": "3.82B"
+      },
+      "tests": {
+        "code_generation": {
+          "success": true,
+          "response_length": 305,
+          "word_count": 42,
+          "generation_time": 16.095723628997803,
+          "keyword_score": 0.75,
+          "found_keywords": [
+            "def",
+            "factorial",
+            "recursion"
+          ],
+          "parse_success": true,
+          "parsed_result": {
+            "preview": "You are an expert software engineer. Write clean, efficient, well-documented code that follows best ..."
+          },
+          "response_preview": "You are an expert software engineer. Write clean, efficient, well-documented code that follows best practices. Write a Python function that calculates the factorial of a number using recursion. Includ..."
+        },
+        "scientific_reasoning": {
+          "success": true,
+          "response_length": 342,
+          "word_count": 48,
+          "generation_time": 15.971370935440063,
+          "keyword_score": 0.4,
+          "found_keywords": [
+            "photosynthesis",
+            "chlorophyll"
+          ],
+          "parse_success": true,
+          "parsed_result": {
+            "preview": "You are a technical writer. Describe methodologies clearly and precisely, including all necessary de..."
+          },
+          "response_preview": "You are a technical writer. Describe methodologies clearly and precisely, including all necessary details for reproduction. Explain the process of photosynthesis in plants, including the chemical equa..."
+        },
+        "review_task": {
+          "success": true,
+          "response_length": 618,
+          "word_count": 78,
+          "generation_time": 24.302750825881958,
+          "keyword_score": 1.0,
+          "found_keywords": [
+            "strength",
+            "concern",
+            "recommend",
+            "score",
+            "protein"
+          ],
+          "parse_success": false,
+          "parsed_result": null,
+          "response_preview": "You are a rigorous scientific reviewer. Evaluate technical designs for clarity, feasibility, novelty, and potential impact. Be constructive but critical. Review this research proposal:\n\nTitle: Machine..."
+        },
+        "math_reasoning": {
+          "success": true,
+          "response_length": 360,
+          "word_count": 65,
+          "generation_time": 17.918139934539795,
+          "keyword_score": 1.0,
+          "found_keywords": [
+            "120",
+            "distance",
+            "speed",
+            "total",
+            "km"
+          ],
+          "parse_success": false,
+          "parsed_result": null,
+          "response_preview": "You are a creative scientific researcher. Generate novel, feasible research ideas that advance human knowledge. Be specific and technical. Solve this step by step: If a train travels 120 km in 2 hours..."
+        },
+        "creative_writing": {
+          "success": true,
+          "response_length": 329,
+          "word_count": 50,
+          "generation_time": 16.607168912887573,
+          "keyword_score": 0.8,
+          "found_keywords": [
+            "species",
+            "bioluminescent",
+            "bacteria",
+            "ocean"
+          ],
+          "parse_success": true,
+          "parsed_result": {
+            "preview": "You are an academic editor. Write concise, informative abstracts that capture the essence of researc..."
+          },
+          "response_preview": "You are an academic editor. Write concise, informative abstracts that capture the essence of research. Write a short abstract for a fictional research paper about discovering a new species of biolumin..."
+        }
+      }
+    },
+    "meta-llama/Llama-3.2-1B-Instruct": {
+      "model_id": "meta-llama/Llama-3.2-1B-Instruct",
+      "loading": {
+        "success": false,
+        "error": "You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct.\n401 Client Error. (Request ID: Root=1-686a6e1e-78f8563179dca2954dba39c0;9a3d532b-f890-47df-851d-e222d293e80a)\n\nCannot access gated repo for url https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct/resolve/main/config.json.\nAccess to model meta-llama/Llama-3.2-1B-Instruct is restricted. You must have access to it and be authenticated to access it. Please log in.",
+        "load_time": 0.09744811058044434
+      },
+      "tests": {}
+    },
+    "meta-llama/Llama-3.2-3B-Instruct": {
+      "model_id": "meta-llama/Llama-3.2-3B-Instruct",
+      "loading": {
+        "success": false,
+        "error": "You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct.\n401 Client Error. (Request ID: Root=1-686a6e1f-3d8776210d5f7aab17cd1d16;df0b656f-147c-42ab-959c-cb02d1420e86)\n\nCannot access gated repo for url https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct/resolve/main/config.json.\nAccess to model meta-llama/Llama-3.2-3B-Instruct is restricted. You must have access to it and be authenticated to access it. Please log in.",
+        "load_time": 0.09911870956420898
+      },
+      "tests": {}
+    },
+    "TinyLlama/TinyLlama-1.1B-Chat-v1.0": {
+      "model_id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+      "loading": {
+        "success": true,
+        "load_time": 1.002350091934204,
+        "model_name": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+        "tokenizer_class": "LlamaTokenizerFast",
+        "vocab_size": 32000,
+        "num_parameters": 1100048384,
+        "num_parameters_str": "1.10B"
+      },
+      "tests": {
+        "code_generation": {
+          "success": true,
+          "response_length": 730,
+          "word_count": 112,
+          "generation_time": 22.50800919532776,
+          "keyword_score": 0.75,
+          "found_keywords": [
+            "def",
+            "factorial",
+            "return"
+          ],
+          "parse_success": true,
+          "parsed_result": {
+            "preview": "```python\ndef factorial(num):\n    if num == 0:\n        return 1\n    else:\n        return num * facto..."
+          },
+          "response_preview": "```python\ndef factorial(num):\n    if num == 0:\n        return 1\n    else:\n        return num * factorial(num-1)\n\n# Testing the function with some sample inputs\nprint(factorial(5)) # Output: 120\nprint(..."
+        },
+        "scientific_reasoning": {
+          "success": true,
+          "response_length": 3455,
+          "word_count": 545,
+          "generation_time": 96.40384483337402,
+          "keyword_score": 0.8,
+          "found_keywords": [
+            "photosynthesis",
+            "chlorophyll",
+            "CO2",
+            "light"
+          ],
+          "parse_success": true,
+          "parsed_result": {
+            "preview": "Photosynthesis is the process by which plants convert light energy into chemical energy through the ..."
+          },
+          "response_preview": "Photosynthesis is the process by which plants convert light energy into chemical energy through the use of chlorophyll and oxygen. Here's a step-by-step description of how it works:\n\n1. Light Energy: ..."
+        },
+        "review_task": {
+          "success": true,
+          "response_length": 6808,
+          "word_count": 980,
+          "generation_time": 213.21392607688904,
+          "keyword_score": 1.0,
+          "found_keywords": [
+            "strength",
+            "concern",
+            "recommend",
+            "score",
+            "protein"
+          ],
+          "parse_success": false,
+          "parsed_result": null,
+          "response_preview": "Strengths:\n1. Technical feasibility: The proposed approach has been well-established in the field of machine learning, which makes it easy to implement and scale.\n2. Potential impact: The proposed app..."
+        },
+        "math_reasoning": {
+          "success": true,
+          "response_length": 255,
+          "word_count": 55,
+          "generation_time": 10.820351839065552,
+          "keyword_score": 1.0,
+          "found_keywords": [
+            "120",
+            "distance",
+            "speed",
+            "total",
+            "km"
+          ],
+          "parse_success": false,
+          "parsed_result": null,
+          "response_preview": "The train travels 120 km in 2 hours and speeds up by 20 km/h for the next 3 hours, so the total distance traveled would be:\n\nDistance Traveled = 120 km x (1 + 0.2) = 148 km\n\nSo the total distance trav..."
+        },
+        "creative_writing": {
+          "success": true,
+          "response_length": 3683,
+          "word_count": 544,
+          "generation_time": 97.4888379573822,
+          "keyword_score": 1.0,
+          "found_keywords": [
+            "species",
+            "bioluminescent",
+            "bacteria",
+            "ocean",
+            "discovered"
+          ],
+          "parse_success": true,
+          "parsed_result": {
+            "preview": "Title: \"A New Species of Bioluminescent Bacteria Discovered in the Deep Ocean Vents\"\n\nAbstract:\nRese..."
+          },
+          "response_preview": "Title: \"A New Species of Bioluminescent Bacteria Discovered in the Deep Ocean Vents\"\n\nAbstract:\nResearchers at the National University of Singapore (NUS) have discovered a new species of bioluminescen..."
+        }
+      }
+    },
+    "stabilityai/stablelm-2-1_6b-chat": {
+      "model_id": "stabilityai/stablelm-2-1_6b-chat",
+      "loading": {
+        "success": true,
+        "load_time": 96.29357695579529,
+        "model_name": "stabilityai/stablelm-2-1_6b-chat",
+        "tokenizer_class": "GPT2TokenizerFast",
+        "vocab_size": 100289,
+        "num_parameters": 1644515328,
+        "num_parameters_str": "1.64B"
+      },
+      "tests": {
+        "code_generation": {
+          "success": false,
+          "error": "No response generated",
+          "generation_time": 9.120241165161133
+        },
+        "scientific_reasoning": {
+          "success": false,
+          "error": "No response generated",
+          "generation_time": 9.275816917419434
+        },
+        "review_task": {
+          "success": false,
+          "error": "No response generated",
+          "generation_time": 9.666907787322998
+        },
+        "math_reasoning": {
+          "success": true,
+          "response_length": 88,
+          "word_count": 15,
+          "generation_time": 3.485391139984131,
+          "keyword_score": 0.2,
+          "found_keywords": [
+            "speed"
+          ],
+          "parse_success": false,
+          "parsed_result": null,
+          "response_preview": "To solve this problem, we'll follow these steps:\n\nStep 1: Calculate the initial speed of"
+        },
+        "creative_writing": {
+          "success": true,
+          "response_length": 69,
+          "word_count": 9,
+          "generation_time": 3.152804136276245,
+          "keyword_score": 0.0,
+          "found_keywords": [],
+          "parse_success": true,
+          "parsed_result": {
+            "preview": "Title: \"Unveiling the Bioluminescence of Deep-Sea Vents: Discovery of"
+          },
+          "response_preview": "Title: \"Unveiling the Bioluminescence of Deep-Sea Vents: Discovery of"
+        }
+      }
+    },
+    "HuggingFaceH4/zephyr-7b-beta": {
+      "model_id": "HuggingFaceH4/zephyr-7b-beta",
+      "loading": {
+        "success": true,
+        "load_time": 393.9936218261719,
+        "model_name": "HuggingFaceH4/zephyr-7b-beta",
+        "tokenizer_class": "LlamaTokenizerFast",
+        "vocab_size": 32000,
+        "num_parameters": 7241732096,
+        "num_parameters_str": "7.24B"
+      },
+      "tests": {
+        "code_generation": {
+          "success": true,
+          "response_length": 60,
+          "word_count": 7,
+          "generation_time": 13.745937824249268,
+          "keyword_score": 0.5,
+          "found_keywords": [
+            "def",
+            "factorial"
+          ],
+          "parse_success": true,
+          "parsed_result": {
+            "preview": "Here's your requested function:\n\n```python\ndef factorial(n):"
+          },
+          "response_preview": "Here's your requested function:\n\n```python\ndef factorial(n):"
+        },
+        "scientific_reasoning": {
+          "success": false,
+          "error": "No response generated",
+          "generation_time": 41.5688157081604
+        },
+        "review_task": {
+          "success": true,
+          "response_length": 49,
+          "word_count": 8,
+          "generation_time": 30.61544704437256,
+          "keyword_score": 0.2,
+          "found_keywords": [
+            "strength"
+          ],
+          "parse_success": false,
+          "parsed_result": null,
+          "response_preview": "1. Scientific merit and novelty:\nStrengths:\n- The"
+        },
+        "math_reasoning": {
+          "success": true,
+          "response_length": 99,
+          "word_count": 18,
+          "generation_time": 14.533111810684204,
+          "keyword_score": 0.2,
+          "found_keywords": [
+            "speed"
+          ],
+          "parse_success": false,
+          "parsed_result": null,
+          "response_preview": "To solve this problem, we first need to calculate the average speed of the train during the initial"
+        },
+        "creative_writing": {
+          "success": true,
+          "response_length": 87,
+          "word_count": 15,
+          "generation_time": 13.920623302459717,
+          "keyword_score": 0.6,
+          "found_keywords": [
+            "species",
+            "bioluminescent",
+            "bacteria"
+          ],
+          "parse_success": true,
+          "parsed_result": {
+            "preview": "In this study, we report the discovery of a novel species of bioluminescent bacteria th"
+          },
+          "response_preview": "In this study, we report the discovery of a novel species of bioluminescent bacteria th"
+        }
+      }
+    }
+  }
+}

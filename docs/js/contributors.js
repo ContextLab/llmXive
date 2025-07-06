@@ -50,7 +50,7 @@ const ContributorsModule = {
     
     async loadIssueContributors() {
         try {
-            const issues = await githubAPI.getIssues();
+            const issues = await window.api.fetchProjectIssues();
             const contributors = {};
             
             issues.forEach(issue => {
@@ -88,7 +88,8 @@ const ContributorsModule = {
     
     async loadDesignContributors() {
         try {
-            const designs = await githubAPI.getTechnicalDesigns();
+            // TODO: Implement proper technical designs loading
+            const designs = [];
             const contributors = {};
             
             designs.forEach(design => {
@@ -125,7 +126,8 @@ const ContributorsModule = {
     
     async loadReviewContributors() {
         try {
-            const reviews = await githubAPI.getReviews();
+            // TODO: Implement proper reviews loading
+            const reviews = [];
             const contributors = {};
             
             reviews.forEach(review => {

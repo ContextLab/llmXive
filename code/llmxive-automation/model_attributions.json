@@ -15,6 +15,14 @@
         "idea": 3
       },
       "last_contribution": "2025-07-04T12:45:51.980936"
+    },
+    "Qwen/Qwen2.5-3B-Instruct": {
+      "first_contribution": "2025-07-06T09:28:54.346477",
+      "total_contributions": 3,
+      "contributions_by_type": {
+        "idea": 3
+      },
+      "last_contribution": "2025-07-06T09:29:31.544434"
     }
   },
   "contributions": [
@@ -134,6 +142,45 @@
         "field": "biology",
         "idea_id": "biology-20250704-001",
         "keywords": "exploring, mechanisms, regulation, different, abstract"
+      }
+    },
+    {
+      "id": "Qwen-Qwen2.5-3B-Instruct_20250706_092854",
+      "model_id": "Qwen/Qwen2.5-3B-Instruct",
+      "timestamp": "2025-07-06T09:28:54.346491",
+      "task_type": "BRAINSTORM_IDEA",
+      "contribution_type": "idea",
+      "reference": "issue-38",
+      "metadata": {
+        "field": "astronomy",
+        "idea_id": "astronomy-20250706-001",
+        "keywords": "\"characterization, exoplanetary, atmospheres, through, advanced"
+      }
+    },
+    {
+      "id": "Qwen-Qwen2.5-3B-Instruct_20250706_092912",
+      "model_id": "Qwen/Qwen2.5-3B-Instruct",
+      "timestamp": "2025-07-06T09:29:12.589692",
+      "task_type": "BRAINSTORM_IDEA",
+      "contribution_type": "idea",
+      "reference": "issue-39",
+      "metadata": {
+        "field": "ocean science",
+        "idea_id": "ocean-science-20250706-001",
+        "keywords": "investigating, submarine, hydrothermal, microbial, communities"
+      }
+    },
+    {
+      "id": "Qwen-Qwen2.5-3B-Instruct_20250706_092931",
+      "model_id": "Qwen/Qwen2.5-3B-Instruct",
+      "timestamp": "2025-07-06T09:29:31.544437",
+      "task_type": "BRAINSTORM_IDEA",
+      "contribution_type": "idea",
+      "reference": "issue-40",
+      "metadata": {
+        "field": "psychology",
+        "idea_id": "psychology-20250706-001",
+        "keywords": "\"neural, mechanisms, underlying, adaptive, decision-making"
       }
     }
   ]

@@ -32,11 +32,6 @@
                     <p class="tagline">Automated Scientific Discovery</p>
                 </div>
                 <nav class="main-nav">
-                    <a href="#backlog" class="nav-link">Backlog</a>
-                    <a href="#designs" class="nav-link">Designs</a>
-                    <a href="#plans" class="nav-link">Plans</a>
-                    <a href="#papers" class="nav-link">Papers</a>
-                    <a href="#contributors" class="nav-link">Contributors</a>
                     <a href="#submit" class="nav-link btn-primary">
                         <i class="fas fa-plus"></i> Submit Idea
                     </a>
@@ -50,125 +45,54 @@
         <div class="container">
             <!-- Navigation Tabs -->
             <div class="section-tabs">
-                <button class="tab-button active" onclick="showSection('backlog')">
-                    <i class="fas fa-list"></i> Backlog
-                </button>
-                <button class="tab-button" onclick="showSection('designs')">
-                    <i class="fas fa-drafting-compass"></i> Technical Designs
-                </button>
-                <button class="tab-button" onclick="showSection('plans')">
-                    <i class="fas fa-project-diagram"></i> Implementation Plans
+                <button class="tab-button active" onclick="showSection('papers-completed')">
+                    <i class="fas fa-trophy"></i> Papers (Completed)
                 </button>
                 <button class="tab-button" onclick="showSection('papers-in-progress')">
                     <i class="fas fa-file-alt"></i> Papers (In Progress)
                 </button>
-                <button class="tab-button" onclick="showSection('papers-completed')">
-                    <i class="fas fa-trophy"></i> Papers (Completed)
+                <button class="tab-button" onclick="showSection('plans')">
+                    <i class="fas fa-project-diagram"></i> Implementation Plans
+                </button>
+                <button class="tab-button" onclick="showSection('designs')">
+                    <i class="fas fa-drafting-compass"></i> Technical Designs
+                </button>
+                <button class="tab-button" onclick="showSection('backlog')">
+                    <i class="fas fa-list"></i> Backlog
                 </button>
                 <button class="tab-button" onclick="showSection('contributors')">
                     <i class="fas fa-users"></i> Contributors
                 </button>
             </div>
 
-            <!-- Backlog Section -->
-            <section id="backlog" class="content-section active">
+            <!-- Papers Completed Section -->
+            <section id="papers-completed" class="content-section active">
                 <div class="section-header">
                     <h2 class="section-title">
-                        <i class="fas fa-list"></i> Project Backlog
+                        <i class="fas fa-trophy"></i> Papers (Completed)
                     </h2>
-                    <p class="section-description">All GitHub issues organized by status. Ideas and projects in various stages of development.</p>
+                    <p class="section-description">Completed research papers with associated data and code.</p>
                 </div>
                 
                 <div class="controls">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="backlogSearchInput" placeholder="Search backlog..." autocomplete="off">
+                        <input type="text" id="papersCompletedSearchInput" placeholder="Search papers..." autocomplete="off">
                     </div>
                     
                     <div class="filters">
-                        <select id="backlogStatusFilter" class="filter-select">
-                            <option value="all">All Statuses</option>
-                            <option value="backlog">Backlog</option>
-                            <option value="ready">Ready</option>
-                            <option value="in-progress">In Progress</option>
-                        </select>
-                        <select id="backlogSortSelect" class="filter-select">
+                        <select id="papersCompletedSortSelect" class="filter-select">
                             <option value="updated">Recently Updated</option>
-                            <option value="created">Recently Created</option>
-                            <option value="upvotes">Most Upvotes</option>
+                            <option value="keyword">By Keyword</option>
                             <option value="title">Title (A-Z)</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="cards-grid" id="backlogGrid">
+                <div class="cards-grid" id="papersCompletedGrid">
                     <div class="loading">
                         <i class="fas fa-spinner fa-spin"></i>
-                        <p>Loading backlog...</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Technical Designs Section -->
-            <section id="designs" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <i class="fas fa-drafting-compass"></i> Technical Design Documents
-                    </h2>
-                    <p class="section-description">Comprehensive technical designs for research projects.</p>
-                </div>
-                
-                <div class="controls">
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="designsSearchInput" placeholder="Search designs..." autocomplete="off">
-                    </div>
-                    
-                    <div class="filters">
-                        <select id="designsSortSelect" class="filter-select">
-                            <option value="updated">Recently Updated</option>
-                            <option value="created">Recently Created</option>
-                            <option value="title">Title (A-Z)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="cards-grid" id="designsGrid">
-                    <div class="loading">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <p>Loading designs...</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Implementation Plans Section -->
-            <section id="plans" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <i class="fas fa-project-diagram"></i> Implementation Plans
-                    </h2>
-                    <p class="section-description">Detailed implementation plans for approved projects.</p>
-                </div>
-                
-                <div class="controls">
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="plansSearchInput" placeholder="Search plans..." autocomplete="off">
-                    </div>
-                    
-                    <div class="filters">
-                        <select id="plansSortSelect" class="filter-select">
-                            <option value="updated">Recently Updated</option>
-                            <option value="created">Recently Created</option>
-                            <option value="title">Title (A-Z)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="cards-grid" id="plansGrid">
-                    <div class="loading">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <p>Loading plans...</p>
+                        <p>Loading completed papers...</p>
                     </div>
                 </div>
             </section>
@@ -205,37 +129,103 @@
                 </div>
             </section>
 
-            <!-- Papers Completed Section -->
-            <section id="papers-completed" class="content-section">
+            <!-- Implementation Plans Section -->
+            <section id="plans" class="content-section">
                 <div class="section-header">
                     <h2 class="section-title">
-                        <i class="fas fa-trophy"></i> Papers (Completed)
+                        <i class="fas fa-project-diagram"></i> Implementation Plans
                     </h2>
-                    <p class="section-description">Completed research papers with associated data and code.</p>
+                    <p class="section-description">Detailed implementation plans for approved projects.</p>
                 </div>
                 
                 <div class="controls">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="papersCompletedSearchInput" placeholder="Search papers..." autocomplete="off">
+                        <input type="text" id="plansSearchInput" placeholder="Search plans..." autocomplete="off">
                     </div>
                     
                     <div class="filters">
-                        <select id="papersCompletedSortSelect" class="filter-select">
+                        <select id="plansSortSelect" class="filter-select">
                             <option value="updated">Recently Updated</option>
-                            <option value="keyword">By Keyword</option>
+                            <option value="created">Recently Created</option>
                             <option value="title">Title (A-Z)</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="cards-grid" id="papersCompletedGrid">
+                <div class="cards-grid" id="plansGrid">
                     <div class="loading">
                         <i class="fas fa-spinner fa-spin"></i>
-                        <p>Loading completed papers...</p>
+                        <p>Loading plans...</p>
                     </div>
                 </div>
             </section>
+
+            <!-- Technical Designs Section -->
+            <section id="designs" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-drafting-compass"></i> Technical Design Documents
+                    </h2>
+                    <p class="section-description">Comprehensive technical designs for research projects.</p>
+                </div>
+                
+                <div class="controls">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="designsSearchInput" placeholder="Search designs..." autocomplete="off">
+                    </div>
+                    
+                    <div class="filters">
+                        <select id="designsSortSelect" class="filter-select">
+                            <option value="updated">Recently Updated</option>
+                            <option value="created">Recently Created</option>
+                            <option value="title">Title (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="cards-grid" id="designsGrid">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading designs...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Backlog Section -->
+            <section id="backlog" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-list"></i> Project Backlog
+                    </h2>
+                    <p class="section-description">All GitHub issues organized by status. Ideas and projects in various stages of development.</p>
+                </div>
+                
+                <div class="controls">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="backlogSearchInput" placeholder="Search backlog..." autocomplete="off">
+                    </div>
+                    
+                    <div class="filters">
+                        <select id="backlogSortSelect" class="filter-select">
+                            <option value="updated">Recently Updated</option>
+                            <option value="created">Recently Created</option>
+                            <option value="upvotes">Most Upvotes</option>
+                            <option value="title">Title (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="cards-grid" id="backlogGrid">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading backlog...</p>
+                    </div>
+                </div>
+            </section>
+
 
             <!-- Contributors Section -->
             <section id="contributors" class="content-section">
