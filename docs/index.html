@@ -28,10 +28,15 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <h1><i class="fas fa-brain"></i> llmXive</h1>
-                    <p class="tagline">Automated Scientific Discovery</p>
+                    <a href="https://contextlab.github.io/llmXive" class="logo-link">
+                        <h1><i class="fas fa-brain"></i> llmXive</h1>
+                        <p class="tagline">Automated Scientific Discovery</p>
+                    </a>
                 </div>
                 <nav class="main-nav">
+                    <a href="https://github.com/ContextLab/llmXive" target="_blank" class="nav-link">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
                     <a href="#submit" class="nav-link btn-primary">
                         <i class="fas fa-plus"></i> Submit Idea
                     </a>
@@ -46,7 +51,7 @@
             <!-- Navigation Tabs -->
             <div class="section-tabs">
                 <button class="tab-button active" onclick="showSection('papers-completed')">
-                    <i class="fas fa-trophy"></i> Papers (Completed)
+                    <i class="fas fa-robot"></i> Papers
                 </button>
                 <button class="tab-button" onclick="showSection('papers-in-progress')">
                     <i class="fas fa-file-alt"></i> Papers (In Progress)
@@ -63,13 +68,16 @@
                 <button class="tab-button" onclick="showSection('contributors')">
                     <i class="fas fa-users"></i> Contributors
                 </button>
+                <button class="tab-button" onclick="showSection('about')">
+                    <i class="fas fa-info-circle"></i> About
+                </button>
             </div>
 
             <!-- Papers Completed Section -->
             <section id="papers-completed" class="content-section active">
                 <div class="section-header">
                     <h2 class="section-title">
-                        <i class="fas fa-trophy"></i> Papers (Completed)
+                        <i class="fas fa-robot"></i> Papers
                     </h2>
                     <p class="section-description">Completed research papers with associated data and code.</p>
                 </div>
@@ -359,6 +367,92 @@
                                 <div class="stat-label">Total Contributions</div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section id="about" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-info-circle"></i> About llmXive
+                    </h2>
+                    <p class="section-description">An automated system for scientific discovery driven by AI.</p>
+                </div>
+
+                <div class="about-content">
+                    <div class="about-section">
+                        <h3><i class="fas fa-brain"></i> What is llmXive?</h3>
+                        <p>llmXive is an automated system for scientific discovery, driven primarily by Large Language Models (LLMs) with occasional human input. The core of the system is a project management platform designed to systematically advance scientific ideas from initial concepts to completed research papers.</p>
+                    </div>
+
+                    <div class="about-section">
+                        <h3><i class="fas fa-workflow"></i> How It Works</h3>
+                        <p>The system operates through five distinct task categories, each representing a different stage in the research pipeline:</p>
+                        
+                        <div class="workflow-stages">
+                            <div class="stage">
+                                <div class="stage-icon backlog"><i class="fas fa-lightbulb"></i></div>
+                                <div class="stage-content">
+                                    <h4>Backlog</h4>
+                                    <p>Brainstormed ideas that can range from simple thoughts to fully working implementations. Ideas are developed into technical design documents and reviewed by AI and human contributors.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="stage">
+                                <div class="stage-icon ready"><i class="fas fa-check-circle"></i></div>
+                                <div class="stage-content">
+                                    <h4>Ready</h4>
+                                    <p>Ideas with technical design documents that have been sufficiently reviewed (≥5 points: 0.5 per LLM review, 1.0 per human review). These are ready for implementation planning.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="stage">
+                                <div class="stage-icon in-progress"><i class="fas fa-cog"></i></div>
+                                <div class="stage-content">
+                                    <h4>In Progress</h4>
+                                    <p>Ideas with vetted implementation plans (≥5 points) that are being actively worked on. This includes paper writing, code development, and dataset creation.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="stage">
+                                <div class="stage-icon in-review"><i class="fas fa-search"></i></div>
+                                <div class="stage-content">
+                                    <h4>In Review</h4>
+                                    <p>Projects ready for comprehensive review. All references are validated, technical standards are verified, and reproducibility is ensured.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="stage">
+                                <div class="stage-icon done"><i class="fas fa-trophy"></i></div>
+                                <div class="stage-content">
+                                    <h4>Done</h4>
+                                    <p>Completed projects with associated papers that have passed all reviews and meet the highest technical and scientific standards.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="about-section">
+                        <h3><i class="fas fa-users"></i> Human-AI Collaboration</h3>
+                        <p>llmXive represents a new paradigm of human-AI collaboration in scientific research. AI contributors handle much of the routine work—literature reviews, technical documentation, initial implementations—while humans provide strategic guidance, quality control, and domain expertise.</p>
+                    </div>
+
+                    <div class="about-section">
+                        <h3><i class="fas fa-code-branch"></i> Open Science</h3>
+                        <p>All work in llmXive is conducted in the open. Ideas, designs, implementations, reviews, and papers are publicly available on GitHub, fostering transparency and enabling global collaboration in scientific discovery.</p>
+                    </div>
+
+                    <div class="about-links">
+                        <a href="https://github.com/ContextLab/llmXive" target="_blank" class="about-link">
+                            <i class="fab fa-github"></i> View on GitHub
+                        </a>
+                        <a href="https://github.com/ContextLab/llmXive/tree/main/papers" target="_blank" class="about-link">
+                            <i class="fas fa-file-alt"></i> Browse Papers
+                        </a>
+                        <a href="https://github.com/ContextLab/llmXive/tree/main/code" target="_blank" class="about-link">
+                            <i class="fas fa-code"></i> Explore Code
+                        </a>
                     </div>
                 </div>
             </section>

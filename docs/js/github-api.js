@@ -39,8 +39,11 @@ class GitHubAPI {
                 .filter(issue => !issue.pull_request)
                 .map(async issue => {
                     const realAuthor = await this.getRealAuthor(issue);
+                    // Clean up title by removing "Title: " prefix
+                    const cleanTitle = issue.title.replace(/^Title:\s*/i, '');
                     return {
                         ...issue,
+                        title: cleanTitle,
                         projectStatus: this.getStatusFromLabels(issue.labels),
                         keywords: this.extractKeywords(issue),
                         views: this.getViews(issue.number),
@@ -167,7 +170,8 @@ class GitHubAPI {
         for (const pattern of patterns) {
             const match = text.match(pattern);
             if (match && match[1]) {
-                return match[1].trim();
+                // Clean up the extracted name by removing markdown formatting
+                return match[1].trim().replace(/\*\*/g, '').replace(/\*/g, '');
             }
         }
         

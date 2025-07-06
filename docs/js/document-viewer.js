@@ -75,6 +75,17 @@ const DocumentViewer = {
                 throw new Error('Issue not found');
             }
             
+            // Load comments for the issue
+            let comments = [];
+            try {
+                if (window.githubAuth) {
+                    comments = await window.githubAuth.getComments(issueNumber);
+                }
+            } catch (error) {
+                console.error('Error loading comments:', error);
+                comments = [];
+            }
+            
             return {
                 type: 'issue',
                 title: issue.title,
@@ -83,10 +94,12 @@ const DocumentViewer = {
                     'Created': new Date(issue.created_at).toLocaleDateString(),
                     'Author': issue.realAuthor ? issue.realAuthor.name : issue.user.login,
                     'Status': issue.projectStatus || 'Backlog',
-                    'Comments': issue.comments || 0,
-                    'Upvotes': issue.votes?.up || 0
+                    'Comments': comments.length,
+                    'Upvotes': issue.votes?.up || 0,
+                    'Downvotes': issue.votes?.down || 0
                 },
                 content: this.formatMarkdown(issue.body || 'No description provided'),
+                comments: comments,
                 links: [
                     { text: 'View on GitHub', url: issue.html_url, icon: 'external-link-alt' }
                 ],
@@ -199,13 +212,43 @@ const DocumentViewer = {
                     ${documentData.content}
                 </div>
                 
-                ${documentData.allowReview ? `
-                    <div class="document-actions">
+                ${documentData.comments && documentData.comments.length > 0 ? `
+                    <div class="document-comments">
+                        <h3><i class="fas fa-comments"></i> Comments (${documentData.comments.length})</h3>
+                        <div class="comments-list">
+                            ${documentData.comments.map(comment => `
+                                <div class="comment">
+                                    <div class="comment-header">
+                                        <img src="${comment.user.avatar_url}" alt="${comment.user.login}" class="comment-avatar">
+                                        <div class="comment-meta">
+                                            <strong>${comment.user.login}</strong>
+                                            <span class="comment-date">${new Date(comment.created_at).toLocaleDateString()}</span>
+                                        </div>
+                                    </div>
+                                    <div class="comment-body">
+                                        ${this.formatMarkdown(comment.body)}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+                
+                <div class="document-footer">
+                    <div class="document-voting">
+                        <button class="vote-btn" onclick="documentViewer.vote(${this.currentDocument?.id}, '+1')" id="vote-up-${this.currentDocument?.id}">
+                            <i class="fas fa-thumbs-up"></i> <span id="upvote-count-${this.currentDocument?.id}">${documentData.meta.Upvotes || 0}</span>
+                        </button>
+                        <button class="vote-btn" onclick="documentViewer.vote(${this.currentDocument?.id}, '-1')" id="vote-down-${this.currentDocument?.id}">
+                            <i class="fas fa-thumbs-down"></i> <span id="downvote-count-${this.currentDocument?.id}">${documentData.meta.Downvotes || 0}</span>
+                        </button>
+                    </div>
+                    ${documentData.allowReview ? `
                         <button class="btn-primary" onclick="documentViewer.showReviewForm()">
                             <i class="fas fa-star"></i> Add Review
                         </button>
-                    </div>
-                ` : ''}
+                    ` : ''}
+                </div>
             </div>
         `;
         
@@ -226,6 +269,34 @@ const DocumentViewer = {
         if (reviewSection) {
             reviewSection.style.display = 'block';
             reviewSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    },
+    
+    async vote(issueNumber, reaction) {
+        try {
+            await window.api.addReaction(issueNumber, reaction);
+            
+            // Update the vote counts in the modal
+            const issue = allData.backlog.find(item => item.number === issueNumber);
+            if (issue) {
+                if (reaction === '+1') {
+                    issue.votes.up = (issue.votes.up || 0) + 1;
+                    const upvoteElement = document.getElementById(`upvote-count-${issueNumber}`);
+                    if (upvoteElement) {
+                        upvoteElement.textContent = issue.votes.up;
+                    }
+                } else if (reaction === '-1') {
+                    issue.votes.down = (issue.votes.down || 0) + 1;
+                    const downvoteElement = document.getElementById(`downvote-count-${issueNumber}`);
+                    if (downvoteElement) {
+                        downvoteElement.textContent = issue.votes.down;
+                    }
+                }
+            }
+            
+        } catch (error) {
+            console.error('Error voting:', error);
+            alert('Error adding vote. Please try again.');
         }
     },
     

@@ -87,19 +87,20 @@
 
 .card {
     background: white;
-    border: 1px solid #e1e8ed;
-    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
     padding: 1.5rem;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
 .card:hover {
-    border-color: #1d9bf0;
-    box-shadow: 0 4px 20px rgba(29, 155, 240, 0.15);
-    transform: translateY(-2px);
+    border-color: #3b82f6;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-4px);
 }
 
 .card-header {
@@ -130,31 +131,39 @@
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 500;
+    padding: 0.375rem 0.875rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
 }
 
 .card-status.backlog {
-    background-color: #f0f0f0;
-    color: #666;
+    background: #f3f4f6;
+    color: #374151;
 }
 
 .card-status.ready {
-    background-color: #e3f2fd;
-    color: #1976d2;
+    background: #fef3c7;
+    color: #92400e;
 }
 
 .card-status.in-progress {
-    background-color: #fff3e0;
-    color: #f57c00;
+    background: #dbeafe;
+    color: #1e40af;
 }
 
-.card-status.completed {
-    background-color: #e8f5e8;
-    color: #2e7d32;
+.card-status.in-review {
+    background: #ede9fe;
+    color: #5b21b6;
+}
+
+.card-status.completed,
+.card-status.done {
+    background: #d1fae5;
+    color: #065f46;
 }
 
 .card-description {
@@ -199,11 +208,121 @@
     text-align: center;
 }
 
+.document-footer {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f1f3f4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.document-voting {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.vote-btn {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #374151;
+}
+
+.vote-btn:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+.vote-btn.active {
+    background: #dbeafe;
+    border-color: #3b82f6;
+    color: #1d4ed8;
+}
+
+.vote-btn i {
+    font-size: 1rem;
+}
+
 /* Author type indicator */
 .author-type {
     font-size: 0.75rem;
     color: #657786;
     margin-left: 0.25rem;
+}
+
+/* Document comments */
+.document-comments {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f1f3f4;
+}
+
+.document-comments h3 {
+    margin-bottom: 1rem;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.comment {
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.comment-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.comment-date {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.comment-body {
+    color: #374151;
+    line-height: 1.6;
+}
+
+.comment-body p {
+    margin-bottom: 0.5rem;
+}
+
+.comment-body p:last-child {
+    margin-bottom: 0;
 }
 
 .card-links {
@@ -457,5 +576,155 @@
     
     .form-actions {
         flex-direction: column;
+    }
+}
+
+/* About page styles */
+.about-content {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.about-section {
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.about-section h3 {
+    margin-bottom: 1rem;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+}
+
+.about-section h3 i {
+    color: #3b82f6;
+    font-size: 1.25rem;
+}
+
+.about-section p {
+    color: #374151;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+}
+
+.workflow-stages {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.stage {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: #f9fafb;
+    border-radius: 0.75rem;
+    border-left: 4px solid #e5e7eb;
+}
+
+.stage-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.stage-icon.backlog {
+    background: #6b7280;
+}
+
+.stage-icon.ready {
+    background: #f59e0b;
+}
+
+.stage-icon.in-progress {
+    background: #3b82f6;
+}
+
+.stage-icon.in-review {
+    background: #7c3aed;
+}
+
+.stage-icon.done {
+    background: #10b981;
+}
+
+.stage-content h4 {
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.stage-content p {
+    margin-bottom: 0;
+    color: #4b5563;
+}
+
+.about-links {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.about-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #3b82f6;
+    color: white;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.about-link:hover {
+    background: #2563eb;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.about-link i {
+    font-size: 1.125rem;
+}
+
+@media (max-width: 768px) {
+    .about-section {
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stage {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .about-links {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .about-link {
+        width: 100%;
+        justify-content: center;
+        max-width: 300px;
     }
 }

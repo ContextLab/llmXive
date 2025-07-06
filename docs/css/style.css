@@ -85,6 +85,15 @@ a:hover {
     padding: 1rem 0;
 }
 
+.logo-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.logo-link:hover {
+    color: inherit;
+}
+
 .logo h1 {
     font-size: 1.75rem;
     font-weight: 700;
@@ -472,12 +481,12 @@ a:hover {
     background: rgba(0, 0, 0, 0.5);
     z-index: 1000;
     backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
 }
 
 .modal.active {
     display: flex;
-    align-items: center;
-    justify-content: center;
     animation: fadeIn 0.3s ease;
 }
 

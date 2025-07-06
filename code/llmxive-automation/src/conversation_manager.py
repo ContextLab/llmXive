@@ -138,12 +138,9 @@ class ConversationManager:
                         "top_k": 50,
                         "repetition_penalty": 1.1,
                         "pad_token_id": self.tokenizer.pad_token_id,
-                        "eos_token_id": self.tokenizer.eos_token_id
+                        "eos_token_id": self.tokenizer.eos_token_id,
+                        "max_new_tokens": max_new_tokens if max_new_tokens is not None else 2048
                     }
-                    
-                    # Only set max_new_tokens if specified (otherwise let model generate until EOS)
-                    if max_new_tokens is not None:
-                        gen_kwargs["max_new_tokens"] = max_new_tokens
                     
                     # Disable cache for models with known issues
                     if "phi" in self.model_name.lower():

@@ -54,14 +54,17 @@ const ContributorsModule = {
             const contributors = {};
             
             issues.forEach(issue => {
-                const username = issue.user.login;
-                const isHuman = this.isHumanContributor(username);
+                // Use real author if available, otherwise fall back to GitHub user
+                const realAuthor = issue.realAuthor;
+                const authorName = realAuthor ? realAuthor.name : issue.user.login;
+                const authorType = realAuthor ? realAuthor.type : (this.isHumanContributor(issue.user.login) ? 'human' : 'ai');
+                const authorAvatar = authorType === 'human' ? issue.user.avatar_url : null;
                 
-                if (!contributors[username]) {
-                    contributors[username] = {
-                        name: username,
-                        type: isHuman ? 'human' : 'ai',
-                        avatar: issue.user.avatar_url,
+                if (!contributors[authorName]) {
+                    contributors[authorName] = {
+                        name: authorName,
+                        type: authorType,
+                        avatar: authorAvatar,
                         areas: new Set(),
                         contributions: {
                             ideas: 0,
@@ -74,9 +77,9 @@ const ContributorsModule = {
                     };
                 }
                 
-                contributors[username].contributions.ideas++;
-                contributors[username].total++;
-                contributors[username].areas.add('ideas');
+                contributors[authorName].contributions.ideas++;
+                contributors[authorName].total++;
+                contributors[authorName].areas.add('ideas');
             });
             
             return Object.values(contributors);
