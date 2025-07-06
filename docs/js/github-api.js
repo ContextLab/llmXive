@@ -557,6 +557,41 @@ class GitHubAPI {
         const match = text.match(/\[.*?\]\((.*?)\)/);
         return match ? match[1] : null;
     }
+    
+    // Create a new file in the repository
+    async createFile(path, content, commitMessage) {
+        if (!window.githubAuth || !window.githubAuth.isAuthenticated()) {
+            throw new Error('Authentication required');
+        }
+        
+        try {
+            const response = await fetch(
+                `${this.baseUrl}/repos/${this.owner}/${this.repo}/contents/${path}`,
+                {
+                    method: 'PUT',
+                    headers: this.getHeaders(),
+                    body: JSON.stringify({
+                        message: commitMessage,
+                        content: btoa(content), // base64 encode
+                        branch: 'main'
+                    })
+                }
+            );
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to create file');
+            }
+            
+            const result = await response.json();
+            console.log('File created successfully:', result);
+            return result;
+            
+        } catch (error) {
+            console.error('Error creating file:', error);
+            throw error;
+        }
+    }
 }
 
 // Initialize API

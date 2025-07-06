@@ -57,6 +57,9 @@ const DocumentViewer = {
                     throw new Error(`Unknown document type: ${type}`);
             }
             
+            // Load relevant reviews for this document
+            documentData.reviews = await this.getRelevantReviews(id, type);
+            
             this.renderDocument(documentData);
             this.showModal();
             
@@ -113,72 +116,116 @@ const DocumentViewer = {
     },
     
     async loadDesign(designId) {
-        const design = await githubAPI.getTechnicalDesign(designId);
-        const content = await githubAPI.getFileContent(design.designPath);
+        // Get design from loaded data
+        const design = window.allData?.designs?.find(d => d.id === designId);
+        if (!design) {
+            throw new Error('Design not found');
+        }
+        
+        let content = 'Design document content would be loaded here.';
+        if (design.designUrl && design.designUrl.includes('github.com')) {
+            try {
+                // Extract path from GitHub URL and load content
+                const pathMatch = design.designUrl.match(/github\.com\/[^/]+\/[^/]+\/blob\/[^/]+\/(.+)/);
+                if (pathMatch) {
+                    content = await window.api.fetchFileContent(pathMatch[1]);
+                }
+            } catch (error) {
+                console.error('Error loading design content:', error);
+            }
+        }
         
         return {
             type: 'design',
             title: design.title,
             meta: {
                 'Project ID': design.id,
-                'Date': new Date(design.date).toLocaleDateString(),
-                'Author': design.author,
-                'Status': design.status
+                'Date': design.date ? new Date(design.date).toLocaleDateString() : 'Unknown',
+                'Author': design.author || 'Unknown',
+                'Status': design.status || 'Design'
             },
             content: this.formatMarkdown(content),
             links: [
                 { text: 'Related Issue', url: design.issueUrl, icon: 'link' },
                 { text: 'View File', url: design.designUrl, icon: 'file-alt' }
-            ],
+            ].filter(link => link.url),
             allowReview: true,
             reviewType: 'Design'
         };
     },
     
     async loadPlan(planId) {
-        const plan = await githubAPI.getImplementationPlan(planId);
-        const content = await githubAPI.getFileContent(plan.planPath);
+        // Get plan from loaded data
+        const plan = window.allData?.plans?.find(p => p.id === planId);
+        if (!plan) {
+            throw new Error('Plan not found');
+        }
+        
+        let content = 'Implementation plan content would be loaded here.';
+        if (plan.planUrl && plan.planUrl.includes('github.com')) {
+            try {
+                // Extract path from GitHub URL and load content
+                const pathMatch = plan.planUrl.match(/github\.com\/[^/]+\/[^/]+\/blob\/[^/]+\/(.+)/);
+                if (pathMatch) {
+                    content = await window.api.fetchFileContent(pathMatch[1]);
+                }
+            } catch (error) {
+                console.error('Error loading plan content:', error);
+            }
+        }
         
         return {
             type: 'plan',
             title: plan.title,
             meta: {
                 'Project ID': plan.id,
-                'Date': new Date(plan.date).toLocaleDateString(),
-                'Author': plan.author,
-                'Status': plan.status
+                'Date': plan.date ? new Date(plan.date).toLocaleDateString() : 'Unknown',
+                'Author': plan.author || 'Unknown',
+                'Status': plan.status || 'Ready'
             },
             content: this.formatMarkdown(content),
             links: [
                 { text: 'Related Issue', url: plan.issueUrl, icon: 'link' },
-                { text: 'View File', url: plan.planUrl, icon: 'file-alt' },
-                { text: 'Technical Design', url: plan.designUrl, icon: 'drafting-compass' }
-            ],
+                { text: 'View File', url: plan.planUrl, icon: 'file-alt' }
+            ].filter(link => link.url),
             allowReview: true,
             reviewType: 'Implementation'
         };
     },
     
     async loadPaper(paperId) {
-        const paper = await githubAPI.getPaper(paperId);
-        const content = await githubAPI.getFileContent(paper.paperPath);
+        // Get paper from loaded data
+        const paper = [...(window.allData?.papersCompleted || []), ...(window.allData?.papersInProgress || [])].find(p => p.id === paperId);
+        if (!paper) {
+            throw new Error('Paper not found');
+        }
+        
+        let content = 'Paper content would be loaded here.';
+        if (paper.paperUrl && paper.paperUrl.includes('github.com')) {
+            try {
+                // Extract path from GitHub URL and load content
+                const pathMatch = paper.paperUrl.match(/github\.com\/[^/]+\/[^/]+\/blob\/[^/]+\/(.+)/);
+                if (pathMatch) {
+                    content = await window.api.fetchFileContent(pathMatch[1]);
+                }
+            } catch (error) {
+                console.error('Error loading paper content:', error);
+            }
+        }
         
         return {
             type: 'paper',
             title: paper.title,
             meta: {
                 'Project ID': paper.id,
-                'Date': new Date(paper.date).toLocaleDateString(),
-                'Contributors': paper.contributors.join(', '),
-                'Status': paper.status
+                'Contributors': paper.authors || 'Unknown',
+                'Status': paper.status === 'completed' ? 'Completed' : 'In Progress'
             },
             content: this.formatMarkdown(content),
             links: [
-                { text: 'Paper PDF', url: paper.pdfUrl, icon: 'file-pdf' },
+                { text: 'Paper', url: paper.paperUrl, icon: 'file-pdf' },
                 { text: 'Source Code', url: paper.codeUrl, icon: 'code' },
-                { text: 'Dataset', url: paper.dataUrl, icon: 'database' },
-                { text: 'Technical Design', url: paper.designUrl, icon: 'drafting-compass' },
-                { text: 'Implementation Plan', url: paper.planUrl, icon: 'project-diagram' }
+                { text: 'Dataset', url: paper.dataUrl, icon: 'database' }
             ].filter(link => link.url), // Only include links that exist
             allowReview: true,
             reviewType: 'Paper'
@@ -227,6 +274,30 @@ const DocumentViewer = {
                                     </div>
                                     <div class="comment-body">
                                         ${this.formatMarkdown(comment.body)}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+                
+                ${documentData.reviews && documentData.reviews.length > 0 ? `
+                    <div class="document-reviews">
+                        <h3><i class="fas fa-star"></i> Reviews (${documentData.reviews.length})</h3>
+                        <div class="reviews-list">
+                            ${documentData.reviews.map(review => `
+                                <div class="review-item">
+                                    <div class="review-header">
+                                        <div class="review-meta">
+                                            <strong>${this.escapeHtml(review.reviewer)}</strong>
+                                            <span class="review-type">${this.escapeHtml(review.type)}</span>
+                                            <span class="review-date">${new Date(review.date).toLocaleDateString()}</span>
+                                        </div>
+                                        ${review.reviewUrl ? `
+                                            <a href="${review.reviewUrl}" target="_blank" class="review-link">
+                                                <i class="fas fa-external-link-alt"></i> View Full Review
+                                            </a>
+                                        ` : ''}
                                     </div>
                                 </div>
                             `).join('')}
@@ -361,7 +432,7 @@ const DocumentViewer = {
         const reviewPath = `reviews/${reviewData.documentId}/${reviewData.reviewType}/${reviewId}`;
         
         // Create the review file
-        const result = await githubAPI.createFile(
+        const result = await window.api.createFile(
             reviewPath,
             reviewContent,
             `Add human review for ${reviewData.documentType} ${reviewData.documentId}`
@@ -373,6 +444,26 @@ const DocumentViewer = {
         }
         
         return result;
+    },
+    
+    async getRelevantReviews(documentId, documentType) {
+        try {
+            // Get all reviews from loaded data
+            const allReviews = window.allData?.reviews || [];
+            
+            // Filter reviews for this specific document
+            const relevantReviews = allReviews.filter(review => {
+                // Match by project ID
+                return review.projectId === documentId || review.id === documentId;
+            });
+            
+            console.log(`Found ${relevantReviews.length} reviews for ${documentType} ${documentId}`);
+            return relevantReviews;
+            
+        } catch (error) {
+            console.error('Error loading relevant reviews:', error);
+            return [];
+        }
     },
     
     formatReviewContent(reviewData) {
