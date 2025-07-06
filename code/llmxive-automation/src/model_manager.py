@@ -243,11 +243,15 @@ class ModelManager:
         logger.info(f"Loading model: {model_id}")
         
         try:
-            # Fix transformers library bug: ALL_PARALLEL_STYLES is None in some versions
-            import transformers.modeling_utils as modeling_utils
-            if modeling_utils.ALL_PARALLEL_STYLES is None:
-                logger.info("Fixing transformers library bug: setting ALL_PARALLEL_STYLES")
-                modeling_utils.ALL_PARALLEL_STYLES = ['colwise', 'rowwise', 'auto']
+            # Fix transformers library bug: ALL_PARALLEL_STYLES is None or missing in some versions
+            try:
+                import transformers.modeling_utils as modeling_utils
+                if not hasattr(modeling_utils, 'ALL_PARALLEL_STYLES') or modeling_utils.ALL_PARALLEL_STYLES is None:
+                    logger.info("Fixing transformers library bug: setting ALL_PARALLEL_STYLES")
+                    modeling_utils.ALL_PARALLEL_STYLES = ['colwise', 'rowwise', 'auto']
+            except (ImportError, AttributeError) as e:
+                logger.debug(f"Could not patch ALL_PARALLEL_STYLES: {e}")
+                # Continue without patching - older transformers versions may not need this
             
             # Load tokenizer first
             tokenizer = AutoTokenizer.from_pretrained(
