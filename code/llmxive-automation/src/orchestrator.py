@@ -223,19 +223,29 @@ class LLMXiveOrchestrator:
         """Generate prioritized task queue"""
         candidates = []
         
-        # Brainstorming tasks (if backlog is low)
-        if len(project_state['backlog_items']) < 10:
-            for _ in range(3):
+        # Brainstorming tasks (if backlog is low or we need more tasks)
+        backlog_count = len(project_state['backlog_items'])
+        if backlog_count < 15:  # Increased threshold
+            # Scale brainstorm tasks based on backlog size and pipeline gaps
+            brainstorm_count = 5  # Base count
+            
+            if backlog_count < 5:
+                brainstorm_count = 8  # More aggressive when very low
+            elif "low_backlog" in project_state['pipeline_gaps']:
+                brainstorm_count = 6
+                
+            for _ in range(brainstorm_count):
                 candidates.append({
                     "type": "BRAINSTORM_IDEA",
                     "context": {},
                     "category": "pipeline_fill",
-                    "urgency": 0.8 if len(project_state['backlog_items']) < 5 else 0.5
+                    "urgency": 0.8 if backlog_count < 5 else 0.6
                 })
                 
-        # Review tasks for high-interest items
+        # Review tasks for backlog items (expand to include more items when needed)
+        review_limit = 10 if len(project_state['backlog_items']) > 8 else len(project_state['backlog_items'])
         for item in sorted(project_state['backlog_items'],
-                          key=lambda x: x['human_interest'], reverse=True)[:5]:
+                          key=lambda x: x['human_interest'], reverse=True)[:review_limit]:
             if item['score'] < 10:  # Not yet ready
                 # Try to find design document
                 project_id = self._extract_project_id_from_issue(item['number'])
@@ -341,6 +351,9 @@ class LLMXiveOrchestrator:
                         "urgency": 0.6
                     })
                     
+        # Add supplementary tasks if needed
+        self._add_supplementary_tasks(candidates, project_state)
+            
         # Calculate priority scores
         for task in candidates:
             task['priority_score'] = self._calculate_priority_score(task, project_state)
@@ -387,6 +400,54 @@ class LLMXiveOrchestrator:
         score += random.uniform(0, 0.05)
         
         return min(score, 1.0)
+        
+    def _add_supplementary_tasks(self, candidates: List[Dict[str, Any]], project_state: Dict[str, Any]) -> None:
+        """Add supplementary tasks to fill pipeline gaps"""
+        current_count = len(candidates)
+        
+        # If we don't have enough tasks, add supplementary ones
+        if current_count < 15:  # Target more tasks
+            # Add maintenance tasks
+            candidates.extend([
+                {
+                    "type": "UPDATE_README_TABLE",
+                    "context": {"table_type": "backlog"},
+                    "category": "maintenance",
+                    "urgency": 0.3
+                },
+                {
+                    "type": "UPDATE_README_TABLE", 
+                    "context": {"table_type": "ready"},
+                    "category": "maintenance",
+                    "urgency": 0.3
+                },
+                {
+                    "type": "UPDATE_README_TABLE",
+                    "context": {"table_type": "in_progress"}, 
+                    "category": "maintenance",
+                    "urgency": 0.3
+                }
+            ])
+            
+            # Add literature search tasks for recent backlog items
+            recent_items = [item for item in project_state['backlog_items'] 
+                           if item['days_old'] < 14][:3]
+            for item in recent_items:
+                candidates.append({
+                    "type": "CONDUCT_LITERATURE_SEARCH",
+                    "context": {"issue_number": item['number']},
+                    "category": "advance_item",
+                    "urgency": 0.4
+                })
+                
+            # Add quality checks for stale items
+            for item in project_state['stale_items'][:2]:
+                candidates.append({
+                    "type": "CHECK_PROJECT_STATUS", 
+                    "context": {"issue_number": item['number']},
+                    "category": "maintenance",
+                    "urgency": 0.5
+                })
         
     def save_execution_log(self):
         """Save execution log to file"""

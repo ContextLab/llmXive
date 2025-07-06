@@ -121,8 +121,13 @@ class ModelManager:
                     
                     size_gb = total_size / 1e9
                     
-                    if total_size > 0 and total_size < self.max_size and self._validate_model_capabilities(info):
-                        logger.debug(f"Found suitable model: {model.modelId} (size: {size_gb:.2f}GB)")
+                    # Debug the selection condition
+                    size_fits = total_size > 0 and total_size < self.max_size
+                    validates = self._validate_model_capabilities(info)
+                    logger.debug(f"Model {model.modelId}: size={size_gb:.2f}GB, fits={size_fits}, validates={validates}")
+                    
+                    if size_fits and validates:
+                        logger.info(f"Found suitable model: {model.modelId} (size: {size_gb:.2f}GB)")
                         suitable_models.append({
                             "id": model.modelId,
                             "size": total_size,
@@ -145,12 +150,18 @@ class ModelManager:
                     reverse=True
                 )
                 
-                # Select randomly from top 5
-                top_models = suitable_models[:5]
-                selected = random.choice(top_models)
+                # Filter out any models that are somehow too large (safety check)
+                truly_suitable = [m for m in suitable_models if m['size'] < self.max_size]
                 
-                logger.info(f"Selected model: {selected['id']} (size: {selected['size']/1e9:.2f}GB)")
-                return self._load_model(selected['id'])
+                if truly_suitable:
+                    # Select randomly from top 5
+                    top_models = truly_suitable[:5]
+                    selected = random.choice(top_models)
+                    
+                    logger.info(f"Selected model: {selected['id']} (size: {selected['size']/1e9:.2f}GB)")
+                    return self._load_model(selected['id'])
+                else:
+                    logger.warning("All suitable models were actually too large - using fallback")
                 
         except Exception as e:
             logger.warning(f"Error querying HuggingFace: {e}")

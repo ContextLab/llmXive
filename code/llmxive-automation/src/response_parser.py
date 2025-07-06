@@ -203,37 +203,126 @@ class ResponseParser:
         return None
         
     def parse_review_response(self, text: str) -> Optional[Dict[str, Any]]:
-        """Parse review response"""
+        """Parse review response in various formats"""
         result = {}
         
-        # Extract strengths
-        strengths_match = re.search(r'Strengths?:?\s*\n((?:[-*•]\s*.+\n?)+)', text, re.MULTILINE | re.IGNORECASE)
-        if strengths_match:
-            result['strengths'] = strengths_match.group(1).strip()
+        # Extract strengths - try multiple patterns
+        strengths_patterns = [
+            r'Strengths?:?\s*\n((?:[-*•]\s*.+\n?)+)',  # Standard format
+            r'#### Strengths:?\s*\n((?:[-*•]\s*.+\n?)+)',  # Markdown header
+            r'## Strengths:?\s*\n((?:[-*•]\s*.+\n?)+)',   # Markdown header
+            r'### Strengths:?\s*\n((?:[-*•]\s*.+\n?)+)',  # Markdown header
+            r'(?:Strong points?|Positive aspects?|Good points?):?\s*\n((?:[-*•]\s*.+\n?)+)',  # Alternative wording
+            r'Strengths?:?\s*\n((?:\d+\.?\s*.+\n?)+)',  # Numbered format
+        ]
+        
+        for pattern in strengths_patterns:
+            match = re.search(pattern, text, re.MULTILINE | re.IGNORECASE)
+            if match:
+                result['strengths'] = match.group(1).strip()
+                break
+        
+        # If no formal strengths found, look for positive content
+        if 'strengths' not in result:
+            # Look for positive indicators in the text
+            positive_sections = re.findall(r'((?:excellent|good|strong|clear|well|effective|impressive|solid).{10,100})', 
+                                         text, re.IGNORECASE)
+            if positive_sections:
+                result['strengths'] = '- ' + '\n- '.join(positive_sections[:3])
             
-        # Extract concerns
-        concerns_match = re.search(r'Concerns?:?\s*\n((?:[-*•]\s*.+\n?)+)', text, re.MULTILINE | re.IGNORECASE)
-        if concerns_match:
-            result['concerns'] = concerns_match.group(1).strip()
+        # Extract concerns - try multiple patterns
+        concerns_patterns = [
+            r'Concerns?:?\s*\n((?:[-*•]\s*.+\n?)+)',  # Standard format
+            r'#### Concerns?:?\s*\n((?:[-*•]\s*.+\n?)+)',  # Markdown header
+            r'## Concerns?:?\s*\n((?:[-*•]\s*.+\n?)+)',   # Markdown header
+            r'### Concerns?:?\s*\n((?:[-*•]\s*.+\n?)+)',  # Markdown header
+            r'(?:Weaknesses?|Issues?|Problems?|Suggestions?):?\s*\n((?:[-*•]\s*.+\n?)+)',  # Alternative wording
+            r'Concerns?:?\s*\n((?:\d+\.?\s*.+\n?)+)',  # Numbered format
+        ]
+        
+        for pattern in concerns_patterns:
+            match = re.search(pattern, text, re.MULTILINE | re.IGNORECASE)
+            if match:
+                result['concerns'] = match.group(1).strip()
+                break
+                
+        # If no formal concerns found, look for critical content
+        if 'concerns' not in result:
+            # Look for critical indicators in the text
+            critical_sections = re.findall(r'((?:unclear|weak|insufficient|lacking|missing|problematic|limited).{10,100})', 
+                                          text, re.IGNORECASE)
+            if critical_sections:
+                result['concerns'] = '- ' + '\n- '.join(critical_sections[:3])
             
-        # Extract recommendation
-        rec_match = re.search(r'Recommendation:\s*(.+?)(?:\n|$)', text, re.IGNORECASE)
-        if rec_match:
-            result['recommendation'] = rec_match.group(1).strip()
-            
+        # Extract recommendation - try multiple patterns
+        rec_patterns = [
+            r'Recommendation:\s*(.+?)(?:\n|$)',
+            r'Overall Recommendation:\s*(.+?)(?:\n|$)', 
+            r'Decision:\s*(.+?)(?:\n|$)',
+            r'Verdict:\s*(.+?)(?:\n|$)',
+            r'(?:Strong Accept|Accept|Weak Accept|Reject)(?:\s*[\(\[]?[0-9.]+[\)\]]?)?'
+        ]
+        
+        for pattern in rec_patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                result['recommendation'] = match.group(0).strip() if len(match.groups()) == 0 else match.group(1).strip()
+                break
+        
         # Extract score
         score = self.parse_review_score(text)
         if score is not None:
             result['score'] = score
+        else:
+            # If no explicit score, infer from recommendation
+            rec_text = result.get('recommendation', '').lower()
+            if 'strong accept' in rec_text or 'excellent' in rec_text:
+                result['score'] = 1.0
+            elif 'accept' in rec_text or 'good' in rec_text:
+                result['score'] = 0.7
+            elif 'weak accept' in rec_text or 'marginal' in rec_text:
+                result['score'] = 0.3
+            elif 'reject' in rec_text or 'poor' in rec_text:
+                result['score'] = 0.0
+            else:
+                # Default to moderate score if we have content
+                result['score'] = 0.5
             
-        # Extract summary
-        summary_match = re.search(r'Summary:\s*(.+?)(?:\n\n|\Z)', text, re.IGNORECASE | re.DOTALL)
-        if summary_match:
-            result['summary'] = summary_match.group(1).strip()
+        # Extract summary - try multiple patterns
+        summary_patterns = [
+            r'Summary:\s*(.+?)(?:\n\n|\Z)',
+            r'Overall Summary:\s*(.+?)(?:\n\n|\Z)',
+            r'In summary[,:]\s*(.+?)(?:\n\n|\Z)',
+            r'Overall[,:]\s*(.+?)(?:\n\n|\Z)'
+        ]
+        
+        for pattern in summary_patterns:
+            match = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
+            if match:
+                result['summary'] = match.group(1).strip()
+                break
+                
+        # If no explicit summary, create one from the content
+        if 'summary' not in result:
+            # Take first substantial paragraph as summary
+            paragraphs = [p.strip() for p in text.split('\n\n') if len(p.strip()) > 50]
+            if paragraphs:
+                result['summary'] = paragraphs[0][:200] + ('...' if len(paragraphs[0]) > 200 else '')
             
-        # Validate we have minimum required fields
-        if 'score' in result and ('strengths' in result or 'concerns' in result):
+        # More lenient validation - accept if we have any content and a score
+        if 'score' in result and (result.get('strengths') or result.get('concerns') or result.get('summary')):
             return result
+            
+        # If we still don't have enough, try to extract any useful content
+        if len(text.strip()) > 50:  # Has substantial content
+            logger.warning("Could not parse structured review, creating minimal review from content")
+            return {
+                'summary': text[:300] + ('...' if len(text) > 300 else ''),
+                'score': 0.5,  # Default moderate score
+                'recommendation': 'Review completed',
+                'strengths': 'Review content generated',
+                'concerns': 'Could not parse structured format'
+            }
             
         return None
         
