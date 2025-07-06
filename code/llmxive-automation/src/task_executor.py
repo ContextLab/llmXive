@@ -360,7 +360,7 @@ Be specific, technical, and thorough. This document will guide the entire projec
 
 **Project ID**: {idea_details['id']}
 **Date**: {datetime.now().strftime('%Y-%m-%d')}
-**Author**: LLM (Automated)
+**Author**: {self.conv_mgr.model_name}
 **Issue**: #{issue_number}
 
 {response}
@@ -444,7 +444,7 @@ Summary: [1-2 sentence overall assessment]"""
         
         review_content = f"""# Technical Design Review
 
-**Reviewer**: LLM (Automated)
+**Reviewer**: {self.conv_mgr.model_name}
 **Date**: {datetime.now().strftime('%Y-%m-%d')}
 **Score**: {parsed.get('score', 0)}
 
@@ -472,6 +472,9 @@ Summary: [1-2 sentence overall assessment]"""
             current_score = self.github.get_issue_score(issue_number)
             new_score = current_score + (parsed.get('score', 0) * 0.5)  # LLM reviews worth 0.5
             self.github.update_issue_score(issue_number, new_score)
+            
+            # Update reviews README table
+            self._update_reviews_readme(project_id or 'unknown', issue_number, review_path, "Design")
             
         return {
             "success": success,
@@ -544,6 +547,7 @@ For each phase, provide:
         plan_content = f"""# Implementation Plan: {project_id}
 
 **Date**: {datetime.now().strftime('%Y-%m-%d')}
+**Author**: {self.conv_mgr.model_name}
 **Based on**: {design_path}
 
 {response}
@@ -553,6 +557,12 @@ For each phase, provide:
 
         success = self.github.create_file(plan_path, plan_content,
             f"Add implementation plan for {project_id}")
+            
+        if success:
+            # Update implementation plans README table  
+            issue_number = context.get('issue_number')
+            if issue_number:
+                self._update_implementation_readme(project_id, issue_number)
             
         return {
             "success": success,
@@ -604,7 +614,7 @@ Provide review in the same format as technical design reviews."""
         
         review_content = f"""# Implementation Plan Review
 
-**Reviewer**: LLM (Automated)
+**Reviewer**: {self.conv_mgr.model_name}
 **Date**: {datetime.now().strftime('%Y-%m-%d')}
 **Score**: {parsed.get('score', 0)}
 
@@ -631,6 +641,9 @@ Provide review in the same format as technical design reviews."""
             current_score = self.github.get_issue_score(issue_number)
             new_score = current_score + (parsed.get('score', 0) * 0.5)
             self.github.update_issue_score(issue_number, new_score)
+            
+            # Update reviews README table
+            self._update_reviews_readme(project_id, issue_number, review_path, "Implementation")
             
         return {
             "success": success,
@@ -1421,7 +1434,40 @@ Confidence: [HIGH/MEDIUM/LOW]"""
         readme_path = "technical_design_documents/README.md"
         
         # Create new table row
-        new_row = f"| {project_id} | Project {project_id} | Backlog | [#{issue_number}](https://github.com/ContextLab/llmXive/issues/{issue_number}) | [Design](/{project_id}/design.md) | [llm-automation](https://github.com/llm-automation) |"
+        new_row = f"| {project_id} | Project {project_id} | Backlog | [#{issue_number}](https://github.com/ContextLab/llmXive/issues/{issue_number}) | [Design]({project_id}/design.md) | {self.conv_mgr.model_name} |"
+        
+        self.github.insert_table_row(readme_path, "Table of Contents", new_row)
+        
+    def _update_reviews_readme(self, project_id: str, issue_number: int, review_path: str, resource_type: str):
+        """Update reviews README table"""
+        readme_path = "reviews/README.md"
+        
+        # Generate unique review ID 
+        review_id = f"{project_id}-review-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        
+        # Create resource link based on type
+        if resource_type == "Design":
+            resource_link = f"[Design](../technical_design_documents/{project_id}/design.md)"
+        elif resource_type == "Implementation":
+            resource_link = f"[Implementation](../implementation_plans/{project_id}/implementation_plan.md)"
+        elif resource_type == "Paper":
+            resource_link = f"[Paper](../papers/{project_id}/paper.md)"
+        elif resource_type == "Code":
+            resource_link = f"[Code](../code/{project_id}/)"
+        else:
+            resource_link = f"[{resource_type}](../)"
+            
+        # Create new table row
+        new_row = f"| {project_id} | Project {project_id} | {review_id} | [#{issue_number}](https://github.com/ContextLab/llmXive/issues/{issue_number}) | {resource_link} | [Review]({review_path.replace('reviews/', '')}) | {self.conv_mgr.model_name} |"
+        
+        self.github.insert_table_row(readme_path, "Reviews", new_row)
+        
+    def _update_implementation_readme(self, project_id: str, issue_number: int):
+        """Update implementation plans README table"""
+        readme_path = "implementation_plans/README.md"
+        
+        # Create new table row
+        new_row = f"| {project_id} | Project {project_id} | Ready | [#{issue_number}](https://github.com/ContextLab/llmXive/issues/{issue_number}) | [Plan]({project_id}/implementation_plan.md) | {self.conv_mgr.model_name} |"
         
         self.github.insert_table_row(readme_path, "Table of Contents", new_row)
         
