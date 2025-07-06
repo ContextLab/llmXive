@@ -8,7 +8,8 @@ let allData = {
     plans: [],
     papersInProgress: [],
     papersCompleted: [],
-    contributors: []
+    contributors: [],
+    reviews: []
 };
 
 // Initialize the application
@@ -146,6 +147,7 @@ async function loadAllData() {
             loadDesignsData(),
             loadPlansData(),
             loadPapersData(),
+            loadReviewsData(),
             loadContributorsData()
         ]);
         
@@ -202,9 +204,8 @@ async function loadBacklogData() {
 
 async function loadDesignsData() {
     try {
-        // TODO: Implement proper technical designs loading
-        // For now, return empty array to prevent errors
-        allData.designs = [];
+        // Load from technical_design_documents README table
+        allData.designs = await window.api.loadTechnicalDesigns();
         
         console.log(`Loaded ${allData.designs.length} technical designs`);
     } catch (error) {
@@ -215,9 +216,8 @@ async function loadDesignsData() {
 
 async function loadPlansData() {
     try {
-        // TODO: Implement proper implementation plans loading
-        // For now, return empty array to prevent errors
-        allData.plans = [];
+        // Load from implementation_plans README table
+        allData.plans = await window.api.loadImplementationPlans();
         
         console.log(`Loaded ${allData.plans.length} implementation plans`);
     } catch (error) {
@@ -228,25 +228,28 @@ async function loadPlansData() {
 
 async function loadPapersData() {
     try {
-        // For now, filter backlog data to simulate papers
-        // In reality, these would come from the papers/ directory
-        await loadBacklogData(); // Ensure backlog is loaded first
-        
-        allData.papersInProgress = allData.backlog.filter(item => {
-            const status = item.projectStatus || 'Backlog';
-            return status === 'In Progress' || status === 'In Review';
-        });
-        
-        allData.papersCompleted = allData.backlog.filter(item => {
-            const status = item.projectStatus || 'Backlog';
-            return status === 'Done';
-        });
+        // Load from papers README tables
+        const papersData = await window.api.loadPapers();
+        allData.papersInProgress = papersData.inProgress;
+        allData.papersCompleted = papersData.completed;
         
         console.log(`Loaded ${allData.papersInProgress.length} in-progress papers, ${allData.papersCompleted.length} completed papers`);
     } catch (error) {
         console.error('Error loading papers:', error);
         allData.papersInProgress = [];
         allData.papersCompleted = [];
+    }
+}
+
+async function loadReviewsData() {
+    try {
+        // Load from reviews README table
+        allData.reviews = await window.api.loadReviews();
+        
+        console.log(`Loaded ${allData.reviews.length} reviews`);
+    } catch (error) {
+        console.error('Error loading reviews:', error);
+        allData.reviews = [];
     }
 }
 
@@ -375,17 +378,17 @@ function createBacklogCard(item) {
 
 function createDesignCard(item) {
     return `
-        <div class="card" onclick="openDesignModal('${item.id}')">
+        <div class="card" onclick="openDocumentModal('${item.id}', 'design')">
             <div class="card-header">
                 <h3 class="card-title">${escapeHtml(item.title)}</h3>
-                <div class="card-status ${item.status.toLowerCase()}">${item.status}</div>
+                <div class="card-status design">Design</div>
             </div>
             <div class="card-meta">
-                <span><i class="fas fa-calendar"></i> ${formatDate(item.date)}</span>
+                <span><i class="fas fa-calendar"></i> ${item.date || 'Unknown date'}</span>
                 <span><i class="fas fa-user"></i> ${item.author}</span>
             </div>
             <div class="card-description">
-                ${escapeHtml(item.description || 'Technical design document').substring(0, 200)}...
+                Technical design document for ${escapeHtml(item.title)}
             </div>
             <div class="card-footer">
                 <div class="card-author">
@@ -393,12 +396,12 @@ function createDesignCard(item) {
                     ${item.author}
                 </div>
                 <div class="card-links">
-                    <a href="${item.issueUrl}" class="card-link" onclick="event.stopPropagation();">
+                    ${item.issueUrl ? `<a href="${item.issueUrl}" class="card-link" onclick="event.stopPropagation();">
                         <i class="fas fa-link"></i> Issue
-                    </a>
-                    <a href="${item.designUrl}" class="card-link" onclick="event.stopPropagation();">
+                    </a>` : ''}
+                    ${item.designUrl ? `<a href="${item.designUrl}" class="card-link" onclick="event.stopPropagation();">
                         <i class="fas fa-file-alt"></i> Design
-                    </a>
+                    </a>` : ''}
                 </div>
             </div>
         </div>
@@ -407,17 +410,17 @@ function createDesignCard(item) {
 
 function createPlanCard(item) {
     return `
-        <div class="card" onclick="openPlanModal('${item.id}')">
+        <div class="card" onclick="openDocumentModal('${item.id}', 'plan')">
             <div class="card-header">
                 <h3 class="card-title">${escapeHtml(item.title)}</h3>
-                <div class="card-status ${item.status.toLowerCase()}">${item.status}</div>
+                <div class="card-status ready">Ready</div>
             </div>
             <div class="card-meta">
-                <span><i class="fas fa-calendar"></i> ${formatDate(item.date)}</span>
+                <span><i class="fas fa-calendar"></i> ${item.date || 'Unknown date'}</span>
                 <span><i class="fas fa-user"></i> ${item.author}</span>
             </div>
             <div class="card-description">
-                ${escapeHtml(item.description || 'Implementation plan document').substring(0, 200)}...
+                Implementation plan for ${escapeHtml(item.title)}
             </div>
             <div class="card-footer">
                 <div class="card-author">
@@ -425,12 +428,12 @@ function createPlanCard(item) {
                     ${item.author}
                 </div>
                 <div class="card-links">
-                    <a href="${item.issueUrl}" class="card-link" onclick="event.stopPropagation();">
+                    ${item.issueUrl ? `<a href="${item.issueUrl}" class="card-link" onclick="event.stopPropagation();">
                         <i class="fas fa-link"></i> Issue
-                    </a>
-                    <a href="${item.planUrl}" class="card-link" onclick="event.stopPropagation();">
+                    </a>` : ''}
+                    ${item.planUrl ? `<a href="${item.planUrl}" class="card-link" onclick="event.stopPropagation();">
                         <i class="fas fa-file-alt"></i> Plan
-                    </a>
+                    </a>` : ''}
                 </div>
             </div>
         </div>
@@ -438,35 +441,36 @@ function createPlanCard(item) {
 }
 
 function createPaperCard(item) {
-    const status = item.projectStatus || 'Backlog';
-    const statusClass = status.toLowerCase().replace(' ', '-');
+    const statusClass = item.status.toLowerCase().replace(' ', '-');
     
     return `
-        <div class="card" onclick="openIssueModal(${item.number})">
+        <div class="card" onclick="openDocumentModal('${item.id}', 'paper')">
             <div class="card-header">
                 <h3 class="card-title">${escapeHtml(item.title)}</h3>
-                <div class="card-status ${statusClass}">${status}</div>
+                <div class="card-status ${statusClass}">${item.status === 'completed' ? 'Completed' : 'In Progress'}</div>
             </div>
             <div class="card-meta">
-                <span><i class="fas fa-calendar"></i> ${formatDate(item.created_at)}</span>
-                <span><i class="fas fa-comments"></i> ${item.comments || 0}</span>
-                <span><i class="fas fa-thumbs-up"></i> ${item.votes?.up || 0}</span>
+                <span><i class="fas fa-users"></i> ${item.authors.split(',').length} authors</span>
+                <span><i class="fas fa-file-alt"></i> Paper</span>
             </div>
             <div class="card-description">
-                ${escapeHtml(item.body || 'No description provided').substring(0, 200)}...
+                Research paper: ${escapeHtml(item.title)}
             </div>
             <div class="card-footer">
                 <div class="card-author">
-                    ${item.realAuthor && item.realAuthor.type === 'ai' ? 
-                        `<i class="fas fa-robot"></i>` : 
-                        `<img src="${item.user.avatar_url}" alt="${item.user.login}" class="meta-avatar">`}
-                    ${item.realAuthor ? item.realAuthor.name : item.user.login}
-                    ${item.realAuthor && item.realAuthor.type === 'ai' ? '<span class="author-type">(AI)</span>' : ''}
+                    <i class="fas fa-users"></i>
+                    ${item.authors.split(',').slice(0, 2).join(', ')}${item.authors.split(',').length > 2 ? '...' : ''}
                 </div>
                 <div class="card-links">
-                    <a href="${item.html_url}" class="card-link" onclick="event.stopPropagation();">
-                        <i class="fas fa-external-link-alt"></i> GitHub
-                    </a>
+                    ${item.paperUrl ? `<a href="${item.paperUrl}" class="card-link" onclick="event.stopPropagation();">
+                        <i class="fas fa-file-pdf"></i> Paper
+                    </a>` : ''}
+                    ${item.codeUrl ? `<a href="${item.codeUrl}" class="card-link" onclick="event.stopPropagation();">
+                        <i class="fas fa-code"></i> Code
+                    </a>` : ''}
+                    ${item.dataUrl ? `<a href="${item.dataUrl}" class="card-link" onclick="event.stopPropagation();">
+                        <i class="fas fa-database"></i> Data
+                    </a>` : ''}
                 </div>
             </div>
         </div>
@@ -500,7 +504,7 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Modal functions (placeholders)
+// Modal functions
 function openIssueModal(issueNumber) {
     console.log('Opening issue modal for:', issueNumber);
     if (window.documentViewer) {
@@ -508,19 +512,11 @@ function openIssueModal(issueNumber) {
     }
 }
 
-function openDesignModal(designId) {
-    console.log('Opening design modal for:', designId);
-    // Will be implemented by document-viewer.js
-}
-
-function openPlanModal(planId) {
-    console.log('Opening plan modal for:', planId);
-    // Will be implemented by document-viewer.js
-}
-
-function openPaperModal(paperId) {
-    console.log('Opening paper modal for:', paperId);
-    // Will be implemented by document-viewer.js
+function openDocumentModal(documentId, documentType) {
+    console.log('Opening document modal for:', documentId, documentType);
+    if (window.documentViewer) {
+        window.documentViewer.openDocument(documentType, documentId);
+    }
 }
 
 // Submit form handling

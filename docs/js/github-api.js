@@ -385,6 +385,178 @@ class GitHubAPI {
         const views = JSON.parse(localStorage.getItem('llmxive_views') || '{}');
         return views[issueNumber] || 0;
     }
+    
+    // Fetch file content from GitHub
+    async fetchFileContent(path) {
+        try {
+            const response = await fetch(
+                `https://api.github.com/repos/${this.owner}/${this.repo}/contents/${path}`,
+                { headers: this.getHeaders() }
+            );
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch ${path}: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            // Decode base64 content
+            return atob(data.content);
+        } catch (error) {
+            console.error(`Error fetching file ${path}:`, error);
+            throw error;
+        }
+    }
+    
+    // Parse markdown table into structured data
+    parseMarkdownTable(markdown, tableHeader) {
+        const lines = markdown.split('\n');
+        let tableStart = -1;
+        let headers = [];
+        
+        // Find the table header
+        for (let i = 0; i < lines.length; i++) {
+            if (lines[i].includes(tableHeader)) {
+                // Look for the actual table starting after this header
+                for (let j = i; j < lines.length; j++) {
+                    if (lines[j].startsWith('|') && lines[j].includes('|')) {
+                        headers = lines[j].split('|').map(h => h.trim()).filter(h => h);
+                        tableStart = j + 2; // Skip separator line
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+        
+        if (tableStart === -1) {
+            console.warn(`Table with header "${tableHeader}" not found`);
+            return [];
+        }
+        
+        const rows = [];
+        for (let i = tableStart; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line || !line.startsWith('|')) break;
+            
+            const cells = line.split('|').map(c => c.trim()).filter(c => c);
+            if (cells.length >= headers.length) {
+                const row = {};
+                headers.forEach((header, index) => {
+                    row[header] = cells[index] || '';
+                });
+                rows.push(row);
+            }
+        }
+        
+        return rows;
+    }
+    
+    // Load papers from README
+    async loadPapers() {
+        try {
+            const readme = await this.fetchFileContent('papers/README.md');
+            
+            const completed = this.parseMarkdownTable(readme, 'Completed work');
+            const inProgress = this.parseMarkdownTable(readme, 'In-progress work');
+            
+            return {
+                completed: completed.map(paper => ({
+                    id: paper['Project ID'] || paper.ID,
+                    title: paper.Title || paper.Paper,
+                    authors: paper.Authors || paper.Contributors || '',
+                    status: 'completed',
+                    paperUrl: this.extractLinkFromMarkdown(paper.Paper || paper.Title),
+                    codeUrl: paper.Code ? this.extractLinkFromMarkdown(paper.Code) : null,
+                    dataUrl: paper.Data ? this.extractLinkFromMarkdown(paper.Data) : null,
+                    type: 'paper'
+                })),
+                inProgress: inProgress.map(paper => ({
+                    id: paper['Project ID'] || paper.ID,
+                    title: paper.Title || paper.Paper,
+                    authors: paper.Authors || paper.Contributors || '',
+                    status: 'in-progress',
+                    paperUrl: this.extractLinkFromMarkdown(paper.Paper || paper.Title),
+                    codeUrl: paper.Code ? this.extractLinkFromMarkdown(paper.Code) : null,
+                    dataUrl: paper.Data ? this.extractLinkFromMarkdown(paper.Data) : null,
+                    type: 'paper'
+                }))
+            };
+        } catch (error) {
+            console.error('Error loading papers:', error);
+            return { completed: [], inProgress: [] };
+        }
+    }
+    
+    // Load implementation plans from README
+    async loadImplementationPlans() {
+        try {
+            const readme = await this.fetchFileContent('implementation_plans/README.md');
+            const plans = this.parseMarkdownTable(readme, 'Table of Contents');
+            
+            return plans.map(plan => ({
+                id: plan['Project ID'] || plan.ID,
+                title: plan.Title || plan['Project Title'],
+                author: plan.Author || plan.Contributor,
+                date: plan.Date,
+                issueUrl: this.extractLinkFromMarkdown(plan.Issue || plan['GitHub Issue']),
+                planUrl: this.extractLinkFromMarkdown(plan.Plan || plan['Implementation Plan']),
+                status: 'ready',
+                type: 'plan'
+            }));
+        } catch (error) {
+            console.error('Error loading implementation plans:', error);
+            return [];
+        }
+    }
+    
+    // Load technical design documents from README
+    async loadTechnicalDesigns() {
+        try {
+            const readme = await this.fetchFileContent('technical_design_documents/README.md');
+            const designs = this.parseMarkdownTable(readme, 'Table of Contents');
+            
+            return designs.map(design => ({
+                id: design['Project ID'] || design.ID,
+                title: design.Title || design['Project Title'],
+                author: design.Author || design.Contributor,
+                date: design.Date,
+                issueUrl: this.extractLinkFromMarkdown(design.Issue || design['GitHub Issue']),
+                designUrl: this.extractLinkFromMarkdown(design.Design || design['Technical Design']),
+                status: 'design',
+                type: 'design'
+            }));
+        } catch (error) {
+            console.error('Error loading technical designs:', error);
+            return [];
+        }
+    }
+    
+    // Load reviews from README
+    async loadReviews() {
+        try {
+            const readme = await this.fetchFileContent('reviews/README.md');
+            const reviews = this.parseMarkdownTable(readme, 'Table of Contents');
+            
+            return reviews.map(review => ({
+                id: review['Project ID'] || review.ID,
+                reviewer: review.Reviewer || review.Author,
+                date: review.Date,
+                type: review.Type || review['Review Type'],
+                reviewUrl: this.extractLinkFromMarkdown(review.Review || review['Review File']),
+                projectId: review['Project ID'] || review.ID
+            }));
+        } catch (error) {
+            console.error('Error loading reviews:', error);
+            return [];
+        }
+    }
+    
+    // Extract URL from markdown link format [text](url)
+    extractLinkFromMarkdown(text) {
+        if (!text) return null;
+        const match = text.match(/\[.*?\]\((.*?)\)/);
+        return match ? match[1] : null;
+    }
 }
 
 // Initialize API
