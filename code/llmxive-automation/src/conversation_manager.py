@@ -88,7 +88,7 @@ class ConversationManager:
         
     def query_model(self, prompt: str, task_type: Optional[str] = None,
                    max_retries: int = 3, temperature: float = 0.7,
-                   max_new_tokens: int = 512) -> Optional[str]:
+                   max_new_tokens: Optional[int] = None) -> Optional[str]:
         """
         Send prompt to model with task-specific formatting
         
@@ -132,7 +132,6 @@ class ConversationManager:
                 with torch.no_grad():
                     # Prepare generation kwargs
                     gen_kwargs = {
-                        "max_new_tokens": max_new_tokens,
                         "temperature": temperature,
                         "do_sample": True,
                         "top_p": 0.95,
@@ -141,6 +140,10 @@ class ConversationManager:
                         "pad_token_id": self.tokenizer.pad_token_id,
                         "eos_token_id": self.tokenizer.eos_token_id
                     }
+                    
+                    # Only set max_new_tokens if specified (otherwise let model generate until EOS)
+                    if max_new_tokens is not None:
+                        gen_kwargs["max_new_tokens"] = max_new_tokens
                     
                     # Disable cache for models with known issues
                     if "phi" in self.model_name.lower():
@@ -275,7 +278,7 @@ class ConversationManager:
         validators = {
             "BRAINSTORM_IDEA": lambda r: len(r.strip()) > 20,  # Just need some content
             "WRITE_TECHNICAL_DESIGN": lambda r: len(r) > 500,  # Should be substantial
-            "REVIEW_TECHNICAL_DESIGN": lambda r: "score:" in r.lower() or any(x in r.lower() for x in ["accept", "reject"]),
+            "REVIEW_TECHNICAL_DESIGN": lambda r: any(x in r.lower() for x in ["strength", "concern", "recommend", "accept", "reject", "review", "evaluation"]),
             "WRITE_CODE": lambda r: "def " in r or "class " in r or "import " in r,
             "WRITE_TESTS": lambda r: "def test" in r,
             "VALIDATE_REFERENCES": lambda r: any(x in r.lower() for x in ["valid", "invalid"]),

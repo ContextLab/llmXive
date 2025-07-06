@@ -166,7 +166,7 @@ Field: {chosen_field}
 Idea: """
 
         response = self.conv_mgr.query_model(prompt, task_type="BRAINSTORM_IDEA", 
-                                           max_new_tokens=150)
+                                           )
         if not response:
             return {"success": False, "error": "No response from model"}
             
@@ -349,7 +349,7 @@ Create a technical design document that includes:
 Be specific, technical, and thorough. This document will guide the entire project."""
 
         response = self.conv_mgr.query_model(prompt, task_type="WRITE_TECHNICAL_DESIGN",
-                                           max_new_tokens=2000)
+                                           )
         if not response:
             return {"success": False, "error": "No response from model"}
             
@@ -534,7 +534,7 @@ For each phase, provide:
 - Success criteria"""
 
         response = self.conv_mgr.query_model(prompt, task_type="WRITE_IMPLEMENTATION_PLAN",
-                                           max_new_tokens=2000)
+                                           )
         if not response:
             return {"success": False, "error": "No response from model"}
             
@@ -719,7 +719,7 @@ Write clean, well-documented Python code that:
 Output the complete module code:"""
 
         response = self.conv_mgr.query_model(prompt, task_type="WRITE_CODE",
-                                           max_new_tokens=2000)
+                                           )
         if not response:
             return {"success": False, "error": "No response from model"}
             
@@ -774,7 +774,7 @@ Write pytest test cases that:
 Output the complete test file:"""
 
         response = self.conv_mgr.query_model(prompt, task_type="WRITE_TESTS",
-                                           max_new_tokens=1500)
+                                           )
         if not response:
             return {"success": False, "error": "No response from model"}
             
@@ -876,7 +876,7 @@ Write an introduction that:
 Use academic writing style. Reference prior work as [Author, Year]."""
 
         response = self.conv_mgr.query_model(prompt, task_type="WRITE_INTRODUCTION",
-                                           max_new_tokens=1500)
+                                           )
         if not response:
             return {"success": False, "error": "No response from model"}
             
@@ -915,7 +915,7 @@ Write a Methods section that includes:
 Use past tense, passive voice. Be precise and reproducible."""
 
         response = self.conv_mgr.query_model(prompt, task_type="WRITE_METHODS",
-                                           max_new_tokens=1200)
+                                           )
         if not response:
             return {"success": False, "error": "No response from model"}
             
@@ -950,7 +950,7 @@ Write a Results section that:
 Be concise but complete."""
 
         response = self.conv_mgr.query_model(prompt, task_type="WRITE_RESULTS",
-                                           max_new_tokens=1200)
+                                           )
         if not response:
             return {"success": False, "error": "No response from model"}
             
@@ -997,7 +997,7 @@ Write a Discussion that:
 7. **Conclusions** - Take-home message (1 paragraph)"""
 
         response = self.conv_mgr.query_model(prompt, task_type="WRITE_DISCUSSION",
-                                           max_new_tokens=1500)
+                                           )
         if not response:
             return {"success": False, "error": "No response from model"}
             
@@ -1041,7 +1041,7 @@ Evaluate:
 Provide detailed review with strengths, weaknesses, and recommendations."""
 
         response = self.conv_mgr.query_model(prompt, task_type="REVIEW_PAPER",
-                                           max_new_tokens=1500)
+                                           )
         if not response:
             return {"success": False, "error": "No response from model"}
             
@@ -1624,7 +1624,7 @@ Code:
 Provide fixed code that addresses the error:"""
 
         response = self.conv_mgr.query_model(prompt, task_type="DEBUG_CODE",
-                                           max_new_tokens=2000)
+                                           )
         if not response:
             return {"success": False, "error": "No response from model"}
             
@@ -1748,7 +1748,7 @@ Write Python code that:
 5. Creates visualizations"""
 
         response = self.conv_mgr.query_model(prompt, task_type="ANALYZE_DATA",
-                                           max_new_tokens=2000)
+                                           )
         if not response:
             return {"success": False, "error": "No response from model"}
             
@@ -1910,7 +1910,7 @@ Create matplotlib/seaborn code that:
 5. Includes all labels and formatting"""
 
         response = self.conv_mgr.query_model(prompt, task_type="CREATE_FIGURES",
-                                           max_new_tokens=2000)
+                                           )
         if not response:
             return {"success": False, "error": "No response from model"}
             
@@ -2011,7 +2011,7 @@ Add:
 5. Usage examples in docstrings"""
 
         response = self.conv_mgr.query_model(prompt, task_type="DOCUMENT_CODE",
-                                           max_new_tokens=2000)
+                                           )
         if not response:
             return {"success": False, "error": "No response from model"}
             
@@ -2445,7 +2445,7 @@ Improvements to implement:
 Apply the suggested corrections and return the improved version."""
 
         response = self.conv_mgr.query_model(prompt, task_type="IMPLEMENT_CORRECTIONS",
-                                           max_new_tokens=2000)
+                                           )
         if not response:
             return {"success": False, "error": "No response from model"}
             

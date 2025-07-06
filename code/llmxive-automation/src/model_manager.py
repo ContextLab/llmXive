@@ -28,6 +28,9 @@ class ModelManager:
             max_size_gb: Maximum model size in GB (default 3.5 for GitHub Actions)
             cache_dir: Directory for model cache (default: ~/.cache/huggingface)
         """
+        # Handle None case with default
+        if max_size_gb is None:
+            max_size_gb = 3.5
         self.max_size = max_size_gb * 1e9
         self.max_model_size_gb = max_size_gb
         self.cache_dir = cache_dir or os.path.expanduser("~/.cache/huggingface")
@@ -37,11 +40,54 @@ class ModelManager:
         os.makedirs(self.cache_dir, exist_ok=True)
         
         # Known good fallback models (ordered by size/capability)
-        # For now, stick with TinyLlama which works reliably
-        self.fallback_models = [
-            "TinyLlama/TinyLlama-1.1B-Chat-v1.0",  # Most stable and accessible
-            "Qwen/Qwen1.5-0.5B-Chat",  # Very small alternative
+        # Choose based on size requirements
+        self.fallback_models = self._get_size_appropriate_fallbacks(self.max_model_size_gb)
+        
+    def _get_size_appropriate_fallbacks(self, max_size_gb: float) -> List[str]:
+        """Get fallback models appropriate for the given size limit"""
+        # All fallback models with their approximate sizes in GB (2025 trending models)
+        all_fallbacks = [
+            # Ultra Large models (> 50GB)
+            ("Qwen/Qwen2.5-72B-Instruct", 72.0),  # Top performer, 72B params
+            ("meta-llama/Llama-3.1-70B-Instruct", 70.0),  # Meta's flagship 70B
+            ("microsoft/WizardLM-2-8x22B", 65.0),  # WizardLM mixture of experts
+            
+            # Large models (20-50GB)
+            ("mistralai/Mixtral-8x7B-Instruct-v0.1", 47.0),  # Mixtral 8x7B, 46.7B total params
+            ("meta-llama/Llama-3.2-90B-Vision-Instruct", 45.0),  # Multimodal 90B
+            ("Qwen/Qwen2.5-32B-Instruct", 32.0),  # Qwen 32B
+            ("microsoft/WizardLM-2-7B", 28.0),  # WizardLM 7B series
+            
+            # Medium models (7-20GB)
+            ("Qwen/Qwen2.5-14B-Instruct", 14.0),  # Qwen 14B
+            ("meta-llama/Llama-3.2-11B-Vision-Instruct", 11.0),  # Multimodal 11B
+            ("meta-llama/Llama-3.1-8B-Instruct", 8.0),  # Meta's 8B instruct
+            ("Qwen/Qwen2.5-7B-Instruct", 7.0),  # Qwen 7B
+            ("microsoft/Phi-3-medium-4k-instruct", 7.0),  # Phi-3 medium
+            
+            # Small models (2-7GB)
+            ("Qwen/Qwen2.5-3B-Instruct", 3.0),  # Qwen 3B
+            ("meta-llama/Llama-3.2-3B-Instruct", 3.0),  # Meta's 3B
+            ("microsoft/Phi-3-mini-4k-instruct", 2.2),  # Phi-3 mini
+            ("Qwen/Qwen2.5-1.5B-Instruct", 1.5),  # Qwen 1.5B
+            
+            # Tiny models (< 2GB)
+            ("meta-llama/Llama-3.2-1B-Instruct", 1.0),  # Meta's 1B
+            ("TinyLlama/TinyLlama-1.1B-Chat-v1.0", 1.1),  # TinyLlama (reliable fallback)
+            ("Qwen/Qwen2.5-0.5B-Instruct", 0.5),  # Qwen 0.5B
         ]
+        
+        # Filter models that fit within the size limit
+        suitable_models = []
+        for model_id, size_gb in all_fallbacks:
+            if size_gb <= max_size_gb:
+                suitable_models.append(model_id)
+        
+        # If no models fit (very restrictive limit), use the smallest available
+        if not suitable_models:
+            suitable_models = ["Qwen/Qwen1.5-0.5B-Chat"]
+        
+        return suitable_models
         
     def get_suitable_model(self) -> Tuple[PreTrainedModel, PreTrainedTokenizer]:
         """
@@ -141,13 +187,31 @@ class ModelManager:
         # If still no size, check model card for common size patterns
         if total_size == 0:
             model_id = model_info.modelId.lower()
-            # Common size patterns in model names
-            if '7b' in model_id:
+            # Common size patterns in model names (2025 updates)
+            if '72b' in model_id:
+                total_size = 72 * 1e9 * 2  # ~144GB for 72B model
+            elif '70b' in model_id:
+                total_size = 70 * 1e9 * 2  # ~140GB for 70B model
+            elif '8x7b' in model_id or 'mixtral' in model_id:
+                total_size = 47 * 1e9 * 2  # ~94GB for Mixtral 8x7B (46.7B params)
+            elif '32b' in model_id:
+                total_size = 32 * 1e9 * 2  # ~64GB for 32B model
+            elif '14b' in model_id:
+                total_size = 14 * 1e9 * 2  # ~28GB for 14B model
+            elif '11b' in model_id:
+                total_size = 11 * 1e9 * 2  # ~22GB for 11B model
+            elif '8b' in model_id:
+                total_size = 8 * 1e9 * 2  # ~16GB for 8B model
+            elif '7b' in model_id:
                 total_size = 7 * 1e9 * 2  # ~14GB for 7B model
             elif '3b' in model_id or '3.5b' in model_id:
                 total_size = 3.5 * 1e9 * 2  # ~7GB for 3.5B model
+            elif '2.5b' in model_id:
+                total_size = 2.5 * 1e9 * 2  # ~5GB for 2.5B model
             elif '2b' in model_id:
                 total_size = 2 * 1e9 * 2  # ~4GB for 2B model
+            elif '1.5b' in model_id:
+                total_size = 1.5 * 1e9 * 2  # ~3GB for 1.5B model
             elif '1b' in model_id or '1.1b' in model_id:
                 total_size = 1.1 * 1e9 * 2  # ~2.2GB for 1.1B model
             elif '0.5b' in model_id or '500m' in model_id:
@@ -179,6 +243,12 @@ class ModelManager:
         logger.info(f"Loading model: {model_id}")
         
         try:
+            # Fix transformers library bug: ALL_PARALLEL_STYLES is None in some versions
+            import transformers.modeling_utils as modeling_utils
+            if modeling_utils.ALL_PARALLEL_STYLES is None:
+                logger.info("Fixing transformers library bug: setting ALL_PARALLEL_STYLES")
+                modeling_utils.ALL_PARALLEL_STYLES = ['colwise', 'rowwise', 'auto']
+            
             # Load tokenizer first
             tokenizer = AutoTokenizer.from_pretrained(
                 model_id,
