@@ -262,14 +262,68 @@
             <!-- Reviews page -->
             <div id="page-reviews" class="page">
                 <div class="page-header">
-                    <h1>Reviews</h1>
-                    <p>Automated and manual review management</p>
+                    <div class="header-content">
+                        <div>
+                            <h1>Reviews</h1>
+                            <p>Automated and manual review management</p>
+                        </div>
+                        <button class="btn btn-primary" id="new-review-btn">
+                            <i class="fas fa-plus"></i>
+                            Request Review
+                        </button>
+                    </div>
                 </div>
                 
-                <div class="reviews-container" id="reviews-container">
-                    <div class="loading-placeholder">
-                        <div class="spinner"></div>
-                        <p>Loading reviews...</p>
+                <div class="reviews-container">
+                    <div class="reviews-filters">
+                        <div class="filter-group">
+                            <label for="type-filter">Type:</label>
+                            <select id="type-filter">
+                                <option value="">All Types</option>
+                                <option value="design">Design Review</option>
+                                <option value="implementation">Implementation</option>
+                                <option value="paper">Paper Review</option>
+                                <option value="code">Code Review</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="status-filter">Status:</label>
+                            <select id="status-filter">
+                                <option value="">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="project-filter">Project:</label>
+                            <select id="project-filter">
+                                <option value="">All Projects</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="reviewer-filter">Reviewer:</label>
+                            <select id="reviewer-filter">
+                                <option value="">All Reviewers</option>
+                                <option value="automated">Automated</option>
+                                <option value="manual">Manual</option>
+                            </select>
+                        </div>
+                        
+                        <div class="search-group">
+                            <input type="text" id="review-search" placeholder="Search reviews...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="reviews-list" id="reviews-list">
+                        <div class="loading-placeholder">
+                            <div class="spinner"></div>
+                            <p>Loading reviews...</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -277,14 +331,139 @@
             <!-- AI Models page -->
             <div id="page-models" class="page">
                 <div class="page-header">
-                    <h1>AI Models</h1>
-                    <p>Configure and monitor AI model integrations</p>
+                    <div class="header-content">
+                        <div>
+                            <h1>AI Models</h1>
+                            <p>Configure and monitor AI model integrations</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-secondary" id="test-all-models">
+                                <i class="fas fa-play"></i>
+                                Test All Models
+                            </button>
+                            <button class="btn btn-secondary" id="refresh-models">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="models-container" id="models-container">
-                    <div class="loading-placeholder">
-                        <div class="spinner"></div>
-                        <p>Loading AI models...</p>
+                <div class="models-dashboard">
+                    <!-- Model statistics -->
+                    <div class="models-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-microchip"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-models">0</h3>
+                                <p>Total Models</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="active-models">0</h3>
+                                <p>Active Models</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-calls">0</h3>
+                                <p>Total Calls</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-cost">$0.00</h3>
+                                <p>Total Cost</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Provider status -->
+                    <div class="providers-section">
+                        <div class="section-header">
+                            <h2>Provider Status</h2>
+                        </div>
+                        <div class="providers-list" id="providers-list">
+                            <div class="loading-placeholder">
+                                <div class="spinner"></div>
+                                <p>Loading providers...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Usage chart -->
+                    <div class="usage-section">
+                        <div class="section-header">
+                            <h2>24-Hour Usage</h2>
+                        </div>
+                        <div class="usage-chart" id="usage-chart">
+                            <div class="loading-placeholder">
+                                <div class="spinner"></div>
+                                <p>Loading usage data...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="models-container">
+                    <div class="models-filters">
+                        <div class="filter-group">
+                            <label for="provider-filter">Provider:</label>
+                            <select id="provider-filter">
+                                <option value="">All Providers</option>
+                                <option value="anthropic">Anthropic</option>
+                                <option value="openai">OpenAI</option>
+                                <option value="google">Google AI</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="status-filter">Status:</label>
+                            <select id="status-filter">
+                                <option value="">All Statuses</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="rate_limited">Rate Limited</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="capability-filter">Capability:</label>
+                            <select id="capability-filter">
+                                <option value="">All Capabilities</option>
+                                <option value="text">Text</option>
+                                <option value="reasoning">Reasoning</option>
+                                <option value="code">Code</option>
+                                <option value="vision">Vision</option>
+                            </select>
+                        </div>
+                        
+                        <div class="search-group">
+                            <input type="text" id="model-search" placeholder="Search models...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="models-grid" id="models-grid">
+                        <div class="loading-placeholder">
+                            <div class="spinner"></div>
+                            <p>Loading AI models...</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -292,14 +471,167 @@
             <!-- Moderation page -->
             <div id="page-moderation" class="page">
                 <div class="page-header">
-                    <h1>Content Moderation</h1>
-                    <p>Review flagged content and manage user reports</p>
+                    <div class="header-content">
+                        <div>
+                            <h1>Content Moderation</h1>
+                            <p>Review flagged content and manage user reports</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-success" id="bulk-approve">
+                                <i class="fas fa-check"></i>
+                                Approve All
+                            </button>
+                            <button class="btn btn-danger" id="bulk-reject">
+                                <i class="fas fa-times"></i>
+                                Reject All
+                            </button>
+                            <button class="btn btn-secondary" id="refresh-moderation">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="moderation-container" id="moderation-container">
-                    <div class="loading-placeholder">
-                        <div class="spinner"></div>
-                        <p>Loading moderation queue...</p>
+                <div class="moderation-dashboard">
+                    <!-- Moderation statistics -->
+                    <div class="moderation-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="queue-size">0</h3>
+                                <p>Queue Size</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="pending-reviews">0</h3>
+                                <p>Pending Reviews</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-slash"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="blocked-users-count">0</h3>
+                                <p>Blocked Users</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="auto-detection-rate">0%</h3>
+                                <p>Auto Detection</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="false-positive-rate">0%</h3>
+                                <p>False Positives</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-stopwatch"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="avg-response-time">0h</h3>
+                                <p>Avg Response</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Blocked users section -->
+                    <div class="blocked-users-section">
+                        <div class="section-header">
+                            <h2>Blocked Users</h2>
+                        </div>
+                        <div class="blocked-users-list" id="blocked-users-list">
+                            <div class="loading-placeholder">
+                                <div class="spinner"></div>
+                                <p>Loading blocked users...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Moderation logs -->
+                    <div class="moderation-logs-section">
+                        <div class="section-header">
+                            <h2>Recent Activity</h2>
+                        </div>
+                        <div class="moderation-logs" id="moderation-logs">
+                            <div class="loading-placeholder">
+                                <div class="spinner"></div>
+                                <p>Loading moderation logs...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="moderation-container">
+                    <div class="moderation-filters">
+                        <div class="filter-group">
+                            <label for="type-filter">Type:</label>
+                            <select id="type-filter">
+                                <option value="">All Types</option>
+                                <option value="spam_detection">Spam Detection</option>
+                                <option value="policy_violation">Policy Violation</option>
+                                <option value="malware_detection">Malware Detection</option>
+                                <option value="plagiarism">Plagiarism</option>
+                                <option value="inappropriate_content">Inappropriate Content</option>
+                                <option value="harassment">Harassment</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="severity-filter">Severity:</label>
+                            <select id="severity-filter">
+                                <option value="">All Severities</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="status-filter">Status:</label>
+                            <select id="status-filter">
+                                <option value="">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="under_review">Under Review</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                        
+                        <div class="search-group">
+                            <input type="text" id="moderation-search" placeholder="Search moderation items...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="moderation-queue" id="moderation-queue">
+                        <div class="loading-placeholder">
+                            <div class="spinner"></div>
+                            <p>Loading moderation queue...</p>
+                        </div>
                     </div>
                 </div>
             </div>
