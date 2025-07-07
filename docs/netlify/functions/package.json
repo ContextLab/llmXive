@@ -1,8 +1,0 @@
-{
-  "name": "llmxive-functions",
-  "version": "1.0.0",
-  "description": "Netlify Functions for llmXive",
-  "dependencies": {
-    "node-fetch": "^2.6.7"
-  }
-}
