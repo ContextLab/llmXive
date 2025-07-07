@@ -9,6 +9,7 @@ import FileManager from './FileManager.js';
 import SystemConfig from './SystemConfig.js';
 import ProjectManager from '../managers/ProjectManager.js';
 import ReviewManager from '../managers/ReviewManager.js';
+import ModelManager from '../managers/ModelManager.js';
 
 class AuthManager {
     constructor() {
@@ -297,6 +298,7 @@ class UnifiedGitHubClient {
         this.systemConfig = null;
         this.projectManager = null;
         this.reviewManager = null;
+        this.modelManager = null;
         
         this.initialized = false;
     }
@@ -336,6 +338,10 @@ class UnifiedGitHubClient {
             // Initialize managers
             this.projectManager = new ProjectManager(this.fileManager, this.systemConfig);
             this.reviewManager = new ReviewManager(this.fileManager, this.systemConfig, this.projectManager);
+            this.modelManager = new ModelManager(this.fileManager, this.systemConfig);
+            
+            // Initialize model manager
+            await this.modelManager.initialize();
             
             this.initialized = true;
             console.log('llmXive v2.0 client initialized successfully');
