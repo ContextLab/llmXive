@@ -2,7 +2,7 @@
  * ModerationManager - Content moderation and security features
  * 
  * Handles automated content scanning, user management, and security
- * for the llmXive v2.0 system.
+ * for the llmXive system.
  */
 
 class ModerationManager {

@@ -1,5 +1,5 @@
 /**
- * UnifiedGitHubClient - Main client for GitHub-native llmXive v2.0
+ * UnifiedGitHubClient - Main client for GitHub-native llmXive
  * 
  * Provides unified interface for all GitHub operations with authentication,
  * file management, and system configuration.
@@ -312,7 +312,7 @@ class UnifiedGitHubClient {
      */
     async initialize() {
         try {
-            console.log('Initializing llmXive v2.0 GitHub client...');
+            console.log('Initializing llmXive GitHub client...');
             
             // Initialize authentication
             const authInitialized = await this.auth.initialize();
@@ -360,7 +360,7 @@ class UnifiedGitHubClient {
             await this.modelManager.initialize();
             
             this.initialized = true;
-            console.log('llmXive v2.0 client initialized successfully');
+            console.log('llmXive client initialized successfully');
             
             return { authenticated: true, initialized: true };
             

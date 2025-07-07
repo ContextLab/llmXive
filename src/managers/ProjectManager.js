@@ -2,7 +2,7 @@
  * ProjectManager - Manages project lifecycle and metadata
  * 
  * Handles project creation, reading, updating, and status management
- * for the llmXive v2.0 system.
+ * for the llmXive system.
  */
 
 class ProjectManager {

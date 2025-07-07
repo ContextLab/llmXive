@@ -2,7 +2,7 @@
  * ModelManager - Manages AI model integration and execution
  * 
  * Handles model selection, API calls, and response processing for the
- * llmXive v2.0 automated review system. Designed for client-side execution
+ * llmXive automated review system. Designed for client-side execution
  * with GitHub Actions for server-side model calls.
  */
 

@@ -1,7 +1,7 @@
 {
-  "name": "llmxive-v2",
-  "version": "2.0.0",
-  "description": "llmXive v2.0 - Automated Scientific Discovery Platform",
+  "name": "llmxive",
+  "version": "1.0.0",
+  "description": "llmXive - Automated Scientific Discovery Platform",
   "type": "module",
   "main": "src/core/UnifiedGitHubClient.js",
   "scripts": {

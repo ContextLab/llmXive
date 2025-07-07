@@ -1,5 +1,5 @@
 /**
- * Jest setup file for llmXive v2.0 tests
+ * Jest setup file for llmXive tests
  */
 
 // Mock localStorage

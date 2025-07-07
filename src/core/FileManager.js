@@ -1,7 +1,7 @@
 /**
  * FileManager - Core file I/O operations with GitHub API
  * 
- * Handles all file operations for the GitHub-native llmXive v2.0 architecture.
+ * Handles all file operations for the GitHub-native llmXive architecture.
  * Provides caching, rate limiting, and error recovery for repository operations.
  */
 

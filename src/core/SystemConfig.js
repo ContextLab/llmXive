@@ -2,7 +2,7 @@
  * SystemConfig - Initialize and manage system configuration
  * 
  * Sets up the .llmxive-system directory structure and core configuration files
- * for the GitHub-native llmXive v2.0 architecture.
+ * for the GitHub-native llmXive architecture.
  */
 
 class SystemConfig {
@@ -16,7 +16,7 @@ class SystemConfig {
      * Initialize the complete system configuration
      */
     async initialize() {
-        console.log('Initializing llmXive v2.0 system configuration...');
+        console.log('Initializing llmXive system configuration...');
         
         try {
             // Create system directory structure

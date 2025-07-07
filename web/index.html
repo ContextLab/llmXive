@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>llmXive - Automated Scientific Discovery</title>
+    
+    <!-- Meta tags for better SEO and social sharing -->
+    <meta name="description" content="Automated scientific discovery platform powered by AI collaboration and peer review">
+    <meta name="keywords" content="AI, research, automation, collaboration, peer review, science">
+    <meta name="author" content="ContextLab">
+    
+    <!-- Open Graph tags -->
+    <meta property="og:title" content="llmXive - Automated Scientific Discovery">
+    <meta property="og:description" content="Automated scientific discovery platform powered by AI collaboration and peer review">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://contextlab.github.io/llmXive/">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    
+    <!-- External dependencies -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Core styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/animations.css">
+    
+    <!-- Page-specific styles -->
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/projects.css">
+    <link rel="stylesheet" href="css/reviews.css">
+    <link rel="stylesheet" href="css/moderation.css">
+</head>
+<body>
+    <!-- Loading screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <div class="loading-text">
+                <h2>llmXive</h2>
+                <p>Initializing automated research platform...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main application container -->
+    <div id="app" class="app-container" style="display: none;">
+        
+        <!-- Navigation header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="logo">
+                        <i class="fas fa-flask"></i>
+                        <span class="logo-text">llmXive</span>
+                    </div>
+                    
+                    <nav class="main-nav">
+                        <a href="#dashboard" class="nav-link active" data-page="dashboard">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a href="#projects" class="nav-link" data-page="projects">
+                            <i class="fas fa-folder-open"></i>
+                            <span>Projects</span>
+                        </a>
+                        <a href="#reviews" class="nav-link" data-page="reviews">
+                            <i class="fas fa-comments"></i>
+                            <span>Reviews</span>
+                        </a>
+                        <a href="#models" class="nav-link" data-page="models">
+                            <i class="fas fa-robot"></i>
+                            <span>AI Models</span>
+                        </a>
+                        <a href="#moderation" class="nav-link" data-page="moderation">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Moderation</span>
+                        </a>
+                    </nav>
+                </div>
+                
+                <div class="header-right">
+                    <div class="system-status" id="system-status">
+                        <div class="status-indicator" id="status-indicator">
+                            <div class="status-dot"></div>
+                            <span class="status-text">Initializing...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="user-menu" id="user-menu">
+                        <div class="auth-section" id="auth-section">
+                            <button class="btn btn-primary" id="login-btn">
+                                <i class="fab fa-github"></i>
+                                Login with GitHub
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main content area -->
+        <main class="app-main">
+            
+            <!-- Dashboard page -->
+            <div id="page-dashboard" class="page active">
+                <div class="page-header">
+                    <h1>Dashboard</h1>
+                    <p>Overview of your automated research platform</p>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <!-- Statistics cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-folder-open"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-projects">0</h3>
+                                <p>Active Projects</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-reviews">0</h3>
+                                <p>Reviews Generated</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="ai-calls">0</h3>
+                                <p>AI Model Calls</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="completion-rate">0%</h3>
+                                <p>Success Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent activity -->
+                    <div class="activity-section">
+                        <div class="section-header">
+                            <h2>Recent Activity</h2>
+                            <button class="btn btn-secondary btn-sm" id="refresh-activity">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                        <div class="activity-feed" id="activity-feed">
+                            <div class="activity-item loading">
+                                <div class="activity-spinner"></div>
+                                <span>Loading recent activity...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick actions -->
+                    <div class="quick-actions">
+                        <div class="section-header">
+                            <h2>Quick Actions</h2>
+                        </div>
+                        <div class="actions-grid">
+                            <button class="action-card" id="create-project-btn">
+                                <i class="fas fa-plus"></i>
+                                <span>Create Project</span>
+                            </button>
+                            <button class="action-card" id="run-reviews-btn">
+                                <i class="fas fa-play"></i>
+                                <span>Generate Reviews</span>
+                            </button>
+                            <button class="action-card" id="view-models-btn">
+                                <i class="fas fa-robot"></i>
+                                <span>Manage AI Models</span>
+                            </button>
+                            <button class="action-card" id="system-status-btn">
+                                <i class="fas fa-cog"></i>
+                                <span>System Status</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Projects page -->
+            <div id="page-projects" class="page">
+                <div class="page-header">
+                    <div class="header-content">
+                        <div>
+                            <h1>Projects</h1>
+                            <p>Manage your research projects and track progress</p>
+                        </div>
+                        <button class="btn btn-primary" id="new-project-btn">
+                            <i class="fas fa-plus"></i>
+                            New Project
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="projects-container">
+                    <div class="projects-filters">
+                        <div class="filter-group">
+                            <label for="status-filter">Status:</label>
+                            <select id="status-filter">
+                                <option value="">All Statuses</option>
+                                <option value="active">Active</option>
+                                <option value="completed">Completed</option>
+                                <option value="blocked">Blocked</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="phase-filter">Phase:</label>
+                            <select id="phase-filter">
+                                <option value="">All Phases</option>
+                                <option value="idea">Ideation</option>
+                                <option value="design">Design</option>
+                                <option value="implementation">Implementation</option>
+                                <option value="paper">Paper</option>
+                                <option value="review">Review</option>
+                            </select>
+                        </div>
+                        
+                        <div class="search-group">
+                            <input type="text" id="project-search" placeholder="Search projects...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="projects-grid" id="projects-grid">
+                        <div class="loading-placeholder">
+                            <div class="spinner"></div>
+                            <p>Loading projects...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reviews page -->
+            <div id="page-reviews" class="page">
+                <div class="page-header">
+                    <h1>Reviews</h1>
+                    <p>Automated and manual review management</p>
+                </div>
+                
+                <div class="reviews-container" id="reviews-container">
+                    <div class="loading-placeholder">
+                        <div class="spinner"></div>
+                        <p>Loading reviews...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Models page -->
+            <div id="page-models" class="page">
+                <div class="page-header">
+                    <h1>AI Models</h1>
+                    <p>Configure and monitor AI model integrations</p>
+                </div>
+                
+                <div class="models-container" id="models-container">
+                    <div class="loading-placeholder">
+                        <div class="spinner"></div>
+                        <p>Loading AI models...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Moderation page -->
+            <div id="page-moderation" class="page">
+                <div class="page-header">
+                    <h1>Content Moderation</h1>
+                    <p>Review flagged content and manage user reports</p>
+                </div>
+                
+                <div class="moderation-container" id="moderation-container">
+                    <div class="loading-placeholder">
+                        <div class="spinner"></div>
+                        <p>Loading moderation queue...</p>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+        
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <span>llmXive - Automated Scientific Discovery Platform</span>
+                    <a href="https://github.com/ContextLab/llmXive" target="_blank">
+                        <i class="fab fa-github"></i>
+                        GitHub
+                    </a>
+                </div>
+                <div class="footer-right">
+                    <span>Powered by ContextLab</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Modals and overlays -->
+    <div id="modal-overlay" class="modal-overlay"></div>
+    
+    <!-- Notification system -->
+    <div id="notifications-container" class="notifications-container"></div>
+    
+    <!-- Core JavaScript modules -->
+    <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/dashboard.js"></script>
+    <script type="module" src="js/projects.js"></script>
+    <script type="module" src="js/reviews.js"></script>
+    <script type="module" src="js/models.js"></script>
+    <script type="module" src="js/moderation.js"></script>
+    <script type="module" src="js/utils.js"></script>
+</body>
+</html>

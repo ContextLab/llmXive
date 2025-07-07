@@ -2,7 +2,7 @@
  * ReviewManager - Manages automated and manual review workflows
  * 
  * Handles review submission, validation, point calculation, and phase advancement
- * for the llmXive v2.0 system.
+ * for the llmXive system.
  */
 
 class ReviewManager {
