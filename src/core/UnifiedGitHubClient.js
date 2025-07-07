@@ -11,6 +11,7 @@ import ProjectManager from '../managers/ProjectManager.js';
 import ReviewManager from '../managers/ReviewManager.js';
 import ModelManager from '../managers/ModelManager.js';
 import AutomatedReviewManager from '../managers/AutomatedReviewManager.js';
+import ModerationManager from '../managers/ModerationManager.js';
 
 class AuthManager {
     constructor() {
@@ -301,6 +302,7 @@ class UnifiedGitHubClient {
         this.reviewManager = null;
         this.modelManager = null;
         this.automatedReviewManager = null;
+        this.moderationManager = null;
         
         this.initialized = false;
     }
@@ -346,6 +348,11 @@ class UnifiedGitHubClient {
                 this.systemConfig, 
                 this.projectManager, 
                 this.reviewManager, 
+                this.modelManager
+            );
+            this.moderationManager = new ModerationManager(
+                this.fileManager,
+                this.systemConfig,
                 this.modelManager
             );
             
