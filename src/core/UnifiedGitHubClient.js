@@ -10,6 +10,7 @@ import SystemConfig from './SystemConfig.js';
 import ProjectManager from '../managers/ProjectManager.js';
 import ReviewManager from '../managers/ReviewManager.js';
 import ModelManager from '../managers/ModelManager.js';
+import AutomatedReviewManager from '../managers/AutomatedReviewManager.js';
 
 class AuthManager {
     constructor() {
@@ -40,8 +41,8 @@ class AuthManager {
      * Start OAuth flow
      */
     async startOAuthFlow(options = {}) {
-        const clientId = options.clientId || 'your-github-client-id';
-        const redirectUri = options.redirectUri || `${window.location.origin}/auth/callback`;
+        const clientId = options.clientId || 'Ov23liY5hzeo5JVmlzcH';
+        const redirectUri = options.redirectUri || 'https://contextlab.github.io/llmXive/';
         const scope = options.scope || 'repo read:user';
         
         // Generate PKCE parameters
@@ -299,6 +300,7 @@ class UnifiedGitHubClient {
         this.projectManager = null;
         this.reviewManager = null;
         this.modelManager = null;
+        this.automatedReviewManager = null;
         
         this.initialized = false;
     }
@@ -339,6 +341,13 @@ class UnifiedGitHubClient {
             this.projectManager = new ProjectManager(this.fileManager, this.systemConfig);
             this.reviewManager = new ReviewManager(this.fileManager, this.systemConfig, this.projectManager);
             this.modelManager = new ModelManager(this.fileManager, this.systemConfig);
+            this.automatedReviewManager = new AutomatedReviewManager(
+                this.fileManager, 
+                this.systemConfig, 
+                this.projectManager, 
+                this.reviewManager, 
+                this.modelManager
+            );
             
             // Initialize model manager
             await this.modelManager.initialize();
