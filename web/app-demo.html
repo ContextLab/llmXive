@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>llmXive - Automated Scientific Discovery (Demo)</title>
+    
+    <!-- Meta tags for better SEO and social sharing -->
+    <meta name="description" content="Automated scientific discovery platform powered by AI collaboration and peer review">
+    <meta name="keywords" content="AI, research, automation, collaboration, peer review, science">
+    <meta name="author" content="ContextLab">
+    
+    <!-- External dependencies -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Core styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/animations.css">
+    
+    <!-- Page-specific styles -->
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/projects.css">
+    <link rel="stylesheet" href="css/reviews.css">
+    <link rel="stylesheet" href="css/moderation.css">
+</head>
+<body>
+    <!-- Loading screen -->
+    <div id="loading-screen" class="loading-screen" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <div class="loading-text">
+                <h2>llmXive</h2>
+                <p>Initializing automated research platform...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main application container -->
+    <div id="app" class="app-container">
+        
+        <!-- Navigation header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="logo">
+                        <i class="fas fa-flask"></i>
+                        <span class="logo-text">llmXive</span>
+                        <span class="demo-badge">DEMO</span>
+                    </div>
+                    
+                    <nav class="main-nav">
+                        <a href="#dashboard" class="nav-link active" data-page="dashboard">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a href="#projects" class="nav-link" data-page="projects">
+                            <i class="fas fa-folder-open"></i>
+                            <span>Projects</span>
+                        </a>
+                        <a href="#reviews" class="nav-link" data-page="reviews">
+                            <i class="fas fa-comments"></i>
+                            <span>Reviews</span>
+                        </a>
+                        <a href="#models" class="nav-link" data-page="models">
+                            <i class="fas fa-robot"></i>
+                            <span>AI Models</span>
+                        </a>
+                        <a href="#moderation" class="nav-link" data-page="moderation">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Moderation</span>
+                        </a>
+                    </nav>
+                </div>
+                
+                <div class="header-right">
+                    <div class="system-status" id="system-status">
+                        <div class="status-indicator status-warning" id="status-indicator">
+                            <div class="status-dot"></div>
+                            <span class="status-text">Demo Mode</span>
+                        </div>
+                    </div>
+                    
+                    <div class="user-menu" id="user-menu">
+                        <div class="auth-section" id="auth-section">
+                            <div class="demo-notice">
+                                <i class="fas fa-eye"></i>
+                                Demo Mode - Mock Data
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main content area -->
+        <main class="app-main">
+            
+            <!-- Dashboard page -->
+            <div id="page-dashboard" class="page active">
+                <div class="page-header">
+                    <h1>Dashboard</h1>
+                    <p>Overview of your automated research platform</p>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <!-- Statistics cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-folder-open"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-projects">12</h3>
+                                <p>Active Projects</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-reviews">47</h3>
+                                <p>Reviews Generated</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="ai-calls">1,248</h3>
+                                <p>AI Model Calls</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="completion-rate">94%</h3>
+                                <p>Success Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent activity -->
+                    <div class="activity-section">
+                        <div class="section-header">
+                            <h2>Recent Activity</h2>
+                            <button class="btn btn-secondary btn-sm" id="refresh-activity">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                        <div class="activity-feed" id="activity-feed">
+                            <div class="activity-item">
+                                <div class="activity-icon success">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-title">New project "AI Safety Research" created</div>
+                                    <div class="activity-description">Automated scientific discovery project focusing on AI alignment</div>
+                                    <div class="activity-meta">
+                                        <div class="activity-user">
+                                            <div class="user-avatar-placeholder">C</div>
+                                            <span>Claude</span>
+                                        </div>
+                                        <div class="activity-time">30 minutes ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick actions -->
+                    <div class="quick-actions">
+                        <div class="section-header">
+                            <h2>Quick Actions</h2>
+                        </div>
+                        <div class="actions-grid">
+                            <button class="action-card" id="create-project-btn">
+                                <i class="fas fa-plus"></i>
+                                <span>Create Project</span>
+                            </button>
+                            <button class="action-card" id="run-reviews-btn">
+                                <i class="fas fa-play"></i>
+                                <span>Generate Reviews</span>
+                            </button>
+                            <button class="action-card" id="view-models-btn">
+                                <i class="fas fa-robot"></i>
+                                <span>Manage AI Models</span>
+                            </button>
+                            <button class="action-card" id="system-status-btn">
+                                <i class="fas fa-cog"></i>
+                                <span>System Status</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Other pages from index.html would go here -->
+            
+        </main>
+        
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <span>llmXive - Automated Scientific Discovery Platform (Demo)</span>
+                    <a href="https://github.com/ContextLab/llmXive" target="_blank">
+                        <i class="fab fa-github"></i>
+                        GitHub
+                    </a>
+                </div>
+                <div class="footer-right">
+                    <span>Powered by ContextLab</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Notification system -->
+    <div id="notifications-container" class="notifications-container"></div>
+    
+    <style>
+        .demo-badge {
+            background: #f59e0b;
+            color: white;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+        
+        .demo-notice {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-warning .status-text {
+            color: #f59e0b;
+        }
+        
+        .status-warning .status-dot {
+            background-color: #f59e0b;
+        }
+    </style>
+    
+    <!-- Simple demo JavaScript -->
+    <script type="module">
+        // Simple navigation for demo
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Update active nav
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    // Show placeholder message for other pages
+                    if (link.dataset.page !== 'dashboard') {
+                        alert(`${link.textContent.trim()} page - This would show the full interface in production mode`);
+                    }
+                });
+            });
+            
+            // Add click handlers for quick actions
+            document.getElementById('create-project-btn').addEventListener('click', () => {
+                alert('Create Project - Would open project creation modal');
+            });
+            
+            document.getElementById('run-reviews-btn').addEventListener('click', () => {
+                alert('Generate Reviews - Would trigger automated review generation');
+            });
+            
+            document.getElementById('view-models-btn').addEventListener('click', () => {
+                alert('Manage AI Models - Would show AI models page');
+            });
+            
+            document.getElementById('system-status-btn').addEventListener('click', () => {
+                alert('System Status - Would show detailed system health information');
+            });
+            
+            console.log('✅ llmXive Demo Mode initialized successfully');
+        });
+    </script>
+</body>
+</html>

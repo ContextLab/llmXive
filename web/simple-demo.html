@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>llmXive - Automated Scientific Discovery</title>
+    
+    <!-- External dependencies -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Core styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/animations.css">
+    
+    <!-- Page-specific styles -->
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/projects.css">
+    <link rel="stylesheet" href="css/reviews.css">
+    <link rel="stylesheet" href="css/moderation.css">
+</head>
+<body>
+    <!-- Main application container -->
+    <div id="app" class="app-container">
+        
+        <!-- Navigation header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="logo">
+                        <i class="fas fa-flask"></i>
+                        <span class="logo-text">llmXive</span>
+                    </div>
+                    
+                    <nav class="main-nav">
+                        <a href="#dashboard" class="nav-link active" data-page="dashboard">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a href="#projects" class="nav-link" data-page="projects">
+                            <i class="fas fa-folder-open"></i>
+                            <span>Projects</span>
+                        </a>
+                        <a href="#reviews" class="nav-link" data-page="reviews">
+                            <i class="fas fa-comments"></i>
+                            <span>Reviews</span>
+                        </a>
+                        <a href="#models" class="nav-link" data-page="models">
+                            <i class="fas fa-robot"></i>
+                            <span>AI Models</span>
+                        </a>
+                        <a href="#moderation" class="nav-link" data-page="moderation">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Moderation</span>
+                        </a>
+                    </nav>
+                </div>
+                
+                <div class="header-right">
+                    <div class="system-status" id="system-status">
+                        <div class="status-indicator status-online" id="status-indicator">
+                            <div class="status-dot"></div>
+                            <span class="status-text">Demo Mode</span>
+                        </div>
+                    </div>
+                    
+                    <div class="user-menu" id="user-menu">
+                        <div class="auth-section" id="auth-section">
+                            <div style="background: #fef3c7; color: #92400e; padding: 8px 12px; border-radius: 6px; font-size: 0.875rem; display: flex; align-items: center; gap: 8px; border: 1px solid #fcd34d;">
+                                <i class="fas fa-laptop-code" style="color: #f59e0b;"></i>
+                                <span>Demo Mode</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main content area -->
+        <main class="app-main">
+            
+            <!-- Dashboard page -->
+            <div id="page-dashboard" class="page active">
+                <div class="page-header">
+                    <h1>Dashboard</h1>
+                    <p>Overview of your automated research platform</p>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <!-- Statistics cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-folder-open"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>12</h3>
+                                <p>Active Projects</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>47</h3>
+                                <p>Reviews Generated</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>1,248</h3>
+                                <p>AI Model Calls</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>94%</h3>
+                                <p>Success Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent activity -->
+                    <div class="activity-section">
+                        <div class="section-header">
+                            <h2>Recent Activity</h2>
+                            <button class="btn btn-secondary btn-sm" id="refresh-activity">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                        <div class="activity-feed" id="activity-feed">
+                            <div class="activity-item">
+                                <div class="activity-icon success">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-title">New project "AI Safety Research" created</div>
+                                    <div class="activity-description">Automated scientific discovery project focusing on AI alignment</div>
+                                    <div class="activity-meta">
+                                        <div class="activity-user">
+                                            <div class="user-avatar-placeholder">C</div>
+                                            <span>Claude</span>
+                                        </div>
+                                        <div class="activity-time">30 minutes ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Automated review completed</div>
+                                    <div class="activity-description">Technical design review for "Neural Network Optimization"</div>
+                                    <div class="activity-meta">
+                                        <div class="activity-user">
+                                            <div class="user-avatar-placeholder">G</div>
+                                            <span>GPT-4</span>
+                                        </div>
+                                        <div class="activity-time">2 hours ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="activity-item">
+                                <div class="activity-icon warning">
+                                    <i class="fas fa-arrow-up"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Project advanced to implementation phase</div>
+                                    <div class="activity-description">"Quantum Computing Applications" met review requirements</div>
+                                    <div class="activity-meta">
+                                        <div class="activity-user">
+                                            <div class="user-avatar-placeholder">S</div>
+                                            <span>System</span>
+                                        </div>
+                                        <div class="activity-time">6 hours ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick actions -->
+                    <div class="quick-actions">
+                        <div class="section-header">
+                            <h2>Quick Actions</h2>
+                        </div>
+                        <div class="actions-grid">
+                            <button class="action-card" id="create-project-btn">
+                                <i class="fas fa-plus"></i>
+                                <span>Create Project</span>
+                            </button>
+                            <button class="action-card" id="run-reviews-btn">
+                                <i class="fas fa-play"></i>
+                                <span>Generate Reviews</span>
+                            </button>
+                            <button class="action-card" id="view-models-btn">
+                                <i class="fas fa-robot"></i>
+                                <span>Manage AI Models</span>
+                            </button>
+                            <button class="action-card" id="system-status-btn">
+                                <i class="fas fa-cog"></i>
+                                <span>System Status</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Projects page -->
+            <div id="page-projects" class="page">
+                <div class="page-header">
+                    <div class="header-content">
+                        <div>
+                            <h1>Projects</h1>
+                            <p>Manage your research projects and track progress</p>
+                        </div>
+                        <button class="btn btn-primary" id="new-project-btn">
+                            <i class="fas fa-plus"></i>
+                            New Project
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="projects-container">
+                    <div class="projects-filters">
+                        <div class="filter-group">
+                            <label for="status-filter">Status:</label>
+                            <select id="status-filter">
+                                <option value="">All Statuses</option>
+                                <option value="active">Active</option>
+                                <option value="completed">Completed</option>
+                                <option value="blocked">Blocked</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="phase-filter">Phase:</label>
+                            <select id="phase-filter">
+                                <option value="">All Phases</option>
+                                <option value="idea">Ideation</option>
+                                <option value="design">Design</option>
+                                <option value="implementation">Implementation</option>
+                                <option value="paper">Paper</option>
+                                <option value="review">Review</option>
+                            </select>
+                        </div>
+                        
+                        <div class="search-group">
+                            <input type="text" id="project-search" placeholder="Search projects...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="projects-grid" id="projects-grid">
+                        <!-- Create new project card -->
+                        <div class="project-create-card">
+                            <div class="project-create-icon">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <h3 class="project-create-title">Create New Project</h3>
+                            <p class="project-create-description">Start a new research project and collaborate with the community</p>
+                        </div>
+                        
+                        <!-- Sample project cards -->
+                        <div class="project-card active">
+                            <div class="project-header">
+                                <h3 class="project-title">AI Safety Research Framework</h3>
+                                <p class="project-description">Developing comprehensive methodologies for AI safety evaluation and testing in real-world scenarios.</p>
+                            </div>
+                            
+                            <div class="project-meta">
+                                <div class="project-badges">
+                                    <span class="project-phase implementation">Implementation</span>
+                                    <span class="project-status active">Active</span>
+                                </div>
+                                
+                                <div class="project-progress">
+                                    <div class="project-progress-label">
+                                        <span>Progress</span>
+                                        <span>75%</span>
+                                    </div>
+                                    <div class="project-progress-bar">
+                                        <div class="project-progress-fill" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="project-stats">
+                                    <div class="project-stat">
+                                        <span class="project-stat-value">12</span>
+                                        <span class="project-stat-label">Reviews</span>
+                                    </div>
+                                    <div class="project-stat">
+                                        <span class="project-stat-value">45</span>
+                                        <span class="project-stat-label">Commits</span>
+                                    </div>
+                                    <div class="project-stat">
+                                        <span class="project-stat-value">8</span>
+                                        <span class="project-stat-label">Citations</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="project-footer">
+                                <div class="project-contributors">
+                                    <span class="project-contributors-label">Contributors:</span>
+                                    <div class="contributor-avatar">A</div>
+                                    <div class="contributor-avatar">B</div>
+                                </div>
+                                
+                                <div class="project-actions">
+                                    <button class="project-action favorite" title="Add to favorites">
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                    <button class="project-action" title="Edit project">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="project-action" title="More options">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="project-updated">
+                                Last updated 6 hours ago
+                            </div>
+                        </div>
+                        
+                        <div class="project-card active">
+                            <div class="project-header">
+                                <h3 class="project-title">Quantum Computing Applications</h3>
+                                <p class="project-description">Exploring quantum algorithms for optimization problems in scientific computing.</p>
+                            </div>
+                            
+                            <div class="project-meta">
+                                <div class="project-badges">
+                                    <span class="project-phase paper">Paper</span>
+                                    <span class="project-status active">Active</span>
+                                </div>
+                                
+                                <div class="project-progress">
+                                    <div class="project-progress-label">
+                                        <span>Progress</span>
+                                        <span>90%</span>
+                                    </div>
+                                    <div class="project-progress-bar">
+                                        <div class="project-progress-fill" style="width: 90%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="project-stats">
+                                    <div class="project-stat">
+                                        <span class="project-stat-value">8</span>
+                                        <span class="project-stat-label">Reviews</span>
+                                    </div>
+                                    <div class="project-stat">
+                                        <span class="project-stat-value">23</span>
+                                        <span class="project-stat-label">Commits</span>
+                                    </div>
+                                    <div class="project-stat">
+                                        <span class="project-stat-value">15</span>
+                                        <span class="project-stat-label">Citations</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="project-footer">
+                                <div class="project-contributors">
+                                    <span class="project-contributors-label">Contributors:</span>
+                                    <div class="contributor-avatar">C</div>
+                                </div>
+                                
+                                <div class="project-actions">
+                                    <button class="project-action favorite" title="Add to favorites">
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                    <button class="project-action" title="Edit project">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="project-action" title="More options">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="project-updated">
+                                Last updated 12 hours ago
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reviews page -->
+            <div id="page-reviews" class="page">
+                <div class="page-header">
+                    <h1>Reviews</h1>
+                    <p>Automated and manual review management - Demo content</p>
+                </div>
+                
+                <div style="text-align: center; padding: 60px 20px;">
+                    <i class="fas fa-comments" style="font-size: 4rem; color: var(--color-primary); margin-bottom: 20px;"></i>
+                    <h2>Reviews Interface</h2>
+                    <p>This page would show the full reviews management interface with filtering, search, and review workflows.</p>
+                </div>
+            </div>
+            
+            <!-- AI Models page -->
+            <div id="page-models" class="page">
+                <div class="page-header">
+                    <h1>AI Models</h1>
+                    <p>Configure and monitor AI model integrations - Demo content</p>
+                </div>
+                
+                <div style="text-align: center; padding: 60px 20px;">
+                    <i class="fas fa-robot" style="font-size: 4rem; color: var(--color-primary); margin-bottom: 20px;"></i>
+                    <h2>AI Models Interface</h2>
+                    <p>This page would show model management, monitoring, usage statistics, and configuration options.</p>
+                </div>
+            </div>
+            
+            <!-- Moderation page -->
+            <div id="page-moderation" class="page">
+                <div class="page-header">
+                    <h1>Content Moderation</h1>
+                    <p>Review flagged content and manage user reports - Demo content</p>
+                </div>
+                
+                <div style="text-align: center; padding: 60px 20px;">
+                    <i class="fas fa-shield-alt" style="font-size: 4rem; color: var(--color-primary); margin-bottom: 20px;"></i>
+                    <h2>Moderation Interface</h2>
+                    <p>This page would show the content moderation queue, user management, and security tools.</p>
+                </div>
+            </div>
+            
+        </main>
+        
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <span>llmXive - Automated Scientific Discovery Platform (Demo)</span>
+                    <a href="https://github.com/ContextLab/llmXive" target="_blank">
+                        <i class="fab fa-github"></i>
+                        GitHub
+                    </a>
+                </div>
+                <div class="footer-right">
+                    <span>Powered by ContextLab</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Simple JavaScript for navigation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Navigation functionality
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pages = document.querySelectorAll('.page');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Update active nav
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show target page
+                    const targetPage = this.dataset.page;
+                    pages.forEach(page => {
+                        page.classList.remove('active');
+                    });
+                    
+                    const pageElement = document.getElementById('page-' + targetPage);
+                    if (pageElement) {
+                        pageElement.classList.add('active');
+                    }
+                    
+                    // Update URL hash
+                    window.location.hash = targetPage;
+                });
+            });
+            
+            // Button click handlers
+            document.getElementById('create-project-btn').addEventListener('click', function() {
+                alert('Create Project - This would open the project creation interface');
+            });
+            
+            document.getElementById('run-reviews-btn').addEventListener('click', function() {
+                alert('Generate Reviews - This would trigger automated review generation');
+            });
+            
+            document.getElementById('view-models-btn').addEventListener('click', function() {
+                // Navigate to models page
+                document.querySelector('[data-page="models"]').click();
+            });
+            
+            document.getElementById('system-status-btn').addEventListener('click', function() {
+                alert('System Status: All services operational (Demo Mode)');
+            });
+            
+            // Project action handlers
+            document.querySelectorAll('.project-action').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const action = this.title;
+                    alert('Project action: ' + action);
+                });
+            });
+            
+            console.log('✅ llmXive Simple Demo loaded successfully');
+        });
+    </script>
+</body>
+</html>

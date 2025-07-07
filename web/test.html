@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>llmXive Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .test-result { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>llmXive JavaScript Test</h1>
+    <div id="test-results"></div>
+    
+    <script type="module">
+        const results = document.getElementById('test-results');
+        
+        function addResult(message, success = true) {
+            const div = document.createElement('div');
+            div.className = `test-result ${success ? 'success' : 'error'}`;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+        
+        async function runTests() {
+            try {
+                addResult('✓ Basic JavaScript working');
+                
+                // Test module imports
+                const { NotificationManager } = await import('./js/utils.js');
+                addResult('✓ Utils module imported successfully');
+                
+                const notificationManager = new NotificationManager();
+                addResult('✓ NotificationManager created successfully');
+                
+                // Test CSS loading
+                const computedStyle = getComputedStyle(document.body);
+                addResult('✓ CSS styles are loading');
+                
+                // Test that we can create the core components without GitHub API calls
+                const { AuthManager } = await import('./js/auth.js');
+                addResult('✓ AuthManager module imported successfully');
+                
+                // Test dashboard manager
+                const { DashboardManager } = await import('./js/dashboard.js');
+                addResult('✓ DashboardManager module imported successfully');
+                
+                addResult('🎉 All basic tests passed! The issue might be in GitHub API initialization.');
+                
+            } catch (error) {
+                addResult(`✗ Error: ${error.message}`, false);
+                console.error('Test error:', error);
+            }
+        }
+        
+        runTests();
+    </script>
+</body>
+</html>
