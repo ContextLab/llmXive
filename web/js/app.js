@@ -129,14 +129,54 @@ class App {
         });
         
         // Unload warning for unsaved changes
-        window.addEventListener('beforeunload', (e) => {
+        this.beforeUnloadHandler = (e) => {
             if (this.hasUnsavedChanges()) {
                 e.preventDefault();
                 return 'You have unsaved changes. Are you sure you want to leave?';
             }
-        });
+        };
+        window.addEventListener('beforeunload', this.beforeUnloadHandler);
         
         console.log('Event listeners set up');
+    }
+    
+    /**
+     * Clean up resources and event listeners
+     */
+    cleanup() {
+        // Remove global event listeners
+        if (this.beforeUnloadHandler) {
+            window.removeEventListener('beforeunload', this.beforeUnloadHandler);
+        }
+        
+        // Clean up page managers
+        if (this.dashboardManager && this.dashboardManager.cleanup) {
+            this.dashboardManager.cleanup();
+        }
+        if (this.projectsManager && this.projectsManager.cleanup) {
+            this.projectsManager.cleanup();
+        }
+        if (this.reviewsManager && this.reviewsManager.cleanup) {
+            this.reviewsManager.cleanup();
+        }
+        if (this.modelsManager && this.modelsManager.cleanup) {
+            this.modelsManager.cleanup();
+        }
+        if (this.moderationManager && this.moderationManager.cleanup) {
+            this.moderationManager.cleanup();
+        }
+        
+        // Clean up authentication
+        if (this.authManager && this.authManager.cleanup) {
+            this.authManager.cleanup();
+        }
+        
+        // Clear notifications
+        if (this.notifications && this.notifications.clear) {
+            this.notifications.clear();
+        }
+        
+        console.log('Application cleanup completed');
     }
     
     /**
