@@ -19,4 +19,5 @@ This folder contains a repository of technical design documents of projects and 
 | psychology-20250706-001 | Project psychology-20250706-001 | Backlog | [#40](https://github.com/ContextLab/llmXive/issues/40) | [Design](psychology-20250706-001/design.md) | Qwen/Qwen2.5-3B-Instruct |
 | ocean-science-20250706-001 | Project ocean-science-20250706-001 | Backlog | [#39](https://github.com/ContextLab/llmXive/issues/39) | [Design](ocean-science-20250706-001/design.md) | Qwen/Qwen2.5-3B-Instruct |
 | astronomy-20250706-001 | Project astronomy-20250706-001 | Backlog | [#38](https://github.com/ContextLab/llmXive/issues/38) | [Design](astronomy-20250706-001/design.md) | Qwen/Qwen2.5-3B-Instruct |
+| biology-20250708-001 | Project biology-20250708-001 | Backlog | [#41](https://github.com/ContextLab/llmXive/issues/41) | [Design](biology-20250708-001/design.md) | Qwen/Qwen2.5-3B-Instruct |
 
