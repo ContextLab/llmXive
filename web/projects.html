@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>llmXive Projects - Corrected Data</title>
+    <link rel="stylesheet" href="docs/css/style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .nav-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .nav-links a.active {
+            background-color: rgba(255,255,255,0.3);
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .projects-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .projects-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+        
+        .projects-header p {
+            font-size: 1.1rem;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+        
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-group label {
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            font-size: 0.9rem;
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 24px;
+        }
+        
+        .project-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+        
+        .project-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+        }
+        
+        .project-header.enhanced {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .project-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        
+        .project-field {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .project-body {
+            padding: 20px;
+        }
+        
+        .project-description {
+            color: #6b7280;
+            margin-bottom: 16px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+        
+        .project-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+        }
+        
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .meta-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 2px;
+        }
+        
+        .meta-value {
+            color: #6b7280;
+        }
+        
+        .contributors-list {
+            margin-top: 16px;
+        }
+        
+        .contributors-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .contributor-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            margin: 2px 4px 2px 0;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .contributor-tag.ai {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        
+        .contributor-tag.human {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .contributor-tag.gemini {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .completeness-bar {
+            background: #f3f4f6;
+            border-radius: 6px;
+            height: 8px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .completeness-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .completeness-excellent { background: linear-gradient(90deg, #10b981 0%, #059669 100%); }
+        .completeness-good { background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%); }
+        .completeness-fair { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); }
+        .completeness-developing { background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%); }
+        
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status-banner {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 12px 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Status Banner -->
+    <div class="status-banner">
+        📅 All project dates corrected to July 1-7, 2025 • 🤖 Enhanced content from Google Gemini • ✅ Proper AI model attributions
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <div class="nav-content">
+            <h1 class="nav-title">🧬 llmXive Research Platform</h1>
+            <div class="nav-links">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="projects.html" class="active">Projects</a>
+                <a href="contributors.html">Contributors</a>
+                <a href="auth-test.html">Authentication</a>
+                <a href="docs/index.html">Documentation</a>
+                <a href="https://github.com/ContextLab/llmXive" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="projects-header">
+            <h1>Research Projects</h1>
+            <p>All projects with corrected dates (July 1-7, 2025) and proper AI model attributions. Enhanced projects include comprehensive content development by Google Gemini.</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-group">
+                <label for="field-filter">Field:</label>
+                <select id="field-filter">
+                    <option value="">All Fields</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="status-filter">Status:</label>
+                <select id="status-filter">
+                    <option value="">All Statuses</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="completeness-filter">Completeness:</label>
+                <select id="completeness-filter">
+                    <option value="">All Levels</option>
+                    <option value="90-100">Excellent (90-100%)</option>
+                    <option value="80-89">Good (80-89%)</option>
+                    <option value="60-79">Fair (60-79%)</option>
+                    <option value="40-59">Developing (40-59%)</option>
+                    <option value="0-39">Needs Work (0-39%)</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="enhanced-filter">Enhanced:</label>
+                <select id="enhanced-filter">
+                    <option value="">All Projects</option>
+                    <option value="enhanced">Enhanced by Gemini</option>
+                    <option value="original">Original Only</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Projects Grid -->
+        <div id="projects-container">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <h3>Loading Projects...</h3>
+                <p>Fetching corrected project data with proper attributions</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="src/data/ProjectDataManager.js"></script>
+    
+    <script>
+        class ProjectsPage {
+            constructor() {
+                this.dataManager = window.ProjectDataManager;
+                this.projects = [];
+                this.filteredProjects = [];
+                this.init();
+            }
+
+            async init() {
+                console.log('🚀 Loading Projects Page...');
+                
+                try {
+                    const loaded = await this.dataManager.loadData();
+                    if (!loaded) {
+                        throw new Error('Failed to load project data');
+                    }
+                    
+                    this.projects = Object.values(this.dataManager.getAllProjects());
+                    this.filteredProjects = [...this.projects];
+                    
+                    this.setupFilters();
+                    this.renderProjects();
+                    
+                    console.log('✅ Projects page loaded successfully');
+                    console.log(`📊 Displaying ${this.projects.length} projects`);
+                    
+                } catch (error) {
+                    console.error('❌ Projects page initialization failed:', error);
+                    this.showError(error.message);
+                }
+            }
+
+            setupFilters() {
+                const analytics = this.dataManager.getAnalytics();
+                
+                // Populate field filter
+                const fieldFilter = document.getElementById('field-filter');
+                Object.keys(analytics.projectsByField).forEach(field => {
+                    const option = document.createElement('option');
+                    option.value = field;
+                    option.textContent = field;
+                    fieldFilter.appendChild(option);
+                });
+                
+                // Populate status filter
+                const statusFilter = document.getElementById('status-filter');
+                Object.keys(analytics.projectsByStatus).forEach(status => {
+                    const option = document.createElement('option');
+                    option.value = status;
+                    option.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                    statusFilter.appendChild(option);
+                });
+                
+                // Add event listeners
+                document.getElementById('field-filter').addEventListener('change', () => this.applyFilters());
+                document.getElementById('status-filter').addEventListener('change', () => this.applyFilters());
+                document.getElementById('completeness-filter').addEventListener('change', () => this.applyFilters());
+                document.getElementById('enhanced-filter').addEventListener('change', () => this.applyFilters());
+            }
+
+            applyFilters() {
+                const fieldFilter = document.getElementById('field-filter').value;
+                const statusFilter = document.getElementById('status-filter').value;
+                const completenessFilter = document.getElementById('completeness-filter').value;
+                const enhancedFilter = document.getElementById('enhanced-filter').value;
+                
+                this.filteredProjects = this.projects.filter(project => {
+                    // Field filter
+                    if (fieldFilter && !project.field.includes(fieldFilter)) {
+                        return false;
+                    }
+                    
+                    // Status filter
+                    if (statusFilter && project.status !== statusFilter) {
+                        return false;
+                    }
+                    
+                    // Completeness filter
+                    if (completenessFilter) {
+                        const [min, max] = completenessFilter.split('-').map(Number);
+                        if (project.completeness < min || project.completeness > max) {
+                            return false;
+                        }
+                    }
+                    
+                    // Enhanced filter
+                    if (enhancedFilter) {
+                        const isEnhanced = project.contributors.some(c => c.name === 'Google Gemini');
+                        if (enhancedFilter === 'enhanced' && !isEnhanced) {
+                            return false;
+                        }
+                        if (enhancedFilter === 'original' && isEnhanced) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                });
+                
+                this.renderProjects();
+            }
+
+            renderProjects() {
+                const container = document.getElementById('projects-container');
+                
+                if (this.filteredProjects.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px;">
+                            <h3>No projects match your filters</h3>
+                            <p>Try adjusting your filter criteria to see more projects.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = `
+                    <div class="projects-grid">
+                        ${this.filteredProjects.map(project => this.renderProjectCard(project)).join('')}
+                    </div>
+                `;
+            }
+
+            renderProjectCard(project) {
+                const isEnhanced = project.contributors.some(c => c.name === 'Google Gemini');
+                const completenessClass = this.getCompletenessClass(project.completeness);
+                
+                return `
+                    <div class="project-card">
+                        <div class="project-header ${isEnhanced ? 'enhanced' : ''}">
+                            <div class="project-title">${project.title}</div>
+                            <div class="project-field">${project.field}</div>
+                        </div>
+                        <div class="project-body">
+                            <div class="project-description">${project.description}</div>
+                            
+                            <div class="project-meta">
+                                <div class="meta-item">
+                                    <div class="meta-label">Created</div>
+                                    <div class="meta-value">${new Date(project.dateCreated).toLocaleDateString()}</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Modified</div>
+                                    <div class="meta-value">${new Date(project.dateModified).toLocaleDateString()}</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Status</div>
+                                    <div class="meta-value">${project.status.charAt(0).toUpperCase() + project.status.slice(1)}</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Completeness</div>
+                                    <div class="meta-value">${project.completeness}%</div>
+                                    <div class="completeness-bar">
+                                        <div class="completeness-fill ${completenessClass}" style="width: ${project.completeness}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="contributors-list">
+                                <div class="contributors-label">Contributors:</div>
+                                ${project.contributors.map(contributor => 
+                                    `<span class="contributor-tag ${contributor.name === 'Google Gemini' ? 'gemini' : contributor.type}">${contributor.name}</span>`
+                                ).join('')}
+                            </div>
+                            
+                            ${project.issues && project.issues.length > 0 ? `
+                                <div style="margin-top: 12px; padding: 8px; background: #fef2f2; border-radius: 6px; border-left: 3px solid #ef4444;">
+                                    <div style="font-weight: 600; color: #dc2626; font-size: 0.9rem;">Issues:</div>
+                                    <div style="color: #7f1d1d; font-size: 0.8rem;">${project.issues.join(', ')}</div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            getCompletenessClass(completeness) {
+                if (completeness >= 90) return 'completeness-excellent';
+                if (completeness >= 80) return 'completeness-good';
+                if (completeness >= 60) return 'completeness-fair';
+                return 'completeness-developing';
+            }
+
+            showError(message) {
+                document.getElementById('projects-container').innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <h3>⚠️ Error Loading Projects</h3>
+                        <p>${message}</p>
+                        <button onclick="location.reload()" style="
+                            background: #3b82f6; 
+                            color: white; 
+                            border: none; 
+                            padding: 12px 24px; 
+                            border-radius: 6px; 
+                            cursor: pointer;
+                            font-size: 1rem;
+                            margin-top: 16px;
+                        ">Reload Page</button>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            new ProjectsPage();
+        });
+    </script>
+</body>
+</html>

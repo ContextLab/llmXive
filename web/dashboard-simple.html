@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Dashboard Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 2rem; }
+        .test-button { 
+            background: #6366f1; 
+            color: white; 
+            padding: 0.5rem 1rem; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            margin: 0.5rem;
+        }
+        .projects { margin-top: 2rem; }
+        .project-card { 
+            border: 1px solid #ccc; 
+            padding: 1rem; 
+            margin: 0.5rem 0; 
+            border-radius: 8px;
+        }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Simple Dashboard Test</h1>
+    
+    <button onclick="testSubmitIdea()" class="test-button">Test Submit Idea</button>
+    <button onclick="testGitHubLogin()" class="test-button">Test GitHub Login</button>
+    <button onclick="loadProjects()" class="test-button">Load Projects</button>
+    <button onclick="clearStorage()" class="test-button">Clear Storage</button>
+    
+    <div id="status"></div>
+    <div id="projects" class="projects"></div>
+
+    <script src="src/data/ProjectDataManager.js"></script>
+    <script>
+        function showStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.innerHTML = `<div class="${type}">${message}</div>`;
+            console.log(message);
+        }
+
+        function testSubmitIdea() {
+            showStatus('Submit idea clicked!', 'success');
+            
+            // Simple modal simulation
+            const title = prompt('Project title:');
+            if (title) {
+                showStatus(`Would submit: ${title}`, 'success');
+            }
+        }
+
+        function testGitHubLogin() {
+            const currentUser = localStorage.getItem('llmxive-github-user');
+            if (currentUser) {
+                if (confirm('Logout?')) {
+                    localStorage.removeItem('llmxive-github-user');
+                    showStatus('Logged out', 'success');
+                }
+            } else {
+                const username = prompt('GitHub username:');
+                if (username) {
+                    const user = { login: username, name: username };
+                    localStorage.setItem('llmxive-github-user', JSON.stringify(user));
+                    showStatus(`Logged in as ${username}`, 'success');
+                }
+            }
+        }
+
+        async function loadProjects() {
+            try {
+                showStatus('Loading projects...', 'info');
+                
+                const loaded = await window.ProjectDataManager.loadData();
+                if (!loaded) {
+                    throw new Error('Failed to load project data');
+                }
+                
+                const projects = window.ProjectDataManager.getAllProjects();
+                const projectsDiv = document.getElementById('projects');
+                
+                projectsDiv.innerHTML = '<h3>Projects:</h3>';
+                Object.values(projects).forEach(project => {
+                    projectsDiv.innerHTML += `
+                        <div class="project-card">
+                            <h4>${project.title}</h4>
+                            <p>${project.description}</p>
+                            <small>Field: ${project.field} | Status: ${project.status}</small>
+                        </div>
+                    `;
+                });
+                
+                showStatus(`Loaded ${Object.keys(projects).length} projects`, 'success');
+                
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function clearStorage() {
+            localStorage.clear();
+            showStatus('Storage cleared', 'success');
+        }
+
+        // Auto-load projects on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProjects();
+        });
+    </script>
+</body>
+</html>

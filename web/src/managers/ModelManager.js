@@ -4,12 +4,17 @@
  * Handles model selection, API calls, and response processing for the
  * llmXive automated review system. Designed for client-side execution
  * with GitHub Actions for server-side model calls.
+ * 
+ * SECURITY: Model modifications require admin permissions
  */
 
+import AccessControl, { AccessControlError } from '../core/AccessControl.js';
+
 class ModelManager {
-    constructor(fileManager, systemConfig) {
+    constructor(fileManager, systemConfig, accessControl = null) {
         this.fileManager = fileManager;
         this.systemConfig = systemConfig;
+        this.accessControl = accessControl;
         this.modelsPath = '.llmxive-system/registry/models.json';
         this.providersPath = '.llmxive-system/registry/providers.json';
         
@@ -662,6 +667,320 @@ class ModelManager {
         } catch (error) {
             console.error('Failed to get model statistics:', error);
             return { totalCalls: 0, successRate: 0, averageProcessingTime: 0 };
+        }
+    }
+    
+    /**
+     * Add new model to registry (ADMIN ONLY)
+     */
+    async addModel(modelConfig) {
+        try {
+            // Security check - only admins can add models
+            if (this.accessControl) {
+                this.accessControl.requirePermission('model.create', 'add new AI model');
+                this.accessControl.logAccessEvent('model.add', modelConfig.id, true, { modelConfig });
+            }
+            
+            await this.loadConfigurations();
+            
+            // Validate model configuration
+            this.validateModelConfig(modelConfig);
+            
+            // Check if model already exists
+            if (this.modelsCache.models[modelConfig.id]) {
+                throw new Error(`Model '${modelConfig.id}' already exists`);
+            }
+            
+            // Add model to registry
+            this.modelsCache.models[modelConfig.id] = {
+                ...modelConfig,
+                addedAt: new Date().toISOString(),
+                addedBy: this.accessControl?.client?.getCurrentUser()?.login || 'system',
+                status: 'inactive' // Start as inactive for safety
+            };
+            
+            // Save updated configuration
+            await this.fileManager.writeJSON(this.modelsPath, this.modelsCache);
+            
+            console.log(`Model '${modelConfig.id}' added successfully`);
+            return { success: true, modelId: modelConfig.id };
+            
+        } catch (error) {
+            if (this.accessControl) {
+                this.accessControl.logAccessEvent('model.add', modelConfig?.id || 'unknown', false, { error: error.message });
+            }
+            console.error('Failed to add model:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Update existing model configuration (ADMIN ONLY)
+     */
+    async updateModel(modelId, updates) {
+        try {
+            // Security check - only admins can modify models
+            if (this.accessControl) {
+                this.accessControl.requirePermission('model.update', 'modify AI model');
+                
+                // Additional security for critical models
+                if (!this.accessControl.canModifyModel(modelId, 'update')) {
+                    throw new AccessControlError(
+                        'Insufficient permissions to modify this model',
+                        'model.update.critical',
+                        this.accessControl.userRole
+                    );
+                }
+                
+                this.accessControl.logAccessEvent('model.update', modelId, true, { updates });
+            }
+            
+            await this.loadConfigurations();
+            
+            // Check if model exists
+            if (!this.modelsCache.models[modelId]) {
+                throw new Error(`Model '${modelId}' not found`);
+            }
+            
+            // Validate updates
+            this.validateModelUpdates(updates);
+            
+            // Apply updates
+            const currentModel = this.modelsCache.models[modelId];
+            const updatedModel = {
+                ...currentModel,
+                ...updates,
+                updatedAt: new Date().toISOString(),
+                updatedBy: this.accessControl?.client?.getCurrentUser()?.login || 'system'
+            };
+            
+            // Validate final configuration
+            this.validateModelConfig(updatedModel);
+            
+            this.modelsCache.models[modelId] = updatedModel;
+            
+            // Save updated configuration
+            await this.fileManager.writeJSON(this.modelsPath, this.modelsCache);
+            
+            console.log(`Model '${modelId}' updated successfully`);
+            return { success: true, modelId, updatedModel };
+            
+        } catch (error) {
+            if (this.accessControl) {
+                this.accessControl.logAccessEvent('model.update', modelId, false, { error: error.message });
+            }
+            console.error('Failed to update model:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Remove model from registry (ADMIN ONLY)
+     */
+    async removeModel(modelId) {
+        try {
+            // Security check - only admins can remove models
+            if (this.accessControl) {
+                this.accessControl.requirePermission('model.delete', 'remove AI model');
+                
+                // Additional security for critical models
+                if (!this.accessControl.canModifyModel(modelId, 'remove')) {
+                    throw new AccessControlError(
+                        'Insufficient permissions to remove this model',
+                        'model.delete.critical',
+                        this.accessControl.userRole
+                    );
+                }
+                
+                this.accessControl.logAccessEvent('model.remove', modelId, true);
+            }
+            
+            await this.loadConfigurations();
+            
+            // Check if model exists
+            if (!this.modelsCache.models[modelId]) {
+                throw new Error(`Model '${modelId}' not found`);
+            }
+            
+            // Check if model is currently in use
+            const activeJobs = await this.getActiveModelJobs(modelId);
+            if (activeJobs.length > 0) {
+                throw new Error(`Cannot remove model '${modelId}': ${activeJobs.length} active jobs`);
+            }
+            
+            // Archive model instead of deleting (for audit trail)
+            const archivedModel = {
+                ...this.modelsCache.models[modelId],
+                status: 'archived',
+                archivedAt: new Date().toISOString(),
+                archivedBy: this.accessControl?.client?.getCurrentUser()?.login || 'system'
+            };
+            
+            // Save to archive
+            await this.archiveModel(modelId, archivedModel);
+            
+            // Remove from active registry
+            delete this.modelsCache.models[modelId];
+            
+            // Save updated configuration
+            await this.fileManager.writeJSON(this.modelsPath, this.modelsCache);
+            
+            console.log(`Model '${modelId}' removed successfully`);
+            return { success: true, modelId, archived: true };
+            
+        } catch (error) {
+            if (this.accessControl) {
+                this.accessControl.logAccessEvent('model.remove', modelId, false, { error: error.message });
+            }
+            console.error('Failed to remove model:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Configure model settings (ADMIN ONLY)
+     */
+    async configureModel(modelId, configuration) {
+        try {
+            // Security check - only admins can configure models
+            if (this.accessControl) {
+                this.accessControl.requirePermission('model.configure', 'configure AI model');
+                this.accessControl.logAccessEvent('model.configure', modelId, true, { configuration });
+            }
+            
+            await this.loadConfigurations();
+            
+            // Check if model exists
+            if (!this.modelsCache.models[modelId]) {
+                throw new Error(`Model '${modelId}' not found`);
+            }
+            
+            // Validate configuration
+            this.validateModelConfiguration(configuration);
+            
+            // Apply configuration
+            this.modelsCache.models[modelId].configuration = {
+                ...this.modelsCache.models[modelId].configuration,
+                ...configuration,
+                updatedAt: new Date().toISOString(),
+                updatedBy: this.accessControl?.client?.getCurrentUser()?.login || 'system'
+            };
+            
+            // Save updated configuration
+            await this.fileManager.writeJSON(this.modelsPath, this.modelsCache);
+            
+            console.log(`Model '${modelId}' configured successfully`);
+            return { success: true, modelId, configuration };
+            
+        } catch (error) {
+            if (this.accessControl) {
+                this.accessControl.logAccessEvent('model.configure', modelId, false, { error: error.message });
+            }
+            console.error('Failed to configure model:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Validate model configuration
+     */
+    validateModelConfig(config) {
+        const required = ['id', 'name', 'provider', 'modelName'];
+        for (const field of required) {
+            if (!config[field]) {
+                throw new Error(`Model configuration missing required field: ${field}`);
+            }
+        }
+        
+        // Validate provider exists
+        if (!this.providersCache.providers[config.provider]) {
+            throw new Error(`Unknown provider: ${config.provider}`);
+        }
+        
+        // Validate model ID format
+        if (!/^[a-z0-9\-_]+$/i.test(config.id)) {
+            throw new Error('Model ID must contain only alphanumeric characters, hyphens, and underscores');
+        }
+    }
+    
+    /**
+     * Validate model updates
+     */
+    validateModelUpdates(updates) {
+        // Don't allow changing core fields
+        const immutableFields = ['id', 'addedAt', 'addedBy'];
+        for (const field of immutableFields) {
+            if (field in updates) {
+                throw new Error(`Cannot modify immutable field: ${field}`);
+            }
+        }
+    }
+    
+    /**
+     * Validate model configuration settings
+     */
+    validateModelConfiguration(config) {
+        if (config.temperature !== undefined) {
+            if (typeof config.temperature !== 'number' || config.temperature < 0 || config.temperature > 2) {
+                throw new Error('Temperature must be a number between 0 and 2');
+            }
+        }
+        
+        if (config.maxTokens !== undefined) {
+            if (!Number.isInteger(config.maxTokens) || config.maxTokens < 1) {
+                throw new Error('maxTokens must be a positive integer');
+            }
+        }
+        
+        if (config.topP !== undefined) {
+            if (typeof config.topP !== 'number' || config.topP < 0 || config.topP > 1) {
+                throw new Error('topP must be a number between 0 and 1');
+            }
+        }
+    }
+    
+    /**
+     * Get active jobs using a specific model
+     */
+    async getActiveModelJobs(modelId) {
+        try {
+            const queuePath = '.llmxive-system/queue/model-tasks.json';
+            const queue = await this.fileManager.readJSON(queuePath);
+            
+            if (!queue || !queue.tasks) {
+                return [];
+            }
+            
+            return queue.tasks.filter(task => 
+                task.model === modelId && 
+                ['pending', 'in_progress'].includes(task.status)
+            );
+            
+        } catch (error) {
+            console.warn('Could not check active jobs:', error);
+            return [];
+        }
+    }
+    
+    /**
+     * Archive removed model for audit trail
+     */
+    async archiveModel(modelId, modelData) {
+        try {
+            const archivePath = '.llmxive-system/archive/models.json';
+            let archive = await this.fileManager.readJSON(archivePath);
+            
+            if (!archive) {
+                archive = { archivedModels: {} };
+            }
+            
+            archive.archivedModels[modelId] = modelData;
+            
+            await this.fileManager.writeJSON(archivePath, archive);
+            
+        } catch (error) {
+            console.warn('Failed to archive model:', error);
+            // Don't fail the operation if archiving fails
         }
     }
 }

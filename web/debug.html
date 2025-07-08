@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug llmXive</title>
+</head>
+<body>
+    <h1>Debug llmXive</h1>
+    <div id="debug-output"></div>
+
+    <script src="src/data/ProjectDataManager.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const output = document.getElementById('debug-output');
+            
+            try {
+                console.log('Testing ProjectDataManager...');
+                output.innerHTML += '<p>Testing ProjectDataManager...</p>';
+                
+                const loaded = await window.ProjectDataManager.loadData();
+                console.log('Data loaded:', loaded);
+                output.innerHTML += `<p>Data loaded: ${loaded}</p>`;
+                
+                const projects = window.ProjectDataManager.getAllProjects();
+                console.log('Projects:', projects);
+                output.innerHTML += `<p>Number of projects: ${Object.keys(projects).length}</p>`;
+                
+                Object.keys(projects).forEach(id => {
+                    output.innerHTML += `<p>Project: ${projects[id].title}</p>`;
+                });
+                
+            } catch (error) {
+                console.error('Error:', error);
+                output.innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

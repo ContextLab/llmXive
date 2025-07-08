@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix localStorage Data</title>
+</head>
+<body>
+    <h1>Fix localStorage Data</h1>
+    <button onclick="fixLocalStorageData()">Fix Attribution and Merge Claude entries</button>
+    <button onclick="showLocalStorageData()">Show Current Data</button>
+    <button onclick="clearLocalStorage()">Clear localStorage</button>
+    <div id="output"></div>
+
+    <script>
+        function fixLocalStorageData() {
+            const stored = localStorage.getItem('llmxive-projects');
+            if (!stored) {
+                document.getElementById('output').innerHTML = '<p>No localStorage data found</p>';
+                return;
+            }
+            
+            try {
+                const data = JSON.parse(stored);
+                let hasChanges = false;
+                
+                if (data.projects) {
+                    Object.values(data.projects).forEach(project => {
+                        // Fix Anonymous User -> Jeremy Manning for projects with "composite" in title
+                        if (project.title && project.title.toLowerCase().includes('composite')) {
+                            project.contributors.forEach(contributor => {
+                                if (contributor.name === 'Anonymous User') {
+                                    contributor.name = 'Jeremy Manning';
+                                    contributor.type = 'human';
+                                    hasChanges = true;
+                                }
+                            });
+                        }
+                        
+                        // Merge Claude Code -> Claude
+                        project.contributors.forEach(contributor => {
+                            if (contributor.name === 'Claude Code') {
+                                contributor.name = 'Claude';
+                                hasChanges = true;
+                            }
+                        });
+                    });
+                }
+                
+                if (hasChanges) {
+                    localStorage.setItem('llmxive-projects', JSON.stringify(data));
+                    document.getElementById('output').innerHTML = '<p style="color: green;">Fixed localStorage data!</p>';
+                } else {
+                    document.getElementById('output').innerHTML = '<p>No changes needed</p>';
+                }
+                
+            } catch (error) {
+                document.getElementById('output').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+        
+        function showLocalStorageData() {
+            const stored = localStorage.getItem('llmxive-projects');
+            if (!stored) {
+                document.getElementById('output').innerHTML = '<p>No localStorage data found</p>';
+                return;
+            }
+            
+            try {
+                const data = JSON.parse(stored);
+                document.getElementById('output').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('output').innerHTML = `<p style="color: red;">Error parsing data: ${error.message}</p>`;
+            }
+        }
+        
+        function clearLocalStorage() {
+            localStorage.removeItem('llmxive-projects');
+            document.getElementById('output').innerHTML = '<p>localStorage cleared</p>';
+        }
+    </script>
+</body>
+</html>

@@ -23,6 +23,150 @@
     <link rel="stylesheet" href="css/projects.css">
     <link rel="stylesheet" href="css/reviews.css">
     <link rel="stylesheet" href="css/moderation.css">
+    
+    <!-- Authentication styles -->
+    <style>
+        /* Authentication UI Styles */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #1f2937;
+        }
+        
+        .user-role-badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .user-role-badge.admin {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+        
+        .user-role-badge.moderator {
+            background: #dbeafe;
+            color: #1d4ed8;
+            border: 1px solid #93c5fd;
+        }
+        
+        .user-role-badge.contributor {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .user-role-badge.viewer {
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+        
+        .user-role-badge.anonymous {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        
+        .user-menu-button {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .user-menu-button:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+            z-index: 1000;
+            margin-top: 8px;
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #374151;
+            font-size: 0.875rem;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background: #f9fafb;
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 4px 0;
+        }
+        
+        /* Permission indicators */
+        .permission-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+        
+        .permission-indicator.allowed {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .permission-indicator.denied {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+    </style>
 </head>
 <body>
     <!-- Main application container -->
@@ -71,9 +215,43 @@
                     
                     <div class="user-menu" id="user-menu">
                         <div class="auth-section" id="auth-section">
-                            <div style="background: #fef3c7; color: #92400e; padding: 8px 12px; border-radius: 6px; font-size: 0.875rem; display: flex; align-items: center; gap: 8px; border: 1px solid #fcd34d;">
-                                <i class="fas fa-laptop-code" style="color: #f59e0b;"></i>
-                                <span>Demo Mode</span>
+                            <!-- Unauthenticated state -->
+                            <div id="auth-unauthenticated" style="display: block;">
+                                <button class="btn btn-primary" id="login-btn">
+                                    <i class="fab fa-github"></i>
+                                    Login with GitHub
+                                </button>
+                            </div>
+                            
+                            <!-- Authenticated state -->
+                            <div id="auth-authenticated" style="display: none;">
+                                <div class="user-profile">
+                                    <img id="user-avatar" src="" alt="User Avatar" class="user-avatar">
+                                    <div class="user-info">
+                                        <span id="user-name" class="user-name"></span>
+                                        <div class="user-role-badge" id="user-role-badge"></div>
+                                    </div>
+                                    <div class="user-menu-dropdown">
+                                        <button class="user-menu-button" id="user-menu-button">
+                                            <i class="fas fa-chevron-down"></i>
+                                        </button>
+                                        <div class="user-dropdown" id="user-dropdown" style="display: none;">
+                                            <a href="#profile" class="dropdown-item">
+                                                <i class="fas fa-user"></i>
+                                                Profile
+                                            </a>
+                                            <a href="#settings" class="dropdown-item">
+                                                <i class="fas fa-cog"></i>
+                                                Settings
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                            <button class="dropdown-item" id="logout-btn">
+                                                <i class="fas fa-sign-out-alt"></i>
+                                                Logout
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -426,14 +604,189 @@
             <!-- AI Models page -->
             <div id="page-models" class="page">
                 <div class="page-header">
-                    <h1>AI Models</h1>
-                    <p>Configure and monitor AI model integrations - Demo content</p>
+                    <div class="header-content">
+                        <div>
+                            <h1>AI Models</h1>
+                            <p>Configure and monitor AI model integrations</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-secondary" id="add-model-btn">
+                                <i class="fas fa-plus"></i>
+                                Add Model
+                                <span class="permission-indicator denied" id="add-model-permission">
+                                    <i class="fas fa-lock"></i>
+                                    Admin Only
+                                </span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
-                <div style="text-align: center; padding: 60px 20px;">
-                    <i class="fas fa-robot" style="font-size: 4rem; color: var(--color-primary); margin-bottom: 20px;"></i>
-                    <h2>AI Models Interface</h2>
-                    <p>This page would show model management, monitoring, usage statistics, and configuration options.</p>
+                <div class="models-container">
+                    <div class="models-grid">
+                        <!-- Claude 3 Sonnet Model -->
+                        <div class="model-card">
+                            <div class="model-header">
+                                <div class="model-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div class="model-info">
+                                    <h3>Claude 3 Sonnet</h3>
+                                    <p class="model-provider">Anthropic</p>
+                                </div>
+                                <div class="model-status active">
+                                    <div class="status-dot"></div>
+                                    <span>Active</span>
+                                </div>
+                            </div>
+                            
+                            <div class="model-meta">
+                                <div class="model-capabilities">
+                                    <span class="capability-tag">Text Generation</span>
+                                    <span class="capability-tag">Reasoning</span>
+                                    <span class="capability-tag">Code Analysis</span>
+                                </div>
+                                
+                                <div class="model-stats">
+                                    <div class="stat">
+                                        <span class="stat-label">Context</span>
+                                        <span class="stat-value">200K tokens</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-label">Quality</span>
+                                        <span class="stat-value">95%</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-label">Cost</span>
+                                        <span class="stat-value">$3/$15 per 1M</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="model-actions">
+                                <button class="btn btn-sm btn-secondary" id="test-claude-3-sonnet">
+                                    <i class="fas fa-play"></i>
+                                    Test
+                                </button>
+                                <button class="btn btn-sm btn-secondary" id="edit-claude-3-sonnet">
+                                    <i class="fas fa-edit"></i>
+                                    Edit
+                                    <span class="permission-indicator denied" id="edit-claude-3-sonnet-permission">
+                                        <i class="fas fa-lock"></i>
+                                        Admin Only
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- GPT-4 Model -->
+                        <div class="model-card">
+                            <div class="model-header">
+                                <div class="model-icon">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="model-info">
+                                    <h3>GPT-4 Turbo</h3>
+                                    <p class="model-provider">OpenAI</p>
+                                </div>
+                                <div class="model-status active">
+                                    <div class="status-dot"></div>
+                                    <span>Active</span>
+                                </div>
+                            </div>
+                            
+                            <div class="model-meta">
+                                <div class="model-capabilities">
+                                    <span class="capability-tag">Text Generation</span>
+                                    <span class="capability-tag">Code</span>
+                                    <span class="capability-tag">Research</span>
+                                </div>
+                                
+                                <div class="model-stats">
+                                    <div class="stat">
+                                        <span class="stat-label">Context</span>
+                                        <span class="stat-value">128K tokens</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-label">Quality</span>
+                                        <span class="stat-value">92%</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-label">Cost</span>
+                                        <span class="stat-value">$10/$30 per 1M</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="model-actions">
+                                <button class="btn btn-sm btn-secondary" id="test-gpt-4">
+                                    <i class="fas fa-play"></i>
+                                    Test
+                                </button>
+                                <button class="btn btn-sm btn-secondary" id="edit-gpt-4">
+                                    <i class="fas fa-edit"></i>
+                                    Edit
+                                    <span class="permission-indicator denied" id="edit-gpt-4-permission">
+                                        <i class="fas fa-lock"></i>
+                                        Admin Only
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Basic Model -->
+                        <div class="model-card">
+                            <div class="model-header">
+                                <div class="model-icon">
+                                    <i class="fas fa-microchip"></i>
+                                </div>
+                                <div class="model-info">
+                                    <h3>Basic Research Model</h3>
+                                    <p class="model-provider">Local</p>
+                                </div>
+                                <div class="model-status inactive">
+                                    <div class="status-dot"></div>
+                                    <span>Inactive</span>
+                                </div>
+                            </div>
+                            
+                            <div class="model-meta">
+                                <div class="model-capabilities">
+                                    <span class="capability-tag">Text Generation</span>
+                                </div>
+                                
+                                <div class="model-stats">
+                                    <div class="stat">
+                                        <span class="stat-label">Context</span>
+                                        <span class="stat-value">4K tokens</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-label">Quality</span>
+                                        <span class="stat-value">75%</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-label">Cost</span>
+                                        <span class="stat-value">Free</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="model-actions">
+                                <button class="btn btn-sm btn-secondary" id="test-basic-model">
+                                    <i class="fas fa-play"></i>
+                                    Test
+                                </button>
+                                <button class="btn btn-sm btn-secondary" id="edit-basic-model">
+                                    <i class="fas fa-edit"></i>
+                                    Edit
+                                    <span class="permission-indicator denied" id="edit-basic-model-permission">
+                                        <i class="fas fa-lock"></i>
+                                        Admin Only
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -470,8 +823,137 @@
         </footer>
     </div>
     
-    <!-- Simple JavaScript for navigation -->
+    <!-- Comprehensive JavaScript for authentication and permissions -->
     <script>
+        // Mock user data for demo - in production this would come from GitHub OAuth
+        const DEMO_USERS = {
+            'anonymous': null,
+            'viewer': {
+                login: 'demo-viewer',
+                name: 'Demo Viewer',
+                avatar_url: 'https://github.com/identicons/demo-viewer.png',
+                role: 'viewer'
+            },
+            'contributor': {
+                login: 'demo-contributor', 
+                name: 'Demo Contributor',
+                avatar_url: 'https://github.com/identicons/demo-contributor.png',
+                role: 'contributor'
+            },
+            'moderator': {
+                login: 'demo-moderator',
+                name: 'Demo Moderator', 
+                avatar_url: 'https://github.com/identicons/demo-moderator.png',
+                role: 'moderator'
+            },
+            'admin': {
+                login: 'demo-admin',
+                name: 'Demo Admin',
+                avatar_url: 'https://github.com/identicons/demo-admin.png',
+                role: 'admin'
+            }
+        };
+
+        // Access control system
+        class DemoAccessControl {
+            constructor() {
+                this.currentUser = null;
+                this.userRole = 'anonymous';
+                
+                // Role permissions
+                this.rolePermissions = {
+                    'admin': ['model.create', 'model.update', 'model.delete', 'model.configure'],
+                    'moderator': ['model.view'],
+                    'contributor': ['model.view'],
+                    'viewer': ['model.view'],
+                    'anonymous': []
+                };
+            }
+
+            setUser(user) {
+                this.currentUser = user;
+                this.userRole = user ? user.role : 'anonymous';
+                this.updateUI();
+            }
+
+            hasPermission(permission) {
+                const permissions = this.rolePermissions[this.userRole] || [];
+                return permissions.includes(permission);
+            }
+
+            canModifyModel(modelId) {
+                // Only admins can modify models
+                if (!this.hasPermission('model.update')) {
+                    return false;
+                }
+                
+                // Critical models require admin role
+                const criticalModels = ['claude-3-sonnet', 'gpt-4'];
+                if (criticalModels.some(critical => modelId.includes(critical))) {
+                    return this.userRole === 'admin';
+                }
+                
+                return true;
+            }
+
+            updateUI() {
+                this.updateAuthSection();
+                this.updatePermissionIndicators();
+            }
+
+            updateAuthSection() {
+                const unauthenticated = document.getElementById('auth-unauthenticated');
+                const authenticated = document.getElementById('auth-authenticated');
+
+                if (this.currentUser) {
+                    // Show authenticated state
+                    unauthenticated.style.display = 'none';
+                    authenticated.style.display = 'block';
+                    
+                    // Update user info
+                    document.getElementById('user-avatar').src = this.currentUser.avatar_url;
+                    document.getElementById('user-name').textContent = this.currentUser.name;
+                    
+                    // Update role badge
+                    const roleBadge = document.getElementById('user-role-badge');
+                    roleBadge.textContent = this.userRole;
+                    roleBadge.className = `user-role-badge ${this.userRole}`;
+                } else {
+                    // Show unauthenticated state
+                    unauthenticated.style.display = 'block';
+                    authenticated.style.display = 'none';
+                }
+            }
+
+            updatePermissionIndicators() {
+                // Update model modification permission indicators
+                const canModifyModels = this.hasPermission('model.update');
+                
+                const indicators = [
+                    'add-model-permission',
+                    'edit-claude-3-sonnet-permission',
+                    'edit-gpt-4-permission',
+                    'edit-basic-model-permission'
+                ];
+
+                indicators.forEach(indicatorId => {
+                    const indicator = document.getElementById(indicatorId);
+                    if (indicator) {
+                        if (canModifyModels) {
+                            indicator.className = 'permission-indicator allowed';
+                            indicator.innerHTML = '<i class="fas fa-check"></i> Allowed';
+                        } else {
+                            indicator.className = 'permission-indicator denied';
+                            indicator.innerHTML = '<i class="fas fa-lock"></i> Admin Only';
+                        }
+                    }
+                });
+            }
+        }
+
+        // Initialize access control
+        const accessControl = new DemoAccessControl();
+
         document.addEventListener('DOMContentLoaded', function() {
             // Navigation functionality
             const navLinks = document.querySelectorAll('.nav-link');
@@ -500,8 +982,60 @@
                     window.location.hash = targetPage;
                 });
             });
+
+            // Authentication handlers
+            document.getElementById('login-btn').addEventListener('click', function() {
+                showLoginOptionsModal();
+            });
+
+            document.getElementById('logout-btn')?.addEventListener('click', function() {
+                logout();
+            });
+
+            document.getElementById('user-menu-button')?.addEventListener('click', function() {
+                const dropdown = document.getElementById('user-dropdown');
+                dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                const dropdown = document.getElementById('user-dropdown');
+                const menuButton = document.getElementById('user-menu-button');
+                if (dropdown && !dropdown.contains(e.target) && !menuButton?.contains(e.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+
+            // Model management handlers
+            document.getElementById('add-model-btn')?.addEventListener('click', function() {
+                if (accessControl.hasPermission('model.update')) {
+                    alert('Add Model: This would open the model creation interface.');
+                } else {
+                    alert('Access Denied: Only administrators can add new AI models.');
+                }
+            });
+
+            // Model edit buttons
+            ['edit-claude-3-sonnet', 'edit-gpt-4', 'edit-basic-model'].forEach(buttonId => {
+                document.getElementById(buttonId)?.addEventListener('click', function() {
+                    const modelId = buttonId.replace('edit-', '');
+                    if (accessControl.canModifyModel(modelId)) {
+                        alert(`Edit Model: This would open the configuration interface for ${modelId}.`);
+                    } else {
+                        alert(`Access Denied: Only administrators can modify AI models. Current role: ${accessControl.userRole}`);
+                    }
+                });
+            });
+
+            // Test buttons (available to all users)
+            ['test-claude-3-sonnet', 'test-gpt-4', 'test-basic-model'].forEach(buttonId => {
+                document.getElementById(buttonId)?.addEventListener('click', function() {
+                    const modelId = buttonId.replace('test-', '');
+                    alert(`Test Model: Running test query with ${modelId}...`);
+                });
+            });
             
-            // Button click handlers
+            // Other button handlers
             document.getElementById('create-project-btn').addEventListener('click', function() {
                 alert('Create Project - This would open the project creation interface');
             });
@@ -511,7 +1045,6 @@
             });
             
             document.getElementById('view-models-btn').addEventListener('click', function() {
-                // Navigate to models page
                 document.querySelector('[data-page="models"]').click();
             });
             
@@ -527,9 +1060,124 @@
                     alert('Project action: ' + action);
                 });
             });
+
+            // Initialize with anonymous user
+            accessControl.setUser(null);
             
-            console.log('✅ llmXive Simple Demo loaded successfully');
+            console.log('✅ llmXive Demo with Access Control loaded successfully');
         });
+
+        // Login modal functionality
+        function showLoginOptionsModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 2000;
+            `;
+
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 12px; padding: 24px; max-width: 400px; width: 90%;">
+                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="margin: 0; color: #1f2937;">Demo Login</h2>
+                        <button onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6b7280;">&times;</button>
+                    </div>
+                    <p style="color: #6b7280; margin-bottom: 20px;">Choose a demo user role to test different permission levels:</p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <button onclick="loginAs('viewer')" class="btn btn-secondary" style="justify-content: flex-start; gap: 12px;">
+                            <div class="user-role-badge viewer">Viewer</div>
+                            <span>Can view projects and models</span>
+                        </button>
+                        <button onclick="loginAs('contributor')" class="btn btn-secondary" style="justify-content: flex-start; gap: 12px;">
+                            <div class="user-role-badge contributor">Contributor</div>
+                            <span>Can create and edit projects</span>
+                        </button>
+                        <button onclick="loginAs('moderator')" class="btn btn-secondary" style="justify-content: flex-start; gap: 12px;">
+                            <div class="user-role-badge moderator">Moderator</div>
+                            <span>Can moderate content and reviews</span>
+                        </button>
+                        <button onclick="loginAs('admin')" class="btn btn-primary" style="justify-content: flex-start; gap: 12px;">
+                            <div class="user-role-badge admin">Admin</div>
+                            <span>Can modify AI models and manage system</span>
+                        </button>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 12px; background: #fef3c7; border-radius: 6px; font-size: 0.875rem; color: #92400e;">
+                        <strong>Demo Note:</strong> In production, roles are automatically assigned based on GitHub repository permissions.
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        function loginAs(role) {
+            const user = DEMO_USERS[role];
+            accessControl.setUser(user);
+            
+            // Close modal
+            document.querySelector('.modal-overlay')?.remove();
+            
+            // Show success notification
+            showNotification(`Logged in as ${user.name} (${role})`, 'success');
+        }
+
+        function logout() {
+            accessControl.setUser(null);
+            document.getElementById('user-dropdown').style.display = 'none';
+            showNotification('Logged out successfully', 'info');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 16px;
+                border-radius: 6px;
+                color: white;
+                font-weight: 500;
+                z-index: 3000;
+                opacity: 0;
+                transform: translateX(100%);
+                transition: all 0.3s ease;
+            `;
+
+            const colors = {
+                success: '#10b981',
+                error: '#ef4444',
+                info: '#3b82f6',
+                warning: '#f59e0b'
+            };
+
+            notification.style.background = colors[type] || colors.info;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            // Animate in
+            setTimeout(() => {
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
     </script>
 </body>
 </html>

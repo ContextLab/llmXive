@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>llmXive Research Dashboard</title>
+    
+    <!-- Original clean theme styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/animations.css">
+    
+    <style>
+        /* Clean dashboard-specific styles */
+        .dashboard-container {
+            padding: var(--spacing-8);
+            max-width: var(--content-max-width);
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            margin-bottom: var(--spacing-12);
+            text-align: center;
+        }
+
+        .dashboard-title {
+            font-size: var(--font-size-4xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-2);
+        }
+
+        .dashboard-subtitle {
+            font-size: var(--font-size-lg);
+            color: var(--text-secondary);
+            font-weight: var(--font-weight-normal);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-6);
+            margin-bottom: var(--spacing-12);
+        }
+
+        .stat-card {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-6);
+            text-align: center;
+            transition: all var(--transition-normal);
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--primary);
+            margin-bottom: var(--spacing-2);
+        }
+
+        .stat-label {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            font-weight: var(--font-weight-medium);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .section {
+            margin-bottom: var(--spacing-12);
+        }
+
+        .section-header {
+            margin-bottom: var(--spacing-8);
+        }
+
+        .section-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-2);
+        }
+
+        .section-description {
+            color: var(--text-secondary);
+            font-size: var(--font-size-base);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: var(--spacing-6);
+        }
+
+        .project-card {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-6);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        .project-card:active {
+            transform: translateY(0);
+        }
+
+        .project-header {
+            margin-bottom: var(--spacing-4);
+        }
+
+        .project-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-2);
+            line-height: var(--line-height-tight);
+        }
+
+        .project-field {
+            display: inline-block;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            padding: var(--spacing-1) var(--spacing-3);
+            border-radius: var(--radius-full);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .project-description {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            line-height: var(--line-height-relaxed);
+            margin-bottom: var(--spacing-4);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .project-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-4);
+        }
+
+        .project-status {
+            display: inline-block;
+            padding: var(--spacing-1) var(--spacing-3);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            text-transform: capitalize;
+        }
+
+        .status-backlog {
+            background: var(--secondary-100);
+            color: var(--secondary-700);
+        }
+
+        .status-design {
+            background: var(--warning-100);
+            color: var(--warning-700);
+        }
+
+        .status-planning {
+            background: var(--primary-100);
+            color: var(--primary-700);
+        }
+
+        .completeness-indicator {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .completeness-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--secondary-200);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin-top: var(--spacing-2);
+        }
+
+        .completeness-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: var(--radius-full);
+            transition: width var(--transition-normal);
+        }
+
+        .contributors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-2);
+        }
+
+        .contributor-tag {
+            display: inline-block;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+            padding: var(--spacing-1) var(--spacing-2);
+            border-radius: var(--radius-base);
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            flex-direction: column;
+            gap: var(--spacing-4);
+        }
+
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--border);
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            text-align: center;
+            padding: var(--spacing-12);
+            color: var(--text-secondary);
+        }
+
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: var(--z-modal);
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-normal);
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--surface-elevated);
+            border-radius: var(--radius-xl);
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            margin: var(--spacing-4);
+            transform: scale(0.9);
+            transition: transform var(--transition-normal);
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: var(--spacing-6);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+            margin-right: var(--spacing-4);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: var(--font-size-xl);
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: var(--spacing-2);
+            border-radius: var(--radius-base);
+            transition: all var(--transition-fast);
+        }
+
+        .modal-close:hover {
+            background: var(--secondary-100);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-6);
+        }
+
+        .modal-field {
+            margin-bottom: var(--spacing-4);
+        }
+
+        .modal-field-label {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-1);
+            display: block;
+        }
+
+        .modal-field-value {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            line-height: var(--line-height-relaxed);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: var(--spacing-4);
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: var(--spacing-4);
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-4);
+            }
+
+            .modal-content {
+                margin: var(--spacing-2);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1 class="dashboard-title">llmXive Research Platform</h1>
+            <p class="dashboard-subtitle">Automated scientific discovery and collaboration</p>
+        </header>
+
+        <div id="dashboard-content">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading project data...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Detail Modal -->
+    <div id="project-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">Project Details</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Project details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="src/data/ProjectDataManager.js"></script>
+    
+    <script>
+        class CleanDashboard {
+            constructor() {
+                this.dataManager = window.ProjectDataManager;
+                this.init();
+            }
+
+            async init() {
+                try {
+                    const loaded = await this.dataManager.loadData();
+                    if (!loaded) {
+                        throw new Error('Failed to load project data');
+                    }
+                    
+                    this.render();
+                } catch (error) {
+                    this.showError(error.message);
+                }
+            }
+
+            render() {
+                const stats = this.dataManager.getDashboardStats();
+                const allProjects = Object.values(this.dataManager.getAllProjects());
+                const recentProjects = this.dataManager.getRecentProjects().slice(0, 6);
+
+                document.getElementById('dashboard-content').innerHTML = `
+                    <!-- Statistics -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.totalProjects}</div>
+                            <div class="stat-label">Total Projects</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.averageCompleteness}%</div>
+                            <div class="stat-label">Avg Completeness</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.recentProjects}</div>
+                            <div class="stat-label">Recent Activity</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${Object.keys(stats.fieldDistribution).length}</div>
+                            <div class="stat-label">Research Fields</div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Projects -->
+                    <section class="section">
+                        <div class="section-header">
+                            <h2 class="section-title">Recent Projects</h2>
+                            <p class="section-description">Latest activity from ${stats.dateRange}</p>
+                        </div>
+                        <div class="projects-grid">
+                            ${recentProjects.map(project => this.renderProjectCard(project)).join('')}
+                        </div>
+                    </section>
+
+                    <!-- All Projects -->
+                    <section class="section">
+                        <div class="section-header">
+                            <h2 class="section-title">All Projects</h2>
+                            <p class="section-description">Complete research portfolio</p>
+                        </div>
+                        <div class="projects-grid">
+                            ${allProjects.map(project => this.renderProjectCard(project)).join('')}
+                        </div>
+                    </section>
+                `;
+            }
+
+            renderProjectCard(project) {
+                return `
+                    <div class="project-card" onclick="openProjectModal('${project.id}')">
+                        <div class="project-header">
+                            <h3 class="project-title">${project.title}</h3>
+                            <span class="project-field">${project.field}</span>
+                        </div>
+                        
+                        <p class="project-description">${project.description}</p>
+                        
+                        <div class="project-meta">
+                            <span class="project-status status-${project.status}">${project.status}</span>
+                            <span class="completeness-indicator">${project.completeness}%</span>
+                        </div>
+                        
+                        <div class="completeness-bar">
+                            <div class="completeness-fill" style="width: ${project.completeness}%"></div>
+                        </div>
+                        
+                        <div class="contributors">
+                            ${project.contributors.slice(0, 3).map(c => `
+                                <span class="contributor-tag">${c.name}</span>
+                            `).join('')}
+                            ${project.contributors.length > 3 ? `<span class="contributor-tag">+${project.contributors.length - 3}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            showError(message) {
+                document.getElementById('dashboard-content').innerHTML = `
+                    <div class="error">
+                        <h3>Error loading dashboard</h3>
+                        <p>${message}</p>
+                        <button onclick="location.reload()" style="margin-top: var(--spacing-4); padding: var(--spacing-2) var(--spacing-4); background: var(--primary); color: white; border: none; border-radius: var(--radius-base); cursor: pointer;">Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        // Modal functions
+        function openProjectModal(projectId) {
+            const project = window.ProjectDataManager.getProject(projectId);
+            if (!project) return;
+
+            document.getElementById('modal-title').textContent = project.title;
+            document.getElementById('modal-body').innerHTML = `
+                <div class="modal-field">
+                    <label class="modal-field-label">Description</label>
+                    <div class="modal-field-value">${project.description}</div>
+                </div>
+                
+                <div class="modal-field">
+                    <label class="modal-field-label">Field</label>
+                    <div class="modal-field-value">${project.field}</div>
+                </div>
+                
+                <div class="modal-field">
+                    <label class="modal-field-label">Status & Completeness</label>
+                    <div class="modal-field-value">
+                        <span class="project-status status-${project.status}">${project.status}</span>
+                        • ${project.completeness}% complete
+                    </div>
+                </div>
+                
+                <div class="modal-field">
+                    <label class="modal-field-label">Timeline</label>
+                    <div class="modal-field-value">
+                        Created: ${new Date(project.dateCreated).toLocaleDateString()}<br>
+                        Modified: ${new Date(project.dateModified).toLocaleDateString()}
+                        ${project.estimatedTimeline ? `<br>Estimated: ${project.estimatedTimeline}` : ''}
+                    </div>
+                </div>
+                
+                <div class="modal-field">
+                    <label class="modal-field-label">Contributors</label>
+                    <div class="modal-field-value">
+                        ${project.contributors.map(c => `
+                            <div style="margin-bottom: var(--spacing-2);">
+                                <strong>${c.name}</strong> ${c.model ? `(${c.model})` : ''}<br>
+                                <em>${c.role}</em>
+                                ${c.dateContributed ? ` • ${new Date(c.dateContributed).toLocaleDateString()}` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                ${project.keywords && project.keywords.length > 0 ? `
+                <div class="modal-field">
+                    <label class="modal-field-label">Keywords</label>
+                    <div class="modal-field-value">
+                        ${project.keywords.map(k => `<span class="contributor-tag">${k}</span>`).join(' ')}
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${project.dependencies && project.dependencies.length > 0 ? `
+                <div class="modal-field">
+                    <label class="modal-field-label">Dependencies</label>
+                    <div class="modal-field-value">${project.dependencies.join(', ')}</div>
+                </div>
+                ` : ''}
+                
+                ${project.issues && project.issues.length > 0 ? `
+                <div class="modal-field">
+                    <label class="modal-field-label">Issues</label>
+                    <div class="modal-field-value" style="color: var(--error);">
+                        ${project.issues.map(issue => `• ${issue}`).join('<br>')}
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${project.githubIssue ? `
+                <div class="modal-field">
+                    <label class="modal-field-label">GitHub Issue</label>
+                    <div class="modal-field-value">
+                        <a href="https://github.com/ContextLab/llmXive/issues/${project.githubIssue}" target="_blank" 
+                           style="color: var(--primary); text-decoration: none;">
+                            #${project.githubIssue}
+                        </a>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+
+            document.getElementById('project-modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('project-modal').classList.remove('show');
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('project-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                closeModal();
+            }
+        });
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            new CleanDashboard();
+        });
+    </script>
+</body>
+</html>

@@ -7,6 +7,7 @@
 
 import FileManager from './FileManager.js';
 import SystemConfig from './SystemConfig.js';
+import AccessControl from './AccessControl.js';
 import ProjectManager from '../managers/ProjectManager.js';
 import ReviewManager from '../managers/ReviewManager.js';
 import ModelManager from '../managers/ModelManager.js';
@@ -339,21 +340,27 @@ class UnifiedGitHubClient {
                 await this.systemConfig.initialize();
             }
             
-            // Initialize managers
-            this.projectManager = new ProjectManager(this.fileManager, this.systemConfig);
-            this.reviewManager = new ReviewManager(this.fileManager, this.systemConfig, this.projectManager);
-            this.modelManager = new ModelManager(this.fileManager, this.systemConfig);
+            // Initialize access control
+            this.accessControl = new AccessControl(this);
+            await this.accessControl.initialize(this.auth.user);
+            
+            // Initialize managers with access control
+            this.projectManager = new ProjectManager(this.fileManager, this.systemConfig, this.accessControl);
+            this.reviewManager = new ReviewManager(this.fileManager, this.systemConfig, this.projectManager, this.accessControl);
+            this.modelManager = new ModelManager(this.fileManager, this.systemConfig, this.accessControl);
             this.automatedReviewManager = new AutomatedReviewManager(
                 this.fileManager, 
                 this.systemConfig, 
                 this.projectManager, 
                 this.reviewManager, 
-                this.modelManager
+                this.modelManager,
+                this.accessControl
             );
             this.moderationManager = new ModerationManager(
                 this.fileManager,
                 this.systemConfig,
-                this.modelManager
+                this.modelManager,
+                this.accessControl
             );
             
             // Initialize model manager
@@ -378,6 +385,30 @@ class UnifiedGitHubClient {
         // For now, we'll create a simple wrapper around fetch
         
         this.github = {
+            // Generic request method for GitHub API
+            request: async (endpoint, params = {}) => {
+                // Replace path parameters in endpoint
+                let url = endpoint;
+                Object.keys(params).forEach(key => {
+                    url = url.replace(`{${key}}`, params[key]);
+                });
+                
+                // Build full API URL
+                const apiUrl = `https://api.github.com${url}`;
+                
+                const response = await fetch(apiUrl, {
+                    headers: this.auth.getAuthHeaders()
+                });
+                
+                if (!response.ok) {
+                    const error = new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+                    error.status = response.status;
+                    throw error;
+                }
+                
+                return { data: await response.json() };
+            },
+            
             rest: {
                 repos: {
                     getContent: async (params) => {
@@ -538,6 +569,83 @@ class UnifiedGitHubClient {
      */
     isAdmin() {
         return this.auth.permissions && this.auth.permissions.admin;
+    }
+    
+    /**
+     * Get repository information
+     */
+    async getRepository() {
+        try {
+            const response = await this.github.request('GET /repos/{owner}/{repo}', {
+                owner: this.options.owner,
+                repo: this.options.repo
+            });
+            
+            return response.data;
+            
+        } catch (error) {
+            console.error('Failed to get repository:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Get collaborator permission for a user
+     */
+    async getCollaboratorPermission(username) {
+        try {
+            const response = await this.github.request('GET /repos/{owner}/{repo}/collaborators/{username}/permission', {
+                owner: this.options.owner,
+                repo: this.options.repo,
+                username: username
+            });
+            
+            return response.data;
+            
+        } catch (error) {
+            // User might not be a collaborator
+            console.warn(`Could not get collaborator permission for ${username}:`, error);
+            return null;
+        }
+    }
+    
+    /**
+     * Get repository contributors
+     */
+    async getContributors() {
+        try {
+            const response = await this.github.request('GET /repos/{owner}/{repo}/contributors', {
+                owner: this.options.owner,
+                repo: this.options.repo
+            });
+            
+            return response.data;
+            
+        } catch (error) {
+            console.error('Failed to get contributors:', error);
+            return [];
+        }
+    }
+    
+    /**
+     * Log security event for audit trail
+     */
+    async logSecurityEvent(event) {
+        try {
+            const logPath = '.llmxive-system/logs/security-events.json';
+            await this.fileManager.appendToLog(logPath, event);
+            
+        } catch (error) {
+            console.error('Failed to log security event:', error);
+            // Don't throw - logging failure shouldn't break functionality
+        }
+    }
+    
+    /**
+     * Get user's access control information
+     */
+    getAccessControl() {
+        return this.accessControl;
     }
 }
 

@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>llmXive Research Projects</title>
+    
+    <!-- Original clean theme styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/animations.css">
+    
+    <style>
+        /* Clean projects-specific styles */
+        .projects-container {
+            padding: var(--spacing-8);
+            max-width: var(--content-max-width);
+            margin: 0 auto;
+        }
+
+        .projects-header {
+            margin-bottom: var(--spacing-12);
+            text-align: center;
+        }
+
+        .projects-title {
+            font-size: var(--font-size-4xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-2);
+        }
+
+        .projects-subtitle {
+            font-size: var(--font-size-lg);
+            color: var(--text-secondary);
+            font-weight: var(--font-weight-normal);
+        }
+
+        .filters-section {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-6);
+            margin-bottom: var(--spacing-8);
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-4);
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-2);
+        }
+
+        .filter-label {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-primary);
+        }
+
+        .filter-select {
+            padding: var(--spacing-3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--surface);
+            color: var(--text-primary);
+            font-size: var(--font-size-sm);
+            transition: all var(--transition-fast);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .search-box {
+            grid-column: 1 / -1;
+            margin-top: var(--spacing-4);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: var(--spacing-3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--surface);
+            color: var(--text-primary);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-fast);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-6);
+        }
+
+        .results-count {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .sort-select {
+            padding: var(--spacing-2) var(--spacing-3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--surface);
+            color: var(--text-primary);
+            font-size: var(--font-size-sm);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: var(--spacing-6);
+        }
+
+        .project-card {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-6);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        .project-card:active {
+            transform: translateY(0);
+        }
+
+        .project-header {
+            margin-bottom: var(--spacing-4);
+        }
+
+        .project-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-2);
+            line-height: var(--line-height-tight);
+        }
+
+        .project-field {
+            display: inline-block;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            padding: var(--spacing-1) var(--spacing-3);
+            border-radius: var(--radius-full);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .project-description {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            line-height: var(--line-height-relaxed);
+            margin-bottom: var(--spacing-4);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .project-meta {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: var(--spacing-4);
+            align-items: center;
+            margin-bottom: var(--spacing-4);
+        }
+
+        .project-dates {
+            font-size: var(--font-size-xs);
+            color: var(--text-tertiary);
+        }
+
+        .project-status {
+            display: inline-block;
+            padding: var(--spacing-1) var(--spacing-3);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            text-transform: capitalize;
+        }
+
+        .status-backlog {
+            background: var(--secondary-100);
+            color: var(--secondary-700);
+        }
+
+        .status-design {
+            background: var(--warning-100);
+            color: var(--warning-700);
+        }
+
+        .status-planning {
+            background: var(--primary-100);
+            color: var(--primary-700);
+        }
+
+        .completeness-section {
+            margin-bottom: var(--spacing-4);
+        }
+
+        .completeness-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-2);
+        }
+
+        .completeness-label {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .completeness-value {
+            font-size: var(--font-size-xs);
+            color: var(--text-primary);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .completeness-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--secondary-200);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .completeness-fill {
+            height: 100%;
+            border-radius: var(--radius-full);
+            transition: width var(--transition-normal);
+        }
+
+        .completeness-excellent { background: var(--success); }
+        .completeness-good { background: var(--primary); }
+        .completeness-fair { background: var(--warning); }
+        .completeness-developing { background: var(--error); }
+
+        .contributors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-2);
+        }
+
+        .contributor-tag {
+            display: inline-block;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+            padding: var(--spacing-1) var(--spacing-2);
+            border-radius: var(--radius-base);
+        }
+
+        .loading, .error, .no-results {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+            flex-direction: column;
+            gap: var(--spacing-4);
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--border);
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal styles - shared with dashboard */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: var(--z-modal);
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-normal);
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--surface-elevated);
+            border-radius: var(--radius-xl);
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            margin: var(--spacing-4);
+            transform: scale(0.9);
+            transition: transform var(--transition-normal);
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: var(--spacing-6);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+            margin-right: var(--spacing-4);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: var(--font-size-xl);
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: var(--spacing-2);
+            border-radius: var(--radius-base);
+            transition: all var(--transition-fast);
+        }
+
+        .modal-close:hover {
+            background: var(--secondary-100);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-6);
+        }
+
+        .modal-field {
+            margin-bottom: var(--spacing-4);
+        }
+
+        .modal-field-label {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-1);
+            display: block;
+        }
+
+        .modal-field-value {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            line-height: var(--line-height-relaxed);
+        }
+
+        @media (max-width: 768px) {
+            .projects-container {
+                padding: var(--spacing-4);
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-4);
+            }
+
+            .results-header {
+                flex-direction: column;
+                gap: var(--spacing-2);
+                align-items: stretch;
+            }
+
+            .modal-content {
+                margin: var(--spacing-2);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="projects-container">
+        <header class="projects-header">
+            <h1 class="projects-title">Research Projects</h1>
+            <p class="projects-subtitle">Explore our collection of automated scientific research</p>
+        </header>
+
+        <!-- Filters -->
+        <section class="filters-section">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label class="filter-label" for="field-filter">Research Field</label>
+                    <select class="filter-select" id="field-filter">
+                        <option value="">All Fields</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label" for="status-filter">Status</label>
+                    <select class="filter-select" id="status-filter">
+                        <option value="">All Statuses</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label" for="completeness-filter">Completeness</label>
+                    <select class="filter-select" id="completeness-filter">
+                        <option value="">All Levels</option>
+                        <option value="90-100">Excellent (90-100%)</option>
+                        <option value="80-89">Good (80-89%)</option>
+                        <option value="60-79">Fair (60-79%)</option>
+                        <option value="40-59">Developing (40-59%)</option>
+                        <option value="0-39">Needs Work (0-39%)</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label" for="contributor-filter">Contributors</label>
+                    <select class="filter-select" id="contributor-filter">
+                        <option value="">All Contributors</option>
+                    </select>
+                </div>
+                
+                <div class="search-box">
+                    <input type="text" class="search-input" id="search-input" placeholder="Search projects by title, description, or keywords...">
+                </div>
+            </div>
+        </section>
+
+        <!-- Results -->
+        <div class="results-header">
+            <div class="results-count" id="results-count">Loading projects...</div>
+            <select class="sort-select" id="sort-select">
+                <option value="modified-desc">Recently Modified</option>
+                <option value="created-desc">Recently Created</option>
+                <option value="title-asc">Title A-Z</option>
+                <option value="completeness-desc">Completeness</option>
+                <option value="field-asc">Field</option>
+            </select>
+        </div>
+
+        <div id="projects-content">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading projects...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Detail Modal -->
+    <div id="project-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">Project Details</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Project details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="src/data/ProjectDataManager.js"></script>
+    
+    <script>
+        class CleanProjectsPage {
+            constructor() {
+                this.dataManager = window.ProjectDataManager;
+                this.allProjects = [];
+                this.filteredProjects = [];
+                this.init();
+            }
+
+            async init() {
+                try {
+                    const loaded = await this.dataManager.loadData();
+                    if (!loaded) {
+                        throw new Error('Failed to load project data');
+                    }
+                    
+                    this.allProjects = Object.values(this.dataManager.getAllProjects());
+                    this.filteredProjects = [...this.allProjects];
+                    
+                    this.setupFilters();
+                    this.setupEventListeners();
+                    this.renderProjects();
+                    this.updateResultsCount();
+                    
+                } catch (error) {
+                    this.showError(error.message);
+                }
+            }
+
+            setupFilters() {
+                const analytics = this.dataManager.getAnalytics();
+                
+                // Populate field filter
+                const fieldFilter = document.getElementById('field-filter');
+                Object.keys(analytics.projectsByField).sort().forEach(field => {
+                    const option = document.createElement('option');
+                    option.value = field;
+                    option.textContent = field;
+                    fieldFilter.appendChild(option);
+                });
+                
+                // Populate status filter
+                const statusFilter = document.getElementById('status-filter');
+                Object.keys(analytics.projectsByStatus).sort().forEach(status => {
+                    const option = document.createElement('option');
+                    option.value = status;
+                    option.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                    statusFilter.appendChild(option);
+                });
+                
+                // Populate contributor filter
+                const contributorFilter = document.getElementById('contributor-filter');
+                const contributors = new Set();
+                this.allProjects.forEach(project => {
+                    project.contributors.forEach(c => contributors.add(c.name));
+                });
+                Array.from(contributors).sort().forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    contributorFilter.appendChild(option);
+                });
+            }
+
+            setupEventListeners() {
+                // Filter and search event listeners
+                ['field-filter', 'status-filter', 'completeness-filter', 'contributor-filter'].forEach(id => {
+                    document.getElementById(id).addEventListener('change', () => this.applyFilters());
+                });
+                
+                document.getElementById('search-input').addEventListener('input', () => this.applyFilters());
+                document.getElementById('sort-select').addEventListener('change', () => this.sortAndRender());
+            }
+
+            applyFilters() {
+                const fieldFilter = document.getElementById('field-filter').value;
+                const statusFilter = document.getElementById('status-filter').value;
+                const completenessFilter = document.getElementById('completeness-filter').value;
+                const contributorFilter = document.getElementById('contributor-filter').value;
+                const searchQuery = document.getElementById('search-input').value.toLowerCase();
+                
+                this.filteredProjects = this.allProjects.filter(project => {
+                    // Field filter
+                    if (fieldFilter && !project.field.includes(fieldFilter)) {
+                        return false;
+                    }
+                    
+                    // Status filter
+                    if (statusFilter && project.status !== statusFilter) {
+                        return false;
+                    }
+                    
+                    // Completeness filter
+                    if (completenessFilter) {
+                        const [min, max] = completenessFilter.split('-').map(Number);
+                        if (project.completeness < min || project.completeness > max) {
+                            return false;
+                        }
+                    }
+                    
+                    // Contributor filter
+                    if (contributorFilter && !project.contributors.some(c => c.name === contributorFilter)) {
+                        return false;
+                    }
+                    
+                    // Search filter
+                    if (searchQuery) {
+                        const searchable = [
+                            project.title,
+                            project.description,
+                            project.field,
+                            ...project.keywords,
+                            ...project.contributors.map(c => c.name)
+                        ].join(' ').toLowerCase();
+                        
+                        if (!searchable.includes(searchQuery)) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                });
+                
+                this.sortAndRender();
+                this.updateResultsCount();
+            }
+
+            sortAndRender() {
+                const sortBy = document.getElementById('sort-select').value;
+                
+                this.filteredProjects.sort((a, b) => {
+                    switch (sortBy) {
+                        case 'modified-desc':
+                            return new Date(b.dateModified) - new Date(a.dateModified);
+                        case 'created-desc':
+                            return new Date(b.dateCreated) - new Date(a.dateCreated);
+                        case 'title-asc':
+                            return a.title.localeCompare(b.title);
+                        case 'completeness-desc':
+                            return b.completeness - a.completeness;
+                        case 'field-asc':
+                            return a.field.localeCompare(b.field);
+                        default:
+                            return 0;
+                    }
+                });
+                
+                this.renderProjects();
+            }
+
+            renderProjects() {
+                const container = document.getElementById('projects-content');
+                
+                if (this.filteredProjects.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-results">
+                            <h3>No projects found</h3>
+                            <p>Try adjusting your filters or search terms</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = `
+                    <div class="projects-grid">
+                        ${this.filteredProjects.map(project => this.renderProjectCard(project)).join('')}
+                    </div>
+                `;
+            }
+
+            renderProjectCard(project) {
+                const completenessClass = this.getCompletenessClass(project.completeness);
+                
+                return `
+                    <div class="project-card" onclick="openProjectModal('${project.id}')">
+                        <div class="project-header">
+                            <h3 class="project-title">${project.title}</h3>
+                            <span class="project-field">${project.field}</span>
+                        </div>
+                        
+                        <p class="project-description">${project.description}</p>
+                        
+                        <div class="project-meta">
+                            <div class="project-dates">
+                                Modified: ${new Date(project.dateModified).toLocaleDateString()}
+                            </div>
+                            <span class="project-status status-${project.status}">${project.status}</span>
+                        </div>
+                        
+                        <div class="completeness-section">
+                            <div class="completeness-header">
+                                <span class="completeness-label">Completeness</span>
+                                <span class="completeness-value">${project.completeness}%</span>
+                            </div>
+                            <div class="completeness-bar">
+                                <div class="completeness-fill ${completenessClass}" style="width: ${project.completeness}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="contributors">
+                            ${project.contributors.slice(0, 3).map(c => `
+                                <span class="contributor-tag">${c.name}</span>
+                            `).join('')}
+                            ${project.contributors.length > 3 ? `<span class="contributor-tag">+${project.contributors.length - 3}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            getCompletenessClass(completeness) {
+                if (completeness >= 90) return 'completeness-excellent';
+                if (completeness >= 80) return 'completeness-good';
+                if (completeness >= 60) return 'completeness-fair';
+                return 'completeness-developing';
+            }
+
+            updateResultsCount() {
+                const count = this.filteredProjects.length;
+                const total = this.allProjects.length;
+                document.getElementById('results-count').textContent = 
+                    `Showing ${count} of ${total} projects`;
+            }
+
+            showError(message) {
+                document.getElementById('projects-content').innerHTML = `
+                    <div class="error">
+                        <h3>Error loading projects</h3>
+                        <p>${message}</p>
+                        <button onclick="location.reload()" style="margin-top: var(--spacing-4); padding: var(--spacing-2) var(--spacing-4); background: var(--primary); color: white; border: none; border-radius: var(--radius-base); cursor: pointer;">Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        // Modal functions (shared with dashboard)
+        function openProjectModal(projectId) {
+            const project = window.ProjectDataManager.getProject(projectId);
+            if (!project) return;
+
+            document.getElementById('modal-title').textContent = project.title;
+            document.getElementById('modal-body').innerHTML = `
+                <div class="modal-field">
+                    <label class="modal-field-label">Description</label>
+                    <div class="modal-field-value">${project.description}</div>
+                </div>
+                
+                <div class="modal-field">
+                    <label class="modal-field-label">Field</label>
+                    <div class="modal-field-value">${project.field}</div>
+                </div>
+                
+                <div class="modal-field">
+                    <label class="modal-field-label">Status & Completeness</label>
+                    <div class="modal-field-value">
+                        <span class="project-status status-${project.status}">${project.status}</span>
+                        • ${project.completeness}% complete
+                    </div>
+                </div>
+                
+                <div class="modal-field">
+                    <label class="modal-field-label">Timeline</label>
+                    <div class="modal-field-value">
+                        Created: ${new Date(project.dateCreated).toLocaleDateString()}<br>
+                        Modified: ${new Date(project.dateModified).toLocaleDateString()}
+                        ${project.estimatedTimeline ? `<br>Estimated: ${project.estimatedTimeline}` : ''}
+                    </div>
+                </div>
+                
+                <div class="modal-field">
+                    <label class="modal-field-label">Contributors</label>
+                    <div class="modal-field-value">
+                        ${project.contributors.map(c => `
+                            <div style="margin-bottom: var(--spacing-2);">
+                                <strong>${c.name}</strong> ${c.model ? `(${c.model})` : ''}<br>
+                                <em>${c.role}</em>
+                                ${c.dateContributed ? ` • ${new Date(c.dateContributed).toLocaleDateString()}` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                ${project.keywords && project.keywords.length > 0 ? `
+                <div class="modal-field">
+                    <label class="modal-field-label">Keywords</label>
+                    <div class="modal-field-value">
+                        ${project.keywords.map(k => `<span class="contributor-tag">${k}</span>`).join(' ')}
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${project.dependencies && project.dependencies.length > 0 ? `
+                <div class="modal-field">
+                    <label class="modal-field-label">Dependencies</label>
+                    <div class="modal-field-value">${project.dependencies.join(', ')}</div>
+                </div>
+                ` : ''}
+                
+                ${project.issues && project.issues.length > 0 ? `
+                <div class="modal-field">
+                    <label class="modal-field-label">Issues</label>
+                    <div class="modal-field-value" style="color: var(--error);">
+                        ${project.issues.map(issue => `• ${issue}`).join('<br>')}
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${project.githubIssue ? `
+                <div class="modal-field">
+                    <label class="modal-field-label">GitHub Issue</label>
+                    <div class="modal-field-value">
+                        <a href="https://github.com/ContextLab/llmXive/issues/${project.githubIssue}" target="_blank" 
+                           style="color: var(--primary); text-decoration: none;">
+                            #${project.githubIssue}
+                        </a>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+
+            document.getElementById('project-modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('project-modal').classList.remove('show');
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('project-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                closeModal();
+            }
+        });
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Initialize projects page
+        document.addEventListener('DOMContentLoaded', () => {
+            new CleanProjectsPage();
+        });
+    </script>
+</body>
+</html>

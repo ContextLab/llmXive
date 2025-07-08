@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>llmXive Research Dashboard - Enhanced with Corrected Data</title>
+    <link rel="stylesheet" href="docs/css/style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        .nav-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .nav-links a.active {
+            background-color: rgba(255,255,255,0.3);
+            font-weight: 600;
+        }
+        
+        .main-content {
+            min-height: calc(100vh - 120px);
+        }
+        
+        .footer {
+            background: #374151;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+        
+        .status-banner {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 12px 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .status-banner.corrected {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+    </style>
+</head>
+<body>
+    <!-- Status Banner -->
+    <div class="status-banner corrected">
+        ✅ Database Updated: All project dates corrected to July 1-7, 2025 • Enhanced content from Google Gemini • Proper AI model attributions
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <div class="nav-content">
+            <h1 class="nav-title">🧬 llmXive Research Platform</h1>
+            <div class="nav-links">
+                <a href="dashboard.html" class="active">Dashboard</a>
+                <a href="projects.html">Projects</a>
+                <a href="contributors.html">Contributors</a>
+                <a href="auth-test.html">Authentication</a>
+                <a href="docs/index.html">Documentation</a>
+                <a href="https://github.com/ContextLab/llmXive" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div id="dashboard-container">
+            <!-- Enhanced Dashboard will be loaded here -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>
+            llmXive v2.0 • Automated Scientific Discovery Platform • 
+            <span id="last-updated"></span>
+        </p>
+        <p style="margin-top: 8px; font-size: 0.9rem; opacity: 0.8;">
+            Enhanced with Google Gemini • Powered by TinyLlama & Claude • Data corrected for July 2025
+        </p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="src/data/ProjectDataManager.js"></script>
+    <script src="src/components/EnhancedDashboard.js"></script>
+    
+    <script>
+        // Update last updated timestamp
+        document.getElementById('last-updated').textContent = 
+            'Last Updated: ' + new Date().toLocaleString();
+        
+        // Add some interactivity
+        console.log('🚀 llmXive Dashboard Loading...');
+        console.log('📅 All dates corrected to July 1-7, 2025');
+        console.log('🤖 Enhanced content from Google Gemini');
+        console.log('✅ Proper AI model attributions applied');
+        
+        // Wait for dashboard to initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add any additional initialization here
+            console.log('📊 Dashboard page ready');
+        });
+        
+        // Error handling for dashboard loading
+        window.addEventListener('error', (error) => {
+            console.error('Dashboard Error:', error);
+            const container = document.getElementById('dashboard-container');
+            if (container && !container.innerHTML.includes('Enhanced Dashboard')) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <h2>⚠️ Dashboard Loading Error</h2>
+                        <p>There was an issue loading the dashboard. Please check the console for details.</p>
+                        <button onclick="location.reload()" style="
+                            background: #3b82f6; 
+                            color: white; 
+                            border: none; 
+                            padding: 12px 24px; 
+                            border-radius: 6px; 
+                            cursor: pointer;
+                            font-size: 1rem;
+                            margin-top: 16px;
+                        ">Reload Dashboard</button>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

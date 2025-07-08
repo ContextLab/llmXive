@@ -1,0 +1,44 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2025-07-07",
+    "description": "llmXive Analytics and Statistics"
+  },
+  "stats": {
+    "totalProjects": 12,
+    "completedPapers": 0,
+    "activeReviews": 2,
+    "automationStatus": "In development",
+    "webInterfaceStatus": "Functional with recent fixes",
+    "lastUpdated": "2025-07-07",
+    "dateRange": "2025-07-01 to 2025-07-07",
+    "geminiContributions": 3,
+    "totalCompleteness": 18,
+    "projectsByField": {
+      "Infrastructure/Meta-project": 1,
+      "Testing Infrastructure": 1,
+      "Architecture/Meta-project": 1,
+      "Biology": 1,
+      "Chemistry/Energy": 1,
+      "Materials Science/Energy Storage": 1,
+      "Energy/Social Policy": 1,
+      "Computer Science/Accessibility": 1,
+      "Robotics/AI": 1,
+      "Agriculture": 1,
+      "Environmental Science": 1,
+      "Psychology": 1
+    },
+    "projectsByStatus": {
+      "backlog": 10,
+      "planning": 1,
+      "design": 1
+    },
+    "completenessDistribution": {
+      "0-19%": 5,
+      "20-39%": 4,
+      "40-59%": 2,
+      "60-79%": 1
+    },
+    "contributorStats": {}
+  }
+}
