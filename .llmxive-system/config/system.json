@@ -1,0 +1,37 @@
+{
+  "version": "2.0.0",
+  "initialized": "2025-07-08T13:54:00Z",
+  "repository": {
+    "owner": "ContextLab",
+    "name": "llmXive",
+    "branch": "main"
+  },
+  "paths": {
+    "projects": "projects/",
+    "system": ".llmxive-system/",
+    "web": "web/",
+    "scripts": "scripts/",
+    "tests": "tests/"
+  },
+  "point_system": {
+    "llm_review_points": 0.5,
+    "human_review_points": 1.0,
+    "threshold_ready": 5.0,
+    "threshold_in_progress": 5.0,
+    "threshold_done": 5.0
+  },
+  "project_phases": [
+    "idea",
+    "technical_design", 
+    "implementation_plan",
+    "code",
+    "paper"
+  ],
+  "status_phases": [
+    "backlog",
+    "ready",
+    "in-progress",
+    "in-review",
+    "done"
+  ]
+}

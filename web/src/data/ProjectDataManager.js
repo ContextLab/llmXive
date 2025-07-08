@@ -541,11 +541,17 @@ class ProjectDataManager {
         
         const projects = Object.values(this.projects.projects);
         
-        // Count unique authors across all projects
+        // Count unique authors across all projects (merge Claude variations)
         const allAuthors = new Set();
         projects.forEach(project => {
             project.contributors.forEach(contributor => {
-                allAuthors.add(contributor.name);
+                if (contributor.name === 'Claude Code' || contributor.name === 'Claude') {
+                    allAuthors.add('Claude');
+                } else if (contributor.name === 'Google Gemini') {
+                    allAuthors.add('Gemini');
+                } else {
+                    allAuthors.add(contributor.name);
+                }
             });
         });
         
@@ -557,15 +563,29 @@ class ProjectDataManager {
             projects.reduce((sum, p) => sum + this.calculateCompleteness(p), 0) / projects.length
         );
 
+        // Calculate field distribution dynamically
+        const fieldDistribution = {};
+        projects.forEach(project => {
+            const field = project.field;
+            fieldDistribution[field] = (fieldDistribution[field] || 0) + 1;
+        });
+        
+        // Calculate status distribution dynamically
+        const statusDistribution = {};
+        projects.forEach(project => {
+            const status = project.status;
+            statusDistribution[status] = (statusDistribution[status] || 0) + 1;
+        });
+
         return {
             totalProjects: projects.length,
             uniqueAuthors: allAuthors.size,
             projectsWithIssues: issuesCount,
             averageCompleteness: avgCompleteness,
             recentProjects: this.getRecentProjects().length,
-            dateRange: this.analytics.stats.dateRange,
-            fieldDistribution: this.analytics.stats.projectsByField,
-            statusDistribution: this.analytics.stats.projectsByStatus
+            dateRange: this.calculateDateRange(),
+            fieldDistribution: fieldDistribution,
+            statusDistribution: statusDistribution
         };
     }
 

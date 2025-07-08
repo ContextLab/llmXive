@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contextlab.github.io/llmXive/schemas/project-config.schema.json",
+  "title": "llmXive Project Configuration",
+  "description": "Schema for project configuration files",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^PROJ-[0-9]{3,}-[a-z0-9-]+$",
+      "description": "Unique project identifier (e.g., PROJ-001-gene-regulation)"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable project title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Project description"
+    },
+    "field": {
+      "type": "string",
+      "enum": ["biology", "chemistry", "computer-science", "materials-science", "energy", "environmental-science", "psychology", "robotics", "agriculture", "meta"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["backlog", "ready", "in-progress", "in-review", "done"]
+    },
+    "created_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "contributors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["human", "llm"]
+          },
+          "contributions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["username", "type"]
+      }
+    },
+    "github_issues": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^#[0-9]+$"
+      }
+    },
+    "phases": {
+      "type": "object",
+      "properties": {
+        "idea": {
+          "type": "object",
+          "properties": {
+            "completed": { "type": "boolean" },
+            "points": { "type": "number", "minimum": 0 }
+          }
+        },
+        "technical_design": {
+          "type": "object",
+          "properties": {
+            "completed": { "type": "boolean" },
+            "points": { "type": "number", "minimum": 0 }
+          }
+        },
+        "implementation_plan": {
+          "type": "object",
+          "properties": {
+            "completed": { "type": "boolean" },
+            "points": { "type": "number", "minimum": 0 }
+          }
+        },
+        "code": {
+          "type": "object",
+          "properties": {
+            "completed": { "type": "boolean" },
+            "points": { "type": "number", "minimum": 0 }
+          }
+        },
+        "paper": {
+          "type": "object",
+          "properties": {
+            "completed": { "type": "boolean" },
+            "points": { "type": "number", "minimum": 0 }
+          }
+        }
+      }
+    }
+  },
+  "required": ["id", "title", "field", "status", "created_date", "contributors"]
+}

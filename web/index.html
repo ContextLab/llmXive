@@ -3,672 +3,2152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>llmXive - Automated Scientific Discovery</title>
-    
-    <!-- Meta tags for better SEO and social sharing -->
-    <meta name="description" content="Automated scientific discovery platform powered by AI collaboration and peer review">
-    <meta name="keywords" content="AI, research, automation, collaboration, peer review, science">
-    <meta name="author" content="ContextLab">
-    
-    <!-- Open Graph tags -->
-    <meta property="og:title" content="llmXive - Automated Scientific Discovery">
-    <meta property="og:description" content="Automated scientific discovery platform powered by AI collaboration and peer review">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://contextlab.github.io/llmXive/">
-    
-    <!-- Favicon -->
+    <title>Automating Scientific Discovery</title>
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    <link rel="icon" type="image/png" href="assets/favicon.png">
     
-    <!-- External dependencies -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Modern, vibrant theme -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     
-    <!-- Core styles -->
-    <link rel="stylesheet" href="css/variables.css">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/animations.css">
-    
-    <!-- Page-specific styles -->
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/projects.css">
-    <link rel="stylesheet" href="css/reviews.css">
-    <link rel="stylesheet" href="css/moderation.css">
+    <style>
+        :root {
+            /* Modern, vibrant color palette */
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #a5b4fc;
+            --primary-bg: #eef2ff;
+            
+            --secondary: #06b6d4;
+            --secondary-dark: #0891b2;
+            --secondary-light: #67e8f9;
+            
+            --accent: #f59e0b;
+            --accent-dark: #d97706;
+            --accent-light: #fde68a;
+            
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            
+            --background: #ffffff;
+            --surface: var(--gray-50);
+            --surface-elevated: #ffffff;
+            --border: var(--gray-200);
+            --text-primary: var(--gray-900);
+            --text-secondary: var(--gray-600);
+            --text-tertiary: var(--gray-400);
+            
+            /* Typography */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+            
+            /* Spacing and sizing */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            opacity: 0.9;
+        }
+
+        .nav-link:hover {
+            opacity: 1;
+            transform: translateY(-1px);
+        }
+
+        .login-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+        }
+
+        .login-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* Main content */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Hero section */
+        .hero {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .stat-card {
+            background: var(--surface-elevated);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary-light);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.875rem;
+        }
+
+        /* Section headers */
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .browse-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--primary);
+        }
+
+        .browse-link:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* Projects grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 2rem;
+        }
+
+        .project-card {
+            background: var(--surface-elevated);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .project-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary-light);
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .project-card:hover::before {
+            opacity: 1;
+        }
+
+        .project-content {
+            padding: 1.5rem;
+        }
+
+        .project-header {
+            margin-bottom: 1rem;
+        }
+
+        .project-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .project-field {
+            display: inline-block;
+            background: var(--primary-bg);
+            color: var(--primary-dark);
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .project-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .project-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .project-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .project-status:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .status-backlog {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .status-design {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-planning {
+            background: var(--primary-bg);
+            color: var(--primary-dark);
+        }
+
+        .completeness-section {
+            margin-bottom: 1rem;
+        }
+
+        .completeness-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .completeness-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .completeness-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .completeness-bar {
+            height: 6px;
+            background: var(--gray-200);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+        }
+
+        .completeness-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success) 0%, var(--secondary) 100%);
+            transition: width 0.3s ease;
+            border-radius: var(--radius-sm);
+        }
+
+        .contributors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .contributor-tag {
+            background: var(--surface);
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+        }
+
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--surface-elevated);
+            border-radius: var(--radius-xl);
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            margin: 2rem;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-right: 1rem;
+            line-height: 1.3;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background: var(--gray-100);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-field {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-field-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .modal-field-value {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .document-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .document-link {
+            display: block;
+            padding: 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .document-link:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .document-link-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .document-link-type {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            text-align: center;
+            font-weight: 500;
+            transition: var(--transition);
+            cursor: pointer;
+            background: none;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            border-color: var(--secondary);
+            color: var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-success {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .btn-success:hover {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .review-idea-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--gray-200);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Analytics Modal Styles */
+        .analytics-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(12px);
+        }
+
+        .analytics-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .analytics-content {
+            background: var(--surface-elevated);
+            border-radius: var(--radius-xl);
+            max-width: 90vw;
+            max-height: 85vh;
+            overflow-y: auto;
+            margin: 2rem;
+            transform: scale(0.9) translateY(30px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border);
+        }
+
+        .analytics-modal.show .analytics-content {
+            transform: scale(1) translateY(0);
+        }
+
+        .analytics-header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--surface) 100%);
+        }
+
+        .analytics-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .analytics-body {
+            padding: 2rem;
+        }
+
+        /* Author Ranking Styles */
+        .author-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .sort-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border);
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .sort-btn.active {
+            border-color: var(--primary);
+            background: var(--primary-bg);
+            color: var(--primary-dark);
+        }
+
+        .sort-btn:hover {
+            border-color: var(--primary-light);
+        }
+
+        .author-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .author-item {
+            display: flex;
+            align-items: center;
+            padding: 1.5rem;
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            transform: translateX(-20px);
+            opacity: 0;
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        .author-item.podium {
+            background: linear-gradient(135deg, var(--accent-light) 0%, var(--surface) 100%);
+            border-color: var(--accent);
+            box-shadow: var(--shadow-md);
+        }
+
+        .author-rank {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 3rem;
+            text-align: center;
+        }
+
+        .author-rank.podium {
+            color: var(--accent-dark);
+        }
+
+        .author-info {
+            flex: 1;
+            margin-left: 1rem;
+        }
+
+        .author-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .author-stats {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .author-badge {
+            background: var(--primary-bg);
+            color: var(--primary-dark);
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Completeness Chart Styles */
+        .completeness-chart {
+            margin-top: 2rem;
+        }
+
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+        }
+
+        .bar-label {
+            min-width: 120px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .bar-container {
+            flex: 1;
+            height: 24px;
+            background: var(--gray-200);
+            border-radius: var(--radius-sm);
+            margin: 0 1rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: var(--radius-sm);
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0;
+        }
+
+        .bar-value {
+            min-width: 60px;
+            text-align: right;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        @keyframes slideIn {
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Project Pipeline Flowchart */
+        .pipeline-flowchart {
+            margin-top: 1rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--surface) 0%, var(--gray-50) 100%);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .pipeline-steps {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 800px;
+        }
+
+        .pipeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            transition: all 0.3s ease;
+            position: relative;
+            min-width: 120px;
+        }
+
+        .pipeline-step.current {
+            background: var(--primary-bg);
+            border: 2px solid var(--primary);
+            transform: scale(1.05);
+        }
+
+        .pipeline-step.completed {
+            background: var(--success);
+            color: white;
+        }
+
+        .pipeline-step.pending {
+            background: var(--gray-100);
+            color: var(--gray-500);
+        }
+
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .step-icon.completed {
+            background: white;
+            color: var(--success);
+        }
+
+        .step-icon.current {
+            background: var(--primary);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .step-icon.pending {
+            background: var(--gray-200);
+            color: var(--gray-400);
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .step-progress {
+            font-size: 0.6rem;
+            margin-top: 0.25rem;
+            opacity: 0.8;
+        }
+
+        .pipeline-arrow {
+            width: 24px;
+            height: 2px;
+            background: var(--gray-300);
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .pipeline-arrow.active {
+            background: var(--primary);
+        }
+
+        .pipeline-arrow::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: -3px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid var(--gray-300);
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+        }
+
+        .pipeline-arrow.active::after {
+            border-left-color: var(--primary);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .main-content {
+                padding: 2rem 1rem;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .modal-content {
+                margin: 1rem;
+            }
+
+            .modal-header {
+                padding: 1.5rem 1.5rem 1rem;
+            }
+
+            .modal-body {
+                padding: 1.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Loading screen -->
-    <div id="loading-screen" class="loading-screen">
-        <div class="loading-spinner">
-            <div class="spinner"></div>
-            <div class="loading-text">
-                <h2>llmXive</h2>
-                <p>Initializing automated research platform...</p>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">llmXive</a>
+            <nav class="nav-links">
+                <a href="#" class="nav-link">Dashboard</a>
+                <a href="projects.html" class="nav-link">Browse Projects</a>
+                <a href="#" class="nav-link" onclick="submitIdea()">Submit Idea</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="#" class="login-btn" onclick="handleGitHubLogin()" id="github-login-btn">Log in with GitHub</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1 class="hero-title">Automating Scientific Discovery</h1>
+            <p class="hero-subtitle">
+                Automated research platform combining AI intelligence with human expertise to accelerate scientific breakthroughs
+            </p>
+        </section>
+
+        <!-- Statistics -->
+        <div id="stats-section">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading platform statistics...</p>
+            </div>
+        </div>
+
+        <!-- Recent Projects -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Recent Projects</h2>
+                <a href="projects.html" class="browse-link">Browse All Projects</a>
+            </div>
+            <div id="recent-projects">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading recent projects...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Project Modal -->
+    <div id="project-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">Project Details</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Project details will be populated here -->
             </div>
         </div>
     </div>
+
+    <!-- Scripts -->
+    <script src="src/data/DatabaseManager.js"></script>
+    <script src="src/data/ProjectDataManager.js"></script>
+    <script src="src/managers/PipelineManager.js"></script>
+    <script src="src/components/DocumentViewer.js"></script>
+    <script src="src/components/ReviewSystem.js"></script>
     
-    <!-- Main application container -->
-    <div id="app" class="app-container" style="display: none;">
-        
-        <!-- Navigation header -->
-        <header class="app-header">
-            <div class="header-content">
-                <div class="header-left">
-                    <div class="logo">
-                        <i class="fas fa-flask"></i>
-                        <span class="logo-text">llmXive</span>
-                    </div>
+    <script>
+        class ModernDashboard {
+            constructor() {
+                this.dataManager = window.ProjectDataManager;
+                this.init();
+            }
+
+            async init() {
+                try {
+                    const loaded = await this.dataManager.loadData();
+                    if (!loaded) {
+                        throw new Error('Failed to load project data');
+                    }
                     
-                    <nav class="main-nav">
-                        <a href="#dashboard" class="nav-link active" data-page="dashboard">
-                            <i class="fas fa-chart-line"></i>
-                            <span>Dashboard</span>
-                        </a>
-                        <a href="#projects" class="nav-link" data-page="projects">
-                            <i class="fas fa-folder-open"></i>
-                            <span>Projects</span>
-                        </a>
-                        <a href="#reviews" class="nav-link" data-page="reviews">
-                            <i class="fas fa-comments"></i>
-                            <span>Reviews</span>
-                        </a>
-                        <a href="#models" class="nav-link" data-page="models">
-                            <i class="fas fa-robot"></i>
-                            <span>AI Models</span>
-                        </a>
-                        <a href="#moderation" class="nav-link" data-page="moderation">
-                            <i class="fas fa-shield-alt"></i>
-                            <span>Moderation</span>
-                        </a>
-                    </nav>
-                </div>
+                    this.renderStats();
+                    this.renderRecentProjects();
+                } catch (error) {
+                    this.showError(error.message);
+                }
+            }
+
+            renderStats() {
+                const stats = this.dataManager.getDashboardStats();
                 
-                <div class="header-right">
-                    <div class="system-status" id="system-status">
-                        <div class="status-indicator" id="status-indicator">
-                            <div class="status-dot"></div>
-                            <span class="status-text">Initializing...</span>
-                        </div>
-                    </div>
-                    
-                    <div class="user-menu" id="user-menu">
-                        <div class="auth-section" id="auth-section">
-                            <button class="btn btn-primary" id="login-btn">
-                                <i class="fab fa-github"></i>
-                                Login with GitHub
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-        
-        <!-- Main content area -->
-        <main class="app-main">
-            
-            <!-- Dashboard page -->
-            <div id="page-dashboard" class="page active">
-                <div class="page-header">
-                    <h1>Dashboard</h1>
-                    <p>Overview of your automated research platform</p>
-                </div>
-                
-                <div class="dashboard-grid">
-                    <!-- Statistics cards -->
+                document.getElementById('stats-section').innerHTML = `
                     <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-folder-open"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h3 id="total-projects">0</h3>
-                                <p>Active Projects</p>
-                            </div>
+                        <div class="stat-card" onclick="showActiveProjects()">
+                            <div class="stat-value">${stats.totalProjects}</div>
+                            <div class="stat-label">Active Projects</div>
                         </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-comments"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h3 id="total-reviews">0</h3>
-                                <p>Reviews Generated</p>
-                            </div>
+                        <div class="stat-card" onclick="showAuthorsRanking()">
+                            <div class="stat-value">${stats.uniqueAuthors}</div>
+                            <div class="stat-label">Unique Authors</div>
                         </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-robot"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h3 id="ai-calls">0</h3>
-                                <p>AI Model Calls</p>
-                            </div>
+                        <div class="stat-card" onclick="showCompletenessStats()">
+                            <div class="stat-value">${stats.averageCompleteness}%</div>
+                            <div class="stat-label">Avg Completeness</div>
                         </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-check-circle"></i>
+                        <div class="stat-card" onclick="showFieldsBreakdown()">
+                            <div class="stat-value">${Object.keys(stats.fieldDistribution).length}</div>
+                            <div class="stat-label">Research Fields</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderRecentProjects() {
+                const recentProjects = this.dataManager.getRecentProjects().slice(0, 6);
+                
+                document.getElementById('recent-projects').innerHTML = `
+                    <div class="projects-grid">
+                        ${recentProjects.map(project => this.renderProjectCard(project)).join('')}
+                    </div>
+                `;
+            }
+
+            renderProjectCard(project) {
+                return `
+                    <div class="project-card" onclick="openProjectModal('${project.id}')">
+                        <div class="project-content">
+                            <div class="project-header">
+                                <h3 class="project-title">${project.title}</h3>
+                                <span class="project-field">${project.field}</span>
                             </div>
-                            <div class="stat-content">
-                                <h3 id="completion-rate">0%</h3>
-                                <p>Success Rate</p>
+                            
+                            <p class="project-description">${project.description}</p>
+                            
+                            <div class="project-meta">
+                                <span class="project-status status-${project.status}" onclick="togglePipelineView('${project.id}', event)">${project.status}</span>
+                                <span style="font-size: 0.75rem; color: var(--text-tertiary);">
+                                    ${new Date(project.dateModified).toLocaleDateString()}
+                                </span>
+                            </div>
+                            
+                            <div id="pipeline-${project.id}" class="pipeline-flowchart" style="display: none;">
+                                ${this.generatePipelineFlowchart(project)}
+                            </div>
+                            
+                            <div class="completeness-section">
+                                <div class="completeness-header">
+                                    <span class="completeness-label">Progress</span>
+                                    <span class="completeness-value">${project.completeness}%</span>
+                                </div>
+                                <div class="completeness-bar">
+                                    <div class="completeness-fill" style="width: ${project.completeness}%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="contributors">
+                                ${project.contributors.slice(0, 3).map(c => `
+                                    <span class="contributor-tag">${c.name === 'Google Gemini' ? 'Gemini' : c.name}</span>
+                                `).join('')}
+                                ${project.contributors.length > 3 ? `<span class="contributor-tag">+${project.contributors.length - 3}</span>` : ''}
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Recent activity -->
-                    <div class="activity-section">
-                        <div class="section-header">
-                            <h2>Recent Activity</h2>
-                            <button class="btn btn-secondary btn-sm" id="refresh-activity">
-                                <i class="fas fa-sync-alt"></i>
-                                Refresh
-                            </button>
-                        </div>
-                        <div class="activity-feed" id="activity-feed">
-                            <div class="activity-item loading">
-                                <div class="activity-spinner"></div>
-                                <span>Loading recent activity...</span>
-                            </div>
-                        </div>
+                `;
+            }
+
+            generatePipelineFlowchart(project) {
+                const phases = [
+                    { id: 'idea', label: 'Idea\nGeneration', icon: '💡' },
+                    { id: 'design', label: 'Technical\nDesign', icon: '📝' },
+                    { id: 'review_design', label: 'Design\nReview', icon: '👀' },
+                    { id: 'implementation_plan', label: 'Implementation\nPlan', icon: '📋' },
+                    { id: 'review_impl', label: 'Plan\nReview', icon: '✓' },
+                    { id: 'in_progress', label: 'Development\nPhase', icon: '⚡' },
+                    { id: 'review', label: 'Final\nReview', icon: '🔍' },
+                    { id: 'done', label: 'Complete', icon: '🎉' }
+                ];
+
+                let currentPhaseIndex = 0;
+                const currentPhase = project.phase || project.status;
+                
+                // Map project phase to pipeline index
+                switch(currentPhase) {
+                    case 'idea': currentPhaseIndex = 0; break;
+                    case 'design': currentPhaseIndex = 1; break;
+                    case 'implementation_plan': currentPhaseIndex = 3; break;
+                    case 'in_progress': currentPhaseIndex = 5; break;
+                    case 'review': currentPhaseIndex = 6; break;
+                    case 'done': currentPhaseIndex = 7; break;
+                    default: currentPhaseIndex = 1; // Default to design phase
+                }
+
+                // Check if design has reviews
+                const hasDesignReviews = project.reviews && project.reviews.some(r => r.type === 'design' || !r.type);
+                if (currentPhaseIndex >= 1 && hasDesignReviews) {
+                    currentPhaseIndex = Math.max(currentPhaseIndex, 2);
+                }
+
+                return `
+                    <div class="pipeline-steps">
+                        ${phases.map((phase, index) => {
+                            let status = 'pending';
+                            if (index < currentPhaseIndex) {
+                                status = 'completed';
+                            } else if (index === currentPhaseIndex) {
+                                status = 'current';
+                            }
+
+                            const progress = index < currentPhaseIndex ? '100%' : 
+                                           index === currentPhaseIndex ? `${project.completeness}%` : '0%';
+
+                            return `
+                                <div class="pipeline-step ${status}">
+                                    <div class="step-icon ${status}">${phase.icon}</div>
+                                    <div class="step-label">${phase.label}</div>
+                                    <div class="step-progress">${progress}</div>
+                                </div>
+                                ${index < phases.length - 1 ? `<div class="pipeline-arrow ${index < currentPhaseIndex ? 'active' : ''}"></div>` : ''}
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
+            showError(message) {
+                document.getElementById('stats-section').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--error);">
+                        <h3>Error loading dashboard</h3>
+                        <p>${message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Modal functions
+        function openProjectModal(projectId) {
+            const project = window.ProjectDataManager.getProject(projectId);
+            if (!project) return;
+
+            document.getElementById('modal-title').textContent = project.title;
+            
+            // Get available documents for this project
+            const documentLinks = DocumentViewer.getAvailableDocuments(projectId);
+
+            document.getElementById('modal-body').innerHTML = `
+                <div class="modal-field">
+                    <label class="modal-field-label">Description</label>
+                    <div class="modal-field-value">${project.description}</div>
+                </div>
+                
+                <div class="modal-field">
+                    <label class="modal-field-label">Research Field</label>
+                    <div class="modal-field-value">${project.field}</div>
+                </div>
+                
+                <div class="modal-field">
+                    <label class="modal-field-label">Status & Progress</label>
+                    <div class="modal-field-value">
+                        <span class="project-status status-${project.status}" onclick="togglePipelineView('${projectId}', event)" style="cursor: pointer;">${project.status}</span>
+                        • ${project.completeness}% complete
                     </div>
                     
-                    <!-- Quick actions -->
-                    <div class="quick-actions">
-                        <div class="section-header">
-                            <h2>Quick Actions</h2>
-                        </div>
-                        <div class="actions-grid">
-                            <button class="action-card" id="create-project-btn">
-                                <i class="fas fa-plus"></i>
-                                <span>Create Project</span>
-                            </button>
-                            <button class="action-card" id="run-reviews-btn">
-                                <i class="fas fa-play"></i>
-                                <span>Generate Reviews</span>
-                            </button>
-                            <button class="action-card" id="view-models-btn">
-                                <i class="fas fa-robot"></i>
-                                <span>Manage AI Models</span>
-                            </button>
-                            <button class="action-card" id="system-status-btn">
-                                <i class="fas fa-cog"></i>
-                                <span>System Status</span>
-                            </button>
-                        </div>
+                    <div id="pipeline-${projectId}-modal" class="pipeline-flowchart" style="display: none; margin-top: 1rem;">
+                        ${generateModalPipelineFlowchart(project)}
                     </div>
                 </div>
-            </div>
-            
-            <!-- Projects page -->
-            <div id="page-projects" class="page">
-                <div class="page-header">
-                    <div class="header-content">
-                        <div>
-                            <h1>Projects</h1>
-                            <p>Manage your research projects and track progress</p>
-                        </div>
-                        <button class="btn btn-primary" id="new-project-btn">
-                            <i class="fas fa-plus"></i>
-                            New Project
+                
+                <div class="modal-field">
+                    <label class="modal-field-label">Timeline</label>
+                    <div class="modal-field-value">
+                        Created: ${new Date(project.dateCreated).toLocaleDateString()}<br>
+                        Modified: ${new Date(project.dateModified).toLocaleDateString()}
+                        ${project.estimatedTimeline ? `<br>Timeline: ${project.estimatedTimeline}` : ''}
+                    </div>
+                </div>
+                
+                <div class="modal-field">
+                    <label class="modal-field-label">Contributors</label>
+                    <div class="modal-field-value">
+                        ${project.contributors.map(c => `
+                            <div style="margin-bottom: 0.5rem;">
+                                <strong>${c.name === 'Google Gemini' ? 'Gemini' : c.name}</strong>
+                                ${c.model && c.name !== 'Google Gemini' ? ` (${c.model})` : ''}<br>
+                                <em>${c.role.replace(/_/g, ' ')}</em>
+                                ${c.dateContributed ? ` • ${new Date(c.dateContributed).toLocaleDateString()}` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                ${documentLinks.length > 0 ? `
+                <div class="modal-field">
+                    <label class="modal-field-label">Project Documents</label>
+                    <div class="document-links">
+                        ${documentLinks.map(doc => `
+                            <a href="#" class="document-link" onclick="openDocument('${doc.file}', '${doc.type}', '${projectId}')">
+                                <div class="document-link-title">${doc.title}</div>
+                                <div class="document-link-type">${doc.type}</div>
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${project.keywords && project.keywords.length > 0 ? `
+                <div class="modal-field">
+                    <label class="modal-field-label">Keywords</label>
+                    <div class="modal-field-value">
+                        ${project.keywords.map(k => `<span class="contributor-tag">${k}</span>`).join(' ')}
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${project.githubIssue ? `
+                <div class="modal-field">
+                    <label class="modal-field-label">GitHub Issue</label>
+                    <div class="modal-field-value">
+                        <a href="https://github.com/ContextLab/llmXive/issues/${project.githubIssue}" target="_blank" 
+                           style="color: var(--primary); text-decoration: none;">
+                            #${project.githubIssue}
+                        </a>
+                    </div>
+                </div>
+                ` : ''}
+                
+                <div class="action-buttons">
+                    <button class="action-btn btn-primary" onclick="writeReview('${projectId}')">Write Review</button>
+                    <div class="voting-section" data-project="${projectId}">
+                        <button class="vote-btn upvote" onclick="voteProject('${projectId}', 'up')">
+                            👍 <span class="vote-count">0</span>
                         </button>
-                    </div>
-                </div>
-                
-                <div class="projects-container">
-                    <div class="projects-filters">
-                        <div class="filter-group">
-                            <label for="status-filter">Status:</label>
-                            <select id="status-filter">
-                                <option value="">All Statuses</option>
-                                <option value="active">Active</option>
-                                <option value="completed">Completed</option>
-                                <option value="blocked">Blocked</option>
-                            </select>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label for="phase-filter">Phase:</label>
-                            <select id="phase-filter">
-                                <option value="">All Phases</option>
-                                <option value="idea">Ideation</option>
-                                <option value="design">Design</option>
-                                <option value="implementation">Implementation</option>
-                                <option value="paper">Paper</option>
-                                <option value="review">Review</option>
-                            </select>
-                        </div>
-                        
-                        <div class="search-group">
-                            <input type="text" id="project-search" placeholder="Search projects...">
-                            <i class="fas fa-search"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="projects-grid" id="projects-grid">
-                        <div class="loading-placeholder">
-                            <div class="spinner"></div>
-                            <p>Loading projects...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Reviews page -->
-            <div id="page-reviews" class="page">
-                <div class="page-header">
-                    <div class="header-content">
-                        <div>
-                            <h1>Reviews</h1>
-                            <p>Automated and manual review management</p>
-                        </div>
-                        <button class="btn btn-primary" id="new-review-btn">
-                            <i class="fas fa-plus"></i>
-                            Request Review
+                        <button class="vote-btn downvote" onclick="voteProject('${projectId}', 'down')">
+                            👎 <span class="vote-count">0</span>
                         </button>
+                        <div class="vote-summary">Total votes: <span class="total-votes">0</span></div>
                     </div>
+                    <a href="https://github.com/ContextLab/llmXive/tree/main/technical_design_documents/${projectId}" target="_blank" class="action-btn btn-secondary">View on GitHub</a>
                 </div>
                 
-                <div class="reviews-container">
-                    <div class="reviews-filters">
-                        <div class="filter-group">
-                            <label for="type-filter">Type:</label>
-                            <select id="type-filter">
-                                <option value="">All Types</option>
-                                <option value="design">Design Review</option>
-                                <option value="implementation">Implementation</option>
-                                <option value="paper">Paper Review</option>
-                                <option value="code">Code Review</option>
-                            </select>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label for="status-filter">Status:</label>
-                            <select id="status-filter">
-                                <option value="">All Statuses</option>
-                                <option value="pending">Pending</option>
-                                <option value="in_progress">In Progress</option>
-                                <option value="completed">Completed</option>
-                            </select>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label for="project-filter">Project:</label>
-                            <select id="project-filter">
-                                <option value="">All Projects</option>
-                            </select>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label for="reviewer-filter">Reviewer:</label>
-                            <select id="reviewer-filter">
-                                <option value="">All Reviewers</option>
-                                <option value="automated">Automated</option>
-                                <option value="manual">Manual</option>
-                            </select>
-                        </div>
-                        
-                        <div class="search-group">
-                            <input type="text" id="review-search" placeholder="Search reviews...">
-                            <i class="fas fa-search"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="reviews-list" id="reviews-list">
-                        <div class="loading-placeholder">
-                            <div class="spinner"></div>
-                            <p>Loading reviews...</p>
-                        </div>
-                    </div>
+                <div class="review-idea-section" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                    <button class="action-btn btn-outline" onclick="reviewIdea('${projectId}')">Review Idea</button>
                 </div>
-            </div>
+            `;
+
+            document.getElementById('project-modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('project-modal').classList.remove('show');
+        }
+
+        function openDocument(filePath, documentType, projectId) {
+            if (window.documentViewer) {
+                window.documentViewer.openDocument(filePath, documentType, projectId);
+            } else {
+                console.error('DocumentViewer not available');
+            }
+        }
+
+        async function writeReview(projectId) {
+            const project = window.ProjectDataManager.getProject(projectId);
+            if (!project) return;
             
-            <!-- AI Models page -->
-            <div id="page-models" class="page">
-                <div class="page-header">
-                    <div class="header-content">
-                        <div>
-                            <h1>AI Models</h1>
-                            <p>Configure and monitor AI model integrations</p>
-                        </div>
-                        <div class="header-actions">
-                            <button class="btn btn-secondary" id="test-all-models">
-                                <i class="fas fa-play"></i>
-                                Test All Models
-                            </button>
-                            <button class="btn btn-secondary" id="refresh-models">
-                                <i class="fas fa-sync-alt"></i>
-                                Refresh
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="models-dashboard">
-                    <!-- Model statistics -->
-                    <div class="models-stats">
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-microchip"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h3 id="total-models">0</h3>
-                                <p>Total Models</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h3 id="active-models">0</h3>
-                                <p>Active Models</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-phone"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h3 id="total-calls">0</h3>
-                                <p>Total Calls</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-dollar-sign"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h3 id="total-cost">$0.00</h3>
-                                <p>Total Cost</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Provider status -->
-                    <div class="providers-section">
-                        <div class="section-header">
-                            <h2>Provider Status</h2>
-                        </div>
-                        <div class="providers-list" id="providers-list">
-                            <div class="loading-placeholder">
-                                <div class="spinner"></div>
-                                <p>Loading providers...</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Usage chart -->
-                    <div class="usage-section">
-                        <div class="section-header">
-                            <h2>24-Hour Usage</h2>
-                        </div>
-                        <div class="usage-chart" id="usage-chart">
-                            <div class="loading-placeholder">
-                                <div class="spinner"></div>
-                                <p>Loading usage data...</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="models-container">
-                    <div class="models-filters">
-                        <div class="filter-group">
-                            <label for="provider-filter">Provider:</label>
-                            <select id="provider-filter">
-                                <option value="">All Providers</option>
-                                <option value="anthropic">Anthropic</option>
-                                <option value="openai">OpenAI</option>
-                                <option value="google">Google AI</option>
-                            </select>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label for="status-filter">Status:</label>
-                            <select id="status-filter">
-                                <option value="">All Statuses</option>
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                                <option value="rate_limited">Rate Limited</option>
-                            </select>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label for="capability-filter">Capability:</label>
-                            <select id="capability-filter">
-                                <option value="">All Capabilities</option>
-                                <option value="text">Text</option>
-                                <option value="reasoning">Reasoning</option>
-                                <option value="code">Code</option>
-                                <option value="vision">Vision</option>
-                            </select>
-                        </div>
-                        
-                        <div class="search-group">
-                            <input type="text" id="model-search" placeholder="Search models...">
-                            <i class="fas fa-search"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="models-grid" id="models-grid">
-                        <div class="loading-placeholder">
-                            <div class="spinner"></div>
-                            <p>Loading AI models...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            // Determine review type based on project phase
+            let reviewType = 'idea';
+            if (project.phase === 'design') reviewType = 'design';
+            else if (project.phase === 'implementation_plan') reviewType = 'implementation';
+            else if (project.phase === 'in_progress') reviewType = 'code';
+            else if (project.phase === 'done') reviewType = 'paper';
             
-            <!-- Moderation page -->
-            <div id="page-moderation" class="page">
-                <div class="page-header">
-                    <div class="header-content">
-                        <div>
-                            <h1>Content Moderation</h1>
-                            <p>Review flagged content and manage user reports</p>
-                        </div>
-                        <div class="header-actions">
-                            <button class="btn btn-success" id="bulk-approve">
-                                <i class="fas fa-check"></i>
-                                Approve All
-                            </button>
-                            <button class="btn btn-danger" id="bulk-reject">
-                                <i class="fas fa-times"></i>
-                                Reject All
-                            </button>
-                            <button class="btn btn-secondary" id="refresh-moderation">
-                                <i class="fas fa-sync-alt"></i>
-                                Refresh
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="moderation-dashboard">
-                    <!-- Moderation statistics -->
-                    <div class="moderation-stats">
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h3 id="queue-size">0</h3>
-                                <p>Queue Size</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-eye"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h3 id="pending-reviews">0</h3>
-                                <p>Pending Reviews</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-user-slash"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h3 id="blocked-users-count">0</h3>
-                                <p>Blocked Users</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-robot"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h3 id="auto-detection-rate">0%</h3>
-                                <p>Auto Detection</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h3 id="false-positive-rate">0%</h3>
-                                <p>False Positives</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-stopwatch"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h3 id="avg-response-time">0h</h3>
-                                <p>Avg Response</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Blocked users section -->
-                    <div class="blocked-users-section">
-                        <div class="section-header">
-                            <h2>Blocked Users</h2>
-                        </div>
-                        <div class="blocked-users-list" id="blocked-users-list">
-                            <div class="loading-placeholder">
-                                <div class="spinner"></div>
-                                <p>Loading blocked users...</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Moderation logs -->
-                    <div class="moderation-logs-section">
-                        <div class="section-header">
-                            <h2>Recent Activity</h2>
-                        </div>
-                        <div class="moderation-logs" id="moderation-logs">
-                            <div class="loading-placeholder">
-                                <div class="spinner"></div>
-                                <p>Loading moderation logs...</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="moderation-container">
-                    <div class="moderation-filters">
-                        <div class="filter-group">
-                            <label for="type-filter">Type:</label>
-                            <select id="type-filter">
-                                <option value="">All Types</option>
-                                <option value="spam_detection">Spam Detection</option>
-                                <option value="policy_violation">Policy Violation</option>
-                                <option value="malware_detection">Malware Detection</option>
-                                <option value="plagiarism">Plagiarism</option>
-                                <option value="inappropriate_content">Inappropriate Content</option>
-                                <option value="harassment">Harassment</option>
-                            </select>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label for="severity-filter">Severity:</label>
-                            <select id="severity-filter">
-                                <option value="">All Severities</option>
-                                <option value="low">Low</option>
-                                <option value="medium">Medium</option>
-                                <option value="high">High</option>
-                                <option value="critical">Critical</option>
-                            </select>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label for="status-filter">Status:</label>
-                            <select id="status-filter">
-                                <option value="">All Statuses</option>
-                                <option value="pending">Pending</option>
-                                <option value="under_review">Under Review</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
-                        </div>
-                        
-                        <div class="search-group">
-                            <input type="text" id="moderation-search" placeholder="Search moderation items...">
-                            <i class="fas fa-search"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="moderation-queue" id="moderation-queue">
-                        <div class="loading-placeholder">
-                            <div class="spinner"></div>
-                            <p>Loading moderation queue...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            // Open review system
+            window.reviewSystem.openReview(projectId, reviewType);
+            closeModal();
             
-        </main>
+            // After review is submitted, check for advancement
+            setTimeout(async () => {
+                try {
+                    const advanced = await window.PipelineManager.checkAndAdvanceProject(projectId);
+                    if (advanced) {
+                        console.log(`Project ${projectId} advanced to next stage`);
+                        // Refresh the page to show updated project status
+                        setTimeout(() => location.reload(), 2000);
+                    }
+                } catch (error) {
+                    console.error('Error checking project advancement:', error);
+                }
+            }, 1000);
+        }
+
+        function reviewIdea(projectId) {
+            window.reviewSystem.openReview(projectId, 'idea');
+            closeModal();
+        }
+
+        function voteProject(projectId, direction) {
+            const result = window.reviewSystem.vote(projectId, direction);
+            updateVoteDisplay(projectId, result);
+        }
+
+        function updateVoteDisplay(projectId, votes) {
+            const votingSection = document.querySelector(`[data-project="${projectId}"] .voting-section`);
+            if (votingSection) {
+                const upvoteBtn = votingSection.querySelector('.vote-btn.upvote');
+                const downvoteBtn = votingSection.querySelector('.vote-btn.downvote');
+                const totalVotesSpan = votingSection.querySelector('.total-votes');
+                
+                if (upvoteBtn) {
+                    upvoteBtn.classList.toggle('active', votes.userVote === 'up');
+                    upvoteBtn.querySelector('.vote-count').textContent = votes.upvotes;
+                }
+                
+                if (downvoteBtn) {
+                    downvoteBtn.classList.toggle('active', votes.userVote === 'down');
+                    downvoteBtn.querySelector('.vote-count').textContent = votes.downvotes;
+                }
+                
+                if (totalVotesSpan) {
+                    totalVotesSpan.textContent = votes.upvotes + votes.downvotes;
+                }
+            }
+        }
+
+        function submitIdea() {
+            // Check if user is logged in
+            const currentUser = localStorage.getItem('llmxive-github-user');
+            if (!currentUser) {
+                showErrorNotification('Please log in with GitHub to submit ideas.');
+                return;
+            }
+            showSubmitIdeaModal();
+        }
+
+        function showSubmitIdeaModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Submit New Research Idea</h2>
+                        <button class="modal-close" onclick="closeSubmitModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="submit-idea-form">
+                            <div class="modal-field">
+                                <label class="modal-field-label">Project Title*</label>
+                                <input type="text" id="idea-title" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius-md);">
+                            </div>
+                            
+                            <div class="modal-field">
+                                <label class="modal-field-label">Research Field*</label>
+                                <select id="idea-field" required style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius-md);">
+                                    <option value="">Select a field...</option>
+                                    <option value="Biology">Biology</option>
+                                    <option value="Chemistry">Chemistry</option>
+                                    <option value="Physics">Physics</option>
+                                    <option value="Materials Science">Materials Science</option>
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Environmental Science">Environmental Science</option>
+                                    <option value="Psychology">Psychology</option>
+                                    <option value="Medicine">Medicine</option>
+                                    <option value="Engineering">Engineering</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            
+                            <div class="modal-field">
+                                <label class="modal-field-label">Description*</label>
+                                <textarea id="idea-description" required rows="4" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius-md); font-family: inherit;" placeholder="Describe your research idea, objectives, and potential impact..."></textarea>
+                            </div>
+                            
+                            <div class="modal-field">
+                                <label class="modal-field-label">Keywords</label>
+                                <input type="text" id="idea-keywords" placeholder="e.g., machine learning, genomics, sustainability" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius-md);">
+                                <small style="color: var(--text-tertiary);">Separate keywords with commas</small>
+                            </div>
+                            
+                            <div class="modal-field">
+                                <label class="modal-field-label">Estimated Timeline</label>
+                                <select id="idea-timeline" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius-md);">
+                                    <option value="6-12 months">6-12 months</option>
+                                    <option value="1-2 years">1-2 years</option>
+                                    <option value="2-3 years" selected>2-3 years</option>
+                                    <option value="3+ years">3+ years</option>
+                                </select>
+                            </div>
+                            
+                            <div class="action-buttons">
+                                <button type="button" class="action-btn btn-secondary" onclick="closeSubmitModal()">Cancel</button>
+                                <button type="submit" class="action-btn btn-primary">Submit for Review</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Handle form submission
+            document.getElementById('submit-idea-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitNewIdea();
+            });
+        }
+
+        async function submitNewIdea() {
+            const title = document.getElementById('idea-title').value;
+            const field = document.getElementById('idea-field').value;
+            const description = document.getElementById('idea-description').value;
+            const keywords = document.getElementById('idea-keywords').value.split(',').map(k => k.trim()).filter(k => k);
+            const timeline = document.getElementById('idea-timeline').value;
+            
+            // Generate project ID
+            const date = new Date().toISOString().split('T')[0];
+            const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            const projectId = field.toLowerCase().replace(/[^a-z]/g, '-') + '-' + date.replace(/-/g, '') + '-' + randomNum;
+            
+            // Create project object
+            const newProject = {
+                id: projectId,
+                title: title,
+                description: description,
+                field: field,
+                status: 'backlog',
+                phase: 'idea',
+                githubIssue: null,
+                dateCreated: new Date().toISOString().split('T')[0],
+                dateModified: new Date().toISOString().split('T')[0],
+                contributors: [{
+                    type: 'human',
+                    name: getCurrentUser(),
+                    role: 'primary_author',
+                    dateContributed: new Date().toISOString().split('T')[0]
+                }],
+                completeness: 5, // Initial idea submission
+                keywords: keywords,
+                dependencies: [],
+                location: `technical_design_documents/${projectId}/design.md`,
+                issues: ['Needs peer review for advancement', 'Requires technical design development'],
+                estimatedTimeline: timeline,
+                reviews: []
+            };
+            
+            // Add project to database
+            try {
+                await window.ProjectDataManager.addProject(newProject);
+                
+                // Show success message
+                showSuccessNotification(`Project "${title}" submitted successfully! Your idea is now in the review queue.`);
+                closeSubmitModal();
+                
+                // Refresh the dashboard
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Failed to add project:', error);
+                showErrorNotification('Failed to submit project. Please try again.');
+            }
+        }
         
-        <!-- Footer -->
-        <footer class="app-footer">
-            <div class="footer-content">
-                <div class="footer-left">
-                    <span>llmXive - Automated Scientific Discovery Platform</span>
-                    <a href="https://github.com/ContextLab/llmXive" target="_blank">
-                        <i class="fab fa-github"></i>
-                        GitHub
-                    </a>
+        function getCurrentUser() {
+            // Check if user is logged in via GitHub
+            const githubUser = localStorage.getItem('llmxive-github-user');
+            if (githubUser) {
+                const user = JSON.parse(githubUser);
+                return user.name || user.login;
+            }
+            return 'Anonymous User';
+        }
+        
+        function showSuccessNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--success);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: var(--radius-md);
+                box-shadow: var(--shadow-lg);
+                z-index: 9999;
+                opacity: 0;
+                transform: translateX(100%);
+                transition: all 0.3s ease;
+                max-width: 400px;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+        }
+        
+        function showErrorNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--error);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: var(--radius-md);
+                box-shadow: var(--shadow-lg);
+                z-index: 9999;
+                opacity: 0;
+                transform: translateX(100%);
+                transition: all 0.3s ease;
+                max-width: 400px;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+        }
+
+        function closeSubmitModal() {
+            const modal = document.querySelector('.modal.show');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function showSuccessMessage(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--success);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: var(--radius-md);
+                box-shadow: var(--shadow-lg);
+                z-index: 9999;
+                max-width: 400px;
+                opacity: 0;
+                transform: translateX(100%);
+                transition: all 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
+        // Pipeline Flowchart Functions
+        function togglePipelineView(projectId, event) {
+            event.stopPropagation(); // Prevent card click event
+            
+            // Check if we're in a modal or card
+            const cardPipeline = document.getElementById(`pipeline-${projectId}`);
+            const modalPipeline = document.getElementById(`pipeline-${projectId}-modal`);
+            
+            const pipeline = modalPipeline || cardPipeline;
+            
+            if (pipeline) {
+                if (pipeline.style.display === 'none') {
+                    pipeline.style.display = 'block';
+                    pipeline.style.opacity = '0';
+                    pipeline.style.transform = 'translateY(-10px)';
+                    
+                    // Animate in
+                    setTimeout(() => {
+                        pipeline.style.transition = 'all 0.3s ease';
+                        pipeline.style.opacity = '1';
+                        pipeline.style.transform = 'translateY(0)';
+                    }, 10);
+                } else {
+                    pipeline.style.transition = 'all 0.3s ease';
+                    pipeline.style.opacity = '0';
+                    pipeline.style.transform = 'translateY(-10px)';
+                    
+                    setTimeout(() => {
+                        pipeline.style.display = 'none';
+                    }, 300);
+                }
+            }
+        }
+
+        // Generate pipeline flowchart for modal (same as card but with different ID)
+        function generateModalPipelineFlowchart(project) {
+            // Use the same logic as card flowchart
+            const dashboard = new ModernDashboard();
+            return dashboard.generatePipelineFlowchart(project);
+        }
+
+        // Analytics Functions
+        function showActiveProjects() {
+            window.location.href = 'projects.html';
+        }
+
+        function showAuthorsRanking() {
+            const modal = createAnalyticsModal('Author Rankings', generateAuthorsRanking());
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('show'), 100);
+        }
+
+        function showCompletenessStats() {
+            const modal = createAnalyticsModal('Project Completeness Stats', generateCompletenessChart());
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('show'), 100);
+        }
+
+        function showFieldsBreakdown() {
+            window.location.href = 'projects.html?sortBy=field';
+        }
+
+        function createAnalyticsModal(title, content) {
+            const modal = document.createElement('div');
+            modal.className = 'analytics-modal';
+            modal.innerHTML = `
+                <div class="analytics-content">
+                    <div class="analytics-header">
+                        <h2 class="analytics-title">${title}</h2>
+                        <button class="modal-close" onclick="closeAnalyticsModal()">&times;</button>
+                    </div>
+                    <div class="analytics-body">
+                        ${content}
+                    </div>
                 </div>
-                <div class="footer-right">
-                    <span>Powered by ContextLab</span>
+            `;
+            
+            // Close on backdrop click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeAnalyticsModal();
+                }
+            });
+            
+            return modal;
+        }
+
+        function closeAnalyticsModal() {
+            const modal = document.querySelector('.analytics-modal');
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => modal.remove(), 300);
+            }
+        }
+
+        function generateAuthorsRanking() {
+            const dataManager = window.ProjectDataManager;
+            const projects = Object.values(dataManager.getAllProjects());
+            
+            // Count contributions by author
+            const authorStats = {};
+            projects.forEach(project => {
+                project.contributors.forEach(contributor => {
+                    const name = contributor.name === 'Google Gemini' ? 'Gemini' : contributor.name;
+                    if (!authorStats[name]) {
+                        authorStats[name] = {
+                            name: name,
+                            totalProjects: 0,
+                            primaryProjects: 0,
+                            type: contributor.type,
+                            roles: new Set()
+                        };
+                    }
+                    authorStats[name].totalProjects++;
+                    if (contributor.role === 'primary_author') {
+                        authorStats[name].primaryProjects++;
+                    }
+                    authorStats[name].roles.add(contributor.role.replace(/_/g, ' '));
+                });
+            });
+
+            // Sort by total projects, then by primary projects
+            const sortedAuthors = Object.values(authorStats).sort((a, b) => {
+                if (a.totalProjects !== b.totalProjects) {
+                    return b.totalProjects - a.totalProjects;
+                }
+                return b.primaryProjects - a.primaryProjects;
+            });
+
+            let currentSort = 'total';
+            
+            function renderAuthorList(sortBy = 'total') {
+                currentSort = sortBy;
+                let sorted = [...sortedAuthors];
+                
+                if (sortBy === 'primary') {
+                    sorted.sort((a, b) => b.primaryProjects - a.primaryProjects);
+                } else if (sortBy === 'type') {
+                    sorted.sort((a, b) => {
+                        if (a.type !== b.type) {
+                            return a.type === 'human' ? -1 : 1;
+                        }
+                        return b.totalProjects - a.totalProjects;
+                    });
+                }
+
+                return sorted.map((author, index) => {
+                    const isPodium = index < 3;
+                    const delay = index * 0.1;
+                    return `
+                        <div class="author-item ${isPodium ? 'podium' : ''}" style="animation-delay: ${delay}s">
+                            <div class="author-rank ${isPodium ? 'podium' : ''}">#${index + 1}</div>
+                            <div class="author-info">
+                                <div class="author-name">${author.name}</div>
+                                <div class="author-stats">
+                                    ${author.totalProjects} total projects • ${author.primaryProjects} as primary author
+                                    <br>Roles: ${Array.from(author.roles).join(', ')}
+                                </div>
+                            </div>
+                            <div class="author-badge">${author.type}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            return `
+                <div class="author-controls">
+                    <button class="sort-btn ${currentSort === 'total' ? 'active' : ''}" onclick="updateAuthorSort('total')">
+                        Sort by Total Projects
+                    </button>
+                    <button class="sort-btn ${currentSort === 'primary' ? 'active' : ''}" onclick="updateAuthorSort('primary')">
+                        Sort by Primary Projects
+                    </button>
+                    <button class="sort-btn ${currentSort === 'type' ? 'active' : ''}" onclick="updateAuthorSort('type')">
+                        Sort by Contributor Type
+                    </button>
                 </div>
-            </div>
-        </footer>
-    </div>
-    
-    <!-- Modals and overlays -->
-    <div id="modal-overlay" class="modal-overlay"></div>
-    
-    <!-- Notification system -->
-    <div id="notifications-container" class="notifications-container"></div>
-    
-    <!-- Core JavaScript modules -->
-    <script type="module" src="js/app.js"></script>
-    <script type="module" src="js/auth.js"></script>
-    <script type="module" src="js/dashboard.js"></script>
-    <script type="module" src="js/projects.js"></script>
-    <script type="module" src="js/reviews.js"></script>
-    <script type="module" src="js/models.js"></script>
-    <script type="module" src="js/moderation.js"></script>
-    <script type="module" src="js/utils.js"></script>
+                <div class="author-list" id="author-list">
+                    ${renderAuthorList()}
+                </div>
+            `;
+        }
+
+        function updateAuthorSort(sortBy) {
+            // This would need to be implemented with more complex state management
+            // For now, just regenerate the modal
+            closeAnalyticsModal();
+            setTimeout(() => showAuthorsRanking(), 100);
+        }
+
+        function generateCompletenessChart() {
+            const dataManager = window.ProjectDataManager;
+            const projects = Object.values(dataManager.getAllProjects());
+            
+            // Group projects by completion ranges
+            const ranges = {
+                'Just Started (0-10%)': 0,
+                'Early Design (10-20%)': 0,
+                'In Progress (20-50%)': 0,
+                'Advanced (50-80%)': 0,
+                'Near Complete (80-95%)': 0,
+                'Complete (95-100%)': 0
+            };
+
+            projects.forEach(project => {
+                const completion = project.completeness;
+                if (completion < 10) ranges['Just Started (0-10%)']++;
+                else if (completion < 20) ranges['Early Design (10-20%)']++;
+                else if (completion < 50) ranges['In Progress (20-50%)']++;
+                else if (completion < 80) ranges['Advanced (50-80%)']++;
+                else if (completion < 95) ranges['Near Complete (80-95%)']++;
+                else ranges['Complete (95-100%)']++;
+            });
+
+            const maxCount = Math.max(...Object.values(ranges));
+            
+            const chartBars = Object.entries(ranges).map(([label, count], index) => {
+                const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                const delay = index * 0.2;
+                
+                return `
+                    <div class="chart-bar">
+                        <div class="bar-label">${label}</div>
+                        <div class="bar-container">
+                            <div class="bar-fill" style="animation-delay: ${delay}s" data-width="${percentage}%"></div>
+                        </div>
+                        <div class="bar-value">${count}</div>
+                    </div>
+                `;
+            }).join('');
+
+            // Animate bars after modal is shown
+            setTimeout(() => {
+                document.querySelectorAll('.bar-fill').forEach(bar => {
+                    bar.style.width = bar.getAttribute('data-width');
+                });
+            }, 500);
+
+            return `
+                <div class="completeness-chart">
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                        Project distribution across completion stages based on actual development progress.
+                    </p>
+                    ${chartBars}
+                </div>
+            `;
+        }
+
+        // Event listeners
+        document.getElementById('project-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (document.querySelector('.analytics-modal.show')) {
+                    closeAnalyticsModal();
+                } else {
+                    closeModal();
+                }
+            }
+        });
+
+        // GitHub login functionality
+        function handleGitHubLogin() {
+            const currentUser = localStorage.getItem('llmxive-github-user');
+            if (currentUser) {
+                // User is logged in, show logout option
+                if (confirm('You are already logged in. Would you like to logout?')) {
+                    logout();
+                }
+            } else {
+                // User is not logged in, initiate login
+                initiateGitHubLogin();
+            }
+        }
+
+        function initiateGitHubLogin() {
+            // For demonstration purposes, we'll simulate GitHub login
+            // In a real implementation, this would redirect to GitHub OAuth
+            showGitHubLoginModal();
+        }
+
+        function showGitHubLoginModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 3000;
+                backdrop-filter: blur(10px);
+            `;
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 500px; background: var(--surface-elevated); border-radius: var(--radius-xl); box-shadow: var(--shadow-xl);">
+                    <div class="modal-header" style="padding: 2rem 2rem 1rem; border-bottom: 1px solid var(--border); background: linear-gradient(135deg, var(--primary-bg) 0%, var(--surface) 100%);">
+                        <h2 class="modal-title" style="font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 0;">GitHub Login Demo</h2>
+                        <button class="modal-close" onclick="closeLoginModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary);">&times;</button>
+                    </div>
+                    <div class="modal-body" style="padding: 2rem;">
+                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem; text-align: center;">
+                            This is a demo login. In production, this would redirect to GitHub OAuth.
+                        </p>
+                        <form id="github-login-form">
+                            <div class="modal-field" style="margin-bottom: 1.5rem;">
+                                <label class="modal-field-label" style="font-weight: 600; color: var(--text-primary); display: block; margin-bottom: 0.5rem;">GitHub Username</label>
+                                <input type="text" id="github-username" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); font-family: inherit;" placeholder="your-github-username">
+                            </div>
+                            
+                            <div class="modal-field" style="margin-bottom: 2rem;">
+                                <label class="modal-field-label" style="font-weight: 600; color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Display Name</label>
+                                <input type="text" id="github-name" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); font-family: inherit;" placeholder="Your Full Name">
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                                <button type="button" onclick="closeLoginModal()" style="padding: 0.75rem 1.5rem; background: var(--gray-200); color: var(--text-primary); border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 500;">Cancel</button>
+                                <button type="submit" style="padding: 0.75rem 1.5rem; background: #24292e; color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 500;">Login with GitHub</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close on backdrop click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeLoginModal();
+                }
+            });
+            
+            // Form submission
+            document.getElementById('github-login-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                performLogin();
+            });
+        }
+
+        function performLogin() {
+            const username = document.getElementById('github-username').value;
+            const name = document.getElementById('github-name').value || username;
+            
+            // Create user object
+            const user = {
+                login: username,
+                name: name,
+                avatar_url: `https://github.com/${username}.png`,
+                html_url: `https://github.com/${username}`
+            };
+            
+            // Store in localStorage
+            localStorage.setItem('llmxive-github-user', JSON.stringify(user));
+            
+            // Update UI
+            updateLoginUI();
+            closeLoginModal();
+            
+            showSuccessNotification(`Welcome, ${name}! You are now logged in.`);
+        }
+
+        function logout() {
+            localStorage.removeItem('llmxive-github-user');
+            updateLoginUI();
+            showSuccessNotification('You have been logged out.');
+        }
+
+        function updateLoginUI() {
+            const currentUser = localStorage.getItem('llmxive-github-user');
+            const loginBtn = document.getElementById('github-login-btn');
+            
+            if (currentUser) {
+                const user = JSON.parse(currentUser);
+                loginBtn.innerHTML = `
+                    <img src="${user.avatar_url}" alt="${user.name}" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 0.5rem; vertical-align: middle;">
+                    ${user.name}
+                    <span style="margin-left: 0.5rem; opacity: 0.7; font-size: 0.9rem;">| 
+                        <a href="#" onclick="logout(); return false;" style="color: inherit; text-decoration: none;">Logout</a>
+                    </span>
+                `;
+                loginBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+                loginBtn.onclick = null; // Remove login click handler
+            } else {
+                loginBtn.innerHTML = '<i class="fab fa-github" style="margin-right: 0.5rem;"></i>Log in with GitHub';
+                loginBtn.style.background = 'rgba(255, 255, 255, 0.2)';
+                loginBtn.onclick = () => showLoginModal();
+            }
+        }
+
+        function closeLoginModal() {
+            const modal = document.querySelector('.modal.show');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            new ModernDashboard();
+            
+            // Update login UI based on current state
+            updateLoginUI();
+            
+            // Initialize vote displays for all projects after data is loaded
+            setTimeout(async () => {
+                // Ensure data is loaded
+                if (window.ProjectDataManager && !window.ProjectDataManager.loaded) {
+                    try {
+                        await window.ProjectDataManager.loadData();
+                    } catch (error) {
+                        console.error('Failed to load project data:', error);
+                        return;
+                    }
+                }
+                
+                const projects = Object.values(window.ProjectDataManager.getAllProjects());
+                projects.forEach(project => {
+                    const votes = window.reviewSystem.getProjectVotes(project.id);
+                    updateVoteDisplay(project.id, votes);
+                });
+                
+                // Check if we should open a specific project modal
+                const urlParams = new URLSearchParams(window.location.search);
+                const projectId = urlParams.get('project');
+                if (projectId) {
+                    setTimeout(() => openProjectModal(projectId), 500);
+                }
+            }, 1000);
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contextlab.github.io/llmXive/schemas/review.schema.json",
+  "title": "llmXive Review",
+  "description": "Schema for review files",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "pattern": "^PROJ-[0-9]{3,}-[a-z0-9-]+$"
+    },
+    "review_type": {
+      "type": "string",
+      "enum": ["design", "implementation", "paper", "code"]
+    },
+    "reviewer": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["human", "llm"]
+        },
+        "model": {
+          "type": "string",
+          "description": "Model identifier for LLM reviews"
+        }
+      },
+      "required": ["name", "type"]
+    },
+    "date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "points": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "0.5 for LLM reviews, 1.0 for human reviews"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Brief summary of the review"
+    },
+    "detailed_review": {
+      "type": "string",
+      "description": "Full review content"
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "approved": {
+      "type": "boolean",
+      "description": "Whether the review approves progression to next phase"
+    }
+  },
+  "required": ["project_id", "review_type", "reviewer", "date", "points", "summary", "detailed_review", "approved"]
+}
