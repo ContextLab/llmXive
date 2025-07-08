@@ -52,9 +52,184 @@ class ProjectDataManager {
             return true;
         } catch (error) {
             console.error('❌ Failed to load project data:', error);
-            this.loaded = false;
-            return false;
+            console.log('🔄 Loading fallback embedded data...');
+            
+            // Load embedded fallback data when fetch fails (CORS issues)
+            this.loadEmbeddedData();
+            return true;
         }
+    }
+
+    /**
+     * Load embedded fallback data for CORS issues
+     */
+    loadEmbeddedData() {
+        // Embedded projects data
+        this.projects = {
+            "metadata": {
+                "version": "1.0.0",
+                "created": "2025-07-07",
+                "description": "llmXive Projects Database with corrected dates and attributions",
+                "totalProjects": 3,
+                "dateRange": "2025-07-01 to 2025-07-07"
+            },
+            "projects": {
+                "llmxive-auto-001": {
+                    "id": "llmxive-auto-001",
+                    "title": "llmXive Automation System",
+                    "description": "Fully automated research pipeline using GitHub Actions and HuggingFace models",
+                    "field": "Infrastructure/Meta-project",
+                    "status": "backlog",
+                    "phase": "design",
+                    "githubIssue": 21,
+                    "dateCreated": "2025-07-04",
+                    "dateModified": "2025-07-04",
+                    "contributors": [
+                        {
+                            "type": "AI",
+                            "name": "Claude",
+                            "model": "Claude 4 Sonnet",
+                            "role": "primary_author",
+                            "dateContributed": "2025-07-04"
+                        }
+                    ],
+                    "completeness": 15,
+                    "keywords": ["automation", "github-actions", "huggingface", "pipeline"],
+                    "dependencies": ["GitHub Actions", "HuggingFace API", "Docker"],
+                    "location": "technical_design_documents/llmXive_automation/design.md",
+                    "estimatedTimeline": "2025-07-01 to 2026-01-01"
+                },
+                "llmxive-v2-final": {
+                    "id": "llmxive-v2-final", 
+                    "title": "llmXive v2.0 System Architecture",
+                    "description": "Next-generation llmXive system with LaTeX template integration",
+                    "field": "Architecture/Meta-project",
+                    "status": "design",
+                    "phase": "design",
+                    "githubIssue": null,
+                    "dateCreated": "2025-07-04",
+                    "dateModified": "2025-07-07",
+                    "contributors": [
+                        {
+                            "type": "AI",
+                            "name": "Claude",
+                            "model": "Claude 4 Sonnet",
+                            "role": "primary_author",
+                            "dateContributed": "2025-07-04"
+                        },
+                        {
+                            "type": "human",
+                            "name": "Jeremy Manning",
+                            "role": "contributor",
+                            "dateContributed": "2025-07-05"
+                        }
+                    ],
+                    "completeness": 30,
+                    "keywords": ["architecture", "latex", "github-native", "v2.0"],
+                    "dependencies": ["GitHub Pages", "Docker", "LaTeX"],
+                    "location": "technical_design_documents/llmxive-v2-final/design.md",
+                    "estimatedTimeline": "2025-07-01 to 2025-09-01"
+                },
+                "biology-example": {
+                    "id": "biology-example",
+                    "title": "Exploring Gene Regulation Mechanisms",
+                    "description": "Multi-scale approach to understanding gene regulation mechanisms across different cell types",
+                    "field": "Biology",
+                    "status": "backlog",
+                    "phase": "idea",
+                    "githubIssue": 30,
+                    "dateCreated": "2025-07-01",
+                    "dateModified": "2025-07-07",
+                    "contributors": [
+                        {
+                            "type": "AI",
+                            "name": "Claude",
+                            "model": "Claude 4 Sonnet",
+                            "role": "primary_author",
+                            "dateContributed": "2025-07-01"
+                        }
+                    ],
+                    "completeness": 20,
+                    "keywords": ["gene-regulation", "cell-types", "genomics", "bioinformatics"],
+                    "dependencies": ["Bioinformatics tools", "Laboratory equipment"],
+                    "location": "technical_design_documents/biology-example/design.md",
+                    "estimatedTimeline": "2025-07-01 to 2028-07-01",
+                    "reviews": [
+                        {
+                            "date": "2025-07-07",
+                            "type": "design",
+                            "score": 0.75,
+                            "result": "revision_needed",
+                            "reviewer": "Gemini"
+                        }
+                    ]
+                }
+            }
+        };
+
+        // Embedded contributors data
+        this.contributors = {
+            "metadata": {
+                "version": "1.0.0",
+                "created": "2025-07-07",
+                "totalContributors": 4
+            },
+            "contributors": {
+                "claude": {
+                    "name": "Claude",
+                    "type": "AI",
+                    "model": "Claude 4 Sonnet",
+                    "organization": "Anthropic",
+                    "specialties": ["Technical writing", "Code development", "Research design"],
+                    "totalProjects": 3,
+                    "primaryProjects": 2
+                },
+                "jeremy-manning": {
+                    "name": "Jeremy Manning",
+                    "type": "human",
+                    "organization": "Dartmouth College",
+                    "specialties": ["Computational neuroscience", "Data science", "Machine learning"],
+                    "totalProjects": 1,
+                    "primaryProjects": 0
+                },
+                "gemini": {
+                    "name": "Gemini",
+                    "type": "AI", 
+                    "model": "Google Gemini",
+                    "organization": "Google",
+                    "specialties": ["Code review", "Content enhancement"],
+                    "totalProjects": 1,
+                    "primaryProjects": 0
+                }
+            }
+        };
+
+        // Embedded analytics data
+        this.analytics = {
+            "metadata": {
+                "version": "1.0.0",
+                "created": "2025-07-07",
+                "calculatedFrom": "embedded-projects"
+            },
+            "stats": {
+                "totalProjects": 3,
+                "totalCompleteness": 22,
+                "uniqueAuthors": 3,
+                "uniqueFields": 2
+            },
+            "projectsByField": {
+                "Infrastructure/Meta-project": 2,
+                "Biology": 1
+            },
+            "projectsByStatus": {
+                "backlog": 2,
+                "design": 1
+            }
+        };
+
+        this.loaded = true;
+        console.log('✅ Embedded data loaded successfully');
+        console.log(`📊 Loaded ${this.getProjectCount()} projects (embedded)`);
     }
 
     /**
@@ -395,9 +570,38 @@ class ProjectDataManager {
     }
 
     /**
-     * Add a new project to the database
+     * Update an existing project with new data
      */
-    addProject(newProject) {
+    async updateProject(projectId, updates) {
+        this.ensureLoaded();
+        
+        if (!this.projects.projects[projectId]) {
+            throw new Error(`Project with ID '${projectId}' not found`);
+        }
+
+        try {
+            // Update project data
+            this.projects.projects[projectId] = {
+                ...this.projects.projects[projectId],
+                ...updates,
+                dateModified: new Date().toISOString().split('T')[0]
+            };
+            
+            // Save to localStorage
+            this.saveToLocalStorage();
+            
+            console.log(`✅ Updated project: ${projectId}`);
+            return this.projects.projects[projectId];
+        } catch (error) {
+            console.error('Failed to update project:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Add a new project to the database with persistent storage
+     */
+    async addProject(newProject) {
         this.ensureLoaded();
         
         // Validate required fields
@@ -410,18 +614,29 @@ class ProjectDataManager {
             throw new Error(`Project with ID '${newProject.id}' already exists`);
         }
 
-        // Add project to the database
-        this.projects.projects[newProject.id] = newProject;
-
-        // Update metadata
-        this.projects.metadata.totalProjects = Object.keys(this.projects.projects).length;
-        this.projects.metadata.dateRange = this.calculateDateRange();
-
-        // Store in localStorage for persistence
-        this.saveToLocalStorage();
-
-        console.log(`✅ Added new project: ${newProject.title}`);
-        return newProject;
+        try {
+            // Use DatabaseManager for atomic operation if available
+            if (window.DatabaseManager) {
+                await window.DatabaseManager.addProject(newProject);
+                
+                // Update local copy
+                this.projects.projects[newProject.id] = newProject;
+                this.projects.metadata.totalProjects = Object.keys(this.projects.projects).length;
+                this.projects.metadata.dateRange = this.calculateDateRange();
+            } else {
+                // Fallback to localStorage
+                this.projects.projects[newProject.id] = newProject;
+                this.projects.metadata.totalProjects = Object.keys(this.projects.projects).length;
+                this.projects.metadata.dateRange = this.calculateDateRange();
+                this.saveToLocalStorage();
+            }
+            
+            console.log(`✅ Added new project: ${newProject.title}`);
+            return newProject;
+        } catch (error) {
+            console.error('Failed to add project:', error);
+            throw error;
+        }
     }
 
     /**

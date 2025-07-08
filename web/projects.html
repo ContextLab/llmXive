@@ -824,7 +824,9 @@
     </div>
 
     <!-- Scripts -->
+    <script src="src/data/DatabaseManager.js"></script>
     <script src="src/data/ProjectDataManager.js"></script>
+    <script src="src/managers/PipelineManager.js"></script>
     <script src="src/components/DocumentViewer.js"></script>
     <script src="src/components/ReviewSystem.js"></script>
     
@@ -1309,7 +1311,7 @@
             });
         }
 
-        function submitNewIdea() {
+        async function submitNewIdea() {
             const title = document.getElementById('idea-title').value;
             const field = document.getElementById('idea-field').value;
             const description = document.getElementById('idea-description').value;
@@ -1347,9 +1349,9 @@
                 reviews: []
             };
             
-            // Add project to local database
+            // Add project to database
             try {
-                window.ProjectDataManager.addProject(newProject);
+                await window.ProjectDataManager.addProject(newProject);
                 
                 // Show success message
                 showSuccessNotification(`Project "${title}" submitted successfully! Your idea is now in the review queue.`);

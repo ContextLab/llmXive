@@ -518,6 +518,28 @@ class ReviewSystem {
         // Save to localStorage
         localStorage.setItem('llmxive-reviews', JSON.stringify(this.reviews));
         
+        // Also update the project with this review for pipeline management
+        if (window.ProjectDataManager) {
+            try {
+                const project = window.ProjectDataManager.getProject(reviewData.projectId);
+                if (project) {
+                    if (!project.reviews) project.reviews = [];
+                    project.reviews.push({
+                        date: reviewData.date.split('T')[0],
+                        type: reviewData.type,
+                        score: reviewData.overallScore / 5, // Normalize to 0-1
+                        result: reviewData.recommendation,
+                        reviewer: reviewData.reviewer
+                    });
+                    
+                    // Update project in ProjectDataManager
+                    window.ProjectDataManager.updateProject(reviewData.projectId, { reviews: project.reviews });
+                }
+            } catch (error) {
+                console.error('Failed to update project with review:', error);
+            }
+        }
+        
         console.log('Review saved:', reviewData);
     }
 
