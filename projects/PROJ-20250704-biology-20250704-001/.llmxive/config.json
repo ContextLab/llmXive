@@ -1,0 +1,33 @@
+{
+  "id": "PROJ-20250704-biology-20250704-001",
+  "title": "biology 20250704 001",
+  "description": "Migrated project: biology-20250704-001",
+  "field": "biology",
+  "status": "ready",
+  "created_date": "2025-07-08T14:28:09.483Z",
+  "updated_date": "2025-07-08T14:28:09.483Z",
+  "contributors": [],
+  "github_issues": [],
+  "phases": {
+    "idea": {
+      "completed": false,
+      "points": 0
+    },
+    "technical_design": {
+      "completed": false,
+      "points": 0
+    },
+    "implementation_plan": {
+      "completed": false,
+      "points": 0
+    },
+    "code": {
+      "completed": false,
+      "points": 0
+    },
+    "paper": {
+      "completed": false,
+      "points": 0
+    }
+  }
+}

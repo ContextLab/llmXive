@@ -1,32 +1,25 @@
 {
   "metadata": {
-    "version": "1.0.0",
-    "created": "2025-07-07",
-    "description": "llmXive Projects Database with corrected dates and attributions",
-    "totalProjects": 12,
-    "dateRange": "2025-07-01 to 2025-07-07"
+    "version": "2.0.0",
+    "created": "2025-07-08",
+    "description": "llmXive Projects Database - Updated for v2.0 structure",
+    "totalProjects": 11,
+    "dateRange": "2025-07-08 to 2025-07-08",
+    "lastUpdated": "2025-07-08T14:29:55.294Z"
   },
-  "projects": {
-    "llmxive-auto-001": {
-      "id": "llmxive-auto-001",
-      "title": "llmXive Automation System",
-      "description": "Fully automated research pipeline using GitHub Actions and HuggingFace models",
-      "field": "Infrastructure/Meta-project",
-      "status": "backlog",
+  "projects": [
+    {
+      "id": "PROJ-001-llmxive-automation",
+      "title": "llmXive_automation",
+      "description": "Migrated project: llmXive_automation",
+      "field": "robotics",
+      "status": "ready",
       "phase": "design",
       "githubIssue": 21,
-      "dateCreated": "2025-07-04",
-      "dateModified": "2025-07-04",
-      "contributors": [
-        {
-          "type": "AI",
-          "name": "Claude",
-          "model": "Claude 4 Sonnet",
-          "role": "primary_author",
-          "dateContributed": "2025-07-04"
-        }
-      ],
-      "completeness": 15,
+      "dateCreated": "2025-07-08T14:28:09.509Z",
+      "dateModified": "2025-07-08T14:28:09.509Z",
+      "contributors": [],
+      "completeness": 16,
       "keywords": [
         "automation",
         "github-actions",
@@ -38,76 +31,22 @@
         "HuggingFace API",
         "Docker"
       ],
-      "location": "technical_design_documents/llmXive_automation/design.md",
-      "estimatedTimeline": "2025-07-01 to 2026-01-01"
+      "location": "projects/PROJ-001-llmxive-automation/",
+      "estimatedTimeline": "2025-07-01 to 2026-01-01",
+      "reviews": []
     },
-    "llmxive-automation-testing": {
-      "id": "llmxive-automation-testing",
-      "title": "Full Pipeline Testing System",
-      "description": "Comprehensive testing framework for the automation pipeline",
-      "field": "Testing Infrastructure",
-      "status": "planning",
-      "phase": "implementation_plan",
-      "githubIssue": 31,
-      "dateCreated": "2025-07-04",
-      "dateModified": "2025-07-04",
-      "contributors": [
-        {
-          "type": "AI",
-          "name": "Claude",
-          "model": "Claude 4 Sonnet (Anthropic)",
-          "role": "primary_author",
-          "dateContributed": "2025-07-04"
-        }
-      ],
-      "completeness": 20,
-      "keywords": [
-        "testing",
-        "automation",
-        "pipeline",
-        "validation"
-      ],
-      "dependencies": [
-        "Docker",
-        "PyTest",
-        "GitHub API"
-      ],
-      "location": "technical_design_documents/llmXive_automation/design.md",
-      "estimatedTimeline": "2025-07-01 to 2025-12-01"
-    },
-    "llmxive-v2-final": {
-      "id": "llmxive-v2-final",
-      "title": "llmXive v2.0 System Architecture",
-      "description": "Next-generation llmXive system with LaTeX template integration",
-      "field": "Architecture/Meta-project",
-      "status": "design",
+    {
+      "id": "PROJ-001-automated-pipeline-scheduler",
+      "title": "automated pipeline scheduler",
+      "description": "Migrated project: automated-pipeline-scheduler",
+      "field": "meta",
+      "status": "ready",
       "phase": "design",
       "githubIssue": null,
-      "dateCreated": "2025-07-04",
-      "dateModified": "2025-07-07",
-      "contributors": [
-        {
-          "type": "AI",
-          "name": "Claude",
-          "model": "Claude 4 Sonnet",
-          "role": "primary_author",
-          "dateContributed": "2025-07-04"
-        },
-        {
-          "type": "human",
-          "name": "Jeremy Manning",
-          "role": "contributor",
-          "dateContributed": "2025-07-05"
-        },
-        {
-          "type": "AI",
-          "name": "Gemini",
-          "model": "Google Gemini",
-          "role": "contributor",
-          "dateContributed": "2025-07-06"
-        }
-      ],
-      "completeness": 30,
+      "dateCreated": "2025-07-08T14:28:09.478Z",
+      "dateModified": "2025-07-08T14:28:09.478Z",
+      "contributors": [],
+      "completeness": 16,
       "keywords": [
         "architecture",
         "latex",
@@ -119,36 +58,22 @@
         "Docker",
         "LaTeX"
       ],
-      "location": "technical_design_documents/llmxive-v2-final/design.md",
-      "estimatedTimeline": "2025-07-01 to 2025-09-01"
+      "location": "projects/PROJ-001-automated-pipeline-scheduler/",
+      "estimatedTimeline": "2025-07-01 to 2025-09-01",
+      "reviews": []
     },
-    "biology-20250704-001": {
-      "id": "biology-20250704-001",
-      "title": "Exploring the Mechanisms of Gene Regulation in Different Cell Types",
-      "description": "Multi-scale approach to understanding gene regulation mechanisms across different cell types",
-      "field": "Biology",
-      "status": "backlog",
+    {
+      "id": "PROJ-20250704-biology-20250704-001",
+      "title": "biology 20250704 001",
+      "description": "Migrated project: biology-20250704-001",
+      "field": "biology",
+      "status": "ready",
       "phase": "design",
       "githubIssue": 30,
-      "dateCreated": "2025-07-01",
-      "dateModified": "2025-07-07",
-      "contributors": [
-        {
-          "type": "AI",
-          "name": "TinyLlama",
-          "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-          "role": "primary_author",
-          "dateContributed": "2025-07-01"
-        },
-        {
-          "type": "AI",
-          "name": "Google Gemini",
-          "model": "Google Gemini",
-          "role": "methodology_enhancement",
-          "dateContributed": "2025-07-07"
-        }
-      ],
-      "completeness": 20,
+      "dateCreated": "2025-07-08T14:28:09.483Z",
+      "dateModified": "2025-07-08T14:28:09.483Z",
+      "contributors": [],
+      "completeness": 16,
       "keywords": [
         "gene-regulation",
         "cell-types",
@@ -163,47 +88,22 @@
         "Single-cell platforms",
         "CRISPR systems"
       ],
-      "location": "technical_design_documents/biology-20250704-001/design-completed.md",
-      "issues": [],
+      "location": "projects/PROJ-20250704-biology-20250704-001/",
       "estimatedTimeline": "2025-07-01 to 2028-07-01",
-      "reviews": [
-        {
-          "date": "2025-07-07",
-          "type": "design",
-          "score": 0.75,
-          "result": "revision_needed",
-          "reviewer": "Gemini",
-          "location": "reviews/biology-20250704-001/Design/gemini__07-07-2025__A.md"
-        }
-      ]
+      "reviews": []
     },
-    "chemistry-20250704-001": {
-      "id": "chemistry-20250704-001",
-      "title": "Renewable Energy in Mining Operations: A Comprehensive Review",
-      "description": "Comprehensive technical design document reviewing renewable energy integration in mining operations worldwide",
-      "field": "Chemistry/Energy",
-      "status": "backlog",
+    {
+      "id": "PROJ-20250704-chemistry-20250704-001",
+      "title": "chemistry 20250704 001",
+      "description": "Migrated project: chemistry-20250704-001",
+      "field": "chemistry",
+      "status": "ready",
       "phase": "design",
       "githubIssue": 33,
-      "dateCreated": "2025-07-01",
-      "dateModified": "2025-07-07",
-      "contributors": [
-        {
-          "type": "AI",
-          "name": "TinyLlama",
-          "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-          "role": "primary_author",
-          "dateContributed": "2025-07-01"
-        },
-        {
-          "type": "AI",
-          "name": "Google Gemini",
-          "model": "Google Gemini",
-          "role": "content_repair_enhancement",
-          "dateContributed": "2025-07-07"
-        }
-      ],
-      "completeness": 25,
+      "dateCreated": "2025-07-08T14:28:09.488Z",
+      "dateModified": "2025-07-08T14:28:09.488Z",
+      "contributors": [],
+      "completeness": 16,
       "keywords": [
         "renewable-energy",
         "mining",
@@ -218,54 +118,22 @@
         "Renewable energy systems",
         "Literature databases"
       ],
-      "location": "technical_design_documents/chemistry-20250704-001/design-completed.md",
-      "issues": [],
+      "location": "projects/PROJ-20250704-chemistry-20250704-001/",
       "estimatedTimeline": "2025-07-01 to 2028-07-01",
-      "reviews": [
-        {
-          "date": "2025-07-05",
-          "type": "automated",
-          "score": 1,
-          "reviewer": "LLM",
-          "location": "reviews/chemistry-20250704-001/Design/llm__07-05-2025__A.md"
-        },
-        {
-          "date": "2025-07-07",
-          "type": "design",
-          "score": 0.65,
-          "result": "revision_needed",
-          "reviewer": "Gemini",
-          "location": "reviews/chemistry-20250704-001/Design/gemini__07-07-2025__A.md"
-        }
-      ]
+      "reviews": []
     },
-    "materials-science-20250705-001": {
-      "id": "materials-science-20250705-001",
-      "title": "Development of a Multi-Purpose Fuel Cell Energy Storage Device",
-      "description": "Comprehensive technical design for hybrid fuel cell-battery energy storage system with advanced materials",
-      "field": "Materials Science/Energy Storage",
-      "status": "backlog",
+    {
+      "id": "PROJ-20250705-materials-science-20250705-001",
+      "title": "materials science 20250705 001",
+      "description": "Migrated project: materials-science-20250705-001",
+      "field": "materials-science",
+      "status": "ready",
       "phase": "design",
       "githubIssue": 37,
-      "dateCreated": "2025-07-02",
-      "dateModified": "2025-07-07",
-      "contributors": [
-        {
-          "type": "AI",
-          "name": "TinyLlama",
-          "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-          "role": "primary_author",
-          "dateContributed": "2025-07-02"
-        },
-        {
-          "type": "AI",
-          "name": "Google Gemini",
-          "model": "Google Gemini",
-          "role": "content_development",
-          "dateContributed": "2025-07-07"
-        }
-      ],
-      "completeness": 22,
+      "dateCreated": "2025-07-08T14:28:09.514Z",
+      "dateModified": "2025-07-08T14:28:09.514Z",
+      "contributors": [],
+      "completeness": 16,
       "keywords": [
         "fuel-cell",
         "energy-storage",
@@ -280,41 +148,22 @@
         "Electrochemical testing",
         "Thermal management"
       ],
-      "location": "technical_design_documents/materials-science-20250705-001/design-completed.md",
-      "issues": [],
+      "location": "projects/PROJ-20250705-materials-science-20250705-001/",
       "estimatedTimeline": "2025-07-01 to 2028-07-01",
-      "reviews": [
-        {
-          "date": "2025-07-05",
-          "type": "automated",
-          "score": 0.15,
-          "result": "rejected",
-          "reviewer": "LLM",
-          "location": "reviews/materials-science-20250705-001/Design/llm__07-05-2025__A.md",
-          "note": "Original template was rejected; enhanced version now complete"
-        }
-      ]
+      "reviews": []
     },
-    "energy-20250704-001": {
-      "id": "energy-20250704-001",
-      "title": "Addressing Energy Inequity in Low-Income Communities",
-      "description": "Solutions for energy inequity using renewable energy systems and education programs",
-      "field": "Energy/Social Policy",
-      "status": "backlog",
+    {
+      "id": "PROJ-20250704-energy-20250704-001",
+      "title": "energy 20250704 001",
+      "description": "Migrated project: energy-20250704-001",
+      "field": "energy",
+      "status": "ready",
       "phase": "design",
       "githubIssue": 29,
-      "dateCreated": "2025-07-01",
-      "dateModified": "2025-07-01",
-      "contributors": [
-        {
-          "type": "AI",
-          "name": "TinyLlama",
-          "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-          "role": "primary_author",
-          "dateContributed": "2025-07-01"
-        }
-      ],
-      "completeness": 20,
+      "dateCreated": "2025-07-08T14:28:09.499Z",
+      "dateModified": "2025-07-08T14:28:09.499Z",
+      "contributors": [],
+      "completeness": 16,
       "keywords": [
         "energy-equity",
         "renewable-energy",
@@ -325,33 +174,22 @@
         "Community partnerships",
         "Renewable energy infrastructure"
       ],
-      "location": "technical_design_documents/energy-20250704-001/design.md",
-      "issues": [
-        "Missing detailed budget analysis",
-        "Needs specific community partnerships"
-      ],
-      "estimatedTimeline": "2025-07-01 to 2027-07-01"
+      "location": "projects/PROJ-20250704-energy-20250704-001/",
+      "estimatedTimeline": "2025-07-01 to 2027-07-01",
+      "reviews": []
     },
-    "computer-science-20250705-001": {
-      "id": "computer-science-20250705-001",
-      "title": "Improving Accessibility and Usability of Complex Computer Systems",
-      "description": "Machine learning approaches to accessibility feedback and adaptive input/output systems",
-      "field": "Computer Science/Accessibility",
-      "status": "backlog",
+    {
+      "id": "PROJ-20250705-computer-science-20250705-001",
+      "title": "computer science 20250705 001",
+      "description": "Migrated project: computer-science-20250705-001",
+      "field": "computer-science",
+      "status": "ready",
       "phase": "design",
       "githubIssue": 35,
-      "dateCreated": "2025-07-02",
-      "dateModified": "2025-07-02",
-      "contributors": [
-        {
-          "type": "AI",
-          "name": "TinyLlama",
-          "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-          "role": "primary_author",
-          "dateContributed": "2025-07-02"
-        }
-      ],
-      "completeness": 15,
+      "dateCreated": "2025-07-08T14:28:09.493Z",
+      "dateModified": "2025-07-08T14:28:09.493Z",
+      "contributors": [],
+      "completeness": 16,
       "keywords": [
         "accessibility",
         "machine-learning",
@@ -362,33 +200,22 @@
         "Machine learning frameworks",
         "Accessibility testing tools"
       ],
-      "location": "technical_design_documents/computer-science-20250705-001/design.md",
-      "issues": [
-        "Missing detailed implementation specifications",
-        "Needs user testing protocols"
-      ],
-      "estimatedTimeline": "2025-07-01 to 2027-07-01"
+      "location": "projects/PROJ-20250705-computer-science-20250705-001/",
+      "estimatedTimeline": "2025-07-01 to 2027-07-01",
+      "reviews": []
     },
-    "robotics-20250705-001": {
-      "id": "robotics-20250705-001",
-      "title": "Robotic Artificial Intelligence for Autonomous Vehicles",
-      "description": "Open-loop control systems with sensor fusion and reinforcement learning for autonomous vehicles",
-      "field": "Robotics/AI",
-      "status": "backlog",
+    {
+      "id": "PROJ-20250705-robotics-20250705-001",
+      "title": "robotics 20250705 001",
+      "description": "Migrated project: robotics-20250705-001",
+      "field": "computer-science",
+      "status": "ready",
       "phase": "design",
       "githubIssue": 36,
-      "dateCreated": "2025-07-02",
-      "dateModified": "2025-07-02",
-      "contributors": [
-        {
-          "type": "AI",
-          "name": "TinyLlama",
-          "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-          "role": "primary_author",
-          "dateContributed": "2025-07-02"
-        }
-      ],
-      "completeness": 25,
+      "dateCreated": "2025-07-08T14:28:09.524Z",
+      "dateModified": "2025-07-08T14:28:09.524Z",
+      "contributors": [],
+      "completeness": 16,
       "keywords": [
         "robotics",
         "autonomous-vehicles",
@@ -400,33 +227,22 @@
         "ROS framework",
         "Machine learning libraries"
       ],
-      "location": "technical_design_documents/robotics-20250705-001/design.md",
-      "issues": [
-        "Timeline needs updating to 2025-2028",
-        "Missing current cost analysis"
-      ],
-      "estimatedTimeline": "2025-07-01 to 2028-07-01"
+      "location": "projects/PROJ-20250705-robotics-20250705-001/",
+      "estimatedTimeline": "2025-07-01 to 2028-07-01",
+      "reviews": []
     },
-    "agriculture-20250704-001": {
-      "id": "agriculture-20250704-001",
-      "title": "Sustainable Agriculture Technology Integration",
-      "description": "Smart farming solutions using IoT sensors, AI analytics, and precision agriculture techniques",
-      "field": "Agriculture",
-      "status": "backlog",
+    {
+      "id": "PROJ-20250704-agriculture-20250704-001",
+      "title": "agriculture 20250704 001",
+      "description": "Migrated project: agriculture-20250704-001",
+      "field": "agriculture",
+      "status": "ready",
       "phase": "design",
       "githubIssue": 27,
-      "dateCreated": "2025-07-01",
-      "dateModified": "2025-07-01",
-      "contributors": [
-        {
-          "type": "AI",
-          "name": "TinyLlama",
-          "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-          "role": "primary_author",
-          "dateContributed": "2025-07-01"
-        }
-      ],
-      "completeness": 10,
+      "dateCreated": "2025-07-08T14:28:09.474Z",
+      "dateModified": "2025-07-08T14:28:09.474Z",
+      "contributors": [],
+      "completeness": 16,
       "keywords": [
         "agriculture",
         "IoT",
@@ -439,33 +255,22 @@
         "Agricultural data",
         "Machine learning platforms"
       ],
-      "location": "technical_design_documents/agriculture-20250704-001/design.md",
-      "issues": [
-        "Needs detailed implementation plan",
-        "Requires farmer stakeholder input"
-      ],
-      "estimatedTimeline": "2025-07-01 to 2027-07-01"
+      "location": "projects/PROJ-20250704-agriculture-20250704-001/",
+      "estimatedTimeline": "2025-07-01 to 2027-07-01",
+      "reviews": []
     },
-    "environmental-science-20250704-001": {
-      "id": "environmental-science-20250704-001",
-      "title": "Climate Change Impact Assessment Using Remote Sensing",
-      "description": "Satellite data analysis and machine learning for environmental monitoring and climate impact prediction",
-      "field": "Environmental Science",
-      "status": "backlog",
+    {
+      "id": "PROJ-20250704-environmental-science-20250704-001",
+      "title": "environmental science 20250704 001",
+      "description": "Migrated project: environmental-science-20250704-001",
+      "field": "environmental-science",
+      "status": "ready",
       "phase": "design",
       "githubIssue": 28,
-      "dateCreated": "2025-07-01",
-      "dateModified": "2025-07-01",
-      "contributors": [
-        {
-          "type": "AI",
-          "name": "TinyLlama",
-          "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-          "role": "primary_author",
-          "dateContributed": "2025-07-01"
-        }
-      ],
-      "completeness": 15,
+      "dateCreated": "2025-07-08T14:28:09.504Z",
+      "dateModified": "2025-07-08T14:28:09.504Z",
+      "contributors": [],
+      "completeness": 16,
       "keywords": [
         "environmental-science",
         "remote-sensing",
@@ -478,33 +283,22 @@
         "GIS software",
         "Climate models"
       ],
-      "location": "technical_design_documents/environmental-science-20250704-001/design.md",
-      "issues": [
-        "Needs data access agreements",
-        "Requires validation methodology"
-      ],
-      "estimatedTimeline": "2025-07-01 to 2028-07-01"
+      "location": "projects/PROJ-20250704-environmental-science-20250704-001/",
+      "estimatedTimeline": "2025-07-01 to 2028-07-01",
+      "reviews": []
     },
-    "psychology-20250704-001": {
-      "id": "psychology-20250704-001",
-      "title": "Digital Mental Health Intervention Platform",
-      "description": "AI-powered mental health assessment and intervention platform with personalized treatment recommendations",
-      "field": "Psychology",
-      "status": "backlog",
+    {
+      "id": "PROJ-20250704-psychology-20250704-001",
+      "title": "psychology 20250704 001",
+      "description": "Migrated project: psychology-20250704-001",
+      "field": "psychology",
+      "status": "ready",
       "phase": "design",
       "githubIssue": 26,
-      "dateCreated": "2025-07-01",
-      "dateModified": "2025-07-01",
-      "contributors": [
-        {
-          "type": "AI",
-          "name": "TinyLlama",
-          "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-          "role": "primary_author",
-          "dateContributed": "2025-07-01"
-        }
-      ],
-      "completeness": 10,
+      "dateCreated": "2025-07-08T14:28:09.519Z",
+      "dateModified": "2025-07-08T14:28:09.519Z",
+      "contributors": [],
+      "completeness": 16,
       "keywords": [
         "psychology",
         "mental-health",
@@ -517,13 +311,9 @@
         "Mental health datasets",
         "AI/ML frameworks"
       ],
-      "location": "technical_design_documents/psychology-20250704-001/design.md",
-      "issues": [
-        "Needs IRB approval",
-        "Requires clinical validation",
-        "Privacy/security concerns"
-      ],
-      "estimatedTimeline": "2025-07-01 to 2028-07-01"
+      "location": "projects/PROJ-20250704-psychology-20250704-001/",
+      "estimatedTimeline": "2025-07-01 to 2028-07-01",
+      "reviews": []
     }
-  }
+  ]
 }

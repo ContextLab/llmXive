@@ -1,44 +1,43 @@
 {
   "metadata": {
-    "version": "1.0.0",
-    "created": "2025-07-07",
-    "description": "llmXive Analytics and Statistics"
+    "version": "2.0.0",
+    "generated": "2025-07-08T14:29:55.294Z",
+    "totalProjects": 14
   },
   "stats": {
-    "totalProjects": 12,
-    "completedPapers": 0,
-    "activeReviews": 2,
-    "automationStatus": "In development",
-    "webInterfaceStatus": "Functional with recent fixes",
-    "lastUpdated": "2025-07-07",
-    "dateRange": "2025-07-01 to 2025-07-07",
-    "geminiContributions": 3,
-    "totalCompleteness": 18,
-    "projectsByField": {
-      "Infrastructure/Meta-project": 1,
-      "Testing Infrastructure": 1,
-      "Architecture/Meta-project": 1,
-      "Biology": 1,
-      "Chemistry/Energy": 1,
-      "Materials Science/Energy Storage": 1,
-      "Energy/Social Policy": 1,
-      "Computer Science/Accessibility": 1,
-      "Robotics/AI": 1,
-      "Agriculture": 1,
-      "Environmental Science": 1,
-      "Psychology": 1
+    "by_field": {
+      "meta": 1,
+      "biology": 3,
+      "robotics": 2,
+      "agriculture": 1,
+      "chemistry": 1,
+      "energy": 1,
+      "environmental-science": 1,
+      "psychology": 1,
+      "computer-science": 2,
+      "materials-science": 1
     },
-    "projectsByStatus": {
-      "backlog": 10,
-      "planning": 1,
-      "design": 1
+    "by_status": {
+      "ready": 12,
+      "in-progress": 2
     },
-    "completenessDistribution": {
-      "0-19%": 5,
-      "20-39%": 4,
-      "40-59%": 2,
-      "60-79%": 1
+    "by_phase": {
+      "design": 14
     },
-    "contributorStats": {}
+    "completeness": {
+      "average": 14.857142857142858,
+      "median": 16,
+      "distribution": {
+        "0-25%": 14,
+        "25-50%": 0,
+        "50-75%": 0,
+        "75-100%": 0
+      }
+    },
+    "timeline": {
+      "recent_projects": 14,
+      "active_projects": 14,
+      "completed_projects": 0
+    }
   }
 }

@@ -1,64 +1,9 @@
 {
   "metadata": {
-    "version": "1.0.0",
-    "created": "2025-07-07",
-    "description": "llmXive Contributors Database"
+    "version": "2.0.0",
+    "created": "2025-07-08",
+    "totalContributors": 0,
+    "lastUpdated": "2025-07-08T14:29:55.294Z"
   },
-  "contributors": {
-    "TinyLlama/TinyLlama-1.1B-Chat-v1.0": {
-      "type": "AI",
-      "name": "TinyLlama",
-      "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-      "organization": "TinyLlama Team",
-      "projectsContributed": [
-        "biology-20250704-001",
-        "chemistry-20250704-001",
-        "materials-science-20250705-001",
-        "energy-20250704-001",
-        "computer-science-20250705-001",
-        "robotics-20250705-001",
-        "agriculture-20250704-001",
-        "environmental-science-20250704-001",
-        "psychology-20250704-001"
-      ],
-      "totalContributions": 9,
-      "primaryRole": "Research idea generation and initial technical design"
-    },
-    "Claude 4 Sonnet": {
-      "type": "AI",
-      "name": "Claude",
-      "model": "Claude 4 Sonnet",
-      "organization": "Anthropic",
-      "projectsContributed": [
-        "llmxive-auto-001",
-        "llmxive-automation-testing",
-        "llmxive-v2-final"
-      ],
-      "totalContributions": 3,
-      "primaryRole": "System architecture and automation pipeline development"
-    },
-    "Google Gemini": {
-      "type": "AI",
-      "name": "Google Gemini",
-      "model": "Google Gemini",
-      "organization": "Google",
-      "projectsContributed": [
-        "biology-20250704-001",
-        "chemistry-20250704-001",
-        "materials-science-20250705-001"
-      ],
-      "totalContributions": 3,
-      "primaryRole": "Content completion and methodology enhancement"
-    },
-    "Jeremy Manning": {
-      "type": "human",
-      "name": "Jeremy Manning",
-      "organization": "Dartmouth College",
-      "projectsContributed": [
-        "llmxive-v2-final"
-      ],
-      "totalContributions": 1,
-      "primaryRole": "Project oversight and system design input"
-    }
-  }
+  "contributors": []
 }
