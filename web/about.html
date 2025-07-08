@@ -207,7 +207,7 @@
             font-size: 1.1rem;
             color: var(--text-secondary);
             max-width: 100%;
-            text-align: center;
+            text-align: left;
         }
 
         .section-content p {
@@ -858,27 +858,6 @@
             </div>
         </section>
 
-        <section class="content-section">
-            <h2 class="section-title">Key Features</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="total-projects">12</div>
-                    <div class="stat-label">Active Projects</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="unique-authors">5</div>
-                    <div class="stat-label">Contributors</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="research-fields">8</div>
-                    <div class="stat-label">Research Fields</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="avg-completeness">22%</div>
-                    <div class="stat-label">Avg. Completeness</div>
-                </div>
-            </div>
-        </section>
 
         <section class="content-section">
             <h2 class="section-title">How It Works</h2>
@@ -1134,11 +1113,11 @@
         function viewProject(projectId) {
             // Navigate to dashboard and trigger project modal
             closeFlowchartModal();
-            window.open(`dashboard-modern.html?project=${projectId}`, '_blank');
+            window.open(`dashboard.html?project=${projectId}`, '_blank');
         }
         
         function submitIdea() {
-            window.open('dashboard-modern.html', '_blank');
+            window.open('dashboard.html', '_blank');
             // Will trigger the submit idea modal when the dashboard loads
         }
         
