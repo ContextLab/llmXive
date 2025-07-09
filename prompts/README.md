@@ -63,38 +63,61 @@ The prompt system is managed by the `PromptLoader` class in `scripts/llmxive-cli
 
 ## 🔍 Review System Prompts
 
-### 8. **Generic Review**
+### 8. **Idea Review**
+- **File**: `review_idea.md`
+- **Used in**: `ReviewManager.conduct_review()` with `review_type='idea'`
+- **Purpose**: Evaluate research ideas for feasibility and innovation
+- **Variables**: `{content}` - Research idea to review
+- **Output**: Score with novelty, feasibility, merit, clarity, impact ratings
+
+### 9. **Technical Design Review**
+- **File**: `review_design.md`
+- **Used in**: `ReviewManager.conduct_review()` with `review_type='design'`
+- **Purpose**: Review technical design documents
+- **Variables**: `{content}` - Technical design to review
+- **Output**: Score with technical feasibility, completeness, clarity ratings
+
+### 10. **Implementation Plan Review**
+- **File**: `review_implementation.md`
+- **Used in**: `ReviewManager.conduct_review()` with `review_type='implementation'`
+- **Purpose**: Review implementation plans
+- **Variables**: `{content}` - Implementation plan to review
+- **Output**: Score with task breakdown, timeline, resource allocation ratings
+
+### 11. **Code Review**
+- **File**: `review_code.md`
+- **Used in**: `ReviewManager.conduct_review()` with `review_type='code'`
+- **Purpose**: Review research code for quality and correctness
+- **Variables**: `{content}` - Code to review
+- **Output**: Score with correctness, quality, documentation, testing ratings
+
+### 12. **Data Analysis Review**
+- **File**: `review_data.md`
+- **Used in**: `ReviewManager.conduct_review()` with `review_type='data'`
+- **Purpose**: Review data collection and analysis procedures
+- **Variables**: `{content}` - Data analysis to review
+- **Output**: Score with data quality, statistics, interpretation ratings
+
+### 13. **Paper Review**
+- **File**: `review_paper.md`
+- **Used in**: `ReviewManager.conduct_review()` with `review_type='paper'`
+- **Purpose**: Review research papers
+- **Variables**: `{content}` - Paper to review
+- **Output**: Score with scientific rigor, novelty, methodology ratings
+
+### 14. **Generic Review** (Fallback)
 - **File**: `review_generic.md`
-- **Used in**: `ReviewManager.conduct_review()` (line ~278)
-- **Purpose**: Conduct reviews for any type of content
-- **Variables**: `{review_type}`, `{content}` - Type of review and content
+- **Used in**: `ReviewManager.conduct_review()` for unknown review types
+- **Purpose**: Generic review for any content type
+- **Variables**: `{review_type}`, `{content}` - Type and content
 - **Output**: Score (0.0-1.0), detailed feedback, recommendations
 
-### 9. **Content Revision**
+### 15. **Content Revision**
 - **File**: `content_revision.md`
 - **Used in**: `PipelineOrchestrator.iterative_review_process()` (line ~389)
 - **Purpose**: Revise content based on review feedback
 - **Variables**: `{review_type}`, `{score}`, `{current_content}`, `{feedback}`
 - **Output**: Revised content addressing review concerns
-
-## 📚 Legacy Review Prompts
-
-These prompts were created earlier but are currently unused in the main pipeline:
-
-### 10. **Design Review**
-- **File**: `review_design.md`
-- **Purpose**: Review technical design documents
-- **Status**: Available but not actively used
-
-### 11. **Implementation Review**
-- **File**: `review_implementation.md`
-- **Purpose**: Review implementation plans
-- **Status**: Available but not actively used
-
-### 12. **Paper Review**
-- **File**: `review_paper.md`
-- **Purpose**: Review research papers
-- **Status**: Available but not actively used
 
 ## 🔧 Modifying Prompts
 

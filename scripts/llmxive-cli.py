@@ -218,7 +218,52 @@ Original content:
 Reviewer feedback:
 {feedback}
 
-Please revise the content to address all concerns and improve quality. Maintain the same format but enhance the content based on the feedback."""
+Please revise the content to address all concerns and improve quality. Maintain the same format but enhance the content based on the feedback.""",
+            'review_idea': """You are an expert reviewer evaluating a research idea for feasibility and innovation.
+
+Research Idea:
+{content}
+
+Please evaluate the idea on:
+1. Novelty and Innovation (1-10 scale): How original and creative is this idea?
+2. Technical Feasibility (1-10 scale): Can this be realistically implemented?
+3. Scientific Merit (1-10 scale): Does this address important scientific questions?
+4. Clarity and Scope (1-10 scale): Is the idea well-defined and appropriately scoped?
+5. Impact Potential (1-10 scale): Could this lead to significant contributions?
+
+SCORE: [0.0-1.0] (overall score where 0.8+ is acceptable)
+FEEDBACK: [detailed feedback on strengths and weaknesses]
+RECOMMENDATIONS: [specific improvements needed]""",
+            'review_code': """You are an expert code reviewer evaluating research code for quality, correctness, and reproducibility.
+
+Code to Review:
+{content}
+
+Please evaluate the code on:
+1. Correctness (1-10 scale): Is the code logically sound and bug-free?
+2. Code Quality (1-10 scale): Is it well-structured, readable, and maintainable?
+3. Documentation (1-10 scale): Are comments, docstrings, and documentation adequate?
+4. Testing (1-10 scale): Are there appropriate tests and error handling?
+5. Reproducibility (1-10 scale): Can others easily run and reproduce results?
+
+SCORE: [0.0-1.0] (overall score where 0.8+ is acceptable)
+FEEDBACK: [detailed feedback on code quality and issues]
+RECOMMENDATIONS: [specific improvements needed]""",
+            'review_data': """You are an expert data reviewer evaluating research data collection and analysis procedures.
+
+Data Analysis to Review:
+{content}
+
+Please evaluate the data analysis on:
+1. Data Quality (1-10 scale): Is the data collection methodology sound?
+2. Statistical Methods (1-10 scale): Are appropriate statistical techniques used?
+3. Results Interpretation (1-10 scale): Are conclusions properly supported by data?
+4. Reproducibility (1-10 scale): Can the analysis be replicated?
+5. Visualization (1-10 scale): Are results clearly presented and visualized?
+
+SCORE: [0.0-1.0] (overall score where 0.8+ is acceptable)
+FEEDBACK: [detailed feedback on data analysis quality]
+RECOMMENDATIONS: [specific improvements needed]"""
         }
         return fallbacks.get(prompt_name, f"Prompt template for {prompt_name} not found.")
 
@@ -298,7 +343,20 @@ class ReviewManager:
         """Conduct a review and return score, feedback, reviewer"""
         reviewer = self.get_next_reviewer()
         
-        review_prompt = self.prompt_loader.load_prompt('review_generic', review_type=review_type, content=content)
+        # Map review types to specific prompt templates
+        review_prompt_map = {
+            'idea': 'review_idea',
+            'technical_design': 'review_design', 
+            'design': 'review_design',
+            'implementation_plan': 'review_implementation',
+            'implementation': 'review_implementation',
+            'code': 'review_code',
+            'data': 'review_data',
+            'paper': 'review_paper'
+        }
+        
+        prompt_name = review_prompt_map.get(review_type, 'review_generic')
+        review_prompt = self.prompt_loader.load_prompt(prompt_name, review_type=review_type, content=content)
         
         try:
             if reviewer == 'claude':
