@@ -17,6 +17,9 @@ from typing import Dict, List, Optional, Tuple
 import uuid
 import re
 
+# Import code execution manager
+from code_execution_manager import CodeExecutionManager
+
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -396,6 +399,7 @@ class PipelineOrchestrator:
         self.project_manager = ProjectManager(base_path)
         self.prompt_loader = PromptLoader(base_path / "prompts")
         self.review_manager = ReviewManager(self.api_client, self.prompt_loader)
+        self.code_executor = CodeExecutionManager(base_path)
         
     def log_step(self, step: str, project_id: str, details: str = "") -> None:
         """Log pipeline step"""
@@ -588,6 +592,47 @@ class PipelineOrchestrator:
             
         except Exception as e:
             self.log_step("CODE_GEN_ERROR", project_id, str(e))
+            raise
+    
+    def execute_project_code(self, project_id: str, project_path: Path) -> Dict:
+        """Execute the project code in a sandboxed environment"""
+        self.log_step("CODE_EXEC_START", project_id)
+        
+        try:
+            # Find the main code file
+            code_dir = project_path / 'code'
+            main_file = None
+            
+            # Look for main files in order of preference
+            for filename in ['main.py', 'run.py', 'analysis.py', 'script.py']:
+                candidate = code_dir / filename
+                if candidate.exists():
+                    main_file = candidate
+                    break
+            
+            if not main_file:
+                # Look for any Python file
+                py_files = list(code_dir.glob('*.py'))
+                if py_files:
+                    main_file = py_files[0]
+            
+            if not main_file:
+                raise FileNotFoundError("No executable code file found in project")
+            
+            # Execute the code
+            exec_result = self.code_executor.execute_code(project_path, main_file)
+            
+            if exec_result['success']:
+                self.log_step("CODE_EXEC_SUCCESS", project_id, 
+                             f"Runtime: {exec_result['runtime_seconds']:.2f}s")
+            else:
+                self.log_step("CODE_EXEC_FAILED", project_id, 
+                             f"Exit code: {exec_result['exit_code']}")
+            
+            return exec_result
+            
+        except Exception as e:
+            self.log_step("CODE_EXEC_ERROR", project_id, str(e))
             raise
     
     def run_analyses(self, project_id: str, code_content: str, data_summary: str) -> str:
@@ -885,19 +930,41 @@ class PipelineOrchestrator:
             self.save_incremental_file(project_id, "code", "main.py", code_content)
             self.save_incremental_file(project_id, "data", "README.md", data_summary)
             
-            # Step 8: Run analyses
-            analysis_results = self.run_analyses(project_id, code_content, data_summary)
+            # Step 8: Execute code in sandboxed environment
+            project_path = self.base_path / project_id
+            try:
+                exec_result = self.execute_project_code(project_id, project_path)
+                
+                # Save execution results
+                if exec_result['success']:
+                    self.save_incremental_file(project_id, "code", "execution_success.md", 
+                                             f"# Code Execution Successful\n\n**Runtime:** {exec_result['runtime_seconds']:.2f}s\n\n**Output:**\n```\n{exec_result['output']}\n```")
+                else:
+                    # Save error report for debugging
+                    error_report = f"# Code Execution Failed\n\n**Exit Code:** {exec_result['exit_code']}\n\n**Error:**\n```\n{exec_result['error']}\n```\n\n**Next Steps:**\n- Review the error above\n- Fix the code issues\n- Re-run the pipeline"
+                    self.save_incremental_file(project_id, "code", "execution_error.md", error_report)
+                    
+            except Exception as e:
+                self.log_step("CODE_EXEC_SKIP", project_id, f"Skipping code execution: {str(e)}")
+                exec_result = None
+            
+            # Step 9: Run analyses (including execution results if available)
+            execution_summary = ""
+            if exec_result:
+                execution_summary = f"\n\n## Code Execution Results\n**Status:** {'Success' if exec_result['success'] else 'Failed'}\n**Runtime:** {exec_result['runtime_seconds']:.2f}s\n**Output:**\n```\n{exec_result['output'][:500]}\n```\n**Error:**\n```\n{exec_result['error'][:500]}\n```"
+            
+            analysis_results = self.run_analyses(project_id, code_content, data_summary + execution_summary)
             
             # Save analysis results immediately
             self.save_incremental_file(project_id, "data", "analysis_results.md", analysis_results)
             
-            # Step 9: Write paper
+            # Step 10: Write paper
             paper_content = self.write_paper(project_id, title, design_doc, impl_plan, code_content, analysis_results)
             
             # Save paper immediately
             self.save_incremental_file(project_id, "paper", "paper.tex", paper_content)
             
-            # Step 10: Review paper iteratively
+            # Step 11: Review paper iteratively
             paper_content, paper_passed = self.iterative_review_process(paper_content, "research paper", project_id, max_iterations=5)
             if not paper_passed:
                 print(f"Warning: Paper for {project_id} did not pass final review but proceeding to save")
