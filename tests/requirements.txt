@@ -1,0 +1,36 @@
+# Testing requirements for llmXive code execution system
+# These packages are needed to run the test suite
+
+# Core testing framework (included in Python standard library)
+# unittest - included in Python
+# json - included in Python  
+# os - included in Python
+# sys - included in Python
+# subprocess - included in Python
+# tempfile - included in Python
+# pathlib - included in Python
+# uuid - included in Python
+# datetime - included in Python
+
+# Optional testing enhancements
+# pytest>=7.0.0  # Alternative test runner (optional)
+# pytest-cov>=4.0.0  # Coverage reporting (optional)
+# pytest-mock>=3.10.0  # Enhanced mocking (optional)
+
+# Development dependencies for advanced testing
+# black>=22.0.0  # Code formatting (optional)
+# flake8>=5.0.0  # Code linting (optional)
+# mypy>=1.0.0  # Type checking (optional)
+
+# Note: The test suite is designed to work with Python standard library only
+# Additional packages above are optional for enhanced development workflow
+
+# For running the actual code execution (not the tests):
+# numpy>=1.20.0
+# pandas>=1.3.0
+# matplotlib>=3.5.0
+# jupyter>=1.0.0
+# scikit-learn>=1.0.0
+# seaborn>=0.11.0
+# plotly>=5.0.0
+# requests>=2.25.0
