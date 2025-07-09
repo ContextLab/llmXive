@@ -133,9 +133,9 @@ class PromptLoader:
                     if line.startswith('# ') and 'Prompt' in line:
                         in_prompt = True
                         continue
-                    elif line.startswith('## ') and ('Variables' in line or 'Instructions' in line):
+                    elif line.startswith('## ') and ('Variables' in line or 'Instructions' in line or 'Response Format' in line):
                         break
-                    elif in_prompt and line.strip():
+                    elif in_prompt:
                         prompt_lines.append(line)
                 
                 self.cache[prompt_name] = '\n'.join(prompt_lines).strip()
@@ -195,7 +195,30 @@ The paper should follow standard academic format:
 
 Use proper LaTeX syntax throughout - NO MARKDOWN formatting like **bold** or # headers.
 Use \\textbf{{}} for bold, \\textit{{}} for italics, \\section{{}} for sections.
-Include proper citations and ensure all claims are supported by the provided materials."""
+Include proper citations and ensure all claims are supported by the provided materials.""",
+            'review_generic': """You are an expert reviewer evaluating a {review_type} for a research project.
+
+Please review the following content and provide:
+1. A score from 0.0 to 1.0 (where 0.8+ is acceptable for advancement)
+2. Detailed feedback with strengths and weaknesses
+3. Specific recommendations for improvement
+
+Content to review:
+{content}
+
+Respond in this format:
+SCORE: [0.0-1.0]
+FEEDBACK: [detailed feedback]
+RECOMMENDATIONS: [specific improvements needed]""",
+            'content_revision': """The following {review_type} received a score of {score:.2f} and needs improvement.
+
+Original content:
+{current_content}
+
+Reviewer feedback:
+{feedback}
+
+Please revise the content to address all concerns and improve quality. Maintain the same format but enhance the content based on the feedback."""
         }
         return fallbacks.get(prompt_name, f"Prompt template for {prompt_name} not found.")
 
@@ -248,8 +271,9 @@ class ProjectManager:
 class ReviewManager:
     """Manages review processes and scoring"""
     
-    def __init__(self, api_client: APIModelClient):
+    def __init__(self, api_client: APIModelClient, prompt_loader: PromptLoader):
         self.api_client = api_client
+        self.prompt_loader = prompt_loader
         # Only include models that have API keys available
         self.review_models = []
         if api_client.anthropic_key:
@@ -274,22 +298,7 @@ class ReviewManager:
         """Conduct a review and return score, feedback, reviewer"""
         reviewer = self.get_next_reviewer()
         
-        review_prompt = f"""
-You are an expert reviewer evaluating a {review_type} for a research project.
-
-Please review the following content and provide:
-1. A score from 0.0 to 1.0 (where 0.8+ is acceptable for advancement)
-2. Detailed feedback with strengths and weaknesses
-3. Specific recommendations for improvement
-
-Content to review:
-{content}
-
-Respond in this format:
-SCORE: [0.0-1.0]
-FEEDBACK: [detailed feedback]
-RECOMMENDATIONS: [specific improvements needed]
-"""
+        review_prompt = self.prompt_loader.load_prompt('review_generic', review_type=review_type, content=content)
         
         try:
             if reviewer == 'claude':
@@ -327,8 +336,8 @@ class PipelineOrchestrator:
         self.api_client = APIModelClient()
         self.hf_client = HuggingFaceClient()
         self.project_manager = ProjectManager(base_path)
-        self.review_manager = ReviewManager(self.api_client)
         self.prompt_loader = PromptLoader(base_path / "prompts")
+        self.review_manager = ReviewManager(self.api_client, self.prompt_loader)
         
     def log_step(self, step: str, project_id: str, details: str = "") -> None:
         """Log pipeline step"""
@@ -400,17 +409,11 @@ class PipelineOrchestrator:
                 return current_content, True
                 
             # Content needs revision - use any available model (prefer different from reviewer)
-            revision_prompt = f"""
-The following {review_type} received a score of {score:.2f} and needs improvement.
-
-Original content:
-{current_content}
-
-Reviewer feedback:
-{feedback}
-
-Please revise the content to address all concerns and improve quality. Maintain the same format but enhance the content based on the feedback.
-"""
+            revision_prompt = self.prompt_loader.load_prompt('content_revision', 
+                                                               review_type=review_type, 
+                                                               score=score, 
+                                                               current_content=current_content, 
+                                                               feedback=feedback)
             
             try:
                 # Try to use a different model for revision than the reviewer
