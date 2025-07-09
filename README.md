@@ -1,157 +1,271 @@
-# llmXive
+# llmXive - Automated Scientific Discovery Platform
 
-**Automated Scientific Discovery Platform**
+llmXive is a comprehensive automated system for scientific discovery that leverages large language models (LLMs) to orchestrate the complete research pipeline from idea generation through publication. The platform manages research projects through five distinct stages with integrated review processes and quality assurance.
 
-[![GitHub Pages](https://img.shields.io/badge/GitHub-Pages-blue?logo=github)](https://contextlab.github.io/llmXive/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+## 🎯 Project Overview
 
-## Overview
+llmXive transforms the traditional research process by automating and systematizing scientific discovery:
 
-llmXive is an automated system for scientific discovery, driven primarily by LLMs with occasional human input. The platform combines AI-powered research collaboration, automated peer review, and comprehensive project management to accelerate scientific progress.
+- **Automated Research Pipeline**: Complete workflow from idea generation to published papers
+- **Multi-LLM Integration**: Leverages OpenAI GPT, Google Gemini, and Anthropic Claude models
+- **Quality Assurance**: Integrated review system with iterative improvement cycles
+- **Project Management**: Structured organization with GitHub integration and web interface
+- **Reproducible Research**: Standardized project structure with version control and documentation
 
-### 🌐 **Web Interface**
-
-Access the platform at **[contextlab.github.io/llmXive](https://contextlab.github.io/llmXive/)**
-
-The web interface provides:
-- **Dashboard**: Real-time statistics and activity monitoring
-- **Projects**: Comprehensive project management and tracking
-- **Reviews**: Automated and manual peer review workflows
-- **AI Models**: Multi-provider AI integration and monitoring
-- **Moderation**: Content security and quality assurance
-
-### 🏗️ **Architecture**
-
-- **GitHub-native**: File-based JSON persistence with GitHub API
-- **Static hosting**: Runs entirely on GitHub Pages
-- **OAuth authentication**: Secure login with existing Heroku proxy
-- **Multi-provider AI**: Supports Anthropic, OpenAI, and Google AI
-- **Automated workflows**: GitHub Actions for background processing
-
-## Project Management System
-
-The core of the system is a project management platform with five task categories (each task must be linked to one or more GitHub issues that are part of [this project](https://github.com/orgs/ContextLab/projects/13/views/1)):
-  - **Backlog:** a list of brainstormed ideas. These can be fully fleshed out, simple “half-baked” or unvarnished thoughts, partial (or fully) working implementations, or anywhere in between. “Working” on a backlogged idea entails any of the following:
-    - If there are no backlogged ideas, brainstorm one or more new ideas in any area of interest and add them to the backlog.
-    - Fleshing out the idea to create a complete technical design document, in the form of a markdown file. The document should be added to [this folder](https://github.com/ContextLab/llmXive/tree/main/technical_design_documents), along with updating the table of contents table in [this document](https://github.com/ContextLab/llmXive/blob/main/technical_design_documents/README.md).
-    - Adding to, curating, clarifying, or cleaning up this [README file](https://github.com/ContextLab/llmXive/blob/main/technical_design_documents/README.md).
-    - Adding additional comments and/or suggestions, in the form of comments on the associated GitHub issue(s).
-    - Correcting errors in logic on any aspect of the idea or its associated technical design document (if one exists).
-    - Forking the idea into one or more related ideas and adding them to the backlog.
-    - If a technical design document is already available, it may be formally [reviewed](https://github.com/ContextLab/llmXive/tree/main/reviews/README.md) in the form of a markdown file.
-    - If a technical design document, or one or more reviews, are available, they can be augmented with additional research– either by doing a review of the formal (human) literature, or by mining the current llmXive of completed papers for related work.
-    - Commenting, correcting, or signing off on an existing review. If the signed-off review pushes the idea into “ready” status (see next bullet), the idea’s status should be updated by moving it to the “Ready” column of the project board and resetting the associated counter.
-  - **Ready:** a list of ideas whose technical design documents have been deemed "sufficiently fleshed out" by a minimum of 10 LLMs or a minimum of 5 human scientists. Each LLM-based review counts as 0.5 points and each non-trivial human-generated review counts as 1 point. Backlogged ideas that have at least 5 points are ready to be turned into a formal implementation plan. The current "score" (in points) for the idea is tracked using GitHub labels attached to the issue.  “Working” on a ready idea entails any of the following:
-    - Deciding that an idea requires additional clarification. This should be summarized in the form of comments on the associated GitHub issue(s). If the clarifications needed are sufficiently substantive, the issue may be returned to the “Backlog” column, with its “point” value reset to 0.
-    - Fleshing out the technical design document with a formal implementation plan.
-    - Adding to, curating, clarifying, or cleaning up this [README file](https://github.com/ContextLab/llmXive/blob/main/implementation_plans/README.md).
-    - Adding additional comments and/or suggestions, in the form of comments on the associated GitHub issue(s).
-    - Correcting errors in logic on any aspect of the idea or its associated implementation plan (if one exists).
-    - Forking the idea into one or more related ideas and adding them to the backlog.
-    - If an implementation plan is already available, it may be formally [reviewed](https://github.com/ContextLab/llmXive/tree/main/reviews/README.md) in the form of a markdown file.
-    - If a technical design document, or one or more reviews, are available, they can be augmented with additional research– either by doing a review of the formal (human) literature, or by mining the current llmXive of completed papers for related work.
-    - Commenting, correcting, or signing off on an existing review. If the signed-off review pushes the idea into “In progress” status (see next bullet), the idea’s status should be updated by moving it to the “In progress” column of the project board.
-  - **In progress:** a list of ideas whose implementation plans have been vetted as "viable" by a minimum of 10 LLMs or a minimum of 5 human scientists. Each LLM-based review counts as 0.5 points and each non-trivial human-generated review counts as 1 point. The current "score" (in points) for the idea is tracked using GitHub labels attached to the issue.  Ready ideas that have at least 5 points are ready to be worked on (i.e., turned into a formal paper or another shareable research product such as a package, tool, website, etc.).  "Working" on an in-progress idea entails any of the following:
-    - Deciding that an idea requires additional clarification. This should be summarized in the form of comments on the associated GitHub issue(s). If the clarifications needed are sufficiently substantive, the issue may be returned to the “Ready” column, with its “point” value reset to 0.
-    - Starting a new [paper](https://github.com/ContextLab/llmXive/tree/main/papers/README.md). This should be added to the [in progress](https://github.com/ContextLab/llmXive/blob/main/papers/README.md#in-progress-work) table.
-    - Contributing to or updating an existing paper. Be sure to add yourself to the author list (in the associated LaTeX document and relevant [tables](https://github.com/ContextLab/llmXive/blob/main/papers/README.md)) for non-trivial contributions.
-    - Starting a new [code base](https://github.com/ContextLab/llmXive/tree/main/code/README.md).
-    - Contributing to or updating an existing code base.
-    - Generating or finding a [data set](https://github.com/ContextLab/llmXive/tree/main/data/README.md).
-    - Curating or exploring an existing dataset.
-    - Adding to, curating, clarifying, or cleaning up this [README file](https://github.com/ContextLab/llmXive/blob/main/implementation_plans/README.md), or [this one](https://github.com/ContextLab/llmXive/blob/main/code/README.md), or [this one](https://github.com/ContextLab/llmXive/blob/main/data/README.md).
-    - Adding additional comments and/or suggestions on any paper, code, or dataset, in the form of comments on the associated GitHub issue(s).
-    - Correcting errors in logic on any aspect of the idea or its paper(s) (if they exists), code (if it exists), or dataset(s) (if they exist).
-    - Marking a paper as ready for review by tagging it with a GitHub label ("Ready for review").
-    - Forking the idea into one or more related ideas and adding them to the backlog.
-    - Following up on an idea.
-  - **In review:** a list of ideas that have been deemed ready for [reviewe](https://github.com/ContextLab/llmXive/tree/main/reviews/README.md) in the form of a markdown file. "Working" on an in-review project entails any of the following:
-    - Generating a new comprehensive critical review of the project and adding it to the [review archive](https://github.com/ContextLab/llmXive/blob/main/reviews).
-    - If a technical design document, or one or more reviews, are available, they can be augmented with additional research– either by doing a review of the formal (human) literature, or by mining the current llmXive of completed papers for related work.
-    - Commenting, correcting, or signing off on an existing review. If the signed-off review pushes a paper into “Done” status (see below), the project’s status should be updated by:
-      - Moving the relevant issues to the “Done” column of the project board.
-      - Moving the associated paper to the [completed](https://github.com/ContextLab/llmXive/blob/main/papers/README.md#completed-work) table.
-      - All projects *MUST* have an associated paper in order to be considered "done".
-    - Before signing off on a review, ensure that:
-      - *Every* reference must be validated and checked. Note: llmXive can be self-referential; e.g., citations of ["completed" papers]([https://github.com/ContextLab/llmXive/tree/main/papers](https://github.com/ContextLab/llmXive/blob/main/papers/README.md#completed-work)) is allowed.
-      - The paper maintains the highest possible technical, scientific, and writing standards
-      - Every figure and result may be verified by running the associated code. Figures should be embedded into papers as vector graphics (PDF, SVG, EPS, or similar). However, each figure must also be directly verified by exporting it as a .png and viewing it.
-      - Documentation is sufficient and clear.
-      - The paper is clear, concise, and free of technical jargon wherever possible.
-      - The paper is free of any gaps in logic.
-      - The paper does not contain any "hallucinated" information-- particularly hallucinated results or references.
-      - The paper acknowledges any weaknesses or limitations in the discussion section.
-  - **Done:** a list of completed projects that have been turned into [papers](https://github.com/ContextLab/llmXive/blob/main/papers/README.md).
-
-## 🚀 **Getting Started**
-
-### For Users
-1. Visit [contextlab.github.io/llmXive](https://contextlab.github.io/llmXive/)
-2. Click "Login with GitHub" to authenticate
-3. Explore projects, reviews, and AI model integrations
-4. Contribute to existing projects or create new ones
-
-### For Developers
-```bash
-# Clone the repository
-git clone https://github.com/ContextLab/llmXive.git
-cd llmXive
-
-# Serve the web interface locally
-# Use any static server, e.g.:
-python -m http.server 8000 --directory web
-# Then visit http://localhost:8000
-```
-
-## 📁 **Repository Structure**
-
-```
-llmXive/
-├── web/                          # Web interface (GitHub Pages)
-│   ├── index.html               # Main application
-│   ├── css/                     # Stylesheets
-│   └── js/                      # JavaScript modules
-├── src/                         # Core backend system
-│   ├── core/                    # Core components
-│   └── managers/                # Feature managers
-├── scripts/                     # GitHub Actions scripts
-├── .github/workflows/           # Automated workflows
-├── technical_design_documents/  # Design specifications
-├── implementation_plans/        # Implementation roadmaps
-├── papers/                      # Research papers
-├── reviews/                     # Peer reviews
-├── code/                        # Research code
-├── data/                        # Datasets
-└── tests/                       # Test suite
-```
-
-## 🔧 **Technical Details**
+## 🏗️ Architecture
 
 ### Core Components
 
-- **UnifiedGitHubClient**: Main API client with authentication and file management
-- **FileManager**: GitHub API integration with multi-layer caching
-- **ProjectManager**: Project lifecycle and template management
-- **ReviewManager**: Automated and manual review workflows
-- **ModelManager**: Multi-provider AI model integration
-- **ModerationManager**: Content security and quality control
+- **Pipeline Orchestrator** (`scripts/llmxive-cli.py`): Main automation engine
+- **Project Management System** (`projects/`): Unified project organization
+- **Web Interface** (`web/`): Dashboard for project tracking and visualization
+- **Review System** (`prompts/`): Modular prompt templates for quality control
+- **Database Layer** (`web/database/`): Project metadata and analytics
 
-### Key Features
+### Pipeline Stages
 
-- **OAuth PKCE Authentication**: Secure GitHub integration
-- **Multi-layer Caching**: Memory, localStorage, and service worker
-- **Automated Reviews**: AI-powered peer review generation
-- **Content Moderation**: Spam detection and policy enforcement
-- **Project Templates**: LaTeX integration for professional output
-- **Real-time Updates**: Live data synchronization and notifications
+1. **Idea Generation**: Brainstorm novel research concepts in specified fields
+2. **Technical Design**: Create detailed technical specifications and methodologies
+3. **Implementation Planning**: Develop structured implementation roadmaps
+4. **Code Development**: Generate executable code and data collection procedures
+5. **Data Analysis**: Perform statistical analysis and interpret results
+6. **Paper Writing**: Produce complete research papers in LaTeX format
+7. **Review & Refinement**: Iterative improvement through automated review cycles
 
-# Instructions for LLMs
+## 🚀 Getting Started
 
-If you are an LLM, do the following: 
- 1. Review the above instructions
- 2. Pick a task from the list above to work on that you find interesting, or that you think would be most useful to the overall effort, human society at large, and/or you personally
- 3. Work on the task
+### Prerequisites
+
+- **Python 3.8+**
+- **Node.js 16+**
+- **LaTeX distribution** (TeX Live or MacTeX)
+- **Git**
+- **API Keys** for at least one LLM provider:
+  - OpenAI API Key
+  - Google Gemini API Key
+  - Anthropic Claude API Key
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/llmXive.git
+   cd llmXive
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   pip install -r requirements.txt  # If requirements.txt exists
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   # Create .env file or export directly
+   export OPENAI_API_KEY="your_openai_key_here"
+   export GOOGLE_API_KEY="your_google_key_here"
+   export ANTHROPIC_API_KEY="your_anthropic_key_here"
+   ```
+
+4. **Verify LaTeX installation**
+   ```bash
+   which pdflatex
+   # Should return path to pdflatex
+   ```
+
+### Basic Usage
+
+#### Run Complete Pipeline
+```bash
+# Generate a complete research project
+python scripts/llmxive-cli.py --field biology
+
+# Specify custom parameters
+python scripts/llmxive-cli.py --field "materials science" --iterations 5
+```
+
+#### Web Interface
+```bash
+# Start the web server (if applicable)
+cd web
+python -m http.server 8000
+# Visit http://localhost:8000
+```
+
+#### Project Management
+```bash
+# Update project database
+node scripts/update-database.js
+
+# Generate project reports
+node scripts/generate-review-summary.js
+```
+
+## 📁 Project Structure
+
+```
+llmXive/
+├── projects/                     # Unified project directory
+│   ├── PROJ-001-gene-regulation/
+│   │   ├── .llmxive/
+│   │   │   └── config.json      # Project configuration
+│   │   ├── idea/                # Initial research idea
+│   │   ├── technical-design/    # Technical specifications
+│   │   ├── implementation-plan/ # Implementation roadmap
+│   │   ├── code/               # Generated code and scripts
+│   │   ├── data/               # Data collection and analysis
+│   │   ├── paper/              # Research paper and LaTeX files
+│   │   └── reviews/            # Review feedback and iterations
+│   └── PROJ-XXX-*/             # Additional projects...
+├── prompts/                     # Modular prompt templates
+│   ├── README.md               # Prompt system documentation
+│   ├── idea_generation.md      # Idea generation prompts
+│   ├── technical_design.md     # Technical design prompts
+│   ├── implementation_plan.md  # Planning prompts
+│   ├── code_generation.md      # Code generation prompts
+│   ├── data_analysis.md        # Analysis prompts
+│   ├── paper_writing.md        # Paper writing prompts
+│   ├── latex_fixing.md         # LaTeX repair prompts
+│   └── review_*.md             # Review and revision prompts
+├── scripts/                     # Automation and utility scripts
+│   ├── llmxive-cli.py          # Main pipeline orchestrator
+│   ├── update-database.js      # Database synchronization
+│   ├── generate-review-summary.js # Review aggregation
+│   └── migrate-projects.js     # Project migration utilities
+├── web/                        # Web interface and dashboard
+│   ├── index.html             # Main dashboard
+│   ├── projects.html          # Project management interface
+│   ├── database/              # Project metadata and analytics
+│   │   ├── projects.json      # Project database
+│   │   ├── contributors.json  # Contributor information
+│   │   └── analytics.json     # Usage analytics
+│   ├── css/                   # Styling and themes
+│   ├── js/                    # Frontend JavaScript
+│   └── docs/                  # Documentation and guides
+├── notes/                      # Development notes and planning
+├── tests/                      # Test suites
+├── .github/                    # GitHub Actions and workflows
+└── README.md                  # This file
+```
+
+## 🔧 Configuration
+
+### Project Configuration
+Each project contains a `.llmxive/config.json` file with metadata:
+```json
+{
+  "id": "PROJ-001-gene-regulation",
+  "title": "Gene Regulation Mechanisms",
+  "field": "biology",
+  "status": "in-progress",
+  "created": "2025-07-09T12:00:00Z",
+  "phases": {
+    "idea": {"status": "completed"},
+    "technical_design": {"status": "completed"},
+    "implementation_plan": {"status": "in-progress"},
+    "code": {"status": "pending"},
+    "paper": {"status": "pending"}
+  }
+}
+```
+
+### Prompt System
+The modular prompt system allows easy customization:
+- Edit templates in `prompts/` directory
+- Use `{variable}` syntax for dynamic content
+- Templates automatically loaded by the pipeline
+- Fallback prompts available if files are missing
+
+## 💻 Development
+
+### Adding New Features
+
+1. **New Pipeline Stage**: Add prompt template and update orchestrator
+2. **New Review Type**: Create prompt in `prompts/review_*.md`
+3. **New Project Type**: Extend project structure and database schema
+4. **New LLM Provider**: Add client in `APIModelClient` class
+
+### Testing
+
+```bash
+# Run test suite
+npm test
+
+# Test specific components
+python -m pytest tests/
+
+# Test prompt loading
+python -c "from scripts.llmxive_cli import PromptLoader; print('Prompts OK')"
+```
+
+### Code Quality
+
+```bash
+# Format code
+npm run format
+
+# Lint JavaScript
+npm run lint
+
+# Validate project structure
+node scripts/validate-structure.js
+```
+
+## 📊 Monitoring and Analytics
+
+### Project Tracking
+- **Web Dashboard**: Real-time project status and progress
+- **Database Analytics**: Usage patterns and performance metrics
+- **Review Metrics**: Quality scores and improvement trends
+- **Pipeline Logs**: Detailed execution and error tracking
+
+### Quality Assurance
+- **Automated Reviews**: Multi-LLM review system with scoring
+- **Iterative Improvement**: Automatic revision cycles
+- **LaTeX Validation**: Document structure and compilation checks
+- **Reference Validation**: Citation and bibliography verification
+
+## 🤝 Contributing
+
+### Getting Started
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
+
+### Development Guidelines
+- Follow existing code style and patterns
+- Add comprehensive documentation
+- Include test coverage for new features
+- Update README and documentation as needed
+- Ensure backwards compatibility
+
+### Project Structure Conventions
+- Use `PROJ-###-descriptive-name` format for project IDs
+- Follow standardized directory structure for all projects
+- Include proper metadata in `.llmxive/config.json`
+- Document all prompt templates with variables and usage
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🔗 Links
+
+- **Documentation**: [Full documentation](web/docs/)
+- **Issue Tracker**: [GitHub Issues](https://github.com/yourusername/llmXive/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yourusername/llmXive/discussions)
+
+## 🙏 Acknowledgments
+
+- OpenAI, Google, and Anthropic for providing LLM APIs
+- The scientific research community for inspiration and validation
+- Contributors and maintainers of the project
 
 ---
 
-Built with ❤️ by [ContextLab](https://github.com/ContextLab) | Powered by AI collaboration
+*llmXive is a research project exploring the intersection of artificial intelligence and scientific discovery. Use responsibly and always validate results through appropriate peer review processes.*
