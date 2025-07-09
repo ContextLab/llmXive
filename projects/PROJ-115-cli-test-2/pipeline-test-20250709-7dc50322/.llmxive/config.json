@@ -1,0 +1,45 @@
+{
+  "id": "pipeline-test-20250709-7dc50322",
+  "title": "Untitled Research Project",
+  "description": "Auto-generated project: Untitled Research Project",
+  "field": "chemistry",
+  "status": "in-progress",
+  "created_date": "2025-07-09T10:16:39.100852",
+  "updated_date": "2025-07-09T10:16:39.100854",
+  "contributors": [
+    {
+      "username": "llmxive-pipeline",
+      "type": "llm",
+      "contributions": [
+        "idea",
+        "technical_design",
+        "implementation_plan",
+        "code",
+        "paper"
+      ]
+    }
+  ],
+  "github_issues": [],
+  "phases": {
+    "idea": {
+      "completed": false,
+      "points": 0
+    },
+    "technical_design": {
+      "completed": false,
+      "points": 0
+    },
+    "implementation_plan": {
+      "completed": false,
+      "points": 0
+    },
+    "code": {
+      "completed": false,
+      "points": 0
+    },
+    "paper": {
+      "completed": false,
+      "points": 0
+    }
+  }
+}

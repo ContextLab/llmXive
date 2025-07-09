@@ -1,0 +1,35 @@
+{
+  "id": "PROJ-124-computer-science-accessibility",
+  "title": "computer science 20250705 001",
+  "description": "Migrated project: computer-science-20250705-001",
+  "field": "computer-science",
+  "status": "ready",
+  "created_date": "2025-07-08T14:28:09.493Z",
+  "updated_date": "2025-07-08T14:28:09.493Z",
+  "contributors": [],
+  "github_issues": [],
+  "phases": {
+    "idea": {
+      "completed": false,
+      "points": 0
+    },
+    "technical_design": {
+      "completed": false,
+      "points": 0
+    },
+    "implementation_plan": {
+      "completed": false,
+      "points": 0
+    },
+    "code": {
+      "completed": false,
+      "points": 0
+    },
+    "paper": {
+      "completed": false,
+      "points": 0
+    }
+  },
+  "renamed": true,
+  "oldId": "PROJ-20250705-computer-science-20250705-001"
+}

@@ -15,6 +15,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import uuid
+import re
 
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent))
@@ -109,6 +110,94 @@ class HuggingFaceClient:
         # For now, return a simulated response
         # In production, this would use transformers library
         return f"[HuggingFace {model} response to: {prompt[:50]}...]"
+
+class PromptLoader:
+    """Loads and manages prompt templates"""
+    
+    def __init__(self, prompts_dir: Path):
+        self.prompts_dir = prompts_dir
+        self.cache = {}
+    
+    def load_prompt(self, prompt_name: str, **kwargs) -> str:
+        """Load prompt template and substitute variables"""
+        if prompt_name not in self.cache:
+            prompt_file = self.prompts_dir / f"{prompt_name}.md"
+            if prompt_file.exists():
+                with open(prompt_file, 'r') as f:
+                    content = f.read()
+                # Extract the actual prompt from the markdown (skip header and metadata)
+                lines = content.split('\n')
+                prompt_lines = []
+                in_prompt = False
+                for line in lines:
+                    if line.startswith('# ') and 'Prompt' in line:
+                        in_prompt = True
+                        continue
+                    elif line.startswith('## ') and ('Variables' in line or 'Instructions' in line):
+                        break
+                    elif in_prompt and line.strip():
+                        prompt_lines.append(line)
+                
+                self.cache[prompt_name] = '\n'.join(prompt_lines).strip()
+            else:
+                # Fallback to hardcoded prompts if file doesn't exist
+                self.cache[prompt_name] = self._get_fallback_prompt(prompt_name)
+        
+        # Substitute variables
+        prompt = self.cache[prompt_name]
+        for key, value in kwargs.items():
+            prompt = prompt.replace(f'{{{key}}}', str(value))
+        
+        return prompt
+    
+    def _get_fallback_prompt(self, prompt_name: str) -> str:
+        """Fallback hardcoded prompts if files are missing"""
+        fallbacks = {
+            'idea_generation': """Generate an innovative research idea in the field of {field}.
+
+Requirements:
+- Be novel and creative
+- Address current problems or gaps in the field
+- Be technically feasible with current methods
+- Have clear applications or implications
+- Be suitable for academic publication
+
+Respond with:
+TITLE: [concise research title]
+FIELD: [research field]
+DESCRIPTION: [2-3 paragraph description of the research idea, methodology, and expected outcomes]
+KEYWORDS: [5-7 relevant keywords]""",
+            'paper_writing': """Write a complete research paper in PROPER LaTeX FORMAT based on the following project materials:
+
+Title: {title}
+Technical Design: {design_doc}
+Implementation: {impl_plan}
+Code: {code_content}
+Analysis Results: {analysis_results}
+
+IMPORTANT: Generate a COMPLETE LaTeX document that includes:
+- \\documentclass{{article}}
+- \\usepackage commands for necessary packages
+- \\title{{}} and \\author{{}} commands
+- \\begin{{document}} and \\end{{document}}
+- \\maketitle command
+- \\begin{{abstract}} and \\end{{abstract}}
+- Proper LaTeX section commands (\\section{{}}, \\subsection{{}})
+
+The paper should follow standard academic format:
+1. Abstract
+2. Introduction  
+3. Methods
+4. Results
+5. Discussion
+6. Conclusion
+7. References (use \\bibliography or manual \\bibitem entries)
+
+Use proper LaTeX syntax throughout - NO MARKDOWN formatting like **bold** or # headers.
+Use \\textbf{{}} for bold, \\textit{{}} for italics, \\section{{}} for sections.
+Include proper citations and ensure all claims are supported by the provided materials."""
+        }
+        return fallbacks.get(prompt_name, f"Prompt template for {prompt_name} not found.")
 
 class ProjectManager:
     """Manages project creation and file operations"""
@@ -239,6 +328,7 @@ class PipelineOrchestrator:
         self.hf_client = HuggingFaceClient()
         self.project_manager = ProjectManager(base_path)
         self.review_manager = ReviewManager(self.api_client)
+        self.prompt_loader = PromptLoader(base_path / "prompts")
         
     def log_step(self, step: str, project_id: str, details: str = "") -> None:
         """Log pipeline step"""
@@ -262,21 +352,7 @@ class PipelineOrchestrator:
             import random
             field = random.choice(fields)
         
-        prompt = f"""
-Generate a novel, feasible research idea in {field} that could realistically be completed within 1-2 years.
-
-The idea should:
-- Address a specific gap in current knowledge
-- Be technically feasible with current methods
-- Have clear applications or implications
-- Be suitable for academic publication
-
-Respond with:
-TITLE: [concise research title]
-FIELD: [research field]
-DESCRIPTION: [2-3 paragraph description of the research idea, methodology, and expected outcomes]
-KEYWORDS: [5-7 relevant keywords]
-"""
+        prompt = self.prompt_loader.load_prompt('idea_generation', field=field)
         
         self.log_step("BRAINSTORM_START", project_id, f"Field: {field}")
         
@@ -365,25 +441,7 @@ Please revise the content to address all concerns and improve quality. Maintain 
     
     def generate_technical_design(self, project_id: str, title: str, description: str) -> str:
         """Generate technical design document using best available model"""
-        prompt = f"""
-Create a comprehensive technical design document for the following research project:
-
-Title: {title}
-Description: {description}
-
-The document should include:
-1. Abstract (150-200 words)
-2. Introduction and Background
-3. Research Objectives and Hypotheses
-4. Methodology and Approach
-5. Technical Implementation Details
-6. Expected Outcomes and Timeline
-7. Resource Requirements
-8. Risk Assessment
-9. References (use proper academic format)
-
-Format as a professional technical design document suitable for academic review.
-"""
+        prompt = self.prompt_loader.load_prompt('technical_design', title=title, description=description)
         
         self.log_step("TECH_DESIGN_START", project_id)
         
@@ -406,26 +464,7 @@ Format as a professional technical design document suitable for academic review.
     
     def generate_implementation_plan(self, project_id: str, title: str, design_doc: str) -> str:
         """Generate implementation plan using best available model"""
-        prompt = f"""
-Based on the following technical design document, create a detailed implementation plan:
-
-Project Title: {title}
-
-Technical Design:
-{design_doc}
-
-The implementation plan should include:
-1. Project Overview
-2. Detailed Task Breakdown (with estimated durations)
-3. Milestones and Deliverables
-4. Resource Allocation
-5. Timeline and Dependencies
-6. Quality Assurance Procedures
-7. Risk Mitigation Strategies
-8. Success Criteria
-
-Format as a structured implementation plan suitable for project management.
-"""
+        prompt = self.prompt_loader.load_prompt('implementation_plan', title=title, design_doc=design_doc)
         
         self.log_step("IMPL_PLAN_START", project_id)
         
@@ -448,20 +487,7 @@ Format as a structured implementation plan suitable for project management.
     
     def implement_code_and_data(self, project_id: str, title: str, impl_plan: str) -> Tuple[str, str]:
         """Generate code and data collection procedures using best available model"""
-        code_prompt = f"""
-Based on this implementation plan, generate the core code structure and data collection procedures:
-
-Project: {title}
-Implementation Plan: {impl_plan}
-
-Provide:
-1. Core code structure (Python preferred, with proper documentation)
-2. Data collection procedures
-3. Analysis workflows
-4. Testing procedures
-
-Focus on practical, executable code that addresses the research objectives.
-"""
+        code_prompt = self.prompt_loader.load_prompt('code_generation', title=title, impl_plan=impl_plan)
         
         self.log_step("CODE_GEN_START", project_id)
         
@@ -505,20 +531,7 @@ Focus on practical, executable code that addresses the research objectives.
     
     def run_analyses(self, project_id: str, code_content: str, data_summary: str) -> str:
         """Run analyses using Claude"""
-        analysis_prompt = f"""
-Based on the code and data, generate analysis results:
-
-Code: {code_content[:1000]}...
-Data: {data_summary}
-
-Provide:
-1. Statistical analysis results
-2. Key findings
-3. Visualizations description
-4. Interpretation of results
-
-Format as if these are real analysis results from running the code.
-"""
+        analysis_prompt = self.prompt_loader.load_prompt('data_analysis', code_content=code_content[:1000], data_summary=data_summary)
         
         self.log_step("ANALYSIS_START", project_id)
         
@@ -541,26 +554,12 @@ Format as if these are real analysis results from running the code.
     
     def write_paper(self, project_id: str, title: str, design_doc: str, impl_plan: str, code_content: str, analysis_results: str) -> str:
         """Write research paper using ChatGPT"""
-        paper_prompt = f"""
-Write a complete research paper based on the following project materials:
-
-Title: {title}
-Technical Design: {design_doc[:1000]}...
-Implementation: {impl_plan[:500]}...
-Code: {code_content[:500]}...
-Analysis Results: {analysis_results}
-
-The paper should follow standard academic format:
-1. Abstract
-2. Introduction
-3. Methods
-4. Results
-5. Discussion
-6. Conclusion
-7. References
-
-Use LaTeX format for mathematical expressions. Include proper citations and ensure all claims are supported by the provided materials.
-"""
+        paper_prompt = self.prompt_loader.load_prompt('paper_writing', 
+                                                      title=title, 
+                                                      design_doc=design_doc[:1000], 
+                                                      impl_plan=impl_plan[:500], 
+                                                      code_content=code_content[:500], 
+                                                      analysis_results=analysis_results)
         
         self.log_step("PAPER_WRITE_START", project_id)
         
@@ -684,8 +683,46 @@ Use LaTeX format for mathematical expressions. Include proper citations and ensu
         except Exception as e:
             self.log_step("CONFIG_ERROR", project_id, f"Failed to create config: {str(e)}")
     
+    def validate_latex_document(self, latex_content: str) -> bool:
+        """Check if LaTeX document has required structure"""
+        required_elements = [
+            r'\documentclass',
+            r'\begin{document}',
+            r'\end{document}',
+            r'\title{',
+            r'\maketitle'
+        ]
+        
+        for element in required_elements:
+            if element not in latex_content:
+                return False
+        return True
+    
+    def fix_latex_document(self, project_id: str, broken_latex: str) -> str:
+        """Use available LLM to fix malformed LaTeX"""
+        fix_prompt = self.prompt_loader.load_prompt('latex_fixing', latex_content=broken_latex)
+        
+        self.log_step("LATEX_FIX_START", project_id)
+        
+        try:
+            # Use best available model for fixing
+            if self.api_client.openai_key:
+                fixed_latex = self.api_client.call_openai(fix_prompt, model="gpt-4")
+            elif self.api_client.google_key:
+                fixed_latex = self.api_client.call_google(fix_prompt)
+            elif self.api_client.anthropic_key:
+                fixed_latex = self.api_client.call_claude(fix_prompt)
+            else:
+                raise ValueError("No API keys available for LaTeX fixing")
+            
+            self.log_step("LATEX_FIX_COMPLETE", project_id)
+            return fixed_latex
+        except Exception as e:
+            self.log_step("LATEX_FIX_ERROR", project_id, f"Failed to fix LaTeX: {str(e)}")
+            return broken_latex  # Return original if fix fails
+    
     def compile_latex_paper(self, project_id: str, paper_content: str) -> None:
-        """Attempt to compile LaTeX paper to PDF"""
+        """Attempt to compile LaTeX paper to PDF with validation and auto-fix"""
         try:
             paper_path = self.base_path / project_id / "paper"
             
@@ -695,15 +732,48 @@ Use LaTeX format for mathematical expressions. Include proper citations and ensu
             if result.returncode != 0:
                 self.log_step("LATEX_SKIP", project_id, "pdflatex not available, skipping PDF compilation")
                 return
+            
+            # Validate LaTeX document structure
+            if not self.validate_latex_document(paper_content):
+                self.log_step("LATEX_INVALID", project_id, "LaTeX document structure invalid, attempting to fix")
+                paper_content = self.fix_latex_document(project_id, paper_content)
                 
-            # Try to compile the LaTeX
+                # Save the fixed version
+                self.save_incremental_file(project_id, "paper", "paper.tex", paper_content)
+                
+                # Re-validate after fix
+                if not self.validate_latex_document(paper_content):
+                    self.log_step("LATEX_UNFIXABLE", project_id, "Could not fix LaTeX document, skipping compilation")
+                    return
+            
+            # Change to paper directory for compilation
+            original_dir = os.getcwd()
             os.chdir(paper_path)
+            
+            # Try to compile the LaTeX
             result = subprocess.run(['pdflatex', 'paper.tex'], capture_output=True, text=True)
             
             if result.returncode == 0:
                 self.log_step("LATEX_SUCCESS", project_id, "PDF compiled successfully")
             else:
-                self.log_step("LATEX_ERROR", project_id, f"LaTeX compilation failed: {result.stderr}")
+                self.log_step("LATEX_COMPILE_FAILED", project_id, f"LaTeX compilation failed: {result.stderr}")
+                
+                # Try to fix compilation errors and retry once
+                self.log_step("LATEX_RETRY", project_id, "Attempting to fix compilation errors")
+                fixed_content = self.fix_latex_document(project_id, paper_content)
+                
+                # Save fixed version and retry
+                with open('paper.tex', 'w', encoding='utf-8') as f:
+                    f.write(fixed_content)
+                
+                retry_result = subprocess.run(['pdflatex', 'paper.tex'], capture_output=True, text=True)
+                if retry_result.returncode == 0:
+                    self.log_step("LATEX_SUCCESS_RETRY", project_id, "PDF compiled successfully after fix")
+                else:
+                    self.log_step("LATEX_FINAL_FAIL", project_id, f"Final compilation failed: {retry_result.stderr}")
+            
+            # Return to original directory
+            os.chdir(original_dir)
                 
         except Exception as e:
             self.log_step("LATEX_ERROR", project_id, f"LaTeX compilation error: {str(e)}")

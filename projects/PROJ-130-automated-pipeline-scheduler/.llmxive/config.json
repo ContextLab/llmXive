@@ -1,0 +1,35 @@
+{
+  "id": "PROJ-130-automated-pipeline-scheduler",
+  "title": "automated pipeline scheduler",
+  "description": "Migrated project: automated-pipeline-scheduler",
+  "field": "meta",
+  "status": "ready",
+  "created_date": "2025-07-08T14:28:09.478Z",
+  "updated_date": "2025-07-08T14:28:09.478Z",
+  "contributors": [],
+  "github_issues": [],
+  "phases": {
+    "idea": {
+      "completed": false,
+      "points": 0
+    },
+    "technical_design": {
+      "completed": false,
+      "points": 0
+    },
+    "implementation_plan": {
+      "completed": false,
+      "points": 0
+    },
+    "code": {
+      "completed": false,
+      "points": 0
+    },
+    "paper": {
+      "completed": false,
+      "points": 0
+    }
+  },
+  "renamed": true,
+  "oldId": "PROJ-001-automated-pipeline-scheduler"
+}

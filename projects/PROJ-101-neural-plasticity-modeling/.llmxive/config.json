@@ -1,0 +1,27 @@
+{
+  "id": "PROJ-101-neural-plasticity-modeling",
+  "name": "neural-plasticity-modeling",
+  "created": "2025-07-09T16:13:07.342Z",
+  "migrated": true,
+  "source": "papers",
+  "phases": {
+    "idea": {
+      "status": "pending"
+    },
+    "technical_design": {
+      "status": "pending"
+    },
+    "implementation_plan": {
+      "status": "pending"
+    },
+    "code": {
+      "status": "pending"
+    },
+    "paper": {
+      "status": "completed"
+    },
+    "reviews": {
+      "status": "pending"
+    }
+  }
+}

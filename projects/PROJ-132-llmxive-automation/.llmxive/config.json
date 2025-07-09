@@ -1,0 +1,35 @@
+{
+  "id": "PROJ-132-llmxive-automation",
+  "title": "llmXive_automation",
+  "description": "Migrated project: llmXive_automation",
+  "field": "robotics",
+  "status": "ready",
+  "created_date": "2025-07-08T14:28:09.509Z",
+  "updated_date": "2025-07-08T14:28:09.509Z",
+  "contributors": [],
+  "github_issues": [],
+  "phases": {
+    "idea": {
+      "completed": false,
+      "points": 0
+    },
+    "technical_design": {
+      "completed": false,
+      "points": 0
+    },
+    "implementation_plan": {
+      "completed": false,
+      "points": 0
+    },
+    "code": {
+      "completed": false,
+      "points": 0
+    },
+    "paper": {
+      "completed": false,
+      "points": 0
+    }
+  },
+  "renamed": true,
+  "oldId": "PROJ-001-llmxive-automation"
+}

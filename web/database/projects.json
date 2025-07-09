@@ -1,15 +1,15 @@
 {
   "metadata": {
-    "version": "2.0.0",
+    "version": "2.2.0",
     "created": "2025-07-08",
-    "description": "llmXive Projects Database - Updated for v2.0 structure",
-    "totalProjects": 11,
+    "description": "llmXive Projects Database - Standardized naming convention",
+    "totalProjects": 26,
     "dateRange": "2025-07-08 to 2025-07-08",
-    "lastUpdated": "2025-07-08T14:29:55.294Z"
+    "lastUpdated": "2025-07-09T16:15:19.889Z"
   },
   "projects": [
     {
-      "id": "PROJ-001-llmxive-automation",
+      "id": "PROJ-132-llmxive-automation",
       "title": "llmXive_automation",
       "description": "Migrated project: llmXive_automation",
       "field": "robotics",
@@ -17,7 +17,7 @@
       "phase": "design",
       "githubIssue": 21,
       "dateCreated": "2025-07-08T14:28:09.509Z",
-      "dateModified": "2025-07-08T14:28:09.509Z",
+      "dateModified": "2025-07-09T16:15:19.888Z",
       "contributors": [],
       "completeness": 16,
       "keywords": [
@@ -31,12 +31,12 @@
         "HuggingFace API",
         "Docker"
       ],
-      "location": "projects/PROJ-001-llmxive-automation/",
+      "location": "projects/PROJ-132-llmxive-automation/",
       "estimatedTimeline": "2025-07-01 to 2026-01-01",
       "reviews": []
     },
     {
-      "id": "PROJ-001-automated-pipeline-scheduler",
+      "id": "PROJ-130-automated-pipeline-scheduler",
       "title": "automated pipeline scheduler",
       "description": "Migrated project: automated-pipeline-scheduler",
       "field": "meta",
@@ -44,7 +44,7 @@
       "phase": "design",
       "githubIssue": null,
       "dateCreated": "2025-07-08T14:28:09.478Z",
-      "dateModified": "2025-07-08T14:28:09.478Z",
+      "dateModified": "2025-07-09T16:15:19.889Z",
       "contributors": [],
       "completeness": 16,
       "keywords": [
@@ -58,12 +58,12 @@
         "Docker",
         "LaTeX"
       ],
-      "location": "projects/PROJ-001-automated-pipeline-scheduler/",
+      "location": "projects/PROJ-130-automated-pipeline-scheduler/",
       "estimatedTimeline": "2025-07-01 to 2025-09-01",
       "reviews": []
     },
     {
-      "id": "PROJ-20250704-biology-20250704-001",
+      "id": "PROJ-119-biology-gene-regulation",
       "title": "biology 20250704 001",
       "description": "Migrated project: biology-20250704-001",
       "field": "biology",
@@ -71,7 +71,7 @@
       "phase": "design",
       "githubIssue": 30,
       "dateCreated": "2025-07-08T14:28:09.483Z",
-      "dateModified": "2025-07-08T14:28:09.483Z",
+      "dateModified": "2025-07-09T16:15:19.889Z",
       "contributors": [],
       "completeness": 16,
       "keywords": [
@@ -88,12 +88,12 @@
         "Single-cell platforms",
         "CRISPR systems"
       ],
-      "location": "projects/PROJ-20250704-biology-20250704-001/",
+      "location": "projects/PROJ-119-biology-gene-regulation/",
       "estimatedTimeline": "2025-07-01 to 2028-07-01",
       "reviews": []
     },
     {
-      "id": "PROJ-20250704-chemistry-20250704-001",
+      "id": "PROJ-120-chemistry-renewable-energy",
       "title": "chemistry 20250704 001",
       "description": "Migrated project: chemistry-20250704-001",
       "field": "chemistry",
@@ -101,7 +101,7 @@
       "phase": "design",
       "githubIssue": 33,
       "dateCreated": "2025-07-08T14:28:09.488Z",
-      "dateModified": "2025-07-08T14:28:09.488Z",
+      "dateModified": "2025-07-09T16:15:19.889Z",
       "contributors": [],
       "completeness": 16,
       "keywords": [
@@ -118,12 +118,12 @@
         "Renewable energy systems",
         "Literature databases"
       ],
-      "location": "projects/PROJ-20250704-chemistry-20250704-001/",
+      "location": "projects/PROJ-120-chemistry-renewable-energy/",
       "estimatedTimeline": "2025-07-01 to 2028-07-01",
       "reviews": []
     },
     {
-      "id": "PROJ-20250705-materials-science-20250705-001",
+      "id": "PROJ-125-materials-science-fuel-cells",
       "title": "materials science 20250705 001",
       "description": "Migrated project: materials-science-20250705-001",
       "field": "materials-science",
@@ -131,7 +131,7 @@
       "phase": "design",
       "githubIssue": 37,
       "dateCreated": "2025-07-08T14:28:09.514Z",
-      "dateModified": "2025-07-08T14:28:09.514Z",
+      "dateModified": "2025-07-09T16:15:19.889Z",
       "contributors": [],
       "completeness": 16,
       "keywords": [
@@ -148,12 +148,12 @@
         "Electrochemical testing",
         "Thermal management"
       ],
-      "location": "projects/PROJ-20250705-materials-science-20250705-001/",
+      "location": "projects/PROJ-125-materials-science-fuel-cells/",
       "estimatedTimeline": "2025-07-01 to 2028-07-01",
       "reviews": []
     },
     {
-      "id": "PROJ-20250704-energy-20250704-001",
+      "id": "PROJ-121-energy-equity",
       "title": "energy 20250704 001",
       "description": "Migrated project: energy-20250704-001",
       "field": "energy",
@@ -161,7 +161,7 @@
       "phase": "design",
       "githubIssue": 29,
       "dateCreated": "2025-07-08T14:28:09.499Z",
-      "dateModified": "2025-07-08T14:28:09.499Z",
+      "dateModified": "2025-07-09T16:15:19.889Z",
       "contributors": [],
       "completeness": 16,
       "keywords": [
@@ -174,12 +174,12 @@
         "Community partnerships",
         "Renewable energy infrastructure"
       ],
-      "location": "projects/PROJ-20250704-energy-20250704-001/",
+      "location": "projects/PROJ-121-energy-equity/",
       "estimatedTimeline": "2025-07-01 to 2027-07-01",
       "reviews": []
     },
     {
-      "id": "PROJ-20250705-computer-science-20250705-001",
+      "id": "PROJ-124-computer-science-accessibility",
       "title": "computer science 20250705 001",
       "description": "Migrated project: computer-science-20250705-001",
       "field": "computer-science",
@@ -187,7 +187,7 @@
       "phase": "design",
       "githubIssue": 35,
       "dateCreated": "2025-07-08T14:28:09.493Z",
-      "dateModified": "2025-07-08T14:28:09.493Z",
+      "dateModified": "2025-07-09T16:15:19.889Z",
       "contributors": [],
       "completeness": 16,
       "keywords": [
@@ -200,12 +200,12 @@
         "Machine learning frameworks",
         "Accessibility testing tools"
       ],
-      "location": "projects/PROJ-20250705-computer-science-20250705-001/",
+      "location": "projects/PROJ-124-computer-science-accessibility/",
       "estimatedTimeline": "2025-07-01 to 2027-07-01",
       "reviews": []
     },
     {
-      "id": "PROJ-20250705-robotics-20250705-001",
+      "id": "PROJ-126-robotics-autonomous-systems",
       "title": "robotics 20250705 001",
       "description": "Migrated project: robotics-20250705-001",
       "field": "computer-science",
@@ -213,7 +213,7 @@
       "phase": "design",
       "githubIssue": 36,
       "dateCreated": "2025-07-08T14:28:09.524Z",
-      "dateModified": "2025-07-08T14:28:09.524Z",
+      "dateModified": "2025-07-09T16:15:19.889Z",
       "contributors": [],
       "completeness": 16,
       "keywords": [
@@ -227,12 +227,12 @@
         "ROS framework",
         "Machine learning libraries"
       ],
-      "location": "projects/PROJ-20250705-robotics-20250705-001/",
+      "location": "projects/PROJ-126-robotics-autonomous-systems/",
       "estimatedTimeline": "2025-07-01 to 2028-07-01",
       "reviews": []
     },
     {
-      "id": "PROJ-20250704-agriculture-20250704-001",
+      "id": "PROJ-118-agriculture-systems",
       "title": "agriculture 20250704 001",
       "description": "Migrated project: agriculture-20250704-001",
       "field": "agriculture",
@@ -240,7 +240,7 @@
       "phase": "design",
       "githubIssue": 27,
       "dateCreated": "2025-07-08T14:28:09.474Z",
-      "dateModified": "2025-07-08T14:28:09.474Z",
+      "dateModified": "2025-07-09T16:15:19.889Z",
       "contributors": [],
       "completeness": 16,
       "keywords": [
@@ -255,12 +255,12 @@
         "Agricultural data",
         "Machine learning platforms"
       ],
-      "location": "projects/PROJ-20250704-agriculture-20250704-001/",
+      "location": "projects/PROJ-118-agriculture-systems/",
       "estimatedTimeline": "2025-07-01 to 2027-07-01",
       "reviews": []
     },
     {
-      "id": "PROJ-20250704-environmental-science-20250704-001",
+      "id": "PROJ-122-environmental-monitoring",
       "title": "environmental science 20250704 001",
       "description": "Migrated project: environmental-science-20250704-001",
       "field": "environmental-science",
@@ -268,7 +268,7 @@
       "phase": "design",
       "githubIssue": 28,
       "dateCreated": "2025-07-08T14:28:09.504Z",
-      "dateModified": "2025-07-08T14:28:09.504Z",
+      "dateModified": "2025-07-09T16:15:19.889Z",
       "contributors": [],
       "completeness": 16,
       "keywords": [
@@ -283,12 +283,12 @@
         "GIS software",
         "Climate models"
       ],
-      "location": "projects/PROJ-20250704-environmental-science-20250704-001/",
+      "location": "projects/PROJ-122-environmental-monitoring/",
       "estimatedTimeline": "2025-07-01 to 2028-07-01",
       "reviews": []
     },
     {
-      "id": "PROJ-20250704-psychology-20250704-001",
+      "id": "PROJ-123-psychology-digital-health",
       "title": "psychology 20250704 001",
       "description": "Migrated project: psychology-20250704-001",
       "field": "psychology",
@@ -296,7 +296,7 @@
       "phase": "design",
       "githubIssue": 26,
       "dateCreated": "2025-07-08T14:28:09.519Z",
-      "dateModified": "2025-07-08T14:28:09.519Z",
+      "dateModified": "2025-07-09T16:15:19.889Z",
       "contributors": [],
       "completeness": 16,
       "keywords": [
@@ -311,8 +311,402 @@
         "Mental health datasets",
         "AI/ML frameworks"
       ],
-      "location": "projects/PROJ-20250704-psychology-20250704-001/",
+      "location": "projects/PROJ-123-psychology-digital-health/",
       "estimatedTimeline": "2025-07-01 to 2028-07-01",
+      "reviews": []
+    },
+    {
+      "id": "PROJ-100-gene-regulation-mechanisms",
+      "title": "gene regulation mechanisms",
+      "description": "Migrated project: gene-regulation-mechanisms",
+      "field": "biology",
+      "status": "done",
+      "phase": "completed",
+      "githubIssue": null,
+      "dateCreated": "2025-07-09T16:13:53.508Z",
+      "dateModified": "2025-07-09T16:13:53.509Z",
+      "contributors": [],
+      "completeness": 16,
+      "keywords": [
+        "genomics",
+        "bioinformatics",
+        "molecular-biology",
+        "regulation"
+      ],
+      "dependencies": [
+        "Laboratory equipment",
+        "Genomic databases",
+        "Bioinformatics tools"
+      ],
+      "location": "projects/PROJ-100-gene-regulation-mechanisms/",
+      "estimatedTimeline": "2025-07-09 to 2026-07-09",
+      "reviews": []
+    },
+    {
+      "id": "PROJ-101-neural-plasticity-modeling",
+      "title": "neural plasticity modeling",
+      "description": "Migrated project: neural-plasticity-modeling",
+      "field": "neuroscience",
+      "status": "done",
+      "phase": "completed",
+      "githubIssue": null,
+      "dateCreated": "2025-07-09T16:13:53.509Z",
+      "dateModified": "2025-07-09T16:13:53.509Z",
+      "contributors": [],
+      "completeness": 16,
+      "keywords": [
+        "neural-networks",
+        "brain-imaging",
+        "cognition",
+        "plasticity"
+      ],
+      "dependencies": [
+        "Neuroimaging equipment",
+        "Data analysis tools",
+        "Clinical collaboration"
+      ],
+      "location": "projects/PROJ-101-neural-plasticity-modeling/",
+      "estimatedTimeline": "2025-07-09 to 2026-07-09",
+      "reviews": []
+    },
+    {
+      "id": "PROJ-102-agriculture-optimization",
+      "title": "agriculture optimization",
+      "description": "Migrated project: agriculture-optimization",
+      "field": "agriculture",
+      "status": "ready",
+      "phase": "design",
+      "githubIssue": null,
+      "dateCreated": "2025-07-09T16:13:53.509Z",
+      "dateModified": "2025-07-09T16:13:53.509Z",
+      "contributors": [],
+      "completeness": 16,
+      "keywords": [
+        "precision-farming",
+        "IoT",
+        "sustainability"
+      ],
+      "dependencies": [
+        "IoT sensors",
+        "Agricultural data",
+        "Machine learning platforms"
+      ],
+      "location": "projects/PROJ-102-agriculture-optimization/",
+      "estimatedTimeline": "2025-07-09 to 2027-07-09",
+      "reviews": []
+    },
+    {
+      "id": "PROJ-103-biology-research",
+      "title": "biology research",
+      "description": "Migrated project: biology-research",
+      "field": "biology",
+      "status": "ready",
+      "phase": "design",
+      "githubIssue": null,
+      "dateCreated": "2025-07-09T16:13:53.509Z",
+      "dateModified": "2025-07-09T16:13:53.509Z",
+      "contributors": [],
+      "completeness": 16,
+      "keywords": [
+        "genomics",
+        "bioinformatics",
+        "molecular-biology"
+      ],
+      "dependencies": [
+        "Laboratory equipment",
+        "Genomic databases",
+        "Bioinformatics tools"
+      ],
+      "location": "projects/PROJ-103-biology-research/",
+      "estimatedTimeline": "2025-07-09 to 2027-07-09",
+      "reviews": []
+    },
+    {
+      "id": "PROJ-104-chemistry-analysis",
+      "title": "chemistry analysis",
+      "description": "Migrated project: chemistry-analysis",
+      "field": "chemistry",
+      "status": "ready",
+      "phase": "design",
+      "githubIssue": null,
+      "dateCreated": "2025-07-09T16:13:53.509Z",
+      "dateModified": "2025-07-09T16:13:53.509Z",
+      "contributors": [],
+      "completeness": 16,
+      "keywords": [
+        "materials",
+        "synthesis",
+        "analysis"
+      ],
+      "dependencies": [
+        "Chemical synthesis equipment",
+        "Analytical instruments",
+        "Safety protocols"
+      ],
+      "location": "projects/PROJ-104-chemistry-analysis/",
+      "estimatedTimeline": "2025-07-09 to 2027-07-09",
+      "reviews": []
+    },
+    {
+      "id": "PROJ-105-computer-science-research",
+      "title": "computer science research",
+      "description": "Migrated project: computer-science-research",
+      "field": "computer-science",
+      "status": "ready",
+      "phase": "design",
+      "githubIssue": null,
+      "dateCreated": "2025-07-09T16:13:53.509Z",
+      "dateModified": "2025-07-09T16:13:53.509Z",
+      "contributors": [],
+      "completeness": 16,
+      "keywords": [
+        "AI",
+        "machine-learning",
+        "algorithms"
+      ],
+      "dependencies": [
+        "Computing resources",
+        "Software frameworks",
+        "Development tools"
+      ],
+      "location": "projects/PROJ-105-computer-science-research/",
+      "estimatedTimeline": "2025-07-09 to 2027-07-09",
+      "reviews": []
+    },
+    {
+      "id": "PROJ-106-energy-systems",
+      "title": "energy systems",
+      "description": "Migrated project: energy-systems",
+      "field": "energy",
+      "status": "ready",
+      "phase": "design",
+      "githubIssue": null,
+      "dateCreated": "2025-07-09T16:13:53.509Z",
+      "dateModified": "2025-07-09T16:13:53.509Z",
+      "contributors": [],
+      "completeness": 16,
+      "keywords": [
+        "renewable",
+        "efficiency",
+        "storage"
+      ],
+      "dependencies": [
+        "Energy systems",
+        "Monitoring equipment",
+        "Modeling software"
+      ],
+      "location": "projects/PROJ-106-energy-systems/",
+      "estimatedTimeline": "2025-07-09 to 2027-07-09",
+      "reviews": []
+    },
+    {
+      "id": "PROJ-107-environmental-science",
+      "title": "environmental science",
+      "description": "Migrated project: environmental-science",
+      "field": "environmental-science",
+      "status": "ready",
+      "phase": "design",
+      "githubIssue": null,
+      "dateCreated": "2025-07-09T16:13:53.509Z",
+      "dateModified": "2025-07-09T16:13:53.509Z",
+      "contributors": [],
+      "completeness": 16,
+      "keywords": [
+        "climate",
+        "sustainability",
+        "monitoring"
+      ],
+      "dependencies": [
+        "Environmental monitoring",
+        "GIS software",
+        "Satellite data"
+      ],
+      "location": "projects/PROJ-107-environmental-science/",
+      "estimatedTimeline": "2025-07-09 to 2027-07-09",
+      "reviews": []
+    },
+    {
+      "id": "PROJ-108-materials-science",
+      "title": "materials science",
+      "description": "Migrated project: materials-science",
+      "field": "materials-science",
+      "status": "ready",
+      "phase": "design",
+      "githubIssue": null,
+      "dateCreated": "2025-07-09T16:13:53.509Z",
+      "dateModified": "2025-07-09T16:13:53.509Z",
+      "contributors": [],
+      "completeness": 16,
+      "keywords": [
+        "nanomaterials",
+        "composites",
+        "characterization"
+      ],
+      "dependencies": [
+        "Material characterization tools",
+        "Synthesis equipment",
+        "Testing facilities"
+      ],
+      "location": "projects/PROJ-108-materials-science/",
+      "estimatedTimeline": "2025-07-09 to 2027-07-09",
+      "reviews": []
+    },
+    {
+      "id": "PROJ-109-psychology-research",
+      "title": "psychology research",
+      "description": "Migrated project: psychology-research",
+      "field": "psychology",
+      "status": "ready",
+      "phase": "design",
+      "githubIssue": null,
+      "dateCreated": "2025-07-09T16:13:53.509Z",
+      "dateModified": "2025-07-09T16:13:53.509Z",
+      "contributors": [],
+      "completeness": 16,
+      "keywords": [
+        "mental-health",
+        "cognitive-science",
+        "behavior"
+      ],
+      "dependencies": [
+        "Clinical partnerships",
+        "Survey platforms",
+        "Statistical software"
+      ],
+      "location": "projects/PROJ-109-psychology-research/",
+      "estimatedTimeline": "2025-07-09 to 2027-07-09",
+      "reviews": []
+    },
+    {
+      "id": "PROJ-110-robotics-systems",
+      "title": "robotics systems",
+      "description": "Migrated project: robotics-systems",
+      "field": "robotics",
+      "status": "ready",
+      "phase": "design",
+      "githubIssue": null,
+      "dateCreated": "2025-07-09T16:13:53.509Z",
+      "dateModified": "2025-07-09T16:13:53.509Z",
+      "contributors": [],
+      "completeness": 16,
+      "keywords": [
+        "autonomous-systems",
+        "control-systems",
+        "sensors"
+      ],
+      "dependencies": [
+        "Robotics hardware",
+        "ROS framework",
+        "Sensor systems"
+      ],
+      "location": "projects/PROJ-110-robotics-systems/",
+      "estimatedTimeline": "2025-07-09 to 2027-07-09",
+      "reviews": []
+    },
+    {
+      "id": "PROJ-111-llmxive-automation-testing",
+      "title": "llmxive automation testing",
+      "description": "Migrated project: llmxive-automation-testing",
+      "field": "computer-science",
+      "status": "in-progress",
+      "phase": "implementation",
+      "githubIssue": null,
+      "dateCreated": "2025-07-09T16:13:53.509Z",
+      "dateModified": "2025-07-09T16:13:53.509Z",
+      "contributors": [],
+      "completeness": 16,
+      "keywords": [
+        "AI",
+        "machine-learning",
+        "algorithms",
+        "automation"
+      ],
+      "dependencies": [
+        "Computing resources",
+        "Software frameworks",
+        "Development tools"
+      ],
+      "location": "projects/PROJ-111-llmxive-automation-testing/",
+      "estimatedTimeline": "2025-07-09 to 2028-07-09",
+      "reviews": []
+    },
+    {
+      "id": "PROJ-112-chemistry-review",
+      "title": "chemistry review",
+      "description": "Migrated project: chemistry-review",
+      "field": "chemistry",
+      "status": "ready",
+      "phase": "review",
+      "githubIssue": null,
+      "dateCreated": "2025-07-09T16:13:53.509Z",
+      "dateModified": "2025-07-09T16:13:53.509Z",
+      "contributors": [],
+      "completeness": 16,
+      "keywords": [
+        "materials",
+        "synthesis",
+        "analysis"
+      ],
+      "dependencies": [
+        "Chemical synthesis equipment",
+        "Analytical instruments",
+        "Safety protocols"
+      ],
+      "location": "projects/PROJ-112-chemistry-review/",
+      "estimatedTimeline": "2025-07-09 to 2027-07-09",
+      "reviews": []
+    },
+    {
+      "id": "PROJ-113-materials-science-review",
+      "title": "materials science review",
+      "description": "Migrated project: materials-science-review",
+      "field": "materials-science",
+      "status": "ready",
+      "phase": "review",
+      "githubIssue": null,
+      "dateCreated": "2025-07-09T16:13:53.509Z",
+      "dateModified": "2025-07-09T16:13:53.509Z",
+      "contributors": [],
+      "completeness": 16,
+      "keywords": [
+        "nanomaterials",
+        "composites",
+        "characterization"
+      ],
+      "dependencies": [
+        "Material characterization tools",
+        "Synthesis equipment",
+        "Testing facilities"
+      ],
+      "location": "projects/PROJ-113-materials-science-review/",
+      "estimatedTimeline": "2025-07-09 to 2027-07-09",
+      "reviews": []
+    },
+    {
+      "id": "PROJ-114-llmxive-automation",
+      "title": "llmxive automation",
+      "description": "Migrated project: llmxive-automation",
+      "field": "computer-science",
+      "status": "in-progress",
+      "phase": "development",
+      "githubIssue": null,
+      "dateCreated": "2025-07-09T16:13:53.509Z",
+      "dateModified": "2025-07-09T16:13:53.509Z",
+      "contributors": [],
+      "completeness": 16,
+      "keywords": [
+        "AI",
+        "machine-learning",
+        "algorithms",
+        "automation"
+      ],
+      "dependencies": [
+        "Computing resources",
+        "Software frameworks",
+        "Development tools"
+      ],
+      "location": "projects/PROJ-114-llmxive-automation/",
+      "estimatedTimeline": "2025-07-09 to 2027-07-09",
       "reviews": []
     }
   ]

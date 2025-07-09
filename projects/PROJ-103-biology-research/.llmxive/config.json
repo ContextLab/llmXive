@@ -1,0 +1,27 @@
+{
+  "id": "PROJ-103-biology-research",
+  "name": "biology-research",
+  "created": "2025-07-09T16:13:07.344Z",
+  "migrated": true,
+  "source": "technical_design_documents",
+  "phases": {
+    "idea": {
+      "status": "pending"
+    },
+    "technical_design": {
+      "status": "completed"
+    },
+    "implementation_plan": {
+      "status": "pending"
+    },
+    "code": {
+      "status": "pending"
+    },
+    "paper": {
+      "status": "pending"
+    },
+    "reviews": {
+      "status": "pending"
+    }
+  }
+}

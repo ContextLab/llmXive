@@ -1,0 +1,97 @@
+{
+  "timestamp": "2025-07-09T16:13:07.373Z",
+  "total_migrated": 15,
+  "projects": [
+    {
+      "id": "PROJ-100-gene-regulation-mechanisms",
+      "name": "gene-regulation-mechanisms",
+      "source": "/Users/jmanning/llmXive/papers/gene-regulation-mechanisms-001",
+      "type": "papers"
+    },
+    {
+      "id": "PROJ-101-neural-plasticity-modeling",
+      "name": "neural-plasticity-modeling",
+      "source": "/Users/jmanning/llmXive/papers/neural-plasticity-modeling-002",
+      "type": "papers"
+    },
+    {
+      "id": "PROJ-102-agriculture-optimization",
+      "name": "agriculture-optimization",
+      "source": "/Users/jmanning/llmXive/technical_design_documents/agriculture-20250704-001",
+      "type": "technical_design_documents"
+    },
+    {
+      "id": "PROJ-103-biology-research",
+      "name": "biology-research",
+      "source": "/Users/jmanning/llmXive/technical_design_documents/biology-20250704-001",
+      "type": "technical_design_documents"
+    },
+    {
+      "id": "PROJ-104-chemistry-analysis",
+      "name": "chemistry-analysis",
+      "source": "/Users/jmanning/llmXive/technical_design_documents/chemistry-20250704-001",
+      "type": "technical_design_documents"
+    },
+    {
+      "id": "PROJ-105-computer-science-research",
+      "name": "computer-science-research",
+      "source": "/Users/jmanning/llmXive/technical_design_documents/computer-science-20250705-001",
+      "type": "technical_design_documents"
+    },
+    {
+      "id": "PROJ-106-energy-systems",
+      "name": "energy-systems",
+      "source": "/Users/jmanning/llmXive/technical_design_documents/energy-20250704-001",
+      "type": "technical_design_documents"
+    },
+    {
+      "id": "PROJ-107-environmental-science",
+      "name": "environmental-science",
+      "source": "/Users/jmanning/llmXive/technical_design_documents/environmental-science-20250704-001",
+      "type": "technical_design_documents"
+    },
+    {
+      "id": "PROJ-108-materials-science",
+      "name": "materials-science",
+      "source": "/Users/jmanning/llmXive/technical_design_documents/materials-science-20250705-001",
+      "type": "technical_design_documents"
+    },
+    {
+      "id": "PROJ-109-psychology-research",
+      "name": "psychology-research",
+      "source": "/Users/jmanning/llmXive/technical_design_documents/psychology-20250704-001",
+      "type": "technical_design_documents"
+    },
+    {
+      "id": "PROJ-110-robotics-systems",
+      "name": "robotics-systems",
+      "source": "/Users/jmanning/llmXive/technical_design_documents/robotics-20250705-001",
+      "type": "technical_design_documents"
+    },
+    {
+      "id": "PROJ-111-llmxive-automation-testing",
+      "name": "llmxive-automation-testing",
+      "source": "/Users/jmanning/llmXive/implementation_plans/llmxive-automation-testing",
+      "type": "implementation_plans"
+    },
+    {
+      "id": "PROJ-112-chemistry-review",
+      "name": "chemistry-review",
+      "source": "/Users/jmanning/llmXive/reviews/chemistry-20250704-001",
+      "type": "reviews"
+    },
+    {
+      "id": "PROJ-113-materials-science-review",
+      "name": "materials-science-review",
+      "source": "/Users/jmanning/llmXive/reviews/materials-science-20250705-001",
+      "type": "reviews"
+    },
+    {
+      "id": "PROJ-114-llmxive-automation",
+      "name": "llmxive-automation",
+      "source": "/Users/jmanning/llmXive/code/llmxive-automation",
+      "type": "code"
+    }
+  ],
+  "next_counter": 115
+}

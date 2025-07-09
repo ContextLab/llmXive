@@ -1,0 +1,35 @@
+{
+  "id": "PROJ-128-neural-plasticity-modeling",
+  "title": "neural plasticity modeling 002",
+  "description": "Migrated project: neural-plasticity-modeling-002",
+  "field": "biology",
+  "status": "in-progress",
+  "created_date": "2025-07-08T14:28:09.469Z",
+  "updated_date": "2025-07-08T14:28:09.469Z",
+  "contributors": [],
+  "github_issues": [],
+  "phases": {
+    "idea": {
+      "completed": false,
+      "points": 0
+    },
+    "technical_design": {
+      "completed": false,
+      "points": 0
+    },
+    "implementation_plan": {
+      "completed": false,
+      "points": 0
+    },
+    "code": {
+      "completed": false,
+      "points": 0
+    },
+    "paper": {
+      "completed": false,
+      "points": 0
+    }
+  },
+  "renamed": true,
+  "oldId": "PROJ-002-neural-plasticity-modeling-002"
+}

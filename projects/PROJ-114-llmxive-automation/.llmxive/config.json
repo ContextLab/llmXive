@@ -1,0 +1,27 @@
+{
+  "id": "PROJ-114-llmxive-automation",
+  "name": "llmxive-automation",
+  "created": "2025-07-09T16:13:07.373Z",
+  "migrated": true,
+  "source": "code",
+  "phases": {
+    "idea": {
+      "status": "pending"
+    },
+    "technical_design": {
+      "status": "pending"
+    },
+    "implementation_plan": {
+      "status": "pending"
+    },
+    "code": {
+      "status": "completed"
+    },
+    "paper": {
+      "status": "pending"
+    },
+    "reviews": {
+      "status": "pending"
+    }
+  }
+}

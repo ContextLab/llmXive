@@ -1,0 +1,35 @@
+{
+  "id": "PROJ-123-psychology-digital-health",
+  "title": "psychology 20250704 001",
+  "description": "Migrated project: psychology-20250704-001",
+  "field": "psychology",
+  "status": "ready",
+  "created_date": "2025-07-08T14:28:09.519Z",
+  "updated_date": "2025-07-08T14:28:09.519Z",
+  "contributors": [],
+  "github_issues": [],
+  "phases": {
+    "idea": {
+      "completed": false,
+      "points": 0
+    },
+    "technical_design": {
+      "completed": false,
+      "points": 0
+    },
+    "implementation_plan": {
+      "completed": false,
+      "points": 0
+    },
+    "code": {
+      "completed": false,
+      "points": 0
+    },
+    "paper": {
+      "completed": false,
+      "points": 0
+    }
+  },
+  "renamed": true,
+  "oldId": "PROJ-20250704-psychology-20250704-001"
+}

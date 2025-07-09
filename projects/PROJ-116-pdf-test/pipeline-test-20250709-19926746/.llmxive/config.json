@@ -1,0 +1,45 @@
+{
+  "id": "pipeline-test-20250709-19926746",
+  "title": "Untitled Research Project",
+  "description": "Auto-generated project: Untitled Research Project",
+  "field": "physics",
+  "status": "in-progress",
+  "created_date": "2025-07-09T11:12:43.036167",
+  "updated_date": "2025-07-09T11:12:43.036169",
+  "contributors": [
+    {
+      "username": "llmxive-pipeline",
+      "type": "llm",
+      "contributions": [
+        "idea",
+        "technical_design",
+        "implementation_plan",
+        "code",
+        "paper"
+      ]
+    }
+  ],
+  "github_issues": [],
+  "phases": {
+    "idea": {
+      "completed": false,
+      "points": 0
+    },
+    "technical_design": {
+      "completed": false,
+      "points": 0
+    },
+    "implementation_plan": {
+      "completed": false,
+      "points": 0
+    },
+    "code": {
+      "completed": false,
+      "points": 0
+    },
+    "paper": {
+      "completed": false,
+      "points": 0
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "PROJ-111-llmxive-automation-testing",
+  "name": "llmxive-automation-testing",
+  "created": "2025-07-09T16:13:07.354Z",
+  "migrated": true,
+  "source": "implementation_plans",
+  "phases": {
+    "idea": {
+      "status": "pending"
+    },
+    "technical_design": {
+      "status": "pending"
+    },
+    "implementation_plan": {
+      "status": "completed"
+    },
+    "code": {
+      "status": "pending"
+    },
+    "paper": {
+      "status": "pending"
+    },
+    "reviews": {
+      "status": "pending"
+    }
+  }
+}
