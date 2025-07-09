@@ -466,7 +466,15 @@ Focus on practical, executable code that addresses the research objectives.
         self.log_step("CODE_GEN_START", project_id)
         
         try:
-            code_content = self.api_client.call_claude(code_prompt)
+            # Use best available model (prefer OpenAI for code, then Google, then Claude)
+            if self.api_client.openai_key:
+                code_content = self.api_client.call_openai(code_prompt)
+            elif self.api_client.google_key:
+                code_content = self.api_client.call_google(code_prompt)
+            elif self.api_client.anthropic_key:
+                code_content = self.api_client.call_claude(code_prompt)
+            else:
+                raise ValueError("No API keys available for code generation")
             
             # Simulate data collection
             data_summary = f"""
@@ -515,7 +523,16 @@ Format as if these are real analysis results from running the code.
         self.log_step("ANALYSIS_START", project_id)
         
         try:
-            analysis_results = self.api_client.call_claude(analysis_prompt)
+            # Use best available model (prefer OpenAI for analysis, then Google, then Claude)
+            if self.api_client.openai_key:
+                analysis_results = self.api_client.call_openai(analysis_prompt)
+            elif self.api_client.google_key:
+                analysis_results = self.api_client.call_google(analysis_prompt)
+            elif self.api_client.anthropic_key:
+                analysis_results = self.api_client.call_claude(analysis_prompt)
+            else:
+                raise ValueError("No API keys available for analysis generation")
+                
             self.log_step("ANALYSIS_COMPLETE", project_id)
             return analysis_results
         except Exception as e:
@@ -608,16 +625,105 @@ Use LaTeX format for mathematical expressions. Include proper citations and ensu
         
         return paths
     
+    def save_incremental_file(self, project_id: str, phase: str, filename: str, content: str) -> None:
+        """Save file immediately during pipeline execution"""
+        try:
+            # Create project structure if it doesn't exist
+            project_path = self.base_path / project_id
+            phase_path = project_path / phase
+            phase_path.mkdir(parents=True, exist_ok=True)
+            
+            # Save the file
+            file_path = phase_path / filename
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(content)
+            
+            self.log_step("FILE_SAVED", project_id, f"{phase}/{filename}")
+            
+        except Exception as e:
+            self.log_step("FILE_SAVE_ERROR", project_id, f"Failed to save {phase}/{filename}: {str(e)}")
+    
+    def create_project_config(self, project_id: str, title: str, field: str, status: str = "in-progress") -> None:
+        """Create .llmxive/config.json for the project"""
+        try:
+            project_path = self.base_path / project_id
+            config_path = project_path / ".llmxive"
+            config_path.mkdir(parents=True, exist_ok=True)
+            
+            config = {
+                "id": project_id,
+                "title": title,
+                "description": f"Auto-generated project: {title}",
+                "field": field,
+                "status": status,
+                "created_date": datetime.now().isoformat(),
+                "updated_date": datetime.now().isoformat(),
+                "contributors": [
+                    {
+                        "username": "llmxive-pipeline",
+                        "type": "llm",
+                        "contributions": ["idea", "technical_design", "implementation_plan", "code", "paper"]
+                    }
+                ],
+                "github_issues": [],
+                "phases": {
+                    "idea": {"completed": False, "points": 0},
+                    "technical_design": {"completed": False, "points": 0},
+                    "implementation_plan": {"completed": False, "points": 0},
+                    "code": {"completed": False, "points": 0},
+                    "paper": {"completed": False, "points": 0}
+                }
+            }
+            
+            config_file = config_path / "config.json"
+            with open(config_file, 'w', encoding='utf-8') as f:
+                json.dump(config, f, indent=2)
+                
+            self.log_step("CONFIG_CREATED", project_id, "Project configuration saved")
+            
+        except Exception as e:
+            self.log_step("CONFIG_ERROR", project_id, f"Failed to create config: {str(e)}")
+    
+    def compile_latex_paper(self, project_id: str, paper_content: str) -> None:
+        """Attempt to compile LaTeX paper to PDF"""
+        try:
+            paper_path = self.base_path / project_id / "paper"
+            
+            # Check if pdflatex is available
+            import subprocess
+            result = subprocess.run(['which', 'pdflatex'], capture_output=True, text=True)
+            if result.returncode != 0:
+                self.log_step("LATEX_SKIP", project_id, "pdflatex not available, skipping PDF compilation")
+                return
+                
+            # Try to compile the LaTeX
+            os.chdir(paper_path)
+            result = subprocess.run(['pdflatex', 'paper.tex'], capture_output=True, text=True)
+            
+            if result.returncode == 0:
+                self.log_step("LATEX_SUCCESS", project_id, "PDF compiled successfully")
+            else:
+                self.log_step("LATEX_ERROR", project_id, f"LaTeX compilation failed: {result.stderr}")
+                
+        except Exception as e:
+            self.log_step("LATEX_ERROR", project_id, f"LaTeX compilation error: {str(e)}")
+    
     def run_full_pipeline(self, field: str = None) -> Dict:
         """Run the complete research pipeline"""
         try:
             # Step 1: Brainstorm idea
             project_id, title, description = self.brainstorm_idea(field)
             
+            # Create project config immediately
+            self.create_project_config(project_id, title, field or "general")
+            
             # Step 2: Review idea
             description, idea_passed = self.iterative_review_process(description, "idea", project_id)
             if not idea_passed:
                 raise Exception("Idea failed review process")
+            
+            # Save idea immediately
+            self.save_incremental_file(project_id, "idea", "initial-idea.md", f"# {title}\n\n{description}")
             
             # Step 3: Generate technical design
             design_doc = self.generate_technical_design(project_id, title, description)
@@ -627,6 +733,9 @@ Use LaTeX format for mathematical expressions. Include proper citations and ensu
             if not design_passed:
                 raise Exception("Technical design failed review process")
             
+            # Save technical design immediately
+            self.save_incremental_file(project_id, "technical-design", "design.md", design_doc)
+            
             # Step 5: Generate implementation plan
             impl_plan = self.generate_implementation_plan(project_id, title, design_doc)
             
@@ -635,32 +744,46 @@ Use LaTeX format for mathematical expressions. Include proper citations and ensu
             if not impl_passed:
                 raise Exception("Implementation plan failed review process")
             
+            # Save implementation plan immediately
+            self.save_incremental_file(project_id, "implementation-plan", "plan.md", impl_plan)
+            
             # Step 7: Implement code and collect data
             code_content, data_summary = self.implement_code_and_data(project_id, title, impl_plan)
+            
+            # Save code and data immediately
+            self.save_incremental_file(project_id, "code", "main.py", code_content)
+            self.save_incremental_file(project_id, "data", "README.md", data_summary)
             
             # Step 8: Run analyses
             analysis_results = self.run_analyses(project_id, code_content, data_summary)
             
+            # Save analysis results immediately
+            self.save_incremental_file(project_id, "data", "analysis_results.md", analysis_results)
+            
             # Step 9: Write paper
             paper_content = self.write_paper(project_id, title, design_doc, impl_plan, code_content, analysis_results)
+            
+            # Save paper immediately
+            self.save_incremental_file(project_id, "paper", "paper.tex", paper_content)
             
             # Step 10: Review paper iteratively
             paper_content, paper_passed = self.iterative_review_process(paper_content, "research paper", project_id, max_iterations=5)
             if not paper_passed:
                 print(f"Warning: Paper for {project_id} did not pass final review but proceeding to save")
             
-            # Step 11: Save all files
-            paths = self.save_project_files(project_id, title, field or "general", description,
-                                          design_doc, impl_plan, code_content, data_summary, 
-                                          analysis_results, paper_content)
+            # Save final reviewed paper
+            self.save_incremental_file(project_id, "paper", "paper.tex", paper_content)
             
-            self.log_step("PIPELINE_COMPLETE", project_id, f"All files saved")
+            # Create basic LaTeX compilation
+            self.compile_latex_paper(project_id, paper_content)
+            
+            self.log_step("PIPELINE_COMPLETE", project_id, f"All files saved incrementally")
             
             return {
                 'project_id': project_id,
                 'title': title,
                 'status': 'success',
-                'paths': {k: str(v) for k, v in paths.items()},
+                'base_path': str(self.base_path / project_id),
                 'paper_passed_review': paper_passed
             }
             

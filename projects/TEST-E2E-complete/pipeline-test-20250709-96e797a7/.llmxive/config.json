@@ -1,0 +1,45 @@
+{
+  "id": "pipeline-test-20250709-96e797a7",
+  "title": "Untitled Research Project",
+  "description": "Auto-generated project: Untitled Research Project",
+  "field": "mathematics",
+  "status": "in-progress",
+  "created_date": "2025-07-09T10:04:40.145098",
+  "updated_date": "2025-07-09T10:04:40.145102",
+  "contributors": [
+    {
+      "username": "llmxive-pipeline",
+      "type": "llm",
+      "contributions": [
+        "idea",
+        "technical_design",
+        "implementation_plan",
+        "code",
+        "paper"
+      ]
+    }
+  ],
+  "github_issues": [],
+  "phases": {
+    "idea": {
+      "completed": false,
+      "points": 0
+    },
+    "technical_design": {
+      "completed": false,
+      "points": 0
+    },
+    "implementation_plan": {
+      "completed": false,
+      "points": 0
+    },
+    "code": {
+      "completed": false,
+      "points": 0
+    },
+    "paper": {
+      "completed": false,
+      "points": 0
+    }
+  }
+}
