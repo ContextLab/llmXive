@@ -1,0 +1,345 @@
+# llmXive Pipeline Configuration
+# Version 1.0 - Configurable research pipeline definition
+
+version: "1.0"
+metadata:
+  name: "llmXive Research Pipeline"
+  description: "Automated scientific discovery pipeline with LLM integration"
+  author: "llmXive Team"
+  created: "2025-07-09"
+
+# Global pipeline settings
+settings:
+  base_directory: "."
+  timeout_default: 300  # 5 minutes default timeout
+  max_retries: 3
+  parallel_execution: false
+  
+# Model registry for selection
+models:
+  claude-sonnet-4:
+    provider: "anthropic"
+    parameters: 200  # billions
+    cost_per_token: 0.00001
+    capabilities: ["reasoning", "coding", "analysis"]
+  
+  gpt-4:
+    provider: "openai" 
+    parameters: 175
+    cost_per_token: 0.00003
+    capabilities: ["reasoning", "coding", "creative"]
+    
+  gemini-1.5-pro:
+    provider: "google"
+    parameters: 540
+    cost_per_token: 0.000001
+    capabilities: ["reasoning", "multimodal", "large-context"]
+
+# Pipeline steps definition
+steps:
+  idea_generation:
+    description: "Generate novel research ideas in specified fields"
+    depends_on: []
+    conditions: []
+    consequences:
+      - "idea_generated = true"
+      - "pipeline_progress += 10"
+    model_selection:
+      min_parameters: 7.0  # 7B+ parameters
+      preferred_models: ["claude-*", "gpt-*"]
+      fallback: "*"
+    system_prompt: "idea_generation.md"
+    user_prompt: "idea_generation.md"
+    inputs: []
+    outputs:
+      - "idea/initial-idea.md"
+    timeout: 120
+    retries: 2
+  
+  idea_review:
+    description: "Review and score the generated research idea"
+    depends_on:
+      - "idea_generation"
+    conditions:
+      - "idea_generated == true"
+    consequences:
+      - "idea_review_score = review_score"
+      - "idea_reviews_completed += 1"
+    model_selection:
+      min_parameters: 7.0
+      preferred_models: ["claude-sonnet-*", "gpt-4*"]
+      exclude_previous: true  # Use different model than idea generation
+    system_prompt: "review_idea.md"
+    inputs:
+      - "idea/initial-idea.md"
+    outputs:
+      - "reviews/idea/review-{timestamp}-{model}.md"
+    timeout: 180
+    repeat_until:
+      condition: "idea_review_score >= 7.0 OR idea_reviews_completed >= 3"
+      max_iterations: 5
+
+  idea_revision:
+    description: "Revise idea based on review feedback"
+    depends_on:
+      - "idea_review"
+    conditions:
+      - "idea_review_score < 7.0"
+      - "idea_reviews_completed > 0"
+    consequences:
+      - "idea_revised = true"
+      - "revision_count += 1"
+    model_selection:
+      min_parameters: 20.0  # Use larger model for revision
+      preferred_models: ["claude-sonnet-4", "gpt-4"]
+    system_prompt: "content_revision.md"
+    inputs:
+      - "idea/initial-idea.md"
+      - "reviews/idea/review-*.md"
+    outputs:
+      - "idea/revised-idea.md"
+    timeout: 240
+
+  technical_design:
+    description: "Create comprehensive technical design document"
+    depends_on:
+      - "idea_review"
+    conditions:
+      - "idea_review_score >= 7.0 OR revision_count >= 2"
+    consequences:
+      - "technical_design_created = true"
+      - "pipeline_progress += 20"
+    model_selection:
+      min_parameters: 20.0
+      preferred_models: ["claude-sonnet-4", "gpt-4"]
+      capabilities: ["reasoning", "coding"]
+    system_prompt: "technical_design.md"
+    inputs:
+      - "idea/{idea_file}.md"  # Dynamic input based on previous steps
+    outputs:
+      - "technical_design/design.md"
+    timeout: 300
+
+  design_review:
+    description: "Review technical design for feasibility and completeness"
+    depends_on:
+      - "technical_design"
+    conditions:
+      - "technical_design_created == true"
+    consequences:
+      - "design_review_score = review_score"
+      - "design_reviews_completed += 1"
+    model_selection:
+      min_parameters: 7.0
+      preferred_models: ["gemini-*", "claude-*"]
+      exclude_models: ["gpt-3.5*"]  # Exclude specific models
+    system_prompt: "review_design.md"
+    inputs:
+      - "technical_design/design.md"
+    outputs:
+      - "reviews/design/review-{timestamp}-{model}.md"
+    repeat_until:
+      condition: "design_review_score >= 8.0 OR design_reviews_completed >= 3"
+
+  implementation_plan:
+    description: "Generate detailed implementation plan"
+    depends_on:
+      - "design_review"
+    conditions:
+      - "design_review_score >= 6.0"
+    consequences:
+      - "implementation_plan_created = true"
+      - "pipeline_progress += 15"
+    model_selection:
+      min_parameters: 20.0
+      preferred_models: ["claude-sonnet-4"]
+      capabilities: ["reasoning", "coding"]
+    system_prompt: "implementation_plan.md"
+    inputs:
+      - "technical_design/design.md"
+      - "reviews/design/review-*.md"
+    outputs:
+      - "implementation_plan/plan.md"
+    timeout: 360
+
+  code_generation:
+    description: "Generate project code and data collection procedures"
+    depends_on:
+      - "implementation_plan"
+    conditions:
+      - "implementation_plan_created == true"
+    consequences:
+      - "code_generated = true"
+      - "pipeline_progress += 20"
+    model_selection:
+      min_parameters: 20.0
+      preferred_models: ["claude-sonnet-4", "gpt-4"]
+      capabilities: ["coding"]
+    system_prompt: "code_generation.md"
+    inputs:
+      - "implementation_plan/plan.md"
+      - "technical_design/design.md"
+    outputs:
+      - "code/main.py"
+      - "code/utils.py"
+      - "data/README.md"
+    timeout: 420
+
+  code_execution:
+    description: "Execute generated code in sandboxed environment"
+    depends_on:
+      - "code_generation"
+    conditions:
+      - "code_generated == true"
+    consequences:
+      - "code_executed = true"
+      - "execution_success = execution_result.success"
+      - "pipeline_progress += 15"
+    model_selection:
+      provider: "system"  # Special case - uses code execution manager
+    system_prompt: null
+    inputs:
+      - "code/*.py"
+      - "requirements.txt"
+    outputs:
+      - "code/execution_report.json"
+      - "code/execution_report.md"
+      - "code/output_*.{csv,json,png}"
+    timeout: 900  # 15 minutes for code execution
+    
+  data_analysis:
+    description: "Analyze execution results and generate insights"
+    depends_on:
+      - "code_execution"
+    conditions:
+      - "code_executed == true"
+    consequences:
+      - "analysis_completed = true"
+      - "pipeline_progress += 10"
+    model_selection:
+      min_parameters: 20.0
+      preferred_models: ["claude-sonnet-4", "gpt-4"]
+      capabilities: ["reasoning", "analysis"]
+    system_prompt: "data_analysis.md"
+    inputs:
+      - "code/execution_report.md"
+      - "code/output_*.{csv,json}"
+      - "data/README.md"
+    outputs:
+      - "data/analysis_results.md"
+    timeout: 300
+
+  paper_writing:
+    description: "Write comprehensive research paper"
+    depends_on:
+      - "data_analysis"
+    conditions:
+      - "analysis_completed == true"
+      - "execution_success == true OR override_execution_failure == true"
+    consequences:
+      - "paper_written = true"
+      - "pipeline_progress += 10"
+    model_selection:
+      min_parameters: 20.0
+      preferred_models: ["claude-sonnet-4"]
+      capabilities: ["reasoning", "creative"]
+    system_prompt: "paper_writing.md"
+    inputs:
+      - "technical_design/design.md"
+      - "implementation_plan/plan.md"
+      - "code/main.py"
+      - "data/analysis_results.md"
+    outputs:
+      - "paper/paper.tex"
+    timeout: 600  # 10 minutes for paper writing
+
+  paper_review:
+    description: "Review research paper for quality and completeness"
+    depends_on:
+      - "paper_writing"
+    conditions:
+      - "paper_written == true"
+    consequences:
+      - "paper_review_score = review_score"
+      - "paper_reviews_completed += 1"
+      - "pipeline_progress += 5"
+    model_selection:
+      min_parameters: 20.0
+      preferred_models: ["claude-sonnet-4", "gpt-4"]
+      exclude_previous: true
+    system_prompt: "review_paper.md"
+    inputs:
+      - "paper/paper.tex"
+    outputs:
+      - "reviews/paper/review-{timestamp}-{model}.md"
+    repeat_until:
+      condition: "paper_review_score >= 8.0 OR paper_reviews_completed >= 3"
+
+  latex_compilation:
+    description: "Compile LaTeX paper to PDF"
+    depends_on:
+      - "paper_review"
+    conditions:
+      - "paper_review_score >= 6.0"
+    consequences:
+      - "paper_compiled = true"
+      - "pipeline_progress = 100"
+      - "pipeline_completed = true"
+    model_selection:
+      provider: "system"  # Uses system LaTeX compiler
+    system_prompt: null
+    inputs:
+      - "paper/paper.tex"
+    outputs:
+      - "paper/paper.pdf"
+      - "paper/compilation.log"
+    timeout: 180
+
+# Optional steps that can be triggered
+optional_steps:
+  manual_review:
+    description: "Request manual review from human researcher"
+    depends_on: []
+    conditions:
+      - "manual_review_requested == true"
+    consequences:
+      - "awaiting_manual_review = true"
+    model_selection:
+      provider: "human"
+    system_prompt: null
+    inputs: []
+    outputs: []
+    trigger: "manual"
+    
+  emergency_stop:
+    description: "Emergency stop with cleanup"
+    depends_on: []
+    conditions:
+      - "emergency_stop_requested == true"
+    consequences:
+      - "pipeline_stopped = true"
+      - "cleanup_required = true"
+    model_selection:
+      provider: "system"
+    system_prompt: null
+    inputs: []
+    outputs: []
+    trigger: "emergency"
+
+# Conditional branches
+branches:
+  quality_gate:
+    condition: "idea_review_score < 5.0 AND idea_reviews_completed >= 2"
+    action: "terminate"
+    message: "Idea quality too low after multiple reviews"
+  
+  execution_failure:
+    condition: "execution_success == false"
+    action: "branch"
+    steps: ["manual_review"]
+    message: "Code execution failed, requesting manual intervention"
+    
+  rapid_completion:
+    condition: "ALL(review_scores) >= 9.0"
+    action: "skip_optional"
+    message: "High quality detected, skipping optional review steps"

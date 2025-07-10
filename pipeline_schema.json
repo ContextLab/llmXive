@@ -1,0 +1,218 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/pipeline-config-v1.json",
+  "title": "llmXive Pipeline Configuration",
+  "description": "Schema for llmXive research pipeline configuration files",
+  "type": "object",
+  "required": ["version", "steps"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "Configuration format version"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string"},
+        "description": {"type": "string"},
+        "author": {"type": "string"},
+        "created": {"type": "string", "format": "date"}
+      }
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "base_directory": {"type": "string"},
+        "timeout_default": {"type": "integer", "minimum": 1},
+        "max_retries": {"type": "integer", "minimum": 0},
+        "parallel_execution": {"type": "boolean"}
+      }
+    },
+    "models": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z0-9_-]+$": {
+          "type": "object",
+          "required": ["provider"],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "enum": ["anthropic", "openai", "google", "huggingface", "system", "human"]
+            },
+            "parameters": {"type": "number", "minimum": 0},
+            "cost_per_token": {"type": "number", "minimum": 0},
+            "capabilities": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "steps": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z0-9_-]+$": {
+          "type": "object",
+          "required": ["description", "depends_on", "conditions", "consequences", "model_selection"],
+          "properties": {
+            "description": {"type": "string"},
+            "depends_on": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "conditions": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "consequences": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "model_selection": {
+              "type": "object",
+              "properties": {
+                "provider": {"type": "string"},
+                "min_parameters": {"type": "number", "minimum": 0},
+                "max_parameters": {"type": "number", "minimum": 0},
+                "preferred_models": {
+                  "type": "array",
+                  "items": {"type": "string"}
+                },
+                "exclude_models": {
+                  "type": "array", 
+                  "items": {"type": "string"}
+                },
+                "exclude_previous": {"type": "boolean"},
+                "capabilities": {
+                  "type": "array",
+                  "items": {"type": "string"}
+                },
+                "fallback": {"type": "string"}
+              }
+            },
+            "system_prompt": {
+              "oneOf": [
+                {"type": "string"},
+                {"type": "null"}
+              ]
+            },
+            "user_prompt": {"type": "string"},
+            "inputs": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "outputs": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "timeout": {"type": "integer", "minimum": 1},
+            "retries": {"type": "integer", "minimum": 0},
+            "repeat_until": {
+              "type": "object",
+              "properties": {
+                "condition": {"type": "string"},
+                "max_iterations": {"type": "integer", "minimum": 1}
+              },
+              "required": ["condition"]
+            }
+          }
+        }
+      }
+    },
+    "optional_steps": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z0-9_-]+$": {
+          "type": "object",
+          "required": ["description", "depends_on", "conditions", "consequences", "model_selection"],
+          "properties": {
+            "description": {"type": "string"},
+            "depends_on": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "conditions": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "consequences": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "model_selection": {
+              "type": "object",
+              "properties": {
+                "provider": {"type": "string"},
+                "min_parameters": {"type": "number", "minimum": 0},
+                "max_parameters": {"type": "number", "minimum": 0},
+                "preferred_models": {
+                  "type": "array",
+                  "items": {"type": "string"}
+                },
+                "exclude_models": {
+                  "type": "array", 
+                  "items": {"type": "string"}
+                },
+                "exclude_previous": {"type": "boolean"},
+                "capabilities": {
+                  "type": "array",
+                  "items": {"type": "string"}
+                },
+                "fallback": {"type": "string"}
+              }
+            },
+            "system_prompt": {
+              "oneOf": [
+                {"type": "string"},
+                {"type": "null"}
+              ]
+            },
+            "user_prompt": {"type": "string"},
+            "inputs": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "outputs": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "timeout": {"type": "integer", "minimum": 1},
+            "retries": {"type": "integer", "minimum": 0},
+            "repeat_until": {
+              "type": "object",
+              "properties": {
+                "condition": {"type": "string"},
+                "max_iterations": {"type": "integer", "minimum": 1}
+              },
+              "required": ["condition"]
+            },
+            "trigger": {"type": "string"}
+          }
+        }
+      }
+    },
+    "branches": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z0-9_-]+$": {
+          "type": "object",
+          "required": ["condition", "action"],
+          "properties": {
+            "condition": {"type": "string"},
+            "action": {
+              "type": "string",
+              "enum": ["terminate", "branch", "skip_optional", "retry", "continue"]
+            },
+            "steps": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "message": {"type": "string"}
+          }
+        }
+      }
+    }
+  }
+}
