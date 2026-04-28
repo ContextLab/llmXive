@@ -23,19 +23,46 @@ def _cmd_preflight(_args: argparse.Namespace) -> int:
 
 
 def _cmd_run(args: argparse.Namespace) -> int:
-    # Wired in US1 (T058–T059); for now this is a stub that invokes the
-    # scheduler and reports the next project that *would* be acted on.
-    from llmxive.pipeline import scheduler
+    """Drive one or more pipeline steps. Each step advances one project.
 
-    project = scheduler.pick_next()
-    if project is None:
-        print("[run] no project ready for action")
-        return 0
-    print(
-        f"[run] scheduler would act on {project.id} (stage={project.current_stage.value})"
-    )
-    if args.project:
-        print(f"[run] (filter: project={args.project!r}; stage={args.stage or '<any>'})")
+    Per FR-002, --project and --stage filter the selection. The
+    scheduler picks projects in priority order; this loop runs up to
+    --max-tasks steps before returning.
+    """
+    from llmxive.pipeline import graph, scheduler
+    from llmxive.state import project as project_store
+
+    completed = 0
+    for _ in range(max(1, args.max_tasks)):
+        if args.project:
+            try:
+                project = project_store.load(args.project)
+            except FileNotFoundError:
+                print(f"[run] no project state for {args.project!r}", file=sys.stderr)
+                return 2
+        else:
+            project = scheduler.pick_next()
+        if project is None:
+            print("[run] no project ready for action")
+            break
+        if args.stage and project.current_stage.value != args.stage:
+            print(
+                f"[run] {project.id} is at {project.current_stage.value} (skipped: stage filter)"
+            )
+            break
+        print(f"[run] step on {project.id} (stage={project.current_stage.value})")
+        try:
+            updated = graph.run_one_step(project)
+        except Exception as exc:
+            print(f"[run] FAIL on {project.id}: {exc}", file=sys.stderr)
+            return 1
+        print(f"[run]   -> stage={updated.current_stage.value}")
+        completed += 1
+        if updated.current_stage == project.current_stage:
+            # Cycled (e.g., implementer still in_progress); stop to let
+            # the scheduler reconsider next time.
+            break
+    print(f"[run] completed {completed} step(s)")
     return 0
 
 

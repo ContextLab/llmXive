@@ -106,6 +106,23 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
     """
     cits = citations_store.load(project.id, repo_root=repo_root)
 
+    # Auto-promote research_complete → research_review when at least one
+    # research-stage review record has been written (T067).
+    if project.current_stage == Stage.RESEARCH_COMPLETE:
+        records = reviews_store.list_for(project.id, stage="research", repo_root=repo_root)
+        if records:
+            project = _transition(project, Stage.RESEARCH_REVIEW)
+        else:
+            return project
+
+    # Auto-promote paper_complete → paper_review on the same trigger.
+    if project.current_stage == Stage.PAPER_COMPLETE:
+        records = reviews_store.list_for(project.id, stage="paper", repo_root=repo_root)
+        if records:
+            project = _transition(project, Stage.PAPER_REVIEW)
+        else:
+            return project
+
     # Research-review handling (US3 wiring; placeholder logic now).
     if project.current_stage == Stage.RESEARCH_REVIEW:
         records = reviews_store.list_for(project.id, stage="research", repo_root=repo_root)

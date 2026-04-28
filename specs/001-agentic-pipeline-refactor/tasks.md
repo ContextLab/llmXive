@@ -92,40 +92,40 @@ description: "Task list for the Spec-Kit-per-project agentic pipeline refactor"
 
 ### Tests for User Story 1 (REAL-CALL only) ⚠️
 
-- [ ] T037 [P] [US1] Real-call test `tests/real_call/test_full_pipeline_e2e.py` — feeds `tests/real_call/fixtures/PROJ-TEST-001/` (a minimal idea) through Brainstorm → Flesh-Out → Project-Initializer → Specifier → Clarifier → Planner → Tasker → Implementer; asserts every canonical artifact exists at the canonical Spec Kit paths and the project reaches `research_complete` (FR-030)
+- [X] T037 [P] [US1] Real-call test `tests/real_call/test_full_pipeline_e2e.py` — feeds `tests/real_call/fixtures/PROJ-TEST-001/` (a minimal idea) through Brainstorm → Flesh-Out → Project-Initializer → Specifier → Clarifier → Planner → Tasker → Implementer; asserts every canonical artifact exists at the canonical Spec Kit paths and the project reaches `research_complete` (FR-030)
 
 ### Implementation for User Story 1
 
 #### Idea-generation phase (Brainstorm + Flesh-Out + Idea-Selector)
 
-- [ ] T038 [P] [US1] Author Brainstorm Agent prompt at `agents/prompts/brainstorm.md` (single-paragraph idea seeds from a field prompt)
-- [ ] T039 [P] [US1] Author Flesh-Out Agent prompt at `agents/prompts/flesh_out.md` (calls Lit-Search tool; produces structured idea with research question + related work + expected results + methodology; performs duplicate-detection via semantic similarity against existing project ideas)
-- [ ] T040 [P] [US1] Author Idea-Selector Agent prompt at `agents/prompts/idea_selector.md` (rule-based selection criteria + lightweight LLM ranking)
-- [ ] T041 [P] [US1] Implement Lit-Search tool at `agents/tools/lit_search.py` — queries Semantic Scholar, arXiv, OpenAlex; returns structured paper records; used as a LangChain tool by Flesh-Out and (later) by Paper-Specifier and the Writing Agent
-- [ ] T042 [US1] Add `brainstorm`, `flesh_out`, `idea_selector` entries to `agents/registry.yaml` (default backend `dartmouth`, fallback `huggingface`, prompt paths from T038–T040, budget 300 s each, `paid_opt_in: false`)
+- [X] T038 [P] [US1] Author Brainstorm Agent prompt at `agents/prompts/brainstorm.md` (single-paragraph idea seeds from a field prompt)
+- [X] T039 [P] [US1] Author Flesh-Out Agent prompt at `agents/prompts/flesh_out.md` (calls Lit-Search tool; produces structured idea with research question + related work + expected results + methodology; performs duplicate-detection via semantic similarity against existing project ideas)
+- [X] T040 [P] [US1] Author Idea-Selector Agent prompt at `agents/prompts/idea_selector.md` (rule-based selection criteria + lightweight LLM ranking)
+- [X] T041 [P] [US1] Implement Lit-Search tool at `agents/tools/lit_search.py` — queries Semantic Scholar, arXiv, OpenAlex; returns structured paper records; used as a LangChain tool by Flesh-Out and (later) by Paper-Specifier and the Writing Agent
+- [X] T042 [US1] Add `brainstorm`, `flesh_out`, `idea_selector` entries to `agents/registry.yaml` (default backend `dartmouth`, fallback `huggingface`, prompt paths from T038–T040, budget 300 s each, `paid_opt_in: false`)
 
 #### Per-project Spec Kit drivers
 
-- [ ] T043 [P] [US1] Author the Project-Initializer Agent prompt at `agents/prompts/project_initializer.md` (invokes upstream `specify init` mechanics inside `projects/<PROJ-ID>/`, derives the project's `.specify/memory/constitution.md` from the research-project constitution template at `agents/templates/research_project_constitution.md` with project-specific token substitution per FR-012)
-- [ ] T044 [US1] Implement Project-Initializer Agent at `src/llmxive/agents/project_initializer.py` — uses `src/llmxive/speckit/runner.py::init_speckit_in("projects/<PROJ-ID>/")`, applies the constitution template by substituting `{{project_id}}`, `{{title}}`, `{{field}}`, `{{date}}`, and `{{principal_agent_name}}` from project state (FIX U3); transitions project to `project_initialized`
-- [ ] T045 [P] [US1] Author Specifier Agent prompt at `agents/prompts/specifier.md` (drives `/speckit.specify` for the project's Spec Kit scaffold; invokes `projects/<PROJ-ID>/.specify/scripts/bash/create-new-feature.sh --json`)
-- [ ] T046 [US1] Implement Specifier Agent at `src/llmxive/speckit/specify_cmd.py` — extends `SlashCommandAgent` from T022; reads the fleshed-out idea, writes `projects/<PROJ-ID>/specs/001-<short-name>/spec.md`, transitions project to `specified`
-- [ ] T047 [P] [US1] Author Clarifier Agent prompt at `agents/prompts/clarifier.md` (drives `/speckit.clarify`; resolves `[NEEDS CLARIFICATION]` markers via primary-source verification — uses Reference-Validator if a marker concerns an external claim — escalates to `human_input_needed` after the configured number of unresolved attempts)
-- [ ] T048 [US1] Implement Clarifier Agent at `src/llmxive/speckit/clarify_cmd.py`; transitions project to `clarified` on success or `human_input_needed` on cap-hit
-- [ ] T049 [P] [US1] Author Planner Agent prompt at `agents/prompts/planner.md` (drives `/speckit.plan`; invokes `setup-plan.sh --json`, produces `plan.md`, `research.md`, `data-model.md`, `quickstart.md`, and `contracts/`)
-- [ ] T050 [US1] Implement Planner Agent at `src/llmxive/speckit/plan_cmd.py`; transitions project to `planned`
-- [ ] T051 [P] [US1] Author Tasker Agent prompt at `agents/prompts/tasker.md` (drives `/speckit.tasks` followed immediately by `/speckit.analyze`; for each issue analyze surfaces, edits the upstream artifact and re-runs analyze; cap iterations at `TASKER_MAX_REVISION_ROUNDS` from T019; on cap-hit transitions project to `human_input_needed`)
-- [ ] T052 [US1] Implement Tasker Agent at `src/llmxive/speckit/tasks_cmd.py` AND `src/llmxive/speckit/analyze_cmd.py`; the Tasker orchestrates both per FR-015. Transitions project to `analyzed` on clean analyze report
-- [ ] T053 [P] [US1] Author Implementer Agent prompt at `agents/prompts/implementer.md` (drives `/speckit.implement`; completes as many tasks from `tasks.md` as fit within the leaf wall-clock budget; persists progress per-task; the very next scheduled run resumes from the next incomplete task)
-- [ ] T054 [US1] Implement Implementer Agent at `src/llmxive/speckit/implement_cmd.py`; transitions project to `in_progress` on first task; transitions to `research_complete` when the last `tasks.md` checkbox is checked
-- [ ] T055 [US1] Add `project_initializer`, `specifier`, `clarifier`, `planner`, `tasker`, `implementer` entries to `agents/registry.yaml` with their prompt paths, budgets, and backend chains
+- [X] T043 [P] [US1] Author the Project-Initializer Agent prompt at `agents/prompts/project_initializer.md` (invokes upstream `specify init` mechanics inside `projects/<PROJ-ID>/`, derives the project's `.specify/memory/constitution.md` from the research-project constitution template at `agents/templates/research_project_constitution.md` with project-specific token substitution per FR-012)
+- [X] T044 [US1] Implement Project-Initializer Agent at `src/llmxive/agents/project_initializer.py` — uses `src/llmxive/speckit/runner.py::init_speckit_in("projects/<PROJ-ID>/")`, applies the constitution template by substituting `{{project_id}}`, `{{title}}`, `{{field}}`, `{{date}}`, and `{{principal_agent_name}}` from project state (FIX U3); transitions project to `project_initialized`
+- [X] T045 [P] [US1] Author Specifier Agent prompt at `agents/prompts/specifier.md` (drives `/speckit.specify` for the project's Spec Kit scaffold; invokes `projects/<PROJ-ID>/.specify/scripts/bash/create-new-feature.sh --json`)
+- [X] T046 [US1] Implement Specifier Agent at `src/llmxive/speckit/specify_cmd.py` — extends `SlashCommandAgent` from T022; reads the fleshed-out idea, writes `projects/<PROJ-ID>/specs/001-<short-name>/spec.md`, transitions project to `specified`
+- [X] T047 [P] [US1] Author Clarifier Agent prompt at `agents/prompts/clarifier.md` (drives `/speckit.clarify`; resolves `[NEEDS CLARIFICATION]` markers via primary-source verification — uses Reference-Validator if a marker concerns an external claim — escalates to `human_input_needed` after the configured number of unresolved attempts)
+- [X] T048 [US1] Implement Clarifier Agent at `src/llmxive/speckit/clarify_cmd.py`; transitions project to `clarified` on success or `human_input_needed` on cap-hit
+- [X] T049 [P] [US1] Author Planner Agent prompt at `agents/prompts/planner.md` (drives `/speckit.plan`; invokes `setup-plan.sh --json`, produces `plan.md`, `research.md`, `data-model.md`, `quickstart.md`, and `contracts/`)
+- [X] T050 [US1] Implement Planner Agent at `src/llmxive/speckit/plan_cmd.py`; transitions project to `planned`
+- [X] T051 [P] [US1] Author Tasker Agent prompt at `agents/prompts/tasker.md` (drives `/speckit.tasks` followed immediately by `/speckit.analyze`; for each issue analyze surfaces, edits the upstream artifact and re-runs analyze; cap iterations at `TASKER_MAX_REVISION_ROUNDS` from T019; on cap-hit transitions project to `human_input_needed`)
+- [X] T052 [US1] Implement Tasker Agent at `src/llmxive/speckit/tasks_cmd.py` AND `src/llmxive/speckit/analyze_cmd.py`; the Tasker orchestrates both per FR-015. Transitions project to `analyzed` on clean analyze report
+- [X] T053 [P] [US1] Author Implementer Agent prompt at `agents/prompts/implementer.md` (drives `/speckit.implement`; completes as many tasks from `tasks.md` as fit within the leaf wall-clock budget; persists progress per-task; the very next scheduled run resumes from the next incomplete task)
+- [X] T054 [US1] Implement Implementer Agent at `src/llmxive/speckit/implement_cmd.py`; transitions project to `in_progress` on first task; transitions to `research_complete` when the last `tasks.md` checkbox is checked
+- [X] T055 [US1] Add `project_initializer`, `specifier`, `clarifier`, `planner`, `tasker`, `implementer` entries to `agents/registry.yaml` with their prompt paths, budgets, and backend chains
 
 #### Lifecycle wiring
 
-- [ ] T056 [US1] Extend `src/llmxive/agents/lifecycle.py` LangGraph with the US1 transitions (`brainstormed`→`flesh_out_in_progress`→`flesh_out_complete`→`project_initialized`→`specified`→`clarify_in_progress`→`clarified`→`planned`→`tasked`→`analyze_in_progress`→`analyzed`→`in_progress`→`research_complete`); each transition's allowed source/target enforced
-- [ ] T057 [US1] Extend `src/llmxive/agents/advancement.py` with the US1 advancement rules (e.g., `analyzed` → `in_progress` requires `analyze` clean; `in_progress` → `research_complete` requires every task in `tasks.md` checked off)
-- [ ] T058 [US1] Wire all US1 agents into `src/llmxive/pipeline/graph.py` LangGraph orchestration so a single scheduled run advances any one project by one stage when conditions allow
-- [ ] T059 [US1] Wire `.github/workflows/llmxive-pipeline.yml` to call `python -m llmxive run --max-tasks 5` with the cron and dispatch triggers; the `Status-Reporter Agent` step (added in US9) is stubbed for now
+- [X] T056 [US1] Extend `src/llmxive/agents/lifecycle.py` LangGraph with the US1 transitions (`brainstormed`→`flesh_out_in_progress`→`flesh_out_complete`→`project_initialized`→`specified`→`clarify_in_progress`→`clarified`→`planned`→`tasked`→`analyze_in_progress`→`analyzed`→`in_progress`→`research_complete`); each transition's allowed source/target enforced
+- [X] T057 [US1] Extend `src/llmxive/agents/advancement.py` with the US1 advancement rules (e.g., `analyzed` → `in_progress` requires `analyze` clean; `in_progress` → `research_complete` requires every task in `tasks.md` checked off)
+- [X] T058 [US1] Wire all US1 agents into `src/llmxive/pipeline/graph.py` LangGraph orchestration so a single scheduled run advances any one project by one stage when conditions allow
+- [X] T059 [US1] Wire `.github/workflows/llmxive-pipeline.yml` to call `python -m llmxive run --max-tasks 5` with the cron and dispatch triggers; the `Status-Reporter Agent` step (added in US9) is stubbed for now
 
 **Checkpoint**: User Story 1 fully functional — a fleshed-out idea fixture advances brainstormed → research_complete across one or more scheduled runs, with every Spec Kit slash command driven by a dedicated agent.
 
@@ -139,9 +139,9 @@ description: "Task list for the Spec-Kit-per-project agentic pipeline refactor"
 
 ### Implementation for User Story 2
 
-- [ ] T060 [US2] Extend `src/llmxive/pipeline/scheduler.py` (started in T029) with the full FR-001 priority order — `in_progress > analyzed > clarified > specified > flesh_out_complete > brainstormed > paper_in_progress > paper_analyzed > paper_clarified > paper_specified > paper_drafting_init > research_complete` — and the within-tier oldest-`updated_at` rule (FR-006). Add **integration** test `tests/integration/test_scheduler_priority.py` using fixture `state/projects/` files (no LLM call; pure priority verification — distinct from real-call tests, since this is fixture-driven; FIX A1, FIX I3)
-- [ ] T061 [US2] Extend `src/llmxive/speckit/implement_cmd.py` (T054) to read `tasks.md` plus prior run-log entries to find the first incomplete task; never re-run a task already marked complete; record per-task completion in the run-log so successive scheduled runs continue forward
-- [ ] T062 [US2] Real-call test `tests/real_call/test_resume_progression.py` — runs the pipeline twice on the same fixture project and asserts each run completes a different next-incomplete task
+- [X] T060 [US2] Extend `src/llmxive/pipeline/scheduler.py` (started in T029) with the full FR-001 priority order — `in_progress > analyzed > clarified > specified > flesh_out_complete > brainstormed > paper_in_progress > paper_analyzed > paper_clarified > paper_specified > paper_drafting_init > research_complete` — and the within-tier oldest-`updated_at` rule (FR-006). Add **integration** test `tests/integration/test_scheduler_priority.py` using fixture `state/projects/` files (no LLM call; pure priority verification — distinct from real-call tests, since this is fixture-driven; FIX A1, FIX I3)
+- [X] T061 [US2] Extend `src/llmxive/speckit/implement_cmd.py` (T054) to read `tasks.md` plus prior run-log entries to find the first incomplete task; never re-run a task already marked complete; record per-task completion in the run-log so successive scheduled runs continue forward
+- [X] T062 [US2] Real-call test `tests/real_call/test_resume_progression.py` — runs the pipeline twice on the same fixture project and asserts each run completes a different next-incomplete task
 
 **Checkpoint**: Multiple Implementer-Agent runs collaborate on one project; in_progress projects always pre-empt fresh analyzed projects.
 
@@ -155,13 +155,13 @@ description: "Task list for the Spec-Kit-per-project agentic pipeline refactor"
 
 ### Implementation for User Story 3
 
-- [ ] T063 [P] [US3] Author Research-Reviewer Agent prompt at `agents/prompts/research_reviewer.md` (reads the project's implementation — code, data, results — and emits a structured review with verdict in {accept, minor_revision, full_revision, reject})
-- [ ] T064 [US3] Implement Research-Reviewer Agent at `src/llmxive/agents/research_reviewer.py`; writes review records under `projects/<PROJ-ID>/reviews/research/<agent-name>__<YYYY-MM-DD>__research.md` with frontmatter validated against `contracts/review-record.schema.yaml`
-- [ ] T065 [US3] Add `research_reviewer` entry to `agents/registry.yaml`
-- [ ] T066 [US3] Extend `src/llmxive/agents/advancement.py` (T028, T057) with the research-review rules per `research.md` R5: group by verdict, sum weighted votes, advance to `research_accepted` only when accept-votes ≥ `RESEARCH_ACCEPT_THRESHOLD` (T019), else route to the corresponding revision stage. Self-review is rejected: skip review records where `reviewer_name == produced_by_agent`
-- [ ] T067 [US3] Extend `src/llmxive/agents/lifecycle.py` (T056) with `research_complete`→`research_review`→{`research_accepted` | `research_minor_revision` | `research_full_revision` | `research_rejected`} transitions
-- [ ] T068 [US3] Implement revision routing: `research_minor_revision` re-invokes the Tasker Agent with a synthesized revision-task brief from reviewer feedback; `research_full_revision` resets project to `clarified` with reviewer prompt attached to the spec; `research_rejected` snapshots the project under `projects/<PROJ-ID>/.rejected/<timestamp>/` and resets to `brainstormed` (no scaffolding deletion — preserve git history)
-- [ ] T069 [US3] Real-call test `tests/real_call/test_research_review_flow.py` — feeds three deliberately-different fixture implementations (good / minor-flaws / fundamental-flaws) through the reviewer pool and asserts each gets routed to the expected next stage
+- [X] T063 [P] [US3] Author Research-Reviewer Agent prompt at `agents/prompts/research_reviewer.md` (reads the project's implementation — code, data, results — and emits a structured review with verdict in {accept, minor_revision, full_revision, reject})
+- [X] T064 [US3] Implement Research-Reviewer Agent at `src/llmxive/agents/research_reviewer.py`; writes review records under `projects/<PROJ-ID>/reviews/research/<agent-name>__<YYYY-MM-DD>__research.md` with frontmatter validated against `contracts/review-record.schema.yaml`
+- [X] T065 [US3] Add `research_reviewer` entry to `agents/registry.yaml`
+- [X] T066 [US3] Extend `src/llmxive/agents/advancement.py` (T028, T057) with the research-review rules per `research.md` R5: group by verdict, sum weighted votes, advance to `research_accepted` only when accept-votes ≥ `RESEARCH_ACCEPT_THRESHOLD` (T019), else route to the corresponding revision stage. Self-review is rejected: skip review records where `reviewer_name == produced_by_agent`
+- [X] T067 [US3] Extend `src/llmxive/agents/lifecycle.py` (T056) with `research_complete`→`research_review`→{`research_accepted` | `research_minor_revision` | `research_full_revision` | `research_rejected`} transitions
+- [X] T068 [US3] Implement revision routing: `research_minor_revision` re-invokes the Tasker Agent with a synthesized revision-task brief from reviewer feedback; `research_full_revision` resets project to `clarified` with reviewer prompt attached to the spec; `research_rejected` snapshots the project under `projects/<PROJ-ID>/.rejected/<timestamp>/` and resets to `brainstormed` (no scaffolding deletion — preserve git history)
+- [X] T069 [US3] Real-call test `tests/real_call/test_research_review_flow.py` — feeds three deliberately-different fixture implementations (good / minor-flaws / fundamental-flaws) through the reviewer pool and asserts each gets routed to the expected next stage
 
 **Checkpoint**: Research-quality voting works end-to-end with all four route paths verified.
 
