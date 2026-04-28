@@ -238,3 +238,12 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# llmXive pipeline state — keep canonical state in git, but exclude
+# transient in-progress sentinels and any local runtime caches.
+state/run-log/*/in-progress/
+state/run-log/*/.invalid/
+.specify/cache/
+
+# Multi-secret env variants used by Dartmouth + HF
+.env.*

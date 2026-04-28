@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive"
+version = "0.1.0"
+description = "Automated scientific-discovery pipeline driven by Spec-Kit-per-project agents"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Contextual Dynamics Lab", email = "research.computing@dartmouth.edu" }]
+dependencies = [
+  # LLM / agent framework
+  "langchain>=0.3",
+  "langgraph>=0.2",
+  "langchain-dartmouth>=0.3.1",
+  "langchain-huggingface>=0.1",
+  "huggingface_hub",
+  # Data validation
+  "pydantic>=2",
+  "jsonschema",
+  # Operational
+  "tenacity",
+  "pyyaml",
+  "httpx",
+  "gitpython",
+  "arxiv",
+  "crossref-commons",
+  # Paper-stage
+  "matplotlib",
+  "seaborn",
+  "numpy",
+  "scipy",
+  "pandas",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "pytest-asyncio",
+  "ruff",
+  "mypy",
+]
+
+[project.scripts]
+llmxive = "llmxive.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["llmxive*"]
+
+[tool.setuptools.package-data]
+llmxive = ["py.typed"]

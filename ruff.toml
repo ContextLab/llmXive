@@ -1,0 +1,23 @@
+target-version = "py311"
+line-length = 100
+src = ["src", "tests"]
+
+[lint]
+select = [
+  "E",    # pycodestyle errors
+  "F",    # pyflakes
+  "W",    # pycodestyle warnings
+  "I",    # isort
+  "B",    # flake8-bugbear
+  "UP",   # pyupgrade
+  "RUF",  # ruff-specific
+]
+ignore = [
+  "E501", # line-too-long (line-length governs hard cap)
+]
+
+[lint.per-file-ignores]
+"tests/**/*.py" = ["B011"]  # allow `assert False` in tests
+
+[format]
+quote-style = "double"

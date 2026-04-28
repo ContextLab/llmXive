@@ -44,7 +44,7 @@ properties:
 
   agents:
     type: array
-    minItems: 1
+    minItems: 0  # Allowed empty during bootstrap (T026); US1 onward populates this.
     items:
       type: object
       required:

@@ -1,0 +1,36 @@
+name: llmXive Real-Call Tests
+
+on:
+  pull_request:
+    paths:
+      - "src/llmxive/**"
+      - "agents/**"
+      - "tests/**"
+      - ".github/workflows/llmxive-*.yml"
+      - "pyproject.toml"
+      - "contracts/**"
+
+permissions:
+  contents: read
+
+jobs:
+  real-call:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      LLMXIVE_REAL_TESTS: "1"
+      DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package and dev deps
+        run: pip install -e ".[dev]"
+      - name: Contract tests
+        run: pytest tests/contract -v
+      - name: Real-call tests (extended in T036, T114)
+        run: pytest tests/real_call -v

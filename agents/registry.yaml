@@ -1,0 +1,33 @@
+# Single canonical agent registry (FR-007, T026).
+#
+# v0.1.0 — backends only. Agent entries are added per user story:
+#   T042 (US1): brainstorm, flesh_out, idea_selector
+#   T055 (US1): project_initializer, specifier, clarifier, planner, tasker, implementer
+#   T065 (US3): research_reviewer
+#   T093 (US4): paper_*, proofreader, latex_*
+#   T098 (US5): paper_reviewer
+#   T109 (US7): reference_validator
+#   T125 (US9): status_reporter, repository_hygiene, task_atomizer, task_joiner
+
+version: "0.1.0"
+
+backends:
+  - name: dartmouth
+    kind: openai_compatible
+    auth_env_vars:
+      - DARTMOUTH_CHAT_API_KEY
+      - DARTMOUTH_API_KEY
+    daily_quota_estimate: 100
+    is_paid: false
+  - name: huggingface
+    kind: hf_inference
+    auth_env_vars:
+      - HF_TOKEN
+    daily_quota_estimate: 50
+    is_paid: false
+  - name: local
+    kind: local_transformers
+    auth_env_vars: []
+    is_paid: false
+
+agents: []

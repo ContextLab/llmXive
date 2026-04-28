@@ -1,0 +1,80 @@
+name: llmXive Pipeline
+
+on:
+  schedule:
+    # FR-001 default cadence: every 3 hours.
+    - cron: "0 */3 * * *"
+  workflow_dispatch:
+    # FR-002: optional inputs to scope a manual run to a project and/or stage.
+    inputs:
+      project_id:
+        description: "Restrict run to this project ID (e.g. PROJ-001-foo)."
+        required: false
+        type: string
+      stage:
+        description: "Run only this stage."
+        required: false
+        type: choice
+        options:
+          - ""
+          - brainstorm
+          - flesh_out
+          - idea_select
+          - project_initialize
+          - speckit_specify
+          - speckit_clarify
+          - speckit_plan
+          - speckit_tasks
+          - speckit_analyze
+          - speckit_implement
+          - research_review
+          - paper_initialize
+          - paper_speckit_specify
+          - paper_speckit_clarify
+          - paper_speckit_plan
+          - paper_speckit_tasks
+          - paper_speckit_analyze
+          - paper_speckit_implement
+          - paper_review
+          - status_report
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package
+        run: pip install -e .
+      - name: Preflight (FR-024 fail-fast preconditions)
+        env:
+          DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+          DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python -m llmxive preflight
+      - name: Run pipeline (stub until US1)
+        env:
+          DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+          DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_ID: ${{ github.event.inputs.project_id }}
+          STAGE: ${{ github.event.inputs.stage }}
+        run: |
+          ARGS=(run --max-tasks 5)
+          if [[ -n "${PROJECT_ID:-}" ]]; then ARGS+=(--project "$PROJECT_ID"); fi
+          if [[ -n "${STAGE:-}" ]]; then ARGS+=(--stage "$STAGE"); fi
+          python -m llmxive "${ARGS[@]}"
