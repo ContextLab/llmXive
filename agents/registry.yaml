@@ -1,15 +1,10 @@
-# Single canonical agent registry (FR-007, T026).
+# Single canonical agent registry (FR-007).
 #
-# v0.1.0 — backends only. Agent entries are added per user story:
-#   T042 (US1): brainstorm, flesh_out, idea_selector
-#   T055 (US1): project_initializer, specifier, clarifier, planner, tasker, implementer
-#   T065 (US3): research_reviewer
-#   T093 (US4): paper_*, proofreader, latex_*
-#   T098 (US5): paper_reviewer
-#   T109 (US7): reference_validator
-#   T125 (US9): status_reporter, repository_hygiene, task_atomizer, task_joiner
+# v0.2.0 — US1 agents added (T042 + T055).
+# Future versions: T065 (US3), T093 (US4), T098 (US5), T109 (US7),
+# T125 (US9).
 
-version: "0.1.0"
+version: "0.3.0"
 
 backends:
   - name: dartmouth
@@ -30,4 +25,107 @@ backends:
     auth_env_vars: []
     is_paid: false
 
-agents: []
+agents:
+  # Idea-generation phase (T042)
+  - name: brainstorm
+    purpose: "Generate one short raw idea seed for a research project in a given field."
+    inputs: [idea]
+    outputs: [idea]
+    prompt_path: agents/prompts/brainstorm.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface, local]
+    default_model: google.gemma-3-27b-it
+    wall_clock_budget_seconds: 300
+    paid_opt_in: false
+  - name: flesh_out
+    purpose: "Expand a raw idea seed into a structured idea grounded in primary sources."
+    inputs: [idea]
+    outputs: [idea]
+    prompt_path: agents/prompts/flesh_out.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface]
+    default_model: qwen.qwen3.5-122b
+    tools: [lit_search]
+    wall_clock_budget_seconds: 600
+    paid_opt_in: false
+  - name: idea_selector
+    purpose: "Decide whether a fleshed-out idea should be promoted to a Spec Kit project."
+    inputs: [idea]
+    outputs: [project_state]
+    prompt_path: agents/prompts/idea_selector.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface, local]
+    default_model: qwen.qwen3.5-122b
+    wall_clock_budget_seconds: 300
+    paid_opt_in: false
+
+  # Per-project Spec Kit drivers (T055)
+  - name: project_initializer
+    purpose: "Bootstrap a per-project Spec Kit scaffold and render a project constitution."
+    inputs: [idea]
+    outputs: [project_state]
+    prompt_path: agents/prompts/project_initializer.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface, local]
+    default_model: qwen.qwen3.5-122b
+    wall_clock_budget_seconds: 300
+    paid_opt_in: false
+  - name: specifier
+    purpose: "Drive /speckit.specify for the project; draft spec.md from the idea."
+    inputs: [idea]
+    outputs: [technical_design]
+    prompt_path: agents/prompts/specifier.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface]
+    default_model: qwen.qwen3.5-122b
+    wall_clock_budget_seconds: 600
+    paid_opt_in: false
+  - name: clarifier
+    purpose: "Drive /speckit.clarify; resolve [NEEDS CLARIFICATION] markers in spec.md."
+    inputs: [technical_design]
+    outputs: [technical_design]
+    prompt_path: agents/prompts/clarifier.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface]
+    default_model: qwen.qwen3.5-122b
+    wall_clock_budget_seconds: 600
+    paid_opt_in: false
+  - name: planner
+    purpose: "Drive /speckit.plan; produce plan.md, research.md, data-model.md, quickstart.md, contracts/."
+    inputs: [technical_design]
+    outputs: [implementation_plan]
+    prompt_path: agents/prompts/planner.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface]
+    default_model: qwen.qwen3.5-122b
+    wall_clock_budget_seconds: 900
+    paid_opt_in: false
+  - name: tasker
+    purpose: "Drive /speckit.tasks then /speckit.analyze; resolve every analyze finding."
+    inputs: [implementation_plan]
+    outputs: [implementation_plan]
+    prompt_path: agents/prompts/tasker.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface]
+    default_model: qwen.qwen3.5-122b
+    wall_clock_budget_seconds: 900
+    paid_opt_in: false
+  - name: implementer
+    purpose: "Drive /speckit.implement; complete the next incomplete task within the leaf budget."
+    inputs: [implementation_plan]
+    outputs: [code, data]
+    prompt_path: agents/prompts/implementer.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface]
+    default_model: qwen.qwen3.5-122b
+    wall_clock_budget_seconds: 900
+    paid_opt_in: false
