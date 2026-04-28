@@ -1,0 +1,104 @@
+# JSON Schema (YAML-encoded) for agents/registry.yaml
+# This file IS the contract. The runtime parses agents/registry.yaml and
+# validates it against this schema at preflight (Constitution Principle V).
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "agents/registry.yaml"
+title: "Agent Registry"
+type: object
+required: [version, backends, agents]
+additionalProperties: false
+
+properties:
+  version:
+    type: string
+    pattern: '^\d+\.\d+\.\d+$'
+    description: "Semver of the registry schema."
+
+  backends:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [name, kind, auth_env_vars, is_paid]
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          enum: [dartmouth, huggingface, local]
+        kind:
+          type: string
+          enum: [openai_compatible, hf_inference, local_transformers]
+        auth_env_vars:
+          type: array
+          items: { type: string }
+        base_url:
+          type: string
+          format: uri
+        daily_quota_estimate:
+          type: integer
+          minimum: 0
+        is_paid:
+          type: boolean
+          const: false  # v1 invariant: Constitution Principle IV
+
+  agents:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required:
+        [name, purpose, inputs, outputs, prompt_path, prompt_version,
+         default_backend, fallback_backends, default_model,
+         wall_clock_budget_seconds, paid_opt_in]
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          pattern: '^[a-z][a-z0-9_]*$'
+          description: "Unique snake_case identifier."
+        purpose:
+          type: string
+          minLength: 10
+          maxLength: 200
+        inputs:
+          type: array
+          items:
+            type: string
+            enum: [idea, technical_design, implementation_plan, code, data, paper, review]
+        outputs:
+          type: array
+          items:
+            type: string
+            enum: [idea, technical_design, implementation_plan, code, data, paper, review, status_comment, project_state]
+        prompt_path:
+          type: string
+          pattern: '^agents/prompts/[a-z0-9_]+\.md$'
+        prompt_version:
+          type: string
+          pattern: '^\d+\.\d+\.\d+$'
+        default_backend:
+          type: string
+          enum: [dartmouth, huggingface, local]
+        fallback_backends:
+          type: array
+          minItems: 0
+          items:
+            type: string
+            enum: [dartmouth, huggingface, local]
+        default_model:
+          type: string
+          minLength: 1
+          description: "Resolved at runtime via list(). Stored as a documented preference."
+        tools:
+          type: array
+          items:
+            type: string
+            pattern: '^[a-z][a-z0-9_]*$'
+        wall_clock_budget_seconds:
+          type: integer
+          minimum: 30
+          maximum: 1800
+        paid_opt_in:
+          type: boolean
+          const: false  # v1 invariant: Constitution Principle IV

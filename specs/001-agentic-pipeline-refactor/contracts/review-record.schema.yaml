@@ -1,0 +1,74 @@
+# JSON Schema (YAML-encoded) for the YAML frontmatter of each review file
+# at projects/<PROJ-ID>/reviews/<author>__<YYYY-MM-DD>__<type>.md.
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "projects/<PROJ-ID>/reviews/<file>.md frontmatter"
+title: "Review Record"
+type: object
+required:
+  [reviewer_name, reviewer_kind, artifact_path, artifact_hash, score,
+   verdict, reviewed_at]
+additionalProperties: false
+
+properties:
+  reviewer_name:
+    type: string
+    minLength: 1
+    description: "Agent name (snake_case) for LLM reviews; GitHub username for human reviews."
+  reviewer_kind:
+    type: string
+    enum: [llm, human]
+  artifact_path:
+    type: string
+    pattern: '^projects/PROJ-\d{3,}-[a-z0-9-]+/.+'
+  artifact_hash:
+    type: string
+    pattern: '^[a-f0-9]{64}$'
+    description: "SHA-256 hex of the artifact at the moment of review."
+  score:
+    type: number
+    enum: [0.0, 0.5, 1.0]
+    description: "Exactly 0.5 for accepting LLM, 1.0 for accepting human, 0.0 for any reject."
+  verdict:
+    type: string
+    enum:
+      # Research-stage values
+      - accept
+      - minor_revision
+      - full_revision
+      - reject
+      # Paper-stage values (accept and minor_revision shared with research)
+      - major_revision_writing
+      - major_revision_science
+      - fundamental_flaws
+    description: |
+      Research-stage reviews use one of {accept, minor_revision, full_revision, reject}.
+      Paper-stage reviews use one of {accept, minor_revision, major_revision_writing,
+      major_revision_science, fundamental_flaws}. The stage is implied by the file's
+      reviews/ subdirectory (research/ vs paper/).
+  feedback:
+    type: string
+    description: "Free-form review body (also the markdown body of the file)."
+  reviewed_at:
+    type: string
+    format: date-time
+  prompt_version:
+    type: string
+    pattern: '^\d+\.\d+\.\d+$'
+    description: "Required when reviewer_kind=llm."
+  model_name:
+    type: string
+    description: "Required when reviewer_kind=llm."
+  backend:
+    type: string
+    enum: [dartmouth, huggingface, local]
+    description: "Required when reviewer_kind=llm."
+
+# Cross-field constraints expressed in the validator (Pydantic):
+#  - if reviewer_kind == 'llm':
+#      score MUST equal 0.5 when verdict == 'accept'
+#      score MUST equal 0.0 when verdict in ('reject', 'revise')
+#      prompt_version, model_name, backend MUST be present
+#  - if reviewer_kind == 'human':
+#      score MUST equal 1.0 when verdict == 'accept'
+#      score MUST equal 0.0 when verdict in ('reject', 'revise')

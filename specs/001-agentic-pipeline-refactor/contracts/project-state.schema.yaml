@@ -1,0 +1,137 @@
+# JSON Schema (YAML-encoded) for state/projects/<PROJ-ID>.yaml.
+# Per the Spec-Kit-per-project lifecycle (FR-003), each project carries
+# its current stage from a 25+ value enum; research-stage and paper-stage
+# point totals are tracked separately.
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "state/projects/<PROJ-ID>.yaml"
+title: "Project State"
+type: object
+required:
+  [id, title, field, current_stage, points_research, points_paper,
+   created_at, updated_at, artifact_hashes]
+additionalProperties: false
+
+properties:
+  id:
+    type: string
+    pattern: '^PROJ-\d{3,}-[a-z0-9-]+$'
+  title:
+    type: string
+    minLength: 1
+    maxLength: 250
+  field:
+    type: string
+    minLength: 1
+  current_stage:
+    type: string
+    enum:
+      # Idea-generation phase
+      - brainstormed
+      - flesh_out_in_progress
+      - flesh_out_complete
+      # Per-project research Spec Kit pipeline
+      - project_initialized
+      - specified
+      - clarify_in_progress
+      - clarified
+      - planned
+      - tasked
+      - analyze_in_progress
+      - analyzed
+      - in_progress
+      - research_complete
+      # Research-quality review
+      - research_review
+      - research_accepted
+      - research_minor_revision
+      - research_full_revision
+      - research_rejected
+      # Paper drafting Spec Kit pipeline
+      - paper_drafting_init
+      - paper_specified
+      - paper_clarified
+      - paper_planned
+      - paper_tasked
+      - paper_analyzed
+      - paper_in_progress
+      - paper_complete
+      # Final paper review
+      - paper_review
+      - paper_accepted
+      - paper_minor_revision
+      - paper_major_revision_writing
+      - paper_major_revision_science
+      - paper_fundamental_flaws
+      - posted
+      # Cross-stage states
+      - human_input_needed
+      - blocked
+  points_research:
+    type: object
+    additionalProperties: false
+    description: "Accumulated research-stage review points."
+    properties:
+      idea:
+        type: number
+        minimum: 0
+      design_review:
+        type: number
+        minimum: 0
+      research_review:
+        type: number
+        minimum: 0
+  points_paper:
+    type: object
+    additionalProperties: false
+    description: "Accumulated paper-stage review points."
+    properties:
+      paper_review:
+        type: number
+        minimum: 0
+  created_at:
+    type: string
+    format: date-time
+  updated_at:
+    type: string
+    format: date-time
+  last_run_id:
+    type: ["string", "null"]
+    format: uuid
+  last_run_status:
+    type: ["string", "null"]
+    enum: [success, failed, skipped, blocked, null]
+  failed_stage:
+    type: ["string", "null"]
+  artifact_hashes:
+    type: object
+    description: "Map of repo-relative artifact path -> SHA-256 hex."
+    additionalProperties:
+      type: string
+      pattern: '^[a-f0-9]{64}$'
+  assigned_agent:
+    type: ["string", "null"]
+    pattern: '^[a-z][a-z0-9_]*$|^$'
+  speckit_research_dir:
+    type: ["string", "null"]
+    description: "Path to the project's research Spec Kit feature directory (e.g., projects/PROJ-001-foo/specs/001-something)."
+  speckit_paper_dir:
+    type: ["string", "null"]
+    description: "Path to the project's paper Spec Kit feature directory."
+  revision_round:
+    type: integer
+    minimum: 0
+    description: "Number of revision rounds the project has been through (research + paper combined)."
+  human_escalation_reason:
+    type: ["string", "null"]
+    description: "Set when current_stage=human_input_needed."
+
+# Cross-field invariants enforced by the runtime (pydantic):
+#  - current_stage='research_accepted' => points_research.research_review meets the
+#       about-page research-accept threshold AND every research-stage citation verified
+#  - current_stage='paper_accepted' => points_paper.paper_review meets the
+#       about-page paper-accept threshold AND every paper-stage citation verified
+#  - current_stage='in_progress' is reachable only from 'analyzed'
+#  - current_stage='paper_in_progress' is reachable only from 'paper_analyzed'
+#  - speckit_research_dir is non-null for all stages from 'specified' onward
+#  - speckit_paper_dir is non-null for all stages from 'paper_specified' onward

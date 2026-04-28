@@ -66,3 +66,9 @@ Since this is primarily a research documentation repository without traditional 
 - Verify all external links and references before committing
 - Follow the point-based review system for project advancement
 - Use GitHub issues for all project tracking and communication
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan:
+[specs/001-agentic-pipeline-refactor/plan.md](specs/001-agentic-pipeline-refactor/plan.md).
+<!-- SPECKIT END -->

@@ -1,0 +1,51 @@
+# JSON Schema (YAML-encoded) for one citation record inside
+# state/citations/<PROJ-ID>.yaml (which is a top-level list of these).
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "state/citations/<PROJ-ID>.yaml item"
+title: "Citation"
+type: object
+required:
+  [cite_id, artifact_path, artifact_hash, kind, value, verification_status]
+additionalProperties: false
+
+properties:
+  cite_id:
+    type: string
+    minLength: 1
+  artifact_path:
+    type: string
+    pattern: '^projects/PROJ-\d{3,}-[a-z0-9-]+/.+'
+  artifact_hash:
+    type: string
+    pattern: '^[a-f0-9]{64}$'
+  kind:
+    type: string
+    enum: [url, arxiv, doi, dataset]
+  value:
+    type: string
+    minLength: 1
+    description: "The cited identifier (URL, arXiv id, DOI, dataset id)."
+  cited_title:
+    type: ["string", "null"]
+  cited_authors:
+    type: array
+    items: { type: string }
+  verification_status:
+    type: string
+    enum: [verified, unreachable, mismatch, pending]
+  verified_against_url:
+    type: ["string", "null"]
+    format: uri
+  fetched_title:
+    type: ["string", "null"]
+  verified_at:
+    type: ["string", "null"]
+    format: date-time
+
+# Cross-field invariants:
+#  - verification_status='verified' => fetched_title non-empty AND
+#                                       token-overlap(cited_title, fetched_title) >= 0.7
+#  - verification_status='mismatch' => fetched_title non-empty AND
+#                                       token-overlap < 0.7
+#  - verification_status='unreachable' => verified_against_url present, fetched_title null

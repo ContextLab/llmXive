@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "state/run-log/<YYYY-MM>/<run-id>.jsonl line",
+  "title": "Run-Log Entry",
+  "type": "object",
+  "required": [
+    "run_id",
+    "entry_id",
+    "agent_name",
+    "project_id",
+    "task_id",
+    "inputs",
+    "outputs",
+    "backend",
+    "model_name",
+    "prompt_version",
+    "started_at",
+    "ended_at",
+    "outcome",
+    "cost_estimate_usd"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID v4 of the parent scheduled workflow run."
+    },
+    "entry_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID v4 of this specific agent invocation."
+    },
+    "parent_entry_id": {
+      "type": ["string", "null"],
+      "format": "uuid",
+      "description": "If this is a sub-task spawned by Atomizer, the parent's entry_id."
+    },
+    "agent_name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "project_id": {
+      "type": "string",
+      "pattern": "^PROJ-\\d{3,}-[a-z0-9-]+$"
+    },
+    "task_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "inputs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "outputs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "backend": {
+      "type": "string",
+      "enum": ["dartmouth", "huggingface", "local"]
+    },
+    "model_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "prompt_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ended_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "outcome": {
+      "type": "string",
+      "enum": ["success", "failed", "skipped", "quarantined"]
+    },
+    "failure_reason": {
+      "type": ["string", "null"]
+    },
+    "cost_estimate_usd": {
+      "type": "number",
+      "minimum": 0,
+      "description": "MUST be 0 unless an opt-in paid backend is active. v1 invariant: 0."
+    }
+  }
+}

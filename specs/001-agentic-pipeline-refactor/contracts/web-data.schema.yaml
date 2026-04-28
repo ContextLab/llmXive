@@ -1,0 +1,58 @@
+# JSON Schema (YAML-encoded) for the JSON files the Status-Reporter Agent
+# emits for the static web/ site. These files insulate the public site from
+# the internal state schema (R13).
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "web/data/projects.json"
+title: "Web Projects Data"
+type: object
+required: [generated_at, schema_version, projects]
+additionalProperties: false
+
+properties:
+  generated_at:
+    type: string
+    format: date-time
+  schema_version:
+    type: string
+    pattern: '^\d+\.\d+\.\d+$'
+  projects:
+    type: array
+    items:
+      type: object
+      required: [id, title, field, stage, points, last_updated]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          pattern: '^PROJ-\d{3,}-[a-z0-9-]+$'
+        title:
+          type: string
+        field:
+          type: string
+        stage:
+          type: string
+          enum: [backlog, ready, in_progress, in_review, done]
+        points:
+          type: object
+          additionalProperties:
+            type: number
+            minimum: 0
+        last_updated:
+          type: string
+          format: date-time
+        github_issue_url:
+          type: ["string", "null"]
+          format: uri
+        artifacts:
+          type: array
+          items:
+            type: object
+            required: [path, kind]
+            additionalProperties: false
+            properties:
+              path:
+                type: string
+              kind:
+                type: string
+                enum: [idea, technical_design, implementation_plan, code, data, paper, review]
