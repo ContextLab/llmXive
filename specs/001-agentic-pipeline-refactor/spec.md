@@ -354,9 +354,12 @@ from `brainstorm`.
   `minor_revision` | `full_revision` | `rejected`) → `paper_drafting_init`
   → `paper_specified` → `paper_clarified` → `paper_planned` →
   `paper_tasked` → `paper_analyzed` → `paper_in_progress` →
-  `paper_complete` → `paper_review` → (`accepted` |
-  `minor_revision_paper` | `major_revision_writing` |
-  `major_revision_science` | `fundamental_flaws`) → `posted`.
+  `paper_complete` → `paper_review` → (`paper_accepted` |
+  `paper_minor_revision` | `paper_major_revision_writing` |
+  `paper_major_revision_science` | `paper_fundamental_flaws`) →
+  `posted` (terminal). The pre-terminal accept state is
+  `paper_accepted`; `posted` is the terminal state once the
+  Status-Reporter publishes the completion announcement (FIX I1).
 - **FR-004**: System MUST persist pipeline state (per-project current
   stage, run-log entries, citation-verification status, lock state) in
   files committed to the repository so any contributor can audit
@@ -576,9 +579,11 @@ from `brainstorm`.
   outcome (verified / unreachable / mismatch), the source URL fetched,
   the fetched title or authors, and the timestamp.
 - **FR-028**: Any artifact with an unverified or mismatched citation
-  MUST be blocked from advancing past `research_review` (research stage)
-  or `paper_review` (paper stage) until the citation is corrected or
-  removed.
+  MUST be blocked from the
+  `research_review`→`research_accepted` transition (research stage) and
+  the `paper_review`→`paper_accepted` transition (paper stage) until the
+  citation is corrected or removed. The Advancement-Evaluator Agent
+  enforces this gate as a hard precondition of each transition (FIX I2).
 
 #### Real-execution testing
 
