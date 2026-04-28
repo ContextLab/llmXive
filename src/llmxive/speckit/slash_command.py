@@ -98,6 +98,8 @@ class SlashCommandAgent(abc.ABC):
             backend_used = BackendName(llm_response.backend)
             model_used = llm_response.model
             outputs = self.write_artifacts(ctx, mechanical_output, llm_response)
+            # FR-026 point 1: validate citations on every artifact write.
+            _validate_artifact_citations(ctx, outputs)
         except Exception as exc:
             outcome = Outcome.FAILED
             failure_reason = f"{type(exc).__name__}: {exc}"
@@ -123,6 +125,51 @@ class SlashCommandAgent(abc.ABC):
             )
             runlog.append_entry(entry)
         return entry
+
+
+def _validate_artifact_citations(
+    ctx: SlashCommandContext, outputs: list[str]
+) -> None:
+    """Run the Reference-Validator over every newly-written artifact.
+
+    Per FR-026 point 1: citations are verified at every artifact write.
+    Failures are recorded in `state/citations/<PROJ-ID>.yaml` but do
+    NOT raise — the Advancement-Evaluator gates on the persisted
+    state at point 2 (review-point award) and point 3 (final accept
+    transition).
+
+    Skipped for non-Markdown artifacts (no citation extraction yet for
+    binary or code).
+    """
+    # Lazy import to avoid a cycle: speckit -> agents.reference_validator
+    # would form a cycle on package import.
+    from llmxive.agents.reference_validator import validate_artifact
+    from llmxive.state.project import hash_file
+
+    repo = ctx.project_dir.parent.parent
+    for relpath in outputs:
+        path = repo / relpath
+        if not path.exists() or not path.is_file():
+            continue
+        if path.suffix.lower() not in {".md", ".markdown", ".tex"}:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            continue
+        try:
+            validate_artifact(
+                project_id=ctx.project_id,
+                artifact_path=relpath,
+                artifact_text=text,
+                artifact_hash=hash_file(path),
+                repo_root=repo,
+            )
+        except Exception:  # noqa: BLE001 — never let validation kill a write
+            # Non-fatal: validation is best-effort during artifact writes.
+            # The blocking gates upstream (Advancement-Evaluator) re-check
+            # the persisted citations YAML on every transition decision.
+            continue
 
 
 __all__ = ["SlashCommandAgent", "SlashCommandContext"]

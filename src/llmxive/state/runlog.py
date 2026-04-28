@@ -26,11 +26,42 @@ def _state_root() -> Path:
     return Path(__file__).resolve().parent.parent.parent.parent / "state"
 
 
+class CostInvariantError(RuntimeError):
+    """Raised when an agent attempts to log a non-zero cost in v1.
+
+    Per FR-020 + Constitution Principle IV (Free First), every backend
+    in the v1 agent registry has `is_paid: false` and every agent has
+    `paid_opt_in: false`. A run-log entry with cost_estimate_usd > 0
+    therefore indicates either (a) a backend implementation bug or (b)
+    a registry compromise — both warrant a hard failure.
+    """
+
+
+def _check_cost_invariant(entry: RunLogEntry) -> None:
+    """T103: hard-block any non-zero cost in v1.
+
+    The agent registry's contract schema asserts paid_opt_in is
+    `const false`; this guard catches the case where the registry has
+    been edited to allow a paid backend without also relaxing the
+    schema.
+    """
+    if entry.cost_estimate_usd > 0:
+        raise CostInvariantError(
+            f"agent {entry.agent_name!r} attempted to log "
+            f"cost_estimate_usd={entry.cost_estimate_usd} on backend "
+            f"{entry.backend.value!r}; the v1 invariant is 0.0 "
+            f"(see contracts/agent-registry.schema.yaml is_paid:const false)"
+        )
+
+
 def append_entry(entry: RunLogEntry, *, repo_root: Path | None = None) -> Path:
     """Append `entry` to its month's run-log file. Returns the file path.
 
     Raises ValidationError if the entry's JSON form fails contract validation.
+    Raises CostInvariantError if cost_estimate_usd > 0 (T103).
     """
+    _check_cost_invariant(entry)
+
     state_dir = (repo_root / "state") if repo_root else _state_root()
     month = entry.started_at.astimezone(timezone.utc).strftime("%Y-%m")
     log_dir = state_dir / "run-log" / month
@@ -102,4 +133,10 @@ def now_utc() -> datetime:
     return datetime.now(timezone.utc)
 
 
-__all__ = ["append_entry", "read_entries", "latest_for_project", "now_utc"]
+__all__ = [
+    "append_entry",
+    "read_entries",
+    "latest_for_project",
+    "now_utc",
+    "CostInvariantError",
+]

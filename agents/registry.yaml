@@ -3,9 +3,10 @@
 # v0.2.0 — US1 agents added (T042 + T055).
 # v0.3.0 — Default models pinned (Qwen3.5 122B / Gemma 3 27B).
 # v0.4.0 — US3 research_reviewer added (T065).
-# Future versions: T093 (US4), T098 (US5), T109 (US7), T125 (US9).
+# v0.5.0 — US7 reference_validator added (T109).
+# Future versions: T093 (US4), T098 (US5), T125 (US9).
 
-version: "0.4.0"
+version: "0.5.0"
 
 backends:
   - name: dartmouth
@@ -142,4 +143,18 @@ agents:
     fallback_backends: [huggingface]
     default_model: qwen.qwen3.5-122b
     wall_clock_budget_seconds: 600
+    paid_opt_in: false
+
+  # Citation guardrails (T109)
+  - name: reference_validator
+    purpose: "Verify every cited URL/arXiv/DOI/dataset against its primary source; gate accept transitions on verification."
+    inputs: [technical_design, implementation_plan, paper, code]
+    outputs: [review]
+    prompt_path: agents/prompts/reference_validator.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface, local]
+    default_model: google.gemma-3-27b-it
+    tools: [citation_fetcher]
+    wall_clock_budget_seconds: 300
     paid_opt_in: false
