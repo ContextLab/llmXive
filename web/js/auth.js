@@ -1,547 +1,193 @@
-/**
- * Authentication Manager for llmXive
- * Handles OAuth flow, user state, and authentication UI
- */
+// llmXive — GitHub OAuth client (Cloudflare Worker proxy).
+// Configure via meta tags in index.html.
 
-import { EventTarget } from './events.js';
-import { NotificationManager } from './utils.js';
+(function () {
+  const meta = name => document.querySelector('meta[name="' + name + '"]')?.getAttribute("content") || "";
 
-export class AuthManager extends EventTarget {
-    constructor(client, notifications) {
-        super();
-        
-        this.client = client;
-        this.notifications = notifications || new NotificationManager();
-        this.authenticated = false;
-        this.user = null;
-        this.permissions = null;
-        this.initPromise = null;
-        
-        // Bind methods
-        this.handleAuthCallback = this.handleAuthCallback.bind(this);
-        this.startAuthFlow = this.startAuthFlow.bind(this);
-        this.logout = this.logout.bind(this);
-        
-        // Listen for auth callback on page load
-        this.checkForAuthCallback();
-    }
-    
-    /**
-     * Initialize authentication
-     */
-    async initialize() {
-        if (this.initPromise) {
-            return this.initPromise;
-        }
-        
-        this.initPromise = this._initialize();
-        return this.initPromise;
-    }
-    
-    async _initialize() {
-        try {
-            console.log('Initializing authentication...');
-            
-            // Check for stored authentication
-            const storedAuth = this.getStoredAuth();
-            
-            if (storedAuth && this.isTokenValid(storedAuth)) {
-                console.log('Found valid stored authentication');
-                
-                this.authenticated = true;
-                this.user = storedAuth.user;
-                this.permissions = storedAuth.permissions;
-                
-                // Verify token is still valid with GitHub
-                try {
-                    await this.verifyToken(storedAuth.token);
-                    console.log('Token verified with GitHub');
-                    
-                    this.emit('authStateChange', {
-                        authenticated: true,
-                        user: this.user,
-                        permissions: this.permissions
-                    });
-                    
-                    return { authenticated: true };
-                    
-                } catch (error) {
-                    console.warn('Stored token is invalid:', error);
-                    this.clearAuth();
-                }
-            }
-            
-            console.log('No valid authentication found');
-            this.emit('authStateChange', { authenticated: false });
-            return { authenticated: false };
-            
-        } catch (error) {
-            console.error('Authentication initialization failed:', error);
-            this.emit('authStateChange', { 
-                authenticated: false, 
-                error: error.message 
-            });
-            return { authenticated: false, error: error.message };
-        }
-    }
-    
-    /**
-     * Check for OAuth callback parameters
-     */
-    checkForAuthCallback() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        const state = urlParams.get('state');
-        const error = urlParams.get('error');
-        
-        if (error) {
-            console.error('OAuth error:', error);
-            this.notifications.error(`Authentication failed: ${error}`);
-            this.cleanupUrl();
-            return;
-        }
-        
-        if (code && state) {
-            console.log('OAuth callback detected');
-            this.handleAuthCallback(code, state);
-        }
-    }
-    
-    /**
-     * Start OAuth authentication flow
-     */
-    async startAuthFlow() {
-        try {
-            console.log('Starting OAuth flow...');
-            
-            // Generate PKCE parameters
-            const codeVerifier = this.generateCodeVerifier();
-            const codeChallenge = await this.generateCodeChallenge(codeVerifier);
-            const state = this.generateState();
-            
-            // Store PKCE parameters securely
-            sessionStorage.setItem('oauth_code_verifier', codeVerifier);
-            sessionStorage.setItem('oauth_state', state);
-            
-            // Build authorization URL with environment-specific client ID
-            const clientId = this.getClientId();
-            const redirectUri = window.location.origin + window.location.pathname;
-            const scope = 'repo read:user';
-            
-            const authUrl = new URL('https://github.com/login/oauth/authorize');
-            authUrl.searchParams.set('client_id', clientId);
-            authUrl.searchParams.set('redirect_uri', redirectUri);
-            authUrl.searchParams.set('scope', scope);
-            authUrl.searchParams.set('state', state);
-            authUrl.searchParams.set('code_challenge', codeChallenge);
-            authUrl.searchParams.set('code_challenge_method', 'S256');
-            
-            console.log('Redirecting to GitHub for authentication...');
-            window.location.href = authUrl.toString();
-            
-        } catch (error) {
-            console.error('Failed to start OAuth flow:', error);
-            this.notifications.error('Failed to start authentication');
-        }
-    }
-    
-    /**
-     * Handle OAuth callback
-     */
-    async handleAuthCallback(code, state) {
-        try {
-            console.log('Handling OAuth callback...');
-            
-            // Verify state parameter to prevent CSRF
-            const storedState = sessionStorage.getItem('oauth_state');
-            if (state !== storedState) {
-                throw new Error('Invalid state parameter - possible CSRF attack');
-            }
-            
-            // Get code verifier
-            const codeVerifier = sessionStorage.getItem('oauth_code_verifier');
-            if (!codeVerifier) {
-                throw new Error('No code verifier found');
-            }
-            
-            this.notifications.info('Exchanging code for token...');
-            
-            // Exchange code for token
-            const tokenData = await this.exchangeCodeForToken(code, codeVerifier);
-            
-            // Store authentication data securely
-            await this.storeAuth(tokenData);
-            
-            // Clean up
-            sessionStorage.removeItem('oauth_code_verifier');
-            sessionStorage.removeItem('oauth_state');
-            this.cleanupUrl();
-            
-            this.notifications.success('Authentication successful!');
-            
-            // Emit auth state change
-            this.emit('authStateChange', {
-                authenticated: true,
-                user: this.user,
-                permissions: this.permissions
-            });
-            
-        } catch (error) {
-            console.error('OAuth callback failed:', error);
-            this.notifications.error(`Authentication failed: ${error.message}`);
-            
-            // Clean up on error
-            sessionStorage.removeItem('oauth_code_verifier');
-            sessionStorage.removeItem('oauth_state');
-            this.cleanupUrl();
-            
-            this.emit('authStateChange', { 
-                authenticated: false, 
-                error: error.message 
-            });
-        }
-    }
-    
-    /**
-     * Exchange authorization code for access token
-     */
-    async exchangeCodeForToken(code, codeVerifier) {
-        // Use existing Heroku proxy with error handling
-        const proxyUrl = 'https://llmxive-auth-b300c94fab60.herokuapp.com/authenticate/';
-        
-        try {
-            const response = await fetch(proxyUrl + encodeURIComponent(code), {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'User-Agent': 'llmXive/1.0'
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-            const data = await response.json();
-            
-            if (data.error) {
-                throw new Error(`OAuth error: ${data.error}`);
-            }
-            
-            return {
-                access_token: data.token || data.access_token,
-                token_type: data.token_type || 'bearer',
-                expires_in: data.expires_in || 3600, // Default 1 hour
-                scope: data.scope
-            };
-            
-        } catch (error) {
-            console.error('Token exchange failed:', error);
-            throw new Error(`Failed to exchange code for token: ${error.message}`);
-        }
-    }
-    
-    /**
-     * Store authentication data with enhanced security
-     */
-    async storeAuth(tokenData) {
-        const token = tokenData.access_token;
-        const tokenExpiry = Date.now() + (tokenData.expires_in * 1000);
-        
-        try {
-            // Get user information
-            const userResponse = await fetch('https://api.github.com/user', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'User-Agent': 'llmXive/1.0'
-                }
-            });
-            
-            if (!userResponse.ok) {
-                throw new Error('Failed to fetch user information');
-            }
-            
-            const user = await userResponse.json();
-            
-            // Get repository permissions
-            let permissions = null;
-            try {
-                const permsResponse = await fetch('https://api.github.com/repos/ContextLab/llmXive', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'User-Agent': 'llmXive/1.0'
-                    }
-                });
-                
-                if (permsResponse.ok) {
-                    const repoData = await permsResponse.json();
-                    permissions = repoData.permissions;
-                }
-            } catch (error) {
-                console.warn('Failed to fetch repository permissions:', error);
-            }
-            
-            // Update instance state
-            this.authenticated = true;
-            this.user = user;
-            this.permissions = permissions;
-            
-            // Store with basic obfuscation in sessionStorage for security
-            const authData = {
-                token,
-                user,
-                permissions,
-                expiry: tokenExpiry,
-                stored: Date.now()
-            };
-            
-            // Basic obfuscation (not encryption, but better than plain text)
-            const obfuscated = btoa(JSON.stringify(authData));
-            sessionStorage.setItem('llmxive_auth_secure', obfuscated);
-            
-            // Remove any legacy localStorage data
-            localStorage.removeItem('llmxive_auth');
-            
-            console.log('Authentication data stored securely');
-            
-        } catch (error) {
-            console.error('Failed to store auth data:', error);
-            throw error;
-        }
-    }
-    
-    /**
-     * Get stored authentication data with fallback to legacy
-     */
-    getStoredAuth() {
-        try {
-            // Try secure storage first
-            const obfuscated = sessionStorage.getItem('llmxive_auth_secure');
-            if (obfuscated) {
-                return JSON.parse(atob(obfuscated));
-            }
-            
-            // Fallback to legacy storage and migrate
-            const legacy = localStorage.getItem('llmxive_auth');
-            if (legacy) {
-                const authData = JSON.parse(legacy);
-                // Migrate to secure storage
-                const obfuscated = btoa(JSON.stringify(authData));
-                sessionStorage.setItem('llmxive_auth_secure', obfuscated);
-                localStorage.removeItem('llmxive_auth');
-                return authData;
-            }
-            
-            return null;
-        } catch (error) {
-            console.error('Error reading stored auth:', error);
-            return null;
-        }
-    }
-    
-    /**
-     * Check if token is valid
-     */
-    isTokenValid(authData) {
-        if (!authData || !authData.token || !authData.expiry) {
-            return false;
-        }
-        
-        // Check if token is expired (with 5 minute buffer)
-        const now = Date.now();
-        const expiryBuffer = 5 * 60 * 1000; // 5 minutes
-        
-        return now < (authData.expiry - expiryBuffer);
-    }
-    
-    /**
-     * Verify token with GitHub API
-     */
-    async verifyToken(token) {
-        const response = await fetch('https://api.github.com/user', {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/vnd.github.v3+json',
-                'User-Agent': 'llmXive/1.0'
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error('Token verification failed');
-        }
-        
-        return response.json();
-    }
-    
-    /**
-     * Logout user
-     */
-    logout() {
-        console.log('Logging out...');
-        
-        this.clearAuth();
-        
-        this.notifications.info('Logged out successfully');
-        
-        this.emit('authStateChange', { authenticated: false });
-    }
-    
-    /**
-     * Clear authentication data securely
-     */
-    clearAuth() {
-        this.authenticated = false;
-        this.user = null;
-        this.permissions = null;
-        
-        // Clear both secure and legacy storage
-        sessionStorage.removeItem('llmxive_auth_secure');
-        localStorage.removeItem('llmxive_auth');
-        sessionStorage.removeItem('oauth_code_verifier');
-        sessionStorage.removeItem('oauth_state');
-    }
-    
-    /**
-     * Clean up URL after OAuth callback
-     */
-    cleanupUrl() {
-        const url = new URL(window.location);
-        url.searchParams.delete('code');
-        url.searchParams.delete('state');
-        url.searchParams.delete('error');
-        window.history.replaceState({}, document.title, url.toString());
-    }
-    
-    /**
-     * Generate PKCE code verifier
-     */
-    generateCodeVerifier() {
-        const array = new Uint8Array(32);
-        crypto.getRandomValues(array);
-        return btoa(String.fromCharCode.apply(null, array))
-            .replace(/\+/g, '-')
-            .replace(/\//g, '_')
-            .replace(/=/g, '');
-    }
-    
-    /**
-     * Generate PKCE code challenge
-     */
-    async generateCodeChallenge(verifier) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(verifier);
-        const digest = await crypto.subtle.digest('SHA-256', data);
-        return btoa(String.fromCharCode.apply(null, new Uint8Array(digest)))
-            .replace(/\+/g, '-')
-            .replace(/\//g, '_')
-            .replace(/=/g, '');
-    }
-    
-    /**
-     * Generate random state parameter
-     */
-    generateState() {
-        const array = new Uint8Array(16);
-        crypto.getRandomValues(array);
-        return btoa(String.fromCharCode.apply(null, array));
-    }
-    
-    /**
-     * Get client ID from environment or fallback
-     */
-    getClientId() {
-        // Try environment variable first (for build-time injection)
-        if (typeof process !== 'undefined' && process.env && process.env.GITHUB_CLIENT_ID) {
-            return process.env.GITHUB_CLIENT_ID;
-        }
-        
-        // Try window global (for runtime injection)
-        if (window.LLMXIVE_CONFIG && window.LLMXIVE_CONFIG.GITHUB_CLIENT_ID) {
-            return window.LLMXIVE_CONFIG.GITHUB_CLIENT_ID;
-        }
-        
-        // Fallback to existing client ID (for development)
-        return 'Ov23liY5hzeo5JVmlzcH';
-    }
-    
-    /**
-     * Check if user is authenticated
-     */
-    isAuthenticated() {
-        return this.authenticated;
-    }
-    
-    /**
-     * Get current user
-     */
-    getCurrentUser() {
-        return this.user;
-    }
-    
-    /**
-     * Get user permissions
-     */
-    getUserPermissions() {
-        return this.permissions;
-    }
-    
-    /**
-     * Check if user has write access
-     */
-    canWrite() {
-        return this.permissions && (this.permissions.push || this.permissions.admin);
-    }
-    
-    /**
-     * Check if user is admin
-     */
-    isAdmin() {
-        return this.permissions && this.permissions.admin;
-    }
-    
-    /**
-     * Get authentication headers for API requests
-     */
-    getAuthHeaders() {
-        if (!this.authenticated) {
-            throw new Error('Not authenticated');
-        }
-        
-        const authData = this.getStoredAuth();
-        if (!authData || !this.isTokenValid(authData)) {
-            throw new Error('Invalid or expired token');
-        }
-        
-        return {
-            'Authorization': `Bearer ${authData.token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'User-Agent': 'llmXive/1.0'
-        };
-    }
-    
-    /**
-     * Refresh authentication if needed
-     */
-    async ensureAuthenticated() {
-        if (!this.authenticated) {
-            throw new Error('Authentication required');
-        }
-        
-        const authData = this.getStoredAuth();
-        if (!authData || !this.isTokenValid(authData)) {
-            // Token is expired, clear auth and require re-login
-            this.clearAuth();
-            this.emit('authStateChange', { 
-                authenticated: false, 
-                error: 'Session expired' 
-            });
-            throw new Error('Session expired, please log in again');
-        }
-        
-        return true;
-    }
-}
+  const PROXY     = meta("llmxive-oauth-proxy");
+  const CLIENT_ID = meta("llmxive-oauth-client-id");
+  const OWNER     = meta("llmxive-github-owner");
+  const REPO      = meta("llmxive-github-repo");
 
-export default AuthManager;
+  const KEY_TOKEN = "llmxive_gh_token";
+  const KEY_USER  = "llmxive_gh_user";
+  const KEY_STATE = "llmxive_gh_oauth_state";
+
+  function token() { return localStorage.getItem(KEY_TOKEN); }
+  function user()  { try { return JSON.parse(localStorage.getItem(KEY_USER) || "null"); } catch { return null; } }
+  function isSignedIn() { return !!token() && !!user(); }
+
+  let _slot = null;
+
+  function escapeHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  function renderSlot() {
+    if (!_slot) return;
+    _slot.replaceChildren();
+    const u = user();
+    if (u) {
+      const html =
+        '<span class="auth-chip" title="signed in as ' + escapeHtml(u.login) + '">' +
+        '<img src="' + escapeHtml(u.avatar_url) + '" alt="" />' +
+        '<span>' + escapeHtml(u.login) + '</span>' +
+        '<span class="signout" data-action="signout">sign out</span>' +
+        '</span>';
+      _slot.insertAdjacentHTML("beforeend", html);
+      _slot.querySelector("[data-action='signout']").addEventListener("click", signOut);
+    } else {
+      _slot.insertAdjacentHTML("beforeend",
+        '<button class="btn ghost" data-action="signin"><i class="fa-brands fa-github"></i> Sign in</button>');
+      _slot.querySelector("[data-action='signin']").addEventListener("click", startLogin);
+    }
+  }
+
+  function mount(el) { _slot = el; renderSlot(); }
+
+  function _randomState() {
+    const buf = new Uint8Array(16);
+    crypto.getRandomValues(buf);
+    return [...buf].map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  function startLogin() {
+    if (!CLIENT_ID) {
+      console.warn("OAuth client id not configured");
+      return;
+    }
+    const state = _randomState();
+    sessionStorage.setItem(KEY_STATE, state);
+    const params = new URLSearchParams({
+      client_id: CLIENT_ID,
+      redirect_uri: location.origin + location.pathname,
+      scope: "public_repo",
+      state,
+    });
+    location.href = "https://github.com/login/oauth/authorize?" + params.toString();
+  }
+
+  function signOut() {
+    localStorage.removeItem(KEY_TOKEN);
+    localStorage.removeItem(KEY_USER);
+    renderSlot();
+  }
+
+  async function handleCallback() {
+    const params = new URLSearchParams(location.search);
+    const code = params.get("code");
+    const state = params.get("state");
+    if (!code) return;
+
+    const expected = sessionStorage.getItem(KEY_STATE);
+    sessionStorage.removeItem(KEY_STATE);
+    if (!expected || expected !== state) {
+      console.warn("OAuth state mismatch");
+      _stripQuery(); return;
+    }
+    if (!PROXY) { console.warn("OAuth proxy not configured"); _stripQuery(); return; }
+    try {
+      const r = await fetch(PROXY, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, state }),
+      });
+      if (!r.ok) throw new Error("proxy " + r.status);
+      const data = await r.json();
+      if (!data.access_token) throw new Error("no access_token");
+      localStorage.setItem(KEY_TOKEN, data.access_token);
+      const u = await ghFetch("/user");
+      localStorage.setItem(KEY_USER, JSON.stringify({
+        login: u.login, avatar_url: u.avatar_url, name: u.name, html_url: u.html_url,
+      }));
+      renderSlot();
+    } catch (err) {
+      console.error("OAuth code exchange failed:", err);
+    } finally {
+      _stripQuery();
+    }
+  }
+
+  function _stripQuery() { history.replaceState(null, "", location.pathname + location.hash); }
+
+  async function ghFetch(path, init) {
+    const t = token();
+    const headers = Object.assign(
+      { "Accept": "application/vnd.github+json" },
+      (init && init.headers) || {},
+    );
+    if (t) headers["Authorization"] = "Bearer " + t;
+    const r = await fetch("https://api.github.com" + path, { ...init, headers });
+    if (!r.ok) {
+      const txt = await r.text();
+      throw new Error("GitHub " + r.status + ": " + txt.slice(0, 200));
+    }
+    if (r.status === 204) return null;
+    return r.json();
+  }
+
+  async function submitIdea({ title, field, description, keywords }) {
+    const body = [
+      "**Field:** " + field,
+      "",
+      description,
+      "",
+      keywords ? "**Keywords:** " + keywords : "",
+      "",
+      "---",
+      "*Submitted via llmXive Dashboard.*",
+    ].filter(Boolean).join("\n");
+    return ghFetch("/repos/" + OWNER + "/" + REPO + "/issues", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, body, labels: ["idea", "brainstormed"] }),
+    });
+  }
+
+  function _toBase64(s) { return btoa(unescape(encodeURIComponent(s))); }
+
+  async function submitReview({ project_id, stage, verdict, summary, strengths, concerns }) {
+    const date = new Date().toISOString().slice(0, 10);
+    const u = user();
+    const reviewer = (u && u.login) || "anonymous";
+    const score = verdict === "accept" ? 1.0 : 0.0;
+    const reviewKind = stage === "paper" ? "paper" : "research";
+    const path = "projects/" + project_id + "/" +
+      (reviewKind === "paper" ? "paper/reviews" : "reviews/research") +
+      "/" + reviewer + "__" + date + "__M.md";
+    const frontmatter = [
+      "---",
+      "reviewer_name: " + reviewer,
+      "reviewer_kind: human",
+      "artifact_path: projects/" + project_id + "/",
+      "artifact_hash: 0000000000000000000000000000000000000000000000000000000000000000",
+      "score: " + score,
+      "verdict: " + verdict,
+      "reviewed_at: " + new Date().toISOString(),
+      "---",
+      "",
+      "## Summary",
+      "",
+      summary,
+      "",
+      strengths ? "## Strengths\n\n" + strengths + "\n" : "",
+      concerns  ? "## Concerns\n\n" + concerns + "\n" : "",
+    ].filter(Boolean).join("\n");
+    return ghFetch("/repos/" + OWNER + "/" + REPO + "/contents/" + path, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: "Add human review for " + project_id + " (" + verdict + ")",
+        content: _toBase64(frontmatter),
+        branch: "main",
+      }),
+    });
+  }
+
+  window.LlmxiveAuth = {
+    mount, handleCallback, startLogin, signOut, isSignedIn,
+    user, token, submitIdea, submitReview,
+  };
+})();

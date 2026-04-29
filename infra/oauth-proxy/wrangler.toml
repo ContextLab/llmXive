@@ -1,0 +1,12 @@
+# Cloudflare Worker config for the llmXive OAuth proxy.
+# Deploy:
+#   cd infra/oauth-proxy && npm i && wrangler login && wrangler secret put GITHUB_CLIENT_SECRET && wrangler deploy
+name = "llmxive-oauth"
+main = "src/index.ts"
+compatibility_date = "2025-04-01"
+
+[vars]
+# OAuth App client_id (public — safe to commit)
+GITHUB_CLIENT_ID = "Ov23liY5hzeo5JVmlzcH"
+# Allow-list of origins permitted to call this Worker.
+ALLOWED_ORIGIN = "https://context-lab.com"

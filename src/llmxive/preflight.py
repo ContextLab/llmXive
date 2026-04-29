@@ -19,6 +19,7 @@ import shutil
 import sys
 from pathlib import Path
 
+from llmxive import credentials as cred_mod
 from llmxive.agents import registry as registry_loader
 from llmxive.config import all_keys, about_page_published
 from llmxive.contract_validate import list_contracts
@@ -43,7 +44,24 @@ def _check_tools() -> list[str]:
 
 
 def _check_secrets() -> list[str]:
-    return [name for name in REQUIRED_SECRETS if not os.environ.get(name)]
+    """Resolve required secrets via env → credentials file → unset.
+
+    The Dartmouth Chat key may live in ~/.config/llmxive/credentials.toml
+    so we admit a stored credential as satisfying the requirement.
+    """
+    missing: list[str] = []
+    for name in REQUIRED_SECRETS:
+        if os.environ.get(name):
+            continue
+        if name == cred_mod.DARTMOUTH_KEY_NAME:
+            try:
+                if cred_mod.load_dartmouth_key(prompt_if_missing=False):
+                    continue
+            except PermissionError as exc:
+                missing.append(str(exc))
+                continue
+        missing.append(name)
+    return missing
 
 
 def _check_registry() -> list[str]:

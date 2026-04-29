@@ -120,55 +120,16 @@ def _collect_run_metrics(repo: Path) -> dict[str, Any]:
 
 
 def regenerate_web_data(*, repo_root: Path | None = None) -> Path:
-    """Write web/data/projects.json from current project state."""
-    repo = repo_root or Path(__file__).resolve().parent.parent.parent.parent
-    out_dir = repo / "web" / "data"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / "projects.json"
+    """Write web/data/projects.json from current project state.
 
-    projects = project_store.list_all(repo_root=repo)
-    payload: dict[str, Any] = {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-        "schema_version": "1.0.0",
-        "projects": [],
-    }
-    for project in projects:
-        points: dict[str, float] = {}
-        for k, v in project.points_research.items():
-            points[k] = float(v)
-        for k, v in project.points_paper.items():
-            points[f"paper_{k}"] = float(v)
-        artifacts: list[dict[str, str]] = []
-        proj_dir = repo / "projects" / project.id
-        if proj_dir.is_dir():
-            for kind_dir in ("idea", "technical-design", "implementation-plan", "code", "data", "paper"):
-                kind_path = proj_dir / kind_dir
-                if not kind_path.is_dir():
-                    continue
-                for fp in sorted(kind_path.rglob("*")):
-                    if not fp.is_file():
-                        continue
-                    artifacts.append(
-                        {
-                            "path": str(fp.relative_to(repo)),
-                            "kind": kind_dir.replace("-", "_"),
-                        }
-                    )
-        payload["projects"].append(
-            {
-                "id": project.id,
-                "title": project.title,
-                "field": project.field,
-                "stage": project.current_stage.value,
-                "points": points,
-                "last_updated": project.updated_at.isoformat(),
-                "github_issue_url": None,
-                "artifacts": artifacts,
-            }
-        )
-    validate("web-data", payload)
-    out_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
-    return out_path
+    Emits the v2 schema (specs/002-website-integration/contracts/web-data-v2.schema.yaml)
+    via :mod:`llmxive.web_data`. The v1 contract is preserved in
+    specs/001 for back-compat but is no longer the writer's target.
+    """
+    from llmxive import web_data
+
+    repo = repo_root or Path(__file__).resolve().parent.parent.parent.parent
+    return web_data.write_payload(repo)
 
 
 class StatusReporterAgent(Agent):

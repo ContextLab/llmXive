@@ -1,5 +1,216 @@
 {
-  "generated_at": "2026-04-29T02:09:16.888780+00:00",
-  "projects": [],
-  "schema_version": "1.0.0"
+  "aggregates": {
+    "active_projects": 5,
+    "ai_contributors": 0,
+    "human_contributors": 0,
+    "papers_posted": 0,
+    "total_collaborations": 0,
+    "total_contributions": 0,
+    "total_contributors": 0
+  },
+  "contributors": [],
+  "generated_at": "2026-04-29T02:48:09.321711+00:00",
+  "projects": [
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-001-mechanistic-interpretability-of-ctcf-bin/idea/mechanistic-interpretability-of-ctcf-bin.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-04-29T02:44:28.710016+00:00",
+      "current_stage": "brainstormed",
+      "field": "biology",
+      "id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+      "keywords": [
+        "biology"
+      ],
+      "last_run_log": [],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "title": "Mechanistic interpretability of CTCF binding-site selection",
+      "updated_at": "2026-04-29T02:48:09.308240+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-002-evolutionary-pressure-on-alternative-spl/idea/evolutionary-pressure-on-alternative-spl.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-04-29T02:44:28.710016+00:00",
+      "current_stage": "brainstormed",
+      "field": "biology",
+      "id": "PROJ-002-evolutionary-pressure-on-alternative-spl",
+      "keywords": [
+        "biology"
+      ],
+      "last_run_log": [],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "title": "Evolutionary pressure on alternative splicing in primates",
+      "updated_at": "2026-04-29T02:48:09.309494+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/idea/single-cell-trajectories-of-t-cell-exhau.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-04-29T02:44:28.710016+00:00",
+      "current_stage": "brainstormed",
+      "field": "biology",
+      "id": "PROJ-003-single-cell-trajectories-of-t-cell-exhau",
+      "keywords": [
+        "biology"
+      ],
+      "last_run_log": [],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "title": "Single-cell trajectories of T-cell exhaustion",
+      "updated_at": "2026-04-29T02:48:09.310707+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/idea/solvent-effects-on-photo-fries-rearrange.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-04-29T02:44:28.710016+00:00",
+      "current_stage": "brainstormed",
+      "field": "chemistry",
+      "id": "PROJ-004-solvent-effects-on-photo-fries-rearrange",
+      "keywords": [
+        "chemistry"
+      ],
+      "last_run_log": [],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "title": "Solvent effects on photo-Fries rearrangement kinetics",
+      "updated_at": "2026-04-29T02:48:09.311859+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-005-machine-learned-potentials-for-transitio/idea/machine-learned-potentials-for-transitio.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-04-29T02:44:28.710016+00:00",
+      "current_stage": "brainstormed",
+      "field": "chemistry",
+      "id": "PROJ-005-machine-learned-potentials-for-transitio",
+      "keywords": [
+        "chemistry"
+      ],
+      "last_run_log": [],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "title": "Machine-learned potentials for transition-metal catalysis",
+      "updated_at": "2026-04-29T02:48:09.313332+00:00"
+    }
+  ],
+  "schema_version": "2.0.0"
 }

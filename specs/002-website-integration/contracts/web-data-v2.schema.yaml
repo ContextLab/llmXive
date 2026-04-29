@@ -1,0 +1,135 @@
+# Web data schema v2 — supports the 34-stage pipeline. The v1 schema in
+# specs/001 is preserved for backward-compatibility; v2 adds aggregates,
+# rich artifact_links, contributors, and admits the full Stage enum.
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "web/data/projects.json#v2"
+title: "Web Projects Data v2"
+type: object
+required: [generated_at, schema_version, aggregates, projects, contributors]
+additionalProperties: false
+
+properties:
+  generated_at:
+    type: string
+    format: date-time
+  schema_version:
+    type: string
+    pattern: '^2\.\d+\.\d+$'
+
+  aggregates:
+    type: object
+    required: [total_contributions, active_projects, papers_posted,
+               total_contributors, human_contributors, ai_contributors,
+               total_collaborations]
+    additionalProperties: false
+    properties:
+      total_contributions: { type: integer, minimum: 0 }
+      active_projects:     { type: integer, minimum: 0 }
+      papers_posted:       { type: integer, minimum: 0 }
+      total_contributors:  { type: integer, minimum: 0 }
+      human_contributors:  { type: integer, minimum: 0 }
+      ai_contributors:     { type: integer, minimum: 0 }
+      total_collaborations: { type: integer, minimum: 0 }
+
+  projects:
+    type: array
+    items:
+      type: object
+      required: [id, title, field, current_stage, phase_group,
+                 points_research_total, points_paper_total,
+                 created_at, updated_at, keywords, artifact_links]
+      additionalProperties: false
+      properties:
+        id:           { type: string, pattern: '^PROJ-\d{3,}-[a-z0-9-]+$' }
+        title:        { type: string }
+        field:        { type: string }
+        current_stage:
+          type: string
+          enum:
+            - brainstormed
+            - flesh_out_in_progress
+            - flesh_out_complete
+            - project_initialized
+            - specified
+            - clarify_in_progress
+            - clarified
+            - planned
+            - tasked
+            - analyze_in_progress
+            - analyzed
+            - in_progress
+            - research_complete
+            - research_review
+            - research_accepted
+            - research_minor_revision
+            - research_full_revision
+            - research_rejected
+            - paper_drafting_init
+            - paper_specified
+            - paper_clarified
+            - paper_planned
+            - paper_tasked
+            - paper_analyzed
+            - paper_in_progress
+            - paper_complete
+            - paper_review
+            - paper_accepted
+            - paper_minor_revision
+            - paper_major_revision_writing
+            - paper_major_revision_science
+            - paper_fundamental_flaws
+            - posted
+            - human_input_needed
+            - blocked
+        phase_group:
+          type: string
+          enum: [idea, research_speckit, research_review,
+                 paper_speckit, paper_review, posted, blocked]
+        points_research_total: { type: number, minimum: 0 }
+        points_paper_total:    { type: number, minimum: 0 }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        keywords:
+          type: array
+          items: { type: string }
+        speckit_research_dir: { type: ["string", "null"] }
+        speckit_paper_dir:    { type: ["string", "null"] }
+        artifact_links:
+          type: object
+          additionalProperties:
+            type: ["string", "null"]
+        citation_summary:
+          type: object
+          additionalProperties: false
+          properties:
+            verified:    { type: integer, minimum: 0 }
+            mismatch:    { type: integer, minimum: 0 }
+            unreachable: { type: integer, minimum: 0 }
+            pending:     { type: integer, minimum: 0 }
+        last_run_log:
+          type: array
+          items:
+            type: object
+            required: [agent, started_at, ended_at, outcome]
+            additionalProperties: false
+            properties:
+              agent:      { type: string }
+              started_at: { type: string, format: date-time }
+              ended_at:   { type: string, format: date-time }
+              outcome:    { type: string }
+              duration_s: { type: number, minimum: 0 }
+
+  contributors:
+    type: array
+    items:
+      type: object
+      required: [name, kind, contribution_count, areas]
+      additionalProperties: false
+      properties:
+        name: { type: string }
+        kind: { type: string, enum: [llm, human] }
+        contribution_count: { type: integer, minimum: 0 }
+        areas:
+          type: array
+          items: { type: string }

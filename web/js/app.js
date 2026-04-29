@@ -1,682 +1,318 @@
-/**
- * Main Application Controller for llmXive
- * 
- * Initializes the web interface and coordinates between all components
- */
+// llmXive — main app. Wires data + UI + auth + dialog.
+// All interpolated values are passed through escapeHtml() before insertion.
 
-import UnifiedGitHubClient from '../../src/core/UnifiedGitHubClient.js';
-import { NotificationManager } from './utils.js';
-import { AuthManager } from './auth.js';
-import { DashboardManager } from './dashboard.js';
-import { ProjectsManager } from './projects.js';
-import { ReviewsManager } from './reviews.js';
-import { ModelsManager } from './models.js';
-import { ModerationManager } from './moderation.js';
+(function () {
+  const D = window.LlmxiveData;
+  const Auth = window.LlmxiveAuth;
+  const Dialog = window.LlmxiveDialog;
 
-class App {
-    constructor() {
-        this.client = null;
-        this.authManager = null;
-        this.notifications = null;
-        this.currentPage = 'dashboard';
-        this.initialized = false;
-        
-        // Page managers
-        this.dashboardManager = null;
-        this.projectsManager = null;
-        this.reviewsManager = null;
-        this.modelsManager = null;
-        this.moderationManager = null;
-        
-        // Bind methods
-        this.handlePageNavigation = this.handlePageNavigation.bind(this);
-        this.handleAuthStateChange = this.handleAuthStateChange.bind(this);
-        this.handleSystemStatusUpdate = this.handleSystemStatusUpdate.bind(this);
-        
-        // Initialize immediately
-        this.initialize();
-    }
-    
-    /**
-     * Initialize the application
-     */
-    async initialize() {
-        try {
-            console.log('🚀 Initializing llmXive web interface...');
-            
-            // Show loading screen
-            this.showLoadingScreen('Initializing application...');
-            
-            // Initialize core systems
-            await this.initializeCoreServices();
-            
-            // Set up event listeners
-            this.setupEventListeners();
-            
-            // Initialize page managers
-            await this.initializePageManagers();
-            
-            // Try to authenticate
-            await this.attemptAuthentication();
-            
-            // Setup navigation
-            this.setupNavigation();
-            
-            // Update UI state
-            this.updateSystemStatus();
-            
-            // Hide loading screen and show app
-            this.hideLoadingScreen();
-            
-            // Navigate to initial page
-            this.navigateToPage(this.getInitialPage());
-            
-            this.initialized = true;
-            console.log('✅ llmXive web interface initialized successfully');
-            
-        } catch (error) {
-            console.error('❌ Failed to initialize application:', error);
-            this.showCriticalError('Failed to initialize application', error.message);
-        }
-    }
-    
-    /**
-     * Initialize core services
-     */
-    async initializeCoreServices() {
-        // Initialize GitHub client
-        this.client = new UnifiedGitHubClient({
-            owner: 'ContextLab',
-            repo: 'llmXive',
-            branch: 'main'
-        });
-        
-        // Initialize notification system
-        this.notifications = new NotificationManager();
-        
-        // Initialize authentication manager
-        this.authManager = new AuthManager(this.client, this.notifications);
-        this.authManager.on('authStateChange', this.handleAuthStateChange);
-        
-        console.log('Core services initialized');
-    }
-    
-    /**
-     * Set up global event listeners
-     */
-    setupEventListeners() {
-        // Page visibility change
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && this.initialized) {
-                this.refreshData();
-            }
-        });
-        
-        // Online/offline status
-        window.addEventListener('online', () => {
-            this.handleSystemStatusUpdate('online');
-            this.notifications.show('Connection restored', 'success');
-        });
-        
-        window.addEventListener('offline', () => {
-            this.handleSystemStatusUpdate('offline');
-            this.notifications.show('Connection lost', 'warning');
-        });
-        
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            this.handleKeyboardShortcuts(e);
-        });
-        
-        // Unload warning for unsaved changes
-        this.beforeUnloadHandler = (e) => {
-            if (this.hasUnsavedChanges()) {
-                e.preventDefault();
-                return 'You have unsaved changes. Are you sure you want to leave?';
-            }
-        };
-        window.addEventListener('beforeunload', this.beforeUnloadHandler);
-        
-        console.log('Event listeners set up');
-    }
-    
-    /**
-     * Clean up resources and event listeners
-     */
-    cleanup() {
-        // Remove global event listeners
-        if (this.beforeUnloadHandler) {
-            window.removeEventListener('beforeunload', this.beforeUnloadHandler);
-        }
-        
-        // Clean up page managers
-        if (this.dashboardManager && this.dashboardManager.cleanup) {
-            this.dashboardManager.cleanup();
-        }
-        if (this.projectsManager && this.projectsManager.cleanup) {
-            this.projectsManager.cleanup();
-        }
-        if (this.reviewsManager && this.reviewsManager.cleanup) {
-            this.reviewsManager.cleanup();
-        }
-        if (this.modelsManager && this.modelsManager.cleanup) {
-            this.modelsManager.cleanup();
-        }
-        if (this.moderationManager && this.moderationManager.cleanup) {
-            this.moderationManager.cleanup();
-        }
-        
-        // Clean up authentication
-        if (this.authManager && this.authManager.cleanup) {
-            this.authManager.cleanup();
-        }
-        
-        // Clear notifications
-        if (this.notifications && this.notifications.clear) {
-            this.notifications.clear();
-        }
-        
-        console.log('Application cleanup completed');
-    }
-    
-    /**
-     * Initialize page managers
-     */
-    async initializePageManagers() {
-        this.dashboardManager = new DashboardManager(this.client, this.notifications);
-        this.projectsManager = new ProjectsManager(this.client, this.notifications);
-        this.reviewsManager = new ReviewsManager(this.client, this.notifications);
-        this.modelsManager = new ModelsManager(this.client, this.notifications);
-        this.moderationManager = new ModerationManager(this.client, this.notifications);
-        
-        console.log('Page managers initialized');
-    }
-    
-    /**
-     * Attempt authentication
-     */
-    async attemptAuthentication() {
-        try {
-            this.showLoadingScreen('Checking authentication...');
-            
-            const authResult = await this.authManager.initialize();
-            
-            if (authResult.authenticated) {
-                this.showLoadingScreen('Initializing system...');
-                
-                // Initialize client with authentication
-                const clientResult = await this.client.initialize();
-                
-                if (clientResult.initialized) {
-                    console.log('✅ System initialized with authentication');
-                    this.handleAuthStateChange({ authenticated: true, user: this.client.getCurrentUser() });
-                } else {
-                    console.warn('⚠️ Client initialization failed');
-                }
-            } else {
-                console.log('ℹ️ No authentication found');
-                this.handleAuthStateChange({ authenticated: false });
-            }
-            
-        } catch (error) {
-            console.error('Authentication check failed:', error);
-            this.handleAuthStateChange({ authenticated: false, error: error.message });
-        }
-    }
-    
-    /**
-     * Set up navigation system
-     */
-    setupNavigation() {
-        // Handle navigation clicks
-        const navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const page = link.dataset.page;
-                if (page) {
-                    this.navigateToPage(page);
-                }
-            });
-        });
-        
-        // Handle back/forward buttons
-        window.addEventListener('popstate', (e) => {
-            const page = e.state?.page || this.getInitialPage();
-            this.navigateToPage(page, false);
-        });
-        
-        console.log('Navigation system set up');
-    }
-    
-    /**
-     * Navigate to a specific page
-     */
-    async navigateToPage(page, pushState = true) {
-        if (!this.initialized) {
-            console.warn('Cannot navigate before initialization');
-            return;
-        }
-        
-        try {
-            // Validate page
-            const validPages = ['dashboard', 'projects', 'reviews', 'models', 'moderation'];
-            if (!validPages.includes(page)) {
-                console.warn(`Invalid page: ${page}`);
-                page = 'dashboard';
-            }
-            
-            // Check authentication requirements
-            if (page !== 'dashboard' && !this.isAuthenticated()) {
-                this.notifications.show('Please log in to access this page', 'warning');
-                page = 'dashboard';
-            }
-            
-            // Update browser history
-            if (pushState) {
-                history.pushState({ page }, '', `#${page}`);
-            }
-            
-            // Update navigation state
-            this.updateNavigationState(page);
-            
-            // Show page
-            await this.showPage(page);
-            
-            this.currentPage = page;
-            
-        } catch (error) {
-            console.error(`Failed to navigate to ${page}:`, error);
-            this.notifications.show(`Failed to load ${page}`, 'error');
-        }
-    }
-    
-    /**
-     * Update navigation state
-     */
-    updateNavigationState(activePage) {
-        const navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
-            const isActive = link.dataset.page === activePage;
-            link.classList.toggle('active', isActive);
-        });
-    }
-    
-    /**
-     * Show specific page
-     */
-    async showPage(page) {
-        // Hide all pages
-        const pages = document.querySelectorAll('.page');
-        pages.forEach(p => p.classList.remove('active'));
-        
-        // Show target page
-        const targetPage = document.getElementById(`page-${page}`);
-        if (targetPage) {
-            targetPage.classList.add('active');
-            
-            // Load page content
-            await this.loadPageContent(page);
-        }
-    }
-    
-    /**
-     * Load content for specific page
-     */
-    async loadPageContent(page) {
-        try {
-            switch (page) {
-                case 'dashboard':
-                    await this.dashboardManager.load();
-                    break;
-                case 'projects':
-                    await this.projectsManager.load();
-                    break;
-                case 'reviews':
-                    await this.reviewsManager.load();
-                    break;
-                case 'models':
-                    await this.modelsManager.load();
-                    break;
-                case 'moderation':
-                    await this.moderationManager.load();
-                    break;
-                default:
-                    console.warn(`No loader for page: ${page}`);
-            }
-        } catch (error) {
-            console.error(`Failed to load ${page} content:`, error);
-            this.notifications.show(`Failed to load ${page} content`, 'error');
-        }
-    }
-    
-    /**
-     * Handle authentication state changes
-     */
-    handleAuthStateChange(authState) {
-        const authSection = document.getElementById('auth-section');
-        const userMenu = document.getElementById('user-menu');
-        
-        if (authState.authenticated && authState.user) {
-            // Show user menu
-            authSection.innerHTML = `
-                <div class="user-profile">
-                    <img src="${authState.user.avatar_url}" alt="${authState.user.login}" class="user-avatar">
-                    <div class="user-info">
-                        <span class="user-name">${authState.user.name || authState.user.login}</span>
-                        <span class="user-role">Researcher</span>
-                    </div>
-                    <button class="user-menu-btn" id="user-menu-btn">
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                </div>
-                <div class="user-dropdown" id="user-dropdown">
-                    <a href="#" class="dropdown-item" id="profile-link">
-                        <i class="fas fa-user"></i>
-                        Profile
-                    </a>
-                    <a href="#" class="dropdown-item" id="settings-link">
-                        <i class="fas fa-cog"></i>
-                        Settings
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <button class="dropdown-item" id="logout-btn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
-                    </button>
-                </div>
-            `;
-            
-            // Set up user menu interactions
-            this.setupUserMenu();
-            
-            // Update system status
-            this.handleSystemStatusUpdate('authenticated');
-            
-            // Enable navigation
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(link => link.classList.remove('disabled'));
-            
-        } else {
-            // Show login button
-            authSection.innerHTML = `
-                <button class="btn btn-primary" id="login-btn">
-                    <i class="fab fa-github"></i>
-                    Login with GitHub
-                </button>
-            `;
-            
-            // Set up login handler
-            const loginBtn = document.getElementById('login-btn');
-            loginBtn.addEventListener('click', () => {
-                this.authManager.startAuthFlow();
-            });
-            
-            // Update system status
-            this.handleSystemStatusUpdate('unauthenticated');
-            
-            // Disable navigation except dashboard
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(link => {
-                if (link.dataset.page !== 'dashboard') {
-                    link.classList.add('disabled');
-                }
-            });
-        }
-        
-        // Refresh current page
-        if (this.initialized) {
-            this.loadPageContent(this.currentPage);
-        }
-    }
-    
-    /**
-     * Set up user menu interactions
-     */
-    setupUserMenu() {
-        const userMenuBtn = document.getElementById('user-menu-btn');
-        const userDropdown = document.getElementById('user-dropdown');
-        const logoutBtn = document.getElementById('logout-btn');
-        
-        if (userMenuBtn && userDropdown) {
-            userMenuBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                userDropdown.classList.toggle('active');
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', () => {
-                userDropdown.classList.remove('active');
-            });
-        }
-        
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => {
-                this.authManager.logout();
-            });
-        }
-    }
-    
-    /**
-     * Handle system status updates
-     */
-    handleSystemStatusUpdate(status) {
-        const statusIndicator = document.getElementById('status-indicator');
-        const statusDot = statusIndicator?.querySelector('.status-dot');
-        const statusText = statusIndicator?.querySelector('.status-text');
-        
-        if (!statusIndicator) return;
-        
-        // Remove existing status classes
-        statusIndicator.className = 'status-indicator';
-        
-        switch (status) {
-            case 'online':
-            case 'authenticated':
-                statusIndicator.classList.add('status-online');
-                if (statusText) statusText.textContent = 'Online';
-                break;
-            case 'offline':
-                statusIndicator.classList.add('status-offline');
-                if (statusText) statusText.textContent = 'Offline';
-                break;
-            case 'unauthenticated':
-                statusIndicator.classList.add('status-warning');
-                if (statusText) statusText.textContent = 'Not Authenticated';
-                break;
-            case 'error':
-                statusIndicator.classList.add('status-error');
-                if (statusText) statusText.textContent = 'Error';
-                break;
-            default:
-                statusIndicator.classList.add('status-warning');
-                if (statusText) statusText.textContent = 'Unknown';
-        }
-    }
-    
-    /**
-     * Handle keyboard shortcuts
-     */
-    handleKeyboardShortcuts(e) {
-        // Only handle shortcuts when not typing in inputs
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-            return;
-        }
-        
-        if (e.ctrlKey || e.metaKey) {
-            switch (e.key) {
-                case '1':
-                    e.preventDefault();
-                    this.navigateToPage('dashboard');
-                    break;
-                case '2':
-                    e.preventDefault();
-                    this.navigateToPage('projects');
-                    break;
-                case '3':
-                    e.preventDefault();
-                    this.navigateToPage('reviews');
-                    break;
-                case '4':
-                    e.preventDefault();
-                    this.navigateToPage('models');
-                    break;
-                case '5':
-                    e.preventDefault();
-                    this.navigateToPage('moderation');
-                    break;
-                case 'k':
-                    e.preventDefault();
-                    this.openCommandPalette();
-                    break;
-            }
-        }
-        
-        if (e.key === 'Escape') {
-            this.closeModals();
-        }
-    }
-    
-    /**
-     * Get initial page from URL hash or default
-     */
-    getInitialPage() {
-        const hash = window.location.hash.replace('#', '');
-        const validPages = ['dashboard', 'projects', 'reviews', 'models', 'moderation'];
-        return validPages.includes(hash) ? hash : 'dashboard';
-    }
-    
-    /**
-     * Check if user is authenticated
-     */
-    isAuthenticated() {
-        return this.authManager?.isAuthenticated() || false;
-    }
-    
-    /**
-     * Check if there are unsaved changes
-     */
-    hasUnsavedChanges() {
-        // Check all page managers for unsaved changes
-        return [
-            this.projectsManager,
-            this.reviewsManager,
-            this.modelsManager,
-            this.moderationManager
-        ].some(manager => manager?.hasUnsavedChanges?.() || false);
-    }
-    
-    /**
-     * Refresh data for current page
-     */
-    async refreshData() {
-        if (this.initialized) {
-            await this.loadPageContent(this.currentPage);
-        }
-    }
-    
-    /**
-     * Open command palette
-     */
-    openCommandPalette() {
-        // TODO: Implement command palette
-        this.notifications.show('Command palette coming soon!', 'info');
-    }
-    
-    /**
-     * Close all modals
-     */
-    closeModals() {
-        const modals = document.querySelectorAll('.modal.active');
-        modals.forEach(modal => modal.classList.remove('active'));
-        
-        const overlay = document.getElementById('modal-overlay');
-        if (overlay) overlay.classList.remove('active');
-    }
-    
-    /**
-     * Show loading screen
-     */
-    showLoadingScreen(message = 'Loading...') {
-        const loadingScreen = document.getElementById('loading-screen');
-        const loadingText = loadingScreen?.querySelector('.loading-text p');
-        
-        if (loadingScreen) {
-            loadingScreen.style.display = 'flex';
-            if (loadingText) loadingText.textContent = message;
-        }
-        
-        const app = document.getElementById('app');
-        if (app) app.style.display = 'none';
-    }
-    
-    /**
-     * Hide loading screen
-     */
-    hideLoadingScreen() {
-        const loadingScreen = document.getElementById('loading-screen');
-        const app = document.getElementById('app');
-        
-        if (loadingScreen) {
-            loadingScreen.style.display = 'none';
-        }
-        
-        if (app) {
-            app.style.display = 'block';
-        }
-    }
-    
-    /**
-     * Show critical error
-     */
-    showCriticalError(title, message) {
-        const loadingScreen = document.getElementById('loading-screen');
-        if (loadingScreen) {
-            loadingScreen.innerHTML = `
-                <div class="error-screen">
-                    <div class="error-icon">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <h2>${title}</h2>
-                    <p>${message}</p>
-                    <button class="btn btn-primary" onclick="location.reload()">
-                        Reload Application
-                    </button>
-                </div>
-            `;
-        }
-    }
-    
-    /**
-     * Update system status display
-     */
-    async updateSystemStatus() {
-        try {
-            if (this.client && this.isAuthenticated()) {
-                const status = await this.client.getSystemStatus();
-                
-                if (status) {
-                    this.handleSystemStatusUpdate('online');
-                } else {
-                    this.handleSystemStatusUpdate('error');
-                }
-            }
-        } catch (error) {
-            console.error('Failed to update system status:', error);
-            this.handleSystemStatusUpdate('error');
-        }
-    }
-}
+  let payload = null;
+  let buckets = null;
+  let lanes = null;
 
-// Initialize application when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.llmXiveApp = new App();
-});
+  function banner(kind, msg) {
+    const root = document.getElementById("banners");
+    if (!root) return;
+    const div = document.createElement("div");
+    div.className = "shell banner " + (kind || "");
+    const html =
+      '<i class="fa-solid fa-circle-info"></i> ' + msg + ' ' +
+      '<span class="x" title="dismiss"><i class="fa-solid fa-xmark"></i></span>';
+    div.insertAdjacentHTML("beforeend", html);
+    div.querySelector(".x").addEventListener("click", () => div.remove());
+    root.appendChild(div);
+  }
 
-// Handle OAuth callback
-if (window.location.search.includes('code=')) {
-    // OAuth callback detected - the AuthManager will handle this
-    console.log('OAuth callback detected');
-}
+  function renderAggregates(p) {
+    const agg = (p && p.aggregates) || {};
+    document.querySelectorAll("[data-agg]").forEach(el => {
+      const k = el.getAttribute("data-agg");
+      const v = agg[k];
+      el.textContent = (v === undefined || v === null) ? "—" : String(v);
+    });
+  }
 
-export default App;
+  function escapeHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  function cardHTML(item, kind) {
+    const kicker = ({
+      papers:    "Posted",
+      paper:     "Paper pipeline",
+      inProgress:"Research in progress",
+      plans:     "Implementation plan",
+      designs:   "Technical design",
+    })[kind] || "";
+    const stage = item.current_stage || "";
+    const stageLabel = (D.STAGE_LABELS[stage] || stage).toLowerCase();
+    const updated = D.relativeTime(item.updated_at);
+    const points =
+      kind === "papers" || kind === "paper"
+        ? '<span><i class="fa-solid fa-star-half-stroke"></i> ' + (item.points_paper_total || 0).toFixed(1) + ' pts</span>'
+        : '<span><i class="fa-solid fa-star-half-stroke"></i> ' + (item.points_research_total || 0).toFixed(1) + ' pts</span>';
+    const keys = (item.keywords || []).slice(0, 4)
+      .map(k => '<span>' + escapeHtml(k) + '</span>').join("");
+    return ''
+      + '<article class="card" tabindex="0" data-pid="' + escapeHtml(item.id) + '">'
+      + '<div class="kicker"><span class="dot"></span>' + kicker + '<span class="stage-pill ' + escapeHtml(stage) + '" style="margin-left:auto">' + escapeHtml(stageLabel) + '</span></div>'
+      + '<h3>' + escapeHtml(item.title) + '</h3>'
+      + '<p class="desc">' + escapeHtml(item.field || "") + '</p>'
+      + '<div class="meta">'
+      + '<div class="keys">' + keys + '</div>'
+      + '<div class="right">' + points + '<span><i class="fa-regular fa-clock"></i> ' + escapeHtml(updated) + '</span></div>'
+      + '</div></article>';
+  }
+
+  function renderCards(kind) {
+    const el = document.getElementById(kind + "-cards");
+    if (!el) return;
+    const items = (buckets && buckets[kind]) || [];
+    if (!items.length) {
+      el.replaceChildren();
+      const empty = document.createElement("div");
+      empty.style.cssText = "grid-column: 1/-1; text-align:center; padding:40px; color:var(--muted);";
+      empty.insertAdjacentHTML("beforeend",
+        '<i class="fa-regular fa-folder-open" style="font-size:32px; opacity:0.5"></i>' +
+        '<p style="margin-top:12px;">No projects in this stage yet.</p>');
+      el.appendChild(empty);
+      return;
+    }
+    el.replaceChildren();
+    el.insertAdjacentHTML("beforeend", items.map(it => cardHTML(it, kind)).join(""));
+    el.querySelectorAll(".card").forEach(card => {
+      card.addEventListener("click", () => {
+        const pid = card.getAttribute("data-pid");
+        const proj = (payload.projects || []).find(p => p.id === pid);
+        if (proj) Dialog.open(proj);
+      });
+      card.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); card.click(); }
+      });
+    });
+  }
+
+  function renderTabCounts() {
+    Object.entries(buckets).forEach(([k, items]) => {
+      const el = document.querySelector('[data-count="' + k + '"]');
+      if (el) el.textContent = items.length;
+    });
+  }
+
+  function renderBacklogLane(rootEl, lane, stages) {
+    const html = stages.map(stage => {
+      const items = lane[stage] || [];
+      const label = D.STAGE_LABELS[stage] || stage;
+      const issues = items.map(p => ''
+        + '<div class="issue" data-pid="' + escapeHtml(p.id) + '">'
+        + '<div class="title">' + escapeHtml(p.title) + '</div>'
+        + '<div class="row"><span>' + escapeHtml(p.field || "") + '</span>'
+        + '<span class="upv"><i class="fa-solid fa-arrow-up"></i> ' + (p.points_research_total || 0).toFixed(1) + '</span></div>'
+        + '</div>').join("");
+      return ''
+        + '<div class="col" data-stage="' + escapeHtml(stage) + '">'
+        + '<div class="col-head"><span class="name"><span class="dot"></span>' + escapeHtml(label) + '</span>'
+        + '<span class="count">' + items.length + '</span></div>'
+        + '<div class="col-body">' + issues + '</div></div>';
+    }).join("");
+    rootEl.replaceChildren();
+    rootEl.insertAdjacentHTML("beforeend", html);
+    rootEl.querySelectorAll(".issue").forEach(iss => {
+      iss.addEventListener("click", () => {
+        const pid = iss.getAttribute("data-pid");
+        const proj = (payload.projects || []).find(p => p.id === pid);
+        if (proj) Dialog.open(proj);
+      });
+    });
+  }
+
+  function renderBacklog() {
+    renderBacklogLane(document.getElementById("backlog-research"), lanes.research, D.RESEARCH_LANE_STAGES);
+    renderBacklogLane(document.getElementById("backlog-paper"), lanes.paper, D.PAPER_LANE_STAGES);
+  }
+
+  function renderContributors() {
+    const list = (payload.contributors || []).slice();
+    list.sort((a, b) => b.contribution_count - a.contribution_count);
+    list.forEach((c, i) => c.rank = i + 1);
+
+    const podium = document.getElementById("podium");
+    podium.replaceChildren();
+    if (!list.length) {
+      podium.insertAdjacentHTML("beforeend",
+        '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--muted);">No contributors yet.</div>');
+    } else {
+      const top3 = list.slice(0, 3);
+      const podiumOrder = [top3[1], top3[0], top3[2]];
+      const html = podiumOrder.map((c) => {
+        if (!c) return "";
+        const isFirst = c.rank === 1;
+        const initials = c.name.split(/[-.]/).map(s => s[0]).join("").slice(0, 2).toUpperCase();
+        return ''
+          + '<div class="pod ' + (isFirst ? "first" : "") + '">'
+          + '<div class="rank">' + c.rank + '</div>'
+          + '<div class="avatar">' + escapeHtml(initials || "?") + '</div>'
+          + '<div class="name">' + escapeHtml(c.name) + '</div>'
+          + '<div class="type">' + escapeHtml(c.kind === "human" ? "Human" : "AI") + '</div>'
+          + '<div class="n">' + c.contribution_count + '<small>contributions</small></div>'
+          + '</div>';
+      }).join("");
+      podium.insertAdjacentHTML("beforeend", html);
+    }
+
+    const table = document.getElementById("contrib-table");
+    [...table.querySelectorAll(".tr:not(.head)")].forEach(n => n.remove());
+    const rowsHtml = list.map(c => ''
+      + '<div class="tr">'
+      + '<div>' + c.rank + '</div>'
+      + '<div>' + escapeHtml(c.name) + '</div>'
+      + '<div class="ttype"><i class="fa-' + (c.kind === "human" ? "regular fa-user" : "solid fa-robot") + '"></i> ' + escapeHtml(c.kind === "human" ? "Human" : "AI") + '</div>'
+      + '<div>' + c.contribution_count + '</div>'
+      + '<div class="areas">' + (c.areas || []).map(a => '<span>' + escapeHtml(a) + '</span>').join("") + '</div>'
+      + '</div>').join("");
+    table.insertAdjacentHTML("beforeend", rowsHtml);
+  }
+
+  function setupTabs() {
+    const tabs = [...document.querySelectorAll(".tab")];
+    const underline = document.getElementById("underline");
+
+    function moveUnderline(tab) {
+      const r = tab.getBoundingClientRect();
+      const parentR = tab.parentElement.getBoundingClientRect();
+      underline.style.left = (r.left - parentR.left) + "px";
+      underline.style.width = r.width + "px";
+    }
+    function activate(name, tab) {
+      tabs.forEach(t => t.classList.toggle("active", t === tab));
+      document.querySelectorAll(".panel").forEach(p => {
+        p.classList.toggle("active", p.dataset.panel === name);
+      });
+      moveUnderline(tab);
+      history.replaceState(null, "", "#" + name);
+    }
+    tabs.forEach(t => t.addEventListener("click", () => activate(t.dataset.tab, t)));
+
+    function init() {
+      const initial = (location.hash || "#papers").slice(1);
+      const tab = tabs.find(t => t.dataset.tab === initial) || tabs[0];
+      activate(tab.dataset.tab, tab);
+    }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(init); else init();
+    window.addEventListener("resize", () => {
+      const active = tabs.find(t => t.classList.contains("active"));
+      if (active) moveUnderline(active);
+    });
+
+    document.querySelectorAll(".bar").forEach(bar => {
+      bar.addEventListener("click", e => {
+        const chip = e.target.closest(".chip");
+        if (!chip) return;
+        bar.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+      });
+    });
+
+    document.addEventListener("keydown", e => {
+      if (!["ArrowLeft", "ArrowRight"].includes(e.key)) return;
+      if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA") return;
+      const idx = tabs.findIndex(t => t.classList.contains("active"));
+      const next = e.key === "ArrowRight" ? (idx + 1) % tabs.length : (idx - 1 + tabs.length) % tabs.length;
+      tabs[next].click();
+      tabs[next].focus();
+    });
+  }
+
+  function setupModals() {
+    document.querySelectorAll("[data-open-modal]").forEach(b => {
+      b.addEventListener("click", () => {
+        const id = "modal-" + b.dataset.openModal;
+        document.getElementById(id)?.classList.add("open");
+      });
+    });
+    document.querySelectorAll(".modal-backdrop").forEach(bd => {
+      bd.addEventListener("click", e => {
+        if (e.target === bd || e.target.closest("[data-close-modal]")) {
+          bd.classList.remove("open");
+        }
+      });
+    });
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") document.querySelectorAll(".modal-backdrop.open").forEach(m => m.classList.remove("open"));
+    });
+
+    document.getElementById("submit-idea-btn").addEventListener("click", async () => {
+      const title = document.querySelector("[data-submit='title']").value.trim();
+      const field = document.querySelector("[data-submit='field']").value.trim();
+      const desc  = document.querySelector("[data-submit='description']").value.trim();
+      const kw    = document.querySelector("[data-submit='keywords']").value.trim();
+      if (!title || !field || !desc) {
+        banner("warn", "Title, field, and description are required.");
+        return;
+      }
+      if (!Auth.isSignedIn()) {
+        banner("warn", "Please sign in with GitHub to submit an idea.");
+        Auth.startLogin();
+        return;
+      }
+      try {
+        const issue = await Auth.submitIdea({ title, field, description: desc, keywords: kw });
+        document.getElementById("modal-submit").classList.remove("open");
+        const safeUrl = escapeHtml(issue.html_url);
+        banner("info", 'Idea submitted as <a href="' + safeUrl + '" target="_blank" rel="noopener">issue #' + issue.number + '</a>.');
+      } catch (err) {
+        banner("error", "Could not submit idea: " + escapeHtml(String(err.message || err)));
+      }
+    });
+
+    document.getElementById("submit-review-btn").addEventListener("click", async () => {
+      const pid = document.getElementById("review-project-id").value;
+      const stage = document.querySelector("[data-review='stage']").value;
+      const verdict = document.querySelector("[data-review='verdict']").value;
+      const summary = document.querySelector("[data-review='summary']").value.trim();
+      const strengths = document.querySelector("[data-review='strengths']").value.trim();
+      const concerns = document.querySelector("[data-review='concerns']").value.trim();
+      if (!pid || !summary) {
+        banner("warn", "Pick a project and provide a summary.");
+        return;
+      }
+      if (!Auth.isSignedIn()) { Auth.startLogin(); return; }
+      try {
+        await Auth.submitReview({ project_id: pid, stage, verdict, summary, strengths, concerns });
+        document.getElementById("modal-review").classList.remove("open");
+        banner("info", "Review submitted for " + escapeHtml(pid) + ".");
+      } catch (err) {
+        banner("error", "Could not submit review: " + escapeHtml(String(err.message || err)));
+      }
+    });
+  }
+
+  async function boot() {
+    Auth.mount(document.getElementById("auth-slot"));
+    await Auth.handleCallback();
+
+    payload = await D.loadPayload();
+    if (payload._loadError) {
+      banner("warn", "Pipeline state not yet generated. The site will be empty until the pipeline writes <code>web/data/projects.json</code>.");
+    }
+    buckets = D.projectsByTab(payload);
+    lanes = D.projectsByLaneStage(payload);
+
+    renderAggregates(payload);
+    renderTabCounts();
+    ["papers", "paper", "inProgress", "plans", "designs"].forEach(renderCards);
+    renderBacklog();
+    renderContributors();
+
+    setupTabs();
+    setupModals();
+
+    window._llmxive = { payload, buckets, lanes };
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else { boot(); }
+})();
