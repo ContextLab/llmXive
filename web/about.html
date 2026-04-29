@@ -435,6 +435,34 @@
             border-color: var(--secondary);
         }
 
+        /* Component Cards */
+        .component-card {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .component-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
+        }
+
+        .component-card h4 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .component-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
         .component-icon {
             font-size: 1.8rem;
             display: block;
@@ -894,12 +922,26 @@
 
         <section class="flowchart-container">
             <h2 class="flowchart-title">llmXive Research Pipeline</h2>
-            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">
-                Configurable automated research pipeline with real-time visualization and admin editing capabilities.
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 1rem;">
+                Configurable automated research pipeline parsed from pipeline_config.yaml. Click any step to view its configuration.
             </p>
             
-            <!-- Dynamic Pipeline Visualization -->
-            <div id="pipeline-visualization-container"></div>
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <button onclick="refreshPipelineFlowchart()" class="action-btn btn-primary" style="margin-right: 1rem;">
+                    🔄 Refresh Pipeline
+                </button>
+                <button onclick="openPipelineConfigOnGitHub()" class="action-btn btn-secondary">
+                    📂 View pipeline_config.yaml
+                </button>
+            </div>
+            
+            <!-- Pipeline Flowchart from YAML Config -->
+            <div id="pipeline-flowchart" style="text-align: center; margin-bottom: 2rem; min-height: 400px; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; background: var(--surface-elevated);">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading pipeline configuration...</p>
+                </div>
+            </div>
             
             <!-- Legacy Static Flowchart (fallback) -->
             <div class="flowchart" id="static-flowchart" style="display: none;">
@@ -1048,30 +1090,18 @@
                 </div>
             </div>
             
-            <!-- Orchestrator Info -->
+            <!-- Orchestrator System Components -->
             <div class="orchestrator-info">
-                <h3>Orchestrator System</h3>
-                <div class="orchestrator-components">
-                    <div class="component" onclick="showFlowchartModal('orchestrator')">
-                        <span class="component-icon">🎯</span>
-                        <div class="component-title">UnifiedGitHubClient</div>
-                        <div class="component-desc">Central orchestration</div>
-                    </div>
-                    <div class="component" onclick="showFlowchartModal('review-manager')">
-                        <span class="component-icon">📊</span>
-                        <div class="component-title">ReviewManager</div>
-                        <div class="component-desc">Phase advancement logic</div>
-                    </div>
-                    <div class="component" onclick="showFlowchartModal('moderation')">
-                        <span class="component-icon">🛡️</span>
-                        <div class="component-title">ModerationManager</div>
-                        <div class="component-desc">Content quality control</div>
-                    </div>
-                    <div class="component" onclick="showFlowchartModal('models')">
-                        <span class="component-icon">🧠</span>
-                        <div class="component-title">Model Management</div>
-                        <div class="component-desc">AI model coordination</div>
-                    </div>
+                <h3>Orchestrator System Components</h3>
+                
+                <h4 style="margin-top: 2rem; margin-bottom: 1rem; color: var(--text-primary); text-align: left;">Core Components</h4>
+                <div class="orchestrator-core-components" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+                
+                <h4 style="margin-bottom: 1rem; color: var(--text-primary); text-align: left;">Managers</h4>
+                <div class="orchestrator-managers-components" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                    <!-- Will be populated by JavaScript -->
                 </div>
             </div>
         </section>
@@ -1134,6 +1164,7 @@
     
     <!-- Mermaid.js for flowchart rendering -->
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
     
     <!-- Pipeline Visualization -->
     <script src="js/pipeline-visualization.js"></script>
@@ -1146,9 +1177,9 @@
             const body = document.getElementById('flowchart-modal-body');
             
             // Ensure data is loaded
-            if (window.ProjectDataManager && !window.ProjectDataManager.loaded) {
+            if (window.projectDataManager && !window.projectDataManager.loaded) {
                 try {
-                    await window.ProjectDataManager.loadData();
+                    await window.projectDataManager.loadProjects();
                 } catch (error) {
                     console.error('Failed to load project data:', error);
                 }
@@ -1302,9 +1333,9 @@
         }
         
         function getProjectsByStage(stage) {
-            if (!window.ProjectDataManager) return [];
+            if (!window.projectDataManager) return [];
             
-            const projects = Object.values(window.ProjectDataManager.getAllProjects());
+            const projects = Object.values(window.projectDataManager.getAllProjects());
             
             switch(stage) {
                 case 'idea':
@@ -1360,37 +1391,298 @@
             }
         });
         
+        // Pipeline configuration management
+        let pipelineConfig = null;
+
+        async function loadPipelineConfig() {
+            try {
+                const response = await fetch('/pipeline_config.yaml');
+                if (!response.ok) {
+                    throw new Error(`Failed to load pipeline config: ${response.status}`);
+                }
+                const yamlText = await response.text();
+                pipelineConfig = jsyaml.load(yamlText);
+                console.log('Loaded pipeline configuration:', pipelineConfig);
+                return pipelineConfig;
+            } catch (error) {
+                console.error('Failed to load pipeline configuration:', error);
+                return null;
+            }
+        }
+
+        async function refreshPipelineFlowchart() {
+            try {
+                pipelineConfig = await loadPipelineConfig();
+                if (!pipelineConfig) {
+                    console.error('Pipeline configuration not available');
+                    return;
+                }
+                
+                // Generate Mermaid flowchart from YAML config
+                const flowchartDefinition = generateMermaidFromConfig(pipelineConfig);
+                
+                // Update the flowchart
+                mermaid.render('pipeline-flowchart', flowchartDefinition).then(({svg}) => {
+                    document.getElementById('pipeline-flowchart').innerHTML = svg;
+                    
+                    // Add click handlers to flowchart elements
+                    addFlowchartClickHandlers();
+                });
+                
+            } catch (error) {
+                console.error('Failed to refresh pipeline flowchart:', error);
+            }
+        }
+
+        function generateMermaidFromConfig(config) {
+            if (!config.steps) return 'graph TD\n    A[No Steps Configured]';
+            
+            let mermaidCode = 'graph TD\n';
+            const steps = Object.keys(config.steps);
+            
+            // Add step nodes
+            steps.forEach((stepName, index) => {
+                const step = config.steps[stepName];
+                const nodeId = stepName.replace(/[^a-zA-Z0-9]/g, '_');
+                const description = step.description || stepName;
+                mermaidCode += `    ${nodeId}["${stepName}\\n${description}"]\n`;
+            });
+            
+            // Add dependencies
+            steps.forEach(stepName => {
+                const step = config.steps[stepName];
+                const nodeId = stepName.replace(/[^a-zA-Z0-9]/g, '_');
+                
+                if (step.depends_on && step.depends_on.length > 0) {
+                    step.depends_on.forEach(dep => {
+                        const depId = dep.replace(/[^a-zA-Z0-9]/g, '_');
+                        mermaidCode += `    ${depId} --> ${nodeId}\n`;
+                    });
+                }
+            });
+            
+            // Add styling
+            mermaidCode += `
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px
+    classDef active fill:#6366f1,stroke:#4f46e5,color:#fff
+            `;
+            
+            return mermaidCode;
+        }
+
+        function addFlowchartClickHandlers() {
+            // Add click handlers to flowchart nodes
+            document.querySelectorAll('#pipeline-flowchart .node').forEach(node => {
+                node.style.cursor = 'pointer';
+                node.addEventListener('click', (e) => {
+                    const stepName = extractStepNameFromNode(node);
+                    if (stepName && pipelineConfig.steps[stepName]) {
+                        showStepDetailsModal(stepName, pipelineConfig.steps[stepName]);
+                    }
+                });
+            });
+        }
+
+        function extractStepNameFromNode(node) {
+            // Extract step name from Mermaid node
+            const textElement = node.querySelector('text, .label');
+            if (textElement) {
+                const text = textElement.textContent;
+                return text.split('\\n')[0] || text.split('\n')[0];
+            }
+            return null;
+        }
+
+        function showStepDetailsModal(stepName, stepConfig) {
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Pipeline Step: ${stepName}</h2>
+                        <button class="modal-close" onclick="closeStepModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <pre><code class="yaml">${jsyaml.dump({[stepName]: stepConfig}, {indent: 2})}</code></pre>
+                    </div>
+                </div>
+            `;
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeStepModal();
+            });
+            
+            document.body.appendChild(modal);
+            window.currentStepModal = modal;
+        }
+
+        function closeStepModal() {
+            if (window.currentStepModal) {
+                window.currentStepModal.remove();
+                window.currentStepModal = null;
+            }
+        }
+
+        function openPipelineConfigOnGitHub() {
+            window.open('https://github.com/ContextLab/llmXive/blob/main/pipeline_config.yaml', '_blank');
+        }
+
+        // Orchestrator system components
+        const orchestratorComponents = {
+            core: {
+                'configurable_pipeline_orchestrator.py': {
+                    title: 'Configurable Pipeline Orchestrator',
+                    description: 'The main orchestrator that executes the entire research pipeline using YAML-based configuration. It manages step execution, dependency resolution, and state tracking across the complete automated research workflow from idea generation to paper publication.',
+                    github: 'https://github.com/ContextLab/llmXive/blob/main/scripts/configurable_pipeline_orchestrator.py'
+                },
+                'pipeline_config_manager.py': {
+                    title: 'Pipeline Configuration Manager', 
+                    description: 'Handles loading, validation, and management of YAML-based pipeline configurations with support for dynamic dependencies, conditional execution, and model selection. Provides expression evaluation for pipeline conditions and comprehensive configuration validation.',
+                    github: 'https://github.com/ContextLab/llmXive/blob/main/scripts/pipeline_config_manager.py'
+                },
+                'llmxive_cli.py': {
+                    title: 'llmXive CLI',
+                    description: 'The command-line interface that orchestrates the complete research pipeline using multiple LLM providers (Claude, OpenAI, Google). Manages project creation, iterative review processes, code execution, and generates complete research papers with LaTeX compilation.',
+                    github: 'https://github.com/ContextLab/llmXive/blob/main/scripts/llmxive-cli.py'
+                }
+            },
+            managers: {
+                'code_execution_manager.py': {
+                    title: 'Code Execution Manager',
+                    description: 'Manages sandboxed execution of research code with environment isolation using virtual environments, Docker containers, or Conda environments. Automatically detects project requirements and provides detailed execution reports with error handling.',
+                    github: 'https://github.com/ContextLab/llmXive/blob/main/scripts/code_execution_manager.py'
+                },
+                'pipeline_api.py': {
+                    title: 'Pipeline API',
+                    description: 'REST API server that provides endpoints for pipeline configuration management, validation, and visualization. Offers real-time configuration editing, Mermaid diagram generation for pipeline workflows, and pipeline statistics with complexity scoring.',
+                    github: 'https://github.com/ContextLab/llmXive/blob/main/scripts/pipeline_api.py'
+                }
+            }
+        };
+
+        function showComponentDetails(componentPath, componentData) {
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 700px;">
+                    <div class="modal-header">
+                        <h2 class="modal-title">${componentData.title}</h2>
+                        <button class="modal-close" onclick="closeComponentModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p style="margin-bottom: 1.5rem; line-height: 1.6;">${componentData.description}</p>
+                        <div style="display: flex; gap: 1rem;">
+                            <a href="${componentData.github}" target="_blank" class="action-btn btn-primary">
+                                View Code on GitHub
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeComponentModal();
+            });
+            
+            document.body.appendChild(modal);
+            window.currentComponentModal = modal;
+        }
+
+        function closeComponentModal() {
+            if (window.currentComponentModal) {
+                window.currentComponentModal.remove();
+                window.currentComponentModal = null;
+            }
+        }
+
         // Initialize data loading and stats when page loads
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                if (window.ProjectDataManager) {
-                    // Load data first
-                    await window.ProjectDataManager.loadData();
+                // Load pipeline configuration and render flowchart
+                await refreshPipelineFlowchart();
+                
+                if (window.projectDataManager) {
+                    // Load project data first
+                    await window.projectDataManager.loadProjects();
                     
-                    // Then update stats
-                    const projects = Object.values(window.ProjectDataManager.getAllProjects());
-                    const uniqueAuthors = new Set();
+                    // Calculate real stats from actual data
+                    const projects = Object.values(window.projectDataManager.getAllProjects());
+                    const uniqueContributors = new Set();
                     const fields = new Set();
                     let totalCompleteness = 0;
                     
                     projects.forEach(project => {
-                        project.contributors.forEach(contrib => {
-                            uniqueAuthors.add(contrib.name === 'Google Gemini' ? 'Gemini' : contrib.name);
-                        });
+                        if (project.contributors && project.contributors.length > 0) {
+                            project.contributors.forEach(contrib => {
+                                uniqueContributors.add(contrib.name || contrib.github || contrib);
+                            });
+                        }
                         fields.add(project.field);
                         totalCompleteness += project.completeness || 0;
                     });
                     
+                    const avgCompleteness = projects.length > 0 ? Math.round(totalCompleteness / projects.length) : 0;
+                    
+                    // Update DOM with real statistics
                     document.getElementById('total-projects').textContent = projects.length;
-                    document.getElementById('unique-authors').textContent = uniqueAuthors.size;
+                    document.getElementById('unique-authors').textContent = uniqueContributors.size;
                     document.getElementById('research-fields').textContent = fields.size;
-                    document.getElementById('avg-completeness').textContent = 
-                        Math.round(totalCompleteness / projects.length) + '%';
+                    document.getElementById('avg-completeness').textContent = avgCompleteness + '%';
                 }
+
+                // Setup orchestrator component cards
+                setupOrchestratorComponents();
+                
             } catch (error) {
-                console.error('Failed to load project data:', error);
+                console.error('Failed to initialize about page:', error);
             }
         });
+
+        function setupOrchestratorComponents() {
+            const coreContainer = document.querySelector('.orchestrator-core-components');
+            const managersContainer = document.querySelector('.orchestrator-managers-components');
+            
+            if (coreContainer) {
+                coreContainer.innerHTML = Object.entries(orchestratorComponents.core).map(([path, data]) => `
+                    <div class="component-card" onclick="showComponentDetails('${path}', ${JSON.stringify(data).replace(/'/g, '&#39;')})">
+                        <h4>${data.title}</h4>
+                        <p>${data.description.substring(0, 100)}...</p>
+                    </div>
+                `).join('');
+            }
+            
+            if (managersContainer) {
+                managersContainer.innerHTML = Object.entries(orchestratorComponents.managers).map(([path, data]) => `
+                    <div class="component-card" onclick="showComponentDetails('${path}', ${JSON.stringify(data).replace(/'/g, '&#39;')})">
+                        <h4>${data.title}</h4>
+                        <p>${data.description.substring(0, 100)}...</p>
+                    </div>
+                `).join('');
+            }
+        }
     </script>
+
+    <!--
+        Machine-readable thresholds (T130 / FR-038): src/llmxive/config.py
+        parses these data-threshold spans at import time. The about page
+        is the single source of truth for these numbers. Edit the values
+        below to update the pipeline's thresholds.
+    -->
+    <aside hidden id="llmxive-thresholds" aria-hidden="true">
+        <p>Research-quality review accept threshold:
+            <span data-threshold="research_accept_threshold">5.0</span></p>
+        <p>Paper-quality review accept threshold:
+            <span data-threshold="paper_accept_threshold">5.0</span></p>
+        <p>Tasker max revision rounds:
+            <span data-threshold="tasker_max_revision_rounds">5</span></p>
+        <p>Leaf task budget (seconds):
+            <span data-threshold="leaf_task_budget_seconds">300</span></p>
+        <p>Code sandbox budget (seconds):
+            <span data-threshold="sandbox_budget_seconds">240</span></p>
+        <p>Citation title-overlap threshold:
+            <span data-threshold="citation_title_overlap_threshold">0.7</span></p>
+        <p>Stage advancement-rate metric window (days):
+            <span data-threshold="stage_advancement_rate_window_days">7</span></p>
+    </aside>
 </body>
 </html>

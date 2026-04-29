@@ -1,5 +1,29 @@
 # llmXive - Automated Scientific Discovery Platform
 
+> **Active refactor (branch `001-agentic-pipeline-refactor`)** — the platform is
+> being rewritten as a Spec-Kit-per-project agentic pipeline running on free
+> LLM backends (Dartmouth Chat + Hugging Face). Authoritative docs while
+> the refactor is in flight:
+>
+> - Constitution: [.specify/memory/constitution.md](.specify/memory/constitution.md)
+> - Spec: [specs/001-agentic-pipeline-refactor/spec.md](specs/001-agentic-pipeline-refactor/spec.md)
+> - Plan: [specs/001-agentic-pipeline-refactor/plan.md](specs/001-agentic-pipeline-refactor/plan.md)
+> - Quickstart: [specs/001-agentic-pipeline-refactor/quickstart.md](specs/001-agentic-pipeline-refactor/quickstart.md)
+> - Agent registry: [agents/registry.yaml](agents/registry.yaml) (28 agents on Qwen 3.5 122B / Gemma 3 27B via Dartmouth Chat)
+> - Prompt library: [agents/prompts/](agents/prompts/) (one file per agent, referenced by `prompt_path:` in the registry)
+> - Pipeline thresholds: [web/about.html](web/about.html) (machine-readable `data-threshold` spans)
+>
+> The legacy `code/llmxive-automation/` tree is being deleted in this refactor;
+> see `scripts/migrate_legacy_layout.py`. The new agentic implementation lives
+> under [src/llmxive/](src/llmxive/) and [agents/](agents/).
+>
+> **New-contributor onramp (SC-008)**: open
+> [agents/registry.yaml](agents/registry.yaml) → pick the lifecycle stage you
+> want to understand → follow the agent's `prompt_path:` to its definition.
+> This should take about 5 minutes from a cold start.
+
+---
+
 llmXive is a comprehensive automated system for scientific discovery that leverages large language models (LLMs) to orchestrate the complete research pipeline from idea generation through publication. The platform manages research projects through five distinct stages with integrated review processes and quality assurance.
 
 ## 🎯 Project Overview

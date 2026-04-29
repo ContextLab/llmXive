@@ -6,9 +6,10 @@
 # v0.5.0 — US7 reference_validator added (T109).
 # v0.6.0 — US4 paper-stage agents added (T093).
 # v0.7.0 — US5 paper_reviewer added (T098).
-# Future versions: T125 (US9).
+# v0.8.0 — US9 cross-cutting agents added (T125): status_reporter,
+#           repository_hygiene, task_atomizer, task_joiner.
 
-version: "0.7.0"
+version: "0.8.0"
 
 backends:
   - name: dartmouth
@@ -311,4 +312,50 @@ agents:
     fallback_backends: [huggingface]
     default_model: qwen.qwen3.5-122b
     wall_clock_budget_seconds: 600
+    paid_opt_in: false
+
+  # US9 cross-cutting agents (T125)
+  - name: status_reporter
+    purpose: "Emit per-run summary, post issue comments, regenerate web/data/projects.json, compute SC-001/SC-007/SC-012 metrics."
+    inputs: [review]
+    outputs: [status_comment, project_state]
+    prompt_path: agents/prompts/status_reporter.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface, local]
+    default_model: google.gemma-3-27b-it
+    wall_clock_budget_seconds: 300
+    paid_opt_in: false
+  - name: repository_hygiene
+    purpose: "Read-only hygiene checker. Verifies gitignore patterns, flags scratch artifacts, asserts SC-007 line-count delta."
+    inputs: [review]
+    outputs: [review]
+    prompt_path: agents/prompts/repository_hygiene.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface, local]
+    default_model: google.gemma-3-27b-it
+    wall_clock_budget_seconds: 300
+    paid_opt_in: false
+  - name: task_atomizer
+    purpose: "Decompose an over-budget parent task into sub-tasks each fitting the leaf wall-clock budget; supports recursive atomization up to MAX_ATOMIZATION_DEPTH."
+    inputs: [implementation_plan, paper]
+    outputs: [implementation_plan, paper]
+    prompt_path: agents/prompts/task_atomizer.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface]
+    default_model: qwen.qwen3.5-122b
+    wall_clock_budget_seconds: 300
+    paid_opt_in: false
+  - name: task_joiner
+    purpose: "Auto-spawned when every sibling sub-task succeeds; merges sub-task outputs into the parent task's expected artifact format."
+    inputs: [implementation_plan, paper]
+    outputs: [implementation_plan, paper]
+    prompt_path: agents/prompts/task_joiner.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface, local]
+    default_model: google.gemma-3-27b-it
+    wall_clock_budget_seconds: 300
     paid_opt_in: false
