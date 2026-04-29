@@ -53,7 +53,15 @@ class DartmouthBackend(BaseBackend):
             else:
                 from langchain_dartmouth.llms import CloudModelListing
                 models = list(CloudModelListing().list())
-            return [str(m) for m in models]
+            # ChatDartmouth.list() returns Model objects; we need plain id
+            # strings (e.g. 'qwen.qwen3.5-122b') that can be passed to
+            # ChatDartmouth(model_name=...) per langchain-dartmouth's API.
+            ids: list[str] = []
+            for m in models:
+                # Prefer the canonical .id attribute; fall back to .name; finally str()
+                mid = getattr(m, "id", None) or getattr(m, "name", None) or str(m)
+                ids.append(str(mid))
+            return ids
         except Exception as exc:  # pragma: no cover — surfaced in preflight
             raise TransientBackendError(f"Dartmouth list_models failed: {exc}") from exc
 

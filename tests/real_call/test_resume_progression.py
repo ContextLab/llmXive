@@ -31,7 +31,6 @@ REPO = Path(__file__).resolve().parent.parent.parent
 )
 def test_implementer_resume_picks_next_incomplete(tmp_path: Path) -> None:
     from llmxive.speckit.implement_cmd import ImplementerAgent
-    from llmxive.types import AgentRegistryEntry, ArtifactKind, BackendName
 
     project_dir = tmp_path / "projects" / "PROJ-001-resume"
     feature_dir = project_dir / "specs" / "001-resume"
@@ -49,20 +48,9 @@ def test_implementer_resume_picks_next_incomplete(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    entry = AgentRegistryEntry(
-        name="implementer",
-        purpose="resume test fixture entry — picks next incomplete task",
-        inputs=[ArtifactKind.IMPLEMENTATION_PLAN],
-        outputs=[ArtifactKind.CODE],
-        prompt_path="agents/prompts/implementer.md",
-        prompt_version="1.0.0",
-        default_backend=BackendName.DARTMOUTH,
-        fallback_backends=[BackendName.HUGGINGFACE],
-        default_model="qwen.qwen3.5-122b",
-        wall_clock_budget_seconds=300,
-        paid_opt_in=False,
-    )
-    agent = ImplementerAgent(entry)
+    # ImplementerAgent (a SlashCommandAgent) takes no constructor args;
+    # the agent registry is consulted at run() time rather than at construction.
+    agent = ImplementerAgent()
 
     text = tasks_md.read_text(encoding="utf-8")
     pick = agent._next_incomplete(text)

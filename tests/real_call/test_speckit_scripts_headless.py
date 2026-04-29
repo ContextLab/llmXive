@@ -21,8 +21,10 @@ def test_check_prerequisites_returns_json(tmp_path: Path) -> None:
     """check-prerequisites.sh --json prints a JSON object on stdout."""
     script = REPO / ".specify" / "scripts" / "bash" / "check-prerequisites.sh"
     assert script.exists(), f"missing {script}"
+    # --paths-only disables existence validation so the test passes on
+    # any branch (CI may run on a feature branch without a spec dir yet).
     proc = subprocess.run(
-        [str(script), "--json"],
+        [str(script), "--json", "--paths-only"],
         cwd=str(REPO),
         capture_output=True,
         text=True,

@@ -16,7 +16,6 @@ backends:
     kind: openai_compatible
     auth_env_vars:
       - DARTMOUTH_CHAT_API_KEY
-      - DARTMOUTH_API_KEY
     daily_quota_estimate: 100
     is_paid: false
   - name: huggingface

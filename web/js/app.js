@@ -40,11 +40,11 @@
 
   function cardHTML(item, kind) {
     const kicker = ({
-      papers:    "Posted",
+      papers:    "Published",
       paper:     "Paper pipeline",
       inProgress:"Research in progress",
-      plans:     "Implementation plan",
-      designs:   "Technical design",
+      plans:     "Research plan",
+      designs:   "Research spec",
     })[kind] || "";
     const stage = item.current_stage || "";
     const stageLabel = (D.STAGE_LABELS[stage] || stage).toLowerCase();
