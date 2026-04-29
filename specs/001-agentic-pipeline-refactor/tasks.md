@@ -175,35 +175,35 @@ description: "Task list for the Spec-Kit-per-project agentic pipeline refactor"
 
 ### Implementation for User Story 4 (paper Spec Kit drivers)
 
-- [ ] T070 [P] [US4] Author Paper-Initializer Agent prompt at `agents/prompts/paper_initializer.md` (scaffolds `projects/<PROJ-ID>/paper/.specify/` from upstream Spec Kit; derives `paper/.specify/memory/constitution.md` from `agents/templates/paper_project_constitution.md` per FR-013)
-- [ ] T071 [US4] Implement Paper-Initializer Agent at `src/llmxive/agents/paper_initializer.py`; transitions project to `paper_drafting_init`
-- [ ] T072 [P] [US4] Author Paper-Specifier prompt at `agents/prompts/paper_specifier.md` (drives `/speckit.specify` for the paper artifact: defines sections, required figures, claim list, target venue style)
-- [ ] T073 [US4] Implement Paper-Specifier Agent at `src/llmxive/speckit/paper_specify_cmd.py`; transitions to `paper_specified`
-- [ ] T074 [P] [US4] Author Paper-Clarifier prompt at `agents/prompts/paper_clarifier.md`
-- [ ] T075 [US4] Implement Paper-Clarifier Agent at `src/llmxive/speckit/paper_clarify_cmd.py`; transitions to `paper_clarified`
-- [ ] T076 [P] [US4] Author Paper-Planner prompt at `agents/prompts/paper_planner.md`
-- [ ] T077 [US4] Implement Paper-Planner Agent at `src/llmxive/speckit/paper_plan_cmd.py`; transitions to `paper_planned`
-- [ ] T078 [P] [US4] Author Paper-Tasker prompt at `agents/prompts/paper_tasker.md` (same analyze-resolve loop discipline as the research-stage Tasker, FR-016)
-- [ ] T079 [US4] Implement Paper-Tasker Agent at `src/llmxive/speckit/paper_tasks_cmd.py` (reuses the Tasker's analyze-resolve infrastructure from T052); transitions to `paper_tasked` then `paper_analyzed`
+- [X] T070 [P] [US4] Author Paper-Initializer Agent prompt at `agents/prompts/paper_initializer.md` (scaffolds `projects/<PROJ-ID>/paper/.specify/` from upstream Spec Kit; derives `paper/.specify/memory/constitution.md` from `agents/templates/paper_project_constitution.md` per FR-013)
+- [X] T071 [US4] Implement Paper-Initializer Agent at `src/llmxive/agents/paper_initializer.py`; transitions project to `paper_drafting_init`
+- [X] T072 [P] [US4] Author Paper-Specifier prompt at `agents/prompts/paper_specifier.md` (drives `/speckit.specify` for the paper artifact: defines sections, required figures, claim list, target venue style)
+- [X] T073 [US4] Implement Paper-Specifier Agent at `src/llmxive/speckit/paper_specify_cmd.py`; transitions to `paper_specified`
+- [X] T074 [P] [US4] Author Paper-Clarifier prompt at `agents/prompts/paper_clarifier.md`
+- [X] T075 [US4] Implement Paper-Clarifier Agent at `src/llmxive/speckit/paper_clarify_cmd.py`; transitions to `paper_clarified`
+- [X] T076 [P] [US4] Author Paper-Planner prompt at `agents/prompts/paper_planner.md`
+- [X] T077 [US4] Implement Paper-Planner Agent at `src/llmxive/speckit/paper_plan_cmd.py`; transitions to `paper_planned`
+- [X] T078 [P] [US4] Author Paper-Tasker prompt at `agents/prompts/paper_tasker.md` (same analyze-resolve loop discipline as the research-stage Tasker, FR-016)
+- [X] T079 [US4] Implement Paper-Tasker Agent at `src/llmxive/speckit/paper_tasks_cmd.py` (reuses the Tasker's analyze-resolve infrastructure from T052); transitions to `paper_tasked` then `paper_analyzed`
 
 ### Implementation for User Story 4 (paper sub-agents)
 
-- [ ] T080 [P] [US4] Author Writing-Agent prompt at `agents/prompts/paper_writing.md` (composes prose for one section/subsection at a time; reuses `lit_search` tool from T041)
-- [ ] T081 [US4] Implement Writing-Agent at `src/llmxive/agents/paper_writing.py`
-- [ ] T082 [P] [US4] Author Figure-Generation-Agent prompt at `agents/prompts/paper_figure_generation.md` (generates Python plotting code that runs in the code sandbox; output PDF/PNG into `projects/<PROJ-ID>/paper/figures/`)
-- [ ] T083 [US4] Implement Figure-Generation-Agent at `src/llmxive/agents/paper_figure_generation.py` using the code sandbox (T088)
-- [ ] T084 [P] [US4] Author Statistics-Agent prompt at `agents/prompts/paper_statistics.md` (performs and writes interpretations of inferential analyses on real data outputs; runs analysis code in sandbox)
-- [ ] T085 [US4] Implement Statistics-Agent at `src/llmxive/agents/paper_statistics.py`
-- [ ] T086 [P] [US4] Author Proofreader-Agent prompt at `agents/prompts/proofreader.md` (flags repeated sections, internal inconsistencies, jargon overuse, logical issues; emits a structured flags report)
-- [ ] T087 [US4] Implement Proofreader-Agent at `src/llmxive/agents/proofreader.py`
-- [ ] T088 [P] [US4] Implement code-execution sandbox at `agents/tools/code_sandbox.py` (subprocess.Popen with wall-clock timeout `SANDBOX_BUDGET_SECONDS` from T019; captures stdout/stderr; SIGKILL on timeout; per-project virtualenv populated from the project's pinned requirements; used by Figure-Generation, Statistics, and any code-running task)
-- [ ] T089 [P] [US4] Implement LaTeX-Build Agent prompt at `agents/prompts/latex_build.md` (compiles LaTeX → PDF via `pdflatex`; captures errors; produces `projects/<PROJ-ID>/paper/pdf/<paper>.pdf` on success)
-- [ ] T090 [US4] Implement LaTeX-Build Agent at `src/llmxive/agents/latex_build.py` and the LaTeX-Fix prompt at `agents/prompts/latex_fix.md` + agent at `src/llmxive/agents/latex_fix.py` (repairs compile errors and re-invokes Build; project escalates to `human_input_needed` after configurable repeated-failure cap)
-- [ ] T091 [P] [US4] Author Paper-Implementer dispatcher prompt at `agents/prompts/paper_implementer.md` (drives `/speckit.implement` for the paper Spec Kit; the Paper-Tasker emits each task with a `kind:` field whose value is one of the paper-task taxonomy: `prose`, `figure`, `statistics`, `lit-search`, `reference-verification`, `proofread`, `latex-build`, `latex-fix`. The dispatcher routes each task to the matching sub-agent: prose→Writing-Agent, figure→Figure-Generation-Agent, statistics→Statistics-Agent, lit-search→Lit-Search tool wrapper, reference-verification→Reference-Validator, proofread→Proofreader-Agent, latex-build→LaTeX-Build, latex-fix→LaTeX-Fix; FIX U4)
-- [ ] T092 [US4] Implement Paper-Implementer dispatcher at `src/llmxive/speckit/paper_implement_cmd.py`; transitions to `paper_in_progress`; transitions to `paper_complete` when ALL of the following are simultaneously true: every task in the paper's `tasks.md` is checked AND the LaTeX builds (T090) AND the Proofreader flag list is empty (T087) AND every paper-stage citation has `verification_status=verified` (T107). This conjunction satisfies SC-011 (FIX C8); satisfies FR-026 (citation verification gate)
-- [ ] T093 [US4] Add all US4 agents (`paper_initializer`, `paper_specifier`, `paper_clarifier`, `paper_planner`, `paper_tasker`, `paper_implementer`, `paper_writing`, `paper_figure_generation`, `paper_statistics`, `proofreader`, `latex_build`, `latex_fix`) to `agents/registry.yaml`
-- [ ] T094 [US4] Extend `src/llmxive/agents/lifecycle.py` (T056, T067) with paper-stage transitions: `research_accepted`→`paper_drafting_init`→`paper_specified`→`paper_clarified`→`paper_planned`→`paper_tasked`→`paper_analyzed`→`paper_in_progress`→`paper_complete`
-- [ ] T095 [US4] Real-call test `tests/real_call/test_paper_pipeline_e2e.py` — fixture `research_accepted` project advances through every paper-stage agent; asserts compiled PDF exists, every figure was generated from real data, every citation is verified
+- [X] T080 [P] [US4] Author Writing-Agent prompt at `agents/prompts/paper_writing.md` (composes prose for one section/subsection at a time; reuses `lit_search` tool from T041)
+- [X] T081 [US4] Implement Writing-Agent at `src/llmxive/agents/paper_writing.py`
+- [X] T082 [P] [US4] Author Figure-Generation-Agent prompt at `agents/prompts/paper_figure_generation.md` (generates Python plotting code that runs in the code sandbox; output PDF/PNG into `projects/<PROJ-ID>/paper/figures/`)
+- [X] T083 [US4] Implement Figure-Generation-Agent at `src/llmxive/agents/paper_figure_generation.py` using the code sandbox (T088)
+- [X] T084 [P] [US4] Author Statistics-Agent prompt at `agents/prompts/paper_statistics.md` (performs and writes interpretations of inferential analyses on real data outputs; runs analysis code in sandbox)
+- [X] T085 [US4] Implement Statistics-Agent at `src/llmxive/agents/paper_statistics.py`
+- [X] T086 [P] [US4] Author Proofreader-Agent prompt at `agents/prompts/proofreader.md` (flags repeated sections, internal inconsistencies, jargon overuse, logical issues; emits a structured flags report)
+- [X] T087 [US4] Implement Proofreader-Agent at `src/llmxive/agents/proofreader.py`
+- [X] T088 [P] [US4] Implement code-execution sandbox at `agents/tools/code_sandbox.py` (subprocess.Popen with wall-clock timeout `SANDBOX_BUDGET_SECONDS` from T019; captures stdout/stderr; SIGKILL on timeout; per-project virtualenv populated from the project's pinned requirements; used by Figure-Generation, Statistics, and any code-running task)
+- [X] T089 [P] [US4] Implement LaTeX-Build Agent prompt at `agents/prompts/latex_build.md` (compiles LaTeX → PDF via `pdflatex`; captures errors; produces `projects/<PROJ-ID>/paper/pdf/<paper>.pdf` on success)
+- [X] T090 [US4] Implement LaTeX-Build Agent at `src/llmxive/agents/latex_build.py` and the LaTeX-Fix prompt at `agents/prompts/latex_fix.md` + agent at `src/llmxive/agents/latex_fix.py` (repairs compile errors and re-invokes Build; project escalates to `human_input_needed` after configurable repeated-failure cap)
+- [X] T091 [P] [US4] Author Paper-Implementer dispatcher prompt at `agents/prompts/paper_implementer.md` (drives `/speckit.implement` for the paper Spec Kit; the Paper-Tasker emits each task with a `kind:` field whose value is one of the paper-task taxonomy: `prose`, `figure`, `statistics`, `lit-search`, `reference-verification`, `proofread`, `latex-build`, `latex-fix`. The dispatcher routes each task to the matching sub-agent: prose→Writing-Agent, figure→Figure-Generation-Agent, statistics→Statistics-Agent, lit-search→Lit-Search tool wrapper, reference-verification→Reference-Validator, proofread→Proofreader-Agent, latex-build→LaTeX-Build, latex-fix→LaTeX-Fix; FIX U4)
+- [X] T092 [US4] Implement Paper-Implementer dispatcher at `src/llmxive/speckit/paper_implement_cmd.py`; transitions to `paper_in_progress`; transitions to `paper_complete` when ALL of the following are simultaneously true: every task in the paper's `tasks.md` is checked AND the LaTeX builds (T090) AND the Proofreader flag list is empty (T087) AND every paper-stage citation has `verification_status=verified` (T107). This conjunction satisfies SC-011 (FIX C8); satisfies FR-026 (citation verification gate)
+- [X] T093 [US4] Add all US4 agents (`paper_initializer`, `paper_specifier`, `paper_clarifier`, `paper_planner`, `paper_tasker`, `paper_implementer`, `paper_writing`, `paper_figure_generation`, `paper_statistics`, `proofreader`, `latex_build`, `latex_fix`) to `agents/registry.yaml`
+- [X] T094 [US4] Extend `src/llmxive/agents/lifecycle.py` (T056, T067) with paper-stage transitions: `research_accepted`→`paper_drafting_init`→`paper_specified`→`paper_clarified`→`paper_planned`→`paper_tasked`→`paper_analyzed`→`paper_in_progress`→`paper_complete`
+- [X] T095 [US4] Real-call test `tests/real_call/test_paper_pipeline_e2e.py` — fixture `research_accepted` project advances through every paper-stage agent; asserts compiled PDF exists, every figure was generated from real data, every citation is verified
 
 **Checkpoint**: Paper Spec Kit pipeline produces a compiled PDF + figures + verified bibliography end-to-end on a fixture.
 

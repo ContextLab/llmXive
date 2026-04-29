@@ -4,9 +4,10 @@
 # v0.3.0 — Default models pinned (Qwen3.5 122B / Gemma 3 27B).
 # v0.4.0 — US3 research_reviewer added (T065).
 # v0.5.0 — US7 reference_validator added (T109).
-# Future versions: T093 (US4), T098 (US5), T125 (US9).
+# v0.6.0 — US4 paper-stage agents added (T093).
+# Future versions: T098 (US5), T125 (US9).
 
-version: "0.5.0"
+version: "0.6.0"
 
 backends:
   - name: dartmouth
@@ -157,4 +158,143 @@ agents:
     default_model: google.gemma-3-27b-it
     tools: [citation_fetcher]
     wall_clock_budget_seconds: 300
+    paid_opt_in: false
+
+  # Paper Spec Kit drivers (T093)
+  - name: paper_initializer
+    purpose: "Bootstrap a per-project paper Spec Kit scaffold and render a paper-stage constitution."
+    inputs: [implementation_plan, code, data]
+    outputs: [project_state]
+    prompt_path: agents/prompts/paper_initializer.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface, local]
+    default_model: qwen.qwen3.5-122b
+    wall_clock_budget_seconds: 300
+    paid_opt_in: false
+  - name: paper_specifier
+    purpose: "Drive /speckit.specify for the paper artifact: sections, required figures, claim list, target venue style."
+    inputs: [implementation_plan, code, data]
+    outputs: [paper]
+    prompt_path: agents/prompts/paper_specifier.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface]
+    default_model: qwen.qwen3.5-122b
+    wall_clock_budget_seconds: 600
+    paid_opt_in: false
+  - name: paper_clarifier
+    purpose: "Drive /speckit.clarify on the paper spec; resolve [NEEDS CLARIFICATION] markers."
+    inputs: [paper]
+    outputs: [paper]
+    prompt_path: agents/prompts/paper_clarifier.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface]
+    default_model: qwen.qwen3.5-122b
+    wall_clock_budget_seconds: 600
+    paid_opt_in: false
+  - name: paper_planner
+    purpose: "Drive /speckit.plan for the paper; produce plan.md, research.md, data-model.md, quickstart.md, contracts/."
+    inputs: [paper]
+    outputs: [paper]
+    prompt_path: agents/prompts/paper_planner.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface]
+    default_model: qwen.qwen3.5-122b
+    wall_clock_budget_seconds: 900
+    paid_opt_in: false
+  - name: paper_tasker
+    purpose: "Drive /speckit.tasks + /speckit.analyze for the paper; emit tasks with [kind:...] tokens."
+    inputs: [paper]
+    outputs: [paper]
+    prompt_path: agents/prompts/paper_tasker.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface]
+    default_model: qwen.qwen3.5-122b
+    wall_clock_budget_seconds: 900
+    paid_opt_in: false
+  - name: paper_implementer
+    purpose: "Drive /speckit.implement for the paper; dispatch each task to the appropriate sub-agent by [kind:...] token."
+    inputs: [paper]
+    outputs: [paper]
+    prompt_path: agents/prompts/paper_implementer.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface, local]
+    default_model: google.gemma-3-27b-it
+    wall_clock_budget_seconds: 300
+    paid_opt_in: false
+
+  # Paper sub-agents (T093)
+  - name: paper_writing
+    purpose: "Compose LaTeX prose for one paper section/subsection at a time."
+    inputs: [paper]
+    outputs: [paper]
+    prompt_path: agents/prompts/paper_writing.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface]
+    default_model: qwen.qwen3.5-122b
+    tools: [lit_search]
+    wall_clock_budget_seconds: 900
+    paid_opt_in: false
+  - name: paper_figure_generation
+    purpose: "Generate Python plotting code that produces a figure from real data; runs in the code sandbox."
+    inputs: [data, paper]
+    outputs: [paper]
+    prompt_path: agents/prompts/paper_figure_generation.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface]
+    default_model: qwen.qwen3.5-122b
+    tools: [code_sandbox]
+    wall_clock_budget_seconds: 900
+    paid_opt_in: false
+  - name: paper_statistics
+    purpose: "Compute and interpret one inferential analysis per task; writes both the analysis script and LaTeX prose."
+    inputs: [data, paper]
+    outputs: [paper]
+    prompt_path: agents/prompts/paper_statistics.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface]
+    default_model: qwen.qwen3.5-122b
+    tools: [code_sandbox]
+    wall_clock_budget_seconds: 900
+    paid_opt_in: false
+  - name: proofreader
+    purpose: "Flag repeated sections, internal inconsistencies, jargon overuse, and logical issues in the paper LaTeX source."
+    inputs: [paper]
+    outputs: [review]
+    prompt_path: agents/prompts/proofreader.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface]
+    default_model: qwen.qwen3.5-122b
+    wall_clock_budget_seconds: 600
+    paid_opt_in: false
+  - name: latex_build
+    purpose: "Compile LaTeX → PDF; emit a structured failure summary on compile errors."
+    inputs: [paper]
+    outputs: [paper]
+    prompt_path: agents/prompts/latex_build.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface, local]
+    default_model: google.gemma-3-27b-it
+    wall_clock_budget_seconds: 600
+    paid_opt_in: false
+  - name: latex_fix
+    purpose: "Repair LaTeX compilation errors flagged by latex_build; conservative patches only."
+    inputs: [paper]
+    outputs: [paper]
+    prompt_path: agents/prompts/latex_fix.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface]
+    default_model: qwen.qwen3.5-122b
+    wall_clock_budget_seconds: 600
     paid_opt_in: false

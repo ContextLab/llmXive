@@ -22,6 +22,7 @@ from uuid import uuid4
 from llmxive.agents.advancement import evaluate as advancement_evaluate
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.lifecycle import is_valid_transition
+from llmxive.agents.paper_initializer import PaperInitializerAgent
 from llmxive.agents.project_initializer import (
     ProjectInitializerAgent,
     transition_to_project_initialized,
@@ -31,6 +32,11 @@ from llmxive.agents import registry as registry_loader
 from llmxive.agents.runner import run_agent
 from llmxive.speckit.clarify_cmd import ClarifierAgent
 from llmxive.speckit.implement_cmd import ImplementerAgent
+from llmxive.speckit.paper_clarify_cmd import PaperClarifierAgent
+from llmxive.speckit.paper_implement_cmd import PaperImplementerAgent
+from llmxive.speckit.paper_plan_cmd import PaperPlannerAgent
+from llmxive.speckit.paper_specify_cmd import PaperSpecifierAgent
+from llmxive.speckit.paper_tasks_cmd import PaperTaskerAgent
 from llmxive.speckit.plan_cmd import PlannerAgent
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 from llmxive.speckit.specify_cmd import SpecifierAgent
@@ -61,6 +67,15 @@ STAGE_TO_AGENT: dict[Stage, str] = {
     # record to exist, then auto-transitions to research_review (handled
     # by advancement.evaluate); the dispatch table picks it up here.
     Stage.RESEARCH_REVIEW: "research_reviewer",
+    # US4: paper-stage Spec Kit pipeline.
+    Stage.RESEARCH_ACCEPTED: "paper_initializer",
+    Stage.PAPER_DRAFTING_INIT: "paper_specifier",
+    Stage.PAPER_SPECIFIED: "paper_clarifier",
+    Stage.PAPER_CLARIFIED: "paper_planner",
+    Stage.PAPER_PLANNED: "paper_tasker",
+    Stage.PAPER_TASKED: "paper_tasker",
+    Stage.PAPER_ANALYZED: "paper_implementer",
+    Stage.PAPER_IN_PROGRESS: "paper_implementer",
 }
 
 
@@ -76,12 +91,22 @@ STAGE_AFTER_AGENT: dict[Stage, Stage] = {
     Stage.TASKED: Stage.ANALYZED,
     # IN_PROGRESS → IN_PROGRESS until all tasks are complete (handled
     # below via _all_tasks_done).
+    # US4 paper-stage transitions:
+    Stage.RESEARCH_ACCEPTED: Stage.PAPER_DRAFTING_INIT,
+    Stage.PAPER_DRAFTING_INIT: Stage.PAPER_SPECIFIED,
+    Stage.PAPER_SPECIFIED: Stage.PAPER_CLARIFIED,
+    Stage.PAPER_CLARIFIED: Stage.PAPER_PLANNED,
+    Stage.PAPER_PLANNED: Stage.PAPER_TASKED,
+    Stage.PAPER_TASKED: Stage.PAPER_ANALYZED,
+    # PAPER_IN_PROGRESS → PAPER_IN_PROGRESS until all paper tasks done
+    # AND LaTeX builds AND citations clean AND proofreader clean.
 }
 
 
 _NON_SPECKIT_AGENTS: dict[str, Callable[[AgentRegistryEntry], Agent]] = {
     "project_initializer": ProjectInitializerAgent,
     "research_reviewer": ResearchReviewerAgent,
+    "paper_initializer": PaperInitializerAgent,
 }
 
 _SPECKIT_AGENTS: dict[str, Callable[[AgentRegistryEntry], SlashCommandAgent]] = {
@@ -90,6 +115,11 @@ _SPECKIT_AGENTS: dict[str, Callable[[AgentRegistryEntry], SlashCommandAgent]] = 
     "planner": PlannerAgent,
     "tasker": TaskerAgent,
     "implementer": ImplementerAgent,
+    "paper_specifier": PaperSpecifierAgent,
+    "paper_clarifier": PaperClarifierAgent,
+    "paper_planner": PaperPlannerAgent,
+    "paper_tasker": PaperTaskerAgent,
+    "paper_implementer": PaperImplementerAgent,
 }
 
 
@@ -102,8 +132,52 @@ def _all_tasks_done(project_dir: Path) -> bool:
     return has_any and "[ ]" not in text
 
 
+def _all_paper_tasks_done(project_dir: Path) -> bool:
+    candidates = sorted((project_dir / "paper").glob("specs/*/tasks.md"))
+    if not candidates:
+        return False
+    text = candidates[0].read_text(encoding="utf-8")
+    has_any = "[ ]" in text or "[X]" in text or "[x]" in text
+    return has_any and "[ ]" not in text
+
+
 def _human_input_marker(project_dir: Path) -> bool:
-    return (project_dir / ".specify" / "memory" / "human_input_needed.yaml").exists()
+    return (
+        (project_dir / ".specify" / "memory" / "human_input_needed.yaml").exists()
+        or (project_dir / "paper" / ".specify" / "memory" / "human_input_needed.yaml").exists()
+    )
+
+
+def _paper_complete_preconditions_met(
+    project_id: str, project_dir: Path, *, repo_root: Path | None = None
+) -> bool:
+    """All preconditions for paper_in_progress → paper_complete.
+
+    Per FR-026 + the paper constitution: tasks done AND LaTeX builds
+    AND every paper-stage citation is verified AND proofreader flag
+    list is empty.
+    """
+    if not _all_paper_tasks_done(project_dir):
+        return False
+    # LaTeX build: only checked if a main.tex exists.
+    paper_source = project_dir / "paper" / "source" / "main.tex"
+    if paper_source.exists():
+        from llmxive.agents.latex_build import build_paper
+
+        build_result = build_paper(project_id, repo_root=repo_root)
+        if not build_result.get("ok"):
+            return False
+    # Citation gate.
+    from llmxive.agents.reference_validator import has_blocking_citations
+
+    if has_blocking_citations(project_id, repo_root=repo_root):
+        return False
+    # Proofreader gate.
+    from llmxive.agents.proofreader import proofreader_clean
+
+    if not proofreader_clean(project_id, repo_root=repo_root):
+        return False
+    return True
 
 
 def run_one_step(
@@ -129,6 +203,11 @@ def run_one_step(
         Stage.RESEARCH_MINOR_REVISION,
         Stage.RESEARCH_FULL_REVISION,
         Stage.RESEARCH_REJECTED,
+        Stage.PAPER_MINOR_REVISION,
+        Stage.PAPER_MAJOR_REVISION_WRITING,
+        Stage.PAPER_MAJOR_REVISION_SCIENCE,
+        Stage.PAPER_FUNDAMENTAL_FLAWS,
+        Stage.PAPER_ACCEPTED,
     }:
         next_stage = _decide_next_stage(project, repo / "projects" / project.id, repo_root=repo)
         if not is_valid_transition(project.current_stage, next_stage):
@@ -219,10 +298,23 @@ def _decide_next_stage(
             return Stage.RESEARCH_COMPLETE
         return Stage.IN_PROGRESS
 
+    # Paper-Implementer special-case: stay paper_in_progress until ALL
+    # preconditions are met (tasks done + LaTeX builds + citations
+    # verified + proofreader clean).
+    if cur in {Stage.PAPER_ANALYZED, Stage.PAPER_IN_PROGRESS}:
+        if _paper_complete_preconditions_met(project.id, project_dir, repo_root=repo_root):
+            return Stage.PAPER_COMPLETE
+        return Stage.PAPER_IN_PROGRESS
+
     # Research-reviewer leaves the project at research_review and lets
     # the Advancement-Evaluator decide the next stage based on the
     # accumulated review records.
     if cur == Stage.RESEARCH_REVIEW:
+        evaluated = advancement_evaluate(project, repo_root=repo_root)
+        return evaluated.current_stage
+
+    # Paper-Reviewer (US5) — same pattern.
+    if cur == Stage.PAPER_REVIEW:
         evaluated = advancement_evaluate(project, repo_root=repo_root)
         return evaluated.current_stage
 
@@ -240,6 +332,18 @@ def _decide_next_stage(
         return Stage.CLARIFIED
     if cur == Stage.RESEARCH_REJECTED:
         return Stage.BRAINSTORMED
+
+    # US5 paper-revision routing.
+    if cur == Stage.PAPER_MINOR_REVISION:
+        return Stage.PAPER_TASKED
+    if cur == Stage.PAPER_MAJOR_REVISION_WRITING:
+        return Stage.PAPER_CLARIFIED
+    if cur == Stage.PAPER_MAJOR_REVISION_SCIENCE:
+        return Stage.CLARIFIED  # back to research clarified
+    if cur == Stage.PAPER_FUNDAMENTAL_FLAWS:
+        return Stage.BRAINSTORMED
+    if cur == Stage.PAPER_ACCEPTED:
+        return Stage.POSTED
 
     return STAGE_AFTER_AGENT.get(cur, cur)
 
