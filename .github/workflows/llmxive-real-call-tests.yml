@@ -24,6 +24,11 @@ jobs:
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # On PR runs, github.head_ref is the source branch name (e.g.
+          # 001-agentic-pipeline-refactor) rather than the PR-merge SHA;
+          # the spec-kit bash scripts require a feature-branch name.
+          ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
