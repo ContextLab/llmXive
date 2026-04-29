@@ -23,6 +23,7 @@ from llmxive.agents.advancement import evaluate as advancement_evaluate
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.lifecycle import is_valid_transition
 from llmxive.agents.paper_initializer import PaperInitializerAgent
+from llmxive.agents.paper_reviewer import PaperReviewerAgent
 from llmxive.agents.project_initializer import (
     ProjectInitializerAgent,
     transition_to_project_initialized,
@@ -76,6 +77,10 @@ STAGE_TO_AGENT: dict[Stage, str] = {
     Stage.PAPER_TASKED: "paper_tasker",
     Stage.PAPER_ANALYZED: "paper_implementer",
     Stage.PAPER_IN_PROGRESS: "paper_implementer",
+    # US5: at paper_complete the project waits for at least one
+    # paper-stage review record to exist, then auto-transitions to
+    # paper_review (handled by advancement.evaluate).
+    Stage.PAPER_REVIEW: "paper_reviewer",
 }
 
 
@@ -107,6 +112,7 @@ _NON_SPECKIT_AGENTS: dict[str, Callable[[AgentRegistryEntry], Agent]] = {
     "project_initializer": ProjectInitializerAgent,
     "research_reviewer": ResearchReviewerAgent,
     "paper_initializer": PaperInitializerAgent,
+    "paper_reviewer": PaperReviewerAgent,
 }
 
 _SPECKIT_AGENTS: dict[str, Callable[[AgentRegistryEntry], SlashCommandAgent]] = {

@@ -30,7 +30,22 @@ jobs:
           cache: pip
       - name: Install package and dev deps
         run: pip install -e ".[dev]"
+
+      # FR-031 / T114: Per-PR pre-checks BEFORE running real-call tests.
+      # If any of these fail, the gate fails fast — saving real-LLM minutes.
+      - name: Prompt existence check (every prompt referenced by registry exists and parses)
+        run: python -m llmxive.checks.prompts
+
+      - name: Spec Kit script executability check
+        run: python -m llmxive.checks.speckit_scripts
+
+      - name: Backend reachability check (Dartmouth + HF list_models())
+        run: python -m llmxive.checks.backends
+
+      # The contract suite validates every schema in contracts/.
       - name: Contract tests
         run: pytest tests/contract -v
-      - name: Real-call tests (extended in T036, T114)
+
+      # The real-call suite is the canonical Constitution III gate.
+      - name: Real-call tests (Dartmouth + HF + Spec Kit scripts + e2e)
         run: pytest tests/real_call -v

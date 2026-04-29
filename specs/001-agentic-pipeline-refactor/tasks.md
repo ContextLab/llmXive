@@ -221,8 +221,8 @@ description: "Task list for the Spec-Kit-per-project agentic pipeline refactor"
 - [ ] T097 [US5] Implement Paper-Reviewer Agent at `src/llmxive/agents/paper_reviewer.py`; writes review records under `projects/<PROJ-ID>/paper/reviews/<agent-name>__<YYYY-MM-DD>__paper.md`
 - [ ] T098 [US5] Add `paper_reviewer` entry to `agents/registry.yaml`
 - [ ] T099 [US5] Extend `src/llmxive/agents/advancement.py` (extends T028, T057, T066; FIX D2) with paper-review rules: group by verdict, sum weighted votes, advance to `paper_accepted` when accept-votes ≥ `PAPER_ACCEPT_THRESHOLD` (T019), else route per most-weighted recommendation (`paper_minor_revision` → re-invoke Paper-Tasker; `paper_major_revision_writing` → reset to `paper_clarified`; `paper_major_revision_science` → reset to `clarified` (research pipeline) with reviewer feedback attached; `paper_fundamental_flaws` → snapshot under `.rejected/` and reset to `brainstormed`)
-- [ ] T100 [US5] Extend `src/llmxive/agents/lifecycle.py` with `paper_complete`→`paper_review`→{five outcomes} transitions and the final `paper_accepted`→`posted` transition
-- [ ] T101 [US5] Real-call test `tests/real_call/test_paper_review_flow.py` — five fixture papers (one per recommendation type) advance to the expected next stage
+- [X] T100 [US5] Extend `src/llmxive/agents/lifecycle.py` with `paper_complete`→`paper_review`→{five outcomes} transitions and the final `paper_accepted`→`posted` transition
+- [X] T101 [US5] Real-call test `tests/real_call/test_paper_review_flow.py` — five fixture papers (one per recommendation type) advance to the expected next stage
 
 **Checkpoint**: All five paper-review routing paths verified.
 
@@ -273,10 +273,10 @@ description: "Task list for the Spec-Kit-per-project agentic pipeline refactor"
 
 ### Implementation for User Story 8
 
-- [ ] T113 [P] [US8] Add a `path-filters.yml` to `.github/` driving `dorny/paths-filter@v3` so the real-call workflow only runs when relevant paths change
-- [ ] T114 [US8] Extend `.github/workflows/llmxive-real-call-tests.yml` (extends T005 skeleton, then T036 wiring; FIX D1) with: prompt-existence check (every prompt referenced by `agents/registry.yaml` exists and parses), Spec Kit script executability check, backend reachability check, then runs `pytest tests/real_call/` (FR-031)
-- [ ] T115 [P] [US8] Add a deliberate-failure smoke test `tests/real_call/test_broken_prompt_fails_fast.py` (gated by env flag `LLMXIVE_DELIBERATE_BREAK=1`, runs locally only) — used to manually verify the CI gate's failure mode
-- [ ] T116 [US8] Document the real-call gate in `quickstart.md` step 9 (already drafted) and surface the gate's pass/fail status in PR descriptions via a CI status check name `llmxive-real-call`
+- [X] T113 [P] [US8] Add a `path-filters.yml` to `.github/` driving `dorny/paths-filter@v3` so the real-call workflow only runs when relevant paths change
+- [X] T114 [US8] Extend `.github/workflows/llmxive-real-call-tests.yml` (extends T005 skeleton, then T036 wiring; FIX D1) with: prompt-existence check (every prompt referenced by `agents/registry.yaml` exists and parses), Spec Kit script executability check, backend reachability check, then runs `pytest tests/real_call/` (FR-031)
+- [X] T115 [P] [US8] Add a deliberate-failure smoke test `tests/real_call/test_broken_prompt_fails_fast.py` (gated by env flag `LLMXIVE_DELIBERATE_BREAK=1`, runs locally only) — used to manually verify the CI gate's failure mode
+- [X] T116 [US8] Document the real-call gate in `quickstart.md` step 9 (already drafted) and surface the gate's pass/fail status in PR descriptions via a CI status check name `llmxive-real-call`
 
 **Checkpoint**: SC-009 verifiable: every relevant PR passes the real-execution gate before merge.
 

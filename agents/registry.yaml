@@ -5,9 +5,10 @@
 # v0.4.0 — US3 research_reviewer added (T065).
 # v0.5.0 — US7 reference_validator added (T109).
 # v0.6.0 — US4 paper-stage agents added (T093).
-# Future versions: T098 (US5), T125 (US9).
+# v0.7.0 — US5 paper_reviewer added (T098).
+# Future versions: T125 (US9).
 
-version: "0.6.0"
+version: "0.7.0"
 
 backends:
   - name: dartmouth
@@ -292,6 +293,19 @@ agents:
     inputs: [paper]
     outputs: [paper]
     prompt_path: agents/prompts/latex_fix.md
+    prompt_version: 1.0.0
+    default_backend: dartmouth
+    fallback_backends: [huggingface]
+    default_model: qwen.qwen3.5-122b
+    wall_clock_budget_seconds: 600
+    paid_opt_in: false
+
+  # Paper-quality review (T098)
+  - name: paper_reviewer
+    purpose: "Read the assembled paper and emit a review record with verdict accept/minor_revision/major_revision_writing/major_revision_science/fundamental_flaws."
+    inputs: [paper]
+    outputs: [review]
+    prompt_path: agents/prompts/paper_reviewer.md
     prompt_version: 1.0.0
     default_backend: dartmouth
     fallback_backends: [huggingface]
