@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 59,
+    "active_projects": 62,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 851,
+    "total_contributions": 854,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 843,
+      "contribution_count": 846,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 38,
+      "contribution_count": 41,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -183,7 +183,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-04-30T21:31:13.541737+00:00",
+  "generated_at": "2026-04-30T22:28:34.067137+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -4931,6 +4931,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Leveraging LLMs to Generate Unit Tests from API Documentation",
       "updated_at": "2026-04-30T21:31:12.776097+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-061-assessing-the-reliability-of-statistical/idea/assessing-the-reliability-of-statistical.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-04-30T22:26:09.850103+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "I need to search for relevant literature on statistical power calculations and their reliability in real-world datasets. <tool_call> <function=lit_search> <parameter=query> statistical power calculation reliability real-world datasets simulation </parameter> <parameter=max_results> 8 </parameter> </function>\u2026",
+      "field": "statistics",
+      "id": "PROJ-061-assessing-the-reliability-of-statistical",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 14.906759,
+          "ended_at": "2026-04-30T22:26:49.855877Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-04-30T22:26:34.949118Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Assessing the Reliability of Statistical Power Calculations in Real-World Datasets",
+      "updated_at": "2026-04-30T22:26:49.857908+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-062-quantifying-the-impact-of-code-ownership/idea/quantifying-the-impact-of-code-ownership.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-04-30T22:26:09.850103+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: computer science Does higher code ownership concentration (fewer owners per module) correlate with lower bug density and code churn in large-scale open-source software projects? Software teams often assume that assigning clear owners to code modules improves stability, yet empirical evidence at scale is\u2026",
+      "field": "computer science",
+      "id": "PROJ-062-quantifying-the-impact-of-code-ownership",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 82.430505,
+          "ended_at": "2026-04-30T22:28:12.410804Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-04-30T22:26:49.980299Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Quantifying the Impact of Code Ownership on Software Quality",
+      "updated_at": "2026-04-30T22:28:12.412725+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-063-computational-screening-of-deep-eutectic/idea/computational-screening-of-deep-eutectic.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-04-30T22:26:09.850103+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry Can quantitative structure-property relationship (QSPR) models trained on publicly available DES component data predict CO2 solubility and viscosity for untested DES mixtures, enabling computational prioritization of candidates for experimental validation? The compositional space of deep eutectic\u2026",
+      "field": "chemistry",
+      "id": "PROJ-063-computational-screening-of-deep-eutectic",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 20.935162,
+          "ended_at": "2026-04-30T22:28:33.468402Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-04-30T22:28:12.533240Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Computational Screening of Deep Eutectic Solvent Mixtures for CO2 Capture",
+      "updated_at": "2026-04-30T22:28:33.470329+00:00"
     }
   ],
   "schema_version": "2.0.0"

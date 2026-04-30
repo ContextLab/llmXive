@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-04-30T22:26:09.850103Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: chemistry
+human_escalation_reason: null
+id: PROJ-063-computational-screening-of-deep-eutectic
+last_run_id: fa754a33-3b63-4ff0-b111-5d7d8b6ebb46
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Computational Screening of Deep Eutectic Solvent Mixtures for CO2 Capture
+updated_at: '2026-04-30T22:28:33.470329Z'
