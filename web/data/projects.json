@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 62,
+    "active_projects": 65,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 854,
+    "total_contributions": 857,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 846,
+      "contribution_count": 849,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 41,
+      "contribution_count": 44,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -183,7 +183,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-04-30T22:33:05.019442+00:00",
+  "generated_at": "2026-04-30T23:28:50.660791+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -5132,6 +5132,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Computational Screening of Deep Eutectic Solvent Mixtures for CO2 Capture",
       "updated_at": "2026-04-30T22:28:33.470329+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-064-statistical-discrepancies-in-publicly-av/idea/statistical-discrepancies-in-publicly-av.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-04-30T23:25:42.774844+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How significant are the statistical discrepancies between reported vote counts at different aggregation levels in publicly available US election datasets, and do these discrepancies deviate from expected random fluctuations? Election data quality is critical for public trust and auditing procedures.\u2026",
+      "field": "statistics",
+      "id": "PROJ-064-statistical-discrepancies-in-publicly-av",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 36.769067,
+          "ended_at": "2026-04-30T23:26:39.467788Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-04-30T23:26:02.698721Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Statistical Discrepancies in Publicly Available Election Data",
+      "updated_at": "2026-04-30T23:26:39.470506+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-065-assessing-the-generalizability-of-statis/idea/assessing-the-generalizability-of-statis.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-04-30T23:25:42.774844+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "I'll flesh out this research idea by first conducting a literature search, then structuring the complete research proposal. ```tool_calls [{\"name\": \"lit_search\", \"arguments\": {\"query\": \"pre-registered studies statistical significance generalizability reproducibility\", \"max_results\": 8}}, {\"name\": \"lit_search\",\u2026",
+      "field": "statistics",
+      "id": "PROJ-065-assessing-the-generalizability-of-statis",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 63.340318,
+          "ended_at": "2026-04-30T23:27:42.996969Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-04-30T23:26:39.656651Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Assessing the Generalizability of Statistical Significance in Pre-Registered Studies",
+      "updated_at": "2026-04-30T23:27:42.999477+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-066-investigating-correlations-between-molec/idea/investigating-correlations-between-molec.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-04-30T23:25:42.774844+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry To what extent do fundamental molecular descriptors (e.g., topological polar surface area, logP, rotatable bonds) predict composite drug-likeness scores (e.g., Lipinski, Veber, Ghose) across diverse chemical scaffolds? Early-stage drug discovery requires rapid filtering of compound libraries to\u2026",
+      "field": "chemistry",
+      "id": "PROJ-066-investigating-correlations-between-molec",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 66.648212,
+          "ended_at": "2026-04-30T23:28:49.832453Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-04-30T23:27:43.184241Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating Correlations Between Molecular Descriptors and Drug-Likeness Scores",
+      "updated_at": "2026-04-30T23:28:49.834996+00:00"
     }
   ],
   "schema_version": "2.0.0"

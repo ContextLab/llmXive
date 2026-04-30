@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-04-30T23:25:42.774844Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: chemistry
+human_escalation_reason: null
+id: PROJ-066-investigating-correlations-between-molec
+last_run_id: 7e0d2dcb-ddd6-4d92-af99-3355ee35ce4c
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Investigating Correlations Between Molecular Descriptors and Drug-Likeness
+  Scores
+updated_at: '2026-04-30T23:28:49.834996Z'
