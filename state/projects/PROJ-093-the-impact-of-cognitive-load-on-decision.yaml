@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-01T14:32:32.010125Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: psychology
+human_escalation_reason: null
+id: PROJ-093-the-impact-of-cognitive-load-on-decision
+last_run_id: a40d7129-706d-429a-92ed-fd903af482fb
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environments
+updated_at: '2026-05-01T14:37:12.718035Z'
