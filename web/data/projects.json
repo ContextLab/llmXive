@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 97,
+    "active_projects": 100,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 899,
+    "total_contributions": 902,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 891,
+      "contribution_count": 894,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 76,
+      "contribution_count": 79,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -183,7 +183,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-01T17:32:11.363263+00:00",
+  "generated_at": "2026-05-01T18:37:06.866475+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -7493,6 +7493,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting Corrosion Rates in Alloys Using Machine Learning on Public Datasets",
       "updated_at": "2026-05-01T17:32:10.307011+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-099-statistical-analysis-of-algorithmic-fair/idea/statistical-analysis-of-algorithmic-fair.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T18:34:03.552787+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics Do systematic patterns exist in the discrepancies between common algorithmic fairness metrics (e.g., demographic parity, equalized odds, predictive parity) across different datasets and model types, and can dataset characteristics predict when these metrics diverge? Algorithmic fairness is\u2026",
+      "field": "statistics",
+      "id": "PROJ-099-statistical-analysis-of-algorithmic-fair",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 37.240773,
+          "ended_at": "2026-05-01T18:34:54.684505Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T18:34:17.443732Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Statistical Analysis of Algorithmic Fairness Metrics",
+      "updated_at": "2026-05-01T18:34:54.687253+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-100-influence-of-microstructural-features-on/idea/influence-of-microstructural-features-on.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T18:34:03.552787+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science How do specific microstructural features (grain size, secondary phase distribution, and dislocation density) quantitatively influence fatigue life in aluminum alloys, and can these features be used to predict fatigue performance using machine learning models trained on public datasets? Fatigue\u2026",
+      "field": "materials science",
+      "id": "PROJ-100-influence-of-microstructural-features-on",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 39.753951,
+          "ended_at": "2026-05-01T18:35:34.672183Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T18:34:54.918232Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Influence of Microstructural Features on Fatigue Life in Aluminum Alloys",
+      "updated_at": "2026-05-01T18:35:34.674719+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-101-quantifying-the-influence-of-initial-con/idea/quantifying-the-influence-of-initial-con.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T18:34:03.552787+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics How does the magnitude of initial condition perturbations quantitatively correlate with the predictability horizon in standard chaotic attractors (e.g., Lorenz, R\u00f6ssler), and can Lyapunov exponent estimates reliably bound this divergence rate? While the \"butterfly effect\" is a well-known property of\u2026",
+      "field": "physics",
+      "id": "PROJ-101-quantifying-the-influence-of-initial-con",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 90.904181,
+          "ended_at": "2026-05-01T18:37:05.811451Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T18:35:34.907270Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Quantifying the Influence of Initial Conditions on Chaotic Systems",
+      "updated_at": "2026-05-01T18:37:05.814012+00:00"
     }
   ],
   "schema_version": "2.0.0"

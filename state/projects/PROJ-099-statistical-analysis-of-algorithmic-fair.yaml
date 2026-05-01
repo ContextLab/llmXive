@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-01T18:34:03.552787Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: statistics
+human_escalation_reason: null
+id: PROJ-099-statistical-analysis-of-algorithmic-fair
+last_run_id: c574584b-035a-46b1-b22c-aa117d9cf709
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Statistical Analysis of Algorithmic Fairness Metrics
+updated_at: '2026-05-01T18:34:54.687253Z'

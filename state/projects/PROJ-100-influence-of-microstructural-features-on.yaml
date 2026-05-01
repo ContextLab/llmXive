@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-01T18:34:03.552787Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: materials science
+human_escalation_reason: null
+id: PROJ-100-influence-of-microstructural-features-on
+last_run_id: f9ca10ca-671c-4917-a1b3-9f754e1a4116
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Influence of Microstructural Features on Fatigue Life in Aluminum Alloys
+updated_at: '2026-05-01T18:35:34.674719Z'
