@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 71,
+    "active_projects": 74,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 863,
+    "total_contributions": 866,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 855,
+      "contribution_count": 858,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 50,
+      "contribution_count": 53,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -183,7 +183,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-01T03:22:43.501455+00:00",
+  "generated_at": "2026-05-01T05:26:27.569945+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -5735,6 +5735,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Predictive Power of Brain Network Metrics for Schizophrenia Diagnosis",
       "updated_at": "2026-05-01T03:19:54.501436+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-073-the-impact-of-linguistic-style-matching-/idea/the-impact-of-linguistic-style-matching-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T05:24:52.081872+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Does quantifiable Linguistic Style Matching (LSM) in text-based communication correlate with perceived rapport between conversation partners? Specifically, which LSM metrics (pronoun synchronization, function-word alignment, sentence complexity) most strongly predict rapport ratings in online\u2026",
+      "field": "psychology",
+      "id": "PROJ-073-the-impact-of-linguistic-style-matching-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 36.154573,
+          "ended_at": "2026-05-01T05:25:42.322468Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T05:25:06.167895Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Linguistic Style Matching on Perceived Rapport in Text-Based Communication",
+      "updated_at": "2026-05-01T05:25:42.324552+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-074-statistical-modeling-of-network-propagat/idea/statistical-modeling-of-network-propagat.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T05:24:52.081872+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How can Bayesian hierarchical models quantify the statistical signatures of misinformation propagation patterns on online social networks, and what network topology and user-susceptibility features most strongly predict cascade size? Misinformation spreads rapidly through social networks, yet current\u2026",
+      "field": "statistics",
+      "id": "PROJ-074-statistical-modeling-of-network-propagat",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 30.495227,
+          "ended_at": "2026-05-01T05:26:12.951803Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T05:25:42.456576Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Statistical Modeling of Network Propagation in Online Misinformation",
+      "updated_at": "2026-05-01T05:26:12.953711+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-075-statistical-bias-in-pre-print-server-pub/idea/statistical-bias-in-pre-print-server-pub.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T05:24:52.081872+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "I'll search for relevant literature on pre-print publication bias and p-value distributions to ground this research idea. ```tool_code lit_search(query=\"pre-print publication bias p-value distribution arXiv bioRxiv\", max_results=10) ``` ```tool_code lit_search(query=\"statistical significance bias preprint peer review\u2026",
+      "field": "statistics",
+      "id": "PROJ-075-statistical-bias-in-pre-print-server-pub",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 13.814013,
+          "ended_at": "2026-05-01T05:26:26.899703Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T05:26:13.085690Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Statistical Bias in Pre-Print Server Publication Trends",
+      "updated_at": "2026-05-01T05:26:26.901586+00:00"
     }
   ],
   "schema_version": "2.0.0"
