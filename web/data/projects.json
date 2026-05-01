@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 80,
+    "active_projects": 83,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 872,
+    "total_contributions": 873,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 864,
+      "contribution_count": 865,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 59,
+      "contribution_count": 62,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -183,7 +183,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-01T09:43:29.557236+00:00",
+  "generated_at": "2026-05-01T10:41:17.763728+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -6338,6 +6338,173 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Relationship Between Plant Secondary Metabolite Profiles and Herbivore Resistance",
       "updated_at": "2026-05-01T09:43:28.576637+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-082-investigating-the-correlation-between-st/idea/investigating-the-correlation-between-st.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T10:38:02.017701+00:00",
+      "current_stage": "brainstormed",
+      "description": "Field: neuroscience Do variations in white matter tract integrity between auditory processing regions and reward/emotional centers (e.g., nucleus accumbens, amygdala) predict individual differences in music preference for complexity and emotional valence? Music preference is a complex phenotype linked to personality\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-082-investigating-the-correlation-between-st",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 181.540302,
+          "ended_at": "2026-05-01T10:41:16.960390Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T10:38:15.420088Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Correlation Between Structural Brain Connectivity and Individual Music Preferences",
+      "updated_at": "2026-05-01T10:38:02.017701+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-083-investigating-the-relationship-between-m/idea/investigating-the-relationship-between-m.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T10:38:02.017701+00:00",
+      "current_stage": "brainstormed",
+      "description": "Field: chemistry This project will investigate whether molecular topology, as quantified by topological indices like the Wiener index or Balaban index, can predict the regioselectivity of electrophilic aromatic substitution reactions. While electronic and steric effects are well-established determinants of reactivity,\u2026",
+      "field": "chemistry",
+      "id": "PROJ-083-investigating-the-relationship-between-m",
+      "keywords": [],
+      "last_run_log": [],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Relationship Between Molecular Topology and Reaction Selectivity",
+      "updated_at": "2026-05-01T10:38:02.017701+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-084-assessing-the-predictive-power-of-machin/idea/assessing-the-predictive-power-of-machin.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T10:38:02.017701+00:00",
+      "current_stage": "brainstormed",
+      "description": "Field: chemistry Can machine learning models accurately predict the yield and selectivity of organic reactions based solely on reactant structures and reaction conditions? This project proposes to train and evaluate several readily available machine learning algorithms (e.g., random forests, support vector machines)\u2026",
+      "field": "chemistry",
+      "id": "PROJ-084-assessing-the-predictive-power-of-machin",
+      "keywords": [],
+      "last_run_log": [],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Assessing the Predictive Power of Machine Learning for Organic Reaction Outcomes",
+      "updated_at": "2026-05-01T10:38:02.017701+00:00"
     }
   ],
   "schema_version": "2.0.0"
