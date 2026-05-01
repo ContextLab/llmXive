@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-01T23:24:29.113850Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: psychology
+human_escalation_reason: null
+id: PROJ-114-the-impact-of-ambient-noise-on-cognitive
+last_run_id: cffb8b51-4922-461f-a76f-a77e46694455
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers
+updated_at: '2026-05-01T23:26:21.931618Z'

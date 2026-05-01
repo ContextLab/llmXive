@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 112,
+    "active_projects": 115,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 922,
+    "total_contributions": 925,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,19 +42,20 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 91,
+      "contribution_count": 94,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
     {
       "areas": [
         "biology",
+        "chemistry",
         "computer science",
         "physics",
         "psychology",
         "statistics"
       ],
-      "contribution_count": 17,
+      "contribution_count": 20,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -195,7 +196,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-01T22:32:36.261095+00:00",
+  "generated_at": "2026-05-01T23:29:11.869795+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -8518,6 +8519,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "The Effect of Anticipated Regret on Choice Deferral",
       "updated_at": "2026-05-01T22:27:58.806828+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/idea/the-impact-of-ambient-noise-on-cognitive.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T23:24:29.113850+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Does ambient noise in home work environments affect cognitive flexibility in remote workers, and if so, how do low, moderate, and high noise levels differ in their impact? Remote work is now a dominant employment model, yet little is known about how everyday home sounds shape higher\u2011order cognition.\u2026",
+      "field": "psychology",
+      "id": "PROJ-114-the-impact-of-ambient-noise-on-cognitive",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 93.179331,
+          "ended_at": "2026-05-01T23:26:21.928929Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-01T23:24:48.749598Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers",
+      "updated_at": "2026-05-01T23:26:21.931618+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-115-exploring-the-connection-between-muon-an/idea/exploring-the-connection-between-muon-an.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T23:24:29.113850+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics Can a minimal leptophilic dark\u2011matter model generate a loop contribution to the muon anomalous magnetic moment that simultaneously resolves the current\u202f(g\u20112)\u202fdiscrepancy and satisfies existing cosmological, direct\u2011detection, and collider bounds? The Fermilab\u202fg\u20112 experiment confirms a \u223c4.2\u202f\u03c3 tension\u2026",
+      "field": "physics",
+      "id": "PROJ-115-exploring-the-connection-between-muon-an",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 83.919566,
+          "ended_at": "2026-05-01T23:27:46.099823Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-01T23:26:22.180257Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Exploring the Connection Between Muon Anomalous Magnetic Dipole Moment and Dark Matter Interactions",
+      "updated_at": "2026-05-01T23:27:46.102347+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-116-predicting-material-stability-using-mach/idea/predicting-material-stability-using-mach.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T23:24:29.113850+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry Can a supervised machine\u2011learning model, trained on publicly available DFT formation\u2011energy data, accurately predict the thermodynamic stability (formation energy and decomposition energy) of inorganic compounds that are not present in the training set? Thermodynamic stability determines whether a\u2026",
+      "field": "chemistry",
+      "id": "PROJ-116-predicting-material-stability-using-mach",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 84.440735,
+          "ended_at": "2026-05-01T23:29:10.790732Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-01T23:27:46.349997Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Material Stability using Machine Learning and DFT Calculations",
+      "updated_at": "2026-05-01T23:29:10.793237+00:00"
     }
   ],
   "schema_version": "2.0.0"

@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-01T23:24:29.113850Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: physics
+human_escalation_reason: null
+id: PROJ-115-exploring-the-connection-between-muon-an
+last_run_id: b49c4345-072f-4294-a7bf-16fed9b5e4c7
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Exploring the Connection Between Muon Anomalous Magnetic Dipole Moment and
+  Dark Matter Interactions
+updated_at: '2026-05-01T23:27:46.102347Z'
