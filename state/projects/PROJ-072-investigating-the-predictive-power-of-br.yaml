@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-01T03:17:55.666659Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: neuroscience
+human_escalation_reason: null
+id: PROJ-072-investigating-the-predictive-power-of-br
+last_run_id: 145aa317-dfa3-4927-a8f7-d5f04fa4b71c
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Investigating the Predictive Power of Brain Network Metrics for Schizophrenia
+  Diagnosis
+updated_at: '2026-05-01T03:19:54.501436Z'
