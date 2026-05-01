@@ -5,7 +5,7 @@
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 908,
+    "total_contributions": 916,
     "total_contributors": 29
   },
   "contributors": [
@@ -45,6 +45,17 @@
       "contribution_count": 85,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
+    },
+    {
+      "areas": [
+        "biology",
+        "physics",
+        "psychology",
+        "statistics"
+      ],
+      "contribution_count": 11,
+      "kind": "llm",
+      "name": "openai.gpt-oss-120b"
     },
     {
       "areas": [
@@ -149,16 +160,6 @@
     },
     {
       "areas": [
-        "physics",
-        "psychology",
-        "statistics"
-      ],
-      "contribution_count": 3,
-      "kind": "llm",
-      "name": "openai.gpt-oss-120b"
-    },
-    {
-      "areas": [
         "agriculture",
         "psychology",
         "statistics"
@@ -193,7 +194,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-01T20:38:57.648346+00:00",
+  "generated_at": "2026-05-01T20:53:01.928618+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -227,6 +228,14 @@
             "specifier",
             "tasker"
           ]
+        },
+        {
+          "contributions": 8,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "implementer"
+          ]
         }
       ],
       "citation_summary": {
@@ -246,6 +255,70 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 55.052496,
+          "ended_at": "2026-05-01T20:53:01.048937Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-01T20:52:05.996441Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 55.730144,
+          "ended_at": "2026-05-01T20:52:05.805515Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-01T20:51:10.075371Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 57.694316,
+          "ended_at": "2026-05-01T20:51:09.882311Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-01T20:50:12.187995Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 57.216428,
+          "ended_at": "2026-05-01T20:50:11.999278Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-01T20:49:14.782850Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 54.364846,
+          "ended_at": "2026-05-01T20:49:14.591072Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-01T20:48:20.226226Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 56.876917,
+          "ended_at": "2026-05-01T20:48:20.033332Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-01T20:47:23.156415Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 55.804237,
+          "ended_at": "2026-05-01T20:47:22.966371Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-01T20:46:27.162134Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 58.058069,
+          "ended_at": "2026-05-01T20:46:26.967996Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-01T20:45:28.909927Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 36.101499,
           "ended_at": "2026-05-01T12:48:33.960066Z",
           "model": "qwen.qwen3.5-122b",
@@ -259,70 +332,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-01T12:47:50.586858Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.896925,
-          "ended_at": "2026-05-01T12:47:50.443427Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-01T12:47:44.546502Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 7.252167,
-          "ended_at": "2026-05-01T12:47:44.399908Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-01T12:47:37.147741Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 21.002975,
-          "ended_at": "2026-05-01T12:47:37.002525Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-01T12:47:15.999550Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.476428,
-          "ended_at": "2026-05-01T12:47:15.854660Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-01T12:47:10.378232Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 11.32893,
-          "ended_at": "2026-05-01T12:47:10.234483Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-01T12:46:58.905553Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 7.247086,
-          "ended_at": "2026-05-01T12:46:58.761989Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-01T12:46:51.514903Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 41.748246,
-          "ended_at": "2026-04-30T20:50:14.620885Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-04-30T20:49:32.872639Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 34.541346,
-          "ended_at": "2026-04-30T20:49:32.745937Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-04-30T20:48:58.204591Z"
         }
       ],
       "phase_group": "research_speckit",
