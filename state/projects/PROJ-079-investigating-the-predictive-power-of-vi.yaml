@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-01T09:41:51.409910Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: biology
+human_escalation_reason: null
+id: PROJ-079-investigating-the-predictive-power-of-vi
+last_run_id: 5a4e8b3e-0912-4a7f-a75e-8d77fe92ba6c
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Investigating the Predictive Power of Viral Sequence Features for Host Immune
+  Response
+updated_at: '2026-05-01T09:42:32.726123Z'

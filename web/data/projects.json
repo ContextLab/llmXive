@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 77,
+    "active_projects": 80,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 869,
+    "total_contributions": 872,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 861,
+      "contribution_count": 864,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 56,
+      "contribution_count": 59,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -183,7 +183,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-01T09:23:47.207507+00:00",
+  "generated_at": "2026-05-01T09:43:29.557236+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -6137,6 +6137,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting Polymer Degradation Pathways with Graph Neural Networks",
       "updated_at": "2026-05-01T08:52:06.205220+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-079-investigating-the-predictive-power-of-vi/idea/investigating-the-predictive-power-of-vi.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T09:41:51.409910+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Can specific features extracted from viral genomic sequences (codon usage bias, repeat sequences, k-mer frequencies, and predicted protein structural properties) predict the magnitude and type of host immune response as measured by transcriptomic data? Understanding the viral sequence determinants of\u2026",
+      "field": "biology",
+      "id": "PROJ-079-investigating-the-predictive-power-of-vi",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 28.46222,
+          "ended_at": "2026-05-01T09:42:32.723367Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T09:42:04.261147Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Predictive Power of Viral Sequence Features for Host Immune Response",
+      "updated_at": "2026-05-01T09:42:32.726123+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-080-phase-transitions-in-amorphous-solids-un/idea/phase-transitions-in-amorphous-solids-un.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T09:41:51.409910+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science What are the precursory structural signatures (e.g., non-affine displacement patterns, shear strain localization) that precede the brittle-to-ductile transition in amorphous solids under shear stress, and can these signatures be used to predict yielding onset in molecular dynamics simulations?",
+      "field": "materials science",
+      "id": "PROJ-080-phase-transitions-in-amorphous-solids-un",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 30.149428,
+          "ended_at": "2026-05-01T09:43:03.079083Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T09:42:32.929655Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Phase Transitions in Amorphous Solids Under Shear Stress",
+      "updated_at": "2026-05-01T09:43:03.081645+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-081-investigating-the-relationship-between-p/idea/investigating-the-relationship-between-p.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T09:41:51.409910+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Do specific secondary metabolite profiles (alkaloids, terpenes, phenolics, benzoxazinoids) predict herbivore resistance levels across plant species? Can metabolite concentration patterns serve as reliable biomarkers for pest defense capacity? Understanding the chemical basis of plant defense against\u2026",
+      "field": "biology",
+      "id": "PROJ-081-investigating-the-relationship-between-p",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 25.282952,
+          "ended_at": "2026-05-01T09:43:28.574099Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T09:43:03.291147Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Relationship Between Plant Secondary Metabolite Profiles and Herbivore Resistance",
+      "updated_at": "2026-05-01T09:43:28.576637+00:00"
     }
   ],
   "schema_version": "2.0.0"
