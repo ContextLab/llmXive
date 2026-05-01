@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-01T19:34:25.302517Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: computer science
+human_escalation_reason: null
+id: PROJ-104-evaluating-the-use-of-llms-for-automated
+last_run_id: 6c5a2c0c-c968-43e5-9eeb-47eccea47193
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Evaluating the Use of LLMs for Automated Documentation Generation from Code
+  Commits
+updated_at: '2026-05-01T19:36:34.412294Z'
