@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 106,
+    "active_projects": 109,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 916,
+    "total_contributions": 919,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,18 +42,19 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 85,
+      "contribution_count": 88,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
     {
       "areas": [
         "biology",
+        "computer science",
         "physics",
         "psychology",
         "statistics"
       ],
-      "contribution_count": 11,
+      "contribution_count": 14,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -194,7 +195,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-01T20:53:01.928618+00:00",
+  "generated_at": "2026-05-01T21:28:11.900943+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -8115,6 +8116,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Quantifying the Effects of Dark Matter Halo Shapes on Galaxy Formation",
       "updated_at": "2026-05-01T20:29:53.251324+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-108-assessing-the-impact-of-code-style-consi/idea/assessing-the-impact-of-code-style-consi.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T21:23:47.107060+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: computer science How does the consistency of coding style within a codebase affect the accuracy of large\u2011language\u2011model (LLM) code\u2011understanding tasks such as code summarization and bug localization? LLM\u2011powered developer tools (e.g., code completion, automated refactoring) assume that the model can parse and\u2026",
+      "field": "computer science",
+      "id": "PROJ-108-assessing-the-impact-of-code-style-consi",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 79.920615,
+          "ended_at": "2026-05-01T21:25:30.869167Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-01T21:24:10.948552Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Assessing the Impact of Code Style Consistency on LLM Code Understanding",
+      "updated_at": "2026-05-01T21:25:30.871845+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-109-investigating-the-statistical-properties/idea/investigating-the-statistical-properties.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T21:23:47.107060+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics Do the distributions of halo shape, spin parameter, and concentration index in publicly available cosmological simulations (e.g., IllustrisTNG, Millennium) systematically deviate from the predictions of the Navarro\u2011Frenk\u2011White (NFW) framework, and how do any such deviations depend on halo mass and\u2026",
+      "field": "physics",
+      "id": "PROJ-109-investigating-the-statistical-properties",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 82.407753,
+          "ended_at": "2026-05-01T21:26:53.523077Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-01T21:25:31.115324Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Statistical Properties of Simulated Dark Matter Halos",
+      "updated_at": "2026-05-01T21:26:53.525588+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-110-investigating-the-correlation-between-ci/idea/investigating-the-correlation-between-ci.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T21:23:47.107060+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Do expression levels of core circadian genes (e.g., *PER1*, *BMAL1*, *CLOCK*) correlate with the presence or severity of metabolic syndrome in human tissue samples? Metabolic syndrome (obesity, hypertension, dyslipidemia, insulin resistance) is a major public\u2011health burden, and circadian disruption is\u2026",
+      "field": "biology",
+      "id": "PROJ-110-investigating-the-correlation-between-ci",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 77.064542,
+          "ended_at": "2026-05-01T21:28:10.832359Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-01T21:26:53.767817Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Correlation Between Circadian Gene Expression and Metabolic Syndrome Risk",
+      "updated_at": "2026-05-01T21:28:10.834850+00:00"
     }
   ],
   "schema_version": "2.0.0"
