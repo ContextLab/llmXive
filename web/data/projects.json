@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 65,
+    "active_projects": 68,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 857,
+    "total_contributions": 860,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 849,
+      "contribution_count": 852,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 44,
+      "contribution_count": 47,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -183,7 +183,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-01T00:32:00.213500+00:00",
+  "generated_at": "2026-05-01T01:13:49.548928+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -5333,6 +5333,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating Correlations Between Molecular Descriptors and Drug-Likeness Scores",
       "updated_at": "2026-04-30T23:28:49.834996+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-067-exploring-the-relationship-between-brain/idea/exploring-the-relationship-between-brain.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T01:06:19.152232+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: neuroscience Do individual differences in resting-state dynamic functional connectivity (specifically network flexibility and stability) predict self-reported dream recall frequency? Dream recall frequency varies widely across individuals, yet the neural mechanisms driving this variability are poorly\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-067-exploring-the-relationship-between-brain",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 226.726551,
+          "ended_at": "2026-05-01T01:10:34.332903Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T01:06:47.606352Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Exploring the Relationship Between Brain Network Dynamics and Individual Differences in Dream Recall Frequency",
+      "updated_at": "2026-05-01T01:10:34.335676+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-068-evaluating-the-performance-of-different-/idea/evaluating-the-performance-of-different-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T01:06:19.152232+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: computer science How do underlying data structures (native arrays, dynamic vectors, and specialized bitsets) affect the memory overhead and operation latency of Bloom filters across varying dataset sizes? Bloom filters are critical for memory-constrained applications like networking and databases, yet\u2026",
+      "field": "computer science",
+      "id": "PROJ-068-evaluating-the-performance-of-different-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 153.91787,
+          "ended_at": "2026-05-01T01:13:08.439123Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T01:10:34.521253Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Performance of Different Data Structures in Implementing Bloom Filters",
+      "updated_at": "2026-05-01T01:13:08.441611+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-069-statistical-analysis-of-sentiment-drift-/idea/statistical-analysis-of-sentiment-drift-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T01:06:19.152232+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics Does public sentiment on social media systematically shift during economic recessions, and if so, does sentiment drift lead or lag key economic indicators such as GDP growth and unemployment rates? Understanding the psychological impact of economic instability is critical for both policy-making and\u2026",
+      "field": "statistics",
+      "id": "PROJ-069-statistical-analysis-of-sentiment-drift-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 40.094542,
+          "ended_at": "2026-05-01T01:13:48.723248Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T01:13:08.628706Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions",
+      "updated_at": "2026-05-01T01:13:48.725731+00:00"
     }
   ],
   "schema_version": "2.0.0"
