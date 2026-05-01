@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 74,
+    "active_projects": 77,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 866,
+    "total_contributions": 869,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 858,
+      "contribution_count": 861,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 53,
+      "contribution_count": 56,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -183,7 +183,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-01T07:10:52.049299+00:00",
+  "generated_at": "2026-05-01T08:52:07.142925+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -5936,6 +5936,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Statistical Bias in Pre-Print Server Publication Trends",
       "updated_at": "2026-05-01T05:26:26.901586+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-076-assessing-the-validity-of-modified-newto/idea/assessing-the-validity-of-modified-newto.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T08:49:37.748390+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics Can Modified Newtonian Dynamics (MOND) predict observed galaxy rotational velocities as accurately as or better than dark matter halo models when fitted to publicly available rotation curve data from the SPARC database? Galaxy rotation curves remain one of the strongest observational challenges to the\u2026",
+      "field": "physics",
+      "id": "PROJ-076-assessing-the-validity-of-modified-newto",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 38.607327,
+          "ended_at": "2026-05-01T08:50:30.138206Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T08:49:51.530879Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Assessing the Validity of Modified Newtonian Dynamics (MOND) with Galaxy Rotation Curves",
+      "updated_at": "2026-05-01T08:50:30.140912+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-077-investigating-the-correlation-between-gu/idea/investigating-the-correlation-between-gu.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T08:49:37.748390+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Is there a statistically significant correlation between gut microbiome alpha and beta diversity metrics and fluid intelligence scores in the UK Biobank population, after controlling for age, sex, and diet? The gut-brain axis is a growing field, but large-scale population evidence linking microbiome\u2026",
+      "field": "biology",
+      "id": "PROJ-077-investigating-the-correlation-between-gu",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 70.008103,
+          "ended_at": "2026-05-01T08:51:40.349800Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T08:50:30.341697Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Correlation Between Gut Microbiome Diversity and Cognitive Performance Using UK Biobank Data",
+      "updated_at": "2026-05-01T08:51:40.352305+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-078-predicting-polymer-degradation-pathways-/idea/predicting-polymer-degradation-pathways-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T08:49:37.748390+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry Can graph neural networks trained on publicly available polymer degradation data predict the dominant degradation products of polyesters under specific environmental conditions (temperature, pH, UV exposure), and which molecular structural motifs most strongly correlate with particular degradation\u2026",
+      "field": "chemistry",
+      "id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 25.650477,
+          "ended_at": "2026-05-01T08:52:06.202734Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T08:51:40.552257Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Polymer Degradation Pathways with Graph Neural Networks",
+      "updated_at": "2026-05-01T08:52:06.205220+00:00"
     }
   ],
   "schema_version": "2.0.0"

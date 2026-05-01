@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-01T08:49:37.748390Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: physics
+human_escalation_reason: null
+id: PROJ-076-assessing-the-validity-of-modified-newto
+last_run_id: 5f51e45c-4559-4792-a0b8-ce7c6c12bd2e
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Assessing the Validity of Modified Newtonian Dynamics (MOND) with Galaxy Rotation
+  Curves
+updated_at: '2026-05-01T08:50:30.140912Z'
