@@ -91,8 +91,17 @@ class PaperReviewerAgent(Agent):
         return repo / "projects" / ctx.project_id
 
     def _paper_feature_dir(self, project_dir: Path) -> Path | None:
+        # Prefer the dir that actually has tasks.md, then spec.md.
         candidates = sorted((project_dir / "paper").glob("specs/*/"))
-        return candidates[0] if candidates else None
+        if not candidates:
+            return None
+        for c in candidates:
+            if (c / "tasks.md").exists():
+                return c
+        for c in candidates:
+            if (c / "spec.md").exists():
+                return c
+        return candidates[0]
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
         repo = Path(__file__).resolve().parent.parent.parent.parent

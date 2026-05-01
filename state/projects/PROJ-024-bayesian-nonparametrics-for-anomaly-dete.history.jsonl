@@ -14,3 +14,6 @@
 {"at": "2026-04-30T18:02:27.680238+00:00", "from_stage": "research_minor_revision", "last_run_id": "67f5f844-8342-4076-b1e3-2faa5cacb39e", "to_stage": "tasked"}
 {"at": "2026-04-30T18:23:55.324858+00:00", "from_stage": "tasked", "last_run_id": "efec4843-51d7-4c13-8c4e-2071056cf4e8", "to_stage": "analyzed"}
 {"at": "2026-04-30T18:25:10.858026+00:00", "from_stage": "analyzed", "last_run_id": "afdfdd61-a00d-4fcd-b056-777ecce1b49c", "to_stage": "in_progress"}
+{"at": "2026-05-01T15:34:26.581652+00:00", "from_stage": "in_progress", "last_run_id": "f8b567b1-149c-430d-84d7-e3fb13d10474", "to_stage": "research_complete"}
+{"at": "2026-05-01T15:37:40.384845+00:00", "from_stage": "research_complete", "last_run_id": "8002d6c1-e68b-4dae-87d3-6283989dbbb7", "to_stage": "research_minor_revision"}
+{"at": "2026-05-01T15:37:40.387619+00:00", "from_stage": "research_minor_revision", "last_run_id": "8002d6c1-e68b-4dae-87d3-6283989dbbb7", "to_stage": "tasked"}

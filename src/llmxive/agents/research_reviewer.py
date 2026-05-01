@@ -73,8 +73,19 @@ class ResearchReviewerAgent(Agent):
         return repo / "projects" / ctx.project_id
 
     def _feature_dir(self, project_dir: Path) -> Path | None:
+        # Prefer the dir that actually has tasks.md, then spec.md.
+        # Pure alphabetical sort can pick a ghost dir created when an
+        # earlier LLM run wrote artifacts to an invented slug.
         candidates = sorted(project_dir.glob("specs/*/"))
-        return candidates[0] if candidates else None
+        if not candidates:
+            return None
+        for c in candidates:
+            if (c / "tasks.md").exists():
+                return c
+        for c in candidates:
+            if (c / "spec.md").exists():
+                return c
+        return candidates[0]
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
         repo = Path(__file__).resolve().parent.parent.parent.parent

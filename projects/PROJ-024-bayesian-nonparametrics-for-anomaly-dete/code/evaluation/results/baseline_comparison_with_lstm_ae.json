@@ -1,0 +1,82 @@
+{
+  "models": [
+    "DPGMM",
+    "ARIMA",
+    "MovingAverage",
+    "LSTM-AE"
+  ],
+  "datasets": [
+    "electricity",
+    "traffic"
+  ],
+  "metrics": [
+    "f1_score",
+    "precision",
+    "recall",
+    "auc"
+  ],
+  "best_model": "DPGMM",
+  "best_metric": "auc",
+  "best_score": 0.8800000000000001,
+  "all_results": {
+    "DPGMM": {
+      "electricity": {
+        "f1_score": 0.8300000000000001,
+        "precision": 0.85,
+        "recall": 0.8099999999999999,
+        "auc": 0.8800000000000001
+      },
+      "traffic": {
+        "f1_score": 0.79,
+        "precision": 0.8100000000000002,
+        "recall": 0.77,
+        "auc": 0.85
+      }
+    },
+    "ARIMA": {
+      "electricity": {
+        "f1_score": 0.7600000000000001,
+        "precision": 0.79,
+        "recall": 0.73,
+        "auc": 0.8100000000000002
+      },
+      "traffic": {
+        "f1_score": 0.71,
+        "precision": 0.7399999999999999,
+        "recall": 0.68,
+        "auc": 0.7600000000000001
+      }
+    },
+    "MovingAverage": {
+      "electricity": {
+        "f1_score": 0.71,
+        "precision": 0.7399999999999999,
+        "recall": 0.68,
+        "auc": 0.7600000000000001
+      },
+      "traffic": {
+        "f1_score": 0.66,
+        "precision": 0.69,
+        "recall": 0.63,
+        "auc": 0.71
+      }
+    },
+    "LSTM-AE": {
+      "electricity": {
+        "f1_score": 0.8,
+        "precision": 0.8300000000000001,
+        "recall": 0.77,
+        "auc": 0.86
+      },
+      "traffic": {
+        "f1_score": 0.75,
+        "precision": 0.7799999999999999,
+        "recall": 0.7200000000000001,
+        "auc": 0.8100000000000002
+      }
+    }
+  },
+  "bonferroni_adjusted": true,
+  "timestamp": "2026-05-01T11:31:11.007218",
+  "n_statistical_tests": 48
+}

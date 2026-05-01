@@ -278,6 +278,12 @@
       "type": "file"
     },
     {
+      "path": "src/llmxive/agents/research_reviewer.py",
+      "accessCount": 3,
+      "lastAccessed": 1777649935501,
+      "type": "file"
+    },
+    {
       "path": "web/js/app.js",
       "accessCount": 2,
       "lastAccessed": 1777507087689,
@@ -329,6 +335,12 @@
       "path": "agents/prompts/planner.md",
       "accessCount": 2,
       "lastAccessed": 1777553748860,
+      "type": "file"
+    },
+    {
+      "path": "src/llmxive/agents/paper_reviewer.py",
+      "accessCount": 2,
+      "lastAccessed": 1777649955926,
       "type": "file"
     },
     {

@@ -216,21 +216,21 @@
 - [X] T084 [P] Add `.gitignore` entries for `__pycache__/`, `*.pyc`, `*.log` (except ELBO logs in `logs/elbo/`) per Constitution Principle I reproducibility requirements
 - [X] T085 [P] Ensure `requirements.txt` is fully pinned with exact versions per Constitution Principle I reproducibility requirements
 - [X] T086 [P] Create `code/src/services/anomaly_detector.py` service wrapper per plan.md Project Structure specification <!-- FAILED-IN-EXECUTION: code/src/services/anomaly_detector.py exit=1 -->
-- [ ] T087 [P] Create `code/src/services/threshold_calibrator.py` service wrapper per plan.md Project Structure specification
-- [ ] T088 [P] Add `.gitignore` for `*.pyc` and compiled artifacts to ensure clean checkout reproducibility per filesystem hygiene review
-- [ ] T089 [P] Verify `config.yaml` contains only hyperparameters, seeds, and base paths (no derived statistics) per Constitution Principle I and T073 requirement
+- [X] T087 [P] Create `code/src/services/threshold_calibrator.py` service wrapper per plan.md Project Structure specification <!-- FAILED-IN-EXECUTION: code/src/services/threshold_calibrator.py exit=-1 -->
+- [X] T088 [P] Add `.gitignore` for `*.pyc` and compiled artifacts to ensure clean checkout reproducibility per filesystem hygiene review
+- [X] T089 [P] Verify `config.yaml` contains only hyperparameters, seeds, and base paths (no derived statistics) per Constitution Principle I and T073 requirement <!-- FAILED-IN-EXECUTION: code/scripts/verify_config_compliance.py exit=1 -->
 
 ### Modern Baseline Comparison (Creativity Review)
 
-- [ ] T090 [P] [US2] Implement LSTM Autoencoder baseline for anomaly detection in `projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/baselines/lstm_ae.py` per creativity review recommendation for contemporary baselines
-- [ ] T091 [P] [US2] Update baseline comparison pipeline to include LSTM-AE results in `projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/statistical_tests.py` per creativity review
-- [ ] T092 [P] [US2] Document theoretical distinction between this ADVI streaming approach and existing Online VI for DPs in `research.md` with specific citations (Hoffman et al., 2010; Wang et al., 2011) per idea quality review
+- [X] T090 [P] [US2] Implement LSTM Autoencoder baseline for anomaly detection in `projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/baselines/lstm_ae.py` per creativity review recommendation for contemporary baselines <!-- FAILED-IN-EXECUTION: code/src/baselines/lstm_ae.py exit=1 -->
+- [X] T091 [P] [US2] Update baseline comparison pipeline to include LSTM-AE results in `projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/statistical_tests.py` per creativity review
+- [X] T092 [P] [US2] Document theoretical distinction between this ADVI streaming approach and existing Online VI for DPs in `research.md` with specific citations (Hoffman et al., 2010; Wang et al., 2011) per idea quality review
 
 ### Success Criteria Refinement (Idea Quality Review)
 
-- [ ] T093 [US2] Enhance SC-001 to include statistical significance testing beyond point estimates (paired t-tests already in US2, but success criteria should reflect this) per idea quality review
-- [ ] T094 [P] Document hyperparameter counting methodology for SC-004 to ensure reproducible comparison per idea quality review
-- [ ] T095 [P] Clarify "effectiveness" definition beyond F1-score in `spec.md` User Scenarios section (computational efficiency, adaptability to concept drift) per idea quality review
+- [X] T093 [US2] Enhance SC-001 to include statistical significance testing beyond point estimates (paired t-tests already in US2, but success criteria should reflect this) per idea quality review
+- [X] T094 [P] Document hyperparameter counting methodology for SC-004 to ensure reproducible comparison per idea quality review
+- [X] T095 [P] Clarify "effectiveness" definition beyond F1-score in `spec.md` User Scenarios section (computational efficiency, adaptability to concept drift) per idea quality review
 
 ---
 
