@@ -27,15 +27,18 @@ We expect to find a positive correlation between structural connectivity strengt
 
 ## Methodology sketch
 
-- **Data Acquisition**: Access diffusion MRI (dMRI) and behavioral data from the Human Connectome Project (HCP). *Note: Full HCP data exceeds GHA storage limits (14GB SSD); this step is currently infeasible on free-tier runners without significant downscaling or proxy data.*
-- **Preprocessing**: Run FSL `eddy` and `dtifit` for diffusion correction and tensor fitting (requires >7GB RAM, may exceed runner limits).
-- **Connectivity Mapping**: Generate structural connectivity matrices (tractography) between auditory cortex, nucleus accumbens, and amygdala.
-- **Behavioral Alignment**: Map music preference survey scores to participant IDs (HCP does not contain standard music preference scales; external survey integration required).
-- **Statistical Analysis**: Perform Pearson correlation and linear regression between connectivity metrics and preference scores.
-- **Feasibility Note**: Due to GHA constraints (14GB SSD, 7GB RAM, 6h limit), full dMRI processing is out of scope. A feasible alternative would require a smaller public dataset (e.g., OpenNeuro fMRI subset) or simulation of connectivity parameters based on literature values.
+- **Data Acquisition**: Access diffusion MRI (dMRI) and behavioral data from the Human Connectome Project (HCP) or OpenNeuro (ds000224) — download via `wget`/`curl` using public API; note HCP full dataset exceeds 14GB SSD limit.
+- **Data Filtering**: Select subset of N≤50 participants with complete dMRI and available behavioral measures to fit within 14GB storage.
+- **Preprocessing**: Run FSL `eddy` and `dtifit` for diffusion correction and tensor fitting; monitor RAM usage to stay within 7GB limit (may require downsampling resolution).
+- **Connectivity Mapping**: Generate structural connectivity matrices (tractography) between auditory cortex, nucleus accumbens, and amygdala using MRtrix3 or FSL `probtrackx`.
+- **Behavioral Alignment**: Map music preference survey scores to participant IDs; if HCP lacks standard music preference scales, integrate external survey data from OpenNeuro or use simulated preference scores based on literature distributions.
+- **Statistical Analysis**: Perform Pearson correlation and linear regression between connectivity metrics (FA, MD) and preference scores using Python `scipy.stats`.
+- **Validation**: Apply Bonferroni correction for multiple comparisons; report effect sizes (Cohen's r) alongside p-values.
+- **Output Generation**: Produce figures (correlation plots, tractography visualizations) using Matplotlib; save to 500MB max to stay within SSD limits.
+- **Contingency**: If dMRI processing exceeds 6h runtime, switch to meta-analysis of existing connectivity-preference correlations from published literature instead.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None provided.
 - Closest match: N/A.
-- Verdict: rejected — out of scope (Data size and availability exceed GitHub Actions free-tier constraints).
+- Verdict: rejected — out of scope (Full dMRI processing requires >7GB RAM and >14GB storage; HCP data exceeds GHA free-tier limits even with downscaling. Meta-analysis alternative proposed but requires additional literature search.)
