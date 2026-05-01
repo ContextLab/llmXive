@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-01T20:25:50.963872Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: physics
+human_escalation_reason: null
+id: PROJ-107-quantifying-the-effects-of-dark-matter-h
+last_run_id: af99f5a0-4984-4a3f-85f4-cf735fd8f3ed
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Quantifying the Effects of Dark Matter Halo Shapes on Galaxy Formation
+updated_at: '2026-05-01T20:29:53.251324Z'
