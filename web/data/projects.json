@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 95,
+    "active_projects": 97,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 897,
+    "total_contributions": 899,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 889,
+      "contribution_count": 891,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 74,
+      "contribution_count": 76,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -183,7 +183,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-01T17:12:54.063973+00:00",
+  "generated_at": "2026-05-01T17:32:11.363263+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -7359,6 +7359,140 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Exploring the Role of Network Topology on Synchronization in Coupled Oscillators",
       "updated_at": "2026-05-01T15:31:58.457727+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-097-predicting-corrosion-rates-of-common-met/idea/predicting-corrosion-rates-of-common-met.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T17:28:38.227887+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry Can machine learning regression models accurately predict corrosion rates of common metals (e.g., steel, aluminum, copper) using publicly available environmental and material property datasets? Corrosion causes billions in annual infrastructure damage, yet traditional measurement methods are slow and\u2026",
+      "field": "chemistry",
+      "id": "PROJ-097-predicting-corrosion-rates-of-common-met",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 78.807001,
+          "ended_at": "2026-05-01T17:30:27.565184Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T17:29:08.758183Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Databases",
+      "updated_at": "2026-05-01T17:30:27.567987+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-098-predicting-corrosion-rates-in-alloys-usi/idea/predicting-corrosion-rates-in-alloys-usi.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T17:28:38.227887+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science Can supervised machine learning models accurately predict the corrosion rates of common alloys using only their chemical composition and environmental parameters (temperature, pH, chloride concentration) available in public repositories? Experimental corrosion testing is resource-intensive,\u2026",
+      "field": "materials science",
+      "id": "PROJ-098-predicting-corrosion-rates-in-alloys-usi",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 102.504837,
+          "ended_at": "2026-05-01T17:32:10.304343Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T17:30:27.799506Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Corrosion Rates in Alloys Using Machine Learning on Public Datasets",
+      "updated_at": "2026-05-01T17:32:10.307011+00:00"
     }
   ],
   "schema_version": "2.0.0"
