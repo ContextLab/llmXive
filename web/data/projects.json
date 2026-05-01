@@ -5,7 +5,7 @@
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 874,
+    "total_contributions": 877,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 866,
+      "contribution_count": 869,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -183,7 +183,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-01T10:44:56.353821+00:00",
+  "generated_at": "2026-05-01T11:35:21.994216+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -6359,7 +6359,7 @@
       },
       "authors": [
         {
-          "contributions": 2,
+          "contributions": 3,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -6382,12 +6382,20 @@
         "verified": 0
       },
       "created_at": "2026-05-01T10:38:02.017701+00:00",
-      "current_stage": "brainstormed",
-      "description": "Field: neuroscience Do variations in white matter tract integrity between auditory processing regions and reward/emotional centers (e.g., nucleus accumbens, amygdala) predict individual differences in music preference for complexity and emotional valence? Music preference is a complex phenotype linked to personality\u2026",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: neuroscience Do variations in white matter tract integrity between auditory processing regions and reward/emotional centers predict individual differences in music preference for complexity and emotional valence? Music preference is a complex phenotype linked to personality and emotion regulation, yet its\u2026",
       "field": "neuroscience",
       "id": "PROJ-082-investigating-the-correlation-between-st",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 31.313514,
+          "ended_at": "2026-05-01T11:31:58.428432Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T11:31:27.114918Z"
+        },
         {
           "agent": "flesh_out",
           "duration_s": 32.41618,
@@ -6412,7 +6420,7 @@
       "speckit_research_dir": null,
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Correlation Between Structural Brain Connectivity and Individual Music Preferences",
-      "updated_at": "2026-05-01T10:38:02.017701+00:00"
+      "updated_at": "2026-05-01T11:31:58.430843+00:00"
     },
     {
       "artifact_links": {
@@ -6440,6 +6448,14 @@
           "roles": [
             "brainstorm_submitter"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
         }
       ],
       "citation_summary": {
@@ -6449,12 +6465,21 @@
         "verified": 0
       },
       "created_at": "2026-05-01T10:38:02.017701+00:00",
-      "current_stage": "brainstormed",
-      "description": "Field: chemistry This project will investigate whether molecular topology, as quantified by topological indices like the Wiener index or Balaban index, can predict the regioselectivity of electrophilic aromatic substitution reactions. While electronic and steric effects are well-established determinants of reactivity,\u2026",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry Can topological indices (e.g., Wiener, Balaban) quantitatively predict regioselectivity outcomes in electrophilic aromatic substitution reactions? Existing models rely heavily on electronic descriptors (HOMO/LUMO) and steric bulk to predict reactivity. Global molecular topology offers a complementary,\u2026",
       "field": "chemistry",
       "id": "PROJ-083-investigating-the-relationship-between-m",
       "keywords": [],
-      "last_run_log": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 58.803299,
+          "ended_at": "2026-05-01T11:32:57.411462Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T11:31:58.608163Z"
+        }
+      ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
@@ -6462,7 +6487,7 @@
       "speckit_research_dir": null,
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Relationship Between Molecular Topology and Reaction Selectivity",
-      "updated_at": "2026-05-01T10:38:02.017701+00:00"
+      "updated_at": "2026-05-01T11:32:57.413673+00:00"
     },
     {
       "artifact_links": {
@@ -6490,6 +6515,14 @@
           "roles": [
             "brainstorm_submitter"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
         }
       ],
       "citation_summary": {
@@ -6499,12 +6532,21 @@
         "verified": 0
       },
       "created_at": "2026-05-01T10:38:02.017701+00:00",
-      "current_stage": "brainstormed",
-      "description": "Field: chemistry Can machine learning models accurately predict the yield and selectivity of organic reactions based solely on reactant structures and reaction conditions? This project proposes to train and evaluate several readily available machine learning algorithms (e.g., random forests, support vector machines)\u2026",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry Can classical machine learning models (e.g., Random Forests, SVMs) trained on molecular fingerprints accurately predict organic reaction yields and selectivity without requiring deep learning infrastructure? Experimental screening of reaction conditions is resource-intensive and slow. Establishing a\u2026",
       "field": "chemistry",
       "id": "PROJ-084-assessing-the-predictive-power-of-machin",
       "keywords": [],
-      "last_run_log": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 143.591457,
+          "ended_at": "2026-05-01T11:35:21.179800Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-01T11:32:57.588343Z"
+        }
+      ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
@@ -6512,7 +6554,7 @@
       "speckit_research_dir": null,
       "submitter": "google.gemma-3-27b-it",
       "title": "Assessing the Predictive Power of Machine Learning for Organic Reaction Outcomes",
-      "updated_at": "2026-05-01T10:38:02.017701+00:00"
+      "updated_at": "2026-05-01T11:35:21.182046+00:00"
     }
   ],
   "schema_version": "2.0.0"
