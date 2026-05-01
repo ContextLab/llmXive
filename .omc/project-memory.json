@@ -230,6 +230,12 @@
       "type": "file"
     },
     {
+      "path": "src/llmxive/backends/dartmouth.py",
+      "accessCount": 8,
+      "lastAccessed": 1777655290218,
+      "type": "file"
+    },
+    {
       "path": "src/llmxive/backends/router.py",
       "accessCount": 7,
       "lastAccessed": 1777580735131,
@@ -248,12 +254,6 @@
       "type": "file"
     },
     {
-      "path": "src/llmxive/backends/dartmouth.py",
-      "accessCount": 5,
-      "lastAccessed": 1777568545425,
-      "type": "file"
-    },
-    {
       "path": "src/llmxive/speckit/clarify_cmd.py",
       "accessCount": 4,
       "lastAccessed": 1777521873355,
@@ -267,8 +267,8 @@
     },
     {
       "path": "src/llmxive/pipeline/graph.py",
-      "accessCount": 3,
-      "lastAccessed": 1777509925351,
+      "accessCount": 4,
+      "lastAccessed": 1777652146434,
       "type": "file"
     },
     {

@@ -61,7 +61,25 @@ class DartmouthBackend(BaseBackend):
             raise PermanentBackendError(
                 "langchain-dartmouth is not installed; pip install -e ."
             ) from exc
-        return ChatDartmouth(model_name=model)
+        # 10 min per-request timeout. Reasoning models like
+        # qwen.qwen3.5-122b can legitimately take 2-5 min on big
+        # 32K-token completions, but anything past 10 min is a
+        # hung connection. Without this the implementer can sit on
+        # a single LLM call for 50+ min holding the project lock.
+        # ChatDartmouth.__init__ doesn't expose `timeout` directly
+        # but accepts it via model_kwargs (it forwards to the
+        # underlying ChatOpenAI which DOES have a timeout field).
+        # Suppress the noisy "should be specified explicitly"
+        # warning since this is the intended escape hatch.
+        import warnings as _warnings
+
+        with _warnings.catch_warnings():
+            _warnings.filterwarnings(
+                "ignore", message=r".*Parameters \{'timeout'\}.*"
+            )
+            return ChatDartmouth(
+                model_name=model, model_kwargs={"timeout": 600}
+            )
 
     def list_models(self) -> list[str]:
         try:

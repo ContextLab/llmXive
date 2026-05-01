@@ -17,3 +17,10 @@
 {"at": "2026-05-01T15:34:26.581652+00:00", "from_stage": "in_progress", "last_run_id": "f8b567b1-149c-430d-84d7-e3fb13d10474", "to_stage": "research_complete"}
 {"at": "2026-05-01T15:37:40.384845+00:00", "from_stage": "research_complete", "last_run_id": "8002d6c1-e68b-4dae-87d3-6283989dbbb7", "to_stage": "research_minor_revision"}
 {"at": "2026-05-01T15:37:40.387619+00:00", "from_stage": "research_minor_revision", "last_run_id": "8002d6c1-e68b-4dae-87d3-6283989dbbb7", "to_stage": "tasked"}
+{"at": "2026-05-01T16:13:52.787984+00:00", "from_stage": "tasked", "last_run_id": "d87bab89-1afe-449f-a08b-364882aa01ed", "to_stage": "analyzed"}
+{"at": "2026-05-01T16:16:00.507762+00:00", "from_stage": "analyzed", "last_run_id": "1421dedf-7e80-481e-b29f-2896df60169f", "to_stage": "in_progress"}
+{"at": "2026-05-01T16:16:05.275650+00:00", "from_stage": "in_progress", "last_run_id": "f28ca8c4-c0c0-4fdf-8da6-4469841e9875", "to_stage": "research_complete"}
+{"at": "2026-05-01T16:20:19.820780+00:00", "from_stage": "research_complete", "last_run_id": "9d8f66c4-a59c-4152-a1ff-0ad4a6ee613f", "to_stage": "research_minor_revision"}
+{"at": "2026-05-01T16:20:19.822885+00:00", "from_stage": "research_minor_revision", "last_run_id": "9d8f66c4-a59c-4152-a1ff-0ad4a6ee613f", "to_stage": "tasked"}
+{"at": "2026-05-01T17:05:39.750711+00:00", "from_stage": "tasked", "last_run_id": "14f884ad-7d99-491f-960f-6da36d5dba41", "to_stage": "analyzed"}
+{"at": "2026-05-01T17:06:56.688358+00:00", "from_stage": "analyzed", "last_run_id": "e63769a4-3d56-4fa3-a2cb-0b7509782d28", "to_stage": "in_progress"}

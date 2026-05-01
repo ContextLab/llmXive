@@ -396,7 +396,14 @@ def _decide_next_stage(
 
     cur = project.current_stage
     # Implementer special-case: stay in_progress until all tasks done.
-    if cur in {Stage.ANALYZED, Stage.IN_PROGRESS}:
+    if cur == Stage.ANALYZED:
+        # Lifecycle requires ANALYZED → IN_PROGRESS first; only then
+        # IN_PROGRESS → RESEARCH_COMPLETE. If all tasks already done
+        # (e.g. revision cycle came back with everything still
+        # checked off), advance to IN_PROGRESS this tick and let the
+        # next tick observe IN_PROGRESS + all-tasks-done → RESEARCH_COMPLETE.
+        return Stage.IN_PROGRESS
+    if cur == Stage.IN_PROGRESS:
         if _all_tasks_done(project_dir):
             return Stage.RESEARCH_COMPLETE
         return Stage.IN_PROGRESS
