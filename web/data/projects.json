@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 109,
+    "active_projects": 112,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 919,
+    "total_contributions": 922,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 88,
+      "contribution_count": 91,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -54,7 +54,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 14,
+      "contribution_count": 17,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -195,7 +195,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-01T21:28:11.900943+00:00",
+  "generated_at": "2026-05-01T22:27:59.841186+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -8317,6 +8317,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Correlation Between Circadian Gene Expression and Metabolic Syndrome Risk",
       "updated_at": "2026-05-01T21:28:10.834850+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-111-exploring-the-potential-for-machine-lear/idea/exploring-the-potential-for-machine-lear.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T22:24:01.690391+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics Can a neural network trained on Monte\u2011Carlo simulation data of isotropic spin models detect and locate subtle phase transitions by analysing changes in its internal representations, without explicit order\u2011parameter definitions? Traditional identification of phase transitions relies on predefined order\u2026",
+      "field": "physics",
+      "id": "PROJ-111-exploring-the-potential-for-machine-lear",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 76.178697,
+          "ended_at": "2026-05-01T22:25:35.284693Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-01T22:24:19.105996Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Exploring the Potential for Machine Learning to Identify Novel Phase Transitions in Isotropic Systems",
+      "updated_at": "2026-05-01T22:25:35.286777+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-112-investigating-the-correlation-between-di/idea/investigating-the-correlation-between-di.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T22:24:01.690391+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Do variations in self\u2011reported dietary fiber intake associate with distinct gut microbiome composition, and which bacterial taxa are consistently enriched or depleted in high\u2011 versus low\u2011fiber consumers? Understanding how dietary fiber shapes the gut microbiome can reveal mechanisms linking diet to\u2026",
+      "field": "biology",
+      "id": "PROJ-112-investigating-the-correlation-between-di",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 74.43419,
+          "ended_at": "2026-05-01T22:26:49.890087Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-01T22:25:35.455897Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Correlation Between Dietary Fiber Intake and Gut Microbiome Composition Using Publicly Available Data",
+      "updated_at": "2026-05-01T22:26:49.892056+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-113-the-effect-of-anticipated-regret-on-choi/idea/the-effect-of-anticipated-regret-on-choi.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-01T22:24:01.690391+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Does higher anticipated regret increase the likelihood that individuals defer making a choice, after controlling for option set size, perceived risk, time pressure, and individual decision\u2011making style? Choice deferral (or \u201canalysis paralysis\u201d) hampers consumer welfare and organizational efficiency,\u2026",
+      "field": "psychology",
+      "id": "PROJ-113-the-effect-of-anticipated-regret-on-choi",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 68.74466,
+          "ended_at": "2026-05-01T22:27:58.804825Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-01T22:26:50.060165Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Effect of Anticipated Regret on Choice Deferral",
+      "updated_at": "2026-05-01T22:27:58.806828+00:00"
     }
   ],
   "schema_version": "2.0.0"
