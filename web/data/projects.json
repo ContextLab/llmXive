@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 163,
+    "active_projects": 166,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 997,
+    "total_contributions": 1000,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 143,
+      "contribution_count": 146,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 91,
+      "contribution_count": 94,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-02T18:33:18.118909+00:00",
+  "generated_at": "2026-05-02T19:32:38.746483+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -11931,6 +11931,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Neural Oscillations as a Biomarker for Predicting Response to Transcranial Direct Current Stimulation",
       "updated_at": "2026-05-02T18:32:08.928269+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-165-predicting-chemical-reaction-yields-from/idea/predicting-chemical-reaction-yields-from.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T19:28:31.706769+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry Can attention\u2011based neural networks accurately predict the percent yield of a chemical reaction using only the infrared, Raman, and/or\u202f\u00b9H\u2011NMR spectra of the reactants and products? Reaction yield optimization traditionally relies on costly trial\u2011and\u2011error experimentation. Spectroscopic fingerprints\u2026",
+      "field": "chemistry",
+      "id": "PROJ-165-predicting-chemical-reaction-yields-from",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 85.20224,
+          "ended_at": "2026-05-02T19:30:09.906007Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T19:28:44.703767Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms",
+      "updated_at": "2026-05-02T19:30:09.908531+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-166-quantifying-the-impact-of-code-authorshi/idea/quantifying-the-impact-of-code-authorshi.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T19:28:31.706769+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: computer science Does a higher number of unique code contributors to an open\u2011source project predict a lower density of reported security vulnerabilities, after controlling for project size and complexity? Open\u2011source components are ubiquitous in modern software stacks, yet security incidents stemming from\u2026",
+      "field": "computer science",
+      "id": "PROJ-166-quantifying-the-impact-of-code-authorshi",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 73.386468,
+          "ended_at": "2026-05-02T19:31:23.573354Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T19:30:10.186886Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Quantifying the Impact of Code Authorship Diversity on Software Security",
+      "updated_at": "2026-05-02T19:31:23.575773+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-167-the-impact-of-self-compassion-on-resilie/idea/the-impact-of-self-compassion-on-resilie.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T19:28:31.706769+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Does self\u2011compassion buffer (moderate) the adverse psychological impact of negative feedback on anxiety, rumination, and self\u2011efficacy? Negative feedback is essential for learning but often triggers defensive emotions, reduced motivation, and lower self\u2011efficacy. Self\u2011compassion\u2014a mindset of kindness\u2026",
+      "field": "psychology",
+      "id": "PROJ-167-the-impact-of-self-compassion-on-resilie",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 73.563112,
+          "ended_at": "2026-05-02T19:32:37.414459Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T19:31:23.851347Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Self-Compassion on Resilience to Negative Feedback",
+      "updated_at": "2026-05-02T19:32:37.416881+00:00"
     }
   ],
   "schema_version": "2.0.0"

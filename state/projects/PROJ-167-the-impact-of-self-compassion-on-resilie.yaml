@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-02T19:28:31.706769Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: psychology
+human_escalation_reason: null
+id: PROJ-167-the-impact-of-self-compassion-on-resilie
+last_run_id: 59ee5de9-628f-47b0-a326-5737c398d6c1
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: The Impact of Self-Compassion on Resilience to Negative Feedback
+updated_at: '2026-05-02T19:32:37.416881Z'
