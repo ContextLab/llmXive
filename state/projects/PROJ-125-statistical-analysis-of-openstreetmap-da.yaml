@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-02T05:10:10.403690Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: statistics
+human_escalation_reason: null
+id: PROJ-125-statistical-analysis-of-openstreetmap-da
+last_run_id: 5fcd500a-ec6c-42a4-b211-eb1378518ba0
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects
+updated_at: '2026-05-02T05:15:04.827953Z'

@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 121,
+    "active_projects": 124,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 931,
+    "total_contributions": 934,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 100,
+      "contribution_count": 104,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 26,
+      "contribution_count": 28,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-02T03:22:10.659199+00:00",
+  "generated_at": "2026-05-02T05:15:06.039248+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -9124,6 +9124,200 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Identifying Structure-Property Relationships in Polymer Blends Using Public Databases",
       "updated_at": "2026-05-02T03:19:45.074262+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-123-investigating-the-role-of-microglial-mor/idea/investigating-the-role-of-microglial-mor.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter",
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T05:10:10.403690+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: neuroscience Is there a statistically significant correlation between microglial morphological complexity, as measured by features like branch number and process length, and performance on cognitive tasks in aging brains? Age-related cognitive decline represents a major public health challenge. Emerging\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-123-investigating-the-role-of-microglial-mor",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 90.396899,
+          "ended_at": "2026-05-02T05:12:16.103664Z",
+          "model": "google.gemma-3-27b-it",
+          "outcome": "success",
+          "started_at": "2026-05-02T05:10:45.706765Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline",
+      "updated_at": "2026-05-02T05:12:16.106390+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/idea/quantifying-the-effect-of-alloying-eleme.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T05:10:10.403690+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science Which alloying elements and compositional interactions most strongly influence the critical cooling rate (glass\u2011forming ability) of metallic glasses, and can a machine\u2011learning model trained on publicly available composition\u2011GFA data reliably predict this property for unexplored alloy systems?",
+      "field": "materials science",
+      "id": "PROJ-124-quantifying-the-effect-of-alloying-eleme",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 85.018637,
+          "ended_at": "2026-05-02T05:13:41.392032Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T05:12:16.373395Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Quantifying the Effect of Alloying Elements on the Glass-Forming Ability of Metallic Glasses",
+      "updated_at": "2026-05-02T05:13:41.394608+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-125-statistical-analysis-of-openstreetmap-da/idea/statistical-analysis-of-openstreetmap-da.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T05:10:10.403690+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics Can publicly available OpenStreetMap (OSM) features be used to predict surface temperature variations associated with the Urban Heat Island (UHI) effect across diverse cities? Urban Heat Islands exacerbate heat stress, energy demand, and air\u2011quality problems, yet high\u2011resolution temperature\u2026",
+      "field": "statistics",
+      "id": "PROJ-125-statistical-analysis-of-openstreetmap-da",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 83.167103,
+          "ended_at": "2026-05-02T05:15:04.825368Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T05:13:41.658265Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects",
+      "updated_at": "2026-05-02T05:15:04.827953+00:00"
     }
   ],
   "schema_version": "2.0.0"
