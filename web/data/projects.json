@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 157,
+    "active_projects": 160,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 991,
+    "total_contributions": 994,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 137,
+      "contribution_count": 140,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 85,
+      "contribution_count": 88,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-02T17:09:34.247335+00:00",
+  "generated_at": "2026-05-02T17:26:34.994634+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -11529,6 +11529,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Correlation Between Molecular Structure and Dye-Sensitized Solar Cell Performance",
       "updated_at": "2026-05-02T16:30:04.667612+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-159-predicting-molecular-permeability-throug/idea/predicting-molecular-permeability-throug.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T17:22:36.291024+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry Can a graph neural network that jointly encodes the molecular graph of a permeant and the structural graph of a porous material accurately predict permeability coefficients across diverse molecule\u2013material pairs? Permeability through porous solids underpins gas separation, catalysis, and\u2026",
+      "field": "chemistry",
+      "id": "PROJ-159-predicting-molecular-permeability-throug",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 74.527345,
+          "ended_at": "2026-05-02T17:24:05.542938Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T17:22:51.015593Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Molecular Permeability Through Porous Materials Using Graph Neural Networks",
+      "updated_at": "2026-05-02T17:24:05.545643+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-160-investigating-the-impact-of-early-life-s/idea/investigating-the-impact-of-early-life-s.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T17:22:36.291024+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: neuroscience Do higher scores on adverse childhood experiences (ACEs) associate with reduced volumes in specific hippocampal subfields (CA3, dentate gyrus, subiculum) in adolescents, and are the inter\u2011subfield volume ratios systematically altered? Early life stress leaves lasting imprints on brain structure,\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-160-investigating-the-impact-of-early-life-s",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 74.886287,
+          "ended_at": "2026-05-02T17:25:20.740767Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T17:24:05.854480Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Impact of Early Life Stress on Hippocampal Subfield Volumes",
+      "updated_at": "2026-05-02T17:25:20.743331+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-161-uncovering-latent-relationships-between-/idea/uncovering-latent-relationships-between-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T17:22:36.291024+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry Which molecular descriptors of approved or investigational antibiotics are systematically associated with observed resistance phenotypes across bacterial isolates? Antibiotic resistance escalates worldwide, yet most efforts focus on genomic mechanisms. Understanding how physicochemical properties of\u2026",
+      "field": "chemistry",
+      "id": "PROJ-161-uncovering-latent-relationships-between-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 72.562449,
+          "ended_at": "2026-05-02T17:26:33.631741Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T17:25:21.069292Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Uncovering Latent Relationships Between Molecular Descriptors and Antibiotic Resistance",
+      "updated_at": "2026-05-02T17:26:33.634250+00:00"
     }
   ],
   "schema_version": "2.0.0"
