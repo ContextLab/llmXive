@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 142,
+    "active_projects": 145,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 960,
+    "total_contributions": 963,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 122,
+      "contribution_count": 125,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 54,
+      "contribution_count": 57,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-02T11:26:10.122158+00:00",
+  "generated_at": "2026-05-02T12:32:47.350464+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -10524,6 +10524,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "The Impact of Visual Attention on False Memory Formation",
       "updated_at": "2026-05-02T11:26:08.998931+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-144-predicting-plant-disease-resistance-from/idea/predicting-plant-disease-resistance-from.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T12:28:55.953044+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Can metabolite profiles derived from publicly available plant metabolomics datasets reliably predict resistance to major pathogens such as *Phytophthora infestans* in tomato or *Fusarium* spp. in wheat? Breeding for disease resistance traditionally relies on phenotypic screening or genetic markers, both\u2026",
+      "field": "biology",
+      "id": "PROJ-144-predicting-plant-disease-resistance-from",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 71.544623,
+          "ended_at": "2026-05-02T12:30:21.679416Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T12:29:10.134793Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Plant Disease Resistance from Publicly Available Metabolomic Data",
+      "updated_at": "2026-05-02T12:30:21.681965+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-145-evaluating-the-predictive-power-of-machi/idea/evaluating-the-predictive-power-of-machi.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T12:28:55.953044+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science Can supervised machine\u2011learning models trained on existing high\u2011entropy alloy (HEA) databases reliably predict key thermodynamic properties (mixing enthalpy, formation energy, phase stability) for compositions that have never been experimentally synthesized? The compositional space of HEAs\u2026",
+      "field": "materials science",
+      "id": "PROJ-145-evaluating-the-predictive-power-of-machi",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 75.175213,
+          "ended_at": "2026-05-02T12:31:37.109039Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T12:30:21.933826Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions",
+      "updated_at": "2026-05-02T12:31:37.111506+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/idea/the-effect-of-sensory-deprivation-on-dre.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T12:28:55.953044+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Does brief sensory deprivation before sleep increase (1) the likelihood of recalling a dream and (2) the subjective bizarreness of recalled dream content? Dream recall is highly variable across nights and individuals, and external sensory input before sleep may modulate internal generative processes.\u2026",
+      "field": "psychology",
+      "id": "PROJ-146-the-effect-of-sensory-deprivation-on-dre",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 68.836076,
+          "ended_at": "2026-05-02T12:32:46.197934Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T12:31:37.361858Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Effect of Sensory Deprivation on Dream Recall and Bizarreness",
+      "updated_at": "2026-05-02T12:32:46.200341+00:00"
     }
   ],
   "schema_version": "2.0.0"
