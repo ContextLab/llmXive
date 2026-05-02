@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 139,
+    "active_projects": 142,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 957,
+    "total_contributions": 960,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 119,
+      "contribution_count": 122,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 51,
+      "contribution_count": 54,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-02T10:32:10.444800+00:00",
+  "generated_at": "2026-05-02T11:26:10.122158+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -10323,6 +10323,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Efficacy of Code Summarization Techniques for Bug Localization",
       "updated_at": "2026-05-02T10:29:52.240322+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-141-evaluating-the-impact-of-code-generation/idea/evaluating-the-impact-of-code-generation.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T11:22:08.935448+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: computer science How does the use of large\u2011language\u2011model (LLM) code\u2011generation tools affect (i) developers\u2019 task\u2011completion time and (ii) the quality of the produced code compared with unaided coding? LLM\u2011based code generators (e.g., Codex, Code Llama) are being integrated into IDEs and claim to accelerate\u2026",
+      "field": "computer science",
+      "id": "PROJ-141-evaluating-the-impact-of-code-generation",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 78.930667,
+          "ended_at": "2026-05-02T11:23:40.691398Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T11:22:21.760731Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Impact of Code Generation Models on Developer Productivity",
+      "updated_at": "2026-05-02T11:23:40.693918+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-142-predicting-solubility-in-mixed-solvents-/idea/predicting-solubility-in-mixed-solvents-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T11:22:08.935448+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry Can a machine\u2011learning model that incorporates molecular descriptors, solvent physicochemical properties, and mixture composition reliably predict the aqueous solubility of small organic compounds in binary and ternary solvent mixtures? Solubility in mixed\u2011solvent systems governs reaction yields,\u2026",
+      "field": "chemistry",
+      "id": "PROJ-142-predicting-solubility-in-mixed-solvents-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 71.058713,
+          "ended_at": "2026-05-02T11:24:52.003430Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T11:23:40.944717Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Solubility in Mixed Solvents with Machine Learning",
+      "updated_at": "2026-05-02T11:24:52.005807+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-143-the-impact-of-visual-attention-on-false-/idea/the-impact-of-visual-attention-on-false-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T11:22:08.935448+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Does heightened visual attention to salient but irrelevant scene elements during encoding increase the likelihood of forming false memories for those elements during later recall? False memories undermine the reliability of eyewitness testimony and everyday recollection. While extensive work has\u2026",
+      "field": "psychology",
+      "id": "PROJ-143-the-impact-of-visual-attention-on-false-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 76.74184,
+          "ended_at": "2026-05-02T11:26:08.996592Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T11:24:52.254752Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Visual Attention on False Memory Formation",
+      "updated_at": "2026-05-02T11:26:08.998931+00:00"
     }
   ],
   "schema_version": "2.0.0"
