@@ -5,7 +5,7 @@
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 963,
+    "total_contributions": 971,
     "total_contributors": 29
   },
   "contributors": [
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 57,
+      "contribution_count": 65,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-02T12:38:26.559997+00:00",
+  "generated_at": "2026-05-02T12:53:55.255922+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -234,7 +234,7 @@
           ]
         },
         {
-          "contributions": 16,
+          "contributions": 24,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -259,6 +259,70 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 58.18291,
+          "ended_at": "2026-05-02T12:53:54.174958Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T12:52:55.992048Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 56.759888,
+          "ended_at": "2026-05-02T12:52:55.705649Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T12:51:58.945761Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 58.110328,
+          "ended_at": "2026-05-02T12:51:58.703750Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T12:51:00.593422Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 56.300537,
+          "ended_at": "2026-05-02T12:51:00.351345Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T12:50:04.050808Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 59.746205,
+          "ended_at": "2026-05-02T12:50:03.806648Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T12:49:04.060443Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 57.844475,
+          "ended_at": "2026-05-02T12:49:03.815946Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T12:48:05.971471Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 56.377781,
+          "ended_at": "2026-05-02T12:48:05.729248Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T12:47:09.351467Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 61.951117,
+          "ended_at": "2026-05-02T12:47:09.104801Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T12:46:07.153684Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 56.866116,
           "ended_at": "2026-05-02T05:32:20.226614Z",
           "model": "openai.gpt-oss-120b",
@@ -272,70 +336,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-05-02T05:30:28.299021Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 56.040423,
-          "ended_at": "2026-05-02T05:30:28.109642Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-05-02T05:29:32.069219Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 55.426123,
-          "ended_at": "2026-05-02T05:29:31.884407Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-05-02T05:28:36.458284Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 59.027799,
-          "ended_at": "2026-05-02T05:28:36.271747Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-05-02T05:27:37.243948Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 56.228019,
-          "ended_at": "2026-05-02T05:27:37.055170Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-05-02T05:26:40.827151Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 56.965316,
-          "ended_at": "2026-05-02T05:26:40.641823Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-05-02T05:25:43.676507Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 60.403808,
-          "ended_at": "2026-05-02T05:25:43.485296Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-05-02T05:24:43.081488Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 55.052496,
-          "ended_at": "2026-05-01T20:53:01.048937Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-05-01T20:52:05.996441Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 55.730144,
-          "ended_at": "2026-05-01T20:52:05.805515Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-05-01T20:51:10.075371Z"
         }
       ],
       "phase_group": "research_speckit",
