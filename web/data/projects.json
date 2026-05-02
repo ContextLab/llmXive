@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 145,
+    "active_projects": 148,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 971,
+    "total_contributions": 974,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 125,
+      "contribution_count": 128,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 65,
+      "contribution_count": 68,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-02T12:53:55.255922+00:00",
+  "generated_at": "2026-05-02T13:40:32.522535+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -10725,6 +10725,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "The Effect of Sensory Deprivation on Dream Recall and Bizarreness",
       "updated_at": "2026-05-02T12:32:46.200341+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-147-uncovering-correlations-between-processi/idea/uncovering-correlations-between-processi.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T13:36:37.183740+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science How do rolling speed, temperature, and reduction ratio jointly influence the crystallographic texture of rolled metallic alloys, and can a data\u2011driven regression model accurately predict texture coefficients from these processing parameters across multiple alloy systems? Optimizing rolling\u2026",
+      "field": "materials science",
+      "id": "PROJ-147-uncovering-correlations-between-processi",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 70.05687,
+          "ended_at": "2026-05-02T13:38:01.589372Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T13:36:51.532502Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Uncovering Correlations Between Processing Conditions and Texture in Rolled Metals",
+      "updated_at": "2026-05-02T13:38:01.592155+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-148-statistical-analysis-of-code-complexity-/idea/statistical-analysis-of-code-complexity-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T13:36:37.183740+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics Which source\u2011code complexity metrics (e.g., cyclomatic complexity, lines of code, nesting depth) most strongly predict the presence of bugs in open\u2011source software, and how accurately can a statistical model built on these metrics identify bug\u2011prone code units? Software defects dominate maintenance\u2026",
+      "field": "statistics",
+      "id": "PROJ-148-statistical-analysis-of-code-complexity-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 73.072247,
+          "ended_at": "2026-05-02T13:39:14.964049Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T13:38:01.891802Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Statistical Analysis of Code Complexity Metrics and Bug Prediction",
+      "updated_at": "2026-05-02T13:39:14.966570+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-149-predicting-individual-differences-in-sen/idea/predicting-individual-differences-in-sen.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T13:36:37.183740+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: neuroscience Can the power of specific resting\u2011state EEG frequency bands (e.g., alpha, beta) predict individual differences in sensory\u2011processing speed measured by simple reaction\u2011time tasks? Resting\u2011state EEG is inexpensive, easy to acquire, and yields quantitative spectral descriptors of brain activity. If\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-149-predicting-individual-differences-in-sen",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 75.964737,
+          "ended_at": "2026-05-02T13:40:31.225240Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T13:39:15.260503Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Individual Differences in Sensory Processing Speed from Resting-State EEG Power Spectra",
+      "updated_at": "2026-05-02T13:40:31.227806+00:00"
     }
   ],
   "schema_version": "2.0.0"
