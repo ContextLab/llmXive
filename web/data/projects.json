@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 136,
+    "active_projects": 139,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 954,
+    "total_contributions": 957,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 116,
+      "contribution_count": 119,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 48,
+      "contribution_count": 51,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-02T09:38:16.949826+00:00",
+  "generated_at": "2026-05-02T10:29:53.413606+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -10122,6 +10122,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting the Impact of Alloying on Creep Resistance via Public Data",
       "updated_at": "2026-05-02T09:38:15.851482+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/idea/the-effects-of-gamified-habit-tracking-o.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T10:25:42.709825+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Does the inclusion of game\u2011like elements (points, badges, leaderboards) in habit\u2011tracking applications produce higher long\u2011term adherence to self\u2011defined behavioral goals than non\u2011gamified habit\u2011tracking, and how is this effect moderated by individual personality traits such as conscientiousness and\u2026",
+      "field": "psychology",
+      "id": "PROJ-138-the-effects-of-gamified-habit-tracking-o",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 83.742146,
+          "ended_at": "2026-05-02T10:27:25.147298Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T10:26:01.405152Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Effects of Gamified Habit Tracking on Long-Term Behavioral Change",
+      "updated_at": "2026-05-02T10:27:25.149899+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-139-the-influence-of-emotional-contagion-on-/idea/the-influence-of-emotional-contagion-on-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T10:25:42.709825+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Does the emotional tone of early contributions in online forums bias subsequent participants and thereby affect the quality and efficiency of collective decisions? Collective decisions in online communities (e.g., product recommendations, policy discussions) shape real\u2011world outcomes, yet the role of\u2026",
+      "field": "psychology",
+      "id": "PROJ-139-the-influence-of-emotional-contagion-on-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 70.768428,
+          "ended_at": "2026-05-02T10:28:36.164739Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T10:27:25.396311Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Influence of Emotional Contagion on Collective Decision-Making in Online Forums",
+      "updated_at": "2026-05-02T10:28:36.167152+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/idea/evaluating-the-efficacy-of-code-summariz.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T10:25:42.709825+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: computer science Do automatically generated code summaries improve the speed and accuracy with which developers can locate bugs compared to using raw source code alone? Bug localization remains a bottleneck in large codebases, especially when functions lack clear documentation. Recent advances in code\u2026",
+      "field": "computer science",
+      "id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 75.825944,
+          "ended_at": "2026-05-02T10:29:52.237956Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T10:28:36.412012Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Efficacy of Code Summarization Techniques for Bug Localization",
+      "updated_at": "2026-05-02T10:29:52.240322+00:00"
     }
   ],
   "schema_version": "2.0.0"
