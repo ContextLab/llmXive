@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 130,
+    "active_projects": 133,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 948,
+    "total_contributions": 951,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 110,
+      "contribution_count": 113,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 42,
+      "contribution_count": 45,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-02T07:43:34.753273+00:00",
+  "generated_at": "2026-05-02T08:44:12.526428+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -9720,6 +9720,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "The Impact of Perceived Social Support on Resilience to Online Harassment",
       "updated_at": "2026-05-02T07:43:33.649025+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-132-statistical-analysis-of-publicly-availab/idea/statistical-analysis-of-publicly-availab.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T08:40:08.648108+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics Do observable shifts in bird migration timing, routes, or stopover duration correlate with recent changes in climate variables (temperature, precipitation, extreme\u2011weather indices) across North America? Long\u2011term citizen\u2011science bird observations (eBird) provide dense spatiotemporal records of\u2026",
+      "field": "statistics",
+      "id": "PROJ-132-statistical-analysis-of-publicly-availab",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 75.713651,
+          "ended_at": "2026-05-02T08:41:43.974929Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T08:40:28.261278Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change",
+      "updated_at": "2026-05-02T08:41:43.977652+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-133-investigating-the-stability-of-rotating-/idea/investigating-the-stability-of-rotating-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T08:40:08.648108+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics How do rotation frequency, dipolar interaction strength, and particle number jointly determine the dynamical stability and vortex\u2011lattice structures of a trapped Bose\u2011Einstein condensate with dipolar interactions? Rotating BECs host quantized vortex lattices that serve as a testbed for quantum fluid\u2026",
+      "field": "physics",
+      "id": "PROJ-133-investigating-the-stability-of-rotating-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 72.788783,
+          "ended_at": "2026-05-02T08:42:57.043518Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T08:41:44.254735Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Stability of Rotating Bose-Einstein Condensates with Dipolar Interactions",
+      "updated_at": "2026-05-02T08:42:57.046024+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/idea/the-cognitive-mechanisms-underlying-intu.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T08:40:08.648108+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology How does the visual salience of avatars\u2019 emotional expressions in immersive virtual environments modulate the activation of specific moral foundations and shape intuitive moral judgments? Intuitive moral judgments arise rapidly, yet little is known about how perceptual details in richly embodied\u2026",
+      "field": "psychology",
+      "id": "PROJ-134-the-cognitive-mechanisms-underlying-intu",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 73.976063,
+          "ended_at": "2026-05-02T08:44:11.296865Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T08:42:57.320802Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Cognitive Mechanisms Underlying Intuitive Moral Judgments in Virtual Environments",
+      "updated_at": "2026-05-02T08:44:11.299453+00:00"
     }
   ],
   "schema_version": "2.0.0"
