@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-02T07:39:40.167382Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: chemistry
+human_escalation_reason: null
+id: PROJ-129-predicting-polymer-glass-transition-temp
+last_run_id: ea465d86-5bd2-40f3-81b7-d7a67337eb69
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Predicting Polymer Glass Transition Temperatures with Graph Neural Networks
+updated_at: '2026-05-02T07:41:08.193405Z'

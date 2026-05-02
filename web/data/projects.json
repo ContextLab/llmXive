@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 127,
+    "active_projects": 130,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 945,
+    "total_contributions": 948,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 107,
+      "contribution_count": 110,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 39,
+      "contribution_count": 42,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-02T06:54:50.613434+00:00",
+  "generated_at": "2026-05-02T07:43:34.753273+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -9519,6 +9519,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns",
       "updated_at": "2026-05-02T06:54:49.468581+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-129-predicting-polymer-glass-transition-temp/idea/predicting-polymer-glass-transition-temp.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T07:39:40.167382+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry Can a graph neural network trained on publicly available polymer structure\u2013Tg data predict the glass\u2011transition temperature of amorphous polymers with higher accuracy than conventional QSPR models? The glass\u2011transition temperature (Tg) governs the mechanical performance of polymers in many\u2026",
+      "field": "chemistry",
+      "id": "PROJ-129-predicting-polymer-glass-transition-temp",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 73.956689,
+          "ended_at": "2026-05-02T07:41:08.190895Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T07:39:54.234206Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Polymer Glass Transition Temperatures with Graph Neural Networks",
+      "updated_at": "2026-05-02T07:41:08.193405+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-130-evaluating-the-explainability-of-llm-bas/idea/evaluating-the-explainability-of-llm-bas.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T07:39:40.167382+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: computer science How well do different explainability techniques (attention visualization, code\u2011diff saliency maps, and generated natural\u2011language rationales) reflect the actual correctness and safety of bug fixes suggested by large language models for source\u2011code defects? LLMs such as CodeLlama can\u2026",
+      "field": "computer science",
+      "id": "PROJ-130-evaluating-the-explainability-of-llm-bas",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 68.210219,
+          "ended_at": "2026-05-02T07:42:16.640533Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T07:41:08.430314Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Explainability of LLM-Based Bug Fixes",
+      "updated_at": "2026-05-02T07:42:16.642919+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-131-the-impact-of-perceived-social-support-o/idea/the-impact-of-perceived-social-support-o.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T07:39:40.167382+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Do individuals who report higher levels of perceived social support show lower levels of anxiety, depression, and PTSD symptoms after experiencing online harassment, after accounting for harassment severity and platform type? Online harassment is linked to elevated psychological distress, yet not all\u2026",
+      "field": "psychology",
+      "id": "PROJ-131-the-impact-of-perceived-social-support-o",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 76.770193,
+          "ended_at": "2026-05-02T07:43:33.646594Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T07:42:16.876401Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Perceived Social Support on Resilience to Online Harassment",
+      "updated_at": "2026-05-02T07:43:33.649025+00:00"
     }
   ],
   "schema_version": "2.0.0"
