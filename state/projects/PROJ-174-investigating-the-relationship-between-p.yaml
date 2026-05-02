@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-02T22:19:44.995297Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: neuroscience
+human_escalation_reason: null
+id: PROJ-174-investigating-the-relationship-between-p
+last_run_id: c6743b5e-0f8d-4721-ad65-fff939324f88
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Investigating the Relationship Between Pupil Dilation and Cognitive Load During
+  Visual Search
+updated_at: '2026-05-02T22:21:21.597984Z'
