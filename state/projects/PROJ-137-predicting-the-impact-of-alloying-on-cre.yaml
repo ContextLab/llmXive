@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-02T09:32:51.166968Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: materials science
+human_escalation_reason: null
+id: PROJ-137-predicting-the-impact-of-alloying-on-cre
+last_run_id: cde0f5f3-1cc5-4e98-84bf-9e85d1f9f4bb
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Predicting the Impact of Alloying on Creep Resistance via Public Data
+updated_at: '2026-05-02T09:38:15.851482Z'
