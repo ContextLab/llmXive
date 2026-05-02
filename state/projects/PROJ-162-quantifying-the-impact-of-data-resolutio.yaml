@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-02T18:27:45.431354Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: physics
+human_escalation_reason: null
+id: PROJ-162-quantifying-the-impact-of-data-resolutio
+last_run_id: 18b6f083-5d6e-465b-b779-e23cab735876
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Quantifying the Impact of Data Resolution on Gravitational Wave Signal Detection
+updated_at: '2026-05-02T18:29:26.168519Z'
