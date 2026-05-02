@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 151,
+    "active_projects": 154,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 977,
+    "total_contributions": 980,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 131,
+      "contribution_count": 134,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 71,
+      "contribution_count": 74,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-02T14:32:25.460083+00:00",
+  "generated_at": "2026-05-02T15:26:41.199288+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -11127,6 +11127,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Impact of Code Generation Models on Code Security",
       "updated_at": "2026-05-02T14:31:31.352545+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-153-decoding-regulatory-element-contribution/idea/decoding-regulatory-element-contribution.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T15:22:32.596125+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Which cis\u2011regulatory elements (CREs) show condition\u2011specific activity that drives the transcriptional responses underlying phenotypic plasticity of *Saccharomyces cerevisiae* across heat\u2011shock, osmotic, and oxidative stress? Yeast adapts rapidly to environmental fluctuations, yet most studies focus on\u2026",
+      "field": "biology",
+      "id": "PROJ-153-decoding-regulatory-element-contribution",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 74.186886,
+          "ended_at": "2026-05-02T15:24:10.630927Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T15:22:56.444041Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Decoding Regulatory Element Contributions to Phenotypic Plasticity in Yeast",
+      "updated_at": "2026-05-02T15:24:10.633216+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-154-evaluating-the-impact-of-code-complexity/idea/evaluating-the-impact-of-code-complexity.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T15:22:32.596125+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: computer science How do established code\u2011complexity metrics (e.g., cyclomatic complexity, Halstead volume, maintainability index) affect the accuracy of large language models on code\u2011summarization, bug\u2011detection, and code\u2011completion tasks? LLMs are increasingly used as coding assistants, yet developers receive\u2026",
+      "field": "computer science",
+      "id": "PROJ-154-evaluating-the-impact-of-code-complexity",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 74.633171,
+          "ended_at": "2026-05-02T15:25:25.523287Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T15:24:10.890116Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Impact of Code Complexity on LLM Code Understanding",
+      "updated_at": "2026-05-02T15:25:25.525452+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-155-predicting-cognitive-flexibility-from-re/idea/predicting-cognitive-flexibility-from-re.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T15:22:32.596125+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: neuroscience Does inter\u2011individual variability in resting\u2011state functional connectivity (RSFC) predict performance on cognitive\u2011flexibility tasks? Cognitive flexibility underlies adaptive behavior, yet its neural basis remains incompletely understood. Prior work links static RSFC patterns to executive function,\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-155-predicting-cognitive-flexibility-from-re",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 74.215508,
+          "ended_at": "2026-05-02T15:26:39.996948Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T15:25:25.781440Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Cognitive Flexibility from Resting-State Functional Connectivity Variability",
+      "updated_at": "2026-05-02T15:26:39.999309+00:00"
     }
   ],
   "schema_version": "2.0.0"
