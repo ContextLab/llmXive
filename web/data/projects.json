@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 175,
+    "active_projects": 178,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1017,
+    "total_contributions": 1020,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 155,
+      "contribution_count": 158,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 111,
+      "contribution_count": 114,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-02T22:26:11.010078+00:00",
+  "generated_at": "2026-05-02T23:26:41.591339+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -12735,6 +12735,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting Molecular Properties from Vibrational Spectra with Deep Learning",
       "updated_at": "2026-05-02T22:23:45.547548+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-177-investigating-the-validity-of-the-equipa/idea/investigating-the-validity-of-the-equipa.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T23:22:13.977711+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics Does the equipartition theorem hold for kinetic and potential energy distribution among translational, rotational, and vibrational degrees of freedom in externally driven (vibrated) granular media, and how does this relationship depend on driving frequency and particle material properties? Granular\u2026",
+      "field": "physics",
+      "id": "PROJ-177-investigating-the-validity-of-the-equipa",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 89.332195,
+          "ended_at": "2026-05-02T23:24:03.338206Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T23:22:34.006011Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Validity of the Equipartition Theorem in Driven Granular Systems",
+      "updated_at": "2026-05-02T23:24:03.340628+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-178-investigating-the-correlation-between-mi/idea/investigating-the-correlation-between-mi.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T23:22:13.977711+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Do mitochondrial DNA heteroplasmy levels and haplogroup assignments correlate with individual aging rates (e.g., chronological age at sampling or lifespan proxies) in existing population\u2011scale genomic datasets? Mitochondrial dysfunction is a hallmark of biological aging, yet large\u2011scale evidence linking\u2026",
+      "field": "biology",
+      "id": "PROJ-178-investigating-the-correlation-between-mi",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 85.483817,
+          "ended_at": "2026-05-02T23:25:29.109144Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T23:24:03.625327Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Correlation Between Mitochondrial DNA Variation and Aging Rates in Publicly Available Datasets",
+      "updated_at": "2026-05-02T23:25:29.111331+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-179-the-influence-of-metacognitive-awareness/idea/the-influence-of-metacognitive-awareness.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T23:22:13.977711+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Do individuals with higher metacognitive awareness exhibit more accurate reality testing, as measured by reduced source\u2011monitoring errors on ambiguous perceptual tasks? Reality testing deficits underlie psychotic\u2011like experiences and several clinical conditions. While metacognition is linked to\u2026",
+      "field": "psychology",
+      "id": "PROJ-179-the-influence-of-metacognitive-awareness",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 70.977823,
+          "ended_at": "2026-05-02T23:26:40.371225Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T23:25:29.393402Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Influence of Metacognitive Awareness on Reality Testing",
+      "updated_at": "2026-05-02T23:26:40.373416+00:00"
     }
   ],
   "schema_version": "2.0.0"
