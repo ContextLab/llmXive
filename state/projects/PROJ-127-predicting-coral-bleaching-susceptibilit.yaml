@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-02T06:50:24.325210Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: biology
+human_escalation_reason: null
+id: PROJ-127-predicting-coral-bleaching-susceptibilit
+last_run_id: 98adb528-d7fe-409e-90f3-bec3ac65ce32
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Predicting Coral Bleaching Susceptibility from Environmental Data
+updated_at: '2026-05-02T06:53:28.950734Z'

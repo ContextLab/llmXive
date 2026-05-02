@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 124,
+    "active_projects": 127,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 942,
+    "total_contributions": 945,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 104,
+      "contribution_count": 107,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 36,
+      "contribution_count": 39,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-02T05:32:21.165416+00:00",
+  "generated_at": "2026-05-02T06:54:50.613434+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -9318,6 +9318,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects",
       "updated_at": "2026-05-02T05:15:04.827953+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-126-predicting-avian-migration-patterns-from/idea/predicting-avian-migration-patterns-from.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T06:50:24.325210+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Can publicly available eBird observation records, when combined with remotely sensed environmental variables, accurately forecast the timing and routes of migratory bird species across North America? Understanding migration timing is essential for assessing climate\u2011change impacts on avian populations\u2026",
+      "field": "biology",
+      "id": "PROJ-126-predicting-avian-migration-patterns-from",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 78.788535,
+          "ended_at": "2026-05-02T06:52:12.145736Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T06:50:53.357201Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Avian Migration Patterns from Publicly Available eBird Data",
+      "updated_at": "2026-05-02T06:52:12.148476+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-127-predicting-coral-bleaching-susceptibilit/idea/predicting-coral-bleaching-susceptibilit.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T06:50:24.325210+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Can a machine\u2011learning model that integrates publicly available oceanographic variables and species\u2011level trait data accurately predict bleaching susceptibility for individual reef locations and coral taxa? Coral bleaching threatens biodiversity and livelihoods, yet current forecasts are coarse\u2026",
+      "field": "biology",
+      "id": "PROJ-127-predicting-coral-bleaching-susceptibilit",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 76.528676,
+          "ended_at": "2026-05-02T06:53:28.948103Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T06:52:12.419427Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Coral Bleaching Susceptibility from Environmental Data",
+      "updated_at": "2026-05-02T06:53:28.950734+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-128-investigating-the-influence-of-network-t/idea/investigating-the-influence-of-network-t.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-02T06:50:24.325210+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: neuroscience Do topological properties of large\u2011scale brain networks derived from resting\u2011state fMRI predict the prevalence, stability, and switching speed of recurring spontaneous activity patterns? Linking structural connectivity to the brain\u2019s intrinsic dynamics could reveal mechanistic principles of\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-128-investigating-the-influence-of-network-t",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 80.248969,
+          "ended_at": "2026-05-02T06:54:49.466108Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-02T06:53:29.217139Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns",
+      "updated_at": "2026-05-02T06:54:49.468581+00:00"
     }
   ],
   "schema_version": "2.0.0"
