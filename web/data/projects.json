@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 181,
+    "active_projects": 184,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1023,
+    "total_contributions": 1026,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 161,
+      "contribution_count": 164,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 117,
+      "contribution_count": 120,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-03T03:22:32.022191+00:00",
+  "generated_at": "2026-05-03T05:19:53.386354+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -13137,6 +13137,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Impact of Different Missing Data Mechanisms on Regression Discontinuity Designs",
       "updated_at": "2026-05-03T03:21:35.513550+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-183-the-impact-of-perspective-taking-on-mora/idea/the-impact-of-perspective-taking-on-mora.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T05:15:57.497113+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Does prompting individuals to adopt the perspective of a disagreeing online poster reduce their self\u2011reported moral outrage toward the post? Moral outrage spreads rapidly on social media, fueling polarization and conflict. While interventions that increase empathy have shown promise in offline\u2026",
+      "field": "psychology",
+      "id": "PROJ-183-the-impact-of-perspective-taking-on-mora",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 73.434172,
+          "ended_at": "2026-05-03T05:17:25.543782Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-03T05:16:12.109610Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Perspective-Taking on Moral Outrage in Online Discourse",
+      "updated_at": "2026-05-03T05:17:25.545994+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-184-exploring-the-statistical-significance-o/idea/exploring-the-statistical-significance-o.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T05:15:57.497113+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics Do the publicly available quasar absorption\u2011line spectra provide statistically robust evidence for spatial or temporal variations in the fine\u2011structure constant (\u03b1) after accounting for systematic uncertainties and selection biases? High\u2011precision spectroscopic measurements have reported hints of \u03b1\u2026",
+      "field": "physics",
+      "id": "PROJ-184-exploring-the-statistical-significance-o",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 67.163103,
+          "ended_at": "2026-05-03T05:18:32.992125Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-03T05:17:25.829022Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Exploring the Statistical Significance of Fine-Structure Constant Variations",
+      "updated_at": "2026-05-03T05:18:32.994249+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-185-predicting-protein-protein-interactions-/idea/predicting-protein-protein-interactions-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T05:15:57.497113+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Can gene co\u2011expression patterns derived from publicly available plant transcriptomic datasets reliably predict physical protein\u2011protein interactions in *Arabidopsis thaliana* and related species? Experimental mapping of plant PPIs is labor\u2011intensive and incomplete, limiting systems\u2011level understanding\u2026",
+      "field": "biology",
+      "id": "PROJ-185-predicting-protein-protein-interactions-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 78.885503,
+          "ended_at": "2026-05-03T05:19:52.163354Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-03T05:18:33.277851Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Protein-Protein Interactions from Co-expression Networks in Public Plant Databases",
+      "updated_at": "2026-05-03T05:19:52.165489+00:00"
     }
   ],
   "schema_version": "2.0.0"
