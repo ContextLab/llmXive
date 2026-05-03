@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 193,
+    "active_projects": 196,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1043,
+    "total_contributions": 1046,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 173,
+      "contribution_count": 176,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 137,
+      "contribution_count": 140,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-03T10:34:24.780328+00:00",
+  "generated_at": "2026-05-03T11:25:02.498940+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -13941,6 +13941,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Impact of Code Style on LLM Code Understanding and Generation",
       "updated_at": "2026-05-03T10:31:44.122228+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-195-examining-the-impact-of-auditory-feedbac/idea/examining-the-impact-of-auditory-feedbac.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T11:20:56.252744+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: neuroscience How does perturbing auditory feedback during motor sequence learning alter neural activity in motor\u2011 and auditory\u2011related cortices, and how are these changes linked to behavioral performance? Auditory cues are routinely used to scaffold motor skill acquisition, yet the precise neural mechanisms\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-195-examining-the-impact-of-auditory-feedbac",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 73.405496,
+          "ended_at": "2026-05-03T11:22:38.752539Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-03T11:21:25.347043Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Examining the Impact of Auditory Feedback on Motor Sequence Learning",
+      "updated_at": "2026-05-03T11:22:38.755309+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-196-the-role-of-temporal-discounting-in-proc/idea/the-role-of-temporal-discounting-in-proc.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T11:20:56.252744+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Do individual differences in temporal discounting rates predict the amount of procrastination exhibited on cognitively demanding tasks, after accounting for task difficulty and baseline motivation? Procrastination on effortful cognitive work is a pervasive self\u2011regulatory failure, yet the\u2026",
+      "field": "psychology",
+      "id": "PROJ-196-the-role-of-temporal-discounting-in-proc",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 67.218755,
+          "ended_at": "2026-05-03T11:23:46.342645Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-03T11:22:39.123890Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Role of Temporal Discounting in Procrastination on Cognitive Tasks",
+      "updated_at": "2026-05-03T11:23:46.345233+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-197-predicting-plant-drought-tolerance-from-/idea/predicting-plant-drought-tolerance-from-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T11:20:56.252744+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Can machine\u2011learning models trained on publicly available physiological trait measurements and genomic sequences accurately predict drought\u2011tolerance phenotypes across diverse plant species? Drought is a major limiting factor for global agriculture, and breeding tolerant varieties is essential under\u2026",
+      "field": "biology",
+      "id": "PROJ-197-predicting-plant-drought-tolerance-from-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 74.157878,
+          "ended_at": "2026-05-03T11:25:00.866366Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-03T11:23:46.708488Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Plant Drought Tolerance from Publicly Available Physiological and Genomic Data",
+      "updated_at": "2026-05-03T11:25:00.868944+00:00"
     }
   ],
   "schema_version": "2.0.0"
