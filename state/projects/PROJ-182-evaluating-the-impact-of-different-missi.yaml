@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-03T03:17:33.982360Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: statistics
+human_escalation_reason: null
+id: PROJ-182-evaluating-the-impact-of-different-missi
+last_run_id: 898cac86-809d-4e99-b4a6-5ac37d275f9e
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Evaluating the Impact of Different Missing Data Mechanisms on Regression Discontinuity
+  Designs
+updated_at: '2026-05-03T03:21:35.513550Z'

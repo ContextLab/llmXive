@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 178,
+    "active_projects": 181,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1020,
+    "total_contributions": 1023,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 158,
+      "contribution_count": 161,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 114,
+      "contribution_count": 117,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-03T01:24:02.293354+00:00",
+  "generated_at": "2026-05-03T03:21:36.942343+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -12936,6 +12936,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "The Influence of Metacognitive Awareness on Reality Testing",
       "updated_at": "2026-05-02T23:26:40.373416+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-180-evaluating-the-effectiveness-of-automate/idea/evaluating-the-effectiveness-of-automate.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T03:17:33.982360+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: computer science How accurately do leading automated code\u2011review tools (e.g., SonarQube, DeepSource, CodeClimate) identify code smells, security vulnerabilities, and bugs in real\u2011world open\u2011source repositories, compared with human reviewers, and which project characteristics (language, size, activity) modulate\u2026",
+      "field": "computer science",
+      "id": "PROJ-180-evaluating-the-effectiveness-of-automate",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 80.970948,
+          "ended_at": "2026-05-03T03:19:08.819461Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-03T03:17:47.848513Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Effectiveness of Automated Code Review Tools on Open-Source Projects",
+      "updated_at": "2026-05-03T03:19:08.822157+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-181-predicting-species-distribution-shifts-u/idea/predicting-species-distribution-shifts-u.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T03:17:33.982360+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Can species\u2011distribution models (SDMs) trained on historical occurrence records and past climate variables accurately predict future range expansions, contractions, or shifts for a well\u2011documented taxonomic group (e.g., North American birds) under projected climate\u2011change scenarios? Understanding how\u2026",
+      "field": "biology",
+      "id": "PROJ-181-predicting-species-distribution-shifts-u",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 73.357427,
+          "ended_at": "2026-05-03T03:20:22.516671Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-03T03:19:09.159244Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Species Distribution Shifts Using Historical Occurrence Records and Climate Data",
+      "updated_at": "2026-05-03T03:20:22.519194+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-182-evaluating-the-impact-of-different-missi/idea/evaluating-the-impact-of-different-missi.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T03:17:33.982360+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How do missing completely at random (MCAR), missing at random (MAR), and missing not at random (MNAR) mechanisms affect the bias, consistency, and efficiency of common regression discontinuity (RD) estimators, and which correction strategies (e.g., multiple imputation, inverse\u2011probability weighting)\u2026",
+      "field": "statistics",
+      "id": "PROJ-182-evaluating-the-impact-of-different-missi",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 72.615794,
+          "ended_at": "2026-05-03T03:21:35.511080Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-03T03:20:22.895286Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Impact of Different Missing Data Mechanisms on Regression Discontinuity Designs",
+      "updated_at": "2026-05-03T03:21:35.513550+00:00"
     }
   ],
   "schema_version": "2.0.0"
