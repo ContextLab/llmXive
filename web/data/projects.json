@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 190,
+    "active_projects": 193,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1040,
+    "total_contributions": 1043,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 170,
+      "contribution_count": 173,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 134,
+      "contribution_count": 137,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-03T09:42:42.005778+00:00",
+  "generated_at": "2026-05-03T10:31:45.505152+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -13740,6 +13740,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales",
       "updated_at": "2026-05-03T09:42:40.500845+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-192-the-impact-of-environmental-factors-on-f/idea/the-impact-of-environmental-factors-on-f.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T10:27:42.146966+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Which abiotic soil variables (pH, nutrient concentrations, temperature, moisture) most strongly predict the composition and diversity of fungal communities as revealed by ITS amplicon sequencing? Soil fungi underpin nutrient cycling and plant health, yet land\u2011management decisions lack quantitative\u2026",
+      "field": "biology",
+      "id": "PROJ-192-the-impact-of-environmental-factors-on-f",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 73.240782,
+          "ended_at": "2026-05-03T10:29:10.751513Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-03T10:27:57.510731Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Environmental Factors on Fungal Community Structure in Soil",
+      "updated_at": "2026-05-03T10:29:10.753757+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-193-predicting-battery-degradation-from-publ/idea/predicting-battery-degradation-from-publ.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T10:27:42.146966+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science Can recurrent neural networks (LSTM/GRU) trained on publicly available battery cycling data accurately predict remaining useful life (RUL) and capacity fade of lithium\u2011ion cells, and which cycling parameters contribute most to the predictions? Accurate, early prediction of battery degradation\u2026",
+      "field": "materials science",
+      "id": "PROJ-193-predicting-battery-degradation-from-publ",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 77.246439,
+          "ended_at": "2026-05-03T10:30:28.296750Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-03T10:29:11.050311Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Networks",
+      "updated_at": "2026-05-03T10:30:28.298916+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-194-evaluating-the-impact-of-code-style-on-l/idea/evaluating-the-impact-of-code-style-on-l.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T10:27:42.146966+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: computer science How do systematic variations in code style\u2014formatting, naming conventions, and commenting\u2014affect the performance of large language models on code\u2011understanding and code\u2011generation tasks such as completion, bug detection, and summarization? LLMs are increasingly deployed as coding assistants\u2026",
+      "field": "computer science",
+      "id": "PROJ-194-evaluating-the-impact-of-code-style-on-l",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 75.525771,
+          "ended_at": "2026-05-03T10:31:44.120017Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-03T10:30:28.594246Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Impact of Code Style on LLM Code Understanding and Generation",
+      "updated_at": "2026-05-03T10:31:44.122228+00:00"
     }
   ],
   "schema_version": "2.0.0"
