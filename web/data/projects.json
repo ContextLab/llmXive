@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 202,
+    "active_projects": 205,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1060,
+    "total_contributions": 1063,
     "total_contributors": 29
   },
   "contributors": [
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 182,
+      "contribution_count": 185,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -57,7 +57,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 154,
+      "contribution_count": 157,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-03T13:41:00.607202+00:00",
+  "generated_at": "2026-05-03T14:30:10.997751+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -14544,6 +14544,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting Phase Transitions in Amorphous Solids Using Machine Learning",
       "updated_at": "2026-05-03T13:40:59.189356+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-204-quantifying-the-impact-of-spatial-correl/idea/quantifying-the-impact-of-spatial-correl.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T14:26:11.681009+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics How do spatial correlations in elemental composition (e.g., Pb, I, MA) across perovskite thin\u2011film layers influence charge\u2011carrier diffusion lengths and, consequently, the power\u2011conversion efficiency (PCE) of the device? Perovskite solar cells achieve high efficiencies but are limited by micro\u2011scale\u2026",
+      "field": "physics",
+      "id": "PROJ-204-quantifying-the-impact-of-spatial-correl",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 75.311338,
+          "ended_at": "2026-05-03T14:27:41.728608Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-03T14:26:26.417270Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Quantifying the Impact of Spatial Correlations on Perovskite Solar Cell Efficiency",
+      "updated_at": "2026-05-03T14:27:41.731298+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/idea/the-influence-of-visual-aesthetics-on-pe.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T14:26:11.681009+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Do visual\u2011aesthetic qualities of a webpage (color scheme, typography, image quality, layout simplicity) systematically affect users\u2019 perceived credibility of the information presented, when the textual content is held constant? Misinformation spreads rapidly online, yet credibility judgments are\u2026",
+      "field": "psychology",
+      "id": "PROJ-205-the-influence-of-visual-aesthetics-on-pe",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 70.662766,
+          "ended_at": "2026-05-03T14:28:52.767544Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-03T14:27:42.104778Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Influence of Visual Aesthetics on Perceived Credibility of Online Information",
+      "updated_at": "2026-05-03T14:28:52.770188+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-206-statistical-analysis-of-publicly-availab/idea/statistical-analysis-of-publicly-availab.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T14:26:11.681009+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How do simple averaging, accuracy\u2011weighted averaging, and Bayesian hierarchical aggregation differ in terms of predictive accuracy and calibrated uncertainty for U.S. election forecasts derived from publicly available poll aggregates? Election poll aggregators (e.g., FiveThirtyEight,\u2026",
+      "field": "statistics",
+      "id": "PROJ-206-statistical-analysis-of-publicly-availab",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 76.257316,
+          "ended_at": "2026-05-03T14:30:09.399328Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-05-03T14:28:53.142012Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Statistical Analysis of Publicly Available Election Poll Aggregates",
+      "updated_at": "2026-05-03T14:30:09.401870+00:00"
     }
   ],
   "schema_version": "2.0.0"
