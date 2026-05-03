@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 223,
+    "active_projects": 226,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1097,
+    "total_contributions": 1100,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 928,
+      "contribution_count": 931,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 203,
+      "contribution_count": 206,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-03T21:24:35.442495+00:00",
+  "generated_at": "2026-05-03T22:23:03.241304+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -15951,6 +15951,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting the Ductility of Additively Manufactured Nickel-Based Superalloys",
       "updated_at": "2026-05-03T21:24:33.935421+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-225-predicting-molecular-interactions-in-ion/idea/predicting-molecular-interactions-in-ion.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T22:20:51.511179+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "<tool> <name>lit_search</name> <arguments> <query>ionic liquids machine learning prediction molecular interactions</query> <max_results>8</max_results> </arguments> </tool> <tool> <name>lit_search</name> <arguments> <query>graph neural network ionic liquid property prediction</query> <max_results>8</max_results>\u2026",
+      "field": "chemistry",
+      "id": "PROJ-225-predicting-molecular-interactions-in-ion",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 22.47896,
+          "ended_at": "2026-05-03T22:21:27.293255Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-03T22:21:04.814295Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Molecular Interactions in Ionic Liquids via Machine Learning",
+      "updated_at": "2026-05-03T22:21:27.296034+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-226-predicting-the-impact-of-surface-treatme/idea/predicting-the-impact-of-surface-treatme.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T22:20:51.511179+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science Can machine learning models trained on publicly available polymer adhesion datasets predict the effect of surface treatment parameters (e.g., plasma power, exposure time, chemical concentration) on interfacial adhesion strength? Surface treatments are routinely used to improve\u2026",
+      "field": "materials science",
+      "id": "PROJ-226-predicting-the-impact-of-surface-treatme",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 29.855271,
+          "ended_at": "2026-05-03T22:21:57.550329Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-03T22:21:27.695058Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers",
+      "updated_at": "2026-05-03T22:21:57.552870+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-227-assessing-the-trade-offs-between-static-/idea/assessing-the-trade-offs-between-static-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T22:20:51.511179+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "<tool_code> print(lit_search(query=\"static analysis dynamic analysis LLM generated code security vulnerabilities\", max_results=8)) print(lit_search(query=\"code quality assessment large language models software testing\", max_results=8)) print(lit_search(query=\"automated code generation evaluation bugs errors\",\u2026",
+      "field": "computer science",
+      "id": "PROJ-227-assessing-the-trade-offs-between-static-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 63.55714,
+          "ended_at": "2026-05-03T22:23:01.499696Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-03T22:21:57.942556Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Assessing the Trade-offs Between Static and Dynamic Analysis for LLM-Generated Code",
+      "updated_at": "2026-05-03T22:23:01.502231+00:00"
     }
   ],
   "schema_version": "2.0.0"
