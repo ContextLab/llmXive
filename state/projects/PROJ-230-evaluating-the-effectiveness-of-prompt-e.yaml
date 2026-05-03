@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-03T23:22:58.201893Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: computer science
+human_escalation_reason: null
+id: PROJ-230-evaluating-the-effectiveness-of-prompt-e
+last_run_id: d08f7bf4-c202-4c12-bfa7-73a6a32c9f4a
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Evaluating the Effectiveness of Prompt Engineering for LLM-Based Code Translation
+updated_at: '2026-05-03T23:25:35.708365Z'
