@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 220,
+    "active_projects": 223,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1094,
+    "total_contributions": 1097,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 925,
+      "contribution_count": 928,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 200,
+      "contribution_count": 203,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-03T20:47:59.928597+00:00",
+  "generated_at": "2026-05-03T21:24:35.442495+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -15750,6 +15750,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "The Role of Cognitive Dissonance in Justifying Unethical AI Use",
       "updated_at": "2026-05-03T20:23:46.282446+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-222-the-impact-of-predictive-coding-errors-o/idea/the-impact-of-predictive-coding-errors-o.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T21:22:00.531924+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Does manipulating the predictability of sequential stimuli alter participants' duration estimates, and do larger prediction errors correlate with overestimation of elapsed time? Predictive coding theory suggests the brain continuously updates internal models based on prediction errors, yet its role\u2026",
+      "field": "psychology",
+      "id": "PROJ-222-the-impact-of-predictive-coding-errors-o",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 37.810367,
+          "ended_at": "2026-05-03T21:22:51.111481Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-03T21:22:13.301114Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Predictive Coding Errors on Subjective Time Perception",
+      "updated_at": "2026-05-03T21:22:51.114036+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-223-statistical-analysis-of-publicly-availab/idea/statistical-analysis-of-publicly-availab.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T21:22:00.531924+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How do specific weather conditions (precipitation, visibility, temperature) statistically influence traffic accident severity (property damage, injury, fatality) after controlling for temporal and infrastructural variables? Understanding weather-severity correlations allows for targeted safety\u2026",
+      "field": "statistics",
+      "id": "PROJ-223-statistical-analysis-of-publicly-availab",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 70.915969,
+          "ended_at": "2026-05-03T21:24:02.371400Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-03T21:22:51.455431Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Statistical Analysis of Publicly Available Traffic Accident Data",
+      "updated_at": "2026-05-03T21:24:02.373733+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-224-predicting-the-ductility-of-additively-m/idea/predicting-the-ductility-of-additively-m.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-03T21:22:00.531924+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science Can machine learning models trained on publicly available process-parameter and mechanical-property datasets accurately predict the ductility (elongation to failure) of additively manufactured nickel-based superalloys? Additively manufactured nickel-based superalloys offer significant\u2026",
+      "field": "materials science",
+      "id": "PROJ-224-predicting-the-ductility-of-additively-m",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 31.225838,
+          "ended_at": "2026-05-03T21:24:33.933085Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-03T21:24:02.707247Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Ductility of Additively Manufactured Nickel-Based Superalloys",
+      "updated_at": "2026-05-03T21:24:33.935421+00:00"
     }
   ],
   "schema_version": "2.0.0"
