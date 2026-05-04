@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-04T09:58:37.107439Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: statistics
+human_escalation_reason: null
+id: PROJ-246-estimating-causal-effects-with-doubly-ro
+last_run_id: b6821cb1-80f2-4494-95f0-960bfcf47849
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Estimating Causal Effects with Doubly Robust Methods on Observational Data
+updated_at: '2026-05-04T09:59:46.713675Z'
