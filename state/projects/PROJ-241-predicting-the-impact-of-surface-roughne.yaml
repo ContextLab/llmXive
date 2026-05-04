@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-04T07:16:50.555861Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: materials science
+human_escalation_reason: null
+id: PROJ-241-predicting-the-impact-of-surface-roughne
+last_run_id: 67248637-8d80-4a8b-83db-48bdcee8f5f6
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Predicting the Impact of Surface Roughness on Tribological Properties
+updated_at: '2026-05-04T07:18:39.024040Z'
