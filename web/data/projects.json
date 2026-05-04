@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 274,
+    "active_projects": 277,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1630,
+    "total_contributions": 1633,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1457,
+      "contribution_count": 1460,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 254,
+      "contribution_count": 257,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-04T21:35:02.163780+00:00",
+  "generated_at": "2026-05-04T22:32:57.328132+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -19394,6 +19394,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office Revenue",
       "updated_at": "2026-05-04T21:35:00.421821+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-276-predicting-the-impact-of-impurities-on-t/idea/predicting-the-impact-of-impurities-on-t.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T22:28:12.516646+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science Can machine learning models accurately predict the critical temperature (Tc) degradation in MgB\u2082 based on elemental impurity profiles and synthesis parameters? Magnesium diboride (MgB\u2082) is a cost-effective superconductor, yet its performance is highly sensitive to synthesis conditions and\u2026",
+      "field": "materials science",
+      "id": "PROJ-276-predicting-the-impact-of-impurities-on-t",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 64.191853,
+          "ended_at": "2026-05-04T22:29:30.358630Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T22:28:26.166777Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Impact of Impurities on the Superconductivity of Magnesium Diboride",
+      "updated_at": "2026-05-04T22:29:30.361153+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-277-predicting-the-impact-of-alloying-on-hig/idea/predicting-the-impact-of-alloying-on-hig.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T22:28:12.516646+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science Can machine learning regression models trained on elemental composition and thermodynamic descriptors accurately predict high-temperature oxidation weight gain in nickel-based superalloys using publicly available materials data? Experimental characterization of oxidation resistance is slow and\u2026",
+      "field": "materials science",
+      "id": "PROJ-277-predicting-the-impact-of-alloying-on-hig",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 147.688055,
+          "ended_at": "2026-05-04T22:31:58.513858Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T22:29:30.825803Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Impact of Alloying on High-Temperature Oxidation Resistance",
+      "updated_at": "2026-05-04T22:31:58.516243+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/idea/predicting-the-diffusion-of-carbon-in-bc.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T22:28:12.516646+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science Can machine learning regression models accurately predict the diffusion coefficient of carbon in body-centered cubic (BCC) metals using only compositional data from public materials databases? Carbon diffusion governs critical materials processes including carburization, steel hardening, and\u2026",
+      "field": "materials science",
+      "id": "PROJ-278-predicting-the-diffusion-of-carbon-in-bc",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 56.521311,
+          "ended_at": "2026-05-04T22:32:55.436088Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T22:31:58.914777Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Diffusion of Carbon in BCC Metals from Compositional Data",
+      "updated_at": "2026-05-04T22:32:55.438498+00:00"
     }
   ],
   "schema_version": "2.0.0"

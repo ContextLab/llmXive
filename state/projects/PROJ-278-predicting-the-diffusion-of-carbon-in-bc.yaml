@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-04T22:28:12.516646Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: materials science
+human_escalation_reason: null
+id: PROJ-278-predicting-the-diffusion-of-carbon-in-bc
+last_run_id: d62398f3-1624-4ac7-9875-fdebc11892a3
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Predicting the Diffusion of Carbon in BCC Metals from Compositional Data
+updated_at: '2026-05-04T22:32:55.438498Z'
