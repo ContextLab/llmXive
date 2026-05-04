@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-04T18:43:57.500127Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: chemistry
+human_escalation_reason: null
+id: PROJ-268-predicting-molecular-ionization-energies
+last_run_id: e7778274-ee54-43f6-ab9e-7d69f8191e04
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Predicting Molecular Ionization Energies with Graph Neural Networks
+updated_at: '2026-05-04T18:45:08.038101Z'

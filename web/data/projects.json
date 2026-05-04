@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 265,
+    "active_projects": 268,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1621,
+    "total_contributions": 1624,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1448,
+      "contribution_count": 1451,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 245,
+      "contribution_count": 248,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-04T17:41:30.515937+00:00",
+  "generated_at": "2026-05-04T18:45:54.859466+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -18791,6 +18791,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Machine Learning Prediction of Fracture Toughness from Microstructure Images",
       "updated_at": "2026-05-04T17:41:29.097783+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-267-exploring-the-relationship-between-atmos/idea/exploring-the-relationship-between-atmos.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T18:43:57.500127+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics Do intense atmospheric river (AR) events produce detectable, localized gravity anomalies in GRACE-FO satellite observations over affected regions (e.g., West Coast North America), and if so, what is the magnitude of this mass-redistribution signal relative to measurement noise? Atmospheric rivers\u2026",
+      "field": "physics",
+      "id": "PROJ-267-exploring-the-relationship-between-atmos",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 28.598372,
+          "ended_at": "2026-05-04T18:44:39.751951Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T18:44:11.153579Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Exploring the Relationship Between Atmospheric River Intensity and Regional Gravity Variations",
+      "updated_at": "2026-05-04T18:44:39.754835+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-268-predicting-molecular-ionization-energies/idea/predicting-molecular-ionization-energies.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T18:43:57.500127+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry Can a lightweight graph neural network trained on a public molecular dataset predict molecular ionization energies with accuracy comparable to quantum chemical methods, while reducing computational cost by orders of magnitude? Accurate ionization energy prediction is essential for understanding\u2026",
+      "field": "chemistry",
+      "id": "PROJ-268-predicting-molecular-ionization-energies",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 27.775501,
+          "ended_at": "2026-05-04T18:45:08.035568Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T18:44:40.260067Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Molecular Ionization Energies with Graph Neural Networks",
+      "updated_at": "2026-05-04T18:45:08.038101+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-269-assessing-the-impact-of-data-augmentatio/idea/assessing-the-impact-of-data-augmentatio.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T18:43:57.500127+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How do common data augmentation techniques (e.g., SMOTE, Gaussian noise injection, sample duplication) alter the Type I and Type II error rates of frequentist hypothesis tests when applied to datasets with sample sizes N < 50? Small sample studies are prevalent in clinical trials and niche domain\u2026",
+      "field": "statistics",
+      "id": "PROJ-269-assessing-the-impact-of-data-augmentatio",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 44.385534,
+          "ended_at": "2026-05-04T18:45:52.871266Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T18:45:08.485732Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Assessing the Impact of Data Augmentation on Statistical Power in Small Samples",
+      "updated_at": "2026-05-04T18:45:52.873789+00:00"
     }
   ],
   "schema_version": "2.0.0"
