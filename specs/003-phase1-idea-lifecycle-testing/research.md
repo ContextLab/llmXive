@@ -10,13 +10,13 @@ Findings are recorded here so future-spec authors don't have to re-introspect.
 
 ## Decision 1: Orchestrator CLI signature
 
-**Decision**: Use `python -m llmxive run --max-tasks N [--project <id>] [--stage <stage>]` for every agent invocation. Cohort growing for brainstorm uses a fresh `run --max-tasks 1` per seed (the scheduler picks a fresh project slot when no `--project` is given).
+**Decision**: Use **`python -m llmxive brainstorm --count N`** for *fresh* cohort creation (Phase 1 entry); use `python -m llmxive run --max-tasks N [--project <id>] [--stage <stage>]` for **advancing** existing projects through later stages (flesh_out, idea_selector, etc.).
 
-**Rationale**: Confirmed by reading `src/llmxive/cli.py` — the `_cmd_run` function loops over `--max-tasks` calls to `run_one_step`, with `--project` filtering to a specific project ID and `--stage` filtering to projects at a given lifecycle stage. The CLI usage string in the file's module docstring shows: `run --max-tasks N [--project X --stage S]`. There is also a separate `_cmd_brainstorm` subcommand that auto-seeds N brainstormed-stage state files; we do **not** use this — we want every agent run to go through the production `run` path so the diagnostic faithfully replicates production behavior.
+**Rationale (revised after D0)**: Initial reading of `src/llmxive/cli.py` was incomplete. `_cmd_run` (the `run` subcommand) loops over `--max-tasks` calls that *advance projects already in the state machine*; `--stage brainstormed` filters to existing projects at the brainstormed stage and tries to advance them with the next agent (which is `flesh_out`). It does **not** create new brainstormed-stage projects. The dedicated `_cmd_brainstorm` subcommand IS the production code path for *creating* fresh brainstormed-stage projects: its docstring explicitly says "Seed N brainstormed-stage Project state files via the Brainstorm agent. The agent is invoked once per requested idea — each call rolls a fresh field (or uses --field) and asks the LLM for an original research idea, deduplicated against existing project titles in that field." It uses the same backend stack (Dartmouth Chat → Hugging Face → local) and the same prompt+registry resolver as `_cmd_run`, so the production code path is preserved. We just need to use the right entry point for the lifecycle stage we're at.
 
-**Alternatives considered**:
-- `python -m llmxive brainstorm --count 8` (the dedicated subcommand) — rejected because it bypasses the scheduler / state-machine and isn't the production code path.
-- Direct calls into `llmxive.agents.brainstorm.BrainstormAgent` — rejected because it bypasses the orchestrator entirely, defeating the point of the diagnostic.
+**Alternatives considered (revised)**:
+- `python -m llmxive run --max-tasks 1 --stage brainstormed` (the original draft) — rejected because it advances existing projects rather than creating new ones. The pre-existing project pool (262 projects at the time of cohort 1) means `run --stage brainstormed` will pull an arbitrary existing project and try to flesh it out — exactly the side effect we hit on PROJ-258 during the misroute (a flesh_out call ran on a 2-week-old psychology project unrelated to our diagnostic).
+- Direct calls into `llmxive.agents.brainstorm.BrainstormAgent` — still rejected because it bypasses the CLI/registry/backend-router layer.
 
 ## Decision 2: Idea-artifact filename convention
 

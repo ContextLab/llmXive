@@ -40,13 +40,11 @@ principle V: Fail Fast).
 ## Step 1 — First brainstorm cohort (8 seeds)
 
 ```bash
-# Run brainstorm 8 times. Each invocation creates one fresh project.
-# (The orchestrator's scheduler picks a fresh slot each time when no
-# --project flag is given.)
-for i in 1 2 3 4 5 6 7 8; do
-  python -m llmxive run --max-tasks 1 --stage brainstormed
-done
+# Generate 8 fresh brainstormed-stage projects in one call.
+python -m llmxive brainstorm --count 8
 ```
+
+**Note (D0)**: an earlier draft of this runbook used `python -m llmxive run --max-tasks 1 --stage brainstormed` for cohort generation, but `_cmd_run` advances *existing* projects already at the brainstormed stage; the canonical "create new brainstormed-stage project" entry point is `_cmd_brainstorm`, which is what `--count 8` triggers. Each invocation calls the same Brainstorm agent with the same prompt + backend stack the orchestrator uses, so the production code path is preserved per FR-002.
 
 **Expected outcome**: 8 new directories under `projects/PROJ-NNN-<slug>/`,
 each with `idea/<slug>.md`, plus 8 new files under `state/projects/`, plus
