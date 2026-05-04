@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-04T23:25:37.121749Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: biology
+human_escalation_reason: null
+id: PROJ-280-investigating-microbial-community-succes
+last_run_id: fd3c1cc2-0c6f-4cb3-92be-932244834b39
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Investigating Microbial Community Succession in Constructed Wetlands
+updated_at: '2026-05-04T23:27:53.535232Z'
