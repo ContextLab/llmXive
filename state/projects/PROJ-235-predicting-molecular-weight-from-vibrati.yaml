@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-04T03:19:00.880291Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: chemistry
+human_escalation_reason: null
+id: PROJ-235-predicting-molecular-weight-from-vibrati
+last_run_id: b9bfb1ca-f580-49b1-9765-ccdb51dd92d6
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Predicting Molecular Weight from Vibrational Spectroscopy with Machine Learning
+updated_at: '2026-05-04T03:20:48.044584Z'

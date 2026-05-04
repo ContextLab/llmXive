@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 232,
+    "active_projects": 235,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1106,
+    "total_contributions": 1109,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 937,
+      "contribution_count": 940,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 212,
+      "contribution_count": 215,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-04T01:23:29.389837+00:00",
+  "generated_at": "2026-05-04T03:21:32.933293+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -16554,6 +16554,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional and Microstructural Descriptors",
       "updated_at": "2026-05-04T01:07:00.627824+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-234-assessing-statistical-power-in-reproduci/idea/assessing-statistical-power-in-reproduci.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T03:19:00.880291+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics What proportion of studies utilizing public datasets (e.g., OpenML) report statistically significant findings that were achieved with inadequate statistical power (<80%) given their reported sample sizes and effect sizes? Underpowered studies contribute significantly to the reproducibility crisis by\u2026",
+      "field": "statistics",
+      "id": "PROJ-234-assessing-statistical-power-in-reproduci",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 62.252091,
+          "ended_at": "2026-05-04T03:20:16.341300Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T03:19:14.089209Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Assessing Statistical Power in Reproducible Research with Public Datasets",
+      "updated_at": "2026-05-04T03:20:16.344032+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-235-predicting-molecular-weight-from-vibrati/idea/predicting-molecular-weight-from-vibrati.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T03:19:00.880291+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry Can molecular weight be accurately predicted from vibrational spectra (Raman or IR) using machine learning techniques trained on publicly available spectral databases? Traditional molecular weight determination requires specialized equipment (mass spectrometry) or significant sample preparation. A\u2026",
+      "field": "chemistry",
+      "id": "PROJ-235-predicting-molecular-weight-from-vibrati",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 31.292229,
+          "ended_at": "2026-05-04T03:20:48.042070Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T03:20:16.749841Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Molecular Weight from Vibrational Spectroscopy with Machine Learning",
+      "updated_at": "2026-05-04T03:20:48.044584+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-236-exploring-the-influence-of-network-topol/idea/exploring-the-influence-of-network-topol.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T03:19:00.880291+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics How does the topological structure of atomic connectivity networks (e.g., small-world, scale-free, random) influence thermal conductivity in disordered materials, and can specific network motifs predict anomalous heat transport behavior? Heat transport in disordered materials often violates Fourier's\u2026",
+      "field": "physics",
+      "id": "PROJ-236-exploring-the-influence-of-network-topol",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 42.738554,
+          "ended_at": "2026-05-04T03:21:31.188441Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T03:20:48.449887Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Exploring the Influence of Network Topology on Heat Transport in Disordered Materials",
+      "updated_at": "2026-05-04T03:21:31.190992+00:00"
     }
   ],
   "schema_version": "2.0.0"
