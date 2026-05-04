@@ -27,17 +27,17 @@ Individuals exposed to simulated social rejection will show reduced activation i
 
 ## Methodology sketch
 
-- **Data source**: Use publicly available fMRI datasets from OpenNeuro or NeuroVault containing social rejection paradigms (e.g., Cyberball studies) with DOIs listed for download.
+- **Data source**: Download preprocessed fMRI datasets from OpenNeuro (e.g., ds000208 Cyberball dataset) or NeuroVault using `wget`/`curl` with explicit DOIs listed for reproducibility.
 - **Participants**: Secondary analysis of existing datasets (N ≥ 30 per condition) to avoid new experimental collection.
-- **Task paradigm**: Cyberball social exclusion task followed by reward feedback task (extracted from existing fMRI sessions).
-- **Preprocessing**: Standard fMRI pipeline (realignment, normalization, smoothing) using FSL or AFNI on CPU-compatible workflows.
-- **ROI analysis**: Extract BOLD signal from ventral striatum and mPFC using established atlases (e.g., Harvard-Oxford).
-- **Statistical test**: 2×2 mixed ANOVA (condition × time) with post-hoc t-tests; effect sizes computed via Cohen's d.
-- **Reproducibility**: All code stored in GitHub repository; analysis scripts documented for peer review.
+- **Task paradigm**: Extract Cyberball social exclusion task and subsequent reward feedback task from existing fMRI session logs.
+- **Preprocessing**: Use CPU-compatible fMRI pipelines (FSL/AFNI) on preprocessed BOLD data only; no raw-to-preprocessed conversion to stay within 7GB RAM constraints.
+- **ROI analysis**: Extract BOLD signal from ventral striatum and mPFC using Harvard-Oxford atlas masks applied to preprocessed data.
+- **Statistical test**: 2×2 mixed ANOVA (condition × time) with post-hoc t-tests; effect sizes computed via Cohen's d using Python/NumPy.
+- **Reproducibility**: All analysis scripts stored in GitHub repository with Docker container for environment consistency.
 - **Limitations**: No primary data collection; relies on dataset availability and matching rejection/reward paradigms.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None available in current corpus.
 - Closest match: No direct matches found.
-- Verdict: **rejected — out of scope** (requires fMRI scanner and specialized neuroimaging hardware incompatible with GitHub Actions free-tier constraints)
+- Verdict: **rejected — out of scope** (requires fMRI scanner and specialized neuroimaging hardware incompatible with GitHub Actions free-tier constraints; preprocessing even preprocessed datasets exceeds 7GB RAM and 6-hour job limits for N≥30 participants)
