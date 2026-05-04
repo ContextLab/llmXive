@@ -18,9 +18,9 @@ from typing import List, Dict, Any
 # Add code directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from models.dp_gmm import DPGMMModel, DPGMMConfig, compute_anomaly_score, compute_anomaly_scores_batch
-from models.anomaly_score import AnomalyScore
-from data.synthetic_generator import generate_synthetic_timeseries, AnomalyConfig, SignalConfig
+from src.models.dpgmm import DPGMMModel, DPGMMConfig, compute_anomaly_score, compute_anomaly_scores_batch
+from src.models.anomaly_score import AnomalyScore
+from src.data.synthetic_generator import generate_synthetic_timeseries, AnomalyConfig, SignalConfig
 
 
 class TestDPGMMZeroVariance:

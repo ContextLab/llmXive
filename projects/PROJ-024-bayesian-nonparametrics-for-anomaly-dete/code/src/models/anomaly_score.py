@@ -1,10 +1,3 @@
-"""
-Anomaly Score dataclass definition with support for uncertainty estimates.
-
-This module provides the core AnomalyScore dataclass used throughout the
-DPGMM anomaly detection pipeline.
-"""
-
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional, Dict, Any
@@ -14,52 +7,72 @@ import numpy as np
 @dataclass
 class AnomalyScore:
     """
-    Core anomaly score dataclass.
-    
-    Represents the anomaly score for a single observation, computed as
-    the negative log posterior probability under the DPGMM model.
+    Anomaly score output with probabilistic uncertainty estimates.
+
+    US1 Acceptance Scenario 3: Model produces anomaly scores with
+    probabilistic uncertainty that can be used to assess confidence
+    in anomaly detection decisions.
     """
-    
-    # Core score information
-    anomaly_score: float = 0.0  # Negative log posterior probability
-    is_anomaly: bool = False  # Binary anomaly flag
-    timestamp: datetime = field(default_factory=datetime.now)
-    
-    # Optional diagnostic information
-    metadata: Optional[Dict[str, Any]] = None
-    
-    def __post_init__(self):
-        if self.metadata is None:
-            self.metadata = {}
-    
+    timestamp: datetime
+    score: float
+    # Probabilistic uncertainty estimates (US1-AS3)
+    uncertainty_variance: float = field(default=0.0)
+    uncertainty_std: float = field(default=0.0)
+    confidence_interval_95: tuple = field(default_factory=lambda: (0.0, 0.0))
+    # Probability that this observation is anomalous (posterior)
+    posterior_anomaly_prob: float = field(default=0.0)
+    # Number of posterior samples used for uncertainty estimation
+    n_samples: int = field(default=0)
+    # Additional metadata
+    component_assignments: Optional[List[int]] = field(default=None)
+    component_weights: Optional[Dict[int, float]] = field(default=None)
+    elbo_value: Optional[float] = field(default=None)
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
-            'anomaly_score': float(self.anomaly_score),
-            'is_anomaly': bool(self.is_anomaly),
-            'timestamp': self.timestamp.isoformat() if hasattr(self.timestamp, 'isoformat') else str(self.timestamp),
-            'metadata': self.metadata or {},
+            'timestamp': self.timestamp.isoformat(),
+            'score': self.score,
+            'uncertainty_variance': self.uncertainty_variance,
+            'uncertainty_std': self.uncertainty_std,
+            'confidence_interval_95': list(self.confidence_interval_95),
+            'posterior_anomaly_prob': self.posterior_anomaly_prob,
+            'n_samples': self.n_samples,
+            'component_assignments': self.component_assignments,
+            'component_weights': self.component_weights,
+            'elbo_value': self.elbo_value,
         }
-    
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'AnomalyScore':
-        """Create from dictionary."""
-        timestamp = data.get('timestamp', datetime.now())
-        if isinstance(timestamp, str):
-            timestamp = datetime.fromisoformat(timestamp)
-        
+        """Load from dictionary."""
         return cls(
-            anomaly_score=float(data.get('anomaly_score', 0.0)),
-            is_anomaly=bool(data.get('is_anomaly', False)),
-            timestamp=timestamp,
-            metadata=data.get('metadata', {}),
+            timestamp=datetime.fromisoformat(data['timestamp']),
+            score=data['score'],
+            uncertainty_variance=data.get('uncertainty_variance', 0.0),
+            uncertainty_std=data.get('uncertainty_std', 0.0),
+            confidence_interval_95=tuple(data.get('confidence_interval_95', (0.0, 0.0))),
+            posterior_anomaly_prob=data.get('posterior_anomaly_prob', 0.0),
+            n_samples=data.get('n_samples', 0),
+            component_assignments=data.get('component_assignments'),
+            component_weights=data.get('component_weights'),
+            elbo_value=data.get('elbo_value'),
         )
 
-def main():
-    """Main entry point for testing."""
-    score = AnomalyScore(anomaly_score=15.5, is_anomaly=True)
-    print(f"Anomaly Score: {score.to_dict()}")
-    return score
+    def is_anomalous(self, threshold: float = 0.0) -> bool:
+        """Check if score exceeds threshold."""
+        return self.score > threshold
 
-if __name__ == '__main__':
-    main()
+    def get_certainty_level(self) -> str:
+        """
+        Return certainty level based on uncertainty variance.
+
+        Returns:
+            'high' if variance < 0.1, 'medium' if < 0.5, 'low' otherwise
+        """
+        if self.uncertainty_variance < 0.1:
+            return 'high'
+        elif self.uncertainty_variance < 0.5:
+            return 'medium'
+        else:
+            return 'low'

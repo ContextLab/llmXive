@@ -26,8 +26,8 @@ try:
 except ImportError:
     HAS_PSUTIL = False
 
-from ..models.anomaly_score import AnomalyScore
-from ..models.dp_gmm import DPGMMModel, DPGMMConfig
+from ..anomaly_score import AnomalyScore
+from ..dpgmm import DPGMMModel, DPGMMConfig
 from .streaming import StreamingObservation
 
 

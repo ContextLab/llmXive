@@ -486,7 +486,7 @@
   verification_status: verified
   verified_against_url: https://archive.ics.uci.edu/dataset/204/pems+sf
   verified_at: '2026-05-01T19:10:41.147058Z'
-- artifact_hash: a08d34ef6a7130336e75d79bf4291a5966bfea627e5edad6201e35a3875393a1
+- artifact_hash: a5f71d84e1cf57368d5734c764ee7782cf085892fffe7a51847a9c5a3da4bfbe
   artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/data-dictionary.md
   cite_id: c-001
   cited_authors: []
@@ -496,21 +496,32 @@
   value: https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014`
   verification_status: mismatch
   verified_against_url: https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014%60
-  verified_at: '2026-05-01T19:12:25.609447Z'
-- artifact_hash: a08d34ef6a7130336e75d79bf4291a5966bfea627e5edad6201e35a3875393a1
+  verified_at: '2026-05-03T23:58:14.209371Z'
+- artifact_hash: a5f71d84e1cf57368d5734c764ee7782cf085892fffe7a51847a9c5a3da4bfbe
   artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/data-dictionary.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: UCI Machine Learning Repository
+  fetched_title: null
   kind: url
-  value: http://archive.ics.uci.edu/ml
-  verification_status: verified
-  verified_against_url: http://archive.ics.uci.edu/
-  verified_at: '2026-05-01T19:12:25.609447Z'
-- artifact_hash: a08d34ef6a7130336e75d79bf4291a5966bfea627e5edad6201e35a3875393a1
+  value: https://archive.ics.uci.edu/static/public/321/data.csv`
+  verification_status: mismatch
+  verified_against_url: https://archive.ics.uci.edu/static/public/321/data.csv%60
+  verified_at: '2026-05-03T23:58:14.209371Z'
+- artifact_hash: a5f71d84e1cf57368d5734c764ee7782cf085892fffe7a51847a9c5a3da4bfbe
   artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/data-dictionary.md
   cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://archive.ics.uci.edu/ml/datasets/PEMS-SF`
+  verification_status: mismatch
+  verified_against_url: https://archive.ics.uci.edu/ml/datasets/PEMS-SF%60
+  verified_at: '2026-05-03T23:58:14.209371Z'
+- artifact_hash: a5f71d84e1cf57368d5734c764ee7782cf085892fffe7a51847a9c5a3da4bfbe
+  artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/data-dictionary.md
+  cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -518,21 +529,21 @@
   value: https://pems.dot.ca.gov/`
   verification_status: mismatch
   verified_against_url: https://pems.dot.ca.gov/%60
-  verified_at: '2026-05-01T19:12:25.609447Z'
-- artifact_hash: a08d34ef6a7130336e75d79bf4291a5966bfea627e5edad6201e35a3875393a1
-  artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/data-dictionary.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: Caltrans PeMS
-  kind: url
-  value: https://pems.dot.ca.gov/
-  verification_status: verified
-  verified_against_url: https://pems.dot.ca.gov/
-  verified_at: '2026-05-01T19:12:25.609447Z'
-- artifact_hash: a08d34ef6a7130336e75d79bf4291a5966bfea627e5edad6201e35a3875393a1
+  verified_at: '2026-05-03T23:58:14.209371Z'
+- artifact_hash: a5f71d84e1cf57368d5734c764ee7782cf085892fffe7a51847a9c5a3da4bfbe
   artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/data-dictionary.md
   cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/laiguokun/multivariate-time-series-data/master/traffic/traffic.csv.gz`
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/laiguokun/multivariate-time-series-data/master/traffic/traffic.csv.gz%60
+  verified_at: '2026-05-03T23:58:14.209371Z'
+- artifact_hash: a5f71d84e1cf57368d5734c764ee7782cf085892fffe7a51847a9c5a3da4bfbe
+  artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/data-dictionary.md
+  cite_id: c-006
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -540,32 +551,32 @@
   value: https://archive.ics.uci.edu/ml/datasets/Synthetic+Control+Chart+Time+Series`
   verification_status: mismatch
   verified_against_url: https://archive.ics.uci.edu/ml/datasets/Synthetic+Control+Chart+Time+Series%60
-  verified_at: '2026-05-01T19:12:25.609447Z'
-- artifact_hash: a08d34ef6a7130336e75d79bf4291a5966bfea627e5edad6201e35a3875393a1
-  artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/data-dictionary.md
-  cite_id: c-006
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/numenta/NAB`
-  verification_status: mismatch
-  verified_against_url: https://github.com/numenta/NAB%60
-  verified_at: '2026-05-01T19:12:25.609447Z'
-- artifact_hash: a08d34ef6a7130336e75d79bf4291a5966bfea627e5edad6201e35a3875393a1
+  verified_at: '2026-05-03T23:58:14.209371Z'
+- artifact_hash: a5f71d84e1cf57368d5734c764ee7782cf085892fffe7a51847a9c5a3da4bfbe
   artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/data-dictionary.md
   cite_id: c-007
   cited_authors: []
   cited_title: null
-  fetched_title: UCI Machine Learning Repository
+  fetched_title: null
   kind: url
-  value: https://archive.ics.uci.edu/
-  verification_status: verified
-  verified_against_url: https://archive.ics.uci.edu/
-  verified_at: '2026-05-01T19:12:25.609447Z'
-- artifact_hash: a08d34ef6a7130336e75d79bf4291a5966bfea627e5edad6201e35a3875393a1
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/00025/synthetic_control.data`
+  verification_status: mismatch
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/00025/synthetic_control.data%60
+  verified_at: '2026-05-03T23:58:14.209371Z'
+- artifact_hash: a5f71d84e1cf57368d5734c764ee7782cf085892fffe7a51847a9c5a3da4bfbe
   artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/data-dictionary.md
   cite_id: c-008
+  cited_authors: []
+  cited_title: null
+  fetched_title: UCI Machine Learning Repository
+  kind: url
+  value: http://archive.ics.uci.edu/ml
+  verification_status: verified
+  verified_against_url: http://archive.ics.uci.edu/
+  verified_at: '2026-05-03T23:58:14.209371Z'
+- artifact_hash: e15540e425370984a71461da28098fb7db8e0194eb9c1d42d4e3da05e21e170d
+  artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-detect/README.md
+  cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: "GitHub - numenta/NAB: The Numenta Anomaly Benchmark \xB7 GitHub"
@@ -573,26 +584,4 @@
   value: https://github.com/numenta/NAB
   verification_status: verified
   verified_against_url: https://github.com/numenta/NAB
-  verified_at: '2026-05-01T19:12:25.609447Z'
-- artifact_hash: a08d34ef6a7130336e75d79bf4291a5966bfea627e5edad6201e35a3875393a1
-  artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/data-dictionary.md
-  cite_id: c-009
-  cited_authors: []
-  cited_title: null
-  fetched_title: Deed - Attribution 4.0 International - Creative Commons
-  kind: url
-  value: https://creativecommons.org/licenses/by/4.0/
-  verification_status: verified
-  verified_against_url: https://creativecommons.org/licenses/by/4.0/
-  verified_at: '2026-05-01T19:12:25.609447Z'
-- artifact_hash: a08d34ef6a7130336e75d79bf4291a5966bfea627e5edad6201e35a3875393a1
-  artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/data-dictionary.md
-  cite_id: c-010
-  cited_authors: []
-  cited_title: null
-  fetched_title: Apache License, Version 2.0 | Apache Software Foundation
-  kind: url
-  value: https://www.apache.org/licenses/LICENSE-2.0
-  verification_status: verified
-  verified_against_url: https://www.apache.org/licenses/LICENSE-2.0
-  verified_at: '2026-05-01T19:12:25.609447Z'
+  verified_at: '2026-05-03T23:58:56.889049Z'

@@ -16,8 +16,8 @@ from typing import List, Dict, Any
 # Add code directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from baselines.arima import ARIMAConfig, ARIMABaseline, create_baseline
-from baselines.moving_average import MovingAverageConfig, MovingAverageBaseline
+from src.baselines.arima import ARIMAConfig, ARIMABaseline, create_baseline
+from src.baselines.moving_average import MovingAverageConfig, MovingAverageBaseline
 
 
 class TestARIMAEdgeCases:

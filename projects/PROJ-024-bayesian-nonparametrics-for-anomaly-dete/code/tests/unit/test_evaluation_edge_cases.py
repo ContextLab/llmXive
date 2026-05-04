@@ -16,7 +16,7 @@ from typing import List, Dict, Any
 # Add code directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from evaluation.metrics import (
+from src.evaluation.metrics import (
     EvaluationMetrics, compute_f1_score, compute_precision,
     compute_recall, compute_auc, generate_confusion_matrix,
     compute_all_metrics, compute_roc_curve_points, compute_pr_curve_points

@@ -15,8 +15,8 @@ from typing import Dict, Any
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from models.dp_gmm import DPGMMModel
-from models.anomaly_score import AnomalyScore
+from src.models.dpgmm import DPGMMModel
+from src.models.anomaly_score import AnomalyScore
 
 
 def test_active_component_counting() -> bool:

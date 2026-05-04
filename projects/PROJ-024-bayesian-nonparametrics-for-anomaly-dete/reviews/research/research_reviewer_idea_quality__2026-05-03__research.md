@@ -1,59 +1,36 @@
 ---
-artifact_hash: ad30c659f561e10924fd6aad2630bd503fe53f4c1c0e5c5a0d5fac5b17d1381f
+artifact_hash: 663c04241d808894bb9a1f0d12b3883dcc5b4312796e931123c14957216bc923
 artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
 backend: dartmouth
 feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.0.0
-reviewed_at: '2026-05-03T20:49:23.615290Z'
+reviewed_at: '2026-05-03T22:49:36.650739Z'
 reviewer_kind: llm
 reviewer_name: research_reviewer_idea_quality
 score: 0.0
 verdict: minor_revision
 ---
 
-## Idea Quality Assessment — Research Question Validity
+## Idea Quality Assessment — Research Design Consistency
 
-### What Works Well
+### Strengths
+The core research hypothesis is **falsifiable**: "DPGMM achieves statistically significant F1-score improvement over ARIMA and moving average baselines" (SC-001). The choice of UCI time series datasets provides a standard benchmark for validation, and the streaming capability requirement (SC-005) adds a practical dimension to the theoretical nonparametric approach. The Constitution Principles (I-VII) provide a strong framework for reproducibility.
 
-The **core research question** is **falsifiable and well-posed**: "Can a DPGMM, updated incrementally with each new observation, effectively detect anomalies in univariate time series without assuming a fixed number of latent states?" This directly addresses a gap in existing anomaly detection methods (fixed latent states, batch-only training). Success Criteria SC-001 through SC-005 provide measurable outcomes (F1-score within 5% of baselines, memory <7GB, runtime <30min).
+### Critical Inconsistency: Success Criteria Alignment
+There is a **significant contradiction in the research design** regarding baseline comparisons:
+1.  **SC-001 (Detection Effectiveness)** specifies baselines as **ARIMA and Moving Average**.
+2.  **SC-004 (Parameter Efficiency)** specifies a baseline of **LSTM-AE**.
 
-### Concerns Requiring Revision
+This creates an **unfalsifiable condition** for SC-004 if LSTM-AE is not explicitly included in the experimental design. The `code/` summary confirms `baselines/arima.py` and `baselines/moving_average.py` exist, but **no LSTM-AE implementation is visible**. If the LSTM-AE baseline is not implemented, the parameter efficiency claim cannot be validated, rendering the research incomplete.
 
-**1. Dataset Selection Justification Incomplete**
+### Gap Identification
+The `research.md` (T000) must explicitly justify why LSTM-AE is the chosen comparator for parameter efficiency while ARIMA/MA are chosen for detection effectiveness. Without this justification in `research.md` or a unified baseline strategy across all Success Criteria, the research gap is **incoherent**. The spec implies a comparison against deep learning (LSTM-AE) for efficiency but classical methods for detection, which needs clear theoretical grounding.
 
-The spec mandates UCI Electricity, Traffic, and Synthetic Control Chart datasets (spec.md Assumptions section), but **lacks scientific justification** for why these specific datasets are appropriate for validating the DPGMM approach. The research question concerns streaming anomaly detection, yet:
-- Electricity dataset: Contains 37 time series (multivariate), spec restricts to univariate only — **contradiction**
-- Traffic dataset (PEMS-Traffic): Contains 862 sensors — **multivariate by nature**
-- Synthetic Control Chart: 600 time series with 6 anomaly types — **justification needed for which series are used**
+### Recommendations
+1.  **Align Success Criteria**: Update `spec.md` to ensure all SCs reference consistent baselines (e.g., include LSTM-AE in SC-001 or remove SC-004's LSTM-AE dependency).
+2.  **Update Research Design**: Ensure `research.md` documents the rationale for multi-baseline comparisons to satisfy Constitution Principle II (Transparency).
+3.  **Verify Implementation**: If LSTM-AE is required for SC-004, the `plan.md` and `tasks.md` must include implementation tasks for this baseline to ensure the research question is actually testable.
 
-*Required*: Add data-model.md section explicitly documenting which time series are extracted from each dataset and why they satisfy the univariate constraint while remaining representative.
-
-**2. Baseline Comparison Scope Unclear**
-
-User Story 2 requires comparing DPGMM against ARIMA, moving average, and LSTM Autoencoder baselines. However:
-- ARIMA is **not an anomaly detection method** — it's a forecasting model. The spec does not clarify how ARIMA forecasts are converted to anomaly scores (residuals? confidence intervals?)
-- LSTM Autoencoder requires **significant hyperparameter tuning** — the spec claims "30% reduction in tunable parameters" (SC-004) but does not define what constitutes a "tunable parameter" for LSTM vs. DPGMM
-- Moving average with z-score is **distribution-free** while DPGMM is **Bayesian** — the comparison may be apples-to-oranges without clarifying whether DPGMM's uncertainty estimates are being leveraged
-
-*Required*: Clarify in spec.md how each baseline converts predictions to anomaly scores, and document the parameter counting methodology for SC-004 verification.
-
-**3. Streaming Update Mechanism Not Theoretically Grounded**
-
-The core innovation is "incremental posterior update after each observation" (FR-002), but the spec references PyMC/Stan with ADVI variational inference. **ADVI is typically a batch optimization procedure**, not an online streaming method. The spec does not explain:
-- How variational parameters are updated incrementally vs. re-optimized from scratch
-- Whether stick-breaking construction is updated online or fixed after initialization
-- What theoretical guarantees exist for the streaming variational updates
-
-*Required*: Add research.md section explaining the theoretical basis for incremental ADVI updates in DPGMM context, or revise FR-002 to clarify whether updates are truly incremental or periodic re-fitting.
-
-**4. Threshold Calibration Dependency on Validation Split**
-
-US3 requires adaptive threshold calibration without labeled data, yet the spec states: "95th percentile of anomaly score distribution on a validation split" (spec.md Assumptions). **A validation split requires labeled data** — this contradicts the "no labeled data" deployment scenario.
-
-*Required*: Clarify whether threshold calibration uses an initial unlabeled calibration period, or revise to use fully unsupervised methods (e.g., score distribution modeling without any split).
-
-### Recommendation
-
-**minor_revision** is appropriate because the research question itself is sound and falsifiable, but the specification lacks necessary theoretical grounding and clarification on critical implementation details that affect whether the research can be properly evaluated and reproduced.
+Until the Success Criteria are internally consistent and the required baselines are accounted for in the implementation plan, the research validity remains compromised.

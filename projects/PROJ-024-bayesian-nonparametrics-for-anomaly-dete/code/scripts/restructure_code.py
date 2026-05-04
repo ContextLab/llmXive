@@ -94,9 +94,9 @@ def update_imports():
             relative_path = py_file.relative_to(SRC_ROOT)
             
             # Pattern to match imports from old locations
-            # e.g., from models.dp_gmm import DPGMMModel
-            # e.g., import models.dp_gmm
-            # e.g., from evaluation.metrics import EvaluationMetrics
+            # e.g., from src.models.dpgmm import DPGMMModel
+            # e.g., import src.models.dpgmm
+            # e.g., from src.evaluation.metrics import EvaluationMetrics
             
             # Update from X import Y patterns
             for old_module in ["baselines", "models", "evaluation", "data", "utils"]:
@@ -119,7 +119,7 @@ def update_imports():
                 content = re.sub(pattern_import, replacement_import, content)
             
             # Handle relative imports within src/
-            # e.g., from ..models.dp_gmm import DPGMMModel
+            # e.g., from ..dpgmm import DPGMMModel
             content = re.sub(
                 r'from \.\.(\w+)',
                 r'from src.\1',

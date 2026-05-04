@@ -19,8 +19,8 @@ import json
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root / 'code'))
 
-from models.dp_gmm import DPGMMModel, is_missing, impute_missing_values, forward_fill_missing
-from models.anomaly_score import AnomalyScore
+from src.models.dpgmm import DPGMMModel, is_missing, impute_missing_values, forward_fill_missing
+from src.models.anomaly_score import AnomalyScore
 
 def test_missing_value_detection() -> bool:
     """Test that missing values are properly detected."""

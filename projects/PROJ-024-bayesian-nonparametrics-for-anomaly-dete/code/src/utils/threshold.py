@@ -36,7 +36,7 @@ from scipy import stats
 
 # Import from project modules
 try:
-    from models.anomaly_score import AnomalyScore
+    from src.models.anomaly_score import AnomalyScore
 except ImportError:
     from code.src.models.anomaly_score import AnomalyScore
 

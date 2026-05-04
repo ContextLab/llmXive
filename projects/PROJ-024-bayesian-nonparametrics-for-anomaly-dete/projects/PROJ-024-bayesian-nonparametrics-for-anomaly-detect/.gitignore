@@ -1,0 +1,117 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Testing
+.coverage
+coverage.xml
+htmlcov/
+pytest_cache/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Project-Specific: Data
+# Track data dictionaries and checksums, but not raw/processed data files
+data/raw/*.csv
+data/raw/*.json
+data/processed/*.csv
+data/processed/*.json
+data/processed/results/*.png
+data/processed/results/*.pdf
+
+# Project-Specific: State (track state file, not all checksums)
+state/projects/*.yaml
+!state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-detect.yaml
+
+# Project-Specific: Scripts Output
+code/.tasks/
+
+# Project-Specific: Model Artifacts
+models/*.pth
+models/*.pt
+models/*.h5
+models/*.onnx
+
+# Temporary Files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# Backup Files
+*.bak
+*.backup
+
+# Documentation Build
+docs/_build/
+docs/build/
+
+# Ruff/Black Cache
+.ruff_cache/
+.black_cache/
+
+# MyPy
+.mypy_cache/
+*.pyi
+
+# Numpy/Scipy
+*.npy
+*.npz
+
+# Matplotlib
+.matplotlib/
+
+# HuggingFace
+.cache/huggingface/
+
+# UCI/Downloaded Data (keep checksums, not raw files)
+data/raw/UCI_*
+data/raw/*.zip
+data/raw/*.tar*

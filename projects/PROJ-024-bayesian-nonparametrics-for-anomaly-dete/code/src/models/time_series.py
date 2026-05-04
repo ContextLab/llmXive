@@ -1,468 +1,275 @@
 """
-Time Series data model for Bayesian Nonparametrics Anomaly Detection.
+TimeSeries dataclass and entity definitions for Bayesian nonparametric anomaly detection.
 
-Provides the core TimeSeries dataclass and iterator for streaming
-observation processing in the DPGMM model.
+This module defines the core TimeSeries entity that represents time-ordered
+observations with metadata, validation, and streaming compatibility.
 """
+
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, List, Dict, Any, Union, Iterator
+from typing import Optional, List, Dict, Any, Union
 import numpy as np
-import logging
-from ..utils.streaming import StreamingObservation
 
-logger = logging.getLogger(__name__)
+from ..streaming import StreamingObservation
+
 
 @dataclass
 class TimeSeries:
     """
     Core time series entity for anomaly detection.
-    
-    Stores timestamped observations with metadata for streaming
-    processing and model training.
-    
+
+    Represents a named time series with observations, metadata, and
+    support for streaming processing. Compatible with the streaming
+    utilities in utils/streaming.py.
+
     Attributes:
-        timestamps: List of datetime objects for each observation
-        values: numpy array of float64 observation values
-        metadata: Dictionary of additional context (dataset_id, source, etc.)
-        is_sorted: Flag indicating if timestamps are in chronological order
-        missing_mask: Boolean array indicating missing values (True = missing)
+        name: Unique identifier for this time series
+        values: 1D numpy array of numeric observations
+        timestamps: Optional 1D array of timestamps (datetime or numeric)
+        metadata: Additional key-value metadata about the series
+        source: Original data source (file path, URL, or 'synthetic')
+        is_processed: Whether this series has been preprocessed (normalized, etc.)
+        start_index: Starting index for valid observations (for truncated series)
+        end_index: Ending index for valid observations (for truncated series)
+
+    Example:
+        >>> ts = TimeSeries(
+        ...     name='nyc_taxi',
+        ...     values=np.array([100.5, 102.3, 98.7, 150.2]),
+        ...     timestamps=np.array([0, 1, 2, 3]),
+        ...     source='data/raw/nyc_taxi.csv'
+        ... )
+        >>> print(f"Series has {len(ts)} observations")
+        Series has 4 observations
     """
-    timestamps: List[datetime] = field(default_factory=list)
-    values: np.ndarray = field(default_factory=lambda: np.array([], dtype=np.float64))
+
+    name: str
+    values: np.ndarray
+    timestamps: Optional[np.ndarray] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
-    is_sorted: bool = False
-    missing_mask: np.ndarray = field(default_factory=lambda: np.array([], dtype=bool))
-    
+    source: Optional[str] = None
+    is_processed: bool = False
+    start_index: int = 0
+    end_index: Optional[int] = None
+
     def __post_init__(self):
-        """Validate and initialize derived state."""
+        """Validate and normalize the time series after initialization."""
         # Ensure values is a numpy array
         if not isinstance(self.values, np.ndarray):
-            self.values = np.array(self.values, dtype=np.float64)
-        
-        # Ensure missing_mask matches values length
-        if len(self.missing_mask) != len(self.values):
-            self.missing_mask = np.zeros(len(self.values), dtype=bool)
-        
-        # Check if timestamps are sorted
-        if len(self.timestamps) > 1:
-            self.is_sorted = all(
-                self.timestamps[i] <= self.timestamps[i+1] 
-                for i in range(len(self.timestamps) - 1)
-            )
+            self.values = np.asarray(self.values, dtype=np.float64)
         else:
-            self.is_sorted = True
-        
-        # Default metadata if empty
-        if not self.metadata:
-            self.metadata = {
-                'dataset_id': 'unknown',
-                'source': 'generated',
-                'created_at': datetime.now().isoformat()
+            self.values = self.values.astype(np.float64)
+
+        # Ensure 1D array
+        if self.values.ndim == 0:
+            self.values = self.values.reshape(1)
+        elif self.values.ndim > 1:
+            self.values = self.values.flatten()
+
+        # Handle timestamps
+        if self.timestamps is not None:
+            if not isinstance(self.timestamps, np.ndarray):
+                self.timestamps = np.asarray(self.timestamps)
+            else:
+                self.timestamps = self.timestamps.flatten()
+
+            if len(self.timestamps) != len(self.values):
+                raise ValueError(
+                    f"Timestamps length ({len(self.timestamps)}) must match "
+                    f"values length ({len(self.values)})"
+                )
+
+        # Validate indices
+        if self.end_index is None:
+            self.end_index = len(self.values)
+
+        if self.start_index < 0 or self.end_index > len(self.values):
+            raise ValueError(
+                f"Invalid indices: start={self.start_index}, "
+                f"end={self.end_index}, length={len(self.values)}"
+            )
+
+        if self.start_index >= self.end_index:
+            raise ValueError(
+                f"start_index ({self.start_index}) must be < end_index ({self.end_index})"
+            )
+
+    @property
+    def length(self) -> int:
+        """Return the length of valid observations in this series."""
+        return self.end_index - self.start_index
+
+    @property
+    def observations(self) -> np.ndarray:
+        """Return the valid slice of observations."""
+        return self.values[self.start_index:self.end_index]
+
+    @property
+    def obs_timestamps(self) -> Optional[np.ndarray]:
+        """Return the valid slice of timestamps, or None if not present."""
+        if self.timestamps is None:
+            return None
+        return self.timestamps[self.start_index:self.end_index]
+
+    def get_observation_at(self, index: int) -> Optional[StreamingObservation]:
+        """
+        Get a single observation at the given index as a StreamingObservation.
+
+        Args:
+            index: Index within the valid observation range (0 to length-1)
+
+        Returns:
+            StreamingObservation with value and timestamp, or None if out of range
+        """
+        if index < 0 or index >= self.length:
+            return None
+
+        abs_index = self.start_index + index
+        value = float(self.values[abs_index])
+
+        timestamp = None
+        if self.timestamps is not None:
+            ts_val = self.timestamps[abs_index]
+            if isinstance(ts_val, datetime):
+                timestamp = ts_val
+            elif isinstance(ts_val, (int, float)):
+                timestamp = ts_val
+
+        return StreamingObservation(
+            value=value,
+            timestamp=timestamp,
+            metadata={
+                'series_name': self.name,
+                'global_index': abs_index,
+                **self.metadata
             }
-    
-    @classmethod
-    def from_array(
-        cls,
-        values: np.ndarray,
-        timestamps: Optional[List[datetime]] = None,
-        frequency: Optional[float] = None,
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> 'TimeSeries':
-        """
-        Create TimeSeries from numpy array.
-        
-        Args:
-            values: Observation values as numpy array
-            timestamps: Optional list of timestamps (will generate if not provided)
-            frequency: Optional frequency in seconds for timestamp generation
-            metadata: Optional metadata dictionary
-        
-        Returns:
-            TimeSeries instance
-        """
-        values = np.asarray(values, dtype=np.float64)
-        
-        if timestamps is None:
-            # Generate synthetic timestamps
-            if frequency is None:
-                frequency = 1.0  # Default 1 second
-            base_time = datetime.now()
-            timestamps = [
-                base_time.timestamp() + i * frequency 
-                for i in range(len(values))
-            ]
-            timestamps = [datetime.fromtimestamp(ts) for ts in timestamps]
-        
-        return cls(
-            timestamps=timestamps,
-            values=values,
-            metadata=metadata or {},
-            is_sorted=True
         )
-    
-    @classmethod
-    def from_streaming_observations(
-        cls,
-        observations: List[StreamingObservation],
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> 'TimeSeries':
+
+    def iterate_observations(self) -> 'TimeSeriesIterator':
         """
-        Create TimeSeries from list of streaming observations.
-        
-        Args:
-            observations: List of StreamingObservation objects
-            metadata: Optional metadata dictionary
-        
-        Returns:
-            TimeSeries instance
+        Create an iterator over observations for streaming processing.
+
+        Yields:
+            StreamingObservation for each valid observation in order
+
+        Example:
+            >>> for obs in ts.iterate_observations():
+            ...     print(f"Obs: {obs.value} at {obs.timestamp}")
         """
-        timestamps = [obs.timestamp for obs in observations]
-        values = np.array([obs.value for obs in observations], dtype=np.float64)
-        missing_mask = np.array([obs.is_missing for obs in observations], dtype=bool)
-        
-        return cls(
-            timestamps=timestamps,
-            values=values,
-            metadata=metadata or {},
-            is_sorted=True,
-            missing_mask=missing_mask
-        )
-    
-    def append(self, timestamp: datetime, value: float, is_missing: bool = False) -> None:
-        """
-        Append a single observation to the time series.
-        
-        Args:
-            timestamp: Observation timestamp
-            value: Observation value
-            is_missing: Whether this is a missing value
-        """
-        self.timestamps.append(timestamp)
-        self.values = np.append(self.values, value)
-        self.missing_mask = np.append(self.missing_mask, is_missing)
-        self.is_sorted = True  # Assuming appends maintain order
-    
-    def get_valid_observations(self) -> Union[np.ndarray, List[datetime]]:
-        """
-        Get observations excluding missing values.
-        
-        Returns:
-            Tuple of (values, timestamps) for non-missing observations
-        """
-        valid_mask = ~self.missing_mask
-        return self.values[valid_mask], [
-            ts for ts, is_missing in zip(self.timestamps, self.missing_mask) 
-            if not is_missing
-        ]
-    
-    def get_missing_count(self) -> int:
-        """Return count of missing values in the series."""
-        return int(np.sum(self.missing_mask))
-    
-    def get_length(self) -> int:
-        """Return total number of observations."""
-        return len(self.values)
-    
-    def get_valid_length(self) -> int:
-        """Return number of non-missing observations."""
-        return int(np.sum(~self.missing_mask))
-    
-    def get_statistics(self) -> Dict[str, float]:
-        """
-        Compute basic statistics for the time series.
-        
-        Returns:
-            Dictionary with mean, std, min, max, count
-        """
-        valid_values = self.values[~self.missing_mask]
-        
-        if len(valid_values) == 0:
-            return {
-                'mean': np.nan,
-                'std': np.nan,
-                'min': np.nan,
-                'max': np.nan,
-                'count': 0,
-                'valid_count': 0,
-                'missing_count': self.get_missing_count()
-            }
-        
-        return {
-            'mean': float(np.mean(valid_values)),
-            'std': float(np.std(valid_values)),
-            'min': float(np.min(valid_values)),
-            'max': float(np.max(valid_values)),
-            'count': len(self.values),
-            'valid_count': len(valid_values),
-            'missing_count': self.get_missing_count()
-        }
-    
-    def slice(
-        self,
-        start_idx: Optional[int] = None,
-        end_idx: Optional[int] = None
-    ) -> 'TimeSeries':
-        """
-        Create a sliced copy of the time series.
-        
-        Args:
-            start_idx: Start index (inclusive), defaults to 0
-            end_idx: End index (exclusive), defaults to length
-        
-        Returns:
-            New TimeSeries with sliced data
-        """
-        start_idx = start_idx or 0
-        end_idx = end_idx or len(self.values)
-        
-        return TimeSeries(
-            timestamps=self.timestamps[start_idx:end_idx],
-            values=self.values[start_idx:end_idx],
-            metadata=self.metadata.copy(),
-            is_sorted=self.is_sorted,
-            missing_mask=self.missing_mask[start_idx:end_idx]
-        )
-    
+        return TimeSeriesIterator(self)
+
     def to_dict(self) -> Dict[str, Any]:
         """
-        Convert time series to dictionary representation.
-        
+        Serialize this time series to a dictionary.
+
         Returns:
-            Dictionary with all time series data
+            Dictionary representation suitable for JSON serialization
         """
         return {
-            'timestamps': [ts.isoformat() for ts in self.timestamps],
-            'values': self.values.tolist(),
+            'name': self.name,
+            'values': self.observations.tolist(),
+            'timestamps': self.obs_timestamps.tolist() if self.obs_timestamps is not None else None,
             'metadata': self.metadata,
-            'is_sorted': self.is_sorted,
-            'missing_mask': self.missing_mask.tolist(),
-            'length': self.get_length(),
-            'valid_length': self.get_valid_length(),
-            'statistics': self.get_statistics()
+            'source': self.source,
+            'is_processed': self.is_processed,
+            'length': self.length
         }
-    
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'TimeSeries':
         """
-        Create TimeSeries from dictionary.
-        
+        Deserialize a time series from a dictionary.
+
         Args:
-            data: Dictionary with time series data
-        
+            data: Dictionary from to_dict() or JSON
+
         Returns:
             TimeSeries instance
         """
-        timestamps = [datetime.fromisoformat(ts) for ts in data['timestamps']]
-        values = np.array(data['values'], dtype=np.float64)
-        missing_mask = np.array(data.get('missing_mask', [False] * len(values)), dtype=bool)
-        
         return cls(
-            timestamps=timestamps,
-            values=values,
+            name=data['name'],
+            values=np.array(data['values'], dtype=np.float64),
+            timestamps=(
+                np.array(data['timestamps'], dtype=np.float64)
+                if data.get('timestamps') is not None
+                else None
+            ),
             metadata=data.get('metadata', {}),
-            is_sorted=data.get('is_sorted', True),
-            missing_mask=missing_mask
+            source=data.get('source'),
+            is_processed=data.get('is_processed', False)
         )
-    
-    def __len__(self) -> int:
-        """Return number of observations."""
-        return len(self.values)
-    
-    def __getitem__(self, idx: Union[int, slice]) -> Union[Dict[str, Any], 'TimeSeries']:
+
+    def slice(self, start: int, end: Optional[int] = None) -> 'TimeSeries':
         """
-        Index into the time series.
-        
+        Create a new TimeSeries with a subset of observations.
+
         Args:
-            idx: Integer index or slice
-        
+            start: Start index (relative to current valid range)
+            end: End index (relative to current valid range, None means to end)
+
         Returns:
-            Single observation dict or sliced TimeSeries
+            New TimeSeries with sliced observations
         """
-        if isinstance(idx, int):
-            return {
-                'timestamp': self.timestamps[idx],
-                'value': float(self.values[idx]),
-                'is_missing': bool(self.missing_mask[idx])
-            }
-        elif isinstance(idx, slice):
-            return self.slice(idx.start, idx.stop)
-        else:
-            raise TypeError(f"Invalid index type: {type(idx)}")
-    
+        if end is None:
+            end = self.length
+
+        if start < 0 or end > self.length or start >= end:
+            raise ValueError(
+                f"Invalid slice: start={start}, end={end}, length={self.length}"
+            )
+
+        new_start = self.start_index + start
+        new_end = self.start_index + end
+
+        return TimeSeries(
+            name=self.name,
+            values=self.values.copy(),
+            timestamps=self.timestamps.copy() if self.timestamps is not None else None,
+            metadata=self.metadata.copy(),
+            source=self.source,
+            is_processed=self.is_processed,
+            start_index=new_start,
+            end_index=new_end
+        )
+
+    def __len__(self) -> int:
+        """Return the number of valid observations."""
+        return self.length
+
     def __repr__(self) -> str:
-        """String representation."""
         return (
-            f"TimeSeries(n={self.get_length()}, "
-            f"valid={self.get_valid_length()}, "
-            f"missing={self.get_missing_count()}, "
-            f"metadata={self.metadata})"
+            f"TimeSeries(name='{self.name}', length={self.length}, "
+            f"source={self.source}, processed={self.is_processed})"
         )
 
 @dataclass
 class TimeSeriesIterator:
     """
-    Iterator for sequential time series observation processing.
-    
-    Enables streaming processing of time series data one observation
-    at a time, compatible with DPGMM streaming updates.
-    
-    Attributes:
-        time_series: Reference to the TimeSeries being iterated
-        current_idx: Current position in the iteration
-        skip_missing: Whether to skip missing values during iteration
+    Iterator over TimeSeries observations for streaming processing.
+
+    Wraps a TimeSeries and yields StreamingObservation objects one at a time,
+    compatible with the StreamingObservationProcessor interface.
     """
+
     time_series: TimeSeries
-    current_idx: int = 0
-    skip_missing: bool = False
-    
+    _current_index: int = field(default=0, init=False)
+
     def __iter__(self) -> 'TimeSeriesIterator':
-        """Return self as iterator."""
-        self.current_idx = 0
         return self
-    
+
     def __next__(self) -> StreamingObservation:
-        """
-        Get next observation as StreamingObservation.
-        
-        Returns:
-            StreamingObservation with timestamp, value, and missing flag
-        
-        Raises:
-            StopIteration: When all observations have been processed
-        """
-        while self.current_idx < len(self.time_series):
-            ts = self.time_series.timestamps[self.current_idx]
-            value = float(self.time_series.values[self.current_idx])
-            is_missing = bool(self.time_series.missing_mask[self.current_idx])
-            
-            self.current_idx += 1
-            
-            if self.skip_missing and is_missing:
-                continue
-            
-            return StreamingObservation(
-                timestamp=ts,
-                value=value,
-                is_missing=is_missing
-            )
-        
-        raise StopIteration
-    
+        if self._current_index >= self.time_series.length:
+            raise StopIteration
+
+        obs = self.time_series.get_observation_at(self._current_index)
+        self._current_index += 1
+
+        if obs is None:
+            raise StopIteration
+
+        return obs
+
     def reset(self) -> None:
-        """Reset iterator to beginning."""
-        self.current_idx = 0
-    
-    def get_remaining_count(self) -> int:
-        """Return number of remaining observations."""
-        if self.skip_missing:
-            return int(np.sum(~self.time_series.missing_mask[self.current_idx:]))
-        return len(self.time_series) - self.current_idx
-    
-    def to_list(self, skip_missing: Optional[bool] = None) -> List[StreamingObservation]:
-        """
-        Convert all remaining observations to list.
-        
-        Args:
-            skip_missing: Override skip_missing setting
-        
-        Returns:
-            List of StreamingObservation objects
-        """
-        original_skip = self.skip_missing
-        if skip_missing is not None:
-            self.skip_missing = skip_missing
-        
-        observations = list(self)
-        self.skip_missing = original_skip
-        self.reset()
-        
-        return observations
-    
-    def __len__(self) -> int:
-        """Return total observations in underlying time series."""
-        return len(self.time_series)
-    
-    def __repr__(self) -> str:
-        """String representation."""
-        remaining = self.get_remaining_count()
-        return (
-            f"TimeSeriesIterator(total={len(self.time_series)}, "
-            f"remaining={remaining}, "
-            f"skip_missing={self.skip_missing})"
-        )
-
-def create_time_series_from_csv(
-    csv_path: Union[str, Path],
-    timestamp_column: str = 'timestamp',
-    value_column: str = 'value',
-    missing_value_indicator: Optional[str] = None
-) -> TimeSeries:
-    """
-    Load time series from CSV file.
-    
-    Args:
-        csv_path: Path to CSV file
-        timestamp_column: Name of timestamp column
-        value_column: Name of value column
-        missing_value_indicator: String value indicating missing data
-    
-    Returns:
-        TimeSeries instance
-    """
-    import pandas as pd
-    
-    csv_path = Path(csv_path)
-    df = pd.read_csv(csv_path)
-    
-    # Parse timestamps
-    timestamps = pd.to_datetime(df[timestamp_column]).tolist()
-    
-    # Parse values
-    if missing_value_indicator is not None:
-        values = df[value_column].replace(missing_value_indicator, np.nan)
-        missing_mask = values.isna().values
-        values = values.fillna(0).values  # Fill with 0, mask indicates missing
-    else:
-        values = df[value_column].values
-        missing_mask = np.isnan(values)
-        values = np.where(missing_mask, 0.0, values)
-    
-    return TimeSeries(
-        timestamps=timestamps,
-        values=values.astype(np.float64),
-        metadata={'source': str(csv_path), 'format': 'csv'},
-        missing_mask=missing_mask
-    )
-
-def save_time_series_to_csv(
-    time_series: TimeSeries,
-    output_path: Union[str, Path],
-    include_missing: bool = True
-) -> None:
-    """
-    Save time series to CSV file.
-    
-    Args:
-        time_series: TimeSeries to save
-        output_path: Output file path
-        include_missing: Whether to include missing value markers
-    """
-    import pandas as pd
-    
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Prepare data
-    data = {
-        'timestamp': [ts.isoformat() for ts in time_series.timestamps],
-        'value': time_series.values.tolist()
-    }
-    
-    if include_missing:
-        data['is_missing'] = time_series.missing_mask.tolist()
-    
-    df = pd.DataFrame(data)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved time series with {len(time_series)} observations to {output_path}")
+        """Reset the iterator to the beginning."""
+        self._current_index = 0

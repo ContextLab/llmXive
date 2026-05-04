@@ -23,8 +23,8 @@ import numpy as np
 
 # Import from the project's code directory
 # These imports assume code/ is in PYTHONPATH during test execution
-from models.dp_gmm import DPGMMModel, DPGMMConfig
-from models.anomaly_score import AnomalyScore
+from src.models.dpgmm import DPGMMModel, DPGMMConfig
+from src.models.anomaly_score import AnomalyScore
 from scripts.profile_memory_1000_obs import (
     generate_synthetic_observations,
     create_streaming_observation,

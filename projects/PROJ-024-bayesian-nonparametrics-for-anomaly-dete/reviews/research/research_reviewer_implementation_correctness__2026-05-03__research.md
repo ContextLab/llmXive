@@ -1,78 +1,53 @@
 ---
-artifact_hash: ad30c659f561e10924fd6aad2630bd503fe53f4c1c0e5c5a0d5fac5b17d1381f
+artifact_hash: 663c04241d808894bb9a1f0d12b3883dcc5b4312796e931123c14957216bc923
 artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
 backend: dartmouth
 feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.0.0
-reviewed_at: '2026-05-03T20:50:13.036818Z'
+reviewed_at: '2026-05-03T22:50:15.925106Z'
 reviewer_kind: llm
 reviewer_name: research_reviewer_implementation_correctness
 score: 0.0
 verdict: full_revision
 ---
 
-## Implementation Correctness Review — Critical Deviations from Design Specification
+## Implementation Correctness Review — Critical Specification Deviations
 
-This review focuses strictly on whether the implementation correctly realizes the design specified in spec.md and plan.md. Multiple structural violations prevent acceptance.
+### 1. Configuration File Size Violation (FR-009 Critical)
 
-### 1. Config File Size Violation (FR-009)
+The `code/config.yaml` file is **7890 bytes** according to the code summary. The spec.md **FR-009** requirement explicitly states:
 
-**Spec Requirement**: "config.yaml size MUST remain under 2KB per FR-009... if size exceeds 2048 bytes, system must exit with error code 1"
+> "The `config.yaml` file must not exceed **2KB** in size. Only hyperparameters, random seeds, and base paths are permitted... Derived statistics and computed values must be stored in the state file."
 
-**Current State**: The code summary shows `config.yaml` is **7890 bytes** (~7.7KB), exceeding the 2KB limit by nearly 4x.
+This is a **direct implementation deviation** from the specification. The file exceeds the limit by nearly 4x. Per FR-009, all computed values and derived statistics should be moved to `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-detect.yaml`.
 
-**Impact**: This is a hard requirement violation that prevents the system from being considered compliant. Derived statistics should be stored in state files, not config.yaml.
+**Required Fix**: Split config.yaml - keep only hyperparameters, seeds, and base paths (<2KB). Move all computed statistics, checksums, and derived values to the state file.
 
-### 2. Directory Structure Deviations (Plan.md Violation)
+### 2. Directory Structure Deviation (Plan.md Phase 7.6)
 
-**Spec Requirement**: Plan.md specifies strict structure:
+Plan.md specifies results must be stored under:
 ```
-code/src/models/dpgmm.py
-code/src/services/anomaly_detector.py
-code/src/data/download_datasets.py
+projects/PROJ-024-bayesian-nonparametrics-for-anomaly-detect/data/processed/results/
 ```
 
-**Current State**: Code summary shows files at incorrect levels:
-- `download_datasets.py` at `code/` root (should be `code/src/data/`)
-- `synthetic_generator.py` at `code/` root (should be `code/src/data/`)
-- `arima.py`, `moving_average.py` at `code/baselines/` (should be `code/src/baselines/`)
-- `evaluation/metrics.py` at `code/evaluation/` (should be `code/src/evaluation/`)
+However, the data summary shows files at:
+- `data/results/` (e.g., `moving_average_predictions.json`)
+- `data/processed/` (without the `results/` subdirectory structure)
 
-**Impact**: Multiple prior reviews (filesystem_hygiene, implementation_correctness) have flagged this. The structure must match plan.md for Constitution Principle V (Versioning Discipline).
+This violates the **Results Directory Definition** in plan.md and Constitution Principle V (Filesystem Hygiene).
 
-### 3. Data Directory Structure Violation
+**Required Fix**: Consolidate all evaluation artifacts to the exact path specified in plan.md.
 
-**Spec Requirement**: `data/raw/`, `data/processed/`, `data/processed/results/`
+### 3. Service Interface Implementation Verification
 
-**Current State**: Data summary shows `raw/raw/` subdirectories (e.g., `raw/raw/pems_sf_traffic.csv`), creating nested redundancy not in the design.
+Spec.md defines `AnomalyDetectorService` (7 methods) and `ThresholdCalibratorService` (6 methods). The code summary shows `evaluation/metrics.py`, `baselines/arima.py`, etc., but **no explicit service interface files** matching the spec contract are visible.
 
-### 4. Unresolved FAILED-IN-EXECUTION Tasks
+**Required Fix**: Verify and document that the service interfaces are implemented with exact method signatures as specified.
 
-**Spec Requirement**: "All [X] tasks with FAILED-IN-EXECUTION comments indicate resolved execution failures"
+### 4. State File Checksum Recording (Constitution Principle III)
 
-**Current State**: tasks.md contains 20+ tasks with `FAILED-IN-EXECUTION` comments that remain unresolved:
-- `code/src/models/dpgmm.py` (T024, T027, T060)
-- `code/src/utils/streaming.py` (T010)
-- `code/src/utils/threshold.py` (T053, T057)
-- `code/tests/integration/test_streaming_update.py` (T020)
+Task T012 requires implementing checksum recording logic for all state artifacts. The prior data quality reviews indicate unresolved provenance issues.
 
-**Impact**: Per spec.md, these must be resolved before project can transition to analyzed stage.
-
-### 5. ELBO Logging Directory Missing
-
-**Spec Requirement**: `logs/elbo/` directory must exist with convergence logs per Constitution Principle VI
-
-**Current State**: No evidence of `logs/elbo/` directory in code/data summaries.
-
-### Recommendation
-
-Split remediation into focused tasks:
-1. Move all source files to correct `code/src/` subdirectories
-2. Reduce config.yaml to hyperparameters only; move derived statistics to state files
-3. Clean up `data/raw/` nested structure
-4. Resolve all FAILED-IN-EXECUTION tasks with actual code implementations
-5. Create `logs/elbo/` directory and verify ELBO logging works
-
-Without these corrections, the implementation does not match the design specification.
+**Required Fix**: Verify `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-detect.yaml` contains SHA256 checksums for all data artifacts as required by Constitution Principle III.

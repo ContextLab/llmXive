@@ -1,12 +1,12 @@
 ---
-artifact_hash: ad30c659f561e10924fd6aad2630bd503fe53f4c1c0e5c5a0d5fac5b17d1381f
+artifact_hash: 663c04241d808894bb9a1f0d12b3883dcc5b4312796e931123c14957216bc923
 artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
 backend: dartmouth
 feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.0.0
-reviewed_at: '2026-05-03T20:51:11.037041Z'
+reviewed_at: '2026-05-03T22:50:58.950106Z'
 reviewer_kind: llm
 reviewer_name: research_reviewer_code_quality_research
 score: 0.0
@@ -17,47 +17,36 @@ verdict: minor_revision
 
 ### 1. Config File Size Violation (FR-009 Critical) ⚠️
 
-The `code/config.yaml` file is **7890 bytes** per code summary, but FR-009 mandates it remain under **2KB (2048 bytes)**. This is a hard requirement with runtime validation (`os.path.getsize()` check). Derived statistics must be stored in state files, not config.yaml.
+The `code/config.yaml` file is **7890 bytes**, exceeding the **2KB maximum** specified in spec.md FR-009. This violates Constitution Principle I (Reproducibility) and FR-009: "Only hyperparameters, random seeds, and base paths are permitted in the configuration file. Derived statistics and computed values must be stored in the state file."
 
-**Action Required**: Move all dataset checksums, computed metrics, and derived statistics from `config.yaml` to `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml`. Keep only hyperparameters, random seeds, and base paths in config.yaml.
+**Required Fix**: Move all non-configuration data (dataset statistics, computed metrics, derived thresholds) to `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-detect.yaml`. Keep only hyperparameters, seeds, and base paths in `config.yaml`.
 
-### 2. Directory Structure Violation (Plan.md Deviation)
+### 2. Type Hints Missing from Service Interfaces
 
-The code summary shows files at incorrect paths:
-- `download_datasets.py` should be `code/src/data/download_datasets.py`
-- `synthetic_generator.py` should be `code/src/data/synthetic_generator.py`
-- `arima.py`, `moving_average.py` should be `code/src/baselines/`
+The AnomalyDetectorService and ThresholdCalibratorService interfaces defined in spec.md require explicit type hints. Review of `code/src/` modules shows inconsistent type annotation coverage. Per PEP 484 compliance:
 
-Per plan.md Project Structure, all source code must be under `code/src/` with proper package layout. The current flat structure violates Constitution Principle V (Versioning Discipline) and breaks reproducibility from clean checkout.
+- All 7 AnomalyDetectorService methods must have `->` return type annotations
+- All 6 ThresholdCalibratorService methods must have `->` return type annotations
+- Add `mypy` configuration to `code/` directory for CI validation
 
-**Action Required**: Reorganize all source files into `code/src/{models, services, baselines, data, utils, evaluation}/` subdirectories with corresponding `__init__.py` files.
+### 3. Module Size Concerns (Truncation Risk)
 
-### 3. Large File Modularity Concern
+Based on file sizes in code summary:
+- `code/src/data/synthetic_generator.py` (23151 bytes) — exceeds recommended 200-line / ~8KB threshold
+- `code/src/download_datasets.py` (16949 bytes) — should be split into `data/download.py` + `data/checksums.py`
 
-Several files exceed 200 lines and mix concerns:
-- `code/src/data/synthetic_generator.py` (23151 bytes)
-- `code/src/data/download_datasets.py` (16949 bytes)
+Per truncation guidance: split modules >8KB into focused submodules. This prevents 32K token limits during implementation.
 
-Per truncation guidance, files >200 lines should be split into smaller modules. Consider:
-- `download_datasets.py` → `download/uci.py`, `download/validation.py`
-- `synthetic_generator.py` → `generate/synthetic.py`, `generate/anomalies.py`
+### 4. Dependency Pinning Verification
 
-### 4. Test Coverage Verification Missing
+Verify `code/requirements.txt` contains pinned versions (e.g., `numpy==1.24.0` not `numpy>=1.24`). This is required for Constitution Principle I reproducibility. Add `code/requirements-dev.txt` for test/lint dependencies.
 
-T074 requires ≥80% line coverage for all public APIs, but no coverage report artifacts are visible in the code summary. The `code/tests/README.md` (T016a) should document coverage requirements and CI verification process.
+### 5. __pycache__ in Repository
 
-**Action Required**: Run `pytest --cov=code/src --cov-report=html` and commit `htmlcov/index.html` to verify coverage. Update `code/tests/test_report.md` with coverage percentages per public API.
+`__pycache__/` directories appear in code summary. Add `__pycache__/` and `*.pyc` to `.gitignore` at repository root. These should never be committed per filesystem hygiene best practices.
 
-### 5. Type Safety Compliance Unverified
+### 6. Contract Test Verification
 
-FR-008 requires mypy strict mode with zero type errors for all public APIs. The code summary shows `.pyc` files but no mypy report artifacts. T015 requires CI pipeline to run mypy with strict mode.
+Per plan.md Schema-Test Mapping, 9 contract test files must exist in `code/tests/contract/`. Verify all 9 are present and pass with `pytest --cov` achieving ≥80% line coverage per spec.md test coverage requirements.
 
-**Action Required**: Run `mypy code/src/ --strict` and ensure zero errors. Commit mypy output to `logs/type_check.txt` and document in `code/tests/test_report.md`.
-
-### 6. Missing .gitignore Entries
-
-Per T069, `.gitignore` must exclude `__pycache__/`, `*.pyc`, `*.log` (except `logs/elbo/`), `data/raw/`, `*.egg-info/`. The code summary shows `__pycache__/` files in the repository which should be ignored.
-
-**Action Required**: Update `.gitignore` and verify `git status` shows no tracked `__pycache__` or `.pyc` files.
-
-These issues are fixable without major rework but must be resolved before acceptance.
+**Next Action**: Address FR-009 config size violation first, then verify type hints, module splitting, and test coverage. Resubmit for review after fixes.

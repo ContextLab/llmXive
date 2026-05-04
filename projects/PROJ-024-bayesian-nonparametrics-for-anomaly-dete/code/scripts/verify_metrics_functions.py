@@ -13,7 +13,7 @@ from pathlib import Path
 # Add code to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from evaluation.metrics import (
+from src.evaluation.metrics import (
     compute_f1_score,
     compute_precision,
     compute_recall,

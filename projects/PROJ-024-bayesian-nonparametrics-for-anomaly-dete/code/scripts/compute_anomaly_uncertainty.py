@@ -74,7 +74,7 @@ def main():
     logger.info("Starting anomaly detection with uncertainty estimation")
     
     # Import DPGMM model
-    from models.dp_gmm import DPGMMModel, DPGMMConfig, AnomalyScoreWithUncertainty
+    from src.models.dpgmm import DPGMMModel, DPGMMConfig, AnomalyScoreWithUncertainty
     
     # Create output directory
     output_dir = project_root / 'data' / 'processed'

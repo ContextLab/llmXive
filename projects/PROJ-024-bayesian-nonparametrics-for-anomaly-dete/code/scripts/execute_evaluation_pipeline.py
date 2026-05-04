@@ -167,8 +167,8 @@ def run_dp_gmm_evaluation(
     start_time = time.time()
     
     try:
-        from models.dp_gmm import DPGMMModel, DPGMMConfig
-        from models.anomaly_score import AnomalyScore
+        from src.models.dpgmm import DPGMMModel, DPGMMConfig
+        from src.models.anomaly_score import AnomalyScore
         
         # Configure model
         model_config = DPGMMConfig(
@@ -200,7 +200,7 @@ def run_dp_gmm_evaluation(
             true_labels = np.zeros(n_points, dtype=int)
             true_labels[anomaly_indices] = 1
             
-            from evaluation.metrics import compute_f1_score, compute_precision, compute_recall, compute_auc
+            from src.evaluation.metrics import compute_f1_score, compute_precision, compute_recall, compute_auc
             
             f1 = compute_f1_score(true_labels, predicted_anomalies)
             precision = compute_precision(true_labels, predicted_anomalies)
@@ -262,7 +262,7 @@ def run_arima_evaluation(
     start_time = time.time()
     
     try:
-        from baselines.arima import ARIMABaseline, ARIMAConfig
+        from src.baselines.arima import ARIMABaseline, ARIMAConfig
         
         baseline_config = ARIMAConfig(
             order=config.get('arima', {}).get('order', (1, 1, 1)),
@@ -298,7 +298,7 @@ def run_arima_evaluation(
                 if 0 <= idx < len(true_labels):
                     true_labels[idx] = 1
             
-            from evaluation.metrics import compute_f1_score, compute_precision, compute_recall, compute_auc
+            from src.evaluation.metrics import compute_f1_score, compute_precision, compute_recall, compute_auc
             
             f1 = compute_f1_score(true_labels, predicted_anomalies)
             precision = compute_precision(true_labels, predicted_anomalies)
@@ -358,7 +358,7 @@ def run_moving_average_evaluation(
     start_time = time.time()
     
     try:
-        from baselines.moving_average import MovingAverageBaseline, MovingAverageConfig
+        from src.baselines.moving_average import MovingAverageBaseline, MovingAverageConfig
         
         baseline_config = MovingAverageConfig(
             window_size=config.get('moving_average', {}).get('window_size', 20),
@@ -382,7 +382,7 @@ def run_moving_average_evaluation(
             true_labels = np.zeros(len(values), dtype=int)
             true_labels[anomaly_indices] = 1
             
-            from evaluation.metrics import compute_f1_score, compute_precision, compute_recall, compute_auc
+            from src.evaluation.metrics import compute_f1_score, compute_precision, compute_recall, compute_auc
             
             f1 = compute_f1_score(true_labels, predicted_anomalies)
             precision = compute_precision(true_labels, predicted_anomalies)
@@ -439,7 +439,7 @@ def generate_evaluation_plots(
 ):
     """Generate ROC and PR curves for evaluation."""
     try:
-        from evaluation.plots import generate_roc_curve, save_roc_curve, generate_pr_curve, save_pr_curve
+        from src.evaluation.plots import generate_roc_curve, save_roc_curve, generate_pr_curve, save_pr_curve
         
         # ROC curve
         roc_path = output_dir / f'{dataset_name}_roc_curve.png'

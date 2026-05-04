@@ -17,8 +17,8 @@ from pathlib import Path
 code_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(code_dir))
 
-from models.dp_gmm import DPGMMModel, AnomalyScore
-from data.synthetic_generator import generate_synthetic_timeseries
+from src.models.dpgmm import DPGMMModel, AnomalyScore
+from src.data.synthetic_generator import generate_synthetic_timeseries
 
 def test_advi_initialization():
     """Test that ADVI variational parameters initialize correctly."""

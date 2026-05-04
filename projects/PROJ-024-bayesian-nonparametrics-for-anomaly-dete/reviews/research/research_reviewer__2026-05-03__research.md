@@ -1,13 +1,13 @@
 ---
-artifact_hash: ad30c659f561e10924fd6aad2630bd503fe53f4c1c0e5c5a0d5fac5b17d1381f
+artifact_hash: 671a57c899cffaef311c1efef6656dae4ce13b244d09240b67812d4eb2e83c59
 artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
 backend: dartmouth
-feedback: config.yaml size violation (7890 bytes vs 2KB limit), directory structure
-  deviations, and unverifiable results block acceptance
+feedback: Multiple FAILED-IN-EXECUTION comments block stage advancement; data directory
+  violations and config size exceed FR-009; test coverage not verified
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.0.0
-reviewed_at: '2026-05-03T20:48:53.734562Z'
+reviewed_at: '2026-05-03T23:59:55.605111Z'
 reviewer_kind: llm
 reviewer_name: research_reviewer
 score: 0.0
@@ -17,42 +17,62 @@ verdict: full_revision
 # Free-form review body
 
 ## Strengths
-
-- **Comprehensive task coverage**: All 147+ tasks are marked complete with detailed execution tracking
-- **Constitution Check compliance**: Plan documents Principles I-VII as COMPLIANT with implementation notes
-- **Schema-test mapping**: Clear correspondence between specs/contracts/ and code/tests/contract/ defined
-- **Parallel execution planning**: Tasks properly marked [P] with dependency documentation
+- **Comprehensive task documentation**: 150+ tasks are documented with clear file paths and dependencies
+- **Schema-test mapping**: Plan.md includes detailed contract test mapping (9 files total)
+- **Service interfaces**: Both AnomalyDetectorService (7 methods) and ThresholdCalibratorService (6 methods) are specified
+- **Multi-dataset evaluation**: Electricity, Traffic, and Synthetic Control Chart datasets are referenced
 
 ## Concerns
 
-### 1. Config File Size Violation (FR-009 Critical) ⚠️
-The `config.yaml` file is **7890 bytes**, exceeding the 2KB (2048 bytes) maximum required by FR-009. This is a **functional requirement violation** that blocks acceptance. Per FR-009: "config.yaml size MUST remain under 2KB... derived statistics must be stored in state files, not config.yaml."
+### 1. FAILED-IN-EXECUTION Comments Block Acceptance (Critical)
+Per spec.md Status Tracking Mechanism, T145 requires "all [X] marked tasks have no FAILED-IN-EXECUTION comments before final acceptance." The following tasks violate this:
+- T015, T018, T020, T025, T030, T033, T160, T151, T153, T154, T156, T164, T150, T165
 
-**Action Required**: Move all derived statistics from config.yaml to state files (`state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml`). Keep only hyperparameters, random seeds, and base paths in config.yaml.
+**Action Required**: All FAILED-IN-EXECUTION comments must be resolved before T145 can pass.
 
-### 2. Directory Structure Violations (Plan Deviation)
-Data summary shows `raw/raw/` subdirectories (e.g., `raw/raw/pems_sf_traffic.csv`, `raw/raw/synthetic_control_chart.csv`) instead of the plan.md structure (`data/raw/`, `data/processed/`). This violates Constitution Principle V (Versioning Discipline): "All file paths in tasks.md match actual filesystem structure."
+### 2. Data Directory Structure Violation (Constitution Principle V)
+The data summary shows:
+- `data/raw/raw/pems_sf_traffic.csv` (nested `raw/raw/` violates plan.md)
+- `data/raw/raw/synthetic_control_chart.csv` (nested `raw/raw/` violates plan.md)
+- `data/results/` (legacy path - should be `data/processed/results/`)
 
-**Action Required**: Consolidate all data files into `data/raw/` and `data/processed/` per plan.md Project Structure. Remove nested `raw/` subdirectories.
+**Action Required**: Remove nested directories, consolidate to `data/raw/` flat structure, migrate all results to `data/processed/results/`
 
-### 3. Unverifiable Results (Reproducibility Gate)
-The `results_summary` input is **empty**, preventing verification of T075-T078 completion. While data summary shows some result files exist, the critical evaluation outputs (F1-scores, ROC/PR curves, memory profiles) cannot be validated without proper results documentation.
+### 3. Dataset Violation (Spec Requirements)
+- `data/raw/pems_sf.csv` exists but spec.md requires **exactly 3 UCI datasets** (Electricity, Traffic, Synthetic Control Chart)
+- PEMS-SF is NOT in the allowed dataset list
 
-**Action Required**: Generate `results/summary.md` with all success criteria measurements (SC-001 through SC-005) and verify all evaluation artifacts exist in `data/processed/results/`.
+**Action Required**: Remove PEMS-SF files, verify only 3 UCI datasets exist in `data/raw/`
 
-### 4. Multiple Task Execution Failures
-Despite [X] markers, numerous tasks show `FAILED-IN-EXECUTION` comments (T006, T018, T009, T020, T024, T027, T028, T033, T037, T038, T090, T043, T048, T049, T052, T053, T055, T057, T060, T067, T076, T078, T080, T082, T083, T085). These indicate incomplete implementation or test failures that must be resolved.
+### 4. Config File Size Violation (FR-009 Critical)
+- `code/config.yaml` is **7,890 bytes** (7.8KB)
+- FR-009 requires **<2KB**
+- Config contains derived statistics that should be in state file per Constitution Principle I
 
-**Action Required**: Re-execute all failed tasks and ensure all [X] tasks have no FAILED-IN-EXECUTION comments.
+**Action Required**: Reduce config.yaml to <2KB by moving derived statistics to `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-detect.yaml`
+
+### 5. Test Coverage Not Verified (T163, T165)
+- T163 (≥80% line coverage) has FAILED-IN-EXECUTION
+- T165 (pytest --cov) has FAILED-IN-EXECUTION
+- Per spec.md, ≥80% coverage must be verified before final acceptance
+
+**Action Required**: Run coverage analysis, fix failing tests, verify ≥80% threshold met
+
+### 6. Prior Review Issues Unresolved
+8+ prior reviews from different reviewer types identified the same issues (config size, directory structure, data hygiene) but remain unaddressed. This indicates revision tasks are not being completed effectively.
 
 ## Recommendation
 
-This project requires **full revision** before acceptance. The config.yaml size violation (7890 bytes vs 2KB limit) is a functional requirement breach that requires structural changes to move state from config to dedicated state files. Directory structure deviations violate Constitution Principle V and must be corrected to match plan.md specifications. Additionally, the empty results_summary prevents verification of reproducibility gate compliance. 
+**Verdict: full_revision**
 
-Complete the following before resubmission:
-1. Refactor config.yaml to under 2KB by moving all derived statistics to state files
-2. Reorganize data directory structure to match plan.md (remove nested raw/ subdirectories)
-3. Generate complete results documentation with all success criteria measurements
-4. Resolve all FAILED-IN-EXECUTION task comments and verify task completion
+This project cannot advance to `analyzed` stage until all Constitution Principles are satisfied. The FAILED-IN-EXECUTION comments on Phase 8 compliance tasks (T150, T163, T165) directly block the stage transition gate per Constitution Principle VIII.
 
-Once these structural issues are resolved, the project can be re-evaluated for acceptance.
+**Required Revision Actions**:
+1. Execute all FAILED-IN-EXECUTION tasks with proper fixes and remove comments
+2. Reorganize data directory to flat `data/raw/` structure (remove nested `raw/raw/`)
+3. Remove PEMS-SF files, retain only 3 UCI datasets
+4. Reduce config.yaml to <2KB by moving derived values to state file
+5. Run pytest --cov, document ≥80% coverage in T163
+6. Re-run T145 final acceptance verification after all fixes
+
+Without these changes, the project violates multiple Constitution Principles and cannot achieve reproducibility or compliance gates required for `analyzed` stage advancement.

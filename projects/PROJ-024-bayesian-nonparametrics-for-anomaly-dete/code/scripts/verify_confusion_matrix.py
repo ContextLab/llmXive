@@ -16,7 +16,7 @@ import seaborn as sns
 code_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(code_dir))
 
-from evaluation.metrics import (
+from src.evaluation.metrics import (
     generate_confusion_matrix,
     save_confusion_matrix_plot,
     compute_all_metrics,

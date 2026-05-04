@@ -16,7 +16,7 @@ from typing import List, Dict, Any
 # Add code directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from data.synthetic_generator import (
+from src.data.synthetic_generator import (
     AnomalyConfig, SignalConfig, SyntheticDataset,
     generate_base_signal, inject_point_anomalies,
     inject_contextual_anomalies, inject_collective_anomalies,

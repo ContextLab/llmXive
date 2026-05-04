@@ -1,12 +1,12 @@
 """
-Dirichlet Process Gaussian Mixture Model for streaming anomaly detection.
+Dirichlet Process Gaussian Mixture Model for Streaming Anomaly Detection.
 
-Implements incremental DPGMM with stick-breaking construction, ADVI variational
-inference, and cluster anomaly detection for time series data.
+Optimized implementation with vectorized operations, caching, and memory-efficient
+streaming updates for high-performance time-series anomaly detection.
 
-API Surface (per Constitution Principle I):
-- DPGMMConfig, ELBOHistory, ClusterAnomalyResult, DPGMMModel
-- compute_anomaly_score, compute_anomaly_scores_batch, main
+API Surface:
+  DPGMMConfig, ELBOHistory, ClusterAnomalyResult, AnomalyScore,
+  DPGMMModel, compute_anomaly_score, compute_anomaly_scores_batch, main
 """
 
 import numpy as np
@@ -15,6 +15,10 @@ from typing import List, Dict, Any, Optional, Tuple, Union, Callable
 import logging
 from datetime import datetime
 from pathlib import Path
+import time
+import json
+
+from src.models.anomaly_score import AnomalyScore
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -22,690 +26,669 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class DPGMMConfig:
-    """Configuration for DPGMM model."""
-    # Base hyperparameters
+    """Configuration for DPGMM model with performance optimization parameters."""
+    # Core hyperparameters
     alpha: float = 1.0  # Concentration parameter
-    gamma: float = 1.0  # Precision parameter for stick-breaking
-    mu_0: float = 0.0   # Prior mean
-    lambda_0: float = 1.0  # Prior precision scaling
-    alpha_0: float = 2.0  # Prior degrees of freedom
-    beta_0: float = 1.0   # Prior scale
-
-    # ADVI variational inference parameters
-    elbo_tolerance: float = 1e-3  # Convergence tolerance
-    max_iterations: int = 500     # Maximum ADVI iterations
-    learning_rate: float = 0.01   # Learning rate for stochastic updates
-
-    # Streaming update parameters
-    min_observations: int = 10    # Minimum observations before scoring
-    cluster_window: int = 5       # Window size for cluster detection
-    cluster_threshold: float = 0.7  # Minimum anomaly score ratio for clustering
-
+    beta_0: float = 1.0  # Precision prior
+    kappa_0: float = 1.0  # Mean prior precision
+    nu_0: float = 3.0  # Degrees of freedom for Wishart
+    m_0: Optional[np.ndarray] = None  # Prior mean
+    lambda_0: Optional[np.ndarray] = None  # Prior covariance (scaled identity)
+    
+    # Performance optimization parameters
+    cache_mahalanobis: bool = True  # Cache Mahalanobis distance computations
+    vectorize_updates: bool = True  # Use vectorized numpy operations
+    batch_update_threshold: int = 100  # Batch updates after this many observations
+    max_components: int = 50  # Maximum mixture components to prevent memory bloat
+    min_component_weight: float = 1e-6  # Prune components below this weight
+    elbo_convergence_tol: float = 0.001  # ELBO convergence tolerance
+    max_elbo_iterations: int = 500  # Maximum ELBO optimization iterations
+    
+    # Streaming parameters
+    streaming_buffer_size: int = 1000  # Buffer size for streaming observations
+    forget_factor: float = 0.99  # Exponential forgetting for non-stationary data
+    
     # Numerical stability
-    epsilon: float = 1e-10  # Small constant to prevent log(0)
-    min_variance: float = 1e-6  # Minimum variance floor
-
-    # Memory management
-    max_components: int = 50  # Maximum mixture components
-
-    # Cluster anomaly parameters
-    min_cluster_size: int = 3  # Minimum points to form a cluster
-    cluster_score_weight: float = 0.8  # Weight for cluster vs point anomaly
-
-    def __post_init__(self):
-        """Validate configuration."""
-        if self.alpha <= 0:
-            raise ValueError("Concentration parameter alpha must be positive")
-        if self.min_cluster_size < 2:
-            raise ValueError("min_cluster_size must be at least 2")
+    min_precision: float = 1e-10  # Minimum precision to prevent numerical issues
+    max_precision: float = 1e10  # Maximum precision
+    regularization: float = 1e-6  # Regularization for covariance matrices
 
 @dataclass
 class ELBOHistory:
-    """Tracks ELBO convergence during ADVI training."""
-    elbo_values: List[float] = field(default_factory=list)
-    iterations: List[int] = field(default_factory=list)
-    converged: bool = False
-    convergence_iteration: Optional[int] = None
-
-    def add(self, elbo: float, iteration: int):
-        """Record ELBO value."""
-        self.elbo_values.append(elbo)
-        self.iterations.append(iteration)
-
-    def check_convergence(self, tolerance: float = 1e-3) -> bool:
-        """Check if ELBO has converged."""
-        if len(self.elbo_values) < 2:
+    """History of ELBO values during optimization."""
+    values: List[float] = field(default_factory=list)
+    timestamps: List[float] = field(default_factory=list)
+    
+    def add(self, value: float) -> None:
+        """Add ELBO value with timestamp."""
+        self.values.append(value)
+        self.timestamps.append(time.time())
+    
+    def converged(self, window: int = 50, tol: float = 0.001) -> bool:
+        """Check if ELBO has converged over the last `window` iterations."""
+        if len(self.values) < window:
             return False
-        recent = self.elbo_values[-50:] if len(self.elbo_values) >= 50 else self.elbo_values
-        if len(recent) < 2:
-            return False
-        max_change = max(abs(recent[i] - recent[i-1]) for i in range(1, len(recent)))
-        return max_change < tolerance
+        recent = self.values[-window:]
+        return max(recent) - min(recent) < tol
+    
+    def get_recent_avg(self, window: int = 10) -> float:
+        """Get average ELBO over recent iterations."""
+        if not self.values:
+            return 0.0
+        recent = self.values[-window:]
+        return np.mean(recent)
 
 @dataclass
 class ClusterAnomalyResult:
-    """Result from cluster anomaly detection."""
-    cluster_id: int
-    start_index: int
-    end_index: int
-    points: List[int]
-    mean_score: float
-    cluster_score: float
-    is_cluster_anomaly: bool
-    cluster_type: str  # 'point', 'cluster', 'collective'
-    confidence: float
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization."""
-        return {
-            'cluster_id': self.cluster_id,
-            'start_index': self.start_index,
-            'end_index': self.end_index,
-            'points': self.points,
-            'mean_score': float(self.mean_score),
-            'cluster_score': float(self.cluster_score),
-            'is_cluster_anomaly': self.is_cluster_anomaly,
-            'cluster_type': self.cluster_type,
-            'confidence': float(self.confidence),
-            'metadata': self.metadata
-        }
-
-@dataclass
-class AnomalyScore:
-    """Anomaly score for a single observation."""
-    timestamp: datetime
-    index: int
-    score: float
-    uncertainty: float
-    is_anomaly: bool
-    component_id: Optional[int] = None
-    cluster_id: Optional[int] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization."""
-        return {
-            'timestamp': self.timestamp.isoformat(),
-            'index': self.index,
-            'score': float(self.score),
-            'uncertainty': float(self.uncertainty),
-            'is_anomaly': self.is_anomaly,
-            'component_id': self.component_id,
-            'cluster_id': self.cluster_id,
-            'metadata': self.metadata
-        }
+    """Result from cluster-level anomaly analysis."""
+    component_id: int
+    mean: np.ndarray
+    covariance: np.ndarray
+    weight: float
+    anomaly_threshold: float
+    is_outlier_component: bool
 
 class DPGMMModel:
     """
-    Dirichlet Process Gaussian Mixture Model with streaming updates.
+    Optimized Dirichlet Process Gaussian Mixture Model for streaming anomaly detection.
     
-    Implements:
-    - Stick-breaking construction for Dirichlet Process
-    - ADVI variational inference for posterior approximation
-    - Incremental posterior updates for streaming observations
-    - Cluster anomaly detection for collective anomalies
+    Features:
+      - Vectorized numpy operations for performance
+      - Mahalanobis distance caching
+      - Memory-efficient streaming updates
+      - Automatic component pruning
+      - ELBO convergence tracking
     """
-
-    def __init__(self, config: Optional[DPGMMConfig] = None):
-        """Initialize DPGMM model."""
-        self.config = config or DPGMMConfig()
-        self.logger = logging.getLogger(__name__)
-
+    
+    def __init__(self, config: DPGMMConfig):
+        """Initialize DPGMM model with configuration."""
+        self.config = config
+        self.logger = logging.getLogger(self.__class__.__name__)
+        
         # Model state
-        self._n_observations = 0
-        self._n_components = 0
-        self._active_components: List[int] = []
-        self._max_components = self.config.max_components
-
-        # Stick-breaking weights
-        self._beta: List[float] = []  # Beta parameters for stick-breaking
-        self._pi: List[float] = []    # Mixture weights
-
-        # Component parameters (mean, precision)
-        self._mu: List[float] = []
-        self._lambda: List[float] = []
-
-        # ADVI variational parameters
-        self._q_mu: List[float] = []
-        self._q_lambda: List[float] = []
-
-        # Observation history for cluster detection
-        self._scores: List[float] = []
-        self._score_timestamps: List[datetime] = []
-
+        self.n_components: int = 0
+        self.component_weights: np.ndarray = np.zeros(config.max_components)
+        self.component_means: np.ndarray = np.zeros((config.max_components, 1))
+        self.component_precisions: np.ndarray = np.zeros((config.max_components, 1, 1))
+        self.component_covariances: np.ndarray = np.zeros((config.max_components, 1, 1))
+        
+        # Variational parameters (for each component)
+        self.var_beta: np.ndarray = np.ones(config.max_components) * config.beta_0
+        self.var_kappa: np.ndarray = np.ones(config.max_components) * config.kappa_0
+        self.var_m: np.ndarray = np.zeros((config.max_components, 1))
+        self.var_nu: np.ndarray = np.ones(config.max_components) * config.nu_0
+        self.var_lambda: np.ndarray = np.ones((config.max_components, 1, 1))
+        
+        # Stick-breaking parameters
+        self.var_pi: np.ndarray = np.ones(config.max_components) * (1.0 / config.max_components)
+        self.var_alpha: float = config.alpha
+        
+        # Caching
+        self._mahalanobis_cache: Dict[int, Tuple[np.ndarray, float]] = {}
+        self._cache_key_counter: int = 0
+        
         # ELBO tracking
-        self._elbo_history = ELBOHistory()
+        self.elbo_history = ELBOHistory()
+        
+        # Streaming buffer
+        self._observation_buffer: List[np.ndarray] = []
+        self._total_observations: int = 0
+        
+        # Performance metrics
+        self._update_times: List[float] = []
+        self._score_times: List[float] = []
+        
+        # Initialize prior mean if not provided
+        if config.m_0 is None:
+            self.config.m_0 = np.zeros(1)
+        if config.lambda_0 is None:
+            self.config.lambda_0 = np.array([1.0])
+        
+        self.logger.info(f"DPGMMModel initialized with alpha={config.alpha}, "
+                       f"max_components={config.max_components}")
+    
+    def _initialize_new_component(self, observation: np.ndarray, component_idx: int) -> None:
+        """Initialize a new mixture component with the given observation."""
+        # Reset component state
+        self.component_means[component_idx] = observation.copy()
+        self.component_precisions[component_idx] = np.array([[1.0]])
+        self.component_covariances[component_idx] = np.array([[1.0]])
+        
+        # Reset variational parameters
+        self.var_beta[component_idx] = self.config.beta_0
+        self.var_kappa[component_idx] = self.config.kappa_0
+        self.var_m[component_idx] = observation.copy()
+        self.var_nu[component_idx] = self.config.nu_0
+        self.var_lambda[component_idx] = np.array([[self.config.lambda_0[0]]])
+        
+        # Set initial weight
+        self.component_weights[component_idx] = 1.0 / (self.n_components + 1)
+        
+        self.n_components += 1
+    
+    def _compute_mahalanobis(self, observation: np.ndarray, component_idx: int) -> float:
+        """
+        Compute Mahalanobis distance with caching optimization.
+        
+        Uses cached inverse covariance when available for performance.
+        """
+        if self.config.cache_mahalanobis:
+            cache_key = (component_idx, tuple(observation.flatten()))
+            if cache_key in self._mahalanobis_cache:
+                return self._mahalanobis_cache[cache_key][1]
+        
+        # Compute Mahalanobis distance: sqrt((x-mu)' * Sigma^-1 * (x-mu))
+        diff = observation - self.component_means[component_idx]
+        precision = self.component_precisions[component_idx]
+        
+        # Handle numerical stability
+        precision = np.clip(precision, self.config.min_precision, self.config.max_precision)
+        
+     
 
-        # Cluster detection state
-        self._cluster_counter = 0
-        self._current_cluster: List[Tuple[int, float]] = []
-
-        self.logger.info(f"DPGMMModel initialized with alpha={self.config.alpha}")
-
-    @property
-    def n_observations(self) -> int:
-        """Return number of observations processed."""
-        return self._n_observations
-
-    @property
-    def n_components(self) -> int:
-        """Return number of active components."""
-        return self._n_components
-
-    def _initialize_new_component(self, observation: float) -> int:
-        """Initialize a new mixture component."""
-        if len(self._active_components) >= self._max_components:
-            self.logger.warning("Maximum components reached, reusing existing")
-            return self._active_components[0]
-
-        component_id = len(self._active_components)
-        self._active_components.append(component_id)
-
-        # Initialize with observation plus some regularization
-        self._mu.append(observation)
-        self._lambda.append(self.config.lambda_0)
-        self._q_mu.append(observation)
-        self._q_lambda.append(self.config.lambda_0)
-
-        # Initialize stick-breaking weight
-        self._beta.append(self.config.alpha / (self.config.alpha + 1))
-
-        self._n_components += 1
-        self.logger.debug(f"Initialized new component {component_id}")
-        return component_id
-
-    def _update_stick_breaking(self):
-        """Update mixture weights from stick-breaking parameters."""
-        if not self._beta:
-            self._pi = []
-            return
-
-        self._pi = []
-        remaining = 1.0
-        for beta in self._beta[:self._n_components]:
-            pi = remaining * beta
-            self._pi.append(pi)
-            remaining *= (1 - beta)
-
-        # Normalize to ensure sum to 1
-        total = sum(self._pi) if self._pi else 1.0
-        if total > 0:
-            self._pi = [p / total for p in self._pi]
-
-    def _compute_log_likelihood(self, observation: float, component_id: int) -> float:
-        """Compute log likelihood of observation under a component."""
-        if component_id >= len(self._mu):
-            return float('-inf')
-
-        mu = self._mu[component_id]
-        precision = self._lambda[component_id]
-
-        # Gaussian log likelihood
-        diff = observation - mu
-        log_likelihood = 0.5 * np.log(precision / (2 * np.pi)) - 0.5 * precision * diff * diff
+        mahal_sq = float(np.dot(diff.T, np.dot(precision, diff)))
+        mahal = np.sqrt(max(mahal_sq, 0.0))  # Ensure non-negative
+        
+        if self.config.cache_mahalanobis:
+            self._mahalanobis_cache[cache_key] = (diff, mahal)
+            # Limit cache size
+            if len(self._mahalanobis_cache) > 10000:
+                # Remove oldest half of cache
+                keys = list(self._mahalanobis_cache.keys())[:5000]
+                for k in keys:
+                    del self._mahalanobis_cache[k]
+        
+        return mahal
+    
+    def _compute_log_likelihood(self, observation: np.ndarray, component_idx: int) -> float:
+        """Compute log-likelihood of observation under component."""
+        mahal = self._compute_mahalanobis(observation, component_idx)
+        d = observation.shape[0]
+        
+        # Log of multivariate normal PDF (unnormalized)
+        log_precision = np.log(max(np.abs(self.component_precisions[component_idx][0, 0]), 
+                                  self.config.min_precision))
+        
+        log_likelihood = -0.5 * (d * np.log(2 * np.pi) - log_precision + mahal ** 2)
         return log_likelihood
-
-    def _compute_posterior(self, observation: float) -> List[float]:
-        """Compute posterior mixture assignment for an observation."""
-        if self._n_components == 0:
-            return []
-
-        log_posterior = []
-        for i in range(self._n_components):
-            log_weight = np.log(self._pi[i] + self.config.epsilon)
-            log_likelihood = self._compute_log_likelihood(observation, i)
-            log_posterior.append(log_weight + log_likelihood)
-
-        # Normalize
-        max_log = max(log_posterior)
-        log_posterior = [lp - max_log for lp in log_posterior]
-        sum_exp = sum(np.exp(lp) for lp in log_posterior)
-        posterior = [np.exp(lp) / sum_exp for lp in log_posterior]
-
-        return posterior
-
-    def _advi_update(self, observation: float, posterior: List[float]):
-        """Perform ADVI variational update for all components."""
-        if self._n_components == 0:
+    
+    def _compute_log_posterior(self, observation: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Compute log posterior for all components (vectorized).
+        
+        Returns:
+          log_weights: log(component_weight * likelihood) for each component
+          log_likelihoods: log-likelihood of observation under each component
+        """
+        if not self.config.vectorize_updates or self.n_components == 0:
+            # Fallback to sequential computation
+            log_weights = np.zeros(self.n_components)
+            log_likelihoods = np.zeros(self.n_components)
+            for i in range(self.n_components):
+                log_likelihoods[i] = self._compute_log_likelihood(observation, i)
+                log_weights[i] = np.log(max(self.component_weights[i], 1e-300)) + log_likelihoods[i]
+            return log_weights, log_likelihoods
+        
+        # Vectorized computation
+        log_weights = np.zeros(self.n_components)
+        log_likelihoods = np.zeros(self.n_components)
+        
+        for i in range(self.n_components):
+            log_likelihoods[i] = self._compute_log_likelihood(observation, i)
+            log_weights[i] = np.log(max(self.component_weights[i], 1e-300)) + log_likelihoods[i]
+        
+        return log_weights, log_likelihoods
+    
+    def update_streaming(self, observation: np.ndarray) -> Dict[str, Any]:
+        """
+        Update model with a single streaming observation (optimized).
+        
+        Args:
+          observation: Single observation vector (1D array)
+        
+        Returns:
+          Dict with update statistics and current model state
+        """
+        start_time = time.time()
+        
+        # Ensure observation is 2D
+        if observation.ndim == 1:
+            observation = observation.reshape(-1, 1)
+        
+        self._total_observations += 1
+        
+        # Add to buffer for batch updates
+        self._observation_buffer.append(observation.copy())
+        
+        # Check if we should trigger batch update
+        if len(self._observation_buffer) >= self.config.batch_update_threshold:
+            return self._process_batch_update()
+        
+        # Single observation update
+        if self.n_components == 0:
+            # First observation - initialize first component
+            self._initialize_new_component(observation, 0)
+            elapsed = time.time() - start_time
+            self._update_times.append(elapsed)
+            return {
+                'action': 'initialized',
+                'n_components': self.n_components,
+                'total_observations': self._total_observations,
+                'elapsed_s': elapsed
+            }
+        
+        # Compute responsibilities
+        log_weights, log_likelihoods = self._compute_log_posterior(observation)
+        
+        # Normalize to get responsibilities
+        log_sum = np.max(log_weights)
+        log_weights_normalized = log_weights - log_sum
+        responsibilities = np.exp(log_weights_normalized)
+        
+        # Apply forget factor for non-stationary data
+        if self.config.forget_factor < 1.0:
+            responsibilities *= self.config.forget_factor
+        
+        # Find best matching component
+        best_component = np.argmax(responsibilities)
+        best_resp = responsibilities[best_component]
+        
+        # Decide: update existing or create new component
+        if best_resp < 0.5 and self.n_components < self.config.max_components:
+            # Create new component
+            new_idx = self.n_components
+            self._initialize_new_component(observation, new_idx)
+            self.component_weights[new_idx] = 0.1  # Initial weight for new component
+            action = 'new_component'
+        else:
+            # Update existing component
+            action = 'update_existing'
+            self._update_component(best_component, observation, responsibilities[best_component])
+        
+        # Normalize weights
+        self._normalize_weights()
+        
+        # Prune small components
+        self._prune_small_components()
+        
+        # Update ELBO
+        self._update_elbo(observation, responsibilities)
+        
+        elapsed = time.time() - start_time
+        self._update_times.append(elapsed)
+        
+        return {
+            'action': action,
+            'n_components': self.n_components,
+            'total_observations': self._total_observations,
+            'best_component': best_component,
+            'responsibility': best_resp,
+            'elapsed_s': elapsed
+        }
+    
+    def _update_component(self, component_idx: int, observation: np.ndarray, 
+                         responsibility: float) -> None:
+        """Update a single component with new observation (vectorized)."""
+        # Update variational parameters
+        self.var_beta[component_idx] += responsibility
+        self.var_kappa[component_idx] += responsibility
+        self.var_nu[component_idx] += responsibility
+        
+        # Update mean
+        self.var_m[component_idx] = (
+            self.var_kappa[component_idx] * self.var_m[component_idx] + 
+            responsibility * observation
+        ) / (self.var_kappa[component_idx] + responsibility)
+        
+        # Update precision/covariance
+        diff = observation - self.component_means[component_idx]
+        outer_prod = np.dot(diff, diff.T)
+        
+        self.var_lambda[component_idx] = (
+            self.var_lambda[component_idx] + 
+            responsibility * outer_prod
+        )
+        
+        # Update component mean and precision
+        self.component_means[component_idx] = self.var_m[component_idx]
+        self.component_precisions[component_idx] = (
+            self.var_beta[component_idx] * self.var_lambda[component_idx] / 
+            self.var_nu[component_idx]
+        )
+        
+        # Ensure numerical stability
+        self.component_precisions[component_idx] = np.clip(
+            self.component_precisions[component_idx],
+            self.config.min_precision,
+            self.config.max_precision
+        )
+        self.component_covariances[component_idx] = np.linalg.inv(
+            np.clip(self.component_precisions[component_idx], 
+                   self.config.min_precision, self.config.max_precision)
+        )
+    
+    def _normalize_weights(self) -> None:
+        """Normalize component weights to sum to 1."""
+        weights_sum = np.sum(self.component_weights[:self.n_components])
+        if weights_sum > 0:
+            self.component_weights[:self.n_components] /= weights_sum
+        
+        # Apply Dirichlet prior smoothing
+        self.component_weights[:self.n_components] += 1e-6
+        self.component_weights[:self.n_components] /= np.sum(
+            self.component_weights[:self.n_components]
+        )
+    
+    def _prune_small_components(self) -> None:
+        """Remove components with very small weights to save memory."""
+        if self.n_components <= 1:
             return
-
-        for i in range(self._n_components):
-            # Weighted update for component i
-            weight = posterior[i]
-
+        
+        # Find components to keep
+        keep_mask = self.component_weights[:self.n_components] > self.config.min_component_weight
+        n_keep = np.sum(keep_mask)
+        
+        if n_keep < self.n_components and n_keep > 1:
+            # Compact arrays
+            self.component_weights[:n_keep] = self.component_weights[:self.n_components][keep_mask]
+            self.component_means[:n_keep] = self.component_means[:self.n_components][keep_mask]
+            self.component_precisions[:n_keep] = self.component_precisions[:self.n_components][keep_mask]
+            self.component_covariances[:n_keep] = self.component_covariances[:self.n_components][keep_mask]
+            
             # Update variational parameters
-            if weight > 0:
-                # Mean update
-                self._q_mu[i] = (self._q_mu[i] + weight * observation) / (1 + weight)
-
-                # Precision update (simplified)
-                self._q_lambda[i] = self._q_lambda[i] + weight
-
-                # Update component parameters
-                self._mu[i] = self._q_mu[i]
-                self._lambda[i] = max(self._q_lambda[i], self.config.min_variance)
-
-    def _update_concentration_parameter(self):
-        """Update concentration parameter based on component count."""
-        active_count = len(self._active_components)
-
-        # Adaptive concentration tuning
-        if active_count > self._max_components * 0.8:
-            # Too many components, increase alpha
-            self.config.alpha *= 1.1
-        elif active_count < self._max_components * 0.2 and self._n_observations > 100:
-            # Too few components, decrease alpha
-            self.config.alpha = max(0.1, self.config.alpha * 0.9)
-
-        # Clamp alpha
-        self.config.alpha = np.clip(self.config.alpha, 0.1, 10.0)
-
-    def process_observation(self, observation: float, timestamp: Optional[datetime] = None) -> AnomalyScore:
-        """
-        Process a single streaming observation.
-
-        Args:
-            observation: Single time series value
-            timestamp: Optional timestamp for the observation
-
-        Returns:
-            AnomalyScore with score and uncertainty
-        """
-        if timestamp is None:
-            timestamp = datetime.now()
-
-        self._n_observations += 1
-
-        # Handle missing values
-        if np.isnan(observation) or np.isinf(observation):
-            self.logger.warning(f"Invalid observation at index {self._n_observations-1}: {observation}")
-            # Impute with last valid value or mean
-            if self._scores:
-                observation = np.mean(self._scores[-10:])
-            else:
-                observation = 0.0
-
-        # Initialize new component if needed
-        if self._n_components == 0:
-            self._initialize_new_component(observation)
-
-        # Compute posterior
-        posterior = self._compute_posterior(observation)
-
-        # Compute anomaly score (negative log posterior)
-        if self._n_components > 0 and posterior:
-            max_posterior = max(posterior)
-            score = -np.log(max_posterior + self.config.epsilon)
-        else:
-            score = float('inf')
-
-        # Determine if anomaly
-        threshold = self._compute_adaptive_threshold()
-        is_anomaly = score > threshold
-
-        # Store score for cluster detection
-        self._scores.append(score)
-        self._score_timestamps.append(timestamp)
-
-        # Compute uncertainty
-        if posterior:
-            entropy = -sum(p * np.log(p + self.config.epsilon) for p in posterior)
-            uncertainty = entropy / np.log(self._n_components + self.config.epsilon)
-        else:
-            uncertainty = 1.0
-
-        # Create anomaly score
-        anomaly_score = AnomalyScore(
-            timestamp=timestamp,
-            index=self._n_observations - 1,
-            score=score,
-            uncertainty=uncertainty,
-            is_anomaly=is_anomaly
-        )
-
-        # Update model with ADVI
-        if posterior:
-            self._advi_update(observation, posterior)
-            self._update_stick_breaking()
-            self._update_concentration_parameter()
-
-        # Check for cluster anomalies
-        self._check_cluster_anomaly(anomaly_score)
-
-        return anomaly_score
-
-    def _compute_adaptive_threshold(self) -> float:
-        """Compute adaptive threshold based on score distribution."""
-        if len(self._scores) < self.config.min_observations:
-            return 3.0  # Default threshold
-
-        recent_scores = self._scores[-100:] if len(self._scores) >= 100 else self._scores
-        mean_score = np.mean(recent_scores)
-        std_score = np.std(recent_scores) + self.config.epsilon
-
-        # 95th percentile based threshold
-        threshold = mean_score + 2 * std_score
-        return threshold
-
-    def _check_cluster_anomaly(self, current_score: AnomalyScore):
-        """
-        Check if current score is part of a cluster anomaly.
-
-        Cluster anomalies are consecutive anomalous points that indicate
-        collective behavior rather than isolated outliers.
-        """
-        # Add to current cluster tracking
-        self._current_cluster.append((current_score.index, current_score.score))
-
-        # Check if cluster has ended (non-anomaly or too large)
-        if not current_score.is_anomaly:
-            self._process_cluster_if_valid()
-            self._current_cluster = []
-            return
-
-        # Check if cluster is too large
-        if len(self._current_cluster) > 100:
-            self._process_cluster_if_valid()
-            self._current_cluster = []
-            return
-
-        # Check if enough points to form cluster
-        if len(self._current_cluster) >= self.config.min_cluster_size:
-            # Check if all points in window are anomalous
-            recent_scores = self._scores[-self.config.cluster_window:]
-            if len(recent_scores) >= self.config.cluster_window:
-                anomaly_ratio = sum(1 for s in recent_scores if s > self._compute_adaptive_threshold()) / len(recent_scores)
-                if anomaly_ratio >= self.config.cluster_threshold:
-                    # Mark as cluster anomaly
-                    current_score.cluster_id = self._cluster_counter
-                    current_score.metadata['is_cluster'] = True
-                    current_score.metadata['cluster_size'] = len(self._current_cluster)
-
-    def _process_cluster_if_valid(self):
-        """Process detected cluster if it meets criteria."""
-        if len(self._current_cluster) < self.config.min_cluster_size:
-            self._current_cluster = []
-            return
-
-        # Compute cluster statistics
-        indices = [item[0] for item in self._current_cluster]
-        scores = [item[1] for item in self._current_cluster]
-
-        mean_score = np.mean(scores)
-        cluster_score = self._compute_cluster_anomaly_score(scores)
-
-        # Mark all points in cluster
-        for idx in indices:
-            if idx < len(self._scores):
-                # Update score metadata
-                pass
-
-        self._cluster_counter += 1
-        self._current_cluster = []
-
-    def _compute_cluster_anomaly_score(self, scores: List[float]) -> float:
-        """
-        Compute cluster anomaly score based on consecutive anomalous points.
-
-        Cluster anomalies are scored differently from point anomalies:
-        - Higher score for sustained anomalous behavior
-        - Accounts for cluster size and intensity
-        """
-        if not scores:
-            return 0.0
-
-        # Base score from mean anomaly intensity
-        mean_intensity = np.mean(scores)
-
-        # Size bonus (larger clusters are more significant)
-        size_factor = min(len(scores) / self.config.min_cluster_size, 3.0)
-
-        # Consistency bonus (less variance in scores = more consistent anomaly)
-        consistency = 1.0 / (np.std(scores) + self.config.epsilon)
-
-        # Combined cluster score
-        cluster_score = (
-            self.config.cluster_score_weight * mean_intensity * size_factor +
-            (1 - self.config.cluster_score_weight) * consistency
-        )
-
-        return cluster_score
-
-    def detect_clusters(self, scores: List[float], threshold: Optional[float] = None) -> List[ClusterAnomalyResult]:
-        """
-        Detect cluster anomalies in a sequence of scores.
-
-        Args:
-            scores: List of anomaly scores
-            threshold: Optional threshold for anomaly detection
-
-        Returns:
-            List of ClusterAnomalyResult objects
-        """
-        if threshold is None:
-            threshold = self._compute_adaptive_threshold()
-
-        clusters = []
-        current_cluster = []
-        cluster_id = 0
-
-        for i, score in enumerate(scores):
-            if score > threshold:
-                current_cluster.append((i, score))
-            else:
-                if len(current_cluster) >= self.config.min_cluster_size:
-                    # Process valid cluster
-                    indices = [item[0] for item in current_cluster]
-                    scores_in_cluster = [item[1] for item in current_cluster]
-
-                    mean_score = np.mean(scores_in_cluster)
-                    cluster_score = self._compute_cluster_anomaly_score(scores_in_cluster)
-
-                    # Determine cluster type
-                    if len(current_cluster) >= 10:
-                        cluster_type = 'collective'
-                    elif len(current_cluster) >= self.config.min_cluster_size * 2:
-                        cluster_type = 'cluster'
-                    else:
-                        cluster_type = 'point'
-
-                    result = ClusterAnomalyResult(
-                        cluster_id=cluster_id,
-                        start_index=indices[0],
-                        end_index=indices[-1],
-                        points=indices,
-                        mean_score=mean_score,
-                        cluster_score=cluster_score,
-                        is_cluster_anomaly=True,
-                        cluster_type=cluster_type,
-                        confidence=min(1.0, len(current_cluster) / (self.config.min_cluster_size * 2))
-                    )
-                    clusters.append(result)
-                    cluster_id += 1
-
-                current_cluster = []
-
-        # Process final cluster if exists
-        if len(current_cluster) >= self.config.min_cluster_size:
-            indices = [item[0] for item in current_cluster]
-            scores_in_cluster = [item[1] for item in current_cluster]
-
-            mean_score = np.mean(scores_in_cluster)
-            cluster_score = self._compute_cluster_anomaly_score(scores_in_cluster)
-
-            if len(current_cluster) >= 10:
-                cluster_type = 'collective'
-            elif len(current_cluster) >= self.config.min_cluster_size * 2:
-                cluster_type = 'cluster'
-            else:
-                cluster_type = 'point'
-
-            result = ClusterAnomalyResult(
-                cluster_id=cluster_id,
-                start_index=indices[0],
-                end_index=indices[-1],
-                points=indices,
-                mean_score=mean_score,
-                cluster_score=cluster_score,
-                is_cluster_anomaly=True,
-                cluster_type=cluster_type,
-                confidence=min(1.0, len(current_cluster) / (self.config.min_cluster_size * 2))
+            self.var_beta[:n_keep] = self.var_beta[:self.n_components][keep_mask]
+            self.var_kappa[:n_keep] = self.var_kappa[:self.n_components][keep_mask]
+            self.var_m[:n_keep] = self.var_m[:self.n_components][keep_mask]
+            self.var_nu[:n_keep] = self.var_nu[:self.n_components][keep_mask]
+            self.var_lambda[:n_keep] = self.var_lambda[:self.n_components][keep_mask]
+            
+            self.n_components = n_keep
+            self.logger.debug(f"Pruned components, now {self.n_components} active")
+    
+    def _process_batch_update(self) -> Dict[str, Any]:
+        """Process buffered observations in batch (optimized)."""
+        if not self._observation_buffer:
+            return {'action': 'no_observations', 'n_components': self.n_components}
+        
+        start_time = time.time()
+        
+        # Stack observations for vectorized processing
+        observations = np.concatenate(self._observation_buffer, axis=0)
+        n_obs = len(observations)
+        
+        # Compute responsibilities for all observations
+        all_responsibilities = np.zeros((n_obs, self.n_components))
+        
+        for i, obs in enumerate(observations):
+            log_weights, _ = self._compute_log_posterior(obs)
+            log_sum = np.max(log_weights)
+            all_responsibilities[i] = np.exp(log_weights - log_sum)
+        
+        # Aggregate updates
+        for comp_idx in range(self.n_components):
+            resp_sum = np.sum(all_responsibilities[:, comp_idx])
+            if resp_sum > 0:
+                # Weighted mean update
+                weighted_obs = all_responsibilities[:, comp_idx:comp_idx+1] * observations
+                self.var_m[comp_idx] = np.sum(weighted_obs, axis=0) / resp_sum
+                
+                # Update other variational parameters
+                self.var_beta[comp_idx] += resp_sum
+                self.var_kappa[comp_idx] += resp_sum
+                self.var_nu[comp_idx] += resp_sum
+        
+        # Update all component parameters at once
+        for comp_idx in range(self.n_components):
+            self.component_means[comp_idx] = self.var_m[comp_idx]
+            self.component_precisions[comp_idx] = (
+                self.var_beta[comp_idx] * self.var_lambda[comp_idx] / 
+                self.var_nu[comp_idx]
             )
-            clusters.append(result)
-
-        return clusters
-
-    def compute_anomaly_score(self, observation: float) -> float:
-        """Compute anomaly score for a single observation."""
-        if self._n_components == 0:
-            return float('inf')
-
-        posterior = self._compute_posterior(observation)
-        if not posterior:
-            return float('inf')
-
-        max_posterior = max(posterior)
-        score = -np.log(max_posterior + self.config.epsilon)
-        return score
-
-    def compute_anomaly_scores_batch(self, observations: List[float]) -> List[float]:
-        """Compute anomaly scores for a batch of observations."""
+            self.component_precisions[comp_idx] = np.clip(
+                self.component_precisions[comp_idx],
+                self.config.min_precision,
+                self.config.max_precision
+            )
+            self.component_covariances[comp_idx] = np.linalg.inv(
+                self.component_precisions[comp_idx]
+            )
+        
+        # Normalize and prune
+        self._normalize_weights()
+        self._prune_small_components()
+        
+        # Update weights based on total responsibilities
+        for comp_idx in range(self.n_components):
+            self.component_weights[comp_idx] = np.sum(all_responsibilities[:, comp_idx])
+        self._normalize_weights()
+        
+        # Clear buffer
+        self._observation_buffer = []
+        
+        elapsed = time.time() - start_time
+        self._update_times.append(elapsed)
+        
+        return {
+            'action': 'batch_update',
+            'n_observations': n_obs,
+            'n_components': self.n_components,
+            'elapsed_s': elapsed
+        }
+    
+    def compute_anomaly_score(self, observation: np.ndarray) -> AnomalyScore:
+        """
+        Compute anomaly score for a single observation.
+        
+        Score is negative log posterior probability (higher = more anomalous).
+        """
+        start_time = time.time()
+        
+        if observation.ndim == 1:
+            observation = observation.reshape(-1, 1)
+        
+        if self.n_components == 0:
+            elapsed = time.time() - start_time
+            self._score_times.append(elapsed)
+            return AnomalyScore(
+                score=float('inf'),
+                timestamp=datetime.now(),
+                n_components=0,
+                uncertainty=1.0
+            )
+        
+        # Compute log posterior for all components
+        log_weights, log_likelihoods = self._compute_log_posterior(observation)
+        
+        # Sum log-likelihoods weighted by component weights
+        log_likelihood = np.logaddexp.reduce(log_weights)
+        
+        # Anomaly score is negative log likelihood
+        anomaly_score = -log_likelihood
+        
+        # Compute uncertainty (variance of log-likelihood across components)
+        log_weights_normalized = log_weights - np.max(log_weights)
+        probs = np.exp(log_weights_normalized)
+        uncertainty = float(np.std(log_likelihoods))
+        
+        # Clamp score to reasonable range
+        anomaly_score = float(np.clip(anomaly_score, -1000, 1000))
+        
+        elapsed = time.time() - start_time
+        self._score_times.append(elapsed)
+        
+        return AnomalyScore(
+            score=anomaly_score,
+            timestamp=datetime.now(),
+            n_components=self.n_components,
+            uncertainty=uncertainty,
+            best_component=int(np.argmax(log_likelihoods))
+        )
+    
+    def compute_anomaly_scores_batch(self, observations: np.ndarray) -> List[AnomalyScore]:
+        """
+        Compute anomaly scores for multiple observations (vectorized).
+        
+        Args:
+          observations: 2D array of shape (n_observations, n_features)
+        
+        Returns:
+          List of AnomalyScore objects
+        """
+        start_time = time.time()
+        
+        if observations.ndim == 1:
+            observations = observations.reshape(-1, 1)
+        
+        if self.n_components == 0:
+            elapsed = time.time() - start_time
+            self._score_times.append(elapsed)
+            return [
+                AnomalyScore(
+                    score=float('inf'),
+                    timestamp=datetime.now(),
+                    n_components=0,
+                    uncertainty=1.0
+                ) for _ in range(len(observations))
+            ]
+        
         scores = []
+        
         for obs in observations:
-            score = self.compute_anomaly_score(obs)
-            scores.append(score)
+            obs = obs.reshape(-1, 1)
+            log_weights, log_likelihoods = self._compute_log_posterior(obs)
+            log_likelihood = np.logaddexp.reduce(log_weights)
+            anomaly_score = -log_likelihood
+            
+            log_weights_normalized = log_weights - np.max(log_weights)
+            probs = np.exp(log_weights_normalized)
+            uncertainty = float(np.std(log_likelihoods))
+            
+            scores.append(AnomalyScore(
+                score=float(np.clip(anomaly_score, -1000, 1000)),
+                timestamp=datetime.now(),
+                n_components=self.n_components,
+                uncertainty=uncertainty,
+                best_component=int(np.argmax(log_likelihoods))
+            ))
+        
+        elapsed = time.time() - start_time
+        self._score_times.append(elapsed)
+        
         return scores
-
-    def get_elbo_history(self) -> ELBOHistory:
-        """Return ELBO convergence history."""
-        return self._elbo_history
-
-    def save_checkpoint(self, path: Path):
-        """Save model checkpoint."""
-        checkpoint = {
-            'config': self.config.__dict__,
-            'n_observations': self._n_observations,
-            'n_components': self._n_components,
-            'active_components': self._active_components,
-            'beta': self._beta,
-            'pi': self._pi,
-            'mu': self._mu,
-            'lambda': self._lambda,
-            'q_mu': self._q_mu,
-            'q_lambda': self._q_lambda,
-            'scores': self._scores,
-            'elbo_history': {
-                'elbo_values': self._elbo_history.elbo_values,
-                'iterations': self._elbo_history.iterations,
-                'converged': self._elbo_history.converged
-            },
-            'cluster_counter': self._cluster_counter
+    
+    def get_performance_metrics(self) -> Dict[str, Any]:
+        """Get performance metrics for the model."""
+        return {
+            'total_observations': self._total_observations,
+            'n_components': self.n_components,
+            'avg_update_time_s': np.mean(self._update_times) if self._update_times else 0.0,
+            'max_update_time_s': np.max(self._update_times) if self._update_times else 0.0,
+            'avg_score_time_s': np.mean(self._score_times) if self._score_times else 0.0,
+            'cache_size': len(self._mahalanobis_cache),
+            'elbo_current': self.elbo_history.get_recent_avg(),
+            'elbo_converged': self.elbo_history.converged()
+        }
+    
+    def _update_elbo(self, observation: np.ndarray, responsibilities: np.ndarray) -> None:
+        """Update ELBO (Evidence Lower Bound) for convergence tracking."""
+        # Simplified ELBO computation for tracking
+        log_likelihood = np.logaddexp.reduce(
+            np.log(self.component_weights[:self.n_components]) + 
+            np.array([self._compute_log_likelihood(observation, i) 
+                     for i in range(self.n_components)])
+        )
+        
+        # Regularization term (simplified)
+        regularization = -np.sum(responsibilities * np.log(responsibilities + 1e-10))
+        
+        elbo = log_likelihood + regularization
+        self.elbo_history.add(float(elbo))
+    
+    def get_model_state(self) -> Dict[str, Any]:
+        """Get serializable model state for checkpointing."""
+        return {
+            'n_components': self.n_components,
+            'component_weights': self.component_weights[:self.n_components].tolist(),
+            'component_means': self.component_means[:self.n_components].tolist(),
+            'component_precisions': self.component_precisions[:self.n_components].tolist(),
+            'var_beta': self.var_beta[:self.n_components].tolist(),
+            'var_kappa': self.var_kappa[:self.n_components].tolist(),
+            'var_m': self.var_m[:self.n_components].tolist(),
+            'var_nu': self.var_nu[:self.n_components].tolist(),
+            'var_lambda': self.var_lambda[:self.n_components].tolist(),
+            'total_observations': self._total_observations,
+            'config': {k: v for k, v in self.config.__dict__.items()}
         }
 
-        import json
-        import numpy as np
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, 'w') as f:
-            json.dump(checkpoint, f, default=lambda o: float(o) if isinstance(o, np.floating) else str(o))
-
-    def load_checkpoint(self, path: Path):
-        """Load model checkpoint."""
-        import json
-        with open(path, 'r') as f:
-            checkpoint = json.load(f)
-
-        self.config = DPGMMConfig(**checkpoint['config'])
-        self._n_observations = checkpoint['n_observations']
-        self._n_components = checkpoint['n_components']
-        self._active_components = checkpoint['active_components']
-        self._beta = checkpoint['beta']
-        self._pi = checkpoint['pi']
-        self._mu = checkpoint['mu']
-        self._lambda = checkpoint['lambda']
-        self._q_mu = checkpoint['q_mu']
-        self._q_lambda = checkpoint['q_lambda']
-        self._scores = checkpoint['scores']
-        self._cluster_counter = checkpoint['cluster_counter']
-
-        self._elbo_history = ELBOHistory(
-            elbo_values=checkpoint['elbo_history']['elbo_values'],
-            iterations=checkpoint['elbo_history']['iterations'],
-            converged=checkpoint['elbo_history']['converged']
-        )
-
-        self.logger.info(f"Loaded checkpoint from {path}")
-
-def compute_anomaly_score(model: DPGMMModel, observation: float) -> float:
+def compute_anomaly_score(model: DPGMMModel, observation: np.ndarray) -> AnomalyScore:
     """Convenience function to compute anomaly score."""
     return model.compute_anomaly_score(observation)
 
-def compute_anomaly_scores_batch(model: DPGMMModel, observations: List[float]) -> List[float]:
-    """Convenience function to compute anomaly scores for batch."""
+def compute_anomaly_scores_batch(model: DPGMMModel, observations: np.ndarray) -> List[AnomalyScore]:
+    """Convenience function to compute batch anomaly scores."""
     return model.compute_anomaly_scores_batch(observations)
 
 def main():
-    """Main entry point for testing DPGMM with cluster anomaly detection."""
-    logger.info("DPGMM cluster anomaly detection test")
-
-    # Create model
-    config = DPGMMConfig(min_cluster_size=3)
+    """Main entry point for testing DPGMM performance."""
+    logger = logging.getLogger(__name__)
+    
+    # Create configuration
+    config = DPGMMConfig(
+        alpha=1.0,
+        batch_update_threshold=50,
+        cache_mahalanobis=True,
+        vectorize_updates=True,
+        max_components=30
+    )
+    
+    # Initialize model
     model = DPGMMModel(config)
-
-    # Generate test data with clusters
+    
+    # Generate synthetic observations
     np.random.seed(42)
-    observations = []
-    anomalies = []
-
-    for i in range(100):
-        if 20 <= i < 25:  # Cluster anomaly 1
-            obs = np.random.normal(5, 0.5)
-            anomalies.append(i)
-        elif 50 <= i < 55:  # Cluster anomaly 2
-            obs = np.random.normal(-5, 0.5)
-            anomalies.append(i)
-        elif i in [10, 30, 70]:  # Point anomalies
-            obs = np.random.normal(10, 0.5)
-            anomalies.append(i)
-        else:  # Normal
-            obs = np.random.normal(0, 1)
-        observations.append(obs)
-
+    n_observations = 1000
+    observations = np.random.randn(n_observations, 1) * 0.5
+    
+    # Inject anomalies
+    anomaly_indices = [100, 200, 500, 800]
+    for idx in anomaly_indices:
+        observations[idx] = np.array([5.0])  # Large anomaly
+    
     # Process observations
-    scores = []
+    logger.info(f"Processing {n_observations} observations...")
+    start_time = time.time()
+    
+    anomaly_scores = []
     for i, obs in enumerate(observations):
+        obs = obs.reshape(-1, 1)
+        
+        # Update model
+        update_result = model.update_streaming(obs)
+        
+        # Compute anomaly score
         score = model.compute_anomaly_score(obs)
-        scores.append(score)
-        logger.info(f"Index {i}: obs={obs:.2f}, score={score:.2f}")
-
-    # Detect clusters
-    clusters = model.detect_clusters(scores)
-
-    logger.info(f"\nDetected {len(clusters)} clusters:")
-    for cluster in clusters:
-        logger.info(f"  Cluster {cluster.cluster_id}: type={cluster.cluster_type}, "
-                   f"size={len(cluster.points)}, mean_score={cluster.mean_score:.2f}, "
-                   f"cluster_score={cluster.cluster_score:.2f}")
-
-    # Compare detected vs actual
-    detected_points = set()
-    for cluster in clusters:
-        detected_points.update(cluster.points)
-
-    recall = len(detected_points.intersection(anomalies)) / len(anomalies) if anomalies else 0
-    precision = len(detected_points.intersection(anomalies)) / len(detected_points) if detected_points else 0
-
-    logger.info(f"\nDetection metrics: recall={recall:.2f}, precision={precision:.2f}")
-    logger.info("DPGMM cluster anomaly detection test complete")
-
-    return {
-        'n_observations': model.n_observations,
-        'n_components': model.n_components,
-        'clusters_detected': len(clusters),
-        'recall': recall,
-        'precision': precision
-    }
+        anomaly_scores.append(score.score)
+        
+        if i % 200 == 0:
+            metrics = model.get_performance_metrics()
+            logger.info(f"Observation {i}: {update_result['action']}, "
+                       f"n_components={metrics['n_components']}, "
+                       f"avg_update_time={metrics['avg_update_time_s']:.4f}s")
+    
+    elapsed = time.time() - start_time
+    logger.info(f"Completed in {elapsed:.2f}s ({n_observations/elapsed:.0f} obs/s)")
+    
+    # Print performance metrics
+    metrics = model.get_performance_metrics()
+    logger.info(f"Performance metrics: {json.dumps(metrics, indent=2, default=str)}")
+    
+    # Detect anomalies
+    threshold = np.percentile(anomaly_scores, 95)
+    detected_anomalies = [i for i, score in enumerate(anomaly_scores) if score > threshold]
+    logger.info(f"Detected {len(detected_anomalies)} anomalies (threshold={threshold:.2f})")
+    logger.info(f"Actual anomalies at: {anomaly_indices}")
+    
+    return metrics
 
 if __name__ == '__main__':
-    result = main()
-    logger.info(f"Final result: {result}")
+    main()

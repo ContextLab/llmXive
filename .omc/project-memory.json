@@ -206,6 +206,12 @@
   },
   "hotPaths": [
     {
+      "path": "src/llmxive/speckit/implement_cmd.py",
+      "accessCount": 5,
+      "lastAccessed": 1777869432070,
+      "type": "file"
+    },
+    {
       "path": "src/llmxive/backends/dartmouth.py",
       "accessCount": 3,
       "lastAccessed": 1777837872734,
@@ -230,12 +236,6 @@
       "type": "file"
     },
     {
-      "path": "src/llmxive/speckit/implement_cmd.py",
-      "accessCount": 2,
-      "lastAccessed": 1777841074289,
-      "type": "file"
-    },
-    {
       "path": "src/llmxive/speckit/paper_plan_cmd.py",
       "accessCount": 2,
       "lastAccessed": 1777841683718,
@@ -251,6 +251,12 @@
       "path": "src/llmxive/speckit/plan_cmd.py",
       "accessCount": 1,
       "lastAccessed": 1777841632664,
+      "type": "file"
+    },
+    {
+      "path": "projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/reviews/research/research_reviewer_implementation_correctness__2026-05-04__research.md",
+      "accessCount": 1,
+      "lastAccessed": 1777869408187,
       "type": "file"
     }
   ],

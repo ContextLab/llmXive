@@ -1,69 +1,64 @@
 ---
-artifact_hash: ad30c659f561e10924fd6aad2630bd503fe53f4c1c0e5c5a0d5fac5b17d1381f
+artifact_hash: 663c04241d808894bb9a1f0d12b3883dcc5b4312796e931123c14957216bc923
 artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
 backend: dartmouth
 feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.0.0
-reviewed_at: '2026-05-03T20:52:14.420151Z'
+reviewed_at: '2026-05-03T22:51:38.970905Z'
 reviewer_kind: llm
 reviewer_name: research_reviewer_filesystem_hygiene
 score: 0.0
 verdict: full_revision
 ---
 
-## Filesystem Hygiene Review — Critical Structure and Constraint Violations
+## Filesystem Hygiene Review — Critical Path Deviations Detected
 
-### 1. config.yaml Size Violation (FR-009 Critical)
+### 1. Config File Size Violation (FR-009 Critical)
 
-The `code/config.yaml` file is **7890 bytes** per code summary, but FR-009 mandates it **MUST remain under 2KB (2048 bytes)**. This is a hard constraint violation requiring immediate remediation. Derived statistics must be moved to state files, not config.yaml. Verify via `os.path.getsize()` before each run as specified.
+The `code/config.yaml` file is **7,890 bytes**, which exceeds the **2KB (2,048 bytes) maximum** specified in **FR-009: Config Size Validation**. Per spec.md:
 
-### 2. Directory Structure Deviations (Constitution Principle V)
+> "The `config.yaml` file must not exceed 2KB in size. Only hyperparameters, random seeds, and base paths are permitted in the configuration file. Derived statistics and computed values must be stored in the state file."
 
-Multiple path violations detected:
+This is a documented constitutional violation that has been flagged in **6+ prior reviews** but remains uncorrected. Computed values, metrics, and derived statistics must be moved to `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-detect.yaml`.
 
-| Expected (plan.md) | Actual (code summary) | Status |
-|---|---|---|
-| `code/src/models/` | `baselines/arima.py` (root level) | ✗ Violation |
-| `data/raw/electricity/` | `raw/electricity.csv` (flat structure) | ✗ Violation |
-| `data/processed/results/` | `data/results/` | ✗ Violation |
-| N/A | `raw/raw/pems_sf_traffic.csv` | ✗ Nested violation |
+### 2. Inconsistent Data Directory Structure (Plan.md Violation)
 
-Per Constitution Principle V, all file paths in tasks.md must match actual filesystem structure. The `code/src/` hierarchy is not reflected in the actual code summary.
+**Plan.md** specifies:
+```
+projects/PROJ-024-bayesian-nonparametrics-for-anomaly-detect/data/processed/results/
+```
 
-### 3. Missing Required Scripts
+**Observed violations:**
+- `data/results/` exists at root level (should be `data/processed/results/`)
+- `data/raw/raw/` nested directory structure (e.g., `data/raw/raw/pems_sf_traffic.csv`) — raw data should not be nested under another `raw/` folder
+- Multiple result artifacts scattered: `code/data/results/moving_average_predictions.json` vs `data/processed/results/evaluation_results.json`
 
-The following scripts specified in tasks.md are absent from code summary:
-- `code/scripts/verify_parallel_safety.py` (T086)
-- `code/scripts/verify_dependency_order.py` (T087)
-- `code/scripts/generate_data_checksums.py` (T014)
-- `code/scripts/verify_config_compliance.py` (T083)
-- `code/scripts/verify_state_checksums.py` (T080)
+This violates **Constitution Principle V: Filesystem Hygiene** requiring paths to be "consistent and documented."
 
-These are required for CI/CD verification per Constitution Principle I.
+### 3. Duplicate Artifact Locations
 
-### 4. Data Provenance Structure Issues
+- `confusion_matrix.png` exists in both:
+  - `code/evaluation/outputs/confusion_matrix.png`
+  - `data/processed/results/confusion_matrix.png`
 
-The `data-dictionary.md` exists (9401 bytes) but the data directory contains:
-- `raw/pems_sf.csv` — violates SC-001 (PEMS-SF is not UCI)
-- `raw/raw/` nested directory — violates plan.md structure
-- Missing checksums in `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml`
+Per **Constitution Principle III: Data Integrity**, all processed data must be derived through documented pipelines with single source-of-truth locations. Duplicate outputs create provenance ambiguity.
 
-### 5. README Accuracy
+### 4. State File Implementation Incomplete
 
-README.md (6556 bytes) exists but must be verified against actual implementation. Confirm it documents:
-- Correct file paths (not `code/src/` if structure differs)
-- Accurate dataset download URLs
-- Validated usage examples
+Task T012 requires:
+> "Create `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-detect.yaml` for artifact hashes AND implement checksum recording logic"
+
+The state file location is referenced in spec.md but I cannot verify from the provided summaries that checksums are actually recorded for all artifacts (electricity.csv, pems_sf.csv, etc.). Per Principle III, all raw data must have SHA256 checksums in the state file.
 
 ### Required Actions
 
-1. Restructure to match plan.md exactly: `code/src/models/`, `data/raw/electricity/`, etc.
-2. Reduce config.yaml to <2048 bytes; move derived stats to state files
-3. Create all missing verification scripts in `code/scripts/`
-4. Remove PEMS-SF dataset; use only UCI datasets per SC-001
-5. Update data-dictionary.md with correct dataset provenance
-6. Regenerate `state/projects/*.yaml` with complete checksums
+1. Reduce `code/config.yaml` to ≤2KB; move derived values to state file
+2. Consolidate all results under `data/processed/results/` per plan.md
+3. Flatten `data/raw/raw/` to `data/raw/`
+4. Remove duplicate artifact locations; establish single source-of-truth
+5. Verify state file contains SHA256 checksums for all raw data artifacts
+6. Update README.md and data/README.md to reflect corrected paths
 
-**Verdict: full_revision** — Multiple critical filesystem hygiene violations block acceptance.
+This project cannot achieve `accept` verdict until filesystem hygiene violations are resolved.

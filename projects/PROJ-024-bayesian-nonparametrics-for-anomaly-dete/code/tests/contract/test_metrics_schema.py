@@ -15,7 +15,7 @@ import sys
 sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
 # Import from evaluation module
-from evaluation.metrics import (
+from src.evaluation.metrics import (
     EvaluationMetrics,
     compute_f1_score,
     compute_precision,
@@ -23,7 +23,7 @@ from evaluation.metrics import (
     compute_auc,
     generate_confusion_matrix
 )
-from evaluation.plots import (
+from src.evaluation.plots import (
     generate_roc_curve,
     generate_pr_curve
 )

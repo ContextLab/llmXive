@@ -15,8 +15,8 @@ import sys
 sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
 # Import from models module - matches API surface
-from models.anomaly_score import AnomalyScore
-from models.dp_gmm import DPGMMModel, DPGMMConfig, ELBOHistory
+from src.models.anomaly_score import AnomalyScore
+from src.models.dpgmm import DPGMMModel, DPGMMConfig, ELBOHistory
 
 class TestDPGMMOutputSchema:
     """Validate DPGMM model outputs match schema."""

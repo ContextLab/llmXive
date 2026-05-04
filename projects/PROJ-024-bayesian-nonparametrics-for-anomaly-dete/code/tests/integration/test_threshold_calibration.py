@@ -29,7 +29,7 @@ from utils.threshold import (
     save_calibration_result,
     load_calibration_result
 )
-from data.synthetic_generator import generate_synthetic_timeseries, AnomalyConfig, SignalConfig
+from src.data.synthetic_generator import generate_synthetic_timeseries, AnomalyConfig, SignalConfig
 
 
 class TestThresholdCalibrationUnlabeledData:

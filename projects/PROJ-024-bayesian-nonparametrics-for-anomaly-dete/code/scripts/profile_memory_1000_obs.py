@@ -21,8 +21,8 @@ sys.path.insert(0, str(code_dir))
 
 import numpy as np
 from utils.memory_profiler import profile_memory_usage, MemoryProfileResult
-from models.dp_gmm import DPGMMModel
-from utils.streaming import StreamingObservation
+from src.models.dpgmm import DPGMMModel
+from src.utils.streaming import StreamingObservation
 
 # Constants for reproducible results
 RANDOM_SEED = 42

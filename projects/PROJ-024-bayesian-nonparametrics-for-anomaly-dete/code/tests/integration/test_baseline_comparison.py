@@ -24,16 +24,16 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 CODE_SRC = PROJECT_ROOT / "code"
 sys.path.insert(0, str(CODE_SRC))
 
-from data.synthetic_generator import (
+from src.data.synthetic_generator import (
     generate_synthetic_timeseries,
     save_synthetic_dataset,
     load_synthetic_dataset,
     AnomalyConfig,
     SignalConfig
 )
-from baselines.arima import ARIMABaseline, ARIMAConfig, create_baseline as create_arima_baseline
-from baselines.moving_average import MovingAverageBaseline, MovingAverageConfig, create_baseline as create_ma_baseline
-from evaluation.metrics import (
+from src.baselines.arima import ARIMABaseline, ARIMAConfig, create_baseline as create_arima_baseline
+from src.baselines.moving_average import MovingAverageBaseline, MovingAverageConfig, create_baseline as create_ma_baseline
+from src.evaluation.metrics import (
     EvaluationMetrics,
     compute_f1_score,
     compute_precision,
@@ -44,15 +44,15 @@ from evaluation.metrics import (
     compute_roc_curve_points,
     compute_pr_curve_points
 )
-from evaluation.plots import (
+from src.evaluation.plots import (
     generate_roc_curve,
     save_roc_curve,
     generate_pr_curve,
     save_pr_curve,
     EvaluationPlotConfig
 )
-from models.time_series import TimeSeries
-from models.anomaly_score import AnomalyScore
+from src.models.time_series import TimeSeries
+from src.models.anomaly_score import AnomalyScore
 
 
 @pytest.fixture

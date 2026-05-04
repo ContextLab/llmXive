@@ -18,8 +18,8 @@ from typing import Dict, Any
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from models.dp_gmm import DPGMMModel, DPGMMConfig
-from models.anomaly_score import AnomalyScore
+from src.models.dpgmm import DPGMMModel, DPGMMConfig
+from src.models.anomaly_score import AnomalyScore
 
 def generate_test_data(n_observations: int, n_features: int = 1) -> np.ndarray:
     """Generate test data for performance comparison."""
