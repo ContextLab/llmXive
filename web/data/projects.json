@@ -5,7 +5,7 @@
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1604,
+    "total_contributions": 1607,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1431,
+      "contribution_count": 1434,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-04T14:59:04.013076+00:00",
+  "generated_at": "2026-05-04T15:51:48.167294+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -18193,7 +18193,7 @@
       },
       "authors": [
         {
-          "contributions": 2,
+          "contributions": 3,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -18216,12 +18216,20 @@
         "verified": 0
       },
       "created_at": "2026-05-04T14:53:22.126922+00:00",
-      "current_stage": "brainstormed",
-      "description": "Field: psychology How does prior simulated social rejection (via Cyberball paradigm) modulate neural activation in reward-related brain regions when individuals subsequently receive positive feedback on a cognitive task? Social rejection is a well-documented stressor with lasting psychological consequences, yet the\u2026",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology How does prior simulated social rejection (via Cyberball paradigm) modulate subsequent responses to positive feedback in behavioral measures that proxy reward processing? Social rejection is a well-documented stressor with lasting psychological consequences, yet the extent to which it dampens\u2026",
       "field": "psychology",
       "id": "PROJ-258-the-effect-of-simulated-social-rejection",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 30.231096,
+          "ended_at": "2026-05-04T15:50:25.728480Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T15:49:55.497384Z"
+        },
         {
           "agent": "flesh_out",
           "duration_s": 31.685482,
@@ -18246,7 +18254,7 @@
       "speckit_research_dir": null,
       "submitter": "google.gemma-3-27b-it",
       "title": "The Effect of Simulated Social Rejection on Neural Responses to Positive Feedback",
-      "updated_at": "2026-05-04T14:53:22.126922+00:00"
+      "updated_at": "2026-05-04T15:50:25.731170+00:00"
     },
     {
       "artifact_links": {
@@ -18274,6 +18282,14 @@
           "roles": [
             "brainstorm_submitter"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
         }
       ],
       "citation_summary": {
@@ -18283,12 +18299,21 @@
         "verified": 0
       },
       "created_at": "2026-05-04T14:53:22.126922+00:00",
-      "current_stage": "brainstormed",
-      "description": "Field: biology Can plant disease resistance be predicted using publicly available genomic and metabolomic data? Specifically, we could explore correlations between single nucleotide polymorphisms (SNPs) identified in genome-wide association studies and the abundance of specific secondary metabolites known to\u2026",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Can plant disease resistance be predicted using publicly available genomic (SNPs) and metabolomic data from plant-pathogen interaction studies? Specifically, can we identify genetic markers and metabolic signatures that correlate with resistance levels to common plant pathogens? Plant disease resistance\u2026",
       "field": "biology",
       "id": "PROJ-259-predicting-plant-disease-resistance-from",
       "keywords": [],
-      "last_run_log": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 27.130571,
+          "ended_at": "2026-05-04T15:50:53.301258Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T15:50:26.170687Z"
+        }
+      ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
@@ -18296,7 +18321,7 @@
       "speckit_research_dir": null,
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting Plant Disease Resistance from Publicly Available Genomic and Metabolomic Data",
-      "updated_at": "2026-05-04T14:53:22.126922+00:00"
+      "updated_at": "2026-05-04T15:50:53.303895+00:00"
     },
     {
       "artifact_links": {
@@ -18324,6 +18349,14 @@
           "roles": [
             "brainstorm_submitter"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
         }
       ],
       "citation_summary": {
@@ -18333,12 +18366,21 @@
         "verified": 0
       },
       "created_at": "2026-05-04T14:53:22.126922+00:00",
-      "current_stage": "brainstormed",
-      "description": "Field: physics Amorphous solids, lacking long-range order, present a unique challenge to understanding heat transport. While the conventional picture relies on diffusive phonon propagation, recent theoretical work suggests that localized vibrational modes \u2013 often described as \u201cbottlenecks\u201d \u2013 play a disproportionately\u2026",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics How does the topological network structure (coordination numbers, bond angle distributions) of amorphous solids correlate with the density of localized vibrational modes and their macroscopic thermal conductivity? Amorphous solids lack long-range crystalline order, making standard phonon-based heat\u2026",
       "field": "physics",
       "id": "PROJ-260-investigating-the-influence-of-network-s",
       "keywords": [],
-      "last_run_log": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 52.477272,
+          "ended_at": "2026-05-04T15:51:46.218495Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T15:50:53.741223Z"
+        }
+      ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
@@ -18346,7 +18388,7 @@
       "speckit_research_dir": null,
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Influence of Network Structure on Heat Conduction in Amorphous Solids",
-      "updated_at": "2026-05-04T14:53:22.126922+00:00"
+      "updated_at": "2026-05-04T15:51:46.221006+00:00"
     }
   ],
   "schema_version": "2.0.0"

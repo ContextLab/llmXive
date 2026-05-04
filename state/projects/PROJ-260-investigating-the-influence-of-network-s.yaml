@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T14:53:22.126922Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-260-investigating-the-influence-of-network-s
-last_run_id: null
+last_run_id: 9fa6ce75-6809-4171-b439-1269918a8a0c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Investigating the Influence of Network Structure on Heat Conduction in Amorphous
   Solids
-updated_at: '2026-05-04T14:53:22.126922Z'
+updated_at: '2026-05-04T15:51:46.221006Z'
