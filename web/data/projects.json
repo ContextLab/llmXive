@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 229,
+    "active_projects": 232,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1103,
+    "total_contributions": 1106,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 934,
+      "contribution_count": 937,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 209,
+      "contribution_count": 212,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -198,7 +198,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-04T00:29:40.501367+00:00",
+  "generated_at": "2026-05-04T01:07:02.136906+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -16353,6 +16353,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Effectiveness of Prompt Engineering for LLM-Based Code Translation",
       "updated_at": "2026-05-03T23:25:35.708365+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-231-statistical-analysis-of-publicly-availab/idea/statistical-analysis-of-publicly-availab.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T01:02:23.568477+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How can functional data analysis and principal component analysis be applied to CMIP climate model ensembles to identify dominant modes of variability and assess the robustness of projected climate trends beyond simple mean and variance metrics? Climate model ensembles generate high-dimensional\u2026",
+      "field": "statistics",
+      "id": "PROJ-231-statistical-analysis-of-publicly-availab",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 65.65745,
+          "ended_at": "2026-05-04T01:03:42.717368Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T01:02:37.059918Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Statistical Analysis of Publicly Available Climate Model Output Ensembles",
+      "updated_at": "2026-05-04T01:03:42.719678+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-232-investigating-the-relationship-between-b/idea/investigating-the-relationship-between-b.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T01:02:23.568477+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: neuroscience Can individual differences in musical emotion perception be predicted from resting-state functional connectivity metrics of brain networks involved in reward and emotional regulation? Specifically, do measures of network integration/segregation correlate with self-reported emotional responses to\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-232-investigating-the-relationship-between-b",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 55.143434,
+          "ended_at": "2026-05-04T01:04:38.203296Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T01:03:43.059862Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Musical Emotion Perception",
+      "updated_at": "2026-05-04T01:04:38.205488+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-233-predicting-the-diffusion-coefficient-of-/idea/predicting-the-diffusion-coefficient-of-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T01:02:23.568477+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science Can machine learning regression models trained on compositional (e.g., atomic radius, electronegativity) and microstructural (e.g., grain size, dislocation density) descriptors predict hydrogen diffusion coefficients in metals with higher accuracy than traditional empirical Arrhenius\u2026",
+      "field": "materials science",
+      "id": "PROJ-233-predicting-the-diffusion-coefficient-of-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 142.08054,
+          "ended_at": "2026-05-04T01:07:00.625656Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T01:04:38.545116Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional and Microstructural Descriptors",
+      "updated_at": "2026-05-04T01:07:00.627824+00:00"
     }
   ],
   "schema_version": "2.0.0"
