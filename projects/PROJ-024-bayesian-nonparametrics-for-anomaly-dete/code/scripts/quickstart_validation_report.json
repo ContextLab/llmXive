@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-01-15T10:30:00",
+  "quickstart_path": "specs/001-bayesian-nonparametrics-anomaly-detection/quickstart.md",
+  "quickstart_valid": true,
+  "artifacts_checked": 25,
+  "artifacts_valid": 25,
+  "artifacts_missing": [],
+  "checksum_mismatches": [],
+  "state_file_valid": true,
+  "overall_status": "PASS",
+  "details": [
+    "✓ code/scripts/validate_quickstart_artifacts.py",
+    "✓ code/src/models/dpgmm.py",
+    "✓ code/src/models/anomaly_score.py",
+    "✓ code/src/evaluation/metrics.py",
+    "✓ code/src/evaluation/plots.py",
+    "✓ code/baselines/arima.py",
+    "✓ code/baselines/moving_average.py",
+    "✓ code/data/synthetic_generator.py",
+    "✓ code/download_datasets.py",
+    "✓ config.yaml",
+    "✓ data/raw/electricity.csv",
+    "✓ data/raw/traffic.csv",
+    "✓ state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml",
+    "✓ specs/contracts/dataset.schema.yaml",
+    "✓ specs/contracts/anomaly_score.schema.yaml",
+    "✓ specs/contracts/evaluation_metrics.schema.yaml"
+  ]
+}

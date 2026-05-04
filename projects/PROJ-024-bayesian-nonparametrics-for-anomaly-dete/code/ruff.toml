@@ -1,0 +1,49 @@
+# Ruff configuration for PROJ-024
+# Linting rules for Bayesian Nonparametrics Anomaly Detection project
+
+[lint]
+# Enable pycodestyle (E), Pyflakes (F), and flake8-bugbear (B) rules
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # Pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "UP",   # pyupgrade
+    "ANN",  # flake8-annotations
+    "SIM",  # flake8-simplify
+]
+
+# Ignore specific rules that are too strict for research code
+ignore = [
+    "ANN001",  # Missing type annotation for function argument
+    "ANN002",  # Missing type annotation for *args
+    "ANN003",  # Missing type annotation for **kwargs
+    "ANN101",  # Missing type annotation for self in method
+    "ANN102",  # Missing type annotation for cls in classmethod
+    "ANN204",  # Missing return type annotation for special method
+    "E501",    # Line too long (handled by black)
+]
+
+[lint.per-file-ignores]
+# Tests can be less strict about type annotations
+"tests/**/*.py" = ["ANN"]
+# Scripts can have simpler type requirements
+"scripts/**/*.py" = ["ANN"]
+
+[lint.isort]
+# Consistent import ordering
+known-first-party = ["models", "data", "baselines", "evaluation", "utils", "services", "scripts"]
+force-single-line = false
+lines-between-types = 1
+
+[format]
+# Use black-compatible formatting
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[lint.mccabe]
+# Maximum complexity allowed
+max-complexity = 15

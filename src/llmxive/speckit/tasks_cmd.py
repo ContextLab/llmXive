@@ -37,6 +37,15 @@ class TaskerAgent(SlashCommandAgent):
         candidates = sorted(ctx.project_dir.glob("specs/*/"))
         if not candidates:
             raise FileNotFoundError(f"no specs/ feature dir in {ctx.project_dir}")
+        # Prefer dir with tasks.md, fall back to dir with spec.md.
+        # An LLM's earlier wrong-slug write can leave a ghost specs/
+        # subdir; alphabetical-first picks the wrong one.
+        for c in candidates:
+            if (c / "tasks.md").exists():
+                return c
+        for c in candidates:
+            if (c / "spec.md").exists():
+                return c
         return candidates[0]
 
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
@@ -237,6 +246,32 @@ class TaskerAgent(SlashCommandAgent):
             for issue in doc.get("issues_resolved", []) or []:
                 f = issue.get("file")
                 patch = issue.get("patch", "")
+                if not patch or not isinstance(patch, str):
+                    continue
+                # Mode-B patches replace the WHOLE file. Validate the
+                # patch keeps the file's essential structure: tasks.md
+                # must have >=5 task IDs (else it's been replaced with
+                # prose like "All tasks completed"); spec.md and
+                # plan.md must have >=1 markdown header.
+                import re as _re_inner
+                if f == "tasks.md":
+                    n_ids = len(_re_inner.findall(
+                        r"^- \[[ Xx]\] T\d+[a-z]?\b", patch, _re_inner.MULTILINE
+                    ))
+                    if n_ids < 5:
+                        print(
+                            f"[tasker] refusing Mode-B tasks.md patch: "
+                            f"only {n_ids} task IDs (need >=5). The LLM "
+                            f"likely replaced the file with prose. Skipping."
+                        )
+                        continue
+                if f in ("spec.md", "plan.md"):
+                    if not _re_inner.search(r"^# ", patch, _re_inner.MULTILINE):
+                        print(
+                            f"[tasker] refusing Mode-B {f} patch: "
+                            f"no markdown headers. Skipping."
+                        )
+                        continue
                 if f == "spec.md":
                     spec_path.write_text(patch, encoding="utf-8")
                 elif f == "plan.md":

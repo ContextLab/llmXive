@@ -1,17 +1,17 @@
 """
-Plot generation utilities for evaluation metrics.
+Evaluation plots module for anomaly detection visualization.
 
-This module provides functions to generate and save ROC and PR curves,
-as well as other evaluation visualizations for anomaly detection models.
+Provides ROC and PR curve generation with configurable styling options.
 """
+
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Any, List, Tuple
 import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
-from datetime import datetime
 import logging
+from datetime import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -19,390 +19,360 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ROCPlotConfig:
-    """Configuration for ROC curve plotting."""
+    """Configuration for ROC curve plots."""
     title: str = "ROC Curve"
     xlabel: str = "False Positive Rate"
     ylabel: str = "True Positive Rate"
     figsize: Tuple[int, int] = (10, 8)
     dpi: int = 150
-    save_format: str = "png"
+    show_grid: bool = True
     show_diagonal: bool = True
-    grid: bool = True
-    legend: bool = True
-    
+    line_color: str = "#1f77b4"
+    line_width: float = 2.0
+    diagonal_color: str = "#d62728"
+    diagonal_linestyle: str = "--"
+    save_path: Optional[str] = None
+
 @dataclass
 class PRPlotConfig:
-    """Configuration for Precision-Recall curve plotting."""
+    """Configuration for Precision-Recall curve plots."""
     title: str = "Precision-Recall Curve"
     xlabel: str = "Recall"
     ylabel: str = "Precision"
     figsize: Tuple[int, int] = (10, 8)
     dpi: int = 150
-    save_format: str = "png"
-    grid: bool = True
-    legend: bool = True
-    baseline: bool = True  # Show baseline (mean positive rate)
-    
+    show_grid: bool = True
+    line_color: str = "#2ca02c"
+    line_width: float = 2.0
+    save_path: Optional[str] = None
+    auc_display: bool = True
+    auc_position: Tuple[float, float] = (0.05, 0.05)
+    auc_fontsize: int = 12
+
 @dataclass
 class EvaluationPlotConfig:
     """Configuration for combined evaluation plots."""
-    output_dir: str = "paper/figures"
-    prefix: str = ""
-    roc_config: ROCPlotConfig = field(default_factory=ROCPlotConfig)
-    pr_config: PRPlotConfig = field(default_factory=PRPlotConfig)
-    
+    roc_config: Optional[ROCPlotConfig] = None
+    pr_config: Optional[PRPlotConfig] = None
+    save_directory: str = "paper/figures"
+    prefix: str = "evaluation"
+    timestamp: bool = True
 
-def generate_roc_curve(
-    fpr: np.ndarray,
-    tpr: np.ndarray,
-    auc: float,
-    config: Optional[ROCPlotConfig] = None
-) -> plt.Figure:
+def compute_pr_curve_points(
+    y_true: np.ndarray,
+    y_scores: np.ndarray,
+    threshold_range: Optional[np.ndarray] = None
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Generate a ROC curve plot.
-    
+    Compute Precision-Recall curve points.
+
     Args:
-        fpr: False positive rates array
-        tpr: True positive rates array
-        auc: Area under the curve value
-        config: ROCPlotConfig instance or None for defaults
-        
+        y_true: Ground truth binary labels (0 or 1)
+        y_scores: Anomaly scores (higher = more anomalous)
+        threshold_range: Array of thresholds to evaluate (optional)
+
     Returns:
-        matplotlib Figure object
+        Tuple of (precision, recall, thresholds) arrays
     """
-    if config is None:
-        config = ROCPlotConfig()
-        
-    fig, ax = plt.subplots(figsize=config.figsize, dpi=config.dpi)
-    
-    # Plot ROC curve
-    ax.plot(fpr, tpr, 'b-', linewidth=2, 
-            label=f'ROC Curve (AUC = {auc:.4f})')
-    
-    # Plot diagonal line (random classifier)
-    if config.show_diagonal:
-        ax.plot([0, 1], [0, 1], 'r--', linewidth=1, 
-                label='Random Classifier', alpha=0.5)
-    
-    # Configure axes
-    ax.set_xlim([0.0, 1.0])
-    ax.set_ylim([0.0, 1.05])
-    ax.set_xlabel(config.xlabel, fontsize=12)
-    ax.set_ylabel(config.ylabel, fontsize=12)
-    ax.set_title(config.title, fontsize=14, fontweight='bold')
-    
-    if config.grid:
-        ax.grid(True, alpha=0.3)
-        
-    if config.legend:
-        ax.legend(loc='lower right', fontsize=10)
-        
-    return fig
+    if threshold_range is None:
+        thresholds = np.sort(np.unique(y_scores))
+    else:
+        thresholds = threshold_range
 
+    precision = []
+    recall = []
 
-def save_roc_curve(
-    fpr: np.ndarray,
-    tpr: np.ndarray,
-    auc: float,
-    output_path: Path,
-    config: Optional[ROCPlotConfig] = None
-) -> Path:
+    for thresh in thresholds:
+        y_pred = (y_scores >= thresh).astype(int)
+
+        tp = np.sum((y_pred == 1) & (y_true == 1))
+        fp = np.sum((y_pred == 1) & (y_true == 0))
+        fn = np.sum((y_pred == 0) & (y_true == 1))
+
+        prec = tp / (tp + fp) if (tp + fp) > 0 else 1.0
+        rec = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+
+        precision.append(prec)
+        recall.append(rec)
+
+    return np.array(precision), np.array(recall), thresholds
+
+def compute_roc_curve_points(
+    y_true: np.ndarray,
+    y_scores: np.ndarray,
+    threshold_range: Optional[np.ndarray] = None
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Generate and save a ROC curve to file.
-    
+    Compute ROC curve points.
+
     Args:
-        fpr: False positive rates array
-        tpr: True positive rates array
-        auc: Area under the curve value
-        output_path: Path to save the figure
-        config: ROCPlotConfig instance or None for defaults
-        
-    Returns:
-        Path to the saved file
-    """
-    if config is None:
-        config = ROCPlotConfig()
-        
-    fig = generate_roc_curve(fpr, tpr, auc, config)
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    fig.savefig(output_path, format=config.save_format, 
-               bbox_inches='tight', dpi=config.dpi)
-    plt.close(fig)
-    
-    logger.info(f"ROC curve saved to {output_path}")
-    return output_path
+        y_true: Ground truth binary labels (0 or 1)
+        y_scores: Anomaly scores (higher = more anomalous)
+        threshold_range: Array of thresholds to evaluate (optional)
 
+    Returns:
+        Tuple of (fpr, tpr, thresholds) arrays
+    """
+    if threshold_range is None:
+        thresholds = np.sort(np.unique(y_scores))
+    else:
+        thresholds = threshold_range
+
+    fpr = []
+    tpr = []
+
+    for thresh in thresholds:
+        y_pred = (y_scores >= thresh).astype(int)
+
+        tp = np.sum((y_pred == 1) & (y_true == 1))
+        fp = np.sum((y_pred == 1) & (y_true == 0))
+        tn = np.sum((y_pred == 0) & (y_true == 0))
+        fn = np.sum((y_pred == 0) & (y_true == 1))
+
+        fpr_val = fp / (fp + tn) if (fp + tn) > 0 else 0.0
+        tpr_val = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+
+        fpr.append(fpr_val)
+        tpr.append(tpr_val)
+
+    return np.array(fpr), np.array(tpr), thresholds
+
+def compute_auc(precision: np.ndarray, recall: np.ndarray) -> float:
+    """
+    Compute Area Under the Precision-Recall Curve (AUPRC).
+
+    Args:
+        precision: Precision values
+        recall: Recall values
+
+    Returns:
+        AUC value
+    """
+    sorted_indices = np.argsort(recall)
+    recall_sorted = recall[sorted_indices]
+    precision_sorted = precision[sorted_indices]
+
+    auc = np.trapz(precision_sorted, recall_sorted)
+    return float(auc)
 
 def generate_pr_curve(
-    recall: np.ndarray,
-    precision: np.ndarray,
-    ap: float,
-    positive_rate: float,
+    y_true: np.ndarray,
+    y_scores: np.ndarray,
     config: Optional[PRPlotConfig] = None
 ) -> plt.Figure:
     """
     Generate a Precision-Recall curve plot.
-    
+
     Args:
-        recall: Recall values array (sorted ascending)
-        precision: Precision values array (corresponding to recall)
-        ap: Average precision score
-        positive_rate: Fraction of positive samples in dataset (for baseline)
-        config: PRPlotConfig instance or None for defaults
-        
+        y_true: Ground truth binary labels
+        y_scores: Anomaly scores
+        config: Plot configuration (optional)
+
     Returns:
         matplotlib Figure object
-        
-    Notes:
-        - PR curves are typically plotted with recall on x-axis and precision on y-axis
-        - The curve should be monotonically non-increasing
-        - Average Precision (AP) is the area under the PR curve
     """
     if config is None:
         config = PRPlotConfig()
-        
+
+    precision, recall, thresholds = compute_pr_curve_points(y_true, y_scores)
+    auc_value = compute_auc(precision, recall)
+
     fig, ax = plt.subplots(figsize=config.figsize, dpi=config.dpi)
-    
-    # Sort by recall for proper plotting
-    sort_idx = np.argsort(recall)
-    recall_sorted = recall[sort_idx]
-    precision_sorted = precision[sort_idx]
-    
-    # Plot PR curve
-    ax.plot(recall_sorted, precision_sorted, 'b-', linewidth=2,
-            label=f'PR Curve (AP = {ap:.4f})')
-    
-    # Fill area under curve for visualization
-    ax.fill_between(recall_sorted, precision_sorted, alpha=0.15, color='blue')
-    
-    # Plot baseline (mean positive rate) if requested
-    if config.baseline:
-        ax.axhline(y=positive_rate, color='r', linestyle='--', 
-                  linewidth=1, label=f'Baseline (Positive Rate = {positive_rate:.4f})',
-                  alpha=0.7)
-    
-    # Configure axes
-    ax.set_xlim([0.0, 1.0])
-    ax.set_ylim([0.0, 1.05])
+    sns.set_style("whitegrid" if config.show_grid else "white")
+
+    ax.plot(recall, precision, color=config.line_color,
+            linewidth=config.line_width, label=f'PR Curve (AUC={auc_value:.3f})')
     ax.set_xlabel(config.xlabel, fontsize=12)
     ax.set_ylabel(config.ylabel, fontsize=12)
-    ax.set_title(config.title, fontsize=14, fontweight='bold')
-    
-    if config.grid:
-        ax.grid(True, alpha=0.3)
-        
-    if config.legend:
-        ax.legend(loc='lower left', fontsize=10)
-        
+    ax.set_title(config.title, fontsize=14)
+    ax.legend(loc='best')
+    ax.grid(config.show_grid)
+
+    if config.auc_display:
+        ax.text(config.auc_position[0], config.auc_position[1],
+                f'AUC = {auc_value:.3f}', transform=ax.transAxes,
+                fontsize=config.auc_fontsize, verticalalignment='bottom')
+
+    ax.set_xlim([0, 1])
+    ax.set_ylim([0, 1.05])
+
     return fig
 
-
 def save_pr_curve(
-    recall: np.ndarray,
-    precision: np.ndarray,
-    ap: float,
-    positive_rate: float,
-    output_path: Path,
+    y_true: np.ndarray,
+    y_scores: np.ndarray,
+    output_path: str,
     config: Optional[PRPlotConfig] = None
 ) -> Path:
     """
-    Generate and save a Precision-Recall curve to file.
-    
+    Generate and save a Precision-Recall curve plot.
+
     Args:
-        recall: Recall values array (sorted ascending)
-        precision: Precision values array (corresponding to recall)
-        ap: Average precision score
-        positive_rate: Fraction of positive samples in dataset
-        output_path: Path to save the figure
-        config: PRPlotConfig instance or None for defaults
-        
+        y_true: Ground truth binary labels
+        y_scores: Anomaly scores
+        output_path: Path to save the PNG file
+        config: Plot configuration (optional)
+
     Returns:
-        Path to the saved file
-        
-    Example:
-        >>> recall = np.array([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
-        >>> precision = np.array([0.5, 0.6, 0.7, 0.65, 0.6, 0.55])
-        >>> ap = 0.62
-        >>> positive_rate = 0.1
-        >>> save_pr_curve(recall, precision, ap, positive_rate, 
-        ...               Path('paper/figures/pr_curve.png'))
+        Path object of saved file
     """
     if config is None:
         config = PRPlotConfig()
-        
-    fig = generate_pr_curve(recall, precision, ap, positive_rate, config)
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    fig.savefig(output_path, format=config.save_format,
-               bbox_inches='tight', dpi=config.dpi)
+
+    if config.save_path is None:
+        config.save_path = output_path
+
+    fig = generate_pr_curve(y_true, y_scores, config)
+
+    output_path_obj = Path(output_path)
+    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+
+    fig.savefig(output_path_obj, dpi=config.dpi, bbox_inches='tight')
     plt.close(fig)
-    
+
     logger.info(f"PR curve saved to {output_path}")
-    return output_path
+    return output_path_obj
 
-
-def compute_precision_recall_curve(
+def generate_roc_curve(
     y_true: np.ndarray,
     y_scores: np.ndarray,
-    threshold: Optional[np.ndarray] = None
-) -> Tuple[np.ndarray, np.ndarray, float]:
+    config: Optional[ROCPlotConfig] = None
+) -> plt.Figure:
     """
-    Compute precision and recall values for different thresholds.
-    
-    Args:
-        y_true: True binary labels (0 or 1)
-        y_scores: Anomaly scores (higher = more anomalous)
-        threshold: Optional array of thresholds to evaluate
-        
-    Returns:
-        Tuple of (precision, recall, average_precision)
-        
-    Notes:
-        - This function computes the PR curve points manually
-        - Average Precision is computed using trapezoidal rule
-    """
-    if threshold is None:
-        # Use unique score values as thresholds
-        threshold = np.unique(y_scores)
-        # Add 0 and 1 for completeness
-        threshold = np.concatenate([[0], threshold, [1 + np.max(y_scores)]])
-        
-    precision_list = []
-    recall_list = []
-    
-    for thresh in threshold:
-        y_pred = (y_scores >= thresh).astype(int)
-        
-        # True positives, false positives, false negatives
-        tp = np.sum((y_pred == 1) & (y_true == 1))
-        fp = np.sum((y_pred == 1) & (y_true == 0))
-        fn = np.sum((y_pred == 0) & (y_true == 1))
-        
-        # Compute precision and recall
-        precision = tp / (tp + fp) if (tp + fp) > 0 else 1.0
-        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-        
-        precision_list.append(precision)
-        recall_list.append(recall)
-    
-    precision_arr = np.array(precision_list)
-    recall_arr = np.array(recall_list)
-    
-    # Compute Average Precision using trapezoidal rule
-    # Sort by recall for proper integration
-    sort_idx = np.argsort(recall_arr)
-    recall_sorted = recall_arr[sort_idx]
-    precision_sorted = precision_arr[sort_idx]
-    
-    # Compute AP
-    ap = np.trapz(precision_sorted, recall_sorted)
-    
-    return precision_arr, recall_arr, ap
+    Generate a ROC curve plot.
 
+    Args:
+        y_true: Ground truth binary labels
+        y_scores: Anomaly scores
+        config: Plot configuration (optional)
+
+    Returns:
+        matplotlib Figure object
+    """
+    if config is None:
+        config = ROCPlotConfig()
+
+    fpr, tpr, thresholds = compute_roc_curve_points(y_true, y_scores)
+    auc_value = compute_auc(tpr, fpr)
+
+    fig, ax = plt.subplots(figsize=config.figsize, dpi=config.dpi)
+    sns.set_style("whitegrid" if config.show_grid else "white")
+
+    ax.plot(fpr, tpr, color=config.line_color,
+            linewidth=config.line_width, label=f'ROC Curve (AUC={auc_value:.3f})')
+    ax.set_xlabel(config.xlabel, fontsize=12)
+    ax.set_ylabel(config.ylabel, fontsize=12)
+    ax.set_title(config.title, fontsize=14)
+    ax.legend(loc='best')
+    ax.grid(config.show_grid)
+
+    if config.show_diagonal:
+        ax.plot([0, 1], [0, 1], color=config.diagonal_color,
+                linestyle=config.diagonal_linestyle, linewidth=1.0)
+
+    ax.set_xlim([0, 1])
+    ax.set_ylim([0, 1.05])
+
+    return fig
+
+def save_roc_curve(
+    y_true: np.ndarray,
+    y_scores: np.ndarray,
+    output_path: str,
+    config: Optional[ROCPlotConfig] = None
+) -> Path:
+    """
+    Generate and save a ROC curve plot.
+
+    Args:
+        y_true: Ground truth binary labels
+        y_scores: Anomaly scores
+        output_path: Path to save the PNG file
+        config: Plot configuration (optional)
+
+    Returns:
+        Path object of saved file
+    """
+    if config is None:
+        config = ROCPlotConfig()
+
+    if config.save_path is None:
+        config.save_path = output_path
+
+    fig = generate_roc_curve(y_true, y_scores, config)
+
+    output_path_obj = Path(output_path)
+    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+
+    fig.savefig(output_path_obj, dpi=config.dpi, bbox_inches='tight')
+    plt.close(fig)
+
+    logger.info(f"ROC curve saved to {output_path}")
+    return output_path_obj
 
 def generate_evaluation_plots(
     y_true: np.ndarray,
     y_scores: np.ndarray,
-    output_dir: Path,
-    prefix: str = "",
-    model_name: str = "Model"
+    config: Optional[EvaluationPlotConfig] = None
 ) -> Dict[str, Path]:
     """
-    Generate and save both ROC and PR curves for a model.
-    
+    Generate both ROC and PR curve plots and save them.
+
     Args:
-        y_true: True binary labels (0 = normal, 1 = anomaly)
-        y_scores: Anomaly scores from the model
-        output_dir: Directory to save plots
-        prefix: Prefix for output filenames
-        model_name: Name of the model for plot titles
-        
+        y_true: Ground truth binary labels
+        y_scores: Anomaly scores
+        config: Plot configuration (optional)
+
     Returns:
         Dictionary mapping plot type to saved file path
-        
-    Raises:
-        ValueError: If input arrays have mismatched lengths
     """
-    if len(y_true) != len(y_scores):
-        raise ValueError("y_true and y_scores must have same length")
-        
-    # Compute ROC curve
-    from sklearn.metrics import roc_curve, auc as roc_auc
-    fpr, tpr, _ = roc_curve(y_true, y_scores)
-    roc_auc_val = roc_auc(y_true, y_scores)
-    
-    # Compute PR curve
-    precision, recall, ap = compute_precision_recall_curve(y_true, y_scores)
-    positive_rate = np.mean(y_true)
-    
-    # Generate plots
-    saved_files = {}
-    
-    # ROC curve
-    roc_config = ROCPlotConfig(
-        title=f"ROC Curve - {model_name}"
-    )
-    roc_path = output_dir / f"{prefix}roc_curve_{model_name}.png"
-    save_roc_curve(fpr, tpr, roc_auc_val, roc_path, roc_config)
-    saved_files['roc'] = roc_path
-    
-    # PR curve
-    pr_config = PRPlotConfig(
-        title=f"Precision-Recall Curve - {model_name}"
-    )
-    pr_path = output_dir / f"{prefix}pr_curve_{model_name}.png"
-    save_pr_curve(recall, precision, ap, positive_rate, pr_path, pr_config)
-    saved_files['pr'] = pr_path
-    
-    logger.info(f"Generated evaluation plots in {output_dir}")
-    return saved_files
+    if config is None:
+        config = EvaluationPlotConfig()
 
+    output_paths = {}
+    save_dir = Path(config.save_directory)
+    save_dir.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S") if config.timestamp else ""
+    prefix = config.prefix
+
+    if config.pr_config is not None:
+        pr_path = save_dir / f"{prefix}_pr_curve_{timestamp}.png"
+        output_paths['pr'] = save_pr_curve(y_true, y_scores, str(pr_path), config.pr_config)
+
+    if config.roc_config is not None:
+        roc_path = save_dir / f"{prefix}_roc_curve_{timestamp}.png"
+        output_paths['roc'] = save_roc_curve(y_true, y_scores, str(roc_path), config.roc_config)
+
+    logger.info(f"Generated {len(output_paths)} evaluation plots")
+    return output_paths
 
 def main():
-    """
-    Main function for testing PR curve generation.
-    
-    This function generates synthetic anomaly scores and true labels,
-    then creates and saves ROC and PR curves.
-    """
-    # Create output directory
-    output_dir = Path("paper/figures")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Generate synthetic data for testing
+    """Main entry point for testing PR curve generation."""
     np.random.seed(42)
     n_samples = 1000
-    n_anomalies = int(n_samples * 0.1)  # 10% anomaly rate
-    
-    # True labels: 0 = normal, 1 = anomaly
+    n_anomalies = 50
+
     y_true = np.zeros(n_samples, dtype=int)
     y_true[:n_anomalies] = 1
-    
-    # Anomaly scores: higher for anomalies
-    y_scores = np.random.random(n_samples)
-    y_scores[:n_anomalies] += 0.3  # Anomalies have higher scores
-    y_scores = np.clip(y_scores, 0, 1)
-    
-    # Generate evaluation plots
-    saved_files = generate_evaluation_plots(
-        y_true=y_true,
-        y_scores=y_scores,
-        output_dir=output_dir,
-        prefix="test_",
-        model_name="DPGMM"
-    )
-    
-    print(f"Generated files:")
-    for plot_type, path in saved_files.items():
-        print(f"  {plot_type}: {path}")
-        
-    return saved_files
 
+    y_scores = np.random.random(n_samples)
+    y_scores[:n_anomalies] = np.random.uniform(0.7, 1.0, n_anomalies)
+    y_scores[n_anomalies:] = np.random.uniform(0.0, 0.5, n_samples - n_anomalies)
+
+    pr_config = PRPlotConfig(
+        title="Test PR Curve",
+        save_path="paper/figures/test_pr_curve.png"
+    )
+    save_pr_curve(y_true, y_scores, str(pr_config.save_path), pr_config)
+
+    roc_config = ROCPlotConfig(
+        title="Test ROC Curve",
+        save_path="paper/figures/test_roc_curve.png"
+    )
+    save_roc_curve(y_true, y_scores, str(roc_config.save_path), roc_config)
+
+    logger.info("Test completed successfully")
 
 if __name__ == "__main__":
     main()

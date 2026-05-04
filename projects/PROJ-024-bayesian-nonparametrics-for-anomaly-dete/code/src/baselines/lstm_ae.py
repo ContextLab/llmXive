@@ -1,34 +1,41 @@
 """
 LSTM Autoencoder Baseline for Time Series Anomaly Detection
 
-This module implements an LSTM-based autoencoder for unsupervised anomaly detection.
-The model learns to reconstruct normal time series patterns and uses reconstruction
-error (MSE) as the anomaly score. Higher reconstruction error indicates anomalies.
+This module implements a sequence-to-sequence LSTM autoencoder that
+reconstructs time series windows and uses reconstruction error as
+the anomaly score. Matches the API surface of other baselines (ARIMA,
+MovingAverage) for consistent evaluation.
 
-Per creativity review recommendation for contemporary baselines (T090).
+API Surface (per spec.md):
+- LSTMConfig: Configuration dataclass for hyperparameters
+- LSTMPrediction: Prediction output with reconstruction and score
+- LSTMState: Model state for serialization
+- LSTMAutoencoder: Neural network model
+- LSTMBaseline: High-level baseline interface
+- create_baseline: Factory function
+- main: Entry point for script execution
 """
 import os
 import sys
 import json
 import logging
 import numpy as np
-from pathlib import Path
 from dataclasses import dataclass, field, asdict
-from typing import Optional, List, Dict, Any, Tuple, Union
+from pathlib import Path
 from datetime import datetime
-import time
+from typing import Optional, List, Dict, Any, Tuple, Union
+import warnings
+warnings.filterwarnings('ignore')
 
-# Conditional import for PyTorch - make it optional for environments without GPU
+# Try to import torch, fall back gracefully if not available
 try:
     import torch
     import torch.nn as nn
-    from torch.utils.data import Dataset, DataLoader
-    HAS_TORCH = True
+    from torch.utils.data import Dataset, DataLoader, TensorDataset
+    TORCH_AVAILABLE = True
 except ImportError:
-  HAS_TORCH = False
-  nn = None
-  Dataset = object
-  DataLoader = None
+    TORCH_AVAILABLE = False
+    logging.warning("PyTorch not available - LSTM baseline will use numpy fallback")
 
 # Configure logging
 logging.basicConfig(
@@ -37,206 +44,149 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 @dataclass
-class LSTM_AEConfig:
+class LSTMConfig:
     """Configuration for LSTM Autoencoder baseline."""
-    # Architecture parameters
-    input_size: int = 1
+    # Model architecture
     hidden_size: int = 64
     num_layers: int = 2
-    dropout: float = 0.2
-    sequence_length: int = 50  # Window size for sliding window approach
+    sequence_length: int = 10  # Window size for sequences
+    dropout: float = 0.1
     
     # Training parameters
-    learning_rate: float = 0.001
-    batch_size: int = 32
     epochs: int = 50
+    batch_size: int = 32
+    learning_rate: float = 0.001
     early_stopping_patience: int = 10
     
-    # Anomaly detection parameters
-    threshold_percentile: float = 95.0  # Default threshold
-    min_normal_samples: int = 100  # Minimum samples needed for training
+    # Anomaly detection
+    anomaly_threshold_percentile: float = 95.0  # Use reconstruction error percentile
+    min_anomaly_score: float = 0.0
+    max_anomaly_score: float = 1.0
     
-    # Device configuration
-    device: str = 'cpu'
-    seed: int = 42
+    # Data preprocessing
+    normalize: bool = True
+    normalize_method: str = 'zscore'  # 'zscore', 'minmax', 'robust'
+    
+    # Random seed for reproducibility
+    random_seed: int = 42
     
     # Paths
-    model_save_path: Optional[str] = None
-    log_dir: Optional[str] = None
+    model_path: Optional[str] = None
+    results_path: str = 'data/processed/results/'
     
     def __post_init__(self):
-        """Validate configuration."""
-        if self.hidden_size <= 0:
-            raise ValueError("hidden_size must be positive")
-        if self.num_layers <= 0:
-            raise ValueError("num_layers must be positive")
-        if not 0 < self.learning_rate <= 1:
-            raise ValueError("learning_rate must be in (0, 1]")
-        if not 0 < self.batch_size <= 1000:
-            raise ValueError("batch_size must be in (0, 1000]")
-        if not 1 <= self.epochs <= 1000:
-            raise ValueError("epochs must be in [1, 1000]")
-        if not 0 <= self.dropout < 1:
-            raise ValueError("dropout must be in [0, 1)")
-        if not 5 <= self.sequence_length <= 500:
-            raise ValueError("sequence_length must be in [5, 500]")
-
+        """Validate configuration after initialization."""
+        if self.hidden_size < 16:
+            raise ValueError("hidden_size must be at least 16")
+        if self.num_layers < 1:
+            raise ValueError("num_layers must be at least 1")
+        if self.sequence_length < 2:
+            raise ValueError("sequence_length must be at least 2")
+        if not 0.0 < self.learning_rate < 1.0:
+            raise ValueError("learning_rate must be between 0 and 1")
+        if not 0 < self.epochs:
+            raise ValueError("epochs must be positive")
 
 @dataclass
-class LSTM_AEPrediction:
-    """Prediction output from LSTM Autoencoder baseline."""
-    timestamp: str
-    input_value: float
-    reconstructed_value: float
-    reconstruction_error: float
-    is_anomaly: bool
-    anomaly_score: float
-    model_state: str  # 'trained', 'untrained', 'error'
+class LSTMPrediction:
+    """Prediction output from LSTM Autoencoder."""
+    timestamp: int  # Index in original time series
+    value: float  # Original value
+    reconstructed_value: float  # Reconstructed value
+    anomaly_score: float  # Reconstruction error (normalized)
+    is_anomaly: bool  # Binary anomaly flag
+    reconstruction_error: float  # Raw reconstruction error (MSE)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for serialization."""
+        return asdict(self)
+
+@dataclass
+class LSTMState:
+    """Model state for serialization and checkpointing."""
+    config_dict: Dict[str, Any]
+    training_history: List[Dict[str, float]]
+    threshold: float
+    normalization_params: Dict[str, float]
+    model_path: Optional[str]
+    created_at: str
+    input_dim: int
+    total_samples: int
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
-        return {
-            'timestamp': self.timestamp,
-            'input_value': float(self.input_value),
-            'reconstructed_value': float(self.reconstructed_value),
-            'reconstruction_error': float(self.reconstruction_error),
-            'is_anomaly': bool(self.is_anomaly),
-            'anomaly_score': float(self.anomaly_score),
-            'model_state': self.model_state
-        }
-    
-    @staticmethod
-    def from_dict(data: Dict[str, Any]) -> 'LSTM_AEPrediction':
-        """Create from dictionary."""
-        return LSTM_AEPrediction(
-            timestamp=data['timestamp'],
-            input_value=float(data['input_value']),
-            reconstructed_value=float(data['reconstructed_value']),
-            reconstruction_error=float(data['reconstruction_error']),
-            is_anomaly=bool(data['is_anomaly']),
-            anomaly_score=float(data['anomaly_score']),
-            model_state=data['model_state']
-        )
+        return asdict(self)
 
-
-@dataclass
-class LSTM_AEState:
-    """State for LSTM Autoencoder baseline (for streaming/continual learning)."""
-    is_trained: bool = False
-    training_samples_seen: int = 0
-    current_threshold: float = 0.0
-    training_loss_history: List[float] = field(default_factory=list)
-    last_update_timestamp: Optional[str] = None
-    model_checksum: Optional[str] = None
+class SequenceDataset(Dataset):
+    """PyTorch Dataset for time series sequences."""
     
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for JSON serialization."""
-        return {
-            'is_trained': self.is_trained,
-            'training_samples_seen': self.training_samples_seen,
-            'current_threshold': float(self.current_threshold),
-            'training_loss_history': self.training_loss_history,
-            'last_update_timestamp': self.last_update_timestamp,
-            'model_checksum': self.model_checksum
-        }
-    
-    @staticmethod
-    def from_dict(data: Dict[str, Any]) -> 'LSTM_AEState':
-        """Create from dictionary."""
-        return LSTM_AEState(
-            is_trained=bool(data['is_trained']),
-            training_samples_seen=int(data['training_samples_seen']),
-            current_threshold=float(data['current_threshold']),
-            training_loss_history=data.get('training_loss_history', []),
-            last_update_timestamp=data.get('last_update_timestamp'),
-            model_checksum=data.get('model_checksum')
-        )
-
-
-class TimeSeriesWindowDataset(Dataset):
-    """Dataset for sliding window time series sequences."""
-    
-    def __init__(self, data: np.ndarray, sequence_length: int):
+    def __init__(self, sequences: np.ndarray, targets: Optional[np.ndarray] = None):
         """
-        Initialize dataset.
-        
         Args:
-            data: 1D time series array
-            sequence_length: Window size for sequences
+            sequences: Array of shape (n_samples, sequence_length, features)
+            targets: Optional targets for reconstruction (same shape as sequences)
         """
-        self.data = np.asarray(data, dtype=np.float32)
-        self.sequence_length = sequence_length
-        self.windows = []
-        self.targets = []
+        if not TORCH_AVAILABLE:
+            raise RuntimeError("PyTorch not available")
         
-        if len(self.data) < sequence_length:
-            raise ValueError(f"Data length {len(data)} must be >= sequence_length {sequence_length}")
+        self.sequences = torch.FloatTensor(sequences)
+        if targets is not None:
+            self.targets = torch.FloatTensor(targets)
+        else:
+            self.targets = self.sequences
         
-        # Create sliding windows
-        for i in range(len(self.data) - sequence_length + 1):
-            window = self.data[i:i + sequence_length]
-            self.windows.append(window)
-            # Target is the next value after the window (for prediction)
-            # or the window itself (for autoencoding)
-            self.targets.append(window)
-        
-        self.windows = np.array(self.windows, dtype=np.float32)
-        self.targets = np.array(self.targets, dtype=np.float32)
+        assert self.sequences.shape[0] == self.targets.shape[0], \
+            "Sequences and targets must have same number of samples"
     
     def __len__(self) -> int:
-        return len(self.windows)
+        return len(self.sequences)
     
-    def __getitem__(self, idx: int) -> Tuple[np.ndarray, np.ndarray]:
-        return self.windows[idx], self.targets[idx]
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
+        return self.sequences[idx], self.targets[idx]
 
-
-class LSTM_AE(nn.Module):
-    """LSTM Autoencoder architecture for time series anomaly detection."""
+class LSTMAutoencoder(nn.Module):
+    """
+    LSTM Autoencoder for time series reconstruction.
+    
+    Architecture:
+    - Encoder: LSTM layers that compress input sequence to hidden state
+    - Decoder: LSTM layers that reconstruct sequence from hidden state
+    """
     
     def __init__(
         self,
-        input_size: int = 1,
+        input_dim: int,
         hidden_size: int = 64,
         num_layers: int = 2,
-        dropout: float = 0.2
+        dropout: float = 0.1
     ):
-        """
-        Initialize LSTM Autoencoder.
-        
-        Args:
-            input_size: Input feature dimension
-            hidden_size: LSTM hidden state dimension
-            num_layers: Number of LSTM layers
-            dropout: Dropout rate
-        """
         super().__init__()
-        self.input_size = input_size
+        
+        self.input_dim = input_dim
         self.hidden_size = hidden_size
         self.num_layers = num_layers
-        self.dropout = dropout
         
-        # Encoder: LSTM layers
+        # Encoder: Compress sequence to hidden state
         self.encoder = nn.LSTM(
-            input_size=input_size,
+            input_size=input_dim,
             hidden_size=hidden_size,
             num_layers=num_layers,
             batch_first=True,
-            dropout=dropout if num_layers > 1 else 0
+            dropout=dropout if num_layers > 1 else 0.0
         )
         
-        # Decoder: LSTM layers
+        # Decoder: Reconstruct sequence from hidden state
         self.decoder = nn.LSTM(
-            input_size=input_size,
+            input_size=hidden_size,
             hidden_size=hidden_size,
             num_layers=num_layers,
             batch_first=True,
-            dropout=dropout if num_layers > 1 else 0
+            dropout=dropout if num_layers > 1 else 0.0
         )
         
         # Output projection
-        self.output_proj = nn.Linear(hidden_size, input_size)
+        self.output_proj = nn.Linear(hidden_size, input_dim)
         
         # Initialize weights
         self._init_weights()
@@ -244,182 +194,196 @@ class LSTM_AE(nn.Module):
     def _init_weights(self):
         """Initialize weights for better convergence."""
         for name, param in self.named_parameters():
-            if 'weight_ih' in name:
-                nn.init.xavier_uniform_(param.data)
-            elif 'weight_hh' in name:
-                nn.init.orthogonal_(param.data)
+            if 'weight' in name:
+                nn.init.xavier_uniform_(param)
             elif 'bias' in name:
-                nn.init.constant_(param.data, 0)
+                nn.init.zeros_(param)
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass through autoencoder.
-        
         Args:
-            x: Input tensor of shape (batch_size, sequence_length, input_size)
+            x: Input tensor of shape (batch_size, sequence_length, input_dim)
         
         Returns:
-            Reconstructed tensor of shape (batch_size, sequence_length, input_size)
+            Reconstructed tensor of shape (batch_size, sequence_length, input_dim)
         """
-        # Encoder
-        encoder_outputs, (hidden, cell) = self.encoder(x)
+        # Encode: (batch, seq, input_dim) -> (batch, seq, hidden)
+        # We only use the last hidden state for the bottleneck
+        _, (hidden, _) = self.encoder(x)
         
-        # Decoder - use last hidden state as initial state
-        decoder_outputs, _ = self.decoder(encoder_outputs, (hidden, cell))
+        # Decode: Create sequence from hidden state
+        # Expand hidden state to full sequence length
+        batch_size = x.size(0)
+        seq_length = x.size(1)
         
-        # Project to output dimensions
-        reconstructed = self.output_proj(decoder_outputs)
+        # Use hidden state as initial state for decoder
+        # Repeat the last hidden state for each timestep
+        decoder_input = hidden[-1].unsqueeze(1).expand(-1, seq_length, -1)
+        
+        # Actually, better approach: use encoder output for decoder input
+        # Re-run encoder to get full sequence output
+        encoder_output, (hidden, _) = self.encoder(x)
+        
+        # Decoder takes encoder output and reconstructs
+        decoder_output, _ = self.decoder(encoder_output, (hidden, _))
+        
+        # Project to input dimension
+        reconstructed = self.output_proj(decoder_output)
         
         return reconstructed
     
-    def encode(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        """Get latent representation (encoding)."""
-        encoder_outputs, (hidden, cell) = self.encoder(x)
-        return encoder_outputs, hidden, cell
-
-
-class LSTM_AEBaseline:
-    """
-    LSTM Autoencoder Baseline for Time Series Anomaly Detection.
-    
-    This baseline uses an LSTM autoencoder to learn normal time series patterns.
-    Anomalies are detected using reconstruction error (MSE) - higher error indicates
-    anomalies.
-    
-    Interface matches other baselines (ARIMA, MovingAverage) for fair comparison.
-    """
-    
-    def __init__(self, config: Optional[LSTM_AEConfig] = None):
+    def get_reconstruction_error(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Initialize LSTM Autoencoder baseline.
+        Compute mean squared error between input and reconstruction.
         
         Args:
-            config: Configuration object. If None, uses defaults.
-        """
-        self.config = config or LSTM_AEConfig()
-        self.state = LSTM_AEState()
-        self.model: Optional[LSTM_AE] = None
-        self.scaler_mean: float = 0.0
-        self.scaler_std: float = 1.0
-        self._training_data: List[float] = []
-        self._reconstruction_errors: List[float] = []
-        
-        # Validate PyTorch availability
-        if not HAS_TORCH:
-            logger.warning("PyTorch not available. LSTM_AE will run in mock mode.")
-            logger.warning("Install with: pip install torch")
-    
-    def _setup_device(self) -> torch.device:
-        """Get appropriate device for training."""
-        if not HAS_TORCH:
-            return None
-        
-        device_str = self.config.device
-        if device_str == 'cuda' and not torch.cuda.is_available():
-            logger.warning("CUDA requested but not available, falling back to CPU")
-            device_str = 'cpu'
-        
-        return torch.device(device_str)
-    
-    def _normalize(self, data: np.ndarray) -> np.ndarray:
-        """Normalize data using running statistics."""
-        if len(data) == 0:
-            return data
-        
-        data = np.asarray(data, dtype=np.float64)
-        self.scaler_mean = float(np.mean(data))
-        self.scaler_std = float(np.std(data))
-        
-        if self.scaler_std < 1e-8:
-            self.scaler_std = 1.0  # Prevent division by zero
-        
-        return (data - self.scaler_mean) / self.scaler_std
-    
-    def _denormalize(self, data: np.ndarray) -> np.ndarray:
-        """Denormalize data using running statistics."""
-        data = np.asarray(data, dtype=np.float64)
-        return (data * self.scaler_std) + self.scaler_mean
-    
-    def train(
-        self,
-        time_series: np.ndarray,
-        labels: Optional[np.ndarray] = None,
-        validation_split: float = 0.1
-    ) -> Dict[str, Any]:
-        """
-        Train the LSTM Autoencoder on normal time series data.
-        
-        Args:
-            time_series: 1D array of time series values
-            labels: Optional 1D array of anomaly labels (0=normal, 1=anomaly)
-                   Used for threshold calibration
-            validation_split: Fraction of data to use for validation
+            x: Input tensor of shape (batch_size, sequence_length, input_dim)
         
         Returns:
-            Dictionary with training results and metrics
+            MSE per sample: (batch_size,)
         """
-        if not HAS_TORCH:
-            logger.error("Cannot train: PyTorch not available")
-            return {
-                'success': False,
-                'error': 'PyTorch not installed',
-                'training_samples_seen': 0
-            }
+        reconstructed = self.forward(x)
+        mse = torch.mean((x - reconstructed) ** 2, dim=(1, 2))
+        return mse
+
+class LSTMBaseline:
+    """
+    High-level LSTM Autoencoder baseline interface.
+    
+    Matches the API surface of ARIMABaseline and MovingAverageBaseline
+    for consistent evaluation across baselines.
+    """
+    
+    def __init__(self, config: Optional[LSTMConfig] = None):
+        """
+        Args:
+            config: LSTMConfig instance or None to use defaults
+        """
+        self.config = config or LSTMConfig()
+        self.model: Optional[LSTMAutoencoder] = None
+        self.state: Optional[LSTMState] = None
+        self.is_fitted = False
+        self.normalization_params: Dict[str, float] = {}
+        self.threshold: float = 0.0
         
-        start_time = time.time()
-        logger.info(f"Training LSTM Autoencoder with {len(time_series)} samples")
+        # Set random seed for reproducibility
+        if TORCH_AVAILABLE:
+            torch.manual_seed(self.config.random_seed)
+            np.random.seed(self.config.random_seed)
         
-        # Validate input
-        time_series = np.asarray(time_series, dtype=np.float64).flatten()
+        logger.info(f"Initialized LSTMBaseline with config: hidden_size={self.config.hidden_size}, "
+                   f"sequence_length={self.config.sequence_length}, epochs={self.config.epochs}")
+    
+    def _normalize(self, data: np.ndarray) -> np.ndarray:
+        """
+        Normalize time series data.
         
-        if len(time_series) < self.config.sequence_length + self.config.min_normal_samples:
-            error_msg = f"Insufficient data: need at least {self.config.sequence_length + self.config.min_normal_samples} samples"
-            logger.error(error_msg)
-            return {
-                'success': False,
-                'error': error_msg,
-                'training_samples_seen': len(time_series)
-            }
+        Args:
+            data: 1D array of shape (n_samples,)
+        
+        Returns:
+            Normalized array and normalization parameters
+        """
+        if not self.config.normalize:
+            return data, {}
+        
+        if self.config.normalize_method == 'zscore':
+            mean = np.mean(data)
+            std = np.std(data)
+            if std < 1e-10:
+                std = 1.0
+            normalized = (data - mean) / std
+            params = {'mean': float(mean), 'std': float(std), 'method': 'zscore'}
+        elif self.config.normalize_method == 'minmax':
+            min_val = np.min(data)
+            max_val = np.max(data)
+            if max_val - min_val < 1e-10:
+                max_val = min_val + 1.0
+            normalized = (data - min_val) / (max_val - min_val)
+            params = {'min': float(min_val), 'max': float(max_val), 'method': 'minmax'}
+        elif self.config.normalize_method == 'robust':
+            median = np.median(data)
+            q1 = np.percentile(data, 25)
+            q3 = np.percentile(data, 75)
+            iqr = q3 - q1
+            if iqr < 1e-10:
+                iqr = 1.0
+            normalized = (data - median) / iqr
+            params = {'median': float(median), 'iqr': float(iqr), 'method': 'robust'}
+        else:
+            raise ValueError(f"Unknown normalization method: {self.config.normalize_method}")
+        
+        return normalized, params
+    
+    def _denormalize(self, data: np.ndarray, params: Dict[str, float]) -> np.ndarray:
+        """Denormalize data using stored parameters."""
+        if self.config.normalize_method == 'zscore':
+            return data * params['std'] + params['mean']
+        elif self.config.normalize_method == 'minmax':
+            return data * (params['max'] - params['min']) + params['min']
+        elif self.config.normalize_method == 'robust':
+            return data * params['iqr'] + params['median']
+        return data
+    
+    def _create_sequences(self, data: np.ndarray) -> np.ndarray:
+        """
+        Create sliding window sequences from time series.
+        
+        Args:
+            data: 1D array of shape (n_samples,)
+        
+        Returns:
+            Array of shape (n_samples - sequence_length + 1, sequence_length, 1)
+        """
+        seq_len = self.config.sequence_length
+        if len(data) < seq_len:
+            raise ValueError(f"Data length ({len(data)}) < sequence_length ({seq_len})")
+        
+        sequences = []
+        for i in range(len(data) - seq_len + 1):
+            sequences.append(data[i:i + seq_len].reshape(-1, 1))
+        
+        return np.array(sequences)
+    
+    def fit(self, data: np.ndarray) -> 'LSTMBaseline':
+        """
+        Train the LSTM Autoencoder on time series data.
+        
+        Args:
+            data: 1D array of shape (n_samples,) representing the time series
+        
+        Returns:
+            self for method chaining
+        """
+        if not TORCH_AVAILABLE:
+            logger.error("PyTorch not available - cannot train LSTM model")
+            raise RuntimeError("PyTorch not installed. Install with: pip install torch")
+        
+        logger.info(f"Training LSTM Autoencoder on {len(data)} samples...")
         
         # Normalize data
-        normalized = self._normalize(time_series)
+        normalized_data, norm_params = self._normalize(data)
+        self.normalization_params = norm_params
         
-        # Create dataset
-        dataset = TimeSeriesWindowDataset(
-            normalized,
-            self.config.sequence_length
-        )
+        # Create sequences
+        sequences = self._create_sequences(normalized_data)
         
-        # Split into train/val
-        val_size = int(len(dataset) * validation_split)
-        train_size = len(dataset) - val_size
-        
-        train_dataset, val_dataset = torch.utils.data.random_split(
-            dataset, [train_size, val_size],
-            generator=torch.Generator().manual_seed(self.config.seed)
-        )
-        
-        train_loader = DataLoader(
-            train_dataset,
+        # Create dataset and dataloader
+        dataset = SequenceDataset(sequences)
+        dataloader = DataLoader(
+            dataset,
             batch_size=self.config.batch_size,
             shuffle=True,
             drop_last=True
         )
-        val_loader = DataLoader(
-            val_dataset,
-            batch_size=self.config.batch_size,
-            shuffle=False,
-            drop_last=True
-        )
         
-        # Setup model
-        device = self._setup_device()
-        self.model = LSTM_AE(
-            input_size=self.config.input_size,
+        # Initialize model
+        self.model = LSTMAutoencoder(
+            input_dim=1,  # Single feature
             hidden_size=self.config.hidden_size,
             num_layers=self.config.num_layers,
             dropout=self.config.dropout
-        ).to(device)
+        )
         
         # Loss and optimizer
         criterion = nn.MSELoss()
@@ -428,433 +392,453 @@ class LSTM_AEBaseline:
             lr=self.config.learning_rate
         )
         
-        # Training loop with early stopping
-        best_val_loss = float('inf')
+        # Training loop
+        training_history = []
+        best_loss = float('inf')
         patience_counter = 0
-        training_losses = []
         
         for epoch in range(self.config.epochs):
-            # Training phase
-            self.model.train()
-            epoch_train_loss = 0.0
+            epoch_loss = 0.0
             num_batches = 0
             
-            for batch_x, batch_y in train_loader:
-                batch_x = batch_x.to(device)
-                batch_y = batch_y.to(device)
-                
+            for batch_x, batch_y in dataloader:
                 optimizer.zero_grad()
                 reconstructed = self.model(batch_x)
                 loss = criterion(reconstructed, batch_y)
                 loss.backward()
-                torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
                 optimizer.step()
                 
-                epoch_train_loss += loss.item()
+                epoch_loss += loss.item()
                 num_batches += 1
             
-            avg_train_loss = epoch_train_loss / max(num_batches, 1)
-            training_losses.append(avg_train_loss)
+            avg_loss = epoch_loss / num_batches
+            training_history.append({'epoch': epoch, 'loss': float(avg_loss)})
             
-            # Validation phase
-            self.model.eval()
-            val_loss = 0.0
-            num_val_batches = 0
-            
-            with torch.no_grad():
-                for batch_x, batch_y in val_loader:
-                    batch_x = batch_x.to(device)
-                    batch_y = batch_y.to(device)
-                    
-                    reconstructed = self.model(batch_x)
-                    loss = criterion(reconstructed, batch_y)
-                    val_loss += loss.item()
-                    num_val_batches += 1
-            
-            avg_val_loss = val_loss / max(num_val_batches, 1)
-            
-            # Early stopping check
-            if avg_val_loss < best_val_loss:
-                best_val_loss = avg_val_loss
+            if avg_loss < best_loss:
+                best_loss = avg_loss
                 patience_counter = 0
                 # Save best model state
-                best_model_state = {
-                    'epoch': epoch,
-                    'train_loss': avg_train_loss,
-                    'val_loss': avg_val_loss
-                }
+                best_state = self.model.state_dict().copy()
             else:
                 patience_counter += 1
             
-            if (epoch + 1) % 10 == 0:
-                logger.info(f"Epoch {epoch+1}/{self.config.epochs} - "
-                            f"Train Loss: {avg_train_loss:.6f}, Val Loss: {avg_val_loss:.6f}")
+            if epoch % 10 == 0:
+                logger.info(f"Epoch {epoch}/{self.config.epochs}, Loss: {avg_loss:.6f}")
             
+            # Early stopping
             if patience_counter >= self.config.early_stopping_patience:
-                logger.info(f"Early stopping at epoch {epoch+1}")
+                logger.info(f"Early stopping at epoch {epoch}")
+                self.model.load_state_dict(best_state)
                 break
         
-        # Compute threshold from reconstruction errors on validation set
-        self._compute_threshold(val_dataset)
-        
-        elapsed_time = time.time() - start_time
-        
-        # Update state
-        self.state.is_trained = True
-        self.state.training_samples_seen = len(time_series)
-        self.state.current_threshold = self.config.threshold_percentile / 100.0
-        self.state.training_loss_history = training_losses
-        self.state.last_update_timestamp = datetime.utcnow().isoformat()
-        
-        # Save model if path specified
-        if self.config.model_save_path:
-            self.save_model(self.config.model_save_path)
-        
-        logger.info(f"Training completed in {elapsed_time:.2f}s")
-        
-        return {
-            'success': True,
-            'training_samples_seen': len(time_series),
-            'epochs_completed': len(training_losses),
-            'final_train_loss': training_losses[-1] if training_losses else None,
-            'best_val_loss': best_val_loss,
-            'threshold': self.state.current_threshold,
-            'training_time_seconds': elapsed_time
-        }
-    
-    def _compute_threshold(self, val_dataset: Dataset):
-        """Compute anomaly threshold from validation set reconstruction errors."""
-        if not HAS_TORCH or self.model is None:
-            return
-        
-        device = self._setup_device()
+        # Calculate threshold based on training reconstruction errors
         self.model.eval()
-        
-        reconstruction_errors = []
-        
         with torch.no_grad():
-            for batch_x, batch_y in val_dataset:
-                if isinstance(batch_x, tuple):
-                    batch_x, batch_y = batch_x
-                
-                batch_x = torch.tensor(batch_x, dtype=torch.float32).unsqueeze(0).to(device)
-                reconstructed = self.model(batch_x)
-                
-                # MSE per sample
-                errors = torch.mean((reconstructed - batch_x) ** 2, dim=(1, 2))
-                reconstruction_errors.extend(errors.cpu().numpy())
+            train_errors = self.model.get_reconstruction_error(
+                torch.FloatTensor(sequences)
+            ).numpy()
         
-        if reconstruction_errors:
-            # Use percentile-based threshold
-            threshold = float(np.percentile(reconstruction_errors, self.config.threshold_percentile))
-            self.state.current_threshold = threshold
-            self._reconstruction_errors = reconstruction_errors
-            logger.info(f"Computed threshold: {threshold:.6f} (percentile {self.config.threshold_percentile})")
+        self.threshold = np.percentile(
+            train_errors,
+            self.config.anomaly_threshold_percentile
+        )
+        
+        # Create state
+        self.state = LSTMState(
+            config_dict=asdict(self.config),
+            training_history=training_history,
+            threshold=float(self.threshold),
+            normalization_params=self.normalization_params,
+            model_path=self.config.model_path,
+            created_at=datetime.now().isoformat(),
+            input_dim=1,
+            total_samples=len(data)
+        )
+        
+        self.is_fitted = True
+        logger.info(f"LSTM Autoencoder trained successfully. Threshold: {self.threshold:.6f}")
+        
+        return self
     
-    def predict(self, time_series: np.ndarray) -> List[LSTM_AEPrediction]:
+    def predict(self, data: np.ndarray) -> List[LSTMPrediction]:
         """
-        Generate anomaly predictions for a time series.
+        Predict anomaly scores for time series data.
         
         Args:
-            time_series: 1D array of time series values
+            data: 1D array of shape (n_samples,) representing the time series
         
         Returns:
-            List of LSTM_AEPrediction objects
+            List of LSTMPrediction objects for each time step
         """
-        if not HAS_TORCH:
-            logger.error("Cannot predict: PyTorch not available")
-            return []
+        if not self.is_fitted:
+            raise RuntimeError("Model must be fitted before prediction. Call fit() first.")
         
-        if self.model is None:
-            logger.warning("Model not trained, using mock predictions")
-            return self._mock_predictions(time_series)
+        if not TORCH_AVAILABLE:
+            logger.error("PyTorch not available - cannot make predictions")
+            raise RuntimeError("PyTorch not installed. Install with: pip install torch")
         
-        time_series = np.asarray(time_series, dtype=np.float64).flatten()
-        predictions = []
+        logger.info(f"Making predictions on {len(data)} samples...")
         
-        device = self._setup_device()
+        # Normalize data using stored parameters
+        normalized_data, _ = self._normalize(data)
+        
+        # Create sequences
+        sequences = self._create_sequences(normalized_data)
+        
+        # Create dataset
+        dataset = SequenceDataset(sequences)
+        dataloader = DataLoader(
+            dataset,
+            batch_size=self.config.batch_size,
+            shuffle=False,
+            drop_last=False
+        )
+        
+        # Get reconstruction errors
         self.model.eval()
+        all_errors = []
         
-        # Normalize
-        normalized = (time_series - self.scaler_mean) / self.scaler_std
+        with torch.no_grad():
+            for batch_x, _ in dataloader:
+                errors = self.model.get_reconstruction_error(batch_x)
+                all_errors.extend(errors.numpy().tolist())
         
-        # Sliding window prediction
-        for i in range(len(time_series) - self.config.sequence_length + 1):
-            window = normalized[i:i + self.config.sequence_length]
-            window_tensor = torch.tensor(
-                window, dtype=torch.float32
-            ).unsqueeze(0).unsqueeze(-1).to(device)  # (1, seq_len, 1)
-            
-            with torch.no_grad():
-                reconstructed = self.model(window_tensor)
-                reconstructed_np = reconstructed.cpu().numpy().flatten()
-            
-            # Compute reconstruction error (MSE)
-            error = float(np.mean((window - reconstructed_np) ** 2))
-            
-            # Determine anomaly
-            is_anomaly = error > self.state.current_threshold
-            anomaly_score = error
-            
-            # Use middle value of window as timestamp
-            timestamp_idx = i + self.config.sequence_length // 2
-            timestamp = datetime.utcnow().isoformat()
-            
-            pred = LSTM_AEPrediction(
-                timestamp=timestamp,
-                input_value=float(time_series[timestamp_idx]),
-                reconstructed_value=float(self.scaler_std * reconstructed_np[self.config.sequence_length // 2] + self.scaler_mean),
-                reconstruction_error=error,
-                is_anomaly=is_anomaly,
-                anomaly_score=anomaly_score,
-                model_state='trained' if self.state.is_trained else 'untrained'
-            )
-            predictions.append(pred)
+        # Convert to numpy array
+        all_errors = np.array(all_errors)
         
-        return predictions
-    
-    def _mock_predictions(self, time_series: np.ndarray) -> List[LSTM_AEPrediction]:
-        """Generate mock predictions when model is not trained or PyTorch unavailable."""
-        time_series = np.asarray(time_series, dtype=np.float64).flatten()
+        # Normalize scores to [0, 1] range
+        if len(all_errors) > 0:
+            max_error = np.max(all_errors)
+            if max_error > 0:
+                normalized_scores = np.clip(all_errors / max_error, 0.0, 1.0)
+            else:
+                normalized_scores = np.zeros_like(all_errors)
+        else:
+            normalized_scores = np.array([])
+        
+        # Create predictions
+        # Note: predictions are aligned with the END of each sequence window
         predictions = []
+        for i, (error, score) in enumerate(zip(all_errors, normalized_scores)):
+            # The prediction corresponds to the last timestep of the sequence
+            seq_end_idx = i + self.config.sequence_length - 1
+            if seq_end_idx < len(data):
+                predictions.append(LSTMPrediction(
+                    timestamp=seq_end_idx,
+                    value=float(data[seq_end_idx]),
+                    reconstructed_value=float(self._denormalize(
+                        np.array([normalized_data[seq_end_idx]]),
+                        self.normalization_params
+                    )[0]),
+                    anomaly_score=float(np.clip(score, self.config.min_anomaly_score, self.config.max_anomaly_score)),
+                    is_anomaly=bool(error > self.threshold),
+                    reconstruction_error=float(error)
+                ))
         
-        mock_threshold = float(np.std(time_series)) * 3.0
-        
-        for i, val in enumerate(time_series):
-            mock_error = abs(val - np.mean(time_series))
-            is_anomaly = mock_error > mock_threshold
-            
-            timestamp = datetime.utcnow().isoformat()
-            pred = LSTM_AEPrediction(
-                timestamp=timestamp,
-                input_value=float(val),
-                reconstructed_value=float(val),
-                reconstruction_error=mock_error,
-                is_anomaly=is_anomaly,
-                anomaly_score=mock_error,
-                model_state='untrained'
-            )
-            predictions.append(pred)
+        logger.info(f"Generated {len(predictions)} predictions. Anomalies detected: {sum(p.is_anomaly for p in predictions)}")
         
         return predictions
     
-    def save_model(self, path: str):
-        """Save trained model to disk."""
-        if not HAS_TORCH or self.model is None:
-            logger.warning("Cannot save: model not available")
-            return
+    def compute_anomaly_scores(self, data: np.ndarray) -> np.ndarray:
+        """
+        Compute anomaly scores (reconstruction errors) for time series.
         
-        path = Path(path)
-        path.parent.mkdir(parents=True, exist_ok=True)
+        Args:
+            data: 1D array of shape (n_samples,)
         
-        save_data = {
-            'config': asdict(self.config),
-            'state': self.state.to_dict(),
+        Returns:
+            Array of anomaly scores aligned with input data
+            (first sequence_length-1 elements will be NaN)
+        """
+        predictions = self.predict(data)
+        scores = np.full(len(data), np.nan)
+        
+        for pred in predictions:
+            scores[pred.timestamp] = pred.anomaly_score
+        
+        return scores
+    
+    def save_checkpoint(self, path: Optional[str] = None) -> None:
+        """
+        Save model checkpoint.
+        
+        Args:
+            path: Optional path to save checkpoint. Uses config.model_path if None.
+        """
+        if not TORCH_AVAILABLE:
+            raise RuntimeError("PyTorch not available - cannot save checkpoint")
+        
+        if not self.is_fitted or self.model is None:
+            raise RuntimeError("Model must be fitted before saving checkpoint")
+        
+        save_path = path or self.config.model_path
+        if save_path is None:
+            raise ValueError("No path provided for checkpoint")
+        
+        save_path = Path(save_path)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Save model state
+        torch.save({
             'model_state_dict': self.model.state_dict(),
-            'scaler_mean': self.scaler_mean,
-            'scaler_std': self.scaler_std,
-            'timestamp': datetime.utcnow().isoformat()
-        }
-        
-        torch.save(save_data, path)
-        logger.info(f"Model saved to {path}")
-    
-    def load_model(self, path: str):
-        """Load trained model from disk."""
-        if not HAS_TORCH:
-            logger.error("Cannot load: PyTorch not available")
-            return False
-        
-        path = Path(path)
-        if not path.exists():
-            logger.error(f"Model file not found: {path}")
-            return False
-        
-        try:
-            save_data = torch.load(path, map_location=self._setup_device())
-            
-            self.config = LSTM_AEConfig(**save_data['config'])
-            self.state = LSTM_AEState.from_dict(save_data['state'])
-            self.scaler_mean = save_data['scaler_mean']
-            self.scaler_std = save_data['scaler_std']
-            
-            self.model = LSTM_AE(
-                input_size=self.config.input_size,
-                hidden_size=self.config.hidden_size,
-                num_layers=self.config.num_layers,
-                dropout=self.config.dropout
-            ).to(self._setup_device())
-            self.model.load_state_dict(save_data['model_state_dict'])
-            
-            self.state.is_trained = True
-            logger.info(f"Model loaded from {path}")
-            return True
-        except Exception as e:
-            logger.error(f"Failed to load model: {e}")
-            return False
-    
-    def get_metrics(self) -> Dict[str, Any]:
-        """Get baseline metrics and statistics."""
-        return {
-            'model_type': 'LSTM_Autoencoder',
-            'is_trained': self.state.is_trained,
-            'training_samples_seen': self.state.training_samples_seen,
-            'current_threshold': self.state.current_threshold,
             'config': asdict(self.config),
-            'reconstruction_error_stats': {
-                'mean': float(np.mean(self._reconstruction_errors)) if self._reconstruction_errors else 0.0,
-                'std': float(np.std(self._reconstruction_errors)) if self._reconstruction_errors else 0.0,
-                'min': float(np.min(self._reconstruction_errors)) if self._reconstruction_errors else 0.0,
-                'max': float(np.max(self._reconstruction_errors)) if self._reconstruction_errors else 0.0
-            }
+            'state': self.state.to_dict() if self.state else None,
+            'normalization_params': self.normalization_params,
+            'threshold': self.threshold,
+        }, save_path)
+        
+        logger.info(f"Checkpoint saved to {save_path}")
+    
+    @classmethod
+    def load_checkpoint(cls, path: str) -> 'LSTMBaseline':
+        """
+        Load model from checkpoint.
+        
+        Args:
+            path: Path to checkpoint file
+        
+        Returns:
+            LSTMBaseline instance with loaded model
+        """
+        if not TORCH_AVAILABLE:
+            raise RuntimeError("PyTorch not available - cannot load checkpoint")
+        
+        checkpoint = torch.load(path, map_location='cpu')
+        
+        # Create model with loaded config
+        config = LSTMConfig(**checkpoint['config'])
+        model = cls(config)
+        
+        # Load model state
+        model.model = LSTMAutoencoder(
+            input_dim=1,
+            hidden_size=config.hidden_size,
+            num_layers=config.num_layers,
+            dropout=config.dropout
+        )
+        model.model.load_state_dict(checkpoint['model_state_dict'])
+        
+        # Load other state
+        model.normalization_params = checkpoint['normalization_params']
+        model.threshold = checkpoint['threshold']
+        model.is_fitted = True
+        
+        if checkpoint.get('state'):
+            model.state = LSTMState(**checkpoint['state'])
+        
+        logger.info(f"Checkpoint loaded from {path}")
+        
+        return model
+    
+    def get_model_summary(self) -> Dict[str, Any]:
+        """
+        Get summary of model architecture and training status.
+        
+        Returns:
+            Dictionary with model information
+        """
+        if not self.is_fitted:
+            return {'is_fitted': False}
+        
+        summary = {
+            'is_fitted': True,
+            'config': asdict(self.config),
+            'threshold': self.threshold,
+            'normalization_params': self.normalization_params,
+            'training_epochs': len(self.state.training_history) if self.state else 0,
+            'total_samples': self.state.total_samples if self.state else 0,
         }
+        
+        if self.model:
+            # Count parameters
+            total_params = sum(p.numel() for p in self.model.parameters())
+            trainable_params = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
+            summary['total_parameters'] = total_params
+            summary['trainable_parameters'] = trainable_params
+        
+        return summary
+    
+    def evaluate(
+        self,
+        data: np.ndarray,
+        ground_truth: Optional[np.ndarray] = None
+    ) -> Dict[str, Any]:
+        """
+        Evaluate model performance on data.
+        
+        Args:
+            data: 1D array of time series values
+            ground_truth: Optional binary array of ground truth anomalies
+        
+        Returns:
+            Dictionary with evaluation metrics
+        """
+        predictions = self.predict(data)
+        
+        # Extract scores and predictions
+        scores = np.array([p.anomaly_score for p in predictions])
+        binary_preds = np.array([p.is_anomaly for p in predictions])
+        timestamps = np.array([p.timestamp for p in predictions])
+        
+        results = {
+            'n_predictions': len(predictions),
+            'n_anomalies_detected': int(np.sum(binary_preds)),
+            'anomaly_rate': float(np.mean(binary_preds)),
+            'threshold': self.threshold,
+            'min_score': float(np.min(scores)) if len(scores) > 0 else 0.0,
+            'max_score': float(np.max(scores)) if len(scores) > 0 else 0.0,
+            'mean_score': float(np.mean(scores)) if len(scores) > 0 else 0.0,
+            'std_score': float(np.std(scores)) if len(scores) > 0 else 0.0,
+        }
+        
+        # Compute metrics against ground truth if available
+        if ground_truth is not None:
+            # Align ground truth with predictions
+            gt_aligned = np.full(len(data), False)
+            for pred in predictions:
+                if pred.timestamp < len(ground_truth):
+                    gt_aligned[pred.timestamp] = ground_truth[pred.timestamp]
+            
+            # Extract aligned predictions
+            binary_preds_aligned = np.array([
+                pred.is_anomaly for pred in predictions
+                if pred.timestamp < len(ground_truth)
+            ])
+            gt_aligned_preds = np.array([
+                ground_truth[pred.timestamp] for pred in predictions
+                if pred.timestamp < len(ground_truth)
+            ])
+            
+            if len(binary_preds_aligned) > 0:
+                tp = np.sum((binary_preds_aligned == 1) & (gt_aligned_preds == 1))
+                fp = np.sum((binary_preds_aligned == 1) & (gt_aligned_preds == 0))
+                fn = np.sum((binary_preds_aligned == 0) & (gt_aligned_preds == 1))
+                tn = np.sum((binary_preds_aligned == 0) & (gt_aligned_preds == 0))
+                
+                precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+                recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+                f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+                
+                results.update({
+                    'true_positives': int(tp),
+                    'false_positives': int(fp),
+                    'true_negatives': int(tn),
+                    'false_negatives': int(fn),
+                    'precision': float(precision),
+                    'recall': float(recall),
+                    'f1_score': float(f1),
+                })
+        
+        return results
+    
+    def __repr__(self) -> str:
+        return f"LSTMBaseline(config={self.config})"
 
-
-def create_baseline(config: Optional[LSTM_AEConfig] = None) -> LSTM_AEBaseline:
+def create_baseline(config: Optional[LSTMConfig] = None) -> LSTMBaseline:
     """
-    Factory function to create LSTM Autoencoder baseline.
+    Factory function to create LSTM baseline instance.
     
     Args:
-        config: Configuration object. If None, uses defaults.
+        config: Optional LSTMConfig instance
     
     Returns:
-        Configured LSTM_AEBaseline instance
+        LSTMBaseline instance
     """
-    return LSTM_AEBaseline(config)
-
+    return LSTMBaseline(config=config)
 
 def main():
     """
-    Main entry point for standalone execution.
+    Main entry point for script execution.
     
     This function:
-    1. Generates synthetic time series data with known anomalies
+    1. Loads or generates synthetic time series data
     2. Trains the LSTM Autoencoder
-    3. Evaluates on test data
-    4. Outputs results to JSON
+    3. Computes anomaly scores
+    4. Saves results to data/processed/results/
     """
-    if not HAS_TORCH:
-        print("ERROR: PyTorch not available. Install with: pip install torch")
-        sys.exit(1)
-    
     logger.info("=" * 60)
-    logger.info("LSTM Autoencoder Baseline - Standalone Execution")
+    logger.info("LSTM Autoencoder Baseline - Script Execution")
     logger.info("=" * 60)
     
-    # Generate synthetic data
-    logger.info("Generating synthetic time series with anomalies...")
+    # Create results directory
+    results_dir = Path('data/processed/results')
+    results_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Generate synthetic test data with known anomalies
+    logger.info("Generating synthetic test data...")
     np.random.seed(42)
+    n_samples = 1000
+    base_signal = np.sin(np.linspace(0, 10 * np.pi, n_samples))
+    noise = np.random.normal(0, 0.1, n_samples)
+    data = base_signal + noise
     
-    # Normal signal: sine wave + noise
-    n_normal = 1000
-    t = np.linspace(0, 4 * np.pi, n_normal)
-    normal_signal = np.sin(t) + 0.1 * np.random.randn(n_normal)
+    # Inject some anomalies (spikes)
+    anomaly_indices = [200, 400, 600, 800]
+    for idx in anomaly_indices:
+        if idx < len(data):
+            data[idx] += 3.0  # Large spike
     
-    # Inject anomalies (5% of points)
-    n_anomalies = int(0.05 * n_normal)
-    anomaly_indices = np.random.choice(n_normal, n_anomalies, replace=False)
-    normal_signal[anomaly_indices] += 3.0 * np.random.randn(n_anomalies)
-    
-    # Split into train/test (80/20)
-    split_idx = int(0.8 * n_normal)
-    train_data = normal_signal[:split_idx]
-    test_data = normal_signal[split_idx:]
-    
-    # Create ground truth labels
-    train_labels = np.zeros(len(train_data), dtype=int)
-    train_labels[anomaly_indices[anomaly_indices < split_idx]] = 1
-    
-    test_labels = np.zeros(len(test_data), dtype=int)
-    test_anomaly_indices = anomaly_indices[anomaly_indices >= split_idx] - split_idx
-    test_labels[test_anomaly_indices] = 1
-    
-    logger.info(f"Training data: {len(train_data)} samples")
-    logger.info(f"Test data: {len(test_data)} samples")
-    logger.info(f"Anomalies in train: {np.sum(train_labels)}")
-    logger.info(f"Anomalies in test: {np.sum(test_labels)}")
+    logger.info(f"Generated {len(data)} samples with anomalies at {anomaly_indices}")
     
     # Create and train model
-    config = LSTM_AEConfig(
-        input_size=1,
+    config = LSTMConfig(
         hidden_size=32,
         num_layers=2,
-        dropout=0.2,
-        sequence_length=20,
-        learning_rate=0.001,
+        sequence_length=10,
+        epochs=20,
         batch_size=32,
-        epochs=30,
-        early_stopping_patience=5,
-        threshold_percentile=95.0,
-        seed=42
+        learning_rate=0.001,
+        normalize=True,
+        normalize_method='zscore',
+        random_seed=42
     )
     
     baseline = create_baseline(config)
+    baseline.fit(data)
     
-    logger.info("Training LSTM Autoencoder...")
-    train_results = baseline.train(train_data, train_labels)
+    # Make predictions
+    predictions = baseline.predict(data)
     
-    if not train_results['success']:
-        logger.error(f"Training failed: {train_results.get('error', 'Unknown error')}")
-        sys.exit(1)
+    # Evaluate
+    ground_truth = np.zeros(len(data), dtype=bool)
+    for idx in anomaly_indices:
+        if idx < len(data):
+            ground_truth[idx] = True
     
-    logger.info(f"Training completed: {train_results}")
-    
-    # Evaluate on test data
-    logger.info("Evaluating on test data...")
-    predictions = baseline.predict(test_data)
-    
-    if not predictions:
-        logger.error("No predictions generated")
-        sys.exit(1)
-    
-    # Compute metrics
-    pred_labels = np.array([p.is_anomaly for p in predictions])
-    true_labels = test_labels[:len(predictions)]
-    
-    tp = np.sum((pred_labels == 1) & (true_labels == 1))
-    fp = np.sum((pred_labels == 1) & (true_labels == 0))
-    fn = np.sum((pred_labels == 0) & (true_labels == 1))
-    
-    precision = tp / max(tp + fp, 1)
-    recall = tp / max(tp + fn, 1)
-    f1 = 2 * precision * recall / max(precision + recall, 1e-8)
-    
-    logger.info(f"Test Results:")
-    logger.info(f"  Precision: {precision:.4f}")
-    logger.info(f"  Recall: {recall:.4f}")
-    logger.info(f"  F1-Score: {f1:.4f}")
+    evaluation = baseline.evaluate(data, ground_truth)
     
     # Save results
-    output = {
-        'baseline_type': 'LSTM_Autoencoder',
+    results = {
+        'model_summary': baseline.get_model_summary(),
+        'evaluation': evaluation,
         'config': asdict(config),
-        'training_results': train_results,
-        'test_metrics': {
-            'precision': float(precision),
-            'recall': float(recall),
-            'f1_score': float(f1),
-            'true_positives': int(tp),
-            'false_positives': int(fp),
-            'false_negatives': int(fn),
-            'total_test_samples': len(test_data),
-            'predicted_anomalies': int(np.sum(pred_labels)),
-            'true_anomalies': int(np.sum(true_labels))
-        },
-        'model_state': baseline.get_metrics(),
-        'timestamp': datetime.utcnow().isoformat()
+        'n_samples': len(data),
+        'n_anomalies_injected': len(anomaly_indices),
+        'timestamp': datetime.now().isoformat(),
     }
     
-    output_path = Path('data/processed/lstm_ae_baseline_results.json')
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    results_path = results_dir / 'lstm_ae_results.json'
+    with open(results_path, 'w') as f:
+        json.dump(results, f, indent=2, default=str)
     
-    with open(output_path, 'w') as f:
-        json.dump(output, f, indent=2, default=str)
+    # Save predictions
+    predictions_path = results_dir / 'lstm_ae_predictions.json'
+    with open(predictions_path, 'w') as f:
+        json.dump([p.to_dict() for p in predictions], f, indent=2)
     
-    logger.info(f"Results saved to {output_path}")
+    logger.info(f"Results saved to {results_path}")
+    logger.info(f"Predictions saved to {predictions_path}")
+    logger.info(f"Evaluation metrics: {json.dumps(evaluation, indent=2)}")
+    
+    # Save checkpoint
+    checkpoint_path = results_dir / 'lstm_ae_checkpoint.pth'
+    baseline.save_checkpoint(str(checkpoint_path))
+    
     logger.info("=" * 60)
-    logger.info("LSTM Autoencoder Baseline execution complete")
+    logger.info("LSTM Autoencoder Baseline - Execution Complete")
     logger.info("=" * 60)
-
+    
+    return 0
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

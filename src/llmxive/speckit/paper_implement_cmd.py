@@ -25,8 +25,9 @@ from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 
 
 # Same task regex as the research-stage Implementer plus a [kind:...] capture.
+# Allow alphanumeric suffix (T016a) for revision sub-tasks.
 _TASK_RE = re.compile(
-    r"^- \[(?P<status>[ Xx])\]\s+(?P<id>T\d+)\b(?P<rest>.*)$",
+    r"^- \[(?P<status>[ Xx])\]\s+(?P<id>T\d+[a-z]?)(?=\s|$)(?P<rest>.*)$",
     re.MULTILINE,
 )
 _KIND_RE = re.compile(r"\[kind:(?P<kind>[a-z\-_]+)\]", re.IGNORECASE)
@@ -59,6 +60,12 @@ class PaperImplementerAgent(SlashCommandAgent):
         candidates = sorted(self._paper_dir(ctx).glob("specs/*/"))
         if not candidates:
             raise FileNotFoundError(f"no paper specs/ feature dir in {ctx.project_dir}")
+        for c in candidates:
+            if (c / "tasks.md").exists():
+                return c
+        for c in candidates:
+            if (c / "spec.md").exists():
+                return c
         return candidates[0]
 
     def _next_incomplete(self, tasks_text: str) -> tuple[str, str, str | None] | None:

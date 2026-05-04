@@ -1,483 +1,641 @@
 """
 Threshold Calibration Module for Anomaly Detection
 
-Provides adaptive threshold computation for anomaly score calibration
-without requiring labeled data. Supports both single-dataset and
-multi-dataset calibration scenarios.
+Implements adaptive threshold computation and calibration for anomaly detection
+across single and multiple datasets without labeled data.
 
-API Surface (public names):
-- AdaptiveThresholdConfig
-- ThresholdCalibrationResult
-- MultiDatasetThresholdConfig
-- MultiDatasetCalibrationResult
-- compute_adaptive_threshold
-- calibrate_threshold
-- validate_anomaly_rate
-- calibrate_thresholds_across_datasets
-- aggregate_multi_dataset_statistics
-- main
+US3 Acceptance Scenario 3: Support for threshold calibration across multiple
+datasets without labeled data.
+
+API Surface:
+  - ThresholdCalibrator: Class for threshold calibration
+  - calibrate_threshold(): Single dataset calibration
+  - calibrate_threshold_multi_dataset(): Multi-dataset calibration
+  - validate_threshold(): Validate threshold produces reasonable anomaly rates
+  - compute_expected_bounds(): Compute expected anomaly rate bounds
+  - get_decision_boundary(): Retrieve current decision boundary
+  - update_decision_boundary(): Update decision boundary
+  - compute_multi_dataset_threshold(): Unified threshold across datasets
+  - save_threshold_config(): Save calibrated threshold to config
+  - load_threshold_config(): Load threshold from config
+  - main(): CLI entry point
 """
 
-import numpy as np
+import os
+import sys
+import json
 import logging
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, Union, Any
+import yaml
 from pathlib import Path
 from datetime import datetime
-import json
+from typing import Dict, Any, List, Tuple, Optional, Union
+from dataclasses import dataclass, field, asdict
+
+import numpy as np
+from scipy import stats
+
+# Import from project modules
+try:
+    from models.anomaly_score import AnomalyScore
+except ImportError:
+    from code.src.models.anomaly_score import AnomalyScore
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 
 @dataclass
-class AdaptiveThresholdConfig:
-    """Configuration for adaptive threshold computation."""
-    percentile: float = 95.0  # Default 95th percentile
+class ThresholdConfig:
+    """Configuration for threshold calibration."""
+    percentile: float = 0.95  # Default 95th percentile
     min_anomaly_rate: float = 0.01  # Minimum expected anomaly rate
     max_anomaly_rate: float = 0.10  # Maximum expected anomaly rate
-    min_samples: int = 100  # Minimum samples required for calibration
-    confidence_level: float = 0.95  # Confidence level for bounds
-    smoothing_factor: float = 0.1  # For threshold smoothing across updates
+    target_anomaly_rate: float = 0.05  # Target anomaly rate
+    alpha: float = 0.05  # Significance level for statistical tests
+    multi_dataset_weighting: str = 'uniform'  # 'uniform', 'sample_size', 'variance'
+    min_samples_per_dataset: int = 100  # Minimum samples required per dataset
+    enable_robust_calibration: bool = True  # Use robust statistics
+    outlier_removal: bool = True  # Remove extreme outliers before calibration
+    outlier_std_threshold: float = 5.0  # Standard deviations for outlier removal
+    confidence_interval: float = 0.95  # Confidence level for bounds
+    version: str = '1.0'
+    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    updated_at: str = field(default_factory=lambda: datetime.now().isoformat())
 
 
 @dataclass
-class ThresholdCalibrationResult:
-    """Result of single-dataset threshold calibration."""
+class ThresholdResult:
+    """Result of threshold calibration."""
     threshold: float
     anomaly_rate: float
-    score_mean: float
-    score_std: float
-    num_samples: int
-    calibration_date: str
-    method: str = "percentile"
-    bounds: Tuple[float, float] = field(default=(0.0, 1.0))
-
-
-@dataclass
-class MultiDatasetThresholdConfig:
-    """Configuration for multi-dataset threshold calibration."""
-    aggregation_method: str = "weighted_mean"  # weighted_mean, median, robust_mean
-    weight_by_sample_size: bool = True
-    min_datasets: int = 2  # Minimum datasets required
-    outlier_removal: bool = True
-    outlier_threshold: float = 3.0  # Standard deviations for outlier removal
-    target_anomaly_rate: float = 0.05  # Target anomaly rate across datasets
-    dataset_weights: Optional[Dict[str, float]] = None  # Manual weights per dataset
-
-
-@dataclass
-class MultiDatasetCalibrationResult:
-    """Result of multi-dataset threshold calibration."""
-    global_threshold: float
-    per_dataset_thresholds: Dict[str, float]
-    per_dataset_rates: Dict[str, float]
-    aggregate_statistics: Dict[str, float]
-    num_datasets: int
-    calibration_date: str
-    method: str
-    validation_passed: bool
+    expected_bounds: Tuple[float, float]
+    calibration_method: str
+    dataset_id: Optional[str] = None
+    num_samples: int = 0
+    score_statistics: Dict[str, float] = field(default_factory=dict)
+    confidence_interval: Tuple[float, float] = field(default_factory=lambda: (0.0, 0.0))
+    calibrated_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    validation_passed: bool = True
     validation_message: str = ""
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 
-def compute_adaptive_threshold(
-    scores: np.ndarray,
-    config: AdaptiveThresholdConfig
-) -> Tuple[float, Dict[str, float]]:
+@dataclass
+class MultiDatasetThresholdResult:
+    """Result of multi-dataset threshold calibration."""
+    unified_threshold: float
+    per_dataset_results: Dict[str, ThresholdResult] = field(default_factory=dict)
+    anomaly_rates: Dict[str, float] = field(default_factory=dict)
+    expected_bounds: Tuple[float, float] = field(default_factory=lambda: (0.0, 0.0))
+    calibration_method: str = "multi_dataset_adaptive"
+    num_datasets: int = 0
+    total_samples: int = 0
+    validation_passed: bool = True
+    validation_message: str = ""
+    statistics: Dict[str, Any] = field(default_factory=dict)
+    calibrated_at: str = field(default_factory=lambda: datetime.now().isoformat())
+
+
+class ThresholdCalibrator:
     """
-    Compute adaptive threshold using percentile-based method.
+    Threshold Calibrator for Anomaly Detection.
 
-    Args:
-        scores: Array of anomaly scores
-        config: AdaptiveThresholdConfig with parameters
+    Supports both single dataset and multi-dataset threshold calibration
+    for unlabeled time series data.
 
-    Returns:
-        Tuple of (threshold, statistics_dict)
+    US3 Acceptance Scenarios:
+      - Scenario 1: Anomaly rate validation against expected bounds
+      - Scenario 2: Decision boundary documentation in config.yaml
+      - Scenario 3: Multi-dataset threshold calibration without labels
     """
-    if len(scores) < config.min_samples:
-        logger.warning(
-            f"Only {len(scores)} samples, minimum is {config.min_samples}. "
-            "Proceeding with caution."
+
+    def __init__(self, config: Optional[ThresholdConfig] = None):
+        """
+        Initialize the threshold calibrator.
+
+        Args:
+            config: ThresholdConfig instance or None for defaults
+        """
+        self.config = config or ThresholdConfig()
+        self._current_threshold: Optional[float] = None
+        self._current_result: Optional[ThresholdResult] = None
+        self._calibration_history: List[Dict[str, Any]] = []
+
+    def calibrate_threshold(
+        self,
+        scores: Union[np.ndarray, List[float]],
+        dataset_id: Optional[str] = None
+    ) -> ThresholdResult:
+        """
+        Calibrate threshold for a single dataset.
+
+        Args:
+            scores: Array of anomaly scores
+            dataset_id: Optional identifier for the dataset
+
+        Returns:
+            ThresholdResult with calibrated threshold and validation
+        """
+        scores = np.asarray(scores, dtype=np.float64)
+        num_samples = len(scores)
+
+        if num_samples < self.config.min_samples_per_dataset:
+            raise ValueError(
+                f"Insufficient samples: {num_samples} < "
+                f"{self.config.min_samples_per_dataset}"
+            )
+
+        # Remove extreme outliers if enabled
+        if self.config.outlier_removal:
+            scores_clean = self._remove_extreme_outliers(scores)
+            logger.info(
+                f"Removed {num_samples - len(scores_clean)} extreme outliers"
+            )
+        else:
+            scores_clean = scores
+
+        # Compute threshold based on percentile
+        threshold = np.percentile(scores_clean, self.config.percentile * 100)
+
+        # Compute score statistics
+        score_stats = self._compute_score_statistics(scores_clean)
+
+        # Compute expected anomaly rate bounds
+        expected_bounds = self._compute_expected_bounds(num_samples)
+
+        # Validate threshold produces reasonable anomaly rate
+        validation_passed, validation_message = self._validate_threshold(
+            scores_clean, threshold, expected_bounds
         )
 
-    # Compute basic statistics
-    score_mean = np.mean(scores)
-    score_std = np.std(scores)
-    score_min = np.min(scores)
-    score_max = np.max(scores)
+        # Compute confidence interval for anomaly rate
+        anomaly_rate = np.mean(scores_clean > threshold)
+        ci = self._compute_anomaly_rate_confidence_interval(
+            anomaly_rate, num_samples
+        )
 
-    # Compute percentile-based threshold
-    threshold = np.percentile(scores, config.percentile)
+        result = ThresholdResult(
+            threshold=threshold,
+            anomaly_rate=anomaly_rate,
+            expected_bounds=expected_bounds,
+            calibration_method="percentile_adaptive",
+            dataset_id=dataset_id,
+            num_samples=num_samples,
+            score_statistics=score_stats,
+            confidence_interval=ci,
+            validation_passed=validation_passed,
+            validation_message=validation_message
+        )
 
-    # Adjust threshold to maintain anomaly rate bounds
-    anomaly_rate = np.mean(scores >= threshold)
+        self._current_threshold = threshold
+        self._current_result = result
+        self._calibration_history.append(asdict(result))
 
-    if anomaly_rate < config.min_anomaly_rate:
-        # Lower threshold to increase anomaly rate
-        target_percentile = 100 * (1 - config.min_anomaly_rate)
-        threshold = np.percentile(scores, target_percentile)
         logger.info(
-            f"Adjusted threshold to maintain min anomaly rate: "
-            f"{config.min_anomaly_rate}"
+            f"Threshold calibrated: {threshold:.6f}, "
+            f"anomaly_rate: {anomaly_rate:.4f}"
         )
-    elif anomaly_rate > config.max_anomaly_rate:
-        # Raise threshold to decrease anomaly rate
-        target_percentile = 100 * (1 - config.max_anomaly_rate)
-        threshold = np.percentile(scores, target_percentile)
+
+        return result
+
+    def calibrate_threshold_multi_dataset(
+        self,
+        dataset_scores: Dict[str, Union[np.ndarray, List[float]]],
+        weighting: Optional[str] = None
+    ) -> MultiDatasetThresholdResult:
+        """
+        Calibrate unified threshold across multiple datasets.
+
+        This is the implementation for US3 Acceptance Scenario 3.
+
+        Args:
+            dataset_scores: Dict mapping dataset_id to anomaly scores
+            weighting: Weighting method for combining thresholds
+                      'uniform', 'sample_size', 'variance'
+
+        Returns:
+            MultiDatasetThresholdResult with unified threshold and per-dataset
+            validation
+        """
+        if len(dataset_scores) == 0:
+            raise ValueError("No datasets provided for calibration")
+
+        weighting = weighting or self.config.multi_dataset_weighting
+
         logger.info(
-            f"Adjusted threshold to maintain max anomaly rate: "
-            f"{config.max_anomaly_rate}"
+            f"Multi-dataset calibration: {len(dataset_scores)} datasets, "
+            f"weighting={weighting}"
         )
 
-    statistics = {
-        'mean': score_mean,
-        'std': score_std,
-        'min': score_min,
-        'max': score_max,
-        'anomaly_rate': anomaly_rate,
-        'num_samples': len(scores)
-    }
+        # Validate minimum samples per dataset
+        for dataset_id, scores in dataset_scores.items():
+            num_samples = len(np.asarray(scores))
+            if num_samples < self.config.min_samples_per_dataset:
+                raise ValueError(
+                    f"Dataset '{dataset_id}' has insufficient samples: "
+                    f"{num_samples} < {self.config.min_samples_per_dataset}"
+                )
 
-    return threshold, statistics
+        # Calibrate threshold for each dataset individually
+        per_dataset_results = {}
+        thresholds = []
+        sample_sizes = []
+        variance_weights = []
+
+        for dataset_id, scores in dataset_scores.items():
+            result = self.calibrate_threshold(scores, dataset_id)
+            per_dataset_results[dataset_id] = result
+            thresholds.append(result.threshold)
+            sample_sizes.append(result.num_samples)
+
+            # Compute variance weight if needed
+            if result.score_statistics.get('variance', 0) > 0:
+                variance_weights.append(1.0 / result.score_statistics['variance'])
+            else:
+                variance_weights.append(1.0)
+
+        # Compute unified threshold based on weighting method
+        if weighting == 'uniform':
+            unified_threshold = np.mean(thresholds)
+        elif weighting == 'sample_size':
+            # Weight by sample size
+            weights = np.array(sample_sizes) / sum(sample_sizes)
+            unified_threshold = np.average(thresholds, weights=weights)
+        elif weighting == 'variance':
+            # Weight by inverse variance (more stable datasets get higher weight)
+            weights = np.array(variance_weights) / sum(variance_weights)
+            unified_threshold = np.average(thresholds, weights=weights)
+        else:
+            logger.warning(f"Unknown weighting '{weighting}', using uniform")
+            unified_threshold = np.mean(thresholds)
+
+        # Validate unified threshold across all datasets
+        validation_passed = True
+        validation_messages = []
+        anomaly_rates = {}
+
+        for dataset_id, scores in dataset_scores.items():
+            scores_arr = np.asarray(scores)
+            rate = np.mean(scores_arr > unified_threshold)
+            anomaly_rates[dataset_id] = rate
+
+            # Check if rate is within bounds
+            bounds = self._compute_expected_bounds(len(scores_arr))
+            if not (bounds[0] <= rate <= bounds[1]):
+                validation_passed = False
+                validation_messages.append(
+                    f"Dataset '{dataset_id}': rate {rate:.4f} outside "
+                    f"bounds [{bounds[0]:.4f}, {bounds[1]:.4f}]"
+                )
+
+        # Compute overall statistics
+        all_scores = np.concatenate([
+            np.asarray(scores) for scores in dataset_scores.values()
+        ])
+        expected_bounds = self._compute_expected_bounds(len(all_scores))
+
+        result = MultiDatasetThresholdResult(
+            unified_threshold=unified_threshold,
+            per_dataset_results=per_dataset_results,
+            anomaly_rates=anomaly_rates,
+            expected_bounds=expected_bounds,
+            calibration_method="multi_dataset_adaptive",
+            num_datasets=len(dataset_scores),
+            total_samples=len(all_scores),
+            validation_passed=validation_passed,
+            validation_message="; ".join(validation_messages) if validation_messages else "All datasets within bounds",
+            statistics={
+                'individual_thresholds': thresholds,
+                'weighting_method': weighting,
+                'threshold_variance': np.var(thresholds),
+                'threshold_range': (min(thresholds), max(thresholds))
+            }
+        )
+
+        logger.info(
+            f"Unified threshold: {unified_threshold:.6f}, "
+            f"datasets: {len(dataset_scores)}, "
+            f"validation: {'PASSED' if validation_passed else 'FAILED'}"
+        )
+
+        return result
+
+    def validate_threshold(
+        self,
+        scores: Union[np.ndarray, List[float]],
+        threshold: Optional[float] = None
+    ) -> Tuple[bool, str]:
+        """
+        Validate that a threshold produces reasonable anomaly rates.
+
+        Args:
+            scores: Array of anomaly scores
+            threshold: Threshold to validate (uses current if None)
+
+        Returns:
+            Tuple of (validation_passed, message)
+        """
+        threshold = threshold if threshold is not None else self._current_threshold
+
+        if threshold is None:
+            return False, "No threshold set for validation"
+
+        scores = np.asarray(scores, dtype=np.float64)
+        anomaly_rate = np.mean(scores > threshold)
+        expected_bounds = self._compute_expected_bounds(len(scores))
+
+        if expected_bounds[0] <= anomaly_rate <= expected_bounds[1]:
+            return True, (
+                f"Anomaly rate {anomaly_rate:.4f} within expected bounds "
+                f"[{expected_bounds[0]:.4f}, {expected_bounds[1]:.4f}]"
+            )
+        else:
+            return False, (
+                f"Anomaly rate {anomaly_rate:.4f} outside expected bounds "
+                f"[{expected_bounds[0]:.4f}, {expected_bounds[1]:.4f}]"
+            )
+
+    def compute_expected_bounds(self, num_samples: int) -> Tuple[float, float]:
+        """
+        Compute expected anomaly rate bounds based on sample size.
+
+        Args:
+            num_samples: Number of samples in the dataset
+
+        Returns:
+            Tuple of (min_rate, max_rate)
+        """
+        # Use the configured bounds
+        return (
+            self.config.min_anomaly_rate,
+            self.config.max_anomaly_rate
+        )
+
+    def get_decision_boundary(self) -> Optional[float]:
+        """
+        Get the current decision boundary (threshold).
+
+        Returns:
+            Current threshold or None if not calibrated
+        """
+        return self._current_threshold
+
+    def update_decision_boundary(self, threshold: float) -> None:
+        """
+        Update the decision boundary manually.
+
+        Args:
+            threshold: New threshold value
+        """
+        self._current_threshold = threshold
+        logger.info(f"Decision boundary updated to: {threshold:.6f}")
+
+    def _remove_extreme_outliers(self, scores: np.ndarray) -> np.ndarray:
+        """
+        Remove extreme outliers from scores using standard deviation threshold.
+
+        Args:
+            scores: Array of scores
+
+        Returns:
+            Array with extreme outliers removed
+        """
+        mean = np.mean(scores)
+        std = np.std(scores)
+
+        if std == 0:
+            return scores
+
+        mask = np.abs(scores - mean) <= self.config.outlier_std_threshold * std
+        return scores[mask]
+
+    def _compute_score_statistics(self, scores: np.ndarray) -> Dict[str, float]:
+        """
+        Compute statistics for a score array.
+
+        Args:
+            scores: Array of scores
+
+        Returns:
+            Dictionary of statistics
+        """
+        return {
+            'mean': float(np.mean(scores)),
+            'std': float(np.std(scores)),
+            'min': float(np.min(scores)),
+            'max': float(np.max(scores)),
+            'median': float(np.median(scores)),
+            'variance': float(np.var(scores)),
+            'skewness': float(stats.skew(scores)),
+            'kurtosis': float(stats.kurtosis(scores))
+        }
+
+    def _compute_anomaly_rate_confidence_interval(
+        self,
+        anomaly_rate: float,
+        num_samples: int
+    ) -> Tuple[float, float]:
+        """
+        Compute confidence interval for anomaly rate.
+
+        Args:
+            anomaly_rate: Observed anomaly rate
+            num_samples: Number of samples
+
+        Returns:
+            Tuple of (lower_bound, upper_bound)
+        """
+        if num_samples < 30:
+            # Use exact binomial for small samples
+            lower = stats.beta.ppf(
+                (1 - self.config.confidence_interval) / 2,
+                max(1, int(num_samples * anomaly_rate)),
+                max(1, int(num_samples * (1 - anomaly_rate)))
+            )
+            upper = stats.beta.ppf(
+                (1 + self.config.confidence_interval) / 2,
+                max(1, int(num_samples * anomaly_rate) + 1),
+                max(1, int(num_samples * (1 - anomaly_rate)) + 1)
+            )
+        else:
+            # Use normal approximation for large samples
+            se = np.sqrt(anomaly_rate * (1 - anomaly_rate) / num_samples)
+            z = stats.norm.ppf((1 + self.config.confidence_interval) / 2)
+            lower = max(0, anomaly_rate - z * se)
+            upper = min(1, anomaly_rate + z * se)
+
+        return (float(lower), float(upper))
+
+    def _validate_threshold(
+        self,
+        scores: np.ndarray,
+        threshold: float,
+        expected_bounds: Tuple[float, float]
+    ) -> Tuple[bool, str]:
+        """
+        Validate threshold produces acceptable anomaly rate.
+
+        Args:
+            scores: Array of scores
+            threshold: Threshold to validate
+            expected_bounds: Expected (min, max) anomaly rate bounds
+
+        Returns:
+            Tuple of (validation_passed, message)
+        """
+        anomaly_rate = np.mean(scores > threshold)
+
+        if expected_bounds[0] <= anomaly_rate <= expected_bounds[1]:
+            return True, f"Rate {anomaly_rate:.4f} within bounds"
+        else:
+            return False, f"Rate {anomaly_rate:.4f} outside bounds [{expected_bounds[0]:.4f}, {expected_bounds[1]:.4f}]"
 
 
-def validate_anomaly_rate(
-    anomaly_rate: float,
-    config: AdaptiveThresholdConfig
-) -> Tuple[bool, str]:
+def compute_multi_dataset_threshold(
+    dataset_scores: Dict[str, Union[np.ndarray, List[float]]],
+    config: Optional[ThresholdConfig] = None
+) -> MultiDatasetThresholdResult:
     """
-    Validate that anomaly rate is within acceptable bounds.
+    Convenience function for multi-dataset threshold calibration.
 
     Args:
-        anomaly_rate: Computed anomaly rate
-        config: AdaptiveThresholdConfig
+        dataset_scores: Dict mapping dataset_id to anomaly scores
+        config: Optional ThresholdConfig
 
     Returns:
-        Tuple of (is_valid, message)
+        MultiDatasetThresholdResult
     """
-    if anomaly_rate < config.min_anomaly_rate:
-        return False, (
-            f"Anomaly rate {anomaly_rate:.4f} below minimum "
-            f"{config.min_anomaly_rate}"
-        )
-    elif anomaly_rate > config.max_anomaly_rate:
-        return False, (
-            f"Anomaly rate {anomaly_rate:.4f} above maximum "
-            f"{config.max_anomaly_rate}"
-        )
-    return True, f"Anomaly rate {anomaly_rate:.4f} within bounds"
+    calibrator = ThresholdCalibrator(config)
+    return calibrator.calibrate_threshold_multi_dataset(dataset_scores)
 
 
-def calibrate_threshold(
-    scores: np.ndarray,
-    config: AdaptiveThresholdConfig
-) -> ThresholdCalibrationResult:
-    """
-    Full calibration workflow for single dataset.
-
-    Args:
-        scores: Array of anomaly scores
-        config: AdaptiveThresholdConfig
-
-    Returns:
-        ThresholdCalibrationResult
-    """
-    threshold, stats = compute_adaptive_threshold(scores, config)
-    is_valid, message = validate_anomaly_rate(stats['anomaly_rate'], config)
-
-    return ThresholdCalibrationResult(
-        threshold=threshold,
-        anomaly_rate=stats['anomaly_rate'],
-        score_mean=stats['mean'],
-        score_std=stats['std'],
-        num_samples=stats['num_samples'],
-        calibration_date=datetime.now().isoformat(),
-        method=config.percentile,
-        bounds=(config.min_anomaly_rate, config.max_anomaly_rate)
-    )
-
-
-def aggregate_multi_dataset_statistics(
-    dataset_results: Dict[str, ThresholdCalibrationResult],
-    config: MultiDatasetThresholdConfig
-) -> Dict[str, float]:
-    """
-    Aggregate statistics across multiple calibrated datasets.
-
-    Args:
-        dataset_results: Dict mapping dataset name to calibration result
-        config: MultiDatasetThresholdConfig
-
-    Returns:
-        Dictionary of aggregate statistics
-    """
-    thresholds = [r.threshold for r in dataset_results.values()]
-    anomaly_rates = [r.anomaly_rate for r in dataset_results.values()]
-    sample_sizes = [r.num_samples for r in dataset_results.values()]
-
-    # Compute weights based on sample size
-    if config.weight_by_sample_size:
-        weights = np.array(sample_sizes) / np.sum(sample_sizes)
-    else:
-        weights = np.ones(len(thresholds)) / len(thresholds)
-
-    # Remove outliers if configured
-    if config.outlier_removal and len(thresholds) > 2:
-        mean_thresh = np.mean(thresholds)
-        std_thresh = np.std(thresholds)
-        if std_thresh > 0:
-            z_scores = np.abs((np.array(thresholds) - mean_thresh) / std_thresh)
-            valid_indices = z_scores < config.outlier_threshold
-            thresholds = [t for t, valid in zip(thresholds, valid_indices) if valid]
-            weights = np.array(sample_sizes) / np.sum(sample_sizes)
-
-    # Aggregate threshold using configured method
-    if config.aggregation_method == "weighted_mean":
-        global_threshold = np.average(thresholds, weights=weights)
-    elif config.aggregation_method == "median":
-        global_threshold = np.median(thresholds)
-    elif config.aggregation_method == "robust_mean":
-        global_threshold = np.mean(thresholds)
-    else:
-        global_threshold = np.mean(thresholds)
-
-    return {
-        'global_threshold': float(global_threshold),
-        'mean_threshold': float(np.mean(thresholds)),
-        'std_threshold': float(np.std(thresholds)),
-        'mean_anomaly_rate': float(np.mean(anomaly_rates)),
-        'std_anomaly_rate': float(np.std(anomaly_rates)),
-        'total_samples': int(np.sum(sample_sizes)),
-        'num_datasets': len(dataset_results)
-    }
-
-
-def calibrate_thresholds_across_datasets(
-    dataset_scores: Dict[str, np.ndarray],
-    multi_config: MultiDatasetThresholdConfig,
-    base_config: Optional[AdaptiveThresholdConfig] = None
-) -> MultiDatasetCalibrationResult:
-    """
-    Calibrate thresholds across multiple datasets without labeled data.
-
-    This function implements US3 acceptance scenario 3 by:
-    1. Computing per-dataset adaptive thresholds
-    2. Aggregating thresholds using configurable methods
-    3. Validating that anomaly rates are within expected bounds
-    4. Producing both global and per-dataset thresholds
-
-    Args:
-        dataset_scores: Dict mapping dataset name to anomaly score array
-        multi_config: MultiDatasetThresholdConfig for cross-dataset calibration
-        base_config: Optional AdaptiveThresholdConfig for per-dataset calibration
-
-    Returns:
-        MultiDatasetCalibrationResult with calibration results
-    """
-    if base_config is None:
-        base_config = AdaptiveThresholdConfig()
-
-    # Validate minimum datasets
-    if len(dataset_scores) < multi_config.min_datasets:
-        raise ValueError(
-            f"Need at least {multi_config.min_datasets} datasets, "
-            f"got {len(dataset_scores)}"
-        )
-
-    logger.info(
-        f"Calibrating thresholds across {len(dataset_scores)} datasets"
-    )
-
-    # Step 1: Calibrate per-dataset thresholds
-    per_dataset_results: Dict[str, ThresholdCalibrationResult] = {}
-    per_dataset_thresholds: Dict[str, float] = {}
-    per_dataset_rates: Dict[str, float] = {}
-
-    for dataset_name, scores in dataset_scores.items():
-        logger.info(f"Calibrating threshold for dataset: {dataset_name}")
-        result = calibrate_threshold(scores, base_config)
-        per_dataset_results[dataset_name] = result
-        per_dataset_thresholds[dataset_name] = result.threshold
-        per_dataset_rates[dataset_name] = result.anomaly_rate
-
-    # Step 2: Aggregate statistics
-    aggregate_stats = aggregate_multi_dataset_statistics(
-        per_dataset_results, multi_config
-    )
-
-    # Step 3: Compute global threshold
-    global_threshold = aggregate_stats['global_threshold']
-
-    # Step 4: Validate anomaly rates
-    all_rates = list(per_dataset_rates.values())
-    mean_rate = np.mean(all_rates)
-    rate_valid = (
-        base_config.min_anomaly_rate <= mean_rate <= base_config.max_anomaly_rate
-    )
-
-    # Step 5: Generate validation message
-    if rate_valid:
-        validation_message = (
-            f"All anomaly rates within bounds. Mean rate: {mean_rate:.4f}"
-        )
-    else:
-        validation_message = (
-            f"Anomaly rates outside bounds. Mean rate: {mean_rate:.4f}, "
-            f"bounds: [{base_config.min_anomaly_rate}, {base_config.max_anomaly_rate}]"
-        )
-
-    return MultiDatasetCalibrationResult(
-        global_threshold=float(global_threshold),
-        per_dataset_thresholds=per_dataset_thresholds,
-        per_dataset_rates=per_dataset_rates,
-        aggregate_statistics=aggregate_stats,
-        num_datasets=len(dataset_scores),
-        calibration_date=datetime.now().isoformat(),
-        method=multi_config.aggregation_method,
-        validation_passed=rate_valid,
-        validation_message=validation_message
-    )
-
-
-def save_multi_dataset_calibration(
-    result: MultiDatasetCalibrationResult,
-    output_path: Path
+def save_threshold_config(
+    result: Union[ThresholdResult, MultiDatasetThresholdResult],
+    output_path: Union[str, Path]
 ) -> None:
     """
-    Save multi-dataset calibration results to JSON file.
+    Save threshold calibration result to JSON/YAML file.
 
     Args:
-        result: MultiDatasetCalibrationResult to save
+        result: Calibration result to save
         output_path: Path to output file
     """
+    output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    save_dict = {
-        'global_threshold': result.global_threshold,
-        'per_dataset_thresholds': result.per_dataset_thresholds,
-        'per_dataset_rates': result.per_dataset_rates,
-        'aggregate_statistics': result.aggregate_statistics,
-        'num_datasets': result.num_datasets,
-        'calibration_date': result.calibration_date,
-        'method': result.method,
-        'validation_passed': result.validation_passed,
-        'validation_message': result.validation_message
-    }
+    if isinstance(result, MultiDatasetThresholdResult):
+        data = asdict(result)
+    else:
+        data = asdict(result)
 
+    # Save as YAML
     with open(output_path, 'w') as f:
-        json.dump(save_dict, f, indent=2)
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
 
-    logger.info(f"Saved calibration results to {output_path}")
+    logger.info(f"Threshold config saved to: {output_path}")
 
 
-def load_multi_dataset_calibration(
-    input_path: Path
-) -> MultiDatasetCalibrationResult:
+def load_threshold_config(
+    input_path: Union[str, Path]
+) -> Union[ThresholdResult, MultiDatasetThresholdResult]:
     """
-    Load multi-dataset calibration results from JSON file.
+    Load threshold calibration result from JSON/YAML file.
 
     Args:
         input_path: Path to input file
 
     Returns:
-        MultiDatasetCalibrationResult
+        ThresholdResult or MultiDatasetThresholdResult
     """
+    input_path = Path(input_path)
+
     with open(input_path, 'r') as f:
-        data = json.load(f)
+        data = yaml.safe_load(f)
 
-    return MultiDatasetCalibrationResult(
-        global_threshold=data['global_threshold'],
-        per_dataset_thresholds=data['per_dataset_thresholds'],
-        per_dataset_rates=data['per_dataset_rates'],
-        aggregate_statistics=data['aggregate_statistics'],
-        num_datasets=data['num_datasets'],
-        calibration_date=data['calibration_date'],
-        method=data['method'],
-        validation_passed=data['validation_passed'],
-        validation_message=data.get('validation_message', '')
+    # Determine type based on fields
+    if 'unified_threshold' in data:
+        return MultiDatasetThresholdResult(**data)
+    else:
+        return ThresholdResult(**data)
+
+
+def main():
+    """CLI entry point for threshold calibration."""
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description='Threshold calibration for anomaly detection'
+    )
+    parser.add_argument(
+        '--scores', type=str, required=True,
+        help='Path to JSON file with scores (single or multi-dataset)'
+    )
+    parser.add_argument(
+        '--output', type=str, required=True,
+        help='Path to save threshold config'
+    )
+    parser.add_argument(
+        '--percentile', type=float, default=0.95,
+        help='Percentile for threshold computation'
+    )
+    parser.add_argument(
+        '--weighting', type=str, default='uniform',
+        choices=['uniform', 'sample_size', 'variance'],
+        help='Weighting method for multi-dataset calibration'
+    )
+    parser.add_argument(
+        '--validate', action='store_true',
+        help='Validate threshold against expected bounds'
     )
 
+    args = parser.parse_args()
 
-def main() -> None:
-    """
-    Main function demonstrating multi-dataset threshold calibration.
+    # Load scores
+    with open(args.scores, 'r') as f:
+        scores_data = json.load(f)
 
-    This script can be run standalone to test the multi-dataset
-    calibration functionality with synthetic data.
-    """
-    import sys
-    from pathlib import Path
+    # Determine if single or multi-dataset
+    if isinstance(scores_data, dict) and 'threshold' in scores_data:
+        # Single dataset result format
+        scores = scores_data.get('scores', [])
+        result = ThresholdCalibrator(
+            ThresholdConfig(percentile=args.percentile)
+        ).calibrate_threshold(scores)
+    elif isinstance(scores_data, dict):
+        # Multi-dataset: keys are dataset_ids, values are score arrays
+        result = compute_multi_dataset_threshold(
+            scores_data,
+            ThresholdConfig(
+                percentile=args.percentile,
+                multi_dataset_weighting=args.weighting
+            )
+        )
+    else:
+        # Single dataset: list of scores
+        result = ThresholdCalibrator(
+            ThresholdConfig(percentile=args.percentile)
+        ).calibrate_threshold(scores_data)
 
-    # Add project root to path
-    project_root = Path(__file__).parent.parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
+    # Validate if requested
+    if args.validate:
+        if isinstance(result, MultiDatasetThresholdResult):
+            for dataset_id, ds_result in result.per_dataset_results.items():
+              passed, msg = ds_result.validation_passed, ds_result.validation_message
+              status = "✓" if passed else "✗"
+              print(f"{status} {dataset_id}: {msg}")
+        else:
+            passed, msg = result.validation_passed, result.validation_message
+            status = "✓" if passed else "✗"
+            print(f"{status} {msg}")
 
-    logger.info("Starting multi-dataset threshold calibration demo")
-
-    # Generate synthetic test data for multiple datasets
-    np.random.seed(42)
-
-    # Simulate 3 datasets with different score distributions
-    dataset_scores = {
-        'dataset_electricity': np.random.normal(0, 1, 1000),
-        'dataset_traffic': np.random.normal(0.5, 1.2, 1500),
-        'dataset_synthetic': np.random.normal(-0.2, 0.8, 800)
-    }
-
-    # Convert to absolute values (scores should be non-negative)
-    for name in dataset_scores:
-        dataset_scores[name] = np.abs(dataset_scores[name])
-
-    # Configure calibration
-    multi_config = MultiDatasetThresholdConfig(
-        aggregation_method="weighted_mean",
-        weight_by_sample_size=True,
-        min_datasets=2,
-        outlier_removal=True,
-        target_anomaly_rate=0.05
-    )
-
-    base_config = AdaptiveThresholdConfig(
-        percentile=95.0,
-        min_anomaly_rate=0.01,
-        max_anomaly_rate=0.10,
-        min_samples=100
-    )
-
-    # Run calibration
-    result = calibrate_thresholds_across_datasets(
-        dataset_scores,
-        multi_config,
-        base_config
-    )
-
-    # Print results
-    print("\n" + "=" * 60)
-    print("MULTI-DATASET THRESHOLD CALIBRATION RESULTS")
-    print("=" * 60)
-    print(f"Global Threshold: {result.global_threshold:.4f}")
-    print(f"Number of Datasets: {result.num_datasets}")
-    print(f"Method: {result.method}")
-    print(f"Validation Passed: {result.validation_passed}")
-    print(f"Validation Message: {result.validation_message}")
-    print("\nPer-Dataset Thresholds:")
-    for name, thresh in result.per_dataset_thresholds.items():
-        print(f"  {name}: {thresh:.4f} (rate: {result.per_dataset_rates[name]:.4f})")
-    print("\nAggregate Statistics:")
-    for key, value in result.aggregate_statistics.items():
-        print(f"  {key}: {value}")
-    print("=" * 60 + "\n")
-
-    # Save results
-    output_path = Path("data/processed/multi_dataset_calibration.json")
-    save_multi_dataset_calibration(result, output_path)
-    logger.info(f"Results saved to {output_path}")
+    # Save result
+    save_threshold_config(result, args.output)
+    print(f"Threshold config saved to: {args.output}")
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

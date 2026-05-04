@@ -61,16 +61,17 @@ class DartmouthBackend(BaseBackend):
             raise PermanentBackendError(
                 "langchain-dartmouth is not installed; pip install -e ."
             ) from exc
-        # 10 min per-request timeout. Reasoning models like
-        # qwen.qwen3.5-122b can legitimately take 2-5 min on big
-        # 32K-token completions, but anything past 10 min is a
-        # hung connection. Without this the implementer can sit on
-        # a single LLM call for 50+ min holding the project lock.
-        # ChatDartmouth.__init__ doesn't expose `timeout` directly
-        # but accepts it via model_kwargs (it forwards to the
-        # underlying ChatOpenAI which DOES have a timeout field).
-        # Suppress the noisy "should be specified explicitly"
-        # warning since this is the intended escape hatch.
+        # 3 min per-request timeout. The router can retry the same
+        # model 3x and walk through 3 fallback models, so worst-case
+        # per-stage delay is bounded at 6×3=18 min instead of 6×10=60.
+        # Healthy 32K-token completions on Dartmouth's vLLM cluster
+        # finish in 30s-2min; anything past 3 min is a sick connection
+        # we want to abandon and try a peer model on.
+        # ChatDartmouth.__init__ doesn't expose `timeout` directly but
+        # accepts it via model_kwargs (forwarded to underlying
+        # ChatOpenAI which DOES have a timeout field). Suppress the
+        # noisy "should be specified explicitly" warning since this
+        # is the intended escape hatch.
         import warnings as _warnings
 
         with _warnings.catch_warnings():
@@ -78,7 +79,7 @@ class DartmouthBackend(BaseBackend):
                 "ignore", message=r".*Parameters \{'timeout'\}.*"
             )
             return ChatDartmouth(
-                model_name=model, model_kwargs={"timeout": 600}
+                model_name=model, model_kwargs={"timeout": 180}
             )
 
     def list_models(self) -> list[str]:
@@ -140,7 +141,27 @@ class DartmouthBackend(BaseBackend):
         if temperature is not None:
             kwargs["temperature"] = temperature
         try:
-            reply = client.invoke(msg_objs, **kwargs)  # type: ignore[arg-type]
+            # Hard-enforce a per-request timeout. ChatDartmouth's
+            # nominal `timeout` model_kwargs gets attached as a chat-
+            # completion param, NOT as an HTTP timeout, so requests
+            # could hang for an hour holding the project lock.
+            # Use ThreadPoolExecutor with a 180s deadline — when it
+            # fires we abandon the worker thread (it'll get GC'd when
+            # the process exits) and raise TransientBackendError so
+            # the router falls through to a peer model.
+            import concurrent.futures as _cf
+
+            with _cf.ThreadPoolExecutor(max_workers=1) as _ex:
+                _fut = _ex.submit(client.invoke, msg_objs, **kwargs)
+                try:
+                    reply = _fut.result(timeout=180.0)
+                except _cf.TimeoutError:
+                    raise TransientBackendError(
+                        f"Dartmouth model {model!r} hung past 180s deadline "
+                        f"(no response received)"
+                    ) from None
+        except TransientBackendError:
+            raise
         except Exception as exc:
             text = str(exc).lower()
             transient_markers = (

@@ -1,0 +1,83 @@
+datasets_evaluated:
+- electricity
+- traffic
+- synthetic_control
+errors:
+- dataset: electricity
+  error: '''value'''
+  traceback: "Traceback (most recent call last):\n  File \"/Users/jmanning/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/.venv/lib/python3.11/site-packages/pandas/core/indexes/base.py\"\
+    , line 3805, in get_loc\n    return self._engine.get_loc(casted_key)\n       \
+    \    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"index.pyx\", line 167, in pandas._libs.index.IndexEngine.get_loc\n\
+    \  File \"index.pyx\", line 196, in pandas._libs.index.IndexEngine.get_loc\n \
+    \ File \"pandas/_libs/hashtable_class_helper.pxi\", line 7081, in pandas._libs.hashtable.PyObjectHashTable.get_item\n\
+    \  File \"pandas/_libs/hashtable_class_helper.pxi\", line 7089, in pandas._libs.hashtable.PyObjectHashTable.get_item\n\
+    KeyError: 'value'\n\nThe above exception was the direct cause of the following\
+    \ exception:\n\nTraceback (most recent call last):\n  File \"/Users/jmanning/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/scripts/execute_evaluation_pipeline.py\"\
+    , line 552, in main\n    df, anomaly_indices = load_dataset(dataset)\n       \
+    \                   ^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/jmanning/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/scripts/execute_evaluation_pipeline.py\"\
+    , line 117, in load_dataset\n    values = df[value_col].values.astype(float)\n\
+    \             ~~^^^^^^^^^^^\n  File \"/Users/jmanning/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/.venv/lib/python3.11/site-packages/pandas/core/frame.py\"\
+    , line 4102, in __getitem__\n    indexer = self.columns.get_loc(key)\n       \
+    \       ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/jmanning/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/.venv/lib/python3.11/site-packages/pandas/core/indexes/base.py\"\
+    , line 3812, in get_loc\n    raise KeyError(key) from err\nKeyError: 'value'\n"
+- dataset: traffic
+  error: '''value'''
+  traceback: "Traceback (most recent call last):\n  File \"/Users/jmanning/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/.venv/lib/python3.11/site-packages/pandas/core/indexes/base.py\"\
+    , line 3805, in get_loc\n    return self._engine.get_loc(casted_key)\n       \
+    \    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"index.pyx\", line 167, in pandas._libs.index.IndexEngine.get_loc\n\
+    \  File \"index.pyx\", line 196, in pandas._libs.index.IndexEngine.get_loc\n \
+    \ File \"pandas/_libs/hashtable_class_helper.pxi\", line 7081, in pandas._libs.hashtable.PyObjectHashTable.get_item\n\
+    \  File \"pandas/_libs/hashtable_class_helper.pxi\", line 7089, in pandas._libs.hashtable.PyObjectHashTable.get_item\n\
+    KeyError: 'value'\n\nThe above exception was the direct cause of the following\
+    \ exception:\n\nTraceback (most recent call last):\n  File \"/Users/jmanning/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/scripts/execute_evaluation_pipeline.py\"\
+    , line 552, in main\n    df, anomaly_indices = load_dataset(dataset)\n       \
+    \                   ^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/jmanning/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/scripts/execute_evaluation_pipeline.py\"\
+    , line 117, in load_dataset\n    values = df[value_col].values.astype(float)\n\
+    \             ~~^^^^^^^^^^^\n  File \"/Users/jmanning/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/.venv/lib/python3.11/site-packages/pandas/core/frame.py\"\
+    , line 4102, in __getitem__\n    indexer = self.columns.get_loc(key)\n       \
+    \       ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/jmanning/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/.venv/lib/python3.11/site-packages/pandas/core/indexes/base.py\"\
+    , line 3812, in get_loc\n    raise KeyError(key) from err\nKeyError: 'value'\n"
+models_evaluated:
+- DPGMM
+- ARIMA
+- MovingAverage
+results:
+- anomaly_rate: 0.0
+  auc_pr: 0.0
+  auc_roc: 0.0
+  dataset_name: synthetic_control
+  f1_score: 0.0
+  model_name: DPGMM
+  n_anomalies_detected: 0
+  n_total_points: 22695
+  precision: 0.0
+  recall: 0.0
+  runtime_seconds: 0.0013189315795898438
+- anomaly_rate: 0.0
+  auc_pr: 0.0
+  auc_roc: 0.0
+  dataset_name: synthetic_control
+  f1_score: 0.0
+  model_name: ARIMA
+  n_anomalies_detected: 0
+  n_total_points: 22695
+  precision: 0.0
+  recall: 0.0
+  runtime_seconds: 0.0022881031036376953
+- anomaly_rate: 0.0
+  auc_pr: 0.0
+  auc_roc: 0.0
+  dataset_name: synthetic_control
+  f1_score: 0.0
+  model_name: MovingAverage
+  n_anomalies_detected: 0
+  n_total_points: 22695
+  precision: 0.0
+  recall: 0.0
+  runtime_seconds: 0.0026090145111083984
+summary:
+  errors_count: 2
+  total_datasets: 3
+  total_evaluations: 3
+  total_models: 3
+timestamp: '2026-05-01T15:08:41.191665'

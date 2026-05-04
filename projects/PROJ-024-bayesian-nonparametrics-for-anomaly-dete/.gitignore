@@ -1,68 +1,173 @@
-# Python compiled artifacts
-*.pyc
+# =============================================================================
+# .gitignore for Bayesian Nonparametrics Anomaly Detection Project
+# =============================================================================
+# Per Constitution Principle I: Reproducibility requirements
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Python Cache and Bytecode
+# -----------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
 *.pyo
 *.pyd
-__pycache__/
+.Python
+
+# -----------------------------------------------------------------------------
+# Package Build and Distribution
+# -----------------------------------------------------------------------------
 *.egg-info/
 *.egg
 dist/
 build/
-
-# Virtual environments
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
 venv/
-.venv/
+ENV/
 env/
-.env/
+virtualenv/
+.venv/
+.tox/
+.nox/
 
-# IDE and editor files
+# -----------------------------------------------------------------------------
+# IDE and Editor Files
+# -----------------------------------------------------------------------------
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
+.project
+.pydevproject
+.settings/
 
-# OS-specific files
-.DS_Store
-Thumbs.db
-
-# Log files (except ELBO logs which are needed for reproducibility)
+# -----------------------------------------------------------------------------
+# Log Files (keep logs/elbo/ for ELBO convergence tracking per Constitution VI)
+# -----------------------------------------------------------------------------
 *.log
+logs/*.log
 !logs/elbo/
+!logs/elbo/*.log
+code/.tasks/*.log
 
-# Data files (raw and processed - should be downloaded separately)
-data/raw/*.csv
-data/raw/*.json
-data/processed/*.csv
-data/processed/*.json
+# -----------------------------------------------------------------------------
+# Data Files (keep processed data, exclude raw downloads for reproducibility)
+# -----------------------------------------------------------------------------
+data/raw/
+!data/processed/
+!data/processed/results/
+data/processed/results/*.csv
+data/processed/results/*.json
+data/processed/results/*.png
 
-# Test coverage and profiling
-.coverage
-coverage/
-htmlcov/
-*.prof
-*.profraw
-
-# Jupyter notebooks cache
+# -----------------------------------------------------------------------------
+# Jupyter Notebook Checkpoints
+# -----------------------------------------------------------------------------
 .ipynb_checkpoints/
+*.ipynb_checkpoints
 
-# State files with checksums (can be regenerated)
-state/projects/*.yaml
+# -----------------------------------------------------------------------------
+# Operating System Files
+# -----------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 
-# Temporary files
+# -----------------------------------------------------------------------------
+# Testing and Coverage
+# -----------------------------------------------------------------------------
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+
+# -----------------------------------------------------------------------------
+# State Files (track in git for reproducibility, exclude auto-generated)
+# -----------------------------------------------------------------------------
+!state/projects/*.yaml
+state/projects/*.yaml.tmp
+
+# -----------------------------------------------------------------------------
+# Configuration and Secrets
+# -----------------------------------------------------------------------------
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.crt
+secrets/
+credentials/
+
+# -----------------------------------------------------------------------------
+# Model Checkpoints (keep in git for reproducibility per Constitution I)
+# -----------------------------------------------------------------------------
+!models/checkpoints/
+models/checkpoints/*.pt
+models/checkpoints/*.pth
+models/checkpoints/*.pkl
+
+# -----------------------------------------------------------------------------
+# Temporary and Scratch Files
+# -----------------------------------------------------------------------------
 *.tmp
 *.temp
-.tmp/
+*.bak
+*.backup
+.backup/
+scratch/
+tmp/
 
-# Model checkpoints and large artifacts
-checkpoints/
-models/*.pth
-models/*.pt
-models/*.h5
+# -----------------------------------------------------------------------------
+# Linting and Type Checking
+# -----------------------------------------------------------------------------
+.mypy_cache/
+.ruff_cache/
+.flake8
 
-# Configuration overrides
-config.local.yaml
-.env.local
+# -----------------------------------------------------------------------------
+# Research Artifacts (keep in git per Constitution I)
+# -----------------------------------------------------------------------------
+!specs/
+!paper/
+!paper/figures/
+!data/README.md
+!data/dictionary.md
 
-# Scripts output logs
+# -----------------------------------------------------------------------------
+# Scripts Output (generated during execution, not committed)
+# -----------------------------------------------------------------------------
 code/.tasks/
-code/scripts/*.log
+code/output/
+code/results/
+
+# -----------------------------------------------------------------------------
+# CI/CD (keep workflows, exclude runner artifacts)
+# -----------------------------------------------------------------------------
+!.github/workflows/
+.github/workflows/*.log
+_artifacts/
+artifact/
+
+# -----------------------------------------------------------------------------
+# Misc
+# -----------------------------------------------------------------------------
+*.bak
+*.old
+*.orig
+.cache
+.history

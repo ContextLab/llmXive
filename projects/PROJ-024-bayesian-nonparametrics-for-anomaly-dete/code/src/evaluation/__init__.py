@@ -1,10 +1,68 @@
-"""Evaluation metrics and plotting utilities."""
-from .metrics import EvaluationMetrics, compute_f1_score, compute_precision, compute_recall, compute_auc
-from .plots import generate_roc_curve, generate_pr_curve, save_roc_curve, save_pr_curve
-from .statistical_tests import paired_ttest_with_bonferroni, compare_all_models
+"""
+Evaluation package for metrics, plots, and statistical tests.
+"""
+from .metrics import (
+    EvaluationMetrics,
+    compute_f1_score,
+    compute_precision,
+    compute_recall,
+    compute_auc,
+    generate_confusion_matrix,
+    save_confusion_matrix_plot,
+    compute_all_metrics,
+    compute_roc_curve_points,
+    compute_pr_curve_points,
+    main as metrics_main,
+)
+from .plots import (
+    ROCPlotConfig,
+    PRPlotConfig,
+    EvaluationPlotConfig,
+    generate_roc_curve,
+    save_roc_curve,
+    generate_pr_curve,
+    save_pr_curve,
+    generate_evaluation_plots,
+    main as plots_main,
+)
+from .statistical_tests import (
+    StatisticalTestResult,
+    ComparisonSummary,
+    paired_ttest_with_bonferroni,
+    apply_bonferroni_correction,
+    compare_all_models,
+    format_comparison_summary,
+    save_comparison_results,
+    main as stats_main,
+)
 
 __all__ = [
-    "EvaluationMetrics", "compute_f1_score", "compute_precision", "compute_recall", "compute_auc",
-    "generate_roc_curve", "generate_pr_curve", "save_roc_curve", "save_pr_curve",
-    "paired_ttest_with_bonferroni", "compare_all_models",
+    "EvaluationMetrics",
+    "compute_f1_score",
+    "compute_precision",
+    "compute_recall",
+    "compute_auc",
+    "generate_confusion_matrix",
+    "save_confusion_matrix_plot",
+    "compute_all_metrics",
+    "compute_roc_curve_points",
+    "compute_pr_curve_points",
+    "ROCPlotConfig",
+    "PRPlotConfig",
+    "EvaluationPlotConfig",
+    "generate_roc_curve",
+    "save_roc_curve",
+    "generate_pr_curve",
+    "save_pr_curve",
+    "generate_evaluation_plots",
+    "StatisticalTestResult",
+    "ComparisonSummary",
+    "paired_ttest_with_bonferroni",
+    "apply_bonferroni_correction",
+    "compare_all_models",
+    "format_comparison_summary",
+    "save_comparison_results",
+    "metrics_main",
+    "plots_main",
+    "stats_main",
 ]

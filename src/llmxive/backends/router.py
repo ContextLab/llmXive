@@ -112,6 +112,13 @@ def chat_with_fallback(
                     errors.append(
                         f"{name}/{m}(transient attempt {attempt + 1}): {exc}"
                     )
+                    # "Reasoning budget exhausted" means the SAME model
+                    # will exhaust its budget AGAIN on retry — skip
+                    # remaining same-model attempts and fall straight
+                    # to peer-model fallback. Saves up to 2x3min=6min
+                    # per call.
+                    if "reasoning budget exhausted" in str(exc):
+                        break
                     if attempt == attempts - 1:
                         break  # done with this model, try next
                     continue

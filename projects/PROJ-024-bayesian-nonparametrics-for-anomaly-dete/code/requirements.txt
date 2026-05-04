@@ -1,33 +1,39 @@
-# Core scientific computing
+# Core ML/Stats
 numpy==1.26.4
-scipy==1.13.1
+scipy==1.13.0
 pandas==2.2.2
+pymc==5.9.0
+arviz==0.17.0
+
+# Deep Learning Baselines
+torch==2.2.0
+
+# Data Sources
+ucimlrepo==0.0.7
+datasets==2.18.0
 
 # Visualization
-matplotlib==3.9.0
+matplotlib==3.8.4
 seaborn==0.13.2
 
-# Configuration and serialization
+# Configuration & Serialization
 pyyaml==6.0.1
 
-# Machine learning baselines
-scikit-learn==1.5.0
-
-# Dataset utilities
-ucimlrepo==0.0.7
-
-# Testing
-pytest==8.2.2
+# Testing & Quality
+pytest==8.1.1
 pytest-cov==5.0.0
-pytest-mock==3.14.0
+pytest-xdist==3.5.0
+mypy==1.9.0
 
-# Code quality and linting
-ruff==0.4.8
-black==24.4.2
-mypy==1.10.0
-types-pyyaml==6.0.12.20240311
-types-requests==2.32.0.20240602
+# Linting & Security
+ruff==0.3.5
+black==24.3.0
+bandit==1.7.7
 
-# Optional: deep learning baseline (LSTM Autoencoder)
-tensorflow==2.16.1
-keras==3.3.3
+# Security Scanning
+trufflehog==3.68.0
+
+# Utilities
+requests==2.31.0
+tqdm==4.66.2
+    execute: false

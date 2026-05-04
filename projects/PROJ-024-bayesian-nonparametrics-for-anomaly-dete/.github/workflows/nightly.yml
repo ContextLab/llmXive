@@ -1,0 +1,80 @@
+name: Nightly Full Pipeline
+
+on:
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+# SC-003: 30-minute runtime constraint
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  full-evaluation:
+    name: Full Evaluation Pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        working-directory: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Download datasets
+        working-directory: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code
+        run: |
+          python scripts/download_datasets.py --all
+        continue-on-error: true
+
+      - name: Run DPGMM evaluation
+        working-directory: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code
+        run: |
+          python scripts/evaluate_dp_gmm.py
+        continue-on-error: true
+
+      - name: Run baseline comparisons
+        working-directory: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code
+        run: |
+          python scripts/compare_performance.py
+        continue-on-error: true
+
+      - name: Generate summary report
+        working-directory: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code
+        run: |
+          python scripts/generate_summary_report.py
+        continue-on-error: true
+
+      - name: Upload results artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: evaluation-results-${{ github.run_id }}
+          path: |
+            projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/processed/results/
+          retention-days: 14
+
+      - name: Update state checksums
+        working-directory: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code
+        run: |
+          python scripts/update_state_checksums.py
+        continue-on-error: true
+
+      - name: Upload state artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: state-checksums-${{ github.run_id }}
+          path: |
+            projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/state/
+          retention-days: 7

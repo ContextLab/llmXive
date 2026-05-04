@@ -1,323 +1,537 @@
 """
-Runtime monitoring utility for verifying SC-003 requirement:
-Model processing must complete within 30 minutes per dataset.
+Runtime monitoring utilities for anomaly detection pipeline.
 
-Provides timing instrumentation, warnings, and failure reporting
-for long-running evaluation tasks.
+Provides timeout handling, progress tracking, and partial result saving
+for long-running operations (e.g., model training, dataset processing).
+
+Per SC-003: Pipeline must complete within 30 minutes per dataset.
 """
 
 import os
 import sys
 import time
+import signal
 import logging
-from datetime import datetime
-from pathlib import Path
-from dataclasses import dataclass, field
-from typing import Optional, Dict, Any, Callable, List
 import json
-
-# Constants for SC-003 compliance
-MAX_RUNTIME_SECONDS = 30 * 60  # 30 minutes
-WARNING_THRESHOLD_SECONDS = 25 * 60  # Warn at 25 minutes
-CRITICAL_THRESHOLD_SECONDS = 28 * 60  # Critical at 28 minutes
+from pathlib import Path
+from datetime import datetime, timedelta
+from typing import Optional, Callable, Any, Dict, List, Tuple, Union
+from dataclasses import dataclass, field, asdict
+import threading
+from functools import wraps
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
+# Constants
+DEFAULT_TIMEOUT_SECONDS = 1800  # 30 minutes per SC-003
+WARNING_THRESHOLD_SECONDS = 1200  # Warn at 20 minutes (66% of timeout)
+PARTIAL_RESULTS_DIR = Path("data/processed/partial_results")
+RETRY_MAX_ATTEMPTS = 3
+RETRY_BACKOFF_BASE_SECONDS = 60
 
 @dataclass
-class RuntimeReport:
-    """Runtime monitoring report for a dataset processing task."""
-    dataset_name: str
+class RuntimeMetrics:
+    """Runtime metrics for a single execution."""
     start_time: datetime
     end_time: Optional[datetime] = None
     elapsed_seconds: float = 0.0
-    status: str = "running"  # running, completed, timeout, warning
-    message: str = ""
-    warnings: List[str] = field(default_factory=list)
-    
+    timeout_occurred: bool = False
+    partial_results_saved: bool = False
+    retry_count: int = 0
+    dataset_id: Optional[str] = None
+    operation_name: Optional[str] = None
+
     def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON serialization."""
         return {
-            'dataset_name': self.dataset_name,
-            'start_time': self.start_time.isoformat(),
+            'start_time': self.start_time.isoformat() if self.start_time else None,
             'end_time': self.end_time.isoformat() if self.end_time else None,
             'elapsed_seconds': self.elapsed_seconds,
-            'status': self.status,
-            'message': self.message,
-            'warnings': self.warnings,
-            'max_allowed_seconds': MAX_RUNTIME_SECONDS
+            'timeout_occurred': self.timeout_occurred,
+            'partial_results_saved': self.partial_results_saved,
+            'retry_count': self.retry_count,
+            'dataset_id': self.dataset_id,
+            'operation_name': self.operation_name
         }
-    
-    def save_report(self, output_path: Path) -> None:
-        """Save runtime report to JSON file."""
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(self.to_dict(), f, indent=2)
-        logger.info(f"Runtime report saved to {output_path}")
 
+@dataclass
+class TimeoutConfig:
+    """Configuration for timeout handling."""
+    timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS
+    warning_threshold_seconds: int = WARNING_THRESHOLD_SECONDS
+    retry_max_attempts: int = RETRY_MAX_ATTEMPTS
+    retry_backoff_base_seconds: int = RETRY_BACKOFF_BASE_SECONDS
+    save_partial_results: bool = True
+    partial_results_dir: Path = PARTIAL_RESULTS_DIR
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON serialization."""
+        return asdict(self)
 
 class RuntimeMonitor:
     """
-    Monitor execution time for dataset processing tasks.
-    
-    Ensures compliance with SC-003: runtime < 30 minutes per dataset.
+    Monitors execution time and handles timeout scenarios.
+
+    Per SC-003: Enforces 30-minute limit per dataset with:
+    - Timeout warnings at configurable threshold
+    - Partial result saving on timeout
+    - Retry logic with exponential backoff
     """
-    
+
     def __init__(
         self,
-        dataset_name: str,
-        max_runtime_seconds: int = MAX_RUNTIME_SECONDS,
-        warning_threshold_seconds: int = WARNING_THRESHOLD_SECONDS,
-        critical_threshold_seconds: int = CRITICAL_THRESHOLD_SECONDS,
-        output_dir: Optional[Path] = None
+        timeout_config: Optional[TimeoutConfig] = None,
+        operation_name: Optional[str] = None,
+        dataset_id: Optional[str] = None
     ):
-        self.dataset_name = dataset_name
-        self.max_runtime_seconds = max_runtime_seconds
-        self.warning_threshold_seconds = warning_threshold_seconds
-        self.critical_threshold_seconds = critical_threshold_seconds
-        self.output_dir = output_dir or Path('code/logs/runtime')
-        
-        self.start_time: Optional[datetime] = None
-        self.end_time: Optional[datetime] = None
-        self.elapsed_seconds: float = 0.0
-        self.report: Optional[RuntimeReport] = None
-        self.warnings: List[str] = []
-        self._timer_thread: Optional[Any] = None
-        self._stop_timer: bool = False
-        
+        """
+        Initialize runtime monitor.
+
+        Args:
+            timeout_config: Configuration for timeout handling
+            operation_name: Name of the operation being monitored
+            dataset_id: Identifier for the dataset being processed
+        """
+        self.config = timeout_config or TimeoutConfig()
+        self.operation_name = operation_name
+        self.dataset_id = dataset_id
+        self._start_time: Optional[datetime] = None
+        self._lock = threading.Lock()
+        self._timeout_occurred = False
+        self._metrics = RuntimeMetrics(
+            start_time=datetime.now(),
+            operation_name=operation_name,
+            dataset_id=dataset_id
+        )
+
     def start(self) -> None:
         """Start the runtime monitor."""
-        self.start_time = datetime.now()
-        self.end_time = None
-        self.elapsed_seconds = 0.0
-        self.warnings = []
-        self.report = RuntimeReport(
-            dataset_name=self.dataset_name,
-            start_time=self.start_time
+        with self._lock:
+            self._start_time = datetime.now()
+            self._timeout_occurred = False
+            self._metrics.start_time = self._start_time
+            logger.info(
+                f"Started monitoring: {self.operation_name} "
+                f"(dataset: {self.dataset_id}, timeout: {self.config.timeout_seconds}s)"
+            )
+
+    def elapsed(self) -> float:
+        """
+        Get elapsed time in seconds.
+
+        Returns:
+            Elapsed time since start in seconds
+        """
+        if self._start_time is None:
+            return 0.0
+        return (datetime.now() - self._start_time).total_seconds()
+
+    def check_timeout(self) -> bool:
+        """
+        Check if timeout has been reached.
+
+        Returns:
+            True if timeout exceeded, False otherwise
+
+        Raises:
+            TimeoutError: If timeout exceeded and partial results saved
+        """
+        elapsed = self.elapsed()
+
+        if elapsed >= self.config.timeout_seconds:
+            self._timeout_occurred = True
+            self._metrics.timeout_occurred = True
+            logger.warning(
+                f"TIMEOUT: {self.operation_name} exceeded {self.config.timeout_seconds}s "
+                f"(elapsed: {elapsed:.1f}s)"
+            )
+
+            if self.config.save_partial_results:
+                self.save_partial_results()
+
+            raise TimeoutError(
+                f"Operation '{self.operation_name}' exceeded timeout of "
+                f"{self.config.timeout_seconds}s (elapsed: {elapsed:.1f}s)"
+            )
+
+        return False
+
+    def check_warning(self) -> bool:
+        """
+        Check if warning threshold has been reached.
+
+        Returns:
+            True if warning threshold exceeded, False otherwise
+        """
+        elapsed = self.elapsed()
+
+        if elapsed >= self.config.warning_threshold_seconds:
+            logger.warning(
+                f"WARNING: {self.operation_name} approaching timeout "
+                f"(elapsed: {elapsed:.1f}s / {self.config.timeout_seconds}s, "
+                f"threshold: {self.config.warning_threshold_seconds}s)"
+            )
+            return True
+        return False
+
+    def save_partial_results(
+        self,
+        partial_data: Optional[Dict[str, Any]] = None,
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> Optional[str]:
+        """
+        Save partial results when timeout occurs.
+
+        Args:
+            partial_data: Partial results to save
+            metadata: Additional metadata to include
+
+        Returns:
+            Path to saved file, or None if saving disabled
+        """
+        if not self.config.save_partial_results:
+            return None
+
+        try:
+            # Ensure partial results directory exists
+            partial_results_dir = Path(self.config.partial_results_dir)
+            partial_results_dir.mkdir(parents=True, exist_ok=True)
+
+            # Create filename with timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            safe_op_name = (self.operation_name or "operation").replace(" ", "_")
+            safe_dataset = (self.dataset_id or "unknown").replace(" ", "_")
+            filename = f"{safe_op_name}_{safe_dataset}_{timestamp}_partial.json"
+            filepath = partial_results_dir / filename
+
+            # Prepare data
+            save_data = {
+                'monitor_metrics': self._metrics.to_dict(),
+                'partial_data': partial_data,
+                'metadata': metadata,
+                'saved_at': datetime.now().isoformat()
+            }
+
+            # Write to file
+            with open(filepath, 'w') as f:
+                json.dump(save_data, f, indent=2, default=str)
+
+            logger.info(
+                f"Saved partial results to {filepath} "
+                f"(timeout: {self._timeout_occurred})"
+            )
+            self._metrics.partial_results_saved = True
+            return str(filepath)
+
+        except Exception as e:
+            logger.error(f"Failed to save partial results: {e}")
+            return None
+
+    def should_retry(self) -> bool:
+        """
+        Check if retry should be attempted.
+
+        Returns:
+            True if retry is possible, False otherwise
+        """
+        return self._metrics.retry_count < self.config.retry_max_attempts
+
+    def trigger_retry(self) -> float:
+        """
+        Prepare for retry with exponential backoff.
+
+        Returns:
+            Time to wait before retry in seconds
+        """
+        self._metrics.retry_count += 1
+        delay = self._get_retry_delay()
+
+        logger.info(
+            f"Retrying {self.operation_name} (attempt {self._metrics.retry_count} "
+            f"of {self.config.retry_max_attempts}, wait: {delay:.1f}s)"
         )
-        logger.info(f"Runtime monitor started for {self.dataset_name}")
-        logger.info(f"Max allowed runtime: {self.max_runtime_seconds} seconds ({self.max_runtime_seconds/60:.1f} minutes)")
-        
-    def stop(self, success: bool = True) -> RuntimeReport:
-        """Stop the runtime monitor and generate report."""
-        self.end_time = datetime.now()
-        self.elapsed_seconds = (self.end_time - self.start_time).total_seconds()
-        
-        if self.elapsed_seconds >= self.max_runtime_seconds:
-            self.report.status = "timeout"
-            self.report.message = f"Runtime exceeded maximum allowed ({self.elapsed_seconds:.1f}s >= {self.max_runtime_seconds}s)"
-            logger.error(self.report.message)
-        elif self.elapsed_seconds >= self.critical_threshold_seconds:
-            self.report.status = "warning"
-            self.report.message = f"Runtime approaching limit ({self.elapsed_seconds:.1f}s >= {self.critical_threshold_seconds}s)"
-            logger.warning(self.report.message)
-        elif self.elapsed_seconds >= self.warning_threshold_seconds:
-            self.report.status = "warning"
-            self.report.message = f"Runtime exceeded warning threshold ({self.elapsed_seconds:.1f}s >= {self.warning_threshold_seconds}s)"
-            logger.warning(self.report.message)
-        else:
-            self.report.status = "completed"
-            self.report.message = f"Runtime within limits ({self.elapsed_seconds:.1f}s < {self.warning_threshold_seconds}s)"
-            logger.info(self.report.message)
-        
-        self.report.elapsed_seconds = self.elapsed_seconds
-        self.report.warnings = self.warnings
-        
-        # Save report if output directory is configured
-        if self.output_dir:
-            report_path = self.output_dir / f"runtime_{self.dataset_name.replace(' ', '_')}.json"
-            self.report.save_report(report_path)
-        
-        return self.report
-    
-    def check_elapsed(self) -> Dict[str, Any]:
-        """Check current elapsed time and return status."""
-        if not self.start_time:
-            return {'status': 'not_started', 'elapsed_seconds': 0}
-        
-        current_elapsed = (datetime.now() - self.start_time).total_seconds()
-        
-        if current_elapsed >= self.max_runtime_seconds:
-            return {
-                'status': 'timeout',
-                'elapsed_seconds': current_elapsed,
-                'remaining_seconds': 0,
-                'message': f"Runtime exceeded maximum ({current_elapsed:.1f}s >= {self.max_runtime_seconds}s)"
-            }
-        elif current_elapsed >= self.critical_threshold_seconds:
-            return {
-                'status': 'critical',
-                'elapsed_seconds': current_elapsed,
-                'remaining_seconds': self.max_runtime_seconds - current_elapsed,
-                'message': f"Runtime at critical level ({current_elapsed:.1f}s >= {self.critical_threshold_seconds}s)"
-            }
-        elif current_elapsed >= self.warning_threshold_seconds:
-            return {
-                'status': 'warning',
-                'elapsed_seconds': current_elapsed,
-                'remaining_seconds': self.max_runtime_seconds - current_elapsed,
-                'message': f"Runtime exceeded warning threshold ({current_elapsed:.1f}s >= {self.warning_threshold_seconds}s)"
-            }
-        else:
-            return {
-                'status': 'ok',
-                'elapsed_seconds': current_elapsed,
-                'remaining_seconds': self.max_runtime_seconds - current_elapsed,
-                'message': f"Runtime within limits ({current_elapsed:.1f}s < {self.warning_threshold_seconds}s)"
-            }
-    
-    def verify_compliance(self) -> bool:
+
+        time.sleep(delay)
+        return delay
+
+    def _get_retry_delay(self) -> float:
         """
-        Verify that runtime is within SC-003 compliance.
-        
-        Returns True if runtime < 30 minutes, False otherwise.
+        Calculate retry delay with exponential backoff.
+
+        Returns:
+            Delay in seconds
         """
-        if not self.start_time:
-            logger.warning("Runtime monitor not started, cannot verify compliance")
-            return False
-        
-        current_elapsed = (datetime.now() - self.start_time).total_seconds()
-        
-        if current_elapsed >= self.max_runtime_seconds:
-            logger.error(f"SC-003 VIOLATION: Runtime {current_elapsed:.1f}s exceeds maximum {self.max_runtime_seconds}s")
-            return False
-        
-        logger.info(f"SC-003 COMPLIANT: Runtime {current_elapsed:.1f}s within maximum {self.max_runtime_seconds}s")
-        return True
-    
+        base = self.config.retry_backoff_base_seconds
+        return base * (2 ** (self._metrics.retry_count - 1))
+
+    def get_metrics(self) -> RuntimeMetrics:
+        """
+        Get current runtime metrics.
+
+        Returns:
+            RuntimeMetrics object with current state
+        """
+        self._metrics.elapsed_seconds = self.elapsed()
+        return self._metrics
+
+    def stop(self) -> None:
+        """Stop the runtime monitor and record end time."""
+        with self._lock:
+            if self._start_time is not None:
+                self._metrics.end_time = datetime.now()
+                self._metrics.elapsed_seconds = self.elapsed()
+                logger.info(
+                    f"Completed: {self.operation_name} "
+                    f"(elapsed: {self._metrics.elapsed_seconds:.1f}s)"
+                )
+
     def __enter__(self) -> 'RuntimeMonitor':
         """Context manager entry."""
         self.start()
         return self
-    
+
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         """Context manager exit."""
-        self.stop(success=(exc_type is None))
-    
-    def decorate(
-        self,
-        func: Callable,
-        dataset_name: Optional[str] = None
-    ) -> Callable:
-        """
-        Decorator to wrap a function with runtime monitoring.
-        
-        Usage:
-            monitor = RuntimeMonitor("my_dataset")
-            monitored_func = monitor.decorate(my_function)
-        """
-        def wrapper(*args, **kwargs):
-            monitor_name = dataset_name or func.__name__
-            self.start()
-            try:
-                result = func(*args, **kwargs)
-                self.stop(success=True)
-                return result
-            except Exception as e:
-                self.stop(success=False)
-                logger.error(f"Function {func.__name__} failed: {e}")
-                raise
-        return wrapper
+        self.stop()
 
 
-def verify_runtime_compliance(
-    dataset_name: str,
-    max_runtime_seconds: int = MAX_RUNTIME_SECONDS
-) -> bool:
+def monitor_execution(
+    config: Optional[TimeoutConfig] = None,
+    partial_data_callback: Optional[Callable[[], Dict[str, Any]]] = None,
+    operation_name: Optional[str] = None,
+    dataset_id: Optional[str] = None
+):
     """
-    Verify runtime compliance for a dataset processing task.
-    
+    Decorator to monitor function execution with timeout handling.
+
     Args:
-        dataset_name: Name of the dataset being processed
-        max_runtime_seconds: Maximum allowed runtime (default 1800s = 30min)
-    
+        config: Timeout configuration
+        partial_data_callback: Callback to get partial data on timeout
+        operation_name: Name of operation for logging
+        dataset_id: Dataset identifier
+
+    Example:
+        @monitor_operation(timeout_seconds=1800, operation_name="train_model")
+        def train_model(data):
+            # Long-running training
+            pass
+    """
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(*args, **kwargs) -> Any:
+            monitor = RuntimeMonitor(
+                timeout_config=config,
+                operation_name=operation_name or func.__name__,
+                dataset_id=dataset_id
+            )
+
+            with monitor:
+                retry_count = 0
+
+                while True:
+                    try:
+                        # Check for timeout periodically during execution
+                        # This is a coarse check; use within function for finer control
+                        if monitor.check_warning():
+                            logger.warning(
+                                f"Approaching timeout for {monitor.operation_name}"
+                            )
+
+                        # Execute the function
+                        result = func(*args, **kwargs)
+
+                        # Success
+                        return result
+
+                    except TimeoutError as e:
+                        if not monitor.should_retry():
+                            logger.error(
+                                f"All retry attempts exhausted for "
+                                f"{monitor.operation_name}"
+                            )
+                            raise
+
+                        # Prepare for retry
+                        monitor.trigger_retry()
+
+                    except KeyboardInterrupt:
+                        logger.warning(
+                            f"Interrupted: {monitor.operation_name}"
+                        )
+                        if config and config.save_partial_results:
+                            partial_data = partial_data_callback() if partial_data_callback else None
+                            monitor.save_partial_results(partial_data)
+                        raise
+
+                    except Exception as e:
+                        logger.error(
+                            f"Error in {monitor.operation_name}: {e}"
+                        )
+                        raise
+
+        return wrapper
+    return decorator
+
+
+def run_with_timeout(
+    func: Callable,
+    timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
+    args: Tuple = (),
+    kwargs: Optional[Dict[str, Any]] = None,
+    operation_name: Optional[str] = None,
+    dataset_id: Optional[str] = None
+) -> Tuple[bool, Any, Optional[str]]:
+    """
+    Run a function with timeout enforcement.
+
+    Args:
+        func: Function to execute
+        timeout_seconds: Maximum execution time in seconds
+        args: Positional arguments for function
+        kwargs: Keyword arguments for function
+        operation_name: Name for logging
+        dataset_id: Dataset identifier
+
     Returns:
-        True if within compliance, False otherwise
+        Tuple of (success, result_or_error, partial_result_path)
     """
+    kwargs = kwargs or {}
+    config = TimeoutConfig(timeout_seconds=timeout_seconds)
     monitor = RuntimeMonitor(
-        dataset_name=dataset_name,
-        max_runtime_seconds=max_runtime_seconds
+        timeout_config=config,
+        operation_name=operation_name or func.__name__,
+        dataset_id=dataset_id
     )
-    
+
+    success = False
+    result = None
+    partial_path = None
+
     with monitor:
-        # This is a placeholder - actual work would be passed in
-        # For testing, we just sleep briefly
-        logger.info(f"Processing {dataset_name}...")
-        time.sleep(0.1)  # Placeholder for actual work
-        
-    return monitor.verify_compliance()
+        try:
+            result = func(*args, **kwargs)
+            success = True
+            return success, result, None
+
+        except TimeoutError as e:
+            logger.error(f"Timeout: {e}")
+            partial_path = monitor.save_partial_results()
+            return success, str(e), partial_path
+
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            return success, str(e), None
 
 
-def main() -> None:
+def check_runtime_budget(
+    elapsed_seconds: float,
+    budget_seconds: int = DEFAULT_TIMEOUT_SECONDS,
+    dataset_id: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Main entry point for runtime monitoring demonstration.
-    
-    Runs a test that verifies runtime compliance for synthetic datasets.
+    Check if execution is within budget.
+
+    Args:
+        elapsed_seconds: Time already spent
+        budget_seconds: Total budget in seconds
+        dataset_id: Dataset identifier
+
+    Returns:
+        Dictionary with budget status information
     """
-    print("=" * 60)
-    print("Runtime Monitor - SC-003 Compliance Verification")
-    print("=" * 60)
-    print(f"Max runtime per dataset: {MAX_RUNTIME_SECONDS} seconds ({MAX_RUNTIME_SECONDS/60:.1f} minutes)")
-    print(f"Warning threshold: {WARNING_THRESHOLD_SECONDS} seconds ({WARNING_THRESHOLD_SECONDS/60:.1f} minutes)")
-    print(f"Critical threshold: {CRITICAL_THRESHOLD_SECONDS} seconds ({CRITICAL_THRESHOLD_SECONDS/60:.1f} minutes)")
-    print()
-    
-    # Test 1: Normal completion within limits
-    print("Test 1: Normal completion (within limits)")
-    print("-" * 60)
-    monitor1 = RuntimeMonitor(
-        dataset_name="test_normal",
-        output_dir=Path('code/logs/runtime')
+    remaining = budget_seconds - elapsed_seconds
+    percentage_used = (elapsed_seconds / budget_seconds) * 100 if budget_seconds > 0 else 0
+
+    status = {
+        'elapsed_seconds': elapsed_seconds,
+        'budget_seconds': budget_seconds,
+        'remaining_seconds': remaining,
+        'percentage_used': percentage_used,
+        'within_budget': remaining > 0,
+        'dataset_id': dataset_id,
+        'check_time': datetime.now().isoformat()
+    }
+
+    if remaining <= 0:
+        status['status'] = 'EXCEEDED'
+    elif remaining <= budget_seconds * 0.2:
+        status['status'] = 'CRITICAL'
+    elif remaining <= budget_seconds * 0.5:
+        status['status'] = 'WARNING'
+    else:
+        status['status'] = 'OK'
+
+    return status
+
+
+def save_runtime_metrics(
+    metrics: RuntimeMetrics,
+    output_dir: Optional[Path] = None,
+    filename_prefix: Optional[str] = None
+) -> Path:
+    """
+    Save runtime metrics to a JSON file.
+
+    Args:
+        metrics: RuntimeMetrics object to save
+        output_dir: Directory to save metrics (default: data/processed/results)
+        filename_prefix: Prefix for filename
+
+    Returns:
+        Path to saved file
+    """
+    if output_dir is None:
+        output_dir = Path("data/processed/results")
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    prefix = filename_prefix or "runtime_metrics"
+    filename = f"{prefix}_{timestamp}.json"
+    filepath = output_dir / filename
+
+    with open(filepath, 'w') as f:
+        json.dump(metrics.to_dict(), f, indent=2, default=str)
+
+    logger.info(f"Saved runtime metrics to {filepath}")
+    return filepath
+
+
+def main():
+    """
+    Test runtime monitor functionality.
+    """
+    print("Testing RuntimeMonitor...")
+
+    # Test basic monitoring
+    config = TimeoutConfig(
+        timeout_seconds=5,
+        warning_threshold_seconds=3,
+        save_partial_results=True
     )
-    
-    with monitor1:
-        # Simulate normal processing (less than 5 minutes)
-        time.sleep(2)
-    
-    report1 = monitor1.stop()
-    print(f"Status: {report1.status}")
-    print(f"Elapsed: {report1.elapsed_seconds:.2f} seconds")
-    print(f"Compliance: {'PASS' if report1.status == 'completed' else 'FAIL'}")
-    print()
-    
-    # Test 2: Check elapsed time method
-    print("Test 2: Elapsed time checking")
-    print("-" * 60)
-    monitor2 = RuntimeMonitor(dataset_name="test_check")
-    monitor2.start()
-    time.sleep(1)
-    
-    status = monitor2.check_elapsed()
-    print(f"Status: {status['status']}")
-    print(f"Elapsed: {status['elapsed_seconds']:.2f} seconds")
-    print(f"Remaining: {status['remaining_seconds']:.2f} seconds")
-    print()
-    
-    # Test 3: Verify compliance function
-    print("Test 3: Compliance verification function")
-    print("-" * 60)
-    compliant = verify_runtime_compliance("test_compliance")
-    print(f"Compliance check: {'PASS' if compliant else 'FAIL'}")
-    print()
-    
-    # Test 4: Context manager usage
-    print("Test 4: Context manager usage")
-    print("-" * 60)
-    with RuntimeMonitor("test_context", output_dir=Path('code/logs/runtime')) as monitor4:
-        time.sleep(1)
-    
-    print(f"Context manager completed: {monitor4.report.status}")
-    print()
-    
-    print("=" * 60)
-    print("Runtime Monitor Tests Complete")
-    print("=" * 60)
-    print(f"All tests passed: {all([report1.status == 'completed', compliant])}")
+
+    with RuntimeMonitor(
+        timeout_config=config,
+        operation_name="test_operation",
+        dataset_id="test_dataset"
+    ) as monitor:
+        # Simulate work
+        for i in range(10):
+            time.sleep(0.5)
+            monitor.check_warning()
+
+            if monitor.check_timeout():
+                print("Timeout triggered!")
+                break
+
+    print(f"Metrics: {monitor.get_metrics().to_dict()}")
+    print("Test complete!")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

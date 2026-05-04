@@ -70,7 +70,7 @@ def generate_checksums_for_data_files(
 
 def main():
     """Main entry point for generating data checksums."""
-    logger.info("=== T068: Generate SHA256 checksums for data files ===")
+    logger.info("=== T014: Generate SHA256 checksums for data files ===")
     
     # Define paths
     data_raw_dir = project_root / "data" / "raw"

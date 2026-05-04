@@ -28,7 +28,11 @@ from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 
 
 _TASK_RE = re.compile(
-    r"^- \[(?P<status>[ Xx])\]\s+(?P<id>T\d+)\b(?P<rest>.*)$",
+    # T### or T###<letter-suffix> (e.g., T016, T016a, T017b for
+    # revision sub-tasks). The trailing alphanumeric must be followed
+    # by whitespace or end of string — no word-boundary, since 'a' is
+    # itself a word char.
+    r"^- \[(?P<status>[ Xx])\]\s+(?P<id>T\d+[a-z]?)(?=\s|$)(?P<rest>.*)$",
     re.MULTILINE,
 )
 

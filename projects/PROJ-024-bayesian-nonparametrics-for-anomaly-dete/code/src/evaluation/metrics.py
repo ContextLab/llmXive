@@ -1,556 +1,563 @@
 """
-Evaluation metrics for anomaly detection models.
+Evaluation metrics module for anomaly detection models.
 
-Implements F1-score, precision, recall, AUC, and confusion matrix generation
-for model comparison and performance evaluation.
+Provides functions for computing classification metrics (F1-score, precision, recall, AUC),
+generating confusion matrices, and creating evaluation plots (ROC, PR curves).
 
-Per FR-006: Evaluation metrics must include F1-scores, precision, recall, AUC.
+All metrics support numpy type serialization for JSON output.
 """
+
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Any, List, Tuple, Union, Sequence
 import numpy as np
 from pathlib import Path
 import logging
 from datetime import datetime
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.metrics import confusion_matrix, precision_recall_curve, auc as compute_auc_sklearn
+import json
+import csv
 
-# Configure logging
+# Optional imports with graceful fallback
+try:
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    HAS_PLOT = True
+except ImportError:
+    HAS_PLOT = False
+    logging.warning("matplotlib/seaborn not available - plot generation disabled")
+
+try:
+    from sklearn.metrics import confusion_matrix, roc_curve, precision_recall_curve, auc
+    HAS_SKLEARN = True
+except ImportError:
+    HAS_SKLEARN = False
+    logging.warning("scikit-learn not available - using custom implementations")
+
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# ============================================================================
+# Data Classes
+# ============================================================================
 
 @dataclass
 class EvaluationMetrics:
-    """
-    Container for all evaluation metrics computed during model evaluation.
-
-    Attributes:
-        f1_score: F1-score (harmonic mean of precision and recall)
-        precision: Precision (true positives / (true positives + false positives))
-        recall: Recall (true positives / (true positives + false negatives))
-        auc: Area under ROC curve
-        accuracy: Overall accuracy
-        confusion_matrix: 2x2 confusion matrix [[TN, FP], [FN, TP]]
-        thresholds: Array of thresholds used for evaluation
-        precision_at_thresholds: Precision at each threshold
-        recall_at_thresholds: Recall at each threshold
-    """
+    """Container for all evaluation metrics computed for a model."""
     f1_score: float = 0.0
     precision: float = 0.0
     recall: float = 0.0
-    auc: float = 0.0
-    accuracy: float = 0.0
-    confusion_matrix: Optional[np.ndarray] = None
-    thresholds: Optional[np.ndarray] = None
-    precision_at_thresholds: Optional[np.ndarray] = None
-    recall_at_thresholds: Optional[np.ndarray] = None
+    auc_roc: float = 0.0
+    auc_pr: float = 0.0
+    confusion_matrix: Optional[List[List[int]]] = None
     true_positives: int = 0
     false_positives: int = 0
     true_negatives: int = 0
     false_negatives: int = 0
+    model_name: str = "unknown"
+    dataset_name: str = "unknown"
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
-
+    threshold: float = 0.5
+    support: int = 0
+    
     def to_dict(self) -> Dict[str, Any]:
-        """Convert metrics to dictionary for serialization."""
+        """Convert to dictionary for JSON serialization."""
         return {
-            'f1_score': self.f1_score,
-            'precision': self.precision,
-            'recall': self.recall,
-            'auc': self.auc,
-            'accuracy': self.accuracy,
-            'true_positives': self.true_positives,
-            'false_positives': self.false_positives,
-            'true_negatives': self.true_negatives,
-            'false_negatives': self.false_negatives,
-            'timestamp': self.timestamp
+            'f1_score': float(self.f1_score),
+            'precision': float(self.precision),
+            'recall': float(self.recall),
+            'auc_roc': float(self.auc_roc),
+            'auc_pr': float(self.auc_pr),
+            'confusion_matrix': self.confusion_matrix,
+            'true_positives': int(self.true_positives),
+            'false_positives': int(self.false_positives),
+            'true_negatives': int(self.true_negatives),
+            'false_negatives': int(self.false_negatives),
+            'model_name': self.model_name,
+            'dataset_name': self.dataset_name,
+            'timestamp': self.timestamp,
+            'threshold': float(self.threshold),
+            'support': int(self.support)
         }
+    
+    def save_json(self, output_path: Union[str, Path]) -> None:
+        """Save metrics to JSON file."""
+        output_path = Path(output_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_path, 'w') as f:
+            json.dump(self.to_dict(), f, indent=2)
+        logger.info(f"Saved evaluation metrics to {output_path}")
 
-    def __repr__(self) -> str:
-        return (f"EvaluationMetrics(f1={self.f1_score:.4f}, "
-                f"precision={self.precision:.4f}, "
-                f"recall={self.recall:.4f}, "
-                f"auc={self.auc:.4f})")
+# ============================================================================
+# Utility Functions for Type Conversion
+# ============================================================================
 
+def _convert_numpy_types(obj: Any) -> Any:
+    """Convert numpy types to Python native types for JSON serialization."""
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    if isinstance(obj, (np.bool_,)):
+        return bool(obj)
+    if isinstance(obj, (np.integer,)):
+        return int(obj)
+    if isinstance(obj, (np.floating,)):
+        return float(obj)
+    if isinstance(obj, dict):
+        return {k: _convert_numpy_types(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_convert_numpy_types(item) for item in obj]
+    return obj
 
-def compute_f1_score(precision: float, recall: float, epsilon: float = 1e-10) -> float:
+# ============================================================================
+# Core Metric Computation Functions
+# ============================================================================
+
+def compute_f1_score(y_true: Sequence[Union[int, float]], 
+                     y_pred: Sequence[Union[int, float]], 
+                     average: str = 'binary') -> float:
     """
-    Compute F1-score as harmonic mean of precision and recall.
-
+    Compute F1-score (harmonic mean of precision and recall).
+    
     Args:
-        precision: Precision value (0-1)
-        recall: Recall value (0-1)
-        epsilon: Small constant to avoid division by zero
-
+        y_true: Ground truth labels (0 or 1)
+        y_pred: Predicted labels (0 or 1)
+        average: 'binary' for binary classification, 'macro' or 'weighted' for multi-class
+    
     Returns:
-        F1-score value (0-1)
+        F1-score as float between 0 and 1
     """
-    if precision + recall < epsilon:
-        return 0.0
-    return 2 * (precision * recall) / (precision + recall + epsilon)
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    
+    if not HAS_SKLEARN:
+        # Custom implementation
+        tp = np.sum((y_true == 1) & (y_pred == 1))
+        fp = np.sum((y_true == 0) & (y_pred == 1))
+        fn = np.sum((y_true == 1) & (y_pred == 0))
+        
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        
+        f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+        return float(f1)
+    else:
+        from sklearn.metrics import f1_score as sklearn_f1_score
+        return float(sklearn_f1_score(y_true, y_pred, average=average))
 
-
-def compute_precision(tp: int, fp: int, epsilon: float = 1e-10) -> float:
+def compute_precision(y_true: Sequence[Union[int, float]], 
+                     y_pred: Sequence[Union[int, float]]) -> float:
     """
-    Compute precision from confusion matrix values.
-
+    Compute precision (true positives / (true positives + false positives)).
+    
     Args:
-        tp: True positives count
-        fp: False positives count
-        epsilon: Small constant to avoid division by zero
-
+        y_true: Ground truth labels
+        y_pred: Predicted labels
+    
     Returns:
-        Precision value (0-1)
+        Precision as float between 0 and 1
     """
-    denominator = tp + fp
-    if denominator < epsilon:
-        return 0.0
-    return tp / denominator
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    
+    tp = np.sum((y_true == 1) & (y_pred == 1))
+    fp = np.sum((y_true == 0) & (y_pred == 1))
+    
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+    return float(precision)
 
-
-def compute_recall(tp: int, fn: int, epsilon: float = 1e-10) -> float:
+def compute_recall(y_true: Sequence[Union[int, float]], 
+                  y_pred: Sequence[Union[int, float]]) -> float:
     """
-    Compute recall from confusion matrix values.
-
+    Compute recall (true positives / (true positives + false negatives)).
+    
     Args:
-        tp: True positives count
-        fn: False negatives count
-        epsilon: Small constant to avoid division by zero
-
+        y_true: Ground truth labels
+        y_pred: Predicted labels
+    
     Returns:
-        Recall value (0-1)
+        Recall as float between 0 and 1
     """
-    denominator = tp + fn
-    if denominator < epsilon:
-        return 0.0
-    return tp / denominator
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    
+    tp = np.sum((y_true == 1) & (y_pred == 1))
+    fn = np.sum((y_true == 1) & (y_pred == 0))
+    
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+    return float(recall)
 
-
-def compute_auc_from_pr_curve(precision: np.ndarray, recall: np.ndarray) -> float:
+def compute_auc(y_true: Sequence[Union[int, float]], 
+               y_score: Sequence[Union[int, float]], 
+               curve_type: str = 'roc') -> float:
     """
-    Compute area under PR curve.
-
+    Compute Area Under Curve for ROC or PR curve.
+    
     Args:
-        precision: Precision values at different thresholds
-        recall: Recall values at different thresholds
-
+        y_true: Ground truth labels
+        y_score: Prediction scores (probabilities or anomaly scores)
+        curve_type: 'roc' for ROC-AUC, 'pr' for PR-AUC
+    
     Returns:
-        AUC value (0-1)
+        AUC value as float between 0 and 1
     """
-    if len(precision) < 2 or len(recall) < 2:
-        return 0.0
-    return compute_auc_sklearn(recall, precision)
+    y_true = np.array(y_true)
+    y_score = np.array(y_score)
+    
+    if not HAS_SKLEARN:
+        # Custom trapezoidal integration
+        if curve_type == 'roc':
+            fpr, tpr, _ = compute_roc_curve_points(y_true, y_score)
+        else:
+            prec, rec, _ = compute_pr_curve_points(y_true, y_score)
+            fpr, tpr = rec, prec  # Swap for PR curve
+        return float(auc_custom(fpr, tpr))
+    else:
+        from sklearn.metrics import roc_auc_score, average_precision_score
+        if curve_type == 'roc':
+            return float(roc_auc_score(y_true, y_score))
+        else:
+            return float(average_precision_score(y_true, y_score))
 
+def auc_custom(x: np.ndarray, y: np.ndarray) -> float:
+    """Custom trapezoidal integration for AUC calculation."""
+    x = np.array(x)
+    y = np.array(y)
+    return float(np.trapz(y, x))
 
-def compute_auc(y_true: np.ndarray, y_scores: np.ndarray) -> float:
-    """
-    Compute Area Under ROC Curve.
+# ============================================================================
+# Confusion Matrix Functions (T042 Implementation)
+# ============================================================================
 
-    Args:
-        y_true: Ground truth binary labels (0 or 1)
-        y_scores: Anomaly scores or predicted probabilities
-
-    Returns:
-        AUC value (0-1)
-    """
-    try:
-        return compute_auc_sklearn(y_true, y_scores)
-    except Exception as e:
-        logger.warning(f"AUC computation failed: {e}, returning 0.0")
-        return 0.0
-
-
-def generate_confusion_matrix(
-    y_true: Union[np.ndarray, List[int]],
-    y_pred: Union[np.ndarray, List[int]],
-    normalize: bool = False
-) -> np.ndarray:
+def generate_confusion_matrix(y_true: Sequence[Union[int, float]], 
+                              y_pred: Sequence[Union[int, float]]) -> Dict[str, Any]:
     """
     Generate confusion matrix from true and predicted labels.
-
-    Creates a 2x2 confusion matrix for binary anomaly detection:
-    [[TN, FP],
-     [FN, TP]]
-
+    
     Args:
-        y_true: Ground truth binary labels (0=normal, 1=anomaly)
-        y_pred: Predicted binary labels (0=normal, 1=anomaly)
-        normalize: If True, return normalized matrix (proportions)
-
+        y_true: Ground truth labels (0 or 1 for binary classification)
+        y_pred: Predicted labels (0 or 1 for binary classification)
+    
     Returns:
-        2x2 numpy array confusion matrix [[TN, FP], [FN, TP]]
+        Dictionary containing:
+            - matrix: 2x2 confusion matrix as nested list
+            - tp: true positives
+            - fp: false positives
+            - tn: true negatives
+            - fn: false negatives
+            - accuracy: overall accuracy
+    """
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    
+    # Compute confusion matrix components
+    tp = int(np.sum((y_true == 1) & (y_pred == 1)))
+    fp = int(np.sum((y_true == 0) & (y_pred == 1)))
+    tn = int(np.sum((y_true == 0) & (y_pred == 0)))
+    fn = int(np.sum((y_true == 1) & (y_pred == 0)))
+    
+    # Build 2x2 matrix: [[TN, FP], [FN, TP]]
+    # Convention: rows = actual, cols = predicted
+    matrix = [[tn, fp], 
+              [fn, tp]]
+    
+    total = tp + fp + tn + fn
+    accuracy = (tp + tn) / total if total > 0 else 0.0
+    
+    return {
+        'matrix': matrix,
+        'tp': tp,
+        'fp': fp,
+        'tn': tn,
+        'fn': fn,
+        'accuracy': float(accuracy),
+        'total': total
+    }
 
-    Raises:
-        ValueError: If input arrays have different lengths
-        ValueError: If labels are not binary (0 or 1)
+def save_confusion_matrix_plot(cm_data: Dict[str, Any], 
+                               output_path: Union[str, Path],
+                               title: str = "Confusion Matrix",
+                               figsize: Tuple[int, int] = (8, 6)) -> None:
+    """
+    Save confusion matrix as a visualization (PNG).
+    
+    Args:
+        cm_data: Dictionary from generate_confusion_matrix()
+        output_path: Path to save the plot
+        title: Plot title
+        figsize: Figure size in inches
+    """
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    if not HAS_PLOT:
+        logger.warning("matplotlib not available - cannot save confusion matrix plot")
+        # Save as text file instead
+        text_path = output_path.with_suffix('.txt')
+        with open(text_path, 'w') as f:
+            f.write(f"Confusion Matrix: {title}\n")
+            f.write(f"Matrix: {cm_data['matrix']}\n")
+            f.write(f"TP: {cm_data['tp']}, FP: {cm_data['fp']}, TN: {cm_data['tn']}, FN: {cm_data['fn']}\n")
+            f.write(f"Accuracy: {cm_data['accuracy']:.4f}\n")
+        logger.info(f"Saved confusion matrix text to {text_path}")
+        return
+    
+    matrix = cm_data['matrix']
+    fig, ax = plt.subplots(figsize=figsize)
+    
+    # Use seaborn for heatmap visualization
+    sns.heatmap(matrix, annot=True, fmt='d', cmap='Blues',
+               xticklabels=['Predicted Neg', 'Predicted Pos'],
+               yticklabels=['Actual Neg', 'Actual Pos'],
+               ax=ax)
+    
+    ax.set_title(title)
+    ax.set_xlabel('Predicted Label')
+    ax.set_ylabel('Actual Label')
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.close(fig)
+    
+    logger.info(f"Saved confusion matrix plot to {output_path}")
+
+def save_confusion_matrix_data(cm_data: Dict[str, Any],
+                               output_path: Union[str, Path]) -> None:
+    """
+    Save confusion matrix data to CSV and JSON formats.
+    
+    Args:
+        cm_data: Dictionary from generate_confusion_matrix()
+        output_path: Base path (without extension) for output files
+    """
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save as CSV
+    csv_path = output_path.with_suffix('.csv')
+    with open(csv_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Actual\\Predicted', 'Negative', 'Positive'])
+        writer.writerow(['Negative', cm_data['matrix'][0][0], cm_data['matrix'][0][1]])
+        writer.writerow(['Positive', cm_data['matrix'][1][0], cm_data['matrix'][1][1]])
+    
+    # Save as JSON
+    json_path = output_path.with_suffix('.json')
+    with open(json_path, 'w') as f:
+        json.dump(_convert_numpy_types(cm_data), f, indent=2)
+    
+    logger.info(f"Saved confusion matrix data to {csv_path} and {json_path}")
+
+def compute_all_metrics(y_true: Sequence[Union[int, float]], 
+                        y_pred: Sequence[Union[int, float]],
+                        y_score: Optional[Sequence[Union[int, float]]] = None,
+                        model_name: str = "unknown",
+                        dataset_name: str = "unknown",
+                        threshold: float = 0.5) -> EvaluationMetrics:
+    """
+    Compute all evaluation metrics and return as EvaluationMetrics object.
+    
+    Args:
+        y_true: Ground truth labels
+        y_pred: Predicted labels (thresholded)
+        y_score: Prediction scores (optional, for AUC computation)
+        model_name: Name of the model being evaluated
+        dataset_name: Name of the dataset used
+        threshold: Threshold used for binary classification
+    
+    Returns:
+        EvaluationMetrics object with all computed metrics
     """
     # Convert to numpy arrays
-    y_true = np.asarray(y_true)
-    y_pred = np.asarray(y_pred)
-
-    # Validate inputs
-    if len(y_true) != len(y_pred):
-        raise ValueError(
-            f"Input arrays must have same length: "
-            f"y_true={len(y_true)}, y_pred={len(y_pred)}"
-        )
-
-    # Validate binary labels
-    unique_true = np.unique(y_true)
-    unique_pred = np.unique(y_pred)
-
-    if not set(unique_true).issubset({0, 1}):
-        raise ValueError(
-            f"y_true must contain only 0 and 1, got: {unique_true}"
-        )
-    if not set(unique_pred).issubset({0, 1}):
-        raise ValueError(
-            f"y_pred must contain only 0 and 1, got: {unique_pred}"
-        )
-
-    # Compute confusion matrix using sklearn
-    cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
-
-    if normalize:
-        cm = cm.astype('float') / cm.sum(axis=1, keepdims=True)
-        cm = np.nan_to_num(cm, nan=0.0)
-
-    return cm
-
-
-def extract_confusion_matrix_values(
-    confusion_matrix: np.ndarray
-) -> Tuple[int, int, int, int]:
-    """
-    Extract TP, TN, FP, FN from confusion matrix.
-
-    Args:
-        confusion_matrix: 2x2 confusion matrix [[TN, FP], [FN, TP]]
-
-    Returns:
-        Tuple of (true_negatives, false_positives, false_negatives, true_positives)
-    """
-    if confusion_matrix.shape != (2, 2):
-        raise ValueError(
-            f"Confusion matrix must be 2x2, got shape: {confusion_matrix.shape}"
-        )
-
-    tn = int(confusion_matrix[0, 0])
-    fp = int(confusion_matrix[0, 1])
-    fn = int(confusion_matrix[1, 0])
-    tp = int(confusion_matrix[1, 1])
-
-    return tn, fp, fn, tp
-
-
-def save_confusion_matrix_plot(
-    confusion_matrix: np.ndarray,
-    output_path: Union[str, Path],
-    title: str = "Confusion Matrix",
-    normalize: bool = False,
-    cmap: str = "Blues",
-    figsize: Tuple[int, int] = (8, 6),
-    annot: bool = True,
-    fmt: str = ".2f" if normalize else "d"
-) -> Path:
-    """
-    Save confusion matrix visualization as PNG file.
-
-    Creates a heatmap visualization of the confusion matrix using seaborn.
-
-    Args:
-        confusion_matrix: 2x2 confusion matrix
-        output_path: Path to save the PNG file
-        title: Plot title
-        normalize: If True, show normalized values (proportions)
-        cmap: Matplotlib colormap name
-        figsize: Figure size (width, height) in inches
-        annot: If True, annotate cells with values
-        fmt: Format string for annotations
-
-    Returns:
-        Path to saved file
-
-    Raises:
-        ValueError: If confusion matrix is not 2x2
-        IOError: If file cannot be saved
-    """
-    # Validate input
-    if confusion_matrix.shape != (2, 2):
-        raise ValueError(
-            f"Confusion matrix must be 2x2, got shape: {confusion_matrix.shape}"
-        )
-
-    # Ensure output path is Path object
-    output_path = Path(output_path)
-
-    # Create parent directories if needed
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Prepare labels
-    labels = [['TN', 'FP'], ['FN', 'TP']]
-
-    # Create figure
-    plt.figure(figsize=figsize)
-
-    # Create heatmap
-    ax = sns.heatmap(
-        confusion_matrix,
-        annot=annot,
-        fmt=fmt,
-        cmap=cmap,
-        cbar=True,
-        xticklabels=['Normal', 'Anomaly'],
-        yticklabels=['Normal', 'Anomaly'],
-        linewidths=0.5
-    )
-
-    # Set title and labels
-    plt.title(title, fontsize=14, fontweight='bold')
-    plt.xlabel('Predicted Label', fontsize=12)
-    plt.ylabel('True Label', fontsize=12)
-
-    # Rotate x-axis labels for better readability
-    plt.xticks(rotation=45, ha='right')
-    plt.yticks(rotation=0)
-
-    # Adjust layout
-    plt.tight_layout()
-
-    # Save figure
-    try:
-        plt.savefig(
-            output_path,
-            dpi=150,
-            bbox_inches='tight',
-            facecolor='white',
-            edgecolor='none'
-        )
-        plt.close()
-        logger.info(f"Confusion matrix plot saved to: {output_path}")
-        return output_path
-    except Exception as e:
-        plt.close()
-        logger.error(f"Failed to save confusion matrix plot: {e}")
-        raise IOError(f"Could not save confusion matrix plot: {e}")
-
-
-def compute_all_metrics(
-    y_true: Union[np.ndarray, List[int]],
-    y_pred: Union[np.ndarray, List[int]],
-    y_scores: Optional[Union[np.ndarray, List[float]]] = None
-) -> EvaluationMetrics:
-    """
-    Compute all evaluation metrics from true and predicted labels.
-
-    This is the main entry point for model evaluation, computing:
-    - Confusion matrix (TN, FP, FN, TP)
-    - Precision, Recall, F1-score
-    - AUC (if scores provided)
-    - Accuracy
-
-    Args:
-        y_true: Ground truth binary labels (0=normal, 1=anomaly)
-        y_pred: Predicted binary labels (0=normal, 1=anomaly)
-        y_scores: Optional anomaly scores for AUC computation
-
-    Returns:
-        EvaluationMetrics object containing all computed metrics
-    """
-    # Convert inputs
-    y_true = np.asarray(y_true)
-    y_pred = np.asarray(y_pred)
-
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    
     # Generate confusion matrix
     cm = generate_confusion_matrix(y_true, y_pred)
-    tn, fp, fn, tp = extract_confusion_matrix_values(cm)
-
-    # Compute precision, recall, f1
-    precision = compute_precision(tp, fp)
-    recall = compute_recall(tp, fn)
-    f1 = compute_f1_score(precision, recall)
-
-    # Compute accuracy
-    total = tp + tn + fp + fn
-    accuracy = (tp + tn) / total if total > 0 else 0.0
-
-    # Compute AUC if scores provided
-    auc = 0.0
-    if y_scores is not None:
-        y_scores = np.asarray(y_scores)
-        auc = compute_auc(y_true, y_scores)
-
-    # Create metrics object
-    metrics = EvaluationMetrics(
+    
+    # Compute metrics
+    f1 = compute_f1_score(y_true, y_pred)
+    prec = compute_precision(y_true, y_pred)
+    rec = compute_recall(y_true, y_pred)
+    
+    auc_roc = 0.0
+    auc_pr = 0.0
+    if y_score is not None:
+        y_score = np.array(y_score)
+        auc_roc = compute_auc(y_true, y_score, 'roc')
+        auc_pr = compute_auc(y_true, y_score, 'pr')
+    
+    return EvaluationMetrics(
         f1_score=f1,
-        precision=precision,
-        recall=recall,
-        auc=auc,
-        accuracy=accuracy,
-        confusion_matrix=cm,
-        true_positives=tp,
-        false_positives=fp,
-        true_negatives=tn,
-        false_negatives=fn
+        precision=prec,
+        recall=rec,
+        auc_roc=auc_roc,
+        auc_pr=auc_pr,
+        confusion_matrix=cm['matrix'],
+        true_positives=cm['tp'],
+        false_positives=cm['fp'],
+        true_negatives=cm['tn'],
+        false_negatives=cm['fn'],
+        model_name=model_name,
+        dataset_name=dataset_name,
+        threshold=threshold,
+        support=int(len(y_true))
     )
 
-    logger.info(
-        f"Computed metrics: F1={f1:.4f}, Precision={precision:.4f}, "
-        f"Recall={recall:.4f}, AUC={auc:.4f}"
-    )
+# ============================================================================
+# ROC and PR Curve Functions
+# ============================================================================
 
-    return metrics
-
-
-def generate_confusion_matrix_with_thresholds(
-    y_true: Union[np.ndarray, List[int]],
-    y_scores: Union[np.ndarray, List[float]],
-    thresholds: Optional[List[float]] = None,
-    output_dir: Optional[Union[str, Path]] = None,
-    base_name: str = "confusion_matrix"
-) -> Dict[float, EvaluationMetrics]:
+def compute_roc_curve_points(y_true: Sequence[Union[int, float]], 
+                             y_score: Sequence[Union[int, float]]) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Generate confusion matrices across multiple thresholds.
-
-    Useful for threshold calibration and analysis.
-
+    Compute ROC curve points (FPR, TPR, thresholds).
+    
     Args:
-        y_true: Ground truth binary labels
-        y_scores: Anomaly scores (higher = more anomalous)
-        thresholds: List of thresholds to evaluate (default: 10 evenly spaced)
-        output_dir: Optional directory to save confusion matrix plots
-        base_name: Base name for output files
-
+        y_true: Ground truth labels
+        y_score: Prediction scores
+    
     Returns:
-        Dictionary mapping threshold to EvaluationMetrics
+        Tuple of (FPR array, TPR array, thresholds array)
     """
-    y_true = np.asarray(y_true)
-    y_scores = np.asarray(y_scores)
+    if not HAS_SKLEARN:
+        # Custom implementation
+        y_true = np.array(y_true)
+        y_score = np.array(y_score)
+        
+        thresholds = np.sort(np.unique(y_score))[::-1]
+        fpr_list = []
+        tpr_list = []
+        
+        n_pos = np.sum(y_true == 1)
+        n_neg = np.sum(y_true == 0)
+        
+        for thresh in thresholds:
+            y_pred = (y_score >= thresh).astype(int)
+            tp = np.sum((y_true == 1) & (y_pred == 1))
+            fp = np.sum((y_true == 0) & (y_pred == 1))
+            
+            tpr = tp / n_pos if n_pos > 0 else 0.0
+            fpr = fp / n_neg if n_neg > 0 else 0.0
+            
+            fpr_list.append(fpr)
+            tpr_list.append(tpr)
+        
+        return np.array(fpr_list), np.array(tpr_list), thresholds
+    else:
+        from sklearn.metrics import roc_curve
+        return roc_curve(y_true, y_score)
 
-    # Default thresholds if not provided
-    if thresholds is None:
-        thresholds = np.linspace(
-            np.percentile(y_scores, 10),
-            np.percentile(y_scores, 90),
-            10
-        ).tolist()
+def compute_pr_curve_points(y_true: Sequence[Union[int, float]], 
+                            y_score: Sequence[Union[int, float]]) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Compute Precision-Recall curve points.
+    
+    Args:
+        y_true: Ground truth labels
+        y_score: Prediction scores
+    
+    Returns:
+        Tuple of (precision array, recall array, thresholds array)
+    """
+    if not HAS_SKLEARN:
+        # Custom implementation
+        y_true = np.array(y_true)
+        y_score = np.array(y_score)
+        
+        thresholds = np.sort(np.unique(y_score))[::-1]
+        prec_list = []
+        rec_list = []
+        
+        for thresh in thresholds:
+            y_pred = (y_score >= thresh).astype(int)
+            tp = np.sum((y_true == 1) & (y_pred == 1))
+            fp = np.sum((y_true == 0) & (y_pred == 1))
+            fn = np.sum((y_true == 1) & (y_pred == 0))
+            
+            prec = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+            rec = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+            
+            prec_list.append(prec)
+            rec_list.append(rec)
+        
+        return np.array(prec_list), np.array(rec_list), thresholds
+    else:
+        from sklearn.metrics import precision_recall_curve
+        return precision_recall_curve(y_true, y_score)
 
-    results = {}
-
-    for threshold in thresholds:
-        # Apply threshold to get binary predictions
-        y_pred = (y_scores >= threshold).astype(int)
-
-        # Compute metrics
-        metrics = compute_all_metrics(y_true, y_pred)
-
-        # Save confusion matrix plot if output_dir provided
-        if output_dir is not None:
-            output_dir = Path(output_dir)
-            output_dir.mkdir(parents=True, exist_ok=True)
-            plot_path = output_dir / f"{base_name}_threshold_{threshold:.3f}.png"
-            try:
-                save_confusion_matrix_plot(
-                    metrics.confusion_matrix,
-                    plot_path,
-                    title=f"Confusion Matrix (Threshold={threshold:.3f})"
-                )
-            except Exception as e:
-                logger.warning(f"Failed to save plot for threshold {threshold}: {e}")
-
-        results[threshold] = metrics
-
-    logger.info(
-        f"Generated confusion matrices for {len(thresholds)} thresholds"
-    )
-
-    return results
-
+# ============================================================================
+# Main Entry Point
+# ============================================================================
 
 def main():
     """
-    Main function for testing confusion matrix functionality.
-
-    Runs self-test with synthetic data to verify all functions work correctly.
+    Test all metric computation functions with synthetic data.
     """
-    print("=" * 60)
-    print("Confusion Matrix Generator - Self Test")
-    print("=" * 60)
-
-    # Create synthetic test data
+    # Generate synthetic test data
     np.random.seed(42)
     n_samples = 1000
-    n_anomalies = 100
-
-    # Generate ground truth (10% anomalies)
+    n_anomalies = 50  # 5% anomaly rate
+    
+    # Create ground truth
     y_true = np.zeros(n_samples, dtype=int)
     anomaly_indices = np.random.choice(n_samples, n_anomalies, replace=False)
     y_true[anomaly_indices] = 1
-
-    # Generate predictions (80% accuracy on anomalies, 95% on normal)
+    
+    # Create predictions with some noise
     y_pred = y_true.copy()
-    # Miss some anomalies (false negatives)
-    fn_count = int(n_anomalies * 0.2)
-    fn_indices = np.random.choice(anomaly_indices, fn_count, replace=False)
-    y_pred[fn_indices] = 0
-    # Add some false positives
-    normal_indices = np.setdiff1d(np.arange(n_samples), anomaly_indices)
-    fp_count = int(len(normal_indices) * 0.05)
-    fp_indices = np.random.choice(normal_indices, fp_count, replace=False)
-    y_pred[fp_indices] = 1
-
-    # Generate scores (for AUC)
-    y_scores = np.random.random(n_samples)
-    y_scores[anomaly_indices] += np.random.uniform(0.3, 0.5, n_anomalies)
-    y_scores = np.clip(y_scores, 0, 1)
-
-    print(f"\nTest data: {n_samples} samples, {n_anomalies} anomalies")
-
-    # Test confusion matrix generation
-    print("\n1. Testing confusion matrix generation...")
-    cm = generate_confusion_matrix(y_true, y_pred)
-    tn, fp, fn, tp = extract_confusion_matrix_values(cm)
-    print(f"   Confusion Matrix:\n{cm}")
-    print(f"   TN={tn}, FP={fp}, FN={fn}, TP={tp}")
-
-    # Test metrics computation
-    print("\n2. Testing metrics computation...")
-    metrics = compute_all_metrics(y_true, y_pred, y_scores)
-    print(f"   F1-score: {metrics.f1_score:.4f}")
-    print(f"   Precision: {metrics.precision:.4f}")
-    print(f"   Recall: {metrics.recall:.4f}")
-    print(f"   AUC: {metrics.auc:.4f}")
-    print(f"   Accuracy: {metrics.accuracy:.4f}")
-
-    # Test plot saving
-    print("\n3. Testing plot saving...")
-    output_path = Path("data/evaluation/confusion_matrix_test.png")
-    try:
-        saved_path = save_confusion_matrix_plot(
-            cm,
-            output_path,
-            title="Test Confusion Matrix"
-        )
-        print(f"   Saved to: {saved_path}")
-    except Exception as e:
-        print(f"   Plot save skipped (no matplotlib): {e}")
-
-    # Test multi-threshold analysis
-    print("\n4. Testing multi-threshold analysis...")
-    threshold_results = generate_confusion_matrix_with_thresholds(
-        y_true, y_scores,
-        thresholds=[0.3, 0.5, 0.7],
-        output_dir="data/evaluation/threshold_analysis"
+    # Add some false positives and false negatives
+    flip_indices = np.random.choice(n_samples, 20, replace=False)
+    y_pred[flip_indices] = 1 - y_pred[flip_indices]
+    
+    # Create scores
+    y_score = np.random.random(n_samples)
+    # Boost scores for actual anomalies
+    y_score[anomaly_indices] += 0.3
+    y_score = np.clip(y_score, 0, 1)
+    
+    # Compute all metrics
+    metrics = compute_all_metrics(
+        y_true=y_true,
+        y_pred=y_pred,
+        y_score=y_score,
+        model_name="DPGMM",
+        dataset_name="synthetic_test"
     )
-    for threshold, m in threshold_results.items():
-        print(f"   Threshold {threshold:.2f}: F1={m.f1_score:.4f}, "
-              f"Precision={m.precision:.4f}, Recall={m.recall:.4f}")
-
-    print("\n" + "=" * 60)
-    print("Self Test Complete")
+    
+    # Print results
     print("=" * 60)
-
-    return metrics
-
+    print("Evaluation Metrics Test")
+    print("=" * 60)
+    print(f"Model: {metrics.model_name}")
+    print(f"Dataset: {metrics.dataset_name}")
+    print(f"Samples: {metrics.support}")
+    print(f"F1-Score: {metrics.f1_score:.4f}")
+    print(f"Precision: {metrics.precision:.4f}")
+    print(f"Recall: {metrics.recall:.4f}")
+    print(f"ROC-AUC: {metrics.auc_roc:.4f}")
+    print(f"PR-AUC: {metrics.auc_pr:.4f}")
+    print(f"Confusion Matrix:")
+    print(f"  TN={metrics.true_negatives}, FP={metrics.false_positives}")
+    print(f"  FN={metrics.false_negatives}, TP={metrics.true_positives}")
+    print("=" * 60)
+    
+    # Generate and save confusion matrix
+    cm_data = generate_confusion_matrix(y_true, y_pred)
+    print(f"\nConfusion Matrix Data: {cm_data}")
+    
+    # Save outputs
+    output_dir = Path("data/processed/results")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Save metrics JSON
+    metrics.save_json(output_dir / "test_metrics.json")
+    
+    # Save confusion matrix data
+    save_confusion_matrix_data(cm_data, output_dir / "confusion_matrix")
+    
+    # Save confusion matrix plot
+    save_confusion_matrix_plot(cm_data, output_dir / "confusion_matrix.png")
+    
+    print(f"\nSaved outputs to {output_dir}")
 
 if __name__ == "__main__":
     main()

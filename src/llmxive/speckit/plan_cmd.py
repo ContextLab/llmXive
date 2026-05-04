@@ -51,6 +51,12 @@ class PlannerAgent(SlashCommandAgent):
         candidates = sorted(ctx.project_dir.glob("specs/*/"))
         if not candidates:
             raise FileNotFoundError(f"no specs/ feature directory in {ctx.project_dir}")
+        for c in candidates:
+            if (c / "tasks.md").exists():
+                return c
+        for c in candidates:
+            if (c / "spec.md").exists():
+                return c
         return candidates[0]
 
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1777506544543,
+  "lastScanned": 1777830095127,
   "projectRoot": "/Users/jmanning/llmXive",
   "techStack": {
     "languages": [
@@ -64,7 +64,7 @@
       "path": "agents",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1777506544448,
+      "lastAccessed": 1777830095094,
       "keyFiles": [
         "registry.yaml"
       ]
@@ -73,7 +73,7 @@
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 2,
-      "lastAccessed": 1777506544463,
+      "lastAccessed": 1777830095103,
       "keyFiles": [
         "index.html"
       ]
@@ -82,14 +82,14 @@
       "path": "infra",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1777506544471,
+      "lastAccessed": 1777830095104,
       "keyFiles": []
     },
     "notes": {
       "path": "notes",
       "purpose": null,
-      "fileCount": 10,
-      "lastAccessed": 1777506544473,
+      "fileCount": 11,
+      "lastAccessed": 1777830095104,
       "keyFiles": [
         "CONTEXT_COMPRESSION_REMINDER.md",
         "CRITICAL_FIXES_PLAN_2025-07-09.md",
@@ -102,14 +102,14 @@
       "path": "projects",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1777506544474,
+      "lastAccessed": 1777830095105,
       "keyFiles": []
     },
     "prompts": {
       "path": "prompts",
       "purpose": null,
       "fileCount": 16,
-      "lastAccessed": 1777506544475,
+      "lastAccessed": 1777830095105,
       "keyFiles": [
         "README.md",
         "code_generation.md",
@@ -122,7 +122,7 @@
       "path": "scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 20,
-      "lastAccessed": 1777506544475,
+      "lastAccessed": 1777830095106,
       "keyFiles": [
         "backfill_projects.py",
         "backfill_submitters.py",
@@ -135,21 +135,21 @@
       "path": "specs",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1777506544476,
+      "lastAccessed": 1777830095106,
       "keyFiles": []
     },
     "src": {
       "path": "src",
       "purpose": "Source code",
       "fileCount": 1,
-      "lastAccessed": 1777506544477,
+      "lastAccessed": 1777830095106,
       "keyFiles": []
     },
     "state": {
       "path": "state",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1777506544478,
+      "lastAccessed": 1777830095107,
       "keyFiles": [
         "migration_metrics.yaml"
       ]
@@ -158,7 +158,7 @@
       "path": "system_prompts",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1777506544479,
+      "lastAccessed": 1777830095107,
       "keyFiles": [
         "pipeline_orchestrator.md"
       ]
@@ -167,7 +167,7 @@
       "path": "tests",
       "purpose": "Test files",
       "fileCount": 15,
-      "lastAccessed": 1777506544481,
+      "lastAccessed": 1777830095107,
       "keyFiles": [
         "__init__.py",
         "conftest.py",
@@ -180,7 +180,7 @@
       "path": "web",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1777506544481,
+      "lastAccessed": 1777830095108,
       "keyFiles": [
         "index.html"
       ]
@@ -189,7 +189,7 @@
       "path": "docs/data",
       "purpose": "Data files",
       "fileCount": 1,
-      "lastAccessed": 1777506544482,
+      "lastAccessed": 1777830095110,
       "keyFiles": [
         "projects.json"
       ]
@@ -198,7 +198,7 @@
       "path": "web/data",
       "purpose": "Data files",
       "fileCount": 1,
-      "lastAccessed": 1777506544488,
+      "lastAccessed": 1777830095115,
       "keyFiles": [
         "projects.json"
       ]
@@ -206,195 +206,51 @@
   },
   "hotPaths": [
     {
-      "path": "src/llmxive/speckit/implement_cmd.py",
-      "accessCount": 24,
-      "lastAccessed": 1777582258897,
+      "path": "src/llmxive/backends/dartmouth.py",
+      "accessCount": 3,
+      "lastAccessed": 1777837872734,
+      "type": "file"
+    },
+    {
+      "path": "src/llmxive/speckit/paper_implement_cmd.py",
+      "accessCount": 3,
+      "lastAccessed": 1777841708597,
       "type": "file"
     },
     {
       "path": "src/llmxive/speckit/tasks_cmd.py",
-      "accessCount": 13,
-      "lastAccessed": 1777521909566,
-      "type": "file"
-    },
-    {
-      "path": "agents/prompts/implementer.md",
-      "accessCount": 9,
-      "lastAccessed": 1777580793373,
-      "type": "file"
-    },
-    {
-      "path": "src/llmxive/agents/advancement.py",
-      "accessCount": 8,
-      "lastAccessed": 1777571864814,
-      "type": "file"
-    },
-    {
-      "path": "src/llmxive/backends/dartmouth.py",
-      "accessCount": 8,
-      "lastAccessed": 1777655290218,
+      "accessCount": 3,
+      "lastAccessed": 1777844806747,
       "type": "file"
     },
     {
       "path": "src/llmxive/backends/router.py",
-      "accessCount": 7,
-      "lastAccessed": 1777580735131,
-      "type": "file"
-    },
-    {
-      "path": "agents/tools/lit_search.py",
-      "accessCount": 6,
-      "lastAccessed": 1777510536181,
-      "type": "file"
-    },
-    {
-      "path": "src/llmxive/web_data.py",
-      "accessCount": 5,
-      "lastAccessed": 1777507049595,
-      "type": "file"
-    },
-    {
-      "path": "src/llmxive/speckit/clarify_cmd.py",
-      "accessCount": 4,
-      "lastAccessed": 1777521873355,
-      "type": "file"
-    },
-    {
-      "path": "agents/prompts/tasker.md",
-      "accessCount": 4,
-      "lastAccessed": 1777553767354,
-      "type": "file"
-    },
-    {
-      "path": "src/llmxive/pipeline/graph.py",
-      "accessCount": 4,
-      "lastAccessed": 1777652146434,
-      "type": "file"
-    },
-    {
-      "path": "src/llmxive/sandbox.py",
-      "accessCount": 3,
-      "lastAccessed": 1777558190339,
-      "type": "file"
-    },
-    {
-      "path": "src/llmxive/agents/research_reviewer.py",
-      "accessCount": 3,
-      "lastAccessed": 1777649935501,
-      "type": "file"
-    },
-    {
-      "path": "web/js/app.js",
       "accessCount": 2,
-      "lastAccessed": 1777507087689,
+      "lastAccessed": 1777834802991,
       "type": "file"
     },
     {
-      "path": "web/js/dialog.js",
+      "path": "src/llmxive/speckit/implement_cmd.py",
       "accessCount": 2,
-      "lastAccessed": 1777507111525,
+      "lastAccessed": 1777841074289,
       "type": "file"
     },
     {
-      "path": "src/llmxive/state/project.py",
+      "path": "src/llmxive/speckit/paper_plan_cmd.py",
       "accessCount": 2,
-      "lastAccessed": 1777507147180,
+      "lastAccessed": 1777841683718,
       "type": "file"
     },
     {
-      "path": "src/llmxive/types.py",
+      "path": "src/llmxive/speckit/paper_tasks_cmd.py",
       "accessCount": 2,
-      "lastAccessed": 1777507337881,
+      "lastAccessed": 1777841695899,
       "type": "file"
     },
     {
-      "path": "projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md",
-      "accessCount": 2,
-      "lastAccessed": 1777509378058,
-      "type": "file"
-    },
-    {
-      "path": "state/projects/PROJ-002-evolutionary-pressure-on-alternative-spl.yaml",
-      "accessCount": 2,
-      "lastAccessed": 1777510032866,
-      "type": "file"
-    },
-    {
-      "path": "agents/prompts/clarifier.md",
-      "accessCount": 2,
-      "lastAccessed": 1777519471544,
-      "type": "file"
-    },
-    {
-      "path": "specs/001-agentic-pipeline-refactor/contracts/review-record.schema.yaml",
-      "accessCount": 2,
-      "lastAccessed": 1777527576794,
-      "type": "file"
-    },
-    {
-      "path": "agents/prompts/planner.md",
-      "accessCount": 2,
-      "lastAccessed": 1777553748860,
-      "type": "file"
-    },
-    {
-      "path": "src/llmxive/agents/paper_reviewer.py",
-      "accessCount": 2,
-      "lastAccessed": 1777649955926,
-      "type": "file"
-    },
-    {
-      "path": "src/llmxive/agents/lifecycle.py",
+      "path": "src/llmxive/speckit/plan_cmd.py",
       "accessCount": 1,
-      "lastAccessed": 1777509922299,
-      "type": "file"
-    },
-    {
-      "path": "src/llmxive/credentials.py",
-      "accessCount": 1,
-      "lastAccessed": 1777510134442,
-      "type": "file"
-    },
-    {
-      "path": "src/llmxive/agents/idea_lifecycle.py",
-      "accessCount": 1,
-      "lastAccessed": 1777510377187,
-      "type": "file"
-    },
-    {
-      "path": "src/llmxive/agents/project_initializer.py",
-      "accessCount": 1,
-      "lastAccessed": 1777518593227,
-      "type": "file"
-    },
-    {
-      "path": "projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/plan.md",
-      "accessCount": 1,
-      "lastAccessed": 1777519774430,
-      "type": "file"
-    },
-    {
-      "path": "projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/research.md",
-      "accessCount": 1,
-      "lastAccessed": 1777519778260,
-      "type": "file"
-    },
-    {
-      "path": "projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/data-model.md",
-      "accessCount": 1,
-      "lastAccessed": 1777520750140,
-      "type": "file"
-    },
-    {
-      "path": "src/llmxive/agents/runner.py",
-      "accessCount": 1,
-      "lastAccessed": 1777520831647,
-      "type": "file"
-    },
-    {
-      "path": "src/llmxive/agents/base.py",
-      "accessCount": 1,
-      "lastAccessed": 1777569503797,
+      "lastAccessed": 1777841632664,
       "type": "file"
     }
   ],

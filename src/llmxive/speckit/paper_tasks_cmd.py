@@ -32,6 +32,12 @@ class PaperTaskerAgent(SlashCommandAgent):
         candidates = sorted(self._paper_dir(ctx).glob("specs/*/"))
         if not candidates:
             raise FileNotFoundError(f"no paper specs/ feature dir in {ctx.project_dir}/paper/")
+        for c in candidates:
+            if (c / "tasks.md").exists():
+                return c
+        for c in candidates:
+            if (c / "spec.md").exists():
+                return c
         return candidates[0]
 
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:

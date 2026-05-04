@@ -1,0 +1,20 @@
+Dataset Download Summary - T048 Verification
+============================================================
+
+Date: 2026-05-01T14:24:57.402313
+Total datasets: 3
+Successful downloads: 2
+
+Per-dataset status:
+  - electricity: SUCCESS
+    File: /Users/jmanning/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/raw/electricity.csv
+    Size: 500024 bytes
+    Checksum: f6ab3c9d5303af2d4509ba15d00c93ba3d0f7d26e7aa2d012cd91df881a8acc5
+  - traffic: SUCCESS
+    File: /Users/jmanning/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/raw/traffic.csv
+    Size: 500027 bytes
+    Checksum: 6c98fca153b73dd3be2c0774f79d5e6922e3a6137e3d0f56eb6842de9532fcbb
+  - synthetic_control_chart: FAILED
+    Error: 'DownloadResult' object has no attribute 'file_path'
+
+Overall status: FAIL

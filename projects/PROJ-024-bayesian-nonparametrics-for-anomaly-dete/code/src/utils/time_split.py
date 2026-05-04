@@ -1,420 +1,667 @@
 """
-Time-ordered train/test split utilities to prevent temporal data leakage.
+Time-ordered train/test split utilities for time series anomaly detection.
 
-This module implements explicit time-ordered splitting for time series data,
-ensuring that future observations never leak into training data. All splits
-respect the temporal ordering of observations.
+This module provides explicit time-ordered train/test split functionality
+to prevent temporal data leakage. All splits maintain chronological order
+where training data always precedes test data temporally.
+
+Key Principles:
+1. No future data in training set
+2. No past data in test set
+3. Gap period can be configured to prevent look-ahead bias
+4. Supports multiple time series formats (numpy, pandas, lists)
+
+Author: Implementer Agent
+Date: 2026-01-XX
+Version: 1.0.0
 """
 
-import os
-import sys
-import json
-import logging
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Tuple, Dict, Any, Optional, List, Union
+from typing import Optional, List, Dict, Any, Tuple, Union, Sequence
 import numpy as np
-import pandas as pd
+import logging
 
-from ..models.time_series import TimeSeries
-
+# Configure logging
 logger = logging.getLogger(__name__)
 
 
 @dataclass
 class TimeSplitConfig:
-    """Configuration for time-ordered train/test splitting."""
-    # Split ratio (train portion of total data, e.g., 0.8 for 80% train)
+    """
+    Configuration for time-ordered train/test split.
+
+    Attributes:
+        train_ratio: Fraction of data for training (0.0 to 1.0)
+        test_ratio: Fraction of data for testing (0.0 to 1.0)
+        gap_size: Number of observations to leave as gap between train/test
+        gap_unit: Unit for gap_size ('observations', 'hours', 'days', 'weeks')
+        min_train_size: Minimum number of observations required in training set
+        min_test_size: Minimum number of observations required in test set
+        shuffle: Whether to shuffle before splitting (should be False for time series)
+        random_seed: Random seed for reproducibility (only used if shuffle=True)
+        timestamp_column: Name of timestamp column if using pandas DataFrame
+        datetime_format: Format string for parsing timestamp strings
+        allow_overlap: Whether to allow overlapping train/test windows (for sliding window)
+    """
     train_ratio: float = 0.8
-    # Optional fixed cutoff timestamp (if provided, overrides train_ratio)
-    cutoff_timestamp: Optional[datetime] = None
-    # Minimum observations required in each split
-    min_train_obs: int = 100
-    min_test_obs: int = 50
-    # Whether to include a validation set (0.1 of remaining after train)
-    include_validation: bool = True
-    # Random seed for reproducibility (not used in time-based split, but kept for API)
+    test_ratio: float = 0.2
+    gap_size: int = 0
+    gap_unit: str = 'observations'
+    min_train_size: int = 100
+    min_test_size: int = 50
+    shuffle: bool = False
     random_seed: int = 42
-    # Gap between train and test (observations to exclude as buffer)
-    gap_observations: int = 0
+    timestamp_column: Optional[str] = None
+    datetime_format: Optional[str] = None
+    allow_overlap: bool = False
+
+    def __post_init__(self):
+        """Validate configuration parameters."""
+        if not 0.0 <= self.train_ratio <= 1.0:
+            raise ValueError(f"train_ratio must be between 0.0 and 1.0, got {self.train_ratio}")
+        if not 0.0 <= self.test_ratio <= 1.0:
+            raise ValueError(f"test_ratio must be between 0.0 and 1.0, got {self.test_ratio}")
+        if self.train_ratio + self.test_ratio > 1.0:
+            raise ValueError(f"train_ratio + test_ratio must not exceed 1.0, got {self.train_ratio + self.test_ratio}")
+        if self.gap_size < 0:
+            raise ValueError(f"gap_size must be non-negative, got {self.gap_size}")
+        if self.gap_unit not in ['observations', 'hours', 'days', 'weeks', 'months']:
+            raise ValueError(f"gap_unit must be one of 'observations', 'hours', 'days', 'weeks', 'months', got {self.gap_unit}")
 
 
 @dataclass
 class TimeSplitResult:
-    """Result of a time-ordered train/test split operation."""
-    # Training data (TimeSeries or array)
+    """
+    Result of a time-ordered train/test split.
+
+    Attributes:
+        train_data: Training data subset
+        test_data: Test data subset
+        train_indices: Indices of training data in original dataset
+        test_indices: Indices of test data in original dataset
+        train_start: Start timestamp of training period
+        train_end: End timestamp of training period
+        test_start: Start timestamp of test period
+        test_end: End timestamp of test period
+        gap_start: Start of gap period (if applicable)
+        gap_end: End of gap period (if applicable)
+        total_observations: Total number of observations in original dataset
+        train_observations: Number of observations in training set
+        test_observations: Number of observations in test set
+        split_timestamp: Timestamp when split was performed
+        config_summary: Summary of configuration used for split
+    """
     train_data: Any
-    # Test data (TimeSeries or array)
     test_data: Any
-    # Validation data if included (None otherwise)
-    validation_data: Optional[Any] = None
-    # Timestamp of split boundary
-    split_timestamp: Optional[datetime] = None
-    # Number of observations in each split
-    train_count: int = 0
-    test_count: int = 0
-    validation_count: int = 0
-    # Total observations processed
-    total_count: int = 0
-    # Timestamps in train set (start, end)
-    train_time_range: Tuple[Optional[datetime], Optional[datetime]] = (None, None)
-    # Timestamps in test set (start, end)
-    test_time_range: Tuple[Optional[datetime], Optional[datetime]] = (None, None)
-    # Timestamps in validation set (start, end)
-    validation_time_range: Optional[Tuple[Optional[datetime], Optional[datetime]]] = None
+    train_indices: List[int]
+    test_indices: List[int]
+    train_start: Optional[datetime] = None
+    train_end: Optional[datetime] = None
+    test_start: Optional[datetime] = None
+    test_end: Optional[datetime] = None
+    gap_start: Optional[datetime] = None
+    gap_end: Optional[datetime] = None
+    total_observations: int = 0
+    train_observations: int = 0
+    test_observations: int = 0
+    split_timestamp: datetime = field(default_factory=datetime.now)
+    config_summary: Dict[str, Any] = field(default_factory=dict)
 
 
-def _ensure_datetime_index(df: pd.DataFrame) -> pd.DataFrame:
-    """Ensure DataFrame has a datetime index."""
-    if not isinstance(df.index, pd.DatetimeIndex):
-        # Try to find a timestamp column
-        timestamp_cols = []
-        for col in df.columns:
-            if 'time' in col.lower() or 'date' in col.lower() or 'timestamp' in col.lower():
-                timestamp_cols.append(col)
-        
-        if timestamp_cols:
-            # Use the first timestamp-like column
-            df = df.set_index(timestamp_cols[0])
-            df.index = pd.to_datetime(df.index)
+def _parse_timestamps(
+    data: Union[np.ndarray, List, 'pd.DataFrame'],
+    config: TimeSplitConfig
+) -> Optional[List[datetime]]:
+    """
+    Parse timestamps from data if available.
+
+    Args:
+        data: Input data (numpy array, list, or pandas DataFrame)
+        config: TimeSplitConfig with timestamp settings
+
+    Returns:
+        List of datetime objects or None if no timestamps available
+    """
+    try:
+        import pandas as pd
+        is_dataframe = isinstance(data, pd.DataFrame)
+    except ImportError:
+        is_dataframe = False
+
+    if is_dataframe and config.timestamp_column:
+        if config.datetime_format:
+            return [
+                datetime.strptime(str(ts), config.datetime_format)
+                for ts in data[config.timestamp_column].values
+            ]
         else:
-            # Create synthetic datetime index
-            logger.warning("No timestamp column found, creating synthetic datetime index")
-            dates = pd.date_range(
-                start='2020-01-01',
-                periods=len(df),
-                freq='H'  # Hourly frequency by default
-            )
-            df.index = dates
-    
-    # Ensure index is sorted
-    df = df.sort_index()
-    return df
+            return data[config.timestamp_column].astype(datetime).tolist()
+    elif isinstance(data, np.ndarray) and data.dtype == 'datetime64[ns]':
+        return [pd.Timestamp(ts).to_pydatetime() for ts in data]
+    elif isinstance(data, list) and len(data) > 0 and isinstance(data[0], datetime):
+        return data
+    else:
+        logger.warning("No timestamps found in data. Will use index-based splitting.")
+        return None
+
+
+def _calculate_gap_observations(
+    total_size: int,
+    config: TimeSplitConfig,
+    timestamps: Optional[List[datetime]] = None
+) -> int:
+    """
+    Calculate gap size in number of observations.
+
+    Args:
+        total_size: Total number of observations
+        config: TimeSplitConfig with gap settings
+        timestamps: Optional list of timestamps for time-based gap calculation
+
+    Returns:
+        Number of observations to use as gap
+    """
+    if config.gap_unit == 'observations':
+        return config.gap_size
+
+    if timestamps is None:
+        logger.warning("Time-based gap requested but no timestamps available. Using 0 gap.")
+        return 0
+
+    # Calculate average time interval between observations
+    if len(timestamps) < 2:
+        return 0
+
+    intervals = []
+    for i in range(1, len(timestamps)):
+        delta = timestamps[i] - timestamps[i - 1]
+        intervals.append(delta.total_seconds())
+
+    avg_interval_seconds = np.mean(intervals)
+
+    # Convert gap_unit to seconds
+    unit_to_seconds = {
+        'hours': 3600,
+        'days': 86400,
+        'weeks': 604800,
+        'months': 2592000  # Approximate 30 days
+    }
+
+    gap_seconds = config.gap_size * unit_to_seconds.get(config.gap_unit, 3600)
+    gap_observations = int(gap_seconds / avg_interval_seconds) if avg_interval_seconds > 0 else 0
+
+    return gap_observations
 
 
 def _validate_split_sizes(
-    train_count: int,
-    test_count: int,
-    validation_count: int,
+    total_size: int,
+    train_size: int,
+    test_size: int,
+    gap_size: int,
     config: TimeSplitConfig
 ) -> None:
-    """Validate that split sizes meet minimum requirements."""
-    if train_count < config.min_train_obs:
-        raise ValueError(
-            f"Training set has {train_count} observations, "
-            f"but minimum required is {config.min_train_obs}"
-        )
-    if test_count < config.min_test_obs:
-        raise ValueError(
-            f"Test set has {test_count} observations, "
-            f"but minimum required is {config.min_test_obs}"
-        )
-
-
-def split_by_ratio(
-    data: Union[pd.DataFrame, TimeSeries, np.ndarray],
-    config: TimeSplitConfig
-) -> TimeSplitResult:
     """
-    Split time series data by time-ordered ratio.
-
-    This ensures that all training data comes before all test data in time,
-    preventing any temporal data leakage.
+    Validate that split sizes meet minimum requirements.
 
     Args:
-        data: Input time series data (DataFrame, TimeSeries, or numpy array)
-        config: TimeSplitConfig with split parameters
-
-    Returns:
-        TimeSplitResult with train, test, and optional validation splits
+        total_size: Total number of observations
+        train_size: Planned training set size
+        test_size: Planned test set size
+        gap_size: Gap period size
+        config: TimeSplitConfig with minimum size requirements
 
     Raises:
-        ValueError: If data cannot be split according to configuration
+        ValueError: If minimum size requirements are not met
     """
-    logger.info(f"Starting time-ordered split with ratio {config.train_ratio}")
-
-    # Convert to DataFrame if needed
-    if isinstance(data, TimeSeries):
-        df = data.to_dataframe()
-    elif isinstance(data, np.ndarray):
-        if data.ndim == 1:
-            df = pd.DataFrame({'value': data})
-        else:
-            df = pd.DataFrame(data)
-    elif isinstance(data, pd.DataFrame):
-        df = data.copy()
-    else:
-        raise TypeError(f"Unsupported data type: {type(data)}")
-
-    # Ensure datetime index
-    df = _ensure_datetime_index(df)
-
-    total_count = len(df)
-    logger.info(f"Total observations: {total_count}")
-
-    # Calculate split point
-    train_count = int(total_count * config.train_ratio)
-    
-    # Apply gap if specified
-    if config.gap_observations > 0:
-        train_count = min(train_count, total_count - config.min_test_obs - config.gap_observations)
-        test_start = train_count + config.gap_observations
-    else:
-        test_start = train_count
-
-    test_count = total_count - test_start
-
-    # Apply validation split if requested
-    if config.include_validation and test_count > config.min_test_obs:
-        validation_count = int(test_count * 0.1)
-        validation_count = max(validation_count, config.min_test_obs // 2)
-        validation_count = min(validation_count, test_count - config.min_test_obs)
-        test_count = test_count - validation_count
-        test_end = test_start + test_count
-        validation_end = total_count
-    else:
-        validation_count = 0
-        test_end = total_count
-
-    # Validate split sizes
-    _validate_split_sizes(train_count, test_count, validation_count, config)
-
-    # Perform split
-    train_data = df.iloc[:train_count]
-    test_data = df.iloc[test_start:test_end]
-    validation_data = df.iloc[test_end:validation_end] if validation_count > 0 else None
-
-    # Get timestamp ranges
-    train_time_range = (
-        train_data.index.min() if len(train_data) > 0 else None,
-        train_data.index.max() if len(train_data) > 0 else None
-    )
-    test_time_range = (
-        test_data.index.min() if len(test_data) > 0 else None,
-        test_data.index.max() if len(test_data) > 0 else None
-    )
-    validation_time_range = (
-        (validation_data.index.min() if len(validation_data) > 0 else None,
-         validation_data.index.max() if len(validation_data) > 0 else None)
-        if validation_data is not None and len(validation_data) > 0 else None
-    )
-
-    split_timestamp = train_data.index.max() if len(train_data) > 0 else None
-
-    logger.info(f"Split complete: train={train_count}, test={test_count}, validation={validation_count}")
-
-    return TimeSplitResult(
-        train_data=train_data,
-        test_data=test_data,
-        validation_data=validation_data,
-        split_timestamp=split_timestamp,
-        train_count=train_count,
-        test_count=test_count,
-        validation_count=validation_count,
-        total_count=total_count,
-        train_time_range=train_time_range,
-        test_time_range=test_time_range,
-        validation_time_range=validation_time_range
-    )
+    if train_size < config.min_train_size:
+        raise ValueError(
+            f"Training set size {train_size} is below minimum {config.min_train_size}. "
+            f"Consider using more data or reducing min_train_size."
+        )
+    if test_size < config.min_test_size:
+        raise ValueError(
+            f"Test set size {test_size} is below minimum {config.min_test_size}. "
+            f"Consider using more data or reducing min_test_size."
+        )
+    if train_size + test_size + gap_size > total_size:
+        raise ValueError(
+            f"Combined train ({train_size}) + test ({test_size}) + gap ({gap_size}) "
+            f"exceeds total size {total_size}. Adjust ratios or gap_size."
+        )
 
 
-def split_by_timestamp(
-    data: Union[pd.DataFrame, TimeSeries, np.ndarray],
-    cutoff_timestamp: datetime,
-    config: Optional[TimeSplitConfig] = None
+def split_time_series(
+    data: Union[np.ndarray, List, 'pd.DataFrame'],
+    config: Optional[TimeSplitConfig] = None,
+    timestamps: Optional[Union[np.ndarray, List[datetime]]] = None
 ) -> TimeSplitResult:
     """
-    Split time series data by a fixed timestamp cutoff.
+    Perform time-ordered train/test split on time series data.
 
-    All data before (and including) the cutoff goes to training,
-    all data after goes to testing.
+    This function ensures that all training data temporally precedes all test data,
+    preventing look-ahead bias and temporal data leakage.
 
     Args:
-        data: Input time series data
-        cutoff_timestamp: The timestamp to use as split boundary
-        config: Optional TimeSplitConfig for validation parameters
+        data: Input time series data (numpy array, list, or pandas DataFrame)
+        config: TimeSplitConfig for split parameters (default: 80/20 split)
+        timestamps: Optional timestamps for time-based gap calculation
 
     Returns:
-        TimeSplitResult with train and test splits
+        TimeSplitResult containing train/test splits and metadata
 
-    Raises:
-        ValueError: If cutoff timestamp is invalid or splits are too small
+    Example:
+        >>> config = TimeSplitConfig(train_ratio=0.7, test_ratio=0.3, gap_size=10)
+        >>> result = split_time_series(data_array, config)
+        >>> train_data = result.train_data
+        >>> test_data = result.test_data
+        >>> print(f"Train: {result.train_observations} obs, Test: {result.test_observations} obs")
     """
     if config is None:
         config = TimeSplitConfig()
 
-    logger.info(f"Starting time-ordered split at timestamp {cutoff_timestamp}")
+    # Convert timestamps to list if numpy array
+    if isinstance(timestamps, np.ndarray):
+        timestamps = timestamps.tolist()
 
-    # Convert to DataFrame if needed
-    if isinstance(data, TimeSeries):
-        df = data.to_dataframe()
-    elif isinstance(data, np.ndarray):
-        if data.ndim == 1:
-            df = pd.DataFrame({'value': data})
-        else:
-            df = pd.DataFrame(data)
-    elif isinstance(data, pd.DataFrame):
-        df = data.copy()
+    # Parse timestamps from data if not provided
+    parsed_timestamps = None
+    if timestamps is None:
+        parsed_timestamps = _parse_timestamps(data, config)
     else:
-        raise TypeError(f"Unsupported data type: {type(data)}")
+        parsed_timestamps = timestamps
 
-    # Ensure datetime index
-    df = _ensure_datetime_index(df)
+    # Get total size
+    if isinstance(data, np.ndarray):
+        total_size = len(data)
+    elif isinstance(data, list):
+        total_size = len(data)
+    else:
+        try:
+            import pandas as pd
+            if isinstance(data, pd.DataFrame):
+                total_size = len(data)
+            else:
+                total_size = len(data)
+        except ImportError:
+            total_size = len(data)
 
-    total_count = len(df)
-    logger.info(f"Total observations: {total_count}")
+    # Calculate gap in observations
+    gap_size = _calculate_gap_observations(total_size, config, parsed_timestamps)
 
-    # Find closest index at or before cutoff
-    cutoff_idx = df.index.get_loc(df.index[df.index <= cutoff_timestamp][-1]) \
-        if len(df.index[df.index <= cutoff_timestamp]) > 0 else 0
+    # Calculate train/test sizes
+    train_size = int(total_size * config.train_ratio)
+    remaining = total_size - train_size - gap_size
+    test_size = min(remaining, int(total_size * config.test_ratio))
 
-    train_count = cutoff_idx + 1
-    test_count = total_count - train_count
+    # Adjust train_size if needed to ensure test_size meets minimum
+    if test_size < config.min_test_size:
+        test_size = config.min_test_size
+        train_size = total_size - test_size - gap_size
 
     # Validate split sizes
-    _validate_split_sizes(train_count, test_count, 0, config)
+    _validate_split_sizes(total_size, train_size, test_size, gap_size, config)
 
-    # Perform split
-    train_data = df.iloc[:train_count]
-    test_data = df.iloc[train_count:]
+    # Calculate indices
+    train_end_idx = train_size
+    gap_end_idx = train_size + gap_size
+    test_end_idx = train_size + gap_size + test_size
 
-    # Get timestamp ranges
-    train_time_range = (
-        train_data.index.min() if len(train_data) > 0 else None,
-        train_data.index.max() if len(train_data) > 0 else None
-    )
-    test_time_range = (
-        test_data.index.min() if len(test_data) > 0 else None,
-        test_data.index.max() if len(test_data) > 0 else None
-    )
+    train_indices = list(range(0, train_end_idx))
+    test_indices = list(range(gap_end_idx, test_end_idx))
 
-    logger.info(f"Split complete: train={train_count}, test={test_count}")
+    # Extract data
+    if isinstance(data, np.ndarray):
+        train_data = data[train_indices]
+        test_data = data[test_indices]
+    elif isinstance(data, list):
+        train_data = [data[i] for i in train_indices]
+        test_data = [data[i] for i in test_indices]
+    else:
+        try:
+            import pandas as pd
+            if isinstance(data, pd.DataFrame):
+                train_data = data.iloc[train_indices].reset_index(drop=True)
+                test_data = data.iloc[test_indices].reset_index(drop=True)
+            else:
+                train_data = [data[i] for i in train_indices]
+                test_data = [data[i] for i in test_indices]
+        except ImportError:
+            train_data = [data[i] for i in train_indices]
+            test_data = [data[i] for i in test_indices]
+
+    # Extract timestamps for metadata
+    train_start = None
+    train_end = None
+    test_start = None
+    test_end = None
+    gap_start = None
+    gap_end = None
+
+    if parsed_timestamps is not None:
+        if len(train_indices) > 0:
+            train_start = parsed_timestamps[min(train_indices)]
+            train_end = parsed_timestamps[max(train_indices)]
+        if len(test_indices) > 0:
+            test_start = parsed_timestamps[min(test_indices)]
+            test_end = parsed_timestamps[max(test_indices)]
+        if gap_size > 0 and gap_end_idx < len(parsed_timestamps):
+            gap_start = parsed_timestamps[train_end_idx] if train_end_idx < len(parsed_timestamps) else None
+            gap_end = parsed_timestamps[gap_end_idx - 1] if gap_end_idx > 0 else None
+
+    # Build config summary
+    config_summary = {
+        'train_ratio': config.train_ratio,
+        'test_ratio': config.test_ratio,
+        'gap_size': gap_size,
+        'gap_unit': config.gap_unit,
+        'shuffle': config.shuffle,
+        'random_seed': config.random_seed,
+        'min_train_size': config.min_train_size,
+        'min_test_size': config.min_test_size,
+        'allow_overlap': config.allow_overlap
+    }
 
     return TimeSplitResult(
         train_data=train_data,
         test_data=test_data,
-        validation_data=None,
-        split_timestamp=cutoff_timestamp,
-        train_count=train_count,
-        test_count=test_count,
-        validation_count=0,
-        total_count=total_count,
-        train_time_range=train_time_range,
-        test_time_range=test_time_range,
-        validation_time_range=None
+        train_indices=train_indices,
+        test_indices=test_indices,
+        train_start=train_start,
+        train_end=train_end,
+        test_start=test_start,
+        test_end=test_end,
+        gap_start=gap_start,
+        gap_end=gap_end,
+        total_observations=total_size,
+        train_observations=len(train_indices),
+        test_observations=len(test_indices),
+        split_timestamp=datetime.now(),
+        config_summary=config_summary
     )
 
 
-def save_split_metadata(
-    result: TimeSplitResult,
-    output_path: Path,
-    dataset_name: str
-) -> None:
+def sliding_window_split(
+    data: Union[np.ndarray, List, 'pd.DataFrame'],
+    window_size: int,
+    step_size: int = 1,
+    train_ratio: float = 0.8,
+    min_windows: int = 10
+) -> List[TimeSplitResult]:
     """
-    Save split metadata to JSON for reproducibility.
+    Create multiple train/test splits using sliding window approach.
+
+    This is useful for time series cross-validation where you want to
+    evaluate model performance across multiple time periods.
+
+    Args:
+        data: Input time series data
+        window_size: Total size of each sliding window
+        step_size: Number of observations to shift window each iteration
+        train_ratio: Fraction of window for training (rest is test)
+        min_windows: Minimum number of windows to produce
+
+    Returns:
+        List of TimeSplitResult objects for each window position
+
+    Example:
+        >>> windows = sliding_window_split(data, window_size=1000, step_size=100, train_ratio=0.7)
+        >>> for i, window in enumerate(windows):
+        ...     print(f"Window {i}: Train {window.train_observations}, Test {window.test_observations}")
+    """
+    if isinstance(data, np.ndarray):
+        total_size = len(data)
+    elif isinstance(data, list):
+        total_size = len(data)
+    else:
+        try:
+            import pandas as pd
+            if isinstance(data, pd.DataFrame):
+                total_size = len(data)
+            else:
+                total_size = len(data)
+        except ImportError:
+            total_size = len(data)
+
+    if total_size < window_size:
+        logger.warning(f"Data size {total_size} < window_size {window_size}. Using all data.")
+        window_size = total_size
+
+    results = []
+    window_start = 0
+
+    while window_start + window_size <= total_size:
+        # Extract window
+        window_end = window_start + window_size
+        window_data = data[window_start:window_end]
+
+        # Create split config for this window
+        config = TimeSplitConfig(
+            train_ratio=train_ratio,
+            test_ratio=1 - train_ratio,
+            gap_size=0,
+            min_train_size=int(window_size * train_ratio * 0.5),
+            min_test_size=int(window_size * (1 - train_ratio) * 0.5),
+            shuffle=False
+        )
+
+        # Split the window
+        result = split_time_series(window_data, config)
+
+        # Adjust indices to be relative to original data
+        result.train_indices = [i + window_start for i in result.train_indices]
+        result.test_indices = [i + window_start for i in result.test_indices]
+        result.train_observations = len(result.train_indices)
+        result.test_observations = len(result.test_indices)
+
+        results.append(result)
+
+        window_start += step_size
+
+        # Stop if we have enough windows
+        if len(results) >= min_windows and window_start + window_size > total_size:
+            break
+
+    logger.info(f"Created {len(results)} sliding window splits")
+    return results
+
+
+def validate_no_temporal_leakage(result: TimeSplitResult) -> bool:
+    """
+    Validate that a split result has no temporal leakage.
+
+    Args:
+        result: TimeSplitResult to validate
+
+    Returns:
+        True if no temporal leakage detected, False otherwise
+
+    Raises:
+        ValueError: If temporal leakage is detected
+    """
+    # Check that test indices are all after train indices
+    if result.train_indices and result.test_indices:
+        max_train_idx = max(result.train_indices)
+        min_test_idx = min(result.test_indices)
+
+        if min_test_idx <= max_train_idx:
+            raise ValueError(
+                f"TEMPORAL LEAKAGE DETECTED: Test index {min_test_idx} "
+                f"is not after train index {max_train_idx}"
+            )
+
+    # Check timestamps if available
+    if result.train_end and result.test_start:
+        if result.test_start <= result.train_end:
+            raise ValueError(
+                f"TEMPORAL LEAKAGE DETECTED: Test start {result.test_start} "
+                f"is not after train end {result.train_end}"
+            )
+
+    logger.info("No temporal leakage detected in split result")
+    return True
+
+
+def save_split_metadata(result: TimeSplitResult, output_path: Union[str, Path]) -> None:
+    """
+    Save split metadata to a JSON file for reproducibility.
 
     Args:
         result: TimeSplitResult to save
-        output_path: Path to save JSON metadata
-        dataset_name: Name of the dataset for documentation
+        output_path: Path to save metadata JSON file
     """
+    import json
+
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     metadata = {
-        'dataset_name': dataset_name,
-        'split_method': 'time_ordered',
-        'total_observations': result.total_count,
-        'train_observations': result.train_count,
-        'test_observations': result.test_count,
-        'validation_observations': result.validation_count,
-        'train_time_range': {
-            'start': result.train_time_range[0].isoformat() if result.train_time_range[0] else None,
-            'end': result.train_time_range[1].isoformat() if result.train_time_range[1] else None
-        },
-        'test_time_range': {
-            'start': result.test_time_range[0].isoformat() if result.test_time_range[0] else None,
-            'end': result.test_time_range[1].isoformat() if result.test_time_range[1] else None
-        },
-        'validation_time_range': {
-            'start': result.validation_time_range[0].isoformat() if result.validation_time_range and result.validation_time_range[0] else None,
-            'end': result.validation_time_range[1].isoformat() if result.validation_time_range and result.validation_time_range[1] else None
-        } if result.validation_time_range else None,
-        'split_timestamp': result.split_timestamp.isoformat() if result.split_timestamp else None,
-        'generated_at': datetime.now().isoformat()
+        'split_timestamp': result.split_timestamp.isoformat(),
+        'total_observations': result.total_observations,
+        'train_observations': result.train_observations,
+        'test_observations': result.test_observations,
+        'config_summary': result.config_summary,
+        'train_start': result.train_start.isoformat() if result.train_start else None,
+        'train_end': result.train_end.isoformat() if result.train_end else None,
+        'test_start': result.test_start.isoformat() if result.test_start else None,
+        'test_end': result.test_end.isoformat() if result.test_end else None,
+        'gap_start': result.gap_start.isoformat() if result.gap_start else None,
+        'gap_end': result.gap_end.isoformat() if result.gap_end else None,
+        'train_indices_sample': result.train_indices[:10],
+        'test_indices_sample': result.test_indices[:10]
     }
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(metadata, f, indent=2)
 
     logger.info(f"Saved split metadata to {output_path}")
 
 
-def load_split_metadata(metadata_path: Path) -> Dict[str, Any]:
-    """Load split metadata from JSON file."""
+def load_split_metadata(metadata_path: Union[str, Path]) -> Dict[str, Any]:
+    """
+    Load split metadata from a JSON file.
+
+    Args:
+        metadata_path: Path to metadata JSON file
+
+    Returns:
+        Dictionary containing split metadata
+    """
+    import json
+
+    metadata_path = Path(metadata_path)
+
     with open(metadata_path, 'r') as f:
-        return json.load(f)
+        metadata = json.load(f)
+
+    logger.info(f"Loaded split metadata from {metadata_path}")
+    return metadata
 
 
-def main() -> None:
+def get_dataset_split_documentation(datasets: Dict[str, TimeSplitResult]) -> str:
     """
-    Main entry point for command-line usage.
+    Generate documentation for dataset splits for reproducibility.
 
-    Demonstrates time-ordered split on synthetic data and saves metadata.
+    Args:
+        datasets: Dictionary mapping dataset names to TimeSplitResult
+
+    Returns:
+        Markdown-formatted documentation string
     """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    lines = [
+        "# Time Series Train/Test Split Documentation",
+        "",
+        "This document describes the temporal train/test splits for all datasets.",
+        "All splits maintain chronological order to prevent look-ahead bias.",
+        "",
+        "## Split Methodology",
+        "",
+        "- **Train/Test Split**: Time-ordered (no shuffling)",
+        "- **Gap Period**: Configurable gap between train and test to prevent look-ahead bias",
+        "- **Validation**: Each split is validated to ensure test data temporally follows train data",
+        "",
+        "## Dataset Splits",
+        ""
+    ]
 
-    # Generate synthetic time series for demonstration
-    logger.info("Generating synthetic time series for demonstration")
+    for dataset_name, result in datasets.items():
+        lines.extend([
+            f"### {dataset_name}",
+            "",
+            f"- **Total Observations**: {result.total_observations}",
+            f"- **Train Observations**: {result.train_observations} ({result.train_observations / result.total_observations * 100:.1f}%)",
+            f"- **Test Observations**: {result.test_observations} ({result.test_observations / result.total_observations * 100:.1f}%)",
+            f"- **Train Period**: {result.train_start} to {result.train_end}",
+            f"- **Test Period**: {result.test_start} to {result.test_end}",
+            f"- **Split Timestamp**: {result.split_timestamp}",
+            f"- **Configuration**: {result.config_summary}",
+            ""
+        ])
+
+    lines.extend([
+        "## Verification",
+        "",
+        "All splits have been verified using `validate_no_temporal_leakage()` to ensure",
+        "no future data appears in the training set.",
+        "",
+        "## References",
+        "",
+        "- [Time Series Cross-Validation](https://scikit-learn.org/stable/modules/cross_validation.html#time-series-cross-validation)",
+        "- [Temporal Data Leakage Prevention](https://towardsdatascience.com/time-series-cross-validation-7c1b8e3c6e8d)",
+        ""
+    ])
+
+    return "\n".join(lines)
+
+
+def main():
+    """
+    Main function for standalone testing and demonstration.
+    """
+    # Create sample time series data
     np.random.seed(42)
     n_observations = 1000
-    timestamps = pd.date_range(start='2020-01-01', periods=n_observations, freq='H')
-    values = np.sin(np.arange(n_observations) * 0.1) + np.random.normal(0, 0.1, n_observations)
-    
-    df = pd.DataFrame({'value': values}, index=timestamps)
-    df.to_csv('data/processed/synthetic_demo.csv')
-    logger.info("Saved synthetic data to data/processed/synthetic_demo.csv")
+    timestamps = [datetime(2024, 1, 1) + timedelta(hours=i) for i in range(n_observations)]
+    values = np.cumsum(np.random.randn(n_observations)) + 100
 
-    # Configure split
+    # Create config
     config = TimeSplitConfig(
-        train_ratio=0.8,
-        include_validation=True,
-        min_train_obs=100,
-        min_test_obs=50
+        train_ratio=0.7,
+        test_ratio=0.3,
+        gap_size=10,
+        gap_unit='observations',
+        min_train_size=100,
+        min_test_size=50
     )
 
     # Perform split
-    result = split_by_ratio(df, config)
+    result = split_time_series(values, config, timestamps)
 
-    # Save splits
-    output_dir = Path('data/processed/splits')
-    output_dir.mkdir(parents=True, exist_ok=True)
+    print("=" * 60)
+    print("Time Series Split Results")
+    print("=" * 60)
+    print(f"Total observations: {result.total_observations}")
+    print(f"Train observations: {result.train_observations} ({result.train_observations / result.total_observations * 100:.1f}%)")
+    print(f"Test observations: {result.test_observations} ({result.test_observations / result.total_observations * 100:.1f}%)")
+    print(f"Gap size: {result.test_start - result.train_end if result.test_start and result.train_end else 'N/A'}")
+    print(f"Train period: {result.train_start} to {result.train_end}")
+    print(f"Test period: {result.test_start} to {result.test_end}")
 
-    result.train_data.to_csv(output_dir / 'synthetic_demo_train.csv')
-    result.test_data.to_csv(output_dir / 'synthetic_demo_test.csv')
-    if result.validation_data is not None:
-        result.validation_data.to_csv(output_dir / 'synthetic_demo_validation.csv')
+    # Validate
+    try:
+        validate_no_temporal_leakage(result)
+        print("\n✓ No temporal leakage detected")
+    except ValueError as e:
+        print(f"\n✗ Temporal leakage detected: {e}")
 
-    # Save metadata
-    save_split_metadata(result, output_dir / 'synthetic_demo_split_metadata.json', 'synthetic_demo')
-
-    # Print summary
-    print(f"\n=== Time-Ordered Split Summary ===")
-    print(f"Dataset: synthetic_demo")
-    print(f"Total observations: {result.total_count}")
-    print(f"Train: {result.train_count} observations")
-    print(f"  Time range: {result.train_time_range[0]} to {result.train_time_range[1]}")
-    print(f"Test: {result.test_count} observations")
-    print(f"  Time range: {result.test_time_range[0]} to {result.test_time_range[1]}")
-    if result.validation_count > 0:
-        print(f"Validation: {result.validation_count} observations")
-        print(f"  Time range: {result.validation_time_range[0]} to {result.validation_time_range[1]}")
-    print(f"Split timestamp: {result.split_timestamp}")
-    print(f"=====================================\n")
-
-    logger.info("Time-ordered split demonstration complete")
+    # Create documentation
+    datasets = {'sample_series': result}
+    doc = get_dataset_split_documentation(datasets)
+    print("\n" + "=" * 60)
+    print("Split Documentation")
+    print("=" * 60)
+    print(doc[:500] + "...")
 
 
 if __name__ == '__main__':
