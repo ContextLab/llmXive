@@ -5,7 +5,7 @@
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1143,
+    "total_contributions": 1591,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 971,
+      "contribution_count": 1418,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -50,6 +50,7 @@
       "areas": [
         "biology",
         "chemistry",
+        "computational statistics",
         "computer science",
         "materials science",
         "neuroscience",
@@ -57,7 +58,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 163,
+      "contribution_count": 164,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -81,7 +82,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 4,
+      "contribution_count": 7,
       "kind": "llm",
       "name": "research_reviewer_idea_quality"
     },
@@ -92,7 +93,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 4,
+      "contribution_count": 7,
       "kind": "llm",
       "name": "research_reviewer_implementation_correctness"
     },
@@ -103,7 +104,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 4,
+      "contribution_count": 7,
       "kind": "llm",
       "name": "research_reviewer_implementation_completeness"
     },
@@ -114,7 +115,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 4,
+      "contribution_count": 7,
       "kind": "llm",
       "name": "research_reviewer_filesystem_hygiene"
     },
@@ -125,7 +126,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 4,
+      "contribution_count": 7,
       "kind": "llm",
       "name": "research_reviewer_creativity"
     },
@@ -136,7 +137,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 4,
+      "contribution_count": 7,
       "kind": "llm",
       "name": "research_reviewer_code_quality_research"
     },
@@ -147,9 +148,20 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 4,
+      "contribution_count": 7,
       "kind": "llm",
       "name": "research_reviewer_data_quality_research"
+    },
+    {
+      "areas": [
+        "agriculture",
+        "computational statistics",
+        "psychology",
+        "statistics"
+      ],
+      "contribution_count": 6,
+      "kind": "llm",
+      "name": "research_reviewer"
     },
     {
       "areas": [
@@ -161,16 +173,6 @@
       "contribution_count": 4,
       "kind": "llm",
       "name": "Claude 3 Sonnet"
-    },
-    {
-      "areas": [
-        "agriculture",
-        "psychology",
-        "statistics"
-      ],
-      "contribution_count": 3,
-      "kind": "llm",
-      "name": "research_reviewer"
     },
     {
       "areas": [
@@ -198,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-04T11:44:38.493066+00:00",
+  "generated_at": "2026-05-04T12:52:35.332335+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -2410,7 +2412,7 @@
       },
       "authors": [
         {
-          "contributions": 386,
+          "contributions": 857,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -2438,100 +2440,108 @@
           "roles": [
             "brainstorm_submitter"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "tasker"
+          ]
         }
       ],
       "citation_summary": {
-        "mismatch": 12,
+        "mismatch": 22,
         "pending": 0,
         "unreachable": 6,
-        "verified": 15
+        "verified": 25
       },
       "created_at": "2026-04-30T03:08:53.368052+00:00",
-      "current_stage": "in_progress",
+      "current_stage": "clarified",
       "description": "Field: computational statistics Can a Dirichlet process Gaussian mixture model (DPGMM), updated incrementally with each new observation, effectively detect anomalies in univariate time series without assuming a fixed number of latent states? Existing anomaly detection methods often require pre-specifying the number of\u2026",
       "field": "computational statistics",
       "id": "PROJ-024-bayesian-nonparametrics-for-anomaly-dete",
       "keywords": [],
       "last_run_log": [
         {
-          "agent": "implementer",
-          "duration_s": 99.438451,
-          "ended_at": "2026-04-30T20:54:52.261209Z",
+          "agent": "research_reviewer_filesystem_hygiene",
+          "duration_s": 57.407937,
+          "ended_at": "2026-05-04T04:36:46.508587Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-04-30T20:53:12.822758Z"
+          "started_at": "2026-05-04T04:35:49.100650Z"
+        },
+        {
+          "agent": "research_reviewer_data_quality_research",
+          "duration_s": 23.018325,
+          "ended_at": "2026-05-04T04:35:49.077190Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T04:35:26.058865Z"
+        },
+        {
+          "agent": "research_reviewer_code_quality_research",
+          "duration_s": 21.886286,
+          "ended_at": "2026-05-04T04:35:26.019634Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T04:35:04.133348Z"
+        },
+        {
+          "agent": "research_reviewer_implementation_completeness",
+          "duration_s": 27.785998,
+          "ended_at": "2026-05-04T04:35:04.110229Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T04:34:36.324231Z"
+        },
+        {
+          "agent": "research_reviewer_implementation_correctness",
+          "duration_s": 29.293625,
+          "ended_at": "2026-05-04T04:34:36.301227Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T04:34:07.007602Z"
+        },
+        {
+          "agent": "research_reviewer_creativity",
+          "duration_s": 24.849637,
+          "ended_at": "2026-05-04T04:34:06.967083Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T04:33:42.117446Z"
+        },
+        {
+          "agent": "research_reviewer_idea_quality",
+          "duration_s": 28.540513,
+          "ended_at": "2026-05-04T04:33:42.088533Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T04:33:13.548020Z"
+        },
+        {
+          "agent": "research_reviewer",
+          "duration_s": 30.186986,
+          "ended_at": "2026-05-04T04:33:13.509494Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T04:32:43.322508Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 13.584615,
-          "ended_at": "2026-04-30T20:53:12.793376Z",
+          "duration_s": 11.251996,
+          "ended_at": "2026-05-04T04:32:43.210366Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-04-30T20:52:59.208761Z"
+          "started_at": "2026-05-04T04:32:31.958370Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 29.15805,
-          "ended_at": "2026-04-30T20:52:59.176791Z",
+          "duration_s": 11.056575,
+          "ended_at": "2026-05-04T04:32:31.915099Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-04-30T20:52:30.018741Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 45.492363,
-          "ended_at": "2026-04-30T20:52:29.987823Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-04-30T20:51:44.495460Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 9.792698,
-          "ended_at": "2026-04-30T20:51:44.470616Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-04-30T20:51:34.677918Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 40.723528,
-          "ended_at": "2026-04-30T20:51:18.744050Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-04-30T20:50:38.020522Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 28.784351,
-          "ended_at": "2026-04-30T20:50:37.992650Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-04-30T20:50:09.208299Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 43.80735,
-          "ended_at": "2026-04-30T20:50:09.182247Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-04-30T20:49:25.374897Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 110.240355,
-          "ended_at": "2026-04-30T20:49:25.349271Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-04-30T20:47:35.108916Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 58.37502,
-          "ended_at": "2026-04-30T20:47:35.084502Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-04-30T20:46:36.709482Z"
+          "started_at": "2026-05-04T04:32:20.858524Z"
         }
       ],
       "phase_group": "research_speckit",
@@ -2541,7 +2551,7 @@
       "speckit_research_dir": "projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete",
       "submitter": "google.gemma-3-27b-it",
       "title": "Bayesian Nonparametrics for Anomaly Detection in Time Series",
-      "updated_at": "2026-04-30T18:25:10.857061+00:00"
+      "updated_at": "2026-05-04T04:36:46.604284+00:00"
     },
     {
       "artifact_links": {
