@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 268,
+    "active_projects": 271,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1624,
+    "total_contributions": 1627,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1451,
+      "contribution_count": 1454,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 248,
+      "contribution_count": 251,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-04T18:49:04.812222+00:00",
+  "generated_at": "2026-05-04T19:43:03.374000+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -18992,6 +18992,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Assessing the Impact of Data Augmentation on Statistical Power in Small Samples",
       "updated_at": "2026-05-04T18:45:52.873789+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-270-predicting-insect-pollinator-networks-fr/idea/predicting-insect-pollinator-networks-fr.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T19:39:55.957373+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Can supervised machine learning models accurately predict the existence of pollinator-plant links in bipartite networks using only static floral trait descriptors (e.g., color, morphology, scent profile)? Pollinator decline threatens ecosystem stability, yet interaction data is sparse and costly to\u2026",
+      "field": "biology",
+      "id": "PROJ-270-predicting-insect-pollinator-networks-fr",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 63.189945,
+          "ended_at": "2026-05-04T19:41:13.274266Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T19:40:10.084321Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Insect Pollinator Networks from Floral Trait Data",
+      "updated_at": "2026-05-04T19:41:13.276849+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/idea/evaluating-the-effectiveness-of-llms-for.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T19:39:55.957373+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: Computer Science Can quantized large language models (LLMs) running on CPU-only hardware identify semantic code smells in Python functions with comparable accuracy to rule-based static analysis tools? Static analysis tools (e.g., Pylint) are fast but often miss semantic smells like \"Long Method\" or \"Feature\u2026",
+      "field": "computer science",
+      "id": "PROJ-271-evaluating-the-effectiveness-of-llms-for",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 77.067772,
+          "ended_at": "2026-05-04T19:42:30.787894Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T19:41:13.720122Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Effectiveness of LLMs for Detecting Code Smells",
+      "updated_at": "2026-05-04T19:42:30.790232+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-272-statistical-analysis-of-publicly-availab/idea/statistical-analysis-of-publicly-availab.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T19:39:55.957373+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics Can statistical features extracted from publicly available textual data (lexical diversity, syntactic complexity, semantic coherence) reliably distinguish between individuals with cognitive decline and cognitively normal controls? Early detection of cognitive decline is critical for timely\u2026",
+      "field": "statistics",
+      "id": "PROJ-272-statistical-analysis-of-publicly-availab",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 30.407948,
+          "ended_at": "2026-05-04T19:43:01.592057Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T19:42:31.184109Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Statistical Analysis of Publicly Available Textual Data for Detecting Cognitive Decline",
+      "updated_at": "2026-05-04T19:43:01.594424+00:00"
     }
   ],
   "schema_version": "2.0.0"
