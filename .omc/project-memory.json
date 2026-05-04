@@ -248,6 +248,12 @@
       "type": "file"
     },
     {
+      "path": ".specify/feature.json",
+      "accessCount": 2,
+      "lastAccessed": 1777896418646,
+      "type": "file"
+    },
+    {
       "path": "src/llmxive/speckit/plan_cmd.py",
       "accessCount": 1,
       "lastAccessed": 1777841632664,
@@ -257,6 +263,48 @@
       "path": "projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/reviews/research/research_reviewer_implementation_correctness__2026-05-04__research.md",
       "accessCount": 1,
       "lastAccessed": 1777869408187,
+      "type": "file"
+    },
+    {
+      "path": "src/llmxive/agents/registry.py",
+      "accessCount": 1,
+      "lastAccessed": 1777894931204,
+      "type": "file"
+    },
+    {
+      "path": "agents/registry.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1777894934340,
+      "type": "file"
+    },
+    {
+      "path": "src/llmxive/pipeline/graph.py",
+      "accessCount": 1,
+      "lastAccessed": 1777894934577,
+      "type": "file"
+    },
+    {
+      "path": "notes/2026-05-04-pipeline-status.md",
+      "accessCount": 1,
+      "lastAccessed": 1777895021559,
+      "type": "file"
+    },
+    {
+      "path": ".specify/templates/spec-template.md",
+      "accessCount": 1,
+      "lastAccessed": 1777896282032,
+      "type": "file"
+    },
+    {
+      "path": "specs/003-phase1-idea-lifecycle-testing/spec.md",
+      "accessCount": 1,
+      "lastAccessed": 1777896388365,
+      "type": "file"
+    },
+    {
+      "path": "specs/003-phase1-idea-lifecycle-testing/checklists/requirements.md",
+      "accessCount": 1,
+      "lastAccessed": 1777896410641,
       "type": "file"
     }
   ],
