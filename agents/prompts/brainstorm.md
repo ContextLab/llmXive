@@ -77,3 +77,49 @@ grids, evaluation of published models on public benchmarks.
 **Bad fits** (REJECT): "train GPT from scratch", "scan the human
 genome de novo", "collect a new survey of N=10000", "build a
 particle accelerator", "run molecular dynamics for 1 ms".
+
+## IDEA-TYPE SCOPE (NON-NEGOTIABLE — per spec 003 FR-003a)
+
+In addition to the GHA-runner constraints above, every idea MUST fall
+into one of these THREE in-scope idea types:
+
+1. **Literature review / research-only** — meta-analyses, systematic
+   reviews, taxonomic surveys, conceptual syntheses. Output is text
+   grounded in primary sources; no compute beyond text retrieval.
+2. **Locally simulable in ≤1 hour** — numerical simulations,
+   theoretical models, agent-based models, small-scale benchmarks.
+   The *core simulation must complete inside ≤60 wall-clock minutes*
+   on the GHA runner. (Atomic chunking is a separate concern handled
+   downstream — but if the simulation can't even *start* producing
+   results inside 1h, it's out of scope.)
+3. **Analyzable in ≤1 hour on small-to-medium datasets** — statistical
+   analyses, ML benchmarks, replication studies, model evaluations on
+   public benchmarks. Dataset must fit comfortably in 7 GB RAM; total
+   analysis time must complete in ≤60 wall-clock minutes.
+
+Every idea MUST be **scoped to one core question or one core idea**.
+Multi-thread proposals ("we will study X *and* Y *and* Z, and also
+build a tool for W") are out of scope — pick the single most
+interesting question and propose that.
+
+**Out of scope** (REJECT, in addition to the GHA constraints above):
+
+- **Anything requiring external data collection** — no surveys, no
+  recruiting human subjects, no instrumented experiments, no scraping
+  data that doesn't exist yet, no commissioned datasets.
+- **Anything requiring external experimentation** — no wet-lab, no
+  fieldwork, no hardware deployment, no clinical trials.
+- **Trivial or non-impactful ideas** — ideas whose result, regardless
+  of outcome, no one would meaningfully cite or build on. If you
+  cannot articulate a 1-sentence "why does this matter" tied to either
+  scientific understanding or practical capability, the idea is out of
+  scope. Boring re-confirmations of well-established results, demos
+  of features that are already standard in published tools, and
+  obvious / mechanically-true claims (e.g., "larger models are
+  better at <task>") are explicitly rejected.
+
+The interpretation rule when in doubt: **prefer interesting and
+focused over comprehensive and ambitious**. A single sharp question
+that the pipeline can actually answer inside its budget beats a
+sprawling vision that will time out, hallucinate, or produce a
+trivially-true conclusion.
