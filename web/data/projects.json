@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 256,
+    "active_projects": 259,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1602,
+    "total_contributions": 1603,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1429,
+      "contribution_count": 1430,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 236,
+      "contribution_count": 239,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-04T13:48:40.403946+00:00",
+  "generated_at": "2026-05-04T14:54:29.015396+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -18172,6 +18172,173 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Statistical Properties of Simulated Black Hole Mergers",
       "updated_at": "2026-05-04T13:48:38.483190+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-258-the-effect-of-simulated-social-rejection/idea/the-effect-of-simulated-social-rejection.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T14:53:22.126922+00:00",
+      "current_stage": "brainstormed",
+      "description": "Field: psychology How does prior simulated social rejection (via Cyberball paradigm) modulate neural activation in reward-related brain regions when individuals subsequently receive positive feedback on a cognitive task? Social rejection is a well-documented stressor with lasting psychological consequences, yet the\u2026",
+      "field": "psychology",
+      "id": "PROJ-258-the-effect-of-simulated-social-rejection",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 35.252887,
+          "ended_at": "2026-05-04T14:54:27.431871Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T14:53:52.178984Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Effect of Simulated Social Rejection on Neural Responses to Positive Feedback",
+      "updated_at": "2026-05-04T14:53:22.126922+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-259-predicting-plant-disease-resistance-from/idea/predicting-plant-disease-resistance-from.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T14:53:22.126922+00:00",
+      "current_stage": "brainstormed",
+      "description": "Field: biology Can plant disease resistance be predicted using publicly available genomic and metabolomic data? Specifically, we could explore correlations between single nucleotide polymorphisms (SNPs) identified in genome-wide association studies and the abundance of specific secondary metabolites known to\u2026",
+      "field": "biology",
+      "id": "PROJ-259-predicting-plant-disease-resistance-from",
+      "keywords": [],
+      "last_run_log": [],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Plant Disease Resistance from Publicly Available Genomic and Metabolomic Data",
+      "updated_at": "2026-05-04T14:53:22.126922+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-260-investigating-the-influence-of-network-s/idea/investigating-the-influence-of-network-s.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T14:53:22.126922+00:00",
+      "current_stage": "brainstormed",
+      "description": "Field: physics Amorphous solids, lacking long-range order, present a unique challenge to understanding heat transport. While the conventional picture relies on diffusive phonon propagation, recent theoretical work suggests that localized vibrational modes \u2013 often described as \u201cbottlenecks\u201d \u2013 play a disproportionately\u2026",
+      "field": "physics",
+      "id": "PROJ-260-investigating-the-influence-of-network-s",
+      "keywords": [],
+      "last_run_log": [],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Influence of Network Structure on Heat Conduction in Amorphous Solids",
+      "updated_at": "2026-05-04T14:53:22.126922+00:00"
     }
   ],
   "schema_version": "2.0.0"
