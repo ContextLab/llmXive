@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T17:53:10.682198Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-268-the-impact-of-network-centrality-on-neur
-last_run_id: null
+last_run_id: 4b5bcf1d-c5ea-4029-9d7c-955e04e32a24
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -14,4 +14,4 @@ revision_round: 0
 speckit_paper_dir: null
 speckit_research_dir: null
 title: The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI
-updated_at: '2026-05-04T17:53:10.682198Z'
+updated_at: '2026-05-04T20:25:33.971016Z'
