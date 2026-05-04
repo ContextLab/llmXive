@@ -1,0 +1,98 @@
+[
+  {
+    "citation": {
+      "raw_text": "[Atomistic Line Graph Neural Network for improved materials property predictions (2021)](https://doi.org/10.1038/s41524-021-00650-1)",
+      "kind": "doi",
+      "identifier": "10.1038/s41524-021-00650-1",
+      "line_number": 20
+    },
+    "stage1_status": "resolved",
+    "stage1_evidence": {
+      "url_checked": "https://doi.org/10.1038/s41524-021-00650-1",
+      "http_status": 200,
+      "redirect_chain": [
+        "https://doi.org/10.1038/s41524-021-00650-1",
+        "https://www.nature.com/articles/s41524-021-00650-1",
+        "https://idp.nature.com/authorize?response_type=cookie&client_id=grover&redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41524-021-00650-1",
+        "https://idp.nature.com/transit?redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41524-021-00650-1&code=18d8bfe2-7995-4429-9bab-ce81640cb4b2"
+      ],
+      "api_response_snippet": null
+    },
+    "stage2_status": null,
+    "stage2_evidence": null,
+    "final_verdict": "verified",
+    "timestamp": "2026-05-04T20:26:13Z"
+  },
+  {
+    "citation": {
+      "raw_text": "[E(3)-equivariant graph neural networks for data-efficient and accurate interatomic potentials (2022)](https://doi.org/10.1038/s41467-022-29939-5)",
+      "kind": "doi",
+      "identifier": "10.1038/s41467-022-29939-5",
+      "line_number": 21
+    },
+    "stage1_status": "resolved",
+    "stage1_evidence": {
+      "url_checked": "https://doi.org/10.1038/s41467-022-29939-5",
+      "http_status": 200,
+      "redirect_chain": [
+        "https://doi.org/10.1038/s41467-022-29939-5",
+        "https://www.nature.com/articles/s41467-022-29939-5",
+        "https://idp.nature.com/authorize?response_type=cookie&client_id=grover&redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41467-022-29939-5",
+        "https://idp.nature.com/transit?redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41467-022-29939-5&code=fb29c3f9-06da-4a32-8f54-3ac6d942428a"
+      ],
+      "api_response_snippet": null
+    },
+    "stage2_status": null,
+    "stage2_evidence": null,
+    "final_verdict": "verified",
+    "timestamp": "2026-05-04T20:26:15Z"
+  },
+  {
+    "citation": {
+      "raw_text": "[Graph neural networks for materials science and chemistry (2022)](https://doi.org/10.1038/s43246-022-00315-6)",
+      "kind": "doi",
+      "identifier": "10.1038/s43246-022-00315-6",
+      "line_number": 22
+    },
+    "stage1_status": "resolved",
+    "stage1_evidence": {
+      "url_checked": "https://doi.org/10.1038/s43246-022-00315-6",
+      "http_status": 200,
+      "redirect_chain": [
+        "https://doi.org/10.1038/s43246-022-00315-6",
+        "https://www.nature.com/articles/s43246-022-00315-6",
+        "https://idp.nature.com/authorize?response_type=cookie&client_id=grover&redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs43246-022-00315-6",
+        "https://idp.nature.com/transit?redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs43246-022-00315-6&code=ce13b669-1aad-46ed-9359-a516dcf2ea87"
+      ],
+      "api_response_snippet": null
+    },
+    "stage2_status": null,
+    "stage2_evidence": null,
+    "final_verdict": "verified",
+    "timestamp": "2026-05-04T20:26:16Z"
+  },
+  {
+    "citation": {
+      "raw_text": "[Learning local equivariant representations for large-scale atomistic dynamics (2023)](https://doi.org/10.1038/s41467-023-36329-y)",
+      "kind": "doi",
+      "identifier": "10.1038/s41467-023-36329-y",
+      "line_number": 23
+    },
+    "stage1_status": "resolved",
+    "stage1_evidence": {
+      "url_checked": "https://doi.org/10.1038/s41467-023-36329-y",
+      "http_status": 200,
+      "redirect_chain": [
+        "https://doi.org/10.1038/s41467-023-36329-y",
+        "https://www.nature.com/articles/s41467-023-36329-y",
+        "https://idp.nature.com/authorize?response_type=cookie&client_id=grover&redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41467-023-36329-y",
+        "https://idp.nature.com/transit?redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41467-023-36329-y&code=5f1f2b0b-7f86-4755-ba26-9b66d4353706"
+      ],
+      "api_response_snippet": null
+    },
+    "stage2_status": null,
+    "stage2_evidence": null,
+    "final_verdict": "verified",
+    "timestamp": "2026-05-04T20:26:17Z"
+  }
+]

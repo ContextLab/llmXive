@@ -1,0 +1,107 @@
+[
+  {
+    "citation": {
+      "raw_text": "[Dynamic changes in network synchrony reveal resting-state functional networks (2014)](http://arxiv.org/abs/1412.5931v1)",
+      "kind": "arxiv",
+      "identifier": "1412.5931",
+      "line_number": 20
+    },
+    "stage1_status": "resolved",
+    "stage1_evidence": {
+      "url_checked": "http://export.arxiv.org/api/query?id_list=1412.5931",
+      "http_status": 200,
+      "redirect_chain": [
+        "http://export.arxiv.org/api/query?id_list=1412.5931"
+      ],
+      "api_response_snippet": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/21fdSRIZ/PQcMj+nu6isGRB84mE</id>\n  <title>arXiv Query: search_query=&amp;id_list=1412.5931&amp;start=0&amp;max_results=10</title>\n  <updated>2026-05-04T20:26:20Z</updated>\n  <link href=\"http"
+    },
+    "stage2_status": null,
+    "stage2_evidence": null,
+    "final_verdict": "verified",
+    "timestamp": "2026-05-04T20:26:20Z"
+  },
+  {
+    "citation": {
+      "raw_text": "[Consistency of Regions of Interest as nodes of functional brain networks measured by fMRI (2017)](http://arxiv.org/abs/1704.07635v1)",
+      "kind": "arxiv",
+      "identifier": "1704.07635",
+      "line_number": 21
+    },
+    "stage1_status": "resolved",
+    "stage1_evidence": {
+      "url_checked": "http://export.arxiv.org/api/query?id_list=1704.07635",
+      "http_status": 200,
+      "redirect_chain": [
+        "http://export.arxiv.org/api/query?id_list=1704.07635"
+      ],
+      "api_response_snippet": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/E0lZ7R6aBiHiO7sdFNjdfE8zR6Y</id>\n  <title>arXiv Query: search_query=&amp;id_list=1704.07635&amp;start=0&amp;max_results=10</title>\n  <updated>2026-05-04T20:26:20Z</updated>\n  <link href=\"htt"
+    },
+    "stage2_status": null,
+    "stage2_evidence": null,
+    "final_verdict": "verified",
+    "timestamp": "2026-05-04T20:26:20Z"
+  },
+  {
+    "citation": {
+      "raw_text": "[Fractal-driven distortion of resting state functional networks in fMRI: a simulation study (2012)](http://arxiv.org/abs/1208.0924v1)",
+      "kind": "arxiv",
+      "identifier": "1208.0924",
+      "line_number": 22
+    },
+    "stage1_status": "resolved",
+    "stage1_evidence": {
+      "url_checked": "http://export.arxiv.org/api/query?id_list=1208.0924",
+      "http_status": 200,
+      "redirect_chain": [
+        "http://export.arxiv.org/api/query?id_list=1208.0924"
+      ],
+      "api_response_snippet": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/h9+wqiVHfQFbcRweuGotnxp81Pw</id>\n  <title>arXiv Query: search_query=&amp;id_list=1208.0924&amp;start=0&amp;max_results=10</title>\n  <updated>2026-05-04T20:26:20Z</updated>\n  <link href=\"http"
+    },
+    "stage2_status": null,
+    "stage2_evidence": null,
+    "final_verdict": "verified",
+    "timestamp": "2026-05-04T20:26:20Z"
+  },
+  {
+    "citation": {
+      "raw_text": "[Automatic artifact removal of resting-state fMRI with Deep Neural Networks (2020)](http://arxiv.org/abs/2011.12113v2)",
+      "kind": "arxiv",
+      "identifier": "2011.12113",
+      "line_number": 23
+    },
+    "stage1_status": "resolved",
+    "stage1_evidence": {
+      "url_checked": "http://export.arxiv.org/api/query?id_list=2011.12113",
+      "http_status": 200,
+      "redirect_chain": [
+        "http://export.arxiv.org/api/query?id_list=2011.12113"
+      ],
+      "api_response_snippet": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/PJmAes9HtLSuqGkbfP/2w0nMo4U</id>\n  <title>arXiv Query: search_query=&amp;id_list=2011.12113&amp;start=0&amp;max_results=10</title>\n  <updated>2026-05-04T20:26:21Z</updated>\n  <link href=\"htt"
+    },
+    "stage2_status": null,
+    "stage2_evidence": null,
+    "final_verdict": "verified",
+    "timestamp": "2026-05-04T20:26:21Z"
+  },
+  {
+    "citation": {
+      "raw_text": "[Information thermodynamics: from physics to neuroscience (2024)](http://arxiv.org/abs/2409.17599v1)",
+      "kind": "arxiv",
+      "identifier": "2409.17599",
+      "line_number": 24
+    },
+    "stage1_status": "resolved",
+    "stage1_evidence": {
+      "url_checked": "http://export.arxiv.org/api/query?id_list=2409.17599",
+      "http_status": 200,
+      "redirect_chain": [
+        "http://export.arxiv.org/api/query?id_list=2409.17599"
+      ],
+      "api_response_snippet": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/u/rutGCIq2wjv7hmR88gq01goqA</id>\n  <title>arXiv Query: search_query=&amp;id_list=2409.17599&amp;start=0&amp;max_results=10</title>\n  <updated>2026-05-04T20:26:21Z</updated>\n  <link href=\"htt"
+    },
+    "stage2_status": null,
+    "stage2_evidence": null,
+    "final_verdict": "verified",
+    "timestamp": "2026-05-04T20:26:21Z"
+  }
+]
