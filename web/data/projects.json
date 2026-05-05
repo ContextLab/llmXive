@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 311,
+    "active_projects": 314,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1699,
+    "total_contributions": 1702,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1526,
+      "contribution_count": 1529,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 291,
+      "contribution_count": 294,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-05T12:58:57.810664+00:00",
+  "generated_at": "2026-05-05T13:49:55.755396+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -21873,6 +21873,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Impact of Code Generation on Code Review Turnaround Time",
       "updated_at": "2026-05-05T12:41:16.336530+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-313-predicting-bacterial-antibiotic-resistan/idea/predicting-bacterial-antibiotic-resistan.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-05T13:44:49.200792+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Can machine learning models integrating single nucleotide polymorphisms (SNPs) and mobile genetic element (MGE) context predict phenotypic antibiotic resistance more accurately than gene-presence-only models using public genomic data? Current genomic surveillance relies heavily on the presence of known\u2026",
+      "field": "biology",
+      "id": "PROJ-313-predicting-bacterial-antibiotic-resistan",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 106.274541,
+          "ended_at": "2026-05-05T13:46:56.034564Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T13:45:09.760023Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Bacterial Antibiotic Resistance from Public Genomic Databases",
+      "updated_at": "2026-05-05T13:46:56.037302+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-314-predicting-the-impact-of-composition-on-/idea/predicting-the-impact-of-composition-on-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-05T13:44:49.200792+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science Can machine learning models trained on public datasets predict the Weibull modulus of ceramic materials based solely on elemental composition and processing parameters, and which compositional features most strongly correlate with improved reliability? Ceramic reliability in structural\u2026",
+      "field": "materials science",
+      "id": "PROJ-314-predicting-the-impact-of-composition-on-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 77.716916,
+          "ended_at": "2026-05-05T13:48:14.303071Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T13:46:56.586155Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Impact of Composition on the Weibull Modulus of Ceramics",
+      "updated_at": "2026-05-05T13:48:14.305654+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-315-evaluating-the-impact-of-code-generation/idea/evaluating-the-impact-of-code-generation.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-05T13:44:49.200792+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: computer science Does code generated by Large Language Models (LLMs) receive different code review feedback (in terms of comment depth, critical issue identification, and time to merge) compared to human-written code in open-source repositories? As LLMs become integral to software development, understanding\u2026",
+      "field": "computer science",
+      "id": "PROJ-315-evaluating-the-impact-of-code-generation",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 98.65846,
+          "ended_at": "2026-05-05T13:49:53.473523Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T13:48:14.815063Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Impact of Code Generation on Code Review Quality",
+      "updated_at": "2026-05-05T13:49:53.475958+00:00"
     }
   ],
   "schema_version": "2.0.0"
