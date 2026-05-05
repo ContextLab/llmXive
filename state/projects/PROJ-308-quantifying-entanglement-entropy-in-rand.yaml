@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-05T11:35:06.555288Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: physics
+human_escalation_reason: null
+id: PROJ-308-quantifying-entanglement-entropy-in-rand
+last_run_id: 8cc3fc1b-ef29-4799-887e-ab5203b37229
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Quantifying Entanglement Entropy in Randomly Perturbed Quantum Spin Chains
+updated_at: '2026-05-05T11:36:48.425065Z'

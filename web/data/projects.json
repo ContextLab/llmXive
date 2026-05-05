@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 306,
+    "active_projects": 308,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1686,
+    "total_contributions": 1688,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1513,
+      "contribution_count": 1515,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 286,
+      "contribution_count": 288,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-05T10:51:36.512427+00:00",
+  "generated_at": "2026-05-05T11:38:21.725736+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -21538,6 +21538,140 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Machine Learning Prediction of Crack Propagation Rates in Metals",
       "updated_at": "2026-05-05T10:46:40.203482+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-308-quantifying-entanglement-entropy-in-rand/idea/quantifying-entanglement-entropy-in-rand.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-05T11:35:06.555288+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics Does entanglement entropy in 1D quantum spin chains with random coupling perturbations exhibit universal scaling laws that distinguish between many-body localized and thermal phases? Many-body localization (MBL) challenges the eigenstate thermalization hypothesis, yet identifying robust diagnostics for\u2026",
+      "field": "physics",
+      "id": "PROJ-308-quantifying-entanglement-entropy-in-rand",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 78.673557,
+          "ended_at": "2026-05-05T11:36:48.422325Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T11:35:29.748768Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Quantifying Entanglement Entropy in Randomly Perturbed Quantum Spin Chains",
+      "updated_at": "2026-05-05T11:36:48.425065+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-309-quantifying-the-effects-of-data-noise-on/idea/quantifying-the-effects-of-data-noise-on.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-05T11:35:06.555288+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics How do varying levels and types of measurement noise (e.g., Gaussian, quantization) degrade the accuracy of phase space reconstruction metrics (correlation dimension, Lyapunov exponents) for canonical chaotic systems like the Lorenz attractor? Real-world physical time-series data are inherently noisy,\u2026",
+      "field": "physics",
+      "id": "PROJ-309-quantifying-the-effects-of-data-noise-on",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 90.577011,
+          "ended_at": "2026-05-05T11:38:19.553951Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T11:36:48.976940Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Quantifying the Effects of Data Noise on Dynamical Systems Reconstruction",
+      "updated_at": "2026-05-05T11:38:19.556576+00:00"
     }
   ],
   "schema_version": "2.0.0"

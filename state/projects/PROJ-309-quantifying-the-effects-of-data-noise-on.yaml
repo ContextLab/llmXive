@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-05T11:35:06.555288Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: physics
+human_escalation_reason: null
+id: PROJ-309-quantifying-the-effects-of-data-noise-on
+last_run_id: 8729cf47-9f97-4f68-b771-7d9ae5cc6d1d
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Quantifying the Effects of Data Noise on Dynamical Systems Reconstruction
+updated_at: '2026-05-05T11:38:19.556576Z'
