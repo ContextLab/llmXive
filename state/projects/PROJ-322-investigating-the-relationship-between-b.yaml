@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-05T17:41:00.870691Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: neuroscience
+human_escalation_reason: null
+id: PROJ-322-investigating-the-relationship-between-b
+last_run_id: 88897c91-e736-4cf4-be94-c9cc059ef9c3
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Investigating the Relationship Between Brain Network Reconfiguration and Recovery
+  from Mild Traumatic Brain Injury
+updated_at: '2026-05-05T17:42:34.164451Z'
