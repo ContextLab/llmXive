@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-05T09:46:55.229677Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: statistics
+human_escalation_reason: null
+id: PROJ-304-statistical-analysis-of-publicly-availab
+last_run_id: 3b1ceeb7-4366-4fc6-be51-7b67a8ef4a2b
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Statistical Analysis of Publicly Available Urban Noise Pollution Data
+updated_at: '2026-05-05T09:49:49.631053Z'
