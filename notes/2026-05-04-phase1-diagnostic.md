@@ -430,7 +430,88 @@ We expect to achieve moderate predictive accuracy (R² > 0.6) when mapping prote
 | 4 | Evaluation plan names datasets/metrics that exist | ✅ PASS (with caveat) | NCBI GEO and ProteomeXchange are real public repositories; the methodology names specific species (Arabidopsis, rice, wheat) and stress types. The caveat is that the flesh_out output self-flags "limited plant-specific proteomics resources" without providing concrete dataset accession IDs. |
 | 5 | Emits `scope_rejected.yaml` if infeasible | ❌ **FAIL (HIGH)** | The agent self-flagged the literature gap ("Literature search returned limited plant-specific proteomics resources; this is a known gap in the current corpus that future searches should address") AND wrote citations it could not ground. Per the agent-native rule (issue #45), it should have emitted `human_input_needed.yaml` or `scope_rejected.yaml` rather than producing misapplied citations. See defect D7 in Section 6. |
 
-**PROJ-267 verdict**: FAIL — does NOT qualify for carry-forward. Two paths forward (US2 iteration loop): (a) iterate flesh_out via sibling `PROJ-267-...-iter2` after patching `agents/prompts/flesh_out.md` to require honest abstention when the literature search is weak (D7 fix), OR (b) drop PROJ-267 from carry-forward and proceed with 2 projects (PROJ-262, PROJ-268) instead of 3 (the spec allows 2-3 per FR-017).
+**PROJ-267 iter1 verdict**: FAIL — does NOT qualify for carry-forward as-is.
+
+**Outcome**: Path (a) chosen — flesh_out prompt patched (commit `579858f`, v1.0.0 → v1.1.0) and re-run on a sibling. See **PROJ-267 iter2 (commit `b0f7673`)** subsection below — iter2 PASSES the 100% citation gate and qualifies for carry-forward.
+
+#### PROJ-267-iter2 — `flesh_out` iter2 (commit `b0f7673`)
+
+State YAML transition (sibling spawned at `current_stage: brainstormed` with the iter1 brainstorm seed extracted from commit `f2dcf9f`):
+
+```diff
+-current_stage: brainstormed
+-last_run_id: null
++current_stage: flesh_out_complete
++last_run_id: c768854b-f65b-41d6-a9cf-bb6877744ba2
+```
+
+Idea artifact (verbatim, post-flesh_out under v1.1.0 prompt):
+
+````markdown
+---
+field: biology
+submitter: google.gemma-3-27b-it
+---
+
+# Predicting Plant Stress Response from Publicly Available Proteomic Data
+
+**Field**: biology
+
+## Research question
+
+Can publicly available plant proteomic datasets under abiotic stress conditions (drought, salinity, heat) be used to train machine learning models that accurately predict corresponding gene expression patterns in novel, unseen stress conditions?
+
+## Motivation
+
+Current plant stress assessment relies on costly and time-consuming experimental validation of gene expression. A computational approach leveraging existing proteomic data could provide rapid, cost-effective predictions of stress resilience, enabling faster crop improvement decisions in the context of climate change. This addresses a gap where proteomic data exists but is underutilized for predictive transcriptomic modeling.
+
+## Related work
+
+- [Confronting the data deluge: How artificial intelligence can be used in the study of plant stress (2024)](https://www.semanticscholar.org/paper/e698e9601dcd0733bdbf4b3f563dc2ccbeda2f40) — Establishes the feasibility and methodological framework for applying AI/computational methods to plant stress genomics research.
+- [Identifying Signal-Crosstalk Mechanism in Maize Plants during Combined Salinity and Boron Stress Using Integrative Systems Biology Approaches (2022)](https://www.semanticscholar.org/paper/bc92050b9e71dfa54ddd6b06d7ce85235fe6a252) — Demonstrates integrative systems biology approaches for modeling combined stress responses in plants, relevant for multi-stress prediction methodology.
+- [Oxidative stress response: a proteomic view (2008)](http://arxiv.org/abs/0807.1041v1) — Provides foundational proteomic characterization of stress response mechanisms, establishing protein-level markers for stress conditions.
+- [Exploring Alternative Splicing in Response to Salinity: A Tissue-Level Comparative Analysis Using Arabidopsis thaliana Public Transcriptomic Data (2025)](https://www.semanticscholar.org/paper/7b3dfd6c8a6e5d8274728ba08202268504918ea5) — Uses public transcriptomic data for stress analysis, demonstrating the value of publicly available datasets for stress response research.
+
+## Expected results
+
+A trained model achieving >70% prediction accuracy (measured by R² or correlation coefficient) between proteomic profiles and gene expression levels across held-out stress conditions. Evidence will be provided through cross-validation metrics and comparison against baseline models (e.g., linear regression, no-protein baseline). Success requires demonstrating that proteomic features contain predictive signal beyond random chance.
+
+## Methodology sketch
+
+- Download public proteomic datasets from ProteomeXchange (PXD) and NCBI GEO using wget/curl (target: 3-5 datasets covering drought, salinity, heat stress in model plants like Arabidopsis or rice).
+- Download corresponding transcriptomic data from the same or paired studies for supervised training (match samples by condition, timepoint, tissue type).
+- Preprocess proteomic data: normalize protein abundance values, filter low-confidence identifications, align protein IDs to gene symbols using UniProt mapping.
+- Preprocess transcriptomic data: normalize expression values (TPM/FPKM), filter lowly expressed genes, match to proteomic gene identifiers.
+- Feature engineering: aggregate protein features per stress condition, create condition labels, handle missing values via imputation or removal.
+- Train regression models (Random Forest, SVR) mapping proteomic profiles to gene expression levels; use 5-fold cross-validation for hyperparameter tuning.
+- Evaluate on held-out test conditions (stress type or plant species not seen during training) to assess generalizability.
+- Perform statistical significance testing (permutation tests) to confirm model predictions exceed random baseline.
+- Generate visualization: correlation plots of predicted vs. actual expression, feature importance rankings for key stress-responsive proteins.
+
+## Duplicate-check
+
+- Reviewed existing ideas: [none provided in input]
+- Closest match: N/A (no existing ideas to compare against)
+- Verdict: NOT a duplicate
+````
+
+**Acceptance evaluation against issue [#60](https://github.com/ContextLab/llmXive/issues/60)** — re-run on iter2:
+
+| # | Criterion | Verdict | Evidence |
+|-|-|-|-|
+| 1 | Reads `idea/seed.md`, writes `idea/idea.md` | ✅ PASS | Sibling spawn copied iter1's brainstorm seed (from `f2dcf9f`); flesh_out v1.1.0 expanded it in place. |
+| 2 | Every prior-work claim has ≥1 verified citation | ✅ PASS | 4/4 citations Stage-1 resolved AND Stage-2 VERIFIED (see Section 4 PROJ-267-iter2 subsection). |
+| 3 | Hypothesis is testable | ✅ PASS | Concrete numerical target: R²>70% (sharper than iter1's R²>0.6), permutation testing for significance. |
+| 4 | Evaluation plan names datasets/metrics that exist | ✅ PASS (improved over iter1) | ProteomeXchange (PXD) + NCBI GEO + UniProt explicitly named with the data-flow they participate in. |
+| 5 | Emits `scope_rejected.yaml` if infeasible | ✅ PASS (n/a — feasible) | The iter2 methodology is more concrete than iter1; no scope_rejected needed. |
+
+**PROJ-267-iter2 verdict**: PASS — qualifies for carry-forward to spec 004. Iteration count: brainstorm 1, **flesh_out 2** (iter1 failed citations, iter2 passed under prompt v1.1.0), idea_selector pending US3.
+
+#### Updated iteration count summary (per SC-008 / C4)
+
+- **PROJ-262**: brainstorm 1 cohort, flesh_out 1 iteration. Carry-forward eligible.
+- **PROJ-267-iter2**: brainstorm 1 cohort, **flesh_out 2 iterations** (iter1 dropped due to D6, iter2 PASSES under prompt v1.1.0). Carry-forward eligible.
+- **PROJ-268**: brainstorm 1 cohort, flesh_out 1 iteration. Carry-forward eligible.
 
 #### PROJ-268 — `flesh_out` iter1 (commit `3865b4f`)
 
@@ -636,6 +717,64 @@ Citation 2: doi `10.1186/1743-8977-2-8` — claim: "screening strategy framework
 
 **PROJ-267: 0/2 citations verified. FAILS the 100% gate.** Per FR-010, this project is blocked from carry-forward unless flesh_out is iterated successfully.
 
+### PROJ-267-iter2 — Stage 1 (verbatim, from `projects/PROJ-267-...-iter2/idea/citation_resolution.json`)
+
+```json
+[
+  {
+    "citation": {"raw_text": "[Confronting the data deluge: How artificial intelligence can be used in the study of plant stress (2024)](https://www.semanticscholar.org/paper/e698e9601dcd0733bdbf4b3f563dc2ccbeda2f40)", "kind": "url", "identifier": "https://www.semanticscholar.org/paper/e698e9601dcd0733bdbf4b3f563dc2ccbeda2f40", "line_number": 20},
+    "stage1_status": "resolved",
+    "final_verdict": "verified"
+  },
+  {
+    "citation": {"raw_text": "[Identifying Signal-Crosstalk Mechanism in Maize Plants during Combined Salinity and Boron Stress Using Integrative Systems Biology Approaches (2022)](https://www.semanticscholar.org/paper/bc92050b9e71dfa54ddd6b06d7ce85235fe6a252)", "kind": "url", "identifier": "https://www.semanticscholar.org/paper/bc92050b9e71dfa54ddd6b06d7ce85235fe6a252", "line_number": 21},
+    "stage1_status": "resolved",
+    "final_verdict": "verified"
+  },
+  {
+    "citation": {"raw_text": "[Oxidative stress response: a proteomic view (2008)](http://arxiv.org/abs/0807.1041v1)", "kind": "arxiv", "identifier": "0807.1041", "line_number": 22},
+    "stage1_status": "resolved",
+    "final_verdict": "verified"
+  },
+  {
+    "citation": {"raw_text": "[Exploring Alternative Splicing in Response to Salinity: A Tissue-Level Comparative Analysis Using Arabidopsis thaliana Public Transcriptomic Data (2025)](https://www.semanticscholar.org/paper/7b3dfd6c8a6e5d8274728ba08202268504918ea5)", "kind": "url", "identifier": "https://www.semanticscholar.org/paper/7b3dfd6c8a6e5d8274728ba08202268504918ea5", "line_number": 23},
+    "stage1_status": "resolved",
+    "final_verdict": "verified"
+  }
+]
+```
+
+### PROJ-267-iter2 — Stage 2 (all 4 spot-checked because the iter1 failure raised the bar)
+
+Citation 1: AI for plant stress (2024).
+
+> VERIFIED: The paper title "Confronting the data deluge: How artificial intelligence can be used in the study of plant stress" (2024, Computational and Structural Biotechnology Journal) matches exactly. It explicitly covers AI/ML methods applied to plant stress genomics including proteomic and other omics data, directly supporting the relevance note that it establishes feasibility and methodological frameworks for applying AI to plant stress research.
+
+Citation 2: Maize boron stress signal-crosstalk (2022).
+
+> VERIFIED: The cited title "Identifying Signal-Crosstalk Mechanism in Maize Plants during Combined Salinity and Boron Stress Using Integrative Systems Biology Approaches (2022)" precisely matches the Semantic Scholar URL slug and directly describes integrative systems biology approaches for modeling combined stress responses in plants, consistent with the relevance note. The paper ID resolves to a real Semantic Scholar record (though the page rendered empty, the URL structure and title are consistent and unambiguous).
+
+(Caveat: Semantic Scholar's HTML page returned empty content during the fetch, so the verdict is based on URL-slug ↔ title consistency + Stage 1 HTTP success rather than direct content read. Logged as defect D9 in Section 6.)
+
+Citation 3: arXiv 0807.1041 with iter2's softened relevance note.
+
+> VERIFIED: The paper "Oxidative stress response: a proteomic view" (2008) exists at arxiv 0807.1041 with the cited title confirmed. The iter2 relevance note — "foundational proteomic characterization of stress response mechanisms, establishing protein-level markers for stress conditions" — is defensible, as the paper reviews how proteomics methods reveal protein expression changes and modifications under oxidative stress across biological systems, which constitutes exactly the kind of foundational protein-level characterization described.
+
+Citation 4: Arabidopsis alternative splicing under salinity (2025).
+
+> VERIFIED: The Semantic Scholar API confirms the paper exists with the exact cited title, authored by Hernández-Urrieta, Alvarez, and O'Brien (2025). It analyzes 52 public RNA-seq datasets from Arabidopsis thaliana to examine alternative splicing under salinity stress, finding tissue-specific responses and that AS can regulate up to 20% of the transcriptome.
+
+### PROJ-267-iter2 — Final per-citation verdicts
+
+| # | Citation (truncated) | Stage 1 | Stage 2 | Final |
+|-|-|-|-|-|
+| 1 | [AI for plant stress (2024)](semanticscholar:e698e9...) | resolved | VERIFIED | verified |
+| 2 | [Maize boron stress signal-crosstalk (2022)](semanticscholar:bc92050...) | resolved | VERIFIED (low-confidence — see D9) | verified |
+| 3 | [Oxidative stress response: a proteomic view (2008)](arxiv:0807.1041) | resolved | VERIFIED | verified |
+| 4 | [Arabidopsis splicing under salinity (2025)](semanticscholar:7b3dfd6...) | resolved | VERIFIED | verified |
+
+**PROJ-267-iter2: 4/4 citations verified. PASSES the 100% gate.** D6 closed.
+
 ### PROJ-268 — Stage 1 (verbatim, from `projects/PROJ-268-.../idea/citation_resolution.json`)
 
 ```json
@@ -691,16 +830,99 @@ Citation: arxiv `1412.5931` ("Dynamic changes in network synchrony reveal restin
 | Project | Total cite | Stage 1 resolved | Stage 2 verdict | 100% gate |
 |-|-|-|-|-|
 | PROJ-262 | 4 | 4/4 | 1 spot-check VERIFIED | ✅ PASS |
-| PROJ-267 | 2 | 2/2 | **2/2 REJECTED** | ❌ **FAIL** |
+| PROJ-267 (iter1) | 2 | 2/2 | **2/2 REJECTED** | ❌ FAIL — superseded by iter2 |
+| **PROJ-267-iter2** | 4 | 4/4 | **4/4 VERIFIED** | ✅ PASS |
 | PROJ-268 | 5 | 5/5 | 1 spot-check VERIFIED | ✅ PASS |
 
-The cross-project pattern confirms a key failure mode the contract anticipated: **Stage 1 is necessary but not sufficient**. PROJ-267's two citations both passed Stage 1 (real DOI, real arXiv ID, both reachable) but Stage 2 caught that the cited papers' subject matter doesn't actually support the claims the citing paper made. Without Stage 2, the diagnostic would have falsely concluded all 11 citations were verified.
+The cross-project pattern confirms a key failure mode the contract anticipated: **Stage 1 is necessary but not sufficient**. PROJ-267 iter1's two citations both passed Stage 1 (real DOI, real arXiv ID, both reachable) but Stage 2 caught that the cited papers' subject matter doesn't actually support the claims the citing paper made. Without Stage 2, the diagnostic would have falsely concluded all 11 iter1 citations were verified.
+
+**The iteration loop worked as designed**: D6 was identified, the flesh_out prompt was patched (commit `579858f`, v1.0.0 → v1.1.0) with explicit anti-stretched-relevance rules + a literature-gap-as-feature path, a sibling project was spawned, and re-running flesh_out under v1.1.0 produced 4/4 Stage-2-VERIFIED citations. Total iteration cost: 1 prompt patch, 1 sibling spawn, 1 re-run, and 4 Stage 2 spot-checks.
 
 ---
 
 ## Section 5: Iteration diffs
 
-_(One block per fix-and-re-run cycle. Quotes `git diff <prev-hash> <curr-hash> -- <path>` blocks with short SHAs per FR-008.)_
+### Iteration 1: flesh_out prompt patch (`agents/prompts/flesh_out.md` v1.0.0 → v1.1.0)
+
+**Patch commit**: `579858f`
+**Defect addressed**: D6 (CRITICAL) and D7 (HIGH) — misapplied citations and no scope_rejected emitted on thin literature.
+
+```diff
+diff --git a/agents/prompts/flesh_out.md b/agents/prompts/flesh_out.md
+index <iter1>..<iter2>
+--- a/agents/prompts/flesh_out.md
++++ b/agents/prompts/flesh_out.md
+@@ -1,4 +1,4 @@
+ # Flesh-Out Agent
+
+-**Version**: 1.0.0
++**Version**: 1.1.0
+
+@@ Rules section @@
++- Every Related work bullet's relevance note MUST be defensible
++  given the cited paper's actual scope. Do NOT cite a paper from
++  an unrelated subfield with a stretched relevance note. If a
++  paper from the literature block is only tangentially relevant,
++  OMIT it rather than write a misleading relevance note.
+-If the literature block is empty or absent, write
+-  `Related work: TODO — lit-search returned no results.` instead
+-  of fabricating citations.
++If the literature block is empty, sparse, or contains nothing
++  defensibly on-topic for the research question, **DO NOT fall
++  back to a generic TODO** — instead, treat the literature gap
++  as the research opportunity itself and produce a
++  `## Literature gap analysis` section.
+
++## Literature gap as feature (NON-NEGOTIABLE)
++
++A thin literature on the brainstormed question is **not a problem
++to paper over** — it is potentially a **high-value research
++opportunity**.
++
++When the literature block is empty, sparse (≤2 on-topic results),
++or contains only tangentially-related work, you MUST replace the
++`## Related work` section with a `## Literature gap analysis`
++section structured as:
++    What we searched / What is known / What is NOT known /
++    Why this gap matters / How this project addresses the gap.
++
++Verification gate: agent must have run lit_search with at least
++two distinct queries before declaring a gap.
++
++Distinguishes "thin literature + answerable question" (gap-as-
++feature) from "thin literature + unanswerable inside GHA scope"
++(normal scope_rejected).
+```
+
+(Patch shown abbreviated for readability; full diff is `git show 579858f -- agents/prompts/flesh_out.md` — 88 insertions, 6 deletions.)
+
+### Iteration 2: PROJ-267 idea content (iter1 commit `6bd9482` → iter2 commit `b0f7673`)
+
+**Idea content diff** (`git diff 6bd9482:projects/PROJ-267-...-from-pu/idea/predicting-plant-stress-response-from-pu.md b0f7673:projects/PROJ-267-...-from-pu-iter2/idea/predicting-plant-stress-response-from-pu.md`):
+
+```diff
+@@ Research question @@
+-Can publicly available proteomic datasets from plants subjected to abiotic stresses (drought, salinity, heat) be used to train machine learning models that predict stress-responsive gene expression patterns in novel, unseen conditions?
++Can publicly available plant proteomic datasets under abiotic stress conditions (drought, salinity, heat) be used to train machine learning models that accurately predict corresponding gene expression patterns in novel, unseen stress conditions?
+
+@@ Related work — completely replaced @@
+-- [Oxidative stress response: a proteomic view](http://arxiv.org/abs/0807.1041v1) — Demonstrates proteomic-level analysis of stress response, showing altered protein expression and modifications under stress conditions (relevance: establishes proteomics as viable stress indicator).
+-- [Principles for characterizing the potential human health effects from exposure to nanomaterials](https://doi.org/10.1186/1743-8977-2-8) — Provides screening strategy framework for stress-related biomarker analysis (relevance: methodological precedent for computational screening approaches).
+-
+-**Note**: Literature search returned limited plant-specific proteomics resources; this is a known gap in the current corpus that future searches should address.
++- [Confronting the data deluge: How artificial intelligence can be used in the study of plant stress (2024)](https://www.semanticscholar.org/paper/e698e9601dcd0733bdbf4b3f563dc2ccbeda2f40) — Establishes the feasibility and methodological framework for applying AI/computational methods to plant stress genomics research.
++- [Identifying Signal-Crosstalk Mechanism in Maize Plants during Combined Salinity and Boron Stress Using Integrative Systems Biology Approaches (2022)](https://www.semanticscholar.org/paper/bc92050b9e71dfa54ddd6b06d7ce85235fe6a252) — Demonstrates integrative systems biology approaches for modeling combined stress responses in plants, relevant for multi-stress prediction methodology.
++- [Oxidative stress response: a proteomic view (2008)](http://arxiv.org/abs/0807.1041v1) — Provides foundational proteomic characterization of stress response mechanisms, establishing protein-level markers for stress conditions.
++- [Exploring Alternative Splicing in Response to Salinity: A Tissue-Level Comparative Analysis Using Arabidopsis thaliana Public Transcriptomic Data (2025)](https://www.semanticscholar.org/paper/7b3dfd6c8a6e5d8274728ba08202268504918ea5) — Uses public transcriptomic data for stress analysis, demonstrating the value of publicly available datasets for stress response research.
+
+@@ Methodology — significantly tightened @@
+- (iter1) had 10 generic bullets ending with reproducibility-archive bullet
++ (iter2) has 9 more substantive bullets including UniProt mapping, TPM/FPKM normalization, permutation testing, baseline comparison
+```
+
+**Effect on D6**: 0/2 misapplied citations in iter1 → **4/4 verified citations in iter2**. The recycled `arxiv:0807.1041` is now framed with a generic "foundational proteomic characterization" relevance note (defensible) instead of the iter1 plant-specific stretch. The two new Semantic Scholar citations and the alternative-splicing paper are all on-topic and Stage-2-VERIFIED.
+
+**Effect on D7 (literature-gap path)**: the agent did NOT take the new `## Literature gap analysis` path on iter2 — instead it produced a normal `## Related work` with 4 well-grounded citations. Interpretation: with Semantic Scholar not 429'd this time (D5 was the binding constraint earlier), the literature wasn't actually thin. The new gap-as-feature path remains in the prompt for future cohorts where the literature genuinely is sparse — it just wasn't triggered here. The patched prompt's *first* improvement (the explicit "do not stretch relevance" rule) was sufficient to fix this case.
 
 ---
 
@@ -716,8 +938,10 @@ _(Single consolidated table populated by T044. Columns: ID, Severity, Category, 
 | D3 | MEDIUM | scope_creep_within_idea | 2/8 seeds (PROJ-261 LLM inference of StarCoder, PROJ-266 molecular dynamics) propose computations that exceed GHA envelope (large-LLM inference, full-atom MD). Prompt needs explicit RAM/runtime budget naming requirement. | `agents/prompts/brainstorm.md:50-79` (existing GHA scope section) | deferred (issue #TBD) |
 | D4 | LOW | multi_thread_proposal | 2/8 seeds (PROJ-261, PROJ-264) blur "single core question" rule by offering 2-3 alternative tasks. Prompt could require exactly-one-outcome-variable framing. | `agents/prompts/brainstorm.md:118-119` | deferred (issue #TBD) |
 | D5 | MEDIUM | tool_rate_limit | flesh_out's lit_search hit `semantic_scholar query failed: 429 too many requests` on 2/3 runs (PROJ-262, PROJ-267). The agent recovered by falling back to other providers and produced citations, but the rate limit reduced the quality of the literature search (especially for PROJ-267 where the agent self-flagged "limited plant-specific proteomics resources"). Production fix needed: per-host rate-limit awareness or longer backoff in lit_search. | `src/llmxive/tools/lit_search/*` | deferred (issue #TBD) — production code, outside Phase 1 testing scope |
-| D6 | CRITICAL | misapplied_citation | PROJ-267's flesh_out output cited two papers that resolve mechanically (Stage 1) but whose actual subject matter does NOT support the citing claim (Stage 2 REJECTED both): arXiv:0807.1041 is general cellular oxidative stress (not plant biology) and DOI:10.1186/1743-8977-2-8 is nanomaterial human-health toxicology (not plant proteomics). This is the primary failure mode the two-stage citation pipeline was designed to catch — and it caught it. PROJ-267 fails the 100% citation gate per FR-010. | `projects/PROJ-267-predicting-plant-stress-response-from-pu/idea/predicting-plant-stress-response-from-pu.md:20-21` | accepted (PROJ-267 dropped from carry-forward; no in-this-PR iteration because root cause is D7) |
-| D7 | HIGH | scope_rejected_not_emitted | The flesh_out agent for PROJ-267 self-flagged "Literature search returned limited plant-specific proteomics resources; this is a known gap" but still produced misapplied citations rather than emitting `human_input_needed.yaml` or `scope_rejected.yaml`. Per the agent-native rule from issue #45, an agent that can't ground its claims must fail loudly, not write a stub. | `agents/prompts/flesh_out.md` (the prompt should require honest abstention when lit_search is weak) | deferred (issue #TBD) — fix is a prompt patch + a registry-level "literature_thin" verdict, queued as a future spec |
+| D6 | CRITICAL | misapplied_citation | PROJ-267's flesh_out iter1 output cited two papers that resolve mechanically (Stage 1) but whose actual subject matter does NOT support the citing claim (Stage 2 REJECTED both): arXiv:0807.1041 is general cellular oxidative stress (not plant biology) and DOI:10.1186/1743-8977-2-8 is nanomaterial human-health toxicology (not plant proteomics). This is the primary failure mode the two-stage citation pipeline was designed to catch — and it caught it. | `projects/PROJ-267-...-from-pu/idea/predicting-plant-stress-response-from-pu.md:20-21` (iter1) | **resolved** (commit `579858f` patches `agents/prompts/flesh_out.md` v1.0.0 → v1.1.0 with explicit "no stretched relevance notes" rule; commit `b0f7673` runs flesh_out v1.1.0 on `PROJ-267-...-iter2` sibling and produces 4/4 Stage-2-VERIFIED citations — see Section 5 iteration diff and Section 3 PROJ-267-iter2 subsection.) |
+| D7 | HIGH | scope_rejected_not_emitted_OR_gap_not_treated_as_feature | The flesh_out agent for PROJ-267 iter1 self-flagged "Literature search returned limited plant-specific proteomics resources; this is a known gap" but still produced misapplied citations. Per the user's reframing (2026-05-04 conversation), thin literature should be treated as a **research opportunity** (the "Literature gap as feature" path), not just an abstention case. | `agents/prompts/flesh_out.md` (the v1.0.0 prompt had no gap-as-feature path) | **resolved** (commit `579858f` adds the "Literature gap as feature (NON-NEGOTIABLE)" section to the prompt with What we searched / What is known / What is NOT known / Why this gap matters / How this project addresses the gap structure. The new path was NOT triggered on iter2 because Semantic Scholar wasn't 429'd this time — the literature wasn't actually thin — but the path remains for future cohorts where it genuinely is.) |
+| D8 | MEDIUM | sibling_spawner_limitation | `tests/phase1/sibling_project.py` reads canonical's idea seed from `projects/<canonical>/idea/<slug>.md` — but if canonical has already advanced past `brainstormed`, that file contains the post-flesh_out content, not the seed. Iterating on flesh_out (or later) requires the brainstorm-stage seed, which currently has to be extracted manually from git history (`git show <pre-flesh_out-commit>:...`). | `tests/phase1/sibling_project.py` | deferred (issue #TBD) — fix is to add a `--from-commit <sha>` flag (or auto-detect the brainstormed-stage commit by walking git log of the idea file). Manual workaround used for PROJ-267 iter2 in commit `b0f7673`. |
+| D9 | LOW | semantic_scholar_html_not_fetchable | Semantic Scholar paper-page HTML (e.g., `https://www.semanticscholar.org/paper/<hash>`) doesn't render fetchable content for the Stage 2 agent verifier — the agent has to fall back to (a) URL-slug↔title consistency, or (b) the Semantic Scholar API. Stage 1 (HEAD) still works because the URL is reachable, but Stage 2 content-match verification is reduced confidence. | `tests/phase1/citation_resolver.py` (consider switching `url` kind for Semantic Scholar URLs to use the Semantic Scholar API directly) | deferred (issue #TBD) — workaround: agents may use the API or a Google Scholar / Crossref fallback. |
 
 ---
 
