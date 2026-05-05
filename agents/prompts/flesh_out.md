@@ -1,6 +1,6 @@
 # Flesh-Out Agent
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Stage owned**: `brainstormed` → `flesh_out_in_progress` → `flesh_out_complete`
 **Default backend**: dartmouth (fallback huggingface, then local)
 
@@ -76,10 +76,20 @@ caller will mark this idea rejected.
   Reference-Validator Agent will fetch every cited URL; any 404
   flips the project's review verdict to mismatch (Constitution
   Principle II).
-- If the literature block is empty or absent, write
-  `Related work: TODO — lit-search returned no results.` instead
-  of fabricating citations. A real TODO is always better than a
-  fake citation.
+- Every `Related work` bullet's relevance note MUST be defensible
+  given the cited paper's actual scope. Do NOT cite a paper from
+  an unrelated subfield with a stretched relevance note (e.g.,
+  citing a nanomaterial-toxicology paper as a "methodological
+  precedent" for plant proteomics). If a paper from the literature
+  block is only tangentially relevant, OMIT it rather than write
+  a misleading relevance note. A short, well-grounded `Related work`
+  is always better than a long one full of stretches.
+- If the literature block is empty, sparse, or contains nothing
+  defensibly on-topic for the research question, **DO NOT fall back
+  to a generic TODO** — instead, treat the literature gap as the
+  research opportunity itself and produce a `## Literature gap
+  analysis` section as described in "Literature gap as feature"
+  below.
 - Do NOT add `(verified YYYY-MM-DD)` annotations. Verification is
   the Reference-Validator's job; an LLM claim of verification is
   always invalid.
@@ -115,3 +125,75 @@ realizable inside that envelope:
 If your methodology can plausibly run inside a 6-hour GHA job
 end-to-end (download data → analyze → produce figures), it fits.
 Otherwise, scale it down or reject.
+
+## Literature gap as feature (NON-NEGOTIABLE)
+
+A thin literature on the brainstormed question is **not a problem
+to paper over** — it is potentially a **high-value research
+opportunity**. The pipeline exists to surface and address real gaps,
+not to manufacture pseudo-grounded plausible-sounding ideas.
+
+When the literature block is empty, sparse (≤2 on-topic results),
+or contains only tangentially-related work, you MUST replace the
+`## Related work` section with a `## Literature gap analysis`
+section structured as follows:
+
+```markdown
+## Literature gap analysis
+
+### What we searched
+
+<one-paragraph description of the search: query terms tried,
+sources queried (Semantic Scholar / arXiv / OpenAlex), and the
+volume of returned results>
+
+### What is known
+
+- [<title>](<source_url>) — <one-sentence note on what this work
+  establishes that is on-topic>
+- ...
+(0-3 bullets — only on-topic results from the literature block;
+omit any results whose relevance you cannot defensibly state)
+
+### What is NOT known
+
+<two or three sentences naming the specific aspects of the
+research question that the existing literature does not address.
+Be concrete: "no published work has measured X under condition Y
+on dataset Z" beats "more research is needed">
+
+### Why this gap matters
+
+<two or three sentences explaining who would benefit from filling
+this gap and what the plausible practical or scientific impact
+of the answer would be — e.g., enabling crop-improvement decisions,
+constraining a theoretical model, providing a benchmark dataset>
+
+### How this project addresses the gap
+
+<two or three sentences mapping the project's `## Methodology
+sketch` onto the unknown identified above — i.e., explain
+specifically which step of your methodology produces the
+previously-unavailable evidence>
+```
+
+The rest of the idea Markdown (Research question, Motivation,
+Expected results, Methodology sketch, Duplicate-check) stays the
+same. The substitution is `## Related work` → `## Literature gap
+analysis`, NOT additive.
+
+**Verification gate**: before producing a `## Literature gap
+analysis` section, you MUST have actually attempted lit_search
+with at least two distinct queries — one focused on the exact
+research question and one broadened to nearby methodological
+or domain territory. The "What we searched" bullet documents
+that effort.
+
+If the literature is **thin AND the research question is itself
+unanswerable inside the GHA scope** (e.g., the gap exists because
+the question requires a new dataset that doesn't exist), then
+treat that as a normal scope rejection — set `Verdict: rejected
+— out of scope` in the Duplicate-check block. The "Literature
+gap as feature" path is for **answerable** questions where the
+gap is the opportunity, not for unanswerable questions where the
+gap is a barrier.
