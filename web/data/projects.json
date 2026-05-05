@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 332,
+    "active_projects": 334,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1731,
+    "total_contributions": 1733,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1558,
+      "contribution_count": 1560,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 310,
+      "contribution_count": 312,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-05T18:46:42.481844+00:00",
+  "generated_at": "2026-05-05T19:42:21.222960+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -23364,6 +23364,140 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting Molecular Properties from Open Babel Fingerprints with Random Forests",
       "updated_at": "2026-05-05T17:43:31.092885+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-325-evaluating-the-impact-of-data-imputation/idea/evaluating-the-impact-of-data-imputation.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-05T19:40:23.338881+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How does the choice of missing data handling approach influence the bias of variance estimates in complex survey designs? Public survey datasets routinely contain missing values, and researchers must choose how to handle them before conducting statistical inference. While multiple imputation is\u2026",
+      "field": "statistics",
+      "id": "PROJ-325-evaluating-the-impact-of-data-imputation",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 47.659578,
+          "ended_at": "2026-05-05T19:41:40.546992Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T19:40:52.887414Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Impact of Data Imputation on Variance Estimation in Public Surveys",
+      "updated_at": "2026-05-05T19:41:40.549057+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-326-investigating-the-impact-of-network-stru/idea/investigating-the-impact-of-network-stru.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-05T19:40:23.338881+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics How does network topology\u2014specifically degree distribution and clustering coefficient\u2014influence the efficiency of energy transfer between localized excitations in spin systems? Non-equilibrium statistical mechanics predicts that network structure can significantly affect transport phenomena, yet\u2026",
+      "field": "physics",
+      "id": "PROJ-326-investigating-the-impact-of-network-stru",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 38.612297,
+          "ended_at": "2026-05-05T19:42:19.573866Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T19:41:40.961569Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Impact of Network Structure on Energy Transfer in Spin Systems",
+      "updated_at": "2026-05-05T19:42:19.575775+00:00"
     }
   ],
   "schema_version": "2.0.0"
