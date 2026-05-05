@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 283,
+    "active_projects": 286,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1647,
+    "total_contributions": 1650,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1474,
+      "contribution_count": 1477,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 263,
+      "contribution_count": 266,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-05T01:23:18.539524+00:00",
+  "generated_at": "2026-05-05T01:48:59.273567+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -19997,6 +19997,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Proprioceptive Accuracy",
       "updated_at": "2026-05-05T01:01:54.337228+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-285-assessing-the-impact-of-data-filtering-o/idea/assessing-the-impact-of-data-filtering-o.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-05T01:43:46.819493+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics How do variations in automated filtering thresholds\u2014specifically signal-to-noise ratio (SNR) and morphology scores\u2014affect the reported detection rates and purity of gravitational lens candidates in large optical surveys? Current gravitational lens catalogs suffer from selection biases introduced by\u2026",
+      "field": "physics",
+      "id": "PROJ-285-assessing-the-impact-of-data-filtering-o",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 110.637214,
+          "ended_at": "2026-05-05T01:45:51.477873Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T01:44:00.840659Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Assessing the Impact of Data Filtering on Gravitational Lens Detection Rates",
+      "updated_at": "2026-05-05T01:45:51.480515+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/idea/the-influence-of-perceived-agency-in-ai-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-05T01:43:46.819493+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "I'll search for relevant literature on perceived agency, AI trust, and human-AI interaction to ground this research idea. ```tool_call lit_search(query: \"perceived agency AI trust human-computer interaction\", max_results: 8) ``` ```tool_call lit_search(query: \"illusion of control AI recommendations trust\",\u2026",
+      "field": "psychology",
+      "id": "PROJ-286-the-influence-of-perceived-agency-in-ai-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 93.015538,
+          "ended_at": "2026-05-05T01:47:25.005338Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T01:45:51.989800Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Influence of Perceived Agency in AI Interactions on Trust",
+      "updated_at": "2026-05-05T01:47:25.007820+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-287-statistical-analysis-of-publicly-availab/idea/statistical-analysis-of-publicly-availab.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-05T01:43:46.819493+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics Has the distribution of research themes within a specific academic field (e.g., statistics or machine learning) demonstrably shifted over multi-year intervals when measured via topic modeling of published abstracts? Understanding topic drift in academic literature reveals how scientific priorities\u2026",
+      "field": "statistics",
+      "id": "PROJ-287-statistical-analysis-of-publicly-availab",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 91.776174,
+          "ended_at": "2026-05-05T01:48:57.247640Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T01:47:25.471466Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Statistical Analysis of Publicly Available Academic Paper Abstracts for Topic Drift",
+      "updated_at": "2026-05-05T01:48:57.250099+00:00"
     }
   ],
   "schema_version": "2.0.0"
