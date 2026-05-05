@@ -1,12 +1,12 @@
 {
   "aggregates": {
-    "active_projects": 323,
-    "ai_contributors": 29,
+    "active_projects": 332,
+    "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1711,
-    "total_contributors": 29
+    "total_contributions": 1731,
+    "total_contributors": 30
   },
   "contributors": [
     {
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1538,
+      "contribution_count": 1558,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 303,
+      "contribution_count": 310,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-05T17:43:33.352822+00:00",
+  "generated_at": "2026-05-05T18:46:42.481844+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -18193,7 +18193,7 @@
       },
       "authors": [
         {
-          "contributions": 3,
+          "contributions": 4,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -18222,6 +18222,14 @@
       "id": "PROJ-258-the-effect-of-simulated-social-rejection",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 35.240397,
+          "ended_at": "2026-05-04T17:52:26.343862Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T17:51:51.103465Z"
+        },
         {
           "agent": "flesh_out",
           "duration_s": 30.231096,
@@ -18395,6 +18403,91 @@
         "citations": null,
         "code": null,
         "data": null,
+        "idea": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/idea/research_question_validation.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 4,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out",
+            "project_initializer",
+            "research_question_validator"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T17:52:52.287155+00:00",
+      "current_stage": "project_initialized",
+      "description": "Verdict: pass The question asks about a substantive relationship between code structure (clone density) and model behavior (perplexity, bug detection), independent of any specific method's performance. It does not frame the inquiry as \"can method M work under constraint B\" but rather as \"how does property X of the\u2026",
+      "field": "computer science",
+      "id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "project_initializer",
+          "duration_s": 77.470667,
+          "ended_at": "2026-05-05T04:01:48.318723Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T04:00:30.848056Z"
+        },
+        {
+          "agent": "research_question_validator",
+          "duration_s": 60.017583,
+          "ended_at": "2026-05-05T04:00:13.535522Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T03:59:13.517939Z"
+        },
+        {
+          "agent": "research_question_validator",
+          "duration_s": 25.553135,
+          "ended_at": "2026-05-05T03:58:41.741390Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T03:58:16.188255Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 74.360947,
+          "ended_at": "2026-05-05T03:58:10.314858Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T03:56:55.953911Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": null,
+      "title": "Evaluating the Impact of Code Duplication on LLM Code Understanding",
+      "updated_at": "2026-05-05T04:01:48.321369+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
         "idea": "projects/PROJ-261-investigating-the-correlation-between-gu/idea/investigating-the-correlation-between-gu.md",
         "paper_figures": null,
         "paper_pdf": null,
@@ -18456,6 +18549,131 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Correlation Between Gut Microbiome Composition and Parkinson\u2019s Disease Progression",
       "updated_at": "2026-05-04T16:43:49.943402+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-262-predicting-molecular-dipole-moments-with/idea/research_question_validation.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 8,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out",
+            "project_initializer",
+            "research_question_validator"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T17:53:10.682198+00:00",
+      "current_stage": "project_initialized",
+      "description": "Verdict: pass The question asks about a domain relationship between molecular structural features and electronic dipole properties, independent of any specific ML method's performance. The comparison to traditional descriptors is framed as understanding what information is necessary for accurate prediction, not as a\u2026",
+      "field": "chemistry",
+      "id": "PROJ-262-predicting-molecular-dipole-moments-with",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "project_initializer",
+          "duration_s": 61.320407,
+          "ended_at": "2026-05-05T04:11:55.495575Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T04:10:54.175168Z"
+        },
+        {
+          "agent": "research_question_validator",
+          "duration_s": 14.888962,
+          "ended_at": "2026-05-05T04:10:43.438891Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T04:10:28.549929Z"
+        },
+        {
+          "agent": "research_question_validator",
+          "duration_s": 15.926438,
+          "ended_at": "2026-05-05T04:09:39.480795Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T04:09:23.554357Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 179.483363,
+          "ended_at": "2026-05-05T04:08:02.072196Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T04:05:02.588833Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 112.706345,
+          "ended_at": "2026-05-05T04:04:14.816939Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T04:02:22.110594Z"
+        },
+        {
+          "agent": "research_question_validator",
+          "duration_s": 79.043498,
+          "ended_at": "2026-05-05T03:55:34.049705Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T03:54:15.006207Z"
+        },
+        {
+          "agent": "research_question_validator",
+          "duration_s": 123.255897,
+          "ended_at": "2026-05-05T03:53:38.271814Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T03:51:35.015917Z"
+        },
+        {
+          "agent": "research_question_validator",
+          "duration_s": 21.0422,
+          "ended_at": "2026-05-05T03:45:55.046634Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-05T03:45:34.004434Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 160.337545,
+          "ended_at": "2026-05-04T20:24:08.303870Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T20:21:27.966325Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": null,
+      "title": "Predicting Molecular Dipole Moments with Graph Neural Networks",
+      "updated_at": "2026-05-05T04:11:55.497331+00:00"
     },
     {
       "artifact_links": {
@@ -18529,6 +18747,73 @@
         "citations": null,
         "code": null,
         "data": null,
+        "idea": "projects/PROJ-263-assessing-the-validity-of-frequentist-co/idea/assessing-the-validity-of-frequentist-co.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T17:53:10.682198+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics Do standard frequentist confidence intervals (e.g., t-intervals, z-intervals) maintain their nominal coverage probabilities when applied to samples of size n < 30 drawn from real-world distributions? Small-sample inference is common in clinical trials, A/B tests, and field studies where data\u2026",
+      "field": "statistics",
+      "id": "PROJ-263-assessing-the-validity-of-frequentist-co",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 43.874136,
+          "ended_at": "2026-05-05T18:43:00.998406Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T18:42:17.124270Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Assessing the Validity of Frequentist Confidence Intervals with Small Sample Sizes",
+      "updated_at": "2026-05-05T18:43:01.001219+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
         "idea": "projects/PROJ-263-quantifying-the-impact-of-network-proxim/idea/quantifying-the-impact-of-network-proxim.md",
         "paper_figures": null,
         "paper_pdf": null,
@@ -18590,6 +18875,73 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Quantifying the Impact of Network Proximity on Epidemic Spreading in Scale-Free Networks",
       "updated_at": "2026-05-04T16:45:18.970190+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-264-assessing-the-stability-of-statistical-m/idea/assessing-the-stability-of-statistical-m.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T17:53:10.682198+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics To what extent does sampling variability in standard tabular benchmarks obscure the true performance ranking of statistical learning algorithms across datasets of varying size and dimensionality? Standard model comparisons often rely on single train/test splits or limited cross-validation folds,\u2026",
+      "field": "statistics",
+      "id": "PROJ-264-assessing-the-stability-of-statistical-m",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 79.794919,
+          "ended_at": "2026-05-05T18:44:21.402877Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T18:43:01.607958Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Assessing the Stability of Statistical Model Performance Across Data Subsets",
+      "updated_at": "2026-05-05T18:44:21.405470+00:00"
     },
     {
       "artifact_links": {
@@ -18663,6 +19015,73 @@
         "citations": null,
         "code": null,
         "data": null,
+        "idea": "projects/PROJ-265-assessing-the-impact-of-data-ordering-on/idea/assessing-the-impact-of-data-ordering-on.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T17:53:10.682198+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How does the violation of exchangeability due to temporal autocorrelation bias the coverage probability of standard bootstrap confidence intervals compared to shuffled data baselines? Standard bootstrapping assumes independent and identically distributed (i.i.d.) data, implying that the order of\u2026",
+      "field": "statistics",
+      "id": "PROJ-265-assessing-the-impact-of-data-ordering-on",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 85.287608,
+          "ended_at": "2026-05-05T18:45:47.238495Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T18:44:21.950887Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Assessing the Impact of Data Ordering on Bootstrapping Results",
+      "updated_at": "2026-05-05T18:45:47.241034+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
         "idea": "projects/PROJ-265-evaluating-the-effectiveness-of-llm-driv/idea/evaluating-the-effectiveness-of-llm-driv.md",
         "paper_figures": null,
         "paper_pdf": null,
@@ -18724,6 +19143,73 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Effectiveness of LLM-Driven Code Simplification on Performance",
       "updated_at": "2026-05-04T17:41:01.950400+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-266-exploring-the-correlation-between-molecu/idea/exploring-the-correlation-between-molecu.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T17:53:10.682198+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry Does the internal conformational flexibility of drug-like molecules, quantified through normal mode analysis and internal coordinate variance, predict their passive permeability coefficients across Caco-2 cell membranes? Drug bioavailability depends critically on membrane permeability, yet current\u2026",
+      "field": "chemistry",
+      "id": "PROJ-266-exploring-the-correlation-between-molecu",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 52.304096,
+          "ended_at": "2026-05-05T18:46:40.088106Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T18:45:47.784010Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Exploring the Correlation Between Molecular Flexibility and Drug Transport Across Cell Membranes",
+      "updated_at": "2026-05-05T18:46:40.090663+00:00"
     },
     {
       "artifact_links": {
@@ -18864,6 +19350,140 @@
         "citations": null,
         "code": null,
         "data": null,
+        "idea": "projects/PROJ-267-predicting-plant-stress-response-from-pu-iter2/idea/predicting-plant-stress-response-from-pu.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T20:50:00+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Can publicly available plant proteomic datasets under abiotic stress conditions (drought, salinity, heat) be used to train machine learning models that accurately predict corresponding gene expression patterns in novel, unseen stress conditions? Current plant stress assessment relies on costly and\u2026",
+      "field": "biology",
+      "id": "PROJ-267-predicting-plant-stress-response-from-pu-iter2",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 31.170391,
+          "ended_at": "2026-05-05T03:17:49.367037Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T03:17:18.196646Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Plant Stress Response from Publicly Available Proteomic Data",
+      "updated_at": "2026-05-05T03:17:49.371068+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-267-predicting-plant-stress-response-from-pu/idea/predicting-plant-stress-response-from-pu.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T17:53:10.682198+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Can publicly available proteomic datasets from plants subjected to abiotic stresses (drought, salinity, heat) be used to train machine learning models that predict stress-responsive gene expression patterns in novel, unseen conditions? Assessing plant stress resilience typically requires costly and\u2026",
+      "field": "biology",
+      "id": "PROJ-267-predicting-plant-stress-response-from-pu",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 30.428669,
+          "ended_at": "2026-05-04T20:24:56.541745Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T20:24:26.113076Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Plant Stress Response from Publicly Available Proteomic Data",
+      "updated_at": "2026-05-04T20:24:56.545673+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
         "idea": "projects/PROJ-268-predicting-molecular-ionization-energies/idea/predicting-molecular-ionization-energies.md",
         "paper_figures": null,
         "paper_pdf": null,
@@ -18925,6 +19545,73 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting Molecular Ionization Energies with Graph Neural Networks",
       "updated_at": "2026-05-04T18:45:08.038101+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-268-the-impact-of-network-centrality-on-neur/idea/the-impact-of-network-centrality-on-neur.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T17:53:10.682198+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: neuroscience Can network centrality metrics (degree, betweenness, eigenvector centrality) derived from structural or functional connectivity matrices predict the magnitude of functional synchrony between brain regions during resting-state fMRI? Understanding how topological hub regions influence functional\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-268-the-impact-of-network-centrality-on-neur",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 27.188568,
+          "ended_at": "2026-05-04T20:25:33.969242Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T20:25:06.780674Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI",
+      "updated_at": "2026-05-04T20:25:33.971016+00:00"
     },
     {
       "artifact_links": {

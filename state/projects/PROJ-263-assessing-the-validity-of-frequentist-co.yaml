@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T17:53:10.682198Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-263-assessing-the-validity-of-frequentist-co
-last_run_id: null
+last_run_id: c0da37f3-6114-4cc7-be67-db9a78897dc6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Assessing the Validity of Frequentist Confidence Intervals with Small Sample
   Sizes
-updated_at: '2026-05-04T17:53:10.682198Z'
+updated_at: '2026-05-05T18:43:01.001219Z'
