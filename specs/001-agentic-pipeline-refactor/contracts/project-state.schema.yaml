@@ -30,6 +30,10 @@ properties:
       - brainstormed
       - flesh_out_in_progress
       - flesh_out_complete
+      # Research-question validator (spec 003 / D10)
+      - validated
+      - validator_revise
+      - validator_rejected
       # Per-project research Spec Kit pipeline
       - project_initialized
       - specified
