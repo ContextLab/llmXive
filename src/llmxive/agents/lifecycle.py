@@ -24,10 +24,21 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     Stage.BRAINSTORMED: {Stage.FLESH_OUT_IN_PROGRESS, Stage.FLESH_OUT_COMPLETE, Stage.HUMAN_INPUT_NEEDED},
     Stage.FLESH_OUT_IN_PROGRESS: {Stage.FLESH_OUT_COMPLETE, Stage.HUMAN_INPUT_NEEDED},
     Stage.FLESH_OUT_COMPLETE: {
-        Stage.PROJECT_INITIALIZED,
+        # spec 003 / D10: research_question_validator inserted between
+        # flesh_out and project_initializer. The validator emits one of
+        # three outcomes:
+        #   validated         → VALIDATED → PROJECT_INITIALIZED
+        #   validator_revise  → FLESH_OUT_IN_PROGRESS (re-flesh_out)
+        #   validator_rejected → BRAINSTORMED (re-brainstorm)
+        Stage.VALIDATED,
+        Stage.FLESH_OUT_IN_PROGRESS,  # validator_revise rollback
         Stage.HUMAN_INPUT_NEEDED,
-        Stage.BRAINSTORMED,  # scope rejection rolls back for re-brainstorm
+        Stage.BRAINSTORMED,  # scope rejection or validator_rejected rolls back
+        # Legacy direct path retained for backward compat (e.g., a
+        # flesh_out_complete project that pre-dates the validator stage).
+        Stage.PROJECT_INITIALIZED,
     },
+    Stage.VALIDATED: {Stage.PROJECT_INITIALIZED, Stage.HUMAN_INPUT_NEEDED},
     # Per-project research Spec Kit pipeline (US1):
     Stage.PROJECT_INITIALIZED: {Stage.SPECIFIED},
     # The CLARIFY_IN_PROGRESS / ANALYZE_IN_PROGRESS intermediates are

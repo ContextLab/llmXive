@@ -53,10 +53,18 @@ class _IdeaPhaseAgent(Agent):
             repo_root=repo,
         )
         # Existing idea body (if any) gets handed to the LLM as context.
+        # spec 003 / D13: filter out diagnostic-artifact files
+        # (research_question_validation.md, etc.) so the validator and
+        # flesh_out don't accidentally read their own / each other's
+        # output as the canonical idea body. Sort alphabetically for
+        # deterministic selection when multiple legitimate idea files
+        # exist (none should, but be safe).
         idea_body = ""
         idea_dir = repo / "projects" / ctx.project_id / "idea"
         if idea_dir.exists():
-            for md in idea_dir.glob("*.md"):
+            for md in sorted(idea_dir.glob("*.md")):
+                if md.name in {"research_question_validation.md"}:
+                    continue
                 idea_body = md.read_text(encoding="utf-8", errors="replace")
                 break
         user_parts: list[str] = []
@@ -121,6 +129,33 @@ class FleshOutAgent(_IdeaPhaseAgent):
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
         messages = super().build_messages(ctx)
+        repo = Path(__file__).resolve().parent.parent.parent.parent
+        # spec 003 / D12: forward any [REVISED] hint from a prior
+        # research_question_validator iteration so this re-run actually
+        # adopts the revised question instead of regenerating the rejected
+        # one. The validator persists its output to
+        # idea/research_question_validation.md alongside the idea Markdown.
+        validation_md = (
+            repo / "projects" / ctx.project_id / "idea" / "research_question_validation.md"
+        )
+        if validation_md.exists():
+            v_text = validation_md.read_text(encoding="utf-8", errors="replace")
+            m = re.search(r"\[REVISED\]\s*(.+?)\s*\[/REVISED\]", v_text, re.DOTALL)
+            if m:
+                revised_q = m.group(1).strip()
+                hint_block = (
+                    "# PRIOR VALIDATION FEEDBACK\n\n"
+                    "A prior research_question_validator iteration flagged the\n"
+                    "previous research question and proposed a defensible reframing.\n"
+                    "You MUST adopt or improve on the [REVISED] question below — do\n"
+                    "NOT regenerate the previous question:\n\n"
+                    f"[REVISED]\n{revised_q}\n[/REVISED]\n"
+                )
+                last = messages[-1]
+                messages[-1] = ChatMessage(
+                    role=last.role,
+                    content=last.content + "\n\n" + hint_block,
+                )
         # Augment the user prompt with a real lit-search result block so
         # the LLM grounds its "Related work" section on actual papers
         # instead of hallucinating URLs that 404 (PROJ-006 spec.md was
@@ -154,13 +189,30 @@ class FleshOutAgent(_IdeaPhaseAgent):
                 )
         return messages
 
+    # spec 003 / D13: diagnostic artifacts that share idea_dir with the
+    # canonical idea file but MUST NOT be picked as the overwrite target.
+    _DIAGNOSTIC_ARTIFACT_NAMES: frozenset[str] = frozenset({
+        "research_question_validation.md",
+        # citation_resolution.json is .json so already excluded by *.md, but
+        # if the resolver ever switches output format, keep this list
+        # explicit.
+    })
+
     def _persist(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
         repo = Path(__file__).resolve().parent.parent.parent.parent
         title = ctx.metadata.get("title", ctx.project_id)
         idea_dir = repo / "projects" / ctx.project_id / "idea"
         idea_dir.mkdir(parents=True, exist_ok=True)
-        # Find existing idea file (preserve filename if present).
-        existing = next(iter(idea_dir.glob("*.md")), None)
+        # Find existing idea file (preserve filename if present). Filter
+        # out diagnostic artifacts that happen to share the *.md extension
+        # — D13 from spec 003: alphabetical ordering picked
+        # research_question_validation.md before the canonical slug-named
+        # file and clobbered the validator's output.
+        existing = next(
+            (p for p in sorted(idea_dir.glob("*.md"))
+             if p.name not in self._DIAGNOSTIC_ARTIFACT_NAMES),
+            None,
+        )
         if existing is not None:
             target = existing
             # Preserve original front-matter.
@@ -254,8 +306,110 @@ class IdeaSelectorAgent(_IdeaPhaseAgent):
         return [str(target.relative_to(repo))]
 
 
+class ResearchQuestionValidatorAgent(_IdeaPhaseAgent):
+    """Stage owner: flesh_out_complete → validated | validator_revise | validator_rejected.
+
+    Audits a fleshed-out idea for research-question quality (phenomenon-vs-method,
+    circularity, triviality, narrowing) before idea_selector promotes it. Writes
+    the validation block to ``idea/research_question_validation.md`` and a sentinel
+    file under ``.specify/memory/`` that the pipeline graph consumes to decide the
+    next stage transition.
+
+    Three sentinel outcomes:
+      - ``research_question_validated.yaml`` → Stage.VALIDATED
+      - ``research_question_revise.yaml`` → Stage.VALIDATOR_REVISE (rolled back to
+        flesh_out_in_progress on the next tick)
+      - ``research_question_rejected.yaml`` → Stage.VALIDATOR_REJECTED (rolled back
+        to brainstormed on the next tick)
+    """
+
+    prompt_path = "agents/prompts/research_question_validator.md"
+
+    def _persist(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
+        repo = Path(__file__).resolve().parent.parent.parent.parent
+        idea_dir = repo / "projects" / ctx.project_id / "idea"
+        idea_dir.mkdir(parents=True, exist_ok=True)
+
+        body = response.text.strip()
+        if not body:
+            raise RuntimeError("Research-question validator returned an empty body")
+        # Strip ```markdown / ```md fences if present.
+        if body.startswith("```"):
+            lines = body.splitlines()
+            if lines and lines[0].lstrip("`").lower() in {"", "markdown", "md"}:
+                lines = lines[1:]
+            if lines and lines[-1].strip() == "```":
+                lines = lines[:-1]
+            body = "\n".join(lines).strip()
+
+        target = idea_dir / "research_question_validation.md"
+        target.write_text(body + "\n", encoding="utf-8")
+
+        verdict = self._extract_verdict(body)
+        revised_question = self._extract_revised_question(body)
+        memory_dir = repo / "projects" / ctx.project_id / ".specify" / "memory"
+        memory_dir.mkdir(parents=True, exist_ok=True)
+        now = datetime.now(timezone.utc).isoformat()
+
+        outputs: list[str] = [str(target.relative_to(repo))]
+
+        if verdict == "validated":
+            sentinel = memory_dir / "research_question_validated.yaml"
+            sentinel.write_text(f"validated: true\nvalidated_at: {now}\n", encoding="utf-8")
+            outputs.append(str(sentinel.relative_to(repo)))
+        elif verdict == "validator_revise":
+            sentinel = memory_dir / "research_question_revise.yaml"
+            content = f"revise: true\nflagged_at: {now}\n"
+            if revised_question:
+                # Escape any quotes in the revised question for valid YAML.
+                escaped = revised_question.replace('"', '\\"')
+                content += f'revised_question: "{escaped}"\n'
+            sentinel.write_text(content, encoding="utf-8")
+            outputs.append(str(sentinel.relative_to(repo)))
+        elif verdict == "validator_rejected":
+            sentinel = memory_dir / "research_question_rejected.yaml"
+            sentinel.write_text(f"rejected: true\nflagged_at: {now}\n", encoding="utf-8")
+            outputs.append(str(sentinel.relative_to(repo)))
+        else:
+            # Defensive: if the LLM produced an unparseable verdict, treat as
+            # revise so we don't silently advance a flawed project.
+            sentinel = memory_dir / "research_question_revise.yaml"
+            sentinel.write_text(
+                f"revise: true\nflagged_at: {now}\n"
+                f"reason: validator output verdict could not be parsed\n",
+                encoding="utf-8",
+            )
+            outputs.append(str(sentinel.relative_to(repo)))
+            print(
+                f"[research_question_validator] {ctx.project_id} verdict unparseable; "
+                f"defaulting to validator_revise"
+            )
+
+        return outputs
+
+    @staticmethod
+    def _extract_verdict(body: str) -> str | None:
+        """Find the final `**Verdict**: <one of three>` line.
+
+        Per the prompt contract, the overall verdict is the LAST `**Verdict**`
+        line in the document.
+        """
+        candidates = re.findall(
+            r"\*\*Verdict\*\*\s*:\s*(validated|validator_revise|validator_rejected)",
+            body,
+        )
+        return candidates[-1] if candidates else None
+
+    @staticmethod
+    def _extract_revised_question(body: str) -> str | None:
+        """Find the [REVISED]...[/REVISED] block, if any."""
+        m = re.search(r"\[REVISED\]\s*(.+?)\s*\[/REVISED\]", body, re.DOTALL)
+        return m.group(1).strip() if m else None
+
+
 __all__ = [
     "BrainstormAgent",
     "FleshOutAgent",
     "IdeaSelectorAgent",
+    "ResearchQuestionValidatorAgent",
 ]

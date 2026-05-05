@@ -70,5 +70,5 @@ Since this is primarily a research documentation repository without traditional 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-[specs/001-agentic-pipeline-refactor/plan.md](specs/001-agentic-pipeline-refactor/plan.md).
+[specs/003-phase1-idea-lifecycle-testing/plan.md](specs/003-phase1-idea-lifecycle-testing/plan.md).
 <!-- SPECKIT END -->

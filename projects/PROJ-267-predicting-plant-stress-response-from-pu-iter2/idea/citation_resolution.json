@@ -1,0 +1,80 @@
+[
+  {
+    "citation": {
+      "raw_text": "[Confronting the data deluge: How artificial intelligence can be used in the study of plant stress (2024)](https://www.semanticscholar.org/paper/e698e9601dcd0733bdbf4b3f563dc2ccbeda2f40)",
+      "kind": "url",
+      "identifier": "https://www.semanticscholar.org/paper/e698e9601dcd0733bdbf4b3f563dc2ccbeda2f40",
+      "line_number": 20
+    },
+    "stage1_status": "resolved",
+    "stage1_evidence": {
+      "url_checked": "https://www.semanticscholar.org/paper/e698e9601dcd0733bdbf4b3f563dc2ccbeda2f40",
+      "http_status": 202,
+      "redirect_chain": [],
+      "api_response_snippet": null
+    },
+    "stage2_status": null,
+    "stage2_evidence": null,
+    "final_verdict": "verified",
+    "timestamp": "2026-05-05T03:18:22Z"
+  },
+  {
+    "citation": {
+      "raw_text": "[Identifying Signal-Crosstalk Mechanism in Maize Plants during Combined Salinity and Boron Stress Using Integrative Systems Biology Approaches (2022)](https://www.semanticscholar.org/paper/bc92050b9e71dfa54ddd6b06d7ce85235fe6a252)",
+      "kind": "url",
+      "identifier": "https://www.semanticscholar.org/paper/bc92050b9e71dfa54ddd6b06d7ce85235fe6a252",
+      "line_number": 21
+    },
+    "stage1_status": "resolved",
+    "stage1_evidence": {
+      "url_checked": "https://www.semanticscholar.org/paper/bc92050b9e71dfa54ddd6b06d7ce85235fe6a252",
+      "http_status": 202,
+      "redirect_chain": [],
+      "api_response_snippet": null
+    },
+    "stage2_status": null,
+    "stage2_evidence": null,
+    "final_verdict": "verified",
+    "timestamp": "2026-05-05T03:18:22Z"
+  },
+  {
+    "citation": {
+      "raw_text": "[Oxidative stress response: a proteomic view (2008)](http://arxiv.org/abs/0807.1041v1)",
+      "kind": "arxiv",
+      "identifier": "0807.1041",
+      "line_number": 22
+    },
+    "stage1_status": "resolved",
+    "stage1_evidence": {
+      "url_checked": "http://export.arxiv.org/api/query?id_list=0807.1041",
+      "http_status": 200,
+      "redirect_chain": [
+        "http://export.arxiv.org/api/query?id_list=0807.1041"
+      ],
+      "api_response_snippet": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/i66EZC0Yj5gqIH95vx+ggGm1HzE</id>\n  <title>arXiv Query: search_query=&amp;id_list=0807.1041&amp;start=0&amp;max_results=10</title>\n  <updated>2026-05-05T03:18:15Z</updated>\n  <link href=\"http"
+    },
+    "stage2_status": null,
+    "stage2_evidence": null,
+    "final_verdict": "verified",
+    "timestamp": "2026-05-05T03:18:23Z"
+  },
+  {
+    "citation": {
+      "raw_text": "[Exploring Alternative Splicing in Response to Salinity: A Tissue-Level Comparative Analysis Using Arabidopsis thaliana Public Transcriptomic Data (2025)](https://www.semanticscholar.org/paper/7b3dfd6c8a6e5d8274728ba08202268504918ea5)",
+      "kind": "url",
+      "identifier": "https://www.semanticscholar.org/paper/7b3dfd6c8a6e5d8274728ba08202268504918ea5",
+      "line_number": 23
+    },
+    "stage1_status": "resolved",
+    "stage1_evidence": {
+      "url_checked": "https://www.semanticscholar.org/paper/7b3dfd6c8a6e5d8274728ba08202268504918ea5",
+      "http_status": 202,
+      "redirect_chain": [],
+      "api_response_snippet": null
+    },
+    "stage2_status": null,
+    "stage2_evidence": null,
+    "final_verdict": "verified",
+    "timestamp": "2026-05-05T03:18:23Z"
+  }
+]
