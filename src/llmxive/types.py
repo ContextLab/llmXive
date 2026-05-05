@@ -46,6 +46,13 @@ class Stage(str, Enum):
     BRAINSTORMED = "brainstormed"
     FLESH_OUT_IN_PROGRESS = "flesh_out_in_progress"
     FLESH_OUT_COMPLETE = "flesh_out_complete"
+    # Research-question validation: catches implementation-method narrowing
+    # and circular question framing before idea_selector promotes the project.
+    # Verdicts: validated (advance) | validator_revise (back to flesh_out) |
+    # validator_rejected (back to brainstormed).
+    VALIDATED = "validated"
+    VALIDATOR_REVISE = "validator_revise"
+    VALIDATOR_REJECTED = "validator_rejected"
     # Per-project research Spec Kit pipeline
     PROJECT_INITIALIZED = "project_initialized"
     SPECIFIED = "specified"

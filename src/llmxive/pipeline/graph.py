@@ -24,6 +24,7 @@ from llmxive.agents.idea_lifecycle import (
     BrainstormAgent,
     FleshOutAgent,
     IdeaSelectorAgent,
+    ResearchQuestionValidatorAgent,
 )
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.lifecycle import is_valid_transition
@@ -62,7 +63,11 @@ from llmxive.types import (
 STAGE_TO_AGENT: dict[Stage, str] = {
     Stage.BRAINSTORMED: "flesh_out",
     Stage.FLESH_OUT_IN_PROGRESS: "flesh_out",
-    Stage.FLESH_OUT_COMPLETE: "project_initializer",
+    # spec 003 / D10 (research_question_validator): the new validator
+    # stage runs between flesh_out and project_initializer to catch
+    # implementation-method narrowing and circular question framing.
+    Stage.FLESH_OUT_COMPLETE: "research_question_validator",
+    Stage.VALIDATED: "project_initializer",
     Stage.PROJECT_INITIALIZED: "specifier",
     Stage.SPECIFIED: "clarifier",
     Stage.CLARIFIED: "planner",
@@ -100,7 +105,12 @@ STAGE_TO_AGENT: dict[Stage, str] = {
 STAGE_AFTER_AGENT: dict[Stage, Stage] = {
     Stage.BRAINSTORMED: Stage.FLESH_OUT_COMPLETE,
     Stage.FLESH_OUT_IN_PROGRESS: Stage.FLESH_OUT_COMPLETE,
-    Stage.FLESH_OUT_COMPLETE: Stage.PROJECT_INITIALIZED,
+    # spec 003 / D10: validator runs at FLESH_OUT_COMPLETE; the sentinel
+    # detection in _decide_next_stage may override this default if the
+    # validator emits validator_revise (back to FLESH_OUT_IN_PROGRESS) or
+    # validator_rejected (back to BRAINSTORMED).
+    Stage.FLESH_OUT_COMPLETE: Stage.VALIDATED,
+    Stage.VALIDATED: Stage.PROJECT_INITIALIZED,
     Stage.PROJECT_INITIALIZED: Stage.SPECIFIED,
     Stage.SPECIFIED: Stage.CLARIFIED,
     Stage.CLARIFIED: Stage.PLANNED,
@@ -123,6 +133,7 @@ STAGE_AFTER_AGENT: dict[Stage, Stage] = {
 _NON_SPECKIT_AGENTS: dict[str, Callable[[AgentRegistryEntry], Agent]] = {
     "brainstorm": BrainstormAgent,
     "flesh_out": FleshOutAgent,
+    "research_question_validator": ResearchQuestionValidatorAgent,
     "idea_selector": IdeaSelectorAgent,
     "project_initializer": ProjectInitializerAgent,
     "research_reviewer": ResearchReviewerAgent,
@@ -392,6 +403,27 @@ def _decide_next_stage(
     scope_marker = project_dir / ".specify" / "memory" / "scope_rejected.yaml"
     if scope_marker.exists():
         scope_marker.unlink()
+        return Stage.BRAINSTORMED
+
+    # Research-question-validator routing (spec 003 / D10):
+    #   validator_revise   → roll back to FLESH_OUT_IN_PROGRESS so flesh_out
+    #                        re-runs (with the [REVISED] question hint, if any)
+    #   validator_rejected → roll back to BRAINSTORMED so brainstorm proposes
+    #                        a fresh idea
+    # Sentinels are consumed (deleted) so subsequent ticks don't repeat the
+    # routing decision. The "validated" sentinel is left in place as a
+    # historical artifact (it doesn't override the default stage transition).
+    validator_revise = (
+        project_dir / ".specify" / "memory" / "research_question_revise.yaml"
+    )
+    if validator_revise.exists():
+        validator_revise.unlink()
+        return Stage.FLESH_OUT_IN_PROGRESS
+    validator_rejected = (
+        project_dir / ".specify" / "memory" / "research_question_rejected.yaml"
+    )
+    if validator_rejected.exists():
+        validator_rejected.unlink()
         return Stage.BRAINSTORMED
 
     cur = project.current_stage

@@ -1,6 +1,6 @@
 # Flesh-Out Agent
 
-**Version**: 1.1.0
+**Version**: 1.2.0
 **Stage owned**: `brainstormed` → `flesh_out_in_progress` → `flesh_out_complete`
 **Default backend**: dartmouth (fallback huggingface, then local)
 
@@ -97,6 +97,51 @@ caller will mark this idea rejected.
   what computation will be performed, and what statistical test (if
   any) will be applied.
 - Output ONLY the Markdown document.
+
+## RESEARCH-QUESTION QUALITY (NON-NEGOTIABLE)
+
+Your `## Research question` MUST satisfy four properties. The
+research_question_validator stage will audit this AFTER you finish — but
+you should pre-check while drafting so you don't get sent back for revision.
+
+1. **Phenomenon, not method**. The question MUST name a phenomenon,
+   mechanism, or relationship in the world. It MUST NOT be framed as
+   "can method M do task T inside budget B." Write "How does X behave
+   under Y?", not "Can a 3-layer GNN predict X within 6h?". The
+   methodology section is where you describe the method; the research
+   question is where you describe what about the world you want to learn.
+2. **No circularity**. The predictor variable and the predicted variable
+   MUST be derived from independent measurements (or independent summaries
+   of distinct primary signals). If both are summaries of the same
+   correlation matrix, the same time-series data, or the same ground-truth
+   label, the question is circular by construction. Common circularity
+   traps:
+   - Centrality metrics on a functional-connectivity matrix vs. synchrony
+     measured from the same correlations.
+   - Predicting cluster labels from the same features used to construct
+     the clusters.
+   - Asking whether two transformations of the same source data correlate.
+   When in doubt, write down "predictor data source: X; predicted data
+   source: Y; are X and Y measured independently?" and only proceed if
+   yes. If you cannot find independent sources, this is a brainstorm-stage
+   problem; emit `Verdict: rejected — circular construction`.
+3. **Non-trivial answer**. Consider both possible outcomes (positive
+   correlation vs null). Would a reasonable researcher find EITHER
+   outcome publishable? If the positive result is "expected and confirmed"
+   (e.g., "larger models perform better on standard benchmarks") and the
+   null is "unsurprising" (e.g., "random baselines work poorly"), the
+   question is trivial. Reframe toward an outcome where the *answer* is
+   informative regardless of sign.
+4. **Domain-question framing**. Names a relationship between domain
+   constructs ("does protein abundance predict gene expression?") rather
+   than a constraint on the implementation ("can RandomForest map proteomics
+   to transcriptomics on CPU in 1h?"). The methodology may still mention
+   RandomForest and CPU; the question must not.
+
+If you receive a `[REVISED]…[/REVISED]` hint in the input (left by a prior
+research_question_validator iteration), treat that as the suggested
+research question for this revision. Adopt it verbatim or improve on it,
+but DO NOT regenerate the same question that was previously rejected.
 
 ## SCOPE CONSTRAINTS (NON-NEGOTIABLE)
 

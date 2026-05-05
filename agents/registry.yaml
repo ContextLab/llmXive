@@ -39,7 +39,7 @@ agents:
   outputs:
   - idea
   prompt_path: agents/prompts/flesh_out.md
-  prompt_version: 1.1.0
+  prompt_version: 1.2.0
   default_backend: dartmouth
   fallback_backends:
   - huggingface
@@ -47,6 +47,23 @@ agents:
   tools:
   - lit_search
   wall_clock_budget_seconds: 600
+  paid_opt_in: false
+- name: research_question_validator
+  purpose: Audit a fleshed-out idea for research-question quality (phenomenon-vs-method,
+    circularity, triviality, narrowing) before idea_selector promotion.
+  inputs:
+  - idea
+  outputs:
+  - idea
+  - project_state
+  prompt_path: agents/prompts/research_question_validator.md
+  prompt_version: 1.0.0
+  default_backend: dartmouth
+  fallback_backends:
+  - huggingface
+  - local
+  default_model: qwen.qwen3.5-122b
+  wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: idea_selector
   purpose: Decide whether a fleshed-out idea should be promoted to a Spec Kit project.
