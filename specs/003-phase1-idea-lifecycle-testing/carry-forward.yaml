@@ -1,0 +1,55 @@
+spec: "003-phase1-idea-lifecycle-testing"
+generated_at: 2026-05-05T04:30:00Z
+final_commit: e422cef
+projects:
+  - project_id: PROJ-261-evaluating-the-impact-of-code-duplicatio
+    final_state: project_initialized
+    final_commit: e422cef
+    agents_run:
+      - { name: brainstorm, iterations: 1, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
+      - { name: flesh_out, iterations: 1, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
+      - { name: research_question_validator, iterations: 1, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
+      - { name: project_initializer, iterations: 1, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
+    justification: |
+      Clean validated path through the full Phase 1 4-agent pipeline. The
+      research question — "How does the local density of syntactic code clones
+      correlate with the perplexity and bug-detection accuracy of pre-trained
+      language models on open-source Python code?" — passed all four validator
+      checks (phenomenon-vs-method, circularity, triviality, question-narrowing)
+      on first attempt. Either positive or null result is informative: positive
+      indicates duplication systematically biases LLM understanding (relevant
+      for AI-readiness refactoring), null challenges assumptions about training
+      data quality. The literature gap analysis section (triggered by Semantic
+      Scholar 429 — D5) provides a defensible justification for the project's
+      novelty: no published work quantifies the relationship between structural
+      clone density and downstream model metrics. Methodology uses public
+      `codeparrot/github-code` corpus with `codegen-350M-mono` in 8-bit
+      quantization on CPU — fits inside the GHA 7GB / 6h envelope.
+
+  - project_id: PROJ-262-predicting-molecular-dipole-moments-with
+    final_state: project_initialized
+    final_commit: e422cef
+    agents_run:
+      - { name: brainstorm, iterations: 1, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
+      - { name: flesh_out, iterations: 2, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
+      - { name: research_question_validator, iterations: 2, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
+      - { name: project_initializer, iterations: 1, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
+    justification: |
+      Demonstrates the full validator_revise loop end-to-end. Original
+      flesh_out output framed the question as "Can a 3-layer GNN predict
+      dipole moments on CPU within 6h?" — a method-evaluation question that
+      the new research_question_validator correctly flagged as
+      implementation-method-narrowed (phenomenon-vs-method FAIL,
+      question-narrowing FAIL). The validator's [REVISED] hint reframed the
+      question to "Which structural features of small organic molecules (atom
+      types, bond types, 3D conformation) carry the most predictive signal
+      for molecular dipole moments, and how effectively can graph-based
+      representations capture this relationship compared to traditional
+      descriptors?" — naming the underlying chemistry phenomenon (feature
+      importance for dipole prediction) and treating the GNN as the tool, not
+      the subject. flesh_out v1.2.0 (with the D12 hint-forwarding fix) adopted
+      the revised question on iter2; validator iter2 passed all four checks.
+      Methodology uses QM9 (10k molecules from HuggingFace Datasets) on CPU,
+      fits in 7GB RAM with 8-bit quantization. Cited papers (4 DOIs) all
+      Stage-1 resolved during the earlier US2 audit; the iter2 idea retains
+      the same well-grounded Related work block.

@@ -25,6 +25,12 @@ from pathlib import Path
 
 import yaml
 
+# Allow running this script directly from repo root: python tests/phase1/validate_carry_forward.py
+_HERE = Path(__file__).resolve()
+_REPO_ROOT = _HERE.parent.parent.parent
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
 from tests.phase1 import citation_resolver
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
