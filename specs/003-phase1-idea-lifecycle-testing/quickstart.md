@@ -207,6 +207,36 @@ verdict in the report.
 
 ---
 
+## Step 7.5 — Research-question validator per project (NEW per D10)
+
+For each project that passed Step 6 (citations) and is at `current_stage: flesh_out_complete`, the orchestrator routes to `research_question_validator` next. Run:
+
+```bash
+SELECTED=PROJ-NNN-<slug>   # the surviving iteration's project ID
+python -m llmxive run --project "$SELECTED" --max-tasks 1
+```
+
+**Expected outcome**: one of three:
+
+- **validated**: state advances to `validated`. `idea/research_question_validation.md` quotes 4× pass verdicts (phenomenon-vs-method, circularity, triviality, narrowing). `.specify/memory/research_question_validated.yaml` written. Proceed to Step 8.
+- **validator_revise**: state rolls back to `flesh_out_in_progress`. The validation file contains a `[REVISED]…[/REVISED]` reframing hint. `.specify/memory/research_question_revise.yaml` was written and consumed. Re-run `python -m llmxive run --project "$SELECTED" --max-tasks 1` — flesh_out v1.2.0 will read the hint and produce a revised idea. Then re-run the orchestrator one more time to invoke the validator on the revised idea. Loop limit per FR-005 + the new "Validator-flesh_out iteration loop" edge case: ≤2 round-trips.
+- **validator_rejected**: state rolls back to `brainstormed`. The project requires a fresh brainstorm. Per the bounded-iteration rule, you may either re-brainstorm (treating this as iteration of the brainstorm cohort) or drop the project from the carry-forward shortlist.
+
+**Maintainer review**: read `idea/research_question_validation.md` and confirm each of the four checks' verdicts matches your independent judgment. Common failure modes the validator should catch:
+
+- **Implementation-method narrowing** (e.g., "Can a 3-layer GNN do X within 6h?") — validator should emit `validator_revise` with a phenomenon reframing.
+- **Circular construction** (e.g., centrality on FC matrix vs synchrony from same correlations) — validator should emit `validator_revise` with an independent-source reframing OR `validator_rejected` if no fix is possible.
+- **Triviality** (e.g., "do larger models perform better on standard benchmarks?") — validator should emit `validator_revise` with a more interesting question or `validator_rejected` if the project's core idea was trivial.
+
+**Commit**:
+
+```bash
+git add projects/ state/
+PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "phase1: research_question_validator on $SELECTED (#45 #D10)"
+```
+
+---
+
 ## Step 8 — Idea_selector per project
 
 For each project that passed Step 6 with all citations verified, run

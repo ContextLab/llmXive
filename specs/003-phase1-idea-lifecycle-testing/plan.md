@@ -9,6 +9,8 @@ Drive the three Phase-1 agents (`brainstorm`, `flesh_out`, `idea_selector`) thro
 
 Technical approach: write a small standalone citation resolver (`tests/phase1/citation_resolver.py`) plus a sibling-spawner helper, lean on the existing `python -m llmxive run` orchestrator for every agent invocation, and use git history as the canonical iteration trail. No production-pipeline code changes are required for the testing infrastructure itself; the only `src/` edits will be the prompt patches discovered during iteration (which land naturally as part of the iteration loop, FR-005).
 
+**Architecture update (2026-05-04, mid-spec, per D10)**: A new `research_question_validator` agent is added to Phase 1 between `flesh_out` and `idea_selector`. The lifecycle becomes `brainstormed → flesh_out_complete → validated → project_initialized` (with `validator_revise` rolling back to `flesh_out_in_progress` and `validator_rejected` rolling back to `brainstormed`). This catches two failure modes that slipped through citation verification: implementation-method narrowing (PROJ-262) and circular construction (PROJ-268). Architecture lands in commit `aea01ec`: `Stage.VALIDATED` / `Stage.VALIDATOR_REVISE` / `Stage.VALIDATOR_REJECTED` enum values, `ResearchQuestionValidatorAgent` class, registry entry, prompt at `agents/prompts/research_question_validator.md`, `STAGE_TO_AGENT` + `STAGE_AFTER_AGENT` rewiring, and sentinel-file routing in `_decide_next_stage`. See spec.md US3.5 + FR-020 through FR-023.
+
 ## Technical Context
 
 **Language/Version**: Python 3.11 (matches `pyproject.toml`)

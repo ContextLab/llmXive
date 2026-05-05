@@ -94,7 +94,15 @@ artifact_hashes: <map<str,str>>          # default {}
 archived_at: <ISO-8601 UTC> | null       # optional; set per spec FR-019 when a non-selected project is marked archived without changing current_stage
 ```
 
-**Lifecycle stages relevant to Phase 1**: `brainstormed` → `flesh_out_in_progress` → `flesh_out_complete` → `project_initialized` (or rolls back to `brainstormed` on idea_selector reject).
+**Lifecycle stages relevant to Phase 1** (revised per D10 — research_question_validator inserted between flesh_out and idea_selector):
+
+`brainstormed` → `flesh_out_in_progress` → `flesh_out_complete` → `validated` → `project_initialized`
+
+Two intermediate stages may interrupt the flow:
+- `validator_revise` (if validator emits `validator_revise`) → routes back to `flesh_out_in_progress` for the next flesh_out re-run with [REVISED] hint.
+- `validator_rejected` (if validator emits `validator_rejected`) → routes back to `brainstormed` for fresh idea generation.
+
+idea_selector still routes back to `brainstormed` on reject from its own evaluation, identical to v1.0 behavior.
 
 **Companion file**: `state/projects/<id>.history.jsonl` — append-only, one line per stage transition.
 
@@ -235,6 +243,35 @@ projects:
 - Every `final_state` MUST be `project_initialized` (the promote target of idea_selector).
 - Every `iterations` MUST be 1 ≤ N ≤ 5 (per FR-005 cap).
 - `justification` MUST be non-empty and reference at least one specific feature of `idea/<slug>.md`.
+
+## Entity 12: Research-question validation artifact (NEW per D10)
+
+The Markdown file written by `research_question_validator` at
+`projects/<id>/idea/research_question_validation.md`.
+
+**Format conventions** (per `agents/prompts/research_question_validator.md`):
+
+- Required H2: `## Research-question validation`.
+- Required four H3 subsections, each with a `**Verdict**: pass | concern | fail` line and 2-4 sentences of rationale:
+  - `### Phenomenon-vs-method check`
+  - `### Circularity check`
+  - `### Triviality check`
+  - `### Question-narrowing check`
+- Required final H3: `### Overall verdict` with `**Verdict**: validated | validator_revise | validator_rejected`.
+- Optional: `[REVISED]…[/REVISED]` block (only when overall verdict is `validator_revise`) — contains a single suggested rewritten research question for the next flesh_out iteration.
+
+**Companion sentinel file** (one of three, written under `.specify/memory/`):
+- `research_question_validated.yaml` — informational; the default `flesh_out_complete → validated` transition fires.
+- `research_question_revise.yaml` — consumed in `_decide_next_stage`; routes project back to `flesh_out_in_progress`. May contain `revised_question:` field with the suggested rewrite.
+- `research_question_rejected.yaml` — consumed in `_decide_next_stage`; routes project back to `brainstormed`.
+
+**Validation rules**:
+- Each per-check Verdict line MUST be one of the three exact strings (`pass`, `concern`, `fail`).
+- The Overall Verdict MUST be one of the three exact strings (`validated`, `validator_revise`, `validator_rejected`).
+- If the Overall Verdict is `validator_revise`, the file MUST contain a `[REVISED]…[/REVISED]` block.
+- The corresponding sentinel file under `.specify/memory/` MUST exist and match the Overall Verdict.
+
+**Iteration semantics**: when a project goes through validate → revise → re-flesh_out → re-validate, the validation file is overwritten on the second pass. Git history preserves all iterations.
 
 ## Entity relationships
 

@@ -126,6 +126,22 @@ Diagnostic-only helpers that every user story depends on. These MUST be implemen
 
 ---
 
+## Phase 5.5: User Story 3.5 — Research-question validator audits question quality (P1, NEW per D10)
+
+**Goal**: Run the `research_question_validator` agent on each carry-forward candidate at `flesh_out_complete` and ensure all four checks (phenomenon-vs-method, circularity, triviality, narrowing) pass before idea_selector promotion.
+
+**Independent test**: For each project, read `idea/research_question_validation.md`, render an independent maintainer reading of the four checks, and confirm verdicts match.
+
+- [ ] T042a [US3.5] **Architecture deliverables (DONE in commit `aea01ec`)**: `Stage.VALIDATED` / `Stage.VALIDATOR_REVISE` / `Stage.VALIDATOR_REJECTED` enum values; `ResearchQuestionValidatorAgent` class in `src/llmxive/agents/idea_lifecycle.py`; registry entry in `agents/registry.yaml`; prompt at `agents/prompts/research_question_validator.md`; `STAGE_TO_AGENT[FLESH_OUT_COMPLETE]` rewired to validator + `STAGE_TO_AGENT[VALIDATED]` to project_initializer; sentinel-file routing for revise/rejected in `_decide_next_stage`; `flesh_out` prompt v1.1.0 → v1.2.0 with research-question-quality rules. Smoke-tested via direct Python import.
+- [ ] T042b [US3.5] For each carry-forward candidate, invoke `python -m llmxive run --project <id> --max-tasks 1` with the project at `current_stage: flesh_out_complete`. Verify either: (a) state advances to `validated` and `idea/research_question_validation.md` is written with 4× pass verdicts, OR (b) state rolls back to `flesh_out_in_progress` (with revise sentinel consumed) and the validation file contains a `[REVISED]…[/REVISED]` hint, OR (c) state rolls back to `brainstormed` (with rejected sentinel consumed).
+- [ ] T042c [US3.5] For each project that received `validator_revise`, the next `python -m llmxive run --project <id> --max-tasks 1` invocation runs `flesh_out` v1.2.0 with the [REVISED] hint. Verify the new `idea/<slug>.md` adopts or improves on the suggested research question (does NOT regenerate the rejected one). Re-run the validator on the revised idea (back at `flesh_out_complete`) and confirm a `validated` verdict on the second pass.
+- [ ] T042d [US3.5] Per-project acceptance-criteria evaluation against US3.5: 4× pass verdicts on the four-check audit; sentinel routing matched the verdict; if revise loop ran, the loop converged in ≤2 round-trips per FR-005 + the new edge case "Validator-flesh_out iteration loop". Record in report Section 3 (Validator subsection) per FR-009.
+- [ ] T042e [US3.5] **SC-010 verification**: ensure at least one project in the cohort exercised the `validator_revise` outcome end-to-end (full revise → flesh_out re-run → re-validate → validated). Quote the state-YAML and run-log entries verbatim in the report. **SC-011 verification**: confirm all carry-forward projects' final research questions show `pass` (not `concern`) on all four checks.
+
+**Independent verification (US3.5)**: read `idea/research_question_validation.md` for each carry-forward project, confirm the four checks all show `pass`, confirm at least one project's validation history shows a revise → re-flesh_out → re-validate cycle, and confirm `carry-forward.yaml` includes a `validator_iterations` field per project.
+
+---
+
 ## Phase 6: User Story 4 — Verbatim artifact capture and critical evaluation report (P1)
 
 **Goal**: Ensure the diagnostic report is structurally complete per `contracts/diagnostic-report.md`. Most content was added incrementally during US1-US3 tasks; this phase is the final pass to fill in summary/cross-reference sections.
