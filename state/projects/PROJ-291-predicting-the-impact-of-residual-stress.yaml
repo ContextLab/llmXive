@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-05T05:11:24.754103Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: materials science
+human_escalation_reason: null
+id: PROJ-291-predicting-the-impact-of-residual-stress
+last_run_id: eee85a9e-3343-4d2e-81c9-0d407d04615f
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets
+updated_at: '2026-05-05T05:15:52.030225Z'

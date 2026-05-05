@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 289,
+    "active_projects": 292,
     "ai_contributors": 29,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1653,
+    "total_contributions": 1656,
     "total_contributors": 29
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1480,
+      "contribution_count": 1483,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 269,
+      "contribution_count": 272,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-05T03:22:02.025697+00:00",
+  "generated_at": "2026-05-05T05:18:07.346712+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -20399,6 +20399,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "The Impact of Visual Search Strategies on Attentional Capture by Emotional Faces",
       "updated_at": "2026-05-05T03:18:36.129371+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-291-predicting-the-impact-of-residual-stress/idea/predicting-the-impact-of-residual-stress.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-05T05:11:24.754103+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science Can machine learning models trained on public materials datasets predict fatigue life from residual stress estimates derived from manufacturing process parameters, and how well do these models generalize across different materials and manufacturing methods? Residual stresses significantly\u2026",
+      "field": "materials science",
+      "id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 247.907506,
+          "ended_at": "2026-05-05T05:15:52.027771Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T05:11:44.120265Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets",
+      "updated_at": "2026-05-05T05:15:52.030225+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-292-the-relationship-between-personality-tra/idea/the-relationship-between-personality-tra.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-05T05:11:24.754103+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "<tool_code> print(lit_search(query=\"personality traits AI feedback personalized recommendations\", max_results=8)) print(lit_search(query=\"Big Five personality technology acceptance psychological intervention\", max_results=8)) print(lit_search(query=\"openness neuroticism automated feedback mental health\",\u2026",
+      "field": "psychology",
+      "id": "PROJ-292-the-relationship-between-personality-tra",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 104.201691,
+          "ended_at": "2026-05-05T05:17:36.691692Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T05:15:52.490001Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Relationship Between Personality Traits and Response to Personalized AI Feedback",
+      "updated_at": "2026-05-05T05:17:36.693859+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-293-predicting-the-impact-of-laser-surface-t/idea/predicting-the-impact-of-laser-surface-t.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-05T05:11:24.754103+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science Can machine learning models accurately predict the wear rate of materials subjected to laser surface texturing (LST), based on inherent material properties and LST process parameters (pulse duration, power, scanning speed, and pattern geometry)? Laser surface texturing improves tribological\u2026",
+      "field": "materials science",
+      "id": "PROJ-293-predicting-the-impact-of-laser-surface-t",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 28.437093,
+          "ended_at": "2026-05-05T05:18:05.537984Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-05T05:17:37.100891Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Impact of Laser Surface Texturing on Wear Resistance",
+      "updated_at": "2026-05-05T05:18:05.540168+00:00"
     }
   ],
   "schema_version": "2.0.0"
