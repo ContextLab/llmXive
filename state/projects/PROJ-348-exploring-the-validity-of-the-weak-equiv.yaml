@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-06T09:57:23.338905Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: physics
+human_escalation_reason: null
+id: PROJ-348-exploring-the-validity-of-the-weak-equiv
+last_run_id: b5451014-6d69-496e-80e6-081c54646adf
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Exploring the Validity of the Weak Equivalence Principle with Publicly Available
+  Planetary Orbital Data
+updated_at: '2026-05-06T09:58:37.745006Z'

@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 355,
+    "active_projects": 358,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1778,
+    "total_contributions": 1781,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1605,
+      "contribution_count": 1608,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 333,
+      "contribution_count": 336,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-06T09:39:20.041820+00:00",
+  "generated_at": "2026-05-06T09:59:52.338148+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -24905,6 +24905,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Impact of Code Generation on Software Security: A Static Analysis Study",
       "updated_at": "2026-05-06T09:05:05.085923+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-348-exploring-the-validity-of-the-weak-equiv/idea/exploring-the-validity-of-the-weak-equiv.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T09:57:23.338905+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics Do planets with different bulk compositions (iron core fraction, silicate mantle ratio) exhibit systematically different orbital deviations from General Relativity predictions over multi-decadal timescales, which would indicate a composition-dependent violation of the Weak Equivalence Principle? The\u2026",
+      "field": "physics",
+      "id": "PROJ-348-exploring-the-validity-of-the-weak-equiv",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 49.195391,
+          "ended_at": "2026-05-06T09:58:37.742313Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T09:57:48.546922Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Exploring the Validity of the Weak Equivalence Principle with Publicly Available Planetary Orbital Data",
+      "updated_at": "2026-05-06T09:58:37.745006+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-349-predicting-the-impact-of-ball-milling-on/idea/predicting-the-impact-of-ball-milling-on.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T09:57:23.338905+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science How do ball milling parameters (speed, time, ball-to-powder ratio) and material properties (Young's modulus, density) influence the final particle size distribution of milled powders? Precise control of particle size distribution is critical in materials applications ranging from\u2026",
+      "field": "materials science",
+      "id": "PROJ-349-predicting-the-impact-of-ball-milling-on",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 38.25782,
+          "ended_at": "2026-05-06T09:59:16.635586Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T09:58:38.377766Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Impact of Ball Milling on Particle Size Distribution",
+      "updated_at": "2026-05-06T09:59:16.638134+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-350-assessing-the-validity-of-statistical-po/idea/assessing-the-validity-of-statistical-po.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T09:57:23.338905+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How do planned statistical power estimates in pre-registered studies compare to the achieved power calculated from actual sample sizes and observed effect sizes, and what factors systematically predict discrepancies between them? Pre-registration of studies now includes required power analyses, yet\u2026",
+      "field": "statistics",
+      "id": "PROJ-350-assessing-the-validity-of-statistical-po",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 32.561645,
+          "ended_at": "2026-05-06T09:59:49.781072Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T09:59:17.219427Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Assessing the Validity of Statistical Power in Publicly Available Pre-Registered Studies",
+      "updated_at": "2026-05-06T09:59:49.783573+00:00"
     }
   ],
   "schema_version": "2.0.0"
