@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 377,
+    "active_projects": 380,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1823,
+    "total_contributions": 1826,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1650,
+      "contribution_count": 1653,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 355,
+      "contribution_count": 358,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-06T17:42:36.478881+00:00",
+  "generated_at": "2026-05-06T18:47:36.164255+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -26379,6 +26379,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Impact of Code Generation on Code Review Quality with LLM Assistance",
       "updated_at": "2026-05-06T17:42:33.912251+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/idea/predicting-the-elastic-anisotropy-of-fcc.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T18:44:56.305502+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science How does elemental composition influence the elastic anisotropy factor (A\u2081) in face-centered cubic (FCC) metals and alloys, and can compositional descriptors predict this mechanical property across different alloy systems? Elastic anisotropy governs plastic deformation behavior and texture\u2026",
+      "field": "materials science",
+      "id": "PROJ-371-predicting-the-elastic-anisotropy-of-fcc",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 29.999641,
+          "ended_at": "2026-05-06T18:45:41.119868Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T18:45:11.120227Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Elastic Anisotropy of FCC Metals from Composition",
+      "updated_at": "2026-05-06T18:45:41.122289+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-372-assessing-the-sensitivity-of-regression-/idea/assessing-the-sensitivity-of-regression-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T18:44:56.305502+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How does the variability of ordinary least squares regression coefficients scale with sample size and predictor collinearity across diverse public observational datasets? Publicly available datasets often represent convenience samples where the specific rows included may not fully capture population\u2026",
+      "field": "statistics",
+      "id": "PROJ-372-assessing-the-sensitivity-of-regression-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 65.522545,
+          "ended_at": "2026-05-06T18:46:47.207289Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T18:45:41.684744Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection",
+      "updated_at": "2026-05-06T18:46:47.209564+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/idea/predicting-rate-constants-of-sn1-reactio.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T18:44:56.305502+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry How do molecular structural features determine SN1 reaction rate constants across diverse substrate classes? SN1 reactions are fundamental to organic synthesis and industrial chemistry, yet rate prediction from structure alone remains unreliable due to complex carbocation intermediate stability\u2026",
+      "field": "chemistry",
+      "id": "PROJ-373-predicting-rate-constants-of-sn1-reactio",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 46.220454,
+          "ended_at": "2026-05-06T18:47:33.933603Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T18:46:47.713149Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Rate Constants of SN1 Reactions from Molecular Structure",
+      "updated_at": "2026-05-06T18:47:33.935827+00:00"
     }
   ],
   "schema_version": "2.0.0"
