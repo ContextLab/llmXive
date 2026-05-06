@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 364,
+    "active_projects": 365,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1787,
+    "total_contributions": 1795,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1614,
+      "contribution_count": 1622,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 342,
+      "contribution_count": 343,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-06T11:43:20.152023+00:00",
+  "generated_at": "2026-05-06T12:53:31.465258+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -18488,73 +18488,6 @@
         "citations": null,
         "code": null,
         "data": null,
-        "idea": "projects/PROJ-331-investigating-the-correlation-between-gu/idea/investigating-the-correlation-between-gu.md",
-        "paper_figures": null,
-        "paper_pdf": null,
-        "paper_plan": null,
-        "paper_source": null,
-        "paper_spec": null,
-        "paper_tasks": null,
-        "plan": null,
-        "reviews_paper": null,
-        "reviews_research": null,
-        "spec": null,
-        "tasks": null
-      },
-      "authors": [
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "google.gemma-3-27b-it",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
-          "roles": [
-            "flesh_out"
-          ]
-        }
-      ],
-      "citation_summary": {
-        "mismatch": 0,
-        "pending": 0,
-        "unreachable": 0,
-        "verified": 0
-      },
-      "created_at": "2026-05-04T16:42:35.792677+00:00",
-      "current_stage": "flesh_out_complete",
-      "description": "Field: biology Which specific gut microbial taxa are significantly correlated with longitudinal progression rates of Parkinson\u2019s Disease (PD) severity, after controlling for age, sex, and medication status? Parkinson\u2019s Disease exhibits substantial clinical heterogeneity, complicating prognosis and treatment\u2026",
-      "field": "biology",
-      "id": "PROJ-331-investigating-the-correlation-between-gu",
-      "keywords": [],
-      "last_run_log": [
-        {
-          "agent": "flesh_out",
-          "duration_s": 60.311658,
-          "ended_at": "2026-05-04T16:43:49.940816Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-04T16:42:49.629158Z"
-        }
-      ],
-      "phase_group": "idea",
-      "points_paper_total": 0.0,
-      "points_research_total": 0.0,
-      "speckit_paper_dir": null,
-      "speckit_research_dir": null,
-      "submitter": "google.gemma-3-27b-it",
-      "title": "Investigating the Correlation Between Gut Microbiome Composition and Parkinson\u2019s Disease Progression",
-      "updated_at": "2026-05-04T16:43:49.943402+00:00"
-    },
-    {
-      "artifact_links": {
-        "citations": null,
-        "code": null,
-        "data": null,
         "idea": "projects/PROJ-262-predicting-molecular-dipole-moments-with/idea/research_question_validation.md",
         "paper_figures": null,
         "paper_pdf": null,
@@ -18674,73 +18607,6 @@
       "submitter": null,
       "title": "Predicting Molecular Dipole Moments with Graph Neural Networks",
       "updated_at": "2026-05-05T04:11:55.497331+00:00"
-    },
-    {
-      "artifact_links": {
-        "citations": null,
-        "code": null,
-        "data": null,
-        "idea": "projects/PROJ-332-quantifying-the-impact-of-magnetic-field/idea/quantifying-the-impact-of-magnetic-field.md",
-        "paper_figures": null,
-        "paper_pdf": null,
-        "paper_plan": null,
-        "paper_source": null,
-        "paper_spec": null,
-        "paper_tasks": null,
-        "plan": null,
-        "reviews_paper": null,
-        "reviews_research": null,
-        "spec": null,
-        "tasks": null
-      },
-      "authors": [
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "google.gemma-3-27b-it",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
-          "roles": [
-            "flesh_out"
-          ]
-        }
-      ],
-      "citation_summary": {
-        "mismatch": 0,
-        "pending": 0,
-        "unreachable": 0,
-        "verified": 0
-      },
-      "created_at": "2026-05-04T16:42:35.792677+00:00",
-      "current_stage": "flesh_out_complete",
-      "description": "Field: physics How do specific magnetic field topology features (e.g., magnetic island width, resonant surface density) correlate with energy confinement time in publicly available tokamak discharge data? Fusion performance is limited by turbulence and instabilities that alter magnetic field topology, yet the precise\u2026",
-      "field": "physics",
-      "id": "PROJ-332-quantifying-the-impact-of-magnetic-field",
-      "keywords": [],
-      "last_run_log": [
-        {
-          "agent": "flesh_out",
-          "duration_s": 63.347854,
-          "ended_at": "2026-05-04T16:44:53.675087Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-04T16:43:50.327233Z"
-        }
-      ],
-      "phase_group": "idea",
-      "points_paper_total": 0.0,
-      "points_research_total": 0.0,
-      "speckit_paper_dir": null,
-      "speckit_research_dir": null,
-      "submitter": "google.gemma-3-27b-it",
-      "title": "Quantifying the Impact of Magnetic Field Topology on Plasma Confinement",
-      "updated_at": "2026-05-04T16:44:53.677492+00:00"
     },
     {
       "artifact_links": {
@@ -19344,73 +19210,6 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Exploring the Relationship Between Atmospheric River Intensity and Regional Gravity Variations",
       "updated_at": "2026-05-04T18:44:39.754835+00:00"
-    },
-    {
-      "artifact_links": {
-        "citations": null,
-        "code": null,
-        "data": null,
-        "idea": "projects/PROJ-267-predicting-plant-stress-response-from-pu-iter2/idea/predicting-plant-stress-response-from-pu.md",
-        "paper_figures": null,
-        "paper_pdf": null,
-        "paper_plan": null,
-        "paper_source": null,
-        "paper_spec": null,
-        "paper_tasks": null,
-        "plan": null,
-        "reviews_paper": null,
-        "reviews_research": null,
-        "spec": null,
-        "tasks": null
-      },
-      "authors": [
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "google.gemma-3-27b-it",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
-          "roles": [
-            "flesh_out"
-          ]
-        }
-      ],
-      "citation_summary": {
-        "mismatch": 0,
-        "pending": 0,
-        "unreachable": 0,
-        "verified": 0
-      },
-      "created_at": "2026-05-04T20:50:00+00:00",
-      "current_stage": "flesh_out_complete",
-      "description": "Field: biology Can publicly available plant proteomic datasets under abiotic stress conditions (drought, salinity, heat) be used to train machine learning models that accurately predict corresponding gene expression patterns in novel, unseen stress conditions? Current plant stress assessment relies on costly and\u2026",
-      "field": "biology",
-      "id": "PROJ-267-predicting-plant-stress-response-from-pu-iter2",
-      "keywords": [],
-      "last_run_log": [
-        {
-          "agent": "flesh_out",
-          "duration_s": 31.170391,
-          "ended_at": "2026-05-05T03:17:49.367037Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-05T03:17:18.196646Z"
-        }
-      ],
-      "phase_group": "idea",
-      "points_paper_total": 0.0,
-      "points_research_total": 0.0,
-      "speckit_paper_dir": null,
-      "speckit_research_dir": null,
-      "submitter": "google.gemma-3-27b-it",
-      "title": "Predicting Plant Stress Response from Publicly Available Proteomic Data",
-      "updated_at": "2026-05-05T03:17:49.371068+00:00"
     },
     {
       "artifact_links": {
@@ -23772,6 +23571,73 @@
         "citations": null,
         "code": null,
         "data": null,
+        "idea": "projects/PROJ-331-investigating-the-correlation-between-gu/idea/investigating-the-correlation-between-gu.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T16:42:35.792677+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Which specific gut microbial taxa are significantly correlated with longitudinal progression rates of Parkinson\u2019s Disease (PD) severity, after controlling for age, sex, and medication status? Parkinson\u2019s Disease exhibits substantial clinical heterogeneity, complicating prognosis and treatment\u2026",
+      "field": "biology",
+      "id": "PROJ-331-investigating-the-correlation-between-gu",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 60.311658,
+          "ended_at": "2026-05-04T16:43:49.940816Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T16:42:49.629158Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Correlation Between Gut Microbiome Composition and Parkinson\u2019s Disease Progression",
+      "updated_at": "2026-05-04T16:43:49.943402+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
         "idea": "projects/PROJ-331-investigating-the-influence-of-network-m/idea/investigating-the-influence-of-network-m.md",
         "paper_figures": null,
         "paper_pdf": null,
@@ -23900,6 +23766,73 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Exploring the Influence of Network Topology on Thermal Conductivity in Nanomaterials",
       "updated_at": "2026-05-06T00:59:43.102689+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-332-quantifying-the-impact-of-magnetic-field/idea/quantifying-the-impact-of-magnetic-field.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-04T16:42:35.792677+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics How do specific magnetic field topology features (e.g., magnetic island width, resonant surface density) correlate with energy confinement time in publicly available tokamak discharge data? Fusion performance is limited by turbulence and instabilities that alter magnetic field topology, yet the precise\u2026",
+      "field": "physics",
+      "id": "PROJ-332-quantifying-the-impact-of-magnetic-field",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 63.347854,
+          "ended_at": "2026-05-04T16:44:53.675087Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-04T16:43:50.327233Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Quantifying the Impact of Magnetic Field Topology on Plasma Confinement",
+      "updated_at": "2026-05-04T16:44:53.677492+00:00"
     },
     {
       "artifact_links": {
@@ -25508,6 +25441,140 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting Molecular Toxicity from Structural Alerts via Rule-Based Systems",
       "updated_at": "2026-05-06T11:43:17.627812+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-357-the-impact-of-visual-crowding-on-facial-/idea/the-impact-of-visual-crowding-on-facial-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T12:50:47.766473+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: Psychology / Vision Science To what extent does increasing visual crowding density degrade the perceptual accuracy of facial emotion recognition, and does this degradation vary across specific emotion categories? Visual crowding is a fundamental bottleneck in peripheral vision, yet its specific impact on the\u2026",
+      "field": "psychology",
+      "id": "PROJ-357-the-impact-of-visual-crowding-on-facial-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 104.689027,
+          "ended_at": "2026-05-06T12:52:57.183210Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T12:51:12.494183Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Visual Crowding on Facial Emotion Recognition Accuracy",
+      "updated_at": "2026-05-06T12:52:57.185842+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-358-the-influence-of-network-topology-on-neu/idea/the-influence-of-network-topology-on-neu.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T12:50:47.766473+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: neuroscience How does the baseline topological organization of resting-state brain networks relate to the degree of neural synchrony exhibited during working memory task performance? Understanding whether individual differences in baseline brain network architecture predict dynamic neural communication during\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-358-the-influence-of-network-topology-on-neu",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 31.532079,
+          "ended_at": "2026-05-06T12:53:29.264287Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T12:52:57.732208Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Influence of Network Topology on Neural Synchrony During Cognitive Tasks",
+      "updated_at": "2026-05-06T12:53:29.266774+00:00"
     }
   ],
   "schema_version": "2.0.0"
