@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-06T05:14:13.688086Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: statistics
+human_escalation_reason: null
+id: PROJ-341-evaluating-the-sensitivity-of-common-sta
+last_run_id: b753d7b8-9b98-4dac-9f7a-16cb77ada0ed
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Evaluating the Sensitivity of Common Statistical Tests to Dataset Size
+updated_at: '2026-05-06T05:16:24.009654Z'

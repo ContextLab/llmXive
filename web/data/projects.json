@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 346,
+    "active_projects": 349,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1753,
+    "total_contributions": 1756,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1580,
+      "contribution_count": 1583,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 324,
+      "contribution_count": 327,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-06T03:22:31.883694+00:00",
+  "generated_at": "2026-05-06T05:16:26.461241+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -24302,6 +24302,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies",
       "updated_at": "2026-05-06T03:20:10.903915+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-339-predicting-plant-volatile-organic-compou/idea/predicting-plant-volatile-organic-compou.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T05:14:13.688086+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology How do genomic features and environmental conditions jointly explain variation in plant volatile organic compound (VOC) emission profiles? VOCs mediate critical plant-insect interactions and stress signaling, yet the quantitative drivers of their emission remain partially understood. While individual\u2026",
+      "field": "biology",
+      "id": "PROJ-339-predicting-plant-volatile-organic-compou",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 62.725572,
+          "ended_at": "2026-05-06T05:15:31.017543Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T05:14:28.291971Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Plant Volatile Organic Compound Emission Profiles from Publicly Available Genomic and Environmental Data",
+      "updated_at": "2026-05-06T05:15:31.020466+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-340-investigating-the-correlation-between-gu/idea/investigating-the-correlation-between-gu.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T05:14:13.688086+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "I'll search for relevant literature to ground this research idea, then flesh it out according to the output contract. ```lit_search query: gut microbiome sleep architecture correlation human study max_results: 8 ``` ```lit_search query: gut-brain axis sleep stages REM slow-wave sleep microbiome diversity max_results: 8",
+      "field": "biology",
+      "id": "PROJ-340-investigating-the-correlation-between-gu",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 13.865685,
+          "ended_at": "2026-05-06T05:15:45.513554Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T05:15:31.647869Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Correlation Between Gut Microbiome Composition and Sleep Architecture",
+      "updated_at": "2026-05-06T05:15:45.516118+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/idea/evaluating-the-sensitivity-of-common-sta.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T05:14:13.688086+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How do Type I and Type II error rates of common parametric statistical tests (t-test, ANOVA, chi-squared) change as sample size decreases, and at what threshold do these tests become unreliable for practical inference? Many empirical studies across disciplines operate with limited sample sizes due to\u2026",
+      "field": "statistics",
+      "id": "PROJ-341-evaluating-the-sensitivity-of-common-sta",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 37.930833,
+          "ended_at": "2026-05-06T05:16:24.007088Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T05:15:46.076255Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Sensitivity of Common Statistical Tests to Dataset Size",
+      "updated_at": "2026-05-06T05:16:24.009654+00:00"
     }
   ],
   "schema_version": "2.0.0"
