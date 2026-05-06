@@ -53,11 +53,17 @@ class ProjectInitializerAgent(Agent):
             repo_root=repo,
         )
 
-        idea_summary = ""
-        if ctx.inputs:
-            idea_path = repo / ctx.inputs[0]
-            if idea_path.exists():
-                idea_summary = idea_path.read_text(encoding="utf-8")
+        # Fail-fast on missing idea file (P2-D03 / FR-012 / Constitution Principle V).
+        # The previous defensive `if idea_path.exists()` masked missing inputs and
+        # produced constitutions untethered from any idea body.
+        if not ctx.inputs:
+            raise FileNotFoundError(
+                f"project_initializer requires at least one input (idea file path); got ctx.inputs={ctx.inputs!r}"
+            )
+        idea_path = repo / ctx.inputs[0]
+        if not idea_path.is_file():
+            raise FileNotFoundError(f"idea seed not found: {idea_path}")
+        idea_summary = idea_path.read_text(encoding="utf-8")
 
         system_prompt = render_prompt(
             self.entry.prompt_path,
@@ -84,12 +90,22 @@ class ProjectInitializerAgent(Agent):
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
         repo = Path(__file__).resolve().parent.parent.parent.parent
         project_dir = repo / "projects" / ctx.project_id
+        constitution_path = project_dir / ".specify" / "memory" / "constitution.md"
+
+        # Idempotency guard (FR-011 / spec-004 Q3): if the project already has
+        # a constitution, treat the entire agent invocation as a no-op for
+        # the constitution write. We still re-call init_speckit_in (which is
+        # idempotent on directories per src/llmxive/speckit/runner.py:114).
+        # Re-rendering a governance document silently mutates downstream
+        # Constitution Checks, so skip-if-exists is the safe default.
+        if constitution_path.is_file():
+            init_speckit_in(project_dir)
+            return [str(constitution_path.relative_to(repo))]
 
         # Mechanical step: scaffold .specify/ inside the project.
         init_speckit_in(project_dir)
 
         # Write the LLM-rendered constitution.
-        constitution_path = project_dir / ".specify" / "memory" / "constitution.md"
         constitution_path.parent.mkdir(parents=True, exist_ok=True)
         constitution_text = response.text.strip()
         if not constitution_text.startswith("#"):
