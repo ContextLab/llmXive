@@ -1,6 +1,15 @@
 """Phase 1 sibling project spawner.
 
-Implements the contract at
+⚠️ DEPRECATED post spec 004 (2026-05-06): the sibling-iteration pattern
+was retired in favor of in-place iteration on canonical projects, with
+git history (commits + log notes) tracking the iteration trail. The
+proliferation of ``PROJ-NNN-<slug>-iterN`` directories produced messy
+project trees with no offsetting benefit. This file is preserved for
+spec 003's historical reproducibility, but new phase-test specs MUST
+NOT call it. See ``notes/2026-05-06-iteration-convention-change.md``
+for rationale.
+
+Original contract:
 ``specs/003-phase1-idea-lifecycle-testing/contracts/sibling-project.md``.
 
 Spawns ``PROJ-NNN-<slug>-iterN`` from canonical ``PROJ-NNN-<slug>``:

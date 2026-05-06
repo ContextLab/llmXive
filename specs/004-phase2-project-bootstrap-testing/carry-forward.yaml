@@ -1,59 +1,52 @@
 spec: "004-phase2-project-bootstrap-testing"
-generated_at: 2026-05-06T02:35:00Z
-final_commit: 7da5bd1
+generated_at: 2026-05-06T03:00:00Z
+final_commit: HEAD
 projects:
-  - project_id: PROJ-261-evaluating-the-impact-of-code-duplicatio-iter6
+  - project_id: PROJ-261-evaluating-the-impact-of-code-duplicatio
     final_state: project_initialized
-    final_commit: 7da5bd1
-    phase2_iter2_id: PROJ-261-evaluating-the-impact-of-code-duplicatio-iter6
+    final_commit: HEAD
+    audited_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio  # in-place; iteration trail in git log
     agents_run:
       - { name: brainstorm, iterations: 1, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
       - { name: flesh_out, iterations: 1, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
       - { name: research_question_validator, iterations: 1, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
-      - { name: project_initializer, iterations: 3, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio-iter6 }
+      - { name: project_initializer, iterations: 3, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
     justification: |
-      Clean iter6 run with project_initializer prompt v1.2.0, after deep
-      re-audit on iter3 surfaced a MEDIUM defect (P2-D06: fabricated
-      "Code Licensing & Compliance" principle with no basis in idea body).
-      v1.2.0 prompt added explicit principle-grounding requirements (every
-      claim must trace to a specific idea-body section). iter6 result:
-      Principle VI "Statistical Correlation Integrity" grounds in idea's
-      Methodology + Expected results (p < 0.05 threshold, Spearman's rank
-      correlation), Principle VII "Clone Detection Consistency" grounds
-      in idea's Methodology (AST-based clone detector, codeparrot/github-code).
-      Both principles directly cite idea-body methodology elements. All 5
-      inherited principles preserved verbatim. No external citations. No
-      HTML comments. No token leaks. All 9 mechanical scaffold files
-      byte-identical to repo-root canonicals. Idempotency check on iter3
-      already passed; same code path produces same result for iter6 (skip-
-      if-exists guard verified by tests/phase1/test_idempotency.py 4/4
-      PASS). Ready for spec 005's specifier + clarifier agents.
+      Constitution audited under project_initializer prompt v1.2.0 (the
+      audited content was originally produced on a now-removed iter6
+      sibling and copied in place onto the canonical per the iteration
+      convention change documented at notes/2026-05-06-iteration-convention-change.md).
+      All six US2 contract items PASS plus four EXTRA audit checks
+      (no DOI, no HTML comments, no token leaks, every new-principle
+      claim traces to a specific idea-body section). Principle VI
+      "Statistical Correlation Integrity" grounds in idea's Methodology
+      + Expected results (p < 0.05 threshold, Spearman's rank correlation).
+      Principle VII "Clone Detection Consistency" grounds in idea's
+      Methodology (AST-based clone detector, codeparrot/github-code subset).
+      All 5 inherited principles preserved. Iteration trail visible in
+      `git log -- projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/`.
+      Ready for spec 005's specifier + clarifier agents.
 
-  - project_id: PROJ-262-predicting-molecular-dipole-moments-with-iter6
+  - project_id: PROJ-262-predicting-molecular-dipole-moments-with
     final_state: project_initialized
-    final_commit: 7da5bd1
-    phase2_iter2_id: PROJ-262-predicting-molecular-dipole-moments-with-iter6
+    final_commit: HEAD
+    audited_iter_id: PROJ-262-predicting-molecular-dipole-moments-with  # in-place
     agents_run:
       - { name: brainstorm, iterations: 1, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
       - { name: flesh_out, iterations: 2, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
       - { name: research_question_validator, iterations: 2, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
-      - { name: project_initializer, iterations: 3, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with-iter6 }
+      - { name: project_initializer, iterations: 3, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
     justification: |
-      Clean iter6 run with v1.2.0 prompt. The LLM internalized the
-      grounding requirement so well that it included explicit "This
-      principle is grounded in..." annotations directly in the constitution
-      body, citing specific idea sections (Methodology sketch, Expected
-      results, Research question, Motivation) by name. Principle VI
-      "3D Geometry Preservation" grounds in idea's Methodology sketch
-      ("extract 3D coordinates, atom types, and bond connectivity") and
-      Expected results ("3D conformation carries significant signal").
-      Principle VII "Chemical Interpretability" grounds in idea's Research
-      question ("Which structural features... carry the most predictive
-      signal") and Motivation ("Understanding which structural components
-      drive dipole predictions is critical for designing interpretable
-      machine learning potentials"). Both principles strictly within the
-      project's actual research scope; no fabrication. All other contract
-      items pass: heading + footer correctly substituted, all 5 inherited
-      principles preserved, no external citations (the v1.1.0 fix held),
-      no HTML comments, no token leaks, all 9 mechanical scaffold files
-      byte-identical to canonical. Spec 005 can proceed with confidence.
+      Constitution audited under project_initializer prompt v1.2.0
+      (originally produced on iter6 sibling, copied in place per
+      convention change). The LLM included explicit "This principle is
+      grounded in..." annotations directly in the constitution body,
+      citing specific idea sections by name. Principle VI "3D Geometry
+      Preservation" grounds in idea's Methodology sketch ("extract 3D
+      coordinates, atom types, and bond connectivity") and Expected
+      results ("3D conformation carries significant signal"). Principle
+      VII "Chemical Interpretability" grounds in idea's Research question
+      ("Which structural features... carry the most predictive signal")
+      and Motivation. Both principles strictly within the project's
+      actual research scope; no fabrication. Iteration trail in
+      `git log -- projects/PROJ-262-predicting-molecular-dipole-moments-with/`.

@@ -37,30 +37,25 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio.yaml` `updated_at` timestamp.
 
-### VI. Model & License Compliance
+### VI. Statistical Correlation Integrity
 
-All pre-trained models (e.g., `Salesforce/codegen-350M-mono`) and datasets
-(e.g., `codeparrot/github-code`) MUST be verified for permissive licensing
-compatible with research publication. Model weights MUST be pinned by commit
-hash or version tag to prevent silent upstream changes from altering results.
+Correlation analysis MUST report p-values. Claims regarding the relationship between duplication density and model performance MUST meet the p < 0.05 significance threshold defined in the Expected Results. Spearman’s rank correlation MUST be used as the primary metric.
 
-### VII. Evaluation Benchmark Fidelity
+### VII. Clone Detection Consistency
 
-The `humaneval` evaluation suite MUST be executed using the reference harness
-without modification. Metric calculations MUST follow the canonical definition
-to ensure comparability with external baselines and prevent metric gaming.
+The AST-based clone detector configuration MUST be pinned in `code/`. The 'duplication density' score MUST be derived using the pinned detector on the `codeparrot/github-code` subset to ensure comparability.
 
 ## Reproducibility Requirements
 
 - A `requirements.txt` (or `pyproject.toml`) at `projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/`
   pins every Python dependency.
-- External datasets MUST be fetched from the same canonical source on every run.
-  Specifically, `codeparrot/github-code` and `Salesforce/codegen-350M-mono`
-  MUST be fetched via HuggingFace Hub with pinned revision IDs.
 - The Code-Execution Agent runs each task in an isolated virtualenv built
   from this requirements file; no global packages are assumed.
 - Every notebook or script under `code/` is runnable end-to-end without
   manual intervention.
+- The `codeparrot/github-code` subset MUST be downloaded with a recorded commit hash to ensure data consistency.
+- The `Salesforce/codegen-350M-mono` model MUST be loaded with the specified 8-bit quantization settings in `code/`.
+- The `humaneval` suite MUST be used for the bug detection evaluation without modification.
 
 ## Data Hygiene
 
@@ -86,7 +81,7 @@ citation in `unreachable` or `mismatch` status.
 ## Versioning
 
 This constitution carries its own semver. Initial version:
-**1.0.0** — ratified 2026-05-05.
+**1.0.0** — ratified 2026-05-06.
 
 Amendments follow the parent llmXive constitution's amendment procedure
 (open a PR; update the version line; record a Sync Impact Report).
@@ -101,4 +96,4 @@ Review-point thresholds for this project follow `web/about.html`. The
 parser at `src/llmxive/config.py` is the single source these numbers
 flow from.
 
-**Project ID**: PROJ-261-evaluating-the-impact-of-code-duplicatio | **Field**: computer science | **Ratified**: 2026-05-05
+**Project ID**: PROJ-261-evaluating-the-impact-of-code-duplicatio | **Field**: computer science | **Ratified**: 2026-05-06

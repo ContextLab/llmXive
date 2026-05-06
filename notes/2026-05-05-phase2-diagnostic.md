@@ -1,11 +1,13 @@
 # Phase 2 (Project Bootstrap) Diagnostic Report
 
 **Spec**: [specs/004-phase2-project-bootstrap-testing/spec.md](../specs/004-phase2-project-bootstrap-testing/spec.md)
-**Generated**: 2026-05-06T01:50:00Z
+**Generated**: 2026-05-06T01:50:00Z (last updated 2026-05-06T03:00:00Z post convention change)
 **Branch**: `008-phase2-project-bootstrap-testing`
-**Final commit**: `0eafcd8` (will update post-merge)
+**Final commit**: see `git log` (HEAD as of last update)
 **Issue**: #46 (parent) / #62 (project_initializer)
 **Tracker**: #107
+
+> **Convention-change note (2026-05-06)**: This report's prose references `-iterN` sibling directories that existed during the spec's original execution but were removed post-spec per the new in-place-iteration convention. See [`notes/2026-05-06-iteration-convention-change.md`](2026-05-06-iteration-convention-change.md). The iteration trail described in §5 is now browsable via `git log -- projects/PROJ-NNN-<slug>/` rather than via filesystem suffixes. The audited Phase 2 outputs (constitutions) live in place at `projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/.specify/memory/constitution.md` and `projects/PROJ-262-predicting-molecular-dipole-moments-with/.specify/memory/constitution.md`.
 
 ---
 
@@ -434,10 +436,14 @@ title: Predicting Molecular Dipole Moments with Graph Neural Networks
 
 **Justification (≤200 words)**: Clean iter6 run with v1.2.0 prompt. The LLM internalized the grounding requirement so well that it included explicit "This principle is grounded in..." annotations directly in the constitution body, citing specific idea sections by name. Principle VI "3D Geometry Preservation" grounds in idea's Methodology sketch ("extract 3D coordinates, atom types, and bond connectivity") and Expected results ("3D conformation carries significant signal"). Principle VII "Chemical Interpretability" grounds in idea's Research question ("Which structural features... carry the most predictive signal") and Motivation ("Understanding which structural components drive dipole predictions is critical for designing interpretable machine learning potentials"). Both principles strictly within the project's actual research scope; no fabrication. All other contract items pass: heading + footer substituted, all 5 inherited principles preserved, no external citations (the v1.1.0 fix held), no HTML comments, no token leaks, all 9 mechanical scaffold files byte-identical to canonical.
 
-### Cross-reference
+### Cross-reference (post convention change)
 
-Both iter6 siblings exist on the feature branch (commit `7da5bd1`) at `current_stage: project_initialized`. iter2 + iter3 + iter4 + iter5 siblings are now all archived (`archived_at` field populated) — they remain readable for spec 005 as historical evidence of the iteration trajectory but are NOT the active carry-forward targets.
+The audited Phase 2 outputs are now committed in place on the canonical paths:
+- `projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/.specify/memory/constitution.md`
+- `projects/PROJ-262-predicting-molecular-dipole-moments-with/.specify/memory/constitution.md`
 
-**Iteration trajectory** (high-level Phase 7 health metric): iter2 (v1.0.0 prompt) had P2-D04 + P2-D05 → iter3 (v1.1.0) fixed both but introduced P2-D06 → iter6 (v1.2.0) fixed P2-D06 cleanly. Total iterations on `project_initializer`: 3 (iter2, iter3, iter6) — well under the FR-005 5-cycle cap. **Strictly monotone quality improvement across iterations; no regressions detected by the deep audit.**
+Both files contain the iter6-audited content with the `-iter6` suffix stripped from the substituted project_id references. The iteration trail (iter2 → iter3 → iter6 of `project_initializer`) is no longer represented as separate sibling directories; instead the commit history on this feature branch is the canonical record. To browse: `git log --oneline -- agents/prompts/project_initializer.md` shows the v1.0.0 → v1.1.0 → v1.2.0 prompt-version commits and their motivating defects.
 
-**Carry-forward complete. Spec 005 (Phase 3) MAY pick up these iter6 projects.** See `specs/004-phase2-project-bootstrap-testing/carry-forward.yaml` for the structured manifest.
+**Iteration trajectory** (high-level Phase 7 health metric): iter2 (v1.0.0 prompt) had P2-D04 + P2-D05 → iter3 (v1.1.0) fixed both but introduced P2-D06 → iter6 (v1.2.0) fixed P2-D06 cleanly. Total iterations on `project_initializer`: 3 — well under the FR-005 5-cycle cap. **Strictly monotone quality improvement across iterations; no regressions detected by the deep audit.**
+
+**Carry-forward complete. Spec 005 (Phase 3) MAY pick up these canonical projects.** See `specs/004-phase2-project-bootstrap-testing/carry-forward.yaml` for the structured manifest.
