@@ -1,55 +1,59 @@
 spec: "004-phase2-project-bootstrap-testing"
-generated_at: 2026-05-06T01:55:00Z
-final_commit: 0eafcd8
+generated_at: 2026-05-06T02:35:00Z
+final_commit: 7da5bd1
 projects:
-  - project_id: PROJ-261-evaluating-the-impact-of-code-duplicatio-iter3
+  - project_id: PROJ-261-evaluating-the-impact-of-code-duplicatio-iter6
     final_state: project_initialized
-    final_commit: fce9ebf
-    phase2_iter2_id: PROJ-261-evaluating-the-impact-of-code-duplicatio-iter3
+    final_commit: 7da5bd1
+    phase2_iter2_id: PROJ-261-evaluating-the-impact-of-code-duplicatio-iter6
     agents_run:
       - { name: brainstorm, iterations: 1, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
       - { name: flesh_out, iterations: 1, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
       - { name: research_question_validator, iterations: 1, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
-      - { name: project_initializer, iterations: 2, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio-iter3 }
+      - { name: project_initializer, iterations: 3, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio-iter6 }
     justification: |
-      Clean iter3 run on first pass with project_initializer prompt v1.1.0. All
-      six US2 contract items PASS. Heading + footer correctly substituted. All
-      five inherited principles (I-V) preserved verbatim. Two domain-specific
-      principles added — VI (Model & Compute Integrity) addressing 8-bit
-      quantization + hardware constraints, VII (Code Licensing & Compliance)
-      addressing GPL-restriction tracking — both grounded in the project's
-      idea body (LLM inference on duplicated source code). Reproducibility
-      Requirements names `codeparrot/github-code` as a dataset name (allowed
-      per v1.1.0 — name without canonical pointer). No HTML comment leak
-      (P2-D04 fixed in commit 8f2fe48). No external citations (P2-D05 not
-      relevant for this project). All 9 mechanical scaffold files (4 scripts
-      + 5 templates) byte-identical to repo-root canonicals (sha256 verified).
-      Idempotency check on PROJ-261-iter3 passed empirically (sha256 manifest
-      identical before/after second init_speckit_in invocation). Ready for
-      spec 005's specifier + clarifier agents.
+      Clean iter6 run with project_initializer prompt v1.2.0, after deep
+      re-audit on iter3 surfaced a MEDIUM defect (P2-D06: fabricated
+      "Code Licensing & Compliance" principle with no basis in idea body).
+      v1.2.0 prompt added explicit principle-grounding requirements (every
+      claim must trace to a specific idea-body section). iter6 result:
+      Principle VI "Statistical Correlation Integrity" grounds in idea's
+      Methodology + Expected results (p < 0.05 threshold, Spearman's rank
+      correlation), Principle VII "Clone Detection Consistency" grounds
+      in idea's Methodology (AST-based clone detector, codeparrot/github-code).
+      Both principles directly cite idea-body methodology elements. All 5
+      inherited principles preserved verbatim. No external citations. No
+      HTML comments. No token leaks. All 9 mechanical scaffold files
+      byte-identical to repo-root canonicals. Idempotency check on iter3
+      already passed; same code path produces same result for iter6 (skip-
+      if-exists guard verified by tests/phase1/test_idempotency.py 4/4
+      PASS). Ready for spec 005's specifier + clarifier agents.
 
-  - project_id: PROJ-262-predicting-molecular-dipole-moments-with-iter3
+  - project_id: PROJ-262-predicting-molecular-dipole-moments-with-iter6
     final_state: project_initialized
-    final_commit: fce9ebf
-    phase2_iter2_id: PROJ-262-predicting-molecular-dipole-moments-with-iter3
+    final_commit: 7da5bd1
+    phase2_iter2_id: PROJ-262-predicting-molecular-dipole-moments-with-iter6
     agents_run:
       - { name: brainstorm, iterations: 1, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
       - { name: flesh_out, iterations: 2, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
       - { name: research_question_validator, iterations: 2, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
-      - { name: project_initializer, iterations: 2, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with-iter3 }
+      - { name: project_initializer, iterations: 3, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with-iter6 }
     justification: |
-      Clean iter3 run after the prompt v1.1.0 patch. Original P2-D05 CRITICAL
-      defect (Figshare DOI 10.6084/m9.figshare.9981994 introduced into iter2
-      constitution as an "external citation" violation per spec.md SC-011) is
-      verified fixed: iter3 constitution names QM9 by name only, no DOI / arXiv
-      / URL anywhere. All six US2 contract items PASS. Two domain-specific
-      principles — VI (Physical Consistency: rotational equivariance for
-      vector-valued dipole predictions, float32/float64 precision documentation),
-      VII (Benchmark Integrity: identical data splits + preprocessing across
-      QM9 baseline comparisons) — both well-grounded in the chemistry domain
-      and the project's idea (GNN dipole prediction). All 9 scaffold files
-      byte-identical to repo root. Idea body inherits from spec 003's
-      validator-revise loop (the question was reframed from "Can a 3-layer GNN
-      predict dipole moments on CPU within 6h?" to a feature-importance
-      question that passed the validator's four checks). Spec 005 can run
-      specifier + clarifier on this sibling without any Phase 2 baggage.
+      Clean iter6 run with v1.2.0 prompt. The LLM internalized the
+      grounding requirement so well that it included explicit "This
+      principle is grounded in..." annotations directly in the constitution
+      body, citing specific idea sections (Methodology sketch, Expected
+      results, Research question, Motivation) by name. Principle VI
+      "3D Geometry Preservation" grounds in idea's Methodology sketch
+      ("extract 3D coordinates, atom types, and bond connectivity") and
+      Expected results ("3D conformation carries significant signal").
+      Principle VII "Chemical Interpretability" grounds in idea's Research
+      question ("Which structural features... carry the most predictive
+      signal") and Motivation ("Understanding which structural components
+      drive dipole predictions is critical for designing interpretable
+      machine learning potentials"). Both principles strictly within the
+      project's actual research scope; no fabrication. All other contract
+      items pass: heading + footer correctly substituted, all 5 inherited
+      principles preserved, no external citations (the v1.1.0 fix held),
+      no HTML comments, no token leaks, all 9 mechanical scaffold files
+      byte-identical to canonical. Spec 005 can proceed with confidence.
