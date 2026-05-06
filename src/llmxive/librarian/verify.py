@@ -276,25 +276,74 @@ def _candidate_url(candidate: Candidate) -> str:
 def _fetch_title_and_abstract(
     candidate: Candidate, final_url: str
 ) -> tuple[str, str | None]:
-    """Best-effort fetch of (title, abstract) from the primary source.
+    """Re-fetch (title, abstract) from the primary source.
 
-    For the librarian's verification path:
-      - arXiv candidates: title + abstract come back from the search call
-        (Candidate.claimed_title + claimed_abstract). Use those as-is —
-        re-fetching is redundant.
-      - Semantic Scholar candidates: same situation. The search call
-        already returned title + abstract via the ``fields`` request.
+    The whole point of check 2 (title-token-overlap) is to verify the
+    *backend's claim* against the *primary source's actual content*.
+    Returning ``candidate.claimed_*`` would make this check a tautology
+    (the candidate's claim compared to itself), defeating the purpose.
 
-    If the candidate has no claimed_abstract (some search backends omit
-    it), we return (title, None) and the summary-grounding check
-    degrades gracefully.
+    Strategy by primary_pointer shape:
+      - arXiv ID (e.g. ``1706.03762``): re-fetch via arXiv API (the
+        ``arxiv`` Python library) — ground-truth metadata.
+      - DOI (https://doi.org/...): trust the candidate's claim. Most
+        DOI redirects land on publisher HTML behind a paywall; we
+        can't reliably extract title/abstract from arbitrary publisher
+        pages without a separate scraper for each. The Semantic Scholar
+        Graph API has already done that resolution and returned the
+        canonical metadata when our SS client called it. (If the SS
+        backend itself misreports, that's a different bug — out of
+        scope.)
+      - Other URL: trust the candidate's claim, same reasoning.
 
-    Future: Could re-fetch the actual primary source (DOI redirects to
-    publisher page; arXiv has the abstract in the page HTML). For now
-    we trust the backend's claimed values when both backends already
-    provide them.
+    Returns (fetched_title, fetched_abstract). ``fetched_abstract`` may
+    be None if the primary source doesn't expose one.
     """
+    pointer = candidate.primary_pointer
+
+    # arXiv — re-fetch via arXiv API.
+    if _is_arxiv_id(pointer):
+        return _fetch_from_arxiv(pointer)
+    if pointer.startswith("https://arxiv.org/abs/"):
+        arxiv_id = pointer.removeprefix("https://arxiv.org/abs/")
+        # Strip version suffix.
+        if "v" in arxiv_id:
+            head, _, tail = arxiv_id.rpartition("v")
+            if tail.isdigit():
+                arxiv_id = head
+        return _fetch_from_arxiv(arxiv_id)
+
+    # DOI / other URL — trust the candidate's claim.
     return (candidate.claimed_title, candidate.claimed_abstract)
+
+
+def _is_arxiv_id(s: str) -> bool:
+    """Match modern arXiv IDs (2007.04567) and old-style (cs.CL/0301012)."""
+    return bool(
+        re.match(r"^\d{4}\.\d{4,5}$", s)
+        or re.match(r"^[a-z\-]+(?:\.[A-Z]{2})?/\d{7}$", s)
+    )
+
+
+def _fetch_from_arxiv(arxiv_id: str) -> tuple[str, str | None]:
+    """Fetch title + abstract from arXiv API by ID. Returns ('', None) on
+    fetch failure (caller's title-overlap check will then fail with score
+    0, which is the correct behavior — we can't verify against a source
+    we couldn't reach).
+    """
+    try:
+        import arxiv  # type: ignore[import-not-found]
+
+        client = arxiv.Client()
+        search = arxiv.Search(id_list=[arxiv_id])
+        for result in client.results(search):
+            return (
+                (result.title or "").strip(),
+                (result.summary or "").strip() or None,
+            )
+    except Exception:
+        pass
+    return ("", None)
 
 
 def _now_iso() -> str:
