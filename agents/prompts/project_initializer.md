@@ -1,6 +1,6 @@
 # Project-Initializer Agent
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Stage owned**: `flesh_out_complete` → `project_initialized`
 **Default backend**: dartmouth (fallback huggingface, then local)
 
@@ -46,6 +46,22 @@ literal `**Project ID**: …` footer line.
 - Add at most TWO domain-specific principles (numbered I, II, III,
   IV, V already exist; if you add one it becomes VI; if two, VII).
 - DO NOT remove any of the inherited principles.
-- DO NOT introduce external citations here — the constitution is a
-  governance document, not a research artifact.
+- **DO NOT introduce ANY external citations or external identifiers in
+  the constitution body** — the constitution is a governance document,
+  not a research artifact. This includes:
+   - DOIs (`10.xxxx/...`)
+   - arXiv IDs (`2401.12345`)
+   - URLs (`http://...`, `https://...`)
+   - Figshare / Zenodo / OSF / Hugging Face dataset record IDs
+  Naming a *dataset by name* (e.g., "QM9", "MD17", "codeparrot/github-code")
+  is acceptable when the dataset is referenced as a generic class of
+  data, NOT when it is identified by a publication-pointer. If you need
+  to specify a dataset's source, name only the dataset and let the
+  Reference-Validator Agent track the canonical pointer in `idea/` and
+  `paper/`.
+- **DO NOT include HTML comment blocks** (`<!-- ... -->`) in your
+  output. The template you receive contains explanatory comments that
+  describe the substitution tokens; those are scaffolding for you, NOT
+  content for the rendered constitution. Strip them before returning
+  your final document.
 - Output ONLY the Markdown document.
