@@ -23,6 +23,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 DARTMOUTH_KEY_NAME = "DARTMOUTH_CHAT_API_KEY"
+SEMANTIC_SCHOLAR_KEY_NAME = "SEMANTIC_SCHOLAR_API_KEY"
 
 
 def credentials_path() -> Path:
@@ -121,8 +122,9 @@ def load_dartmouth_key(*, prompt_if_missing: bool = False) -> str | None:
     return key
 
 
-def save_dartmouth_key(key: str, *, path: Path | None = None) -> Path:
-    """Persist the Dartmouth Chat API key with safe permissions.
+def _save_key(toml_field: str, key: str, *, path: Path | None = None) -> Path:
+    """Persist a credential under ``toml_field`` with safe permissions,
+    merging with any existing keys in the file.
 
     Creates parent directories with 0700 and writes the file with 0600
     on POSIX. Returns the written path.
@@ -134,11 +136,73 @@ def save_dartmouth_key(key: str, *, path: Path | None = None) -> Path:
             os.chmod(p.parent, stat.S_IRWXU)  # 0700
         except OSError:
             pass
-    payload = f'dartmouth_chat_api_key = "{_toml_escape(key.strip())}"\n'
-    p.write_text(payload, encoding="utf-8")
+    # Merge with any existing keys so saving one doesn't clobber the other.
+    existing: dict = _read_file(p) if p.exists() else {}
+    existing[toml_field] = key.strip()
+    lines = [f'{k} = "{_toml_escape(v)}"' for k, v in existing.items() if isinstance(v, str)]
+    p.write_text("\n".join(lines) + "\n", encoding="utf-8")
     if os.name != "nt":
         os.chmod(p, stat.S_IRUSR | stat.S_IWUSR)  # 0600
     return p
+
+
+def save_dartmouth_key(key: str, *, path: Path | None = None) -> Path:
+    """Persist the Dartmouth Chat API key (merges with existing keys)."""
+    return _save_key("dartmouth_chat_api_key", key, path=path)
+
+
+def save_semantic_scholar_key(key: str, *, path: Path | None = None) -> Path:
+    """Persist the Semantic Scholar API key (merges with existing keys).
+
+    Per spec 005 / FR-001: librarian agent uses Semantic Scholar Graph
+    API as one of two backends. Free key obtained via
+    https://www.semanticscholar.org/product/api#api-key-form.
+    """
+    return _save_key("semantic_scholar_api_key", key, path=path)
+
+
+def load_semantic_scholar_key(*, prompt_if_missing: bool = False) -> str | None:
+    """Load the Semantic Scholar API key.
+
+    Resolution order mirrors load_dartmouth_key:
+        1. env var SEMANTIC_SCHOLAR_API_KEY
+        2. credentials file (semantic_scholar_api_key field)
+        3. (optional) interactive prompt
+
+    Returns None if not found and prompt_if_missing=False.
+    Raises PermissionError if the credentials file has unsafe perms.
+    """
+    env = os.environ.get(SEMANTIC_SCHOLAR_KEY_NAME)
+    if env:
+        return env.strip()
+
+    chk = check_permissions()
+    if not chk.ok:
+        raise PermissionError(chk.reason)
+    if chk.exists:
+        data = _read_file(chk.path)
+        key = (data or {}).get("semantic_scholar_api_key")
+        if isinstance(key, str) and key.strip():
+            return key.strip()
+
+    if not prompt_if_missing:
+        return None
+    if not sys.stdin.isatty():
+        return None
+    try:
+        key = getpass.getpass("Enter Semantic Scholar API key: ")
+    except (EOFError, KeyboardInterrupt):
+        return None
+    key = key.strip()
+    if not key:
+        return None
+    try:
+        ans = input("Save this key for future runs? [y/N] ").strip().lower()
+    except (EOFError, KeyboardInterrupt):
+        ans = "n"
+    if ans in ("y", "yes"):
+        save_semantic_scholar_key(key)
+    return key
 
 
 def clear_dartmouth_key(*, path: Path | None = None) -> bool:
@@ -166,11 +230,14 @@ def _toml_escape(s: str) -> str:
 
 __all__ = [
     "DARTMOUTH_KEY_NAME",
+    "SEMANTIC_SCHOLAR_KEY_NAME",
     "CredentialsCheck",
     "check_permissions",
     "credentials_path",
     "load_dartmouth_key",
     "save_dartmouth_key",
+    "load_semantic_scholar_key",
+    "save_semantic_scholar_key",
     "clear_dartmouth_key",
     "mask_key",
 ]

@@ -95,6 +95,23 @@ agents:
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
   paid_opt_in: false
+- name: librarian
+  purpose: Canonical literature-search-and-verification agent (spec 005). Replaces
+    duplicate implementations in lit_search + reference_validator + citation_resolver.
+    Tool-style; invoked by other agents.
+  inputs:
+  - idea
+  outputs:
+  - idea
+  prompt_path: agents/prompts/librarian.md
+  prompt_version: 1.0.0
+  default_backend: dartmouth
+  fallback_backends:
+  - huggingface
+  - local
+  default_model: qwen.qwen3.5-122b
+  wall_clock_budget_seconds: 600
+  paid_opt_in: false
 - name: specifier
   purpose: Drive /speckit.specify for the project; draft spec.md from the idea.
   inputs:
