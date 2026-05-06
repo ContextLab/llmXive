@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 361,
+    "active_projects": 364,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1784,
+    "total_contributions": 1787,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1611,
+      "contribution_count": 1614,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 339,
+      "contribution_count": 342,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-06T10:54:30.517203+00:00",
+  "generated_at": "2026-05-06T11:43:20.152023+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -25307,6 +25307,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Effectiveness of Different Loss Functions for Training Graph Neural Networks on Small Worlds",
       "updated_at": "2026-05-06T10:54:28.789892+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-354-investigating-the-correlation-between-gu/idea/investigating-the-correlation-between-gu.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T11:40:28.137072+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology How does gut microbiome taxonomic composition relate to cognitive performance in aging individuals, after controlling for lifestyle and demographic confounders? Declining cognitive function is a major health challenge in aging populations, and the gut-brain axis represents a promising but understudied\u2026",
+      "field": "biology",
+      "id": "PROJ-354-investigating-the-correlation-between-gu",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 39.438258,
+          "ended_at": "2026-05-06T11:41:32.091416Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T11:40:52.653158Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Correlation Between Gut Microbiome Composition and Cognitive Function in Aging Using UK Biobank Data",
+      "updated_at": "2026-05-06T11:41:32.094124+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-355-predicting-the-impact-of-impurity-cluste/idea/predicting-the-impact-of-impurity-cluste.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T11:40:28.137072+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science How does the spatial clustering of impurity atoms in the bulk lattice influence the thermodynamic driving force for their segregation to grain boundaries in polycrystalline alloys? Grain boundary segregation governs mechanical embrittlement, corrosion resistance, and phase stability in\u2026",
+      "field": "materials science",
+      "id": "PROJ-355-predicting-the-impact-of-impurity-cluste",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 32.095187,
+          "ended_at": "2026-05-06T11:42:04.817346Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T11:41:32.722159Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Impact of Impurity Clustering on Grain Boundary Segregation",
+      "updated_at": "2026-05-06T11:42:04.819843+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-356-predicting-molecular-toxicity-from-struc/idea/predicting-molecular-toxicity-from-struc.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T11:40:28.137072+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: Chemistry To what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries? Regulatory frameworks increasingly require interpretable models for chemical safety assessment, yet modern toxicity prediction relies heavily\u2026",
+      "field": "chemistry",
+      "id": "PROJ-356-predicting-molecular-toxicity-from-struc",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 72.235459,
+          "ended_at": "2026-05-06T11:43:17.625317Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T11:42:05.389858Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Molecular Toxicity from Structural Alerts via Rule-Based Systems",
+      "updated_at": "2026-05-06T11:43:17.627812+00:00"
     }
   ],
   "schema_version": "2.0.0"
