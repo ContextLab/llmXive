@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-06T15:02:55.695387Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: physics
+human_escalation_reason: null
+id: PROJ-364-exploring-the-impact-of-network-topology
+last_run_id: ee535cb9-9c14-470c-b778-5d3c0bd12a6a
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Exploring the Impact of Network Topology on Heat Dissipation in 2D Materials
+updated_at: '2026-05-06T15:08:42.442866Z'

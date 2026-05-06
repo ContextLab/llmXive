@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 368,
+    "active_projects": 371,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1806,
+    "total_contributions": 1809,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1633,
+      "contribution_count": 1636,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 346,
+      "contribution_count": 349,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-06T13:46:31.443034+00:00",
+  "generated_at": "2026-05-06T15:08:45.014547+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -25776,6 +25776,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Relationship Between Brain Network Topology and Susceptibility to Visual Illusions",
       "updated_at": "2026-05-06T13:46:29.087571+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-362-evaluating-the-statistical-validity-of-c/idea/evaluating-the-statistical-validity-of-c.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T15:02:55.695387+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics Do common information retrieval ranking metrics (e.g., Normalized Discounted Cumulative Gain, Mean Average Precision) possess sufficient statistical power to distinguish true ranking quality from random chance when evaluated on standard benchmark collections? Ranking metrics like NDCG and MAP are\u2026",
+      "field": "statistics",
+      "id": "PROJ-362-evaluating-the-statistical-validity-of-c",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 87.135857,
+          "ended_at": "2026-05-06T15:04:41.014565Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T15:03:13.878708Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Statistical Validity of Common Ranking Metrics",
+      "updated_at": "2026-05-06T15:04:41.017275+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-363-predicting-the-impact-of-additive-manufa/idea/predicting-the-impact-of-additive-manufa.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T15:02:55.695387+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science How do laser powder bed fusion process parameters (laser power, scan speed, hatch spacing, layer thickness) quantitatively influence the resulting porosity in 316L stainless steel parts? Porosity is a critical defect in laser powder bed fusion (LPBF) parts that degrades mechanical properties\u2026",
+      "field": "materials science",
+      "id": "PROJ-363-predicting-the-impact-of-additive-manufa",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 198.585072,
+          "ended_at": "2026-05-06T15:08:00.233270Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T15:04:41.648198Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Impact of Additive Manufacturing Parameters on the Porosity of 316L Stainless Steel",
+      "updated_at": "2026-05-06T15:08:00.235775+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-364-exploring-the-impact-of-network-topology/idea/exploring-the-impact-of-network-topology.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T15:02:55.695387+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics Does the network topology of defects (e.g., clustered vs. random distributions) in two-dimensional materials like graphene and MoS2 correlate with their thermal conductivity, and if so, which topological metrics best predict heat dissipation rates? Perfect 2D materials exhibit exceptional thermal\u2026",
+      "field": "physics",
+      "id": "PROJ-364-exploring-the-impact-of-network-topology",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 41.614502,
+          "ended_at": "2026-05-06T15:08:42.440319Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T15:08:00.825817Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Exploring the Impact of Network Topology on Heat Dissipation in 2D Materials",
+      "updated_at": "2026-05-06T15:08:42.442866+00:00"
     }
   ],
   "schema_version": "2.0.0"
