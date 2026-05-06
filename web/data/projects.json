@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 343,
+    "active_projects": 346,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1750,
+    "total_contributions": 1753,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1577,
+      "contribution_count": 1580,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 321,
+      "contribution_count": 324,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-06T01:48:46.748683+00:00",
+  "generated_at": "2026-05-06T03:20:13.285583+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -24101,6 +24101,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Relationship Between Alpha Oscillations and Working Memory Capacity",
       "updated_at": "2026-05-06T01:48:44.742980+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-336-investigating-the-impact-of-simulated-se/idea/investigating-the-impact-of-simulated-se.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T03:18:10.895717+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: neuroscience How does the intrinsic organization of human brain functional networks change when sensory input is experimentally reduced, and does this reorganization manifest as altered modularity and global efficiency in resting-state fMRI? Understanding how the brain reorganizes in the absence of external\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-336-investigating-the-impact-of-simulated-se",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 41.512973,
+          "ended_at": "2026-05-06T03:19:07.071130Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T03:18:25.558157Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Impact of Simulated Sensory Deprivation on Resting-State Brain Network Dynamics",
+      "updated_at": "2026-05-06T03:19:07.073936+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-337-predicting-plant-biomass-from-publicly-a/idea/predicting-plant-biomass-from-publicly-a.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T03:18:10.895717+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology How does atmospheric correction and vegetation structural complexity affect the accuracy of above-ground biomass estimation from publicly available hyperspectral imagery in temperate forest ecosystems? Accurate, non-destructive biomass estimation is critical for monitoring forest carbon sequestration\u2026",
+      "field": "biology",
+      "id": "PROJ-337-predicting-plant-biomass-from-publicly-a",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 34.535564,
+          "ended_at": "2026-05-06T03:19:42.207026Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T03:19:07.671462Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Plant Biomass from Publicly Available Hyperspectral Imagery",
+      "updated_at": "2026-05-06T03:19:42.209521+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-338-evaluating-the-sensitivity-of-regression/idea/evaluating-the-sensitivity-of-regression.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T03:18:10.895717+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How does the presence and magnitude of outliers in observational data affect the stability of ordinary least squares regression coefficient estimates and statistical significance conclusions across different datasets? Outlier handling is a routine step in regression analysis, yet the sensitivity of\u2026",
+      "field": "statistics",
+      "id": "PROJ-338-evaluating-the-sensitivity-of-regression",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 28.147419,
+          "ended_at": "2026-05-06T03:20:10.901375Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T03:19:42.753956Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies",
+      "updated_at": "2026-05-06T03:20:10.903915+00:00"
     }
   ],
   "schema_version": "2.0.0"
