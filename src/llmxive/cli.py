@@ -196,11 +196,11 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
     from llmxive.backends.base import ChatMessage
     from llmxive.backends.router import chat_with_fallback
     from llmxive.state import project as project_store
+    from llmxive.state.project_id_lock import next_available_proj_num, project_id_lock
     from llmxive.types import Project, Stage
 
     repo = Path.cwd()
     existing_projects = project_store.list_all(repo_root=repo)
-    existing_ids = {p.id for p in existing_projects}
     existing_titles_by_field: dict[str, list[str]] = {}
     for p in existing_projects:
         existing_titles_by_field.setdefault((p.field or "general").lower(), []).append(p.title)
@@ -213,9 +213,6 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
 
     n_target = max(1, args.count)
     now = datetime.now(timezone.utc)
-    next_num = 1
-    while any(p.id.startswith(f"PROJ-{next_num:03d}") for p in existing_projects):
-        next_num += 1
 
     try:
         entry = registry_loader.get("brainstorm")
@@ -289,29 +286,38 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
             continue
 
         slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")[:40] or "idea"
-        while True:
-            pid = f"PROJ-{next_num:03d}-{slug}"
-            if pid not in existing_ids:
-                break
-            next_num += 1
-        existing_ids.add(pid)
-        existing_titles_by_field.setdefault(field.lower(), []).append(title)
 
-        project = Project(
-            id=pid,
-            title=title,
-            field=field,
-            current_stage=Stage.BRAINSTORMED,
-            points_research={},
-            points_paper={},
-            created_at=now,
-            updated_at=now,
-            artifact_hashes={},
-        )
-        project_store.save(project, repo_root=repo)
+        # Q1B fix (spec 004): atomic project-ID allocation. Re-scan disk
+        # under an exclusive flock so concurrent brainstorm invocations
+        # cannot race to the same PROJ-NNN. Lock is held only during the
+        # disk-snapshot + state-YAML write (microseconds), NOT during
+        # the LLM call above.
+        with project_id_lock(repo):
+            n = next_available_proj_num(repo_root=repo)
+            pid = f"PROJ-{n:03d}-{slug}"
+            existing_titles_by_field.setdefault(field.lower(), []).append(title)
 
-        idea_dir = repo / "projects" / pid / "idea"
-        idea_dir.mkdir(parents=True, exist_ok=True)
+            project = Project(
+                id=pid,
+                title=title,
+                field=field,
+                current_stage=Stage.BRAINSTORMED,
+                points_research={},
+                points_paper={},
+                created_at=now,
+                updated_at=now,
+                artifact_hashes={},
+            )
+            # Eagerly write the state YAML inside the lock — this is the
+            # ID claim. Once this returns, next_available_proj_num() in any
+            # other process will see this PROJ-NNN as used.
+            project_store.save(project, repo_root=repo)
+
+            idea_dir = repo / "projects" / pid / "idea"
+            idea_dir.mkdir(parents=True, exist_ok=True)
+
+        # The LLM body + idea/<slug>.md write happen OUTSIDE the lock —
+        # the ID is already claimed, so no other process can race for it.
         front = (
             "---\n"
             f"field: {field}\n"
@@ -321,7 +327,6 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
         )
         (idea_dir / f"{slug}.md").write_text(front, encoding="utf-8")
         created += 1
-        next_num += 1
         print(f"[brainstorm] seeded {pid} ({field}) via {model_used}")
 
     print(f"[brainstorm] created {created} brainstormed project(s)")

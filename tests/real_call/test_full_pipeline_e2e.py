@@ -90,10 +90,25 @@ def test_one_step_advances_fixture(fresh_project: Path) -> None:
 
     updated = graph.run_one_step(project)
 
-    # The Project-Initializer should have scaffolded .specify/ and the
-    # project state should have advanced one step.
+    # Spec 003 / D10 inserted research_question_validator between
+    # flesh_out_complete and project_initializer. The next stage from
+    # flesh_out_complete is now the validator, which can output one of
+    # four legitimate verdicts (or HUMAN_INPUT_NEEDED on a runtime issue):
+    #   - VALIDATED:           question passed all four checks
+    #   - VALIDATOR_REVISE:    rolls back to FLESH_OUT_IN_PROGRESS
+    #   - VALIDATOR_REJECTED:  rolls back to BRAINSTORMED (e.g., when
+    #                          the idea body is empty/synthetic, as in
+    #                          this smoke fixture)
+    #   - HUMAN_INPUT_NEEDED:  legitimate failure (e.g., backend down)
+    # On a synthetic stub idea (no real research question), the
+    # validator legitimately rejects to BRAINSTORMED — that's the
+    # correct behavior, not a regression.
     assert updated.current_stage in {
-        Stage.PROJECT_INITIALIZED,
+        Stage.VALIDATED,
+        Stage.VALIDATOR_REVISE,
+        Stage.VALIDATOR_REJECTED,
+        Stage.BRAINSTORMED,  # post-validator-rejected rollback target
+        Stage.FLESH_OUT_IN_PROGRESS,  # post-validator-revise rollback target
         Stage.HUMAN_INPUT_NEEDED,
     }, f"unexpected stage after one step: {updated.current_stage}"
     if updated.current_stage == Stage.PROJECT_INITIALIZED:

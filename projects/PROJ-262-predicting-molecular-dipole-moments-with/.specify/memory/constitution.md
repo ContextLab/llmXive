@@ -1,19 +1,5 @@
 # Predicting Molecular Dipole Moments with Graph Neural Networks — Research Project Constitution
 
-<!--
-This file is templated from agents/templates/research_project_constitution.md
-by the Project-Initializer Agent (T044). Substitution tokens:
-  PROJ-262-predicting-molecular-dipole-moments-with        → e.g. PROJ-001-gene-regulation
-  Predicting Molecular Dipole Moments with Graph Neural Networks             → human-readable project title
-  chemistry             → e.g. biology, materials-science
-  2026-05-05              → ISO-8601 ratification date (UTC)
-  flesh_out → name of the agent that promoted this idea
-
-The Spec-Kit-per-project pipeline reads this file at every slash-command
-invocation. Per the parent llmXive constitution (.specify/memory/constitution.md),
-this file MUST NOT contradict or weaken any of the parent principles.
--->
-
 ## Core Principles
 
 ### I. Reproducibility (NON-NEGOTIABLE)
@@ -51,23 +37,45 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml` `updated_at` timestamp.
 
-### VI. Numerical Stability & Convergence
+### VI. 3D Geometry Preservation (domain-specific)
 
-Graph Neural Network training workflows MUST define floating-point precision standards (e.g., float32 vs float64) and explicit convergence criteria (loss plateau thresholds) in `code/`. Dipole moment predictions MUST remain stable within 1% variance across re-runs with pinned seeds to ensure physical validity and prevent numerical artifacts from influencing feature importance analysis.
+All molecular coordinate transformations and 3D-equivariant model operations
+MUST preserve rotational and translational invariance. Coordinate preprocessing
+pipelines MUST document all geometric transformations applied to the QM9 dataset
+and verify that derived features maintain proper spatial relationships. This
+principle is grounded in the project's Methodology sketch which specifies
+"extract 3D coordinates, atom types, and bond connectivity" and the Expected
+results which state "3D conformation carries significant signal" for dipole
+prediction.
+
+### VII. Chemical Interpretability (domain-specific)
+
+Feature attribution analysis MUST identify specific structural components
+(atom types, bond types, 3D conformation) that drive dipole moment predictions.
+Model outputs MUST be traceable to chemical features through permutation
+importance or attention analysis as specified in the Methodology sketch. This
+principle is grounded in the Research question asking "Which structural features
+of small organic molecules... carry the most predictive signal" and the
+Motivation stating "Understanding which structural components drive dipole
+predictions is critical for designing interpretable machine learning potentials."
 
 ## Reproducibility Requirements
 
-- A `requirements.txt` (or `pyproject.toml`) at `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/` pins every Python dependency.
-- The Code-Execution Agent runs each task in an isolated virtualenv built from this requirements file; no global packages are assumed.
-- Every notebook or script under `code/` is runnable end-to-end without manual intervention.
-- External datasets (specifically QM9 from Figshare) MUST be fetched from the canonical source and verified against the project's recorded checksum before training begins.
+- A `requirements.txt` (or `pyproject.toml`) at `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/`
+  pins every Python dependency.
+- The Code-Execution Agent runs each task in an isolated virtualenv built
+  from this requirements file; no global packages are assumed.
+- Every notebook or script under `code/` is runnable end-to-end without
+  manual intervention.
 
 ## Data Hygiene
 
-- Every file under `data/` is checksummed in the project's `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml` `artifact_hashes` map.
-- Raw data (e.g., QM9 raw downloads) is preserved unchanged; derivations are written to new filenames.
-- No commits are accepted that fail the Repository-Hygiene Agent's PII scan.
-- Dataset versions (e.g., QM9 DOI) MUST be recorded in `data/` metadata files to ensure traceability of molecular structures.
+- Every file under `data/` is checksummed in the project's
+  `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml` `artifact_hashes` map.
+- Raw data is preserved unchanged; derivations are written to new
+  filenames.
+- No commits are accepted that fail the Repository-Hygiene Agent's PII
+  scan.
 
 ## Verified Accuracy Gate
 
@@ -75,14 +83,16 @@ The Reference-Validator Agent runs at three points:
 
 1. On every artifact write that introduces or modifies citations.
 2. Inside the Advancement-Evaluator before awarding any review point.
-3. As a blocking gate on the `research_review` → `research_accepted` transition.
+3. As a blocking gate on the `research_review` → `research_accepted`
+   transition.
 
-A reviewer's score MUST be set to 0.0 if the reviewed artifact has any citation in `unreachable` or `mismatch` status.
+A reviewer's score MUST be set to 0.0 if the reviewed artifact has any
+citation in `unreachable` or `mismatch` status.
 
 ## Versioning
 
 This constitution carries its own semver. Initial version:
-**1.0.0** — ratified 2026-05-05.
+**1.0.0** — ratified 2026-05-06.
 
 Amendments follow the parent llmXive constitution's amendment procedure
 (open a PR; update the version line; record a Sync Impact Report).
@@ -97,4 +107,4 @@ Review-point thresholds for this project follow `web/about.html`. The
 parser at `src/llmxive/config.py` is the single source these numbers
 flow from.
 
-**Project ID**: PROJ-262-predicting-molecular-dipole-moments-with | **Field**: chemistry | **Ratified**: 2026-05-05
+**Project ID**: PROJ-262-predicting-molecular-dipole-moments-with | **Field**: chemistry | **Ratified**: 2026-05-06
