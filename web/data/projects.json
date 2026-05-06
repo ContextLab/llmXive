@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 358,
+    "active_projects": 361,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1781,
+    "total_contributions": 1784,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1608,
+      "contribution_count": 1611,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 336,
+      "contribution_count": 339,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-06T09:59:52.338148+00:00",
+  "generated_at": "2026-05-06T10:54:30.517203+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -25106,6 +25106,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Assessing the Validity of Statistical Power in Publicly Available Pre-Registered Studies",
       "updated_at": "2026-05-06T09:59:49.783573+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/idea/predicting-the-solubility-of-pharmaceuti.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T10:49:55.866396+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry How do molecular structural features determine aqueous solubility variations across diverse pharmaceutical compounds? Aqueous solubility is a primary determinant of drug bioavailability, yet experimental measurement remains slow and resource-intensive. Current computational models often rely on\u2026",
+      "field": "chemistry",
+      "id": "PROJ-351-predicting-the-solubility-of-pharmaceuti",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 89.505534,
+          "ended_at": "2026-05-06T10:52:06.081699Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T10:50:36.576165Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Solubility of Pharmaceutical Compounds in Water Using Graph Neural Networks",
+      "updated_at": "2026-05-06T10:52:06.083770+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-352-statistical-analysis-of-early-universe-c/idea/statistical-analysis-of-early-universe-c.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T10:49:55.866396+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics To what extent do non-Gaussian signatures in the Cosmic Microwave Background temperature anisotropies deviate from the inflationary LCDM baseline, and can these deviations constrain the formation energy of cosmic topological defects? Standard cosmological models assume primordial fluctuations are nearly\u2026",
+      "field": "physics",
+      "id": "PROJ-352-statistical-analysis-of-early-universe-c",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 71.138993,
+          "ended_at": "2026-05-06T10:53:17.677936Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T10:52:06.538943Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Statistical Analysis of Early Universe CMB Fluctuations and Topological Defects",
+      "updated_at": "2026-05-06T10:53:17.679888+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-353-investigating-the-effectiveness-of-diffe/idea/investigating-the-effectiveness-of-diffe.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T10:49:55.866396+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: computer science How does the clustering coefficient of small-world graphs influence the relative convergence efficiency of supervised versus contrastive loss functions in Graph Neural Networks? Small-world networks are ubiquitous in social, biological, and recommendation systems, yet GNN training protocols\u2026",
+      "field": "computer science",
+      "id": "PROJ-353-investigating-the-effectiveness-of-diffe",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 70.724973,
+          "ended_at": "2026-05-06T10:54:28.787956Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T10:53:18.062983Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Effectiveness of Different Loss Functions for Training Graph Neural Networks on Small Worlds",
+      "updated_at": "2026-05-06T10:54:28.789892+00:00"
     }
   ],
   "schema_version": "2.0.0"
