@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 385,
+    "active_projects": 388,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1839,
+    "total_contributions": 1842,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1666,
+      "contribution_count": 1669,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 363,
+      "contribution_count": 366,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-06T21:34:09.266223+00:00",
+  "generated_at": "2026-05-06T22:26:35.632026+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -26915,6 +26915,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting Material Degradation Under Cyclic Loading from Public Datasets",
       "updated_at": "2026-05-06T21:34:06.931117+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-379-predicting-molecular-excitation-waveleng/idea/predicting-molecular-excitation-waveleng.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T22:24:12.355838+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry How does molecular graph structure, as encoded in SMILES, relate to the wavelength of maximum absorption (\u03bbmax) across diverse organic chromophores? Excitation wavelength prediction is essential for spectroscopy, photochemistry, and materials design, but traditional quantum chemical calculations are\u2026",
+      "field": "chemistry",
+      "id": "PROJ-379-predicting-molecular-excitation-waveleng",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 36.376352,
+          "ended_at": "2026-05-06T22:25:02.193797Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T22:24:25.817445Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Molecular Excitation Wavelengths from SMILES with Graph Neural Networks",
+      "updated_at": "2026-05-06T22:25:02.196573+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-380-predicting-the-impact-of-composition-on-/idea/predicting-the-impact-of-composition-on-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T22:24:12.355838+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science How does elemental composition determine the shear modulus of bulk metallic glasses, and which compositional descriptors (atomic size mismatch, mixing enthalpy, valence electron concentration) most strongly govern this relationship across different alloy families? Bulk metallic glasses (BMGs)\u2026",
+      "field": "materials science",
+      "id": "PROJ-380-predicting-the-impact-of-composition-on-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 34.351258,
+          "ended_at": "2026-05-06T22:25:37.239884Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T22:25:02.888626Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Impact of Composition on the Shear Modulus of Bulk Metallic Glasses",
+      "updated_at": "2026-05-06T22:25:37.242496+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-381-reconstructing-solar-irradiance-from-his/idea/reconstructing-solar-irradiance-from-his.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T22:24:12.355838+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics How does the relationship between historical sunspot numbers and total solar irradiance (TSI) vary across different solar cycles, and to what extent can sunspot-based reconstructions capture the amplitude of past irradiance fluctuations? Accurate reconstructions of past solar irradiance are essential\u2026",
+      "field": "physics",
+      "id": "PROJ-381-reconstructing-solar-irradiance-from-his",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 55.148297,
+          "ended_at": "2026-05-06T22:26:32.999811Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T22:25:37.851514Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Reconstructing Solar Irradiance from Historical Sunspot Records",
+      "updated_at": "2026-05-06T22:26:33.002358+00:00"
     }
   ],
   "schema_version": "2.0.0"
