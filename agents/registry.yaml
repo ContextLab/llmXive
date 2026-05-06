@@ -87,7 +87,7 @@ agents:
   outputs:
   - project_state
   prompt_path: agents/prompts/project_initializer.md
-  prompt_version: 1.1.0
+  prompt_version: 1.2.0
   default_backend: dartmouth
   fallback_backends:
   - huggingface
