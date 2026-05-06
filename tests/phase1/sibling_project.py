@@ -33,7 +33,7 @@ PROJECTS_DIR = PROJECT_ROOT / "projects"
 STATE_DIR = PROJECT_ROOT / "state" / "projects"
 
 PROJ_ID_RE = re.compile(r"^PROJ-\d{3}-[a-z0-9-]{1,50}$")
-ALLOWED_START_STAGES = {"brainstormed", "flesh_out_in_progress", "flesh_out_complete"}
+ALLOWED_START_STAGES = {"brainstormed", "flesh_out_in_progress", "flesh_out_complete", "validated"}
 
 
 def _now_iso() -> str:
