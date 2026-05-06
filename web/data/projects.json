@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 349,
+    "active_projects": 352,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1764,
+    "total_contributions": 1767,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1591,
+      "contribution_count": 1594,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 327,
+      "contribution_count": 330,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-06T05:42:56.530319+00:00",
+  "generated_at": "2026-05-06T07:10:42.800059+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -24503,6 +24503,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Sensitivity of Common Statistical Tests to Dataset Size",
       "updated_at": "2026-05-06T05:16:24.009654+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-342-predicting-the-influence-of-alloying-on-/idea/predicting-the-influence-of-alloying-on-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T07:08:12.893593+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science How do compositional descriptors (atomic radius mismatch, electronegativity difference, and valence electron concentration) systematically influence the glass transition temperature (Tg) in metallic glasses across different alloy families? The glass transition temperature determines the usable\u2026",
+      "field": "materials science",
+      "id": "PROJ-342-predicting-the-influence-of-alloying-on-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 42.120033,
+          "ended_at": "2026-05-06T07:09:10.308445Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T07:08:28.188412Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Influence of Alloying on the Glass Transition Temperature of Metallic Glasses",
+      "updated_at": "2026-05-06T07:09:10.311021+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-343-predicting-gut-microbiome-response-to-di/idea/predicting-gut-microbiome-response-to-di.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T07:08:12.893593+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology Does baseline gut microbial composition determine the magnitude of taxonomic shift following high-fiber dietary intervention in healthy adults? Personalized nutrition relies on the ability to forecast how an individual's microbiome will respond to specific dietary changes, yet inter-individual variation\u2026",
+      "field": "biology",
+      "id": "PROJ-343-predicting-gut-microbiome-response-to-di",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 61.925508,
+          "ended_at": "2026-05-06T07:10:12.777066Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T07:09:10.851558Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Gut Microbiome Response to Dietary Interventions Using Publicly Available Data",
+      "updated_at": "2026-05-06T07:10:12.779497+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-344-the-impact-of-emotional-expression-in-ai/idea/the-impact-of-emotional-expression-in-ai.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T07:08:12.893593+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology How does the synchrony between vocal tone and facial emotional expression in AI avatars influence users' trust in the avatar's advice? Users increasingly interact with AI systems through embodied avatars that display emotional cues, yet we lack evidence on whether the *believability* of those\u2026",
+      "field": "psychology",
+      "id": "PROJ-344-the-impact-of-emotional-expression-in-ai",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 27.375427,
+          "ended_at": "2026-05-06T07:10:40.640362Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T07:10:13.264935Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Emotional Expression in AI Avatars on User Trust",
+      "updated_at": "2026-05-06T07:10:40.642771+00:00"
     }
   ],
   "schema_version": "2.0.0"
