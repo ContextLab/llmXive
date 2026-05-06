@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-06T23:25:14.608617Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: neuroscience
+human_escalation_reason: null
+id: PROJ-383-the-role-of-network-module-dynamics-in-p
+last_run_id: 4f773866-addb-400f-b93e-6823e9d76f34
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: The Role of Network Module Dynamics in Predicting Individual Differences in
+  Working Memory Capacity
+updated_at: '2026-05-06T23:28:54.670363Z'
