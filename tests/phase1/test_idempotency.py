@@ -30,7 +30,6 @@ from llmxive.backends.base import ChatResponse
 from llmxive.speckit.runner import init_speckit_in
 from llmxive.types import AgentRegistryEntry
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
