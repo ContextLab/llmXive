@@ -18488,7 +18488,7 @@
         "citations": null,
         "code": null,
         "data": null,
-        "idea": "projects/PROJ-261-investigating-the-correlation-between-gu/idea/investigating-the-correlation-between-gu.md",
+        "idea": "projects/PROJ-331-investigating-the-correlation-between-gu/idea/investigating-the-correlation-between-gu.md",
         "paper_figures": null,
         "paper_pdf": null,
         "paper_plan": null,
@@ -18529,7 +18529,7 @@
       "current_stage": "flesh_out_complete",
       "description": "Field: biology Which specific gut microbial taxa are significantly correlated with longitudinal progression rates of Parkinson\u2019s Disease (PD) severity, after controlling for age, sex, and medication status? Parkinson\u2019s Disease exhibits substantial clinical heterogeneity, complicating prognosis and treatment\u2026",
       "field": "biology",
-      "id": "PROJ-261-investigating-the-correlation-between-gu",
+      "id": "PROJ-331-investigating-the-correlation-between-gu",
       "keywords": [],
       "last_run_log": [
         {
@@ -18680,7 +18680,7 @@
         "citations": null,
         "code": null,
         "data": null,
-        "idea": "projects/PROJ-262-quantifying-the-impact-of-magnetic-field/idea/quantifying-the-impact-of-magnetic-field.md",
+        "idea": "projects/PROJ-332-quantifying-the-impact-of-magnetic-field/idea/quantifying-the-impact-of-magnetic-field.md",
         "paper_figures": null,
         "paper_pdf": null,
         "paper_plan": null,
@@ -18721,7 +18721,7 @@
       "current_stage": "flesh_out_complete",
       "description": "Field: physics How do specific magnetic field topology features (e.g., magnetic island width, resonant surface density) correlate with energy confinement time in publicly available tokamak discharge data? Fusion performance is limited by turbulence and instabilities that alter magnetic field topology, yet the precise\u2026",
       "field": "physics",
-      "id": "PROJ-262-quantifying-the-impact-of-magnetic-field",
+      "id": "PROJ-332-quantifying-the-impact-of-magnetic-field",
       "keywords": [],
       "last_run_log": [
         {
