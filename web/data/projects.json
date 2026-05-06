@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 338,
+    "active_projects": 341,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1745,
+    "total_contributions": 1748,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1572,
+      "contribution_count": 1575,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 316,
+      "contribution_count": 319,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-06T00:29:57.161294+00:00",
+  "generated_at": "2026-05-06T01:00:57.154204+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -23766,6 +23766,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Assessing the Reliability of Statistical Significance in Openly Available Genomic Datasets",
       "updated_at": "2026-05-05T23:26:37.572654+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-331-investigating-the-influence-of-network-m/idea/investigating-the-influence-of-network-m.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T00:57:39.760802+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: neuroscience Do specific network motif configurations in structural brain connectomes constrain individual variation in resting-state functional connectivity patterns? Network motifs\u2014recurring, statistically significant patterns of interconnections\u2014are thought to be fundamental building blocks of complex\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-331-investigating-the-influence-of-network-m",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 40.017202,
+          "ended_at": "2026-05-06T00:58:34.925116Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T00:57:54.907914Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Influence of Network Motifs on Resting-State Functional Connectivity",
+      "updated_at": "2026-05-06T00:58:34.927923+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-332-exploring-the-influence-of-network-topol/idea/exploring-the-influence-of-network-topol.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T00:57:39.760802+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics How does the connectivity distribution of randomly assembled nanowire networks modulate effective thermal conductivity? Thermal management in flexible electronics and thermal interface materials relies on disordered nanowire networks, yet current models often treat these media as homogeneous.\u2026",
+      "field": "physics",
+      "id": "PROJ-332-exploring-the-influence-of-network-topol",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 67.553274,
+          "ended_at": "2026-05-06T00:59:43.100076Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T00:58:35.546802Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Exploring the Influence of Network Topology on Thermal Conductivity in Nanomaterials",
+      "updated_at": "2026-05-06T00:59:43.102689+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-333-predicting-coral-resilience-to-thermal-s/idea/predicting-coral-resilience-to-thermal-s.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-06T00:57:39.760802+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology How do single-nucleotide polymorphisms (SNPs) in heat-shock protein and oxidative stress pathways correlate with survival phenotypes in *Acropora millepora* populations exposed to thermal stress? Coral reefs are deteriorating rapidly due to ocean warming, yet specific genomic markers of thermal\u2026",
+      "field": "biology",
+      "id": "PROJ-333-predicting-coral-resilience-to-thermal-s",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 71.092251,
+          "ended_at": "2026-05-06T01:00:54.742507Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-06T00:59:43.650256Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Coral Resilience to Thermal Stress Using Publicly Available Genomic Data",
+      "updated_at": "2026-05-06T01:00:54.745133+00:00"
     }
   ],
   "schema_version": "2.0.0"

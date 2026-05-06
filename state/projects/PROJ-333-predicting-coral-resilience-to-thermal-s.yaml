@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-06T00:57:39.760802Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: biology
+human_escalation_reason: null
+id: PROJ-333-predicting-coral-resilience-to-thermal-s
+last_run_id: 49f0be08-5e46-4908-a420-d80b59181626
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Predicting Coral Resilience to Thermal Stress Using Publicly Available Genomic
+  Data
+updated_at: '2026-05-06T01:00:54.745133Z'
