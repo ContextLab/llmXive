@@ -11,21 +11,24 @@ projects:
       - { name: flesh_out, iterations: 2, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
       - { name: research_question_validator, iterations: 2, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
       - { name: project_initializer, iterations: 3, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
-      - { name: librarian, iterations: 1, final_run_log_path: state/run-log/2026-05/bcf7df3f-567d-4cea-beed-6ced1092c00b.jsonl }
+      - { name: librarian, iterations: 2, final_run_log_path: state/run-log/2026-05/, librarian_prompt_version: 1.1.0 }
     revalidation_judgment: verified
     justification: |
       Spec 005 re-validation produced judgment=verified per
-      specs/005-librarian-agent/revalidation-results.yaml. flesh_out
-      iter2 produced a populated `## Search trail` subsection with 5
-      verified citations (outcome=success_after_expansion, 1 expansion
-      term used). Validator iter2 returned verdict=validated with all
-      4 sub-checks passing (framing, novelty, feasibility, testability).
+      specs/005-librarian-agent/revalidation-results.yaml. Under
+      librarian v1.1.0 (relevance-gate-enabled), the initial search
+      surfaced 7 verified citations on LLM-code-understanding /
+      clone-detection topics — all genuinely on-topic for the research
+      question (e.g., "SIMCOPILOT: Evaluating LLMs for Copilot-Style
+      Code Generation"; "Enhancing Code Translation in Language
+      Models"). Outcome=success (no expansion needed). Validator
+      returned verdict=validated with all 4 sub-checks passing.
       project_initializer skipped re-rendering the constitution via the
       skip-if-exists guard, preserving the spec-004 audited content
       byte-unchanged. No caveats for spec 006: the constitution + idea
-      body are both grounded in librarian-verified evidence; spec 006's
-      specifier + clarifier agents inherit a clean substrate. Iteration
-      trail: `git log -- projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/`.
+      body are both grounded in librarian-verified, topically-relevant
+      evidence; spec 006's specifier + clarifier agents inherit a clean
+      substrate. Iteration trail: `git log -- projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/`.
 
   - project_id: PROJ-262-predicting-molecular-dipole-moments-with
     final_state: project_initialized
@@ -36,19 +39,23 @@ projects:
       - { name: flesh_out, iterations: 3, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
       - { name: research_question_validator, iterations: 3, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
       - { name: project_initializer, iterations: 3, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
-      - { name: librarian, iterations: 1, final_run_log_path: state/run-log/2026-05/962403fd-41b6-4268-ba0a-a157c16a9feb.jsonl }
+      - { name: librarian, iterations: 2, final_run_log_path: state/run-log/2026-05/, librarian_prompt_version: 1.1.0 }
     revalidation_judgment: verified
     justification: |
-      Spec 005 re-validation produced judgment=verified. flesh_out iter3
-      produced a populated `## Search trail` subsection with verified
-      citations (outcome=success — initial term satisfied target,
-      expansion not required). Validator iter3 returned verdict=validated
-      with all 4 sub-checks passing. project_initializer skipped
-      re-rendering the constitution via the skip-if-exists guard,
+      Spec 005 re-validation produced judgment=verified. Under librarian
+      v1.1.0 (relevance-gate-enabled), the initial search surfaced 9
+      verified citations directly on-topic for GNN-based dipole-moment
+      prediction (e.g., "Q-DFTNet: A Chemistry-Informed Neural Network
+      Framework for Predicting Molecular Dipole Moments via DFT-Driven
+      QM9 Data"; "PhysNet: A NN for Predicting Energies, Forces, Dipole
+      Moments, and Partial Charges"; "MolNet_Equi: Rotation-Equivariant
+      GNN"). Outcome=success (no expansion needed). Validator returned
+      verdict=validated with all 4 sub-checks passing. project_initializer
+      skipped re-rendering the constitution via the skip-if-exists guard,
       preserving the spec-004 audited content. The 3D-geometry +
       chemical-interpretability principles in the constitution remain
-      grounded in librarian-verified GNN-dipole-moment papers via the
-      new Search trail. No caveats for spec 006. Iteration trail:
-      `git log -- projects/PROJ-262-predicting-molecular-dipole-moments-with/`.
+      grounded in librarian-verified, topically-relevant
+      GNN-dipole-moment papers via the new Search trail. No caveats for
+      spec 006. Iteration trail: `git log -- projects/PROJ-262-predicting-molecular-dipole-moments-with/`.
 
 # Aggregate verdict: PASS — both canonicals proceed to spec 006 unchanged.

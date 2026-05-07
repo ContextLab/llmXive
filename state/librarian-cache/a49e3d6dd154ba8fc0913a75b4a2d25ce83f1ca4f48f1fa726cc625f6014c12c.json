@@ -1,0 +1,527 @@
+{
+  "fetched_at": "2026-05-07T03:30:32Z",
+  "field": "statistics",
+  "prompt_version": "1.1.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "---\nfield: statistics\nsubmitter: google.gemma-3-27b-it\n---\n\n# Assessing the Validity of Statistical Power in Publicly Available Pre-Registered Studies\n\n**Field**: statistics\n\n## Research question\n\nHow do planned statistical power estimates in pre-registered studies compare to the achieved power calculated from actual sample sizes and observed effect sizes, and what factors systematically predict discrepancies between them?\n\n## Motivation\n\nPre-registration of studies now includes required power analyses, yet the accuracy of these initial estimates remains unvalidated at scale. Understanding whether researchers systematically overestimate power, and what methodological or design factors drive discrepancies, would inform best practices for study planning and strengthen reproducibility in empirical science.\n\n## Literature gap analysis\n\n### What we searched\n\nLiterature searches were conducted on Semantic Scholar and arXiv using queries including \"statistical power pre-registration accuracy,",
+      "target_n": 5
+    },
+    "duration_seconds": 47.437,
+    "ended_at": "2026-05-07T03:30:32Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Post-hoc power analysis accuracy"
+        ],
+        [
+          2,
+          "Planned versus realized sample size discrepancies"
+        ],
+        [
+          3,
+          "Power analysis overestimation pre-registration"
+        ],
+        [
+          4,
+          "Retrospective power calculation validity"
+        ],
+        [
+          5,
+          "Registered reports power analysis validation"
+        ],
+        [
+          6,
+          "Effect size inflation power planning"
+        ],
+        [
+          7,
+          "Statistical power reproducibility"
+        ],
+        [
+          8,
+          "Sample size calculation accuracy empirical science"
+        ],
+        [
+          9,
+          "Sensitivity analysis power analysis comparison"
+        ],
+        [
+          10,
+          "Type II error rate estimation accuracy"
+        ],
+        [
+          11,
+          "Post-hoc power interpretation validity"
+        ],
+        [
+          12,
+          "Open science study design validation"
+        ],
+        [
+          13,
+          "Predictors of power calculation errors"
+        ],
+        [
+          14,
+          "A priori power analysis reliability"
+        ],
+        [
+          15,
+          "Winner's curse sample size planning"
+        ],
+        [
+          16,
+          "Meta-analysis of power estimates"
+        ],
+        [
+          17,
+          "Statistical power replication studies"
+        ],
+        [
+          18,
+          "Underpowered study prevalence pre-registration"
+        ],
+        [
+          19,
+          "Power analysis assumptions violation"
+        ],
+        [
+          20,
+          "Research design robustness statistical power"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "How do planned statistical power estimates in pre-registered studies compare to the achieved power calculated from actual sample sizes and observed effect sizes, and what factors systematically predict discrepancies between them": 0,
+        "Post-hoc power analysis accuracy": 7
+      },
+      "total_queries_issued": 2
+    },
+    "failure_reason": null,
+    "librarian_prompt_version": "1.1.0",
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.1080/02713683.2021.1933056"
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-07T03:29:44Z",
+    "term_input": {
+      "normalized": "how do planned statistical power estimates in pre-registered studies compare to the achieved power calculated from actual sample sizes and observed effect sizes, and what factors systematically predict discrepancies between them",
+      "raw": "How do planned statistical power estimates in pre-registered studies compare to the achieved power calculated from actual sample sizes and observed effect sizes, and what factors systematically predict discrepancies between them"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dielectric loaded structures are promising candidates for use in the structure wakefield acceleration (SWFA) technique, for both the collinear wakefield and the two-beam acceleration (CWA and TBA respectively) approaches, due to their low fabrication cost, low rf losses, and the potential to withstand high gradient. A short pulse (<=20 ns) TBA program is under development at the Argonne Wakefield Accelerator (AWA) facility where dielectric loaded structures are being used for both the power extractor/transfer structure (PETS) and the accelerator. In this study, an X-band 11.7 GHz dielectric PETS was developed and tested at the AWA facility to demonstrate high power wakefield generation. The PETS was driven by a train of eight electron bunches separated by 769.2 ps (9 times of the X-band rf period) in order to achieve coherent wakefield superposition. A total train charge of 360 nC was passed through the PETS structure to generate ~200 MW, ~3 ns flat-top rf pulses without rf breakdown. A future experiment is being planned to increase the generated rf power to approximately ~1 GW by optimizing the structure design and improving the drive beam quality.",
+          "claimed_authors": [
+            "Jiahang Shao",
+            "Chunguang Jing",
+            "Eric Wisniewski",
+            "Gwanghui Ha",
+            "Manoel Conde",
+            "Wanming Liu",
+            "John Power",
+            "Lianmin Zheng"
+          ],
+          "claimed_title": "Development and high-power testing of an X-band dielectric-loaded power extractor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.01069"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='Development and high-power testing of an X-band dielectric-loaded power extractor')",
+        "failed_at": "2026-05-07T03:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate the impact finite simulation box size has on the structural and kinematic properties of Cold Dark Matter haloes forming in cosmological simulations. Our approach involves generating a single realisation of the initial power spectrum of density perturbations and studying how truncation of this power spectrum on scales larger than L_cut affects the structure of dark matter haloes at z=0. In particular, we have examined the cases of L_cut = f_cut L_box with f_cut=1 (i.e. no truncation), 1/2, 1/3 and 1/4. In common with previous studies, we find that the suppression of long wavelength perturbations reduces the strength of clustering, as measured by a suppression of the 2-point correlation function xi(r), and reduces the numbers of the most massive haloes, as reflected in the depletion of the high mass end of the mass function n(M). Interestingly, we find that truncation has little impact on the internal properties of haloes. The masses of high mass haloes decrease in a systematic manner as L_cut is reduced, but the distribution of concentrations is unaffected. On the other hand, the median spin parameter is ~50% lower in runs with f_cut<1. We argue that this is an imprint of the linear growth phase of the halo's angular momentum by tidal torquing, and that the absence of any measurable trend in concentration and the weak trend observed in halo shape reflect the importance of virialisation and complex mass accretion histories for these quantities. These results are of interest for studies that require high mass resolution and statistical samples of simulated haloes, such as simulations of the population of first stars. Our analysis shows that large-scale tidal fields have relatively little effect on the internal properties of Cold Dark Matter haloes and hence may be ignored in such studies.",
+          "claimed_authors": [
+            "Chris Power",
+            "Alexander Knebe"
+          ],
+          "claimed_title": "The Impact of Box Size on the Properties of Dark Matter Haloes in Cosmological Simulations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0512281"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='The Impact of Box Size on the Properties of Dark Matter Haloes in Cosmological Simulations')",
+        "failed_at": "2026-05-07T03:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In a cascading power transmission outage, component outages propagate non-locally, after one component outages, the next failure may be very distant, both topologically and geographically. As a result, simple models of topological contagion do not accurately represent the propagation of cascades in power systems. However, cascading power outages do follow patterns, some of which are useful in understanding and reducing blackout risk. This paper describes a method by which the data from many cascading failure simulations can be transformed into a graph-based model of influences that provides actionable information about the many ways that cascades propagate in a particular system. The resulting \"influence graph\" model is Markovian, in that component outage probabilities depend only on the outages that occurred in the prior generation. To validate the model we compare the distribution of cascade sizes resulting from $n-2$ contingencies in a $2896$ branch test case to cascade sizes in the influence graph. The two distributions are remarkably similar. In addition, we derive an equation with which one can quickly identify modifications to the proposed system that will substantially reduce cascade propagation. With this equation one can quickly identify critical components that can be improved to substantially reduce the risk of large cascading blackouts.",
+          "claimed_authors": [
+            "Paul D. H. Hines",
+            "Ian Dobson",
+            "Pooya Rezaei"
+          ],
+          "claimed_title": "Cascading Power Outages Propagate Locally in an Influence Graph that is not the Actual Grid Topology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1508.01775"
+        },
+        "details": "query-relevance 0.267 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='Cascading Power Outages Propagate Locally in an Influence Graph that is not the Actual Grid Topology')",
+        "failed_at": "2026-05-07T03:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Contemporary statistical publications rely on simulation to evaluate performance of new methods and compare them with established methods. In the context of meta-analysis of log-odds-ratios, we investigate how the ways in which simulations are implemented affect such conclusions. Choices of distributions for sample sizes and/or control probabilities considerably affect conclusions about statistical methods. Here we report on the results for constant sample sizes. Our two subsequent publications will cover normally and uniformly distributed sample sizes.",
+          "claimed_authors": [
+            "Elena Kulinskaya",
+            "David C. Hoaglin",
+            "Ilyas Bakbergenuly"
+          ],
+          "claimed_title": "Exploring Consequences of Simulation Design for Apparent Performance of Statistical Methods. 1: Results from simulations with constant sample sizes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16638"
+        },
+        "details": "query-relevance 0.267 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='Exploring Consequences of Simulation Design for Apparent Performance of Statistical Methods. 1: Results from simulations with constant sample sizes')",
+        "failed_at": "2026-05-07T03:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An accurate knowledge of the per-unit length impedance of power cables is necessary to correctly predict electromagnetic transients in power systems. In particular, skin, proximity, and ground return effects must be properly estimated. In many applications, the medium that surrounds the cable is not uniform and can consist of multiple layers of different conductivity, such as dry and wet soil, water, or air. We introduce a multilayer ground model for the recently-proposed MoM-SO method, suitable to accurately predict ground return effects in such scenarios. The proposed technique precisely accounts for skin, proximity, ground and tunnel effects, and is applicable to a variety of cable configurations, including underground and submarine cables. Numerical results show that the proposed method is more accurate than analytic formulas typically employed for transient analyses, and delivers an accuracy comparable to the finite element method (FEM). With respect to FEM, however, MoM-SO is over 1000 times faster, and can calculate the impedance of a submarine cable inside a three-layer medium in 0.10~s per frequency point.",
+          "claimed_authors": [
+            "Utkarsh R. Patel",
+            "Piero Triverio"
+          ],
+          "claimed_title": "Accurate Impedance Calculation for Underground and Submarine Power Cables using MoM-SO and a Multilayer Ground Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1503.05146"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='Accurate Impedance Calculation for Underground and Submarine Power Cables using MoM-SO and a Multilayer Ground Model')",
+        "failed_at": "2026-05-07T03:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "(Abridged) Accurately predicting how the cosmic abundance of neutral hydrogen evolves with redshift is a challenging problem facing modellers of galaxy formation. We investigate the predictions of four currently favoured semi-analytical galaxy formation models applied to the Millennium simulation for the mass function of cold neutral gas (atomic and molecular) in galaxies as a function of redshift, and we use these predictions to construct number counts for the next generation of all-sky neutral atomic hydrogen (HI) surveys. Despite the different implementations of the physical ingredients of galaxy formation, we find that the model predictions are broadly consistent with one another; the key differences reflect how the models treat AGN feedback and how the timescale for star formation evolves with redshift. The models produce mass functions of cold gas in galaxies that are generally in good agreement with HI surveys at $z$=0. Interestingly we find that these mass functions do not evolve significantly with redshift. Adopting a simple conversion factor for cold gas mass to HI mass that we apply to all galaxies at all redshifts, we derive mass functions of HI in galaxies from the predicted mass functions of cold gas, which we use to predict the number counts of sources likely to be detected by HI surveys on next generation radio telescopes such as the Square Kilometre Array and its pathfinders. We show also how adopting a conversion factor for cold gas mass to HI mass that varies from galaxy to galaxy impacts on number counts. In addition, we examine how the typical angular sizes of galaxies vary with redshift. Taken together, these results make clear that forthcoming HI surveys will provide important and powerful tests of theoretical galaxy formation models.",
+          "claimed_authors": [
+            "C. Power",
+            "C. M. Baugh",
+            "C. G. Lacey"
+          ],
+          "claimed_title": "The Redshift Evolution of the Mass Function of Cold Gas in Hierarchical Galaxy Formation Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0908.1396"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='The Redshift Evolution of the Mass Function of Cold Gas in Hierarchical Galaxy Formation Models')",
+        "failed_at": "2026-05-07T03:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Robust simulation is essential for reliable operation and planning of transmission and distribution power grids. At present, disparate methods exist for steady-state analysis of the transmission (power flow) and distribution power grid (three-phase power flow). Due to the non-linear nature of the problem, it is difficult for alternating current (AC) power flow and three-phase power flow analyses to ensure convergence to the correct physical solution, particularly from arbitrary initial conditions, or when evaluating a change (e.g. contingency) in the grid. In this paper, we describe our equivalent circuit formulation approach with current and voltage variables that models both the positive sequence network of the transmission grid and three-phase network of the distribution grid without loss of generality. The proposed circuit models and formalism enable the extension and application of circuit simulation techniques to solve for the steady-state solution with excellent robustness of convergence. Examples for positive sequence transmission and three-phase distribution systems, including actual 75k+ nodes Eastern Interconnection transmission test cases and 8k+ nodes taxonomy distribution test cases, are solved from arbitrary initial guesses to demonstrate the efficacy of our approach.",
+          "claimed_authors": [
+            "Amritanshu Pandey",
+            "Marko Jereminov",
+            "Martin R. Wagner",
+            "David M. Bromberg",
+            "Gabriela Hug",
+            "Larry Pileggi"
+          ],
+          "claimed_title": "Robust Power Flow and Three-Phase Power Flow Analyses",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1803.01211"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='Robust Power Flow and Three-Phase Power Flow Analyses')",
+        "failed_at": "2026-05-07T03:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces a new model for highly accurate distribution voltage solutions, coined as a parameterized linear power flow model. The proffered model is grounded on a physical model of linear power flow equations, and uses learning-aided parameterization to increase the fidelity of voltage solutions over a wide range of operating points. To this end, the closed-form analytic solution of the parameterization approach is obtained via a Gaussian Process using a deliberately small input sample and without the need for recomputation. The resulting \"self-adjusting\" parameter is system-specific and controls how accurate the proposed power flow equations are according to loading conditions. Under a certain value of the resulting parameter, the proposed model can fully recover the linearized formulation of a specialized branch flow model for radial distribution systems, the so-called simplified DistFlow model. Numerical examples are provided to illustrate the effectiveness of the proposed model as well as the improvement in solution accuracy for voltage magnitudes over the simplified DistFlow model and several other linear power flow models, at multiple loading levels. Simulations were carried out on six small- and medium-sized test systems.",
+          "claimed_authors": [
+            "Marija Marković",
+            "Bri-Mathias Hodge"
+          ],
+          "claimed_title": "Parameterized Linear Power Flow for High Fidelity Voltage Solutions in Distribution Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.04508"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='Parameterized Linear Power Flow for High Fidelity Voltage Solutions in Distribution Systems')",
+        "failed_at": "2026-05-07T03:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we propose a framework for coordinating distributed energy resources (DERs) connected to a power distribution system, the model of which is not completely known, so that they collectively provide a specified amount of active power to the bulk power system as quantified by the power exchange between both systems at the bus interconnecting them, while respecting distribution line capacity limits. The proposed framework consists of (i) a linear time-varying input-output (IO) system model that represents the relation between the DER active power injections (inputs), and the total active power exchanged between the distribution and bulk power systems (output); (ii) an estimator that aims to estimate the IO model parameters, and (iii) a controller that determines the optimal DER active power injections so the power exchanged between both systems equals to the specified amount at a minimum generating cost. We formulate the estimation problem as a quadratic program with box constraints and solve it using the projected gradient descent algorithm. To resolve the potential issue of collinearity in the measurements used by the estimator, we introduce random perturbations in the DER active power injections during the estimation process. Using the estimated IO model, the optimal DER coordination problem to be solved by the controller can be formulated as a convex optimization problem, which can be solved easily. The effectiveness of the framework is validated via numerical simulations using the IEEE 123-bus distribution test feeder.",
+          "claimed_authors": [
+            "Hanchen Xu",
+            "Alejandro D. Domínguez-García",
+            "Peter W. Sauer"
+          ],
+          "claimed_title": "Data-driven Coordination of Distributed Energy Resources for Active Power Provision",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.00043"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='Data-driven Coordination of Distributed Energy Resources for Active Power Provision')",
+        "failed_at": "2026-05-07T03:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Low-frequency disturbances of power quality are one of the most common disturbances in the power grid. These disturbances are most often the result of the impact of power electronic and energy-saving devices, the number of which is increasing significantly in the power grid. Due to the simultaneous operation of various types of loads in the power grid, various types of simultaneous disturbances of power quality occur, such as voltage fluctuations and distortions. Therefore, there is a need to analyze this type of simultaneous interaction. For this purpose, a special and complementary laboratory setup has been prepared, which allows for the examination of actual states occurring in modern power networks. Selected research results are presented for this laboratory setup, which determine its basic properties. Possible applications and possibilities of the laboratory setup are presented from the point of view of current challenges.",
+          "claimed_authors": [
+            "Piotr Kuwałek",
+            "Grzegorz Wiczyński"
+          ],
+          "claimed_title": "Laboratory Setup for Testing Low-Frequency Disturbances of Power Quality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.17643"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='Laboratory Setup for Testing Low-Frequency Disturbances of Power Quality')",
+        "failed_at": "2026-05-07T03:29:49Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Francesco Prinzi",
+            "C. Militello",
+            "Calogero Zarcaro",
+            "T. Bartolotta",
+            "Salvatore Gaglio",
+            "Salvatore Vitabile"
+          ],
+          "title": "Rad4XCNN: a new agnostic method for post-hoc global explanation of CNN-derived features by means of radiomics",
+          "venue": "Comput. Methods Programs Biomed.",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1016/j.cmpb.2024.108576",
+        "summary": "BACKGROUND AND OBJECTIVE\nIn recent years, machine learning-based clinical decision support systems (CDSS) have played a key role in the analysis of several medical conditions. Despite their promising capabilities, the lack of transparency in AI models poses significant challenges, particularly in medical contexts where reliability is a mandatory aspect. However, it appears that explainability is inversely proportional to accuracy. For this reason, achieving transparency without compromising predictive accuracy remains a key challenge.\n\n\nMETHODS\nThis paper presents a novel method, namely Rad4XCNN, to enhance the predictive power of CNN-derived features with the inherent interpretability of radiomic features. Rad4XCNN diverges from conventional methods based on saliency maps, by associating intelligible meaning to CNN-derived features by means of Radiomics, offering new perspectives on explanation methods beyond visualization maps.\n\n\nRESULTS\nUsing a breast cancer classification task as a case study, we evaluated Rad4XCNN on ultrasound imaging datasets, including an online dataset and two in-house datasets for internal and external validation. Some key results are: (i) CNN-derived features guarantee more robust accuracy when compared against ViT-derived and radiomic features; (ii) conventional visualization map methods for explanation present several pitfalls; (iii) Rad4XCNN does not sacrifice model accuracy for their explainability; (iv) Rad4XCNN provides a global explanation enabling the physician to extract global insights and findings.\n\n\nCONCLUSIONS\nOur method can mitigate some concerns related to the explainability-accuracy trade-off. This study highlighted the importance of proposing new methods for model explanation without affecting their accuracy.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S0169260724005698",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [
+            "https://doi.org/10.1016/j.cmpb.2024.108576"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:30:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Soonwon Yang",
+            "Chanjoon Park",
+            "Y. Byun",
+            "So-Hyang Chung",
+            "Hyun Seung Kim"
+          ],
+          "title": "Comparative accuracy of intraocular lens power calculation formulas when targeting myopia",
+          "venue": "Heliyon",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1016/j.heliyon.2024.e33339",
+        "summary": "Purpose This study aims to compare the accuracies of intraocular lens (IOL) power calculation formulas when targeting myopia versus emmetropia. Methods A total of 450 patients were included, with 225 patients targeting emmetropia and 225 patients aiming for approximately −2.0 diopters of myopia. This retrospective analysis utilized data from a single eye of each patient, with preoperative biometric measurements obtained using the IOL Master 700. The study considered established formulas such as Haigis, Hoffer Q, Holladay 1, Holladay 2, and SRK/T, as well as modern formulas including Barrett Universal II, Cooke K6, EVO 2.0, Hill-RBF, Hoffer QST, Kane, Olsen, and PEARL-DGS. Statistical analyses, including Friedman test and post hoc analysis, were employed to compare the accuracy of each IOL power calculation formula between the two groups. Additionally, a multiple regression analysis was conducted to identify variables influencing the accuracy of intraocular lens power calculation formulas. Results In targeting myopia, all IOL formulas tended to exhibit a greater refractive error compared to when targeting emmetropic eyes. Notably, the Haigis, SRK/T, and Holladay 2 formulas were found to be highly influenced by this trend, while the modern formulas were less affected. Conclusion The accuracy of IOL power calculation formulas diminishes when targeting myopia in comparison to emmetropia. However, the modern formulas appear less susceptible to this trend. Consequently, when aiming for myopia, the use of the modern formulas is recommended for enhanced accuracy in IOL power calculation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S2405844024093708",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [
+            "https://doi.org/10.1016/j.heliyon.2024.e33339"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:30:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Oleksiy V. Voytsekhivskyy",
+            "K. Hoffer",
+            "G. Savini",
+            "L. Tutchenko",
+            "Diogo Hipólito-Fernandes"
+          ],
+          "title": "Clinical Accuracy of 18 IOL Power Formulas in 241 Short Eyes",
+          "venue": "Current Eye Research",
+          "year": 2021
+        },
+        "primary_pointer": "https://doi.org/10.1080/02713683.2021.1933056",
+        "summary": "ABSTRACT Purpose To analyze the accuracy of 18 intraocular lens (IOL) power calculation formulas in eyes with axial length (AL) ≤ 22 mm. Methods We analyzed 241 eyes of 241 patients. Eighteen formulas were evaluated: Barrett Universal II (BUII), EVO 2.0, Haigis, Hoffer Q, Holladay 1 and 2, Cooke K6, Kane, LadasSuperFormula AI, Naeser 2, Olsen, Panacea, Pearl-DGS, RBF 2.0, SRK/T, T2, VRF and VRF-G. Optical biometry was performed with an IOLMaster 700 (Carl Zeiss Meditec, Jena, Germany). With lens constants optimized for the whole range of AL, the mean prediction error (PE) and its standard deviation (SD), the median absolute error (MedAE), the mean absolute error (MAE) and the percentage of eyes with PEs within ±0.25 D, ±0.50 D and <±1.00 D were calculated. Results Post-hoc analysis of the absolute PE revealed statistically significant differences (P < .05) between some of the newer formulas (K6, Kane, Naeser 2, Olsen and VRF-G), which obtained the lowest MedAE (respectively, 0.308, 0.300, 0.277, 0.310 and 0.276 D) and the remaining ones. These formulas yielded also the highest percentage of eyes with a PE within ±0.50 D (70.54%, 72.20%, 71.37%, 70.95% and 73.03%, respectively), whereas Panacea and SRK/T yielded the lowest percentage (62.24%), with a stastically significant difference (P < .05) with respect to most formulas. Conclusion In eyes with AL ≤22.0 mm, new formulas (K6, Kane, Naeser 2, Olsen and VRF-G) offer the most accurate predictions of postoperative refraction.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "final_url": "https://www.tandfonline.com/doi/full/10.1080/02713683.2021.1933056",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [
+            "https://doi.org/10.1080/02713683.2021.1933056"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:30:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "E. Fabian",
+            "W. Wehner"
+          ],
+          "title": "Prediction Accuracy of Total Keratometry Compared to Standard Keratometry Using Different Intraocular Lens Power Formulas.",
+          "venue": "Journal of refractive surgery",
+          "year": 2019
+        },
+        "primary_pointer": "https://doi.org/10.3928/1081597X-20190422-02",
+        "summary": "PURPOSE\nTo compare the accuracy of intraocular lens (IOL) power calculation based on standard keratometry (K) and the new Total Keratometry (TK).\n\n\nMETHODS\nA post-hoc analysis of study data based on 145 pseudophakic astigmatic eyes was conducted. The absolute prediction error (APE) of spherical equivalent (SE) and cylinder (CYL) was calculated based on K and TK (including posterior corneal surface) data recorded 6 weeks after IOL implantation. APE was calculated as the difference between the postoperative refraction and the refractive error predicted by three classic IOL calculation methods (Haigis/Haigis-T, Barrett Universal II, Barrett Toric Calculator) and two new formulas developed for TK (Barrett TK Universal II, Barrett TK Toric). For APE in SE, the Haigis-T (K versus TK) and Barrett Universal II (K) versus Barrett TK Universal II (TK) were compared. For APE in CYL, the Haigis-T (K versus TK) and Barrett Toric Calculator (K) versus Barrett TK Toric formula (TK) were compared.\n\n\nRESULTS\nMean APE in SE and CYL was lower based on TK values compared to K, with a mean APE difference (K - TK) of 0.011 ± 0.107 diopters (D) (SE Haigis-T; 95% confidence interval [CI]: -0.004 to infinity), 0.016 ± 0.113 D (SE: Barrett Universal II versus Barrett TK Universal II; 95% CI: 0.0005 to infinity), 0.103 ± 0.173 D (CYL: Haigis-T; 95% CI: 0.0791 to infinity), and 0.020 ± 0.148 D (CYL: Barrett Toric versus Barrett TK Toric; 95% CI: -0.0002 to infinity). APE in SE was within ±0.50 D in 86% (Barrett TK Universal II) versus 84% (Barrett Universal II) of eyes. APE in CYL was within ±0.50 D in 58% (Haigis from TK) versus 44% (Haigis from K) of eyes.\n\n\nCONCLUSIONS\nIn comparison to standard K, a higher prediction accuracy can be expected by using TK values along with the two newly developed formulas. TK values are compatible with standard IOL power calculation formulas and existing optimized IOL constants. [J Refract Surg. 2019;35(6):362-368.].",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://journals.healio.com/doi/10.3928/1081597X-20190422-02",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [
+            "https://doi.org/10.3928/1081597X-20190422-02"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:30:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Nazlım Hilal Taraf",
+            "Burcu Vural Çamalan",
+            "S. Doluoglu",
+            "Erhan Arslan",
+            "A. Ural",
+            "Gülbin Demiroğlu",
+            "Atilla Elhan Elhan",
+            "Samet Özlügedik"
+          ],
+          "title": "Diagnostic Performance of ChatGPT-o1 and DeepSeek-V3 in Expert-Validated Simulated Ear Nose and Throat Scenarios: A Comparative Accuracy Study",
+          "venue": "European Journal of Rhinology and Allergy",
+          "year": 2026
+        },
+        "primary_pointer": "https://doi.org/10.65396/ejra.1846059",
+        "summary": "AbstractObjective: To compare the diagnostic accuracy of two advanced large language models (LLMs), ChatGPT-o1 and DeepSeek-V3, in expert-validated simulated otorhinolaryngology cases, and to assess subspecialty-specific performance and inter-rater agreement relative to human specialists.Methods: A cross-sectional diagnostic accuracy study was conducted using 70 expert-validated clinical vignettes across five ENT subspecialties. Two academic otolaryngologists and two LLMs independently evaluated each case. All LLMs operated in deterministic mode (temperature = 0) with standardized single-pass prompting in isolated sessions. Diagnostic accuracy, inter-rater agreement (Cohen’s κ), and subspecialty-specific performance were analyzed. A post hoc power analysis (Cohen’s h = 0.22; α = 0.05) assessed the ability to detect moderate effect sizes.Results: Both LLMs achieved a diagnostic accuracy of 90.0% (63/70), with no significant difference between them (p = 1.00) and substantial inter-model agreement (κ = 0.68). Human evaluators achieved accuracies of 97.1% and 92.9%, with fair inter-rater agreement (κ = 0.26). Subspecialty performance was highest in otology and pediatric ENT (100%) and rhinology (92.3%), with greater variability observed in laryngology and head and neck surgery. Shared error patterns included overestimation of malignancy in high-risk patients. Post hoc power analysis demonstrated 78% power to detect moderate differences.Conclusion: In controlled, vignette-based evaluations, ChatGPT-o1 and DeepSeek-V3 demonstrated diagnostic accuracy approaching expert-level performance across simulated ENT scenarios, with strong inter-model agreement and subspecialty-dependent variability. These findings highlight the potential of LLMs as diagnostic decision-support tools while underscoring the need for multimodal and real-world validation before clinical implementation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://dergipark.org.tr/en/pub/ejra/article/1846059",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [
+            "https://doi.org/10.65396/ejra.1846059",
+            "https://dergipark.org.tr/en/doi/10.65396/ejra.1846059"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:30:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sriram Balasubramanian",
+            "Samyadeep Basu",
+            "Koustava Goswami",
+            "Ryan Rossi",
+            "Varun Manjunatha",
+            "Roshan Santhosh",
+            "Ruiyi Zhang",
+            "Soheil Feizi",
+            "Nedim Lipka"
+          ],
+          "title": "Decomposition-Enhanced Training for Post-Hoc Attributions In Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.25766",
+        "summary": "Large language models (LLMs) are increasingly used for long-document question answering, where reliable attribution to sources is critical for trust. Existing post-hoc attribution methods work well for extractive QA but struggle in multi-hop, abstractive, and semi-extractive settings, where answers synthesize information across passages. To address these challenges, we argue that post-hoc attribution can be reframed as a reasoning problem, where answers are decomposed into constituent units, each tied to specific context. We first show that prompting models to generate such decompositions alongside attributions improves performance. Building on this, we introduce DecompTune, a post-training method that teaches models to produce answer decompositions as intermediate reasoning steps. We curate a diverse dataset of complex QA tasks, annotated with decompositions by a strong LLM, and post-train Qwen-2.5 (7B and 14B) using a two-stage SFT + GRPO pipeline with task-specific curated rewards. Across extensive experiments and ablations, DecompTune substantially improves attribution quality, outperforming prior methods and matching or exceeding state-of-the-art frontier models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2510.25766",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:30:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hugues Turbé",
+            "Mina Bjelogrlic",
+            "Christian Lovis",
+            "Gianmarco Mengaldo"
+          ],
+          "title": "Evaluation of post-hoc interpretability methods in time-series classification",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2202.05656",
+        "summary": "Post-hoc interpretability methods are critical tools to explain neural-network results. Several post-hoc methods have emerged in recent years, but when applied to a given task, they produce different results, raising the question of which method is the most suitable to provide correct post-hoc interpretability. To understand the performance of each method, quantitative evaluation of interpretability methods is essential. However, currently available frameworks have several drawbacks which hinders the adoption of post-hoc interpretability methods, especially in high-risk sectors. In this work, we propose a framework with quantitative metrics to assess the performance of existing post-hoc interpretability methods in particular in time series classification. We show that several drawbacks identified in the literature are addressed, namely dependence on human judgement, retraining, and shift in the data distribution when occluding samples. We additionally design a synthetic dataset with known discriminative features and tunable complexity. The proposed methodology and quantitative metrics can be used to understand the reliability of interpretability methods results obtained in practical applications. In turn, they can be embedded within operational workflows in critical fields that require accurate interpretability results for e.g., regulatory policies.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2202.05656",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:30:31Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "how do planned statistical power estimates in pre-registered studies compare to the achieved power calculated from actual sample sizes and observed effect sizes, and what factors systematically predict discrepancies between them",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

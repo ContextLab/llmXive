@@ -1,0 +1,405 @@
+{
+  "fetched_at": "2026-05-07T03:28:35Z",
+  "field": "physics",
+  "prompt_version": "1.1.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "---\nfield: physics\nsubmitter: google.gemma-3-27b-it\n---\n\n# Statistical Analysis of Early Universe CMB Fluctuations and Topological Defects\n\n**Field**: physics\n\n## Research question\n\nTo what extent do non-Gaussian signatures in the Cosmic Microwave Background temperature anisotropies deviate from the inflationary LCDM baseline, and can these deviations constrain the formation energy of cosmic topological defects?\n\n## Motivation\n\nStandard cosmological models assume primordial fluctuations are nearly Gaussian, yet theories of symmetry breaking in the early universe predict topological defects (cosmic strings, domain walls) that induce specific non-Gaussian imprints. While Planck data has constrained inflation, a targeted statistical re-analysis for defect-specific non-Gaussianity remains under-explored. Identifying or ruling out these signatures provides direct constraints on high-energy physics scales inaccessible to terrestrial colliders.\n\n## Literature gap analysis\n\n### What we searche",
+      "target_n": 5
+    },
+    "duration_seconds": 352.175,
+    "ended_at": "2026-05-07T03:28:35Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "CMB non-Gaussianity constraints on topological defects"
+        ],
+        [
+          2,
+          "Cosmic strings imprints on CMB temperature anisotropies"
+        ],
+        [
+          3,
+          "Primordial non-Gaussianity beyond standard inflation"
+        ],
+        [
+          4,
+          "Planck data analysis of CMB bispectrum"
+        ],
+        [
+          5,
+          "Cosmic defect signatures in CMB higher-order moments"
+        ],
+        [
+          6,
+          "Constraints on symmetry breaking scale from cosmology"
+        ],
+        [
+          7,
+          "CMB trispectrum and topological defects"
+        ],
+        [
+          8,
+          "Non-Gaussianity parameters f_NL in defect models"
+        ],
+        [
+          9,
+          "Domain walls contribution to CMB anisotropy"
+        ],
+        [
+          10,
+          "Statistical analysis of primordial fluctuations non-Gaussianity"
+        ],
+        [
+          11,
+          "Kibble mechanism observational signatures in CMB"
+        ],
+        [
+          12,
+          "Cosmic texture defects CMB constraints"
+        ],
+        [
+          13,
+          "High-energy physics scales probed by CMB statistics"
+        ],
+        [
+          14,
+          "Minkowski functionals applied to CMB non-Gaussianity"
+        ],
+        [
+          15,
+          "Semi-analytic simulations of cosmic string CMB signals"
+        ],
+        [
+          16,
+          "Beyond LCDM cosmology non-Gaussian tests"
+        ],
+        [
+          17,
+          "Bayesian inference for CMB topological defects"
+        ],
+        [
+          18,
+          "Primordial curvature perturbations defect induced"
+        ],
+        [
+          19,
+          "Alternative inflation models non-Gaussian signatures"
+        ],
+        [
+          20,
+          "Energy scale limits of cosmic topological defects"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "CMB non-Gaussianity constraints on topological defects": 0,
+        "Cosmic strings imprints on CMB temperature anisotropies": 10,
+        "To what extent do non-Gaussian signatures in the Cosmic Microwave Background temperature anisotropies deviate from the inflationary LCDM baseline, and can these deviations constrain the formation energy of cosmic topological defects": 0
+      },
+      "total_queries_issued": 4
+    },
+    "failure_reason": null,
+    "librarian_prompt_version": "1.1.0",
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2602.18272"
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-07T03:22:43Z",
+    "term_input": {
+      "normalized": "to what extent do non-gaussian signatures in the cosmic microwave background temperature anisotropies deviate from the inflationary lcdm baseline, and can these deviations constrain the formation energy of cosmic topological defects",
+      "raw": "To what extent do non-Gaussian signatures in the Cosmic Microwave Background temperature anisotropies deviate from the inflationary LCDM baseline, and can these deviations constrain the formation energy of cosmic topological defects"
+    },
+    "verification_failures": [],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "C. Ringeval"
+          ],
+          "title": "Cosmic strings and their induced non-Gaussianities in the cosmic microwave background",
+          "venue": "",
+          "year": 2010
+        },
+        "primary_pointer": "https://doi.org/10.1155/2010/380507",
+        "summary": "Motivated by the fact that cosmological perturbations of inflationary quantum origin were born Gaussian, the search for non-Gaussianities in the cosmic microwave background (CMB) anisotropies is considered as the privileged probe of non-linear physics in the early universe. Cosmic strings are active sources of gravitational perturbations and incessantly produce non-Gaussian distortions in the CMB. Even if, on the currently observed angular scales, they can only contribute a small fraction of the CMB angular power spectrum, cosmic strings could actually be the main source of its non-Gaussianities. In this article, after having reviewed the basic cosmological properties of a string network, we present the signatures Nambu-Goto cosmic strings would induce in various observables ranging from the one-point function of the temperature anisotropies to the bispectrum and trispectrum. It is shown that string imprints are significantly different than those expected from the primordial type of non-Gaussianity and could therefore be easily distinguished.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://onlinelibrary.wiley.com/doi/10.1155/2010/380507",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [
+            "https://doi.org/10.1155/2010/380507"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:28:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "A. Fraisse",
+            "C. Ringeval",
+            "D. Spergel",
+            "F. Bouchet"
+          ],
+          "title": "Small-Angle CMB Temperature Anisotropies Induced by Cosmic Strings",
+          "venue": "",
+          "year": 2007
+        },
+        "primary_pointer": "https://doi.org/10.1103/PhysRevD.78.043535",
+        "summary": "We use Nambu-Goto numerical simulations to compute the cosmic microwave background (CMB) temperature anisotropies induced at arcminute angular scales by a network of cosmic strings in a Friedmann-Lemaitre-Robertson-Walker (FLRW) expanding universe. We generate 84 statistically independent maps on a 7.2 degree field of view, which we use to derive basic statistical estimators such as the one-point distribution and two-point correlation functions. At high multipoles, the mean angular power spectrum of string-induced CMB temperature anisotropies can be described by a power law slowly decaying as \\ell^{-p}, with p=0.889 (+0.001,-0.090) (including only systematic errors). Such a behavior suggests that a nonvanishing string contribution to the overall CMB anisotropies may become the dominant source of fluctuations at small angular scales. We therefore discuss how well the temperature gradient magnitude operator can trace strings in the context of a typical arcminute diffraction-limited experiment. Including both the thermal and nonlinear kinetic Sunyaev-Zel'dovich effects, the Ostriker-Vishniac effect, and the currently favored adiabatic primary anisotropies, we find that, on such a map, strings should be ``eye visible,'' with at least of order ten distinctive string features observable on a 7.2 degree gradient map, for tensions U down to GU \\simeq 2 x 10^{-7} (in Planck units). This suggests that, with upcoming experiments such as the Atacama Cosmology Telescope (ACT), optimal non-Gaussian, string-devoted statistical estimators applied to small-angle CMB temperature or gradient maps may put stringent constraints on a possible cosmic string contribution to the CMB anisotropies. Comment: 17 pages, 9 figures. v2: matches published version, minor clarifications added, typo in Eq. (8) fixed, results unchanged",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://link.aps.org/doi/10.1103/PhysRevD.78.043535",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1103/PhysRevD.78.043535"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:28:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Adeela Afzal",
+            "M. Alakhras",
+            "M. Kanafi",
+            "S. Movahed"
+          ],
+          "title": "Cosmic Strings-induced CMB anisotropies in light of Weighted Morphology",
+          "venue": "Monthly notices of the Royal Astronomical Society",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1093/mnras/staf1110",
+        "summary": "Motivated by the morphological measures in assessing the geometrical and topological properties of a generic cosmological stochastic field, we propose an extension of the weighted morphological measures, specifically the nth conditional moments of derivative (cmd-n). This criterion assigns a distinct weight to each excursion set point based on the associated field. We apply the cmd-n on the Cosmic Microwave Background (CMB) to identify the cosmic string networks (CSs) through their unique Gott-Kaiser-Stebbins effect on the temperature anisotropies. We also formulate the perturbative expansion of cmd-n for the weak non-Gaussian regime up to $\\mathcal {O}(\\sigma _0^3)$. We propose a comprehensive pipeline designed to analyze the morphological properties of string-induced CMB maps within the flat sky approximation. To evaluate the robustness of our proposed criteria, we employ string-induced high-resolution flat-sky CMB simulated patches of 7.2 deg2 size with a resolution of 0.42 arcminutes. Our results demonstrate that the minimum detectable value of cosmic string tension is Gμ ≳ 1.9 × 10−7 when a noise-free map is analyzed with normalized cmd-n. Whereas for the ACT, CMB-S4, and Planck-like experiments at 95.45 % confidence level, the normalized cmd-n can distinguish the CSs network for Gμ ≳ 2.9 × 10−7, Gμ ≳ 2.4 × 10−7 and Gμ ≳ 5.8 × 10−7, respectively. The normalized cmd-n exhibits a significantly enhanced capability in detecting CSs relative to the Minkowski Functionals.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://academic.oup.com/mnras/article/541/4/3851/8195533",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1093/mnras/staf1110"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:28:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "M. Sanchis-Lozano",
+            "Verónica Sanz"
+          ],
+          "title": "Observable imprints of primordial gravitational waves on the temperature anisotropies of the cosmic microwave background",
+          "venue": "Physical Review D",
+          "year": 2023
+        },
+        "primary_pointer": "https://doi.org/10.1103/physrevd.109.063529",
+        "summary": "We examine the contribution of tensor modes, in addition to the dominant scalar ones, on the temperature anisotropies of the cosmic microwave background (CMB). To this end, we analyze in detail the temperature two-point angular correlation function $C(\\theta)$ from the Planck 2018 dataset, focusing on large angles ($\\theta \\gtrsim 120^{\\circ}$) corresponding to small $\\ell$ multipoles. A hierarchical set of infrared cutoffs are naturally introduced to the scalar and tensor power spectra of the CMB by invoking an extra Kaluza-Klein dimension compactifying at about the GUT scale between the Planck epoch and the start of inflation. We associate this set of lower scalar and tensor cutoffs with the parity of the multipole expansion of the $C(\\theta)$ function. By fitting the Planck 2018 data we compute the multipole coefficients thereby reproducing the well-known odd-parity preference in angular correlations seen by all three satellite missions COBE, WMAP and Planck. Our fits improve significantly once tensor modes are included in the analysis, hence providing a hint of the imprints of primordial gravitational waves on the temperature correlations observed in the CMB today. To conclude we suggest a relationship between, on the one hand, the lack of (positive) large-angle correlations and the odd-parity dominance in the CMB and, on the other hand, the effect of primordial gravitational waves on the CMB temperature anisotropies.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://link.aps.org/doi/10.1103/PhysRevD.109.063529",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1103/physrevd.109.063529"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:28:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "J. Raidal",
+            "A. Avgoustidis",
+            "Edmund J. Copeland",
+            "Adam Moss"
+          ],
+          "title": "CMB anisotropies from cosmic (super)strings in light of ACT DR6",
+          "venue": "",
+          "year": 2026
+        },
+        "primary_pointer": "2602.18272",
+        "summary": "We present updated constraints on cosmic string and superstring parameters derived from Cosmic Microwave Background (CMB) anisotropies. The constraints are obtained via Markov Chain Monte Carlo (MCMC) analyses of the full \\textit{Planck} temperature and polarization data combined with the Atacama Cosmology Telescope (ACT) Data Release 6 (DR6). For ordinary cosmic strings, we constrain the string tension $G\\mu$, the string wiggliness parameter $\\alpha$, and the self-chopping efficiency $\\tilde{c}$. For cosmic superstrings, we constrain the fundamental string tension $G\\mu_F$, the string coupling $g_s$, and a parameter $w$ describing the volume of the compact extra dimensions. In both cases, we find significantly tighter bounds on the string tension compared to previous analyses, obtaining $2\\sigma$ upper limits of $G\\mu<3.66\\times10^{-8}$ and $G\\mu_F<1.38\\times10^{-8}$. We also discuss the significant prior-dependence of these results. The computational pipeline used in this work, including a modified version of \\texttt{CAMB} capable of computing CMB anisotropies sourced by any active network described via unequal-time correlators, is released publicly as \\texttt{CAMBactive} \\cite{Raidal_CAMBactive_CAMB_extension_2026}.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2602.18272",
+          "http_status": 200,
+          "pdf_sample_score": 0.2309,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 0.9741,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:28:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Joanes Lizarraga",
+            "Jon Urrestilla",
+            "David Daverio",
+            "Mark Hindmarsh",
+            "Martin Kunz"
+          ],
+          "title": "New CMB constraints for Abelian Higgs cosmic strings",
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1609.03386",
+        "summary": "We present cosmic microwave background (CMB) power spectra from recent numerical simulations of cosmic strings in the Abelian Higgs model and compare them to CMB power spectra measured by Planck. We obtain revised constraints on the cosmic string tension parameter $Gμ$. For example, in the $Λ$CDM model with the addition of strings and no primordial tensor perturbations, we find $Gμ< 2.0 \\times 10^{-7}$ at 95% confidence, about 20% lower than the value obtained from previous simulations, which had 1/64 of the spatial volume. We investigate the source of the difference, showing that the main cause is an improved treatment of the string evolution across the radiation-matter transition. The increased computational volume also makes possible to simulate fully the physical equations of motion, in which the string cores shrink in comoving coordinates. This, and the larger dynamic range, changes the amplitude of the power spectra by only about 10%, demonstrating that field theory simulations of cosmic strings have now reached the required dynamic range for CMB calculations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/1609.03386",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:28:32Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Aurélien A. Fraisse",
+            "Christophe Ringeval",
+            "David N. Spergel",
+            "François R. Bouchet"
+          ],
+          "title": "Small-Angle CMB Temperature Anisotropies Induced by Cosmic Strings",
+          "venue": "arXiv",
+          "year": 2007
+        },
+        "primary_pointer": "0708.1162",
+        "summary": "We use Nambu-Goto numerical simulations to compute the cosmic microwave background (CMB) temperature anisotropies induced at arcminute angular scales by a network of cosmic strings in a Friedmann-Lemaitre-Robertson-Walker (FLRW) expanding universe. We generate 84 statistically independent maps on a 7.2 degree field of view, which we use to derive basic statistical estimators such as the one-point distribution and two-point correlation functions. At high multipoles, the mean angular power spectrum of string-induced CMB temperature anisotropies can be described by a power law slowly decaying as \\ell^{-p}, with p=0.889 (+0.001,-0.090) (including only systematic errors). Such a behavior suggests that a nonvanishing string contribution to the overall CMB anisotropies may become the dominant source of fluctuations at small angular scales. We therefore discuss how well the temperature gradient magnitude operator can trace strings in the context of a typical arcminute diffraction-limited experiment. Including both the thermal and nonlinear kinetic Sunyaev-Zel'dovich effects, the Ostriker-Vishniac effect, and the currently favored adiabatic primary anisotropies, we find that, on such a map, strings should be ``eye visible,'' with at least of order ten distinctive string features observable on a 7.2 degree gradient map, for tensions U down to GU \\simeq 2 x 10^{-7} (in Planck units). This suggests that, with upcoming experiments such as the Atacama Cosmology Telescope (ACT), optimal non-Gaussian, string-devoted statistical estimators applied to small-angle CMB temperature or gradient maps may put stringent constraints on a possible cosmic string contribution to the CMB anisotropies.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/0708.1162",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:28:32Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "I. Yu. Rybak",
+            "L. Sousa"
+          ],
+          "title": "CMB anisotropies generated by cosmic string loops",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2104.08375",
+        "summary": "We investigate the contribution of cosmic string loops to the Cosmic Microwave Background (CMB) anisotropies. This is done by extending the Unconnected Segment Model (USM) to include the contribution of the cosmic string loops created throughout the cosmological evolution of a cosmic string network to the stress-energy tensor. We then implement this extended USM in the publicly available CMBACT code and obtain the linear CDM power spectrum and the CMB angular power spectra generated by cosmic string loops. We find that the shape of the angular power spectra generated by loops is, in general, similar to that of long strings. However, there is generally an enhancement of the anisotropies on small angular scales. Vector modes produced by loops dominate over those produced by long strings for large multipole moments $\\ell$. The contribution of loops to the CMB anisotropies generated by cosmic string networks may reach a level of $10\\%$ for large loops but decreases as the size of loops decreases. This contribution may then be significant and, thus, this extension provides a more accurate prediction of the CMB anisotropies generated by cosmic string networks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2104.08375",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:28:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kohei Kamada",
+            "Yuhei Miyamoto",
+            "Daisuke Yamauchi",
+            "Jun'ichi Yokoyama"
+          ],
+          "title": "Effects of cosmic strings with delayed scaling on CMB anisotropy",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1407.2951",
+        "summary": "The network of cosmic strings generated in a phase transition during inflation enters the scaling regime later than that of usual strings. If it occurs after the recombination, temperature anisotropies of the cosmic microwave background (CMB) at high multipole moments are significantly reduced. In this paper, we study such effects qualitatively and show that the constraint on the cosmic string tension from the CMB temperature anisotropies and B-mode polarizations can be relaxed. It is shown to be difficult to explain the recent BICEP2 and POLARBEAR results in terms of signals induced by cosmic strings alone even if we take into account the delayed scaling. However, the inflationary tensor-to-scalar ratio required to explain the observed B-mode signals can be slightly reduced to be consistent with the Planck constraint.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/1407.2951",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:28:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "B. Allen",
+            "R. R. Caldwell",
+            "E. P. S. Shellard",
+            "A. Stebbins",
+            "S. Veeraraghavan"
+          ],
+          "title": "Large Angular Scale CMB Anisotropy Induced by Cosmic Strings",
+          "venue": "arXiv",
+          "year": 1996
+        },
+        "primary_pointer": "astro-ph/9609038",
+        "summary": "We simulate the anisotropy in the cosmic microwave background (CMB) induced by cosmic strings. By numerically evolving a network of cosmic strings we generate full-sky CMB temperature anisotropy maps. Based on $192$ maps, we compute the anisotropy power spectrum for multipole moments $\\ell \\le 20$. By comparing with the observed temperature anisotropy, we set the normalization for the cosmic string mass-per-unit-length $μ$, obtaining $Gμ/c^2=1.05 {}^{+0.35}_{-0.20} \\times10^{-6}$, which is consistent with all other observational constraints on cosmic strings. We demonstrate that the anisotropy pattern is consistent with a Gaussian random field on large angular scales.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/astro-ph/9609038",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:28:34Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "to what extent do non-gaussian signatures in the cosmic microwave background temperature anisotropies deviate from the inflationary lcdm baseline, and can these deviations constrain the formation energy of cosmic topological defects",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

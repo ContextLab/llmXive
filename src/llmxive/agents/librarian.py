@@ -213,7 +213,7 @@ class LibrarianAgent(Agent):
             ax_results = []
 
         candidates = merge_candidates(ss_results, ax_results)
-        verified, failures = _verify_each(candidates)
+        verified, failures = _verify_each(candidates, query=term)
 
         expansion: ExpansionResult | None = None
         outcome = "success" if len(verified) >= target_n else "exhausted"
@@ -431,14 +431,19 @@ def _result_from_dict(d: dict[str, Any]) -> LibrarianResult:
 
 def _verify_each(
     candidates: list[Candidate],
+    *,
+    query: str | None = None,
 ) -> tuple[list[VerifiedCitation], list[VerificationFailure]]:
     """Run verify_citation across all candidates; partition into verified
     + failures.
+
+    ``query``: the user's search term, threaded through to enforce the
+    topical-relevance gate (spec 005 fix; SC-001 + FR-003).
     """
     verified: list[VerifiedCitation] = []
     failures: list[VerificationFailure] = []
     for c in candidates:
-        result = verify_citation(c, summary=c.claimed_abstract or "")
+        result = verify_citation(c, summary=c.claimed_abstract or "", query=query)
         if isinstance(result, VerifiedCitation):
             verified.append(result)
         else:

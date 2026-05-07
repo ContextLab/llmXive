@@ -1,0 +1,626 @@
+{
+  "fetched_at": "2026-05-07T03:22:14Z",
+  "field": "computer science",
+  "prompt_version": "1.1.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "---\nfield: computer science\nsubmitter: google.gemma-3-27b-it\n---\n\n# Investigating the Effectiveness of Different Loss Functions for Training Graph Neural Networks on Small Worlds\n\n**Field**: computer science\n\n## Research question\n\nHow does the clustering coefficient of small-world graphs influence the relative convergence efficiency of supervised versus contrastive loss functions in Graph Neural Networks?\n\n## Motivation\n\nSmall-world networks are ubiquitous in social, biological, and recommendation systems, yet GNN training protocols rarely account for specific topological properties during loss selection. Understanding whether high clustering biases the optimization landscape toward contrastive or supervised objectives addresses a gap in theoretical GNN design. This knowledge could reduce training time and improve generalization for domain-specific graph applications without requiring architectural changes.\n\n## Literature gap analysis\n\n### What we searched\n\nQueries targeted \"Graph Neur",
+      "target_n": 5
+    },
+    "duration_seconds": 233.637,
+    "ended_at": "2026-05-07T03:22:14Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Graph contrastive learning convergence rates"
+        ],
+        [
+          2,
+          "GNN training dynamics on clustered graphs"
+        ],
+        [
+          3,
+          "Small-world network topology and GNN optimization"
+        ],
+        [
+          4,
+          "Supervised versus self-supervised loss in graph learning"
+        ],
+        [
+          5,
+          "Impact of graph clustering on neural network convergence"
+        ],
+        [
+          6,
+          "Graph representation learning loss function comparison"
+        ],
+        [
+          7,
+          "Watts-Strogatz model graph neural networks"
+        ],
+        [
+          8,
+          "Homophily and contrastive learning performance"
+        ],
+        [
+          9,
+          "Optimization landscape of GNNs on small-world graphs"
+        ],
+        [
+          10,
+          "Graph convolutional network training efficiency"
+        ],
+        [
+          11,
+          "Community structure influence on GNN generalization"
+        ],
+        [
+          12,
+          "Self-supervised graph representation learning benchmarks"
+        ],
+        [
+          13,
+          "Topological properties affecting GNN loss surfaces"
+        ],
+        [
+          14,
+          "Node classification loss function sensitivity to graph structure"
+        ],
+        [
+          15,
+          "Graph neural network spectral properties and training"
+        ],
+        [
+          16,
+          "Contrastive loss vs cross-entropy in graph classification"
+        ],
+        [
+          17,
+          "Message passing convergence on high clustering graphs"
+        ],
+        [
+          18,
+          "Graph structure aware loss functions"
+        ],
+        [
+          19,
+          "Sample efficiency of GNNs on clustered networks"
+        ],
+        [
+          20,
+          "Theoretical analysis of GNN optimization on small-world topologies"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Graph contrastive learning convergence rates": 8,
+        "How does the clustering coefficient of small-world graphs influence the relative convergence efficiency of supervised versus contrastive loss functions in Graph Neural Networks": 0
+      },
+      "total_queries_issued": 2
+    },
+    "failure_reason": null,
+    "librarian_prompt_version": "1.1.0",
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.48550/arXiv.2505.05533"
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-07T03:18:20Z",
+    "term_input": {
+      "normalized": "how does the clustering coefficient of small-world graphs influence the relative convergence efficiency of supervised versus contrastive loss functions in graph neural networks",
+      "raw": "How does the clustering coefficient of small-world graphs influence the relative convergence efficiency of supervised versus contrastive loss functions in Graph Neural Networks"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
+          "claimed_authors": [
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            "Convergence"
+          ],
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
+        },
+        "details": "query-relevance 0.059 < 0.3 (query='How does the clustering coefficient of small-world graphs influence the relative', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-05-07T03:21:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.235 < 0.3 (query='How does the clustering coefficient of small-world graphs influence the relative', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-05-07T03:21:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data augmentation has been widely used in machine learning for natural language processing and computer vision tasks to improve model performance. However, little research has studied data augmentation on graph neural networks, particularly using augmentation at both train- and test-time. Inspired by the success of augmentation in other domains, we have designed a method for social influence prediction using graph neural networks with train- and test-time augmentation, which can effectively generate multiple augmented graphs for social networks by utilising a variational graph autoencoder in both scenarios. We have evaluated the performance of our method on predicting user influence on multiple social network datasets. Our experimental results show that our end-to-end approach, which jointly trains a graph autoencoder and social influence behaviour classification network, can outperform state-of-the-art approaches, demonstrating the effectiveness of train- and test-time augmentation on graph neural networks for social influence prediction. We observe that this is particularly effective on smaller graphs.",
+          "claimed_authors": [
+            "Hongbo Bo",
+            "Ryan McConville",
+            "Jun Hong",
+            "Weiru Liu"
+          ],
+          "claimed_title": "Social Influence Prediction with Train and Test Time Augmentation for Graph Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.11641"
+        },
+        "details": "query-relevance 0.294 < 0.3 (query='How does the clustering coefficient of small-world graphs influence the relative', candidate_title='Social Influence Prediction with Train and Test Time Augmentation for Graph Neural Networks')",
+        "failed_at": "2026-05-07T03:21:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph Drawing techniques have been developed in the last few years with the purpose of producing aesthetically pleasing node-link layouts. Recently, the employment of differentiable loss functions has paved the road to the massive usage of Gradient Descent and related optimization algorithms. In this paper, we propose a novel framework for the development of Graph Neural Drawers (GND), machines that rely on neural computation for constructing efficient and complex maps. GNDs are Graph Neural Networks (GNNs) whose learning process can be driven by any provided loss function, such as the ones commonly employed in Graph Drawing. Moreover, we prove that this mechanism can be guided by loss functions computed by means of Feedforward Neural Networks, on the basis of supervision hints that express beauty properties, like the minimization of crossing edges. In this context, we show that GNNs can nicely be enriched by positional features to deal also with unlabelled vertexes. We provide a proof-of-concept by constructing a loss function for the edge-crossing and provide quantitative and qualitative comparisons among different GNN models working under the proposed framework.",
+          "claimed_authors": [
+            "Matteo Tiezzi",
+            "Gabriele Ciravegna",
+            "Marco Gori"
+          ],
+          "claimed_title": "Graph Neural Networks for Graph Drawing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.10061"
+        },
+        "details": "query-relevance 0.294 < 0.3 (query='How does the clustering coefficient of small-world graphs influence the relative', candidate_title='Graph Neural Networks for Graph Drawing')",
+        "failed_at": "2026-05-07T03:21:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Providing a model that achieves a strong predictive performance and is simultaneously interpretable by humans is one of the most difficult challenges in machine learning research due to the conflicting nature of these two objectives. To address this challenge, we propose a modification of the radial basis function neural network model by equipping its Gaussian kernel with a learnable precision matrix. We show that precious information is contained in the spectrum of the precision matrix that can be extracted once the training of the model is completed. In particular, the eigenvectors explain the directions of maximum sensitivity of the model revealing the active subspace and suggesting potential applications for supervised dimensionality reduction. At the same time, the eigenvectors highlight the relationship in terms of absolute variation between the input and the latent variables, thereby allowing us to extract a ranking of the input variables based on their importance to the prediction task enhancing the model interpretability. We conducted numerical experiments for regression, classification, and feature selection tasks, comparing our model against popular machine learning models, the state-of-the-art deep learning-based embedding feature selection techniques, and a transformer model for tabular data. Our results demonstrate that the proposed model does not only yield an attractive prediction performance compared to the competitors but also provides meaningful and interpretable results that potentially could assist the decision-making process in real-world applications. A PyTorch implementation of the model is available on GitHub at the following link. https://github.com/dannyzx/Gaussian-RBFNN",
+          "claimed_authors": [
+            "Danny D'Agostino",
+            "Ilija Ilievski",
+            "Christine Annette Shoemaker"
+          ],
+          "claimed_title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.05639"
+        },
+        "details": "query-relevance 0.294 < 0.3 (query='How does the clustering coefficient of small-world graphs influence the relative', candidate_title='Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks')",
+        "failed_at": "2026-05-07T03:21:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "On 2017 August 17 a binary neutron star coalescence candidate (later designated GW170817) with merger time 12:41:04 UTC was observed through gravitational waves by the Advanced LIGO and Advanced Virgo detectors. The Fermi Gamma-ray Burst Monitor independently detected a gamma-ray burst (GRB 170817A) with a time delay of $\\sim$1.7 s with respect to the merger time. From the gravitational-wave signal, the source was initially localized to a sky region of 31 deg$^2$ at a luminosity distance of $40^{+8}_{-8}$ Mpc and with component masses consistent with neutron stars. The component masses were later measured to be in the range 0.86 to 2.26 Msun. An extensive observing campaign was launched across the electromagnetic spectrum leading to the discovery of a bright optical transient (SSS17a, now with the IAU identification of AT 2017gfo) in NGC 4993 (at $\\sim$40 Mpc) less than 11 hours after the merger by the One-Meter, Two Hemisphere (1M2H) team using the 1 m Swope Telescope. The optical transient was independently detected by multiple teams within an hour. Subsequent observations targeted the object and its environment. Early ultraviolet observations revealed a blue transient that faded within 48 hours. Optical and infrared observations showed a redward evolution over $\\sim$10 days. Following early non-detections, X-ray and radio emission were discovered at the transient's position $\\sim$9 and $\\sim$16 days, respectively, after the merger. Both the X-ray and radio emission likely arise from a physical process that is distinct from the one that generates the UV/optical/near-infrared emission. No ultra-high-energy gamma-rays and no neutrino candidates consistent with the source were found in follow-up searches. (Abridged)",
+          "claimed_authors": [
+            "LIGO Scientific Collaboration",
+            "Virgo Collaboration",
+            "Fermi GBM",
+            "INTEGRAL",
+            "IceCube Collaboration",
+            "AstroSat Cadmium Zinc Telluride Imager Team",
+            "IPN Collaboration",
+            "The Insight-Hxmt Collaboration",
+            "ANTARES Collaboration",
+            "The Swift Collaboration",
+            "AGILE Team",
+            "The 1M2H Team",
+            "The Dark Energy Camera GW-EM Collaboration",
+            "the DES Collaboration",
+            "The DLT40 Collaboration",
+            "GRAWITA",
+            ":",
+            "GRAvitational Wave Inaf TeAm",
+            "The Fermi Large Area Telescope Collaboration",
+            "ATCA",
+            ":",
+            "Australia Telescope Compact Array",
+            "ASKAP",
+            ":",
+            "Australian SKA Pathfinder",
+            "Las Cumbres Observatory Group",
+            "OzGrav",
+            "DWF",
+            "AST3",
+            "CAASTRO Collaborations",
+            "The VINROUGE Collaboration",
+            "MASTER Collaboration",
+            "J-GEM",
+            "GROWTH",
+            "JAGWAR",
+            "Caltech- NRAO",
+            "TTU-NRAO",
+            "NuSTAR Collaborations",
+            "Pan-STARRS",
+            "The MAXI Team",
+            "TZAC Consortium",
+            "KU Collaboration",
+            "Nordic Optical Telescope",
+            "ePESSTO",
+            "GROND",
+            "Texas Tech University",
+            "SALT Group",
+            "TOROS",
+            ":",
+            "Transient Robotic Observatory of the South Collaboration",
+            "The BOOTES Collaboration",
+            "MWA",
+            ":",
+            "Murchison Widefield Array",
+            "The CALET Collaboration",
+            "IKI-GW Follow-up Collaboration",
+            "H. E. S. S. Collaboration",
+            "LOFAR Collaboration",
+            "LWA",
+            ":",
+            "Long Wavelength Array",
+            "HAWC Collaboration",
+            "The Pierre Auger Collaboration",
+            "ALMA Collaboration",
+            "Euro VLBI Team",
+            "Pi of the Sky Collaboration",
+            "The Chandra Team at McGill University",
+            "DFN",
+            ":",
+            "Desert Fireball Network",
+            "ATLAS",
+            "High Time Resolution Universe Survey",
+            "RIMAS",
+            "RATIR",
+            "SKA South Africa/MeerKAT"
+          ],
+          "claimed_title": "Multi-messenger Observations of a Binary Neutron Star Merger",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.05833"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does the clustering coefficient of small-world graphs influence the relative', candidate_title='Multi-messenger Observations of a Binary Neutron Star Merger')",
+        "failed_at": "2026-05-07T03:21:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We establish connections between the Transformer architecture, originally introduced for natural language processing, and Graph Neural Networks (GNNs) for representation learning on graphs. We show how Transformers can be viewed as message passing GNNs operating on fully connected graphs of tokens, where the self-attention mechanism capture the relative importance of all tokens w.r.t. each-other, and positional encodings provide hints about sequential ordering or structure. Thus, Transformers are expressive set processing networks that learn relationships among input elements without being constrained by apriori graphs. Despite this mathematical connection to GNNs, Transformers are implemented via dense matrix operations that are significantly more efficient on modern hardware than sparse message passing. This leads to the perspective that Transformers are GNNs currently winning the hardware lottery.",
+          "claimed_authors": [
+            "Chaitanya K. Joshi"
+          ],
+          "claimed_title": "Transformers are Graph Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.22084"
+        },
+        "details": "query-relevance 0.294 < 0.3 (query='How does the clustering coefficient of small-world graphs influence the relative', candidate_title='Transformers are Graph Neural Networks')",
+        "failed_at": "2026-05-07T03:21:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Superbubbles are acyclic induced subgraphs of a digraph with single entrance and exit that naturally arise in the context of genome assembly and the analysis of genome alignments in computational biology. These structures can be computed in linear time and are confined to non-symmetric digraphs. We demonstrate empirically that graph parameters derived from superbubbles provide a convenient means of distinguishing different classes of real-world graphical models, while being largely unrelated to simple, commonly used parameters.",
+          "claimed_authors": [
+            "Fabian Gärtner",
+            "Felix Kühnl",
+            "Carsten R. Seemann",
+            "The Students of the Graphs",
+            "Networks Computer Lab 2018/19",
+            "Christian Höner zu Siederdissen",
+            "Peter F. Stadler"
+          ],
+          "claimed_title": "Superbubbles as an Empirical Characteristic of Directed Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2001.03409"
+        },
+        "details": "query-relevance 0.176 < 0.3 (query='How does the clustering coefficient of small-world graphs influence the relative', candidate_title='Superbubbles as an Empirical Characteristic of Directed Networks')",
+        "failed_at": "2026-05-07T03:21:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, many recommender systems using network embedding (NE) such as graph neural networks (GNNs) have been extensively studied in the sense of improving recommendation accuracy. However, such attempts have focused mostly on utilizing only the information of positive user-item interactions with high ratings. Thus, there is a challenge on how to make use of low rating scores for representing users' preferences since low ratings can be still informative in designing NE-based recommender systems. In this study, we present SiReN, a new sign-aware recommender system based on GNN models. Specifically, SiReN has three key components: 1) constructing a signed bipartite graph for more precisely representing users' preferences, which is split into two edge-disjoint graphs with positive and negative edges each, 2) generating two embeddings for the partitioned graphs with positive and negative edges via a GNN model and a multi-layer perceptron (MLP), respectively, and then using an attention model to obtain the final embeddings, and 3) establishing a sign-aware Bayesian personalized ranking (BPR) loss function in the process of optimization. Through comprehensive experiments, we empirically demonstrate that SiReN consistently outperforms state-of-the-art NE-aided recommendation methods.",
+          "claimed_authors": [
+            "Changwon Seo",
+            "Kyeong-Joong Jeong",
+            "Sungsu Lim",
+            "Won-Yong Shin"
+          ],
+          "claimed_title": "SiReN: Sign-Aware Recommendation Using Graph Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2108.08735"
+        },
+        "details": "query-relevance 0.294 < 0.3 (query='How does the clustering coefficient of small-world graphs influence the relative', candidate_title='SiReN: Sign-Aware Recommendation Using Graph Neural Networks')",
+        "failed_at": "2026-05-07T03:21:40Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xinyu Fu",
+            "Irwin King"
+          ],
+          "title": "MECCH: Metapath Context Convolution-based Heterogeneous Graph Neural Networks",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2211.12792",
+        "summary": "Heterogeneous graph neural networks (HGNNs) were proposed for representation learning on structural data with multiple types of nodes and edges. To deal with the performance degradation issue when HGNNs become deep, researchers combine metapaths into HGNNs to associate nodes closely related in semantics but far apart in the graph. However, existing metapath-based models suffer from either information loss or high computation costs. To address these problems, we present a novel Metapath Context Convolution-based Heterogeneous Graph Neural Network (MECCH). MECCH leverages metapath contexts, a new kind of graph structure that facilitates lossless node information aggregation while avoiding any redundancy. Specifically, MECCH applies three novel components after feature preprocessing to extract comprehensive information from the input graph efficiently: (1) metapath context construction, (2) metapath context encoder, and (3) convolutional metapath fusion. Experiments on five real-world heterogeneous graph datasets for node classification and link prediction show that MECCH achieves superior prediction accuracy compared with state-of-the-art baselines with improved computational efficiency.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2211.12792",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3529,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:21:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhiyuan Ning",
+            "Pengfei Wang",
+            "Ziyue Qiao",
+            "Pengyang Wang",
+            "Yuanchun Zhou"
+          ],
+          "title": "Rethinking Graph Contrastive Learning through Relative Similarity Preservation",
+          "venue": "International Joint Conference on Artificial Intelligence",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2505.05533",
+        "summary": "Graph contrastive learning (GCL) has achieved remarkable success by following the computer vision paradigm of preserving absolute similarity between augmented views. However, this approach faces fundamental challenges in graphs due to their discrete, non-Euclidean nature -- view generation often breaks semantic validity and similarity verification becomes unreliable. Through analyzing 11 real-world graphs, we discover a universal pattern transcending the homophily-heterophily dichotomy: label consistency systematically diminishes as structural distance increases, manifesting as smooth decay in homophily graphs and oscillatory decay in heterophily graphs. We establish theoretical guarantees for this pattern through random walk theory, proving label distribution convergence and characterizing the mechanisms behind different decay behaviors. This discovery reveals that graphs naturally encode relative similarity patterns, where structurally closer nodes exhibit collectively stronger semantic relationships. Leveraging this insight, we propose RELGCL, a novel GCL framework with complementary pairwise and listwise implementations that preserve these inherent patterns through collective similarity objectives. Extensive experiments demonstrate that our method consistently outperforms 20 existing approaches across both homophily and heterophily graphs, validating the effectiveness of leveraging natural relative similarity over artificial absolute similarity.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2505.05533",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2505.05533"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:22:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Amarudin Daulay",
+            "K. Ramli",
+            "Ruki Harwahyu",
+            "Taufik Hidayat",
+            "Bernardi Pranggono"
+          ],
+          "title": "Novel Federated Graph Contrastive Learning for IoMT Security: Protecting Data Poisoning and Inference Attacks",
+          "venue": "Mathematics",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.3390/math13152471",
+        "summary": "Malware evolution presents growing security threats for resource-constrained Internet of Medical Things (IoMT) devices. Conventional federated learning (FL) often suffers from slow convergence, high communication overhead, and fairness issues in dynamic IoMT environments. In this paper, we propose FedGCL, a secure and efficient FL framework integrating contrastive graph representation learning for enhanced feature discrimination, a Jain-index-based fairness-aware aggregation mechanism, an adaptive synchronization scheduler to optimize communication rounds, and secure aggregation via homomorphic encryption within a Trusted Execution Environment. We evaluate FedGCL on four benchmark malware datasets (Drebin, Malgenome, Kronodroid, and TUANDROMD) using 5 to 15 graph neural network clients over 20 communication rounds. Our experiments demonstrate that FedGCL achieves 96.3% global accuracy within three rounds and converges to 98.9% by round twenty—reducing required training rounds by 45% compared to FedAvg—while incurring only approximately 10% additional computational overhead. By preserving patient data privacy at the edge, FedGCL enhances system resilience without sacrificing model performance. These results indicate FedGCL’s promise as a secure, efficient, and fair federated malware detection solution for IoMT ecosystems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://www.mdpi.com/2227-7390/13/15/2471",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [
+            "https://doi.org/10.3390/math13152471"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:22:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Manh Nguyen"
+          ],
+          "title": "Graph Contrastive Learning via Spectral Graph Alignment",
+          "venue": "arXiv.org",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2512.07878",
+        "summary": "Given augmented views of each input graph, contrastive learning methods (e.g., InfoNCE) optimize pairwise alignment of graph embeddings across views while providing no mechanism to control the global structure of the view specific graph-of-graphs built from these embeddings. We introduce SpecMatch-CL, a novel loss function that aligns the view specific graph-of-graphs by minimizing the difference between their normalized Laplacians. Theoretically, we show that under certain assumptions, the difference between normalized Laplacians provides an upper bound not only for the difference between the ideal Perfect Alignment contrastive loss and the current loss, but also for the Uniformly loss. Empirically, SpecMatch-CL establishes new state of the art on eight TU benchmarks under unsupervised learning and semi-supervised learning at low label rates, and yields consistent gains in transfer learning on PPI-306K and ZINC 2M datasets.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2512.07878",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2512.07878"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:22:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Long Xu",
+            "Honghui Chen"
+          ],
+          "title": "FA-GCL: Feature-augmented graph contrastive learning method",
+          "venue": "Neural Networks",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1016/j.neunet.2025.108045",
+        "summary": "Graph contrastive learning seeks to improve the efficacy of graph representation learning by comparing various graph representations. Existing approaches predominantly rely on node attributes or structural information for contrastive analysis. However, in real-world applications, node attribute information can be incomplete or entirely absent, while structure-enhancement methods often generate false positive samples. To mitigate these issues, we propose a feature augmentation-based graph contrastive learning method (FA-GCL) that enhances the accuracy and robustness of graph representations. Specifically, our approach first implements a dynamic dropout-based feature augmentation technique, which adjusts dropout rates dynamically using a triangular wave function, thereby significantly improving model performance. Additionally, we introduce two complementary feature augmentation methods based on singular value decomposition: a theoretically rigorous full SVD approach and a computationally efficient randomized projection-based SVD method that achieves linear complexity while preserving spectral properties. Both methods add controlled noise to singular values and reconstruct features to create high-quality augmented samples. Comprehensive experiments were conducted on twelve widely used graph datasets. The results indicate that FA-GCL consistently outperforms baseline methods in node classification, node clustering, and graph classification tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S0893608025009256",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [
+            "https://doi.org/10.1016/j.neunet.2025.108045"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:22:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Weizhi Zhang",
+            "Liangwei Yang",
+            "Zihe Song",
+            "Henry Peng Zou",
+            "Ke Xu",
+            "Yuanjie Zhu",
+            "Philip S. Yu"
+          ],
+          "title": "Mixed Supervised Graph Contrastive Learning for Recommendation",
+          "venue": "arXiv.org",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2404.15954",
+        "summary": "Recommender systems (RecSys) play a vital role in online platforms, offering users personalized suggestions amidst vast information. Graph contrastive learning aims to learn from high-order collaborative filtering signals with unsupervised augmentation on the user-item bipartite graph, which predominantly relies on the multi-task learning framework involving both the pair-wise recommendation loss and the contrastive loss. This decoupled design can cause inconsistent optimization direction from different losses, which leads to longer convergence time and even sub-optimal performance. Besides, the self-supervised contrastive loss falls short in alleviating the data sparsity issue in RecSys as it learns to differentiate users/items from different views without providing extra supervised collaborative filtering signals during augmentations. In this paper, we propose Mixed Supervised Graph Contrastive Learning for Recommendation (MixSGCL) to address these concerns. MixSGCL originally integrates the training of recommendation and unsupervised contrastive losses into a supervised contrastive learning loss to align the two tasks within one optimization direction. To cope with the data sparsity issue, instead unsupervised augmentation, we further propose node-wise and edge-wise mixup to mine more direct supervised collaborative filtering signals based on existing user-item interactions. Extensive experiments on three real-world datasets demonstrate that MixSGCL surpasses state-of-the-art methods, achieving top performance on both accuracy and efficiency. It validates the effectiveness of MixSGCL with our coupled design on supervised graph contrastive learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2404.15954",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2404.15954"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:22:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sihang Li",
+            "Xiang Wang",
+            "An zhang",
+            "Yingxin Wu",
+            "Xiangnan He",
+            "Tat-Seng Chua"
+          ],
+          "title": "Let Invariant Rationale Discovery Inspire Graph Contrastive Learning",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2206.07869",
+        "summary": "Leading graph contrastive learning (GCL) methods perform graph augmentations in two fashions: (1) randomly corrupting the anchor graph, which could cause the loss of semantic information, or (2) using domain knowledge to maintain salient features, which undermines the generalization to other domains. Taking an invariance look at GCL, we argue that a high-performing augmentation should preserve the salient semantics of anchor graphs regarding instance-discrimination. To this end, we relate GCL with invariant rationale discovery, and propose a new framework, Rationale-aware Graph Contrastive Learning (RGCL). Specifically, without supervision signals, RGCL uses a rationale generator to reveal salient features about graph instance-discrimination as the rationale, and then creates rationale-aware views for contrastive learning. This rationale-aware pre-training scheme endows the backbone model with the powerful representation ability, further facilitating the fine-tuning on downstream tasks. On MNIST-Superpixel and MUTAG datasets, visual inspections on the discovered rationales showcase that the rationale generator successfully captures the salient features (i.e. distinguishing semantic nodes in graphs). On biochemical molecule and social network benchmark datasets, the state-of-the-art performance of RGCL demonstrates the effectiveness of rationale-aware views for contrastive learning. Our codes are available at https://github.com/lsh0520/RGCL.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2206.07869",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:22:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chungpa Lee",
+            "Sehee Lim",
+            "Kibok Lee",
+            "Jy-yong Sohn"
+          ],
+          "title": "On the Similarities of Embeddings in Contrastive Learning",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.09781",
+        "summary": "Contrastive learning operates on a simple yet effective principle: Embeddings of positive pairs are pulled together, while those of negative pairs are pushed apart. In this paper, we propose a unified framework for understanding contrastive learning through the lens of cosine similarity, and present two key theoretical insights derived from this framework. First, in full-batch settings, we show that perfect alignment of positive pairs is unattainable when negative-pair similarities fall below a threshold, and this misalignment can be mitigated by incorporating within-view negative pairs into the objective. Second, in mini-batch settings, smaller batch sizes induce stronger separation among negative pairs in the embedding space, i.e., higher variance in their similarities, which in turn degrades the quality of learned representations compared to full-batch settings. To address this, we propose an auxiliary loss that reduces the variance of negative-pair similarities in mini-batch settings. Empirical results show that incorporating the proposed loss improves performance in small-batch settings.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2506.09781",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:22:12Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zihu Wang",
+            "Boxun Xu",
+            "Hejia Geng",
+            "Peng Li"
+          ],
+          "title": "Khan-GCL: Kolmogorov-Arnold Network Based Graph Contrastive Learning with Hard Negatives",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.15103",
+        "summary": "Graph contrastive learning (GCL) has demonstrated great promise for learning generalizable graph representations from unlabeled data. However, conventional GCL approaches face two critical limitations: (1) the restricted expressive capacity of multilayer perceptron (MLP) based encoders, and (2) suboptimal negative samples that either from random augmentations-failing to provide effective 'hard negatives'-or generated hard negatives without addressing the semantic distinctions crucial for discriminating graph data. To this end, we propose Khan-GCL, a novel framework that integrates the Kolmogorov-Arnold Network (KAN) into the GCL encoder architecture, substantially enhancing its representational capacity. Furthermore, we exploit the rich information embedded within KAN coefficient parameters to develop two novel critical feature identification techniques that enable the generation of semantically meaningful hard negative samples for each graph representation. These strategically constructed hard negatives guide the encoder to learn more discriminative features by emphasizing critical semantic differences between graphs. Extensive experiments demonstrate that our approach achieves state-of-the-art performance compared to existing GCL methods across a variety of datasets and tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2505.15103",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:22:12Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "how does the clustering coefficient of small-world graphs influence the relative convergence efficiency of supervised versus contrastive loss functions in graph neural networks",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

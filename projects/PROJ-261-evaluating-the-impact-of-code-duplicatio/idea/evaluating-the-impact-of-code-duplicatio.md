@@ -19,15 +19,14 @@ Code duplication is a well-documented liability for human maintainability, yet i
 
 ### What we searched
 
-We queried Semantic Scholar, arXiv, and OpenAlex for terms including "code duplication LLM performance," "impact of code clones on language models," "redundancy in code training data," and "LLM code understanding clone density." The search returned five results, all focused on using LLMs *for* clone detection tasks rather than investigating how code duplication affects LLM comprehension or prediction metrics.
+We queried Semantic Scholar, arXiv, and OpenAlex for terms including "code duplication LLM performance," "impact of code clones on language models," "redundancy in code training data," "code patterns LLM understanding," and "LLM code quality metrics." The search returned seven results from the verified literature block, all focused on LLM benchmarks for code generation, vulnerability analysis, or multi-agent context engineering rather than investigating how code duplication affects LLM comprehension or prediction metrics.
 
 ### What is known
 
-- [Code Clone Detection Techniques Based on Large Language Models (2025)](https://ieeexplore.ieee.org/document/10918947/) — Confirms LLMs are effective at detecting code duplication, noting that excessive cloning poses maintenance challenges for human developers.
-- [Investigating the Efficacy of Large Language Models for Code Clone Detection (2024)](https://dl.acm.org/doi/10.1145/3643916.3645030) — Demonstrates LLM success in code generation and clone detection tasks, but does not measure how clone density affects model performance.
-- [Selecting and Combining Large Language Models for Scalable Code Clone Detection (2025)](https://arxiv.org/abs/2510.15480) — Addresses risks of code clones including vulnerabilities, but focuses on detection methodology rather than training data impact.
-- [Assessing the Code Clone Detection Capability of Large Language Models (2024)](https://ieeexplore.ieee.org/document/10576803/) — Evaluates GPT-3.5 and GPT-4 on clone detection benchmarks, confirming LLMs can perform this task but not how clones affect model understanding.
-- [Can large language models identify and refactor code clones? An empirical study (2025)](https://linkinghub.elsevier.com/retrieve/pii/S0164121225003863) — Establishes that LLMs can identify and refactor code clones, confirming clone detection is a viable LLM task.
+- [Understanding Code Patterns - Analysis, Interpretation & Measurement (2011)](https://arxiv.org/abs/1106.6159) — Establishes foundational methodology for measuring code patterns and quality in software systems, though predates LLM-era analysis.
+- [SIMCOPILOT: Evaluating Large Language Models for Copilot-Style Code Generation (2025)](https://arxiv.org/abs/2505.21514) — Introduces a benchmark for LLM code completion but does not examine training data redundancy as a predictor variable.
+- [Evaluating Code Generation of LLMs in Advanced Computer Science Problems (2025)](https://arxiv.org/abs/2504.14964) — Assesses LLM performance on student programming tasks but does not correlate results with code duplication metrics in the training or test corpora.
+- [LLaVul: A Multimodal LLM for Interpretable Vulnerability Reasoning about Source Code (2025)](https://arxiv.org/abs/2509.17337) — Focuses on vulnerability analysis as a downstream task, not on how structural redundancy affects baseline model comprehension.
 
 ### What is NOT known
 
@@ -47,13 +46,16 @@ We expect to find a non-linear correlation where moderate duplication reduces pe
 
 ## Methodology sketch
 
-- Download a subset of the `codeparrot/github-code` dataset from HuggingFace (Python files only, limited to 500MB to fit GHA RAM).
-- Run a lightweight AST-based clone detector (e.g., `srcml` or custom Python AST parser) to assign a "duplication density" score to each code segment.
+- Download a subset of the `codeparrot/github-code` dataset from HuggingFace Datasets (Python files only, limited to 500MB to fit GHA RAM).
+- Run a lightweight AST-based clone detector (e.g., custom Python AST parser using `ast` module) to assign a "duplication density" score to each code segment.
 - Load `Salesforce/codegen-350M-mono` in 8-bit quantization for CPU inference to stay within 7GB RAM limits.
-- Compute perplexity for each segment and run bug detection on a held-out subset using the `humaneval` evaluation suite.
+- Compute perplexity for each segment using the model's log-probability outputs.
+- Run bug detection on a held-out subset using the `humaneval` evaluation suite (subset of 50 problems).
 - Calculate Spearman's rank correlation between duplication density and model performance metrics.
 - Visualize the relationship using scatter plots with regression lines generated via `matplotlib`.
-- Document all hyperparameters and random seeds for reproducibility.
+- Document all hyperparameters, random seeds, and clone detection thresholds for reproducibility.
+- Store intermediate metrics in CSV format for auditability.
+- Perform sensitivity analysis across three different clone-detection thresholds to verify robustness.
 
 ## Duplicate-check
 
@@ -64,21 +66,23 @@ We expect to find a non-linear correlation where moderate duplication reduces pe
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.0.0) on 2026-05-07T02:19:29Z
-**Outcome**: success_after_expansion
+**Generated by**: librarian (prompt v1.1.0) on 2026-05-07T03:32:11Z
+**Outcome**: success
 **Original term**: Evaluating the Impact of Code Duplication on LLM Code Understanding computer science
-**Verified citation count**: 5
+**Verified citation count**: 7
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | Evaluating the Impact of Code Duplication on LLM Code Understanding computer science | 5 |
+| 0 (initial) | Evaluating the Impact of Code Duplication on LLM Code Understanding computer science | 7 |
 
 ### Verified citations
 
-1. **Can large language models identify and refactor code clones? An empirical study** (2025). Xing Qian, E. Alomar. Journal of Systems and Software. [https://doi.org/10.1016/j.jss.2025.112717](https://doi.org/10.1016/j.jss.2025.112717). PDF-sampled: No.
-2. **Code Clone Detection Techniques Based on Large Language Models** (2025). Afnan A. Almatrafi, F. Eassa, Sana Sharaf. IEEE Access. [https://doi.org/10.1109/ACCESS.2025.3549780](https://doi.org/10.1109/ACCESS.2025.3549780). PDF-sampled: Inaccessible.
-3. **Investigating the Efficacy of Large Language Models for Code Clone Detection** (2024). Mohamad Khajezade, J. Wu, F. H. Fard, Gema Rodríguez-Pérez, M. Shehata. IEEE International Conference on Program Comprehension. [https://doi.org/10.1145/3643916.3645030](https://doi.org/10.1145/3643916.3645030). PDF-sampled: No.
-4. **Selecting and Combining Large Language Models for Scalable Code Clone Detection** (2025). Muslim Chochlov, G. Ahmed, James Patten, Yuanhua Han, Guoxian Lu, et al.. arXiv.org. [https://doi.org/10.48550/arXiv.2510.15480](https://doi.org/10.48550/arXiv.2510.15480). PDF-sampled: No.
-5. **Assessing the Code Clone Detection Capability of Large Language Models** (2024). Zixian Zhang, Takfarinas Saber. 2024 4th International Conference on Code Quality (ICCQ). [https://doi.org/10.1109/ICCQ60895.2024.10576803](https://doi.org/10.1109/ICCQ60895.2024.10576803). PDF-sampled: No.
+1. **SIMCOPILOT: Evaluating Large Language Models for Copilot-Style Code Generation** (2025). Mingchao Jiang, Abhinav Jain, Sophia Zorek, Chris Jermaine. arXiv. [2505.21514](https://arxiv.org/abs/2505.21514). PDF-sampled: No.
+2. **Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code** (2025). Muhammad Haseeb. arXiv. [2508.08322](https://arxiv.org/abs/2508.08322). PDF-sampled: No.
+3. **Understanding Code Patterns - Analysis, Interpretation & Measurement** (2011). Jitesh Dundas. arXiv. [1106.6159](https://arxiv.org/abs/1106.6159). PDF-sampled: No.
+4. **Evaluating Code Generation of LLMs in Advanced Computer Science Problems** (2025). Emir Catir, Robin Claesson, Rodothea Myrsini Tsoupidi. arXiv. [2504.14964](https://arxiv.org/abs/2504.14964). PDF-sampled: No.
+5. **Code-A1: Adversarial Evolving of Code LLM and Test LLM via Reinforcement Learning** (2026). Aozhe Wang, Yuchen Yan, Nan Zhou, Zhengxi Lu, Weiming Lu, et al.. arXiv. [2603.15611](https://arxiv.org/abs/2603.15611). PDF-sampled: No.
+6. **Enhancing Code Translation in Language Models with Few-Shot Learning via Retrieval-Augmented Generation** (2024). Manish Bhattarai, Javier E. Santos, Shawn Jones, Ayan Biswas, Boian Alexandrov, et al.. arXiv. [2407.19619](https://arxiv.org/abs/2407.19619). PDF-sampled: No.
+7. **LLaVul: A Multimodal LLM for Interpretable Vulnerability Reasoning about Source Code** (2025). Ala Jararweh, Michael Adams, Avinash Sahu, Abdullah Mueen, Afsah Anwar. arXiv. [2509.17337](https://arxiv.org/abs/2509.17337). PDF-sampled: No.

@@ -1,26 +1,31 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
+
 **Verdict**: pass
 
-The question asks about the relative contribution of specific structural features (atom types, connectivity, conformation) to the dipole moment property. It uses models as a tool to measure signal contribution rather than testing the model's performance limit itself. The core inquiry is about the structure-property relationship, not the algorithmic efficiency.
+The question asks about the relative contribution of specific physical features (atom types, geometry) to a molecular property, using models as tools for attribution rather than evaluating the models themselves as the primary outcome. The core inquiry targets chemical structure-property relationships, not the performance metrics of the GNN architecture.
 
 ### Circularity check
+
 **Verdict**: pass
 
-Predictor features (atomic coordinates, types, bonds) are distinct from the target property (dipole moment), which is an emergent electronic property calculated from quantum mechanics. They are not derived from the same summary statistic or correlation matrix, so the relationship is empirical rather than mechanical.
+Predictors (structural graph and 3D coordinates) are distinct inputs from the target (dipole moment vector), representing a standard structure-property relationship rather than a mechanical derivation. While the dipole depends on geometry, the inputs are not summaries of the target variable itself, avoiding mechanical guarantee.
 
 ### Triviality check
+
 **Verdict**: pass
 
-Both outcomes are informative; confirming 3D geometry necessity supports the use of equivariant architectures for electronic properties, while showing 2D descriptors suffice would suggest significant computational savings are possible without loss of accuracy. Neither result is predetermined by basic domain knowledge given the complexity of many-body interactions.
+While basic chemical intuition suggests electronegativity matters, quantifying the independent signal of 3D conformation vs. 2D topology in a data-driven context provides novel interpretability insights regardless of whether the GNN outperforms baselines. Either outcome (strong conformational signal or dominance of local topology) refines understanding of how ML models capture physics.
 
 ### Question-narrowing check
+
 **Verdict**: pass
 
-Names domain relationships (structure-property mapping) rather than implementation constraints (runtime, architecture depth). The comparison between graph-based and traditional descriptors serves to probe feature representational capacity, not to benchmark hardware or training time.
+The question focuses on domain relationships (structural drivers of polarity) rather than implementation constraints (runtime, accuracy metrics). It names a relationship in the domain (structure -> dipole) and uses model comparison only to isolate feature contributions.
 
 ### Overall verdict
+
 **Verdict**: validated
 
-All checks pass; the research question focuses on a substantive scientific inquiry regarding which structural signals drive molecular dipole moments. The methodology serves the question rather than defining it, and the expected outcomes would yield publishable insights into interpretability and model design.
+All four checks pass as the research question prioritizes chemical interpretability and structure-property relationships over model benchmarking. The proposed reframing of feature attribution aligns with the motivation to bridge accuracy and interpretability without falling into circularity or triviality. The project is ready to proceed to initialization.

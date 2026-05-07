@@ -1,7 +1,7 @@
 {
-  "fetched_at": "2026-05-06T21:34:12Z",
+  "fetched_at": "2026-05-07T03:22:22Z",
   "field": "materials science",
-  "prompt_version": "1.0.0",
+  "prompt_version": "1.1.0",
   "result": {
     "cache_status": "miss",
     "context": {
@@ -9,30 +9,31 @@
       "idea_body_excerpt": "---\nfield: materials science\nsubmitter: google.gemma-3-27b-it\n---\n\n# Predicting the Impact of Impurity Clustering on Grain Boundary Segregation\n\n**Field**: materials science\n\n## Research question\n\nHow does the spatial clustering of impurity atoms in the bulk lattice influence the thermodynamic driving force for their segregation to grain boundaries in polycrystalline alloys?\n\n## Motivation\n\nGrain boundary segregation governs mechanical embrittlement, corrosion resistance, and phase stability in polycrystalline materials. Existing models treat segregation as an isolated atomistic event, neglecting cooperative effects from impurity clusters that may amplify or suppress boundary accumulation. Understanding this coupling would enable predictive alloy design for high-performance applications where boundary integrity is critical.\n\n## Literature gap analysis\n\n### What we searched\n\nQueries were executed on Semantic Scholar and arXiv using: (1) \"grain boundary segregation impurity clustering\" a",
       "target_n": 5
     },
-    "duration_seconds": 29.706,
-    "ended_at": "2026-05-06T21:34:12Z",
+    "duration_seconds": 8.397,
+    "ended_at": "2026-05-07T03:22:22Z",
     "expansion": null,
     "failure_reason": null,
-    "librarian_prompt_version": "1.0.0",
+    "librarian_prompt_version": "1.1.0",
     "outcome": "success",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2411.05303"
+        "2006.06591"
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-05-06T21:33:42Z",
+    "started_at": "2026-05-07T03:22:14Z",
     "term_input": {
       "normalized": "how does the spatial clustering of impurity atoms in the bulk lattice influence the thermodynamic driving force for their segregation to grain boundaries in polycrystalline alloys",
       "raw": "How does the spatial clustering of impurity atoms in the bulk lattice influence the thermodynamic driving force for their segregation to grain boundaries in polycrystalline alloys"
     },
-    "verification_failures": [],
-    "verified_citations": [
+    "verification_failures": [
       {
-        "bibliographic_info": {
-          "authors": [
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "On 2017 August 17 a binary neutron star coalescence candidate (later designated GW170817) with merger time 12:41:04 UTC was observed through gravitational waves by the Advanced LIGO and Advanced Virgo detectors. The Fermi Gamma-ray Burst Monitor independently detected a gamma-ray burst (GRB 170817A) with a time delay of $\\sim$1.7 s with respect to the merger time. From the gravitational-wave signal, the source was initially localized to a sky region of 31 deg$^2$ at a luminosity distance of $40^{+8}_{-8}$ Mpc and with component masses consistent with neutron stars. The component masses were later measured to be in the range 0.86 to 2.26 Msun. An extensive observing campaign was launched across the electromagnetic spectrum leading to the discovery of a bright optical transient (SSS17a, now with the IAU identification of AT 2017gfo) in NGC 4993 (at $\\sim$40 Mpc) less than 11 hours after the merger by the One-Meter, Two Hemisphere (1M2H) team using the 1 m Swope Telescope. The optical transient was independently detected by multiple teams within an hour. Subsequent observations targeted the object and its environment. Early ultraviolet observations revealed a blue transient that faded within 48 hours. Optical and infrared observations showed a redward evolution over $\\sim$10 days. Following early non-detections, X-ray and radio emission were discovered at the transient's position $\\sim$9 and $\\sim$16 days, respectively, after the merger. Both the X-ray and radio emission likely arise from a physical process that is distinct from the one that generates the UV/optical/near-infrared emission. No ultra-high-energy gamma-rays and no neutrino candidates consistent with the source were found in follow-up searches. (Abridged)",
+          "claimed_authors": [
             "LIGO Scientific Collaboration",
             "Virgo Collaboration",
             "Fermi GBM",
@@ -109,27 +110,20 @@
             "RATIR",
             "SKA South Africa/MeerKAT"
           ],
-          "title": "Multi-messenger Observations of a Binary Neutron Star Merger",
-          "venue": "arXiv",
-          "year": 2017
+          "claimed_title": "Multi-messenger Observations of a Binary Neutron Star Merger",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.05833"
         },
-        "primary_pointer": "1710.05833",
-        "summary": "On 2017 August 17 a binary neutron star coalescence candidate (later designated GW170817) with merger time 12:41:04 UTC was observed through gravitational waves by the Advanced LIGO and Advanced Virgo detectors. The Fermi Gamma-ray Burst Monitor independently detected a gamma-ray burst (GRB 170817A) with a time delay of $\\sim$1.7 s with respect to the merger time. From the gravitational-wave signal, the source was initially localized to a sky region of 31 deg$^2$ at a luminosity distance of $40^{+8}_{-8}$ Mpc and with component masses consistent with neutron stars. The component masses were later measured to be in the range 0.86 to 2.26 Msun. An extensive observing campaign was launched across the electromagnetic spectrum leading to the discovery of a bright optical transient (SSS17a, now with the IAU identification of AT 2017gfo) in NGC 4993 (at $\\sim$40 Mpc) less than 11 hours after the merger by the One-Meter, Two Hemisphere (1M2H) team using the 1 m Swope Telescope. The optical transient was independently detected by multiple teams within an hour. Subsequent observations targeted the object and its environment. Early ultraviolet observations revealed a blue transient that faded within 48 hours. Optical and infrared observations showed a redward evolution over $\\sim$10 days. Following early non-detections, X-ray and radio emission were discovered at the transient's position $\\sim$9 and $\\sim$16 days, respectively, after the merger. Both the X-ray and radio emission likely arise from a physical process that is distinct from the one that generates the UV/optical/near-infrared emission. No ultra-high-energy gamma-rays and no neutrino candidates consistent with the source were found in follow-up searches. (Abridged)",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "final_url": "https://arxiv.org/abs/1710.05833",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-05-06T21:33:45Z"
-        }
+        "details": "query-relevance 0.000 < 0.3 (query='How does the spatial clustering of impurity atoms in the bulk lattice influence ', candidate_title='Multi-messenger Observations of a Binary Neutron Star Merger')",
+        "failed_at": "2026-05-07T03:22:18Z",
+        "reason": "query_irrelevant"
       },
       {
-        "bibliographic_info": {
-          "authors": [
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We report on heavy quark mass calculations using Fermilab heavy quarks. Lattice calculations of heavy-strange meson masses are combined with one-loop (automated) lattice perturbation theory to arrive at the quark mass. Mesons are constructed from Fermilab heavy quarks and staggered light quarks. We use the MILC ensembles at three lattice spacings and sea quark mass ratios of $m_{\\rm u,d} / m_{\\rm s} = 0.1$ to 0.4. Preliminary results for the bottom quark are given in the potential subtracted scheme.",
+          "claimed_authors": [
             "Elizabeth D. Freeland",
             "Andreas S. Kronfeld",
             "James N. Simone",
@@ -137,27 +131,20 @@
             "Fermilab Lattice",
             "MILC Collaborations"
           ],
-          "title": "Heavy-Quark Masses from the Fermilab Method in Three-Flavor Lattice QCD",
-          "venue": "arXiv",
-          "year": 2007
+          "claimed_title": "Heavy-Quark Masses from the Fermilab Method in Three-Flavor Lattice QCD",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0710.4339"
         },
-        "primary_pointer": "0710.4339",
-        "summary": "We report on heavy quark mass calculations using Fermilab heavy quarks. Lattice calculations of heavy-strange meson masses are combined with one-loop (automated) lattice perturbation theory to arrive at the quark mass. Mesons are constructed from Fermilab heavy quarks and staggered light quarks. We use the MILC ensembles at three lattice spacings and sea quark mass ratios of $m_{\\rm u,d} / m_{\\rm s} = 0.1$ to 0.4. Preliminary results for the bottom quark are given in the potential subtracted scheme.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "final_url": "https://arxiv.org/abs/0710.4339",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-05-06T21:33:45Z"
-        }
+        "details": "query-relevance 0.067 < 0.3 (query='How does the spatial clustering of impurity atoms in the bulk lattice influence ', candidate_title='Heavy-Quark Masses from the Fermilab Method in Three-Flavor Lattice QCD')",
+        "failed_at": "2026-05-07T03:22:18Z",
+        "reason": "query_irrelevant"
       },
       {
-        "bibliographic_info": {
-          "authors": [
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the $B \\to Kl^+l^-$ semileptonic decay process in three-flavor lattice QCD. We analyze several ensembles generated by the MILC collaboration at different lattice spacings and sea-quark masses. We use the asqtad improved staggered action for the light quarks and the clover action with the Fermilab interpretation for the heavy $b$ quark. We present preliminary results for the vector current induced form factors for a range of kaon energies. Our analysis includes chiral and continuum extrapolations based on SU(2) staggered χPT.",
+          "claimed_authors": [
             "Ran Zhou",
             "Jon A. Bailey",
             "Alexei Bazavov",
@@ -169,24 +156,17 @@
             "Fermilab Lattice",
             "MILC Collaborations"
           ],
-          "title": "Form factors for $B$ to $Kll$ semileptonic decay from three-flavor lattice QCD",
-          "venue": "arXiv",
-          "year": 2011
+          "claimed_title": "Form factors for $B$ to $Kll$ semileptonic decay from three-flavor lattice QCD",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1111.0981"
         },
-        "primary_pointer": "1111.0981",
-        "summary": "We study the $B \\to Kl^+l^-$ semileptonic decay process in three-flavor lattice QCD. We analyze several ensembles generated by the MILC collaboration at different lattice spacings and sea-quark masses. We use the asqtad improved staggered action for the light quarks and the clover action with the Fermilab interpretation for the heavy $b$ quark. We present preliminary results for the vector current induced form factors for a range of kaon energies. Our analysis includes chiral and continuum extrapolations based on SU(2) staggered χPT.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "final_url": "https://arxiv.org/abs/1111.0981",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-05-06T21:33:46Z"
-        }
-      },
+        "details": "query-relevance 0.067 < 0.3 (query='How does the spatial clustering of impurity atoms in the bulk lattice influence ', candidate_title='Form factors for $B$ to $Kll$ semileptonic decay from three-flavor lattice QCD')",
+        "failed_at": "2026-05-07T03:22:18Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
       {
         "bibliographic_info": {
           "authors": [
@@ -205,11 +185,12 @@
           "final_url": "https://arxiv.org/abs/1310.3413",
           "http_status": 200,
           "pdf_sample_score": null,
+          "query_relevance_score": 0.5333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-06T21:33:46Z"
+          "verified_at": "2026-05-07T03:22:18Z"
         }
       },
       {
@@ -230,12 +211,13 @@
         "verification_log": {
           "final_url": "https://arxiv.org/abs/2411.05303",
           "http_status": 200,
-          "pdf_sample_score": 0.2579,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-06T21:33:47Z"
+          "verified_at": "2026-05-07T03:22:18Z"
         }
       },
       {
@@ -257,11 +239,12 @@
           "final_url": "https://arxiv.org/abs/2310.18447",
           "http_status": 200,
           "pdf_sample_score": null,
+          "query_relevance_score": 0.5333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-06T21:33:47Z"
+          "verified_at": "2026-05-07T03:22:19Z"
         }
       },
       {
@@ -283,11 +266,12 @@
           "final_url": "https://arxiv.org/abs/2103.16678",
           "http_status": 200,
           "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-06T21:33:47Z"
+          "verified_at": "2026-05-07T03:22:19Z"
         }
       },
       {
@@ -309,11 +293,12 @@
           "final_url": "https://arxiv.org/abs/2109.02133",
           "http_status": 200,
           "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-06T21:33:48Z"
+          "verified_at": "2026-05-07T03:22:20Z"
         }
       },
       {
@@ -338,11 +323,12 @@
           "final_url": "https://arxiv.org/abs/1807.03996",
           "http_status": 200,
           "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-06T21:33:48Z"
+          "verified_at": "2026-05-07T03:22:20Z"
         }
       },
       {
@@ -361,12 +347,13 @@
         "verification_log": {
           "final_url": "https://arxiv.org/abs/2006.06591",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.1757,
+          "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-06T21:33:49Z"
+          "verified_at": "2026-05-07T03:22:21Z"
         }
       }
     ]

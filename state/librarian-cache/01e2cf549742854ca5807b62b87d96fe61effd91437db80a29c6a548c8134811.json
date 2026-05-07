@@ -1,0 +1,326 @@
+{
+  "fetched_at": "2026-05-07T03:18:20Z",
+  "field": "chemistry",
+  "prompt_version": "1.1.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "---\nfield: chemistry\nsubmitter: google.gemma-3-27b-it\n---\n\n# Predicting Molecular Toxicity from Structural Alerts via Rule-Based Systems\n\n**Field**: Chemistry\n\n## Research question\n\nTo what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries?\n\n## Motivation\n\nRegulatory frameworks increasingly require interpretable models for chemical safety assessment, yet modern toxicity prediction relies heavily on black-box machine learning. This project addresses the gap between interpretability and performance by quantifying whether curated structural alerts—mechanistic proxies for toxicity—are sufficient predictors compared to holistic molecular descriptors. Establishing the marginal value of explicit rules informs whether complex models are necessary for baseline safety screening or if transparent rule-based systems remain viable for regulatory submission.\n\n## Related work\n\n- [Enhancing Toxicity Pre",
+      "target_n": 5
+    },
+    "duration_seconds": 202.06,
+    "ended_at": "2026-05-07T03:18:20Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "structural alerts versus molecular descriptors for toxicity prediction"
+        ],
+        [
+          2,
+          "substructure contribution to genotoxicity variance"
+        ],
+        [
+          3,
+          "comparative analysis of fragment-based and descriptor-based toxicity models"
+        ],
+        [
+          4,
+          "predictive power of structural alerts in diverse chemical libraries"
+        ],
+        [
+          5,
+          "physicochemical descriptors versus structural alerts"
+        ],
+        [
+          6,
+          "variance explained by chemical substructures in toxicity"
+        ],
+        [
+          7,
+          "interpretability of QSAR models for mutagenicity"
+        ],
+        [
+          8,
+          "fragment contribution analysis in molecular toxicity"
+        ],
+        [
+          9,
+          "rule-based systems for chemical safety assessment"
+        ],
+        [
+          10,
+          "mechanistic proxies for mutagenicity outcomes"
+        ],
+        [
+          11,
+          "global molecular fingerprints versus local structural features"
+        ],
+        [
+          12,
+          "quantitative structure-activity relationship interpretability"
+        ],
+        [
+          13,
+          "transparent rule-based systems for chemical screening"
+        ],
+        [
+          14,
+          "marginal value of explicit rules in toxicity modeling"
+        ],
+        [
+          15,
+          "structural alert coverage in Ames test prediction"
+        ],
+        [
+          16,
+          "read-across versus machine learning for mutagenicity"
+        ],
+        [
+          17,
+          "regulatory acceptance of interpretable toxicity prediction methods"
+        ],
+        [
+          18,
+          "black-box versus white-box models in cheminformatics"
+        ],
+        [
+          19,
+          "explainable AI in computational toxicology"
+        ],
+        [
+          20,
+          "computational toxicology model interpretability benchmarks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "To what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries": 0,
+        "structural alerts versus molecular descriptors for toxicity prediction": 6
+      },
+      "total_queries_issued": 2
+    },
+    "failure_reason": null,
+    "librarian_prompt_version": "1.1.0",
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.1016/j.aquatox.2021.105962"
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-07T03:14:58Z",
+    "term_input": {
+      "normalized": "to what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries",
+      "raw": "To what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries"
+    },
+    "verification_failures": [],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Y. Chushak",
+            "A. Keebaugh",
+            "R. Clewell"
+          ],
+          "title": "Prediction of Respiratory Irritation and Respiratory Sensitization of Chemicals Using Structural Alerts and Machine Learning Modeling",
+          "venue": "Toxics",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.3390/toxics13040243",
+        "summary": "Inhalation of toxic substances and contaminants can have adverse effects on the respiratory tract, leading to a range of health problems, such as irritation and inflammation, allergic reaction and asthma, lung damage, or even death. It is not possible to experimentally evaluate respiratory toxicity for all the thousands of chemicals in use. Here, we generated structural alerts and developed machine learning (ML) classification models to predict respiratory irritation and respiratory sensitization hazards of chemicals using experimental data from publicly available databases and the literature. We identified 13 structural alerts for respiratory irritants and 18 structural alerts for respiratory sensitizers. We also developed a set of models for each hazard using different types of molecular descriptors and ML techniques. Five of the best performing models were combined into a consensus classification model for respiratory irritation, and four individual models were used to develop a consensus classification model for respiratory sensitization. The prediction accuracy of the respiratory irritation consensus model was 84% on the training set and 88% on the test set, and the accuracy of the respiratory sensitization consensus model was 86% on both training and test data sets. A combination of generated structural alerts and ML models was used to screen occupational- and military-relevant chemicals. Out of 687 screened occupational chemicals, 62 compounds were identified as respiratory irritants and 121 chemicals as respiratory sensitizers, while 47 chemicals were predicted as irritants and 36 compounds as sensitizers in the list of 525 military-relevant chemicals.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://www.mdpi.com/2305-6304/13/4/243",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.3390/toxics13040243"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:18:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yumian Zhou",
+            "Yu He",
+            "Wenzhen Zhou",
+            "Zhencheng Hua",
+            "Yi-Jane Wang",
+            "Chao Chen"
+          ],
+          "title": "Enhancing Toxicity Prediction of Synthetic Chemicals via Novel SMILES Fragmentation and Interpretable Deep Learning",
+          "venue": "Journal of Chemical Information and Modeling",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1021/acs.jcim.5c01042",
+        "summary": "Toxicity prediction and identification of structural alerts (SAs) for synthetic chemicals are critical for assessing risks to environmental and human health. Traditional methods, which rely heavily on molecular descriptors, often suffer from poor interpretability. Here, we introduce a novel framework that integrates SMILES fragmentation strategies with a 1D convolutional neural network deep learning model (denoted as the SFDL) for predicting chemical toxicity and associated SAs. Four distinct fragmentation methods, single-atom, single-symbol, atom-centered, and symbol-centered, were evaluated to generate tokenizers (denoted as GenTok) from 581537 high-interest PubChem compounds. The symbol-centered fragmentation approach demonstrated superior performance on the ISSSTY AMES mutagenicity data set (AUC = 0.87, PRAUC = 0.90). This SFDL-GenTok strategy demonstrated robust predictive performance across 6 out of the 10 toxicity end points (AUC = 0.81∼0.93, PRAUC = 0.70∼0.94). Based on these models, toxicity predictions were conducted for 28160 synthetic chemicals. Potential toxic compounds were subsequently categorized into three groups: endocrine disruption, mutagenicity, and mitochondrial toxicity. SAs analysis revealed that halogenated fragments, nitro or phenolic groups, and reactive electrophilic motifs are critical contributors to endocrine disruption, mitochondrial toxicity, and mutagenicity. This study provides an interpretable tool for toxicity and SAs identification of synthetic chemicals.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://pubs.acs.org/doi/10.1021/acs.jcim.5c01042",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1021/acs.jcim.5c01042"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:18:02Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Si-hoon Lee",
+            "Eunwoo Choi",
+            "Junho Park",
+            "Seohwi Yoon",
+            "Myungha Song",
+            "J. Lee",
+            "Jungkwan Seo",
+            "S. Shin",
+            "Sang Hee Lee",
+            "H. Oh"
+          ],
+          "title": "Prediction of reproductive and developmental toxicity using an attention and gate augmented graph convolutional network",
+          "venue": "Scientific Reports",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1038/s41598-025-02590-y",
+        "summary": "Due to the diverse molecular structures of chemical compounds and their intricate biological pathways of toxicity, predicting their reproductive and developmental toxicity remains a challenge. Traditional Quantitative Structure-Activity Relationship models that rely on molecular descriptors have limitations in capturing the complexity of reproductive and developmental toxicity to achieve high predictive performance. In this study, we developed a descriptor-free deep learning model by constructing a Graph Convolutional Network designed with multi-head attention and gated skip-connections to predict reproductive and developmental toxicity. By integrating structural alerts directly related to toxicity into the model, we enabled more effective learning of toxicologically relevant substructures. We built a dataset of 4,514 diverse compounds, including both organic and inorganic substances. The model was trained and validated using stratified 5-fold cross-validation. It demonstrated excellent predictive performance, achieving an accuracy of 81.19% on the test set. To address the interpretability of the deep learning model, we identified subgraphs corresponding to known structural alerts, providing insights into the model’s decision-making process. This study was conducted in accordance with the OECD principles for reliable Quantitative Structure-Activity Relationship modeling and contributes to the development of robust in silico models for toxicity prediction.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://www.nature.com/articles/s41598-025-02590-y",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1038/s41598-025-02590-y",
+            "https://www.nature.com/articles/s41598-025-02590-y",
+            "https://idp.nature.com/authorize?response_type=cookie&client_id=grover&redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41598-025-02590-y",
+            "https://idp.nature.com/transit?redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41598-025-02590-y&code=a0384478-294a-448d-8e3e-4a376bd6e17c"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:18:02Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yaqing Guo",
+            "Yutong Li",
+            "Borui Zou",
+            "Xiaoyu Lin",
+            "Shengjie Hu",
+            "Huiying Yang",
+            "Yong Lu",
+            "Xianfu Wu"
+          ],
+          "title": "A novel integrated strategy combining feature-based molecular networking, QSIIR modeling, and in silico toxicity prediction accelerates the screening of illegal additives in cosmetics: Quinolones as a case study.",
+          "venue": "Talanta: The International Journal of Pure and Applied Analytical Chemistry",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1016/j.talanta.2025.128735",
+        "summary": "As concealment methods for illegal cosmetic adulteration advance, identifying non-library or unexpected additives remains challenging. This study presents a novel integrated strategy for rapid, non-targeted detection of reference-standard-free illegal cosmetic additives, especially emerging structural analogs of known prohibited compounds. The quinolone case study validated the strategy's broad applicability to cosmetics. Mass spectrometry-based feature-based molecular networking (FBMN) leverages spectral similarity to cluster structural analogs, using known compounds to identify unknowns, thereby significantly expediting unknown compound discovery. Our results suggested that FBMN clustered 51 quinolones (including 14 novel synthetic analogs) into 13 structural groups using only 17 \"seed\" standards, achieving high sensitivity with a limit of detection (LOD) of 1 ppm. The quantitative structure-ionization intensity relationship (QSIIR) model was established using multiple linear regression (MLR). It employed 7 structural descriptors to predict concentrations of quinolones with high accuracy (training R2 = 0.9876; prediction R2 = 0.8221), enabling absolute quantification prediction of illegal quinolone additives in complex cosmetics without compound-specific calibrants. In addition, the OECD QSAR Toolbox software profiling identified consistent skin irritation hazards and structural alerts for genotoxicity/carcinogenicity across quinolones, supporting regulatory decision-making. Collectively, this FBMN-QSIIR-QSAR strategy can not only address the challenges from unavailable reference standards, complex matrices and trace-level additions but also provide regulatory authorities with an integrated screening-to-risk-assessment solution, contributing to the standardized development of the cosmetic safety control.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S0039914025012263",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1016/j.talanta.2025.128735"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:18:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "V. Masand",
+            "M. Zaki",
+            "S. Al-Hussain",
+            "A. Ghorbal",
+            "Siddhartha Akasapu",
+            "Israa Lewaa",
+            "Arabinda Ghosh",
+            "R. Jawarkar"
+          ],
+          "title": "Identification of concealed structural alerts using QSTR modeling for Pseudokirchneriella subcapitata.",
+          "venue": "Aquatic Toxicology",
+          "year": 2021
+        },
+        "primary_pointer": "https://doi.org/10.1016/j.aquatox.2021.105962",
+        "summary": "In the present work, QSTR modeling was conducted for microalga Pseudokirchneriella subcapitata using a data set of 271 molecules belonging to different types of chemical classes for the prediction of EC50 for 72 hr based assays. The balanced QSTR model encompasses seven easily interpretable molecular descriptors and possesses statistical robustness with high predictive ability. This Genetic Algorithm Multi-linear regression (GA-MLR) model was subjected to internal validation, Y-randomization test, applicability domain analysis, and external validation as per the recommended OECD guidelines. The newly developed model fulfilled the threshold values for more than 20 recommended validation parameters including R2 = 0.72, Q2LOO = 0.70, etc. The developed QSTR model was successful in identifying the type of hybridization or specific type of atoms of previously reported and newer structural alerts. Thus, the model could be useful for data gap filling and expanding mechanistic interpretation of toxicity for different chemicals.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S0166445X21002216",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1016/j.aquatox.2021.105962"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:18:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
+          ],
+          "title": "Few-shot Molecular Property Prediction: A Survey",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.08900",
+        "summary": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2510.08900",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T03:18:05Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "to what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

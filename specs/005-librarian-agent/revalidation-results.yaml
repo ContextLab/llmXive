@@ -1,6 +1,7 @@
 # Spec 005 / US3 / T045 — RevalidationResult records (data-model E9)
-# Generated: 2026-05-07
-# Aggregate verdict: PASS — both canonicals judged `verified`.
+# Generated: 2026-05-07 (updated post relevance-gate fix)
+# Aggregate verdict: PASS — both canonicals judged `verified` under
+# librarian prompt v1.1.0 (relevance-gate-enabled verification).
 
 records:
   - project_id: PROJ-261-evaluating-the-impact-of-code-duplicatio
@@ -11,12 +12,12 @@ records:
       reference_commit: e422cef
     new_state:
       current_stage: project_initialized
-      flesh_out_iteration_count: 2
+      flesh_out_iteration_count: 3  # bumped: original + first re-run + relevance-gate re-run
       validator_verdict: validated
     idea_body_diff_path: /tmp/proj261-idea-diff.patch
-    idea_body_diff_lines: 81
-    librarian_outcome: success_after_expansion
-    librarian_verified_count: 5
+    librarian_outcome: success
+    librarian_verified_count: 7
+    librarian_prompt_version: 1.1.0
     validator_subchecks:
       framing: pass
       novelty: pass
@@ -25,13 +26,16 @@ records:
     judgment: verified
     judgment_rationale: |
       Both prior and new validator runs return `validated` with all four
-      sub-checks passing. The librarian-backed lit search produced 5
-      verified citations (one initial term, success_after_expansion via
-      DOI-rich Semantic Scholar results on code-clone / LLM-detection
-      papers). The new idea body adds a `## Search trail` subsection
-      (FR-007) and tightens the framing slightly with the verified-
-      citation evidence — no material question shift. Carry-forward
-      unchanged.
+      sub-checks passing. Under the relevance-gate-fixed librarian
+      (v1.1.0), the initial search produced 7 verified citations on
+      LLM-code-understanding / clone-detection topics — all genuinely
+      relevant to the research question (e.g., "SIMCOPILOT: Evaluating
+      LLMs for Copilot-Style Code Generation"; "Evaluating Code
+      Generation of LLMs in Advanced Computer Science Problems";
+      "Enhancing Code Translation in Language Models"). No expansion
+      needed. The new idea body adds a populated `## Search trail`
+      subsection (FR-007) with on-topic citations replacing the
+      pre-fix Search trail's marginal hits. Carry-forward unchanged.
 
   - project_id: PROJ-262-predicting-molecular-dipole-moments-with
     prior_state:
@@ -41,11 +45,12 @@ records:
       reference_commit: e422cef
     new_state:
       current_stage: project_initialized
-      flesh_out_iteration_count: 2
+      flesh_out_iteration_count: 4  # bumped per re-runs
       validator_verdict: validated
     idea_body_diff_path: /tmp/proj262-idea-diff.patch
-    idea_body_diff_lines: 101
     librarian_outcome: success
+    librarian_verified_count: 9
+    librarian_prompt_version: 1.1.0
     validator_subchecks:
       framing: pass
       novelty: pass
@@ -53,15 +58,21 @@ records:
       testability: pass
     judgment: verified
     judgment_rationale: |
-      Validator returns `validated` (4/4 sub-checks pass) under the new
-      librarian-backed citation set. The librarian's lit search on
-      "Predicting Molecular Dipole Moments with Graph Neural Networks
-      chemistry" surfaced verified GNN-dipole-moment papers and the new
-      idea body adds the Search trail subsection (FR-007). No material
-      reframing of the research question. Carry-forward unchanged.
+      Validator returns `validated` (4/4 sub-checks pass). The
+      relevance-gate-fixed librarian's initial search surfaced 9
+      verified citations directly on-topic for GNN-based dipole-moment
+      prediction (e.g., "Q-DFTNet: A Chemistry-Informed Neural Network
+      Framework for Predicting Molecular Dipole Moments via DFT-Driven
+      QM9 Data"; "PhysNet: A Neural Network for Predicting Energies,
+      Forces, Dipole Moments, and Partial Charges"; "MolNet_Equi: A
+      Chemically Intuitive, Rotation-Equivariant Graph Neural
+      Network"). No expansion needed. Carry-forward unchanged.
 
 aggregate_verdict: PASS
 notes: |
-  US3 acceptance: both canonicals produce `verified` (≠ shifted_regressed)
-  → carry-forward proceeds in US6 with both projects at the new
-  `project_initialized` state under spec 005's librarian-backed pipeline.
+  US3 acceptance: both canonicals produce `verified` under the
+  relevance-gate-fixed librarian (v1.1.0). The pre-fix re-validation
+  also passed validator (4/4) but with topically-marginal citations;
+  the v1.1.0 re-run replaces those with genuinely on-topic verified
+  evidence. Carry-forward proceeds in US6 with both projects at the
+  new `project_initialized` state.

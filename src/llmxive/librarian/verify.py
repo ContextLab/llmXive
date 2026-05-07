@@ -37,7 +37,37 @@ from llmxive.librarian.search import USER_AGENT, Candidate
 
 CITATION_TITLE_OVERLAP_THRESHOLD = 0.7
 SUMMARY_GROUNDING_THRESHOLD = 0.5
+# Topical-relevance gate: fraction of the user's salient query tokens
+# (after stop-word + short-token filtering) that must appear in the
+# candidate's claimed title + abstract. Low absolute number because
+# queries are often long sentences while titles are short, but high
+# enough to filter out false positives where a search backend returned a
+# paper that shares only generic stop-tokens (e.g., "demographic",
+# "lifestyle", "analysis") with the query. Spec 005 / SC-001 + FR-003.
+QUERY_RELEVANCE_THRESHOLD = 0.30
 PER_CITATION_TIMEOUT = 60.0  # seconds
+
+# Common English stop-tokens that produce false topical matches when a
+# query and an unrelated paper happen to share them. Conservative list:
+# only words that genuinely carry no topical signal.
+_QUERY_STOPWORDS: frozenset[str] = frozenset({
+    "the", "and", "for", "with", "from", "into", "that", "this", "these",
+    "those", "have", "has", "was", "were", "are", "been", "being", "but",
+    "not", "any", "all", "can", "may", "will", "would", "could", "should",
+    "must", "than", "then", "such", "some", "more", "most", "less", "much",
+    "many", "few", "very", "well", "also", "even", "just", "only", "still",
+    "after", "before", "during", "while", "when", "where", "what", "which",
+    "who", "whom", "whose", "why", "how", "does", "doing", "done", "did",
+    "between", "across", "through", "along", "among", "about", "above",
+    "below", "under", "over", "within", "without", "their", "there",
+    "they", "them", "his", "her", "its", "our", "your", "study", "studies",
+    "analysis", "analyses", "research", "method", "methods", "approach",
+    "approaches", "results", "result", "effect", "effects", "impact",
+    "impacts", "investigation", "investigate", "investigating", "examine",
+    "examining", "evaluating", "evaluation", "predict", "predicting",
+    "prediction", "controlling", "control", "factor", "factors",
+    "individual", "individuals", "instance", "instances",
+})
 
 
 @dataclasses.dataclass(frozen=True)
@@ -52,6 +82,7 @@ class VerificationLog:
     summary_grounding_score: float
     pdf_sample_score: float | None
     verified_at: str  # ISO-8601 UTC
+    query_relevance_score: float = 0.0  # spec 005 fix: topical relevance to user query
 
 
 @dataclasses.dataclass(frozen=True)
@@ -77,6 +108,7 @@ class VerificationFailure:
         "summary_not_grounded_pdf",
         "paywall_partial",
         "timeout",
+        "query_irrelevant",
     ]
     details: str
     failed_at: str  # ISO-8601 UTC
@@ -91,8 +123,16 @@ def verify_citation(
     fetch_pdf: bool = False,
     summary: str | None = None,
     timeout: float = PER_CITATION_TIMEOUT,
+    query: str | None = None,
 ) -> VerifyResult:
-    """Run the three-check chain on one Candidate.
+    """Run the four-check chain on one Candidate.
+
+    ``query``: the user's search term that produced this candidate.
+    If supplied, a topical-relevance gate (Check 0, fail-fast) rejects
+    candidates whose claimed title+abstract share fewer than
+    ``QUERY_RELEVANCE_THRESHOLD`` of the query's salient (non-stop-word,
+    length≥3) tokens. None disables the check (preserves prior behavior
+    for callers that don't have a query — e.g., direct DOI lookups).
 
     ``summary``: librarian-generated summary to verify against fetched
     content. If None, the Candidate's ``claimed_abstract`` is used as a
@@ -104,6 +144,29 @@ def verify_citation(
     more checks failed).
     """
     started = _now_iso()
+
+    # Check 0 (fail-fast): topical relevance to the user's query.
+    # Filters out search-backend false positives that share only generic
+    # stop-tokens with the query (spec 005 fix; see SC-001 + FR-003).
+    relevance_score = 0.0
+    if query:
+        candidate_blob = " ".join(filter(None, [
+            candidate.claimed_title,
+            candidate.claimed_abstract,
+        ]))
+        relevance_score = query_relevance_score(query, candidate_blob)
+        if relevance_score < QUERY_RELEVANCE_THRESHOLD:
+            return VerificationFailure(
+                candidate=candidate,
+                reason="query_irrelevant",
+                details=(
+                    f"query-relevance {relevance_score:.3f} < "
+                    f"{QUERY_RELEVANCE_THRESHOLD} "
+                    f"(query={query[:80]!r}, "
+                    f"candidate_title={candidate.claimed_title!r})"
+                ),
+                failed_at=_now_iso(),
+            )
 
     # Resolve the URL form of the primary pointer.
     url = _candidate_url(candidate)
@@ -166,6 +229,7 @@ def verify_citation(
         summary_grounding_score=round(grounding_score, 4),
         pdf_sample_score=None,  # filled in by pdf_sample.py if/when sampled
         verified_at=started,
+        query_relevance_score=round(relevance_score, 4),
     )
 
     return VerifiedCitation(
@@ -207,6 +271,31 @@ def jaccard_tokens(a: str, b: str) -> float:
     inter = sa & sb
     union = sa | sb
     return len(inter) / len(union)
+
+
+def _salient_query_tokens(query: str) -> set[str]:
+    """Tokens carrying topical signal: lowercased, length>=3, not stop-words."""
+    return {t for t in _tokenize(query) if len(t) >= 3 and t not in _QUERY_STOPWORDS}
+
+
+def query_relevance_score(query: str, candidate_text: str) -> float:
+    """Fraction of the user's salient query tokens present in the candidate.
+
+    Uses *containment* (intersection / |query|), not Jaccard, because
+    queries are often long sentences while candidate titles are short —
+    Jaccard would penalize length asymmetry. Returns 0.0 if the query
+    has no salient tokens (e.g., all stop-words).
+
+    Threshold: ``QUERY_RELEVANCE_THRESHOLD`` (0.30 — at least ~3 salient
+    query tokens must appear in the candidate's title+abstract).
+    """
+    qs = _salient_query_tokens(query)
+    if not qs:
+        return 0.0
+    cand_tokens = _tokenize(candidate_text)
+    if not cand_tokens:
+        return 0.0
+    return len(qs & cand_tokens) / len(qs)
 
 
 # --- HTTP helpers ---------------------------------------------------------
@@ -352,11 +441,13 @@ def _now_iso() -> str:
 
 __all__ = [
     "CITATION_TITLE_OVERLAP_THRESHOLD",
+    "QUERY_RELEVANCE_THRESHOLD",
     "SUMMARY_GROUNDING_THRESHOLD",
     "VerificationFailure",
     "VerificationLog",
     "VerifiedCitation",
     "VerifyResult",
     "jaccard_tokens",
+    "query_relevance_score",
     "verify_citation",
 ]

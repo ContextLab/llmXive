@@ -132,7 +132,14 @@ def iterate_until_target(
                 continue
             seen_pointers.add(c.primary_pointer)
             summary = summary_for_each.get(c.primary_pointer)
-            result = verify_citation(c, summary=summary or c.claimed_abstract or "")
+            # Each expanded term IS the effective query for the candidates
+            # it surfaced — pass it through so the relevance gate filters
+            # off-topic SS+arXiv hits per the spec 005 fix.
+            result = verify_citation(
+                c,
+                summary=summary or c.claimed_abstract or "",
+                query=term,
+            )
             if isinstance(result, VerifiedCitation):
                 accumulated.append(result)
                 per_term_hit_count[term] += 1
