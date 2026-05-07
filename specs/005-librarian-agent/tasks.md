@@ -209,9 +209,9 @@ For each of `PROJ-261-evaluating-the-impact-of-code-duplicatio` and `PROJ-262-pr
 - [X] T065 Run lint: `ruff check src/llmxive/librarian/ src/llmxive/agents/librarian.py tests/phase2/`. Auto-fix any I001/UP errors per spec-004's pattern.
 - [X] T066 Update spec.md `**Status**` from `Draft` to `In Review` per spec-004's pattern (use the Python regex one-liner from spec 004 T067).
 - [X] T067 Update `tasks.md` so all 67 task checkboxes reflect their completion state (mark `[X]` for done, leave `[ ]` only for conditional tasks that didn't fire). Commit.
-- [ ] T068 Push the feature branch: `git push -u origin 008-librarian-agent`.
-- [ ] T069 Open PR: `gh pr create --base main --head 008-librarian-agent --title "Spec 005: librarian agent + Phase 1 re-validation" --body-file <(cat <<'EOF' ...full body per spec-004 pattern... EOF)`. Body includes summary, defect table, test plan, per-issue verdict.
-- [ ] T070 Post a comment on tracker issue #107 with the PR URL + a short summary of what the librarian consolidates and what the re-validation found.
+- [X] T068 Push the feature branch: `git push -u origin 008-librarian-agent`.
+- [X] T069 Open PR: `gh pr create --base main --head 008-librarian-agent --title "Spec 005: librarian agent + Phase 1 re-validation" --body-file <(cat <<'EOF' ...full body per spec-004 pattern... EOF)`. Body includes summary, defect table, test plan, per-issue verdict.
+- [X] T070 Post a comment on tracker issue #107 with the PR URL + a short summary of what the librarian consolidates and what the re-validation found.
 - [X] T070a Add an FR-022 enforcement guardrail. Implement [tests/phase2/test_no_duplicate_lit_search.py](tests/phase2/test_no_duplicate_lit_search.py) — a regression test that greps the entire `src/llmxive/` and `agents/` trees (excluding `src/llmxive/librarian/` and the deprecated `agents/tools/lit_search.py`) for the strings `api.semanticscholar.org` AND `arxiv.org/api/query`. If both appear in any other file, the test fails with a message pointing to FR-022 + Constitution Principle I. This catches future PRs that re-introduce duplicate lit-search implementations.
 - [ ] T071 [optional] Open a new agent-tracking issue for the librarian (analogous to issues #62/#63/#64 from spec 003 era) so its lifecycle is captured in the tracker. Label `pipeline-agent`.
 
