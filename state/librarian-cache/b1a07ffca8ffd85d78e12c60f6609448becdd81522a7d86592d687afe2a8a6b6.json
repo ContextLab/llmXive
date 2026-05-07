@@ -1,0 +1,395 @@
+{
+  "fetched_at": "2026-05-06T21:33:42Z",
+  "field": "computer science",
+  "prompt_version": "1.0.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "---\nfield: computer science\nsubmitter: google.gemma-3-27b-it\n---\n\n# Investigating the Effectiveness of Different Loss Functions for Training Graph Neural Networks on Small Worlds\n\n**Field**: computer science\n\n## Research question\n\nHow does the clustering coefficient of small-world graphs influence the relative convergence efficiency of supervised versus contrastive loss functions in Graph Neural Networks?\n\n## Motivation\n\nSmall-world networks are ubiquitous in social, biological, and recommendation systems, yet GNN training protocols rarely account for specific topological properties during loss selection. Understanding whether high clustering biases the optimization landscape toward contrastive or supervised objectives addresses a gap in theoretical GNN design. This knowledge could reduce training time and improve generalization for domain-specific graph applications without requiring architectural changes.\n\n## Literature gap analysis\n\n### What we searched\n\nQueries targeted \"Graph Neur",
+      "target_n": 5
+    },
+    "duration_seconds": 163.712,
+    "ended_at": "2026-05-06T21:33:42Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "graph topology impact on GNN optimization"
+        ],
+        [
+          2,
+          "contrastive learning versus supervised learning on graphs"
+        ],
+        [
+          3,
+          "clustering coefficient effect on graph neural networks"
+        ],
+        [
+          4,
+          "small-world network properties in GNN training"
+        ],
+        [
+          5,
+          "graph contrastive learning convergence analysis"
+        ],
+        [
+          6,
+          "GNN loss landscape topology dependence"
+        ],
+        [
+          7,
+          "supervised node classification loss on clustered graphs"
+        ],
+        [
+          8,
+          "self-supervised graph representation learning efficiency"
+        ],
+        [
+          9,
+          "Watts-Strogatz model graph neural network performance"
+        ],
+        [
+          10,
+          "optimization dynamics of graph contrastive methods"
+        ],
+        [
+          11,
+          "graph transitivity and message passing efficiency"
+        ],
+        [
+          12,
+          "comparative analysis of graph loss functions"
+        ],
+        [
+          13,
+          "topology-aware graph representation learning"
+        ],
+        [
+          14,
+          "over-smoothing in clustered graph neural networks"
+        ],
+        [
+          15,
+          "structural bias in graph neural network training"
+        ],
+        [
+          16,
+          "sample efficiency of GNNs on small-world graphs"
+        ],
+        [
+          17,
+          "InfoNCE loss performance on high clustering graphs"
+        ],
+        [
+          18,
+          "graph structure learning and loss function selection"
+        ],
+        [
+          19,
+          "spectral graph theory and GNN convergence"
+        ],
+        [
+          20,
+          "deep learning on complex network topologies"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "How does the clustering coefficient of small-world graphs influence the relative convergence efficiency of supervised versus contrastive loss functions in Graph Neural Networks": 0,
+        "graph topology impact on GNN optimization": 10
+      },
+      "total_queries_issued": 2
+    },
+    "failure_reason": null,
+    "librarian_prompt_version": "1.0.0",
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1111.0731"
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-06T21:30:59Z",
+    "term_input": {
+      "normalized": "how does the clustering coefficient of small-world graphs influence the relative convergence efficiency of supervised versus contrastive loss functions in graph neural networks",
+      "raw": "How does the clustering coefficient of small-world graphs influence the relative convergence efficiency of supervised versus contrastive loss functions in Graph Neural Networks"
+    },
+    "verification_failures": [],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Changpeng He",
+            "Yang Lu",
+            "Yanqing Xu",
+            "Chong-Yung Chi",
+            "Bo Ai",
+            "Arumugam Nallanathan"
+          ],
+          "title": "RIS-Assisted Downlink Pinching-Antenna Systems: GNN-Enabled Optimization Approaches",
+          "venue": "arXiv.org",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2511.20305",
+        "summary": "This paper investigates a reconfigurable intelligent surface (RIS)-assisted multi-waveguide pinching-antenna (PA) system (PASS) for multi-user downlink information transmission, motivated by the unknown impact of the integration of emerging PASS and RIS on wireless communications. First, we formulate sum rate (SR) and energy efficiency (EE) maximization problems in a unified framework, subject to constraints on the movable region of PAs, total power budget, and tunable phase of RIS elements. Then, by leveraging a graph-structured topology of the RIS-assisted PASS, a novel three-stage graph neural network (GNN) is proposed, which learns PA positions based on user locations, and RIS phase shifts according to composite channel conditions at the first two stages, respectively, and finally determines beamforming vectors. Specifically, the proposed GNN is achieved through unsupervised training, together with three implementation strategies for its integration with convex optimization, thus offering trade-offs between inference time and solution optimality. Extensive numerical results are provided to validate the effectiveness of the proposed GNN, and to support its unique attributes of viable generalization capability, good performance reliability, and real-time applicability. Moreover, the impact of key parameters on RIS-assisted PASS is illustrated and analyzed.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2511.20305",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2511.20305"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-06T21:33:36Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ehimare Okoyomon",
+            "Christoph Goebel"
+          ],
+          "title": "A Framework for Assessing the Generalizability of GNN-Based AC Power Flow Models",
+          "venue": "Energy-Efficient Computing and Networking",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1145/3679240.3734610",
+        "summary": "AC power flow analysis is essential for grid planning, operation, and optimization, but traditional methods like the Newton-Raphson algorithm can be computationally expensive for complicated systems. Simplified approaches, such as DC power flow, perform well in transmission grids but struggle in distribution grids due to high resistance-to-reactance (R/X) ratios that affect voltage stability and power losses. Recent advances in machine learning, particularly Graph Neural Networks (GNNs), offer a flexible, topology-aware alternative for power flow solvers, but existing models lack generalizability and fail to incorporate critical topological features. This work presents the first framework for assessing the generalization performance of these graph-based solvers, including a generalization score to evaluate this model robustness. By analyzing graph similarity statistics and their correlation with model performance, we explore the generalization impact of embedding simple graph characteristics into GNN models for distribution grids, and ultimately demonstrate that neighbourhood-aware GNNs produce more generalizable solutions. These findings address key challenges in power flow analysis, advancing the applicability of GNNs to complex distribution networks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://dl.acm.org/doi/10.1145/3679240.3734610",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.1145/3679240.3734610"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-06T21:33:36Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andrey Silva",
+            "Dagnachew Azene Temesgene",
+            "A. Klautau",
+            "Rebecca Aben-Athar",
+            "C. Nahum"
+          ],
+          "title": "Leveraging GNNs for Intent-Driven 5G RAN Optimization in Autonomous Networks",
+          "venue": "IEEE Access",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1109/ACCESS.2025.3624754",
+        "summary": "Intent-based networking (IBN) is a key paradigm for enabling autonomous networks by abstracting complex manual configurations into high-level intents. In this context, predicting the impact of configuration and topology changes is critical for ensuring efficient resource allocation and resolving conflicts in networks with shared and constrained resources. Graph Neural Networks (GNNs) have emerged as a powerful tool for modeling network structures and processing relational data, making them well-suited for predictive tasks in IBN. In this paper, we propose an improved GNN-based framework for predicting Key Performance Indicators (KPIs) in a fifth-generation (5G) Ran Access Network (RAN) within an IBN architecture, implementing state of the art features into the intent system, such as utility function as a means of user satisfaction, and standardized optional negotiation operations. Our approach leverages the ability of GNNs to learn network-wide representations and accurately estimate the effects of configuration changes on multiple KPIs. Through extensive experimentation with different network configurations, we demonstrate that the GNN-based model in addition to the information of utility functions provides results close to the optimal solution, being able to balance between conflicting intent targets, and outperforming baseline approaches providing higher user satisfaction rate. These results highlight the potential of our solution in optimizing the management and operation of intent-based RAN resources.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://ieeexplore.ieee.org/document/11215733/",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.1109/ACCESS.2025.3624754"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-06T21:33:36Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yunfeng Yang",
+            "Shutao Hao",
+            "Duanhong Zhang",
+            "Zhangyong Wei"
+          ],
+          "title": "Reactive Power Configuration Method for Steady-State Overvoltage in Hydropower Distribution Network Based on Impedance Modulus Margin Index",
+          "venue": "RE&amp;PQJ",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.52152/4170",
+        "summary": "Existing reactive power configuration methods cannot fully consider the impact of dynamic changes in grid topology and load fluctuations when evaluating impedance characteristics and voltage margin, making it difficult to achieve precise regulation in steady-state overvoltage control. To address this issue, this paper firstly constructs a simulation model based on digital twins to simulate the operation status of the power grid in real-time and calculate the impedance modulus margin (IMM) index of each node to precisely evaluate the voltage stability. Then, the grid topology is modeled by graph neural network (GNN); the voltage stability information and reactive power demand between nodes are extracted; the key nodes are identified based on this information. Finally, the PPO (Proximal Policy Optimization) algorithm is utilized to optimize the configuration of reactive power compensation equipment and determine its optimal layout and operation strategy. The experimental outcomes demonstrate that the system voltage stability margin reaches 0.35 in the scenario of multi-equipment collaborative work, and the steady-state overvoltage amplitude is limited to 1.02 times the rated voltage. The research results demonstrate the importance of the IMM-based reactive power configuration method proposed in this paper to enhance the security and voltage stability of hydropower distribution networks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://repqj.com/index.php/repqj/article/view/4170",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.52152/4170"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-06T21:33:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ramprasad Raghunath",
+            "Bile Peng",
+            "E. Jorswieck"
+          ],
+          "title": "Efficient Cell-free Wireless Access and Fronthaul Networks",
+          "venue": "Asilomar Conference on Signals, Systems and Computers",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1109/IEEECONF67917.2025.11443701",
+        "summary": "Resource allocation in wireless networks, particularly cell free massive MIMO (CF mMIMO) systems, presents fundamental optimization challenges that often require solving computationally demanding programming problems. Machine learning (ML) approaches offer a low complexity policy to solve these optimization problems. Graph neural network (GNN), which can effectively exploit the underlying network topology, have emerged as powerful tools for learning effective allocation policies. However, GNN operations can induce significant front-haul traffic between access points (APs) and the central processing unit, creating a critical bottleneck in scalable cell-free deployments. This work investigates the impact of edge pruning—a technique designed to reduce GNN computational complexity and, crucially, mitigate front-haul communication overhead on resource allocation performance. We comprehensively evaluate the performance of pruned GNNs on the energy efficiency (EE), exploring the fundamental trade-offs between GNN sparsity, computational efficiency, front-haul load reduction, and network performance. Our results demonstrate that substantial front-haul overhead mitigation can be achieved through strategic pruning with negligible degradation in allocation performance, thereby enabling the deployment of lightweight, front-haul-aware GNN-based resource allocation solutions that are essential for practical distributed cell-free system implementations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://ieeexplore.ieee.org/document/11443701/",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.1109/IEEECONF67917.2025.11443701"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-06T21:33:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zangir Iklassov",
+            "Dmitrii Medvedev"
+          ],
+          "title": "Robust Reinforcement Learning on Graphs for Logistics optimization",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2205.12888",
+        "summary": "Logistics optimization nowadays is becoming one of the hottest areas in the AI community. In the past year, significant advancements in the domain were achieved by representing the problem in a form of graph. Another promising area of research was to apply reinforcement learning algorithms to the above task. In our work, we made advantage of using both approaches and apply reinforcement learning on a graph. To do that, we have analyzed the most recent results in both fields and selected SOTA algorithms both from graph neural networks and reinforcement learning. Then, we combined selected models on the problem of AMOD systems optimization for the transportation network of New York city. Our team compared three algorithms - GAT, Pro-CNN and PTDNet - to bring to the fore the important nodes on a graph representation. Finally, we achieved SOTA results on AMOD systems optimization problem employing PTDNet with GNN and training them in reinforcement fashion.\n  Keywords: Graph Neural Network (GNN), Logistics optimization, Reinforcement Learning",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2205.12888",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-06T21:33:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Peter Bubenik",
+            "Tane Vergili"
+          ],
+          "title": "Topological spaces of persistence modules and their properties",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1802.08117",
+        "summary": "Persistence modules are a central algebraic object arising in topological data analysis. The notion of interleaving provides a natural way to measure distances between persistence modules. We consider various classes of persistence modules, including many of those that have been previously studied, and describe the relationships between them. In the cases where these classes are sets, interleaving distance induces a topology. We undertake a systematic study the resulting topological spaces and their basic topological properties.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/1802.08117",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-06T21:33:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ameneh Babaee",
+            "Behrooz Mashayekhy",
+            "Hanieh Mirebrahimi"
+          ],
+          "title": "On Hawaiian Groups of Some Topological Spaces",
+          "venue": "arXiv",
+          "year": 2011
+        },
+        "primary_pointer": "1111.0731",
+        "summary": "The paper is devoted to study the structure of Hawaiian groups of some topological spaces. We present some behaviors of Hawaiian groups with respect to product spaces, weak join spaces, cone spaces, covering spaces and locally trivial bundles. In particular, we determine the structure of the $n$-dimensional Hawaiian group of the $m$-dimensional Hawaiian earring space, for all $1\\leq m\\leq n$.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/1111.0731",
+          "http_status": 200,
+          "pdf_sample_score": 0.1273,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-06T21:33:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zongliang Du",
+            "Tianchen Cui",
+            "Chang Liu",
+            "Weisheng Zhang",
+            "Yilin Guo",
+            "Xu Guo"
+          ],
+          "title": "An efficient and easy-to-extend Matlab code of the Moving Morphable Component (MMC) method for three-dimensional topology optimization",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2201.02491",
+        "summary": "Explicit topology optimization methods have received ever-increasing interest in recent years. In particular, a 188-line Matlab code of the two-dimensional (2D) Moving Morphable Component (MMC)-based topology optimization method was released by Zhang et al. (Struct Multidiscip Optim 53(6):1243-1260, 2016). The present work aims to propose an efficient and easy-to-extend 256-line Matlab code of the MMC method for three-dimensional (3D) topology optimization implementing some new numerical techniques. To be specific, by virtue of the function aggregation technique, accurate sensitivity analysis, which is also easy-to-extend to other problems, is achieved. Besides, based on an efficient identification algorithm for load transmission path, the degrees of freedoms (DOFs) not belonging to the load transmission path are removed in finite element analysis (FEA), which significantly accelerates the optimization process. As a result, compared to the corresponding 188-line 2D code, the performance of the optimization results, the computational efficiency of FEA, and the convergence rate and the robustness of optimization process are greatly improved. For the sake of completeness, a refined 218-line Matlab code implementing the 2D-MMC method is also provided.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2201.02491",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-06T21:33:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tanya Cofer"
+          ],
+          "title": "A class of tight contact structures on Sigma_2 x I",
+          "venue": "arXiv",
+          "year": 2004
+        },
+        "primary_pointer": "math/0411208",
+        "summary": "We employ cut and paste contact topological techniques to classify some tight contact structures on the closed, oriented genus-2 surface times the interval. A boundary condition is specified so that the Euler class of the of the contact structure vanishes when evaluated on each boundary component. We prove that there exists a unique, non-product tight contact structure in this case.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/math/0411208",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-06T21:33:41Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "how does the clustering coefficient of small-world graphs influence the relative convergence efficiency of supervised versus contrastive loss functions in graph neural networks",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

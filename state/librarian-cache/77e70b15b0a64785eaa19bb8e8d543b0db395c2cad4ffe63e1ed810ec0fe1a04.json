@@ -1,0 +1,473 @@
+{
+  "fetched_at": "2026-05-06T21:38:12Z",
+  "field": "neuroscience",
+  "prompt_version": "1.0.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "---\nfield: neuroscience\nsubmitter: google.gemma-3-27b-it\n---\n\n# Investigating the Impact of Simulated Sensory Deprivation on Resting-State Brain Network Dynamics\n\n**Field**: neuroscience\n\n## Research question\n\nHow does the intrinsic organization of human brain functional networks change when sensory input is experimentally reduced, and does this reorganization manifest as altered modularity and global efficiency in resting-state fMRI?\n\n## Motivation\n\nUnderstanding how the brain reorganizes in the absence of external input could inform treatments for sensory processing disorders and provide insights into the brain's intrinsic activity patterns. This question addresses a gap in current literature: while predictive processing theories suggest sensory input shapes intrinsic dynamics, empirical evidence from deprivation paradigms remains limited in publicly available datasets.\n\n## Literature gap analysis\n\n### What we searched\n\nSearch queries included \"sensory deprivation resting-state fMRI,",
+      "target_n": 5
+    },
+    "duration_seconds": 239.372,
+    "ended_at": "2026-05-06T21:38:12Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "sensory deprivation resting-state connectivity"
+        ],
+        [
+          2,
+          "functional network topology sensory restriction"
+        ],
+        [
+          3,
+          "graph theory metrics sensory deprivation fMRI"
+        ],
+        [
+          4,
+          "modularity and efficiency sensory deprivation"
+        ],
+        [
+          5,
+          "short-term visual deprivation resting-state fMRI"
+        ],
+        [
+          6,
+          "auditory deprivation functional connectivity"
+        ],
+        [
+          7,
+          "brain network reorganization blindfolded"
+        ],
+        [
+          8,
+          "intrinsic connectivity networks sensory loss"
+        ],
+        [
+          9,
+          "segregation integration sensory deprivation"
+        ],
+        [
+          10,
+          "small-world properties sensory deprivation"
+        ],
+        [
+          11,
+          "spontaneous brain activity sensory restriction"
+        ],
+        [
+          12,
+          "cross-modal plasticity resting-state fMRI"
+        ],
+        [
+          13,
+          "default mode network sensory deprivation"
+        ],
+        [
+          14,
+          "functional connectivity changes sensory isolation"
+        ],
+        [
+          15,
+          "predictive coding sensory deprivation brain"
+        ],
+        [
+          16,
+          "perceptual isolation brain network dynamics"
+        ],
+        [
+          17,
+          "experimental sensory reduction fMRI"
+        ],
+        [
+          18,
+          "neuroplasticity resting-state fMRI deprivation"
+        ],
+        [
+          19,
+          "human connectome sensory deprivation"
+        ],
+        [
+          20,
+          "adaptive brain network changes sensory loss"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "How does the intrinsic organization of human brain functional networks change when sensory input is experimentally reduced, and does this reorganization manifest as altered modularity and global efficiency in resting-state fMRI": 0,
+        "sensory deprivation resting-state connectivity": 5
+      },
+      "total_queries_issued": 2
+    },
+    "failure_reason": null,
+    "librarian_prompt_version": "1.0.0",
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.1002/hbm.70064"
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-06T21:34:12Z",
+    "term_input": {
+      "normalized": "how does the intrinsic organization of human brain functional networks change when sensory input is experimentally reduced, and does this reorganization manifest as altered modularity and global efficiency in resting-state fmri",
+      "raw": "How does the intrinsic organization of human brain functional networks change when sensory input is experimentally reduced, and does this reorganization manifest as altered modularity and global efficiency in resting-state fMRI"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Does gravity care about electric charge? Precision tests of the weak equivalence principle achieve remarkable sensitivity but deliberately minimize electric charge on test masses, leaving this fundamental question experimentally open. We present a minimalist framework coupling electromagnetism to linearized gravity through conservation of a complex charge-mass current, predicting charge-dependent violations $Δa/g = κ(q/m)$. Remarkably, this prediction occupies unexplored experimental territory precisely because precision gravity tests avoid charge variation. We identify this as a significant gap and propose a modified torsion balance experiment where $q/m$ is treated as a controlled variable. Such an experiment could test whether gravitational acceleration depends on electric charge, probing physics in genuinely new parameter space. This work exemplifies how theoretical minimalism can reveal overlooked opportunities in fundamental physics.",
+          "claimed_authors": [
+            "Renato Vieira dos Santos"
+          ],
+          "claimed_title": "Does Gravity Care About Electric Charge? A Minimalist Model and Experimental Test",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.16325"
+        },
+        "details": "title token-overlap 0.000 < 0.7 (claimed='Does Gravity Care About Electric Charge? A Minimalist Model and Experimental Test', fetched='')",
+        "failed_at": "2026-05-06T21:34:26Z",
+        "reason": "title_mismatch"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The study of random networks in a neuroscientific context has developed extensively over the last couple of decades. By contrast, techniques for the statistical analysis of these networks are less developed. In this paper, we focus on the statistical comparison of brain networks in a nonparametric framework and discuss the associated detection and identification problems. We tested network differences between groups with an analysis of variance (ANOVA) test we developed specifically for networks. We also propose and analyse the behaviour of a new statistical procedure designed to identify different subnetworks. As an example, we show the application of this tool in resting-state fMRI data obtained from the Human Connectome Project. Finally, we discuss the potential bias in neuroimaging findings that is generated by some behavioural and brain structure variables. Our method can also be applied to other kind of networks such as protein interaction networks, gene networks or social networks.",
+          "claimed_authors": [
+            "Daniel Fraiman",
+            "Ricardo Fraiman"
+          ],
+          "claimed_title": "Statistical comparison of (brain) networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1707.01585"
+        },
+        "details": "title token-overlap 0.000 < 0.7 (claimed='Statistical comparison of (brain) networks', fetched='')",
+        "failed_at": "2026-05-06T21:34:35Z",
+        "reason": "title_mismatch"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The human brain is liable to undergo substantial alterations, anatomically and functionally with aging. Cognitive brain aging can either be healthy or degenerative in nature. Such degeneration of cognitive ability can lead to disorders such as Alzheimer's disease, dementia, schizophrenia, and multiple sclerosis. Furthermore, the brain network goes through various changes during healthy aging, and it is an active area of research. In this study, we have investigated the rs-functional connectivity of participants (in the age group of 7-89 years) using a publicly available HCP dataset. We have also explored how different brain networks are clustered using K-means clustering methods which have been further validated by the t-SNE algorithm. The changes in overall resting-state brain functional connectivity with changes in brain developmental stages have also been explored using BrainNet Viewer. Then, specifically within-cluster network and between-cluster network changes with increasing age have been studied using linear regression which ultimately shows a pattern of increase/decrease in the mean segregation of brain networks with healthy aging. Brain networks like Default Mode Network, Cingulo opercular Network, Sensory Motor Network, and Cerebellum Network have shown decreased segregation whereas Frontal Parietal Network and Occipital Network show increased segregation with healthy aging. Our results strongly suggest that the brain has four brain developmental stages and brain networks reorganize their functional connectivity during these brain developmental stages.",
+          "claimed_authors": [
+            "Prerna Singh",
+            "Tapan Kumar Gandhi",
+            "Lalan Kumar"
+          ],
+          "claimed_title": "Reorganization of resting state brain network functional connectivity across human brain developmental stages",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.08197"
+        },
+        "details": "title token-overlap 0.000 < 0.7 (claimed='Reorganization of resting state brain network functional connectivity across human brain developmental stages', fetched='')",
+        "failed_at": "2026-05-06T21:34:45Z",
+        "reason": "title_mismatch"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The most studies on functional connectivity have been done by analyzing the brain's hemodynamic response to a stimulation. On the other hand, the low-frequency spontaneous fluctuations in the blood oxygen level dependent (BOLD) signals of functional MRI have been observed in the resting state. However, the BOLD signals in resting state are significantly corrupted by huge noises arising from cardiac pulsation, respiration, subject motion, scanner, and so forth. Especially, the noise compounds are stronger in the rat brain than in the human brain. To overcome such an artifact, we assumed that fractal behavior in BOLD signals reflects low frequency neural activity, and applied the theorem such that the wavelet correlation spectrum between long memory processes is scale-invariant over low frequency scales. Here, we report an experiment that shows special correlation patterns not only in correlation of scaling coefficients in very low-frequency band (less than 0.0078Hz) but also in asymptotic wavelet correlation. In addition, we show the distribution of the Hurst exponents in the rat brain.",
+          "claimed_authors": [
+            "Wonsang You",
+            "Joerg Stadler"
+          ],
+          "claimed_title": "Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1202.4751"
+        },
+        "details": "title token-overlap 0.000 < 0.7 (claimed='Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI', fetched='')",
+        "failed_at": "2026-05-06T21:34:54Z",
+        "reason": "title_mismatch"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The brain is immensely complex, with diverse components and dynamic interactions building upon one another to orchestrate a wide range of functions and behaviors. Understanding patterns of these complex interactions and how they are coordinated to support collective neural activity and function is critical for parsing human and animal behavior, treating mental illness, and developing artificial intelligence. Rapid experimental advances in imaging, recording, and perturbing neural systems across various species now provide opportunities and challenges to distill underlying principles of brain organization and function. Here, we take stock of recent progresses and review methods used in the statistical analysis of brain networks, drawing from fields of statistical physics, network theory and information theory. Our discussion is organized by scale, starting with models of individual neurons and extending to large-scale networks mapped across brain regions. We then examine the organizing principles and constraints that shape the biological structure and function of neural circuits. Finally, we describe current opportunities aimed at improving models in light of recent developments and at bridging across scales to contribute to a better understanding of brain networks.",
+          "claimed_authors": [
+            "Suman Kulkarni",
+            "Dani S. Bassett"
+          ],
+          "claimed_title": "Towards principles of brain network organization and function",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.02640"
+        },
+        "details": "title token-overlap 0.000 < 0.7 (claimed='Towards principles of brain network organization and function', fetched='')",
+        "failed_at": "2026-05-06T21:35:04Z",
+        "reason": "title_mismatch"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The study of hierarchy in networks of the human brain has been of significant interest among the researchers as numerous studies have pointed out towards a functional hierarchical organization of the human brain. This paper provides a novel method for the extraction of hierarchical connectivity components in the human brain using resting-state fMRI. The method builds upon prior work of Sparse Connectivity Patterns (SCPs) by introducing a hierarchy of sparse overlapping patterns. The components are estimated by deep factorization of correlation matrices generated from fMRI. The goal of the paper is to extract interpretable hierarchical patterns using correlation matrices where a low rank decomposition is formed by a linear combination of a high rank decomposition. We formulate the decomposition as a non-convex optimization problem and solve it using gradient descent algorithms with adaptive step size. We also provide a method for the warm start of the gradient descent using singular value decomposition. We demonstrate the effectiveness of the developed method on two different real-world datasets by showing that multi-scale hierarchical SCPs are reproducible between sub-samples and are more reproducible as compared to single scale patterns. We also compare our method with existing hierarchical community detection approaches. Our method also provides novel insight into the functional organization of the human brain.",
+          "claimed_authors": [
+            "Dushyant Sahoo",
+            "Theodore D. Satterthwaite",
+            "Christos Davatzikos"
+          ],
+          "claimed_title": "Extraction of hierarchical functional connectivity components in human brain using resting-state fMRI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.08365"
+        },
+        "details": "title token-overlap 0.000 < 0.7 (claimed='Extraction of hierarchical functional connectivity components in human brain using resting-state fMRI', fetched='')",
+        "failed_at": "2026-05-06T21:35:13Z",
+        "reason": "title_mismatch"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate scaling properties of human brain functional networks in the resting-state. Analyzing network degree distributions, we statistically test whether their tails scale as power-law or not. Initial studies, based on least-squares fitting, were shown to be inadequate for precise estimation of power-law distributions. Subsequently, methods based on maximum-likelihood estimators have been proposed and applied to address this question. Nevertheless, no clear consensus has emerged, mainly because results have shown substantial variability depending on the data-set used or its resolution. In this study, we work with high-resolution data (10K nodes) from the Human Connectome Project and take into account network weights. We test for the power-law, exponential, log-normal and generalized Pareto distributions. Our results show that the statistics generally do not support a power-law, but instead these degree distributions tend towards the thin-tail limit of the generalized Pareto model. This may have implications for the number of hubs in human brain functional networks.",
+          "claimed_authors": [
+            "Riccardo Zucca",
+            "Xerxes D. Arsiwalla",
+            "Hoang Le",
+            "Mikail Rubinov",
+            "Paul Verschure"
+          ],
+          "claimed_title": "Scaling Properties of Human Brain Functional Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1702.00768"
+        },
+        "details": "title token-overlap 0.000 < 0.7 (claimed='Scaling Properties of Human Brain Functional Networks', fetched='')",
+        "failed_at": "2026-05-06T21:35:23Z",
+        "reason": "title_mismatch"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding the relationship between the structure and function of the human brain is one of the most important open questions in Neurosciences. In particular, Resting State Networks (RSN) and more specifically the Default Mode Network (DMN) of the brain, which are defined from the analysis of functional data lack a definitive justification consistent with the anatomical structure of the brain. In this work, we show that a possible connection may naturally rest on the idea that information flows in the brain through a neural message-passing dynamics between macroscopic structures, like those defined by the human connectome (HC). In our model, each brain region in the HC is assumed to have a binary behavior (active or not), the strength of interactions among them is encoded in the anatomical connectivity matrix defined by the HC, and the dynamics of the system is defined by a neural message-passing algorithm, Belief Propagation (BP), working near the critical point of the human connectome. We show that in the absence of direct external stimuli the BP algorithm converges to a spatial map of activations that is similar to the DMN. Moreover, we computed, using Susceptibility Propagation (SP), the matrix of correlations between the different regions and show that the modules defined by a clustering of this matrix resemble several Resting States Networks determined experimentally. Both results suggest that the functional DMN and RSNs can be seen as simple consequences of the anatomical structure of the brain and a neural message-passing dynamics between macroscopic regions. We then show preliminary results indicating our predictions on how functional DMN maps change when the anatomical brain network suffers structural anomalies, like in Alzheimers Disease and in lesions of the Corpus Callosum.",
+          "claimed_authors": [
+            "Julio A. Peraza-Goicolea",
+            "Eduardo Martínez-Montes",
+            "Eduardo Aubert",
+            "Pedro A. Valdés-Hernández",
+            "Roberto Mulet"
+          ],
+          "claimed_title": "Modeling functional resting-state brain networks through neural message passing on the human connectome",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.05369"
+        },
+        "details": "title token-overlap 0.000 < 0.7 (claimed='Modeling functional resting-state brain networks through neural message passing on the human connectome', fetched='')",
+        "failed_at": "2026-05-06T21:35:32Z",
+        "reason": "title_mismatch"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wonsang You",
+            "Jörg Stadler"
+          ],
+          "title": "Fractal-driven distortion of resting state functional networks in fMRI: a simulation study",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1208.0924",
+        "summary": "Fractals are self-similar and scale-invariant patterns found ubiquitously in nature. A lot of evidences implying fractal properties such as 1/f power spectrums have been also observed in resting state fMRI time series. To explain the fractal behavior in rs-fMRI, we have proposed the fractal-based model of resting state hemodynamic response function (rs-HRF) whose properties can be summarized by a fractal exponent. Here we show, through a simulation studies, that the fractal behavior of cerebral hemodynamics may cause significant distortion of network properties between neuronal activities and BOLD signals. We simulated neuronal population activities based on the stochastic neural field model from the Macaque brain network, and then obtained their corresponding BOLD signals by convolving them with the rs-HRF filter. The precision of centrality estimated in each node was deteriorated overall in three networks based on transfer entropy, mutual information, and Pearson correlation; particularly the distortion of transfer entropy was more sensitive to the standard deviation of fractal exponents. A node with high centrality was resilient to desynchronized fractal dynamics over all frequencies while a node with small centrality exhibited huge distortion of both wavelet correlation and centrality over low frequencies. This theoretical expectation indicates that the difference of fractal exponents between brain regions leads to discrepancy of statistical network properties, especially at nodes with small centrality, between neuronal activities and BOLD signals, and that the traditional definitions of resting state functional connectivity may not effectively reflect the dynamics of spontaneous neuronal activities.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/1208.0924",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-06T21:34:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "D. Meunier",
+            "R. Lambiotte",
+            "A. Fornito",
+            "K. D. Ersche",
+            "E. T. Bullmore"
+          ],
+          "title": "Hierarchical modularity in human brain functional networks",
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1004.3153",
+        "summary": "The idea that complex systems have a hierarchical modular organization originates in the early 1960s and has recently attracted fresh support from quantitative studies of large scale, real-life networks. Here we investigate the hierarchical modular (or \"modules-within-modules\") decomposition of human brain functional networks, measured using functional magnetic resonance imaging (fMRI) in 18 healthy volunteers under no-task or resting conditions. We used a customized template to extract networks with more than 1800 regional nodes, and we applied a fast algorithm to identify nested modular structure at several hierarchical levels. We used mutual information, 0 < I < 1, to estimate the similarity of community structure of networks in different subjects, and to identify the individual network that is most representative of the group. Results show that human brain functional networks have a hierarchical modular organization with a fair degree of similarity between subjects, I=0.63. The largest 5 modules at the highest level of the hierarchy were medial occipital, lateral occipital, central, parieto-frontal and fronto-temporal systems; occipital modules demonstrated less sub-modular organization than modules comprising regions of multimodal association cortex. Connector nodes and hubs, with a key role in inter-modular connectivity, were also concentrated in association cortical areas. We conclude that methods are available for hierarchical modular decomposition of large numbers of high resolution brain functional networks using computationally expedient algorithms. This could enable future investigations of Simon's original hypothesis that hierarchy or near-decomposability of physical symbol systems is a critical design feature for their fast adaptivity to changing environmental conditions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/1004.3153",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-06T21:34:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Uttam Kumar",
+            "Kalpana Dhanik"
+          ],
+          "title": "Decoding auditory deprivation: resting-state fMRI insights into deafness and brain plasticity",
+          "venue": "Brain Structure and Function",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1007/s00429-023-02757-1",
+        "summary": "",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://link.springer.com/article/10.1007/s00429-023-02757-1",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.1007/s00429-023-02757-1",
+            "https://link.springer.com/10.1007/s00429-023-02757-1",
+            "https://link.springer.com/article/10.1007/s00429-023-02757-1",
+            "https://idp.springer.com/authorize?response_type=cookie&client_id=springerlink&redirect_uri=https%3A%2F%2Flink.springer.com%2Farticle%2F10.1007%2Fs00429-023-02757-1"
+          ],
+          "summary_grounding_score": 0.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-06T21:38:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "L. Fleming",
+            "Matthew K Defenderfer",
+            "Pinar Demirayak",
+            "P. Stewart",
+            "Dawn K. Decarlo",
+            "KM Visscher"
+          ],
+          "title": "Impact of Deprivation and Preferential Usage on Functional Connectivity Between Early Visual Cortex and Category‐Selective Visual Regions",
+          "venue": "Human Brain Mapping",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1002/hbm.70064",
+        "summary": "Human behavior can be remarkably shaped by experience, such as the removal of sensory input. Many studies of conditions such as stroke, limb amputation, and vision loss have examined how removal of input changes brain function. However, an important question yet to be answered is: when input is lost, does the brain change its connectivity to preferentially use some remaining inputs over others? In individuals with healthy vision, the central portion of the retina is preferentially used for everyday visual tasks, due to its ability to discriminate fine details. When central vision is lost in conditions like macular degeneration, peripheral vision must be relied upon for those everyday tasks, with some portions receiving “preferential” usage over others. Using resting‐state fMRI collected during total darkness, we examined how deprivation and preferential usage influence the intrinsic functional connectivity of sensory cortex by studying individuals with selective vision loss due to late stages of macular degeneration. Specifically, we examined functional connectivity between category‐selective visual areas and the cortical representation of three areas of the retina: the lesioned area, a preferentially used region of the intact retina, and a non‐preferentially used region. We found that cortical regions representing spared portions of the peripheral retina, regardless of whether they are preferentially used, exhibit plasticity of intrinsic functional connectivity in macular degeneration. Cortical representations of spared peripheral retinal locations showed stronger connectivity to MT, a region involved in processing motion. These results suggest that the long‐term loss of central vision can produce widespread effects throughout spared representations in early visual cortex, regardless of whether those representations are preferentially used. These findings support the idea that connections to visual cortex maintain the capacity for change well after critical periods of visual development.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "final_url": "https://onlinelibrary.wiley.com/doi/10.1002/hbm.70064",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.1002/hbm.70064"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-06T21:38:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "L. Fleming",
+            "Matthew K Defenderfer",
+            "Pinar Demirayak",
+            "P. Stewart",
+            "Dawn K. Decarlo",
+            "KM Visscher"
+          ],
+          "title": "Impact of deprivation and preferential usage on functional connectivity between early visual cortex and category selective visual regions",
+          "venue": "bioRxiv",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1101/2024.05.17.593020",
+        "summary": "",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://www.biorxiv.org/lookup/doi/10.1101/2024.05.17.593020",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.1101/2024.05.17.593020",
+            "http://biorxiv.org/lookup/doi/10.1101/2024.05.17.593020"
+          ],
+          "summary_grounding_score": 0.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-06T21:38:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "G. Laliberté",
+            "D. Boire"
+          ],
+          "title": "Dissecting Resting-State Plasticity: Mesoscale Calcium Imaging of Excitatory and Inhibitory Neuronal Population Network Reorganization in Early Blind Mice",
+          "venue": "bioRxiv",
+          "year": 2026
+        },
+        "primary_pointer": "https://doi.org/10.64898/2026.02.06.704389",
+        "summary": "",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://www.biorxiv.org/lookup/doi/10.64898/2026.02.06.704389",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.64898/2026.02.06.704389",
+            "http://biorxiv.org/lookup/doi/10.64898/2026.02.06.704389"
+          ],
+          "summary_grounding_score": 0.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-06T21:38:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Liwei Zhang",
+            "Yue Huang",
+            "Ying Zhang",
+            "Wei Xin",
+            "Yongcong Shao",
+            "Yebing Yang"
+          ],
+          "title": "Enhanced high-frequency precuneus-cortical effective connectivity is associated with decreased sensory gating following total sleep deprivation",
+          "venue": "NeuroImage",
+          "year": 2019
+        },
+        "primary_pointer": "https://doi.org/10.1016/j.neuroimage.2019.04.057",
+        "summary": "Sleep deprivation decreases an individual's cognitive function. When cognitive impairment reaches a certain level, human errors occur and may even result in accidents. Previous research has shown that sensory gating is a basic mechanism in cognitive function, but only limited studies have so far reported how it is affected by sleep deprivation. This study aimed to analyze the effects of sleep deprivation on sensory gating and its cognitive and neural mechanisms. Thirty-six healthy subjects participated in our study. The resting-state, auditory P50-task electroencephalography (EEG) recordings and the psychomotor vigilance task (PVT) were performed at resting wakefulness (RW) and after 36 h of total sleep deprivation (TSD). Changes in P50 suppression before and after sleep deprivation were recorded, and the isolated effective coherence (iCoh) was employed for analyzing effective connectivity based on EEG data during the resting-state and P50 tasks. Subjects demonstrated reduced P50 suppression and prolonged PVT reaction time after TSD compared with RW. Effective connectivity analysis of resting-state EEG data showed that sleep deprivation decreased the connectivity from the right middle occipital gyrus (RMOG)/Rcuneus to left inferior/middle temporal gyrus (LITG/LMTG) and left parahippocampal/fusiform gyrus (LPH/LFG). EEG data analysis during the P50 task showed that, in addition to the aforementioned connectivity changes, the directed high-frequency effective connectivity from the left precuneus to the left superior/middle frontal gyrus (LSFG/LMFG), LITG/LMTG, LPH/LFG, and left middle occipital gyrus (LMOG)/Lcuneus increased. P50 suppression in Cz positively correlated with PVT reaction time. This study reveals that the precuneus is a key brain region in neural network correlates of sensory gating, and that changes in its effective connectivity with other regions (including LSFG/LMFG, LPH/LFG, LMOG/LCuneus, and LITG/LMTG) are important for decreasing sensory gating after TSD.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S105381191930343X",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.1016/j.neuroimage.2019.04.057"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-06T21:38:10Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "how does the intrinsic organization of human brain functional networks change when sensory input is experimentally reduced, and does this reorganization manifest as altered modularity and global efficiency in resting-state fmri",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

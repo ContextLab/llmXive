@@ -166,10 +166,11 @@ class LibrarianAgent(Agent):
         if not no_cache:
             cached = librarian_cache.get(repo_root, ckey, current_prompt_version=prompt_ver)
             if cached is not None:
-                # Cache hit — re-emit the cached LibrarianResult.
-                cached["cache_status"] = "hit"
-                # Note: we don't reconstruct the dataclass on hit; callers that
-                # need typed access can call invoke(no_cache=True) to refresh.
+                # Cache hit — re-hydrate the LibrarianResult so callers
+                # (including the test suite) can call .to_dict() and see
+                # the same shape they'd see on a cache miss. This is the
+                # correctness guarantee SC-012 requires (deterministic
+                # results across cache states).
                 return _result_from_dict(cached)
 
         # 2. Initial search.
@@ -338,16 +339,56 @@ def _expansion_to_dict(e: ExpansionResult) -> dict[str, Any]:
 
 
 def _result_from_dict(d: dict[str, Any]) -> LibrarianResult:
-    """Reconstruct a LibrarianResult from a cached JSON dict (cache hit
-    path). Verified citations are returned as plain dicts inside
-    ``verified_citations`` since the cache JSON form is what callers
-    actually consume.
+    """Re-hydrate a LibrarianResult from a cached JSON dict (cache-hit path).
 
-    For now we wrap the dict-form back into a LibrarianResult with empty
-    typed lists; callers reading ``verified_citations`` should consume
-    the ``to_dict()`` output instead. This avoids re-hydrating dataclasses
-    on hot cache paths.
+    Critical correctness guarantee (SC-012 / FR-023): the rehydrated result
+    MUST .to_dict() to a structure isomorphic to a fresh-miss result.
     """
+    from llmxive.librarian.search import Candidate
+    from llmxive.librarian.verify import VerificationLog
+
+    verified: list[VerifiedCitation] = []
+    for v in d.get("verified_citations", []) or []:
+        log_d = v.get("verification_log") or {}
+        verified.append(
+            VerifiedCitation(
+                primary_pointer=v.get("primary_pointer", ""),
+                bibliographic_info=v.get("bibliographic_info", {}),
+                summary=v.get("summary", ""),
+                summary_grounded_pdf=v.get("summary_grounded_pdf"),
+                verification_log=VerificationLog(
+                    url_resolves=log_d.get("url_resolves", False),
+                    final_url=log_d.get("final_url", ""),
+                    redirect_chain=log_d.get("redirect_chain") or [],
+                    http_status=log_d.get("http_status"),
+                    title_token_overlap_score=log_d.get("title_token_overlap_score", 0.0),
+                    summary_grounding_score=log_d.get("summary_grounding_score", 0.0),
+                    pdf_sample_score=log_d.get("pdf_sample_score"),
+                    verified_at=log_d.get("verified_at", ""),
+                ),
+            )
+        )
+
+    failures: list[VerificationFailure] = []
+    for f in d.get("verification_failures", []) or []:
+        cand_d = f.get("candidate") or {}
+        failures.append(
+            VerificationFailure(
+                candidate=Candidate(
+                    backend=cand_d.get("backend", ""),
+                    primary_pointer=cand_d.get("primary_pointer", ""),
+                    claimed_title=cand_d.get("claimed_title", ""),
+                    claimed_authors=cand_d.get("claimed_authors") or [],
+                    claimed_year=cand_d.get("claimed_year"),
+                    claimed_venue=cand_d.get("claimed_venue"),
+                    claimed_abstract=cand_d.get("claimed_abstract"),
+                ),
+                reason=f.get("reason", "url_not_resolves"),
+                details=f.get("details", ""),
+                failed_at=f.get("failed_at", ""),
+            )
+        )
+
     return LibrarianResult(
         schema_version=d.get("schema_version", LIBRARIAN_SCHEMA_VERSION),
         librarian_prompt_version=d.get("librarian_prompt_version", "1.0.0"),
@@ -355,9 +396,9 @@ def _result_from_dict(d: dict[str, Any]) -> LibrarianResult:
         term_input_normalized=d.get("term_input", {}).get("normalized", ""),
         context=d.get("context", {}),
         outcome=d.get("outcome", "failed"),
-        verified_citations=[],  # see docstring: callers use to_dict() form
-        verification_failures=[],
-        expansion=None,
+        verified_citations=verified,
+        verification_failures=failures,
+        expansion=None,  # expansion details persist via the dict form below
         pdf_sample=d.get("pdf_sample", {}),
         started_at=d.get("started_at", ""),
         ended_at=d.get("ended_at", ""),

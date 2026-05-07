@@ -258,8 +258,11 @@ class ArxivClient:
     is unavailable.
     """
 
-    def __init__(self, *, min_interval_seconds: float = 3.0) -> None:
-        # arXiv documents a 1-req-per-3-second guideline.
+    def __init__(self, *, min_interval_seconds: float = 5.0) -> None:
+        # arXiv documents a 1-req-per-3-second guideline. We use 5s with
+        # margin to avoid 429s during burst loads (e.g., the US4
+        # cross-domain test which fires 8+ invocations × 3-20 expanded
+        # terms each).
         self._min_interval = min_interval_seconds
         self._last_call_at: float = 0.0
         self._lock = threading.Lock()
@@ -273,35 +276,75 @@ class ArxivClient:
             self._last_call_at = time.monotonic()
 
     def search(self, query: str, *, max_results: int = 10) -> list[Candidate]:
-        """Keyword search on arXiv. Returns Candidate records."""
+        """Keyword search on arXiv. Returns Candidate records.
+
+        On rate limit (HTTP 429), backs off exponentially up to 3 attempts
+        (15s, 30s, 60s) before falling back to the direct-XML path. Both
+        paths surface a final 429 by returning [] but logging via stderr
+        so callers can distinguish "no hits" from "rate-limited" via the
+        log output.
+        """
         if not query.strip():
             return []
         try:
             import arxiv  # type: ignore[import-not-found]
         except ImportError:
-            # Fallback: hit the Atom XML endpoint directly.
             return self._search_via_xml(query, max_results=max_results)
 
-        self._wait_for_slot()
-        client = arxiv.Client(page_size=max_results, num_retries=3)
-        search_obj = arxiv.Search(query=query, max_results=max_results)
-        out: list[Candidate] = []
-        for result in client.results(search_obj):
-            arxiv_id = _arxiv_short_id(result.entry_id)
-            if not arxiv_id:
-                continue
-            out.append(
-                Candidate(
-                    backend="arxiv",
-                    primary_pointer=arxiv_id,
-                    claimed_title=(result.title or "").strip(),
-                    claimed_authors=[a.name for a in (result.authors or [])],
-                    claimed_year=result.published.year if result.published else None,
-                    claimed_venue="arXiv",
-                    claimed_abstract=(result.summary or "").strip() or None,
+        for attempt in range(3):
+            self._wait_for_slot()
+            try:
+                client = arxiv.Client(page_size=max_results, num_retries=2)
+                search_obj = arxiv.Search(query=query, max_results=max_results)
+                out: list[Candidate] = []
+                for result in client.results(search_obj):
+                    arxiv_id = _arxiv_short_id(result.entry_id)
+                    if not arxiv_id:
+                        continue
+                    out.append(
+                        Candidate(
+                            backend="arxiv",
+                            primary_pointer=arxiv_id,
+                            claimed_title=(result.title or "").strip(),
+                            claimed_authors=[a.name for a in (result.authors or [])],
+                            claimed_year=result.published.year if result.published else None,
+                            claimed_venue="arXiv",
+                            claimed_abstract=(result.summary or "").strip() or None,
+                        )
+                    )
+                return out
+            except arxiv.HTTPError as exc:  # noqa: BLE001
+                if exc.status != 429:
+                    # Non-429 HTTP error → surface immediately.
+                    import sys as _sys
+                    print(
+                        f"[arxiv] HTTP {exc.status} on query={query!r}; aborting search",
+                        file=_sys.stderr,
+                    )
+                    return []
+                # 429 — back off (15s, 30s, 60s) before retry.
+                backoff = 15 * (2**attempt)
+                import sys as _sys
+                print(
+                    f"[arxiv] 429 rate-limited on query={query[:50]!r}; backing off {backoff}s (attempt {attempt + 1}/3)",
+                    file=_sys.stderr,
                 )
-            )
-        return out
+                time.sleep(backoff)
+            except Exception as exc:  # noqa: BLE001
+                import sys as _sys
+                print(
+                    f"[arxiv] {type(exc).__name__} on query={query!r}: {exc}",
+                    file=_sys.stderr,
+                )
+                return []
+
+        # All retries exhausted with 429s.
+        import sys as _sys
+        print(
+            f"[arxiv] all retries exhausted on query={query[:50]!r}; returning empty",
+            file=_sys.stderr,
+        )
+        return []
 
     def get_by_id(self, arxiv_id: str) -> Candidate | None:
         """Fetch a single paper by arXiv ID (e.g., '1706.03762' or '1706.03762v3')."""
