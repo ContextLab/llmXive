@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 393,
+    "active_projects": 396,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1847,
+    "total_contributions": 1850,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1674,
+      "contribution_count": 1677,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 371,
+      "contribution_count": 374,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-07T01:25:28.525227+00:00",
+  "generated_at": "2026-05-07T03:22:26.429972+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -27451,6 +27451,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting the Impact of Processing Temperature on the Grain Size of Rolled Aluminum Alloys",
       "updated_at": "2026-05-07T01:03:49.121585+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-387-the-impact-of-visual-attention-allocatio/idea/the-impact-of-visual-attention-allocatio.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-07T03:19:07.490064+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Does visual attention allocation during reading\u2014measured by fixation duration, saccade patterns, and gaze distribution\u2014predict subsequent recall accuracy for emotionally valenced narrative content? Emotional valence influences memory consolidation, yet the attentional mechanisms that mediate this\u2026",
+      "field": "psychology",
+      "id": "PROJ-387-the-impact-of-visual-attention-allocatio",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 53.57089,
+          "ended_at": "2026-05-07T03:20:15.151657Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-07T03:19:21.580767Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Visual Attention Allocation on Recall of Emotionally Valenced Stories",
+      "updated_at": "2026-05-07T03:20:15.154357+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-388-predicting-plant-pathogen-virulence-from/idea/predicting-plant-pathogen-virulence-from.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-07T03:19:07.490064+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology How do genomic features (e.g., presence of virulence-associated genes, transcription factor binding sites, and sequence variation in pathogenicity islands) correlate with phenotypic virulence measures (e.g., disease severity scores) across publicly available plant pathogen isolates? Plant diseases cause\u2026",
+      "field": "biology",
+      "id": "PROJ-388-predicting-plant-pathogen-virulence-from",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 92.40699,
+          "ended_at": "2026-05-07T03:21:48.234556Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-07T03:20:15.827566Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Plant Pathogen Virulence from Publicly Available Genomic and Phenotypic Data",
+      "updated_at": "2026-05-07T03:21:48.237117+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-389-the-impact-of-simulated-social-compariso/idea/the-impact-of-simulated-social-compariso.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-07T03:19:07.490064+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology How does exposure to idealized self-presentation in online social environments affect subsequent self-evaluation among users? Social comparison is a well-established psychological mechanism, but the prevalence of highly-curated, selectively-edited self-presentation online creates conditions where\u2026",
+      "field": "psychology",
+      "id": "PROJ-389-the-impact-of-simulated-social-compariso",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 34.926915,
+          "ended_at": "2026-05-07T03:22:23.778799Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-07T03:21:48.851884Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Simulated Social Comparison on Self-Evaluation in Online Environments",
+      "updated_at": "2026-05-07T03:22:23.781335+00:00"
     }
   ],
   "schema_version": "2.0.0"
