@@ -32,7 +32,7 @@ from typing import Any
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.librarian import cache as librarian_cache
-from llmxive.librarian import search_trail
+from llmxive.librarian import relevance_judge, search_trail
 from llmxive.librarian.expand import (
     DEFAULT_EXPANSION_CAP,
     DEFAULT_TARGET_N,
@@ -81,6 +81,7 @@ class LibrarianResult:
     duration_seconds: float
     cache_status: str  # miss | hit | refreshed_after_ttl
     failure_reason: str | None = None
+    relevance_judge: dict[str, Any] = dataclasses.field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to the JSON shape documented in
@@ -104,6 +105,7 @@ class LibrarianResult:
             "duration_seconds": self.duration_seconds,
             "cache_status": self.cache_status,
             "failure_reason": self.failure_reason,
+            "relevance_judge": self.relevance_judge,
         }
 
 
@@ -139,6 +141,7 @@ class LibrarianAgent(Agent):
         no_cache: bool = False,
         ss_client: SemanticScholarClient | None = None,
         arxiv_client: ArxivClient | None = None,
+        relevance_judge_disabled: bool = False,
     ) -> LibrarianResult:
         """Execute the full librarian pipeline.
 
@@ -255,6 +258,63 @@ class LibrarianAgent(Agent):
                 expansion = None
                 outcome = "exhausted" if not verified else outcome
 
+        # 3.5. LLM-based topical-relevance judge (spec 005 fix-up #2).
+        # Filters out field-adjacent-but-off-topic citations that
+        # passed the cheaper token-overlap gate. Fail-open on backend
+        # errors per relevance_judge.py docstring.
+        #
+        # Marginal-fallback rule: if the judge rejects EVERY candidate
+        # (i.e. strict-verified list is empty after pruning), admit
+        # the rejected ones back as topically_marginal=True so the
+        # librarian doesn't go silent. The Search trail flags them
+        # explicitly so downstream agents can decide how to weight
+        # them. This addresses the case where the search backend
+        # genuinely has no on-topic results — better to surface
+        # marginal evidence with a label than to lie by omission.
+        judge_rejected_count = 0
+        judge_rejections: list[dict[str, Any]] = []
+        marginal_fallback_used = False
+        if verified and not relevance_judge_disabled:
+            try:
+                kept, rejected = relevance_judge.filter_by_relevance(
+                    verified,
+                    query=term,
+                    model=self.entry.default_model,
+                    default_backend=self.entry.default_backend.value,
+                    fallback_backends=[b.value for b in self.entry.fallback_backends],
+                )
+                if rejected:
+                    judge_rejected_count = len(rejected)
+                    for c, v in rejected:
+                        judge_rejections.append({
+                            "primary_pointer": c.primary_pointer,
+                            "title": (c.bibliographic_info or {}).get("title", ""),
+                            "rationale": v.rationale,
+                        })
+                if kept:
+                    verified = kept
+                else:
+                    # All candidates rejected — fall back to the rejected
+                    # set, flagged as marginal. Mark each citation's
+                    # bibliographic_info with topically_marginal=True so
+                    # the Search trail / downstream agents can label them.
+                    marginal_fallback_used = True
+                    flagged: list[VerifiedCitation] = []
+                    for c, _v in rejected:
+                        new_bib = dict(c.bibliographic_info or {})
+                        new_bib["topically_marginal"] = True
+                        flagged.append(
+                            dataclasses.replace(c, bibliographic_info=new_bib)
+                        )
+                    verified = flagged
+                # Re-evaluate outcome after the judge prunes.
+                if outcome == "success" and len(verified) < target_n:
+                    outcome = "exhausted"
+                elif outcome == "success_after_expansion" and len(verified) < target_n:
+                    outcome = "exhausted"
+            except Exception:
+                pass
+
         # 4. PDF sample.
         pdf_sample_target = 0
         sampled_pointers: list[str] = []
@@ -296,6 +356,12 @@ class LibrarianAgent(Agent):
             duration_seconds=round(time.monotonic() - t0, 3),
             cache_status="miss",
             failure_reason=None if outcome != "failed" else "all backends returned no verifiable candidates",
+            relevance_judge={
+                "enabled": not relevance_judge_disabled,
+                "rejected_count": judge_rejected_count,
+                "rejections": judge_rejections,
+                "marginal_fallback_used": marginal_fallback_used,
+            },
         )
 
         # 5. Cache write.
@@ -426,6 +492,7 @@ def _result_from_dict(d: dict[str, Any]) -> LibrarianResult:
         duration_seconds=d.get("duration_seconds", 0.0),
         cache_status="hit",
         failure_reason=d.get("failure_reason"),
+        relevance_judge=d.get("relevance_judge", {}),
     )
 
 

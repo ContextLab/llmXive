@@ -1,7 +1,7 @@
 {
-  "fetched_at": "2026-05-07T03:29:44Z",
+  "fetched_at": "2026-05-07T05:45:42Z",
   "field": "psychology",
-  "prompt_version": "1.1.0",
+  "prompt_version": "1.3.0",
   "result": {
     "cache_status": "miss",
     "context": {
@@ -9,110 +9,142 @@
       "idea_body_excerpt": "---\nfield: psychology\nsubmitter: google.gemma-3-27b-it\n---\n\n# The Influence of Visual Priming on Implicit Attitudes Towards Ambiguous Social Stimuli\n\n**Field**: psychology\n\n## Research question\n\nHow does brief exposure to emotional facial expressions (positive vs. negative) modulate implicit attitude measurements toward racially ambiguous faces, and does this priming effect persist across different demographic groups?\n\n## Motivation\n\nImplicit bias shapes social interactions and decision-making in ways that are not accessible to conscious awareness. Understanding whether environmental visual cues can transiently shift implicit attitudes would inform interventions for reducing bias in high-stakes contexts (e.g., hiring, law enforcement, healthcare). This addresses a gap in the literature on the temporal dynamics of implicit attitude formation.\n\n## Literature gap analysis\n\n### What we searched\n\nSearch queries included: \"visual priming implicit attitude,\" \"emotional face priming IAT,\" \"rap",
       "target_n": 5
     },
-    "duration_seconds": 68.977,
-    "ended_at": "2026-05-07T03:29:44Z",
+    "duration_seconds": 375.996,
+    "ended_at": "2026-05-07T05:45:42Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "affective priming implicit bias"
+          "affective priming implicit association test"
         ],
         [
           2,
-          "emotional face priming IAT"
+          "emotional face priming implicit bias"
         ],
         [
           3,
-          "visual priming implicit attitude"
+          "visual priming racial attitudes"
         ],
         [
           4,
-          "subliminal facial expression priming"
+          "affective misattribution procedure faces"
         ],
         [
           5,
-          "valenced face priming social evaluation"
+          "subliminal emotion priming prejudice"
         ],
         [
           6,
-          "implicit association test emotional primes"
+          "automatic evaluation racial stimuli"
         ],
         [
           7,
-          "automatic evaluation racially ambiguous faces"
+          "incidental emotion social perception"
         ],
         [
           8,
-          "visual priming intergroup bias"
+          "evaluative conditioning emotional faces"
         ],
         [
           9,
-          "mood congruency racial perception"
+          "implicit attitude modulation faces"
         ],
         [
           10,
-          "masked emotional face exposure bias"
+          "stereotype activation visual cues"
         ],
         [
           11,
-          "transient attitude modulation social stimuli"
+          "nonconscious processing racial bias"
         ],
         [
           12,
-          "positive negative affect priming"
+          "facial affect priming social judgment"
         ],
         [
           13,
-          "automatic processing ambiguous racial stimuli"
+          "transient mood effects intergroup attitudes"
         ],
         [
           14,
-          "emotional cue stereotype activation"
+          "emotional congruency bias"
         ],
         [
           15,
-          "priming effects implicit prejudice"
+          "implicit social cognition facial expressions"
         ],
         [
           16,
-          "facial expression social categorization"
+          "priming effects interracial perception"
         ],
         [
           17,
-          "unconscious emotional processing race perception"
+          "visual cue bias reduction"
         ],
         [
           18,
-          "affective influence implicit racial attitudes"
+          "affective priming paradigm IAT"
         ],
         [
           19,
-          "brief exposure social cognition bias"
+          "racially ambiguous faces implicit measures"
         ],
         [
           20,
-          "evaluative conditioning face stimuli"
+          "emotional face recognition social cognition"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "How does brief exposure to emotional facial expressions (positive vs": 0,
-        "affective priming implicit bias": 5
+        "affective priming implicit association test": 6
       },
       "total_queries_issued": 2
     },
     "failure_reason": null,
-    "librarian_prompt_version": "1.1.0",
-    "outcome": "success_after_expansion",
+    "librarian_prompt_version": "1.3.0",
+    "outcome": "exhausted",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "https://doi.org/10.1007/s00426-021-01536-z"
+        "https://doi.org/10.2224/SBP.2014.42.1.145"
+      ]
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "https://doi.org/10.3389/fnut.2025.1653935",
+          "rationale": "This paper studies goal priming effects on food consumption attitudes and choices, which is fundamentally different from the user's question about emotional facial expressions. While both involve affective processes, the core phenomena (food attitudes vs. facial expression processing) and mechanisms (goal priming vs. emotion perception) are unrelated and would not be cited together in a literature review on this topic.",
+          "title": "Affective and reflective attitudes toward vegetarian food consumption: the effect of goal priming"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1017/jlg.2018.3",
+          "rationale": "The paper investigates language attitudes and regional dialects using the Implicit Association Test, which is fundamentally unrelated to the user's question about the effects of emotional facial expressions. This represents a different research domain and phenomenon, offering no direct evidence or methodology relevant to emotional face processing.",
+          "title": "Measuring language attitudes using the Personalized Implicit Association Test: A case study on regional varieties of Dutch in Belgium"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.24205/03276716.2020.363",
+          "rationale": "The paper investigates the effect of immersive VR horror games on cognitive processing rather than emotional facial expressions, and it lacks the positive versus negative valence comparison implied by the user's query. While both studies involve emotion and cognition, the specific stimulus modality and experimental conditions are fundamentally different.",
+          "title": "INFLUENCE OF AFFECTIVE PRIMING EFFECT OF IMMERSIVE VIRTUAL REALITY HORROR GAMES ON COGNITIVE PROCESSING OF COLLEGE STUDENTS"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1016/J.JESP.2006.06.009",
+          "rationale": "The paper focuses on predicting consumer choice behavior using affective priming, which is a different domain from the user's specific inquiry about the effects of emotional facial expressions. Furthermore, the title does not confirm that the stimuli used were facial expressions, making the connection to the user's specific research question too tenuous.",
+          "title": "On the predictive validity of indirect attitude measures: Prediction of consumer choice behavior on the basis of affective priming in the picture–picture naming task"
+        },
+        {
+          "primary_pointer": "2505.18562",
+          "rationale": "This paper focuses on artificial intelligence and cultural bias in large language models, whereas the user's question concerns human psychological responses to emotional facial expressions. The domains (computer science vs. psychology/neuroscience) and phenomena (semantic associations in AI vs. human emotional perception) are entirely different.",
+          "title": "From Word to World: Evaluate and Mitigate Culture Bias in LLMs via Word Association Test"
+        }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-05-07T03:28:35Z",
+    "started_at": "2026-05-07T05:39:26Z",
     "term_input": {
       "normalized": "how does brief exposure to emotional facial expressions (positive vs",
       "raw": "How does brief exposure to emotional facial expressions (positive vs"
@@ -133,7 +165,7 @@
           "primary_pointer": "https://www.semanticscholar.org/paper/a42de1e768a05f0fd8bb3a4c799f5bbd5d5b2482"
         },
         "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='Psychology of emotion: Interpersonal, experiential, and cognitive approaches.')",
-        "failed_at": "2026-05-07T03:28:44Z",
+        "failed_at": "2026-05-07T05:39:34Z",
         "reason": "query_irrelevant"
       },
       {
@@ -151,7 +183,7 @@
           "primary_pointer": "https://www.semanticscholar.org/paper/e879293f4c5b8ec00cac524114cb3950e8016edd"
         },
         "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='Perceptions of Self and Other : Social judgments and gaze patterns to videos of adolescents with and without ASD')",
-        "failed_at": "2026-05-07T03:28:44Z",
+        "failed_at": "2026-05-07T05:39:34Z",
         "reason": "query_irrelevant"
       },
       {
@@ -167,7 +199,7 @@
           "primary_pointer": "https://www.semanticscholar.org/paper/4caf26248c49dca2c0732c578ea8b48a27049eda"
         },
         "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='Unravelling the Consumer Brain: The Role of Emotion in Purchase Behavior')",
-        "failed_at": "2026-05-07T03:28:44Z",
+        "failed_at": "2026-05-07T05:39:34Z",
         "reason": "query_irrelevant"
       },
       {
@@ -185,7 +217,7 @@
           "primary_pointer": "https://www.semanticscholar.org/paper/c2b192fd00539b24e3e99b0a85fef00e43910d03"
         },
         "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='Embodiment of Approach Motivation 1 The Embodiment of Approach Motivation')",
-        "failed_at": "2026-05-07T03:28:44Z",
+        "failed_at": "2026-05-07T05:39:34Z",
         "reason": "query_irrelevant"
       },
       {
@@ -203,7 +235,7 @@
           "primary_pointer": "https://www.semanticscholar.org/paper/7aab08795707ef1087b1cc55eca480c43b269135"
         },
         "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title=\"From the Black Box to the Aquarium: How Brain Imaging Sheds 'Light' on the Underlying Mechanisms of How Marketing Actions Work\")",
-        "failed_at": "2026-05-07T03:28:44Z",
+        "failed_at": "2026-05-07T05:39:34Z",
         "reason": "query_irrelevant"
       },
       {
@@ -223,7 +255,7 @@
           "primary_pointer": "https://www.semanticscholar.org/paper/f8d262eb4040674b95dde70335d9745a986eb552"
         },
         "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='iscrimination of familiar human faces in dogs Canis familiaris )')",
-        "failed_at": "2026-05-07T03:28:44Z",
+        "failed_at": "2026-05-07T05:39:34Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -258,149 +290,36 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:28:42Z"
+          "verified_at": "2026-05-07T05:39:33Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Sascha Krause",
-            "M. Back",
-            "B. Egloff",
-            "S. Schmukle"
+            "Lin Yu",
+            "Xun Yang",
+            "Zhong-Lin Lu",
+            "Zhimin Yan"
           ],
-          "title": "A new reliable and valid tool for measuring implicit self-esteem: The response-window affective priming task.",
+          "title": "Effects of subliminal affective priming on occupational gender stereotypes",
           "venue": "",
-          "year": 2012
+          "year": 2014
         },
-        "primary_pointer": "https://doi.org/10.1027/1015-5759/A000095",
+        "primary_pointer": "https://doi.org/10.2224/SBP.2014.42.1.145",
         "summary": "",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "final_url": "https://econtent.hogrefe.com/doi/10.1027/1015-5759/a000095",
-          "http_status": 403,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.75,
-          "redirect_chain": [
-            "https://doi.org/10.1027/1015-5759/A000095"
-          ],
-          "summary_grounding_score": 0.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-05-07T03:29:40Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "P. Jansen",
-            "F. Schroter",
-            "P. Hofmann"
-          ],
-          "title": "Are explicit and implicit affective attitudes toward different body shape categories related to the own body-satisfaction in young women? The role of mindfulness, self-compassion and social media activity",
-          "venue": "Psychological Research",
-          "year": 2021
-        },
-        "primary_pointer": "https://doi.org/10.1007/s00426-021-01536-z",
-        "summary": "Implicit and explicit attitudes influence our behavior. Accordingly, it was the main goal of the paper to investigate if those attitudes are related to body image satisfaction. 134 young women between 18 and 34 years completed an explicit affective rating and an implicit affective priming task with pictures of women with different BMIs. Because it is well known that mindfulness, self-compassion and social media activity influence body image satisfaction, these variables were registered as well. The results confirmed an explicit positive affective bias toward pictures of slim women and a negative bias toward emaciated and obese body pictures. It adds to the literature that the explicit positive bias does not hold true for the strongest form of underweight, suggesting that instead of dividing different body shapes into two groups, different gradings of under- and overweight should be considered. Concerning the affective priming task, no significant differences between the different pictures could be carved out. Implicit and explicit affective attitudes were not related to the body satisfaction of the participating women. In line with former studies, body satisfaction was predicted by the actual-ideal weight discrepancy, the BMI, aspects of mindfulness and self-compassion. This study indicates that implicit and explicit affective attitudes toward underweight and overweight women are unrelated to the participants’ body satisfaction.",
         "summary_grounded_pdf": null,
         "verification_log": {
-          "final_url": "https://link.springer.com/article/10.1007/s00426-021-01536-z",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 1.0,
-          "redirect_chain": [
-            "https://doi.org/10.1007/s00426-021-01536-z",
-            "https://link.springer.com/10.1007/s00426-021-01536-z",
-            "https://link.springer.com/article/10.1007/s00426-021-01536-z",
-            "https://idp.springer.com/authorize?response_type=cookie&client_id=springerlink&redirect_uri=https%3A%2F%2Flink.springer.com%2Farticle%2F10.1007%2Fs00426-021-01536-z"
-          ],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-05-07T03:29:40Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Hannah I. Volpert-Esmond",
-            "Laura D. Scherer",
-            "B. Bartholow"
-          ],
-          "title": "Dissociating Automatic Associations: Comparing Two Implicit Measurements of Race Bias.",
-          "venue": "European Journal of Social Psychology",
-          "year": 2020
-        },
-        "primary_pointer": "https://doi.org/10.1002/ejsp.2655",
-        "summary": "Weak correspondence across different implicit bias tasks may arise from the contribution of unique forms of automatic and controlled processes to response behavior. Here, we examined the correspondence between estimates of automatic and controlled processing derived from two sequential priming tasks with identical structure and timing designed to separately measure stereotypic (Weapons Identification Task; WIT) and evaluative (Affective Priming Task; APT) associations. Across two studies using predominantly White samples, three consistent patterns emerged in the data: (1) stereotypic bias was stronger for Black targets, whereas evaluative bias was stronger for White targets; (2) overall response accuracy bias correlated modestly across the two tasks; and (3) multinomial processing tree estimates of controlled processing corresponded much more strongly than estimates of automatic processing. These findings support models positing distinct learning and memory systems for different forms of race bias, and suggest that these differing forms contribute to estimates of automatic associations.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "final_url": "https://onlinelibrary.wiley.com/doi/10.1002/ejsp.2655",
+          "final_url": "https://www.ingentaconnect.com/content/10.2224/sbp.2014.42.1.145",
           "http_status": 403,
           "pdf_sample_score": null,
-          "query_relevance_score": 1.0,
+          "query_relevance_score": 0.4,
           "redirect_chain": [
-            "https://doi.org/10.1002/ejsp.2655"
-          ],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-05-07T03:29:41Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "S. Otten",
-            "D. Wentura"
-          ],
-          "title": "About the impact of automaticity in the minimal group paradigm: evidence from affective priming tasks",
-          "venue": "",
-          "year": 1999
-        },
-        "primary_pointer": "https://doi.org/10.1002/(SICI)1099-0992(199912)29:8<1049::AID-EJSP985>3.0.CO;2-Q",
-        "summary": "",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "final_url": "https://onlinelibrary.wiley.com/doi/10.1002/(SICI)1099-0992(199912)29:8%3C1049::AID-EJSP985%3E3.0.CO;2-Q",
-          "http_status": 403,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.5,
-          "redirect_chain": [
-            "https://doi.org/10.1002/(SICI)1099-0992(199912)29:8%3C1049::AID-EJSP985%3E3.0.CO;2-Q"
+            "https://doi.org/10.2224/SBP.2014.42.1.145"
           ],
           "summary_grounding_score": 0.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:29:42Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Suriya Gunasekar",
-            "Jason Lee",
-            "Daniel Soudry",
-            "Nathan Srebro"
-          ],
-          "title": "Characterizing Implicit Bias in Terms of Optimization Geometry",
-          "venue": "arXiv",
-          "year": 2018
-        },
-        "primary_pointer": "1802.08246",
-        "summary": "We study the implicit bias of generic optimization methods, such as mirror descent, natural gradient descent, and steepest descent with respect to different potentials and norms, when optimizing underdetermined linear regression or separable linear classification problems. We explore the question of whether the specific global minimum (among the many possible global minima) reached by an algorithm can be characterized in terms of the potential or norm of the optimization geometry, and independently of hyperparameter choices such as step-size and momentum.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "final_url": "https://arxiv.org/abs/1802.08246",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.5,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-05-07T03:29:42Z"
+          "verified_at": "2026-05-07T05:40:31Z"
         }
       }
     ]

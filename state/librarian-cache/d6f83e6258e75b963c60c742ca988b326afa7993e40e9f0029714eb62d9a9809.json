@@ -1,7 +1,7 @@
 {
-  "fetched_at": "2026-05-07T03:22:22Z",
+  "fetched_at": "2026-05-07T05:28:12Z",
   "field": "materials science",
-  "prompt_version": "1.1.0",
+  "prompt_version": "1.3.0",
   "result": {
     "cache_status": "miss",
     "context": {
@@ -9,21 +9,33 @@
       "idea_body_excerpt": "---\nfield: materials science\nsubmitter: google.gemma-3-27b-it\n---\n\n# Predicting the Impact of Impurity Clustering on Grain Boundary Segregation\n\n**Field**: materials science\n\n## Research question\n\nHow does the spatial clustering of impurity atoms in the bulk lattice influence the thermodynamic driving force for their segregation to grain boundaries in polycrystalline alloys?\n\n## Motivation\n\nGrain boundary segregation governs mechanical embrittlement, corrosion resistance, and phase stability in polycrystalline materials. Existing models treat segregation as an isolated atomistic event, neglecting cooperative effects from impurity clusters that may amplify or suppress boundary accumulation. Understanding this coupling would enable predictive alloy design for high-performance applications where boundary integrity is critical.\n\n## Literature gap analysis\n\n### What we searched\n\nQueries were executed on Semantic Scholar and arXiv using: (1) \"grain boundary segregation impurity clustering\" a",
       "target_n": 5
     },
-    "duration_seconds": 8.397,
-    "ended_at": "2026-05-07T03:22:22Z",
+    "duration_seconds": 407.712,
+    "ended_at": "2026-05-07T05:28:12Z",
     "expansion": null,
     "failure_reason": null,
-    "librarian_prompt_version": "1.1.0",
+    "librarian_prompt_version": "1.3.0",
     "outcome": "success",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2006.06591"
+        "1310.3413"
+      ]
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2006.06591",
+          "rationale": "The paper investigates the kinetic consequences of segregation on diffusion, whereas the user's question concerns the thermodynamic origins of segregation influenced by bulk clustering. Since the specific independent variable (bulk lattice clustering) and primary outcome (driving force) are not addressed, the paper studies a fundamentally different problem within the same domain.",
+          "title": "Relationship between grain boundary segregation and grain boundary diffusion in Cu-Ag alloys"
+        }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-05-07T03:22:14Z",
+    "started_at": "2026-05-07T05:21:25Z",
     "term_input": {
       "normalized": "how does the spatial clustering of impurity atoms in the bulk lattice influence the thermodynamic driving force for their segregation to grain boundaries in polycrystalline alloys",
       "raw": "How does the spatial clustering of impurity atoms in the bulk lattice influence the thermodynamic driving force for their segregation to grain boundaries in polycrystalline alloys"
@@ -116,7 +128,7 @@
           "primary_pointer": "1710.05833"
         },
         "details": "query-relevance 0.000 < 0.3 (query='How does the spatial clustering of impurity atoms in the bulk lattice influence ', candidate_title='Multi-messenger Observations of a Binary Neutron Star Merger')",
-        "failed_at": "2026-05-07T03:22:18Z",
+        "failed_at": "2026-05-07T05:21:26Z",
         "reason": "query_irrelevant"
       },
       {
@@ -137,7 +149,7 @@
           "primary_pointer": "0710.4339"
         },
         "details": "query-relevance 0.067 < 0.3 (query='How does the spatial clustering of impurity atoms in the bulk lattice influence ', candidate_title='Heavy-Quark Masses from the Fermilab Method in Three-Flavor Lattice QCD')",
-        "failed_at": "2026-05-07T03:22:18Z",
+        "failed_at": "2026-05-07T05:21:26Z",
         "reason": "query_irrelevant"
       },
       {
@@ -162,7 +174,7 @@
           "primary_pointer": "1111.0981"
         },
         "details": "query-relevance 0.067 < 0.3 (query='How does the spatial clustering of impurity atoms in the bulk lattice influence ', candidate_title='Form factors for $B$ to $Kll$ semileptonic decay from three-flavor lattice QCD')",
-        "failed_at": "2026-05-07T03:22:18Z",
+        "failed_at": "2026-05-07T05:21:26Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -184,13 +196,13 @@
         "verification_log": {
           "final_url": "https://arxiv.org/abs/1310.3413",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.3171,
           "query_relevance_score": 0.5333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:22:18Z"
+          "verified_at": "2026-05-07T05:21:26Z"
         }
       },
       {
@@ -217,7 +229,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:22:18Z"
+          "verified_at": "2026-05-07T05:21:26Z"
         }
       },
       {
@@ -244,7 +256,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:22:19Z"
+          "verified_at": "2026-05-07T05:21:26Z"
         }
       },
       {
@@ -271,7 +283,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:22:19Z"
+          "verified_at": "2026-05-07T05:21:27Z"
         }
       },
       {
@@ -298,7 +310,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:22:20Z"
+          "verified_at": "2026-05-07T05:21:27Z"
         }
       },
       {
@@ -328,32 +340,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:22:20Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "R. K. Koju",
-            "Y. Mishin"
-          ],
-          "title": "Relationship between grain boundary segregation and grain boundary diffusion in Cu-Ag alloys",
-          "venue": "arXiv",
-          "year": 2020
-        },
-        "primary_pointer": "2006.06591",
-        "summary": "While it is known that alloy components can segregate to grain boundaries (GBs), and that the atomic mobility in GBs greatly exceeds the atomic mobility in the lattice, little is known about the effect of GB segregation on GB diffusion. Atomistic computer simulations offer a means of gaining insights into the segregation-diffusion relationship by computing the GB diffusion coefficients of the alloy components as a function of their segregated amounts. In such simulations, thermodynamically equilibrium GB segregation is prepared by a semi-grand canonical Monte Carlo method, followed by calculation of the diffusion coefficients of all alloy components by molecular dynamics. As a demonstration, the proposed methodology is applied to a GB is the Cu-Ag system. The GB diffusivities obtained exhibit non-trivial composition dependencies that can be explained by site blocking, site competition, and the onset of GB disordering due to the premelting effect.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "final_url": "https://arxiv.org/abs/2006.06591",
-          "http_status": 200,
-          "pdf_sample_score": 0.1757,
-          "query_relevance_score": 0.3333,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-05-07T03:22:21Z"
+          "verified_at": "2026-05-07T05:21:27Z"
         }
       }
     ]

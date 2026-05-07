@@ -6,7 +6,7 @@ failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-262-predicting-molecular-dipole-moments-with
-last_run_id: 0b399f2c-c169-43cc-9d3a-6cec21fcb577
+last_run_id: 6ed14fe4-d612-420a-89c6-feb855bdc50d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -14,4 +14,4 @@ revision_round: 0
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting Molecular Dipole Moments with Graph Neural Networks
-updated_at: '2026-05-07T03:37:05.833506Z'
+updated_at: '2026-05-07T06:02:12.388919Z'

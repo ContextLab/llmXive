@@ -1,0 +1,435 @@
+{
+  "fetched_at": "2026-05-07T05:19:31Z",
+  "field": "chemistry",
+  "prompt_version": "1.3.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "---\nfield: chemistry\nsubmitter: google.gemma-3-27b-it\n---\n\n# Predicting Molecular Toxicity from Structural Alerts via Rule-Based Systems\n\n**Field**: Chemistry\n\n## Research question\n\nTo what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries?\n\n## Motivation\n\nRegulatory frameworks increasingly require interpretable models for chemical safety assessment, yet modern toxicity prediction relies heavily on black-box machine learning. This project addresses the gap between interpretability and performance by quantifying whether curated structural alerts—mechanistic proxies for toxicity—are sufficient predictors compared to holistic molecular descriptors. Establishing the marginal value of explicit rules informs whether complex models are necessary for baseline safety screening or if transparent rule-based systems remain viable for regulatory submission.\n\n## Related work\n\n- [Enhancing Toxicity Pre",
+      "target_n": 5
+    },
+    "duration_seconds": 291.317,
+    "ended_at": "2026-05-07T05:19:31Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "structural alerts versus molecular descriptors mutagenicity"
+        ],
+        [
+          2,
+          "QSAR interpretability toxicity prediction"
+        ],
+        [
+          3,
+          "toxicophore contribution variance genotoxicity"
+        ],
+        [
+          4,
+          "rule-based systems chemical safety assessment"
+        ],
+        [
+          5,
+          "explainable AI computational toxicology"
+        ],
+        [
+          6,
+          "structural subgraphs Ames test prediction"
+        ],
+        [
+          7,
+          "feature importance mutagenicity QSAR"
+        ],
+        [
+          8,
+          "white-box black-box chemical safety models"
+        ],
+        [
+          9,
+          "substructural patterns genotoxicity classification"
+        ],
+        [
+          10,
+          "physicochemical properties versus structural alerts"
+        ],
+        [
+          11,
+          "in silico toxicology regulatory compliance"
+        ],
+        [
+          12,
+          "mechanistic toxicity prediction models"
+        ],
+        [
+          13,
+          "read-across methods mutagenicity"
+        ],
+        [
+          14,
+          "machine learning interpretability chemoinformatics"
+        ],
+        [
+          15,
+          "structural alert variance explanation"
+        ],
+        [
+          16,
+          "decision tree models genotoxicity"
+        ],
+        [
+          17,
+          "descriptor comparison chemical safety"
+        ],
+        [
+          18,
+          "transparent models regulatory toxicology"
+        ],
+        [
+          19,
+          "substructure-based toxicity prediction"
+        ],
+        [
+          20,
+          "molecular descriptor redundancy mutagenicity"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "To what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries": 0,
+        "structural alerts versus molecular descriptors mutagenicity": 6
+      },
+      "total_queries_issued": 2
+    },
+    "failure_reason": null,
+    "librarian_prompt_version": "1.3.0",
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.1109/SILCON59133.2023.10404113"
+      ]
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2207.03599",
+          "rationale": "This paper studies molecular similarity descriptors for electronic structure and reaction step prediction, not mutagenicity outcomes. While both involve molecular descriptors, the paper lacks any connection to toxicological endpoints or the specific comparison of structural motifs versus global descriptors for mutagenicity variance.",
+          "title": "Quantum chemical roots of machine-learning molecular similarity descriptors"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.3390/toxics13040243",
+          "rationale": "The paper focuses on respiratory irritation and sensitization endpoints, which are biologically distinct from the mutagenicity outcomes specified in the user's question. While the methodology involving structural alerts and descriptors is similar, the specific toxicological phenomenon differs fundamentally, meaning the paper does not provide direct evidence regarding mutagenicity variance.",
+          "title": "Prediction of Respiratory Irritation and Respiratory Sensitization of Chemicals Using Structural Alerts and Machine Learning Modeling"
+        },
+        {
+          "primary_pointer": "1812.11115",
+          "rationale": "This paper focuses on mathematical bounds of topological indices for saturated hydrocarbons, which are generally chemically inert and not the primary focus of mutagenicity studies. It does not address biological activity, mutagenicity outcomes, or the comparative predictive utility of descriptors versus structural motifs for toxicity.",
+          "title": "Estimating Some General Molecular Descriptors of Saturated Hydrocarbons"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-07T05:14:40Z",
+    "term_input": {
+      "normalized": "to what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries",
+      "raw": "To what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Developing a 21st Century Global Library for Mathematics Research discusses how information about what the mathematical literature contains can be formalized and made easier to express, encode, and explore. Many of the tools necessary to make this information system a reality will require much more than indexing and will instead depend on community input paired with machine learning, where mathematicians' expertise can fill the gaps of automatization. This report proposes the establishment of an organization; the development of a set of platforms, tools, and services; the deployment of an ongoing applied research program to complement the development work; and the mobilization and coordination of the mathematical community to take the first steps toward these capabilities. The report recommends building on the extensive work done by many dedicated individuals under the rubric of the World Digital Mathematical Library, as well as many other community initiatives. Developing a 21st Century Global Library for Mathematics envisions a combination of machine learning methods and community-based editorial effort that makes a significantly greater portion of the information and knowledge in the global mathematical corpus available to researchers as linked open data through a central organizational entity-referred to in the report as the Digital Mathematics Library. This report describes how such a library might operate - discussing development and research needs, role in facilitating discover and interaction, and establishing partnerships with publishers.",
+          "claimed_authors": [
+            "Committee on Planning a Global Library of the Mathematical Sciences"
+          ],
+          "claimed_title": "Developing a 21st Century Global Library for Mathematics Research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1404.1905"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Developing a 21st Century Global Library for Mathematics Research')",
+        "failed_at": "2026-05-07T05:14:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            "Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-05-07T05:14:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The electron energy and density matrices in molecular systems are convex in respect of the number of particles. So that, the chemical descriptors based on their derivatives present the hamper of discontinuities for isolated systems and consequently higher order derivatives are undefined. The introduction of the interaction between the physical domain with an environment induces a coherent structure for the density matrix in the grand-canonical formulation suppressing the discontinuities leading to the proper definitions of the descriptors.",
+          "claimed_authors": [
+            "Roberto C. Bochicchio"
+          ],
+          "claimed_title": "Chemical descriptors, convexity and structure of density matrices in molecular systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1506.02652"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Chemical descriptors, convexity and structure of density matrices in molecular systems')",
+        "failed_at": "2026-05-07T05:14:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study explores the role of gamification in enhancing academic library services in India by surveying library leaders across various institutions. Using game-like elements in non-game contexts, gamification can boost user engagement and improve services such as information literacy and research consultations. Findings reveal moderate awareness and generally positive perceptions of gamification's effectiveness. However, challenges like insufficient staff expertise, infrastructure, and limited funding hinder implementation. The study emphasises the need for additional resources, including staff training and technological upgrades, to unlock the full potential of gamification in academic libraries.",
+          "claimed_authors": [
+            "Subaveerapandiyan A",
+            "Pragya Lohia",
+            "Dattatraya Kalbande",
+            "Naved Ahmad",
+            "Kailash Chand Sharma"
+          ],
+          "claimed_title": "Exploring the Role of Gamification in Enhancing Academic Library Services: A Survey of Library Leaders in India",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.00906"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Exploring the Role of Gamification in Enhancing Academic Library Services: A Survey of Library Leaders in India')",
+        "failed_at": "2026-05-07T05:14:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Efficient optimization of molecules with targeted properties remains a significant challenge due to the vast size and discrete nature of chemical compound space. Conventional machine-learning-based optimization approaches typically require large datasets to construct accurate surrogate models, limiting their applicability in data-scarce settings. In this study, we present a Bayesian optimization (BO) framework that identifies optimal molecular structures with high precision using fewer than 2,000 training data points within a chemical subspace containing more than 133,000 molecules. The framework employs a low-dimensional and physics-informed molecular descriptor vector that facilitates data-efficient surrogate modelling and optimization. A key innovation of the proposed framework is a reliable inverse mapping scheme that translates optimized points in the descriptor space back into chemically valid molecular structures, thereby bridging continuous optimization and discrete molecular design. We demonstrate the effectiveness of our approach on the QM9 benchmark dataset, where the framework successfully identifies organic molecules with the target entropy and zero-point vibrational energy (ZPVE) values.For entropy optimization, our approach achieves a 100% success rate while requiring fewer than 1,000 molecular evaluations in more than 80% of test cases. For ZPVE, the success rate exceeds 80% for molecules containing more than two heavy atoms. These results highlight the critical role of low-dimensional, interpretable descriptors in enabling data-efficient optimization and robust inverse molecular design, and establish Bayesian optimization as a practical tool for molecular discovery in small-data regimes.",
+          "claimed_authors": [
+            "Yun-Wen Mao",
+            "Roman V. Krems"
+          ],
+          "claimed_title": "Bayesian Optimization in Chemical Compound Sub-Spaces using Low-Dimensional Molecular Descriptors",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.02605"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Bayesian Optimization in Chemical Compound Sub-Spaces using Low-Dimensional Molecular Descriptors')",
+        "failed_at": "2026-05-07T05:14:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the era of Large Language Models (LLMs), the Mixture of Experts (MoE) architecture has emerged as an effective approach for training extremely large models with improved computational efficiency. This success builds upon extensive prior research aimed at enhancing expert specialization in MoE-based LLMs. However, the nature of such specializations and how they can be systematically interpreted remain open research challenges. In this work, we investigate this gap by posing a fundamental question: \\textit{Do domain-specific experts exist in MoE-based LLMs?} To answer the question, we evaluate ten advanced MoE-based LLMs ranging from 3.8B to 120B parameters and provide empirical evidence for the existence of domain-specific experts. Building on this finding, we propose \\textbf{Domain Steering Mixture of Experts (DSMoE)}, a training-free framework that introduces zero additional inference cost and outperforms both well-trained MoE-based LLMs and strong baselines, including Supervised Fine-Tuning (SFT). Experiments on four advanced open-source MoE-based LLMs across both target and non-target domains demonstrate that our method achieves strong performance and robust generalization without increasing inference cost or requiring additional retraining. Our implementation is publicly available at https://github.com/giangdip2410/Domain-specific-Experts.",
+          "claimed_authors": [
+            "Giang Do",
+            "Hung Le",
+            "Truyen Tran"
+          ],
+          "claimed_title": "Do Domain-specific Experts exist in MoE-based LLMs?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.05267"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Do Domain-specific Experts exist in MoE-based LLMs?')",
+        "failed_at": "2026-05-07T05:14:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The origin of a chemical reaction between two reactant atoms is associated to the activation energy, with the assumption that, high-energy collisions between these atoms, are the ones that overcome the activation energy. Here, we (i) show that a stronger attractive van der Waals (vdW) and electron-ion Coulomb interactions between two polarized atoms are responsible to initiate a chemical reaction, either before or after the collision. We derive this stronger vdW attraction formula exactly using the quasi one-dimensional Drude model within the ionization energy theory and the energy-level spacing renormalization group method. Along the way, we (ii) expose the precise physical mechanism responsible for the existence of a stronger vdW interaction for both long and short distances, and also show how to technically avoid the electron-electron Coulomb repulsion between polarized electrons from these two reactant atoms. Finally, we properly and correctly associate the existence of this stronger attraction to Ramachandran's 'normal limits' (distance shorter than what is allowed by the standard vdW bond) between chemically nonbonded atoms.",
+          "claimed_authors": [
+            "Andrew Das Arulsamy"
+          ],
+          "claimed_title": "Chemical Reaction due to Stronger Ramachandran Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.3412"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Chemical Reaction due to Stronger Ramachandran Interaction')",
+        "failed_at": "2026-05-07T05:14:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The paper has two goals:\n  It presents basic ideas, notions, and methods for reduction of reaction kinetics models: quasi-steady-state, quasi-equilibrium, slow invariant manifolds, and limiting steps.\n  It describes briefly the current state of the art and some latest achievements in the broad area of model reduction in chemical and biochemical kinetics, including new results in methods of invariant manifolds, computation singular perturbation, bottleneck methods, asymptotology, tropical equilibration, and reaction mechanism skeletonisation.",
+          "claimed_authors": [
+            "A. N. Gorban"
+          ],
+          "claimed_title": "Model reduction in chemical dynamics: slow invariant manifolds, singular perturbations, thermodynamic estimates, and analysis of reaction graph",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.05745"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Model reduction in chemical dynamics: slow invariant manifolds, singular perturbations, thermodynamic estimates, and analysis of reaction graph')",
+        "failed_at": "2026-05-07T05:14:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For the large and chemically diverse GMTKN55 benchmark suite, we have studied the performance of density-corrected density functional theory (HF-DFT), compared to self-consistent DFT, for several pure and hybrid GGA and meta-GGA exchange-correlation (XC) functionals (PBE, BLYP, TPSS, SCAN) as a function of the percentage of HF exchange in the hybrid. The D4 empirical dispersion correction has been added throughout. For subsets dominated by dynamical correlation -- particularly noncovalent interaction subsets -- HF-DFT is highly beneficial, particularly at low HF exchange percentages. For subsets with significant static correlation (i.e., where a Hartree-Fock determinant is not a good zero-order wavefunction), HF-DFT may do more harm than good. While the self-consistent series show optima at or near 37.5% (i.e., 3/8) for all four XC functionals -- consistent with Grimme's proposal of the PBE38 functional -- HF-BnLYP-D4, HF-PBEn-D4, and HF-TPSSn-D4 all exhibit minima nearer 25% (i.e., 1/4). Intriguingly, for HF-SCANn-D4, the minimum is near 10%, but the weighted mean absolute error (WTMAD2) for GMTKN55 is only barely lower than that of HF-SCAN-D4 (i.e., where the post-HF step is a pure meta-GGA). The latter becomes an attractive option, only slightly more costly than pure Hartree-Fock, and devoid of adjustable parameters other than the three in the dispersion correction. Moreover, its WTMAD2 is only surpassed by the highly empirical M06-2X and by the combinatorically optimized empirical range-separated hybrids wB97X-V and wB97M-V.",
+          "claimed_authors": [
+            "Golokesh Santra",
+            "Jan M. L. Martin"
+          ],
+          "claimed_title": "What types of chemical problems benefit from density-corrected DFT? A probe using an extensive and chemically diverse test suite",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.01519"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='What types of chemical problems benefit from density-corrected DFT? A probe using an extensive and chemically diverse test suite')",
+        "failed_at": "2026-05-07T05:14:41Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chao Chen",
+            "Zhengliang Huang",
+            "Xuyan Zou",
+            "Sheng Li",
+            "Di Zhang",
+            "Shou-Lin Wang"
+          ],
+          "title": "Prediction of molecular-specific mutagenic alerts and related mechanisms of chemicals by a convolutional neural network (CNN) model based on SMILES split.",
+          "venue": "Science of the Total Environment",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1016/j.scitotenv.2024.170435",
+        "summary": "Structural alerts (SAs) are essential to identify chemicals for toxicity evaluation and health risk assessment. We constructed a novel SMILES split-based deep learning model (SSDL) that was trained and verified with 5850 chemicals from the ISSSTY database and 384 external test chemicals from published papers. The training accuracy was above 0.90 and the evaluation metrics (precision, recall and F1-score) all reached 0.78 or above on both internal and external test chemicals. In this model, the molecular-specific fragment importance of chemicals was first quantified independently. Then, the SA identification method based on the importance of these fragments was statistically analyzed and verified with the ISSSTY test and external test chemicals containing one of 28 typical SAs, and most of the performances were better than that of expert rules. Furthermore, a mutagenicity mechanism prediction method was developed using 237 chemicals with four known mutagenic mechanisms based on molecular similarity calibrated by the SSDL method and fragment importance, which significantly improved accuracy in three mechanisms and had comparable accuracy in the other one compared to traditional methods. Overall, the SSDL model quantifying fragment toxicity within molecules would be a novel potentially powerful tool in the determination and visualization of molecular-specific SAs and the prediction of mutagenicity mechanisms for environmental or industrial compounds and drugs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S0048969724005710",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [
+            "https://doi.org/10.1016/j.scitotenv.2024.170435"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T05:15:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jean-Philippe Métivier",
+            "Alban Lepailleur",
+            "A. Buzmakov",
+            "Guillaume Poezevara",
+            "B. Crémilleux",
+            "S. Kuznetsov",
+            "J. L. Goff",
+            "A. Napoli",
+            "R. Bureau",
+            "Bertrand Cuissart"
+          ],
+          "title": "Discovering Structural Alerts for Mutagenicity Using Stable Emerging Molecular Patterns",
+          "venue": "Journal of Chemical Information and Modeling",
+          "year": 2015
+        },
+        "primary_pointer": "https://doi.org/10.1021/ci500611v",
+        "summary": "",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://pubs.acs.org/doi/10.1021/ci500611v",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [
+            "https://doi.org/10.1021/ci500611v"
+          ],
+          "summary_grounding_score": 0.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T05:15:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "A. Toropov",
+            "A. Toropova",
+            "E. Benfenati",
+            "M. Salmona"
+          ],
+          "title": "Mutagenicity, anticancer activity and blood brain barrier: similarity and dissimilarity of molecular alerts",
+          "venue": "Toxicology Mechanisms and Methods",
+          "year": 2018
+        },
+        "primary_pointer": "https://doi.org/10.1080/15376516.2017.1422579",
+        "summary": "Abstract The aim of the present work is an attempt to define computable measure of similarity between different endpoints. The similarity of structural alerts of different biochemical endpoints can be used to solve tasks of medicinal chemistry. Optimal descriptors are a tool to build up models for different endpoints. The optimal descriptor is calculated with simplified molecular input-line entry system (SMILES). A group of elements (single symbol or pair of symbols) can represent any SMILES. Each element of SMILES can be represented by so-called correlation weight i.e. coefficient that should be used to calculate descriptor. Numerical data on the correlation weights are calculated by the Monte Carlo method, i.e. by optimization procedure, which gives maximal correlation coefficient between the optimal descriptor and endpoint for the training set. Statistically stable correlation weights observed in several runs of the optimization can be examined as structural alerts, which are promoters of the increase or the decrease of a biochemical activity of a substance. Having data on several runs of the optimization correlation weights, one can extract list of promoters of increase and list of promoters of decrease for an endpoint. The study of similarity and dissimilarity of the above lists has been carried out for the following pairs of endpoints: (i) mutagenicity and anticancer activity; (ii) mutagenicity and blood brain barrier; and (iii) blood brain barrier and anticancer activity. The computational experiment confirms that similarity and dissimilarity for pairs of endpoints can be measured.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://www.tandfonline.com/doi/full/10.1080/15376516.2017.1422579",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1080/15376516.2017.1422579"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T05:15:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "B. Mazumdar",
+            "Pankaj Kumar Dev Sarma",
+            "Bikash Mazumdar"
+          ],
+          "title": "Generation of Deep Learning Models and Structural Alerts for Accurate Prediction of Eye Irritants",
+          "venue": "2023 IEEE Silchar Subsection Conference (SILCON)",
+          "year": 2023
+        },
+        "primary_pointer": "https://doi.org/10.1109/SILCON59133.2023.10404113",
+        "summary": "The rapid and accurate prediction of eye irritants is a critical aspect of health hazard assessment. This research focuses on the creation of deep learning models that can classify compounds as either eye irritants or non-irritants. Even though some predictive models are published they are trained on either relatively small datasets or their datasets were not balanced. In contrast, for the study of eye irritation, a dataset comprising 6045 chemicals was prepared. Simplified Molecular Input Line Entry System (SMILES) notation, Molecular fingerprints, molecular descriptors representations of compounds were used as features to develop the models. Additionally, to overcome the issue of class imbalance, a balancing technique was employed to synthesize compounds with minority class labels in the dataset. In addition, the study focused on analyzing the substructures of eye-irritants using an association rule mining technique based on frequent itemset patterns. Two alerts were found based on Klekota-Roth fingerprint of the compounds. Deep neural network trained on Rdkit descriptors shows the highest accuracy of 98.9% and ROC-AUC of 0.989. This study proposed structural alerts and models that can be valuable in drug discovery for evaluating the potential risk associated with compounds.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "final_url": "https://ieeexplore.ieee.org/document/10404113/",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [
+            "https://doi.org/10.1109/SILCON59133.2023.10404113"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T05:15:34Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "to what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

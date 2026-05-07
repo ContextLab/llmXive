@@ -1,7 +1,7 @@
 {
-  "fetched_at": "2026-05-07T03:30:32Z",
+  "fetched_at": "2026-05-07T05:48:03Z",
   "field": "statistics",
-  "prompt_version": "1.1.0",
+  "prompt_version": "1.3.0",
   "result": {
     "cache_status": "miss",
     "context": {
@@ -9,110 +9,152 @@
       "idea_body_excerpt": "---\nfield: statistics\nsubmitter: google.gemma-3-27b-it\n---\n\n# Assessing the Validity of Statistical Power in Publicly Available Pre-Registered Studies\n\n**Field**: statistics\n\n## Research question\n\nHow do planned statistical power estimates in pre-registered studies compare to the achieved power calculated from actual sample sizes and observed effect sizes, and what factors systematically predict discrepancies between them?\n\n## Motivation\n\nPre-registration of studies now includes required power analyses, yet the accuracy of these initial estimates remains unvalidated at scale. Understanding whether researchers systematically overestimate power, and what methodological or design factors drive discrepancies, would inform best practices for study planning and strengthen reproducibility in empirical science.\n\n## Literature gap analysis\n\n### What we searched\n\nLiterature searches were conducted on Semantic Scholar and arXiv using queries including \"statistical power pre-registration accuracy,",
       "target_n": 5
     },
-    "duration_seconds": 47.437,
-    "ended_at": "2026-05-07T03:30:32Z",
+    "duration_seconds": 140.82,
+    "ended_at": "2026-05-07T05:48:03Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "Post-hoc power analysis accuracy"
+          "post-hoc power analysis accuracy"
         ],
         [
           2,
-          "Planned versus realized sample size discrepancies"
+          "pre-registered study power analysis discrepancies"
         ],
         [
           3,
-          "Power analysis overestimation pre-registration"
+          "observed power versus planned power"
         ],
         [
           4,
-          "Retrospective power calculation validity"
+          "retrospective power calculation validity"
         ],
         [
           5,
-          "Registered reports power analysis validation"
+          "a priori power analysis validity assessment"
         ],
         [
           6,
-          "Effect size inflation power planning"
+          "registered reports power calculation compliance"
         ],
         [
           7,
-          "Statistical power reproducibility"
+          "sample size estimation error in empirical research"
         ],
         [
           8,
-          "Sample size calculation accuracy empirical science"
+          "effect size overestimation in pre-registered studies"
         ],
         [
           9,
-          "Sensitivity analysis power analysis comparison"
+          "statistical power inflation factors"
         ],
         [
           10,
-          "Type II error rate estimation accuracy"
+          "predictive accuracy of power calculations"
         ],
         [
           11,
-          "Post-hoc power interpretation validity"
+          "post-study power evaluation methods"
         ],
         [
           12,
-          "Open science study design validation"
+          "winner's curse in power estimation"
         ],
         [
           13,
-          "Predictors of power calculation errors"
+          "methodological factors in power analysis discrepancies"
         ],
         [
           14,
-          "A priori power analysis reliability"
+          "research reproducibility power analysis"
         ],
         [
           15,
-          "Winner's curse sample size planning"
+          "Type II error rate estimation accuracy"
         ],
         [
           16,
-          "Meta-analysis of power estimates"
+          "sample size recalculation after data collection"
         ],
         [
           17,
-          "Statistical power replication studies"
+          "bias in effect size estimates for power calculations"
         ],
         [
           18,
-          "Underpowered study prevalence pre-registration"
+          "conditional power in pre-registered designs"
         ],
         [
           19,
-          "Power analysis assumptions violation"
+          "sensitivity analysis versus power analysis"
         ],
         [
           20,
-          "Research design robustness statistical power"
+          "empirical validation of statistical power assumptions"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "How do planned statistical power estimates in pre-registered studies compare to the achieved power calculated from actual sample sizes and observed effect sizes, and what factors systematically predict discrepancies between them": 0,
-        "Post-hoc power analysis accuracy": 7
+        "post-hoc power analysis accuracy": 7
       },
       "total_queries_issued": 2
     },
     "failure_reason": null,
-    "librarian_prompt_version": "1.1.0",
+    "librarian_prompt_version": "1.3.0",
     "outcome": "success_after_expansion",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "https://doi.org/10.1080/02713683.2021.1933056"
+        "2202.05656"
+      ]
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 7,
+      "rejections": [
+        {
+          "primary_pointer": "https://doi.org/10.1016/j.cmpb.2024.108576",
+          "rationale": "This paper focuses on machine learning explainability methods for medical imaging and does not address statistical power analysis, pre-registration, or discrepancies between planned and achieved power in research studies. The mention of \"predictive power\" in the abstract refers to model performance, which is a superficial keyword match unrelated to the user's question about statistical methodology.",
+          "title": "Rad4XCNN: a new agnostic method for post-hoc global explanation of CNN-derived features by means of radiomics"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1016/j.heliyon.2024.e33339",
+          "rationale": "This paper discusses optical \"power\" in the context of intraocular lens calculations for eye surgery, whereas the user's question concerns statistical \"power\" in research methodology and study design. This matches the specific exclusion example in the guidelines where superficial keyword overlap (\"power\") masks a fundamentally different problem.",
+          "title": "Comparative accuracy of intraocular lens power calculation formulas when targeting myopia"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1080/02713683.2021.1933056",
+          "rationale": "This paper discusses intraocular lens (IOL) optical power calculations for cataract surgery, whereas the user's question concerns statistical power analysis in research methodology. Despite sharing the keyword \"power,\" the concepts are entirely unrelated, fitting the exclusion rule for superficial keyword matches on fundamentally different problems.",
+          "title": "Clinical Accuracy of 18 IOL Power Formulas in 241 Short Eyes"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.3928/1081597X-20190422-02",
+          "rationale": "This paper discusses intraocular lens power calculations in ophthalmology, whereas the user's question concerns statistical power in research methodology; they share the keyword \"power\" but address fundamentally different concepts and domains. The system instructions explicitly note that a paper about \"intraocular lens power calculations\" is not relevant to a question about \"statistical power in pre-registered studies.\"",
+          "title": "Prediction Accuracy of Total Keratometry Compared to Standard Keratometry Using Different Intraocular Lens Power Formulas."
+        },
+        {
+          "primary_pointer": "https://doi.org/10.65396/ejra.1846059",
+          "rationale": "This paper uses the term \"power analysis\" only as a routine methodological detail in a clinical AI study, rather than investigating the user's specific focus on discrepancies between planned and achieved power in pre-registered research. This matches the exclusion criterion for superficial keyword overlap where the fundamental problem studied is entirely different (diagnostic accuracy vs. meta-research on statistical power estimation).",
+          "title": "Diagnostic Performance of ChatGPT-o1 and DeepSeek-V3 in Expert-Validated Simulated Ear Nose and Throat Scenarios: A Comparative Accuracy Study"
+        },
+        {
+          "primary_pointer": "2510.25766",
+          "rationale": "This paper focuses on machine learning methods for language model attribution and training, which is entirely unrelated to statistical power analysis in pre-registered research studies. While both contexts may use the word \"power\" (statistical power vs. model capability), they study fundamentally different phenomena with no methodological or substantive overlap.",
+          "title": "Decomposition-Enhanced Training for Post-Hoc Attributions In Language Models"
+        },
+        {
+          "primary_pointer": "2202.05656",
+          "rationale": "This paper focuses on evaluating interpretability methods for neural networks in time-series classification, which is a machine learning/AI topic, not research methodology or meta-science about statistical power in pre-registered studies. The two topics share no meaningful connection in terms of phenomenon, methodology, or outcomes—the paper's \"quantitative evaluation\" is about AI interpretability metrics, not statistical power calculations or study design discrepancies.",
+          "title": "Evaluation of post-hoc interpretability methods in time-series classification"
+        }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-05-07T03:29:44Z",
+    "started_at": "2026-05-07T05:45:42Z",
     "term_input": {
       "normalized": "how do planned statistical power estimates in pre-registered studies compare to the achieved power calculated from actual sample sizes and observed effect sizes, and what factors systematically predict discrepancies between them",
       "raw": "How do planned statistical power estimates in pre-registered studies compare to the achieved power calculated from actual sample sizes and observed effect sizes, and what factors systematically predict discrepancies between them"
@@ -138,7 +180,7 @@
           "primary_pointer": "1907.01069"
         },
         "details": "query-relevance 0.133 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='Development and high-power testing of an X-band dielectric-loaded power extractor')",
-        "failed_at": "2026-05-07T03:29:49Z",
+        "failed_at": "2026-05-07T05:45:46Z",
         "reason": "query_irrelevant"
       },
       {
@@ -155,7 +197,7 @@
           "primary_pointer": "astro-ph/0512281"
         },
         "details": "query-relevance 0.200 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='The Impact of Box Size on the Properties of Dark Matter Haloes in Cosmological Simulations')",
-        "failed_at": "2026-05-07T03:29:49Z",
+        "failed_at": "2026-05-07T05:45:46Z",
         "reason": "query_irrelevant"
       },
       {
@@ -173,7 +215,7 @@
           "primary_pointer": "1508.01775"
         },
         "details": "query-relevance 0.267 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='Cascading Power Outages Propagate Locally in an Influence Graph that is not the Actual Grid Topology')",
-        "failed_at": "2026-05-07T03:29:49Z",
+        "failed_at": "2026-05-07T05:45:46Z",
         "reason": "query_irrelevant"
       },
       {
@@ -191,7 +233,7 @@
           "primary_pointer": "2006.16638"
         },
         "details": "query-relevance 0.267 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='Exploring Consequences of Simulation Design for Apparent Performance of Statistical Methods. 1: Results from simulations with constant sample sizes')",
-        "failed_at": "2026-05-07T03:29:49Z",
+        "failed_at": "2026-05-07T05:45:46Z",
         "reason": "query_irrelevant"
       },
       {
@@ -208,7 +250,7 @@
           "primary_pointer": "1503.05146"
         },
         "details": "query-relevance 0.067 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='Accurate Impedance Calculation for Underground and Submarine Power Cables using MoM-SO and a Multilayer Ground Model')",
-        "failed_at": "2026-05-07T03:29:49Z",
+        "failed_at": "2026-05-07T05:45:46Z",
         "reason": "query_irrelevant"
       },
       {
@@ -226,7 +268,7 @@
           "primary_pointer": "0908.1396"
         },
         "details": "query-relevance 0.067 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='The Redshift Evolution of the Mass Function of Cold Gas in Hierarchical Galaxy Formation Models')",
-        "failed_at": "2026-05-07T03:29:49Z",
+        "failed_at": "2026-05-07T05:45:46Z",
         "reason": "query_irrelevant"
       },
       {
@@ -247,7 +289,7 @@
           "primary_pointer": "1803.01211"
         },
         "details": "query-relevance 0.133 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='Robust Power Flow and Three-Phase Power Flow Analyses')",
-        "failed_at": "2026-05-07T03:29:49Z",
+        "failed_at": "2026-05-07T05:45:46Z",
         "reason": "query_irrelevant"
       },
       {
@@ -264,7 +306,7 @@
           "primary_pointer": "2209.04508"
         },
         "details": "query-relevance 0.133 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='Parameterized Linear Power Flow for High Fidelity Voltage Solutions in Distribution Systems')",
-        "failed_at": "2026-05-07T03:29:49Z",
+        "failed_at": "2026-05-07T05:45:46Z",
         "reason": "query_irrelevant"
       },
       {
@@ -282,7 +324,7 @@
           "primary_pointer": "1804.00043"
         },
         "details": "query-relevance 0.067 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='Data-driven Coordination of Distributed Energy Resources for Active Power Provision')",
-        "failed_at": "2026-05-07T03:29:49Z",
+        "failed_at": "2026-05-07T05:45:46Z",
         "reason": "query_irrelevant"
       },
       {
@@ -299,7 +341,7 @@
           "primary_pointer": "2401.17643"
         },
         "details": "query-relevance 0.133 < 0.3 (query='How do planned statistical power estimates in pre-registered studies compare to ', candidate_title='Laboratory Setup for Testing Low-Frequency Disturbances of Power Quality')",
-        "failed_at": "2026-05-07T03:29:49Z",
+        "failed_at": "2026-05-07T05:45:46Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -315,6 +357,7 @@
             "Salvatore Vitabile"
           ],
           "title": "Rad4XCNN: a new agnostic method for post-hoc global explanation of CNN-derived features by means of radiomics",
+          "topically_marginal": true,
           "venue": "Comput. Methods Programs Biomed.",
           "year": 2024
         },
@@ -332,7 +375,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:30:27Z"
+          "verified_at": "2026-05-07T05:46:34Z"
         }
       },
       {
@@ -345,6 +388,7 @@
             "Hyun Seung Kim"
           ],
           "title": "Comparative accuracy of intraocular lens power calculation formulas when targeting myopia",
+          "topically_marginal": true,
           "venue": "Heliyon",
           "year": 2024
         },
@@ -362,7 +406,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:30:28Z"
+          "verified_at": "2026-05-07T05:46:35Z"
         }
       },
       {
@@ -375,12 +419,13 @@
             "Diogo Hipólito-Fernandes"
           ],
           "title": "Clinical Accuracy of 18 IOL Power Formulas in 241 Short Eyes",
+          "topically_marginal": true,
           "venue": "Current Eye Research",
           "year": 2021
         },
         "primary_pointer": "https://doi.org/10.1080/02713683.2021.1933056",
         "summary": "ABSTRACT Purpose To analyze the accuracy of 18 intraocular lens (IOL) power calculation formulas in eyes with axial length (AL) ≤ 22 mm. Methods We analyzed 241 eyes of 241 patients. Eighteen formulas were evaluated: Barrett Universal II (BUII), EVO 2.0, Haigis, Hoffer Q, Holladay 1 and 2, Cooke K6, Kane, LadasSuperFormula AI, Naeser 2, Olsen, Panacea, Pearl-DGS, RBF 2.0, SRK/T, T2, VRF and VRF-G. Optical biometry was performed with an IOLMaster 700 (Carl Zeiss Meditec, Jena, Germany). With lens constants optimized for the whole range of AL, the mean prediction error (PE) and its standard deviation (SD), the median absolute error (MedAE), the mean absolute error (MAE) and the percentage of eyes with PEs within ±0.25 D, ±0.50 D and <±1.00 D were calculated. Results Post-hoc analysis of the absolute PE revealed statistically significant differences (P < .05) between some of the newer formulas (K6, Kane, Naeser 2, Olsen and VRF-G), which obtained the lowest MedAE (respectively, 0.308, 0.300, 0.277, 0.310 and 0.276 D) and the remaining ones. These formulas yielded also the highest percentage of eyes with a PE within ±0.50 D (70.54%, 72.20%, 71.37%, 70.95% and 73.03%, respectively), whereas Panacea and SRK/T yielded the lowest percentage (62.24%), with a stastically significant difference (P < .05) with respect to most formulas. Conclusion In eyes with AL ≤22.0 mm, new formulas (K6, Kane, Naeser 2, Olsen and VRF-G) offer the most accurate predictions of postoperative refraction.",
-        "summary_grounded_pdf": null,
+        "summary_grounded_pdf": false,
         "verification_log": {
           "final_url": "https://www.tandfonline.com/doi/full/10.1080/02713683.2021.1933056",
           "http_status": 403,
@@ -392,7 +437,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:30:28Z"
+          "verified_at": "2026-05-07T05:46:35Z"
         }
       },
       {
@@ -402,6 +447,7 @@
             "W. Wehner"
           ],
           "title": "Prediction Accuracy of Total Keratometry Compared to Standard Keratometry Using Different Intraocular Lens Power Formulas.",
+          "topically_marginal": true,
           "venue": "Journal of refractive surgery",
           "year": 2019
         },
@@ -419,7 +465,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:30:28Z"
+          "verified_at": "2026-05-07T05:46:36Z"
         }
       },
       {
@@ -435,6 +481,7 @@
             "Samet Özlügedik"
           ],
           "title": "Diagnostic Performance of ChatGPT-o1 and DeepSeek-V3 in Expert-Validated Simulated Ear Nose and Throat Scenarios: A Comparative Accuracy Study",
+          "topically_marginal": true,
           "venue": "European Journal of Rhinology and Allergy",
           "year": 2026
         },
@@ -453,7 +500,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:30:29Z"
+          "verified_at": "2026-05-07T05:46:36Z"
         }
       },
       {
@@ -470,6 +517,7 @@
             "Nedim Lipka"
           ],
           "title": "Decomposition-Enhanced Training for Post-Hoc Attributions In Language Models",
+          "topically_marginal": true,
           "venue": "arXiv",
           "year": 2025
         },
@@ -485,7 +533,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:30:31Z"
+          "verified_at": "2026-05-07T05:46:38Z"
         }
       },
       {
@@ -497,6 +545,7 @@
             "Gianmarco Mengaldo"
           ],
           "title": "Evaluation of post-hoc interpretability methods in time-series classification",
+          "topically_marginal": true,
           "venue": "arXiv",
           "year": 2022
         },
@@ -506,13 +555,13 @@
         "verification_log": {
           "final_url": "https://arxiv.org/abs/2202.05656",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.2517,
           "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:30:31Z"
+          "verified_at": "2026-05-07T05:46:38Z"
         }
       }
     ]

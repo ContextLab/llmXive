@@ -1,7 +1,7 @@
 {
-  "fetched_at": "2026-05-07T03:34:30Z",
+  "fetched_at": "2026-05-07T05:59:25Z",
   "field": "chemistry",
-  "prompt_version": "1.1.0",
+  "prompt_version": "1.3.0",
   "result": {
     "cache_status": "miss",
     "context": {
@@ -9,21 +9,38 @@
       "idea_body_excerpt": "Predicting Molecular Dipole Moments with Graph Neural Networks",
       "target_n": 5
     },
-    "duration_seconds": 11.9,
-    "ended_at": "2026-05-07T03:34:30Z",
+    "duration_seconds": 203.891,
+    "ended_at": "2026-05-07T05:59:25Z",
     "expansion": null,
     "failure_reason": null,
-    "librarian_prompt_version": "1.1.0",
+    "librarian_prompt_version": "1.3.0",
     "outcome": "success",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "https://doi.org/10.1186/s13321-025-00989-3"
+        "https://doi.org/10.54644/jte.2024.1571"
+      ]
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2211.12792",
+          "rationale": "The paper proposes a general heterogeneous graph neural network architecture tested on node classification and link prediction tasks, without any application to chemistry or molecular property prediction like dipole moments. It shares the \"Graph Neural Networks\" keyword but studies a fundamentally different problem domain and task type compared to the user's specific query.",
+          "title": "MECCH: Metapath Context Convolution-based Heterogeneous Graph Neural Networks"
+        },
+        {
+          "primary_pointer": "2104.11641",
+          "rationale": "The paper focuses on social network analysis and user influence prediction, which belongs to a different research field than chemistry and molecular property prediction. Although both utilize Graph Neural Networks, the fundamental phenomena (social behavior vs. molecular dipole moments) are unrelated, making it unsuitable for a literature review specific to molecular chemistry.",
+          "title": "Social Influence Prediction with Train and Test Time Augmentation for Graph Neural Networks"
+        }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-05-07T03:34:18Z",
+    "started_at": "2026-05-07T05:56:01Z",
     "term_input": {
       "normalized": "predicting molecular dipole moments with graph neural networks chemistry",
       "raw": "Predicting Molecular Dipole Moments with Graph Neural Networks chemistry"
@@ -45,7 +62,7 @@
           "primary_pointer": "https://doi.org/10.1007/s42452-025-07811-7"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='p-GIN: a graph isomorphism network based on p-laplacian operator to enhance molecular property prediction')",
-        "failed_at": "2026-05-07T03:34:24Z",
+        "failed_at": "2026-05-07T05:56:08Z",
         "reason": "query_irrelevant"
       },
       {
@@ -72,7 +89,7 @@
           "primary_pointer": "https://doi.org/10.1038/s41570-022-00416-3"
         },
         "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Extending machine learning beyond interatomic potentials for predicting molecular properties')",
-        "failed_at": "2026-05-07T03:34:24Z",
+        "failed_at": "2026-05-07T05:56:08Z",
         "reason": "query_irrelevant"
       },
       {
@@ -93,7 +110,7 @@
           "primary_pointer": "2306.14753"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
-        "failed_at": "2026-05-07T03:34:27Z",
+        "failed_at": "2026-05-07T05:56:11Z",
         "reason": "query_irrelevant"
       },
       {
@@ -111,7 +128,7 @@
           "primary_pointer": "2307.05639"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks')",
-        "failed_at": "2026-05-07T03:34:27Z",
+        "failed_at": "2026-05-07T05:56:11Z",
         "reason": "query_irrelevant"
       },
       {
@@ -130,7 +147,7 @@
           "primary_pointer": "1901.06610"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Hierarchical Attentional Hybrid Neural Networks for Document Classification')",
-        "failed_at": "2026-05-07T03:34:27Z",
+        "failed_at": "2026-05-07T05:56:11Z",
         "reason": "query_irrelevant"
       },
       {
@@ -149,7 +166,7 @@
           "primary_pointer": "1905.05918"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='A Neural Network-Evolutionary Computational Framework for Remaining Useful Life Estimation of Mechanical Systems')",
-        "failed_at": "2026-05-07T03:34:27Z",
+        "failed_at": "2026-05-07T05:56:11Z",
         "reason": "query_irrelevant"
       },
       {
@@ -170,7 +187,7 @@
           "primary_pointer": "1906.10015"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='A Review on Neural Network Models of Schizophrenia and Autism Spectrum Disorder')",
-        "failed_at": "2026-05-07T03:34:27Z",
+        "failed_at": "2026-05-07T05:56:11Z",
         "reason": "query_irrelevant"
       },
       {
@@ -189,7 +206,7 @@
           "primary_pointer": "2103.07492"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Continual Learning for Recurrent Neural Networks: an Empirical Evaluation')",
-        "failed_at": "2026-05-07T03:34:27Z",
+        "failed_at": "2026-05-07T05:56:11Z",
         "reason": "query_irrelevant"
       },
       {
@@ -206,7 +223,7 @@
           "primary_pointer": "2212.06370"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation')",
-        "failed_at": "2026-05-07T03:34:29Z",
+        "failed_at": "2026-05-07T05:56:12Z",
         "reason": "query_irrelevant"
       },
       {
@@ -223,7 +240,7 @@
           "primary_pointer": "1512.00242"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Towards Dropout Training for Convolutional Neural Networks')",
-        "failed_at": "2026-05-07T03:34:29Z",
+        "failed_at": "2026-05-07T05:56:12Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -255,7 +272,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:34:20Z"
+          "verified_at": "2026-05-07T05:56:03Z"
         }
       },
       {
@@ -270,7 +287,7 @@
         },
         "primary_pointer": "https://doi.org/10.54644/jte.2024.1571",
         "summary": "In this study, we explore the potential of graph neural networks (GNNs), in combination with transfer learning, for the prediction of molecular solubility, a crucial property in drug discovery and materials science. Our approach begins with the development of a GNN-based model to predict the dipole moment of molecules. The extracted dipole moment, alongside a selected set of molecular descriptors, feeds into a subsequent predictive model for water solubility. This two-step process leverages the inherent correlations between molecular structure and its physical properties, thus enhancing the accuracy and generalizability. Our data showed that GNN models with attention mechanism and those utilize bond properties outperformed other models. Especially, 3D GNN models such as ViSNet exhibited outstanding performance, with an R2 value of 0.9980. For the prediction of water solubility, the inclusion of dipole moments greatly enhanced the predictive power of various machine learning models. Our methodology demonstrates the effectiveness of GNNs in capturing complex molecular features and the power of transfer learning in bridging related predictive tasks, offering a novel approach for computational predictions in chemistry.",
-        "summary_grounded_pdf": false,
+        "summary_grounded_pdf": null,
         "verification_log": {
           "final_url": "https://jte.edu.vn/index.php/jte/article/view/1571",
           "http_status": 200,
@@ -282,7 +299,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:34:20Z"
+          "verified_at": "2026-05-07T05:56:04Z"
         }
       },
       {
@@ -309,7 +326,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:34:23Z"
+          "verified_at": "2026-05-07T05:56:06Z"
         }
       },
       {
@@ -327,7 +344,7 @@
         "summary": "The molecular electrostatic potential (MEP) is a key quantity for describing and predicting intermolecular and ion–molecule interactions. Here, we assess the ability of machine-learning (ML) models to infer the MEP, based on the equivariant graph-convolutional neural network architecture PiNet2 and trained on dipole and quadrupole moments. For the established QM9 dataset, we find that including the quadrupole contribution in the ML models substantially improves their ability to recover the MEP compared to dipole-only models. This trend is confirmed on the SPICE dataset, which spans a much broader region of organic chemical space. Together, this study underscores the central role of the quadrupole moment as a fitting target for ML models aiming at rapid access to the MEP.",
         "summary_grounded_pdf": false,
         "verification_log": {
-          "final_url": "https://validate.perfdrive.com/fb803c746e9148689b3984a31fccd902/?ssa=353aeee1-04c6-4d84-ba81-b517bb3b8fae&ssb=63490246448&ssc=https%3A%2F%2Fiopscience.iop.org%2Farticle%2F10.1088%2F3050-287X%2Fae531a&ssi=094319a1-cnvj-4009-8363-d98fb9220ad0&ssk=botmanager_support@radware.com&ssm=76481313567211039101848234670769&ssn=11d5c1d3e379e8e74f395ff244f1d2cdc3a2a3ffc0ca-38f4-4c96-a25d52&sso=d4aa4f0d-95aef025f417014351af74c93f639d9c104fffca26c081d8&ssp=91990601271778103598177811358080065&ssq=07284032486402734684724864436011761078932&ssr=MTc0LjE2OS4xMTQuNTc=&sst=llmxive-librarian/1.0%20(https://github.com/ContextLab/llmXive)&ssu=&ssv=&ssw=&ssx=eyJfX3V6bWYiOiI3ZjkwMDBhM2ZmYzBjYS0zOGY0LTRjOTYtYWYwZC05NWFlZjAyNWY0MTcxLTE3NzgxMjQ4NjQ1NDcwLTAwMzI3ZjRlZWUwMzEyZGYxMzMxMCIsInJkIjoiaW9wLm9yZyIsInV6bXgiOiI3ZjkwMDAwMTIxODdmMy04NTMxLTQ2ZjQtODk3YS00M2ExMjgwMDViZTIxLTE3NzgxMjQ4NjQ1NDcwLTZjMjZiMDUxYWZhZmRkZjcxMCJ9",
+          "final_url": "https://validate.perfdrive.com/fb803c746e9148689b3984a31fccd902/?ssa=446a7ba3-40f3-475c-ac18-1a752001c4fe&ssb=44840267038&ssc=https%3A%2F%2Fiopscience.iop.org%2Farticle%2F10.1088%2F3050-287X%2Fae531a&ssi=2b8896a3-cnvj-4468-b39d-375f55151487&ssk=botmanager_support@radware.com&ssm=68041155049357144101186616040987&ssn=8ce1c4826ecc3e0fee43d8e63f9aa6eefa79716ecbee-63e6-4e34-89e214&sso=bd769bcb-ddd050b523e8584c7ab25d62e81ade81faf81990752e70af&ssp=46545050501778162010177814649237531&ssq=74245993336848774176433368587157359778421&ssr=MTc0LjE2OS4xMTQuNTc=&sst=llmxive-librarian/1.0%20(https://github.com/ContextLab/llmXive)&ssu=&ssv=&ssw=&ssx=eyJfX3V6bWYiOiI3ZjkwMDA3MTZlY2JlZS02M2U2LTRlMzQtOGJjYi1kZGQwNTBiNTIzZTgxLTE3NzgxMzMzNjgwMjEwLTAwM2E3OTUwMDUxZDQ1ZThkOTYxMCIsInV6bXgiOiI3ZjkwMDAxNWZmN2Y0YS1mZTc2LTRiMTEtYTM5MS1mMjY4NGI0YTg1MjgxLTE3NzgxMzMzNjgwMjEwLWY2ZTc1ZmYwMGE1YjU2ZDIxMCIsInJkIjoiaW9wLm9yZyJ9",
           "http_status": 200,
           "pdf_sample_score": null,
           "query_relevance_score": 0.7143,
@@ -338,7 +355,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:34:23Z"
+          "verified_at": "2026-05-07T05:56:07Z"
         }
       },
       {
@@ -368,7 +385,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:34:24Z"
+          "verified_at": "2026-05-07T05:56:08Z"
         }
       },
       {
@@ -384,7 +401,7 @@
         },
         "primary_pointer": "https://doi.org/10.1186/s13321-025-00989-3",
         "summary": "Efficient and reliable prediction of molecular properties, such as water solubility, hydration free energy, lipophilicity, and quantum mechanical properties, is essential for rational compound design in the chemical and pharmaceutical industries. While Graph Neural Networks (GNNs) have significantly advanced molecular property prediction tasks, their high memory footprint, computational demands, and inference latency are often overlooked. These challenges hinder the deployment of property prediction models on resource-constrained devices such as smartphones and IoT devices. Therefore, optimizing storage, reducing resource consumption, and improving inference speed are crucial. This paper presents a systematic approach to molecular networks by integrating GNN models with the DoReFa-Net quantization algorithm. The proposed method aims to enhance computational efficiency while maintaining predictive performance, enabling lightweight yet effective models suitable for molecular task. The study investigates the impact of different bitwidth quantization levels on model performance, using metrics such as RMSE and MAE. Results show that, for physical chemistry datasets, the effectiveness of quantization is highly dependent on the model architecture. Notably, the quantum mechanical dipole moment task maintains strong performance up to 8-bit precision, achieving similar or slightly better results. However, extreme quantization, particularly at 2-bit precision, severely degrades performance, highlighting the limitations of aggressive compression.",
-        "summary_grounded_pdf": null,
+        "summary_grounded_pdf": false,
         "verification_log": {
           "final_url": "https://link.springer.com/article/10.1186/s13321-025-00989-3",
           "http_status": 200,
@@ -399,7 +416,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:34:25Z"
+          "verified_at": "2026-05-07T05:56:08Z"
         }
       },
       {
@@ -431,59 +448,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:34:27Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Xinyu Fu",
-            "Irwin King"
-          ],
-          "title": "MECCH: Metapath Context Convolution-based Heterogeneous Graph Neural Networks",
-          "venue": "arXiv",
-          "year": 2022
-        },
-        "primary_pointer": "2211.12792",
-        "summary": "Heterogeneous graph neural networks (HGNNs) were proposed for representation learning on structural data with multiple types of nodes and edges. To deal with the performance degradation issue when HGNNs become deep, researchers combine metapaths into HGNNs to associate nodes closely related in semantics but far apart in the graph. However, existing metapath-based models suffer from either information loss or high computation costs. To address these problems, we present a novel Metapath Context Convolution-based Heterogeneous Graph Neural Network (MECCH). MECCH leverages metapath contexts, a new kind of graph structure that facilitates lossless node information aggregation while avoiding any redundancy. Specifically, MECCH applies three novel components after feature preprocessing to extract comprehensive information from the input graph efficiently: (1) metapath context construction, (2) metapath context encoder, and (3) convolutional metapath fusion. Experiments on five real-world heterogeneous graph datasets for node classification and link prediction show that MECCH achieves superior prediction accuracy compared with state-of-the-art baselines with improved computational efficiency.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "final_url": "https://arxiv.org/abs/2211.12792",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.4286,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-05-07T03:34:27Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Hongbo Bo",
-            "Ryan McConville",
-            "Jun Hong",
-            "Weiru Liu"
-          ],
-          "title": "Social Influence Prediction with Train and Test Time Augmentation for Graph Neural Networks",
-          "venue": "arXiv",
-          "year": 2021
-        },
-        "primary_pointer": "2104.11641",
-        "summary": "Data augmentation has been widely used in machine learning for natural language processing and computer vision tasks to improve model performance. However, little research has studied data augmentation on graph neural networks, particularly using augmentation at both train- and test-time. Inspired by the success of augmentation in other domains, we have designed a method for social influence prediction using graph neural networks with train- and test-time augmentation, which can effectively generate multiple augmented graphs for social networks by utilising a variational graph autoencoder in both scenarios. We have evaluated the performance of our method on predicting user influence on multiple social network datasets. Our experimental results show that our end-to-end approach, which jointly trains a graph autoencoder and social influence behaviour classification network, can outperform state-of-the-art approaches, demonstrating the effectiveness of train- and test-time augmentation on graph neural networks for social influence prediction. We observe that this is particularly effective on smaller graphs.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "final_url": "https://arxiv.org/abs/2104.11641",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.4286,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-05-07T03:34:27Z"
+          "verified_at": "2026-05-07T05:56:10Z"
         }
       }
     ]

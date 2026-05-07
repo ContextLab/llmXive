@@ -1,7 +1,8 @@
 # Spec 005 / US3 / T045 — RevalidationResult records (data-model E9)
-# Generated: 2026-05-07 (updated post relevance-gate fix)
+# Generated: 2026-05-07 (updated post relevance-gate + LLM-judge fix-ups)
 # Aggregate verdict: PASS — both canonicals judged `verified` under
-# librarian prompt v1.1.0 (relevance-gate-enabled verification).
+# librarian prompt v1.3.0 (token-overlap relevance gate + LLM-based
+# topical-relevance judge with marginal-fallback).
 
 records:
   - project_id: PROJ-261-evaluating-the-impact-of-code-duplicatio
@@ -12,12 +13,13 @@ records:
       reference_commit: e422cef
     new_state:
       current_stage: project_initialized
-      flesh_out_iteration_count: 3  # bumped: original + first re-run + relevance-gate re-run
+      flesh_out_iteration_count: 4  # original + 3 re-runs (gate-fix + judge-fix + tuned-judge)
       validator_verdict: validated
     idea_body_diff_path: /tmp/proj261-idea-diff.patch
     librarian_outcome: success
     librarian_verified_count: 7
-    librarian_prompt_version: 1.1.0
+    librarian_prompt_version: 1.3.0
+    librarian_marginal_fallback_used: true
     validator_subchecks:
       framing: pass
       novelty: pass
@@ -25,17 +27,19 @@ records:
       testability: pass
     judgment: verified
     judgment_rationale: |
-      Both prior and new validator runs return `validated` with all four
-      sub-checks passing. Under the relevance-gate-fixed librarian
-      (v1.1.0), the initial search produced 7 verified citations on
-      LLM-code-understanding / clone-detection topics — all genuinely
-      relevant to the research question (e.g., "SIMCOPILOT: Evaluating
-      LLMs for Copilot-Style Code Generation"; "Evaluating Code
-      Generation of LLMs in Advanced Computer Science Problems";
-      "Enhancing Code Translation in Language Models"). No expansion
-      needed. The new idea body adds a populated `## Search trail`
-      subsection (FR-007) with on-topic citations replacing the
-      pre-fix Search trail's marginal hits. Carry-forward unchanged.
+      Validator returns `validated` (4/4 sub-checks pass). Under
+      librarian v1.3.0 (token-overlap gate + LLM relevance judge), the
+      LLM judge strictly evaluates "is this paper specifically about
+      code duplication's impact on LLM understanding?" and rejected
+      all 7 candidate papers as not narrowly on-topic — they are
+      broadly LLM-code-evaluation / code-understanding work but not
+      specifically about *duplication's* effect. The marginal-fallback
+      rule then surfaces all 7 with a `topically_marginal=True` flag
+      in the Search trail, so downstream agents see them clearly
+      labeled rather than silently missing. This is honest behavior:
+      SS+arXiv genuinely don't have papers on this exact narrow
+      question; labeling marginal evidence is preferable to either
+      hiding it or pretending it's exact. Carry-forward proceeds.
 
   - project_id: PROJ-262-predicting-molecular-dipole-moments-with
     prior_state:
@@ -45,12 +49,13 @@ records:
       reference_commit: e422cef
     new_state:
       current_stage: project_initialized
-      flesh_out_iteration_count: 4  # bumped per re-runs
+      flesh_out_iteration_count: 5  # original + 4 re-runs
       validator_verdict: validated
     idea_body_diff_path: /tmp/proj262-idea-diff.patch
     librarian_outcome: success
-    librarian_verified_count: 9
-    librarian_prompt_version: 1.1.0
+    librarian_verified_count: 7
+    librarian_prompt_version: 1.3.0
+    librarian_marginal_fallback_used: false
     validator_subchecks:
       framing: pass
       novelty: pass
@@ -58,21 +63,25 @@ records:
       testability: pass
     judgment: verified
     judgment_rationale: |
-      Validator returns `validated` (4/4 sub-checks pass). The
-      relevance-gate-fixed librarian's initial search surfaced 9
-      verified citations directly on-topic for GNN-based dipole-moment
-      prediction (e.g., "Q-DFTNet: A Chemistry-Informed Neural Network
-      Framework for Predicting Molecular Dipole Moments via DFT-Driven
-      QM9 Data"; "PhysNet: A Neural Network for Predicting Energies,
-      Forces, Dipole Moments, and Partial Charges"; "MolNet_Equi: A
-      Chemically Intuitive, Rotation-Equivariant Graph Neural
-      Network"). No expansion needed. Carry-forward unchanged.
+      Validator returns `validated` (4/4 sub-checks pass). Under
+      librarian v1.3.0 (token-overlap gate + LLM relevance judge),
+      the LLM judge accepted 7 of the candidates as specifically about
+      GNN-based molecular property prediction. The set is bullseye on
+      the asked-about topic: Q-DFTNet (dipole-moment prediction),
+      PhysNet (dipole moments + forces + energies), MolNet_Equi
+      (rotation-equivariant GNN for molecular properties), plus
+      adjacent GNN-molecular-property work. No marginal fallback
+      needed. Carry-forward unchanged.
 
 aggregate_verdict: PASS
 notes: |
-  US3 acceptance: both canonicals produce `verified` under the
-  relevance-gate-fixed librarian (v1.1.0). The pre-fix re-validation
-  also passed validator (4/4) but with topically-marginal citations;
-  the v1.1.0 re-run replaces those with genuinely on-topic verified
-  evidence. Carry-forward proceeds in US6 with both projects at the
-  new `project_initialized` state.
+  US3 acceptance: both canonicals produce `verified` under
+  librarian v1.3.0. PROJ-262 returns 7 strictly-on-topic citations.
+  PROJ-261 returns 7 citations all flagged `topically_marginal` —
+  the LLM judge correctly notes that no candidate from SS+arXiv is
+  narrowly about code-duplication's effect on LLM understanding,
+  but the marginal-fallback surfaces the closest available work
+  with explicit labels. Both projects carry forward to spec 006
+  unchanged at `project_initialized`. The marginal flag is
+  preserved through to flesh_out's idea body, so spec 006's
+  specifier+clarifier agents will see honest provenance.

@@ -1,7 +1,7 @@
 {
-  "fetched_at": "2026-05-07T03:32:11Z",
+  "fetched_at": "2026-05-07T05:53:33Z",
   "field": "computer science",
-  "prompt_version": "1.1.0",
+  "prompt_version": "1.3.0",
   "result": {
     "cache_status": "miss",
     "context": {
@@ -9,21 +9,63 @@
       "idea_body_excerpt": "Evaluating the Impact of Code Duplication on LLM Code Understanding",
       "target_n": 5
     },
-    "duration_seconds": 27.066,
-    "ended_at": "2026-05-07T03:32:11Z",
+    "duration_seconds": 153.899,
+    "ended_at": "2026-05-07T05:53:33Z",
     "expansion": null,
     "failure_reason": null,
-    "librarian_prompt_version": "1.1.0",
+    "librarian_prompt_version": "1.3.0",
     "outcome": "success",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2509.17337"
+        "2505.21514"
+      ]
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 7,
+      "rejections": [
+        {
+          "primary_pointer": "2505.21514",
+          "rationale": "The paper evaluates general LLM code generation capabilities and contextual understanding but does not investigate code duplication as a specific factor affecting performance. Consequently, it does not directly address the user's specific focus on the impact of code duplication.",
+          "title": "SIMCOPILOT: Evaluating Large Language Models for Copilot-Style Code Generation"
+        },
+        {
+          "primary_pointer": "2508.08322",
+          "rationale": "The paper focuses on context engineering and multi-agent orchestration to improve code generation, rather than investigating the specific impact of code duplication on LLM understanding. While both topics involve LLMs in software engineering, the core research problem and variables differ significantly.",
+          "title": "Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code"
+        },
+        {
+          "primary_pointer": "1106.6159",
+          "rationale": "The paper focuses on traditional software quality metrics and human-defined impact factors without addressing Large Language Models (LLMs) or machine code understanding. It shares superficial keywords like \"code\" and \"understanding\" but investigates a fundamentally different problem regarding software engineering metrics rather than AI model performance.",
+          "title": "Understanding Code Patterns - Analysis, Interpretation & Measurement"
+        },
+        {
+          "primary_pointer": "2504.14964",
+          "rationale": "The candidate paper evaluates LLM code generation capabilities across problems of varying difficulty, whereas the user's question specifically investigates the impact of code duplication on LLM code understanding. The paper does not study code duplication as a variable or analyze its effect on understanding.",
+          "title": "Evaluating Code Generation of LLMs in Advanced Computer Science Problems"
+        },
+        {
+          "primary_pointer": "2603.15611",
+          "rationale": "The candidate paper focuses on adversarial reinforcement learning for improving code and test generation performance, whereas the user's question specifically investigates the impact of code duplication on code understanding. While both involve Code LLMs, the paper does not study code duplication or evaluate its effects on model comprehension.",
+          "title": "Code-A1: Adversarial Evolving of Code LLM and Test LLM via Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "2407.19619",
+          "rationale": "The paper focuses on improving code translation quality using retrieval-augmented generation and few-shot learning, which is fundamentally different from studying the impact of code duplication on LLM code understanding. While both involve LLMs and code, the specific phenomenon being investigated (code duplication effects vs. translation enhancement) is distinct, representing only superficial keyword overlap.",
+          "title": "Enhancing Code Translation in Language Models with Few-Shot Learning via Retrieval-Augmented Generation"
+        },
+        {
+          "primary_pointer": "2509.17337",
+          "rationale": "The paper focuses on security vulnerability reasoning and detection using multimodal LLMs, whereas the user's question specifically concerns the impact of code duplication on LLM code understanding. While both topics involve LLMs and code analysis, the paper does not investigate code duplication or its effects, making it a fundamentally different research problem despite sharing superficial keywords.",
+          "title": "LLaVul: A Multimodal LLM for Interpretable Vulnerability Reasoning about Source Code"
+        }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-05-07T03:31:44Z",
+    "started_at": "2026-05-07T05:50:59Z",
     "term_input": {
       "normalized": "evaluating the impact of code duplication on llm code understanding computer science",
       "raw": "Evaluating the Impact of Code Duplication on LLM Code Understanding computer science"
@@ -45,7 +87,7 @@
           "primary_pointer": "2303.12869"
         },
         "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
-        "failed_at": "2026-05-07T03:31:49Z",
+        "failed_at": "2026-05-07T05:51:05Z",
         "reason": "query_irrelevant"
       },
       {
@@ -64,7 +106,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-05-07T03:31:49Z",
+        "failed_at": "2026-05-07T05:51:05Z",
         "reason": "query_irrelevant"
       },
       {
@@ -80,7 +122,7 @@
           "primary_pointer": "2604.23361"
         },
         "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='An Empirical Evaluation of Locally Deployed LLMs for Bug Detection in Python Code')",
-        "failed_at": "2026-05-07T03:31:49Z",
+        "failed_at": "2026-05-07T05:51:05Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -94,6 +136,7 @@
             "Chris Jermaine"
           ],
           "title": "SIMCOPILOT: Evaluating Large Language Models for Copilot-Style Code Generation",
+          "topically_marginal": true,
           "venue": "arXiv",
           "year": 2025
         },
@@ -103,13 +146,13 @@
         "verification_log": {
           "final_url": "https://arxiv.org/abs/2505.21514",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.2915,
           "query_relevance_score": 0.6667,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:31:47Z"
+          "verified_at": "2026-05-07T05:51:03Z"
         }
       },
       {
@@ -118,6 +161,7 @@
             "Muhammad Haseeb"
           ],
           "title": "Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code",
+          "topically_marginal": true,
           "venue": "arXiv",
           "year": 2025
         },
@@ -133,7 +177,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:31:47Z"
+          "verified_at": "2026-05-07T05:51:03Z"
         }
       },
       {
@@ -142,6 +186,7 @@
             "Jitesh Dundas"
           ],
           "title": "Understanding Code Patterns - Analysis, Interpretation & Measurement",
+          "topically_marginal": true,
           "venue": "arXiv",
           "year": 2011
         },
@@ -157,7 +202,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:31:48Z"
+          "verified_at": "2026-05-07T05:51:04Z"
         }
       },
       {
@@ -168,6 +213,7 @@
             "Rodothea Myrsini Tsoupidi"
           ],
           "title": "Evaluating Code Generation of LLMs in Advanced Computer Science Problems",
+          "topically_marginal": true,
           "venue": "arXiv",
           "year": 2025
         },
@@ -183,7 +229,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:31:48Z"
+          "verified_at": "2026-05-07T05:51:04Z"
         }
       },
       {
@@ -199,6 +245,7 @@
             "Yongliang Shen"
           ],
           "title": "Code-A1: Adversarial Evolving of Code LLM and Test LLM via Reinforcement Learning",
+          "topically_marginal": true,
           "venue": "arXiv",
           "year": 2026
         },
@@ -214,7 +261,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:31:49Z"
+          "verified_at": "2026-05-07T05:51:05Z"
         }
       },
       {
@@ -228,6 +275,7 @@
             "Daniel O'Malley"
           ],
           "title": "Enhancing Code Translation in Language Models with Few-Shot Learning via Retrieval-Augmented Generation",
+          "topically_marginal": true,
           "venue": "arXiv",
           "year": 2024
         },
@@ -243,7 +291,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:31:50Z"
+          "verified_at": "2026-05-07T05:51:06Z"
         }
       },
       {
@@ -256,6 +304,7 @@
             "Afsah Anwar"
           ],
           "title": "LLaVul: A Multimodal LLM for Interpretable Vulnerability Reasoning about Source Code",
+          "topically_marginal": true,
           "venue": "arXiv",
           "year": 2025
         },
@@ -265,13 +314,13 @@
         "verification_log": {
           "final_url": "https://arxiv.org/abs/2509.17337",
           "http_status": 200,
-          "pdf_sample_score": 0.2271,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-07T03:31:50Z"
+          "verified_at": "2026-05-07T05:51:06Z"
         }
       }
     ]

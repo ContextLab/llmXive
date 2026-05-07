@@ -168,9 +168,13 @@ def _format_citation_line(idx: int, vc: VerifiedCitation) -> str:
         else ("Inaccessible" if vc.summary_grounded_pdf is None else "No")
     )
     year_str = f"({year})" if year else ""
+    marginal_flag = (
+        " ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*"
+        if bib.get("topically_marginal") else ""
+    )
     return (
         f"{idx}. **{title}** {year_str}. {authors_str}. {venue}. "
-        f"[{pointer}]({url}). PDF-sampled: {pdf_flag}."
+        f"[{pointer}]({url}). PDF-sampled: {pdf_flag}.{marginal_flag}"
     )
 
 

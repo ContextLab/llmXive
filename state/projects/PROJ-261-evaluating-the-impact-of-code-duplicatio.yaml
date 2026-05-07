@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-261-evaluating-the-impact-of-code-duplicatio
-last_run_id: 23936683-06e4-4a4e-9235-6e16a83293d9
+last_run_id: ae84f314-4cc2-4a51-9a47-facd3abdc0f9
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -14,4 +14,4 @@ revision_round: 0
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Evaluating the Impact of Code Duplication on LLM Code Understanding
-updated_at: '2026-05-07T03:34:18.582603Z'
+updated_at: '2026-05-07T05:56:01.833445Z'
