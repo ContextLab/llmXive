@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 403,
+    "active_projects": 406,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1881,
+    "total_contributions": 1884,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1708,
+      "contribution_count": 1711,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 381,
+      "contribution_count": 384,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-07T13:08:16.655488+00:00",
+  "generated_at": "2026-05-07T13:48:20.809541+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -28121,6 +28121,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting the Glass Forming Region of Metallic Glass Alloys via Machine Learning",
       "updated_at": "2026-05-07T11:43:18.653215+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-397-predicting-avian-foraging-behavior-from-/idea/predicting-avian-foraging-behavior-from-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-07T13:46:05.742846+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: ecology / ornithology How does land cover composition predict avian foraging strategy across species, and do species with similar foraging niches occupy similar habitat profiles? Understanding the relationship between habitat characteristics and foraging strategies can provide insights into species' ecological\u2026",
+      "field": "biology",
+      "id": "PROJ-397-predicting-avian-foraging-behavior-from-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 46.113365,
+          "ended_at": "2026-05-07T13:47:09.733054Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-07T13:46:23.619689Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Avian Foraging Behavior from Public eBird Data and Land Cover Maps",
+      "updated_at": "2026-05-07T13:47:09.735819+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/idea/the-impact-of-visual-complexity-on-cogni.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-07T13:46:05.742846+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology How does the visual complexity of video meeting backgrounds affect cognitive load during remote work, and does this relationship persist when controlling for task difficulty and participant familiarity with the meeting content? Remote work has increased reliance on video conferencing, yet little is\u2026",
+      "field": "psychology",
+      "id": "PROJ-398-the-impact-of-visual-complexity-on-cogni",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 34.096887,
+          "ended_at": "2026-05-07T13:47:44.544967Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-07T13:47:10.448080Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Visual Complexity on Cognitive Load During Remote Meetings",
+      "updated_at": "2026-05-07T13:47:44.547609+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-399-the-impact-of-framing-on-perceived-sever/idea/the-impact-of-framing-on-perceived-sever.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-07T13:46:05.742846+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology How does framing misinformation as harmful to society versus as factually inaccurate affect individuals' perceived severity and sharing intentions toward online content? Misinformation mitigation strategies increasingly rely on user-level interventions, yet it remains unclear whether emphasizing\u2026",
+      "field": "psychology",
+      "id": "PROJ-399-the-impact-of-framing-on-perceived-sever",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 32.761012,
+          "ended_at": "2026-05-07T13:48:17.949977Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-07T13:47:45.188965Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Framing on Perceived Severity of Online Misinformation",
+      "updated_at": "2026-05-07T13:48:17.952528+00:00"
     }
   ],
   "schema_version": "2.0.0"
