@@ -172,17 +172,17 @@ For each of `PROJ-261-evaluating-the-impact-of-code-duplicatio` and `PROJ-262-pr
 
 ### Implementation for User Story 5
 
-- [ ] T049 [US5] Create `notes/2026-05-NN-spec-005-librarian-diagnostic.md` (substitute the actual completion date for NN). Write the frontmatter block: spec link, generation timestamp, branch, final commit, parent issue (#107), consolidates issue context.
-- [ ] T050 [US5] Write § 1 Inputs: cross-domain test substrate (8 picked projects), carry-forward canonicals (PROJ-261 + PROJ-262), librarian prompt version (`1.0.0` initially; if T030/T046 bumped, the bumped version + reason).
-- [ ] T051 [US5] Write § 2 Librarian invocations: every invocation across US1 smoke + US2 expansion + US4 cross-domain + US3 flesh_out re-runs, quoted as JSON (truncated >100 lines with `[truncated, sha256: <hash>]` markers).
-- [ ] T052 [US5] Write § 3 Outputs: per cross-domain field, the per-citation manual-audit verdict from T029. Per re-validation, the new `idea/<slug>.md` content + the validator's `idea/research_question_validation.md`.
-- [ ] T053 [US5] Write § 4 Cross-domain coverage table: 8 rows from T027-T029 with `field`, `project_id`, `sample_term`, `outcome`, `verified_count`, `expansion_fired`, `pdf_sample_size`, `manual_audit_verdict`, `notes`.
-- [ ] T054 [US5] Write § 5 Phase 1 re-validation: the 2 RevalidationResult records from T045 verbatim (YAML); the full `git diff <prev>:idea.md <curr>:idea.md` per canonical; side-by-side comparison table (prior vs new on validator verdict, citation count, expansion-term count).
-- [ ] T055 [US5] Write § 6 Defects table: every defect (P5-D##) with severity + file:line + status (`Fixed in <SHA>` / `Deferred to issue #<N>` / `Accepted (not addressed) — rationale: …`). CRITICAL/HIGH MUST have non-`Accepted` status per FR-015.
-- [ ] T056 [US5] Write § 7 Per-issue acceptance summary: cite SC-001 through SC-012, mark each PASS/FAIL with rationale tied to a quoted artifact.
-- [ ] T057 [US5] Write § 8 Recommendations: bulleted list of changes for the librarian going forward; follow-up issues opened/recommended; items deliberately accepted as-is.
-- [ ] T058 [US5] Verify all artifact references in §§ 1-7 exist on disk; spot-check ≥3 random quotes against actual files.
-- [ ] T059 [US5] Commit: `git add notes/2026-05-NN-spec-005-librarian-diagnostic.md && git commit -m "spec-005: diagnostic report (US5, FR-014, #107)"`.
+- [X] T049 [US5] Create `notes/2026-05-NN-spec-005-librarian-diagnostic.md` (substitute the actual completion date for NN). Write the frontmatter block: spec link, generation timestamp, branch, final commit, parent issue (#107), consolidates issue context.
+- [X] T050 [US5] Write § 1 Inputs: cross-domain test substrate (8 picked projects), carry-forward canonicals (PROJ-261 + PROJ-262), librarian prompt version (`1.0.0` initially; if T030/T046 bumped, the bumped version + reason).
+- [X] T051 [US5] Write § 2 Librarian invocations: every invocation across US1 smoke + US2 expansion + US4 cross-domain + US3 flesh_out re-runs, quoted as JSON (truncated >100 lines with `[truncated, sha256: <hash>]` markers).
+- [X] T052 [US5] Write § 3 Outputs: per cross-domain field, the per-citation manual-audit verdict from T029. Per re-validation, the new `idea/<slug>.md` content + the validator's `idea/research_question_validation.md`.
+- [X] T053 [US5] Write § 4 Cross-domain coverage table: 8 rows from T027-T029 with `field`, `project_id`, `sample_term`, `outcome`, `verified_count`, `expansion_fired`, `pdf_sample_size`, `manual_audit_verdict`, `notes`.
+- [X] T054 [US5] Write § 5 Phase 1 re-validation: the 2 RevalidationResult records from T045 verbatim (YAML); the full `git diff <prev>:idea.md <curr>:idea.md` per canonical; side-by-side comparison table (prior vs new on validator verdict, citation count, expansion-term count).
+- [X] T055 [US5] Write § 6 Defects table: every defect (P5-D##) with severity + file:line + status (`Fixed in <SHA>` / `Deferred to issue #<N>` / `Accepted (not addressed) — rationale: …`). CRITICAL/HIGH MUST have non-`Accepted` status per FR-015.
+- [X] T056 [US5] Write § 7 Per-issue acceptance summary: cite SC-001 through SC-012, mark each PASS/FAIL with rationale tied to a quoted artifact.
+- [X] T057 [US5] Write § 8 Recommendations: bulleted list of changes for the librarian going forward; follow-up issues opened/recommended; items deliberately accepted as-is.
+- [X] T058 [US5] Verify all artifact references in §§ 1-7 exist on disk; spot-check ≥3 random quotes against actual files.
+- [X] T059 [US5] Commit: `git add notes/2026-05-NN-spec-005-librarian-diagnostic.md && git commit -m "spec-005: diagnostic report (US5, FR-014, #107)"`.
 
 **Checkpoint**: Single Markdown file at `notes/2026-05-NN-...` covers everything spec 005 produced + verdict per SC-NNN.
 
