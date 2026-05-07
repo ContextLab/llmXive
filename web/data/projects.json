@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 408,
+    "active_projects": 411,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1886,
+    "total_contributions": 1889,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1713,
+      "contribution_count": 1716,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 386,
+      "contribution_count": 389,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-07T16:37:40.944031+00:00",
+  "generated_at": "2026-05-07T16:46:15.348189+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -28456,6 +28456,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "The Influence of Emoji Use on Perceived Emotional Intensity in Text",
       "updated_at": "2026-05-07T15:07:58.083687+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-402-the-impact-of-interoceptive-awareness-on/idea/the-impact-of-interoceptive-awareness-on.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-07T16:41:53.129016+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology How does baseline interoceptive accuracy predict the magnitude of physiological and subjective emotional regulation during acute psychosocial stress? Stress-related disorders are prevalent, yet individual variability in regulatory capacity remains poorly understood. While stress interventions exist,\u2026",
+      "field": "psychology",
+      "id": "PROJ-402-the-impact-of-interoceptive-awareness-on",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 166.981834,
+          "ended_at": "2026-05-07T16:44:55.179062Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-07T16:42:08.197228Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Interoceptive Awareness on Emotional Regulation During Simulated Stress",
+      "updated_at": "2026-05-07T16:44:55.181470+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-403-exploring-the-correlation-between-atmosp/idea/exploring-the-correlation-between-atmosp.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-07T16:41:53.129016+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics How does the frequency of atmospheric river events correlate with large-scale geopotential height variability at 500 hPa across different latitudinal bands and seasons? Atmospheric rivers drive extreme precipitation and flood risk, yet their relationship to hemispheric circulation patterns remains\u2026",
+      "field": "physics",
+      "id": "PROJ-403-exploring-the-correlation-between-atmosp",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 33.158462,
+          "ended_at": "2026-05-07T16:45:28.924329Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-07T16:44:55.765867Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Exploring the Correlation Between Atmospheric River Frequency and Global Geopotential Height Variability",
+      "updated_at": "2026-05-07T16:45:28.926560+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-404-predicting-molecular-surface-charge-dist/idea/predicting-molecular-surface-charge-dist.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-07T16:41:53.129016+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry How does molecular graph structure relate to the electrostatic potential (ESP) derived surface charge distribution across small organic molecules, and can this relationship be captured without explicit quantum chemical computation? ESP-derived charge distributions govern intermolecular interactions,\u2026",
+      "field": "chemistry",
+      "id": "PROJ-404-predicting-molecular-surface-charge-dist",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 43.552621,
+          "ended_at": "2026-05-07T16:46:13.017907Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-07T16:45:29.465286Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculations",
+      "updated_at": "2026-05-07T16:46:13.020168+00:00"
     }
   ],
   "schema_version": "2.0.0"

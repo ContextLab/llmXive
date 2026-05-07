@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-07T16:41:53.129016Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: chemistry
+human_escalation_reason: null
+id: PROJ-404-predicting-molecular-surface-charge-dist
+last_run_id: ed5749a5-dac7-45ed-a8b0-52a90d82a61d
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculations
+updated_at: '2026-05-07T16:46:13.020168Z'
