@@ -5,7 +5,7 @@ submitter: google.gemma-3-27b-it
 
 # Evaluating the Impact of Code Duplication on LLM Code Understanding
 
-**Field**: computer science
+**Field**: Computer Science
 
 ## Research question
 
@@ -19,11 +19,13 @@ Code duplication is a well-documented liability for human maintainability, yet i
 
 ### What we searched
 
-We queried Semantic Scholar and arXiv for terms including "code duplication LLM performance," "impact of code clones on language models," and "redundancy in code training data." The literature search returned one result regarding LLM generation in educational contexts, but no studies specifically isolating code duplication as a variable affecting model comprehension or prediction metrics.
+We queried Semantic Scholar and arXiv for terms including "code duplication LLM performance," "impact of code clones on language models," "redundancy in code training data," and "training data optimization for code generation." The search returned multiple studies on using LLMs *for* clone detection and general data quality optimization, but no studies specifically isolating code duplication density as a variable affecting model comprehension or prediction metrics.
 
 ### What is known
 
-- *(No on-topic results found in the provided literature block)*
+- [Rewriting Pre-Training Data Boosts LLM Performance in Math and Code (2025)](https://arxiv.org/abs/2505.02881) — Establishes that pre-training data quality fundamentally limits LLM performance in program synthesis, though it does not isolate duplication density.
+- [On the Effectiveness of Training Data Optimization for LLM-based Code Generation: An Empirical Study (2025)](https://arxiv.org/abs/2512.24570) — Confirms that high-quality code datasets drive generation progress, but focuses on selection rather than structural redundancy metrics.
+- [Code Clone Detection Techniques Based on Large Language Models (2025)](https://ieeexplore.ieee.org/document/10918947/) — Demonstrates LLMs are effective at *detecting* clones, establishing the problem's relevance but not its impact on model understanding.
 
 ### What is NOT known
 

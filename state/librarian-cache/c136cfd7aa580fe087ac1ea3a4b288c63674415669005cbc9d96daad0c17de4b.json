@@ -1,0 +1,391 @@
+{
+  "fetched_at": "2026-05-07T01:34:21Z",
+  "field": null,
+  "prompt_version": "1.0.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": null,
+      "idea_body_excerpt": null,
+      "target_n": 8
+    },
+    "duration_seconds": 657.755,
+    "ended_at": "2026-05-07T01:34:21Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Impact of code clones on LLM performance"
+        ],
+        [
+          2,
+          "Redundant code in LLM training data"
+        ],
+        [
+          3,
+          "Software clone impact on code comprehension"
+        ],
+        [
+          4,
+          "LLM memorization of duplicated source code"
+        ],
+        [
+          5,
+          "Effect of training set duplication on code reasoning"
+        ],
+        [
+          6,
+          "Code similarity metrics in generative AI"
+        ],
+        [
+          7,
+          "Overfitting on repeated code patterns"
+        ],
+        [
+          8,
+          "Data contamination in code LLMs"
+        ],
+        [
+          9,
+          "Semantic understanding of copy-pasted code"
+        ],
+        [
+          10,
+          "Robustness of code LLMs against redundant inputs"
+        ],
+        [
+          11,
+          "Influence of code repetition on model generalization"
+        ],
+        [
+          12,
+          "Code embedding quality with duplicated data"
+        ],
+        [
+          13,
+          "Synthetic code clones in benchmark datasets"
+        ],
+        [
+          14,
+          "Natural language processing for software clones"
+        ],
+        [
+          15,
+          "Code generation redundancy and model accuracy"
+        ],
+        [
+          16,
+          "Duplicate code handling in neural code search"
+        ],
+        [
+          17,
+          "Preprocessing code datasets for duplicate removal"
+        ],
+        [
+          18,
+          "AI code assistants and copy-paste vulnerability"
+        ],
+        [
+          19,
+          "Training data deduplication effects on code models"
+        ],
+        [
+          20,
+          "Neural code search performance with cloned queries"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Evaluating the Impact of Code Duplication on LLM Code Understanding computer science": 0,
+        "Impact of code clones on LLM performance": 5,
+        "Redundant code in LLM training data": 4
+      },
+      "total_queries_issued": 4
+    },
+    "failure_reason": null,
+    "librarian_prompt_version": "1.0.0",
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.1145/3643916.3645030"
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-07T01:23:23Z",
+    "term_input": {
+      "normalized": "evaluating the impact of code duplication on llm code understanding computer science",
+      "raw": "Evaluating the Impact of Code Duplication on LLM Code Understanding computer science"
+    },
+    "verification_failures": [],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Luka Vranković",
+            "Gordana Rakić"
+          ],
+          "title": "Comparing Large Language Models and Traditional Clone Detection Tools for Intra- and Cross-Language Code Clone Detection",
+          "venue": "Companion Proceedings of the 10th International Conference on the Art, Science, and Engineering of Programming",
+          "year": 2026
+        },
+        "primary_pointer": "https://doi.org/10.1145/3801119.3801133",
+        "summary": "Code clone detection is one of the fundamental problems in software maintenance. While traditional code clone detection techniques have achieved competitive results in identifying syntactic similarity, their ability to handle semantic and cross-language clones remains constrained. The emergence of large language models (LLMs) introduces new opportunities for exploring semantic relationships in source code, which at first glance appear suitable for clone detection tasks. In this paper, we present an empirical comparison between LLM-based clone detection and a representative traditional tool (LICCA) across both intra-language and cross-language scenarios. We analyze the respective strengths and limitations of the two approaches and examine the impact of prompt formulation on detection performance. The experimental results suggest that integrating traditional clone detection tools with LLM-based semantic analysis may help address complementary strengths and limitations observed across the evaluated approaches.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://dl.acm.org/doi/10.1145/3801119.3801133",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.1145/3801119.3801133"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T01:30:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zixian Zhang",
+            "Takfarinas Saber"
+          ],
+          "title": "Exploring the Boundaries Between LLM Code Clone Detection and Code Similarity Assessment on Human and AI-Generated Code",
+          "venue": "Big Data and Cognitive Computing",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.3390/bdcc9020041",
+        "summary": "As Large Language Models (LLMs) continue to advance, their capabilities in code clone detection have garnered significant attention. While much research has assessed LLM performance on human-generated code, the proliferation of LLM-generated code raises critical questions about their ability to detect clones across both human- and LLM-created codebases, as this capability remains largely unexplored. This paper addresses this gap by evaluating two versions of LLaMA3 on these distinct types of datasets. Additionally, we perform a deeper analysis beyond simple prompting, examining the nuanced relationship between code cloning and code similarity that LLMs infer. We further explore how fine-tuning impacts LLM performance in clone detection, offering new insights into the interplay between code clones and similarity in human versus AI-generated code. Our findings reveal that LLaMA models excel in detecting syntactic clones but face challenges with semantic clones. Notably, the models perform better on LLM-generated datasets for semantic clones, suggesting a potential bias. The fine-tuning technique enhances the ability of LLMs to comprehend code semantics, improving their performance in both code clone detection and code similarity assessment. Our results offer valuable insights into the effectiveness and characteristics of LLMs in clone detection and code similarity assessment, providing a foundation for future applications and guiding further research in this area.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://www.mdpi.com/2504-2289/9/2/41",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.3390/bdcc9020041"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T01:30:12Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Saima Afrin",
+            "Md Zahidul Haque",
+            "A. Mastropaolo"
+          ],
+          "title": "A Systematic Literature Review of Parameter-Efficient Fine-Tuning for Large Code Models",
+          "venue": "ACM Transactions on Software Engineering and Methodology",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1145/3796522",
+        "summary": "The rise of Artificial Intelligence (AI)-and particularly Large Language Models (LLMs) for code–has reshaped Software Engineering (SE) by enabling the automation of tasks such as code generation, bug detection, and repair. However, these models require significant computational resources for training and fine-tuning, posing challenges for real-world adoption in resource-constrained environments. To address this, the research community has increasingly turned to Parameter-Efficient Fine-Tuning (PEFT)–a class of techniques that enables the adaptation of large models by updating only a small subset of parameters, rather than the entire model. In this Systematic Literature Review (SLR), we examine the growing application of PEFT techniques–across a wide range of software engineering tasks. We analyze how these methods are used to optimize various deep learning (DL) architectures, focusing on their impact on both performance and efficiency. Our study synthesizes findings from 28 peer-reviewed papers, identifying patterns in configuration strategies and adaptation trade-offs. The outcome of this review is a comprehensive taxonomy that categorizes PEFT usage by task type, distinguishing between generative (e.g., Code Summarization) and non-generative (e.g., Code Clone Detection) scenarios. Our findings aim to inform future research and guide the practical deployment of PEFT in sustainable, AI-powered software development. Our artifacts are publicly available at https://github.com/alvi75/SLR-PEFT",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://dl.acm.org/doi/10.1145/3796522",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.1145/3796522"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T01:30:13Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Afnan A. Almatrafi",
+            "F. Eassa",
+            "Sana Sharaf"
+          ],
+          "title": "Code Clone Detection Techniques Based on Large Language Models",
+          "venue": "IEEE Access",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1109/ACCESS.2025.3549780",
+        "summary": "Code duplication, commonly known as code cloning, is a persistent challenge in software development. While reusing code fragments boosts productivity, excessive cloning poses challenges to maintenance and elevates the risk of bugs. Therefore, integrating code clone detection into the development process is crucial. The extensive code-related knowledge inherent in Large Language Models (LLMs) renders them high-potential candidates for addressing diverse software engineering challenges. However, the effectiveness of LLMs in the specific task of code clone detection requires precise evaluation. This paper proposes an innovative methodology leveraging few-shot instruction-tuned GPT-3.5 Turbo and GPT-4 to detect code clones across all types, focusing on complex clones (Type-3 and Type-4). Unlike conventional approaches confined to specific language pairs or tasks, our method employs versatile language models, showcases generalization strengths for semantic understanding, and leverages instruction tuning with few-shot inference for task-specific adaptability in code clone detection. A conversational dataset was crafted from BigCloneBench for instruction tuning, enhancing task alignment and performance. This study evaluates the proficiency of LLMs in identifying code clones, analyzing the impact of instruction tuning, and assessing the efficiency across various clone types. Experimental results demonstrate these models achieving competitive performance against existing tools for overall and complex clone detection. Integration into an Integrated Development Environment (IDE) enables real-time detection and automated refactoring, bridging the gap between theoretical advancements and practical usability. This work highlights the potential of generalized LLMs setting a new standard in a field traditionally dominated by specialized tools and demonstrates their adaptability for complex challenges in code analysis and maintainability.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://ieeexplore.ieee.org/document/10918947/",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.1109/ACCESS.2025.3549780"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T01:30:13Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mohamad Khajezade",
+            "J. Wu",
+            "F. H. Fard",
+            "Gema Rodríguez-Pérez",
+            "M. Shehata"
+          ],
+          "title": "Investigating the Efficacy of Large Language Models for Code Clone Detection",
+          "venue": "IEEE International Conference on Program Comprehension",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1145/3643916.3645030",
+        "summary": "Large Language Models (LLMs) have demonstrated remarkable success in various natural language processing and software engineering tasks, such as code generation. The LLMs are mainly utilized in the prompt-based zero/few-shot paradigm to guide the model in accomplishing the task. GPT-based models are one of the popular ones studied for tasks such as code comment generation or test generation. These tasks are ‘generative’ tasks. However, there is limited research on the usage of LLMs for ‘non-generative’ tasks such as classification using the prompt-based paradigm. In this preliminary exploratory study, we investigated the applicability of LLMs for Code Clone Detection (CCD), a non-generative task. By building a mono-lingual and cross-lingual CCD dataset derived from CodeNet, we first investigated two different prompts using ChatGPT to detect Type-4 code clones in Java-Java and Java-Ruby pairs in a zero-shot setting. We then conducted an analysis to understand the strengths and weaknesses of ChatGPT in CCD. ChatGPT surpasses the baselines in cross-language CCD attaining an F1-score of 0.877 and achieves comparable performance to fully fine-tuned models for mono-lingual CCD, with an F1-score of 0.878. Also, the prompt and the difficulty level of the problems has an impact on the performance of ChatGPT. Finally, we provide insights and future directions based on our initial analysis 1.1Our code and data is open-sourced at https://github.com/mkhfring/llm-for-ccd",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "final_url": "https://dl.acm.org/doi/10.1145/3643916.3645030",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.1145/3643916.3645030"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T01:30:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Supriti Vijay",
+            "Aman Priyanshu"
+          ],
+          "title": "NERDA-Con: Extending NER models for Continual Learning - Integrating Distinct Tasks and Updating Distribution Shifts",
+          "venue": "arXiv.org",
+          "year": 2022
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2206.14607",
+        "summary": "With increasing applications in areas such as biomedical information extraction pipelines and social media analytics, Named Entity Recognition (NER) has become an indispensable tool for knowledge extraction. However, with the gradual shift in language structure and vocabulary, NERs are plagued with distribution shifts, making them redundant or not as profitable without re-training. Re-training NERs based on Large Language Models (LLMs) from scratch over newly acquired data poses economic disadvantages. In contrast, re-training only with newly acquired data will result in Catastrophic Forgetting of previously acquired knowledge. Therefore, we propose NERDA-Con, a pipeline for training NERs with LLM bases by incorporating the concept of Elastic Weight Consolidation (EWC) into the NER fine-tuning NERDA pipeline. As we believe our work has implications to be utilized in the pipeline of continual learning and NER, we open-source our code as well as provide the fine-tuning library of the same name NERDA-Con at https://github.com/SupritiVijay/NERDA-Con and https://pypi.org/project/NERDA-Con/.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2206.14607",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2206.14607"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T01:34:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alan Barnett",
+            "Seán Ahearne",
+            "Paul Barry",
+            "Merry Globin",
+            "Colin Duggan"
+          ],
+          "title": "Graph-Based Filtering to Prevent Prompt-Engineered LLM Training Data Leaks",
+          "venue": "International Conference on Smart Computing",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1109/SMARTCOMP65954.2025.00089",
+        "summary": "Machine-learning generative Artificial Intelligence tools, specifically large-language models, provide varied functionality, like content generation, user-facing chatbots, and code generation. The LLM typically works with a decision engine, such as a neural network. LLMs suffer issues with training data poisoning, copyright of generated content, and this paper's focus; prompt engineering attacks and training data leaks. The authors propose an architecture to co-locate a filtering mechanism with the LLM chatbot to identify and preventing disclosure of leaked LLM training data before communication to the end-user. Implementation of a resource description framework (RDF) based filtering mechanism compares LLM outputs against a bank of training data using three approaches; the first uses a bank of hash-codes generated from training data artifacts, the second uses a bank of training data stored as plaintext, and the third couples natural language processing (NLP) with the plaintext training data bank. Accuracy, overhead and acceleration results are detailed, and observed anomalies in LLM responses to testing including plausible leaks are also discussed.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://ieeexplore.ieee.org/document/11058635/",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.1109/SMARTCOMP65954.2025.00089"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T01:34:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kazuki Fujii",
+            "Yukito Tajima",
+            "Sakae Mizuki",
+            "Hinari Shimada",
+            "Taihei Shiotani",
+            "Koshiro Saito",
+            "Masanari Oi",
+            "Masaki Kawamura",
+            "Taishi Nakamura",
+            "Takumi Okamoto",
+            "Shigeki Ishida",
+            "Kakeru Hattori",
+            "Youmi Ma",
+            "Hiroya Takamura",
+            "Rio Yokota",
+            "Naoaki Okazaki"
+          ],
+          "title": "Rewriting Pre-Training Data Boosts LLM Performance in Math and Code",
+          "venue": "arXiv.org",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2505.02881",
+        "summary": "The performance of large language models (LLMs) in program synthesis and mathematical reasoning is fundamentally limited by the quality of their pre-training corpora. We introduce two openly licensed pre-training datasets, released under the Llama 3.3 Community License, that significantly enhance LLM performance by systematically rewriting public data. SwallowCode ($\\approx$16.1 billion tokens) refines Python snippets from The-Stack-v2 through a novel four-stage pipeline: syntax validation, pylint-based style filtering, and a two-stage LLM rewriting process that enforces style conformity and transforms snippets into self-contained, algorithmically efficient examples. Unlike prior methods that rely on exclusionary filtering or limited transformations, our transform-and-retain approach refines low-quality code, maximizing data utility. SwallowMath ($\\approx$2.3 billion tokens) enhances Finemath-4+ by removing boilerplate, restoring context, and reformatting solutions into concise, step-by-step explanations. Within a fixed 50 billion token training budget, continual pre-training of Llama-3.1-8B with SwallowCode boosts pass@1 by +17.0 on HumanEval and +16.1 on HumanEval+ compared to Stack-Edu, surpassing the baseline model's code generation capabilities. Similarly, substituting SwallowMath yields +12.4 accuracy on GSM8K and +7.6 on MATH. Ablation studies confirm that each pipeline stage contributes incrementally, with rewriting yielding the largest gains. By releasing datasets, prompts, checkpoints, and pipeline code, we ensure reproducibility and provide a transferable transform-and-retain methodology that can be adapted to other base models and LLM rewriting setups.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2505.02881",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2505.02881"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T01:34:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shiqing Kuang",
+            "Zhao Tian",
+            "Tao Xiao",
+            "Dong Wang",
+            "Junjie Chen"
+          ],
+          "title": "On the Effectiveness of Training Data Optimization for LLM-based Code Generation: An Empirical Study",
+          "venue": "arXiv.org",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2512.24570",
+        "summary": "Large language models (LLMs) have achieved remarkable progress in code generation, largely driven by the availability of high-quality code datasets for effective training. To further improve data quality, numerous training data optimization techniques have been proposed; however, their overall effectiveness has not been systematically evaluated. To bridge this gap, we conduct the first large-scale empirical study, examining five widely-used training data optimization techniques and their pairwise combinations for LLM-based code generation across three benchmarks and four LLMs. Our results show that data synthesis is the most effective technique for improving functional correctness and reducing code smells, although it performs relatively worse on code maintainability compared to data refactoring, cleaning, and selection. Regarding combinations, we find that most combinations do not further improve functional correctness but can effectively enhance code quality (code smells and maintainability). Among all combinations, data synthesis combined with data refactoring achieves the strongest overall performance. Furthermore, our fine-grained analysis reinforces these findings and provides deeper insights into how individual techniques and their combinations influence code generation effectiveness. Overall, this work represents a first step toward a systematic understanding of training data optimization and combination strategies, offering practical guidance for future research and deployment in LLM-based code generation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2512.24570",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2512.24570"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T01:34:20Z"
+        }
+      }
+    ]
+  },
+  "target_n": 8,
+  "term_normalized": "evaluating the impact of code duplication on llm code understanding computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
