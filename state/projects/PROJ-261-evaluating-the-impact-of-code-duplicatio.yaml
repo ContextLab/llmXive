@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T17:52:52.287155Z'
-current_stage: flesh_out_complete
+current_stage: project_initialized
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-261-evaluating-the-impact-of-code-duplicatio
-last_run_id: a30e65ec-fad5-4239-a588-e473dde64eb0
+last_run_id: cee4cafe-5867-4b32-817c-47f868444ae2
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -14,4 +14,4 @@ revision_round: 0
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Evaluating the Impact of Code Duplication on LLM Code Understanding
-updated_at: '2026-05-07T01:35:21.974970Z'
+updated_at: '2026-05-07T02:22:24.799104Z'

@@ -1,0 +1,270 @@
+{
+  "fetched_at": "2026-05-07T01:46:45Z",
+  "field": "computer science",
+  "prompt_version": "1.0.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Evaluating the Impact of Code Duplication on LLM Code Understanding",
+      "target_n": 5
+    },
+    "duration_seconds": 380.334,
+    "ended_at": "2026-05-07T01:46:45Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Code clones and large language models"
+        ],
+        [
+          2,
+          "Impact of code clones on neural code understanding"
+        ],
+        [
+          3,
+          "LLM performance on duplicated source code"
+        ],
+        [
+          4,
+          "Influence of training data duplication on code LLMs"
+        ],
+        [
+          5,
+          "Generalization of code LLMs to clone variants"
+        ],
+        [
+          6,
+          "Redundant code patterns in LLM training data"
+        ],
+        [
+          7,
+          "Neural code understanding and software clones"
+        ],
+        [
+          8,
+          "Code summarization accuracy on cloned functions"
+        ],
+        [
+          9,
+          "Effect of code redundancy on model accuracy"
+        ],
+        [
+          10,
+          "Semantic similarity of code clones in LLM embeddings"
+        ],
+        [
+          11,
+          "Overfitting in code language models on repetitive patterns"
+        ],
+        [
+          12,
+          "Bias in code generation models due to duplication"
+        ],
+        [
+          13,
+          "Software clone detection using generative AI"
+        ],
+        [
+          14,
+          "Code comprehension challenges in redundant software systems"
+        ],
+        [
+          15,
+          "Robustness of code LLMs to syntactic variations"
+        ],
+        [
+          16,
+          "Pre-training data contamination in code models"
+        ],
+        [
+          17,
+          "Memory and retrieval efficiency of LLMs on cloned code"
+        ],
+        [
+          18,
+          "Comparative analysis of clone types in neural code models"
+        ],
+        [
+          19,
+          "Automated code review and duplication detection"
+        ],
+        [
+          20,
+          "Software maintainability metrics and AI analysis"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Code clones and large language models": 5,
+        "Evaluating the Impact of Code Duplication on LLM Code Understanding computer science": 0
+      },
+      "total_queries_issued": 2
+    },
+    "failure_reason": null,
+    "librarian_prompt_version": "1.0.0",
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.1109/ACCESS.2025.3549780"
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-07T01:40:25Z",
+    "term_input": {
+      "normalized": "evaluating the impact of code duplication on llm code understanding computer science",
+      "raw": "Evaluating the Impact of Code Duplication on LLM Code Understanding computer science"
+    },
+    "verification_failures": [],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xing Qian",
+            "E. Alomar"
+          ],
+          "title": "Can large language models identify and refactor code clones? An empirical study",
+          "venue": "Journal of Systems and Software",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1016/j.jss.2025.112717",
+        "summary": "",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S0164121225003863",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.1016/j.jss.2025.112717"
+          ],
+          "summary_grounding_score": 0.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T01:46:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Afnan A. Almatrafi",
+            "F. Eassa",
+            "Sana Sharaf"
+          ],
+          "title": "Code Clone Detection Techniques Based on Large Language Models",
+          "venue": "IEEE Access",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1109/ACCESS.2025.3549780",
+        "summary": "Code duplication, commonly known as code cloning, is a persistent challenge in software development. While reusing code fragments boosts productivity, excessive cloning poses challenges to maintenance and elevates the risk of bugs. Therefore, integrating code clone detection into the development process is crucial. The extensive code-related knowledge inherent in Large Language Models (LLMs) renders them high-potential candidates for addressing diverse software engineering challenges. However, the effectiveness of LLMs in the specific task of code clone detection requires precise evaluation. This paper proposes an innovative methodology leveraging few-shot instruction-tuned GPT-3.5 Turbo and GPT-4 to detect code clones across all types, focusing on complex clones (Type-3 and Type-4). Unlike conventional approaches confined to specific language pairs or tasks, our method employs versatile language models, showcases generalization strengths for semantic understanding, and leverages instruction tuning with few-shot inference for task-specific adaptability in code clone detection. A conversational dataset was crafted from BigCloneBench for instruction tuning, enhancing task alignment and performance. This study evaluates the proficiency of LLMs in identifying code clones, analyzing the impact of instruction tuning, and assessing the efficiency across various clone types. Experimental results demonstrate these models achieving competitive performance against existing tools for overall and complex clone detection. Integration into an Integrated Development Environment (IDE) enables real-time detection and automated refactoring, bridging the gap between theoretical advancements and practical usability. This work highlights the potential of generalized LLMs setting a new standard in a field traditionally dominated by specialized tools and demonstrates their adaptability for complex challenges in code analysis and maintainability.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "final_url": "https://ieeexplore.ieee.org/document/10918947/",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.1109/ACCESS.2025.3549780"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T01:46:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mohamad Khajezade",
+            "J. Wu",
+            "F. H. Fard",
+            "Gema Rodríguez-Pérez",
+            "M. Shehata"
+          ],
+          "title": "Investigating the Efficacy of Large Language Models for Code Clone Detection",
+          "venue": "IEEE International Conference on Program Comprehension",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1145/3643916.3645030",
+        "summary": "Large Language Models (LLMs) have demonstrated remarkable success in various natural language processing and software engineering tasks, such as code generation. The LLMs are mainly utilized in the prompt-based zero/few-shot paradigm to guide the model in accomplishing the task. GPT-based models are one of the popular ones studied for tasks such as code comment generation or test generation. These tasks are ‘generative’ tasks. However, there is limited research on the usage of LLMs for ‘non-generative’ tasks such as classification using the prompt-based paradigm. In this preliminary exploratory study, we investigated the applicability of LLMs for Code Clone Detection (CCD), a non-generative task. By building a mono-lingual and cross-lingual CCD dataset derived from CodeNet, we first investigated two different prompts using ChatGPT to detect Type-4 code clones in Java-Java and Java-Ruby pairs in a zero-shot setting. We then conducted an analysis to understand the strengths and weaknesses of ChatGPT in CCD. ChatGPT surpasses the baselines in cross-language CCD attaining an F1-score of 0.877 and achieves comparable performance to fully fine-tuned models for mono-lingual CCD, with an F1-score of 0.878. Also, the prompt and the difficulty level of the problems has an impact on the performance of ChatGPT. Finally, we provide insights and future directions based on our initial analysis 1.1Our code and data is open-sourced at https://github.com/mkhfring/llm-for-ccd",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://dl.acm.org/doi/10.1145/3643916.3645030",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.1145/3643916.3645030"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T01:46:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Muslim Chochlov",
+            "G. Ahmed",
+            "James Patten",
+            "Yuanhua Han",
+            "Guoxian Lu",
+            "David Gregg",
+            "Jim Buckley"
+          ],
+          "title": "Selecting and Combining Large Language Models for Scalable Code Clone Detection",
+          "venue": "arXiv.org",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2510.15480",
+        "summary": "Source code clones pose risks ranging from intellectual property violations to unintended vulnerabilities. Effective and efficient scalable clone detection, especially for diverged clones, remains challenging. Large language models (LLMs) have recently been applied to clone detection tasks. However, the rapid emergence of LLMs raises questions about optimal model selection and potential LLM-ensemble efficacy. This paper addresses the first question by identifying 76 LLMs and filtering them down to suitable candidates for large-scale clone detection. The candidates were evaluated on two public industrial datasets, BigCloneBench, and a commercial large-scale dataset. No uniformly'best-LLM'emerged, though CodeT5+110M, CuBERT and SPTCode were top-performers. Analysis of LLM-candidates suggested that smaller embedding sizes, smaller tokenizer vocabularies and tailored datasets are advantageous. On commercial large-scale dataset a top-performing CodeT5+110M achieved 39.71\\% precision: twice the precision of previously used CodeBERT. To address the second question, this paper explores ensembling of the selected LLMs: effort-effective approach to improving effectiveness. Results suggest the importance of score normalization and favoring ensembling methods like maximum or sum over averaging. Also, findings indicate that ensembling approach can be statistically significant and effective on larger datasets: the best-performing ensemble achieved even higher precision of 46.91\\% over individual LLM on the commercial large-scale code.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2510.15480",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2510.15480"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T01:46:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zixian Zhang",
+            "Takfarinas Saber"
+          ],
+          "title": "Assessing the Code Clone Detection Capability of Large Language Models",
+          "venue": "2024 4th International Conference on Code Quality (ICCQ)",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1109/ICCQ60895.2024.10576803",
+        "summary": "This study aims to assess the performance of two advanced Large Language Models (LLMs), GPT-3.S and GPT-4, in the task of code clone detection. The evaluation involves testing the models on a variety of code pairs of different clone types and levels of similarity, sourced from two datasets: BigCloneBench (human-made) and GPTCloneBench (LLM-generated). Findings from the study indicate that GPT-4 consistently sur-passes GPT-3.5 across all clone types. A correlation was observed between the GPTs' accuracy at identifying code clones and code similarity, with both GPT models exhibiting low effectiveness in detecting the most complex Type-4 code clones. Additionally, GPT models demonstrate a higher performance identifying code clones in LLM-generated code compared to humans-generated code. However, they do not reach impressive accuracy. These results emphasize the imperative for ongoing enhancements in LLM capabilities, particularly in the recognition of code clones and in mitigating their predisposition towards self-generated code clones-which is likely to become an issue as software engineers are more numerous to leverage LLM-enabled code generation and code refactoring tools.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://ieeexplore.ieee.org/document/10576803/",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "redirect_chain": [
+            "https://doi.org/10.1109/ICCQ60895.2024.10576803"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T01:46:44Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating the impact of code duplication on llm code understanding computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

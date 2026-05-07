@@ -158,28 +158,24 @@ class FleshOutAgent(_IdeaPhaseAgent):
                 )
         # Augment the user prompt with a real lit-search result block so
         # the LLM grounds its "Related work" section on actual papers
-        # instead of hallucinating URLs that 404 (PROJ-006 spec.md was
-        # citing non-existent worldagroforestry.org/...).
+        # instead of hallucinating URLs that 404. Spec 005 (FR-007):
+        # call the LibrarianAgent directly so the Search trail subsection
+        # gets written to the project's idea.md.
         title = ctx.metadata.get("title", "")
         field = ctx.metadata.get("field", "")
         query = " ".join(filter(None, [title, field]))
         if query:
-            try:
-                import sys as _sys
-                from pathlib import Path as _Path
-                _repo = _Path(__file__).resolve().parent.parent.parent.parent
-                if str(_repo) not in _sys.path:
-                    _sys.path.insert(0, str(_repo))
-                from agents.tools.lit_search import lit_search
-                papers = lit_search(query=query, max_results=8)
-            except Exception as exc:  # pragma: no cover — defensive
-                papers = []
-                print(f"[flesh_out] lit_search failed: {exc!r}")
-            if papers:
+            verified = self._librarian_search(ctx, query, title, field)
+            if verified:
                 lines = ["# Verified literature search results (use ONLY these URLs)"]
-                for p in papers:
-                    yr = f" ({p.year})" if p.year else ""
-                    lines.append(f"- [{p.title}{yr}]({p.source_url}) — {p.abstract[:200]}")
+                for v in verified:
+                    bib = v.get("bibliographic_info") or {}
+                    yr = bib.get("year")
+                    yr_str = f" ({yr})" if yr else ""
+                    log = v.get("verification_log") or {}
+                    url = log.get("final_url") or v.get("primary_pointer", "")
+                    summary = (v.get("summary") or "")[:200]
+                    lines.append(f"- [{bib.get('title', '')}{yr_str}]({url}) — {summary}")
                 lit_block = "\n".join(lines)
                 # Append to the last user message.
                 last = messages[-1]
@@ -188,6 +184,61 @@ class FleshOutAgent(_IdeaPhaseAgent):
                     content=last.content + "\n\n" + lit_block + "\n",
                 )
         return messages
+
+    def _librarian_search(
+        self,
+        ctx: AgentContext,
+        query: str,
+        title: str,
+        field: str,
+    ) -> list[dict]:
+        """Invoke the LibrarianAgent directly per spec 005 / FR-007.
+
+        Returns a list of librarian-shaped verified-citation dicts (the
+        same shape produced by ``LibrarianResult.to_dict()['verified_citations']``).
+        Resolves the canonical idea.md path so the librarian can write
+        its ``## Search trail`` subsection in-place.
+        """
+        try:
+            from llmxive.agents import registry as _registry
+            from llmxive.agents.librarian import LibrarianAgent
+        except Exception as exc:  # pragma: no cover — defensive
+            print(f"[flesh_out] librarian import failed: {exc!r}")
+            return []
+
+        repo = Path(__file__).resolve().parent.parent.parent.parent
+        idea_dir = repo / "projects" / ctx.project_id / "idea"
+        idea_md_path: Path | None = None
+        if idea_dir.is_dir():
+            existing = next(
+                (p for p in sorted(idea_dir.glob("*.md"))
+                 if p.name not in self._DIAGNOSTIC_ARTIFACT_NAMES),
+                None,
+            )
+            if existing is not None:
+                idea_md_path = existing
+
+        try:
+            entry = _registry.get("librarian")
+        except Exception as exc:  # pragma: no cover — defensive
+            print(f"[flesh_out] librarian not registered: {exc!r}")
+            return []
+
+        try:
+            librarian = LibrarianAgent(entry)
+            result = librarian.invoke(
+                term=query,
+                field=field or None,
+                idea_body_excerpt=title or None,
+                target_n=5,
+                repo_root=repo,
+                idea_md_path=idea_md_path,
+            )
+        except Exception as exc:  # pragma: no cover — defensive
+            print(f"[flesh_out] librarian.invoke failed: {exc!r}")
+            return []
+
+        return result.to_dict().get("verified_citations") or []
 
     # spec 003 / D13: diagnostic artifacts that share idea_dir with the
     # canonical idea file but MUST NOT be picked as the overwrite target.
@@ -213,6 +264,10 @@ class FleshOutAgent(_IdeaPhaseAgent):
              if p.name not in self._DIAGNOSTIC_ARTIFACT_NAMES),
             None,
         )
+        # Preserve any ``## Search trail`` block the librarian wrote
+        # during build_messages — _persist's overwrite would otherwise
+        # destroy it. Spec 005 / FR-007.
+        preserved_trail = ""
         if existing is not None:
             target = existing
             # Preserve original front-matter.
@@ -224,6 +279,9 @@ class FleshOutAgent(_IdeaPhaseAgent):
                     front = cur[: end + 3] + "\n\n"
                 except ValueError:
                     pass
+            trail_idx = cur.find("\n## Search trail")
+            if trail_idx >= 0:
+                preserved_trail = cur[trail_idx:].rstrip() + "\n"
         else:
             target = idea_dir / f"{_slugify(title)}.md"
             front = (
@@ -248,7 +306,12 @@ class FleshOutAgent(_IdeaPhaseAgent):
         # whichever variant it produced.
         if not body.startswith("# "):
             body = f"# {title}\n\n{body}"
-        target.write_text(front + body + "\n", encoding="utf-8")
+        out = front + body + "\n"
+        if preserved_trail:
+            # Insert before any trailing whitespace; ensure exactly one
+            # blank line between body and trail.
+            out = out.rstrip() + "\n\n" + preserved_trail
+        target.write_text(out, encoding="utf-8")
 
         # Scope check: if the LLM declared the idea out-of-scope per
         # the brainstorm/flesh-out scope constraints, write a sentinel

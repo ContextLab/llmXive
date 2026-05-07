@@ -171,7 +171,28 @@ class LibrarianAgent(Agent):
                 # the same shape they'd see on a cache miss. This is the
                 # correctness guarantee SC-012 requires (deterministic
                 # results across cache states).
-                return _result_from_dict(cached)
+                cached_result = _result_from_dict(cached)
+                # Search trail must still be written on cache hit so callers
+                # like flesh_out get the subsection regardless of cache state
+                # (SC-012 + FR-007).
+                if idea_md_path is not None and idea_md_path.exists():
+                    search_trail.write_search_trail(
+                        idea_md_path,
+                        original_term=term,
+                        outcome=cached_result.outcome,
+                        verified_citations=cached_result.verified_citations,
+                        expanded_terms_ranked=(
+                            cached_result.expansion.expanded_terms_ranked
+                            if cached_result.expansion else ()
+                        ),
+                        per_term_hit_count=(
+                            cached_result.expansion.per_term_hit_count
+                            if cached_result.expansion else {}
+                        ),
+                        librarian_prompt_version=prompt_ver,
+                        generated_at=_dt.datetime.now(_dt.UTC),
+                    )
+                return cached_result
 
         # 2. Initial search.
         ss_client = ss_client if ss_client is not None else SemanticScholarClient()

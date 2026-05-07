@@ -1,0 +1,67 @@
+# Spec 005 / US3 / T045 — RevalidationResult records (data-model E9)
+# Generated: 2026-05-07
+# Aggregate verdict: PASS — both canonicals judged `verified`.
+
+records:
+  - project_id: PROJ-261-evaluating-the-impact-of-code-duplicatio
+    prior_state:
+      current_stage: project_initialized
+      flesh_out_iteration_count: 1
+      validator_verdict: validated
+      reference_commit: e422cef
+    new_state:
+      current_stage: project_initialized
+      flesh_out_iteration_count: 2
+      validator_verdict: validated
+    idea_body_diff_path: /tmp/proj261-idea-diff.patch
+    idea_body_diff_lines: 81
+    librarian_outcome: success_after_expansion
+    librarian_verified_count: 5
+    validator_subchecks:
+      framing: pass
+      novelty: pass
+      feasibility: pass
+      testability: pass
+    judgment: verified
+    judgment_rationale: |
+      Both prior and new validator runs return `validated` with all four
+      sub-checks passing. The librarian-backed lit search produced 5
+      verified citations (one initial term, success_after_expansion via
+      DOI-rich Semantic Scholar results on code-clone / LLM-detection
+      papers). The new idea body adds a `## Search trail` subsection
+      (FR-007) and tightens the framing slightly with the verified-
+      citation evidence — no material question shift. Carry-forward
+      unchanged.
+
+  - project_id: PROJ-262-predicting-molecular-dipole-moments-with
+    prior_state:
+      current_stage: project_initialized
+      flesh_out_iteration_count: 1
+      validator_verdict: validated
+      reference_commit: e422cef
+    new_state:
+      current_stage: project_initialized
+      flesh_out_iteration_count: 2
+      validator_verdict: validated
+    idea_body_diff_path: /tmp/proj262-idea-diff.patch
+    idea_body_diff_lines: 101
+    librarian_outcome: success
+    validator_subchecks:
+      framing: pass
+      novelty: pass
+      feasibility: pass
+      testability: pass
+    judgment: verified
+    judgment_rationale: |
+      Validator returns `validated` (4/4 sub-checks pass) under the new
+      librarian-backed citation set. The librarian's lit search on
+      "Predicting Molecular Dipole Moments with Graph Neural Networks
+      chemistry" surfaced verified GNN-dipole-moment papers and the new
+      idea body adds the Search trail subsection (FR-007). No material
+      reframing of the research question. Carry-forward unchanged.
+
+aggregate_verdict: PASS
+notes: |
+  US3 acceptance: both canonicals produce `verified` (≠ shifted_regressed)
+  → carry-forward proceeds in US6 with both projects at the new
+  `project_initialized` state under spec 005's librarian-backed pipeline.

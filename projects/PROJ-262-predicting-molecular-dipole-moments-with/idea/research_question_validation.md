@@ -1,31 +1,26 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
-
 **Verdict**: pass
 
-The question asks about a domain relationship between molecular structural features and electronic dipole properties, independent of any specific ML method's performance. The comparison to traditional descriptors is framed as understanding what information is necessary for accurate prediction, not as a benchmark constraint on a particular algorithm.
+The question asks about the relative contribution of specific structural features (atom types, connectivity, conformation) to the dipole moment property. It uses models as a tool to measure signal contribution rather than testing the model's performance limit itself. The core inquiry is about the structure-property relationship, not the algorithmic efficiency.
 
 ### Circularity check
-
 **Verdict**: pass
 
-Predictor (atom types, bond types, 3D conformation) is derived from molecular geometry and composition. Predicted variable (dipole moment) is an electronic property calculated via ab initio quantum methods in QM9. These are independent measurement modalities, not two summaries of the same signal.
+Predictor features (atomic coordinates, types, bonds) are distinct from the target property (dipole moment), which is an emergent electronic property calculated from quantum mechanics. They are not derived from the same summary statistic or correlation matrix, so the relationship is empirical rather than mechanical.
 
 ### Triviality check
-
 **Verdict**: pass
 
-Either result is informative: a strong 3D conformation signal confirms that geometry-aware models are necessary for dipole prediction, while a null result would suggest atom/bond types alone suffice, enabling simpler descriptor-based models. The literature gap analysis confirms this feature decomposition has not been explicitly quantified for dipole moments.
+Both outcomes are informative; confirming 3D geometry necessity supports the use of equivariant architectures for electronic properties, while showing 2D descriptors suffice would suggest significant computational savings are possible without loss of accuracy. Neither result is predetermined by basic domain knowledge given the complexity of many-body interactions.
 
 ### Question-narrowing check
-
 **Verdict**: pass
 
-Names a domain relationship (structural features → dipole moments) rather than implementation constraints. The question asks "which features carry signal" (chemistry question) not "can method M achieve accuracy X within budget B" (benchmark question).
+Names domain relationships (structure-property mapping) rather than implementation constraints (runtime, architecture depth). The comparison between graph-based and traditional descriptors serves to probe feature representational capacity, not to benchmark hardware or training time.
 
 ### Overall verdict
-
 **Verdict**: validated
 
-All four checks pass. The research question targets a substantive chemistry problem (feature importance for dipole prediction) that is independent of specific implementation choices, free of circularity, and informative under both positive and null outcomes. The project can proceed to initialization.
+All checks pass; the research question focuses on a substantive scientific inquiry regarding which structural signals drive molecular dipole moments. The methodology serves the question rather than defining it, and the expected outcomes would yield publishable insights into interpretability and model design.

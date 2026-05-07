@@ -4,46 +4,27 @@
 
 ## Research question
 
-Which structural features of small organic molecules (atom types, bond types, 3D conformation) carry the most predictive signal for molecular dipole moments, and how effectively can graph-based representations capture this relationship compared to traditional descriptors?
+How do atom types, bond connectivity, and 3D conformation independently contribute to the predictive signal for molecular dipole moments in graph-based models compared to traditional descriptors?
 
 ## Motivation
 
-Molecular dipole moments govern solubility, reactivity, and intermolecular binding, yet their dependence on specific geometric and electronic features is often opaque in black-box models. Understanding which structural components drive dipole predictions is critical for designing interpretable machine learning potentials and guiding synthetic chemistry. This project addresses the gap between high-accuracy property prediction and chemical interpretability.
+Molecular dipole moments dictate solubility, reactivity, and intermolecular binding, yet the specific structural drivers remain opaque in black-box models. While prediction accuracy is well-documented, understanding which physical signals (e.g., electronegative atom placement vs. bond angles) dominate the model's decision is critical for designing interpretable potentials and guiding synthetic chemistry. This project bridges the gap between high-accuracy property prediction and chemical interpretability.
 
-## Literature gap analysis
+## Related work
 
-### What we searched
-
-We queried Semantic Scholar and arXiv using terms: "graph neural network dipole moment prediction", "molecular property prediction feature importance", and "equivariant neural networks chemistry". We examined 4 returned records for relevance to dipole-specific feature decomposition.
-
-### What is known
-
-- [Atomistic Line Graph Neural Network for improved materials property predictions (2021)](https://doi.org/10.1038/s41524-021-00650-1) — Establishes that line-graph GNNs improve general atomistic property prediction over descriptor-based methods.
-- [E(3)-equivariant graph neural networks for data-efficient and accurate interatomic potentials (2022)](https://doi.org/10.1038/s41467-022-29939-5) — Demonstrates E(3) equivariance is critical for accurate 3D geometry modeling in potential energy calculations.
-- [Graph neural networks for materials science and chemistry (2022)](https://doi.org/10.1038/s43246-022-00315-6) — Reviews the broader application of GNNs in chemistry but does not isolate dipole moments as a primary case study.
-- [Learning local equivariant representations for large-scale atomistic dynamics (2023)](https://doi.org/10.1038/s41467-023-36329-y) — Presents efficient parametrizations of potential energy surfaces but does not address electronic property prediction like dipole moments.
-
-### What is NOT known
-
-No published work in the retrieved results explicitly dissects the contribution of atom types versus 3D conformation to dipole moment prediction accuracy. Most cited work focuses on interatomic potentials (energy/forces) rather than electronic properties like dipoles, leaving the specific feature importance landscape for dipoles unquantified.
-
-### Why this gap matters
-
-Without knowing which structural signals drive dipole predictions, chemists cannot trust model recommendations for molecular design or distinguish between physical causality and dataset artifacts. Filling this gap enables more interpretable ML models that align with chemical intuition.
-
-### How this project addresses the gap
-
-This project isolates feature contributions by comparing a 3D-GNN against traditional 2D descriptors on the QM9 dataset. By applying permutation importance and attention analysis, we will quantify the specific predictive signal of 3D conformation versus atom/bond types for dipole moments.
+- [Q‐DFTNet: A Chemistry‐Informed Neural Network Framework for Predicting Molecular Dipole Moments via DFT‐Driven QM9 Data (2025)](https://onlinelibrary.wiley.com/doi/10.1002/jcc.70206) — Benchmarks GNN performance on QM9 dipole prediction but focuses on accuracy metrics rather than structural feature attribution.
+- [PhysNet: A Neural Network for Predicting Energies, Forces, Dipole Moments, and Partial Charges. (2019)](https://pubs.acs.org/doi/10.1021/acs.jctc.9b00181) — Establishes neural network baselines for dipole prediction using quantum reference data, demonstrating high accuracy without isolating specific geometric feature contributions.
+- [MolNet_Equi: A Chemically Intuitive, Rotation-Equivariant Graph Neural Network. (2023)](https://aces.onlinelibrary.wiley.com/doi/10.1002/asia.202300684) — Proposes equivariant architectures for molecular properties, noting limitations in handling vector properties like dipoles compared to scalar properties.
 
 ## Expected results
 
-We expect 3D-equivariant GNNs to outperform 2D descriptors on dipole prediction, confirming that conformation carries significant signal. Feature attribution analysis will reveal that electronegative atom placement and bond angles contribute more to predictive variance than bond types alone. Statistical significance will be confirmed via paired t-tests on RMSE across cross-validation folds.
+We expect 3D-equivariant GNNs to outperform 2D descriptor baselines, confirming that conformational geometry carries significant predictive signal beyond atom types. Feature attribution analysis will reveal that electronegative atom placement and local bond angles contribute more to predictive variance than global molecular size. Statistical significance will be confirmed via paired t-tests on RMSE across cross-validation folds.
 
 ## Methodology sketch
 
-- Download the QM9 dataset (134k molecules) from Figshare (DOI: 10.6084/m9.figshare.9981994) and filter to a random 20k subset to fit 7GB RAM.
-- Preprocess data to extract 3D coordinates, atom types, and bond connectivity; generate standard descriptors (Morgan fingerprints, Coulomb matrices) for baseline.
-- Implement a lightweight SchNet-style GNN using PyTorch Geometric (CPU-only mode) and train for 50 epochs with early stopping.
+- Download the QM9 dataset (134k molecules) from Figshare (DOI: 10.6084/m9.figshare.9981994) and filter to a random 20k subset to fit 7GB RAM limits.
+- Preprocess data to extract 3D coordinates, atom types, and bond connectivity; generate standard descriptors (Morgan fingerprints, Coulomb matrices) for baseline comparison.
+- Implement a lightweight SchNet-style GNN using PyTorch Geometric (CPU-only mode) and train for 50 epochs with early stopping to stay within 6h runtime.
 - Train a Random Forest baseline on traditional descriptors using the same train/test splits.
 - Evaluate both models on a held-out test set using Mean Absolute Error (MAE) for dipole moments.
 - Apply permutation importance to the GNN node embeddings and Random Forest features to rank structural contributions.
@@ -55,3 +36,39 @@ We expect 3D-equivariant GNNs to outperform 2D descriptors on dipole prediction,
 - Reviewed existing ideas: None identified in current project context.
 - Closest match: N/A (No similar dipole-feature-interpretability projects found in context).
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.0.0) on 2026-05-07T02:24:33Z
+**Outcome**: success
+**Original term**: Predicting Molecular Dipole Moments with Graph Neural Networks chemistry
+**Verified citation count**: 19
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting Molecular Dipole Moments with Graph Neural Networks chemistry | 19 |
+
+### Verified citations
+
+1. **Q‐DFTNet: A Chemistry‐Informed Neural Network Framework for Predicting Molecular Dipole Moments via DFT‐Driven QM9 Data** (2025). D. D. Wayo, Mohd Zulkifli Bin Mohamad Noor, Masoud Darvish Ganji, C. Saporetti, L. Goliatt. Journal of Computational Chemistry. [https://doi.org/10.1002/jcc.70206](https://doi.org/10.1002/jcc.70206). PDF-sampled: No.
+2. **Leveraging Graph Neural Networks for Enhanced Prediction of Molecular Solubility via Transfer Learning** (2024). D. P. Nguyen, P. T. Le. Journal of Technical Education Science. [https://doi.org/10.54644/jte.2024.1571](https://doi.org/10.54644/jte.2024.1571). PDF-sampled: No.
+3. **PhysNet: A Neural Network for Predicting Energies, Forces, Dipole Moments, and Partial Charges.** (2019). Oliver T. Unke, M. Meuwly. Journal of Chemical Theory and Computation. [https://doi.org/10.1021/acs.jctc.9b00181](https://doi.org/10.1021/acs.jctc.9b00181). PDF-sampled: No.
+4. **Molecular electrostatic potentials from machine learning models for dipole and quadrupole predictions** (2026). Kadri Muuga, Lisanne Knijff, Chao Zhang. AI for Science. [https://doi.org/10.1088/3050-287X/ae531a](https://doi.org/10.1088/3050-287X/ae531a). PDF-sampled: No.
+5. **p-GIN: a graph isomorphism network based on p-laplacian operator to enhance molecular property prediction** (2025). Jamshaid Ul Rahamn, M. Iqbal, Areen Rasool, Rongin Uwitije. Discover Applied Sciences. [https://doi.org/10.1007/s42452-025-07811-7](https://doi.org/10.1007/s42452-025-07811-7). PDF-sampled: Inaccessible.
+6. **Extending machine learning beyond interatomic potentials for predicting molecular properties** (2022). Nikita Fedik, R. Zubatyuk, M. Kulichenko, N. Lubbers, Justin S. Smith, et al.. Nature Reviews Chemistry. [https://doi.org/10.1038/s41570-022-00416-3](https://doi.org/10.1038/s41570-022-00416-3). PDF-sampled: No.
+7. **MolNet_Equi: A Chemically Intuitive, Rotation-Equivariant Graph Neural Network.** (2023). Jihoo Kim, Yoonho Jeong, W. Kim, E. Lee, Insung S. Choi. Chemistry - An Asian Journal. [https://doi.org/10.1002/asia.202300684](https://doi.org/10.1002/asia.202300684). PDF-sampled: No.
+8. **Enhancing molecular property prediction with quantized GNN models** (2025). Areen Rasool, Jamshaid Ul Rahman, Rongin Uwitije. Journal of Cheminformatics. [https://doi.org/10.1186/s13321-025-00989-3](https://doi.org/10.1186/s13321-025-00989-3). PDF-sampled: No.
+9. **Deep Learning for Optoelectronic Properties of Organic Semiconductors** (2019). Chengqiang Lu, Qi Liu, Qiming Sun, Chang-Yu Hsieh, Shengyu Zhang, et al.. Journal of Physical Chemistry C. [https://doi.org/10.1021/acs.jpcc.0c00329](https://doi.org/10.1021/acs.jpcc.0c00329). PDF-sampled: No.
+10. **The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory** (2023). Sergey Oladyshkin, Timothy Praditia, Ilja Kröker, Farid Mohammadi, Wolfgang Nowak, et al.. arXiv. [2306.14753](https://arxiv.org/abs/2306.14753). PDF-sampled: No.
+11. **Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks** (2023). Danny D'Agostino, Ilija Ilievski, Christine Annette Shoemaker. arXiv. [2307.05639](https://arxiv.org/abs/2307.05639). PDF-sampled: No.
+12. **MECCH: Metapath Context Convolution-based Heterogeneous Graph Neural Networks** (2022). Xinyu Fu, Irwin King. arXiv. [2211.12792](https://arxiv.org/abs/2211.12792). PDF-sampled: No.
+13. **Hierarchical Attentional Hybrid Neural Networks for Document Classification** (2019). Jader Abreu, Luis Fred, David Macêdo, Cleber Zanchettin. arXiv. [1901.06610](https://arxiv.org/abs/1901.06610). PDF-sampled: No.
+14. **A Neural Network-Evolutionary Computational Framework for Remaining Useful Life Estimation of Mechanical Systems** (2019). David Laredo, Zhaoyin Chen, Oliver Schütze, Jian-Qiao Sun. arXiv. [1905.05918](https://arxiv.org/abs/1905.05918). PDF-sampled: No.
+15. **A Review on Neural Network Models of Schizophrenia and Autism Spectrum Disorder** (2019). Pablo Lanillos, Daniel Oliva, Anja Philippsen, Yuichi Yamashita, Yukie Nagai, et al.. arXiv. [1906.10015](https://arxiv.org/abs/1906.10015). PDF-sampled: No.
+16. **Continual Learning for Recurrent Neural Networks: an Empirical Evaluation** (2021). Andrea Cossu, Antonio Carta, Vincenzo Lomonaco, Davide Bacciu. arXiv. [2103.07492](https://arxiv.org/abs/2103.07492). PDF-sampled: No.
+17. **Social Influence Prediction with Train and Test Time Augmentation for Graph Neural Networks** (2021). Hongbo Bo, Ryan McConville, Jun Hong, Weiru Liu. arXiv. [2104.11641](https://arxiv.org/abs/2104.11641). PDF-sampled: No.
+18. **Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation** (2022). Giorgio Morales, John W. Sheppard. arXiv. [2212.06370](https://arxiv.org/abs/2212.06370). PDF-sampled: No.
+19. **Towards Dropout Training for Convolutional Neural Networks** (2015). Haibing Wu, Xiaodong Gu. arXiv. [1512.00242](https://arxiv.org/abs/1512.00242). PDF-sampled: No.
