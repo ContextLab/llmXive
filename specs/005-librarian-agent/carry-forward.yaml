@@ -1,0 +1,54 @@
+spec: "005-librarian-agent"
+generated_at: 2026-05-07T03:00:00Z
+final_commit: HEAD  # see git log of branch 008-librarian-agent
+projects:
+  - project_id: PROJ-261-evaluating-the-impact-of-code-duplicatio
+    final_state: project_initialized
+    final_commit: HEAD
+    audited_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio  # in-place; iteration trail in git log
+    agents_run:
+      - { name: brainstorm, iterations: 1, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
+      - { name: flesh_out, iterations: 2, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
+      - { name: research_question_validator, iterations: 2, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
+      - { name: project_initializer, iterations: 3, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
+      - { name: librarian, iterations: 1, final_run_log_path: state/run-log/2026-05/bcf7df3f-567d-4cea-beed-6ced1092c00b.jsonl }
+    revalidation_judgment: verified
+    justification: |
+      Spec 005 re-validation produced judgment=verified per
+      specs/005-librarian-agent/revalidation-results.yaml. flesh_out
+      iter2 produced a populated `## Search trail` subsection with 5
+      verified citations (outcome=success_after_expansion, 1 expansion
+      term used). Validator iter2 returned verdict=validated with all
+      4 sub-checks passing (framing, novelty, feasibility, testability).
+      project_initializer skipped re-rendering the constitution via the
+      skip-if-exists guard, preserving the spec-004 audited content
+      byte-unchanged. No caveats for spec 006: the constitution + idea
+      body are both grounded in librarian-verified evidence; spec 006's
+      specifier + clarifier agents inherit a clean substrate. Iteration
+      trail: `git log -- projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/`.
+
+  - project_id: PROJ-262-predicting-molecular-dipole-moments-with
+    final_state: project_initialized
+    final_commit: HEAD
+    audited_iter_id: PROJ-262-predicting-molecular-dipole-moments-with  # in-place
+    agents_run:
+      - { name: brainstorm, iterations: 1, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
+      - { name: flesh_out, iterations: 3, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
+      - { name: research_question_validator, iterations: 3, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
+      - { name: project_initializer, iterations: 3, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
+      - { name: librarian, iterations: 1, final_run_log_path: state/run-log/2026-05/962403fd-41b6-4268-ba0a-a157c16a9feb.jsonl }
+    revalidation_judgment: verified
+    justification: |
+      Spec 005 re-validation produced judgment=verified. flesh_out iter3
+      produced a populated `## Search trail` subsection with verified
+      citations (outcome=success — initial term satisfied target,
+      expansion not required). Validator iter3 returned verdict=validated
+      with all 4 sub-checks passing. project_initializer skipped
+      re-rendering the constitution via the skip-if-exists guard,
+      preserving the spec-004 audited content. The 3D-geometry +
+      chemical-interpretability principles in the constitution remain
+      grounded in librarian-verified GNN-dipole-moment papers via the
+      new Search trail. No caveats for spec 006. Iteration trail:
+      `git log -- projects/PROJ-262-predicting-molecular-dipole-moments-with/`.
+
+# Aggregate verdict: PASS — both canonicals proceed to spec 006 unchanged.
