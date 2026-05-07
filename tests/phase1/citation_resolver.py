@@ -1,5 +1,33 @@
 """Phase 1 citation resolver (Stage 1: mechanical).
 
+⚠️ **Soft-deprecated post spec 005 (2026-05-06)**: this module's
+URL-resolves + title-overlap verification logic duplicates
+``llmxive.librarian.verify.verify_citation()``. New callers SHOULD
+use the librarian directly:
+
+    from llmxive.librarian.verify import verify_citation
+
+This file remains in place because:
+  - Spec 003's test suite (``tests/phase1/test_citation_resolver.py``)
+    asserts against this module's specific ``Citation`` /
+    ``ResolutionResult`` record shapes + the
+    ``--self-test`` CLI invocation.
+  - The CLI itself is referenced by spec 003's contracts and
+    runbooks.
+  - Migrating these tests + runbooks to the librarian-shape is
+    non-trivial; it was DEFERRED from spec 005 to a follow-up issue
+    (per spec.md FR-014/15) to keep spec 005's blast radius
+    contained.
+
+The librarian's verify helper IS the canonical implementation going
+forward; this module's resolver functions will be progressively
+migrated by the follow-up issue. FR-022 forbids ADDING new callers to
+this module — use the librarian.
+
+---
+
+Original behavior (preserved for spec-003/004 compatibility):
+
 Implements the contract at
 ``specs/003-phase1-idea-lifecycle-testing/contracts/citation-resolver.md``.
 

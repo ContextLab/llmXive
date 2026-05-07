@@ -1,5 +1,31 @@
 """Citation-fetcher tool (T108).
 
+⚠️ **Soft-deprecated post spec 005 (2026-05-06)** — this module's
+title-overlap verification logic duplicates ``llmxive.librarian.verify.
+verify_citation()``. New callers MUST use the librarian directly:
+
+    from llmxive.librarian.verify import verify_citation
+
+This file remains in place because:
+  - The Reference-Validator Agent at
+    ``src/llmxive/agents/reference_validator.py`` consumes this
+    module's ``FetchResult`` shape (with a ``VerificationStatus``
+    enum) which differs from the librarian's richer
+    ``VerifiedCitation`` / ``VerificationFailure`` split.
+  - Adapting reference_validator + its tests to the librarian shape
+    is non-trivial; it was DEFERRED from spec 005 to a follow-up
+    issue (per spec.md FR-014/15) to keep spec 005's blast radius
+    contained. See ``notes/2026-05-06-spec-005-librarian-outline.md``
+    for context.
+  - The librarian's verification logic IS the canonical
+    implementation going forward; this module's ``fetch_citation()``
+    will be progressively migrated by the follow-up issue.
+
+FR-022 (no new duplicates): adding a NEW caller of this module is
+forbidden. Use the librarian. The CI test at
+``tests/phase2/test_no_duplicate_lit_search.py`` (T070a) enforces
+this.
+
 Resolves a citation to its primary source and returns
 `{fetched_title, fetched_authors, status}`. Distinguishes:
   - `verified`    — primary source reachable AND title-overlap ≥ threshold
