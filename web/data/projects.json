@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 411,
+    "active_projects": 414,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1897,
+    "total_contributions": 1900,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1724,
+      "contribution_count": 1727,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 389,
+      "contribution_count": 392,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-07T17:27:33.907747+00:00",
+  "generated_at": "2026-05-07T18:48:21.604705+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -28657,6 +28657,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculations",
       "updated_at": "2026-05-07T16:46:13.020168+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-405-predicting-plant-disease-severity-from-p/idea/predicting-plant-disease-severity-from-p.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-07T18:44:51.317890+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology How do environmental conditions (temperature, humidity, precipitation) modulate the relationship between visible foliar symptoms and fungal disease severity in crop plants? Fungal diseases cause significant crop losses globally, yet field diagnostics often require expert assessment. Understanding\u2026",
+      "field": "biology",
+      "id": "PROJ-405-predicting-plant-disease-severity-from-p",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 89.103389,
+          "ended_at": "2026-05-07T18:46:34.551187Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-07T18:45:05.447798Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Plant Disease Severity from Publicly Available Image Data and Meteorological Records",
+      "updated_at": "2026-05-07T18:46:34.553762+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-406-investigating-neural-signatures-of-predi/idea/investigating-neural-signatures-of-predi.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-07T18:44:51.317890+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "I'll search for relevant literature to ground this research idea, then flesh out the complete research proposal. ```tool lit_search(query=\"predictive coding visual illusions fMRI neural activity\", max_results=8) ``` ```tool lit_search(query=\"M\u00fcller-Lyer illusion BOLD signal visual cortex\", max_results=8) ``` ```tool\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-406-investigating-neural-signatures-of-predi",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 37.897779,
+          "ended_at": "2026-05-07T18:47:13.068483Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-07T18:46:35.170704Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating Neural Signatures of Predictive Processing in Visual Illusions",
+      "updated_at": "2026-05-07T18:47:13.070959+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-407-predicting-plant-herbivore-resistance-fr/idea/predicting-plant-herbivore-resistance-fr.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-07T18:44:51.317890+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology How do plant metabolite profiles under herbivore attack correlate with resistance levels across different genotypes? Herbivore resistance is a crucial ecological trait with implications for agricultural productivity and biodiversity. While genomic studies have identified genes involved in plant defense,\u2026",
+      "field": "biology",
+      "id": "PROJ-407-predicting-plant-herbivore-resistance-fr",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 65.50279,
+          "ended_at": "2026-05-07T18:48:19.135349Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-07T18:47:13.632559Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Plant Herbivore Resistance from Publicly Available Metabolomic Data",
+      "updated_at": "2026-05-07T18:48:19.137839+00:00"
     }
   ],
   "schema_version": "2.0.0"
