@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-07T19:38:00.880298Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: computer science
+human_escalation_reason: null
+id: PROJ-409-quantifying-the-impact-of-codebase-age-o
+last_run_id: ed43820f-6c21-4aba-82f7-e08fc91a508c
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Quantifying the Impact of Codebase Age on LLM Code Understanding
+updated_at: '2026-05-07T19:41:46.052038Z'
