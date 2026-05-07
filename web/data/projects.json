@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 396,
+    "active_projects": 398,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1850,
+    "total_contributions": 1852,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1677,
+      "contribution_count": 1679,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 374,
+      "contribution_count": 376,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-07T03:22:26.429972+00:00",
+  "generated_at": "2026-05-07T05:17:55.542066+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -27652,6 +27652,140 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "The Impact of Simulated Social Comparison on Self-Evaluation in Online Environments",
       "updated_at": "2026-05-07T03:22:23.781335+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-390-predicting-plant-disease-susceptibility-/idea/predicting-plant-disease-susceptibility-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-07T05:16:08.492628+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology To what extent do genomic signatures of crop varieties and environmental conditions jointly influence susceptibility to common plant pathogens across agricultural species? Plant disease outbreaks cause substantial crop losses globally, yet predictive models that integrate both host genetics and\u2026",
+      "field": "biology",
+      "id": "PROJ-390-predicting-plant-disease-susceptibility-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 54.87274,
+          "ended_at": "2026-05-07T05:17:28.071288Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-07T05:16:33.198548Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Plant Disease Susceptibility from Publicly Available Genomic and Environmental Data",
+      "updated_at": "2026-05-07T05:17:28.073824+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-391-the-impact-of-linguistic-accommodation-o/idea/the-impact-of-linguistic-accommodation-o.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-07T05:16:08.492628+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Does linguistic accommodation in AI assistant responses influence users' perceptions of the AI's empathy and rapport? Linguistic accommodation\u2014the unconscious mirroring of speech patterns\u2014has been shown to foster rapport in human-human interactions. However, it remains unclear whether this mechanism\u2026",
+      "field": "psychology",
+      "id": "PROJ-391-the-impact-of-linguistic-accommodation-o",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 24.491331,
+          "ended_at": "2026-05-07T05:17:53.163779Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-07T05:17:28.672448Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Linguistic Accommodation on Perceived Empathy in AI Assistants",
+      "updated_at": "2026-05-07T05:17:53.166187+00:00"
     }
   ],
   "schema_version": "2.0.0"
