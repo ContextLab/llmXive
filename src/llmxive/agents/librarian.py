@@ -201,7 +201,7 @@ class LibrarianAgent(Agent):
         if ss_client.has_key:
             try:
                 ss_results = ss_client.search_papers(term, limit=DEFAULT_INITIAL_LIMIT)
-            except Exception as exc:  # noqa: BLE001
+            except Exception:
                 # SS failure isn't fatal — arXiv may still succeed.
                 ss_results = []
                 # NOTE: We could log this in failure_reason but we let arXiv
@@ -248,7 +248,7 @@ class LibrarianAgent(Agent):
                     if len(verified) >= target_n
                     else "exhausted"
                 )
-            except Exception as exc:  # noqa: BLE001
+            except Exception:
                 # Expansion brainstorm itself failed (LLM unreachable, etc.).
                 # Fall through with whatever initial verified we have; note
                 # the failure on the result.

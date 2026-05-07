@@ -7,13 +7,9 @@ in-memory mocks.
 from __future__ import annotations
 
 import datetime as _dt
-import json
 from pathlib import Path
 
-import pytest
-
 from llmxive.librarian.cache import (
-    CACHE_TTLS,
     cache_key,
     cache_path,
     get,
@@ -21,7 +17,6 @@ from llmxive.librarian.cache import (
     normalize_term,
     set,
 )
-
 
 # --- Cache key ------------------------------------------------------------
 

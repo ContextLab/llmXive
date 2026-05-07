@@ -13,11 +13,6 @@ Per Constitution Principle III: real filesystem (pytest tmp_path), no mocks.
 
 from __future__ import annotations
 
-import os
-from pathlib import Path
-
-import pytest
-
 from llmxive.credentials import (
     SEMANTIC_SCHOLAR_KEY_NAME,
     load_dartmouth_key,

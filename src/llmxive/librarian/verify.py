@@ -353,10 +353,10 @@ def _now_iso() -> str:
 __all__ = [
     "CITATION_TITLE_OVERLAP_THRESHOLD",
     "SUMMARY_GROUNDING_THRESHOLD",
+    "VerificationFailure",
     "VerificationLog",
     "VerifiedCitation",
-    "VerificationFailure",
     "VerifyResult",
-    "verify_citation",
     "jaccard_tokens",
+    "verify_citation",
 ]

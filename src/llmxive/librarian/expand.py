@@ -25,13 +25,12 @@ from __future__ import annotations
 
 import dataclasses
 import re
-from typing import Sequence
+from collections.abc import Sequence
 
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import chat_with_fallback
 from llmxive.librarian.search import (
     ArxivClient,
-    Candidate,
     SemanticScholarClient,
     merge_candidates,
 )

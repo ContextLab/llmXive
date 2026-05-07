@@ -20,7 +20,7 @@ import io
 import math
 import random
 import re
-from typing import Sequence
+from collections.abc import Sequence
 
 import requests
 
@@ -28,7 +28,6 @@ from llmxive.librarian.search import USER_AGENT
 from llmxive.librarian.verify import (
     SUMMARY_GROUNDING_THRESHOLD,
     VerifiedCitation,
-    VerificationLog,
     jaccard_tokens,
 )
 
@@ -243,10 +242,10 @@ def _extract_first_n_words(pdf_bytes: bytes, *, n: int = PDF_FIRST_N_WORDS) -> s
 
 __all__ = [
     "PDF_DOWNLOAD_TIMEOUT",
-    "PDF_MAX_BYTES",
     "PDF_FIRST_N_WORDS",
+    "PDF_MAX_BYTES",
     "PDFSampleResult",
-    "select_pdf_sample",
-    "audit_pdf_grounding",
     "annotate_with_pdf_sample",
+    "audit_pdf_grounding",
+    "select_pdf_sample",
 ]

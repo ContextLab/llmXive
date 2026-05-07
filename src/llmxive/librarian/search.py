@@ -20,7 +20,6 @@ from __future__ import annotations
 import dataclasses
 import threading
 import time
-from collections.abc import Iterator
 from typing import Any
 
 import requests
@@ -261,7 +260,7 @@ class ArxivClient:
     def __init__(self, *, min_interval_seconds: float = 5.0) -> None:
         # arXiv documents a 1-req-per-3-second guideline. We use 5s with
         # margin to avoid 429s during burst loads (e.g., the US4
-        # cross-domain test which fires 8+ invocations × 3-20 expanded
+        # cross-domain test which fires 8+ invocations x 3-20 expanded
         # terms each).
         self._min_interval = min_interval_seconds
         self._last_call_at: float = 0.0
@@ -313,7 +312,7 @@ class ArxivClient:
                         )
                     )
                 return out
-            except arxiv.HTTPError as exc:  # noqa: BLE001
+            except arxiv.HTTPError as exc:
                 if exc.status != 429:
                     # Non-429 HTTP error → surface immediately.
                     import sys as _sys
@@ -330,7 +329,7 @@ class ArxivClient:
                     file=_sys.stderr,
                 )
                 time.sleep(backoff)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 import sys as _sys
                 print(
                     f"[arxiv] {type(exc).__name__} on query={query!r}: {exc}",
@@ -448,9 +447,9 @@ def merge_candidates(*candidate_lists: list[Candidate]) -> list[Candidate]:
 
 
 __all__ = [
+    "USER_AGENT",
+    "ArxivClient",
     "Candidate",
     "SemanticScholarClient",
-    "ArxivClient",
     "merge_candidates",
-    "USER_AGENT",
 ]

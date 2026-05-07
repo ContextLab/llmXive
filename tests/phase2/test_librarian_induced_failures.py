@@ -13,8 +13,6 @@ advancement; failure_reason populated.
 
 from __future__ import annotations
 
-import dataclasses
-
 import pytest
 import requests
 
@@ -30,7 +28,6 @@ from llmxive.librarian.verify import (
     VerifiedCitation,
     verify_citation,
 )
-
 
 # --- Scenario 1: backend unreachable ---------------------------------------
 

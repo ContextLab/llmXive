@@ -13,12 +13,11 @@ from llmxive.librarian.search import ArxivClient, Candidate
 from llmxive.librarian.verify import (
     CITATION_TITLE_OVERLAP_THRESHOLD,
     SUMMARY_GROUNDING_THRESHOLD,
-    VerifiedCitation,
     VerificationFailure,
+    VerifiedCitation,
     jaccard_tokens,
     verify_citation,
 )
-
 
 # --- Tokenization + Jaccard ------------------------------------------------
 

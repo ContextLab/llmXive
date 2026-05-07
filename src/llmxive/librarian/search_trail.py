@@ -14,8 +14,8 @@ from __future__ import annotations
 
 import datetime as _dt
 import re
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Iterable, Sequence
 
 from llmxive.librarian.verify import VerifiedCitation
 

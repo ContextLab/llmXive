@@ -6,23 +6,18 @@ reference test fixture. Per Constitution Principle III: no mocks.
 
 from __future__ import annotations
 
-import math
 import random
 
-import pytest
-
 from llmxive.librarian.pdf_sample import (
-    PDF_FIRST_N_WORDS,
     PDFSampleResult,
+    _extract_first_n_words,
+    _pdf_url_for,
     annotate_with_pdf_sample,
     audit_pdf_grounding,
     select_pdf_sample,
-    _extract_first_n_words,
-    _pdf_url_for,
 )
 from llmxive.librarian.search import ArxivClient
 from llmxive.librarian.verify import VerificationLog, VerifiedCitation, verify_citation
-
 
 # --- Sample-size selection -------------------------------------------------
 

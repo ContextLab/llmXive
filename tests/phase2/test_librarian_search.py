@@ -130,7 +130,7 @@ def test_ss_search_empty_query_returns_empty():
 def test_ss_search_uses_x_api_key_header():
     """The client adds the x-api-key header when a key is present."""
     ss = SemanticScholarClient()
-    headers = ss._headers()  # noqa: SLF001 — testing internal header construction
+    headers = ss._headers()
     assert "x-api-key" in headers
     assert headers["x-api-key"] == load_semantic_scholar_key()
 

@@ -2,7 +2,7 @@
 
 **Feature Branch**: `008-librarian-agent` *(spec dir is `specs/005-librarian-agent/` — branch number diverges from spec number per `/speckit-specify` allowance because the git-feature hook counts branches across the repo, not spec dirs; same convention as specs 003 + 004)*
 **Created**: 2026-05-06
-**Status**: Draft
+**Status**: In Review
 **Input**: User description: "build a 'librarian' agent per the design outlined in `notes/2026-05-06-spec-005-librarian-outline.md` … consolidates the duplicated lit-search behavior currently scattered across `flesh_out`, `reference_validator`, and the spec-003 citation resolver (Constitutional Principle I — single source of truth) … verifies that the URL/address resolves, the bibliographic info matches the primary source, and the summary is faithful to the actual fetched content (not hallucinated) … multi-step expanded search when fewer than 5 verified citations are found … re-validate `research_question_validator` and `flesh_out` on the spec-004 carry-forward canonicals."
 
 ## Context (carried from spec 004)

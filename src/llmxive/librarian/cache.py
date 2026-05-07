@@ -168,7 +168,7 @@ __all__ = [
     "cache_key",
     "cache_path",
     "get",
-    "set",
     "invalidate",
     "normalize_term",
+    "set",
 ]
