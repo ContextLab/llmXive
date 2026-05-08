@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 447,
+    "active_projects": 450,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1966,
+    "total_contributions": 1969,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1793,
+      "contribution_count": 1796,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 425,
+      "contribution_count": 428,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-08T13:04:24.395740+00:00",
+  "generated_at": "2026-05-08T13:44:10.293585+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -31077,6 +31077,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Impact of Network Structure on Energy Dissipation in Driven Oscillators",
       "updated_at": "2026-05-08T12:45:39.365526+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-441-investigating-the-impact-of-code-ownersh/idea/investigating-the-impact-of-code-ownersh.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T13:41:19.176728+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "I need to search for relevant literature on code ownership metrics, LLM code understanding, and their intersection. Let me query the literature search tool. ``` lit_search(query: \"code ownership metrics software engineering git commits\", max_results: 8) ``` ``` lit_search(query: \"large language models code\u2026",
+      "field": "computer science",
+      "id": "PROJ-441-investigating-the-impact-of-code-ownersh",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 68.872866,
+          "ended_at": "2026-05-08T13:42:43.217991Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T13:41:34.345125Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Impact of Code Ownership on LLM Code Understanding",
+      "updated_at": "2026-05-08T13:42:43.220698+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-442-predicting-molecular-reactivity-using-ma/idea/predicting-molecular-reactivity-using-ma.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T13:41:19.176728+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry How do structural features encoded in molecular SMILES representations predict relative reactivity patterns across SN1, SN2, and Diels-Alder organic reactions in publicly available reaction databases? Organic synthesis planning requires accurate prediction of how molecular structure influences\u2026",
+      "field": "chemistry",
+      "id": "PROJ-442-predicting-molecular-reactivity-using-ma",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 48.79918,
+          "ended_at": "2026-05-08T13:43:32.650033Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T13:42:43.850853Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Molecular Reactivity Using Machine Learning and Public Reaction Databases",
+      "updated_at": "2026-05-08T13:43:32.653746+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-443-predicting-the-effect-of-alloying-on-the/idea/predicting-the-effect-of-alloying-on-the.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T13:41:19.176728+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science How does the compositional diversity of high-entropy alloys (specifically the number and relative proportions of principal elements) influence their elastic modulus (Young's modulus, shear modulus, and Poisson's ratio)? High-entropy alloys (HEAs) represent a vast compositional space where\u2026",
+      "field": "materials science",
+      "id": "PROJ-443-predicting-the-effect-of-alloying-on-the",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 34.518763,
+          "ended_at": "2026-05-08T13:44:07.765058Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T13:43:33.246295Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Effect of Alloying on the Elastic Modulus of High-Entropy Alloys",
+      "updated_at": "2026-05-08T13:44:07.767692+00:00"
     }
   ],
   "schema_version": "2.0.0"
