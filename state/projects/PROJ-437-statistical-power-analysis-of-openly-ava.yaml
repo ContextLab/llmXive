@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-08T11:38:06.909564Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: statistics
+human_escalation_reason: null
+id: PROJ-437-statistical-power-analysis-of-openly-ava
+last_run_id: 502c19d8-36af-4e64-88ce-eaa7e54bfa6a
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Statistical Power Analysis of Openly Available fMRI Datasets
+updated_at: '2026-05-08T11:41:04.325641Z'
