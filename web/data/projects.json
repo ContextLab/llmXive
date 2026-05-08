@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 434,
+    "active_projects": 436,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1937,
+    "total_contributions": 1939,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1764,
+      "contribution_count": 1766,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 412,
+      "contribution_count": 414,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-08T06:52:47.076206+00:00",
+  "generated_at": "2026-05-08T07:43:20.556027+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -30206,6 +30206,140 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Robustness of Statistical Methods to Common Data Errors",
       "updated_at": "2026-05-08T05:13:08.606896+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-428-evaluating-the-impact-of-outlier-removal/idea/evaluating-the-impact-of-outlier-removal.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T07:40:13.462030+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How does outlier contamination affect variance estimation accuracy across different distribution types, and which removal strategies minimize estimation bias and mean squared error under varying contamination levels? Real-world datasets frequently contain outliers that inflate variance estimates,\u2026",
+      "field": "statistics",
+      "id": "PROJ-428-evaluating-the-impact-of-outlier-removal",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 133.710911,
+          "ended_at": "2026-05-08T07:42:41.508192Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T07:40:27.797281Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Impact of Outlier Removal Methods on Variance Estimation",
+      "updated_at": "2026-05-08T07:42:41.510893+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-429-the-impact-of-network-efficiency-on-age-/idea/the-impact-of-network-efficiency-on-age-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T07:40:13.462030+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: neuroscience How does resting-state brain network efficiency, as measured by graph-theoretical metrics from EEG, change with age, and does reduced network efficiency predict cognitive performance in older adults? Age-related cognitive decline is increasingly prevalent, yet early non-invasive biomarkers remain\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-429-the-impact-of-network-efficiency-on-age-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 35.446609,
+          "ended_at": "2026-05-08T07:43:17.675800Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T07:42:42.229191Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Network Efficiency on Age-Related Changes in Resting-State EEG",
+      "updated_at": "2026-05-08T07:43:17.678336+00:00"
     }
   ],
   "schema_version": "2.0.0"
