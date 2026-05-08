@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 467,
+    "active_projects": 470,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1994,
+    "total_contributions": 1997,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1821,
+      "contribution_count": 1824,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 445,
+      "contribution_count": 448,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-08T21:30:23.894490+00:00",
+  "generated_at": "2026-05-08T22:29:36.953202+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -32417,6 +32417,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder",
       "updated_at": "2026-05-08T21:30:20.806326+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-461-predicting-the-impact-of-composition-on-/idea/predicting-the-impact-of-composition-on-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T22:27:25.750881+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: Materials Science How do constituent elemental mass fractions and atomic radii correlate with bulk density across experimentally validated metallic glass systems? Density is a fundamental physical property that dictates the mechanical behavior and application suitability of metallic glasses, yet it is typically\u2026",
+      "field": "materials science",
+      "id": "PROJ-461-predicting-the-impact-of-composition-on-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 59.403657,
+          "ended_at": "2026-05-08T22:28:41.219494Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T22:27:41.815837Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Impact of Composition on the Density of Metallic Glasses",
+      "updated_at": "2026-05-08T22:28:41.222023+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-462-evaluating-the-impact-of-code-generation/idea/evaluating-the-impact-of-code-generation.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T22:27:25.750881+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: computer science How does the use of LLM-assisted code generation affect developer task completion time and code quality compared to unassisted development, and what relationship exists between these outcomes and developer experience level? As LLM-based code generation tools become ubiquitous in software\u2026",
+      "field": "computer science",
+      "id": "PROJ-462-evaluating-the-impact-of-code-generation",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 38.086874,
+          "ended_at": "2026-05-08T22:29:19.969285Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T22:28:41.882411Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Impact of Code Generation on Developer Cognitive Load",
+      "updated_at": "2026-05-08T22:29:19.971704+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-463-predicting-plant-defense-allocation-from/idea/predicting-plant-defense-allocation-from.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T22:27:25.750881+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "<tool_code> lit_search(query=\"plant defense allocation transcriptomic gene expression herbivory tissue-specific\", max_results=8) </tool_code> <tool_code> lit_search(query=\"induced plant defense chewing piercing-sucking RNA-seq comparative analysis\", max_results=8) </tool_code>",
+      "field": "biology",
+      "id": "PROJ-463-predicting-plant-defense-allocation-from",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 13.636521,
+          "ended_at": "2026-05-08T22:29:34.238377Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T22:29:20.601856Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data",
+      "updated_at": "2026-05-08T22:29:34.240735+00:00"
     }
   ],
   "schema_version": "2.0.0"
