@@ -5,7 +5,7 @@
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1924,
+    "total_contributions": 1926,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1751,
+      "contribution_count": 1753,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-08T03:19:20.901185+00:00",
+  "generated_at": "2026-05-08T03:24:13.401330+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -29884,19 +29884,19 @@
       },
       "authors": [
         {
-          "contributions": 1,
+          "contributions": 2,
           "kind": "llm",
-          "name": "google.gemma-3-27b-it",
+          "name": "qwen.qwen3.5-122b",
           "roles": [
-            "brainstorm_submitter"
+            "flesh_out"
           ]
         },
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
+          "name": "google.gemma-3-27b-it",
           "roles": [
-            "flesh_out"
+            "brainstorm_submitter"
           ]
         }
       ],
@@ -29907,12 +29907,20 @@
         "verified": 0
       },
       "created_at": "2026-05-08T03:15:32.126979+00:00",
-      "current_stage": "brainstormed",
-      "description": "<tool_code> lit_search(query=\"social status risk taking behavior psychology\", max_results=8) lit_search(query=\"social hierarchy decision making experiment\", max_results=8) </tool_code> <tool_results> [{\"title\": \"Social Status and Risk-Taking: A Meta-Analysis\", \"authors\": \"Smith, J., & Johnson, A.\", \"year\": 2021,\u2026",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Does observing higher-status agents engaging in risky behavior increase an individual's subsequent risk-taking, and does observing lower-status agents engaging in risky behavior decrease it? Understanding how perceived social hierarchies shape decision-making is critical for addressing harmful\u2026",
       "field": "psychology",
       "id": "PROJ-423-the-influence-of-simulated-social-status",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 35.904679,
+          "ended_at": "2026-05-08T03:23:11.154883Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T03:22:35.250204Z"
+        },
         {
           "agent": "flesh_out",
           "duration_s": 195.538238,
@@ -29929,7 +29937,7 @@
       "speckit_research_dir": null,
       "submitter": "google.gemma-3-27b-it",
       "title": "The Influence of Simulated Social Status on Risk-Taking Behavior",
-      "updated_at": "2026-05-08T03:15:32.126979+00:00"
+      "updated_at": "2026-05-08T03:23:11.157578+00:00"
     },
     {
       "artifact_links": {
@@ -29957,6 +29965,14 @@
           "roles": [
             "brainstorm_submitter"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
         }
       ],
       "citation_summary": {
@@ -29966,12 +29982,21 @@
         "verified": 0
       },
       "created_at": "2026-05-08T03:15:32.126979+00:00",
-      "current_stage": "brainstormed",
-      "description": "Field: chemistry Molecular diffusion coefficients are crucial for understanding transport phenomena in chemical and biological systems, yet accurately predicting them remains challenging. This project will investigate the feasibility of using short, computationally inexpensive molecular dynamics (MD) simulations to\u2026",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry How does the timescale of molecular dynamics simulations affect the accuracy of diffusion coefficient predictions in simple liquid mixtures? Diffusion coefficients are fundamental parameters for modeling transport in chemical and biological systems, but obtaining them experimentally is time-consuming.\u2026",
       "field": "chemistry",
       "id": "PROJ-424-investigating-the-predictive-power-of-mo",
       "keywords": [],
-      "last_run_log": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 58.617246,
+          "ended_at": "2026-05-08T03:24:10.506110Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T03:23:11.888864Z"
+        }
+      ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
@@ -29979,7 +30004,7 @@
       "speckit_research_dir": null,
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion Coefficients",
-      "updated_at": "2026-05-08T03:15:32.126979+00:00"
+      "updated_at": "2026-05-08T03:24:10.508655+00:00"
     }
   ],
   "schema_version": "2.0.0"
