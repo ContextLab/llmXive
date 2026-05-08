@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-08T23:26:50.236559Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: biology
+human_escalation_reason: null
+id: PROJ-464-predicting-plant-drought-tolerance-from-
+last_run_id: a6847092-d4ea-47f8-b74c-268a6a15d226
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Predicting Plant Drought Tolerance from Publicly Available Root System Architecture
+  Data
+updated_at: '2026-05-08T23:27:41.726028Z'

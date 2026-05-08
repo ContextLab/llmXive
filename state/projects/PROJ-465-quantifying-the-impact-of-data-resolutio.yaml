@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-08T23:26:50.236559Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: physics
+human_escalation_reason: null
+id: PROJ-465-quantifying-the-impact-of-data-resolutio
+last_run_id: 13c05567-1b5d-4648-afc6-2c03160f13e8
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Quantifying the Impact of Data Resolution on Gravitational Wave Parameter Estimation
+updated_at: '2026-05-08T23:29:21.411083Z'
