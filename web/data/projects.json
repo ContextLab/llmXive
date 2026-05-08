@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 453,
+    "active_projects": 456,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1972,
+    "total_contributions": 1975,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1799,
+      "contribution_count": 1802,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 431,
+      "contribution_count": 434,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-08T16:30:42.588537+00:00",
+  "generated_at": "2026-05-08T16:43:54.517485+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -31479,6 +31479,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting Molecular Halide Binding Affinities with Machine Learning",
       "updated_at": "2026-05-08T15:47:10.159726+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-447-the-impact-of-simulated-social-validatio/idea/the-impact-of-simulated-social-validatio.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T16:40:16.448511+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology How does exposure to simulated social validation (e.g., likes, positive comments) on social media platforms relate to changes in adolescent self-esteem and body image over time? Adolescents spend substantial time on social media where feedback mechanisms like likes and comments are prominent.\u2026",
+      "field": "psychology",
+      "id": "PROJ-447-the-impact-of-simulated-social-validatio",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 123.784269,
+          "ended_at": "2026-05-08T16:42:34.714823Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T16:40:30.930554Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Simulated Social Validation on Self-Perception in Adolescents",
+      "updated_at": "2026-05-08T16:42:34.717341+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-448-quantifying-composition-dependent-grain-/idea/quantifying-composition-dependent-grain-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T16:40:16.448511+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science How does the bulk concentration of substitutional alloying elements (Cr, Mo, V) influence their equilibrium segregation energy and equilibrium concentration at grain boundaries in body-centered cubic (BCC) alloys across varying temperatures? Grain boundary segregation controls critical\u2026",
+      "field": "materials science",
+      "id": "PROJ-448-quantifying-composition-dependent-grain-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 41.08395,
+          "ended_at": "2026-05-08T16:43:16.448653Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T16:42:35.364703Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Quantifying Composition-Dependent Grain Boundary Segregation in BCC Alloys",
+      "updated_at": "2026-05-08T16:43:16.451038+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-449-exploring-the-relationship-between-cosmi/idea/exploring-the-relationship-between-cosmi.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T16:40:16.448511+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics How does the relative abundance of different cosmic ray nuclei (protons, helium, and heavier elements) vary across the 11-year solar activity cycle, and do different particle species exhibit distinct modulation patterns that reveal heliospheric transport mechanisms? Understanding how the heliosphere\u2026",
+      "field": "physics",
+      "id": "PROJ-449-exploring-the-relationship-between-cosmi",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 34.828723,
+          "ended_at": "2026-05-08T16:43:51.885850Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T16:43:17.057127Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Exploring the Relationship Between Cosmic Ray Composition and Solar Activity Cycles",
+      "updated_at": "2026-05-08T16:43:51.888231+00:00"
     }
   ],
   "schema_version": "2.0.0"
