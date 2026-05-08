@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-08T17:38:17.281015Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: materials science
+human_escalation_reason: null
+id: PROJ-451-predicting-the-glass-forming-region-of-m
+last_run_id: da15e083-e5e0-44f3-8c9f-f14a8107e60f
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Predicting the Glass Forming Region of Metallic Glass Alloys Using Machine
+  Learning
+updated_at: '2026-05-08T17:40:33.426165Z'
