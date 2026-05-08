@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 426,
+    "active_projects": 429,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1920,
+    "total_contributions": 1923,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1747,
+      "contribution_count": 1750,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 404,
+      "contribution_count": 407,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-08T00:30:11.642987+00:00",
+  "generated_at": "2026-05-08T01:07:57.941738+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -29662,6 +29662,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting Coating Adhesion Strength from Composition and Surface Features",
       "updated_at": "2026-05-07T23:27:18.349284+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-420-predicting-the-effect-of-alloying-on-the/idea/predicting-the-effect-of-alloying-on-the.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T01:01:46.479500+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science How does the concentration of specific alloying elements (e.g., Cu, Mg, Si, Zn) influence the Poisson's ratio of monolithic aluminum alloys? Poisson's ratio is a fundamental elastic constant required for accurate stress-strain modeling in structural design, yet it is less frequently tabulated\u2026",
+      "field": "materials science",
+      "id": "PROJ-420-predicting-the-effect-of-alloying-on-the",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 114.992113,
+          "ended_at": "2026-05-08T01:04:15.445944Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T01:02:20.453831Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Effect of Alloying on the Poisson's Ratio of Aluminum Alloys",
+      "updated_at": "2026-05-08T01:04:15.448617+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-421-assessing-the-impact-of-data-resolution-/idea/assessing-the-impact-of-data-resolution-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T01:01:46.479500+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How does the spatial resolution (aggregation level) of gridded environmental data modulate the statistical power to detect spatial autocorrelation in heterogeneous landscapes? Researchers frequently select data resolution based on storage or computational constraints rather than inferential\u2026",
+      "field": "statistics",
+      "id": "PROJ-421-assessing-the-impact-of-data-resolution-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 145.398967,
+          "ended_at": "2026-05-08T01:06:41.493419Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T01:04:16.094452Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Assessing the Impact of Data Resolution on Statistical Power in Publicly Available Spatial Datasets",
+      "updated_at": "2026-05-08T01:06:41.495828+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-422-predicting-molecular-permeability-coeffi/idea/predicting-molecular-permeability-coeffi.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T01:01:46.479500+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: Chemistry How does molecular topology influence permeability coefficients across common polymeric separation membranes? Screening membrane materials for industrial separation currently relies on computationally expensive molecular dynamics simulations or slow experimental measurements. Establishing a\u2026",
+      "field": "chemistry",
+      "id": "PROJ-422-predicting-molecular-permeability-coeffi",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 73.290905,
+          "ended_at": "2026-05-08T01:07:55.360993Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T01:06:42.070088Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Molecular Permeability Coefficients Using Graph Neural Networks and Publicly Available Datasets",
+      "updated_at": "2026-05-08T01:07:55.363388+00:00"
     }
   ],
   "schema_version": "2.0.0"
