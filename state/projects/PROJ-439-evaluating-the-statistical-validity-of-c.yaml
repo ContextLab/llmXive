@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-08T12:42:57.507121Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: statistics
+human_escalation_reason: null
+id: PROJ-439-evaluating-the-statistical-validity-of-c
+last_run_id: da7cdba0-5ac1-4be7-9cd4-92264ad5caa5
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Evaluating the Statistical Validity of Crowdsourced Labels
+updated_at: '2026-05-08T12:44:41.723754Z'

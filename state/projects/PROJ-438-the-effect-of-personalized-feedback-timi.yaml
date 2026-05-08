@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-08T12:42:57.507121Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: psychology
+human_escalation_reason: null
+id: PROJ-438-the-effect-of-personalized-feedback-timi
+last_run_id: 5f9dd3ce-c373-46bc-85c3-867a21523bf3
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: The Effect of Personalized Feedback Timing on Skill Acquisition
+updated_at: '2026-05-08T12:44:24.262788Z'

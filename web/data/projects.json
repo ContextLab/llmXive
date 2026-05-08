@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 444,
+    "active_projects": 447,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1955,
+    "total_contributions": 1958,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1782,
+      "contribution_count": 1785,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 422,
+      "contribution_count": 425,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-08T11:41:06.885955+00:00",
+  "generated_at": "2026-05-08T12:45:42.370899+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -30876,6 +30876,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Statistical Power Analysis of Openly Available fMRI Datasets",
       "updated_at": "2026-05-08T11:41:04.325641+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-438-the-effect-of-personalized-feedback-timi/idea/the-effect-of-personalized-feedback-timi.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T12:42:57.507121+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology How does the temporal spacing of personalized feedback (immediate vs. delayed) affect learner performance and course completion rates in online learning environments? Adaptive learning systems increasingly rely on automated feedback loops, yet the optimal timing for delivery remains contested in\u2026",
+      "field": "psychology",
+      "id": "PROJ-438-the-effect-of-personalized-feedback-timi",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 72.006304,
+          "ended_at": "2026-05-08T12:44:24.259998Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T12:43:12.253694Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Effect of Personalized Feedback Timing on Skill Acquisition",
+      "updated_at": "2026-05-08T12:44:24.262788+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-439-evaluating-the-statistical-validity-of-c/idea/evaluating-the-statistical-validity-of-c.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T12:42:57.507121+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "<tool_code> def lit_search(query: str, max_results: int = 8): pass </tool_code> <tool_call> lit_search(query=\"crowdsourced labels statistical validity noise assessment\", max_results=8) </tool_call> <tool_call> lit_search(query=\"label noise crowdsourcing quality annotator reliability\", max_results=8) </tool_call>",
+      "field": "statistics",
+      "id": "PROJ-439-evaluating-the-statistical-validity-of-c",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 16.721175,
+          "ended_at": "2026-05-08T12:44:41.721255Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T12:44:25.000080Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Statistical Validity of Crowdsourced Labels",
+      "updated_at": "2026-05-08T12:44:41.723754+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-440-investigating-the-impact-of-network-stru/idea/investigating-the-impact-of-network-stru.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T12:42:57.507121+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: Physics How does the global topology of coupled harmonic oscillator networks influence the rate of energy dissipation when the system is driven by external forces? Energy dissipation in oscillator networks is typically modeled as a local process at individual nodes, but the global network structure may create\u2026",
+      "field": "physics",
+      "id": "PROJ-440-investigating-the-impact-of-network-stru",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 56.949233,
+          "ended_at": "2026-05-08T12:45:39.363003Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T12:44:42.413770Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Impact of Network Structure on Energy Dissipation in Driven Oscillators",
+      "updated_at": "2026-05-08T12:45:39.365526+00:00"
     }
   ],
   "schema_version": "2.0.0"
