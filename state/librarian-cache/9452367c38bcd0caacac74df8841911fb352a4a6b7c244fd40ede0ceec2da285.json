@@ -1,0 +1,873 @@
+{
+  "fetched_at": "2026-05-07T17:51:43Z",
+  "field": "chemistry",
+  "prompt_version": "1.4.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "---\nfield: chemistry\nsubmitter: google.gemma-3-27b-it\n---\n\n# Predicting Molecular Toxicity from Structural Alerts via Rule-Based Systems\n\n**Field**: Chemistry\n\n## Research question\n\nTo what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries?\n\n## Motivation\n\nRegulatory frameworks increasingly require interpretable models for chemical safety assessment, yet modern toxicity prediction relies heavily on black-box machine learning. This project addresses the gap between interpretability and performance by quantifying whether curated structural alerts—mechanistic proxies for toxicity—are sufficient predictors compared to holistic molecular descriptors. Establishing the marginal value of explicit rules informs whether complex models are necessary for baseline safety screening or if transparent rule-based systems remain viable for regulatory submission.\n\n## Related work\n\n- [Enhancing Toxicity Pre",
+      "target_n": 5
+    },
+    "duration_seconds": 1282.776,
+    "ended_at": "2026-05-07T17:51:43Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "structural alerts versus molecular fingerprints for toxicity"
+        ],
+        [
+          2,
+          "toxicophores compared to global QSAR descriptors"
+        ],
+        [
+          3,
+          "rule-based mutagenicity prediction versus machine learning"
+        ],
+        [
+          4,
+          "interpretable toxicity models using structural substructures"
+        ],
+        [
+          5,
+          "variance explained by chemical substructures in mutagenicity"
+        ],
+        [
+          6,
+          "Ames test prediction structural motifs vs descriptors"
+        ],
+        [
+          7,
+          "mechanistic toxicity alerts versus holistic molecular properties"
+        ],
+        [
+          8,
+          "explainable AI in computational toxicology"
+        ],
+        [
+          9,
+          "SAR rules for mutagenicity screening efficacy"
+        ],
+        [
+          10,
+          "feature importance of molecular subgraphs in toxicity"
+        ],
+        [
+          11,
+          "regulatory acceptable toxicity prediction methods"
+        ],
+        [
+          12,
+          "white-box versus black-box chemical safety models"
+        ],
+        [
+          13,
+          "substructure frequency analysis in toxic chemical libraries"
+        ],
+        [
+          14,
+          "global molecular descriptors for mutagenicity classification"
+        ],
+        [
+          15,
+          "OECD QSAR Toolbox structural alert validation"
+        ],
+        [
+          16,
+          "comparative study of rule-based and statistical toxicity models"
+        ],
+        [
+          17,
+          "local structural features versus global physicochemical properties"
+        ],
+        [
+          18,
+          "transparency in computational mutagenicity assessment"
+        ],
+        [
+          19,
+          "chemical library diversity impact on toxicity model performance"
+        ],
+        [
+          20,
+          "marginal utility of structural alerts in QSAR"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "To what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries": 0,
+        "structural alerts versus molecular fingerprints for toxicity": 5
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "substructures mutagenicity QSAR",
+      "physicochemical properties toxicity variance",
+      "feature importance genotoxicity prediction",
+      "Ames test molecular fingerprints comparison",
+      "chemical space diversity descriptor contribution"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.4.0",
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.1016/J.COMTOX.2019.100100"
+      ]
+    },
+    "per_query_hit_count": {
+      "Ames test molecular fingerprints comparison": 3,
+      "To what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries": 3,
+      "chemical space diversity descriptor contribution": 6,
+      "feature importance genotoxicity prediction": 6,
+      "physicochemical properties toxicity variance": 6,
+      "substructures mutagenicity QSAR": 6
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2207.03599",
+          "rationale": "This paper focuses on the quantum chemical foundations of molecular similarity descriptors for predicting electronic energies and transition state structures, rather than mutagenicity outcomes or biological endpoints. Although it discusses molecular descriptors, it does not address the comparison between structural motifs and global descriptors in the context of toxicological variance.",
+          "title": "Quantum chemical roots of machine-learning molecular similarity descriptors"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-07T17:30:20Z",
+    "term_input": {
+      "normalized": "to what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries",
+      "raw": "To what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Developing a 21st Century Global Library for Mathematics Research discusses how information about what the mathematical literature contains can be formalized and made easier to express, encode, and explore. Many of the tools necessary to make this information system a reality will require much more than indexing and will instead depend on community input paired with machine learning, where mathematicians' expertise can fill the gaps of automatization. This report proposes the establishment of an organization; the development of a set of platforms, tools, and services; the deployment of an ongoing applied research program to complement the development work; and the mobilization and coordination of the mathematical community to take the first steps toward these capabilities. The report recommends building on the extensive work done by many dedicated individuals under the rubric of the World Digital Mathematical Library, as well as many other community initiatives. Developing a 21st Century Global Library for Mathematics envisions a combination of machine learning methods and community-based editorial effort that makes a significantly greater portion of the information and knowledge in the global mathematical corpus available to researchers as linked open data through a central organizational entity-referred to in the report as the Digital Mathematics Library. This report describes how such a library might operate - discussing development and research needs, role in facilitating discover and interaction, and establishing partnerships with publishers.",
+          "claimed_authors": [
+            "Committee on Planning a Global Library of the Mathematical Sciences"
+          ],
+          "claimed_title": "Developing a 21st Century Global Library for Mathematics Research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1404.1905"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Developing a 21st Century Global Library for Mathematics Research')",
+        "failed_at": "2026-05-07T17:46:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            "Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-05-07T17:46:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Chiakang Hung",
+            "G. Gini"
+          ],
+          "claimed_title": "QSAR modeling without descriptors using graph convolutional neural networks: the case of mutagenicity prediction",
+          "claimed_venue": "Molecular diversity",
+          "claimed_year": 2021,
+          "primary_pointer": "https://doi.org/10.1007/s11030-021-10250-2"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='QSAR modeling without descriptors using graph convolutional neural networks: the case of mutagenicity prediction')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "P. Polishchuk",
+            "V. Kuz'min",
+            "A. Artemenko",
+            "E. Muratov"
+          ],
+          "claimed_title": "Universal Approach for Structural Interpretation of QSAR/QSPR Models",
+          "claimed_venue": "Molecular Informatics",
+          "claimed_year": 2013,
+          "primary_pointer": "https://doi.org/10.1002/minf.201300029"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Universal Approach for Structural Interpretation of QSAR/QSPR Models')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "M. Cronin",
+            "J. Dearden"
+          ],
+          "claimed_title": "QSAR in Toxicology. 3. Prediction of Chronic Toxicities",
+          "claimed_venue": "",
+          "claimed_year": 1995,
+          "primary_pointer": "https://doi.org/10.1002/QSAR.19950140402"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='QSAR in Toxicology. 3. Prediction of Chronic Toxicities')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantitative Structure-Activity Relationship (QSAR) has proved an invaluable tool in medicinal chemistry. Data availability at unprecedented levels through various databases have collaborated to a resurgence in the interest for QSAR. In this context, rapid generation of quality predictive models is highly desirable for hit identification and lead optimization. We showcase the application of an automated QSAR approach, which randomly selects multiple training/test sets and utilizes machine-learning algorithms to generate predictive models. Results demonstrate that AutoQSAR produces models of improved or similar quality to those generated by practitioners in the field but in just a fraction of the time. Despite the potential of the concept to the benefit of the community, the AutoQSAR opportunity has been largely undervalued.",
+          "claimed_authors": [
+            "Marcelo T. de Oliveira",
+            "Edson Katekawa"
+          ],
+          "claimed_title": "On the Virtues of Automated QSAR The New Kid on the Block",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.02639"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='On the Virtues of Automated QSAR The New Kid on the Block')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mutagenicity is a concern due to its association with genetic mutations which can result in a variety of negative consequences, including the development of cancer. Earlier identification of mutagenic compounds in the drug development process is therefore crucial for preventing the progression of unsafe candidates and reducing development costs. While computational techniques, especially machine learning models have become increasingly prevalent for this endpoint, they rely on a single modality. In this work, we introduce a novel stacked ensemble based mutagenicity prediction model which incorporate multiple modalities such as simplified molecular input line entry system (SMILES) and molecular graph. These modalities capture diverse information about molecules such as substructural, physicochemical, geometrical and topological. To derive substructural, geometrical and physicochemical information, we use SMILES, while topological information is extracted through a graph attention network (GAT) via molecular graph. Our model uses a stacked ensemble of machine learning classifiers to make predictions using these multiple features. We employ the explainable artificial intelligence (XAI) technique SHAP (Shapley Additive Explanations) to determine the significance of each classifier and the most relevant features in the prediction. We demonstrate that our method surpasses SOTA methods on two standard datasets across various metrics. Notably, we achieve an area under the curve of 95.21\\% on the Hansen benchmark dataset, affirming the efficacy of our method in predicting mutagenicity. We believe that this research will captivate the interest of both clinicians and computational biologists engaged in translational research.",
+          "claimed_authors": [
+            "Tanya Liyaqat",
+            "Tanvir Ahmad",
+            "Mohammad Kashif",
+            "Chandni Saxena"
+          ],
+          "claimed_title": "Stacked ensemble\\-based mutagenicity prediction model using multiple modalities with graph attention network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.01731"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Stacked ensemble\\\\-based mutagenicity prediction model using multiple modalities with graph attention network')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantitative Structure-Activity Relationship (QSAR) modeling is key in drug discovery, but classical methods face limitations when handling high-dimensional data and capturing complex molecular interactions. This research proposes enhancing QSAR techniques through Quantum Support Vector Machines (QSVMs), which leverage quantum computing principles to process information Hilbert spaces. By using quantum data encoding and quantum kernel functions, we aim to develop more accurate and efficient predictive models.",
+          "claimed_authors": [
+            "Alejandro Giraldo",
+            "Daniel Ruiz",
+            "Mariano Caruso",
+            "Guido Bellomo"
+          ],
+          "claimed_title": "Quantum QSAR for drug discovery",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.04648"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Quantum QSAR for drug discovery')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Beatrice Salieri",
+            "A. Pasteris",
+            "Woranan Netkueakul",
+            "R. Hischier"
+          ],
+          "claimed_title": "Key physicochemical properties of nanomaterials in view of their toxicity: an exploratory systematic investigation for the example of carbon-based nanomaterial",
+          "claimed_venue": "Journal of nanoparticle research",
+          "claimed_year": 2017,
+          "primary_pointer": "https://doi.org/10.1007/s11051-017-3748-3"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Key physicochemical properties of nanomaterials in view of their toxicity: an exploratory systematic investigation for the example of carbon-based nanomaterial')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Metal-oxide nanoparticles find widespread applications in mundane life today, and cost-effective evaluation of their cytotoxicity and ecotoxicity is essential for sustainable progress. Machine learning models use existing experimental data, and learn the relationship of various features to nanoparticle cytotoxicity to generate predictive models. In this work, we adopted a principled approach to this problem by formulating a feature space based on intrinsic and extrinsic physico-chemical properties, but exclusive of any in vitro characteristics such as cell line, cell type, and assay method. A minimal set of features was developed by applying variance inflation analysis to the correlation structure of the feature space. Using a balanced dataset, a mapping was then obtained from the normalized feature space to the toxicity class using various hyperparameter-tuned machine learning models. Evaluation on an unseen test set yielded > 96% balanced accuracy for both the random forest model, and neural network with one hidden layer model. The obtained cytotoxicity models are parsimonious, with intelligible inputs, and include an applicability check. Interpretability investigations of the models yielded the key predictor variables of metal-oxide nanoparticle cytotoxicity. Our models could be applied on new, untested oxides, using a majority-voting ensemble classifier, NanoTox, that incorporates the neural network, random forest, support vector machine, and logistic regression models. NanoTox is the very first predictive nanotoxicology pipeline made freely available under the GNU General Public License (https://github.com/NanoTox).",
+          "claimed_authors": [
+            "Nilesh AnanthaSubramanian",
+            "Ashok Palaniappan"
+          ],
+          "claimed_title": "NanoTox: Development of a Parsimonious In Silico Model for Toxicity Assessment of Metal-Oxide Nanoparticles Using Physicochemical Features",
+          "claimed_venue": "bioRxiv",
+          "claimed_year": 2021,
+          "primary_pointer": "https://doi.org/10.1021/acsomega.1c01076"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='NanoTox: Development of a Parsimonious In Silico Model for Toxicity Assessment of Metal-Oxide Nanoparticles Using Physicochemical Features')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Egina Malaj",
+            "G. Guénard",
+            "R. Schäfer",
+            "P. C. von der Ohe"
+          ],
+          "claimed_title": "Evolutionary patterns and physicochemical properties explain macroinvertebrate sensitivity to heavy metals.",
+          "claimed_venue": "Ecological Applications",
+          "claimed_year": 2016,
+          "primary_pointer": "https://doi.org/10.1890/15-0346"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Evolutionary patterns and physicochemical properties explain macroinvertebrate sensitivity to heavy metals.')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The outstanding multidisciplinary applicability of nanomaterials has paved the path for the rapid advancement of nanoscience during the last few decades. Such technological progress subsequently results in an inevitable environmental exposure of nanomaterials. Presently, nanomaterials are employed in an extensive range of commercial products. Safe and sustainable incorporation of nanomaterials in industrial products requires a profound and comprehensive understanding of their potential toxicity. Among different nanomaterials, carbon nanomaterials marked its notable superiority toward the development of state-of-the-art nanotechnology due to the significant contribution of each of the carbon allotropes with varied dimensionality. The zero-dimensional fullerene, one-dimensional carbon nanotube, and two-dimensional graphene possess an exclusive combination of distinctive properties that are utilized in most of the nanotechnology-based products nowadays. However, potential risk factors are associated with the production and the use of carbon nanomaterials. Consequently, the number of studies regarding the assessment of the toxicity of these nanomaterials has increased rapidly in the past decade. This chapter will summarize the recent scientific efforts on the toxicity evaluation of different carbon nanomaterials.",
+          "claimed_authors": [
+            "Arpita Adhikari",
+            "Joydip Sengupta"
+          ],
+          "claimed_title": "Toxicity of Carbon Nanomaterials",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.13918"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Toxicity of Carbon Nanomaterials')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding the vulnerabilities of Large Vision Language Models (LVLMs) to jailbreak attacks is essential for their responsible real-world deployment. Most previous work requires access to model gradients, or is based on human knowledge (prompt engineering) to complete jailbreak, and they hardly consider the interaction of images and text, resulting in inability to jailbreak in black box scenarios or poor performance. To overcome these limitations, we propose a Prior-Guided Bimodal Interactive Black-Box Jailbreak Attack for toxicity maximization, referred to as PBI-Attack. Our method begins by extracting malicious features from a harmful corpus using an alternative LVLM and embedding these features into a benign image as prior information. Subsequently, we enhance these features through bidirectional cross-modal interaction optimization, which iteratively optimizes the bimodal perturbations in an alternating manner through greedy search, aiming to maximize the toxicity of the generated response. The toxicity level is quantified using a well-trained evaluation model. Experiments demonstrate that PBI-Attack outperforms previous state-of-the-art jailbreak methods, achieving an average attack success rate of 92.5% across three open-source LVLMs and around 67.3% on three closed-source LVLMs. Disclaimer: This paper contains potentially disturbing and offensive content.",
+          "claimed_authors": [
+            "Ruoxi Cheng",
+            "Yizhong Ding",
+            "Shuirong Cao",
+            "Ranjie Duan",
+            "Xiaoshuang Jia",
+            "Shaowei Yuan",
+            "Simeng Qin",
+            "Zhiqiang Wang",
+            "Xiaojun Jia"
+          ],
+          "claimed_title": "PBI-Attack: Prior-Guided Bimodal Interactive Black-Box Jailbreak Attack for Toxicity Maximization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.05892"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='PBI-Attack: Prior-Guided Bimodal Interactive Black-Box Jailbreak Attack for Toxicity Maximization')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Toxicity and abuse are common in online peer-production communities. The social structure of peer-production communities that aim to produce accurate and trustworthy information require some conflict and gate-keeping to spur content production and curation. However, conflict and gate-keeping often devolve into hierarchical power structures which punish newcomers and lock out marginalized groups through entrenched cultural norms. Community administrators often focus on content quality, rather than consideration for all user safety, to promote community growth and survival. Once toxic cultural norms dominate a peer-production community, it is very difficult for community administrators to stop these behaviors from undermining inclusive peer-production. We propose developing a \"handbook of intelligent system design\" that attempts to frame design protocols to better read user-community culture and accurately distinguish toxic negative interactions from beneficial conflict.",
+          "claimed_authors": [
+            "Chris Blakely",
+            "Andrew Vargo"
+          ],
+          "claimed_title": "Toxicity and Cultural Entrenchment in Peer-Production Communities: Toward a Handbook on Intelligent System Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.13537"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Toxicity and Cultural Entrenchment in Peer-Production Communities: Toward a Handbook on Intelligent System Design')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Nijat Mehdiyev",
+            "Maxim Majlatow",
+            "Peter Fettke"
+          ],
+          "claimed_title": "Integrating permutation feature importance with conformal prediction for robust Explainable Artificial Intelligence in predictive process monitoring",
+          "claimed_venue": "Engineering applications of artificial intelligence",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1016/j.engappai.2025.110363"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Integrating permutation feature importance with conformal prediction for robust Explainable Artificial Intelligence in predictive process monitoring')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Diabetes is a prevalent condition with rising global impacts on morbidity and mortality. This paper presents an in-depth analysis of machine learning (ML) models for diabetes prediction. To improve interpretability, the study incorporates multiple Explainable AI (XAI) techniques, including SHAP, LIME, and Permutation Feature Importance, which provide both global and local insights into model predictions. Using multiple XAI methods allows for a comprehensive understanding of model behavior from different perspectives—SHAP offers consistent, mathematically sound feature attributions; LIME provides localized, instance-specific explanations; and Permutation Feature Importance highlights overall feature relevance. Consistently across these XAI methods, Glucose emerged as the most influential predictor, followed by BMI and Age, aligning with established clinical risk factors. Features such as Pregnancies and DiabetesPedigreeFunction exhibited moderate impact, while Insulin and Skin Thickness had minimal effect on predictions. By comparing the advantages and limitations of different XAI methods, this research fosters trust in ML-driven diabetes diagnostics, enabling more transparent and informed decision-making. The study offers a framework for ethical AI integration in clinical practice, advancing responsible AI use in diabetes management.",
+          "claimed_authors": [
+            "Uddalak Mitra",
+            "Parthib Sarkar",
+            "Joy Mondal",
+            "Joydeep Kundu"
+          ],
+          "claimed_title": "Enhancing Interpretability in Diabetics Prediction: A Comparative Study of SHAP, LIME and Permutation Feature Importance",
+          "claimed_venue": "2025 AI-Driven Smart Healthcare for Society 5.0",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1109/IEEECONF64992.2025.10962890"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Enhancing Interpretability in Diabetics Prediction: A Comparative Study of SHAP, LIME and Permutation Feature Importance')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Aga Basit Iqbal",
+            "T. Masoodi",
+            "A. Bhat",
+            "M. Macha",
+            "Assif Assad",
+            "Syed Zubair Ahmad Shah"
+          ],
+          "claimed_title": "Explainable AI-driven prediction of APE1 inhibitors: enhancing cancer therapy with machine learning models and feature importance analysis",
+          "claimed_venue": "Molecular diversity",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1007/s11030-025-11133-6"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Explainable AI-driven prediction of APE1 inhibitors: enhancing cancer therapy with machine learning models and feature importance analysis')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Outcome prediction is crucial for head and neck cancer patients as it can provide prognostic information for early treatment planning. Radiomics methods have been widely used for outcome prediction from medical images. However, these methods are limited by their reliance on intractable manual segmentation of tumor regions. Recently, deep learning methods have been proposed to perform end-to-end outcome prediction so as to remove the reliance on manual segmentation. Unfortunately, without segmentation masks, these methods will take the whole image as input, such that makes them difficult to focus on tumor regions and potentially unable to fully leverage the prognostic information within the tumor regions. In this study, we propose a radiomics-enhanced deep multi-task framework for outcome prediction from PET/CT images, in the context of HEad and neCK TumOR segmentation and outcome prediction challenge (HECKTOR 2022). In our framework, our novelty is to incorporate radiomics as an enhancement to our recently proposed Deep Multi-task Survival model (DeepMTS). The DeepMTS jointly learns to predict the survival risk scores of patients and the segmentation masks of tumor regions. Radiomics features are extracted from the predicted tumor regions and combined with the predicted survival risk scores for final outcome prediction, through which the prognostic information in tumor regions can be further leveraged. Our method achieved a C-index of 0.681 on the testing set, placing the 2nd on the leaderboard with only 0.00068 lower in C-index than the 1st place.",
+          "claimed_authors": [
+            "Mingyuan Meng",
+            "Lei Bi",
+            "Dagan Feng",
+            "Jinman Kim"
+          ],
+          "claimed_title": "Radiomics-enhanced Deep Multi-task Learning for Outcome Prediction in Head and Neck Cancer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.05409"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Radiomics-enhanced Deep Multi-task Learning for Outcome Prediction in Head and Neck Cancer')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ABCD Neurocognitive Prediction Challenge is a community driven competition asking competitors to develop algorithms to predict fluid intelligence score from T1-w MRIs. In this work, we propose a deep learning combined with gradient boosting machine framework to solve this task. We train a convolutional neural network to compress the high dimensional MRI data and learn meaningful image features by predicting the 123 continuous-valued derived data provided with each MRI. These extracted features are then used to train a gradient boosting machine that predicts the residualized fluid intelligence score. Our approach achieved mean square error (MSE) scores of 18.4374, 68.7868, and 96.1806 for the training, validation, and test set respectively.",
+          "claimed_authors": [
+            "Yeeleng S. Vang",
+            "Yingxin Cao",
+            "Xiaohui Xie"
+          ],
+          "claimed_title": "A Combined Deep Learning-Gradient Boosting Machine Framework for Fluid Intelligence Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.07640"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='A Combined Deep Learning-Gradient Boosting Machine Framework for Fluid Intelligence Prediction')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A new method of feature extraction in the social network for within-network classification is proposed in the paper. The method provides new features calculated by combination of both: network structure information and class labels assigned to nodes. The influence of various features on classification performance has also been studied. The experiments on real-world data have shown that features created owing to the proposed method can lead to significant improvement of classification accuracy.",
+          "claimed_authors": [
+            "Tomasz Kajdanowicz",
+            "Przemyslaw Kazienko",
+            "Piotr Doskocz"
+          ],
+          "claimed_title": "Label-dependent Feature Extraction in Social Networks for Node Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0095"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Label-dependent Feature Extraction in Social Networks for Node Classification')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The classification of Hepatitis C virus (HCV) NS3 inhibitors is essential for identifying potential antiviral agents through computational methods. This study aims to develop an optimized machine learning (ML) model using random forest (RF) and molecular fingerprints to accurately classify HCV NS3 inhibitors. A dataset of 965 molecules was retrieved from the ChEMBL database, and 290 bioactive compounds were selected for model training. Twelve molecular fingerprint descriptors were tested, and the CDK graph-only fingerprint yielded the best performance. In addition to RF, performance comparisons of other classifiers such as instance-based k-nearest neighbor (IBk), logistic regression (LR), AdaBoost, and OneR were conducted using WEKA with various molecular fingerprint descriptors. The optimized RF model achieved an accuracy of 89.6552%, a mean absolute error (MAE) of 0.2114, a root mean square error (RMSE) of 0.3304, and a Matthews correlation coefficient (MCC) of 0.7950 on the test set. These results highlight the effectiveness of optimized molecular fingerprints in enhancing virtual screening (VS) for HCV inhibitors. This approach offers a data-driven method for drug discovery.",
+          "claimed_authors": [
+            "S. Atasever"
+          ],
+          "claimed_title": "Enhancing HCV NS3 Inhibitor Classification with Optimized Molecular Fingerprints Using Random Forest",
+          "claimed_venue": "International Journal of Molecular Sciences",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.3390/ijms26062680"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Enhancing HCV NS3 Inhibitor Classification with Optimized Molecular Fingerprints Using Random Forest')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The article focuses on the assessment of the genotoxic potential of chemical compounds that may be released into the environment. The necessity of changing the basic vector of development of modern toxicology in view of the achievements in the field of computer science and information technology is proved. In the framework of the study, attention was focused on the in silico approach, which allows to draw conclusions about the genotoxicity of a chemical compound in accordance with the identified functional groups that may underlie the manifestations of mutagenicity. The Ames system for determining structural markers of mutagenicity was implemented in accordance with publicly available databases of chemical compounds (EFSA, Kazius/Bursi and Hansen). The initial number of the merged dataset was increased by mycotoxins, and duplicates were removed. For each xenobiotic presented in the dataset, the mutagenic potential was determined using the in vitro Ames test. In order to effectively identify functional groups that may be signals of mutagenicity, it was decided to divide the xenobiotics of the combined data set into five structural classes. Such an approach to the formation of homogeneous groups of xenobiotics that may exhibit potential genotoxic properties allows us to identify structural markers of Ames mutagenicity within each class of mutagens. To obtain reliable information on the presence of a certain functional group - mutagenicity signal, taking into account the studied structural class of xenobiotics, it was proposed to use distance matrices calculated for each mutagen/non-mutagen pair of the combined data set. The similarity between the compounds was evaluated using classical similarity evaluation metrics (Tanimoto and Heming) according to the calculated three types of molecular fingerprints for each xenobiotic. The last stage of the implementation of the Ames system for detecting structural markers of mutagenicity was associated with the search for and application of an effective algorithm for visualizing multidimensional data. The literature analysis allowed us to choose the optimal algorithm for solving this problem. The chosen algorithm (t-SNE) allows multidimensional data (distance matrices for all mutagens and non-mutagens) to be represented in two-dimensional space. This visualization allows us to find all pairs (mutagen/non-mutagen) that have a sufficiently high similarity index and draw conclusions about the presence of certain functional groups that may underlie the manifestations of mutagenicity for each of the five structural classes of potential mutagens. It is quite interesting from the scientific point of view to analyze the effectiveness of using different types of structure fingerprints to identify structural warnings of Ames mutagenicity, which was carried out in the framework of this study. The result of the work is the developed software that allows determining structural markers of Ames mutagenicity based on the similarity of the structure fingerprints of chemical compounds represented in the combined data set. The possibility of using the proposed approach to solve the problem of finding cause-and-effect relationships between mutagenicity and the presence of certain functional groups in the structure of the studied xenobiotics is demonstrated.",
+          "claimed_authors": [
+            "S. Kislyak",
+            "O. Dugan",
+            "M. Moroz",
+            "O. Yalovenko"
+          ],
+          "claimed_title": "A system for identification of structural markers of Ames mutagenicity based on similarity of xenobiotic structure fingerprints",
+          "claimed_venue": "The Journal of V. N. Karazin Kharkiv National University, Series \"Biology\"",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.26565/2075-5457-2025-44-1"
+        },
+        "details": "query-relevance 0.267 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='A system for identification of structural markers of Ames mutagenicity based on similarity of xenobiotic structure fingerprints')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "A reliable and practical determination of a chemical species’ solubility in water continues to be examined using empirical observations and exhaustive experimental studies alone. Predictions of chemical solubility in water using data-driven algorithms can allow us to create a rationally designed, efficient, and cost-effective tool for next-generation materials and chemical formulations. We present results from two machine learning (ML) modeling studies to adequately predict various species’ solubility using data for over 8400 compounds. Molecular-descriptors, the most used method in previous studies, and Morgan fingerprint, a circular-based hash of the molecules' structures, were applied to produce water solubility estimates. We trained all models on 80% of the total datasets using the Random Forest (RFs) technique as the regressor and tested the prediction performance using the remaining 20%, resulting in coefficient of determination (R^2) test values of 0.88 and 0.81 and root-mean-square deviation (RMSE) test values 0.64 and 0.80 for the descriptors and circular fingerprint methods, respectively. We interpreted the produced ML models and reported the most effective features for aqueous solubility measures using the Shapley Additive exPlanations (SHAP) and thermodynamic analysis. Low error, ability to investigate the molecular-level interactions, and compatibility with thermodynamic quantities made the fingerprint method a distinct model compared to other available computational tools. However, it is worth emphasizing that physicochemical descriptor model outperformed the fingerprint model in achieving better predictive accuracy for the given test set.",
+          "claimed_authors": [
+            "A. Tayyebi",
+            "Ali S. Alshami",
+            "Zeinab Rabiei",
+            "Xue Yu",
+            "Nadhem Ismail",
+            "M. Talukder",
+            "Jason Power"
+          ],
+          "claimed_title": "Prediction of organic compound aqueous solubility using machine learning: a comparison study of descriptor-based and fingerprints-based models",
+          "claimed_venue": "Journal of Cheminformatics",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.1186/s13321-023-00752-6"
+        },
+        "details": "query-relevance 0.267 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Prediction of organic compound aqueous solubility using machine learning: a comparison study of descriptor-based and fingerprints-based models')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Odor is analyzed on the human olfactometry systems in various steps. The mapping from chemical structures to olfactory perceptions of smell is an extremely challenging task. Scientists have been unable to find a measure to distinguish the perceptual similarity between odorants. In this study, we report regression analysis and visualization based on the odorant chemical space. We discuss the relation between the odor descriptors and their structural diversity for odorants groups associated with each odor descriptor. We studied the influence of structural diversity on the odor descriptor predictability. The results suggest that the diversity of molecular structures, which is associated with the same odor descriptor, is related to the resolutional confusion with the odor descriptor.",
+          "claimed_authors": [
+            "Yuki Harada",
+            "Shuichi Maeda",
+            "Junwei Shen",
+            "T. Misonou",
+            "Hirokazu Hori",
+            "Shinichiro Nakamura"
+          ],
+          "claimed_title": "Regression Study of Odorant Chemical Space, Molecular Structural Diversity, and Natural Language Description",
+          "claimed_venue": "ACS Omega",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1021/acsomega.4c02268"
+        },
+        "details": "query-relevance 0.267 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Regression Study of Odorant Chemical Space, Molecular Structural Diversity, and Natural Language Description')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Visualization of the combinatorial library chemical space provides a comprehensive overview of available compound classes, their diversity, and physicochemical property distribution ‐ key factors in drug discovery. Typically, this visualization requires time‐ and resource‐consuming compound enumeration, standardization, descriptor calculation, and dimensionality reduction. In this study, we present the Combinatorial Library Neural Network (CoLiNN) designed to predict the projection of compounds on a 2D chemical space map using only their building blocks and reaction information, thus eliminating the need for compound enumeration. Trained on 2.5 K virtual DNA‐Encoded Libraries (DELs), CoLiNN demonstrated high predictive performance, accurately predicting the compound position on Generative Topographic Maps (GTMs). GTMs predicted by CoLiNN were found very similar to the maps built for enumerated structures. In the library comparison task, we compared the GTMs of DELs and the ChEMBL database. The similarity‐based DELs/ChEMBL rankings obtained with “true” and CoLiNN predicted GTMs were consistent. Therefore, CoLiNN has the potential to become the go‐to tool for combinatorial compound library design – it can explore the library design space more efficiently by skipping the compound enumeration.",
+          "claimed_authors": [],
+          "claimed_title": "CoLiNN: A Tool for Fast Chemical Space Visualization of Combinatorial Libraries Without Enumeration",
+          "claimed_venue": "Molecular Informatics",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1002/minf.202400263"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='CoLiNN: A Tool for Fast Chemical Space Visualization of Combinatorial Libraries Without Enumeration')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Discovering materials with new structural chemistry is key to achieving transformative functionality. Generative artificial intelligence offers a scalable route to propose candidate crystal structures. We introduce a reliable low-cost proxy for structural novelty as a conditioning property to steer generation towards novel yet physically plausible structures. We then develop a physics-informed diffusion model that embeds this descriptor of local environment diversity together with compactness as a stability metric to balance physical plausibility with structural novelty. Conditioning on these metrics improves generative performance across diffusion models, shifting generation away from structural motifs that dominate the training data. A chemically grounded validation protocol isolates those candidates that combine plausibility with structural novelty for physics-based calculation of energetic stability. Both the stability and the novelty of candidates emerging from this workflow can however change when the full potential energy surface at a candidate composition is evaluated with crystal structure prediction (CSP). This suggests a practical generative-CSP synergy for discovery-oriented exploration, where AI targets physically viable yet structurally distinct regions of chemical space for detailed physics-based assessment of novelty and stability.",
+          "claimed_authors": [
+            "A. Vasylenko",
+            "Federico Ottomano",
+            "Christopher M Collins",
+            "Rahul Savani",
+            "Matthew S. Dyer",
+            "Matthew J. Rosseinsky"
+          ],
+          "claimed_title": "Introducing physics-informed generative models for targeting structural novelty in the exploration of chemical space",
+          "claimed_venue": "",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.23181"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Introducing physics-informed generative models for targeting structural novelty in the exploration of chemical space')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the scientific motivations, the mission concept and the instrumentation of SPACE, a class-M mission proposed for concept study at the first call of the ESA Cosmic-Vision 2015-2025 planning cycle. SPACE aims to produce the largest three-dimensional evolutionary map of the Universe over the past 10 billion years by taking near-IR spectra and measuring redshifts for more than half a billion galaxies at 0<z<2 down to AB~23 over 3πsr of the sky. In addition, SPACE will also target a smaller sky field, performing a deep spectroscopic survey of millions of galaxies to AB~26 and at 2<z<10+. These goals are unreachable with ground-based observations due to the ~500 times higher sky background. To achieve the main science objectives, SPACE will use a 1.5m diameter Ritchey-Chretien telescope equipped with a set of arrays of Digital Micro-mirror Devices (DMDs) covering a total field of view of 0.4 deg2, and will perform large-multiplexing multi-object spectroscopy (e.g. ~6000 targets per pointing) at a spectral resolution of R~400 as well as diffraction-limited imaging with continuous coverage from 0.8mum to 1.8mum.",
+          "claimed_authors": [
+            "A. Cimatti",
+            "M. Robberto",
+            "C. M. Baugh",
+            "S. V. W. Beckwith",
+            "R. Content",
+            "E. Daddi",
+            "G. De Lucia",
+            "B. Garilli",
+            "L. Guzzo",
+            "G. Kauffmann",
+            "M. Lehnert",
+            "D. Maccagni",
+            "A. Martinez-Sansigre",
+            "F. Pasian",
+            "I. N. Reid",
+            "P. Rosati",
+            "R. Salvaterra",
+            "M. Stiavelli",
+            "Y. Wang",
+            "M. Zapatero Osorio",
+            "the SPACE team"
+          ],
+          "claimed_title": "SPACE: the SPectroscopic All-sky Cosmic Explorer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0804.4433"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='SPACE: the SPectroscopic All-sky Cosmic Explorer')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The paper has two goals:\n  It presents basic ideas, notions, and methods for reduction of reaction kinetics models: quasi-steady-state, quasi-equilibrium, slow invariant manifolds, and limiting steps.\n  It describes briefly the current state of the art and some latest achievements in the broad area of model reduction in chemical and biochemical kinetics, including new results in methods of invariant manifolds, computation singular perturbation, bottleneck methods, asymptotology, tropical equilibration, and reaction mechanism skeletonisation.",
+          "claimed_authors": [
+            "A. N. Gorban"
+          ],
+          "claimed_title": "Model reduction in chemical dynamics: slow invariant manifolds, singular perturbations, thermodynamic estimates, and analysis of reaction graph",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.05745"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Model reduction in chemical dynamics: slow invariant manifolds, singular perturbations, thermodynamic estimates, and analysis of reaction graph')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The origin of a chemical reaction between two reactant atoms is associated to the activation energy, with the assumption that, high-energy collisions between these atoms, are the ones that overcome the activation energy. Here, we (i) show that a stronger attractive van der Waals (vdW) and electron-ion Coulomb interactions between two polarized atoms are responsible to initiate a chemical reaction, either before or after the collision. We derive this stronger vdW attraction formula exactly using the quasi one-dimensional Drude model within the ionization energy theory and the energy-level spacing renormalization group method. Along the way, we (ii) expose the precise physical mechanism responsible for the existence of a stronger vdW interaction for both long and short distances, and also show how to technically avoid the electron-electron Coulomb repulsion between polarized electrons from these two reactant atoms. Finally, we properly and correctly associate the existence of this stronger attraction to Ramachandran's 'normal limits' (distance shorter than what is allowed by the standard vdW bond) between chemically nonbonded atoms.",
+          "claimed_authors": [
+            "Andrew Das Arulsamy"
+          ],
+          "claimed_title": "Chemical Reaction due to Stronger Ramachandran Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.3412"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Chemical Reaction due to Stronger Ramachandran Interaction')",
+        "failed_at": "2026-05-07T17:47:05Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Donghyeon Kim",
+            "Jaeseong Jeong",
+            "Jinhee Choi"
+          ],
+          "title": "Identification of Optimal Machine Learning Algorithms and Molecular Fingerprints for Explainable Toxicity Prediction Models Using ToxCast/Tox21 Bioassay Data",
+          "venue": "ACS Omega",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1021/acsomega.4c04474",
+        "summary": "Recent studies have primarily focused on introducing novel frameworks to enhance the predictive power of toxicity prediction models by refining molecular representation methods and algorithms. However, these methods are inherently complex and often pose challenges in understanding and explaining, leading to barriers in their regulatory adoption and validation. Therefore, it is necessary to select the optimal model, considering not only model performance but also interpretability. This study aimed to identify the optimal combination of molecular fingerprints (pattern-based versus algorithm-based) and machine learning algorithms (simple versus complex) for developing explainable toxicity prediction models through an comprehensive investigation of the ToxCast/Tox21 bioassay data set. For 1092 ToxCast/Tox21 assays, five molecular fingerprints (MACCS, Morgan, RDKit, Layered, and Patterned) and six algorithms (MLP, GBT, Random Forest, kNN, Logistic Regression, and Naïve Bayes) were used to train the models. Results showed that 35 models revealed acceptable performance (F1 score or accuracy is 0.8 or higher). Among the combinations, either MACCS or Morgan, paired with Random Forest, demonstrated robust performance compared with other molecular fingerprints and algorithms. MACCS and Random Forest are valuable, even when prioritizing interpretability. Consequently, the MACCS-Random Forest combination model based on four assays, targeting G protein-coupled receptor and kinase, were identified and they can be used to discern specific structural features or patterns in chemical compounds, offering explainable insights into toxicity-related chemical structures. This study indicates the importance of not disregarding the utilization of simple models when assessing both predictivity and interpretability within the context of chemical feature-based Tox21 data analysis.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://pubs.acs.org/doi/10.1021/acsomega.4c04474",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1021/acsomega.4c04474"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T17:47:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "M. Nelms",
+            "Ryan R. Lougee",
+            "D. Roberts",
+            "A. Richard",
+            "G. Patlewicz"
+          ],
+          "title": "Comparing and contrasting the coverage of publicly available structural alerts for protein binding.",
+          "venue": "Computational Toxicology",
+          "year": 2019
+        },
+        "primary_pointer": "https://doi.org/10.1016/J.COMTOX.2019.100100",
+        "summary": "The molecular initiating event for many mechanisms of toxicological action comprise the reactive, covalent binding between an exogenous electrophile and an endogenous nucleophile. The target sites for electrophiles are typically peptides, proteins, enzymes or DNA. Of these, the formation of covalent adducts with proteins and DNA are perhaps the most established as they are most closely associated with skin sensitisation and genotoxicity endpoints. As such, being able to identify electrophilic features within a chemical structure provides a starting point to characterise its reactivity profile. There are a number of software tools that have been developed to help identify structural features indicative of electrophilic reactive potential to address various purposes, including: 1) to facilitate category formation for read-across of toxicity effects such as skin sensitisation potential, as well as 2) to profile substances to identify potential confounding factors to rationalise their activity in high-throughput screening (HTS) assays. Here, three such schemes that have been published in the literature as collections of SMARTS patterns and their associated chemical-biological reaction domains have been compared. The goals are 1) to better understand their scope and coverage, and 2) to assess their performance relative to a published skin sensitisation dataset where manual annotations to assign likely mechanistic domains based on expert judgement were already available. The 3 schemes were then applied to the Tox21 library and the consensus outcome was reported to highlight the proportion of chemicals likely to exhibit a reactivity response, specific to a mechanistic reaction domain, but non-specific with respect to target-tissue based activity. ToxPrint fingerprints were computed and activity enrichments computed to compare the structural features identified for the skin sensitisation dataset and Tox21 chemicals for each 'consensus' reaction domain. Enriched ToxPrints were also used to identify ToxCast assays potentially informative for reactivity.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S2468111319300283",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1016/J.COMTOX.2019.100100"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T17:47:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andrew J. Wedlake",
+            "M. Folia",
+            "S. Piechota",
+            "Timothy E. H. Allen",
+            "J. Goodman",
+            "S. Gutsell",
+            "P. Russell"
+          ],
+          "title": "Structural Alerts and Random Forest Models in a Consensus Approach for Receptor Binding Molecular Initiating Events.",
+          "venue": "Chemical Research in Toxicology",
+          "year": 2019
+        },
+        "primary_pointer": "https://doi.org/10.1021/acs.chemrestox.9b00325",
+        "summary": "A molecular initiating event (MIE) is the gateway to an adverse outcome pathway (AOP), a sequence of events ending in an adverse effect. In silico predictions of MIEs are a vital tool in a modern, mechanism-focused approach to chemical risk assessment. For 90 biological targets representing important human MIEs, structural alert-based models have been constructed with an automated procedure that uses Bayesian statistics to iteratively select substructures. These models give impressive average performance statistics (an average of 92% correct predictions across targets), significantly improving on previous models. Random Forest models have been constructed from physicochemical features for the same targets, giving similarly impressive performance statistics (93% correct predictions). A key difference between the models is interpretation of predictions - the structural alert models are transparent and easy to interpret, whilst Random Forest models can only identify the most important physicochemical features for making predictions. The two complementary models have been combined in a consensus model, improving performance compared to each individual model (94% correct predictions) and increasing confidence in predictions. Variation in model performance has been explained by calculating a modelability index (MODI), using Tanimoto coefficient between Morgan fingerprints to identify nearest neighbor chemicals. This work is an important step towards building confidence in in silico tools for assessment of toxicity.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://pubs.acs.org/doi/10.1021/acs.chemrestox.9b00325",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1021/acs.chemrestox.9b00325"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T17:47:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Fabrizio Mastrolorito",
+            "Nicola Gambacorta",
+            "F. Ciriaco",
+            "Francesca Cutropia",
+            "Maria Vittoria Togo",
+            "Valentina Belgiovine",
+            "Anna Rita Tondo",
+            "Daniela Trisciuzzi",
+            "A. Monaco",
+            "Roberto Bellotti",
+            "C. Altomare",
+            "O. Nicolotti",
+            "Nicola Amoroso"
+          ],
+          "title": "Chemical Space Networks Enhance Toxicity Recognition via Graph Embedding",
+          "venue": "Journal of Chemical Information and Modeling",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1021/acs.jcim.4c02140",
+        "summary": "Chemical space networks (CSNs) are a new effective strategy for detecting latent chemical patterns irrespective of defined coordinate systems based on molecular descriptors and fingerprints. CSNs can be a new powerful option as a new approach method and increase the capacity of assessing potential adverse impacts of chemicals on human health. Here, CSNs are shown to effectively characterize the toxicity of chemicals toward several human health end points, namely chromosomal aberrations, mutagenicity, carcinogenicity, developmental toxicity, skin irritation, estrogenicity, androgenicity, and hepatoxicity. In this work, we report how the content from CSNs structure can be embedded through graph neural networks into a metric space, which, for eight different toxicological human health end points, allows better discrimination of toxic and nontoxic chemicals. In fact, using embeddings returns, on average, an increase in predictive performances. In fact, embedding employment enhances the learning, leading to an increment of the classification performance of +12% in terms of the area under the ROC curve. Moreover, through a dedicated eXplainable Artificial Intelligence framework, a straight interpretation of results is provided through the detection of putative structural alerts related to a given toxicity. Hence, the proposed approach represents a step forward in the area of alternative methods and could lead to breakthrough innovations in the design of safer chemicals and drugs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://pubs.acs.org/doi/10.1021/acs.jcim.4c02140",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1021/acs.jcim.4c02140"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T17:47:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xuan Xu",
+            "P. Zhao",
+            "Zhiyuan Wang",
+            "Xiaoxiao Zhang",
+            "Zengrui Wu",
+            "Weihua Li",
+            "Yun Tang",
+            "Guixia Liu"
+          ],
+          "title": "In silico prediction of chemical acute contact toxicity on honey bees via machine learning methods.",
+          "venue": "Toxicology in Vitro",
+          "year": 2021
+        },
+        "primary_pointer": "https://doi.org/10.1016/j.tiv.2021.105089",
+        "summary": "In recent years, the decline of honey bees and the collapse of bee colonies have caught the attention of ecologists, and the use of pesticides is one of the main reasons for the decline. Therefore, ecological risk assessment of pesticides is essential and necessary. In silico tools, such as QSAR models can play an important role in predicting physicochemical and biological properties of chemicals. In this study, a total of 54 classification models were developed by combination of 6 machine learning methods along with 9 kinds of molecular fingerprints based on the experimental honey bees acute contact toxicity data (LD50) of 676 structurally diverse pesticides. The best model proposed was SVM algorithm combined with CDK extended fingerprint. The analysis of the applicability domain of the model successfully excluded some extreme molecules. Additionally, 9 structural alerts about honey bees acute contact toxicity were identified by information gain and substructure frequency analysis.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S088723332100014X",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1016/j.tiv.2021.105089"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T17:47:49Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "to what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

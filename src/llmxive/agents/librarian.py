@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import dataclasses
 import datetime as _dt
+import logging
 import time
 from pathlib import Path
 from typing import Any
@@ -32,7 +33,7 @@ from typing import Any
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.librarian import cache as librarian_cache
-from llmxive.librarian import relevance_judge, search_trail
+from llmxive.librarian import query_extractor, relevance_judge, search_trail
 from llmxive.librarian.expand import (
     DEFAULT_EXPANSION_CAP,
     DEFAULT_TARGET_N,
@@ -59,7 +60,8 @@ from llmxive.librarian.verify import (
 from llmxive.types import AgentRegistryEntry
 
 LIBRARIAN_SCHEMA_VERSION = "1.0.0"
-DEFAULT_INITIAL_LIMIT = 10  # initial search per backend
+DEFAULT_INITIAL_LIMIT = 10  # total candidate budget across the parallel decomposed queries
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass
@@ -82,6 +84,8 @@ class LibrarianResult:
     cache_status: str  # miss | hit | refreshed_after_ttl
     failure_reason: str | None = None
     relevance_judge: dict[str, Any] = dataclasses.field(default_factory=dict)
+    extracted_queries: list[str] = dataclasses.field(default_factory=list)
+    per_query_hit_count: dict[str, int] = dataclasses.field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to the JSON shape documented in
@@ -106,6 +110,8 @@ class LibrarianResult:
             "cache_status": self.cache_status,
             "failure_reason": self.failure_reason,
             "relevance_judge": self.relevance_judge,
+            "extracted_queries": self.extracted_queries,
+            "per_query_hit_count": self.per_query_hit_count,
         }
 
 
@@ -197,25 +203,61 @@ class LibrarianAgent(Agent):
                     )
                 return cached_result
 
-        # 2. Initial search.
+        # 2. Initial search — concept-decomposed (spec 005 fix-up #3).
+        # Instead of one sentence-shaped query, ask the LLM to extract
+        # 5 short keyword queries (with synonym variants for vocabulary
+        # clusters that diverge between the question and the literature),
+        # then run all in parallel and union the candidate sets. This
+        # addresses the three retrieval failure modes documented in the
+        # diagnostic report § 6 P5-D11: vocabulary mismatch, sentence-
+        # shaped queries, and missing concept decomposition.
         ss_client = ss_client if ss_client is not None else SemanticScholarClient()
         arxiv_client = arxiv_client or ArxivClient()
-        ss_results: list[Candidate] = []
-        if ss_client.has_key:
-            try:
-                ss_results = ss_client.search_papers(term, limit=DEFAULT_INITIAL_LIMIT)
-            except Exception:
-                # SS failure isn't fatal — arXiv may still succeed.
-                ss_results = []
-                # NOTE: We could log this in failure_reason but we let arXiv
-                # carry the search if it works; only an all-backends-failed
-                # result triggers outcome=failed.
-        try:
-            ax_results = arxiv_client.search(term, max_results=DEFAULT_INITIAL_LIMIT)
-        except Exception:
-            ax_results = []
 
-        candidates = merge_candidates(ss_results, ax_results)
+        try:
+            extracted_queries = query_extractor.extract_queries(
+                term,
+                field=field,
+                model=self.entry.default_model,
+                default_backend=self.entry.default_backend.value,
+                fallback_backends=[b.value for b in self.entry.fallback_backends],
+            )
+        except Exception as exc:
+            extracted_queries = []
+            LOGGER.warning("[librarian] query extraction failed: %s", exc)
+        # Always include the raw term as a baseline so the cache key
+        # remains semantically tied to the user's actual research
+        # question and so a backend failure on the extractor doesn't
+        # leave the librarian silent.
+        all_queries: list[str] = [term]
+        for q in extracted_queries:
+            if q not in all_queries:
+                all_queries.append(q)
+
+        per_query_limit = max(3, DEFAULT_INITIAL_LIMIT // max(1, len(all_queries) - 1) or 1)
+        merged_pointers: set[str] = set()
+        candidates: list[Candidate] = []
+        per_query_hit_count: dict[str, int] = {}
+        for q in all_queries:
+            ss_results: list[Candidate] = []
+            if ss_client.has_key:
+                try:
+                    ss_results = ss_client.search_papers(q, limit=per_query_limit)
+                except Exception:
+                    ss_results = []
+            try:
+                ax_results = arxiv_client.search(q, max_results=per_query_limit)
+            except Exception:
+                ax_results = []
+            new_for_q = 0
+            for c in merge_candidates(ss_results, ax_results):
+                if c.primary_pointer in merged_pointers:
+                    continue
+                merged_pointers.add(c.primary_pointer)
+                candidates.append(c)
+                new_for_q += 1
+            per_query_hit_count[q] = new_for_q
+
         verified, failures = _verify_each(candidates, query=term)
 
         expansion: ExpansionResult | None = None
@@ -362,6 +404,8 @@ class LibrarianAgent(Agent):
                 "rejections": judge_rejections,
                 "marginal_fallback_used": marginal_fallback_used,
             },
+            extracted_queries=extracted_queries,
+            per_query_hit_count=per_query_hit_count,
         )
 
         # 5. Cache write.
@@ -493,6 +537,8 @@ def _result_from_dict(d: dict[str, Any]) -> LibrarianResult:
         cache_status="hit",
         failure_reason=d.get("failure_reason"),
         relevance_judge=d.get("relevance_judge", {}),
+        extracted_queries=list(d.get("extracted_queries", []) or []),
+        per_query_hit_count=dict(d.get("per_query_hit_count", {}) or {}),
     )
 
 

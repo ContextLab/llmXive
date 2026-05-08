@@ -1,0 +1,726 @@
+{
+  "fetched_at": "2026-05-07T18:52:36Z",
+  "field": "psychology",
+  "prompt_version": "1.4.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "---\nfield: psychology\nsubmitter: google.gemma-3-27b-it\n---\n\n# The Influence of Visual Priming on Implicit Attitudes Towards Ambiguous Social Stimuli\n\n**Field**: psychology\n\n## Research question\n\nHow does brief exposure to emotional facial expressions (positive vs. negative) modulate implicit attitude measurements toward racially ambiguous faces, and does this priming effect persist across different demographic groups?\n\n## Motivation\n\nImplicit bias shapes social interactions and decision-making in ways that are not accessible to conscious awareness. Understanding whether environmental visual cues can transiently shift implicit attitudes would inform interventions for reducing bias in high-stakes contexts (e.g., hiring, law enforcement, healthcare). This addresses a gap in the literature on the temporal dynamics of implicit attitude formation.\n\n## Literature gap analysis\n\n### What we searched\n\nSearch queries included: \"visual priming implicit attitude,\" \"emotional face priming IAT,\" \"rap",
+      "target_n": 5
+    },
+    "duration_seconds": 804.318,
+    "ended_at": "2026-05-07T18:52:36Z",
+    "expansion": null,
+    "extracted_queries": [
+      "brief exposure emotional facial expressions",
+      "positive negative valence facial expressions",
+      "subliminal affective priming duration",
+      "attentional bias emotional faces",
+      "rapid face presentation neural correlates"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.4.0",
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.1371/journal.pone.0174016"
+      ]
+    },
+    "per_query_hit_count": {
+      "How does brief exposure to emotional facial expressions (positive vs": 3,
+      "attentional bias emotional faces": 6,
+      "brief exposure emotional facial expressions": 6,
+      "positive negative valence facial expressions": 4,
+      "rapid face presentation neural correlates": 6,
+      "subliminal affective priming duration": 6
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "1604.04337",
+          "rationale": "The paper addresses computer vision algorithm performance for expression recognition, while the user asks about the human psychological or physiological response to exposure. These are fundamentally different research areas (engineering vs. psychology) that share only superficial keywords regarding facial expressions.",
+          "title": "Facial expression recognition based on local region specific features and support vector machines"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1101/2025.02.02.636153",
+          "rationale": "This paper investigates the *production* of facial expressions in horses as indicators of their internal emotional state, whereas the user's question concerns the effects of *viewing* (exposure to) emotional facial expressions. The causal direction of the relationship (expression vs. perception) is fundamentally different.",
+          "title": "Characterisation of facial expressions and behaviours of horses in response to positive and negative emotional anticipation using network analysis"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-07T18:39:12Z",
+    "term_input": {
+      "normalized": "how does brief exposure to emotional facial expressions (positive vs",
+      "raw": "How does brief exposure to emotional facial expressions (positive vs"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "P. Niedenthal",
+            "Silvia Krauth‐Gruber",
+            "François Ric"
+          ],
+          "claimed_title": "Psychology of emotion: Interpersonal, experiential, and cognitive approaches.",
+          "claimed_venue": "",
+          "claimed_year": 2006,
+          "primary_pointer": "https://www.semanticscholar.org/paper/a42de1e768a05f0fd8bb3a4c799f5bbd5d5b2482"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='Psychology of emotion: Interpersonal, experiential, and cognitive approaches.')",
+        "failed_at": "2026-05-07T18:44:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "R. Grossman",
+            "J. Mertens",
+            "E. Zane"
+          ],
+          "claimed_title": "Perceptions of Self and Other : Social judgments and gaze patterns to videos of adolescents with and without ASD",
+          "claimed_venue": "",
+          "claimed_year": 2018,
+          "primary_pointer": "https://www.semanticscholar.org/paper/e879293f4c5b8ec00cac524114cb3950e8016edd"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='Perceptions of Self and Other : Social judgments and gaze patterns to videos of adolescents with and without ASD')",
+        "failed_at": "2026-05-07T18:44:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "S. Paulmann",
+            "M. Pell"
+          ],
+          "claimed_title": "Contextual influences of emotional speech prosody on face processing: How much is enough?",
+          "claimed_venue": "Cognitive, Affective, & Behavioral Neuroscience",
+          "claimed_year": 2010,
+          "primary_pointer": "https://doi.org/10.3758/CABN.10.2.230"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='Contextual influences of emotional speech prosody on face processing: How much is enough?')",
+        "failed_at": "2026-05-07T18:44:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present SAFER, a novel system for emotion recognition from facial expressions. It employs state-of-the-art deep learning techniques to extract various features from facial images and incorporates contextual information, such as background and location type, to enhance its performance. The system has been designed to operate in an open-world setting, meaning it can adapt to unseen and varied facial expressions, making it suitable for real-world applications. An extensive evaluation of SAFER against existing works in the field demonstrates improved performance, achieving an accuracy of 91.4% on the CAER-S dataset. Additionally, the study investigates the effect of novelty such as face masks during the Covid-19 pandemic on facial emotion recognition and critically examines the limitations of mainstream facial expressions datasets. To address these limitations, a novel dataset for facial emotion recognition is proposed. The proposed dataset and the system are expected to be useful for various applications such as human-computer interaction, security, and surveillance.",
+          "claimed_authors": [
+            "Mijanur Palash",
+            "Bharat Bhargava"
+          ],
+          "claimed_title": "SAFER: Situation Aware Facial Emotion Recognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.09372"
+        },
+        "details": "title token-overlap 0.000 < 0.7 (claimed='SAFER: Situation Aware Facial Emotion Recognition', fetched='')",
+        "failed_at": "2026-05-07T18:45:59Z",
+        "reason": "title_mismatch"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Facial expressions convey nonverbal cues which play an important role in interpersonal relations, and are widely used in behavior interpretation of emotions, cognitive science, and social interactions. In this paper we analyze different ways of representing geometric feature and present a fully automatic facial expression recognition (FER) system using salient geometric features. In geometric feature-based FER approach, the first important step is to initialize and track dense set of facial points as the expression evolves over time in consecutive frames. In the proposed system, facial points are initialized using elastic bunch graph matching (EBGM) algorithm and tracking is performed using Kanade-Lucas-Tomaci (KLT) tracker. We extract geometric features from point, line and triangle composed of tracking results of facial points. The most discriminative line and triangle features are extracted using feature selective multi-class AdaBoost with the help of extreme learning machine (ELM) classification. Finally the geometric features for FER are extracted from the boosted line, and triangles composed of facial points. The recognition accuracy using features from point, line and triangle are analyzed independently. The performance of the proposed FER system is evaluated on three different data sets: namely CK+, MMI and MUG facial expression data sets.",
+          "claimed_authors": [
+            "Deepak Ghimire",
+            "Joonwhoan Lee",
+            "Ze-Nian Li",
+            "Sunghwan Jeong"
+          ],
+          "claimed_title": "Recognition of facial expressions based on salient geometric features and support vector machines",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1604.04334"
+        },
+        "details": "title token-overlap 0.000 < 0.7 (claimed='Recognition of facial expressions based on salient geometric features and support vector machines', fetched='')",
+        "failed_at": "2026-05-07T18:46:10Z",
+        "reason": "title_mismatch"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Facial expressions are widely used in the behavioral interpretation of emotions, cognitive science, and social interactions. In this paper, we present a novel method for fully automatic facial expression recognition in facial image sequences. As the facial expression evolves over time facial landmarks are automatically tracked in consecutive video frames, using displacements based on elastic bunch graph matching displacement estimation. Feature vectors from individual landmarks, as well as pairs of landmarks tracking results are extracted, and normalized, with respect to the first frame in the sequence. The prototypical expression sequence for each class of facial expression is formed, by taking the median of the landmark tracking results from the training facial expression sequences. Multi-class AdaBoost with dynamic time warping similarity distance between the feature vector of input facial expression and prototypical facial expression, is used as a weak classifier to select the subset of discriminative feature vectors. Finally, two methods for facial expression recognition are presented, either by using multi-class AdaBoost with dynamic time warping, or by using support vector machine on the boosted feature vectors. The results on the Cohn-Kanade (CK+) facial expression database show a recognition accuracy of 95.17% and 97.35% using multi-class AdaBoost and support vector machines, respectively.",
+          "claimed_authors": [
+            "Deepak Ghimire",
+            "Joonwhoan Lee"
+          ],
+          "claimed_title": "Geometric Feature-Based Facial Expression Recognition in Image Sequences Using Multi-Class AdaBoost and Support Vector Machines",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1604.03225"
+        },
+        "details": "title token-overlap 0.000 < 0.7 (claimed='Geometric Feature-Based Facial Expression Recognition in Image Sequences Using Multi-Class AdaBoost and Support Vector Machines', fetched='')",
+        "failed_at": "2026-05-07T18:46:37Z",
+        "reason": "title_mismatch"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "M. Nomura",
+            "H. Ohira",
+            "Kaoruko Haneda"
+          ],
+          "claimed_title": "Neural basis for the subliminal affective priming",
+          "claimed_venue": "",
+          "claimed_year": 2002,
+          "primary_pointer": "https://doi.org/10.4092/JSRE.9.87"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='Neural basis for the subliminal affective priming')",
+        "failed_at": "2026-05-07T18:46:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "M. G. Maureira",
+            "Lisa E. Rombout",
+            "Livia Teernstra",
+            "I.C.T.M. Speek",
+            "J. Broekens"
+          ],
+          "claimed_title": "The influence of subliminal visual primes on player affect in a horror computer game",
+          "claimed_venue": "Affective Computing and Intelligent Interaction",
+          "claimed_year": 2015,
+          "primary_pointer": "https://doi.org/10.1109/ACII.2015.7344646"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='The influence of subliminal visual primes on player affect in a horror computer game')",
+        "failed_at": "2026-05-07T18:46:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces BReG-NeXt, a residual-based network architecture using a function wtih bounded derivative instead of a simple shortcut path (a.k.a. identity mapping) in the residual units for automatic recognition of facial expressions based on the categorical and dimensional models of affect. Compared to ResNet, our proposed adaptive complex mapping results in a shallower network with less numbers of training parameters and floating point operations per second (FLOPs). Adding trainable parameters to the bypass function further improves fitting and training the network and hence recognizing subtle facial expressions such as contempt with a higher accuracy. We conducted comprehensive experiments on the categorical and dimensional models of affect on the challenging in-the-wild databases of AffectNet, FER2013, and Affect-in-Wild. Our experimental results show that our adaptive complex mapping approach outperforms the original ResNet consisting of a simple identity mapping as well as other state-of-the-art methods for Facial Expression Recognition (FER). Various metrics are reported in both affect models to provide a comprehensive evaluation of our method. In the categorical model, BReG-NeXt-50 with only 3.1M training parameters and 15 MFLOPs, achieves 68.50% and 71.53% accuracy on AffectNet and FER2013 databases, respectively. In the dimensional model, BReG-NeXt achieves 0.2577 and 0.2882 RMSE value on AffectNet and Affect-in-Wild databases, respectively.",
+          "claimed_authors": [
+            "Behzad Hasani",
+            "Pooran Singh Negi",
+            "Mohammad H. Mahoor"
+          ],
+          "claimed_title": "BReG-NeXt: Facial Affect Computing Using Adaptive Residual Networks With Bounded Gradient",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.08495"
+        },
+        "details": "title token-overlap 0.000 < 0.7 (claimed='BReG-NeXt: Facial Affect Computing Using Adaptive Residual Networks With Bounded Gradient', fetched='')",
+        "failed_at": "2026-05-07T18:47:04Z",
+        "reason": "title_mismatch"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "How could we gather affect annotations in a rapid, unobtrusive, and accessible fashion? How could we still make sure that these annotations are reliable enough for data-hungry affect modelling methods? This paper addresses these questions by introducing PAGAN, an accessible, general-purpose, online platform for crowdsourcing affect labels in videos. The design of PAGAN overcomes the accessibility limitations of existing annotation tools, which often require advanced technical skills or even the on-site involvement of the researcher. Such limitations often yield affective corpora that are restricted in size, scope and use, as the applicability of modern data-demanding machine learning methods is rather limited. The description of PAGAN is accompanied by an exploratory study which compares the reliability of three continuous annotation tools currently supported by the platform. Our key results reveal higher inter-rater agreement when annotation traces are processed in a relative manner and collected via unbounded labelling.",
+          "claimed_authors": [
+            "David Melhart",
+            "Antonios Liapis",
+            "Georgios N. Yannakakis"
+          ],
+          "claimed_title": "PAGAN: Video Affect Annotation Made Easy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.01008"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='PAGAN: Video Affect Annotation Made Easy')",
+        "failed_at": "2026-05-07T18:47:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video-based facial affect analysis has recently attracted increasing attention owing to its critical role in human-computer interaction. Previous studies mainly focus on developing various deep learning architectures and training them in a fully supervised manner. Although significant progress has been achieved by these supervised methods, the longstanding lack of large-scale high-quality labeled data severely hinders their further improvements. Motivated by the recent success of self-supervised learning in computer vision, this paper introduces a self-supervised approach, termed Self-supervised Video Facial Affect Perceiver (SVFAP), to address the dilemma faced by supervised methods. Specifically, SVFAP leverages masked facial video autoencoding to perform self-supervised pre-training on massive unlabeled facial videos. Considering that large spatiotemporal redundancy exists in facial videos, we propose a novel temporal pyramid and spatial bottleneck Transformer as the encoder of SVFAP, which not only largely reduces computational costs but also achieves excellent performance. To verify the effectiveness of our method, we conduct experiments on nine datasets spanning three downstream tasks, including dynamic facial expression recognition, dimensional emotion recognition, and personality recognition. Comprehensive results demonstrate that SVFAP can learn powerful affect-related representations via large-scale self-supervised pre-training and it significantly outperforms previous state-of-the-art methods on all datasets. Code is available at https://github.com/sunlicai/SVFAP.",
+          "claimed_authors": [
+            "Licai Sun",
+            "Zheng Lian",
+            "Kexin Wang",
+            "Yu He",
+            "Mingyu Xu",
+            "Haiyang Sun",
+            "Bin Liu",
+            "Jianhua Tao"
+          ],
+          "claimed_title": "SVFAP: Self-supervised Video Facial Affect Perceiver",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2401.00416"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='SVFAP: Self-supervised Video Facial Affect Perceiver')",
+        "failed_at": "2026-05-07T18:47:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Jintong Bai",
+            "Yang Sun"
+          ],
+          "claimed_title": "The Self-Advantage Effect on the Attentional Bias of Emotional Faces",
+          "claimed_venue": "Journal of Vision",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1167/jov.25.9.2018"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='The Self-Advantage Effect on the Attentional Bias of Emotional Faces')",
+        "failed_at": "2026-05-07T18:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Emotion Cause Extraction (ECE) aims to identify emotion causes from a document after annotating the emotion keywords. Some baselines have been proposed to address this problem, such as rule-based, commonsense based and machine learning methods. We show, however, that a simple random selection approach toward ECE that does not require observing the text achieves similar performance compared to the baselines. We utilized only position information relative to the emotion cause to accomplish this goal. Since position information alone without observing the text resulted in higher F-measure, we therefore uncovered a bias in the ECE single genre Sina-news benchmark. Further analysis showed that an imbalance of emotional cause location exists in the benchmark, with a majority of cause clauses immediately preceding the central emotion clause. We examine the bias from a linguistic perspective, and show that high accuracy rate of current state-of-art deep learning models that utilize location information is only evident in datasets that contain such position biases. The accuracy drastically reduced when a dataset with balanced location distribution is introduced. We therefore conclude that it is the innate bias in this benchmark that caused high accuracy rate of these deep learning models in ECE. We hope that the case study in this paper presents both a cautionary lesson, as well as a template for further studies, in interpreting the superior fit of deep learning models without checking for bias.",
+          "claimed_authors": [
+            "Jiayuan Ding",
+            "Mayank Kejriwal"
+          ],
+          "claimed_title": "An Experimental Study of The Effects of Position Bias on Emotion CauseExtraction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.15066"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='An Experimental Study of The Effects of Position Bias on Emotion CauseExtraction')",
+        "failed_at": "2026-05-07T18:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bias in web search has been in the spotlight of bias detection research for quite a while. At the same time, little attention has been paid to query suggestions in this regard. Awareness of the problem of biased query suggestions has been raised. Likewise, there is a rising need for automatic bias detection approaches. This paper adds on the bias detection pipeline for bias detection in query suggestions of person-related search developed by Bonart et al. \\cite{Bonart_2019a}. The sparseness and lack of contextual metadata of query suggestions make them a difficult subject for bias detection. Furthermore, query suggestions are perceived very briefly and subliminally. To overcome these issues, perception-aware metrics are introduced. Consequently, the enhanced pipeline is able to better detect systematic topical bias in search engine query suggestions for person-related searches. The results of an analysis performed with the developed pipeline confirm this assumption. Due to the perception-aware bias detection metrics, findings produced by the pipeline can be assumed to reflect bias that users would discern.",
+          "claimed_authors": [
+            "Fabian Haak",
+            "Philipp Schaer"
+          ],
+          "claimed_title": "Perception-Aware Bias Detection for Query Suggestions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03730"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='Perception-Aware Bias Detection for Query Suggestions')",
+        "failed_at": "2026-05-07T18:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Synthetically generated images can be used to create media content or to complement datasets for training image analysis models. Several methods have recently been proposed for the synthesis of high-fidelity face images; however, the potential biases introduced by such methods have not been sufficiently addressed. This paper examines the bias introduced by the widely popular StyleGAN2 generative model trained on the Flickr Faces HQ dataset and proposes two sampling strategies to balance the representation of selected attributes in the generated face images. We focus on two protected attributes, gender and age, and reveal that biases arise in the distribution of randomly sampled images against very young and very old age groups, as well as against female faces. These biases are also assessed for different image quality levels based on the GIQA score. To mitigate bias, we propose two alternative methods for sampling on selected lines or spheres of the latent space to increase the number of generated samples from the under-represented classes. The experimental results show a decrease in bias against underrepresented groups and a more uniform distribution of the protected features at different levels of image quality.",
+          "claimed_authors": [
+            "Emmanouil Maragkoudakis",
+            "Symeon Papadopoulos",
+            "Iraklis Varlamis",
+            "Christos Diou"
+          ],
+          "claimed_title": "Sampling Strategies for Mitigating Bias in Face Synthesis Methods",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.11320"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='Sampling Strategies for Mitigating Bias in Face Synthesis Methods')",
+        "failed_at": "2026-05-07T18:47:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Visual recognition requires inferring the similarity between a perceived object and a mental target. However, a measure of similarity is difficult to determine when it comes to complex stimuli such as faces. Indeed, people may notice someone \"looks like\" a familiar face, but find it hard to describe on the basis of what features such a comparison is based. Previous work shows that the number of similar visual elements between a face pictogram and a memorized target correlates with the P300 amplitude in the visual evoked potential. Here, we redefine similarity as the distance inferred from a latent space learned using a state-of-the-art generative adversarial neural network (GAN). A rapid serial visual presentation experiment was conducted with oddball images generated at varying distances from the target to determine how P300 amplitude related to GAN-derived distances. The results showed that distance-to-target was monotonically related to the P300, showing perceptual identification was associated with smooth, drifting image similarity. Furthermore, regression modeling indicated that while the P3a and P3b sub-components had distinct responses in location, time, and amplitude, they were similarly related to target distance. The work demonstrates that the P300 indexes the distance between perceived and target image in smooth, natural, and complex visual stimuli and shows that GANs present a novel modeling methodology for studying the relationships between stimuli, perception, and recognition.",
+          "claimed_authors": [
+            "Carlos de la Torre-Ortiz",
+            "Michiel M. A. Spapé",
+            "Tuukka Ruotsalo"
+          ],
+          "claimed_title": "The P3 indexes the distance between perceived and target image.",
+          "claimed_venue": "Psychophysiology",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.1111/psyp.14225"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='The P3 indexes the distance between perceived and target image.')",
+        "failed_at": "2026-05-07T18:47:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Elliott A. Beaton",
+            "L. Schmidt",
+            "J. Schulkin",
+            "M. Antony",
+            "R. Swinson",
+            "G. Hall"
+          ],
+          "claimed_title": "Different fusiform activity to stranger and personally familiar faces in shy and social adults",
+          "claimed_venue": "Social Neuroscience",
+          "claimed_year": 2009,
+          "primary_pointer": "https://doi.org/10.1080/17470910902801021"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='Different fusiform activity to stranger and personally familiar faces in shy and social adults')",
+        "failed_at": "2026-05-07T18:47:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Face recognition technology has been widely used in daily interactive applications such as checking-in and mobile payment due to its convenience and high accuracy. However, its vulnerability to presentation attacks (PAs) limits its reliable use in ultra-secure applicational scenarios. A presentation attack is first defined in ISO standard as: a presentation to the biometric data capture subsystem with the goal of interfering with the operation of the biometric system. Specifically, PAs range from simple 2D print, replay and more sophisticated 3D masks and partial masks. To defend the face recognition systems against PAs, both academia and industry have paid extensive attention to developing face presentation attack detection (PAD) technology (or namely `face anti-spoofing (FAS)').",
+          "claimed_authors": [
+            "Zitong Yu",
+            "Chenxu Zhao",
+            "Zhen Lei"
+          ],
+          "claimed_title": "Face Presentation Attack Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.03680"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='Face Presentation Attack Detection')",
+        "failed_at": "2026-05-07T18:47:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-05-07T18:47:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does brief exposure to emotional facial expressions (positive vs', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-05-07T18:47:06Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Emilie Qiao-Tasserit",
+            "M. Garcia Quesada",
+            "Lia Antico",
+            "D. Bavelier",
+            "Patrik Vuilleumier",
+            "S. Pichon"
+          ],
+          "title": "Transient emotional events and individual affective traits affect emotion recognition in a perceptual decision-making task",
+          "venue": "PLoS ONE",
+          "year": 2017
+        },
+        "primary_pointer": "https://doi.org/10.1371/journal.pone.0171375",
+        "summary": "Both affective states and personality traits shape how we perceive the social world and interpret emotions. The literature on affective priming has mostly focused on brief influences of emotional stimuli and emotional states on perceptual and cognitive processes. Yet this approach does not fully capture more dynamic processes at the root of emotional states, with such states lingering beyond the duration of the inducing external stimuli. Our goal was to put in perspective three different types of affective states (induced affective states, more sustained mood states and affective traits such as depression and anxiety) and investigate how they may interact and influence emotion perception. Here, we hypothesized that absorption into positive and negative emotional episodes generate sustained affective states that outlast the episode period and bias the interpretation of facial expressions in a perceptual decision-making task. We also investigated how such effects are influenced by more sustained mood states and by individual affect traits (depression and anxiety) and whether they interact. Transient emotional states were induced using movie-clips, after which participants performed a forced-choice emotion classification task with morphed facial expressions ranging from fear to happiness. Using a psychometric approach, we show that negative (vs. neutral) clips increased participants’ propensity to classify ambiguous faces as fearful during several minutes. In contrast, positive movies biased classification toward happiness only for those clips perceived as most absorbing. Negative mood, anxiety and depression had a stronger effect than transient states and increased the propensity to classify ambiguous faces as fearful. These results provide the first evidence that absorption and different temporal dimensions of emotions have a significant effect on how we perceive facial expressions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0171375",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1371/journal.pone.0171375",
+            "https://dx.plos.org/10.1371/journal.pone.0171375",
+            "https://journals.plos.org/plosone/doi?id=10.1371/journal.pone.0171375"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T18:43:59Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yu-Fang Yang",
+            "Matthias Gamer"
+          ],
+          "title": "Facial features associated with fear and happiness attract gaze during brief exposure without enhancing emotion recognition",
+          "venue": "Scientific Reports",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1038/s41598-025-12327-6",
+        "summary": "Facial features transmit emotions but their effect on visual orienting and explicit emotion recognition is debated. Here we examined whether fixating on diagnostic features of emotional expressions—such as eye region for fear and the mouth for happiness—affects saccadic targeting and improves recognition accuracy. Across two pre-registered experiments, participants viewed fearful, happy, and neutral faces for short intervals (50 or 150 ms) while the initial fixation location was manipulated. Although such brief stimulation does not allow for visual exploration, the faces still elicited reflexive saccades that occurred after stimulus offset. These saccades were modulated by the emotional expressions indicating a consistent preferential saccadic orienting towards diagnostic features, even with limited exposure. As this effect disappeared for inverted faces, it can be attributed to an extrafoveal processing of facial features instead of an attentional orienting towards physically salient image regions. Participants’ recognition accuracy was unaffected by the foveated facial feature, but this observation might also be due to ceiling effects in performance. Collectively, these findings contribute to understanding the attentional mechanisms of feature-based processing in the perception of emotional facial expressions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://www.nature.com/articles/s41598-025-12327-6",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1038/s41598-025-12327-6",
+            "https://www.nature.com/articles/s41598-025-12327-6",
+            "https://idp.nature.com/authorize?response_type=cookie&client_id=grover&redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41598-025-12327-6",
+            "https://idp.nature.com/transit?redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41598-025-12327-6&code=0cc425a0-95b8-459d-95ab-9b908db8d873"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T18:44:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Pasquale La Malva",
+            "Valentina Sforza",
+            "Eleonora D’Intino",
+            "I. Ceccato",
+            "Adolfo Di Crosta",
+            "R. Palumbo",
+            "A. Di Domenico",
+            "Giulia Prete"
+          ],
+          "title": "The Impact of Perceptual Adaptation and Real Exposure to Catastrophic Events on Facial Emotion Categorization",
+          "venue": "Brain Science",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.3390/brainsci16010005",
+        "summary": "Background/Objectives: Facial expressions are central to nonverbal communication and social cognition, and their recognition is shaped not only by facial features but also by contextual cues and prior experience. In high-threat contexts, rapid and accurate decoding of others’ emotions is adaptively advantageous. Grounded in neurocognitive models of face processing and vigilance, we tested whether brief perceptual adaptation to emotionally salient scenes, real-world disaster exposure, and pre-traumatic stress reactions enhance facial-emotion categorization. Methods: Fifty healthy adults reported prior direct exposure to catastrophic events (present/absent) and completed the Pre-Traumatic Stress Reactions Checklist (Pre-Cl; low/high). In a computerized task, participants viewed a single adaptor image for 5 s—negative (disaster), positive (pleasant environment), or neutral (phase-scrambled)—and then categorized a target face as emotional (fearful, angry, happy) or neutral as quickly and accurately as possible. Performance was compared across adaptation conditions and target emotions and examined as a function of disaster exposure and Pre-Cl. Results: Emotional adaptation (negative or positive) yielded better performance than neutral adaptation. Higher-order interactions among adaptation condition, target emotion, disaster exposure, and Pre-Cl indicated that the magnitude of facilitation varied across specific facial emotions and was modulated by both experiential (exposed vs. non-exposed) and dispositional (low vs. high Pre-Cl) factors. These effects support a combined influence of short-term contextual tuning and longer-term experience on facial-emotion categorization. Conclusions: Brief exposure to emotionally salient scenes facilitates subsequent categorization of facial emotions relative to neutral baselines, and this benefit is differentially shaped by prior disaster exposure and pre-traumatic stress. The findings provide behavioral evidence that short-term perceptual adaptation and longer-term experiential predispositions jointly modulate a fundamental communicative behavior, consistent with neurocognitive accounts in which context-sensitive visual pathways and salience systems dynamically adjust to support adaptive responding under threat.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://www.mdpi.com/2076-3425/16/1/5",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [
+            "https://doi.org/10.3390/brainsci16010005"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T18:44:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "R. Grossman",
+            "Meredith Sager",
+            "Hayden M. Ventresca",
+            "J. Mertens",
+            "Emily Zane"
+          ],
+          "title": "Positive emotional valence in spontaneous facial expressions of autistic adolescents",
+          "venue": "Scientific Reports",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1038/s41598-025-97701-0",
+        "summary": "Facial expressions produced by autistic individuals are often perceived as difficult to interpret. Most data on facial expression production rely on posed or mimicked facial expressions, which may not be representative of spontaneous expressiveness. In this paper, we analyze facial expressions produced spontaneously in response to brief video clips. We presented a pseudo-randomized sequence of humorous and disgusting YouTube clips to autistic and non-autistic adolescents and videotaped their spontaneous facial reactions to the videos. Facial feature movements were coded for the duration (in milliseconds) and valence (positive or negative) of the expression. All coders were naïve to diagnosis and all videos were independently double coded. Autistic participants produced longer emotional facial expression durations (positive and negative) in response to video stimuli compared to non-autistic participants. Autistic adolescents specifically produced longer positive facial expressions, including in response to negative videos, a pattern not seen in non-autistic adolescents. These data provide important information regarding spontaneous facial expression production of autistic and non-autistic adolescents. Results indicate that social miscommunication between autistic and non-autistic adolescents may in part be based on autistic facial feature movements that are perceived as positive, even when they are prompted by stimuli with negative content.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://www.nature.com/articles/s41598-025-97701-0",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1038/s41598-025-97701-0",
+            "https://www.nature.com/articles/s41598-025-97701-0",
+            "https://idp.nature.com/authorize?response_type=cookie&client_id=grover&redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41598-025-97701-0",
+            "https://idp.nature.com/transit?redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41598-025-97701-0&code=34c5d5d0-694d-46fa-aa9c-a5ff6cb958ae"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T18:46:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Özge Karakale",
+            "Nicole L Nelson",
+            "Amina Gredelj",
+            "Kelly Ryan",
+            "Anil Bayindir"
+          ],
+          "title": "Prior contextual information and autistic traits influence eye gaze behaviour and emotional valence ratings for facial expressions",
+          "venue": "Scientific Reports",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1038/s41598-025-13507-0",
+        "summary": "This study examined the influence of social top-down information on eye-gaze behaviour and valence perception in individuals with higher and lower autistic traits. Data from 57 participants (37 identified as female, 18 as male, 2 as non-binary; M = 21.33 years, SD = 4.35) were analysed. Participants rated the valence of facial expressions depicting different intensities of emotions across three contexts while an eye-tracker recorded their gaze behaviour. In the no-context condition, participants observed neutral, joyful and angry faces without any background context; in the positive-context, they viewed neutral and joyful faces while imagining a dream-job offer scenario; and in the negative-context, they viewed neutral and angry faces while imagining a dream-job rejection scenario. Key findings included: (1) both the higher and lower autistic traits groups fixated longer on the eyes than the mouth across valence categories and contexts, with largest differences observed in the no-context condition, (2) the higher autistic traits group showed similar or longer eye fixations than the lower autistic traits group, with greater variability, and (3) the lower autistic traits group exhibited context-sensitive valence ratings, perceiving faces as more negative in positive and negative contexts than in no-context, whereas the higher autistic traits group showed no significant context effects. These results suggest that while both groups integrate prior information in sensory-driven processes like gaze behaviour, context-sensitive reflective judgments are more evident in individuals with lower autistic traits, highlighting trait-linked differences in predictive processing in social cognition.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://www.nature.com/articles/s41598-025-13507-0",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [
+            "https://doi.org/10.1038/s41598-025-13507-0",
+            "https://www.nature.com/articles/s41598-025-13507-0",
+            "https://idp.nature.com/authorize?response_type=cookie&client_id=grover&redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41598-025-13507-0",
+            "https://idp.nature.com/transit?redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41598-025-13507-0&code=14aa5228-e7ec-4ff8-97ff-043df772c898"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T18:46:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "N. Brunet"
+          ],
+          "title": "Affective evaluation of consciously perceived emotional faces reveals a “correct attribution effect”",
+          "venue": "Frontiers in Psychology",
+          "year": 2023
+        },
+        "primary_pointer": "https://doi.org/10.3389/fpsyg.2023.1146107",
+        "summary": "The strength of the affective priming effect is influenced by various factors, including the duration of the prime. Surprisingly, short-duration primes that are around the threshold for conscious awareness typically result in stronger effects compared to long-duration primes. The misattribution effect theory suggest that subliminal primes do not provide sufficient cognitive processing time for the affective feeling to be attributed to the prime. Instead, the neutral target being evaluated is credited for the affective experience. In everyday social interactions, we shift our gaze from one face to another, typically contemplating each face for only a few seconds. It is reasonable to assume that no affective priming takes place during such interactions. To investigate whether this is indeed the case, participants were asked to rate the valence of faces displayed one by one. Each face image simultaneously served as both a target (primed by the previous trial) and a prime (for the next trial). Depending on the participant’s response time, images were typically displayed for about 1–2 s. As predicted by the misattribution effect theory, neutral targets were not affected by positive affective priming. However, non-neutral targets showed a robust priming effect, with emotional faces being perceived as even more negative or positive when the previously seen face was emotionally congruent. These results suggest that a “correct attribution effect” modulates how we perceive faces, continuously impacting our social interactions. Given the importance of faces in social communication, these findings have wide-ranging implications.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2023.1146107/full",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [
+            "https://doi.org/10.3389/fpsyg.2023.1146107",
+            "https://www.frontiersin.org/articles/10.3389/fpsyg.2023.1146107/full"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T18:46:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yifang Zhao",
+            "Chengshi Li",
+            "Yibo Jiang",
+            "Hongge Jia"
+          ],
+          "title": "Eyes Tell All: Dissecting Attentional Bias in Social Anxiety through Emotional Faces.",
+          "venue": "Physiology and Behavior",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1016/j.physbeh.2025.115045",
+        "summary": "The present study employed eye-tracking technology and a free-viewing paradigm to explore the mechanisms of attentional bias toward emotional faces in individuals with social anxiety, using real and cartoon faces (angry, happy, disgusted, neutral) as stimuli. In Experiment 1, socially anxious individuals demonstrated significantly reduced total fixation duration and count on the eye regions of all four emotional face types presented by real people compared to controls. They also showed shorter fixation durations and fewer fixations on the facial area associated with disgust for real faces. In Experiment 2, both groups had longer total fixation duration and higher fixation counts on happy and neutral faces than on angry and disgusted faces. The findings suggest that attentional avoidance in socially anxious individuals is pronounced for the eye regions of real emotional faces, including positive ones, but not for cartoon faces. This indicates that attentional bias in social anxiety is influenced by both emotional and non-emotional social information in faces.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S003193842500246X",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [
+            "https://doi.org/10.1016/j.physbeh.2025.115045"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T18:47:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "L. Imbert",
+            "C. Neige",
+            "R. Moirand",
+            "G. Piva",
+            "Benoit Bédiou",
+            "William Vallet",
+            "J. Brunelin"
+          ],
+          "title": "Eye-tracking evidence of a relationship between attentional bias for emotional faces and depression severity in patients with treatment-resistant depression",
+          "venue": "Scientific Reports",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1038/s41598-024-62251-4",
+        "summary": "In a retrospective study, 54 patients with treatment-resistant major depressive disorder (TRD) completed a free-viewing task in which they had to freely explore pairs of faces (an emotional face (happy or sad) opposite to a neutral face). Attentional bias to emotional faces was calculated for early and sustained attention. We observed a significant negative correlation between depression severity as measured by the 10-item Montgomery-Åsberg Depression Rating Scale (MADRS) and sustained attention to happy faces. In addition, we observed a positive correlation between depression severity and sustained attention to sad faces. No significant correlation between depression severity and early attention was found for either happy or sad faces. Although conclusions from the current study are limited by the lack of comparison with a control group, the eye-tracking free-viewing task appears to be a relevant, accessible and easy-to-use tool for measuring depression severity through emotional attentional biases in TRD.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://www.nature.com/articles/s41598-024-62251-4",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [
+            "https://doi.org/10.1038/s41598-024-62251-4",
+            "https://www.nature.com/articles/s41598-024-62251-4",
+            "https://idp.nature.com/authorize?response_type=cookie&client_id=grover&redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41598-024-62251-4",
+            "https://idp.nature.com/transit?redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41598-024-62251-4&code=97acb550-cb7d-4852-9417-db946aa53d17"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T18:47:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Luxi Sun",
+            "Jie Ren",
+            "Weijie He"
+          ],
+          "title": "Neural correlates of facial expression processing during a detection task: An ERP study",
+          "venue": "PLoS ONE",
+          "year": 2017
+        },
+        "primary_pointer": "https://doi.org/10.1371/journal.pone.0174016",
+        "summary": "Given finite attentional resources, how emotional aspects of stimuli are processed automatically is controversial. Present study examined the time-course for automatic processing of facial expression by assessing N170, and late positive potentials (LPPs) of event-related potentials (ERPs) using a modified rapid serial visual presentation (RSVP) paradigm. Observers were required to confirm a certain house image and to detect whether a face image was presented at the end of a series of pictures. There were no significant main effects on emotional type for P1 amplitudes, whereas happy and fearful expressions elicited larger N170 amplitudes than neutral expressions. Significantly different LPP amplitudes were elicited depending on the type of emotional facial expressions (fear > happy > neutral). These results indicated that threatening priority was absent but discrimination of expressive vs. neutral faces occurred in implicit emotional tasks, at approximately 250 ms post-stimulus. Moreover, the three types of expressions were discriminated during the later stages of processing. Encoding emotional information of faces can be automated to a relatively higher degree, when attentional resources are mostly allocated to superficial analyzing.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "final_url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0174016",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [
+            "https://doi.org/10.1371/journal.pone.0174016",
+            "https://dx.plos.org/10.1371/journal.pone.0174016",
+            "https://journals.plos.org/plosone/doi?id=10.1371/journal.pone.0174016"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T18:47:05Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "how does brief exposure to emotional facial expressions (positive vs",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

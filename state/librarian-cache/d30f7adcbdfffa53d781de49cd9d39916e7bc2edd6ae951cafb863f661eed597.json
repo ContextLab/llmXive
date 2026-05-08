@@ -1,0 +1,603 @@
+{
+  "fetched_at": "2026-05-07T18:32:11Z",
+  "field": "neuroscience",
+  "prompt_version": "1.4.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "---\nfield: neuroscience\nsubmitter: google.gemma-3-27b-it\n---\n\n# Investigating the Impact of Simulated Sensory Deprivation on Resting-State Brain Network Dynamics\n\n**Field**: neuroscience\n\n## Research question\n\nHow does the intrinsic organization of human brain functional networks change when sensory input is experimentally reduced, and does this reorganization manifest as altered modularity and global efficiency in resting-state fMRI?\n\n## Motivation\n\nUnderstanding how the brain reorganizes in the absence of external input could inform treatments for sensory processing disorders and provide insights into the brain's intrinsic activity patterns. This question addresses a gap in current literature: while predictive processing theories suggest sensory input shapes intrinsic dynamics, empirical evidence from deprivation paradigms remains limited in publicly available datasets.\n\n## Literature gap analysis\n\n### What we searched\n\nSearch queries included \"sensory deprivation resting-state fMRI,",
+      "target_n": 5
+    },
+    "duration_seconds": 688.122,
+    "ended_at": "2026-05-07T18:32:11Z",
+    "expansion": null,
+    "extracted_queries": [
+      "sensory deprivation resting state fMRI",
+      "functional network modularity efficiency",
+      "cross-modal plasticity intrinsic connectivity",
+      "brain network topology graph theory",
+      "sensory isolation integration segregation network"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.4.0",
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.1038/s41467-025-62253-4"
+      ]
+    },
+    "per_query_hit_count": {
+      "How does the intrinsic organization of human brain functional networks change when sensory input is experimentally reduced, and does this reorganization manifest as altered modularity and global efficiency in resting-state fMRI": 3,
+      "brain network topology graph theory": 6,
+      "cross-modal plasticity intrinsic connectivity": 6,
+      "functional network modularity efficiency": 5,
+      "sensory deprivation resting state fMRI": 5,
+      "sensory isolation integration segregation network": 5
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "1208.0924",
+          "rationale": "The paper investigates methodological artifacts in network estimation due to fractal hemodynamics, whereas the user's question concerns physiological network reorganization resulting from sensory deprivation. Although both involve rs-fMRI network analysis, they address fundamentally different research problems (measurement validity vs. biological adaptation).",
+          "title": "Fractal-driven distortion of resting state functional networks in fMRI: a simulation study"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1016/j.neuroimage.2025.121667",
+          "rationale": "The paper investigates the effects of sleep deprivation on sensorimotor integration and regional brain activity, which differs fundamentally from the user's question regarding the specific impact of experimentally reduced sensory input on network topology metrics like modularity and global efficiency. While both utilize resting-state fMRI in humans, the independent variable (sleep state vs. sensory input manipulation) and primary outcomes are not aligned.",
+          "title": "Sleep deprivation disrupts postural balance and sensorimotor integration: A combined psychophysiological-behavioral analysis"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.3390/app14104197",
+          "rationale": "The paper investigates network resilience to simulated lesions using percolation theory, whereas the user's question specifically targets the effects of experimental sensory input reduction on network organization. Although both utilize graph theory on fMRI data to examine modularity, the underlying mechanism (sensory deprivation vs. computational node removal) and research problem differ fundamentally.",
+          "title": "Brain Network Modularity and Resilience Signaled by Betweenness Centrality Percolation Spiking"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1016/j.drugalcdep.2025.112952",
+          "rationale": "The paper investigates brain network alterations caused by methamphetamine use disorder, which is a fundamentally different physiological condition than experimental reduction of sensory input. While both studies utilize resting-state fMRI and graph theory metrics, the candidate paper does not provide evidence regarding how sensory deprivation specifically affects brain network modularity or efficiency.",
+          "title": "Sex-specific alterations in brain network topology in methamphetamine use disorder: A graph theory-based fMRI study."
+        },
+        {
+          "primary_pointer": "https://doi.org/10.4038/jnsfsr.v52i3.11929",
+          "rationale": "The paper investigates structural network topology differences between migraine patients and healthy subjects, whereas the user specifically asks about functional network changes resulting from experimental sensory input reduction. While both studies use graph theory metrics like global efficiency, the underlying phenomenon (clinical pathology vs. sensory deprivation) and network modality (structural vs. functional) are fundamentally different.",
+          "title": "Structural brain network topology in migraine vs. healthy subjects: A graph theory study"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-07T18:20:43Z",
+    "term_input": {
+      "normalized": "how does the intrinsic organization of human brain functional networks change when sensory input is experimentally reduced, and does this reorganization manifest as altered modularity and global efficiency in resting-state fmri",
+      "raw": "How does the intrinsic organization of human brain functional networks change when sensory input is experimentally reduced, and does this reorganization manifest as altered modularity and global efficiency in resting-state fMRI"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Does gravity care about electric charge? Precision tests of the weak equivalence principle achieve remarkable sensitivity but deliberately minimize electric charge on test masses, leaving this fundamental question experimentally open. We present a minimalist framework coupling electromagnetism to linearized gravity through conservation of a complex charge-mass current, predicting charge-dependent violations $Δa/g = κ(q/m)$. Remarkably, this prediction occupies unexplored experimental territory precisely because precision gravity tests avoid charge variation. We identify this as a significant gap and propose a modified torsion balance experiment where $q/m$ is treated as a controlled variable. Such an experiment could test whether gravitational acceleration depends on electric charge, probing physics in genuinely new parameter space. This work exemplifies how theoretical minimalism can reveal overlooked opportunities in fundamental physics.",
+          "claimed_authors": [
+            "Renato Vieira dos Santos"
+          ],
+          "claimed_title": "Does Gravity Care About Electric Charge? A Minimalist Model and Experimental Test",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.16325"
+        },
+        "details": "query-relevance 0.050 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='Does Gravity Care About Electric Charge? A Minimalist Model and Experimental Test')",
+        "failed_at": "2026-05-07T18:27:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Uttam Kumar",
+            "Kalpana Dhanik"
+          ],
+          "claimed_title": "Decoding auditory deprivation: resting-state fMRI insights into deafness and brain plasticity",
+          "claimed_venue": "Brain Structure and Function",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1007/s00429-023-02757-1"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='Decoding auditory deprivation: resting-state fMRI insights into deafness and brain plasticity')",
+        "failed_at": "2026-05-07T18:27:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The most studies on functional connectivity have been done by analyzing the brain's hemodynamic response to a stimulation. On the other hand, the low-frequency spontaneous fluctuations in the blood oxygen level dependent (BOLD) signals of functional MRI have been observed in the resting state. However, the BOLD signals in resting state are significantly corrupted by huge noises arising from cardiac pulsation, respiration, subject motion, scanner, and so forth. Especially, the noise compounds are stronger in the rat brain than in the human brain. To overcome such an artifact, we assumed that fractal behavior in BOLD signals reflects low frequency neural activity, and applied the theorem such that the wavelet correlation spectrum between long memory processes is scale-invariant over low frequency scales. Here, we report an experiment that shows special correlation patterns not only in correlation of scaling coefficients in very low-frequency band (less than 0.0078Hz) but also in asymptotic wavelet correlation. In addition, we show the distribution of the Hurst exponents in the rat brain.",
+          "claimed_authors": [
+            "Wonsang You",
+            "Joerg Stadler"
+          ],
+          "claimed_title": "Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1202.4751"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI')",
+        "failed_at": "2026-05-07T18:27:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present an interactive version of an evidence-driven state-merging (EDSM) algorithm for learning variants of finite state automata. Learning these automata often amounts to recovering or reverse engineering the model generating the data despite noisy, incomplete, or imperfectly sampled data sources rather than optimizing a purely numeric target function. Domain expertise and human knowledge about the target domain can guide this process, and typically is captured in parameter settings. Often, domain expertise is subconscious and not expressed explicitly. Directly interacting with the learning algorithm makes it easier to utilize this knowledge effectively.",
+          "claimed_authors": [
+            "Christian A. Hammerschmidt",
+            "Radu State",
+            "Sicco Verwer"
+          ],
+          "claimed_title": "Human in the Loop: Interactive Passive Automata Learning via Evidence-Driven State-Merging Algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1707.09430"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='Human in the Loop: Interactive Passive Automata Learning via Evidence-Driven State-Merging Algorithms')",
+        "failed_at": "2026-05-07T18:27:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Episodic memory is one of the first cognitive domains to decline in preclinical Alzheimer’s disease. We investigated whether graph metrics of functional networks, specifically modularity and local efficiency, are related to episodic memory and amyloid‐β (Aβ) positivity in cognitively normal older adults.",
+          "claimed_authors": [
+            "Jenna N. Adams",
+            "Miranda G. Chappel‐Farley",
+            "Jessica L. Yaros",
+            "Lisa Taylor",
+            "Alyssa L. Harris",
+            "Abanoub Mikhail",
+            "L. McMillan",
+            "D. Keator",
+            "M. Yassa"
+          ],
+          "claimed_title": "Functional network modularity and efficiency supports episodic memory in older adults with amyloid‐beta pathology",
+          "claimed_venue": "Alzheimer's &amp; Dementia",
+          "claimed_year": 2022,
+          "primary_pointer": "https://doi.org/10.1002/alz.062561"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='Functional network modularity and efficiency supports episodic memory in older adults with amyloid‐beta pathology')",
+        "failed_at": "2026-05-07T18:27:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Mingzhu Ye",
+            "Haishuo Xia",
+            "Tao Song",
+            "Zijin Liu",
+            "Antao Chen"
+          ],
+          "claimed_title": "Age-related degradation of cerebellar functional network topology.",
+          "claimed_venue": "GeroScience",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1007/s11357-025-02059-w"
+        },
+        "details": "query-relevance 0.050 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='Age-related degradation of cerebellar functional network topology.')",
+        "failed_at": "2026-05-07T18:27:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ILC Technology Network (ITN) was established in 2022 by the ILC International Development Team, a subcommittee of the International Committee for Future Accelerators, to advance engineering studies toward the realisation of the International Linear Collider (ILC). While the ITN work packages focus on engineering activities for the ILC, their topics are also relevant to a broad range of accelerator applications in particle physics and beyond. These work packages are being carried out now by laboratories in Asia and Europe in close collaboration. This report summarises the current status of the ITN activities.",
+          "claimed_authors": [
+            "ILC Technology Network"
+          ],
+          "claimed_title": "Midterm Status Report of the ILC Technology Network Activities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.01172"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='Midterm Status Report of the ILC Technology Network Activities')",
+        "failed_at": "2026-05-07T18:27:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional features of spatial networks depend upon a non-trivial relationship between the topological and physical structure. Here, we explore that relationship for spatial networks with radial symmetry and disordered fractal morphology. Under a geometric graphs approach, we quantify the effectiveness of the exchange of information in the system from center to perimeter and over the entire network structure. We mainly consider two paradigmatic models of disordered fractal formation, the Ballistic Aggregation and Diffusion-Limited Aggregation models, and complementary, the Viscek and Hexaflake fractals, and Kagome and Hexagonal lattices. First, we show that complex tree morphologies provide important advantages over regular configurations, such as an invariant structural cost for different fractal dimensions. Furthermore, although these systems are known to be scale-free in space, they have bounded degree distributions for different values of an euclidean connectivity parameter and, therefore, do not represent ordinary scale-free networks. Finally, compared to regular structures, fractal trees are fragile and overall inefficient as expected, however, we show that this efficiency can become similar to that of a robust hexagonal lattice, at a similar cost, by just considering a very short euclidean connectivity beyond first neighbors.",
+          "claimed_authors": [
+            "A. C. Flores-Ortega",
+            "J. R. Nicolás-Carlock",
+            "J. L. Carrillo-Estrada"
+          ],
+          "claimed_title": "Network efficiency of spatial systems with fractal morphology: a geometric graphs approach",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.07151"
+        },
+        "details": "query-relevance 0.150 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='Network efficiency of spatial systems with fractal morphology: a geometric graphs approach')",
+        "failed_at": "2026-05-07T18:27:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "A. Schüz"
+          ],
+          "claimed_title": "Cortical areas : unity and diversity",
+          "claimed_venue": "",
+          "claimed_year": 2002,
+          "primary_pointer": "https://doi.org/10.1201/9780203299296"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='Cortical areas : unity and diversity')",
+        "failed_at": "2026-05-07T18:27:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "We discuss how sensory substitution devices (SSDs) can be used to study the organization of the brain. To do so we look at the use of SSDs in the blind and how SSDs can be used to identify sensory-dependent and sensory-independent brain function. Cross-modal interactions may represent new patterns of connectivity or the unmasking of pre-existing associations. We show how the blind brain can be a window into cross-modal plasticity and can dissociate intrinsic and experience-dependent brain functions. We argue that the brain is a sensory-independent task machine and explain the implications for the rehabilitation of blind people.",
+          "claimed_authors": [
+            "Sarah F. Hillenbrand",
+            "D. Raveh",
+            "A. Amedi"
+          ],
+          "claimed_title": "What Can Sensory Substitution Tell Us about the Organization of the Brain?",
+          "claimed_venue": "Sensory Substitution and Augmentation",
+          "claimed_year": 2018,
+          "primary_pointer": "https://doi.org/10.5871/bacad/9780197266441.003.0006"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='What Can Sensory Substitution Tell Us about the Organization of the Brain?')",
+        "failed_at": "2026-05-07T18:27:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Anu Sharma",
+            "T. Mitchell"
+          ],
+          "claimed_title": "The Impact of Deafness on the Human Central Auditory and Visual Systems",
+          "claimed_venue": "",
+          "claimed_year": 2013,
+          "primary_pointer": "https://doi.org/10.1007/2506_2013_7"
+        },
+        "details": "query-relevance 0.050 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='The Impact of Deafness on the Human Central Auditory and Visual Systems')",
+        "failed_at": "2026-05-07T18:27:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Irreversible plastic forming of B19$^\\prime$ martensite of the NiTi shape memory alloy is discussed within the framework of continuum mechanics. It is suggested that the main mechanism arises from coupling between martensite reorientation and coordinated $[100](001)_{\\rm M}$ dislocation slip. A heuristic model is proposed, showing that the ${(20\\bar{1})_{\\rm M}}$ deformation-twin bands, commonly observed in experiments, can be interpreted as a combination of dislocation-mediated kink bands, appearing due to strong plastic anisotropy, and reversible twinning of martensite. We introduce a term 'kwinking' for this combination of reversible twinning and irreversible plastic kinking. The model is subsequently formulated using the tools of nonlinear elasticity theory of martensite and crystal plasticity, introducing 'kwink interfaces' as planar, kinematically compatible interfaces between two differently plastically slipped variants of martensite. It is shown that the ${(20\\bar{1})_{\\rm M}}$ kwink bands may be understood as resultsing from energy minimization, and that their nucleation and growth and their pairing with $(100)_{\\rm M}$ twins into specific patterns enables low-energy plastic forming of NiTi martensite. We conclude that kwinking makes plastic deformation of B19$^\\prime$ martensite in polycrystalline NiTi possible despite only one slip system being available.",
+          "claimed_authors": [
+            "Hanuš Seiner",
+            "Petr Sedlák",
+            "Miroslav Frost",
+            "Petr Šittner"
+          ],
+          "claimed_title": "Kwinking as the plastic forming mechanism of B19' NiTi martensite",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.07125"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title=\"Kwinking as the plastic forming mechanism of B19' NiTi martensite\")",
+        "failed_at": "2026-05-07T18:27:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the flourishing of social media platforms, vision-language pre-training (VLP) recently has received great attention and many remarkable progresses have been achieved. The success of VLP largely benefits from the information complementation and enhancement between different modalities. However, most of recent studies focus on cross-modal contrastive learning (CMCL) to promote image-text alignment by pulling embeddings of positive sample pairs together while pushing those of negative pairs apart, which ignores the natural asymmetry property between different modalities and requires large-scale image-text corpus to achieve arduous progress. To mitigate this predicament, we propose CMAL, a Cross-Modal Associative Learning framework with anchor points detection and cross-modal associative learning for VLP. Specifically, we first respectively embed visual objects and textual tokens into separate hypersphere spaces to learn intra-modal hidden features, and then design a cross-modal associative prompt layer to perform anchor point masking and swap feature filling for constructing a hybrid cross-modal associative prompt. Afterwards, we exploit a unified semantic encoder to learn their cross-modal interactive features for context adaptation. Finally, we design an associative mapping classification layer to learn potential associative mappings between modalities at anchor points, within which we develop a fresh self-supervised associative mapping classification task to boost CMAL's performance. Experimental results verify the effectiveness of CMAL, showing that it achieves competitive performance against previous CMCL-based methods on four common downstream vision-and-language tasks, with significantly fewer corpus. Especially, CMAL obtains new state-of-the-art results on SNLI-VE and REC (testA).",
+          "claimed_authors": [
+            "Zhiyuan Ma",
+            "Jianjun Li",
+            "Guohui Li",
+            "Kaiyan Huang"
+          ],
+          "claimed_title": "CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.12595"
+        },
+        "details": "query-relevance 0.050 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training')",
+        "failed_at": "2026-05-07T18:27:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Current cross-modal retrieval systems are evaluated using R@K measure which does not leverage semantic relationships rather strictly follows the manually marked image text query pairs. Therefore, current systems do not generalize well for the unseen data in the wild. To handle this, we propose a new measure, SemanticMap, to evaluate the performance of cross-modal systems. Our proposed measure evaluates the semantic similarity between the image and text representations in the latent embedding space. We also propose a novel cross-modal retrieval system using a single stream network for bidirectional retrieval. The proposed system is based on a deep neural network trained using extended center loss, minimizing the distance of image and text descriptions in the latent space from the class centers. In our system, the text descriptions are also encoded as images which enabled us to use a single stream network for both text and images. To the best of our knowledge, our work is the first of its kind in terms of employing a single stream network for cross-modal retrieval systems. The proposed system is evaluated on two publicly available datasets including MSCOCO and Flickr30K and has shown comparable results to the current state-of-the-art methods.",
+          "claimed_authors": [
+            "Shah Nawaz",
+            "Muhammad Kamran Janjua",
+            "Ignazio Gallo",
+            "Arif Mahmood",
+            "Alessandro Calefati",
+            "Faisal Shafait"
+          ],
+          "claimed_title": "Do Cross Modal Systems Leverage Semantic Relationships?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.01976"
+        },
+        "details": "query-relevance 0.050 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='Do Cross Modal Systems Leverage Semantic Relationships?')",
+        "failed_at": "2026-05-07T18:27:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Patients with deficit schizophrenia (SZD) suffer from primary and enduring negative symptoms. Limited pieces of evidence and neuroimaging studies indicate they differ from patients with non-deficit schizophrenia (SZND) in neurobiological aspects, but the results are far from conclusive. We applied for the first time, graph theory analyses to discriminate local and global indices of brain network topology in SZD and SZND patients compared with healthy controls (HC). High-resolution T1-weighted images were acquired for 21 SZD patients, 21 SZND patients, and 21 HC to measure cortical thickness from 68 brain regions. Graph-based metrics (i.e., centrality, segregation, and integration) were computed and compared among groups, at both global and regional networks. When compared to HC, at the regional level, SZND were characterized by temporoparietal segregation and integration differences, while SZD showed widespread alterations in all network measures. SZD also showed less segregated network topology at the global level in comparison to HC. SZD and SZND differed in terms of centrality and integration measures in nodes belonging to the left temporoparietal cortex and to the limbic system. SZD is characterized by topological features in the network architecture of brain regions involved in negative symptomatology. Such results help to better define the neurobiology of SZD (SZD: Deficit Schizophrenia; SZND: Non-Deficit Schizophrenia; SZ: Schizophrenia; HC: healthy controls; CC: clustering coefficient; L: characteristic path length; E: efficiency; D: degree; CCnode: CC of a node; CCglob: the global CC of the network; Eloc: efficiency of the information transfer flow either within segregated subgraphs or neighborhoods nodes; Eglob: efficiency of the information transfer flow among the global network; FDA: Functional Data Analysis; and Dmin: estimated minimum densities).",
+          "claimed_authors": [
+            "Daniel Vecchio",
+            "F. Piras",
+            "V. Ciullo",
+            "F. Piras",
+            "Federica Natalizi",
+            "G. Ducci",
+            "Sonia Ambrogi",
+            "G. Spalletta",
+            "N. Banaj"
+          ],
+          "claimed_title": "Brain Network Topology in Deficit and Non-Deficit Schizophrenia: Application of Graph Theory to Local and Global Indices",
+          "claimed_venue": "Journal of Personalized Medicine",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.3390/jpm13050799"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='Brain Network Topology in Deficit and Non-Deficit Schizophrenia: Application of Graph Theory to Local and Global Indices')",
+        "failed_at": "2026-05-07T18:27:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Assessing centrality in network systems is critical for understanding node importance and guiding decision-making processes. In dynamic networks, incorporating a controllability perspective is essential for identifying key nodes. In this paper, we study two control theoretic centrality measures -- the Volumetric Controllability Score (VCS) and Average Energy Controllability Score (AECS) -- to quantify node importance in linear time-invariant network systems. We prove the uniqueness of VCS and AECS for almost all specified terminal times, thereby enhancing their applicability beyond previously recognized cases. This ensures their interpretability, comparability, and reproducibility. Our analysis reveals substantial differences between VCS and AECS in linear systems with symmetric and skew-symmetric transition matrices. We also investigate the dependence of VCS and AECS on the terminal time and prove that when this parameter is extremely small, both scores become essentially uniform. Additionally, we prove that a sequence generated by a projected gradient method for computing VCS and AECS converges linearly to both measures under several assumptions. Finally, evaluations on brain networks modeled via Laplacian dynamics using real data reveal contrasting evaluation tendencies and correlations for VCS and AECS, with AECS favoring brain regions associated with cognitive and motor functions, while VCS emphasizes sensory and emotional regions.",
+          "claimed_authors": [
+            "Kazuhiro Sato",
+            "Ryohei Kawamura"
+          ],
+          "claimed_title": "Uniqueness Analysis of Controllability Scores and Their Application to Brain Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.03023"
+        },
+        "details": "query-relevance 0.150 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='Uniqueness Analysis of Controllability Scores and Their Application to Brain Networks')",
+        "failed_at": "2026-05-07T18:27:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Persistence modules are a central algebraic object arising in topological data analysis. The notion of interleaving provides a natural way to measure distances between persistence modules. We consider various classes of persistence modules, including many of those that have been previously studied, and describe the relationships between them. In the cases where these classes are sets, interleaving distance induces a topology. We undertake a systematic study the resulting topological spaces and their basic topological properties.",
+          "claimed_authors": [
+            "Peter Bubenik",
+            "Tane Vergili"
+          ],
+          "claimed_title": "Topological spaces of persistence modules and their properties",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.08117"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='Topological spaces of persistence modules and their properties')",
+        "failed_at": "2026-05-07T18:27:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "3D medical image processing with deep learning greatly suffers from a lack of data. Thus, studies carried out in this field are limited compared to works related to 2D natural image analysis, where very large datasets exist. As a result, powerful and efficient 2D convolutional neural networks have been developed and trained. In this paper, we investigate a way to transfer the performance of a two-dimensional classiffication network for the purpose of three-dimensional semantic segmentation of brain tumors. We propose an asymmetric U-Net network by incorporating the EfficientNet model as part of the encoding branch. As the input data is in 3D, the first layers of the encoder are devoted to the reduction of the third dimension in order to fit the input of the EfficientNet network. Experimental results on validation and test data from the BraTS 2020 challenge demonstrate that the proposed method achieve promising performance.",
+          "claimed_authors": [
+            "Hicham Messaoudi",
+            "Ahror Belaid",
+            "Mohamed Lamine Allaoui",
+            "Ahcene Zetout",
+            "Mohand Said Allili",
+            "Souhil Tliba",
+            "Douraied Ben Salem",
+            "Pierre-Henri Conze"
+          ],
+          "claimed_title": "Efficient embedding network for 3D brain tumor segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.11052"
+        },
+        "details": "query-relevance 0.150 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='Efficient embedding network for 3D brain tumor segmentation')",
+        "failed_at": "2026-05-07T18:27:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "There are no studies that have experimentally tested how temporal integration/segregation of sensory inputs might be linked to the emergence of dissociative experiences and alterations of emotional functioning. Thirty-six participants completed 3 sensory integration tasks. Psychometric thresholds were estimated as indexes of temporal integration/segregation processes. We collected self-report measures of pre-task trait levels of dissociation, as well as pre- post-task changes in both dissociation and emotionality. An independent sample of 21 subjects completed a control experiment administering the Attention Network Test. Results showed: (i) a significant increase of dissociative experiences after the completion of sensory integration tasks, but not after the ANT task; (ii) that subjective thresholds predicted the emergence of dissociative states; (iii) temporal integration efforts affected positive emotionality, which was explained by the extent of task-dependent dissociative states. The present findings reveal that dissociation could be understood in terms of an imbalance between \"hyper-segregation\" and \"hyper-integration\" processes.",
+          "claimed_authors": [
+            "Marco Cavicchioli",
+            "A. Santoni",
+            "F. Chiappetta",
+            "Michele Deodato",
+            "G. Di Dona",
+            "A. Scalabrini",
+            "Federica Galli",
+            "Luca Ronconi"
+          ],
+          "claimed_title": "Psychological dissociation and temporal integration/segregation across the senses: An experimental study.",
+          "claimed_venue": "Consciousness and Cognition",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1016/j.concog.2024.103731"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='Psychological dissociation and temporal integration/segregation across the senses: An experimental study.')",
+        "failed_at": "2026-05-07T18:27:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "ABSTRACT\nThe sustained nature of tonic pain makes it a useful experimental analogue for studying the prolonged neural processing involved in chronic pain. However, research is yet to identify its consistent and generalisable biomarkers. Here, we analysed electroencephalography data recorded in 36 volunteers during 5-minute sessions of noxious hot and innocuous warm water immersion using network-based statistics and graph theory-based analysis. Our results revealed a brain-wide reorganisation of functional connectivity during tonic pain, marked by a global shift from segregation to integration. This shift was characterised by a transition from intra- to internetwork communication, with the Somato-Motor (SomMot) network playing a pivotal role. During innocuous warmth, the SomMot network exhibited significantly higher functional specialisation for localised sensory processing. During noxious heat, however, it shifted to an integrative coordinator, a finding reinforced by a significant discrepancy in global clustering coefficient when intranetwork connections were excluded. We also found that psychological traits modulated global network inferences (GNIs) in distinct, clinically relevant ways: pain catastrophising was positively associated with network segregation and integration during pain, whereas anxiety was negatively associated with segregation and integration during innocuous warmth. Notably, a machine learning model using these GNIs achieved 86% accuracy in classifying noxious heat from innocuous warmth. Together, our findings elucidate the transformation from segregated processing to integrated network dynamics induced by tonic pain, characterised by a transition in the SomMot network functioning as an integrator. Critically, global network inferences may serve as valuable predictors of pain experiences, highlighting their translational potential in pain neuroscience.",
+          "claimed_authors": [
+            "Wenxin Su",
+            "C. Antonopoulos",
+            "Elia Valentini"
+          ],
+          "claimed_title": "Network reorganisation reveals somato-motor transition from segregation to integration during tonic pain.",
+          "claimed_venue": "Pain",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.1097/j.pain.0000000000003897"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='Network reorganisation reveals somato-motor transition from segregation to integration during tonic pain.')",
+        "failed_at": "2026-05-07T18:27:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article reveals an adequate comprehension of basic defense, security challenges, 2 and attack vectors in deploying multi-network slicing. Network slicing is a revolutionary concept 3 of providing mobile network on-demand and expanding mobile networking business and services 4 to a new era. The new business paradigm and service opportunities are encouraging vertical 5 industries to join and develop their own mobile network capabilities for enhanced performances 6 that are coherent with their applications. However, a number of security concerns are also raised 7 in this new era. In this article, we focus on the deployment of multi-network slicing with multi8 tenancy. We identify the security concerns, and discuss about the defense approaches such as 9 network slice isolation and insulation in a multi-layer network slicing security model. Also, we 10 identify the importance to appropriately select the network slice isolation points, and propose 11 a generic framework to optimize the isolation policy regarding the implementation cost while 12 guaranteeing the security and performance requirements.",
+          "claimed_authors": [
+            "Stan Wong",
+            "Bin Han",
+            "Hans D. Schotten"
+          ],
+          "claimed_title": "5G Network Slice Isolation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.01590"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='5G Network Slice Isolation')",
+        "failed_at": "2026-05-07T18:27:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "5G networks support various advanced applications through network slicing, network function virtualization (NFV), and edge computing, ensuring low latency and service isolation. However, private 5G networks relying on open-source tools still face challenges in maturity and integration with edge/cloud platforms, compromising proper slice isolation. This study investigates resource allocation mechanisms to address this issue, conducting experiments in a hospital scenario with medical video conferencing. The results show that CPU limitations improve the performance of prioritized slices, while memory restrictions have minimal impact. The generated data and scripts have been made publicly available for future research and machine learning applications.",
+          "claimed_authors": [
+            "Maiko Andrade",
+            "Juliano Araujo Wickboldt"
+          ],
+          "claimed_title": "A Study on 5G Network Slice Isolation Based on Native Cloud and Edge Computing Tools",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.02842"
+        },
+        "details": "query-relevance 0.050 < 0.3 (query='How does the intrinsic organization of human brain functional networks change wh', candidate_title='A Study on 5G Network Slice Isolation Based on Native Cloud and Edge Computing Tools')",
+        "failed_at": "2026-05-07T18:27:55Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "D. Meunier",
+            "R. Lambiotte",
+            "A. Fornito",
+            "K. D. Ersche",
+            "E. T. Bullmore"
+          ],
+          "title": "Hierarchical modularity in human brain functional networks",
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1004.3153",
+        "summary": "The idea that complex systems have a hierarchical modular organization originates in the early 1960s and has recently attracted fresh support from quantitative studies of large scale, real-life networks. Here we investigate the hierarchical modular (or \"modules-within-modules\") decomposition of human brain functional networks, measured using functional magnetic resonance imaging (fMRI) in 18 healthy volunteers under no-task or resting conditions. We used a customized template to extract networks with more than 1800 regional nodes, and we applied a fast algorithm to identify nested modular structure at several hierarchical levels. We used mutual information, 0 < I < 1, to estimate the similarity of community structure of networks in different subjects, and to identify the individual network that is most representative of the group. Results show that human brain functional networks have a hierarchical modular organization with a fair degree of similarity between subjects, I=0.63. The largest 5 modules at the highest level of the hierarchy were medial occipital, lateral occipital, central, parieto-frontal and fronto-temporal systems; occipital modules demonstrated less sub-modular organization than modules comprising regions of multimodal association cortex. Connector nodes and hubs, with a key role in inter-modular connectivity, were also concentrated in association cortical areas. We conclude that methods are available for hierarchical modular decomposition of large numbers of high resolution brain functional networks using computationally expedient algorithms. This could enable future investigations of Simon's original hypothesis that hierarchy or near-decomposability of physical symbol systems is a critical design feature for their fast adaptivity to changing environmental conditions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/1004.3153",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T18:27:44Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "S. Damiani",
+            "L. Fusar-Poli",
+            "N. Brondino",
+            "U. Provenzani",
+            "Helen Baldwin",
+            "P. Fusar-Poli",
+            "P. Politi"
+          ],
+          "title": "World/self ambivalence: A shared mechanism in different subsets of psychotic experiences? Linking symptoms with resting-state fMRI.",
+          "venue": "Psychiatry research. Neuroimaging",
+          "year": 2020
+        },
+        "primary_pointer": "https://doi.org/10.1016/j.pscychresns.2020.111068",
+        "summary": "The psychosis spectrum comprises heterogeneous disorders characterized by both world-related and self-related symptoms. How these symptoms may arise with similar features in spite of the different aetiologies is yet an unsolved question. In behavior narrative review, we compare three conditions characterized by psychotic experiences (schizophrenia, substance-use disorder and sensory-deprivation) searching for links between their phenomenological features and the mechanisms underlying their onset. Clinically, psychotic experiences are characterized by the reciprocal contamination of world- and self-related contents, termed 'world/self ambivalence'. Neuroimaging evidence suggests that the imbalance between stimuli-, self-, and attention-related functional networks (visual/auditory, default-mode, and salience network respectively) assumes central relevance in all the conditions considered. Phenomenology and neurobiology were thus interrelated in light of the reviewed literature, identifying two key neuronal mechanisms which may lead to world/self ambivalence. First, psychotic experiences are associated with the relative dominance of one network over the other (default-mode over auditory/visual networks, or vice-versa), prompting an excess of internal or external pressure to the experienced ambivalence between world and self. Second, an altered salience network resting-state functional connectivity could generate a dysregulation of the attentive fluctuations from self- to world-related activity, thus blurring the boundary between the environment and oneself, labelled the 'world/self boundary'.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S0925492720300408",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.35,
+          "redirect_chain": [
+            "https://doi.org/10.1016/j.pscychresns.2020.111068"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T18:27:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Taeyi You",
+            "Taekwan Lee",
+            "G. Im",
+            "Won-Beom Jung",
+            "Moon-Sun Jang",
+            "Sangyeol Lee",
+            "Jongwook Lee",
+            "Chang-hoon Shin",
+            "Seong-Gi Kim",
+            "Kilsoo Kim",
+            "Sungkwon Chung",
+            "Jung Hee Lee"
+          ],
+          "title": "Differential impacts of social isolation and enriched environment on multi-sensory brain-wide functionality and network segregation",
+          "venue": "Nature Communications",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1038/s41467-025-62253-4",
+        "summary": "Environmental factors profoundly affect the brain’s sensory processing network, optimizing adaptive strategies for growth and survival. We hypothesized that sensory-specific functional responses and/or functional networks could be altered by manipulating environmental conditions. To elucidate how the environment influences brain development, we exposed male mice to two - socially isolated and enriched environments - during early life (from 4 to 11 weeks) and investigated their effects on mouse brain functionality using sensory stimulus-evoked BOLD fMRI and resting-state fMRI. Here, we show that social isolation leads to reduced segregation of brain networks, notably affecting the olfactory and visual networks. Conversely, the enriched environment maintains network segregation while enhancing higher order sensory and visual cortical functions. Additionally, enriched mice exhibited an improved sensorimotor functional response. Our combined use of sensory stimulus-evoked BOLD fMRI and resting-state fMRI revealed changes at local and global levels, providing a comprehensive perspective. This expands our understanding of how environmental factors influence brain functionality and highlights the importance of physical and social cues - such as tactile, visual, and olfactory - that may provide therapeutic insights for psychiatric disorders. Using evoked and resting-state fMRI, the effects of isolation and enrichment housing on sensory development in male mice were tested. Enrichment improved sensorimotor responses, while isolation impaired network segregation and olfactory function.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "final_url": "https://www.nature.com/articles/s41467-025-62253-4",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [
+            "https://doi.org/10.1038/s41467-025-62253-4",
+            "https://www.nature.com/articles/s41467-025-62253-4",
+            "https://idp.nature.com/authorize?response_type=cookie&client_id=grover&redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41467-025-62253-4",
+            "https://idp.nature.com/transit?redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41467-025-62253-4&code=e25624c8-bfbe-49a5-a39a-f9f513be5f9e"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-07T18:27:54Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "how does the intrinsic organization of human brain functional networks change when sensory input is experimentally reduced, and does this reorganization manifest as altered modularity and global efficiency in resting-state fmri",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

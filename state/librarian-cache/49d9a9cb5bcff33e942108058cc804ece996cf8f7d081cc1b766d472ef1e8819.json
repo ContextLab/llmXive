@@ -1,0 +1,679 @@
+{
+  "fetched_at": "2026-05-08T02:29:50Z",
+  "field": "chemistry",
+  "prompt_version": "1.4.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Molecular Dipole Moments with Graph Neural Networks",
+      "target_n": 5
+    },
+    "duration_seconds": 1390.723,
+    "ended_at": "2026-05-08T02:29:50Z",
+    "expansion": null,
+    "extracted_queries": [
+      "graph neural network molecular dipole estimation",
+      "message passing neural network quantum chemistry",
+      "electronic structure dipole moment prediction",
+      "geometric deep learning molecular properties",
+      "QM9 dataset dipole moment prediction"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.4.0",
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://www.semanticscholar.org/paper/65beae089071506ab3ddabc2761eae2af7314092"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Molecular Dipole Moments with Graph Neural Networks chemistry": 3,
+      "QM9 dataset dipole moment prediction": 5,
+      "electronic structure dipole moment prediction": 3,
+      "geometric deep learning molecular properties": 6,
+      "graph neural network molecular dipole estimation": 5,
+      "message passing neural network quantum chemistry": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "1909.10086",
+          "rationale": "The paper focuses on general graph classification benchmarks and universal embeddings without addressing molecular properties, chemistry, or the specific regression task required for dipole moment prediction. It is a generic methodology paper with no clear connection to the chemical domain specified in the user's question.",
+          "title": "Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.33774/chemrxiv-2021-b1rdn",
+          "rationale": "The paper uses dipole moments calculated via quantum chemistry to predict excitation energy, rather than predicting dipole moments themselves using graph neural networks. The methodology and primary prediction target differ fundamentally from the user's specific query.",
+          "title": "Modeling Spectral Tuning in Red Fluorescent Proteins Using the Dipole Moment Variation upon Excitation"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-08T02:06:40Z",
+    "term_input": {
+      "normalized": "predicting molecular dipole moments with graph neural networks chemistry",
+      "raw": "Predicting Molecular Dipole Moments with Graph Neural Networks chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-05-08T02:23:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Air pollution (AP) poses a great threat to human health, and people are paying more attention than ever to its prediction. Accurate prediction of AP helps people to plan for their outdoor activities and aids protecting human health. In this paper, long-short term memory (LSTM) recurrent neural networks (RNNs) have been used to predict the future concentration of air pollutants (APS) in Macau. Additionally, meteorological data and data on the concentration of APS have been utilized. Moreover, in Macau, some air quality monitoring stations (AQMSs) have less observed data in quantity, and, at the same time, some AQMSs recorded less observed data of certain types of APS. Therefore, the transfer learning and pre-trained neural networks have been employed to assist AQMSs with less observed data to build a neural network with high prediction accuracy. The experimental sample covers a period longer than 12-year and includes daily measurements from several APS as well as other more classical meteorological values. Records from five stations, four out of them are AQMSs and the remaining one is an automatic weather station, have been prepared from the aforesaid period and eventually underwent to computational intelligence techniques to build and extract a prediction knowledge-based system. As shown by experimentation, LSTM RNNs initialized with transfer learning methods have higher prediction accuracy; it incurred shorter training time than randomly initialized recurrent neural networks.",
+          "claimed_authors": [
+            "Iat Hang Fong",
+            "Tengyue Li",
+            "Simon Fong",
+            "Raymond K. Wong",
+            "Antonio J. Tallón-Ballesteros"
+          ],
+          "claimed_title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.01654"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Predicting concentration levels of air pollutants by transfer learning and recurrent neural network')",
+        "failed_at": "2026-05-08T02:24:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Yuzhi Xu",
+            "Daqian Bian",
+            "Cheng-Wei Ju",
+            "Fanyu Zhao",
+            "Pujun Xie",
+            "Yuanqing Wang",
+            "Wei Hu",
+            "Zhenrong Sun",
+            "John Z. H. Zhang",
+            "Tong Zhu"
+          ],
+          "claimed_title": "Pretrained E(3)-equivariant message-passing neural networks with multi-level representations for organic molecule spectra prediction",
+          "claimed_venue": "npj Computational Materials",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1038/s41524-025-01698-z"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Pretrained E(3)-equivariant message-passing neural networks with multi-level representations for organic molecule spectra prediction')",
+        "failed_at": "2026-05-08T02:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "We propose a quantitative structure-property relationship (QSPR) model for prediction of spectral tuning in cyan, green, orange, and red fluorescent proteins, which are engineered by motifs of the green fluorescent protein. Protein variants, in which their chromophores are involved in the π-stacking interaction with amino acid residues tyrosine, phenylalanine, and histidine, are prospective markers useful in bioimaging and super-resolution microscopy. In this work, we constructed training sets of the π-stacked complexes of four fluorescent protein chromophores (of the green, orange, red, and cyan series) with various substituted benzenes and imidazoles and tested the use of dipole moment variation upon excitation (DMV) as a descriptor to evaluate the vertical excitation energies in these systems. To validate this approach, we computed and analyzed electron density distributions of the π-stacked complexes and correlated the QSPR predictions with the reference values of the transition energies obtained using the high-level ab initio quantum chemistry methods. According to our results, the use of the DMV descriptor allows one to predict excitation energies in the π-stacked complexes with errors not exceeding 0.1 eV, which makes this model a practically useful tool in the development of efficient fluorescent markers for in vivo imaging.",
+          "claimed_authors": [
+            "M. Khrenova",
+            "F. D. Mulashkin",
+            "Egor S. Bulavko",
+            "T. M. Zakharova",
+            "A. Nemukhin"
+          ],
+          "claimed_title": "Dipole Moment Variation Clears Up Electronic Excitations in the π-Stacked Complexes of Fluorescent Protein Chromophores",
+          "claimed_venue": "Journal of Chemical Information and Modeling",
+          "claimed_year": 2020,
+          "primary_pointer": "https://doi.org/10.1021/acs.jcim.0c01028"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Dipole Moment Variation Clears Up Electronic Excitations in the π-Stacked Complexes of Fluorescent Protein Chromophores')",
+        "failed_at": "2026-05-08T02:24:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The formation of triphenylene core-based discotic mesogens exhibiting a classical columnar phase led to several superior electronic and optoelectronic applications. The present work reports the theoretical investigation of discotic hexaalkoxytriphenylene (HATn; n = 5, 6, 7, 8) mesogens including electro-optical, electronic, and thermodynamic properties using density functional theory (DFT) as a computational quantum mechanical tool. The various physical and chemical properties of these mesogens, such as electronegativity, specific heat capacity, polarizability, absorption, and dipole moment are calculated computationally and discussed in the study. The simulation study reveals the variation in physical properties either follows the odd–even effect or changes monotonically for HATn series. Experiment has been performed for comparison with the theoretical results. The physical and chemical properties of these discotic mesogens change with alkyl chain length variation and explain the structure–property correlation in the molecules. The obtained results of the designed molecular structure held promising applications for optoelectronic devices based on discotic mesogens.",
+          "claimed_authors": [
+            "Mirtunjai Mishra",
+            "Bhavna Pal",
+            "Asmita Shah",
+            "Dharmendra Pratap Singh",
+            "Devendra Singh",
+            "Devesh Kumar"
+          ],
+          "claimed_title": "Theoretical prediction (DFT) and experimental observation of electronic and electro-optical properties of HATn (n = 5,6,7,8) molecules for optoelectronic applications",
+          "claimed_venue": "Physica Scripta",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1088/1402-4896/ad2e5d"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Theoretical prediction (DFT) and experimental observation of electronic and electro-optical properties of HATn (n = 5,6,7,8) molecules for optoelectronic applications')",
+        "failed_at": "2026-05-08T02:24:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "We present a package, Generator, for geometric molecular property prediction based on topological features of quantum mechanical electron density. Generator computes Quantum Theory of Atoms in Molecules (QTAIM) features, at...",
+          "claimed_authors": [
+            "Santiago Vargas",
+            "Winston Gee",
+            "Anastassia N. Alexandrova"
+          ],
+          "claimed_title": "High-throughput Quantum Theory of Atoms in Molecules (QTAIM) for Geometric Deep Learning of Molecular and Reaction Properties",
+          "claimed_venue": "Digital Discovery",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1039/d4dd00057a"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='High-throughput Quantum Theory of Atoms in Molecules (QTAIM) for Geometric Deep Learning of Molecular and Reaction Properties')",
+        "failed_at": "2026-05-08T02:24:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Chemical engineers heavily rely on precise knowledge of physicochemical properties to model chemical processes. Despite the growing popularity of deep learning, it is only rarely applied for property prediction due to data scarcity and limited accuracy for compounds in industrially-relevant areas of the chemical space. Herein, we present a geometric deep learning framework for predicting gas- and liquid-phase properties based on novel quantum chemical datasets comprising 124,000 molecules. Our findings reveal that the necessity for quantum-chemical information in deep learning models varies significantly depending on the modeled physicochemical property. Specifically, our top-performing geometric model meets the most stringent criteria for “chemically accurate” thermochemistry predictions. We also show that by carefully selecting the appropriate model featurization and evaluating prediction uncertainties, the reliability of the predictions can be strongly enhanced. These insights represent a crucial step towards establishing deep learning as the standard property prediction workflow in both industry and academia. Scientific contribution We propose a flexible property prediction tool that can handle two-dimensional and three-dimensional molecular information. A thermochemistry prediction methodology that achieves high-level quantum chemistry accuracy for a broad application range is presented. Trained deep learning models and large novel molecular databases of real-world molecules are provided to offer a directly usable and fast property prediction solution to practitioners.",
+          "claimed_authors": [
+            "Maarten R. Dobbelaere",
+            "István Lengyel",
+            "Christian V. Stevens",
+            "K. M. V. Geem"
+          ],
+          "claimed_title": "Geometric deep learning for molecular property predictions with chemical accuracy across chemical space",
+          "claimed_venue": "Journal of Cheminformatics",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1186/s13321-024-00895-0"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Geometric deep learning for molecular property predictions with chemical accuracy across chemical space')",
+        "failed_at": "2026-05-08T02:24:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evidential deep learning, built upon belief theory and subjective logic, offers a principled and computationally efficient way to turn a deterministic neural network uncertainty-aware. The resultant evidential models can quantify fine-grained uncertainty using the learned evidence. To ensure theoretically sound evidential models, the evidence needs to be non-negative, which requires special activation functions for model training and inference. This constraint often leads to inferior predictive performance compared to standard softmax models, making it challenging to extend them to many large-scale datasets. To unveil the real cause of this undesired behavior, we theoretically investigate evidential models and identify a fundamental limitation that explains the inferior performance: existing evidential activation functions create zero evidence regions, which prevent the model to learn from training samples falling into such regions. A deeper analysis of evidential activation functions based on our theoretical underpinning inspires the design of a novel regularizer that effectively alleviates this fundamental limitation. Extensive experiments over many challenging real-world datasets and settings confirm our theoretical findings and demonstrate the effectiveness of our proposed approach.",
+          "claimed_authors": [
+            "Deep Pandey",
+            "Qi Yu"
+          ],
+          "claimed_title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11113"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Learn to Accumulate Evidence from All Training Samples: Theory and Practice')",
+        "failed_at": "2026-05-08T02:24:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the new field of mathematical analysis of deep learning. This field emerged around a list of research questions that were not answered within the classical framework of learning theory. These questions concern: the outstanding generalization power of overparametrized neural networks, the role of depth in deep architectures, the apparent absence of the curse of dimensionality, the surprisingly successful optimization performance despite the non-convexity of the problem, understanding what features are learned, why deep architectures perform exceptionally well in physical problems, and which fine aspects of an architecture affect the behavior of a learning task in which way. We present an overview of modern approaches that yield partial answers to these questions. For selected approaches, we describe the main ideas in more detail.",
+          "claimed_authors": [
+            "Julius Berner",
+            "Philipp Grohs",
+            "Gitta Kutyniok",
+            "Philipp Petersen"
+          ],
+          "claimed_title": "The Modern Mathematics of Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.04026"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='The Modern Mathematics of Deep Learning')",
+        "failed_at": "2026-05-08T02:24:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "These notes were compiled as lecture notes for a course developed and taught at the University of the Southern California. They should be accessible to a typical engineering graduate student with a strong background in Applied Mathematics.\n  The main objective of these notes is to introduce a student who is familiar with concepts in linear algebra and partial differential equations to select topics in deep learning. These lecture notes exploit the strong connections between deep learning algorithms and the more conventional techniques of computational physics to achieve two goals. First, they use concepts from computational physics to develop an understanding of deep learning algorithms. Not surprisingly, many concepts in deep learning can be connected to similar concepts in computational physics, and one can utilize this connection to better understand these algorithms. Second, several novel deep learning algorithms can be used to solve challenging problems in computational physics. Thus, they offer someone who is interested in modeling a physical phenomena with a complementary set of tools.",
+          "claimed_authors": [
+            "Deep Ray",
+            "Orazio Pinti",
+            "Assad A. Oberai"
+          ],
+          "claimed_title": "Deep Learning and Computational Physics (Lecture Notes)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.00942"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Deep Learning and Computational Physics (Lecture Notes)')",
+        "failed_at": "2026-05-08T02:24:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-05-08T02:24:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-05-08T02:24:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The continued interest in placing bounds on the neutron's Electric Dipole Moment (EDM) is due to the implications regarding the characteristics of the strong interaction and, in particular, its behavior under the CP symmetry. In this work, we discuss the apparent tension resulting from the discrepancy of about 13 orders of magnitude between the current bounds and the expected quantum uncertainty in the relevant quantity. We offer a resolution of the \"puzzle\" in terms of the notion of a weak measurement, using a version of the corresponding formalism adapted to consideration of the nEDM experiment at the Spallation Neutron Source at the Oak Ridge National Laboratory.",
+          "claimed_authors": [
+            "Octavio Guerrero",
+            "Libertad Barrón-Palos",
+            "Daniel Sudarsky"
+          ],
+          "claimed_title": "On the Quantum Uncertainty of the Neutron Electric Dipole Moment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.00208"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='On the Quantum Uncertainty of the Neutron Electric Dipole Moment')",
+        "failed_at": "2026-05-08T02:24:16Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "D. D. Wayo",
+            "Mohd Zulkifli Bin Mohamad Noor",
+            "Masoud Darvish Ganji",
+            "C. Saporetti",
+            "L. Goliatt"
+          ],
+          "title": "Q‐DFTNet: A Chemistry‐Informed Neural Network Framework for Predicting Molecular Dipole Moments via DFT‐Driven QM9 Data",
+          "venue": "Journal of Computational Chemistry",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1002/jcc.70206",
+        "summary": "This study presents Q‐DFTNet, a chemistry‐informed neural network (ChINN) framework designed to benchmark graph neural networks (GNNs) for dipole moment prediction using the QM9 dataset. Seven GNN architectures, GCN, GIN, GraphConv, GATConv, GATNet, SAGEConv, and GIN+EdgeConv, were trained for 100 epochs and evaluated across performance and interpretability metrics. GraphConv achieved the lowest test MSE (0.7054), MAE (0.6196), and the highest R2$$ {R}^2 $$ (0.6513) with only 16.5k trainable parameters, confirming its optimal accuracy‐complexity trade‐off. GIN+EdgeConv followed closely with MSE of 0.7386, MAE of 0.6332, and R2$$ {R}^2 $$ of 0.6349, leveraging edge‐awareness for enhanced expressivity. In contrast, attention‐based models like GATConv and GATNet underperformed, with test MSEs of 0.9667 and 1.0096, and R2$$ {R}^2 $$ values of 0.5221 and 0.5009, despite their higher complexity (43.5k and 37.3k parameters). Latent space analysis via t‐SNE, PCA, and UMAP showed superior cluster separability for GraphConv, GIN+EdgeConv, and GCN. Clustering metrics corroborated these observations: GraphConv achieved a Silhouette Score of 0.4665, a Davies–Bouldin Index of 0.7111, and a Calinski–Harabasz Score of 1278.40. Cluster‐wise molecular dipole means for GIN+EdgeConv ranged from 2.6221 to 2.9606 Debye, reflecting high semantic coherence. Residual analysis and QQ plots confirmed that models with lower MSEs also had near‐Gaussian error distributions, enhancing interpretability. Compared to benchmark models like PhysNet and DimeNet++, Q‐DFTNet offers lower absolute accuracy but excels in modularity, interpretability, and computational efficiency. For a chemically grounded baseline for deploying GNNs in quantum chemistry and materials discovery pipelines, Q‐DFTNet is proposed.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://onlinelibrary.wiley.com/doi/10.1002/jcc.70206",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [
+            "https://doi.org/10.1002/jcc.70206"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-08T02:23:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "D. P. Nguyen",
+            "P. T. Le"
+          ],
+          "title": "Leveraging Graph Neural Networks for Enhanced Prediction of Molecular Solubility via Transfer Learning",
+          "venue": "Journal of Technical Education Science",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.54644/jte.2024.1571",
+        "summary": "In this study, we explore the potential of graph neural networks (GNNs), in combination with transfer learning, for the prediction of molecular solubility, a crucial property in drug discovery and materials science. Our approach begins with the development of a GNN-based model to predict the dipole moment of molecules. The extracted dipole moment, alongside a selected set of molecular descriptors, feeds into a subsequent predictive model for water solubility. This two-step process leverages the inherent correlations between molecular structure and its physical properties, thus enhancing the accuracy and generalizability. Our data showed that GNN models with attention mechanism and those utilize bond properties outperformed other models. Especially, 3D GNN models such as ViSNet exhibited outstanding performance, with an R2 value of 0.9980. For the prediction of water solubility, the inclusion of dipole moments greatly enhanced the predictive power of various machine learning models. Our methodology demonstrates the effectiveness of GNNs in capturing complex molecular features and the power of transfer learning in bridging related predictive tasks, offering a novel approach for computational predictions in chemistry.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://jte.edu.vn/index.php/jte/article/view/1571",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [
+            "https://doi.org/10.54644/jte.2024.1571"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-08T02:23:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Oliver T. Unke",
+            "M. Meuwly"
+          ],
+          "title": "PhysNet: A Neural Network for Predicting Energies, Forces, Dipole Moments, and Partial Charges.",
+          "venue": "Journal of Chemical Theory and Computation",
+          "year": 2019
+        },
+        "primary_pointer": "https://doi.org/10.1021/acs.jctc.9b00181",
+        "summary": "In recent years, machine learning (ML) methods have become increasingly popular in computational chemistry. After being trained on appropriate ab initio reference data, these methods allow for accurately predicting the properties of chemical systems, circumventing the need for explicitly solving the electronic Schrödinger equation. Because of their computational efficiency and scalability to large data sets, deep neural networks (DNNs) are a particularly promising ML algorithm for chemical applications. This work introduces PhysNet, a DNN architecture designed for predicting energies, forces, and dipole moments of chemical systems. PhysNet achieves state-of-the-art performance on the QM9, MD17, and ISO17 benchmarks. Further, two new data sets are generated in order to probe the performance of ML models for describing chemical reactions, long-range interactions, and condensed phase systems. It is shown that explicitly including electrostatics in energy predictions is crucial for a qualitatively correct description of the asymptotic regions of a potential energy surface (PES). PhysNet models trained on a systematically constructed set of small peptide fragments (at most eight heavy atoms) are able to generalize to considerably larger proteins like deca-alanine (Ala10): The optimized geometry of helical Ala10 predicted by PhysNet is virtually identical to ab initio results (RMSD = 0.21 Å). By running unbiased molecular dynamics (MD) simulations of Ala10 on the PhysNet-PES in gas phase, it is found that instead of a helical structure, Ala10 folds into a \"wreath-shaped\" configuration, which is more stable than the helical form by 0.46 kcal mol-1 according to the reference ab initio calculations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://pubs.acs.org/doi/10.1021/acs.jctc.9b00181",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8571,
+          "redirect_chain": [
+            "https://doi.org/10.1021/acs.jctc.9b00181"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-08T02:23:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Qingqing Jia",
+            "Yifan Ni",
+            "Ziteng Liu",
+            "Xuerong Gu",
+            "Ziyi Cui",
+            "Mengting Fan",
+            "Qiang Zhu",
+            "Yi Wang",
+            "Jing Ma"
+          ],
+          "title": "Fast Prediction of Lipophilicity of Organofluorine Molecules: Deep Learning-Derived Polarity Characters and Experimental Tests",
+          "venue": "Journal of Chemical Information and Modeling",
+          "year": 2022
+        },
+        "primary_pointer": "https://doi.org/10.1021/acs.jcim.2c01201",
+        "summary": "Fast and accurate estimation of lipophilicity for organofluorine molecules is in great demand for accelerating drug and materials discovery. A lipophilicity data set of organofluorine molecules (OFL data set), containing 1907 samples, is constructed through density functional theory (DFT) calculations and experimental measurements. An efficient and interpretable model, called PoLogP, is developed to predict the n-octanol/water partition coefficient, log Po/w, of organofluorine molecules on the basis of the descriptors of polarization, which is a combination of polarity descriptors, including the molecular polarity index and molecular polarizability (α), and hydrogen bond (HBs) index, consisting of the number of donors (NHBD) and acceptors (NHBA and NHB-FA). The present PoLogP with a combination of polarity descriptors is demonstrated to perform better than the dipole moment (μ) alone for the F-contained molecules. With the aid of a multilevel attention graph convolutional neural network model, the fast generation of polarity descriptors of organofluorine molecules could be achieved with the DFT accuracy based only on a topological molecular graph structure. The performance of PoLogP is further validated on synthesized organofluorine molecules and 2626 non-fluorinated molecules with satisfactory accuracy, highlighting the potential usage of PoLogP in high-throughput screening of the functional molecules with the desired solubility in various solvent media.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://pubs.acs.org/doi/10.1021/acs.jcim.2c01201",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [
+            "https://doi.org/10.1021/acs.jcim.2c01201"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-08T02:23:54Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Debasis Maji",
+            "Atish Ghosh",
+            "Debaditya Barman",
+            "P. Sarkar"
+          ],
+          "title": "Accelerating Molecular Dynamics with a Graph Neural Network: A Scalable Approach through E(q)C-GNN.",
+          "venue": "Journal of Physical Chemistry Letters",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1021/acs.jpclett.5c00217",
+        "summary": "Ab initio molecular dynamics simulations are an integral part of any electronic structure calculation to access thermal stability and perform non-adiabatic dynamics but are computationally very demanding. To enhance the computational efficiency of crucial ab initio molecular dynamics simulations, in this work, we implemented the graph neural network (GNN)-accelerated predictions for the molecular dynamics simulation of two-dimensional systems with varying atom connectivity. In this work, we developed an equivariant GNN model that employs only the time-evolved AIMD-simulated atomic coordinates for training and successfully predicts the key parameters of stable two-dimensional g-CN, WTe2, and g-CN/WTe2, like potential energy and kinetic energy, while also delving into the structural and thermodynamical parameters like entropy and interatomic force variation, resulting in a fluctuation level of ±3%, and the computational speed has improved by several orders of magnitude. Hence, incorporating an equivariant GNN model will serve as a viable substitute for predictions in extensive AIMD simulations of homogeneous or symmetrically periodic low-dimensional materials.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://pubs.acs.org/doi/10.1021/acs.jpclett.5c00217",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [
+            "https://doi.org/10.1021/acs.jpclett.5c00217"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-08T02:23:54Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "J. Gilmer",
+            "S. Schoenholz",
+            "Patrick F. Riley",
+            "O. Vinyals",
+            "George E. Dahl"
+          ],
+          "title": "Neural Message Passing for Quantum Chemistry",
+          "venue": "International Conference on Machine Learning",
+          "year": 2017
+        },
+        "primary_pointer": "1704.01212",
+        "summary": "Supervised learning on molecules has incredible potential to be useful in chemistry, drug discovery, and materials science. Luckily, several promising and closely related neural network models invariant to molecular symmetries have already been described in the literature. These models learn a message passing algorithm and aggregation procedure to compute a function of their entire input graph. At this point, the next step is to find a particularly effective variant of this general approach and apply it to chemical prediction benchmarks until we either solve them or reach the limits of the approach. In this paper, we reformulate existing models into a single common framework we call Message Passing Neural Networks (MPNNs) and explore additional novel variations within this framework. Using MPNNs we demonstrate state of the art results on an important molecular property prediction benchmark; these results are strong enough that we believe future work should focus on datasets with larger molecules or more accurate ground truth labels.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/1704.01212",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7143,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-08T02:24:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jeonghee Jo",
+            "Bumju Kwak",
+            "Byunghan Lee",
+            "Sungroh Yoon"
+          ],
+          "title": "Flexible dual-branched message passing neural network for quantum mechanical property prediction with molecular conformation",
+          "venue": "arXiv.org",
+          "year": 2021
+        },
+        "primary_pointer": "2106.07273",
+        "summary": "A molecule is a complex of heterogeneous components, and the spatial arrangements of these components determine the whole molecular properties and characteristics. With the advent of deep learning in computational chemistry, several studies have focused on how to predict molecular properties based on molecular configurations. Message passing neural network provides an effective framework for capturing molecular geometric features with the perspective of a molecule as a graph. However, most of these studies assumed that all heterogeneous molecular features, such as atomic charge, bond length, or other geometric features always contribute equivalently to the target prediction, regardless of the task type. In this study, we propose a dual-branched neural network for molecular property prediction based on message-passing framework. Our model learns heterogeneous molecular features with different scales, which are trained flexibly according to each prediction target. In addition, we introduce a discrete branch to learn single atom features without local aggregation, apart from message-passing steps. We verify that this novel structure can improve the model performance with faster convergence in most targets. The proposed model outperforms other recent models with sparser representations. Our experimental results indicate that in the chemical property prediction tasks, the diverse chemical nature of targets should be carefully considered for both model performance and generalizability.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2106.07273",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-08T02:24:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wenjie Yan",
+            "Xin Lai",
+            "Yicheng Chen",
+            "Wenhao Zhang",
+            "Jianming Wu",
+            "Xin Xu"
+          ],
+          "title": "General Framework for Geometric Deep Learning on Tensorial Properties of Molecules and Crystals.",
+          "venue": "Journal of the American Chemical Society",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1021/jacs.5c12428",
+        "summary": "Response properties of molecules and crystals are naturally described by tensors that obey specific equivariance and symmetry constraints. However, directly predicting these tensorial quantities remains challenging for machine learning models. We present a general-purpose output module for equivariant graph neural networks that enables end-to-end prediction of tensors of arbitrary order with prescribed permutation (fundamental) symmetry. Coupled with the SE(3)-equivariant XPaiNN architecture, our framework attains accuracy comparable to that of first-principles calculations. It also supports atomic-level properties─such as chemical shielding tensors and Born effective charges─in an all-in-one model. Moreover, the method handles higher-order tensors, including molecular hyperpolarizability and the elastic tensor (stiffness matrix) of crystalline materials, thereby enabling the derivation and analysis of rich anisotropic information and facilitating AI-assisted discovery and design of functional molecules and materials.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://pubs.acs.org/doi/10.1021/jacs.5c12428",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [
+            "https://doi.org/10.1021/jacs.5c12428"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-08T02:24:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sonam Khattar",
+            "Harshita Kumawat",
+            "Aryan"
+          ],
+          "title": "Predicting Molecular Properties With Quantum Kernels: a Study on the Qm9 Dataset",
+          "venue": "2025 IEEE International Conference for Women in Innovation, Technology & Entrepreneurship (ICWITE)",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1109/ICWITE64848.2025.11307106",
+        "summary": "Predicting molecular properties is a cornerstone of drug discovery, materials science, and quantum chemistry, where accuracy and speed are critical. Classical machine learning mod- els offer rapid predictions but often fail to capture the intricate quantum interactions governing molecular behavior. Our team investigated quantum kernel methods to predict properties of the QM9 dataset, a widely recognized benchmark containing $\\mathbf{1 3 4, 0 0 0}$ organic molecules with diverse chemical structures. By encoding molecular features into quantum circuits, we mapped classical data into highdimensional Hilbert spaces to enhance prediction accuracy. Our pipeline encompasses data preprocessing, quantum circuit design, model training with support vector regression, and evaluation of ten key molecular properties. The quantum kernel approach delivered promising results, achieving mean absolute errors of 0.13 Debye for dipole moment and 0.08 eV for HOMOLUMO gap, even when executed on noisy quantum devices. This work provides a comprehensive, reproducible pipeline, benchmarks quantum and classical models, and discusses practical challenges, contributing significantly to the field of quantumenhanced computational chemistry.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://ieeexplore.ieee.org/document/11307106/",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [
+            "https://doi.org/10.1109/ICWITE64848.2025.11307106"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-08T02:24:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mingxin Tao",
+            "Guochao Wan"
+          ],
+          "title": "Prediction of Interatomic Potentials Combining Empirical Potential and Graph Neural Networks",
+          "venue": "",
+          "year": null
+        },
+        "primary_pointer": "https://www.semanticscholar.org/paper/65beae089071506ab3ddabc2761eae2af7314092",
+        "summary": "",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "final_url": "https://www.semanticscholar.org/paper/65beae089071506ab3ddabc2761eae2af7314092",
+          "http_status": 202,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 0.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-08T02:24:16Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular dipole moments with graph neural networks chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
