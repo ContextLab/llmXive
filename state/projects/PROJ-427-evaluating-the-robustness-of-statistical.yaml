@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-08T05:08:09.866590Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: statistics
+human_escalation_reason: null
+id: PROJ-427-evaluating-the-robustness-of-statistical
+last_run_id: 02a6a1f8-22a9-4782-a66e-1bdd9ac87e7a
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Evaluating the Robustness of Statistical Methods to Common Data Errors
+updated_at: '2026-05-08T05:13:08.606896Z'
