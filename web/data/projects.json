@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 450,
+    "active_projects": 453,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1969,
+    "total_contributions": 1972,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1796,
+      "contribution_count": 1799,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 428,
+      "contribution_count": 431,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-08T14:52:55.765150+00:00",
+  "generated_at": "2026-05-08T15:47:13.229100+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -31278,6 +31278,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting the Effect of Alloying on the Elastic Modulus of High-Entropy Alloys",
       "updated_at": "2026-05-08T13:44:07.767692+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-444-predicting-molecular-properties-from-top/idea/predicting-molecular-properties-from-top.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T15:40:53.450524+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry How does the topological structure of small organic molecules\u2014captured through persistent homology\u2014relate to their physicochemical properties (solubility, logP, boiling point)? Does topological information provide predictive signal beyond traditional molecular descriptors? Traditional quantitative\u2026",
+      "field": "chemistry",
+      "id": "PROJ-444-predicting-molecular-properties-from-top",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 103.66193,
+          "ended_at": "2026-05-08T15:42:51.127007Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T15:41:07.465077Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Molecular Properties from Topological Data Analysis of Molecular Structures",
+      "updated_at": "2026-05-08T15:42:51.129768+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-445-predicting-the-impact-of-composition-on-/idea/predicting-the-impact-of-composition-on-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T15:40:53.450524+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: Materials Science How do mean coordination number and chemical heterogeneity jointly determine the glass transition temperature in chalcogenide networks? Accurate prediction of the glass transition temperature (Tg) is critical for designing chalcogenide glasses with stable thermal profiles for phase-change\u2026",
+      "field": "materials science",
+      "id": "PROJ-445-predicting-the-impact-of-composition-on-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 207.603924,
+          "ended_at": "2026-05-08T15:46:19.468660Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T15:42:51.864736Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting the Impact of Composition on the Glass Transition Temperature of Chalcogenide Glasses",
+      "updated_at": "2026-05-08T15:46:19.471207+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-446-predicting-molecular-halide-binding-affi/idea/predicting-molecular-halide-binding-affi.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-08T15:40:53.450524+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry What molecular structural features determine the binding affinity of halide ions (F\u207b, Cl\u207b, Br\u207b, I\u207b) to organic host molecules, and how does this relationship vary across halide identity? Understanding halide binding is critical for predicting solution-phase reactivity, designing selective ionophores\u2026",
+      "field": "chemistry",
+      "id": "PROJ-446-predicting-molecular-halide-binding-affi",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 49.994701,
+          "ended_at": "2026-05-08T15:47:10.157203Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-08T15:46:20.162502Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Molecular Halide Binding Affinities with Machine Learning",
+      "updated_at": "2026-05-08T15:47:10.159726+00:00"
     }
   ],
   "schema_version": "2.0.0"
