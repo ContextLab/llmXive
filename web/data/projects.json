@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 510,
+    "active_projects": 512,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2069,
+    "total_contributions": 2071,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1896,
+      "contribution_count": 1898,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 488,
+      "contribution_count": 490,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-09T20:46:51.770152+00:00",
+  "generated_at": "2026-05-09T21:28:25.377509+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -35298,6 +35298,140 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting Plant Defense Compound Production from Publicly Available Genomic and Transcriptomic Data",
       "updated_at": "2026-05-09T20:22:52.915414+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-504-evaluating-the-impact-of-variable-select/idea/evaluating-the-impact-of-variable-select.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T21:22:09.289014+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics What is the relationship between model sparsity and the probability of correctly identifying true predictors in linear regression across varying signal-to-noise ratios? Practitioners routinely apply variable selection to improve parsimony, yet the cost of this reduction on statistical power remains\u2026",
+      "field": "statistics",
+      "id": "PROJ-504-evaluating-the-impact-of-variable-select",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 278.892921,
+          "ended_at": "2026-05-09T21:27:03.030794Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T21:22:24.137873Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Impact of Variable Selection on Statistical Power in Linear Regression",
+      "updated_at": "2026-05-09T21:27:03.033670+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-505-exploring-the-statistical-relationship-b/idea/exploring-the-statistical-relationship-b.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T21:22:09.289014+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics Does solar wind elemental composition (specifically O/Fe and He/H ion ratios) independently predict geomagnetic storm intensity (Dst, Kp indices) beyond what is explained by solar wind velocity and interplanetary magnetic field strength? Space weather forecasting currently relies primarily on solar wind\u2026",
+      "field": "physics",
+      "id": "PROJ-505-exploring-the-statistical-relationship-b",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 78.116297,
+          "ended_at": "2026-05-09T21:28:21.993014Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T21:27:03.876717Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Exploring the Statistical Relationship Between Solar Wind Composition and Geomagnetic Indices",
+      "updated_at": "2026-05-09T21:28:21.995552+00:00"
     }
   ],
   "schema_version": "2.0.0"
