@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-09T14:30:39.635442Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: chemistry
+human_escalation_reason: null
+id: PROJ-494-predicting-molecular-dielectric-constant
+last_run_id: 8c21988b-ab51-425c-8ab8-7156fb1a8301
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Predicting Molecular Dielectric Constants from Graph-Based Descriptors
+updated_at: '2026-05-09T14:31:31.658034Z'
