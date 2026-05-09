@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 498,
+    "active_projects": 500,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2041,
+    "total_contributions": 2043,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1868,
+      "contribution_count": 1870,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 476,
+      "contribution_count": 478,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-09T12:52:16.323995+00:00",
+  "generated_at": "2026-05-09T13:38:49.155651+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -34494,6 +34494,140 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Relationship Between Brain Network Dynamics and Anticipatory Reward Processing",
       "updated_at": "2026-05-09T12:33:11.390308+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-492-evaluating-the-statistical-validity-of-p/idea/evaluating-the-statistical-validity-of-p.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T13:36:41.252896+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics To what extent do publicly available A/B test summaries report statistically consistent results (i.e., p-values, effect sizes, and sample sizes that align with standard statistical tests)? A/B testing is ubiquitous in tech and business decision-making, yet reporting standards vary widely outside\u2026",
+      "field": "statistics",
+      "id": "PROJ-492-evaluating-the-statistical-validity-of-p",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 40.504109,
+          "ended_at": "2026-05-09T13:37:50.799896Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T13:37:10.295787Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Statistical Validity of Publicly Available A/B Test Summaries",
+      "updated_at": "2026-05-09T13:37:50.802457+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-493-evaluating-the-impact-of-data-scaling-on/idea/evaluating-the-impact-of-data-scaling-on.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T13:36:41.252896+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics Does the choice of data scaling method (standardization, normalization, robust scaling) significantly alter p-values and effect sizes produced by common statistical tests (t-test, ANOVA, chi-squared), and does this effect depend on underlying data distribution characteristics? Statistical inference\u2026",
+      "field": "statistics",
+      "id": "PROJ-493-evaluating-the-impact-of-data-scaling-on",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 54.768389,
+          "ended_at": "2026-05-09T13:38:46.295846Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T13:37:51.527457Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Impact of Data Scaling on Statistical Test Sensitivity",
+      "updated_at": "2026-05-09T13:38:46.298214+00:00"
     }
   ],
   "schema_version": "2.0.0"

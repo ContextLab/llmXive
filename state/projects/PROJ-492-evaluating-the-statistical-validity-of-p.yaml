@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-09T13:36:41.252896Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: statistics
+human_escalation_reason: null
+id: PROJ-492-evaluating-the-statistical-validity-of-p
+last_run_id: 6d962004-52fb-4d93-b3e0-fb6a150c9243
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Evaluating the Statistical Validity of Publicly Available A/B Test Summaries
+updated_at: '2026-05-09T13:37:50.802457Z'
