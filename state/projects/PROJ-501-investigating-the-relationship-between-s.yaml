@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-09T17:25:29.108631Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: physics
+human_escalation_reason: null
+id: PROJ-501-investigating-the-relationship-between-s
+last_run_id: dfd19bb2-81cc-4767-b21e-9b8a81bc3a76
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Investigating the Relationship Between Stellar Flare Frequency and Exoplanet
+  Atmospheric Retention
+updated_at: '2026-05-09T17:29:15.061294Z'
