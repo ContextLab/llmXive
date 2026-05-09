@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-09T09:38:59.562576Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: statistics
+human_escalation_reason: null
+id: PROJ-482-assessing-the-sensitivity-of-common-stat
+last_run_id: 788a327a-60f4-4175-a51a-cdcd769b9168
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Assessing the Sensitivity of Common Statistical Tests to Dataset Size
+updated_at: '2026-05-09T09:39:51.984168Z'

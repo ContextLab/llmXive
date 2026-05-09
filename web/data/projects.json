@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 488,
+    "active_projects": 491,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2023,
+    "total_contributions": 2026,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1850,
+      "contribution_count": 1853,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 466,
+      "contribution_count": 469,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-09T09:18:26.802918+00:00",
+  "generated_at": "2026-05-09T09:41:02.594472+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -33824,6 +33824,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Impact of Code Complexity on LLM Code Understanding",
       "updated_at": "2026-05-09T08:44:16.123165+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-482-assessing-the-sensitivity-of-common-stat/idea/assessing-the-sensitivity-of-common-stat.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T09:38:59.562576+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How do Type I and Type II error rates of common statistical tests (t-test, ANOVA, chi-squared) vary as a function of sample size and underlying data distribution? Public datasets in many domains are constrained by collection costs or logistical limitations, often resulting in small sample sizes.\u2026",
+      "field": "statistics",
+      "id": "PROJ-482-assessing-the-sensitivity-of-common-stat",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 36.586891,
+          "ended_at": "2026-05-09T09:39:51.981601Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T09:39:15.394710Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Assessing the Sensitivity of Common Statistical Tests to Dataset Size",
+      "updated_at": "2026-05-09T09:39:51.984168+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-483-evaluating-the-robustness-of-common-stat/idea/evaluating-the-robustness-of-common-stat.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T09:38:59.562576+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How do Type I error rates and statistical power of common parametric tests (t-tests, ANOVA, chi-squared) degrade as a function of increasing non-independence in data drawn from publicly available datasets? Independence of observations is a foundational assumption for most introductory statistical\u2026",
+      "field": "statistics",
+      "id": "PROJ-483-evaluating-the-robustness-of-common-stat",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 37.567218,
+          "ended_at": "2026-05-09T09:40:30.278000Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T09:39:52.710782Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Robustness of Common Statistical Tests to Non-Independence in Public Datasets",
+      "updated_at": "2026-05-09T09:40:30.280418+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-484-the-impact-of-visual-attention-on-recall/idea/the-impact-of-visual-attention-on-recall.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T09:38:59.562576+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Does increased visual attentional allocation to emotional stimuli during rapid serial visual presentation (RSVP) predict enhanced subsequent recall accuracy compared to neutral stimuli? Attentional capture by emotional stimuli is well-established, but it remains unclear whether this capture\u2026",
+      "field": "psychology",
+      "id": "PROJ-484-the-impact-of-visual-attention-on-recall",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 28.849456,
+          "ended_at": "2026-05-09T09:40:59.769177Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T09:40:30.919721Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Sequences",
+      "updated_at": "2026-05-09T09:40:59.771561+00:00"
     }
   ],
   "schema_version": "2.0.0"
