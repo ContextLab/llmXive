@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 509,
+    "active_projects": 510,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2060,
+    "total_contributions": 2061,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1887,
+      "contribution_count": 1888,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 487,
+      "contribution_count": 488,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-09T18:34:38.499012+00:00",
+  "generated_at": "2026-05-09T20:22:56.281759+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -35231,6 +35231,73 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "The Impact of Perceived AI Personality Consistency on User Trust",
       "updated_at": "2026-05-09T18:29:55.624274+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-503-predicting-plant-defense-compound-produc/idea/predicting-plant-defense-compound-produc.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T20:21:26.454919+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: biology How does the transcriptomic response to herbivory stress correlate with the accumulation of specific defense metabolites across distinct plant genotypes? Current breeding strategies often rely on phenotypic screening for pest resistance, which is time-consuming and environmentally variable.\u2026",
+      "field": "biology",
+      "id": "PROJ-503-predicting-plant-defense-compound-produc",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 71.351067,
+          "ended_at": "2026-05-09T20:22:52.912629Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T20:21:41.561562Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Plant Defense Compound Production from Publicly Available Genomic and Transcriptomic Data",
+      "updated_at": "2026-05-09T20:22:52.915414+00:00"
     }
   ],
   "schema_version": "2.0.0"

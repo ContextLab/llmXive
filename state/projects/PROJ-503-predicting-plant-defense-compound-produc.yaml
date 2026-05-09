@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-09T20:21:26.454919Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: biology
+human_escalation_reason: null
+id: PROJ-503-predicting-plant-defense-compound-produc
+last_run_id: 5571b9b8-461e-4dc3-bc8d-62ef0a80b829
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Predicting Plant Defense Compound Production from Publicly Available Genomic
+  and Transcriptomic Data
+updated_at: '2026-05-09T20:22:52.915414Z'
