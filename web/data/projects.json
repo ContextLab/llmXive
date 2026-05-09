@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 512,
+    "active_projects": 515,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2071,
+    "total_contributions": 2074,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1898,
+      "contribution_count": 1901,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 490,
+      "contribution_count": 493,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-09T21:28:25.377509+00:00",
+  "generated_at": "2026-05-09T22:25:46.100113+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -35432,6 +35432,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Exploring the Statistical Relationship Between Solar Wind Composition and Geomagnetic Indices",
       "updated_at": "2026-05-09T21:28:21.995552+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-506-predicting-material-stiffness-from-micro/idea/predicting-material-stiffness-from-micro.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T22:21:38.778018+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science How does the spatial arrangement of inclusions and voids in 2D polymer microstructures correlate with effective elastic stiffness tensors? Finite element analysis (FEA) accurately computes stiffness from microstructure but is computationally prohibitive for iterative design. Data-driven\u2026",
+      "field": "materials science",
+      "id": "PROJ-506-predicting-material-stiffness-from-micro",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 162.385327,
+          "ended_at": "2026-05-09T22:24:36.193171Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T22:21:53.807844Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Material Stiffness from Microstructure Images Using Convolutional Neural Networks",
+      "updated_at": "2026-05-09T22:24:36.195543+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-507-the-influence-of-visual-salience-on-mora/idea/the-influence-of-visual-salience-on-mora.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T22:21:38.778018+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Does increasing the visual salience of non-causal elements in morally ambiguous simulated scenarios systematically shift participants' blame and responsibility judgments toward the visually highlighted party? Visual salience is a well-documented driver of attention, but its downstream effects on\u2026",
+      "field": "psychology",
+      "id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 28.150317,
+          "ended_at": "2026-05-09T22:25:05.041403Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T22:24:36.891086Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Influence of Visual Salience on Moral Judgments of Simulated Scenarios",
+      "updated_at": "2026-05-09T22:25:05.043638+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/idea/evaluating-the-impact-of-llm-based-code-.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T22:21:38.778018+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: computer science How does the use of LLM-based code completion tools affect developer cognitive load in professional software development workflows, as measured by code review complexity and iteration patterns? While LLM-powered code completion tools promise to increase developer productivity, their impact on\u2026",
+      "field": "computer science",
+      "id": "PROJ-508-evaluating-the-impact-of-llm-based-code-",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 37.53401,
+          "ended_at": "2026-05-09T22:25:43.238311Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T22:25:05.704301Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Impact of LLM-Based Code Completion on Developer Cognitive Load",
+      "updated_at": "2026-05-09T22:25:43.240576+00:00"
     }
   ],
   "schema_version": "2.0.0"
