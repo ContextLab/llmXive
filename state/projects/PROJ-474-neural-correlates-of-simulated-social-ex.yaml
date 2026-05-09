@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-09T06:54:18.829211Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: neuroscience
+human_escalation_reason: null
+id: PROJ-474-neural-correlates-of-simulated-social-ex
+last_run_id: b826b25b-ec6e-460f-ac12-9c9bc7358f4a
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics
+updated_at: '2026-05-09T06:55:36.031226Z'
