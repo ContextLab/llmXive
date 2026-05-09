@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-09T08:41:29.918507Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: materials science
+human_escalation_reason: null
+id: PROJ-480-predicting-glass-formation-tendency-with
+last_run_id: a986cfe6-b1e6-4bea-b4d2-5f5c272fd013
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Predicting Glass Formation Tendency with Machine Learning on Public Data
+updated_at: '2026-05-09T08:43:45.461598Z'

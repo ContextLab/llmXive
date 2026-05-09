@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 485,
+    "active_projects": 488,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2012,
+    "total_contributions": 2015,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1839,
+      "contribution_count": 1842,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 463,
+      "contribution_count": 466,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-09T07:43:01.466549+00:00",
+  "generated_at": "2026-05-09T08:44:19.407931+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -33623,6 +33623,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Assessing the Predictive Power of Plant Functional Traits for Species Distribution Models",
       "updated_at": "2026-05-09T07:42:58.685986+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/idea/the-impact-of-visual-distraction-on-cogn.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T08:41:29.918507+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology How does visual complexity in home work environments affect cognitive control performance on standardized attention tasks? Remote work is now a permanent fixture for millions, yet little is known about how home environment visual clutter impacts attentional resources. This gap matters because\u2026",
+      "field": "psychology",
+      "id": "PROJ-479-the-impact-of-visual-distraction-on-cogn",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 34.952583,
+          "ended_at": "2026-05-09T08:42:18.477383Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T08:41:43.524800Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Visual Distraction on Cognitive Control in Remote Work Environments",
+      "updated_at": "2026-05-09T08:42:18.480181+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-480-predicting-glass-formation-tendency-with/idea/predicting-glass-formation-tendency-with.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T08:41:29.918507+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science How do atomic size mismatch and mixing enthalpy descriptors quantitatively predict critical casting thickness in multi-component metallic glass systems? Predicting glass formation reduces the need for costly trial-and-error synthesis in metallic alloy development. While existing frameworks\u2026",
+      "field": "materials science",
+      "id": "PROJ-480-predicting-glass-formation-tendency-with",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 86.163558,
+          "ended_at": "2026-05-09T08:43:45.458979Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T08:42:19.295421Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Glass Formation Tendency with Machine Learning on Public Data",
+      "updated_at": "2026-05-09T08:43:45.461598+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-481-investigating-the-impact-of-code-complex/idea/investigating-the-impact-of-code-complex.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T08:41:29.918507+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: computer science How does static code complexity (measured by cyclomatic complexity, Halstead metrics, and cognitive complexity) affect Large Language Model accuracy across code understanding tasks such as summarization, bug detection, and function completion? Understanding whether and how code complexity\u2026",
+      "field": "computer science",
+      "id": "PROJ-481-investigating-the-impact-of-code-complex",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 29.906377,
+          "ended_at": "2026-05-09T08:44:16.120523Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T08:43:46.214146Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Impact of Code Complexity on LLM Code Understanding",
+      "updated_at": "2026-05-09T08:44:16.123165+00:00"
     }
   ],
   "schema_version": "2.0.0"
