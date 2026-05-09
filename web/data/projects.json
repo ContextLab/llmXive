@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 493,
+    "active_projects": 496,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2028,
+    "total_contributions": 2031,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1855,
+      "contribution_count": 1858,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 471,
+      "contribution_count": 474,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-09T10:34:18.369284+00:00",
+  "generated_at": "2026-05-09T11:28:12.219198+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -34159,6 +34159,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Impact of Network Topology on Neural Entrainment to Rhythmic Stimuli",
       "updated_at": "2026-05-09T10:31:09.065805+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-487-the-impact-of-social-media-doomscrolling/idea/the-impact-of-social-media-doomscrolling.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T11:24:06.428066+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology How does the aggregate volume of negative news consumption on social media relate to population-level anticipatory anxiety during periods of global uncertainty? Global events such as elections and pandemics have increased reliance on social media for news, often exposing users to negative cycles\u2026",
+      "field": "psychology",
+      "id": "PROJ-487-the-impact-of-social-media-doomscrolling",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 85.823538,
+          "ended_at": "2026-05-09T11:25:52.097292Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T11:24:26.273754Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Social Media \u201cDoomscrolling\u201d on Anticipatory Anxiety",
+      "updated_at": "2026-05-09T11:25:52.100104+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-488-evaluating-the-impact-of-code-generation/idea/evaluating-the-impact-of-code-generation.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T11:24:06.428066+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: computer science How do LLM-assisted code quality metrics differ between human-written and LLM-generated code samples, and what does this imply for the sensitivity of code review standards? As LLMs increasingly generate production code, reviewers may lack the specific criteria to detect subtle artifacts unique\u2026",
+      "field": "computer science",
+      "id": "PROJ-488-evaluating-the-impact-of-code-generation",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 94.786218,
+          "ended_at": "2026-05-09T11:27:27.692567Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T11:25:52.906349Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Evaluating the Impact of Code Generation Models on Code Review Quality with LLM-Assisted Metrics",
+      "updated_at": "2026-05-09T11:27:27.695268+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-489-investigating-the-impact-of-network-cent/idea/investigating-the-impact-of-network-cent.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T11:24:06.428066+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: neuroscience Does the intrinsic network centrality architecture of the waking brain predict the degree of neural synchrony observed across different sleep stages? This question distinguishes between two independent data sources: centrality derived from resting-state functional connectivity measured during\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 40.474941,
+          "ended_at": "2026-05-09T11:28:08.930379Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T11:27:28.455438Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Impact of Network Centrality on Neural Synchrony During Sleep Stages",
+      "updated_at": "2026-05-09T11:28:08.933010+00:00"
     }
   ],
   "schema_version": "2.0.0"
