@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-09T07:40:48.540776Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: biology
+human_escalation_reason: null
+id: PROJ-478-assessing-the-predictive-power-of-plant-
+last_run_id: 25e42779-9647-478e-8b15-45c34cea9c0e
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Assessing the Predictive Power of Plant Functional Traits for Species Distribution
+  Models
+updated_at: '2026-05-09T07:42:58.685986Z'
