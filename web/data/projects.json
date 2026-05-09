@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 475,
+    "active_projects": 478,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2002,
+    "total_contributions": 2005,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1829,
+      "contribution_count": 1832,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 453,
+      "contribution_count": 456,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-09T01:24:52.358423+00:00",
+  "generated_at": "2026-05-09T03:18:53.986192+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -32953,6 +32953,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Quantifying the Impact of Network Structure on Energy Dissipation in Driven Granular Materials",
       "updated_at": "2026-05-09T01:03:35.729805+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-469-the-impact-of-repeated-exposure-to-neutr/idea/the-impact-of-repeated-exposure-to-neutr.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T03:17:23.183322+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "I need to search for relevant literature to ground the related work section. Let me query for studies on implicit bias, face exposure, and IAT interventions. ```json { \"tool\": \"lit_search\", \"query\": \"implicit bias repeated exposure faces intervention IAT\" } ``` ```json { \"tool\": \"lit_search\", \"query\": \"mere exposure\u2026",
+      "field": "psychology",
+      "id": "PROJ-469-the-impact-of-repeated-exposure-to-neutr",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 19.424275,
+          "ended_at": "2026-05-09T03:17:57.513002Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T03:17:38.088727Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Repeated Exposure to Neutral Faces on Implicit Bias",
+      "updated_at": "2026-05-09T03:17:57.515415+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-470-predicting-cognitive-fatigue-from-restin/idea/predicting-cognitive-fatigue-from-restin.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T03:17:23.183322+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: neuroscience Does resting-state EEG signal complexity, measured via Lempel-Ziv complexity or permutation entropy, correlate with subjective cognitive fatigue levels following a sustained attention task? Cognitive fatigue is a debilitating symptom across neurological and psychiatric conditions (e.g., MS,\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-470-predicting-cognitive-fatigue-from-restin",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 33.501956,
+          "ended_at": "2026-05-09T03:18:31.676890Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T03:17:58.174934Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Cognitive Fatigue from Resting-State EEG Complexity",
+      "updated_at": "2026-05-09T03:18:31.679113+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-471-the-influence-of-visual-salience-on-atte/idea/the-influence-of-visual-salience-on-atte.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-09T03:17:23.183322+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "I'll search for relevant literature to ground this research idea, then flesh it out according to the output contract. <tool_call> <tool_name>lit_search</tool_name> <arguments>{\"query\": \"visual salience moral judgment attention\", \"max_results\": 8}</arguments> </tool_call> <tool_call> <tool_name>lit_search</tool_name>\u2026",
+      "field": "psychology",
+      "id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 18.992516,
+          "ended_at": "2026-05-09T03:18:51.284085Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-09T03:18:32.291569Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Influence of Visual Salience on Attentional Bias in Moral Judgements",
+      "updated_at": "2026-05-09T03:18:51.286319+00:00"
     }
   ],
   "schema_version": "2.0.0"
