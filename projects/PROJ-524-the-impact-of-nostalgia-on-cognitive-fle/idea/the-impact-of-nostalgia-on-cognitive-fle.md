@@ -19,7 +19,7 @@ Age-related decline in cognitive flexibility poses significant challenges for ad
 
 ### What we searched
 
-Searched Semantic Scholar, arXiv, and OpenAlex using queries: (1) "nostalgia cognitive flexibility aging" and (2) "nostalgia induction executive function older adults". Retrieved 1 result on aging/cognition monitoring (remote conversation patterns for cognitive impairment detection), but no results specifically addressing nostalgia's effect on cognitive flexibility in older adults.
+Searched Semantic Scholar, arXiv, and OpenAlex using queries: (1) "nostalgia cognitive flexibility aging" and (2) "nostalgia induction executive function older adults". Retrieved 1 result on aging/cognition monitoring, but no results specifically addressing nostalgia's effect on cognitive flexibility in older adults.
 
 ### What is known
 
@@ -53,8 +53,8 @@ If nostalgia enhances cognitive flexibility, we expect to observe improved WCST 
 
 ## Duplicate-check
 
-- Reviewed existing ideas: [None provided in input]
-- Closest match: [No existing ideas available for comparison]
+- Reviewed existing ideas: None provided in input
+- Closest match: No existing ideas available for comparison
 - Verdict: NOT a duplicate
 
 **Scope note**: This methodology assumes availability of public datasets with older adult executive function task data. If no such datasets exist with nostalgia-related measures, this project would require modification to use existing cognitive task data combined with post-hoc nostalgia induction analysis, or would be rejected as out of scope due to new data collection requirements.
