@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-10T16:26:16.007120Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: physics
+human_escalation_reason: null
+id: PROJ-538-quantifying-the-impact-of-network-struct
+last_run_id: 07fc9e55-59f6-44e4-8a10-7523c007c335
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Quantifying the Impact of Network Structure on Heat Transport in Disordered
+  Alloys
+updated_at: '2026-05-10T16:28:11.810611Z'
