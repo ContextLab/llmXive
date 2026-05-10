@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 537,
+    "active_projects": 539,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2122,
+    "total_contributions": 2124,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1949,
+      "contribution_count": 1951,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 515,
+      "contribution_count": 517,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-10T12:48:41.513219+00:00",
+  "generated_at": "2026-05-10T13:40:04.198996+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -37123,6 +37123,140 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Neural Correlates of Error Monitoring During Simulated Navigation",
       "updated_at": "2026-05-10T12:33:02.280511+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-531-the-impact-of-visual-motion-on-perceived/idea/the-impact-of-visual-motion-on-perceived.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-10T13:37:16.363548+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology How do visual motion characteristics of virtual avatars (e.g., smoothness, responsiveness delay, and anticipatory lead cues) influence users' subjective sense of agency during virtual interactions? Agency\u2014the feeling of control over one's actions and their consequences\u2014is well-studied in physical\u2026",
+      "field": "psychology",
+      "id": "PROJ-531-the-impact-of-visual-motion-on-perceived",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 37.02148,
+          "ended_at": "2026-05-10T13:38:07.401721Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-10T13:37:30.380241Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Visual Motion on Perceived Agency in Virtual Interactions",
+      "updated_at": "2026-05-10T13:38:07.404293+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-532-predicting-material-degradation-pathways/idea/predicting-material-degradation-pathways.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-10T13:37:16.363548+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: materials science To what extent does bulk alloy stoichiometry constrain the dominant corrosion degradation pathway (e.g., pitting vs. stress corrosion cracking) under standardized electrochemical conditions? Identifying degradation modes typically requires expensive, time-consuming electrochemical testing. If\u2026",
+      "field": "materials science",
+      "id": "PROJ-532-predicting-material-degradation-pathways",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 112.997225,
+          "ended_at": "2026-05-10T13:40:01.159288Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-10T13:38:08.162063Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Material Degradation Pathways from Compositional Data",
+      "updated_at": "2026-05-10T13:40:01.161674+00:00"
     }
   ],
   "schema_version": "2.0.0"
