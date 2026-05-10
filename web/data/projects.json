@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 528,
+    "active_projects": 531,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2103,
+    "total_contributions": 2106,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1930,
+      "contribution_count": 1933,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 506,
+      "contribution_count": 509,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-10T09:20:10.839126+00:00",
+  "generated_at": "2026-05-10T09:40:03.088187+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -36504,6 +36504,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "The Impact of Linguistic Complexity on Trust in AI-Generated Text",
       "updated_at": "2026-05-10T08:47:03.633192+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-522-predicting-molecular-permeability-coeffi/idea/predicting-molecular-permeability-coeffi.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-10T09:37:48.502725+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: chemistry How does molecular structural complexity influence permeability coefficients through polymeric membranes, and can this relationship be quantified from molecular structure alone? Permeability is a critical property for membrane-based separations in pharmaceutical, water treatment, and industrial gas\u2026",
+      "field": "chemistry",
+      "id": "PROJ-522-predicting-molecular-permeability-coeffi",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 37.705624,
+          "ended_at": "2026-05-10T09:38:45.915636Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-10T09:38:08.210012Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Molecular Permeability Coefficients via Graph Neural Networks and Public Datasets",
+      "updated_at": "2026-05-10T09:38:45.918319+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-523-quantifying-the-impact-of-data-gaps-on-r/idea/quantifying-the-impact-of-data-gaps-on-r.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-10T09:37:48.502725+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: physics What is the relationship between data gap characteristics (size, spatial distribution, and morphology) in Cosmic Microwave Background (CMB) maps and systematic biases in recovered cosmological parameters from power spectrum analysis? Current CMB analyses routinely mask foreground-contaminated regions\u2026",
+      "field": "physics",
+      "id": "PROJ-523-quantifying-the-impact-of-data-gaps-on-r",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 37.45187,
+          "ended_at": "2026-05-10T09:39:24.206990Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-10T09:38:46.755120Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Quantifying the Impact of Data Gaps on Reconstructed Cosmic Microwave Background Maps",
+      "updated_at": "2026-05-10T09:39:24.209577+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/idea/the-impact-of-nostalgia-on-cognitive-fle.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-10T09:37:48.502725+00:00",
+      "current_stage": "brainstormed",
+      "description": "Field: psychology Does nostalgia induction enhance cognitive flexibility performance in adults aged 65 and older, and if so, what is the magnitude of this effect? Age-related decline in cognitive flexibility poses significant challenges for adaptive functioning in older adults. Nostalgia has been established as a\u2026",
+      "field": "psychology",
+      "id": "PROJ-524-the-impact-of-nostalgia-on-cognitive-fle",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 35.391403,
+          "ended_at": "2026-05-10T09:40:00.379480Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-10T09:39:24.988077Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Nostalgia on Cognitive Flexibility in Aging Adults",
+      "updated_at": "2026-05-10T09:37:48.502725+00:00"
     }
   ],
   "schema_version": "2.0.0"
