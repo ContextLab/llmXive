@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-10T14:32:01.734959Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: biology
+human_escalation_reason: null
+id: PROJ-534-investigating-the-correlation-between-gu
+last_run_id: eabe2b0e-7510-41c0-983c-30b8dabbe944
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Investigating the Correlation Between Gut Microbiome Composition and Cognitive
+  Flexibility in Aging
+updated_at: '2026-05-10T14:33:30.284110Z'
