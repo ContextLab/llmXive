@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-10T12:30:51.877587Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: chemistry
+human_escalation_reason: null
+id: PROJ-528-predicting-molecular-conductivity-from-g
+last_run_id: e725b23d-d482-4885-9326-b4c2f4da9d11
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Predicting Molecular Conductivity from Graph-Based Features
+updated_at: '2026-05-10T12:31:39.171049Z'
