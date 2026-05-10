@@ -42,40 +42,86 @@ The user asked a research question and the search engine returned a
 candidate paper. Decide whether the paper would belong in a literature
 review for the user's question.
 
-Say YES if ANY of these hold:
-  - The paper directly studies the same phenomenon, mechanism, or
-    relationship the user is asking about, even if the population
-    (human vs. animal model, observational vs. interventional, in vivo
-    vs. in vitro) or scale differs.
-  - The paper provides foundational evidence or methodology that
-    someone writing about the user's question would cite.
-  - The paper's primary outcome is closely related to the user's
-    primary outcome (e.g., the same biological pathway, the same
-    physical observable, the same algorithmic property).
+You are evaluating for INCLUSION in a related-work / literature-review
+section, NOT for being a paper that already answers the user's exact
+question. The user is doing NEW research on this question — they need
+the canonical prior work that a reviewer would expect to see cited.
 
-Say NO if:
-  - The paper is in an entirely different field or about an entirely
-    different phenomenon (e.g., astrophysics paper for a gut-microbiome
-    question, or a social-network paper for a molecular-property
-    question).
-  - The paper shares only superficial keywords with the query but
-    studies a fundamentally different problem (e.g., a paper about
-    "intraocular lens power calculations" is NOT relevant to a
-    question about "statistical power in pre-registered studies",
-    despite both using the word "power").
-  - The paper is a generic methodology paper with no clear connection
-    to the user's domain.
+ACCEPT (VERDICT: YES) if ANY of these hold:
 
-Default: when reasonable, lean YES — a literature review benefits from
-adjacent evidence on the same mechanism. Reject only when the paper
-clearly belongs to a different research area.
+  (a) Same-mechanism evidence: the paper measures the same biological
+      pathway, physical observable, algorithmic property, social
+      construct, or causal mechanism the user is asking about — even
+      if it uses different terminology, a different population, a
+      different methodology, or studies only one variable from the
+      user's question rather than the full correlation.
+
+  (b) Independent-or-dependent variable on the same domain: the paper
+      measures at least ONE of the user's independent OR dependent
+      variables on the user's domain (data type / population / system).
+      Example: for "how does code-clone density correlate with LLM
+      perplexity", a paper that measures perplexity-as-a-function-of-
+      duplication on code corpora is YES, even if it doesn't compute
+      "clone density" as a metric — it measures the underlying
+      mechanism in canonical alt-vocabulary (deduplication,
+      memorization, contamination).
+
+  (c) Empirical baseline: the paper establishes the empirical baseline
+      for the quantity under study (e.g., for "planned vs achieved
+      power in preregistered studies", a paper documenting median
+      achieved power across 10,000 published studies is YES — that's
+      the baseline against which preregistration would be evaluated).
+
+  (d) Foundational methodology / canonical reference: the paper is the
+      foundational methods paper that anyone writing about the user's
+      question would cite for the technique or framework being applied
+      (e.g., Gilmer 2017 "Neural Message Passing for Quantum Chemistry"
+      for any GNN-molecular-property question; Watts & Strogatz 1998
+      for any small-world-network question).
+
+  (e) Empirical-population canonical study: the paper studies the
+      empirical population the question abstractly refers to. Example:
+      for "sensory deprivation rs-fMRI modularity", a study of rs-fMRI
+      in early-deaf or congenitally-blind humans is YES — those ARE
+      the canonical sensory-deprivation populations the question is
+      about, even if the paper doesn't use the phrase "sensory
+      deprivation".
+
+  (f) Cross-vocabulary alt-cluster: the paper is in the canonical
+      alternative-vocabulary cluster for the user's question (e.g.,
+      "deduplication / memorization / contamination" for "code
+      duplication"; "homophily / heterophily" for "graph topology in
+      GNNs"; "Type II error / sample size justification" for
+      "statistical power").
+
+REJECT (VERDICT: NO) only if:
+
+  - Distinct construct sharing only homonym keywords (e.g., "intraocular
+    lens power" for "statistical power"; "social network" for
+    "graph neural network"; "small-world architecture wiring" for
+    "small-world graph topology as input data").
+
+  - Off-domain entirely: an astrophysics paper for a gut-microbiome
+    question; a social-influence-on-Facebook paper for a
+    code-duplication question.
+
+  - The paper has no measurable connection to the user's mechanism,
+    domain, variables, or empirical setting.
+
+CRITICAL: a paper does NOT need to address the FULL correlation or
+the FULL triple-intersection in the user's question to count. Lit-
+review references are individually partial — a review SECTION uses
+many partial-match papers to triangulate the gap. If the paper
+satisfies any one of (a)-(f), accept it.
 
 Return your verdict as the FIRST line of your response in this exact
 format:
 
 VERDICT: YES   (or)   VERDICT: NO
 
-Then on subsequent lines, give a 1-2 sentence justification.
+Then on subsequent lines, give a 1-2 sentence justification citing
+which acceptance category (a-f) applies, or which rejection rule
+applies.
 """
 
 

@@ -11,12 +11,12 @@ projects:
       - { name: flesh_out, iterations: 2, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
       - { name: research_question_validator, iterations: 2, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
       - { name: project_initializer, iterations: 3, final_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio }
-      - { name: librarian, iterations: 5, final_run_log_path: state/run-log/2026-05/, librarian_prompt_version: 1.4.0, marginal_fallback_used: true }
+      - { name: librarian, iterations: 6, final_run_log_path: state/run-log/2026-05/, librarian_prompt_version: 1.5.0, marginal_fallback_used: true }
     revalidation_judgment: verified
     justification: |
       Spec 005 re-validation produced judgment=verified per
       specs/005-librarian-agent/revalidation-results.yaml. Under
-      librarian v1.4.0 (token-overlap gate + LLM topical judge + concept-decomposed query extractor), the
+      librarian v1.5.0 (token-overlap gate + LLM topical judge with explicit acceptance categories + concept-decomposed query extractor with empirical-population + sub-community-canonical-proxy directives), the
       LLM judge correctly notes that no SS+arXiv candidate is narrowly
       about *code-duplication's effect* on LLM understanding — the
       surfaced papers are LLM-code-evaluation work broadly. The
@@ -41,11 +41,11 @@ projects:
       - { name: flesh_out, iterations: 3, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
       - { name: research_question_validator, iterations: 3, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
       - { name: project_initializer, iterations: 3, final_iter_id: PROJ-262-predicting-molecular-dipole-moments-with }
-      - { name: librarian, iterations: 5, final_run_log_path: state/run-log/2026-05/, librarian_prompt_version: 1.4.0, marginal_fallback_used: false }
+      - { name: librarian, iterations: 6, final_run_log_path: state/run-log/2026-05/, librarian_prompt_version: 1.5.0, marginal_fallback_used: false }
     revalidation_judgment: verified
     justification: |
       Spec 005 re-validation produced judgment=verified. Under
-      librarian v1.4.0 (token-overlap gate + LLM topical judge + concept-decomposed query extractor), the
+      librarian v1.5.0 (token-overlap gate + LLM topical judge with explicit acceptance categories + concept-decomposed query extractor with empirical-population + sub-community-canonical-proxy directives), the
       LLM judge accepted 7 of the candidates as specifically about
       GNN-based molecular property prediction — bullseye on the
       asked-about topic (Q-DFTNet for dipole-moment prediction,

@@ -56,15 +56,64 @@ maximize recall of genuinely on-topic prior literature.
 CRITICAL CONSTRAINTS:
   - Each query MUST be 2-6 keywords. NOT a sentence. NOT a question.
   - Each query MUST target a DIFFERENT concept axis or vocabulary cluster.
-  - At least 1 query MUST use synonym/alternative-vocabulary terms that
-    the literature uses but the user's question may not (e.g. if the
-    user says "code duplication", include a query with "memorization"
-    or "data contamination"; if the user says "statistical power",
-    include a query with "sample size justification" or "Type II error").
   - Avoid generic stop-words ("the", "and", "study", "analysis",
     "method", "approach", "research", "investigation", "factors").
   - Do NOT echo the user's full question.
   - Prefer canonical technical terms over colloquial phrasings.
+
+REQUIRED VOCABULARY COVERAGE (each query covers a different cluster):
+
+  1. ONE query using SYNONYM / ALTERNATIVE-VOCABULARY terms — the
+     terms the literature actually uses but the user's question may
+     not. Examples:
+       - "code duplication" → "memorization" / "data contamination"
+       - "statistical power" → "sample size justification" /
+         "Type II error" / "achieved power"
+       - "code clone density" → "near-duplicate sequences" /
+         "deduplication"
+
+  2. ONE query using EMPIRICAL-POPULATION VOCABULARY (REQUIRED if
+     the question references an experimental population, paradigm,
+     or operationalization). The literature is indexed under the
+     POPULATION the experiment uses, not under the abstract concept.
+     Examples:
+       - "sensory deprivation" → "early deafness OR congenital blindness
+         OR Floatation-REST" (these are how the actual experiments are
+         indexed in PubMed/SS/arXiv)
+       - "pre-registered studies" → "OSF preregistration replication"
+       - "molecular property prediction" → "QM9 dataset GNN" (the
+         canonical benchmark)
+       - "implicit attitudes" → "IAT response time priming"
+       - "sensory reduction" → "blindfolding flotation tank dark room"
+
+  3. ONE query using SUB-COMMUNITY CANONICAL PROXY terms — when the
+     user's framing comes from one sub-community but the actual
+     literature on the question lives in another sub-community using
+     a different proxy metric. Examples:
+       - "clustering coefficient in GNNs" → "homophily heterophily GNN
+         training" (GNN community uses homophily as the structural
+         topology proxy, not raw graph theory metrics)
+       - "small-world graph for ML" → "Watts-Strogatz network ML"
+         OR "homophily heterophily graph topology"
+
+  4. ONE query covering the MEASURED-OUTCOME side of the question
+     (the dependent variable + canonical evaluation framework).
+     Examples:
+       - "convergence efficiency GNN" → "training dynamics GNN
+         optimization rate"
+       - "perplexity on Python code" → "code language model perplexity
+         held-out evaluation"
+
+  5. ONE query covering the CAUSAL-MECHANISM or THEORETICAL-FRAMING
+     side of the question — the underlying theory the question rests
+     on. Examples:
+       - "code duplication" → "training data leakage benchmark
+         contamination"
+       - "preregistered power" → "p-hacking publication bias effect
+         size inflation"
+
+If the question is purely abstract (no specific empirical population),
+substitute query #2 with another synonym/canonical-proxy query.
 
 OUTPUT FORMAT:
 Return your queries as a numbered list (1-5). One query per line.
@@ -77,10 +126,10 @@ observed effect sizes?"
 
 EXAMPLE output:
 1. preregistration sample size deviation
-2. achieved power observed effect size meta-research
-3. Type II error preregistration psychology
-4. preregistered study sample size justification
-5. statistical power post-hoc estimation discrepancy
+2. OSF preregistration replication psychology
+3. Type II error sample size justification
+4. achieved power empirical baseline meta-research
+5. p-hacking effect size inflation publication bias
 """
 
 
