@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T10:33:22.645619Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-526-quantifying-the-impact-of-dataset-size-o
-last_run_id: null
+last_run_id: 07b49356-8d66-4bba-9c50-cab3b38405cf
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Quantifying the Impact of Dataset Size on the Accuracy of Machine Learning
   Models for Predicting Material Properties
-updated_at: '2026-05-10T10:33:22.645619Z'
+updated_at: '2026-05-10T10:43:27.945650Z'

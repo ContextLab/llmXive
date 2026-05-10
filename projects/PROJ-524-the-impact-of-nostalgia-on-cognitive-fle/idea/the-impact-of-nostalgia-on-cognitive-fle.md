@@ -9,7 +9,7 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Does nostalgia induction enhance cognitive flexibility performance in adults aged 65 and older, and if so, what is the magnitude of this effect?
+Does nostalgia induction enhance cognitive flexibility performance in adults aged 65 and older?
 
 ## Motivation
 
@@ -35,7 +35,7 @@ Identifying nostalgia as a cognitive intervention would enable scalable, accessi
 
 ### How this project addresses the gap
 
-This project will empirically test the nostalgia-cognitive flexibility relationship using existing behavioral task data combined with validated nostalgia induction protocols. The methodology will measure WCST performance before and after nostalgia induction to quantify any performance change attributable to nostalgic reflection.
+This project will empirically test the nostalgia-cognitive flexibility relationship using publicly available behavioral task data combined with validated nostalgia induction protocols. The methodology will measure WCST performance before and after nostalgia induction to quantify any performance change attributable to nostalgic reflection.
 
 ## Expected results
 
@@ -43,8 +43,8 @@ If nostalgia enhances cognitive flexibility, we expect to observe improved WCST 
 
 ## Methodology sketch
 
-- Download publicly available cognitive task datasets from OpenML or HuggingFace Datasets containing older adult WCST or similar executive function task data
-- Identify or construct nostalgia induction stimuli from public domain repositories (e.g., Internet Archive for music, Wikimedia Commons for historical photographs)
+- Download publicly available cognitive task datasets from OpenML (e.g., dataset IDs for executive function tasks) or HuggingFace Datasets containing older adult behavioral task data
+- Identify validated nostalgia induction stimuli from public domain repositories (e.g., Internet Archive for music, Wikimedia Commons for historical photographs)
 - Extract relevant behavioral metrics from existing datasets (response accuracy, error types, completion rates)
 - Implement nostalgia induction protocol via standardized audio/visual stimuli presentation (offline analysis of existing behavioral data)
 - Conduct paired statistical comparison of pre/post induction performance metrics using t-tests or mixed-effects models
@@ -56,5 +56,3 @@ If nostalgia enhances cognitive flexibility, we expect to observe improved WCST 
 - Reviewed existing ideas: None provided in input
 - Closest match: No existing ideas available for comparison
 - Verdict: NOT a duplicate
-
-**Scope note**: This methodology assumes availability of public datasets with older adult executive function task data. If no such datasets exist with nostalgia-related measures, this project would require modification to use existing cognitive task data combined with post-hoc nostalgia induction analysis, or would be rejected as out of scope due to new data collection requirements.
