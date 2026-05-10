@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 523,
+    "active_projects": 526,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2082,
+    "total_contributions": 2085,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1909,
+      "contribution_count": 1912,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 501,
+      "contribution_count": 504,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-10T03:22:44.467591+00:00",
+  "generated_at": "2026-05-10T05:24:02.194522+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -36169,6 +36169,207 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting Perovskite Stability via Compositional Fingerprints",
       "updated_at": "2026-05-10T03:20:34.835277+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-517-neural-correlates-of-anticipatory-reward/idea/neural-correlates-of-anticipatory-reward.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-10T05:21:09.035267+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: Neuroscience How does anticipatory neural activity in songbird Area X scale with the magnitude of expected reward during vocal operant conditioning? Reward prediction is a fundamental mechanism of reinforcement learning, yet its neural encoding during complex skill acquisition like vocal learning remains\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-517-neural-correlates-of-anticipatory-reward",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 77.462394,
+          "ended_at": "2026-05-10T05:22:51.693663Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-10T05:21:34.231269Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Neural Correlates of Anticipatory Reward Processing in Vocal Learning",
+      "updated_at": "2026-05-10T05:22:51.696283+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-518-investigating-the-relationship-between-b/idea/investigating-the-relationship-between-b.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-10T05:21:09.035267+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: neuroscience How does the dynamic reconfiguration of functional brain networks during rest predict individual differences in divergent thinking performance? Understanding the neural basis of creative cognition has implications for education, innovation, and clinical assessment of cognitive flexibility. While\u2026",
+      "field": "neuroscience",
+      "id": "PROJ-518-investigating-the-relationship-between-b",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 33.888153,
+          "ended_at": "2026-05-10T05:23:26.419154Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-10T05:22:52.531001Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Investigating the Relationship Between Brain Network Dynamics and Creative Problem Solving",
+      "updated_at": "2026-05-10T05:23:26.421656+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-519-the-influence-of-metaphorical-framing-on/idea/the-influence-of-metaphorical-framing-on.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-10T05:21:09.035267+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology How does metaphorical framing of mental health conditions (e.g., \"battle,\" \"journey,\" \"burden\") relate to public attitudes toward treatment-seeking behaviors and stigma in online discourse? Public communication about mental health often employs metaphorical language that may inadvertently reinforce\u2026",
+      "field": "psychology",
+      "id": "PROJ-519-the-influence-of-metaphorical-framing-on",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 31.654331,
+          "ended_at": "2026-05-10T05:23:58.863166Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-10T05:23:27.208835Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Influence of Metaphorical Framing on Attitudes Towards Mental Health Treatment",
+      "updated_at": "2026-05-10T05:23:58.865663+00:00"
     }
   ],
   "schema_version": "2.0.0"
