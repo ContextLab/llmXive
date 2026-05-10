@@ -55,5 +55,3 @@ We expect a statistically significant positive correlation between objective vis
 - Reviewed existing ideas: None found in current corpus.
 - Closest match: N/A
 - Verdict: **rejected — out of scope**
-
-**Rationale**: The core methodology requires collecting new human participant data via external survey platforms (Prolific), which cannot be executed on GitHub Actions free-tier runners (no external survey platform access, no human participant recruitment capability). The research question is fundamentally unanswerable within the GHA execution envelope. To proceed, the project would need to either (1) find existing datasets with human moral judgments paired with visual stimuli (unlikely to exist for this specific manipulation), or (2) reframe as a purely computational study using saliency algorithms without human moral judgment data, which would not test the core hypothesis about human bias.
