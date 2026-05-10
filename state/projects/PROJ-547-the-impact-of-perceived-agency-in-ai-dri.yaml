@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-10T21:23:27.362369Z'
+current_stage: brainstormed
+failed_stage: null
+field: psychology
+human_escalation_reason: null
+id: PROJ-547-the-impact-of-perceived-agency-in-ai-dri
+last_run_id: null
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on
+  Treatment Adherence
+updated_at: '2026-05-10T21:23:27.362369Z'

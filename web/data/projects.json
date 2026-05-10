@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 551,
+    "active_projects": 554,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2153,
+    "total_contributions": 2154,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1980,
+      "contribution_count": 1981,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 529,
+      "contribution_count": 532,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-10T20:49:40.172757+00:00",
+  "generated_at": "2026-05-10T21:25:23.186894+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -38069,6 +38069,173 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting the Glass Forming Region of Multi-Component Alloys via Machine Learning",
       "updated_at": "2026-05-10T20:25:30.912988+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-545-the-influence-of-visual-salience-on-atte/idea/the-influence-of-visual-salience-on-atte.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-10T21:23:27.362369+00:00",
+      "current_stage": "brainstormed",
+      "description": "Field: psychology Does visual salience of actors in morally ambiguous images systematically bias human blame attribution, independent of the actors' actual role in the moral event? Visual attention mechanisms are well-documented to prioritize salient stimuli (bright colors, high contrast, motion), but it is unclear\u2026",
+      "field": "psychology",
+      "id": "PROJ-545-the-influence-of-visual-salience-on-atte",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 93.600244,
+          "ended_at": "2026-05-10T21:25:21.240737Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-10T21:23:47.640493Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Influence of Visual Salience on Attentional Bias in Moral Decision-Making",
+      "updated_at": "2026-05-10T21:23:27.362369+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-546-predicting-molecular-properties-from-qua/idea/predicting-molecular-properties-from-qua.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-10T21:23:27.362369+00:00",
+      "current_stage": "brainstormed",
+      "description": "Field: chemistry Can machine learning models trained on a relatively small set of quantum chemical calculations (e.g., DFT with a modest basis set) accurately predict properties like dipole moment, polarizability, and atomic charges when applied to larger, more complex molecules? This research would leverage publicly\u2026",
+      "field": "chemistry",
+      "id": "PROJ-546-predicting-molecular-properties-from-qua",
+      "keywords": [],
+      "last_run_log": [],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Predicting Molecular Properties from Quantum Chemical Calculations with Limited Computational Resources",
+      "updated_at": "2026-05-10T21:23:27.362369+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/idea/the-impact-of-perceived-agency-in-ai-dri.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-10T21:23:27.362369+00:00",
+      "current_stage": "brainstormed",
+      "description": "Field: psychology Can artificially intelligent cognitive behavioral therapy (CBT) tools achieve comparable treatment adherence to human therapists by manipulating the user\u2019s perception of agency? While AI-driven CBT shows promise, patient adherence remains a challenge. This research proposes analyzing publicly\u2026",
+      "field": "psychology",
+      "id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "keywords": [],
+      "last_run_log": [],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Treatment Adherence",
+      "updated_at": "2026-05-10T21:23:27.362369+00:00"
     }
   ],
   "schema_version": "2.0.0"
