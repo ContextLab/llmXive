@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 547,
+    "active_projects": 548,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2140,
+    "total_contributions": 2142,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1967,
+      "contribution_count": 1969,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -42,7 +42,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 525,
+      "contribution_count": 526,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-10T17:27:34.517722+00:00",
+  "generated_at": "2026-05-10T18:30:47.219676+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -37747,6 +37747,81 @@
       },
       "authors": [
         {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-10T17:26:15.530296+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: psychology Does frequency of negative news consumption on social media predict elevated anticipatory anxiety scores, independent of baseline anxiety and demographic factors? Doomscrolling\u2014the compulsive consumption of negative news online\u2014has become a widespread behavior, particularly during periods of societal\u2026",
+      "field": "psychology",
+      "id": "PROJ-540-the-influence-of-social-media-doomscroll",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 69.340051,
+          "ended_at": "2026-05-10T18:30:12.855589Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-10T18:29:03.515538Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 33.478333,
+          "ended_at": "2026-05-10T17:27:32.055836Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-10T17:26:58.577503Z"
+        }
+      ],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "The Influence of Social Media \u201cDoomscrolling\u201d on Anticipatory Anxiety",
+      "updated_at": "2026-05-10T18:30:12.858132+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/idea/evaluating-the-impact-of-data-scaling-on.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
           "contributions": 1,
           "kind": "llm",
           "name": "google.gemma-3-27b-it",
@@ -37769,20 +37844,20 @@
         "unreachable": 0,
         "verified": 0
       },
-      "created_at": "2026-05-10T17:26:15.530296+00:00",
-      "current_stage": "brainstormed",
-      "description": "Field: psychology Does exposure to negative news content on social media platforms predict elevated levels of anticipatory anxiety among users, independent of baseline anxiety and demographic factors? Doomscrolling\u2014the compulsive consumption of negative news online\u2014has become a widespread behavior, particularly during\u2026",
-      "field": "psychology",
-      "id": "PROJ-540-the-influence-of-social-media-doomscroll",
+      "created_at": "2026-05-10T18:28:52.571717+00:00",
+      "current_stage": "flesh_out_complete",
+      "description": "Field: statistics How does data scaling influence Type I error rates and statistical power of common parametric tests under varying distributional assumptions? Scaling methods are routinely applied before statistical testing, yet their systematic effects on inference validity remain poorly characterized. This gap\u2026",
+      "field": "statistics",
+      "id": "PROJ-541-evaluating-the-impact-of-data-scaling-on",
       "keywords": [],
       "last_run_log": [
         {
           "agent": "flesh_out",
-          "duration_s": 33.478333,
-          "ended_at": "2026-05-10T17:27:32.055836Z",
+          "duration_s": 30.536174,
+          "ended_at": "2026-05-10T18:30:44.148001Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-10T17:26:58.577503Z"
+          "started_at": "2026-05-10T18:30:13.611827Z"
         }
       ],
       "phase_group": "idea",
@@ -37791,8 +37866,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "google.gemma-3-27b-it",
-      "title": "The Influence of Social Media \u201cDoomscrolling\u201d on Anticipatory Anxiety",
-      "updated_at": "2026-05-10T17:26:15.530296+00:00"
+      "title": "Evaluating the Impact of Data Scaling on Robustness of Statistical Tests",
+      "updated_at": "2026-05-10T18:30:44.150375+00:00"
     }
   ],
   "schema_version": "2.0.0"

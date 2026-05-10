@@ -9,7 +9,7 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Does exposure to negative news content on social media platforms predict elevated levels of anticipatory anxiety among users, independent of baseline anxiety and demographic factors?
+Does frequency of negative news consumption on social media predict elevated anticipatory anxiety scores, independent of baseline anxiety and demographic factors?
 
 ## Motivation
 
@@ -44,7 +44,7 @@ We expect to observe a positive association between frequency of negative news c
 
 ## Methodology sketch
 
-- Download public survey dataset (e.g., Pew Research Center Social Media & News Survey or General Social Survey) containing social media usage and mental health variables.
+- Download public survey dataset (e.g., General Social Survey via https://gss.norc.org/) containing social media usage and mental health variables.
 - Extract variables measuring negative news consumption frequency and anticipatory anxiety scores.
 - Clean data: remove incomplete responses, handle missing values via listwise deletion.
 - Compute descriptive statistics for key variables (means, standard deviations, distributions).
@@ -60,7 +60,3 @@ We expect to observe a positive association between frequency of negative news c
 - Reviewed existing ideas: [N/A — new field entry].
 - Closest match: None identified in corpus.
 - Verdict: NOT a duplicate
-
----
-
-**Note**: This methodology uses existing public datasets to satisfy scope constraints (no new data collection). If no suitable public dataset is found containing both doomscrolling behavior measures and anxiety outcomes, this project should be marked `Verdict: rejected — out of scope` in the Duplicate-check block.
