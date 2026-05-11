@@ -19,7 +19,7 @@ Visual attention mechanisms are well-documented to prioritize salient stimuli (b
 
 ### What we searched
 
-Searches were conducted via Semantic Scholar / arXiv / OpenAlex using queries: (1) "visual salience moral judgment blame attribution" and (2) "attentional bias moral decision-making imagery". The literature search returned one result (arxiv.org/abs/2410.19775v1), which focused on gender bias in large language models for economic decision-making and contained no relevant findings on visual salience effects in moral psychology.
+Searches were conducted via Semantic Scholar / arXiv / OpenAlex using two distinct queries: (1) "visual salience moral judgment blame attribution" and (2) "attentional bias moral decision-making imagery". The literature search returned one result (arxiv.org/abs/2410.19775v1), which focused on gender bias in large language models for economic decision-making and contained no relevant findings on visual salience effects in moral psychology.
 
 ### What is known
 
