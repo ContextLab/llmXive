@@ -28,6 +28,7 @@ import yaml
 from llmxive.agents import registry
 from llmxive.agents.librarian import LibrarianAgent
 from llmxive.credentials import load_dartmouth_key, load_semantic_scholar_key
+from llmxive.librarian import LIBRARIAN_DEFAULT_FIELDS
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 STATE_PROJECTS = REPO_ROOT / "state" / "projects"
@@ -40,17 +41,11 @@ both_keys_required = pytest.mark.skipif(
     reason="Cross-domain US4 needs DARTMOUTH_CHAT_API_KEY + SEMANTIC_SCHOLAR_API_KEY",
 )
 
-DEFAULT_FIELDS = [
-    "biology",
-    "chemistry",
-    "computer science",
-    "materials science",
-    "mathematics",
-    "neuroscience",
-    "physics",
-    "psychology",
-    "statistics",
-]
+# Sourced from the single canonical constant (#116) — the cross-domain
+# coverage test parametrizes over exactly the fields the CLI's per-field
+# pipeline pass uses. Kept as a module-level name for the parametrize
+# decorator below.
+DEFAULT_FIELDS = list(LIBRARIAN_DEFAULT_FIELDS)
 
 TARGET_N = 5  # spec.md SC-002
 
