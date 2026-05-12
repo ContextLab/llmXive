@@ -1,0 +1,123 @@
+# Feature Specification: TheoremSearch backend for the librarian + mathematics as 9th default field
+
+**Feature Branch**: `008-theoremsearch-backend`
+**Created**: 2026-05-12
+**Status**: Draft
+**Type**: Amendment to spec 005 (librarian agent) — NOT a new agent. The librarian's Q1 clarification explicitly anticipated "future spec may expand the backend list if these two prove insufficient"; this is that spec.
+**Tracking issue**: #113 (parent #111). Deferred sibling: #114 (Spec B — theorem-statement artifacts).
+**Input**: User description: "Amend the spec-005 librarian agent to add TheoremSearch (theoremsearch.com) as a third candidate-source backend, and add `mathematics` as the 9th default field so llmXive can do math-theory projects."
+
+## Context
+
+The llmXive `librarian` agent (spec 005, merged in PR #110) is the single canonical literature-search-and-citation-verification agent. It currently issues searches against **two** candidate-source backends — Semantic Scholar Graph API and arXiv API — decomposes a research question into 5 keyword queries via an LLM extractor, runs them in parallel, unions the candidates, and runs each candidate through a verification chain (URL resolves → title-token-overlap ≥0.7 → summary-grounding ≥0.5 → LLM topical-relevance judge). It returns structured JSON with verified citations.
+
+Two gaps motivate this amendment:
+
+1. **No math-theory coverage in the default fields.** The librarian's eight default fields (biology, chemistry, computer science, materials science, neuroscience, physics, psychology, statistics) do not include `mathematics`, and the llmXive project corpus has zero pure-math projects. Math-theory research is in scope for llmXive; the field set should reflect that.
+
+2. **Paper-level keyword search misses theorem-granularity matches.** For a math-theory question ("what's the sharpest known bound on the spectral gap of random regular graphs?"), the relevant prior work is a *theorem* inside a paper — and a paper-level keyword search against Semantic Scholar or arXiv often fails to surface it because the paper's title/abstract don't use the same phrasing as the theorem statement. [TheoremSearch](https://www.theoremsearch.com/) is a semantic search engine over ~9.2M theorem *statements* extracted from arXiv (plus other sources). For arXiv-sourced theorem hits it returns the source paper's versioned arXiv ID and resolvable arXiv URL, which the librarian can resolve to its existing `Candidate` shape via the arXiv API and run through the unchanged verification chain.
+
+This amendment adds TheoremSearch as a **third backend** (a candidate *source*, not a competing agent — per Constitution Principle I the librarian remains the single entry point and single verifier), adds an LLM **math-classifier** so the TheoremSearch path also fires for theorem-shaped questions in non-math fields (physics, CS, statistics), and adds `mathematics` as the **9th default field** with **5 seed math projects** brainstormed so the cross-domain test has math projects to run against.
+
+## User Scenarios & Testing *(mandatory)*
+
+### User Story 1 - Math-theory question gets theorem-granularity citation discovery (Priority: P1)
+
+A maintainer (or any agent that needs literature — typically `flesh_out`) invokes the librarian with a research question on a `mathematics`-field project, or with a theorem-shaped question on a non-math project. The librarian, in addition to its existing Semantic Scholar + arXiv searches, queries TheoremSearch for theorem statements matching the question. For each arXiv-sourced theorem hit it resolves the source paper to a `Candidate` (arXiv ID + bibliographic info fetched via the existing arXiv API client), merges it into the candidate pool (dedup by primary pointer), and runs it through the unchanged verification chain. The returned JSON includes any TheoremSearch-sourced citations that passed verification, distinguishable by their backend tag in the verification log.
+
+**Why this priority**: This is the core value of the amendment — better math-paper recall via theorem-statement search. Without it, math-theory questions get the same paper-level keyword search that demonstrably misses theorem-granularity matches.
+
+**Independent Test**: Invoke the librarian with `field="mathematics"` on a real math-theory question whose answer is a known theorem in a known arXiv paper (e.g., a sharp-bound question with a 2014-era arXiv source). Assert the returned JSON contains ≥1 verified citation whose verification log records `backend="theoremsearch"`, whose arXiv ID resolves, whose title-token-overlap with the arXiv record is ≥0.7, and whose summary matches the paper's abstract. Separately, invoke with a non-math-field question that is plainly theorem-shaped ("what is the tightest known concentration inequality for sums of bounded independent random variables?") on a `statistics` project and assert the math-classifier flags it and the TheoremSearch path fires. Invoke with a plainly non-theorem question ("how does code-clone density correlate with LLM perplexity?") and assert the classifier returns false and TheoremSearch is not queried.
+
+**Acceptance Scenarios**:
+
+1. **Given** a `mathematics`-field project, **When** the librarian is invoked with a math-theory question, **Then** TheoremSearch is always queried (no classifier call), arXiv-sourced theorem hits are resolved to `Candidate`s and merged + verified, and any that pass appear in the output JSON tagged with `backend="theoremsearch"`.
+2. **Given** a non-math-field project (e.g., `physics`), **When** the librarian is invoked with a theorem-shaped question, **Then** the LLM math-classifier is consulted; if it returns true, TheoremSearch is queried; if false, it is not. The classifier verdict is cached per-project so a re-run on the same project does not re-invoke the LLM.
+3. **Given** TheoremSearch returns a non-arXiv-sourced theorem hit (ProofWiki, Stacks Project, etc.), **When** the librarian processes it, **Then** that hit is skipped (no `Candidate` emitted) — non-arXiv sources lack a DOI/arXiv ID and cannot satisfy the librarian's verifiable-primary-source contract; they are reserved for Spec B (#114).
+4. **Given** the TheoremSearch API is unreachable or rate-limited, **When** the librarian queries it, **Then** the failure is treated as a transient backend error: the librarian falls through to its Semantic Scholar + arXiv results and completes normally (the librarian never *depends* on TheoremSearch being up).
+5. **Given** a TheoremSearch-sourced arXiv ID that duplicates a paper already returned by Semantic Scholar or arXiv, **When** the candidates are merged, **Then** the duplicate is collapsed by primary pointer (the existing merge behavior) — the paper appears once.
+
+---
+
+### User Story 2 - `mathematics` is a first-class default field (Priority: P1)
+
+A maintainer (or the brainstorm agent) treats `mathematics` as one of the librarian's default fields, on equal footing with the existing eight. The cross-domain coverage test exercises the librarian on a `mathematics`-field project. Five seed math-theory projects are brainstormed so this test has real math projects to run against from day one.
+
+**Why this priority**: Without `mathematics` in the default field set, the brainstorm agent never produces math projects, the cross-domain test never exercises the math path, and the TheoremSearch backend is dead code in practice. This story is what makes Story 1 actually reachable.
+
+**Independent Test**: Confirm `mathematics` appears in the librarian's default-fields list (the cross-domain test's field parametrization), the brainstorm agent's field enumeration, and any other field-list constant. Confirm ≥5 projects with `field: mathematics` exist in the project corpus. Run the cross-domain coverage test for the `mathematics` parametrization and assert it produces `outcome ∈ {success, success_after_expansion, exhausted}` (not `failed` for a non-transient reason) and ≥1 verified citation — OR skips cleanly with a documented "no brainstormed math projects found" reason if the seed projects haven't been brainstormed yet (matching the existing skip behavior for any field with no brainstormed projects).
+
+**Acceptance Scenarios**:
+
+1. **Given** the librarian's configuration, **When** the default fields are enumerated, **Then** `mathematics` is present, making nine total.
+2. **Given** the brainstorm agent runs, **When** it selects a field for a new idea, **Then** `mathematics` is one of the candidates it can pick.
+3. **Given** the cross-domain coverage test, **When** it runs the `mathematics` parametrization, **Then** the librarian is invoked on the most-recently-brainstormed `mathematics` project and the outcome is non-`failed` with ≥1 verified citation — or the parametrization skips with a documented reason if no math project has been brainstormed.
+4. **Given** the seed-project step has run, **When** the project corpus is inspected, **Then** ≥5 projects have `field: mathematics`.
+
+---
+
+### Edge Cases
+
+- **TheoremSearch returns a theorem hit with a malformed or version-suffixed arXiv ID** (`1306.5434v2`): the librarian strips the `vN` version suffix and resolves the bare ID via the arXiv API. If the bare ID does not resolve, the candidate is dropped (logged), same as any unresolvable arXiv candidate.
+- **TheoremSearch returns zero theorem hits** for a math question: the librarian proceeds with whatever Semantic Scholar + arXiv returned; if the combined verified count is still under target, the existing expansion path fires as normal.
+- **The math-classifier LLM call fails** (backend error / unparseable response): the classifier fails open to `false` — TheoremSearch is simply not queried that run; Semantic Scholar + arXiv still cover the question. [NEEDS CLARIFICATION: should a classifier backend error be surfaced loudly (stderr diagnostic, like the arxiv-429 logging) or silently swallowed? The fail-open behavior is decided; only the logging verbosity is open.]
+- **A `mathematics`-field project's question is NOT actually theorem-shaped** (e.g., "what is the history of the four-color theorem's computer-assisted proof?" — historiography, not a theorem search): TheoremSearch is still queried (the `field == "mathematics"` trigger is unconditional), but the relevance judge filters off-topic theorem hits, so the cost is a wasted API call, not bad output. This is acceptable per the "false positives are cheap" principle.
+- **Two TheoremSearch theorem hits point to the same arXiv paper** (the paper contains multiple matching theorems): the librarian emits one `Candidate` per *paper*, not per theorem — dedup by arXiv ID before resolving.
+- **The cross-domain test runs `mathematics` before any math project has been brainstormed**: the parametrization skips with a documented reason, matching the existing behavior for any field with no brainstormed projects. (Whether this is a hard fail or a soft skip is decided: soft skip, per the maintainer's intent that the seed-project step and the test land together.)
+
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+- **FR-A01**: The librarian MUST query TheoremSearch (`theoremsearch.com`) as a third candidate-source backend, in addition to the existing Semantic Scholar and arXiv backends, when the math-trigger condition (FR-A03) is met.
+- **FR-A02**: For each TheoremSearch theorem hit whose source is arXiv, the librarian MUST extract the source paper's arXiv ID (stripping any version suffix), resolve it to the librarian's existing `Candidate` shape (bibliographic info fetched via the existing arXiv API client), tag it with `backend="theoremsearch"` in its verification log, and feed it through the unchanged verification chain (URL resolves → title-token-overlap ≥0.7 → summary-grounding ≥0.5 → LLM topical-relevance judge). The librarian MUST NOT alter the verification chain or the output JSON schema for this — TheoremSearch candidates are paper-level records indistinguishable downstream from arXiv candidates except by their backend tag.
+- **FR-A03**: The librarian MUST query TheoremSearch when the calling project's field is `mathematics` (unconditionally — no classifier call). For all other fields, the librarian MUST consult an LLM math-classifier (FR-A04) and query TheoremSearch only if the classifier returns true.
+- **FR-A04**: The librarian MUST implement an LLM-based math-classifier that decides whether a research question is a pure-mathematics theorem/proof/formal-structure question. The classifier MUST fail open to `false` on any backend error or unparseable response (TheoremSearch is simply not queried that run; Semantic Scholar + arXiv still cover the question). The classifier verdict MUST be cached so a re-run of the librarian on the same project does not re-invoke the LLM. [NEEDS CLARIFICATION: cache key — per-project (project_id + librarian prompt version) or per-question (sha256 of normalized question + librarian prompt version)? Per-project is simpler and matches the "cache the verdict on a per-project basis" intent; per-question is more reusable across projects asking similar questions but never collides on project boundaries.]
+- **FR-A05**: TheoremSearch hits whose source is NOT arXiv (ProofWiki, Stacks Project, or any non-arXiv reference) MUST be skipped — they lack a DOI/arXiv ID and cannot satisfy the librarian's verifiable-primary-source requirement. (Non-arXiv sources are reserved for Spec B / #114, which adds theorem-statement artifacts with their own quality checks.)
+- **FR-A06**: A TheoremSearch API failure (unreachable, rate-limited, malformed response) MUST be treated as a transient backend error: the librarian completes the invocation using its Semantic Scholar + arXiv results, with TheoremSearch contributing zero candidates that run. The librarian MUST NOT abort or fail an invocation because TheoremSearch is unavailable.
+- **FR-A07**: The librarian's TheoremSearch backend MUST rate-limit its requests (the TheoremSearch API documents no rate limits, so the librarian self-imposes a conservative one, same pattern as the existing arXiv client).
+- **FR-A08**: TheoremSearch-sourced candidates MUST be de-duplicated against candidates from the other backends by primary pointer (the existing merge behavior) — a paper surfaced by both TheoremSearch and arXiv appears once.
+- **FR-A09**: `mathematics` MUST be added to the librarian's default-fields set (making nine total), the brainstorm agent's field enumeration, and any other field-list constant, on equal footing with the existing eight fields.
+- **FR-A10**: At least 5 seed projects with `field: mathematics` MUST be brainstormed so the cross-domain coverage test has math projects to run against. [NEEDS CLARIFICATION: are the 5 seed projects brainstormed as a step *within* this spec's implementation, or as a prerequisite that must complete first? The maintainer's answer ("add math as the 9th default field and brainstorm 5 seed math projects") implies they're part of this spec's work; the open question is sequencing — field-addition first then brainstorm, or interleaved.]
+- **FR-A11**: The cross-domain coverage test MUST add a `mathematics` parametrization. If no `mathematics`-field project has been brainstormed, the parametrization MUST skip with a documented reason (matching the existing skip behavior for any field with no brainstormed projects) — it MUST NOT hard-fail.
+- **FR-A12**: The librarian's `prompt_version` MUST be bumped (the math-classifier is a new LLM call, which changes the librarian's behavior surface) — this invalidates the librarian's result cache, so the cross-domain coverage tests and the PROJ-261 + PROJ-262 re-validation MUST be re-run under the new version. The re-runs MUST confirm no regression: PROJ-261 + PROJ-262 still revalidate `verified`, and the eight existing default fields still pass cross-domain coverage.
+- **FR-A13**: The amendment MUST update: the librarian's registry entry comment (now three backends + a math classifier), the spec-005 diagnostic report, and the spec-005 spec's Q1 clarification (which anticipated backend expansion) to reference this amendment.
+
+### Key Entities *(include if feature involves data)*
+
+- **TheoremSearch theorem hit**: a record returned by the TheoremSearch `/search` endpoint — `{theorem_id, name, body, slogan, theorem_type, link, paper: {paper_id, source, title, authors, link, year, ...}, similarity, score}`. The librarian consumes only the `paper` sub-object (for arXiv-sourced hits) and the `score`; the theorem body/slogan are *not* used in this spec (they're Spec B's territory).
+- **TheoremSearch-sourced Candidate**: a librarian `Candidate` (the existing pre-verification record `{backend, primary_pointer, claimed_title, claimed_authors, claimed_year, claimed_venue, claimed_abstract}`) with `backend="theoremsearch"` and `primary_pointer` = the bare arXiv ID, the other fields filled by resolving that ID via the arXiv API. Downstream — verification chain, merge/dedup, output JSON — it is indistinguishable from an arXiv-sourced candidate except by its backend tag.
+- **Math-classifier verdict**: a boolean ("is this a pure-mathematics theorem/proof/formal-structure question?") with a cache key (per FR-A04). Fail-open to `false`.
+- **Seed math project**: a brainstormed project with `field: mathematics` — one of ≥5 created so the cross-domain test has math content. Same shape as any other brainstormed project; no special structure.
+
+## Success Criteria *(mandatory)*
+
+### Measurable Outcomes
+
+- **SC-A01**: Invoked with `field="mathematics"` on a real math-theory question whose answer is a known theorem in a known arXiv paper, the librarian returns ≥1 verified citation whose verification log records `backend="theoremsearch"` and whose arXiv ID, title-overlap (≥0.7), and summary-grounding all pass — within the librarian's wall-clock soft target.
+- **SC-A02**: Invoked with a plainly theorem-shaped question on a non-`mathematics`-field project, the librarian's math-classifier returns true and the TheoremSearch path fires; invoked with a plainly non-theorem question, the classifier returns false and TheoremSearch is not queried. A re-run on the same project does not re-invoke the classifier LLM (cache hit).
+- **SC-A03**: A TheoremSearch hit sourced from ProofWiki / Stacks Project / any non-arXiv reference does not appear as a candidate (skipped per FR-A05).
+- **SC-A04**: With the TheoremSearch API forced unreachable, the librarian completes the invocation using Semantic Scholar + arXiv only, with no abort and no `failed` outcome attributable to TheoremSearch.
+- **SC-A05**: `mathematics` appears in the librarian's default-fields set (nine total), the brainstorm field enumeration, and any other field-list constant.
+- **SC-A06**: ≥5 projects with `field: mathematics` exist in the project corpus.
+- **SC-A07**: The cross-domain coverage test runs the `mathematics` parametrization: it either passes (outcome non-`failed`, ≥1 verified citation) or skips with a documented reason — it does not hard-fail.
+- **SC-A08**: Under the bumped librarian `prompt_version`, the eight existing default fields still pass cross-domain coverage, and PROJ-261 + PROJ-262 still revalidate `verified` (no regression on non-math projects).
+- **SC-A09**: All Phase 2 tests pass; lint is clean.
+
+## Assumptions
+
+- **Decided (not assumptions, recorded for clarity)**: (1) Spec A is a spec-005 *amendment*, not a new spec directory. (2) The LLM math-classifier is kept for non-math fields and its verdict is cached per-project. (3) `mathematics` is added as the 9th default field and 5 seed math projects are brainstormed. (4) Spec A skips non-arXiv TheoremSearch sources; Spec B (#114) keeps them, with quality checks on all sources. (Maintainer answers on issue #111.)
+- The TheoremSearch API (`theoremsearch.com`) is available, requires no authentication, and returns the JSON shape documented in the live-probing notes on issue #111 (`POST /search` → `{theorems: [{..., paper: {paper_id, source, link, year, ...}, ...}]}`; arXiv-sourced hits carry a versioned arXiv ID and resolvable arXiv URL).
+- The librarian's existing arXiv API client can resolve a bare arXiv ID to a full bibliographic record (title, authors, year, abstract) — this is already true for the existing arXiv backend.
+- The librarian's existing verification chain handles arXiv-ID-keyed candidates correctly — this is already true; TheoremSearch candidates carry arXiv IDs, so no chain changes are needed.
+- The librarian's existing candidate-merge step de-duplicates by primary pointer — this is already true.
+- The 8 existing default fields and PROJ-261/PROJ-262 behave as documented in the spec-005 diagnostic; re-running them under a bumped prompt version is the standard regression check.
+- TheoremSearch is a small academic project (no SLA, no license) — the fall-through-to-Semantic-Scholar+arXiv design (FR-A06) is the mitigation; if TheoremSearch ever disappears, the backend is simply removed.
+
+## Out of Scope
+
+- Theorem-*statement* artifacts (a `## Related theorems` subsection in a project's idea file) — reserved for Spec B (#114).
+- Non-arXiv TheoremSearch sources (ProofWiki, Stacks Project) — reserved for Spec B (#114).
+- A standalone `theorem_searcher` agent — reserved for Spec B (#114).
+- Any change to the librarian's output JSON schema, verification chain, expansion logic, PDF-sample logic, or relevance judge (other than the new candidate source feeding into them unchanged).
+- Adding any backend other than TheoremSearch (Google Scholar, zbMATH, MathSciNet, etc.) — out of scope for this amendment; a future spec may add more if needed.
