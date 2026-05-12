@@ -27,6 +27,8 @@ dependencies = [
   "gitpython",
   "arxiv",
   "crossref-commons",
+  # Spec 005 librarian agent — PDF text extraction for ≥10% PDF-sample audit (Q2)
+  "pypdf>=4",
   # Paper-stage
   "matplotlib",
   "seaborn",

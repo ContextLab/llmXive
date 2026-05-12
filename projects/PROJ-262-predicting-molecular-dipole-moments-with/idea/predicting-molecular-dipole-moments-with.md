@@ -4,49 +4,47 @@
 
 ## Research question
 
-Which structural features of small organic molecules (atom types, bond types, 3D conformation) carry the most predictive signal for molecular dipole moments, and how effectively can graph-based representations capture this relationship compared to traditional descriptors?
+To what extent does 3D conformational geometry provide independent predictive information for molecular dipole moments beyond 2D connectivity and atom types?
 
 ## Motivation
 
-Molecular dipole moments govern solubility, reactivity, and intermolecular binding, yet their dependence on specific geometric and electronic features is often opaque in black-box models. Understanding which structural components drive dipole predictions is critical for designing interpretable machine learning potentials and guiding synthetic chemistry. This project addresses the gap between high-accuracy property prediction and chemical interpretability.
+Molecular dipole moments govern solubility, reactivity, and intermolecular binding, yet the specific structural drivers remain opaque in black-box models. While prediction accuracy is well-documented, understanding whether 3D geometry adds value over 2D graph representations is critical for optimizing computational pipelines. This project bridges the gap between high-accuracy property prediction and chemical interpretability to determine if expensive conformer generation is strictly necessary for dipole estimation.
 
 ## Literature gap analysis
 
 ### What we searched
 
-We queried Semantic Scholar and arXiv using terms: "graph neural network dipole moment prediction", "molecular property prediction feature importance", and "equivariant neural networks chemistry". We examined 4 returned records for relevance to dipole-specific feature decomposition.
+We queried Semantic Scholar and arXiv for "molecular dipole moment graph neural network" and "2D vs 3D molecular representation property prediction". The search returned approximately 10 verified results, of which 2 were directly on-topic for dipole prediction benchmarks, while others focused on solubility, general electrostatics, or general property prediction frameworks.
 
 ### What is known
 
-- [Atomistic Line Graph Neural Network for improved materials property predictions (2021)](https://doi.org/10.1038/s41524-021-00650-1) — Establishes that line-graph GNNs improve general atomistic property prediction over descriptor-based methods.
-- [E(3)-equivariant graph neural networks for data-efficient and accurate interatomic potentials (2022)](https://doi.org/10.1038/s41467-022-29939-5) — Demonstrates E(3) equivariance is critical for accurate 3D geometry modeling in potential energy calculations.
-- [Graph neural networks for materials science and chemistry (2022)](https://doi.org/10.1038/s43246-022-00315-6) — Reviews the broader application of GNNs in chemistry but does not isolate dipole moments as a primary case study.
-- [Learning local equivariant representations for large-scale atomistic dynamics (2023)](https://doi.org/10.1038/s41467-023-36329-y) — Presents efficient parametrizations of potential energy surfaces but does not address electronic property prediction like dipole moments.
+- [Q‐DFTNet: A Chemistry‐Informed Neural Network Framework for Predicting Molecular Dipole Moments via DFT‐Driven QM9 Data (2025)](https://onlinelibrary.wiley.com/doi/10.1002/jcc.70206) — Benchmarks GNN architectures on QM9 dipole prediction but focuses on accuracy metrics rather than structural feature attribution or 2D vs 3D comparisons.
+- [PhysNet: A Neural Network for Predicting Energies, Forces, Dipole Moments, and Partial Charges. (2019)](https://pubs.acs.org/doi/10.1021/acs.jctc.9b00181) — Establishes neural network baselines for dipole prediction using quantum reference data, demonstrating high accuracy without isolating specific geometric feature contributions.
 
 ### What is NOT known
 
-No published work in the retrieved results explicitly dissects the contribution of atom types versus 3D conformation to dipole moment prediction accuracy. Most cited work focuses on interatomic potentials (energy/forces) rather than electronic properties like dipoles, leaving the specific feature importance landscape for dipoles unquantified.
+No published work has explicitly quantified the *independent* predictive signal of 3D conformational coordinates versus 2D topological descriptors specifically for molecular dipole moments on the QM9 dataset. Existing literature establishes that GNNs work well for dipoles but does not isolate whether the 3D coordinate input adds statistically significant information beyond atom types and bond connectivity.
 
 ### Why this gap matters
 
-Without knowing which structural signals drive dipole predictions, chemists cannot trust model recommendations for molecular design or distinguish between physical causality and dataset artifacts. Filling this gap enables more interpretable ML models that align with chemical intuition.
+Resolving this gap determines whether computationally expensive conformer generation is strictly necessary for dipole estimation in high-throughput screening. If 2D representations suffice, it enables faster virtual screening pipelines; if 3D is required, it justifies the computational cost for accurate solvation and reactivity modeling.
 
 ### How this project addresses the gap
 
-This project isolates feature contributions by comparing a 3D-GNN against traditional 2D descriptors on the QM9 dataset. By applying permutation importance and attention analysis, we will quantify the specific predictive signal of 3D conformation versus atom/bond types for dipole moments.
+This project directly compares 3D-equivariant GNNs against 2D descriptor baselines using identical QM9 subsets. By measuring the performance delta and applying feature attribution, we produce the first empirical evidence on the marginal value of 3D geometry for dipole moments specifically.
 
 ## Expected results
 
-We expect 3D-equivariant GNNs to outperform 2D descriptors on dipole prediction, confirming that conformation carries significant signal. Feature attribution analysis will reveal that electronegative atom placement and bond angles contribute more to predictive variance than bond types alone. Statistical significance will be confirmed via paired t-tests on RMSE across cross-validation folds.
+We expect 3D-equivariant GNNs to outperform 2D descriptor baselines, confirming that conformational geometry carries significant predictive signal beyond atom types. Feature attribution analysis will reveal that electronegative atom placement and local bond angles contribute more to predictive variance than global molecular size. Statistical significance will be confirmed via paired t-tests on RMSE across cross-validation folds.
 
 ## Methodology sketch
 
-- Download the QM9 dataset (134k molecules) from Figshare (DOI: 10.6084/m9.figshare.9981994) and filter to a random 20k subset to fit 7GB RAM.
-- Preprocess data to extract 3D coordinates, atom types, and bond connectivity; generate standard descriptors (Morgan fingerprints, Coulomb matrices) for baseline.
+- Download the QM9 dataset (DOI: 10.6084/m9.figshare.9981994) and filter to a random 10k subset to ensure execution within 6h on 2 CPU cores.
+- Preprocess data to extract 3D coordinates, atom types, and bond connectivity; generate standard descriptors (Morgan fingerprints, Coulomb matrices) for baseline comparison.
 - Implement a lightweight SchNet-style GNN using PyTorch Geometric (CPU-only mode) and train for 50 epochs with early stopping.
 - Train a Random Forest baseline on traditional descriptors using the same train/test splits.
 - Evaluate both models on a held-out test set using Mean Absolute Error (MAE) for dipole moments.
-- Apply permutation importance to the GNN node embeddings and Random Forest features to rank structural contributions.
+- Apply permutation importance to the Random Forest features and saliency mapping to GNN node embeddings to rank structural contributions.
 - Perform paired t-tests (α=0.05) comparing RMSE distributions between GNN and baseline across 5 random seeds.
 - Visualize feature importance maps on representative molecules to correlate learned weights with chemical intuition.
 
@@ -55,3 +53,25 @@ We expect 3D-equivariant GNNs to outperform 2D descriptors on dipole prediction,
 - Reviewed existing ideas: None identified in current project context.
 - Closest match: N/A (No similar dipole-feature-interpretability projects found in context).
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.5.0) on 2026-05-10T19:08:26Z
+**Outcome**: success
+**Original term**: Predicting Molecular Dipole Moments with Graph Neural Networks chemistry
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting Molecular Dipole Moments with Graph Neural Networks chemistry | 5 |
+
+### Verified citations
+
+1. **Q‐DFTNet: A Chemistry‐Informed Neural Network Framework for Predicting Molecular Dipole Moments via DFT‐Driven QM9 Data** (2025). D. D. Wayo, Mohd Zulkifli Bin Mohamad Noor, Masoud Darvish Ganji, C. Saporetti, L. Goliatt. Journal of Computational Chemistry. [https://doi.org/10.1002/jcc.70206](https://doi.org/10.1002/jcc.70206). PDF-sampled: No.
+2. **Leveraging Graph Neural Networks for Enhanced Prediction of Molecular Solubility via Transfer Learning** (2024). D. P. Nguyen, P. T. Le. Journal of Technical Education Science. [https://doi.org/10.54644/jte.2024.1571](https://doi.org/10.54644/jte.2024.1571). PDF-sampled: Inaccessible.
+3. **PhysNet: A Neural Network for Predicting Energies, Forces, Dipole Moments, and Partial Charges.** (2019). Oliver T. Unke, M. Meuwly. Journal of Chemical Theory and Computation. [https://doi.org/10.1021/acs.jctc.9b00181](https://doi.org/10.1021/acs.jctc.9b00181). PDF-sampled: No.
+4. **Molecular electrostatic potentials from machine learning models for dipole and quadrupole predictions** (2026). Kadri Muuga, Lisanne Knijff, Chao Zhang. AI for Science. [https://doi.org/10.1088/3050-287X/ae531a](https://doi.org/10.1088/3050-287X/ae531a). PDF-sampled: No.
+5. **ABT-MPNN: an atom-bond transformer-based message-passing neural network for molecular property prediction** (2023). Chengyou Liu, Y. Sun, Rebecca Davis, Silvia T. Cardona, P. Hu. Journal of Cheminformatics. [https://doi.org/10.1186/s13321-023-00698-9](https://doi.org/10.1186/s13321-023-00698-9). PDF-sampled: No.

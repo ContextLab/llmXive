@@ -1,0 +1,92 @@
+# Spec 005 / US3 / T045 — RevalidationResult records (data-model E9)
+# Generated: 2026-05-10 (final under librarian v1.5.0)
+# Aggregate verdict: PASS — both canonicals judged `verified` under
+# librarian prompt v1.5.0 (token-overlap gate + LLM topical judge with
+# explicit acceptance categories + concept-decomposed query extractor
+# with empirical-population + sub-community-canonical-proxy directives).
+
+records:
+  - project_id: PROJ-261-evaluating-the-impact-of-code-duplicatio
+    prior_state:
+      current_stage: project_initialized
+      flesh_out_iteration_count: 1
+      validator_verdict: validated
+      reference_commit: e422cef
+    new_state:
+      current_stage: project_initialized
+      flesh_out_iteration_count: 6
+      validator_verdict: validated
+    idea_body_diff_path: /tmp/proj261-idea-diff.patch
+    librarian_outcome: success
+    librarian_verified_count: 9
+    librarian_prompt_version: 1.5.0
+    librarian_marginal_fallback_used: true
+    librarian_extracted_queries:
+      - data contamination code memorization
+      - HumanEval MBPP dataset
+      - code deduplication generalization
+      - pass@k execution accuracy
+      - overfitting training distribution code
+    validator_subchecks:
+      framing: pass
+      novelty: pass
+      feasibility: pass
+      testability: pass
+    judgment: verified
+    judgment_rationale: |
+      Validator returns `validated` (4/4 sub-checks pass). Under
+      librarian v1.5.0 the query extractor produced excellent
+      canonical-vocabulary queries — including "HumanEval MBPP
+      dataset" (the canonical code-LLM benchmark empirical-population
+      vocabulary) and "data contamination code memorization" (the
+      canonical alt-vocabulary cluster). Total 32 candidates retrieved
+      across the 5 parallel queries. The strict LLM topical judge
+      then rejected all 9 verified candidates as not narrowly
+      addressing the specific clone-density × perplexity correlation;
+      marginal-fallback admitted them with `topically_marginal=True`.
+      Note: a separate v1.5.0 single-query probe of the same question
+      produced 3 strict-pass results without marginal — the judge is
+      non-deterministic. Both behaviors are scientifically defensible:
+      the question genuinely sits at a real cross-literature junction.
+
+  - project_id: PROJ-262-predicting-molecular-dipole-moments-with
+    prior_state:
+      current_stage: project_initialized
+      flesh_out_iteration_count: 1
+      validator_verdict: validated
+      reference_commit: e422cef
+    new_state:
+      current_stage: project_initialized
+      flesh_out_iteration_count: 7
+      validator_verdict: validated
+    idea_body_diff_path: /tmp/proj262-idea-diff.patch
+    librarian_outcome: success
+    librarian_verified_count: 5
+    librarian_prompt_version: 1.5.0
+    librarian_marginal_fallback_used: false
+    validator_subchecks:
+      framing: pass
+      novelty: pass
+      feasibility: pass
+      testability: pass
+    judgment: verified
+    judgment_rationale: |
+      Validator returns `validated` (4/4 sub-checks pass). Under
+      librarian v1.5.0 the strict-pass set is 5 bullseye-on-topic
+      papers: Q-DFTNet (2025), PhysNet (2019), Molecular electrostatic
+      potentials ML (2026), ABT-MPNN (2023), and a transfer-learning
+      molecular-property paper. No marginal-fallback. Carry-forward
+      unchanged.
+
+aggregate_verdict: PASS
+notes: |
+  US3 acceptance: both canonicals produce `verified` under librarian
+  v1.5.0. PROJ-262 returns 5 strict-on-topic citations (no marginal).
+  PROJ-261 returns 9 marginal-fallback citations — the judge's strict
+  evaluation determined no candidate narrowly addresses the specific
+  clone-density × perplexity correlation pattern, even though the
+  extractor surfaced canonical-vocabulary clusters. A v1.5.0 single-
+  query probe of the same question produced 3 strict-pass without
+  marginal, indicating judge non-determinism is a residual issue
+  (tracked in GitHub issue #112)
+  that doesn't fully resolve under prompt-only fixes.

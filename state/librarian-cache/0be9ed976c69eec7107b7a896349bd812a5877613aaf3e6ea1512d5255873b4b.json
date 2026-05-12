@@ -1,0 +1,791 @@
+{
+  "fetched_at": "2026-05-08T20:11:28Z",
+  "field": "chemistry",
+  "prompt_version": "1.5.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "---\nfield: chemistry\nsubmitter: google.gemma-3-27b-it\n---\n\n# Predicting Molecular Toxicity from Structural Alerts via Rule-Based Systems\n\n**Field**: Chemistry\n\n## Research question\n\nTo what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries?\n\n## Motivation\n\nRegulatory frameworks increasingly require interpretable models for chemical safety assessment, yet modern toxicity prediction relies heavily on black-box machine learning. This project addresses the gap between interpretability and performance by quantifying whether curated structural alerts—mechanistic proxies for toxicity—are sufficient predictors compared to holistic molecular descriptors. Establishing the marginal value of explicit rules informs whether complex models are necessary for baseline safety screening or if transparent rule-based systems remain viable for regulatory submission.\n\n## Related work\n\n- [Enhancing Toxicity Pre",
+      "target_n": 5
+    },
+    "duration_seconds": 1055.898,
+    "ended_at": "2026-05-08T20:11:28Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "structural alerts for mutagenicity prediction"
+        ],
+        [
+          2,
+          "toxicophore identification in QSAR models"
+        ],
+        [
+          3,
+          "interpretability of machine learning toxicity models"
+        ],
+        [
+          4,
+          "molecular descriptors versus structural rules in toxicology"
+        ],
+        [
+          5,
+          "Ames test prediction using rule-based systems"
+        ],
+        [
+          6,
+          "feature importance analysis in chemical toxicity prediction"
+        ],
+        [
+          7,
+          "genotoxicity prediction models comparison"
+        ],
+        [
+          8,
+          "expert systems for chemical safety assessment"
+        ],
+        [
+          9,
+          "substructure fingerprints versus physicochemical properties"
+        ],
+        [
+          10,
+          "mechanistic versus statistical QSAR approaches"
+        ],
+        [
+          11,
+          "black box versus interpretable models in cheminformatics"
+        ],
+        [
+          12,
+          "reactive moiety detection in toxicological screening"
+        ],
+        [
+          13,
+          "predictive performance of structural alerts"
+        ],
+        [
+          14,
+          "regulatory acceptance of rule-based toxicity models"
+        ],
+        [
+          15,
+          "QSAR model explainability and validation"
+        ],
+        [
+          16,
+          "adverse outcome pathways and structural alerts"
+        ],
+        [
+          17,
+          "chemical library screening for mutagenic potential"
+        ],
+        [
+          18,
+          "deep learning versus expert systems in toxicology"
+        ],
+        [
+          19,
+          "topological descriptors for mutagenicity"
+        ],
+        [
+          20,
+          "knowledge-driven versus data-driven toxicity prediction"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "To what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries": 0,
+        "structural alerts for mutagenicity prediction": 9
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "structural fragments molecular fingerprints QSAR",
+      "Ames test mutagenicity benchmark datasets",
+      "subgraph mining graph neural networks QSAR",
+      "mutagenicity prediction AUC ROC metrics",
+      "structure activity relationship toxicophores mutagenicity"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.5.0",
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2409.01731"
+      ]
+    },
+    "per_query_hit_count": {
+      "Ames test mutagenicity benchmark datasets": 3,
+      "To what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries": 0,
+      "mutagenicity prediction AUC ROC metrics": 6,
+      "structural fragments molecular fingerprints QSAR": 2,
+      "structure activity relationship toxicophores mutagenicity": 6,
+      "subgraph mining graph neural networks QSAR": 6
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2210.04165",
+          "rationale": "This paper is off-domain entirely—it addresses structural health monitoring of civil/mechanical engineering systems (buildings, bridges), not chemical molecular structures. The word \"structural\" is a homonym here: the user's question concerns molecular structural motifs in chemistry, while this paper concerns physical infrastructure dynamics. There is no connection to mutagenicity, molecular descriptors, or chemical libraries.",
+          "title": "Neural Extended Kalman Filters for Learning and Predicting Dynamics of Structural Systems"
+        },
+        {
+          "primary_pointer": "2405.13996",
+          "rationale": "This paper is off-domain entirely, as it addresses biomechanical gait analysis and structural vibrations in physical floors rather than cheminformatics, molecular descriptors, or mutagenicity outcomes. The shared keyword \"structural\" refers to distinct constructs (physical floor vibrations vs. molecular subgraphs), constituting a homonym mismatch with no methodological or empirical connection.",
+          "title": "Detecting Gait Abnormalities in Foot-Floor Contacts During Walking Through Footstep-Induced Structural Vibrations"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-08T19:53:53Z",
+    "term_input": {
+      "normalized": "to what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries",
+      "raw": "To what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "A. Nandy",
+            "K. Roy",
+            "A. Saha"
+          ],
+          "claimed_title": "Exploring molecular fingerprints of selective PPARδ agonists through comparative and validated chemometric techniques",
+          "claimed_venue": "SAR and QSAR in environmental research (Print)",
+          "claimed_year": 2015,
+          "primary_pointer": "https://doi.org/10.1080/1062936X.2015.1039576"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Exploring molecular fingerprints of selective PPARδ agonists through comparative and validated chemometric techniques')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Tabassum Hossain",
+            "M. Islam",
+            "R. Pal",
+            "A. Saha"
+          ],
+          "claimed_title": "Exploring structural requirement and binding interactions of β-amyloid cleavage enzyme inhibitors using molecular modeling techniques",
+          "claimed_venue": "Medicinal Chemistry Research",
+          "claimed_year": 2013,
+          "primary_pointer": "https://doi.org/10.1007/s00044-013-0481-z"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Exploring structural requirement and binding interactions of β-amyloid cleavage enzyme inhibitors using molecular modeling techniques')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Abstract The robust control of genotoxic N-nitrosamine (NA) impurities is an important safety consideration for the pharmaceutical industry, especially considering recent drug product withdrawals. NAs belong to the ‘cohort of concern’ list of genotoxic impurities (ICH M7) because of the mutagenic and carcinogenic potency of this chemical class. In addition, regulatory concerns exist regarding the capacity of the Ames test to predict the carcinogenic potential of NAs because of historically discordant results. The reasons postulated to explain these discordant data generally point to aspects of Ames test study design. These include vehicle solvent choice, liver S9 species, bacterial strain, compound concentration, and use of pre-incubation versus plate incorporation methods. Many of these concerns have their roots in historical data generated prior to the harmonization of Ames test guidelines. Therefore, we investigated various Ames test assay parameters and used qualitative analysis and quantitative benchmark dose modelling to identify which combinations provided the most sensitive conditions in terms of mutagenic potency. Two alkyl-nitrosamines, N-nitrosodimethylamine (NDMA) and N-nitrosodiethylamine (NDEA) were studied. NDMA and NDEA mutagenicity was readily detected in the Ames test and key assay parameters were identified that contributed to assay sensitivity rankings. The pre-incubation method (30-min incubation), appropriate vehicle (water or methanol), and hamster-induced liver S9, alongside Salmonella typhimurium strains TA100 and TA1535 and Escherichia coli strain WP2uvrA(pKM101) provide the most sensitive combination of assay parameters in terms of NDMA and NDEA mutagenic potency in the Ames test. Using these parameters and further quantitative benchmark dose modelling, we show that N-nitrosomethylethylamine (NMEA) is positive in Ames test and therefore should no longer be considered a historically discordant NA. The results presented herein define a sensitive Ames test design that can be deployed for the assessment of NAs to support robust impurity qualifications.",
+          "claimed_authors": [
+            "Dean N Thomas",
+            "John W. Wills",
+            "Helen Tracey",
+            "Sandy Baldwin",
+            "Mark Burman",
+            "Abbie N Williams",
+            "Danielle S. G. Harte",
+            "Ruby A Buckley",
+            "Anthony M Lynch"
+          ],
+          "claimed_title": "Ames test study designs for nitrosamine mutagenicity testing: qualitative and quantitative analysis of key assay parameters",
+          "claimed_venue": "Mutagenesis",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.1093/mutage/gead033"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Ames test study designs for nitrosamine mutagenicity testing: qualitative and quantitative analysis of key assay parameters')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Mutagenicity assessment plays a pivotal role in the safety evaluation of chemicals, pharmaceuticals, and environmental compounds. In recent years, the development of robust computational models for predicting chemical mutagenicity has gained significant attention, driven by the need for efficient and cost-effective toxicity assessments. In this paper, we proposed AMPred-CNN, an innovative Ames mutagenicity prediction model based on Convolutional Neural Networks (CNNs), uniquely employing molecular structures as images to leverage CNNs' powerful feature extraction capabilities. The study employs the widely used benchmark mutagenicity dataset from Hansen et al. for model development and evaluation. Comparative analyses with traditional ML models on different molecular features reveal substantial performance enhancements. AMPred-CNN outshines these models, demonstrating superior accuracy, AUC, F1 score, MCC, sensitivity, and specificity on the test set. Notably, AMPred-CNN is further benchmarked against seven recent ML and DL models, consistently showcasing superior performance with an impressive AUC of 0.954. Our study highlights the effectiveness of CNNs in advancing mutagenicity prediction, paving the way for broader applications in toxicology and drug development.",
+          "claimed_authors": [
+            "Thi Tuyet Van Tran",
+            "Hilal Tayara",
+            "K. Chong"
+          ],
+          "claimed_title": "AMPred-CNN: Ames mutagenicity prediction model based on convolutional neural networks",
+          "claimed_venue": "Comput. Biol. Medicine",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1016/j.compbiomed.2024.108560"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='AMPred-CNN: Ames mutagenicity prediction model based on convolutional neural networks')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "This work presents the first demonstration of a tube-based droplet microfluidic implementation of the Ames test, bridging single-droplet resolution with regulatory genotoxicity testing. The Ames test is a cornerstone assay for detecting mutagenicity, but conventional plate- and well-based formats suffer from high reagent consumption, low throughput, and limited automation. We report a droplet-based microfluidic Ames test assay using Salmonella typhimurium TA98, combining nanoliter compartmentalization with multiparameter optical detection. Cell density screening identified an optimal inoculum range of 106-107 cells/mL that maximized sensitivity while limiting spontaneous revertants. Dose-response analysis with the reference mutagen 4-nitro-o-phenylenediamine (4-NOPD) revealed clear increases in the fraction of droplets with growth of revertants, followed by a cytotoxic suppression at ≥ 8 μg/mL. A threshold-based evaluation enabled robust quantification of stochastic mutation events at single-droplet resolution. Compared with the classical fluctuation assay, the microfluidic format reduced reagent consumption by > 90%, generated statistically powerful datasets within 48 h, and eliminated subjective scoring. This study establishes segmented-flow microfluidics as a scalable, sensitive, and resource-efficient platform for mutagenicity testing, with applications in regulatory toxicology, environmental monitoring, and high-throughput chemical screening.",
+          "claimed_authors": [
+            "Jialan Cao",
+            "Bayan Nasr",
+            "J. Köhler",
+            "S. Buchinger"
+          ],
+          "claimed_title": "Miniaturized Droplet-Based Adaptation of the Ames Test for High-Throughput Mutagenicity Assessment.",
+          "claimed_venue": "Journal of Applied Toxicology",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.1002/jat.70066"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Miniaturized Droplet-Based Adaptation of the Ames Test for High-Throughput Mutagenicity Assessment.')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Graph Neural Networks (GNNs) have demonstrated remarkable proficiency in modeling data with graph structures, yet recent research reveals their susceptibility to adversarial attacks. Traditional attack methodologies, which rely on manipulating the original graph or adding links to artificially created nodes, often prove impractical in real-world settings. This paper introduces a novel adversarial scenario involving the injection of an isolated subgraph to deceive both the link recommender and the node classifier within a GNN system. Specifically, the link recommender is mislead to propose links between targeted victim nodes and the subgraph, encouraging users to unintentionally establish connections and that would degrade the node classification accuracy, thereby facilitating a successful attack. To address this, we present the LiSA framework, which employs a dual surrogate model and bi-level optimization to simultaneously meet two adversarial objectives. Extensive experiments on real-world datasets demonstrate the effectiveness of our method.",
+          "claimed_authors": [
+            "Wenlun Zhang",
+            "Enyan Dai",
+            "Kentaro Yoshioka"
+          ],
+          "claimed_title": "LiSA: Leveraging Link Recommender to Attack Graph Neural Networks via Subgraph Injection",
+          "claimed_venue": "Pacific-Asia Conference on Knowledge Discovery and Data Mining",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1007/978-981-96-8183-9_2"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='LiSA: Leveraging Link Recommender to Attack Graph Neural Networks via Subgraph Injection')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Homomorphism is an important structure-preserving mapping between graphs. Given a graph G and a pattern Q, the subgraph homomorphism problem is to find a mapping φ from Q to G such that adjacent vertices of Q are mapped to adjacent vertices in G. Unlike the subgraph isomorphic mapping that is injective, homomorphism allows multiple vertices in Q to map to the same vertex in G, increasing complexity. We develop HFrame, the first GNN-based framework for subgraph homomorphism, by combining algorithms and machine learning. We show that HFrame is more expressive than the vanilla GNN, i.e., HFrame can distinguish more graph pairs (Q, G) such that Q is not homomorphic to G. Moreover, we provide a generalization error bound for HFrame. Using real-life and synthetic graphs, we show that HFrame is up to 101.91× faster than exact matching algorithms, and its average accuracy can reach 0.962.",
+          "claimed_authors": [
+            "Shu Guo",
+            "Wenjin Xie",
+            "Ping Lu",
+            "Ting Deng",
+            "Richong Zhang",
+            "Jianxin Li",
+            "Xiangping Huang",
+            "Zhongyi Liu"
+          ],
+          "claimed_title": "Improving Subgraph Matching by Combining Algorithms and Graph Neural Networks",
+          "claimed_venue": "Knowledge Discovery and Data Mining",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1145/3711896.3737006"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Improving Subgraph Matching by Combining Algorithms and Graph Neural Networks')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "We formulate an XAI-based model improvement approach for Graph Neural Networks (GNNs) for node classification, called Explanation Enhanced Graph Learning (EEGL). The goal is to improve predictive performance of GNN using explanations. EEGL is an iterative self-improving algorithm, which starts with a learned\"vanilla\"GNN, and repeatedly uses frequent subgraph mining to find relevant patterns in explanation subgraphs. These patterns are then filtered further to obtain application-dependent features corresponding to the presence of certain subgraphs in the node neighborhoods. Giving an application-dependent algorithm for such a subgraph-based extension of the Weisfeiler-Leman (1-WL) algorithm has previously been posed as an open problem. We present experimental evidence, with synthetic and real-world data, which show that EEGL outperforms related approaches in predictive performance and that it has a node-distinguishing power beyond that of vanilla GNNs. We also analyze EEGL's training dynamics.",
+          "claimed_authors": [
+            "Harish Naik",
+            "Jan Polster",
+            "R. Shekhar",
+            "Tam'as Horv'ath",
+            "Gyorgy Tur'an"
+          ],
+          "claimed_title": "Iterative Graph Neural Network Enhancement via Frequent Subgraph Mining of Explanations",
+          "claimed_venue": "arXiv.org",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.48550/arXiv.2403.07849"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Iterative Graph Neural Network Enhancement via Frequent Subgraph Mining of Explanations')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While Graph Neural Networks (GNNs) are powerful models for learning representations on graphs, most state-of-the-art models do not have significant accuracy gain beyond two to three layers. Deep GNNs fundamentally need to address: 1). expressivity challenge due to oversmoothing, and 2). computation challenge due to neighborhood explosion. We propose a simple \"deep GNN, shallow sampler\" design principle to improve both the GNN accuracy and efficiency -- to generate representation of a target node, we use a deep GNN to pass messages only within a shallow, localized subgraph. A properly sampled subgraph may exclude irrelevant or even noisy nodes, and still preserve the critical neighbor features and graph structures. The deep GNN then smooths the informative local signals to enhance feature learning, rather than oversmoothing the global graph signals into just \"white noise\". We theoretically justify why the combination of deep GNNs with shallow samplers yields the best learning performance. We then propose various sampling algorithms and neural architecture extensions to achieve good empirical results. On the largest public graph dataset, ogbn-papers100M, we achieve state-of-the-art accuracy with an order of magnitude reduction in hardware cost.",
+          "claimed_authors": [
+            "Hanqing Zeng",
+            "Muhan Zhang",
+            "Yinglong Xia",
+            "Ajitesh Srivastava",
+            "Andrey Malevich",
+            "Rajgopal Kannan",
+            "Viktor Prasanna",
+            "Long Jin",
+            "Ren Chen"
+          ],
+          "claimed_title": "Deep Graph Neural Networks with Shallow Subgraph Samplers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.01380"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Deep Graph Neural Networks with Shallow Subgraph Samplers')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantitative Structure-Activity Relationship (QSAR) has proved an invaluable tool in medicinal chemistry. Data availability at unprecedented levels through various databases have collaborated to a resurgence in the interest for QSAR. In this context, rapid generation of quality predictive models is highly desirable for hit identification and lead optimization. We showcase the application of an automated QSAR approach, which randomly selects multiple training/test sets and utilizes machine-learning algorithms to generate predictive models. Results demonstrate that AutoQSAR produces models of improved or similar quality to those generated by practitioners in the field but in just a fraction of the time. Despite the potential of the concept to the benefit of the community, the AutoQSAR opportunity has been largely undervalued.",
+          "claimed_authors": [
+            "Marcelo T. de Oliveira",
+            "Edson Katekawa"
+          ],
+          "claimed_title": "On the Virtues of Automated QSAR The New Kid on the Block",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.02639"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='On the Virtues of Automated QSAR The New Kid on the Block')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Background This study aimed to develop and validate a nomogram for predicting pressure ulcer (PU) incidence in neurosurgical patients to enhance postoperative risk management. Methods A retrospective analysis of 1,020 patients across four tertiary centers (2005–2025) evaluated 20 variables. Propensity score matching (PSM) addressed confounding, while LASSO regression and machine learning identified predictors. Model performance was assessed via AUC-ROC, C-index, and decision curve analysis. Results Eight independent predictors of PU were identified: diabetes duration, BMI, albumin, prealbumin, age, hemoglobin, temperature difference, and urinary incontinence. The training set achieved an AUC-ROC of 0.825 (95% CI: 0.797–0.853) with 77% sensitivity and 92% specificity, while the validation set showed an AUC-ROC of 0.800 (95% CI: 0.753–0.847) with 76% sensitivity and 92% specificity. The nomogram demonstrated recalibrated C-indices of 0.833 (training) and 0.826 (validation). Decision curve analysis confirmed significant net benefit across clinical thresholds. Conclusion This validated nomogram enables early PU risk stratification, facilitating personalized postoperative interventions. Given its high sensitivity and specificity, the model can be integrated into clinical practice to assist in early identification of high-risk patients, thereby improving patient outcomes through timely interventions.",
+          "claimed_authors": [
+            "Yaping Wang",
+            "Weiguang Yu",
+            "Hui Zhi",
+            "Kun Shang",
+            "Hongmei Yin",
+            "Dandan Shan",
+            "Xiao Li",
+            "Wenxia Li",
+            "Xiu-Hang Zhang",
+            "Baoli Zhang"
+          ],
+          "claimed_title": "Development and validation of a perioperative risk prediction model for pressure ulcers in neurosurgical procedures: a machine learning approach with protocol compliance metrics",
+          "claimed_venue": "Frontiers in Medicine",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.3389/fmed.2025.1600481"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Development and validation of a perioperative risk prediction model for pressure ulcers in neurosurgical procedures: a machine learning approach with protocol compliance metrics')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Flight delays present a significant challenge in modern air traffic management and affect airlines, passengers, and the economy. This study proposes a comprehensive approach to predicting flight delays using tree-based machine learning models, integrating flight and weather data with advanced feature engineering techniques. New features, including historical delay metrics and network centrality measures, are derived to enhance predictive accuracy. The dataset is grouped by airlines to account for variations in flight delay patterns across different airlines. Tree-based ensemble models, including random forest, XGBoost, CatBoost, lightGBM, and extra trees, are employed. Results show that prediction metrics improve when models are trained on airline-specific data compared to using the entire dataset with airlines as a feature. For airline-specific analysis, the random forest model achieves the highest average accuracy (92.6%) and precision (97.0%), while the extra trees model achieves the highest average recall (88.5%) and AUC-ROC (97.5%), and both models achieve the highest F1-score (92.2%). These findings emphasize the importance of analyzing airline-specific dynamics and provide actionable insights for mitigating delays. This study advances flight delay prediction by integrating domain-specific features with robust machine learning models.",
+          "claimed_authors": [
+            "M. Afrane",
+            "Yao Xu",
+            "Lixin Li",
+            "Kai Wang"
+          ],
+          "claimed_title": "Airline-Specific Flight Delay Prediction with Tree-Based Models and Network Metrics",
+          "claimed_venue": "2025 6th International Conference on Artificial Intelligence, Robotics and Control (AIRC)",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1109/AIRC64931.2025.11077486"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Airline-Specific Flight Delay Prediction with Tree-Based Models and Network Metrics')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Link prediction is one of the most productive branches in network science, aiming to predict links that would have existed but have not yet been observed, or links that will appear during the evolution of the network. Over nearly two decades, the field of link prediction has amassed a substantial body of research, encompassing a plethora of algorithms and diverse applications. For any algorithm, one or more evaluation metrics are required to assess its performance. Because using different evaluation metrics can provide different assessments of the algorithm performance, how to select appropriate evaluation metrics is a fundamental issue in link prediction. To address this issue, we propose a novel measure that quantifiers the discriminability of any evaluation metric given a real network and an algorithm. Based on 131 real networks and 20 representative algorithms, we systematically compare the discriminabilities of eight evaluation metrics, and demonstrate that H-measure and Area Under the ROC Curve (AUC) exhibit the strongest discriminabilities, followed by Normalized Discounted Cumulative Gain (NDCG). Our finding is robust for networks in different domains and algorithms of different types. This study provides insights into the selection of evaluation metrics, which may further contribute to standardizing the evaluating process of link prediction algorithms.",
+          "claimed_authors": [
+            "Shuyan Wan",
+            "Yilin Bi",
+            "Xinshan Jiao",
+            "Tao Zhou"
+          ],
+          "claimed_title": "Quantifying discriminability of evaluation metrics in link prediction for real networks",
+          "claimed_venue": "arXiv.org",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.48550/arXiv.2409.20078"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Quantifying discriminability of evaluation metrics in link prediction for real networks')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Assessment of risk prediction models has primarily utilized measures of discrimination, the ROC curve AUC and C-statistic. These derive from the risk distributions of patients and nonpatients, which in turn are derived from a population risk distribution. As greater dispersion of the population risk distribution produces greater separation of patient and nonpatient risks (discrimination), its parameters can be used as alternatives to the ROC curve AUC and C-statistic. Here continuous probability distributions are employed to develop insight into the relationship between their parameters and the ROC curve AUC and C-statistic derived from them.\n  The ROC curve AUC and C-statistic are shown to have a straight-line relationship with the SD for uniform, half-sine, and symmetric triangular probability distributions, with slight differences in the slope: AUC approx 1/2+0.28 SD/(mean(1-mean)). This also characterizes the beta distribution over the same range of SD's. But at larger beta distribution SD's the plot of AUC versus SD deviates downward from this straight-line relationship, approaching the ROC curve AUC and SD of a perfect model (AUC=1, SD= $\\sqrt{\\rm mean(1-mean)}$).\n  A simpler and more intuitive discrimination metric is the coefficient of discrimination, the difference between the mean risk in patients and nonpatients. This is SD2/(mean(1-mean)), which is also the same for any distribution. Since estimating parameters or metrics discards information, the population risk distribution should always be presented. As the ROC curve AUC and C-statistic are functions of this distribution's parameters, the parameters represent simpler, intuitive alternatives to these discrimination metrics. Among discrimination metrics, the coefficient of discrimination provides a simple, intuitive alternative to the ROC curve AUC and C-statistic.",
+          "claimed_authors": [
+            "Ralph H. Stern"
+          ],
+          "claimed_title": "Alternatives to the ROC Curve AUC and C-statistic for Risk Prediction Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.08559"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Alternatives to the ROC Curve AUC and C-statistic for Risk Prediction Models')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, defect prediction has received a great deal of attention in the empirical software engineering world. Predicting software defects before the maintenance phase is very important not only to decrease the maintenance costs but also increase the overall quality of a software product. There are different types of product, process, and developer based software metrics proposed so far to measure the defectiveness of a software system. This paper suggests to use a novel set of software metrics which are based on the similarities detected among the source code files in a software project. To find source code similarities among different files of a software system, plagiarism and clone detection techniques are used. Two simple similarity metrics are calculated for each file, considering its overall similarity to the defective and non defective files in the project. Using these similarity metrics, we predict whether a specific file is defective or not. Our experiments on 10 open source data sets show that depending on the amount of detected similarity, proposed metrics could achieve significantly better performance compared to the existing static code metrics in terms of the area under the curve (AUC).",
+          "claimed_authors": [
+            "Ahmet Okutan"
+          ],
+          "claimed_title": "Use of Source Code Similarity Metrics in Software Defect Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.10033"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Use of Source Code Similarity Metrics in Software Defect Prediction')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In analysis of binary outcomes, the receiver operator characteristic (ROC) curve is heavily used to show the performance of a model or algorithm. The ROC curve is informative about the performance over a series of thresholds and can be summarized by the area under the curve (AUC), a single number. When a predictor is categorical, the ROC curve has one less than number of categories as potential thresholds; when the predictor is binary there is only one threshold. As the AUC may be used in decision-making processes on determining the best model, it important to discuss how it agrees with the intuition from the ROC curve. We discuss how the interpolation of the curve between thresholds with binary predictors can largely change the AUC. Overall, we show using a linear interpolation from the ROC curve with binary predictors corresponds to the estimated AUC, which is most commonly done in software, which we believe can lead to misleading results. We compare R, Python, Stata, and SAS software implementations. We recommend using reporting the interpolation used and discuss the merit of using the step function interpolator, also referred to as the \"pessimistic\" approach by Fawcett (2006).",
+          "claimed_authors": [
+            "John Muschelli"
+          ],
+          "claimed_title": "ROC and AUC with a Binary Predictor: a Potentially Misleading Metric",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1903.04881"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='ROC and AUC with a Binary Predictor: a Potentially Misleading Metric')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "S. Saganuwan"
+          ],
+          "claimed_title": "Structure-activity relationship of pharmacophores and toxicophores: the need for clinical strategy",
+          "claimed_venue": "DARU Journal of Pharmaceutical Sciences",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1007/s40199-024-00525-y"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Structure-activity relationship of pharmacophores and toxicophores: the need for clinical strategy')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Background Food flavors are relatively low molecular weight chemicals with unique odor-related functional groups that may also be associated with mutagenicity. These chemicals are often difficult to test for mutagenicity by the Ames test because of their low production and peculiar odor. Therefore, application of the quantitative structure–activity relationship (QSAR) approach is being considered. We used the StarDrop™ Auto-Modeller™ to develop a new QSAR model. Results In the first step, we developed a new robust Ames database of 406 food flavor chemicals consisting of existing Ames flavor chemical data and newly acquired Ames test data. Ames results for some existing flavor chemicals have been revised by expert reviews. We also collected 428 Ames test datasets for industrial chemicals from other databases that are structurally similar to flavor chemicals. A total of 834 chemicals’ Ames test datasets were used to develop the new QSAR models. We repeated the development and verification of prototypes by selecting appropriate modeling methods and descriptors and developed a local QSAR model. A new QSAR model “StarDrop NIHS 834_67” showed excellent performance (sensitivity: 79.5%, specificity: 96.4%, accuracy: 94.6%) for predicting Ames mutagenicity of 406 food flavors and was better than other commercial QSAR tools. Conclusions A local QSAR model, StarDrop NIHS 834_67, was customized to predict the Ames mutagenicity of food flavor chemicals and other low molecular weight chemicals. The model can be used to assess the mutagenicity of food flavors without actual testing.",
+          "claimed_authors": [
+            "T. Kasamatsu",
+            "A. Kitazawa",
+            "Sumie Tajima",
+            "Masahiro Kaneko",
+            "K. Sugiyama",
+            "M. Yamada",
+            "M. Yasui",
+            "K. Masumura",
+            "K. Horibata",
+            "M. Honma"
+          ],
+          "claimed_title": "Development of a new quantitative structure–activity relationship model for predicting Ames mutagenicity of food flavor chemicals using StarDrop™ auto-Modeller™",
+          "claimed_venue": "Genes and Environment",
+          "claimed_year": 2021,
+          "primary_pointer": "https://doi.org/10.1186/s41021-021-00182-6"
+        },
+        "details": "query-relevance 0.267 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Development of a new quantitative structure–activity relationship model for predicting Ames mutagenicity of food flavor chemicals using StarDrop™ auto-Modeller™')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Currently, there are more than 100,000 industrial chemicals substances produced and present in our living environments. Some of them may have adverse effects on human health. Given the rapid expansion in the number of industrial chemicals, international organizations and regulatory authorities have expressed the need for effective screening tools to promptly and accurately identify chemical substances with potential adverse effects without conducting actual toxicological studies. (Quantitative) Structure–Activity Relationship ((Q)SAR) is a promising approach to predict the potential adverse effects of a chemical on the basis of its chemical structure. Significant effort has been devoted to the development of (Q) SAR models for predicting Ames mutagenicity, among other toxicological endpoints, owing to the significant amount of the necessary Ames test data that have already been accumulated. The International Council for Harmonisation of Technical Requirements for Pharmaceuticals for Human Use (ICH) M7 guideline for the assessment and control of mutagenic impurities in pharmaceuticals was established in 2014. It is the first international guideline that addresses the use of (Q) SAR instead of actual toxicological studies for human health assessment. Therefore, (Q) SAR for Ames mutagenicity now require higher predictive power for identifying mutagenic chemicals. This review introduces the advantages and features of (Q)SAR. Several (Q) SAR tools for predicting Ames mutagenicity and approaches to improve (Q) SAR models are also reviewed. Finally, I mention the future of (Q) SAR and other advanced in silico technology in genetic toxicology.",
+          "claimed_authors": [
+            "M. Honma"
+          ],
+          "claimed_title": "An assessment of mutagenicity of chemical substances by (quantitative) structure–activity relationship",
+          "claimed_venue": "Genes and Environment",
+          "claimed_year": 2020,
+          "primary_pointer": "https://doi.org/10.1186/s41021-020-00163-1"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='An assessment of mutagenicity of chemical substances by (quantitative) structure–activity relationship')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The automatic, sensor-based assessment of challenging behavior of persons with dementia is an important task to support the selection of interventions. However, predicting behaviors like apathy and agitation is challenging due to the large inter- and intra-patient variability. Goal of this paper is to improve the recognition performance by making use of the observation that patients tend to show specific behaviors at certain times of the day or week. We propose to identify such segments of similar behavior via clustering the distributions of annotations of the time segments. All time segments within a cluster then consist of similar behaviors and thus indicate a behavioral predisposition (BPD). We utilize BPDs by training a classifier for each BPD. Empirically, we demonstrate that when the BPD per time segment is known, activity recognition performance can be substantially improved.",
+          "claimed_authors": [
+            "Maximilian Popko",
+            "Sebastian Bader",
+            "Stefan Lüdtke",
+            "Thomas Kirste"
+          ],
+          "claimed_title": "Discovering Behavioral Predispositions in Data to Improve Human Activity Recognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.08816"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Discovering Behavioral Predispositions in Data to Improve Human Activity Recognition')",
+        "failed_at": "2026-05-08T20:06:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Human Activity Recognition (HAR) on mobile devices has been demonstrated to be possible using neural models trained on data collected from the device's inertial measurement units. These models have used Convolutional Neural Networks (CNNs), Long Short-Term Memory (LSTMs), Transformers or a combination of these to achieve state-of-the-art results with real-time performance. However, these approaches have not been extensively evaluated in real-world situations where the input data may be different from the training data. This paper highlights the issue of data heterogeneity in machine learning applications and how it can hinder their deployment in pervasive settings. To address this problem, we propose and publicly release the code of two sensor-wise Transformer architectures called HART and MobileHART for Human Activity Recognition Transformer. Our experiments on several publicly available datasets show that these HART architectures outperform previous architectures with fewer floating point operations and parameters than conventional Transformers. The results also show they are more robust to changes in mobile position or device brand and hence better suited for the heterogeneous environments encountered in real-life settings. Finally, the source code has been made publicly available.",
+          "claimed_authors": [
+            "Sannara EK",
+            "François Portet",
+            "Philippe Lalanda"
+          ],
+          "claimed_title": "Transformer-based Models to Deal with Heterogeneous Environments in Human Activity Recognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.11750"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='To what extent do explicit structural motifs explain variance in mutagenicity ou', candidate_title='Transformer-based Models to Deal with Heterogeneous Environments in Human Activity Recognition')",
+        "failed_at": "2026-05-08T20:06:31Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abdeljalil Zoubir",
+            "Badr Missaoui"
+          ],
+          "title": "GeoScatt-GNN: A Geometric Scattering Transform-Based Graph Neural Network Model for Ames Mutagenicity Prediction",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2411.15331",
+        "summary": "This paper tackles the pressing challenge of mutagenicity prediction by introducing three ground-breaking approaches. First, it showcases the superior performance of 2D scattering coefficients extracted from molecular images, compared to traditional molecular descriptors. Second, it presents a hybrid approach that combines geometric graph scattering (GGS), Graph Isomorphism Networks (GIN), and machine learning models, achieving strong results in mutagenicity prediction. Third, it introduces a novel graph neural network architecture, MOLG3-SAGE, which integrates GGS node features into a fully connected graph structure, delivering outstanding predictive accuracy. Experimental results on the ZINC dataset demonstrate significant improvements, emphasizing the effectiveness of blending 2D and geometric scattering techniques with graph neural networks. This study illustrates the potential of GNNs and GGS for mutagenicity prediction, with broad implications for drug discovery and chemical safety assessment.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2411.15331",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-08T20:06:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chao Chen",
+            "Zhengliang Huang",
+            "Xuyan Zou",
+            "Sheng Li",
+            "Di Zhang",
+            "Shou-Lin Wang"
+          ],
+          "title": "Prediction of molecular-specific mutagenic alerts and related mechanisms of chemicals by a convolutional neural network (CNN) model based on SMILES split.",
+          "venue": "Science of the Total Environment",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1016/j.scitotenv.2024.170435",
+        "summary": "Structural alerts (SAs) are essential to identify chemicals for toxicity evaluation and health risk assessment. We constructed a novel SMILES split-based deep learning model (SSDL) that was trained and verified with 5850 chemicals from the ISSSTY database and 384 external test chemicals from published papers. The training accuracy was above 0.90 and the evaluation metrics (precision, recall and F1-score) all reached 0.78 or above on both internal and external test chemicals. In this model, the molecular-specific fragment importance of chemicals was first quantified independently. Then, the SA identification method based on the importance of these fragments was statistically analyzed and verified with the ISSSTY test and external test chemicals containing one of 28 typical SAs, and most of the performances were better than that of expert rules. Furthermore, a mutagenicity mechanism prediction method was developed using 237 chemicals with four known mutagenic mechanisms based on molecular similarity calibrated by the SSDL method and fragment importance, which significantly improved accuracy in three mechanisms and had comparable accuracy in the other one compared to traditional methods. Overall, the SSDL model quantifying fragment toxicity within molecules would be a novel potentially powerful tool in the determination and visualization of molecular-specific SAs and the prediction of mutagenicity mechanisms for environmental or industrial compounds and drugs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S0048969724005710",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [
+            "https://doi.org/10.1016/j.scitotenv.2024.170435"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-08T20:06:55Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "S. Chakravarti",
+            "R. Saiakhov"
+          ],
+          "title": "Computing similarity between structural environments of mutagenicity alerts",
+          "venue": "Mutagenesis",
+          "year": 2018
+        },
+        "primary_pointer": "https://doi.org/10.1093/mutage/gey032",
+        "summary": "This article describes a method to generate molecular fingerprints from structural environments of mutagenicity alerts and calculate similarity between them. This approach was used to improve classification accuracy of alerts and for searching structurally similar analogues of an alerting chemical. It builds fingerprints using molecular fragments from the vicinity of the alerts and automatically accounts for the activating and deactivating/mitigating features of alerts needed for accurate predictions. This study also demonstrates the usefulness of transfer learning in which a distributed representation of chemical fragments was first trained on millions of unlabelled chemicals and then used for generating fingerprints and similarity search on smaller data sets labelled with Ames test outcomes. The distributed fingerprints gave better prediction performance and increased coverage compared to traditional binary fingerprints. The methodology was applied to four common mutagenic functionalities-primary aromatic amine, aromatic nitro, epoxide and alkyl chloride. Effects of various hyperparameters on prediction accuracy and test coverage for the k-nearest neighbours prediction method are also described, e.g. similarity thresholds, number of neighbours and size of the alert environment.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://academic.oup.com/mutage/article/34/1/55/5139738",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [
+            "https://doi.org/10.1093/mutage/gey032"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-08T20:06:55Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "A. Bassan",
+            "M. Pavan",
+            "Elena Lo Piparo"
+          ],
+          "title": "Mutagenic potential and structural alerts of phytotoxins.",
+          "venue": "Food and Chemical Toxicology",
+          "year": 2022
+        },
+        "primary_pointer": "https://doi.org/10.1016/j.fct.2022.113562",
+        "summary": "Toxic plant-produced chemicals, so-called phytotoxins, constitute a category of natural compounds belonging to a diversity of chemical classes. Some of them (e.g., alkaloids, terpenes, saponins) are associated with high toxic potency, while for many of others no toxicological data is available. In this study, the mutagenic potential of 1586 phytotoxins, as obtained from a publicly available database, was investigated applying different in silico approaches. (Q)SAR models (including statistical-based and rule-based systems) were used for the prediction of bacterial in vitro mutagenicity (Ames test) and the results from multiple tools were combined to assign consensus predicted values (i.e., positive, negative, inconclusive). The overall consensus outcome was then employed to investigate relationships between structural features of classes of phytotoxins and potential mutagenicity, allowing the identification of structural alerts raising a specific concern. The results highlighted that about 10% of the screened compounds were predicted to have mutagenic potential and the critical classes of concern, such as alkaloids, were further investigated in terms of subclasses (e.g., indole alkaloids, isoquinoline alkaloids), getting a deeper insight into the mutagenic potential of possible naturally occurring chemicals in plant materials and their structural alerts.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S0278691522007608",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [
+            "https://doi.org/10.1016/j.fct.2022.113562"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-08T20:06:55Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Leander Schietgat",
+            "Bertrand Cuissart",
+            "Kurt De Grave",
+            "Kyriakos Efthymiadis",
+            "R. Bureau",
+            "B. Crémilleux",
+            "J. Ramon",
+            "Alban Lepailleur"
+          ],
+          "title": "Automated detection of toxicophores and prediction of mutagenicity using PMCSFG algorithm",
+          "venue": "Molecular Informatics",
+          "year": 2022
+        },
+        "primary_pointer": "https://doi.org/10.1002/minf.202200232",
+        "summary": "Maximum common substructures (MCS) have received a lot of attention in the chemoinformatics community. They are typically used as a similarity measure between molecules, showing high predictive performance when used in classification tasks, while being easily explainable substructures. In the present work, we applied the Pairwise Maximum Common Subgraph Feature Generation (PMCSFG) algorithm to automatically detect toxicophores (structural alerts) and to compute fingerprints based on MCS. We present a comparison between our MCS‐based fingerprints and 12 well‐known chemical fingerprints when used as features in machine learning models. We provide an experimental evaluation and discuss the usefulness of the different methods on mutagenicity data. The features generated by the MCS method have a state‐of‐the‐art performance when predicting mutagenicity, while they are more interpretable than the traditional chemical fingerprints.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://onlinelibrary.wiley.com/doi/10.1002/minf.202200232",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [
+            "https://doi.org/10.1002/minf.202200232"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-08T20:06:55Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Thomas Ferrari",
+            "G. Gini"
+          ],
+          "title": "An open source multistep model to predict mutagenicity from statistical analysis and relevant structural alerts",
+          "venue": "Chemistry Central Journal",
+          "year": 2010
+        },
+        "primary_pointer": "https://doi.org/10.1186/1752-153X-4-S1-S2",
+        "summary": "BackgroundMutagenicity is the capability of a substance to cause genetic mutations. This property is of high public concern because it has a close relationship with carcinogenicity and potentially with reproductive toxicity. Experimentally, mutagenicity can be assessed by the Ames test on Salmonella with an estimated experimental reproducibility of 85%; this intrinsic limitation of the in vitro test, along with the need for faster and cheaper alternatives, opens the road to other types of assessment methods, such as in silico structure-activity prediction models.A widely used method checks for the presence of known structural alerts for mutagenicity. However the presence of such alerts alone is not a definitive method to prove the mutagenicity of a compound towards Salmonella, since other parts of the molecule can influence and potentially change the classification. Hence statistically based methods will be proposed, with the final objective to obtain a cascade of modeling steps with custom-made properties, such as the reduction of false negatives.ResultsA cascade model has been developed and validated on a large public set of molecular structures and their associated Salmonella mutagenicity outcome. The first step consists in the derivation of a statistical model and mutagenicity prediction, followed by further checks for specific structural alerts in the \"safe\" subset of the prediction outcome space. In terms of accuracy (i.e., overall correct predictions of both negative and positives), the obtained model approached the 85% reproducibility of the experimental mutagenicity Ames test.ConclusionsThe model and the documentation for regulatory purposes are freely available on the CAESAR website. The input is simply a file of molecular structures and the output is the classification result.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://link.springer.com/article/10.1186/1752-153X-4-S1-S2",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [
+            "https://doi.org/10.1186/1752-153X-4-S1-S2",
+            "https://bmcchem.biomedcentral.com/articles/10.1186/1752-153X-4-S1-S2",
+            "https://link.springer.com/article/10.1186/1752-153X-4-S1-S2",
+            "https://idp.springer.com/authorize?response_type=cookie&client_id=springerlink&redirect_uri=https%3A%2F%2Flink.springer.com%2Farticle%2F10.1186%2F1752-153X-4-S1-S2"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-08T20:06:55Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tanya Liyaqat",
+            "Tanvir Ahmad",
+            "Mohammad Kashif",
+            "Chandni Saxena"
+          ],
+          "title": "Stacked ensemble\\-based mutagenicity prediction model using multiple modalities with graph attention network",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2409.01731",
+        "summary": "Mutagenicity is a concern due to its association with genetic mutations which can result in a variety of negative consequences, including the development of cancer. Earlier identification of mutagenic compounds in the drug development process is therefore crucial for preventing the progression of unsafe candidates and reducing development costs. While computational techniques, especially machine learning models have become increasingly prevalent for this endpoint, they rely on a single modality. In this work, we introduce a novel stacked ensemble based mutagenicity prediction model which incorporate multiple modalities such as simplified molecular input line entry system (SMILES) and molecular graph. These modalities capture diverse information about molecules such as substructural, physicochemical, geometrical and topological. To derive substructural, geometrical and physicochemical information, we use SMILES, while topological information is extracted through a graph attention network (GAT) via molecular graph. Our model uses a stacked ensemble of machine learning classifiers to make predictions using these multiple features. We employ the explainable artificial intelligence (XAI) technique SHAP (Shapley Additive Explanations) to determine the significance of each classifier and the most relevant features in the prediction. We demonstrate that our method surpasses SOTA methods on two standard datasets across various metrics. Notably, we achieve an area under the curve of 95.21\\% on the Hansen benchmark dataset, affirming the efficacy of our method in predicting mutagenicity. We believe that this research will captivate the interest of both clinicians and computational biologists engaged in translational research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2409.01731",
+          "http_status": 200,
+          "pdf_sample_score": 0.2998,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-08T20:06:57Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "to what extent do explicit structural motifs explain variance in mutagenicity outcomes compared to global molecular descriptors in diverse chemical libraries",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
