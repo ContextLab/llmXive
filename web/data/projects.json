@@ -5,7 +5,7 @@
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2298,
+    "total_contributions": 2313,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 2125,
+      "contribution_count": 2140,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -201,7 +201,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-12T17:38:01.847716+00:00",
+  "generated_at": "2026-05-12T20:54:17.769536+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -18419,7 +18419,7 @@
       },
       "authors": [
         {
-          "contributions": 21,
+          "contributions": 24,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -18437,11 +18437,35 @@
       },
       "created_at": "2026-05-04T17:52:52.287155+00:00",
       "current_stage": "project_initialized",
-      "description": "Verdict: pass The question asks about a substantive relationship between code structure (syntactic clone density) and LLM comprehension metrics (perplexity, bug-detection accuracy), independent of any specific model architecture or training procedure. The methodology may use specific models, but the question itself is\u2026",
+      "description": "Verdict: pass The question asks about a relationship between code structural properties (syntactic clone density) and model performance metrics (perplexity, bug detection accuracy), independent of any specific ML architecture or training approach. The phenomenon of interest is how code redundancy affects model\u2026",
       "field": "computer science",
       "id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "project_initializer",
+          "duration_s": 21.755611,
+          "ended_at": "2026-05-12T20:31:40.903875Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T20:31:19.148264Z"
+        },
+        {
+          "agent": "research_question_validator",
+          "duration_s": 286.01551,
+          "ended_at": "2026-05-12T20:31:01.040271Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T20:26:15.024761Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 362.323432,
+          "ended_at": "2026-05-12T20:25:52.286023Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T20:19:49.962591Z"
+        },
         {
           "agent": "project_initializer",
           "duration_s": 93.602051,
@@ -18497,30 +18521,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-07T05:54:27.934556Z"
-        },
-        {
-          "agent": "research_question_validator",
-          "duration_s": 15.97722,
-          "ended_at": "2026-05-07T05:54:27.866561Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-07T05:54:11.889341Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 191.899023,
-          "ended_at": "2026-05-07T05:54:11.795163Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-07T05:50:59.896140Z"
-        },
-        {
-          "agent": "project_initializer",
-          "duration_s": 68.888134,
-          "ended_at": "2026-05-07T03:34:18.577878Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-07T03:33:09.689744Z"
         }
       ],
       "phase_group": "idea",
@@ -18530,7 +18530,7 @@
       "speckit_research_dir": null,
       "submitter": null,
       "title": "Evaluating the Impact of Code Duplication on LLM Code Understanding",
-      "updated_at": "2026-05-10T19:08:26.727432+00:00"
+      "updated_at": "2026-05-12T20:31:40.909220+00:00"
     },
     {
       "artifact_links": {
@@ -18552,7 +18552,7 @@
       },
       "authors": [
         {
-          "contributions": 23,
+          "contributions": 26,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -18570,11 +18570,35 @@
       },
       "created_at": "2026-05-04T17:53:10.682198+00:00",
       "current_stage": "project_initialized",
-      "description": "Verdict: pass The question asks about the information content of 3D geometry relative to 2D connectivity, which is a substantive scientific inquiry into molecular structure-property relationships. It is not framed around the performance of a specific algorithm or hardware constraint, but rather the marginal value of\u2026",
+      "description": "Verdict: pass The question asks about the relationship between molecular structural representations (3D geometry vs 2D connectivity) and dipole moments, which is a substantive chemistry question about structure-property relationships. The specific ML methods (GNNs, Random Forest) appear only in the methodology sketch,\u2026",
       "field": "chemistry",
       "id": "PROJ-262-predicting-molecular-dipole-moments-with",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "project_initializer",
+          "duration_s": 44.46536,
+          "ended_at": "2026-05-12T20:50:35.976615Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T20:49:51.511255Z"
+        },
+        {
+          "agent": "research_question_validator",
+          "duration_s": 25.196613,
+          "ended_at": "2026-05-12T20:49:40.255487Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T20:49:15.058874Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 1018.36929,
+          "ended_at": "2026-05-12T20:49:01.366670Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T20:32:02.997380Z"
+        },
         {
           "agent": "project_initializer",
           "duration_s": 63.932617,
@@ -18630,30 +18654,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-07T06:01:31.064003Z"
-        },
-        {
-          "agent": "research_question_validator",
-          "duration_s": 47.815483,
-          "ended_at": "2026-05-07T06:01:30.997449Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-07T06:00:43.181966Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 281.209506,
-          "ended_at": "2026-05-07T06:00:43.109260Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-07T05:56:01.899754Z"
-        },
-        {
-          "agent": "project_initializer",
-          "duration_s": 69.422944,
-          "ended_at": "2026-05-07T03:37:05.829821Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-07T03:35:56.406877Z"
         }
       ],
       "phase_group": "idea",
@@ -18663,7 +18663,7 @@
       "speckit_research_dir": null,
       "submitter": null,
       "title": "Predicting Molecular Dipole Moments with Graph Neural Networks",
-      "updated_at": "2026-05-10T19:11:18.378936+00:00"
+      "updated_at": "2026-05-12T20:50:35.978477+00:00"
     },
     {
       "artifact_links": {
@@ -38147,7 +38147,7 @@
       },
       "authors": [
         {
-          "contributions": 47,
+          "contributions": 56,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -38178,83 +38178,83 @@
       "last_run_log": [
         {
           "agent": "flesh_out",
+          "duration_s": 30.993617,
+          "ended_at": "2026-05-12T20:49:06.167946Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T20:48:35.174329Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 28.504062,
+          "ended_at": "2026-05-12T20:41:10.677009Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T20:40:42.172947Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 33.291263,
+          "ended_at": "2026-05-12T19:39:34.376735Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T19:39:01.085472Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 29.419684,
+          "ended_at": "2026-05-12T18:54:20.350646Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T18:53:50.930962Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 29.114956,
+          "ended_at": "2026-05-12T18:48:25.832327Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T18:47:56.717371Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 25.344096,
+          "ended_at": "2026-05-12T17:47:50.623443Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T17:47:25.279347Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 25.959125,
+          "ended_at": "2026-05-12T16:58:59.094115Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T16:58:33.134990Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 79.97871,
+          "ended_at": "2026-05-12T16:54:24.485127Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T16:53:04.506417Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 478.347127,
+          "ended_at": "2026-05-12T15:20:57.171856Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T15:12:58.824729Z"
+        },
+        {
+          "agent": "flesh_out",
           "duration_s": 46.554217,
           "ended_at": "2026-05-12T12:59:33.493020Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-12T12:58:46.938803Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 69.65208,
-          "ended_at": "2026-05-12T12:55:50.421776Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T12:54:40.769696Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 37.49721,
-          "ended_at": "2026-05-12T11:45:12.927541Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T11:44:35.430331Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 66.486599,
-          "ended_at": "2026-05-12T11:03:46.080290Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T11:02:39.593691Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 32.443006,
-          "ended_at": "2026-05-12T10:58:14.647286Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T10:57:42.204280Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 38.730775,
-          "ended_at": "2026-05-12T09:14:40.845150Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T09:14:02.114375Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 94.878888,
-          "ended_at": "2026-05-12T09:10:48.717079Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T09:09:13.838191Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 129.538233,
-          "ended_at": "2026-05-12T07:18:30.395663Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T07:16:20.857430Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 88.410027,
-          "ended_at": "2026-05-12T07:14:13.098890Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T07:12:44.688863Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 162.078367,
-          "ended_at": "2026-05-12T05:29:26.380767Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T05:26:44.302400Z"
         }
       ],
       "phase_group": "idea",
