@@ -23,7 +23,7 @@ Searches were conducted via Semantic Scholar / arXiv / OpenAlex using two distin
 
 ### What is known
 
-- [Gender Bias of LLM in Economics: An Existentialism Perspective (2024)](http://arxiv.org/abs/2410.19775v1) — This work addresses algorithmic bias in financial decision-making but does not examine visual salience effects on human moral reasoning.
+- None of the retrieved results were on-topic for the specific intersection of visual salience, moral psychology, and blame attribution.
 
 ### What is NOT known
 
@@ -46,7 +46,7 @@ We expect a statistically significant positive correlation between objective vis
 - **Stimulus creation**: Use Open Images Dataset or similar public image repository to extract images depicting multi-agent scenarios; manipulate visual salience of target actors via color saturation, contrast, and edge intensity using standard image processing libraries (PIL/OpenCV).
 - **Salience quantification**: Compute objective visual salience metrics for each actor (saliency map integration, contrast ratio, color distinctiveness) using existing saliency detection algorithms.
 - **Moral scenario annotation**: Have independent raters verify that actors' actual moral role (perpetrator, bystander, victim) remains constant across salience manipulations.
-- **Participant data collection**: Deploy online survey via Prolific or similar platform; participants rate perceived culpability of each actor on Likert scale.
+- **Participant data collection**: **Requires external human recruitment** (e.g., Prolific) to rate perceived culpability of each actor on Likert scale. This step violates the "No new experimental data collection" constraint for GitHub Actions runners.
 - **Statistical analysis**: Fit linear mixed-effects model with visual salience as predictor, blame rating as outcome, and random effects for participant and stimulus; test significance of salience coefficient.
 - **Power analysis**: Pre-register minimum detectable effect size (e.g., r = 0.2) and required N (e.g., 200 participants) for adequate power.
 
