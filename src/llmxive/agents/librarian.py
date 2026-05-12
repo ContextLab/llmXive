@@ -14,7 +14,10 @@ Per Q1 / Q2 / Q3 / Q4 clarifications:
   - Backends: Semantic Scholar Graph API + arXiv API only (Q1)
   - Verification: abstract for bulk + ≥10% PDF sample audit (Q2)
   - Expansion-exhausted: return partial list with ``outcome: "exhausted"`` (Q3)
-  - Wall-clock budget: 600s (Q4)
+  - Wall-clock budget: 1800s soft target (Q4 originally specified 600s; tripled
+    to 1800s post fix-ups #3/#4 — the concept-decomposed multi-query search +
+    looser LLM judge admit more candidates → more PDF samples; the budget is
+    documented soft guidance, NOT enforced — see diagnostic § 6 P5-D09)
 
 Per Constitution Principle I: this agent is the SINGLE source of truth
 for lit search + verification. New duplicate implementations are

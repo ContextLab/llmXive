@@ -10,6 +10,7 @@ import pytest
 
 from llmxive.credentials import load_dartmouth_key
 from llmxive.librarian.query_extractor import (
+    _fallback_queries,
     _fallback_short_query,
     _parse_numbered_queries,
     extract_queries,
@@ -105,6 +106,71 @@ def test_fallback_short_query_caps_length() -> None:
         "term " * 100, field=None,
     )
     assert len(q.split()) <= 7  # 6 tokens + maybe field
+
+
+# --- _fallback_queries (multi-query degraded mode) ---------------------------
+
+
+def test_fallback_queries_produces_multiple_distinct_for_long_question() -> None:
+    """A long structured question yields 3 overlapping positional windows
+    (head / tail / spread), each emphasizing a different region."""
+    qs = _fallback_queries(
+        "How does the spatial clustering of impurity atoms in the bulk "
+        "lattice influence the thermodynamic driving force for their "
+        "segregation to grain boundaries in polycrystalline alloys?",
+        field="materials science",
+    )
+    assert len(qs) >= 2, f"expected ≥2 fallback queries, got {qs!r}"
+    # Distinct.
+    assert len(set(qs)) == len(qs)
+    # HEAD query is field-anchored.
+    assert qs[0].endswith("materials science")
+    # HEAD emphasizes the front of the question (independent variable).
+    assert "spatial" in qs[0].lower() and "clustering" in qs[0].lower()
+    # Some later query reaches the dependent-variable region.
+    joined = " ".join(qs).lower()
+    assert "segregation" in joined
+    assert "grain" in joined or "boundaries" in joined
+    # Each query is short (keyword-shaped, not a sentence).
+    for q in qs:
+        assert len(q.split()) <= 8, f"query too long: {q!r}"
+
+
+def test_fallback_queries_head_and_tail_differ() -> None:
+    qs = _fallback_queries(
+        "Does increased neighborhood greenspace exposure reduce cortisol "
+        "levels and improve self-reported wellbeing in urban adolescents?",
+        field="psychology",
+    )
+    assert len(qs) >= 2
+    # The head query should NOT be identical to the tail query.
+    assert qs[0] != qs[1]
+    # Head touches the front (greenspace exposure); tail touches the
+    # back (wellbeing / adolescents).
+    assert "greenspace" in qs[0].lower() or "neighborhood" in qs[0].lower()
+
+
+def test_fallback_queries_short_question_single_query() -> None:
+    """A short question with few salient tokens degrades to a single
+    query rather than padding with garbage."""
+    qs = _fallback_queries("transformer attention mechanism", field=None)
+    # Only ~3 salient tokens → at most one window.
+    assert len(qs) == 1
+    assert "transformer" in qs[0].lower()
+
+
+def test_fallback_queries_empty_question() -> None:
+    qs = _fallback_queries("", field=None)
+    assert len(qs) == 1
+    assert qs[0]  # non-empty placeholder
+
+
+def test_fallback_queries_all_stop_words() -> None:
+    """A question that's nothing but stop-words still returns one
+    non-empty query (the truncated raw text)."""
+    qs = _fallback_queries("how do the and of in to", field=None)
+    assert len(qs) == 1
+    assert qs[0]
 
 
 # --- Real LLM smoke test ------------------------------------------------------

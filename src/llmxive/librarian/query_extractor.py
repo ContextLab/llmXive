@@ -168,13 +168,15 @@ def extract_queries(
             model=model,
         )
     except Exception as exc:
-        LOGGER.warning("[query-extractor] backend failure: %s", exc)
-        return [_fallback_short_query(research_question, field)]
+        LOGGER.warning("[query-extractor] backend failure; using deterministic fallback: %s", exc)
+        return _fallback_queries(research_question, field)
 
     parsed = _parse_numbered_queries(response.text, n=n)
     if not parsed:
-        # LLM returned nothing parseable — fall back to short form.
-        return [_fallback_short_query(research_question, field)]
+        # LLM returned nothing parseable — fall back to deterministic
+        # positional decomposition.
+        LOGGER.warning("[query-extractor] unparseable LLM response; using deterministic fallback")
+        return _fallback_queries(research_question, field)
     return parsed
 
 
@@ -212,23 +214,85 @@ def _parse_numbered_queries(text: str, *, n: int) -> list[str]:
     return queries
 
 
-def _fallback_short_query(research_question: str, field: str | None) -> str:
-    """Derive a short keyword query from the research question without
-    an LLM. Used only when the extractor backend fails."""
-    # Take the first 6 alphanumeric tokens, dropping common stop-words.
+_FALLBACK_STOPS = frozenset({
+    "how", "what", "why", "when", "where", "does", "do", "did",
+    "can", "could", "would", "should", "the", "and", "for", "with",
+    "from", "into", "that", "this", "these", "those", "have", "has",
+    "are", "is", "was", "were", "been", "being", "but", "any", "all",
+    "between", "across", "during", "while", "of", "in", "on", "to",
+    "their", "its", "a", "an", "by", "as", "at", "or", "if", "than",
+    "then", "such", "more", "most", "less",
+})
+
+
+def _salient_tokens(research_question: str) -> list[str]:
+    """Alphanumeric tokens of the question minus common stop-words,
+    in original order."""
     tokens = re.findall(r"[A-Za-z][A-Za-z0-9-]+", research_question)
-    stops = {
-        "how", "what", "why", "when", "where", "does", "do", "did",
-        "can", "could", "would", "should", "the", "and", "for", "with",
-        "from", "into", "that", "this", "these", "those", "have", "has",
-        "are", "is", "was", "were", "been", "being", "but", "any", "all",
-        "between", "across", "during", "while",
-    }
-    salient = [t for t in tokens if t.lower() not in stops][:6]
+    return [t for t in tokens if t.lower() not in _FALLBACK_STOPS]
+
+
+def _fallback_queries(research_question: str, field: str | None) -> list[str]:
+    """Deterministic positional decomposition of the research question
+    into up to 3 short keyword queries — used only when the LLM
+    extractor backend fails or returns unparseable output.
+
+    Strategy: a long research question is usually structured as
+    ``[independent variable] → [relationship] → [dependent variable]
+    in [context/population]``. We emit three overlapping windows that
+    each emphasize a different region:
+
+      - HEAD  : first ~5 salient tokens (usually the independent
+                variable / mechanism under study) + field suffix
+      - TAIL  : last ~5 salient tokens (usually the dependent
+                variable + population / context)
+      - SPREAD: every-other salient token, truncated to ~7 (a coarse
+                whole-question summary)
+
+    This is crude vs. the LLM path (no semantic concept decomposition,
+    no synonym / empirical-population vocabulary) but it preserves the
+    parallel-multi-query recall benefit even in degraded mode. Always
+    returns at least one query (falls back to the truncated question
+    if there are too few salient tokens).
+    """
+    salient = _salient_tokens(research_question)
+    if not salient:
+        return [research_question.strip()[:80] or "literature search"]
+
+    queries: list[str] = []
+    seen: set[str] = set()
+
+    def _add(toks: list[str], *, suffix: str | None = None) -> None:
+        if not toks:
+            return
+        q = " ".join(toks).strip()
+        if suffix:
+            q = f"{q} {suffix}"
+        key = q.lower()
+        if q and key not in seen:
+            seen.add(key)
+            queries.append(q)
+
+    # HEAD — independent-variable region; field-anchored.
+    _add(salient[:5], suffix=field)
+    # TAIL — dependent-variable + context region.
+    if len(salient) > 6:
+        _add(salient[-5:])
+    # SPREAD — coarse whole-question summary (every other token).
+    if len(salient) > 8:
+        _add(salient[::2][:7])
+
+    return queries or [_fallback_short_query(research_question, field)]
+
+
+def _fallback_short_query(research_question: str, field: str | None) -> str:
+    """Single short keyword query — last-resort when even the positional
+    decomposition can't produce anything (e.g. <2 salient tokens)."""
+    salient = _salient_tokens(research_question)[:6]
     q = " ".join(salient).strip()
     if field:
         q = f"{q} {field}"
-    return q or research_question.strip()[:80]
+    return q or research_question.strip()[:80] or "literature search"
 
 
 __all__ = [

@@ -110,7 +110,7 @@ agents:
   - huggingface
   - local
   default_model: qwen.qwen3.5-122b
-  wall_clock_budget_seconds: 600
+  wall_clock_budget_seconds: 1800
   paid_opt_in: false
 - name: specifier
   purpose: Drive /speckit.specify for the project; draft spec.md from the idea.

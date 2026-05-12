@@ -88,4 +88,5 @@ notes: |
   extractor surfaced canonical-vocabulary clusters. A v1.5.0 single-
   query probe of the same question produced 3 strict-pass without
   marginal, indicating judge non-determinism is a residual issue
+  (tracked in GitHub issue #112)
   that doesn't fully resolve under prompt-only fixes.
