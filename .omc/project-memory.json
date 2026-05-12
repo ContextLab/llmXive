@@ -248,9 +248,21 @@
       "type": "file"
     },
     {
+      "path": "tests/real_call/test_dartmouth_chat.py",
+      "accessCount": 2,
+      "lastAccessed": 1778593033269,
+      "type": "file"
+    },
+    {
       "path": "specs/005-librarian-agent/revalidation-results.yaml",
       "accessCount": 1,
       "lastAccessed": 1778588345776,
+      "type": "file"
+    },
+    {
+      "path": "tests/conftest.py",
+      "accessCount": 1,
+      "lastAccessed": 1778593113416,
       "type": "file"
     }
   ],
