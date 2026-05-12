@@ -1,0 +1,634 @@
+{
+  "fetched_at": "2026-05-12T15:20:27Z",
+  "field": "psychology",
+  "prompt_version": "1.5.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Influence of Visual Salience on Attentional Bias in Moral Decision-Making",
+      "target_n": 5
+    },
+    "duration_seconds": 448.381,
+    "ended_at": "2026-05-12T15:20:27Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Visual salience and ethical judgment"
+        ],
+        [
+          2,
+          "Attentional capture in moral dilemmas"
+        ],
+        [
+          3,
+          "Gaze bias in moral reasoning"
+        ],
+        [
+          4,
+          "Perceptual salience and moral decision making"
+        ],
+        [
+          5,
+          "Visual attention allocation in ethics"
+        ],
+        [
+          6,
+          "Stimulus salience effects on moral choice"
+        ],
+        [
+          7,
+          "Bottom-up attention in moral psychology"
+        ],
+        [
+          8,
+          "Eye-tracking studies of moral judgment"
+        ],
+        [
+          9,
+          "Visual framing effects in ethical decisions"
+        ],
+        [
+          10,
+          "Selective attention and moral evaluation"
+        ],
+        [
+          11,
+          "Attentional mechanisms in moral cognition"
+        ],
+        [
+          12,
+          "Visual prominence and behavioral ethics"
+        ],
+        [
+          13,
+          "Salient distractors in moral reasoning"
+        ],
+        [
+          14,
+          "Implicit attentional bias in morality"
+        ],
+        [
+          15,
+          "Visual cues in ethical dilemmas"
+        ],
+        [
+          16,
+          "Cognitive biases in moral reasoning"
+        ],
+        [
+          17,
+          "Attention and moral decision making"
+        ],
+        [
+          18,
+          "Visual processing in moral judgment"
+        ],
+        [
+          19,
+          "Affective salience and moral choice"
+        ],
+        [
+          20,
+          "Top-down versus bottom-up attention in ethics"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Attentional capture in moral dilemmas": 3,
+        "Gaze bias in moral reasoning": 3,
+        "The Influence of Visual Salience on Attentional Bias in Moral Decision-Making psychology": 0,
+        "Visual salience and ethical judgment": 0
+      },
+      "total_queries_issued": 3
+    },
+    "extracted_queries": [
+      "perceptual salience moral attentional capture",
+      "eye tracking moral dilemmas",
+      "dual process moral judgment",
+      "utilitarian choice reaction time",
+      "gaze fixation moral choice"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.5.0",
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2012.15738"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Influence of Visual Salience on Attentional Bias in Moral Decision-Making psychology": 3,
+      "dual process moral judgment": 0,
+      "eye tracking moral dilemmas": 3,
+      "gaze fixation moral choice": 2,
+      "perceptual salience moral attentional capture": 3,
+      "utilitarian choice reaction time": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 7,
+      "rejections": [
+        {
+          "primary_pointer": "1202.4918",
+          "rationale": "This paper focuses on mathematical quantum probability models for social decision theory, which does not address the empirical psychological variables of visual salience or attentional bias in moral contexts. It falls under the rejection rule for distinct constructs sharing only the keyword \"decision making\" while belonging to different domains (theoretical modeling vs. experimental psychology).",
+          "title": "Quantum decision making by social agents"
+        },
+        {
+          "primary_pointer": "2601.21815",
+          "rationale": "This paper focuses on media engagement metrics (views, likes) and moral framing in social media, which represents a distinct construct from the cognitive psychological mechanism of attentional bias in moral decision-making (e.g., eye-tracking or reaction time during moral dilemmas), falling under the rejection rule for distinct constructs sharing only homonym keywords (\"attention\", \"moral\").",
+          "title": "Moral Outrage Shapes Commitments Beyond Attention: Multimodal Moral Emotions on YouTube in Korea and the US"
+        },
+        {
+          "primary_pointer": "2203.06152",
+          "rationale": "This paper focuses on machine ethics and autonomous systems rather than human cognitive psychology, lacking any measurement of visual salience or attentional bias in human subjects. It falls under the rejection rule for being off-domain entirely, as it addresses algorithmic validation rather than the psychological mechanisms specified in the user's question.",
+          "title": "Moral Dilemmas for Moral Machines"
+        },
+        {
+          "primary_pointer": "1807.02572",
+          "rationale": "The paper focuses on Artificial Moral Agents and computational planning architectures, which is off-domain from the user's question regarding human psychology, visual salience, and attentional bias. It shares the keyword \"moral\" but studies a distinct construct (AI systems) rather than the human cognitive mechanisms specified in the research question.",
+          "title": "Quasi-Dilemmas for Artificial Moral Agents"
+        },
+        {
+          "primary_pointer": "2306.14308",
+          "rationale": "This paper is off-domain entirely, focusing on natural language processing techniques for language models rather than human psychological mechanisms. It does not address the user's independent variable (visual salience) or target population (human attentional bias in moral decision-making), sharing only the keyword \"moral.\"",
+          "title": "Let's Do a Thought Experiment: Using Counterfactuals to Improve Moral Reasoning"
+        },
+        {
+          "primary_pointer": "2504.16021",
+          "rationale": "This paper focuses on AI interventions and cognitive flow maintenance in reasoning tasks rather than the psychological mechanisms of visual salience and attentional bias within moral decision-making. It falls under the rejection criteria for distinct constructs/off-domain, as it addresses Human-Computer Interaction and AI support frameworks rather than Moral Psychology or visual attention mechanisms.",
+          "title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support"
+        },
+        {
+          "primary_pointer": "2012.15738",
+          "rationale": "This paper focuses on natural language generation models and artificial moral reasoning in computer science, which is off-domain entirely from the user's question regarding human visual salience and attentional bias in psychology. It shares only the keyword \"moral\" while addressing a distinct construct (AI text generation) rather than the psychological mechanisms specified.",
+          "title": "Moral Stories: Situated Reasoning about Norms, Intents, Actions, and their Consequences"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-12T15:12:59Z",
+    "term_input": {
+      "normalized": "the influence of visual salience on attentional bias in moral decision-making psychology",
+      "raw": "The Influence of Visual Salience on Attentional Bias in Moral Decision-Making psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) exhibit expert-level performance in tasks across a wide range of different domains. Ethical issues raised by LLMs and the need to align future versions makes it important to know how state of the art models reason about moral and legal issues. In this paper, we employ the methods of experimental psychology to probe into this question. We replicate eight studies from the experimental literature with instances of Google's Gemini Pro, Anthropic's Claude 2.1, OpenAI's GPT-4, and Meta's Llama 2 Chat 70b. We find that alignment with human responses shifts from one experiment to another, and that models differ amongst themselves as to their overall alignment, with GPT-4 taking a clear lead over all other models we tested. Nonetheless, even when LLM-generated responses are highly correlated to human responses, there are still systematic differences, with a tendency for models to exaggerate effects that are present among humans, in part by reducing variance. This recommends caution with regards to proposals of replacing human participants with current state-of-the-art LLMs in psychological research and highlights the need for further research about the distinctive aspects of machine psychology.",
+          "claimed_authors": [
+            "Guilherme F. C. F. Almeida",
+            "José Luiz Nunes",
+            "Neele Engelmann",
+            "Alex Wiegmann",
+            "Marcelo de Araújo"
+          ],
+          "claimed_title": "Exploring the psychology of LLMs' Moral and Legal Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.01264"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='The Influence of Visual Salience on Attentional Bias in Moral Decision-Making ps', candidate_title=\"Exploring the psychology of LLMs' Moral and Legal Reasoning\")",
+        "failed_at": "2026-05-12T15:16:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Important decisions that impact human lives, livelihoods, and the natural environment are increasingly being automated. Delegating tasks to so-called automated decision-making systems (ADMS) can improve efficiency and enable new solutions. However, these benefits are coupled with ethical challenges. For example, ADMS may produce discriminatory outcomes, violate individual privacy, and undermine human self-determination. New governance mechanisms are thus needed that help organisations design and deploy ADMS in ways that are ethical, while enabling society to reap the full economic and social benefits of automation. In this article, we consider the feasibility and efficacy of ethics-based auditing (EBA) as a governance mechanism that allows organisations to validate claims made about their ADMS. Building on previous work, we define EBA as a structured process whereby an entity's present or past behaviour is assessed for consistency with relevant principles or norms. We then offer three contributions to the existing literature. First, we provide a theoretical explanation of how EBA can contribute to good governance by promoting procedural regularity and transparency. Second, we propose seven criteria for how to design and implement EBA procedures successfully. Third, we identify and discuss the conceptual, technical, social, economic, organisational, and institutional constraints associated with EBA. We conclude that EBA should be considered an integral component of multifaced approaches to managing the ethical risks posed by ADMS.",
+          "claimed_authors": [
+            "Jakob Mokander",
+            "Jessica Morley",
+            "Mariarosaria Taddeo",
+            "Luciano Floridi"
+          ],
+          "claimed_title": "Ethics-Based Auditing of Automated Decision-Making Systems: Nature, Scope, and Limitations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.10980"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='The Influence of Visual Salience on Attentional Bias in Moral Decision-Making ps', candidate_title='Ethics-Based Auditing of Automated Decision-Making Systems: Nature, Scope, and Limitations')",
+        "failed_at": "2026-05-12T15:16:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding how media rhetoric shapes audience engagement is crucial in the attention economy. This study examines how moral emotional framing by mainstream news channels on YouTube influences user behavior across Korea and the United States. To capture the platform's multimodal nature, combining thumbnail images and video titles, we develop a multimodal moral emotion classifier by fine tuning a vision language model. The model is trained on human annotated multimodal datasets in both languages and applied to approximately 400,000 videos from major news outlets. We analyze engagement levels including views, likes, and comments, representing increasing degrees of commitment. The results show that other condemning rhetoric expressions of moral outrage that criticize others morally consistently increase all forms of engagement across cultures, with effects ranging from passive viewing to active commenting. These findings suggest that moral outrage is a particularly effective emotional strategy, attracting not only attention but also active participation. We discuss concerns about the potential misuse of other condemning rhetoric, as such practices may deepen polarization by reinforcing in group and out group divisions. To facilitate future research and ensure reproducibility, we publicly release our Korean and English multimodal moral emotion classifiers.",
+          "claimed_authors": [
+            "Seongchan Park",
+            "Jaehong Kim",
+            "Hyeonseung Kim",
+            "Heejin Bin",
+            "Sue Moon",
+            "Wonjae Lee"
+          ],
+          "claimed_title": "Moral Outrage Shapes Commitments Beyond Attention: Multimodal Moral Emotions on YouTube in Korea and the US",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.21815"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='The Influence of Visual Salience on Attentional Bias in Moral Decision-Making ps', candidate_title='Moral Outrage Shapes Commitments Beyond Attention: Multimodal Moral Emotions on YouTube in Korea and the US')",
+        "failed_at": "2026-05-12T15:16:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Work in AI ethics and fairness has made much progress in regulating LLMs to reflect certain values, such as fairness, truth, and diversity. However, it has taken the problem of how LLMs might 'mean' anything at all for granted. Without addressing this, it is not clear what imbuing LLMs with such values even means. In response, we provide a general theory of meaning that extends beyond humans. We use this theory to explicate the precise nature of LLMs as meaning-agents. We suggest that the LLM, by virtue of its position as a meaning-agent, already grasps the constructions of human society (e.g. morality, gender, and race) in concept. Consequently, under certain ethical frameworks, currently popular methods for model alignment are limited at best and counterproductive at worst. Moreover, unaligned models may help us better develop our moral and social philosophy.",
+          "claimed_authors": [
+            "Mark Pock",
+            "Andre Ye",
+            "Jared Moore"
+          ],
+          "claimed_title": "LLMs grasp morality in concept",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.02294"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='The Influence of Visual Salience on Attentional Bias in Moral Decision-Making ps', candidate_title='LLMs grasp morality in concept')",
+        "failed_at": "2026-05-12T15:16:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The fields of AI current lacks methods to quantitatively assess and potentially alter the moral values inherent in the output of large language models (LLMs). However, decades of social science research has developed and refined widely-accepted moral value surveys, such as the World Values Survey (WVS), eliciting value judgments from direct questions in various geographies. We have turned those questions into value statements and use NLP to compute to how well popular LLMs are aligned with moral values for various demographics and cultures. While the WVS is accepted as an explicit assessment of values, we lack methods for assessing implicit moral and cultural values in media, e.g., encountered in social media, political rhetoric, narratives, and generated by AI systems such as LLMs that are increasingly present in our daily lives. As we consume online content and utilize LLM outputs, we might ask, which moral values are being implicitly promoted or undercut, or -- in the case of LLMs -- if they are intending to represent a cultural identity, are they doing so consistently? In this paper we utilize a Recognizing Value Resonance (RVR) NLP model to identify WVS values that resonate and conflict with a given passage of output text. We apply RVR to the text generated by LLMs to characterize implicit moral values, allowing us to quantify the moral/cultural distance between LLMs and various demographics that have been surveyed using the WVS. In line with other work we find that LLMs exhibit several Western-centric value biases; they overestimate how conservative people in non-Western countries are, they are less accurate in representing gender for non-Western countries, and portray older populations as having more traditional values. Our results highlight value misalignment and age groups, and a need for social science informed technological solutions addressing value plurality in LLMs.",
+          "claimed_authors": [
+            "Noam Benkler",
+            "Drisana Mosaphir",
+            "Scott Friedman",
+            "Andrew Smart",
+            "Sonja Schmer-Galunder"
+          ],
+          "claimed_title": "Assessing LLMs for Moral Value Pluralism",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10075"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='The Influence of Visual Salience on Attentional Bias in Moral Decision-Making ps', candidate_title='Assessing LLMs for Moral Value Pluralism')",
+        "failed_at": "2026-05-12T15:16:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We conducted an eye-tracking study where 30 participants performed searches on the web. We measured their topical knowledge before and after each task. Their eye-fixations were labelled as \"reading\" or \"scanning\". The series of reading fixations in a line, called \"reading-sequences\" were characterized by their length in pixels, fixation duration, and the number of fixations making up the sequence. We hypothesize that differences in knowledge-change of participants are reflected in their eye-tracking measures related to reading. Our results show that the participants with higher change in knowledge differ significantly in terms of their total reading-sequence-length, reading-sequence-duration, and number of reading fixations, when compared to participants with lower knowledge-change.",
+          "claimed_authors": [
+            "Nilavra Bhattacharya",
+            "Jacek Gwizdka"
+          ],
+          "claimed_title": "Relating Eye-Tracking Measures With Changes In Knowledge on Search Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1805.02399"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='The Influence of Visual Salience on Attentional Bias in Moral Decision-Making ps', candidate_title='Relating Eye-Tracking Measures With Changes In Knowledge on Search Tasks')",
+        "failed_at": "2026-05-12T15:16:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A single digital newsletter usually contains many messages (regions). Users' reading time spent on, and read level (skip/skim/read-in-detail) of each message is important for platforms to understand their users' interests, personalize their contents, and make recommendations. Based on accurate but expensive-to-collect eyetracker-recorded data, we built models that predict per-region reading time based on easy-to-collect Javascript browser tracking data.\n  With eye-tracking, we collected 200k ground-truth datapoints on participants reading news on browsers. Then we trained machine learning and deep learning models to predict message-level reading time based on user interactions like mouse position, scrolling, and clicking. We reached 27\\% percentage error in reading time estimation with a two-tower neural network based on user interactions only, against the eye-tracking ground truth data, while the heuristic baselines have around 46\\% percentage error. We also discovered the benefits of replacing per-session models with per-timestamp models, and adding user pattern features. We concluded with suggestions on developing message-level reading estimation techniques based on available data.",
+          "claimed_authors": [
+            "Ruoyan Kong",
+            "Ruixuan Sun",
+            "Charles Chuankai Zhang",
+            "Chen Chen",
+            "Sneha Patri",
+            "Gayathri Gajjela",
+            "Joseph A. Konstan"
+          ],
+          "claimed_title": "Getting the Most from Eye-Tracking: User-Interaction Based Reading Region Estimation Dataset and Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.07455"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Visual Salience on Attentional Bias in Moral Decision-Making ps', candidate_title='Getting the Most from Eye-Tracking: User-Interaction Based Reading Region Estimation Dataset and Models')",
+        "failed_at": "2026-05-12T15:16:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Event-based eye tracking has shown great promise with the high temporal resolution and low redundancy provided by the event camera. However, the diversity and abruptness of eye movement patterns, including blinking, fixating, saccades, and smooth pursuit, pose significant challenges for eye localization. To achieve a stable event-based eye-tracking system, this paper proposes a bidirectional long-term sequence modeling and time-varying state selection mechanism to fully utilize contextual temporal information in response to the variability of eye movements. Specifically, the MambaPupil network is proposed, which consists of the multi-layer convolutional encoder to extract features from the event representations, a bidirectional Gated Recurrent Unit (GRU), and a Linear Time-Varying State Space Module (LTV-SSM), to selectively capture contextual correlation from the forward and backward temporal relationship. Furthermore, the Bina-rep is utilized as a compact event representation, and the tailor-made data augmentation, called as Event-Cutout, is proposed to enhance the model's robustness by applying spatial random masking to the event image. The evaluation on the ThreeET-plus benchmark shows the superior performance of the MambaPupil, which secured the 1st place in CVPR'2024 AIS Event-based Eye Tracking challenge.",
+          "claimed_authors": [
+            "Zhong Wang",
+            "Zengyu Wan",
+            "Han Han",
+            "Bohao Liao",
+            "Yuliang Wu",
+            "Wei Zhai",
+            "Yang Cao",
+            "Zheng-jun Zha"
+          ],
+          "claimed_title": "MambaPupil: Bidirectional Selective Recurrent model for Event-based Eye tracking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.12083"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Visual Salience on Attentional Bias in Moral Decision-Making ps', candidate_title='MambaPupil: Bidirectional Selective Recurrent model for Event-based Eye tracking')",
+        "failed_at": "2026-05-12T15:16:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The space-time foliation Sigma compatible with the gravitational field g on a 4-manifold M determines a fibration pi of M, pi : M -> N is a surjective submersion over the 1-dimensional leaves space N. M is then written as a disjoint union of the leaves of Sigma, which are 3-dimensional spacelike surfaces on M.\n  The decomposition, TM=Sigma + T^0 M, also implies that we can define a lift of the curves on N to curves (non-spacelike) on M.\n  The stable causality condition M coincides with Sigma being a causal space-time distribution, generated by an exact timelike 1-form omega^0 = dt where t is some real function on M. In this case M is written as a disjoint union of a family of spacelike 3-surfaces of constant t, which cover D^+(S) of a initial 3-surface S of M.",
+          "claimed_authors": [
+            "Mihaela Time"
+          ],
+          "claimed_title": "Space-time distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "gr-qc/9810059"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Visual Salience on Attentional Bias in Moral Decision-Making ps', candidate_title='Space-time distributions')",
+        "failed_at": "2026-05-12T15:16:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A large amount of literature in social choice theory deals with quantifying the probability of certain election outcomes. One way of computing the probability of a specific voting situation under the Impartial Anonymous Culture assumption is via counting integral points in polyhedra. Here, Ehrhart theory can help, but unfortunately the dimension and complexity of the involved polyhedra grows rapidly with the number of candidates. However, if we exploit available polyhedral symmetries, some computations become possible that previously were infeasible. We show this in three well known examples: Condorcet's paradox, Condorcet efficiency of plurality voting and in Plurality voting vs Plurality Runoff.",
+          "claimed_authors": [
+            "Achill Schürmann"
+          ],
+          "claimed_title": "Exploiting Polyhedral Symmetries in Social Choice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1109.1545"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Visual Salience on Attentional Bias in Moral Decision-Making ps', candidate_title='Exploiting Polyhedral Symmetries in Social Choice')",
+        "failed_at": "2026-05-12T15:16:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a gamified explainable AI (XAI) system for ethically aware consumer decision-making in the coffee domain. Each session comprises six rounds with three options per round. Two symbolic engines provide real-time reasons: a Kantian module flags rule violations (e.g., child labor, deforestation risk without shade certification, opaque supply chains, unsafe decaf), and a utilitarian module scores options via multi-criteria aggregation over normalized attributes (price, carbon, water, transparency, farmer income share, taste/freshness, packaging, convenience). A meta-explainer with a regret bound (0.2) highlights Kantian--utilitarian (mis)alignment and switches to a deontically clean, near-parity option when welfare loss is small. We release a structured configuration (attribute schema, certification map, weights, rule set), a policy trace for auditability, and an interactive UI.",
+          "claimed_authors": [
+            "Zahra Atf",
+            "Peter R. Lewis"
+          ],
+          "claimed_title": "Kantian-Utilitarian XAI: Meta-Explained",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.03892"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='The Influence of Visual Salience on Attentional Bias in Moral Decision-Making ps', candidate_title='Kantian-Utilitarian XAI: Meta-Explained')",
+        "failed_at": "2026-05-12T15:16:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One of the most fundamental and information-laden actions humans do is to look at objects. However, a survey of current works reveals that existing gaze-related datasets annotate only the pixel being looked at, and not the boundaries of a specific object of interest. This lack of object annotation presents an opportunity for further advancing gaze estimation research. To this end, we present a challenging new task called gaze object prediction, where the goal is to predict a bounding box for a person's gazed-at object. To train and evaluate gaze networks on this task, we present the Gaze On Objects (GOO) dataset. GOO is composed of a large set of synthetic images (GOO Synth) supplemented by a smaller subset of real images (GOO-Real) of people looking at objects in a retail environment. Our work establishes extensive baselines on GOO by re-implementing and evaluating selected state-of-the art models on the task of gaze following and domain adaptation. Code is available on github.",
+          "claimed_authors": [
+            "Henri Tomas",
+            "Marcus Reyes",
+            "Raimarc Dionido",
+            "Mark Ty",
+            "Jonric Mirando",
+            "Joel Casimiro",
+            "Rowel Atienza",
+            "Richard Guinto"
+          ],
+          "claimed_title": "GOO: A Dataset for Gaze Object Prediction in Retail Environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.10793"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Visual Salience on Attentional Bias in Moral Decision-Making ps', candidate_title='GOO: A Dataset for Gaze Object Prediction in Retail Environments')",
+        "failed_at": "2026-05-12T15:16:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Self-supervised learning (SSL) has become prevalent for learning representations in computer vision. Notably, SSL exploits contrastive learning to encourage visual representations to be invariant under various image transformations. The task of gaze estimation, on the other hand, demands not just invariance to various appearances but also equivariance to the geometric transformations. In this work, we propose a simple contrastive representation learning framework for gaze estimation, named Gaze Contrastive Learning (GazeCLR). GazeCLR exploits multi-view data to promote equivariance and relies on selected data augmentation techniques that do not alter gaze directions for invariance learning. Our experiments demonstrate the effectiveness of GazeCLR for several settings of the gaze estimation task. Particularly, our results show that GazeCLR improves the performance of cross-domain gaze estimation and yields as high as 17.2% relative improvement. Moreover, the GazeCLR framework is competitive with state-of-the-art representation learning methods for few-shot evaluation. The code and pre-trained models are available at https://github.com/jswati31/gazeclr.",
+          "claimed_authors": [
+            "Swati Jindal",
+            "Roberto Manduchi"
+          ],
+          "claimed_title": "Contrastive Representation Learning for Gaze Estimation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.13404"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='The Influence of Visual Salience on Attentional Bias in Moral Decision-Making ps', candidate_title='Contrastive Representation Learning for Gaze Estimation')",
+        "failed_at": "2026-05-12T15:16:41Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "V. I. Yukalov",
+            "D. Sornette"
+          ],
+          "title": "Quantum decision making by social agents",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1202.4918",
+        "summary": "The influence of additional information on the decision making of agents, who are interacting members of a society, is analyzed within the mathematical framework based on the use of quantum probabilities. The introduction of social interactions, which influence the decisions of individual agents, leads to a generalization of the quantum decision theory developed earlier by the authors for separate individuals. The generalized approach is free of the standard paradoxes of classical decision theory. This approach also explains the error-attenuation effects observed for the paradoxes occurring when decision makers, who are members of a society, consult with each other, increasing in this way the available mutual information. A precise correspondence between quantum decision theory and classical utility theory is formulated via the introduction of an intermediate probabilistic version of utility theory of a novel form, which obeys the requirement that zero-utility prospects should have zero probability weights.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/1202.4918",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T15:16:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Seongchan Park",
+            "Jaehong Kim",
+            "Hyeonseung Kim",
+            "Heejin Bin",
+            "Sue Moon",
+            "Wonjae Lee"
+          ],
+          "title": "Moral Outrage Shapes Commitments Beyond Attention: Multimodal Moral Emotions on YouTube in Korea and the US",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.21815",
+        "summary": "Understanding how media rhetoric shapes audience engagement is crucial in the attention economy. This study examines how moral emotional framing by mainstream news channels on YouTube influences user behavior across Korea and the United States. To capture the platform's multimodal nature, combining thumbnail images and video titles, we develop a multimodal moral emotion classifier by fine tuning a vision language model. The model is trained on human annotated multimodal datasets in both languages and applied to approximately 400,000 videos from major news outlets. We analyze engagement levels including views, likes, and comments, representing increasing degrees of commitment. The results show that other condemning rhetoric expressions of moral outrage that criticize others morally consistently increase all forms of engagement across cultures, with effects ranging from passive viewing to active commenting. These findings suggest that moral outrage is a particularly effective emotional strategy, attracting not only attention but also active participation. We discuss concerns about the potential misuse of other condemning rhetoric, as such practices may deepen polarization by reinforcing in group and out group divisions. To facilitate future research and ensure reproducibility, we publicly release our Korean and English multimodal moral emotion classifiers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2601.21815",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T15:17:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Travis LaCroix"
+          ],
+          "title": "Moral Dilemmas for Moral Machines",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2203.06152",
+        "summary": "Autonomous systems are being developed and deployed in situations that may require some degree of ethical decision-making ability. As a result, research in machine ethics has proliferated in recent years. This work has included using moral dilemmas as validation mechanisms for implementing decision-making algorithms in ethically-loaded situations. Using trolley-style problems in the context of autonomous vehicles as a case study, I argue (1) that this is a misapplication of philosophical thought experiments because (2) it fails to appreciate the purpose of moral dilemmas, and (3) this has potentially catastrophic consequences; however, (4) there are uses of moral dilemmas in machine ethics that are appropriate and the novel situations that arise in a machine-learning context can shed some light on philosophical work in ethics.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2203.06152",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T15:17:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Daniel Kasenberg",
+            "Vasanth Sarathy",
+            "Thomas Arnold",
+            "Matthias Scheutz",
+            "Tom Williams"
+          ],
+          "title": "Quasi-Dilemmas for Artificial Moral Agents",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1807.02572",
+        "summary": "In this paper we describe moral quasi-dilemmas (MQDs): situations similar to moral dilemmas, but in which an agent is unsure whether exploring the plan space or the world may reveal a course of action that satisfies all moral requirements. We argue that artificial moral agents (AMAs) should be built to handle MQDs (in particular, by exploring the plan space rather than immediately accepting the inevitability of the moral dilemma), and that MQDs may be useful for evaluating AMA architectures.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/1807.02572",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T15:17:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiao Ma",
+            "Swaroop Mishra",
+            "Ahmad Beirami",
+            "Alex Beutel",
+            "Jilin Chen"
+          ],
+          "title": "Let's Do a Thought Experiment: Using Counterfactuals to Improve Moral Reasoning",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.14308",
+        "summary": "Language models still struggle on moral reasoning, despite their impressive performance in many other tasks. In particular, the Moral Scenarios task in MMLU (Multi-task Language Understanding) is among the worst performing tasks for many language models, including GPT-3. In this work, we propose a new prompting framework, Thought Experiments, to teach language models to do better moral reasoning using counterfactuals. Experiment results show that our framework elicits counterfactual questions and answers from the model, which in turn helps improve the accuracy on Moral Scenarios task by 9-16% compared to other zero-shot baselines. Interestingly, unlike math reasoning tasks, zero-shot Chain-of-Thought (CoT) reasoning doesn't work out of the box, and even reduces accuracy by around 4% compared to direct zero-shot. We further observed that with minimal human supervision in the form of 5 few-shot examples, the accuracy of the task can be improved to as much as 80%.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2306.14308",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T15:17:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2504.16021",
+        "summary": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2504.16021",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T15:17:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Denis Emelin",
+            "Ronan Le Bras",
+            "Jena D. Hwang",
+            "Maxwell Forbes",
+            "Yejin Choi"
+          ],
+          "title": "Moral Stories: Situated Reasoning about Norms, Intents, Actions, and their Consequences",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2012.15738",
+        "summary": "In social settings, much of human behavior is governed by unspoken rules of conduct. For artificial systems to be fully integrated into social environments, adherence to such norms is a central prerequisite. We investigate whether contemporary NLG models can function as behavioral priors for systems deployed in social settings by generating action hypotheses that achieve predefined goals under moral constraints. Moreover, we examine if models can anticipate likely consequences of (im)moral actions, or explain why certain actions are preferable by generating relevant norms. For this purpose, we introduce 'Moral Stories', a crowd-sourced dataset of structured, branching narratives for the study of grounded, goal-oriented social reasoning. Finally, we propose decoding strategies that effectively combine multiple expert models to significantly improve the quality of generated actions, consequences, and norms compared to strong baselines, e.g. though abductive reasoning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "final_url": "https://arxiv.org/abs/2012.15738",
+          "http_status": 200,
+          "pdf_sample_score": 0.2,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T15:17:20Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the influence of visual salience on attentional bias in moral decision-making psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
