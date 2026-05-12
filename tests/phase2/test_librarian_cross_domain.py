@@ -201,6 +201,14 @@ def test_librarian_field_coverage(field: str, shared_arxiv_client, shared_ss_cli
         ),
         "duration_seconds": d["duration_seconds"],
         "cache_status": d["cache_status"],
+        # spec 006 diagnostics: the math-classifier audit + how many
+        # verified citations the TheoremSearch backend contributed.
+        "math_classifier": d.get("math_classifier"),
+        "theoremsearch_hit_count": sum(
+            1
+            for v in d["verified_citations"]
+            if (v.get("verification_log") or {}).get("backend") == "theoremsearch"
+        ),
     }
     out_path.write_text(json.dumps(row, indent=2, ensure_ascii=False), encoding="utf-8")
 
@@ -214,3 +222,18 @@ def test_librarian_field_coverage(field: str, shared_arxiv_client, shared_ss_cli
         f"field={field}: zero verified citations returned. "
         f"sample_term={sample_term!r}; outcome={d['outcome']}"
     )
+
+    # spec 006 (cross-domain-coverage-9fields.md): every result carries a
+    # `math_classifier` audit object of the right shape.
+    mc = d.get("math_classifier")
+    assert isinstance(mc, dict) and set(mc) == {"invoked", "verdict", "error"}, mc
+    if field in ("mathematics", "statistics"):
+        # TheoremSearch queried unconditionally — the classifier is NOT consulted.
+        assert mc == {"invoked": False, "verdict": None, "error": None}, (
+            f"field={field}: expected unconditional-trigger audit, got {mc}"
+        )
+    else:
+        # The classifier was consulted; it either gave a verdict or failed
+        # (a fail is tolerated — fail-open to non-math, not a test failure).
+        assert mc["invoked"] is True, mc
+        assert (mc["verdict"] in (True, False)) or (mc["error"] is not None), mc
