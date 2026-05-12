@@ -5,7 +5,7 @@
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2241,
+    "total_contributions": 2242,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 2068,
+      "contribution_count": 2069,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -200,7 +200,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-12T07:18:32.784753+00:00",
+  "generated_at": "2026-05-12T09:10:51.308144+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -38090,7 +38090,7 @@
       },
       "authors": [
         {
-          "contributions": 40,
+          "contributions": 41,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -38119,6 +38119,14 @@
       "id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 94.878888,
+          "ended_at": "2026-05-12T09:10:48.717079Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T09:09:13.838191Z"
+        },
         {
           "agent": "flesh_out",
           "duration_s": 129.538233,
@@ -38190,14 +38198,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-12T01:00:40.843726Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 32.955982,
-          "ended_at": "2026-05-11T23:27:03.685247Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-11T23:26:30.729265Z"
         }
       ],
       "phase_group": "idea",
