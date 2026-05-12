@@ -31,7 +31,7 @@ Single-project Python repo. New modules live inside the existing `src/llmxive/li
 
 ## Phase 2: Foundational — `mathematics` in the field lists
 
-**Purpose**: Add `mathematics` to every place the librarian's default-field list lives. This BLOCKS US2 (the seed math projects need `mathematics` to be a valid field) and is consumed by US1 (the `field == "mathematics"` trigger). Per the plan's structure section, the field list currently lives in TWO places — both must be updated consistently; do NOT introduce a third copy.
+**Purpose**: Add `mathematics` to every place the librarian's default-field list lives. This BLOCKS US2 (the seed math projects need `mathematics` to be a valid field) and is consumed by US1 (the `field == "mathematics"` trigger). Per the plan's structure section, the field list currently lives in TWO places — both must be updated consistently; do NOT introduce a third copy. (Consolidating the two copies into one canonical constant is out of scope here — tracked as GitHub issue #116, to be done after this amendment lands.)
 
 ⚠️ **No story label** — foundational.
 

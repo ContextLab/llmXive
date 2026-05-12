@@ -20,7 +20,7 @@ DEFAULT_FIELDS = [
 ]
 ```
 
-(The same list also lives in `src/llmxive/cli.py` as `default_fields` — FR-A09 updates both. Whether to consolidate them into one canonical constant is flagged as a possible separate hygiene cleanup, out of scope for this amendment.)
+(The same list also lives in `src/llmxive/cli.py` as `default_fields` — FR-A09 updates both. Consolidating them into one canonical constant is out of scope for this amendment; tracked as a hygiene follow-up in GitHub issue #116, to be done after #113 lands.)
 
 The test is `@pytest.mark.parametrize("field", DEFAULT_FIELDS)` over `test_librarian_field_coverage(field)` — adding `"mathematics"` automatically gives it a `mathematics` case. **No new skip logic is needed**: the existing test already handles "no brainstormed project for this field" by skipping with a documented reason (`pytest.skip(f"no brainstormed project for field={field!r}")`) — so before the 5 seed math projects are brainstormed, the `mathematics` case skips cleanly; after, it runs against the most-recently-brainstormed math project.
 
