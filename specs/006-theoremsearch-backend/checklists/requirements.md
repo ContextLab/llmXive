@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain  — **2 remain**: (a) math-classifier cache key (per-project vs per-question), (b) classifier-error logging verbosity. Plus one in FR-A10 about seed-project sequencing. Both are low-impact (don't change scope or the user-facing behavior); to be resolved at /speckit-clarify.
+- [x] No [NEEDS CLARIFICATION] markers remain  — **resolved at /speckit-clarify (Session 2026-05-12)**: (a) math-classifier cache key → per-project `(project_id, librarian_prompt_version)`; (b) classifier-error handling → loud stderr diagnostic + a `math_classifier` audit object in the LibrarianResult JSON. The FR-A10 seed-project-sequencing note was converted from a marker to a plain note (it's a /speckit-tasks ordering detail, not a spec-level decision).
 - [x] Requirements are testable and unambiguous  — every FR maps to a concrete check; SCs are measurable
 - [x] Success criteria are measurable  — SC-A01..A09 each state a verifiable condition
 - [x] Success criteria are technology-agnostic  — *NOTE: SC-A01/A03 reference "arXiv ID" and "backend tag" because those are the verifiable artifacts the librarian's existing output contract uses; this is unavoidable for an amendment to an existing system. No frameworks/languages.*
@@ -31,6 +31,7 @@
 
 ## Notes
 
-- 3 [NEEDS CLARIFICATION] markers remain (classifier cache key, classifier-error logging, seed-project sequencing). None affect scope or user-facing behavior; all are implementation-detail-level. To be resolved at `/speckit-clarify` before `/speckit-plan`.
+- All [NEEDS CLARIFICATION] markers resolved at `/speckit-clarify` (Session 2026-05-12) — see the spec's `## Clarifications` section. Two questions asked + answered: (1) classifier cache key → per-project; (2) classifier-error handling → loud + recorded (`math_classifier` audit object — the one deliberate output-JSON addition in this amendment). The seed-project-sequencing item was downgraded from a marker to a plain FR-A10 note (it's a task-ordering detail for `/speckit-tasks`, not a spec decision).
 - This is an **amendment to spec 005**, not a standalone spec. The spec dir is `specs/006-theoremsearch-backend/` for tooling convenience, but the deliverable modifies the spec-005 librarian + its diagnostic + its registry entry rather than standing up a new agent. FR-A13 captures the spec-005 doc updates.
 - Maintainer answers from issue #111 (recorded in the "Decided" sub-list of Assumptions): amendment not new spec; keep + per-project-cache the classifier; add math as 9th field + brainstorm 5 seed projects; Spec A skips non-arXiv sources (Spec B keeps them with quality checks).
+- **Ready for `/speckit-plan`.**
