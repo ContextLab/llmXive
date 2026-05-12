@@ -17,9 +17,9 @@ jobs:
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with: { ref: main }
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with: { python-version: "3.11", cache: pip }
       - run: |
           sudo apt-get update && sudo apt-get install -y --no-install-recommends texlive texlive-latex-extra texlive-fonts-recommended texlive-bibtex-extra latexmk
