@@ -63,9 +63,9 @@ In-memory record (returned by `math_classifier.classify(...)`):
 
 | Field | Type | Notes |
 |-|-|-|
-| `invoked` | bool | `False` when the `field == "mathematics"` unconditional trigger fired (the classifier LLM was *not* called). `True` when a non-math field caused the classifier to be consulted (whether the call succeeded or failed). |
-| `verdict` | bool \| None | The boolean ("is this a pure-math theorem/proof/formal-structure question?") when the classifier ran successfully. `None` when `invoked == False` (skipped) OR when the classifier call failed. |
-| `error` | str \| None | The failure message string when the classifier call errored; `None` otherwise. |
+| `invoked` | bool | `False` when the `field ∈ {"mathematics", "statistics"}` unconditional trigger fired (the classifier LLM was *not* called). `True` when a non-math field caused the classifier to be consulted (whether the call succeeded or failed). |
+| `verdict` | bool \| None | The boolean ("is this a pure-math theorem/proof/formal-structure question?") when the classifier ran successfully (or served from cache). On fail-open (backend failure OR unparseable response) `verdict` is `false`, not `None`. `None` ONLY when `invoked == False` (the unconditional trigger fired — classifier skipped). |
+| `error` | str \| None | The exception-message string on a backend failure; `None` on success, on an unparseable-but-returned response, or when `invoked == False`. |
 | `cached` | bool | `True` if `verdict` came from the per-project cache (no LLM call this run); `False` if freshly computed (or if `invoked == False`). **In-memory only — dropped from the serialized form.** |
 
 Serialized form — the `math_classifier` field in `LibrarianResult.to_dict()` output JSON: `{"invoked": bool, "verdict": bool | null, "error": str | null}`. (Drops `cached`.) Parallel to the existing `relevance_judge` and `pdf_sample` audit objects in that same JSON.
@@ -76,10 +76,11 @@ Serialized form — the `math_classifier` field in `LibrarianResult.to_dict()` o
 
 | Trigger | `invoked` | `verdict` | `error` | `cached` (in-mem) |
 |-|-|-|-|-|
-| `field == "mathematics"` | `false` | `null` | `null` | `false` |
+| `field ∈ {"mathematics", "statistics"}` | `false` | `null` | `null` | `false` |
 | non-math field, classifier hit cache | `true` | `true`/`false` (cached) | `null` | `true` |
 | non-math field, classifier ran, success | `true` | `true`/`false` | `null` | `false` |
-| non-math field, classifier ran, failed | `true` | `null` | `"<msg>"` | `false` |
+| non-math field, classifier backend failure (fail-open) | `true` | `false` | `"<msg>"` | `false` |
+| non-math field, classifier unparseable response (fail-open) | `true` | `false` | `null` | `false` |
 
 ---
 

@@ -49,7 +49,7 @@ grep -l 'field: mathematics' state/projects/PROJ-*.yaml | wc -l   # expect >= 5
 ## 5. Wire into `LibrarianAgent.invoke()` (FR-A02, FR-A03, FR-A12 — schema; per data-model E-TS3/`contracts/librarian-json-output-delta.md`)
 
 - Add `project_id: str | None = None` to `invoke()`'s signature.
-- After the existing extracted-query search loop, before `_verify_each(candidates, query=term)`, add the math branch (see `research.md` D4 for the exact placement + pseudocode): `if field == "mathematics": ts_hits = _theoremsearch_candidates(term, arxiv_client=arxiv_client); math_audit = {invoked:False,...}` / `elif (verdict, math_audit) := _maybe_math_question(...): ts_hits = ...` ; dedup `ts_hits` into `candidates` by `primary_pointer`.
+- After the existing extracted-query search loop, before `_verify_each(candidates, query=term)`, add the math branch (see `research.md` D4 for the exact placement + pseudocode): `if field in ("mathematics", "statistics"): ts_hits = _theoremsearch_candidates(term, arxiv_client=arxiv_client); math_audit = {invoked:False,...}` / `elif (verdict, math_audit) := _maybe_math_question(...): ts_hits = ...` ; dedup `ts_hits` into `candidates` by `primary_pointer`.
 - Add `math_classifier: dict[str, Any] = dataclasses.field(default_factory=dict)` to `LibrarianResult`; add `"math_classifier": self.math_classifier` to `to_dict()`; pass `math_classifier=math_audit` into the `LibrarianResult(...)` constructor (parallel to `relevance_judge=...`).
 - `src/llmxive/agents/idea_lifecycle.py` (flesh_out) + `src/llmxive/agents/reference_validator.py` — pass `project_id=...` through to `librarian.invoke(...)`.
 

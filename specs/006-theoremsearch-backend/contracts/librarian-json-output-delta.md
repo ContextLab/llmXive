@@ -26,8 +26,8 @@ The top-level JSON gains exactly one new key, `math_classifier`, alongside the e
 
   "math_classifier": {                          // NEW (spec 006)
     "invoked": true | false,                    // false  ⇔ field=="mathematics" trigger (classifier not called)
-    "verdict": true | false | null,             // null   ⇔ not invoked, OR classifier call failed
-    "error":   "<message>" | null               // non-null ⇔ classifier call failed
+    "verdict": true | false | null,             // null   ⇔ NOT invoked (the unconditional trigger fired). On fail-open it is `false`, not null.
+    "error":   "<message>" | null               // non-null ⇔ classifier BACKEND failure (an unparseable response leaves error null)
   },
 
   "started_at": "...", "ended_at": "...", "duration_seconds": 42.1,
@@ -39,13 +39,13 @@ The top-level JSON gains exactly one new key, `math_classifier`, alongside the e
 
 | Scenario | `invoked` | `verdict` | `error` |
 |-|-|-|-|
-| `field == "mathematics"` (TheoremSearch queried unconditionally; classifier skipped) | `false` | `null` | `null` |
+| `field ∈ {"mathematics", "statistics"}` (TheoremSearch queried unconditionally; classifier skipped) | `false` | `null` | `null` |
 | non-math field; classifier verdict served from the per-project cache | `true` | `true` / `false` | `null` |
 | non-math field; classifier ran, returned a parseable verdict | `true` | `true` / `false` | `null` |
 | non-math field; classifier ran, response unparseable (fail-open to non-math) | `true` | `false` | `null` |
-| non-math field; classifier backend call failed (fail-open to non-math) | `true` | `null` | `"<exception message>"` |
+| non-math field; classifier backend call failed (fail-open to non-math) | `true` | `false` | `"<exception message>"` |
 
-(Note: a `verdict == false` from a successful-but-non-math classifier call is indistinguishable in the JSON from a `verdict == false` from an unparseable response — both are `{"invoked": true, "verdict": false, "error": null}`. The unparseable case is distinguished only by the stderr diagnostic. This is acceptable: downstream consumers only care "was TheoremSearch queried?" which is `invoked && verdict` OR `field == "mathematics"`.)
+(Note: a `verdict == false` from a successful-but-non-math classifier call is indistinguishable in the JSON from a `verdict == false` from an unparseable response — both are `{"invoked": true, "verdict": false, "error": null}`. The unparseable case is distinguished only by the stderr diagnostic. This is acceptable: downstream consumers only care "was TheoremSearch queried?" which is `invoked && verdict` OR `field ∈ {"mathematics","statistics"}`.)
 
 ## Identifying TheoremSearch-sourced citations
 
@@ -60,5 +60,5 @@ A verified citation in `verified_citations` is identifiable as TheoremSearch-sou
 
 ## Test obligations
 
-- The cross-domain coverage test (9 fields) asserts every result has a `math_classifier` key with the correct shape; for `field == "mathematics"` it asserts `{"invoked": false, "verdict": null, "error": null}`; for other fields it asserts `invoked == true` and `verdict in (true, false)` (or `verdict is null` with a non-null `error` if the classifier happened to fail that run — tolerated).
+- The cross-domain coverage test (9 fields) asserts every result has a `math_classifier` key with the correct shape; for `field ∈ {"mathematics", "statistics"}` it asserts `{"invoked": false, "verdict": null, "error": null}`; for other fields it asserts `invoked == true` and `verdict in (true, false)` (on fail-open verdict is `false`, with `error` non-null only on a backend failure — tolerated).
 - The PROJ-261 / PROJ-262 re-validation asserts the `math_classifier` field is present and that those (non-math) projects either had the classifier return `false` (so TheoremSearch wasn't queried — expected, they're CS/chemistry questions) — i.e. no behavior regression from the new field.

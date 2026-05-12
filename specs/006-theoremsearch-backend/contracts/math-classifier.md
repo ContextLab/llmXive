@@ -57,7 +57,7 @@ def _maybe_math_question(term, idea_body_excerpt, project_id, prompt_ver, entry,
     return (bool(res.verdict), audit)
 ```
 
-When `field == "mathematics"`, `_maybe_math_question` is **not called** — the librarian sets `audit = {"invoked": False, "verdict": None, "error": None}` and queries TheoremSearch unconditionally.
+When `field ∈ {"mathematics", "statistics"}`, `_maybe_math_question` is **not called** — the librarian sets `audit = {"invoked": False, "verdict": None, "error": None}` and queries TheoremSearch unconditionally.
 
 ## The `math_classifier` audit object (in `LibrarianResult` JSON)
 

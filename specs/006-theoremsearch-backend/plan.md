@@ -12,7 +12,7 @@ The llmXive `librarian` agent (spec 005, merged in PR #110, currently `prompt_ve
 This amendment:
 
 1. **Adds [TheoremSearch](https://www.theoremsearch.com/) as a third candidate-source backend** — a candidate *source* feeding the existing verification chain, NOT a competing agent (Constitution Principle I: the librarian stays the single entry point + single verifier). For each arXiv-sourced theorem hit it returns, the librarian resolves the source paper's arXiv ID to its existing `Candidate` shape (via `ArxivClient.get_by_id`), tags it `backend="theoremsearch"`, and runs it through the unchanged chain. Non-arXiv-sourced hits (ProofWiki, Stacks Project — no DOI/arXiv ID) are skipped (reserved for Spec B / #114).
-2. **Adds an LLM math-classifier** — `field == "mathematics"` always queries TheoremSearch; other fields consult a one-LLM-call classifier ("is this a pure-mathematics theorem/proof/formal-structure question? yes/no"), fail-open to `false`, verdict cached keyed by `(project_id, librarian_prompt_version)`.
+2. **Adds an LLM math-classifier** — `field ∈ {"mathematics", "statistics"}` always queries TheoremSearch; other fields consult a one-LLM-call classifier ("is this a pure-mathematics theorem/proof/formal-structure question? yes/no"), fail-open to `false`, verdict cached keyed by `(project_id, librarian_prompt_version)`.
 3. **Adds `mathematics` as the 9th default field** — to `src/llmxive/cli.py`'s `default_fields`, `tests/phase2/test_librarian_cross_domain.py`'s `DEFAULT_FIELDS`, and the brainstorm prompt's field-example prose — and brainstorms 5 seed math projects so the cross-domain test has math content.
 4. **Adds one new output-JSON field** — a `math_classifier` audit object `{invoked, verdict, error}`, parallel to the existing `relevance_judge` / `pdf_sample` audit objects (the only schema change in this amendment, per Clarifications 2026-05-12).
 5. **Bumps the librarian `prompt_version`** (1.5.0 → 1.6.0 — the classifier is a new LLM call) → cache-invalidating → re-runs cross-domain coverage (now 9 fields) + PROJ-261/262 re-validation to confirm no regression on non-math projects.
@@ -79,7 +79,7 @@ agents/prompts/
 # Production code — MODIFIED (this amendment)
 src/llmxive/agents/
 └── librarian.py                   # MODIFIED — invoke(): after the existing extracted-query searches, branch:
-                                    #   if field == "mathematics": candidates += TheoremSearchClient().search(term)  [math_classifier audit = {invoked: false, ...}]
+                                    #   if field in ("mathematics", "statistics"): candidates += TheoremSearchClient().search(term)  [math_classifier audit = {invoked: false, ...}]
                                     #   elif is_math_theory_question(...): candidates += TheoremSearchClient().search(term)  [audit = {invoked: true, verdict: true/false/null, ...}]
                                     # thread new candidates into the existing merge → verify → judge chain (no chain changes);
                                     # add `math_classifier` to LibrarianResult + to_dict() (parallel to relevance_judge/extracted_queries);

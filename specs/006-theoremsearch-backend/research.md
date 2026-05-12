@@ -42,7 +42,7 @@ No `NEEDS CLARIFICATION` markers remained after `/speckit-clarify`. The items be
 # (existing: candidates + merged_pointers populated from SS + arXiv over all_queries)
 ts_hits: list[Candidate] = []
 math_audit = {"invoked": False, "verdict": None, "error": None}
-if field == "mathematics":
+if field in ("mathematics", "statistics"):
     ts_hits = _theoremsearch_candidates(term)            # always; classifier NOT invoked
 elif _maybe_math_question(term, idea_body_excerpt, project_id, prompt_ver, ...):
     # _maybe_math_question internally fills math_audit and consults the per-project cache

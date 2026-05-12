@@ -33,7 +33,7 @@ For each field's invocation, the test asserts (same as spec 005):
 
 **New for spec 006** — also assert/record per result:
 - The result has a `math_classifier` key with shape `{"invoked": bool, "verdict": bool | null, "error": str | null}`.
-- For `field == "mathematics"`: `math_classifier == {"invoked": false, "verdict": null, "error": null}` (TheoremSearch queried unconditionally; classifier not called).
+- For `field ∈ {"mathematics", "statistics"}`: `math_classifier == {"invoked": false, "verdict": null, "error": null}` (TheoremSearch queried unconditionally; classifier not called).
 - For the other 8 fields: `math_classifier["invoked"] is True` AND (`math_classifier["verdict"] in (True, False)` OR `math_classifier["error"] is not None`) — i.e. the classifier was consulted and either gave a verdict or failed (a fail is tolerated, not a test failure).
 - Optionally: extend `CrossDomainTestRow` with `theoremsearch_hit_count` (count of `verified_citations` whose `verification_log.backend == "theoremsearch"`) — a diagnostic-only field; decided at /speckit-tasks.
 
@@ -46,4 +46,4 @@ For each field's invocation, the test asserts (same as spec 005):
 
 ## Note on cost / runtime
 
-Spec-005 fix-up #5 raised the librarian's wall-clock soft target to 1800s/invocation and the full 8-field cross-domain run took ~2.5h. Adding a 9th field (`mathematics`, which always queries TheoremSearch + does the arXiv-resolve round-trips) adds roughly one more invocation's worth — call it ~3h for the 9-field run. The math-classifier adds at most one LLM call per non-math invocation (cached per-project; first run pays it, re-runs don't). This is acceptable for a CI/manual regression suite that already runs in hours; the soft target is not enforced.
+Spec-005 fix-up #5 raised the librarian's wall-clock soft target to 1800s/invocation and the full 8-field cross-domain run took ~2.5h. Adding a 9th field (`mathematics`) plus the unconditional-TheoremSearch trigger on `statistics` (the 2 fields that always query TheoremSearch + do the arXiv-resolve round-trips) adds roughly one-and-a-bit invocations' worth — call it ~3h for the 9-field run. The math-classifier adds at most one LLM call per invocation on a field NOT in `{mathematics, statistics}` (cached per-project; first run pays it, re-runs don't); for `mathematics`/`statistics` the classifier is skipped entirely. This is acceptable for a CI/manual regression suite that already runs in hours; the soft target is not enforced.
