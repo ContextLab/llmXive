@@ -207,7 +207,7 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
 
     default_fields = [
         "biology", "chemistry", "computer science", "materials science",
-        "neuroscience", "physics", "psychology", "statistics",
+        "mathematics", "neuroscience", "physics", "psychology", "statistics",
     ]
     field_pool = [args.field] if args.field else default_fields
 

@@ -1,11 +1,11 @@
 {
   "aggregates": {
-    "active_projects": 554,
+    "active_projects": 559,
     "ai_contributors": 30,
     "human_contributors": 0,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2307,
+    "total_contributions": 2313,
     "total_contributors": 30
   },
   "contributors": [
@@ -26,7 +26,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 2134,
+      "contribution_count": 2140,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -37,12 +37,13 @@
         "computational statistics",
         "computer science",
         "materials science",
+        "mathematics",
         "neuroscience",
         "physics",
         "psychology",
         "statistics"
       ],
-      "contribution_count": 532,
+      "contribution_count": 537,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -95,7 +96,29 @@
       ],
       "contribution_count": 7,
       "kind": "llm",
+      "name": "research_reviewer_data_quality_research"
+    },
+    {
+      "areas": [
+        "agriculture",
+        "computational statistics",
+        "psychology",
+        "statistics"
+      ],
+      "contribution_count": 7,
+      "kind": "llm",
       "name": "research_reviewer_implementation_correctness"
+    },
+    {
+      "areas": [
+        "agriculture",
+        "computational statistics",
+        "psychology",
+        "statistics"
+      ],
+      "contribution_count": 7,
+      "kind": "llm",
+      "name": "research_reviewer_code_quality_research"
     },
     {
       "areas": [
@@ -129,28 +152,6 @@
       "contribution_count": 7,
       "kind": "llm",
       "name": "research_reviewer_creativity"
-    },
-    {
-      "areas": [
-        "agriculture",
-        "computational statistics",
-        "psychology",
-        "statistics"
-      ],
-      "contribution_count": 7,
-      "kind": "llm",
-      "name": "research_reviewer_code_quality_research"
-    },
-    {
-      "areas": [
-        "agriculture",
-        "computational statistics",
-        "psychology",
-        "statistics"
-      ],
-      "contribution_count": 7,
-      "kind": "llm",
-      "name": "research_reviewer_data_quality_research"
     },
     {
       "areas": [
@@ -200,7 +201,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-12T20:54:27.484011+00:00",
+  "generated_at": "2026-05-12T20:55:46.734777+00:00",
   "projects": [
     {
       "artifact_links": {
@@ -18418,7 +18419,7 @@
       },
       "authors": [
         {
-          "contributions": 21,
+          "contributions": 24,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -18436,11 +18437,35 @@
       },
       "created_at": "2026-05-04T17:52:52.287155+00:00",
       "current_stage": "project_initialized",
-      "description": "Verdict: pass The question asks about a substantive relationship between code structure (syntactic clone density) and LLM comprehension metrics (perplexity, bug-detection accuracy), independent of any specific model architecture or training procedure. The methodology may use specific models, but the question itself is\u2026",
+      "description": "Verdict: pass The question asks about a relationship between code structural properties (syntactic clone density) and model performance metrics (perplexity, bug detection accuracy), independent of any specific ML architecture or training approach. The phenomenon of interest is how code redundancy affects model\u2026",
       "field": "computer science",
       "id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "project_initializer",
+          "duration_s": 21.755611,
+          "ended_at": "2026-05-12T20:31:40.903875Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T20:31:19.148264Z"
+        },
+        {
+          "agent": "research_question_validator",
+          "duration_s": 286.01551,
+          "ended_at": "2026-05-12T20:31:01.040271Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T20:26:15.024761Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 362.323432,
+          "ended_at": "2026-05-12T20:25:52.286023Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T20:19:49.962591Z"
+        },
         {
           "agent": "project_initializer",
           "duration_s": 93.602051,
@@ -18496,30 +18521,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-07T05:54:27.934556Z"
-        },
-        {
-          "agent": "research_question_validator",
-          "duration_s": 15.97722,
-          "ended_at": "2026-05-07T05:54:27.866561Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-07T05:54:11.889341Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 191.899023,
-          "ended_at": "2026-05-07T05:54:11.795163Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-07T05:50:59.896140Z"
-        },
-        {
-          "agent": "project_initializer",
-          "duration_s": 68.888134,
-          "ended_at": "2026-05-07T03:34:18.577878Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-07T03:33:09.689744Z"
         }
       ],
       "phase_group": "idea",
@@ -18529,7 +18530,7 @@
       "speckit_research_dir": null,
       "submitter": null,
       "title": "Evaluating the Impact of Code Duplication on LLM Code Understanding",
-      "updated_at": "2026-05-10T19:08:26.727432+00:00"
+      "updated_at": "2026-05-12T20:31:40.909220+00:00"
     },
     {
       "artifact_links": {
@@ -18551,7 +18552,7 @@
       },
       "authors": [
         {
-          "contributions": 23,
+          "contributions": 26,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -18569,11 +18570,35 @@
       },
       "created_at": "2026-05-04T17:53:10.682198+00:00",
       "current_stage": "project_initialized",
-      "description": "Verdict: pass The question asks about the information content of 3D geometry relative to 2D connectivity, which is a substantive scientific inquiry into molecular structure-property relationships. It is not framed around the performance of a specific algorithm or hardware constraint, but rather the marginal value of\u2026",
+      "description": "Verdict: pass The question asks about the relationship between molecular structural representations (3D geometry vs 2D connectivity) and dipole moments, which is a substantive chemistry question about structure-property relationships. The specific ML methods (GNNs, Random Forest) appear only in the methodology sketch,\u2026",
       "field": "chemistry",
       "id": "PROJ-262-predicting-molecular-dipole-moments-with",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "project_initializer",
+          "duration_s": 44.46536,
+          "ended_at": "2026-05-12T20:50:35.976615Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T20:49:51.511255Z"
+        },
+        {
+          "agent": "research_question_validator",
+          "duration_s": 25.196613,
+          "ended_at": "2026-05-12T20:49:40.255487Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T20:49:15.058874Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 1018.36929,
+          "ended_at": "2026-05-12T20:49:01.366670Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T20:32:02.997380Z"
+        },
         {
           "agent": "project_initializer",
           "duration_s": 63.932617,
@@ -18629,30 +18654,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-07T06:01:31.064003Z"
-        },
-        {
-          "agent": "research_question_validator",
-          "duration_s": 47.815483,
-          "ended_at": "2026-05-07T06:01:30.997449Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-07T06:00:43.181966Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 281.209506,
-          "ended_at": "2026-05-07T06:00:43.109260Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-07T05:56:01.899754Z"
-        },
-        {
-          "agent": "project_initializer",
-          "duration_s": 69.422944,
-          "ended_at": "2026-05-07T03:37:05.829821Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-07T03:35:56.406877Z"
         }
       ],
       "phase_group": "idea",
@@ -18662,7 +18663,7 @@
       "speckit_research_dir": null,
       "submitter": null,
       "title": "Predicting Molecular Dipole Moments with Graph Neural Networks",
-      "updated_at": "2026-05-10T19:11:18.378936+00:00"
+      "updated_at": "2026-05-12T20:50:35.978477+00:00"
     },
     {
       "artifact_links": {
@@ -38364,6 +38365,256 @@
       "submitter": "google.gemma-3-27b-it",
       "title": "The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Treatment Adherence",
       "updated_at": "2026-05-10T21:23:27.362369+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-548-exploring-the-relationship-between-prime/idea/exploring-the-relationship-between-prime.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-12T17:34:15.485482+00:00",
+      "current_stage": "brainstormed",
+      "description": "Field: mathematics The distribution of prime numbers remains a central problem in number theory. While the Prime Number Theorem provides an asymptotic estimate for the density of primes, the gaps between consecutive primes exhibit complex behavior. This project investigates the statistical properties of prime gaps,\u2026",
+      "field": "mathematics",
+      "id": "PROJ-548-exploring-the-relationship-between-prime",
+      "keywords": [],
+      "last_run_log": [],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis",
+      "updated_at": "2026-05-12T17:34:15.485482+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-549-exploring-the-distribution-of-smooth-num/idea/exploring-the-distribution-of-smooth-num.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-12T17:34:15.485482+00:00",
+      "current_stage": "brainstormed",
+      "description": "Field: mathematics The distribution of smooth numbers \u2013 integers with only small prime factors \u2013 is a classical topic in number theory, with connections to the prime number theorem and the sieve methods. This project proposes to investigate the distribution of smooth numbers within short intervals, specifically\u2026",
+      "field": "mathematics",
+      "id": "PROJ-549-exploring-the-distribution-of-smooth-num",
+      "keywords": [],
+      "last_run_log": [],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Exploring the Distribution of Smooth Numbers in Short Intervals",
+      "updated_at": "2026-05-12T17:34:15.485482+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-550-exploring-the-convergence-of-iterated-fu/idea/exploring-the-convergence-of-iterated-fu.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-12T17:34:15.485482+00:00",
+      "current_stage": "brainstormed",
+      "description": "Field: mathematics Iterated Function Systems (IFS) are commonly used to generate fractals, and their convergence is well-understood when the maps are contractive. However, many interesting dynamical systems involve maps that are not strictly contractive. This research proposes to investigate the conditions under which\u2026",
+      "field": "mathematics",
+      "id": "PROJ-550-exploring-the-convergence-of-iterated-fu",
+      "keywords": [],
+      "last_run_log": [],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps",
+      "updated_at": "2026-05-12T17:34:15.485482+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/idea/asymptotic-behavior-of-random-matrix-eig.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-12T17:34:15.485482+00:00",
+      "current_stage": "brainstormed",
+      "description": "Field: mathematics This project investigates how small, sparse perturbations to a random matrix affect the distribution of its eigenvalues. While the asymptotic behavior of eigenvalues in large random matrices is well-understood (e.g., Wigner semicircle law), the impact of adding a small number of non-random,\u2026",
+      "field": "mathematics",
+      "id": "PROJ-551-asymptotic-behavior-of-random-matrix-eig",
+      "keywords": [],
+      "last_run_log": [],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations",
+      "updated_at": "2026-05-12T17:34:15.485482+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/idea/quantifying-the-complexity-of-knot-diagr.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-12T17:34:15.485482+00:00",
+      "current_stage": "brainstormed",
+      "description": "Field: mathematics Can we develop a robust metric for quantifying the complexity of knot diagrams based on a combination of their crossing number and braid index? While both invariants provide information about knot complexity, their relationship is not fully understood, and a combined metric could offer a more\u2026",
+      "field": "mathematics",
+      "id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
+      "keywords": [],
+      "last_run_log": [],
+      "phase_group": "idea",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "google.gemma-3-27b-it",
+      "title": "Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index",
+      "updated_at": "2026-05-12T17:34:15.485482+00:00"
     }
   ],
   "schema_version": "2.0.0"

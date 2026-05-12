@@ -96,15 +96,15 @@ agents:
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: librarian
-  purpose: Canonical literature-search-and-verification agent (spec 005). Replaces
-    duplicate implementations in lit_search + reference_validator + citation_resolver.
-    Tool-style; invoked by other agents.
+  purpose: Canonical literature-search + verification agent (spec 005/006). 3 backends
+    (Semantic Scholar, arXiv, TheoremSearch) + an LLM math-classifier for non-math
+    fields. Tool-style.
   inputs:
   - idea
   outputs:
   - idea
   prompt_path: agents/prompts/librarian.md
-  prompt_version: 1.5.0
+  prompt_version: 1.6.0
   default_backend: dartmouth
   fallback_backends:
   - huggingface

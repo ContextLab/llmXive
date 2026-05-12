@@ -1,0 +1,674 @@
+{
+  "fetched_at": "2026-05-12T20:09:14Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "---\nfield: psychology\nsubmitter: google.gemma-3-27b-it\n---\n\n# The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Treatment Adherence\n\n**Field**: psychology\n\nCan artificially intelligent cognitive behavioral therapy (CBT) tools achieve comparable treatment adherence to human therapists by manipulating the user’s perception of agency? While AI-driven CBT shows promise, patient adherence remains a challenge. This research proposes analyzing publicly available chatbot conversation logs from existing AI-CBT platforms (e.g., Woebot) to quantify the correlation between linguistic cues indicative of perceived user agency (e.g., choice architecture, open-ended questioning, framing of recommendations) and metrics of treatment engagement (e.g., session completion rate, frequency of use, self-reported adherence). A regression analysis will determine if increased perceived agency—as measured by natural language processing of chatbot turns—predicts improved adherence, potent",
+      "target_n": 5
+    },
+    "duration_seconds": 599.527,
+    "ended_at": "2026-05-12T20:09:14Z",
+    "expansion": null,
+    "extracted_queries": [
+      "autonomy control user agency AI CBT",
+      "conversational agent depression anxiety intervention",
+      "anthropomorphism trust engagement chatbot",
+      "treatment adherence dropout retention",
+      "self-determination theory autonomy support"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.26420/anndepressanxiety.2021.1107"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Treatment Adherence": 3,
+      "anthropomorphism trust engagement chatbot": 6,
+      "autonomy control user agency AI CBT": 6,
+      "conversational agent depression anxiety intervention": 6,
+      "self-determination theory autonomy support": 6,
+      "treatment adherence dropout retention": 6
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2602.04598",
+          "rationale": "This paper is off-domain entirely: it studies AI in educational contexts with learning outcomes, not AI-driven Cognitive Behavioral Therapy with treatment adherence. While \"agency\" appears in both, the construct (learner agency in education vs. perceived agency in clinical therapy) and the domain (education vs. healthcare/mental health treatment) are fundamentally different, matching the rejection rule for distinct domains sharing only keyword overlap.",
+          "title": "AI in Education Beyond Learning Outcomes: Cognition, Agency, Emotion, and Ethics"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.2147/HIV.S492673",
+          "rationale": "The paper focuses on treatment adherence for HIV antiretroviral therapy in a specific geographic population, which is off-domain from the user's focus on AI-driven Cognitive Behavioral Therapy. It fails to measure the core independent variable (Perceived Agency in AI) or operate within the relevant digital mental health domain required for the user's literature review.",
+          "title": "Factors Contributing to Retention in Care and Treatment Adherence Among People Living With HIV Returning to Care in South-Eastern Tanzania: A Qualitative Study"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.3389/fpsyt.2026.1660196",
+          "rationale": "This paper is off-domain entirely: while it measures treatment adherence (matching the dependent variable), the intervention is opioid agonist medication rather than AI-Driven Cognitive Behavioral Therapy, and it does not measure perceived agency (the key independent variable). The paper addresses a different treatment modality and mechanism, making it unsuitable for a literature review specifically about AI-driven CBT and perceived agency.",
+          "title": "Dropout rates and factors associated with adherence to opioid agonist treatment among adults with opioid use disorder at Sekou Toure Regional Referral Hospital, Mwanza, Tanzania"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-12T19:59:14Z",
+    "term_input": {
+      "normalized": "the impact of perceived agency in ai-driven cognitive behavioral therapy on treatment adherence",
+      "raw": "The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Treatment Adherence"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The primary tasks of a cognitive system is to survive and to maximize a life-long utility function, like the number of offsprings. A direct computational maximization of life-long utility is however not possible in complex environments, especially in the context, of real-world time constraints. The central role of emotions is to serve as an intermediate layer in the space of policies available to agents and animals, leading to a large dimensional reduction of complexity.\n  We review our current understanding of the functional role of emotions, stressing the role of the neuromodulators mediating emotions for the diffusive homeostatic control system of the brain. We discuss a recent proposal, that emotional diffusive control is characterized, in contrast to neutral diffusive control, by interaction effects, viz by interferences between emotional arousal and reward signaling. Several proposals for the realization of synthetic emotions are discussed in this context, together with key open issues regarding the interplay between emotional motivational drives and diffusive control.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Cognition and Emotion: Perspectives of a Closing Gap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.3035"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Cognition and Emotion: Perspectives of a Closing Gap')",
+        "failed_at": "2026-05-12T20:05:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "ABSTRACT Artificial intelligence (AI) technology is increasingly taking over various aspects of our daily decision-making processes. The current study investigates how media users emotionally and cognitively respond to the increasing autonomy of AI technology. A survey (N = 297) measured the perceived autonomy of AI applications that individuals currently use and examined its relationship with psychological reactance, user agency, and perceived personalization. Findings show that AI autonomy is positively related to threat to freedom and psychological reactance. However, AI autonomy is also positively associated with personalization, which cancels out the negative impact of psychological reactance on attitudes. Those who feel a higher agency perceive a higher threat to freedom as perceived AI autonomy increases. Theoretical and practical implications are discussed.",
+          "claimed_authors": [
+            "Jeeyun Oh",
+            "Soya Nah",
+            "Z. Yang"
+          ],
+          "claimed_title": "How Autonomy of Artificial Intelligence Technology and User Agency Influence AI Perceptions and Attitudes: Applying the Theory of Psychological Reactance",
+          "claimed_venue": "Journal of Broadcasting &amp; Electronic Media",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1080/08838151.2025.2485319"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='How Autonomy of Artificial Intelligence Technology and User Agency Influence AI Perceptions and Attitudes: Applying the Theory of Psychological Reactance')",
+        "failed_at": "2026-05-12T20:05:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Roboticists often design with the assumption that assistive robots should be fully autonomous. However, it remains unclear whether users prefer highly autonomous robots, as prior work in assistive robotics suggests otherwise. High robot autonomy can reduce the user’s sense of agency, which represents feeling in control of one’s environment. How much control do users, in fact, want over the actions of robots used for in-home assistance? We investigate how robot autonomy levels affect users’ sense of agency and the autonomy level they prefer in contexts with varying risks. Our study asked participants to rate their sense of agency as robot users across four distinct autonomy levels and ranked their robot preferences with respect to various household tasks. Our findings revealed that participants’ sense of agency was primarily influenced by two factors: (1) whether the robot acts autonomously, and (2) whether a third party is involved in the robot’s programming or operation. Notably, an end-user programmed robot highly preserved users’ sense of agency, even though it acts autonomously. However, in high-risk settings, e.g., preparing a snack for a child with allergies, they preferred robots that prioritized their control significantly more. Additional contextual factors, such as trust in a third party operator, also shaped their preferences.",
+          "claimed_authors": [
+            "Claire Yang",
+            "Heer Patel",
+            "Max Kleiman-Weiner",
+            "Maya Cakmak"
+          ],
+          "claimed_title": "Preserving Sense of Agency: User Preferences for Robot Autonomy and User Control across Household Tasks",
+          "claimed_venue": "IEEE International Symposium on Robot and Human Interactive Communication",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1109/RO-MAN63969.2025.11217640"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Preserving Sense of Agency: User Preferences for Robot Autonomy and User Control across Household Tasks')",
+        "failed_at": "2026-05-12T20:05:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Generative AI-assisted writing often requires post-generation editing. In a dynamic mobile environment, where user attention is divided, a key challenge is to reduce the cognitive load of such generate-edit cycle. To address the challenge, we propose a \"macro-to-micro\" control approach to balance user agency and automation in the AI-assisted writing process. This approach offers distinct interaction methods for macro-level adjustments (e.g., tone) and micro-level modifications (e.g., words). We conducted two user studies to evaluate its effectiveness in mobile text editing. Our preliminary results show that our approach significantly reduces cognitive load in demanding mobile situations. We identified a \"control paradox\": users felt more confident and preferred our approach, despite perceiving less direct operational control. Furthermore, our second study identified an important modality mismatch: the voice-centric modality for the micro-editing layer was a significant bottleneck. This finding suggests a key design principle for future systems: effective control is not about more or less, but about matching the interaction modality to the task’s required precision.",
+          "claimed_authors": [
+            "Chen Zhou",
+            "Wei Tsang Ooi",
+            "Shengdong Zhao"
+          ],
+          "claimed_title": "A Macro-to-Micro Control Approach to Balance User Agency and Automation for Mobile AI-assisted Writing on Smart Glasses",
+          "claimed_venue": "2025 IEEE International Symposium on Mixed and Augmented Reality Adjunct (ISMAR-Adjunct)",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1109/ISMAR-Adjunct68609.2025.00183"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='A Macro-to-Micro Control Approach to Balance User Agency and Automation for Mobile AI-assisted Writing on Smart Glasses')",
+        "failed_at": "2026-05-12T20:05:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Roboticists often design with the assumption that assistive robots should be fully autonomous. However, it remains unclear whether users prefer highly autonomous robots, as prior work in assistive robotics suggests otherwise. High robot autonomy can reduce the user's sense of agency, which represents feeling in control of one's environment. How much control do users, in fact, want over the actions of robots used for in-home assistance? We investigate how robot autonomy levels affect users' sense of agency and the autonomy level they prefer in contexts with varying risks. Our study asked participants to rate their sense of agency as robot users across four distinct autonomy levels and ranked their robot preferences with respect to various household tasks. Our findings revealed that participants' sense of agency was primarily influenced by two factors: (1) whether the robot acts autonomously, and (2) whether a third party is involved in the robot's programming or operation. Notably, an end-user programmed robot highly preserved users' sense of agency, even though it acts autonomously. However, in high-risk settings, e.g., preparing a snack for a child with allergies, they preferred robots that prioritized their control significantly more. Additional contextual factors, such as trust in a third party operator, also shaped their preferences.",
+          "claimed_authors": [
+            "Claire Yang",
+            "Heer Patel",
+            "Max Kleiman-Weiner",
+            "Maya Cakmak"
+          ],
+          "claimed_title": "Preserving Sense of Agency: User Preferences for Robot Autonomy and User Control across Household Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.19202"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Preserving Sense of Agency: User Preferences for Robot Autonomy and User Control across Household Tasks')",
+        "failed_at": "2026-05-12T20:05:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The chapter discusses the foundational impact of modern generative AI models on information access (IA) systems. In contrast to traditional AI, the large-scale training and superior data modeling of generative AI models enable them to produce high-quality, human-like responses, which brings brand new opportunities for the development of IA paradigms. In this chapter, we identify and introduce two of them in details, i.e., information generation and information synthesis. Information generation allows AI to create tailored content addressing user needs directly, enhancing user experience with immediate, relevant outputs. Information synthesis leverages the ability of generative AI to integrate and reorganize existing information, providing grounded responses and mitigating issues like model hallucination, which is particularly valuable in scenarios requiring precision and external knowledge. This chapter delves into the foundational aspects of generative models, including architecture, scaling, and training, and discusses their applications in multi-modal scenarios. Additionally, it examines the retrieval-augmented generation paradigm and other methods for corpus modeling and understanding, demonstrating how generative AI can enhance information access systems. It also summarizes potential challenges and fruitful directions for future studies.",
+          "claimed_authors": [
+            "Qingyao Ai",
+            "Jingtao Zhan",
+            "Yiqun Liu"
+          ],
+          "claimed_title": "Foundations of GenIR",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.02842"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Foundations of GenIR')",
+        "failed_at": "2026-05-12T20:05:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As artificial intelligence scales, the concepts of alignment, agency, and autonomy have become central to AI safety, governance, and control. However, even in human contexts, these terms lack universal definitions, varying across disciplines such as philosophy, psychology, law, computer science, mathematics, and political science. This inconsistency complicates their application to AI, where differing interpretations lead to conflicting approaches in system design and regulation. This paper traces the historical, philosophical, and technical evolution of these concepts, emphasizing how their definitions influence AI development, deployment, and oversight.\n  We argue that the urgency surrounding AI alignment and autonomy stems not only from technical advancements but also from the increasing deployment of AI in high-stakes decision making. Using Agentic AI as a case study, we examine the emergent properties of machine agency and autonomy, highlighting the risks of misalignment in real-world systems. Through an analysis of automation failures (Tesla Autopilot, Boeing 737 MAX), multi-agent coordination (Metas CICERO), and evolving AI architectures (DeepMinds AlphaZero, OpenAIs AutoGPT), we assess the governance and safety challenges posed by frontier AI.",
+          "claimed_authors": [
+            "Krti Tallam"
+          ],
+          "claimed_title": "Alignment, Agency and Autonomy in Frontier AI: A Systems Engineering Perspective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.05748"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Alignment, Agency and Autonomy in Frontier AI: A Systems Engineering Perspective')",
+        "failed_at": "2026-05-12T20:05:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "BACKGROUND\nYoung adults face emotional problems in their daily lives. Considering that youth are prevalent among mobile internet users, it would be helpful if functions that can intervene in young people's depression and anxiety can be designed based on short video apps. Large language model (LLM)-based AI conversational agents based on short video apps may play an important role in intervening in young adults' negative emotions.\n\n\nMETHODS\nThis study is a 28-day randomized controlled trial (RCT) in which 865 participants were randomly assigned to an intervention group or a waiting group, and each user was asked to engage in a total of 28 days of dialog intervention with the AI agent and complete three psychological questionnaires.\n\n\nRESULTS\nThe dialog intervention significantly reduced depression in the intervention group at two weeks and significantly reduced both depression and anxiety in the intervention group at four weeks.\n\n\nCONCLUSIONS\nThis study found evidence that the LLM-based conversational agent could effectively alleviate the mild anxiety and depressive symptoms of young adults with negative emotions through dialog interventions when the AI companion bot is used sufficiently enough.\n\n\nREGISTRATION\nClinicaltrials.gov NCT06346496, https://clinicaltrials.gov/study/NCT06346496.",
+          "claimed_authors": [
+            "Yuqing Zhao",
+            "Wei Qian",
+            "Yaru Chen",
+            "Donghong Wu",
+            "Yujia Luo",
+            "Cong Gao",
+            "Kankan Wu",
+            "Zhengkui Liu"
+          ],
+          "claimed_title": "Effect of an AI agent trained on a large language model (LLM) as an intervention for depression and anxiety symptoms in young adults: A 28-day randomized controlled trial.",
+          "claimed_venue": "Applied Psychology: Health and Well-Being",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1111/aphw.70067"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Effect of an AI agent trained on a large language model (LLM) as an intervention for depression and anxiety symptoms in young adults: A 28-day randomized controlled trial.')",
+        "failed_at": "2026-05-12T20:05:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Anxiety and depression are the most common mental health issues worldwide, affecting a non-negligible part of the population. Accordingly, stakeholders, including governments' health systems, are developing new strategies to promote early detection and prevention from a holistic perspective (i.e., addressing several disorders simultaneously). In this work, an entirely novel system for the multi-label classification of anxiety and depression is proposed. The input data consists of dialogues from user interactions with an assistant chatbot. Another relevant contribution lies in using Large Language Models (LLMs) for feature extraction, provided the complexity and variability of language. The combination of LLMs, given their high capability for language understanding, and Machine Learning (ML) models, provided their contextual knowledge about the classification problem thanks to the labeled data, constitute a promising approach towards mental health assessment. To promote the solution's trustworthiness, reliability, and accountability, explainability descriptions of the model's decision are provided in a graphical dashboard. Experimental results on a real dataset attain 90 % accuracy, improving those in the prior literature. The ultimate objective is to contribute in an accessible and scalable way before formal treatment occurs in the healthcare systems.",
+          "claimed_authors": [
+            "Francisco de Arriba-Pérez",
+            "Silvia García-Méndez"
+          ],
+          "claimed_title": "Detecting anxiety and depression in dialogues: a multi-label and explainable approach",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.17651"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Detecting anxiety and depression in dialogues: a multi-label and explainable approach')",
+        "failed_at": "2026-05-12T20:05:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, large language models have facilitated the emergence of highly intelligent conversational AI capable of engaging in human-like dialogues. However, a notable distinction lies in the fact that these AI models predominantly generate responses rapidly, often producing extensive content without emulating the thoughtful process characteristic of human cognition and typing. This paper presents a design aimed at simulating human-like typing behaviors, including patterns such as hesitation and self-editing, as well as a preliminary user experiment to understand whether and to what extent the agent with human-like typing behaviors could potentially affect conversational engagement and its trustworthiness. We've constructed an interactive platform featuring user-adjustable parameters, allowing users to personalize the AI's communication style and thus cultivate a more enriching and immersive conversational experience. Our user experiment, involving interactions with three types of agents - a baseline agent, one simulating hesitation, and another integrating both hesitation and self-editing behaviors - reveals a preference for the agent that incorporates both behaviors, suggesting an improvement in perceived naturalness and trustworthiness. Through the insights from our design process and both quantitative and qualitative feedback from user experiments, this paper contributes to the multimodal interaction design and user experience for conversational AI, advocating for a more human-like, engaging, and trustworthy communication paradigm.",
+          "claimed_authors": [
+            "Jijie Zhou",
+            "Yuhan Hu"
+          ],
+          "claimed_title": "Beyond Words: Infusing Conversational Agents with Human-like Typing Behaviors",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08912"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Beyond Words: Infusing Conversational Agents with Human-like Typing Behaviors')",
+        "failed_at": "2026-05-12T20:05:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Most conversational recommendation approaches are either not explainable, or they require external user's knowledge for explaining or their explanations cannot be applied in real time due to computational limitations. In this work, we present a real time category based conversational recommendation approach, which can provide concise explanations without prior user knowledge being required. We first perform an explainable user model in the form of preferences over the items' categories, and then use the category preferences to recommend items. The user model is performed by applying a BERT-based neural architecture on the conversation. Then, we translate the user model into item recommendation scores using a Feed Forward Network. User preferences during the conversation in our approach are represented by category vectors which are directly interpretable. The experimental results on the real conversational recommendation dataset ReDial demonstrate comparable performance to the state-of-the-art, while our approach is explainable. We also show the potential power of our framework by involving an oracle setting of category preference prediction.",
+          "claimed_authors": [
+            "Nikolaos Kondylidis",
+            "Jie Zou",
+            "Evangelos Kanoulas"
+          ],
+          "claimed_title": "Category Aware Explainable Conversational Recommendation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.08733"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Category Aware Explainable Conversational Recommendation')",
+        "failed_at": "2026-05-12T20:05:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Over a billion users globally interact with AI systems engineered to mimic human traits. This development raises concerns that anthropomorphism, the attribution of human characteristics to AI, may foster over-reliance and misplaced trust. Yet, causal effects of humanlike AI design on users remain untested in ecologically valid, cross-cultural settings, leaving policy discussions to rely on theoretical assumptions derived largely from Western populations. Here we conducted two experiments (N=3,500) across ten countries representing a wide cultural spectrum, involving real-time, open-ended interactions with a state-of-the-art chatbot. We found users evaluate human-likeness based on pragmatic interactional cues (conversation flow, response speed, perspective-taking) rather than abstract theory-driven attributes emphasized in academic discourse (e.g., sentience, consciousness). Furthermore, while experimentally increasing chatbot's human-likeness reliably increased anthropomorphism across all sampled countries, it did not universally increase trust or engagement. Instead, effects were culturally contingent; design choices fostering engagement or trust in one country may reduce them in another. These findings challenge prevailing assumptions that humanlike AI poses uniform psychological risks and necessarily increases trust. Risk is not inherent to humanlike design but emerges from its interplay with cultural context. Consequently, governance frameworks must move beyond universalist approaches to account for this global heterogeneity.",
+          "claimed_authors": [
+            "Robin Schimmelpfennig",
+            "M. D'iaz",
+            "Vinodkumar Prabhakaran",
+            "A. Davani"
+          ],
+          "claimed_title": "Humanlike AI Design Increases Anthropomorphism but Yields Divergent Outcomes on Engagement and Trust Globally",
+          "claimed_venue": "arXiv.org",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.48550/arXiv.2512.17898"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Humanlike AI Design Increases Anthropomorphism but Yields Divergent Outcomes on Engagement and Trust Globally')",
+        "failed_at": "2026-05-12T20:05:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Abstract With the increasing integration of chatbots in various customer service contexts, understanding factors that influence user interactions is of paramount importance. While chatbots bring several benefits, their efficacy largely depends on user satisfaction, loyalty, and perceived utility. This study explores the nuances of consumer interactions with chatbot services and identifies ways to enhance these interactions for successful goal achievement. Through a multiple qualitative method approach, involving reflections, interviews, and focus groups, conducted an exhaustive investigation of the consumer experiences with chatbot interactions. The study focused on elements such as anthropomorphism, communication styles, service scripts, consumer emotions, and privacy and trust concerns. Our findings highlight that the anthropomorphism and communication style of chatbots significantly affect user satisfaction. The perceived utility of chatbots was found to be a multifaceted construct that substantially influences consumer engagement. Furthermore, this study identified negative emotions and privacy concerns as key determinants of consumer-chatbot interactions. These findings necessitate meticulous attention in chatbot design and function. By using the affordance theory, this research offers insights into managing the complex dynamics of satisfaction and dissatisfaction factors within consumer-chatbot engagements, contributing crucially to the human-computer interaction literature.",
+          "claimed_authors": [
+            "Mohamed Al-Shafei"
+          ],
+          "claimed_title": "Navigating Human-Chatbot Interactions: An Investigation into Factors Influencing User Satisfaction and Engagement",
+          "claimed_venue": "International journal of human computer interactions",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1080/10447318.2023.2301252"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Navigating Human-Chatbot Interactions: An Investigation into Factors Influencing User Satisfaction and Engagement')",
+        "failed_at": "2026-05-12T20:05:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "This study investigates how chatbot anthropomorphism influences consumer satisfaction, trust, loyalty, and decision-making in AI-enabled brand interactions. Data were collected from 663 Saudi consumers through an online survey and analyzed using Partial Least Squares Structural Equation Modeling (PLS-SEM). Model assessment employed path coefficients, explanatory power (R²), and effect size (f²) to evaluate the robustness of hypothesized relationships. Findings reveal that anthropomorphic design significantly enhances satisfaction (β = 0.62, p < 0.001), trust (β = 0.57, p < 0.001), and loyalty (β = 0.48, p < 0.001), which subsequently mediate its effect on purchase decision-making. Although the direct effect of anthropomorphism on decision-making is marginal, the mediating role of engagement constructs considerably strengthens this association. The model demonstrated strong explanatory power (R² values 0.58–0.69), highlighting the strategic relevance of anthropomorphic cues in shaping consumer attitudes and behavioral intentions. The results contribute to AI-driven marketing literature by showing how anthropomorphism transforms chatbots into relational actors, enhancing trust, loyalty, and purchase intention. Beyond theoretical implications, the findings provide actionable insights for firms seeking to leverage human-like chatbot features as a relational strategy to improve consumer engagement and drive decision-making.",
+          "claimed_authors": [
+            "Abbas N. Albarq",
+            "A. Aljaafari",
+            "Hashed Ahmed Mabkhot",
+            "M. Alsuwaidan"
+          ],
+          "claimed_title": "When Chatbots Feel Human: How Anthropomorphism Shapes Consumer Satisfaction, Trust, and Loyalty in AI-Driven Brand Interactions",
+          "claimed_venue": "Journal of Cultural Analysis and Social Change",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.64753/jcasc.v10i3.2543"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='When Chatbots Feel Human: How Anthropomorphism Shapes Consumer Satisfaction, Trust, and Loyalty in AI-Driven Brand Interactions')",
+        "failed_at": "2026-05-12T20:05:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Over a billion users globally interact with AI systems engineered to mimic human traits. This development raises concerns that anthropomorphism, the attribution of human characteristics to AI, may foster over-reliance and misplaced trust. Yet, causal effects of humanlike AI design on users remain untested in ecologically valid, cross-cultural settings, leaving policy discussions to rely on theoretical assumptions derived largely from Western populations. Here we conducted two experiments (N=3,500) across ten countries representing a wide cultural spectrum, involving real-time, open-ended interactions with a state-of-the-art chatbot. We found users evaluate human-likeness based on pragmatic interactional cues (conversation flow, response speed, perspective-taking) rather than abstract theory-driven attributes emphasized in academic discourse (e.g., sentience, consciousness). Furthermore, while experimentally increasing chatbot's human-likeness reliably increased anthropomorphism across all sampled countries, it did not universally increase trust or engagement. Instead, effects were culturally contingent; design choices fostering engagement or trust in one country may reduce them in another. These findings challenge prevailing assumptions that humanlike AI poses uniform psychological risks and necessarily increases trust. Risk is not inherent to humanlike design but emerges from its interplay with cultural context. Consequently, governance frameworks must move beyond universalist approaches to account for this global heterogeneity.",
+          "claimed_authors": [
+            "Robin Schimmelpfennig",
+            "Mark Díaz",
+            "Vinodkumar Prabhakaran",
+            "Aida Davani"
+          ],
+          "claimed_title": "Humanlike AI Design Increases Anthropomorphism but Yields Divergent Outcomes on Engagement and Trust Globally",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.17898"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Humanlike AI Design Increases Anthropomorphism but Yields Divergent Outcomes on Engagement and Trust Globally')",
+        "failed_at": "2026-05-12T20:05:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This work investigates the causal mechanism behind the effect of chatbot personification and persuasion strategies on users' perceptions and donation likelihood. In a 2 (personified vs. non-personified chatbot) x 2 (emotional vs. logical persuasion strategy) between-subjects experiment (N=76), participants engaged with a chatbot that represented a non-profit charitable organization. The results suggest that interaction with a personified chatbot evokes perceived anthropomorphism; however, it does not elicit greater willingness to donate. In fact, we found that commonly used anthropomorphic features, like name and narrative, led to negative attitudes toward an AI agent in the donation context. Our results showcase a preference for non-personified chatbots paired with logical persuasion appeal, emphasizing the significance of consistency in chatbot interaction, mirroring human-human engagement. We discuss the importance of moving from exploring the common scenario of a chatbot with machine identity vs. a chatbot with human identity in light of the recent regulations of AI systems.",
+          "claimed_authors": [
+            "Ekaterina Novozhilova",
+            "Jiacheng Huang",
+            "Le He",
+            "Ziling Li",
+            "James Cummings"
+          ],
+          "claimed_title": "Will you donate money to a chatbot? The effect of chatbot anthropomorphic features and persuasion strategies on willingness to donate",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.19976"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Will you donate money to a chatbot? The effect of chatbot anthropomorphic features and persuasion strategies on willingness to donate')",
+        "failed_at": "2026-05-12T20:05:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence (AI) chatbots powered by a large language model (LLM) are entering young children's learning and play, yet little is known about how young children construe these agents or how such construals relate to engagement. We examined anthropomorphism of a social AI chatbot during collaborative storytelling and asked how children's attributions related to their behavior and prefrontal activation. Children at ages 5-6 (N = 23) completed three storytelling sessions: interacting with (1) an AI chatbot only, (2) a parent only, and (3) the AI and a parent together. After the sessions, children completed an interview assessing anthropomorphism toward both the AI chatbot and the parent. Behavioral engagement was indexed by the conversational turn count (CTC) ratio, and concurrent fNIRS measured oxygenated hemoglobin in bilateral vmPFC and dmPFC regions. Children reported higher anthropomorphism for parents than for the AI chatbot overall, although AI ratings were relatively high for perceptive abilities and epistemic states. Anthropomorphism was not associated with CTC. In the right dmPFC, higher perceptive scores were associated with greater activation during the AI-only condition and with lower activation during the AI+Parent condition. Exploratory analyses indicated that higher dmPFC activation during the AI-only condition correlated with higher end-of-session \"scared\" mood ratings. Findings suggest that stronger perceptive anthropomorphism can be associated with greater brain activation related to interpreting the AI's mental states, whereas parent co-presence may help some children interpret and regulate novel AI interactions. These results may have design implications for encouraging parent-AI co-use in early childhood.",
+          "claimed_authors": [
+            "Pilyoung Kim",
+            "Jenna H. Chin",
+            "Yun Xie",
+            "Nolan Brady",
+            "Tom Yeh",
+            "Sujin Yang"
+          ],
+          "claimed_title": "Young children's anthropomorphism of an AI chatbot: Brain activation and the role of parent co-presence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.02179"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title=\"Young children's anthropomorphism of an AI chatbot: Brain activation and the role of parent co-presence\")",
+        "failed_at": "2026-05-12T20:05:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Introduction Psychosocial treatment is a crucial component of the rehabilitation process for individuals with serious mental illness (SMI). However, adherence to these interventions is often low, with high dropout rates posing challenges to successful outcomes. Understanding the factors that influence patient adherence, and dropout is essential for improving program efficacy and patient well-being. Objectives This study aims to analyze the demographic, clinical, and motivational factors that contribute to adherence or dropout from the “Programa Mais de Perto” (PMDP), a psychosocial rehabilitation initiative for individuals with SMI, in order to enhance patient retention and optimize therapeutic outcomes. Methods The study included all patients with SMI enrolled in the PMDP activities until December 2023. Data were collected through clinical file reviews and telephone interviews using a structured questionnaire, including the World Health Organization Disability Assessment Schedule (WHODAS 2.0). Demographic and clinical variables, as well as patient-reported experiences, were analyzed to identify factors associated with continued participation or dropout. Results The study initially included 87 patients, of whom 41 adhered to the program and 46 dropped out. However, after further filtering and questionnaire analysis, a subset of 36 patients was evaluated in detail (22 in the adherence group and 14 in the dropout group). The adherence group had lower disability scores on WHODAS 2.0 and reported higher intrinsic motivation, such as improving physical and mental well-being. In contrast, the dropout group highlighted external pressures from mental health professionals as reasons for initial participation and cited fatigue, lack of integration, and distance from the program as reasons for discontinuation. Tai Chi Chuan was the most popular activity (39% participation), while the Book Club had the lowest engagement (3%). Conclusions Intrinsic motivation is a key predictor of adherence to psychosocial rehabilitation programs, while external pressures may increase dropout risk. Enhancing flexibility, offering a wider range of activities, and fostering peer support systems could improve retention rates. These findings reinforce the importance of adapting psychosocial interventions to the needs and motivations of individuals with SMI for better long-term outcomes. Disclosure of Interest None Declared",
+          "claimed_authors": [
+            "M. Pires",
+            "C. Osorio",
+            "S. Ramos",
+            "R. Quelhas"
+          ],
+          "claimed_title": "Analysis of adherence and dropout factors from psychosocial treatment among people with serious mental illness",
+          "claimed_venue": "European psychiatry",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1192/j.eurpsy.2025.827"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Analysis of adherence and dropout factors from psychosocial treatment among people with serious mental illness')",
+        "failed_at": "2026-05-12T20:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dropout is a widely-used regularization technique, often required to obtain state-of-the-art for a number of architectures. This work demonstrates that dropout introduces two distinct but entangled regularization effects: an explicit effect (also studied in prior work) which occurs since dropout modifies the expected training objective, and, perhaps surprisingly, an additional implicit effect from the stochasticity in the dropout training update. This implicit regularization effect is analogous to the effect of stochasticity in small mini-batch stochastic gradient descent. We disentangle these two effects through controlled experiments. We then derive analytic simplifications which characterize each effect in terms of the derivatives of the model and the loss, for deep neural networks. We demonstrate these simplified, analytic regularizers accurately capture the important aspects of dropout, showing they faithfully replace dropout in practice.",
+          "claimed_authors": [
+            "Colin Wei",
+            "Sham Kakade",
+            "Tengyu Ma"
+          ],
+          "claimed_title": "The Implicit and Explicit Regularization Effects of Dropout",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.12915"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='The Implicit and Explicit Regularization Effects of Dropout')",
+        "failed_at": "2026-05-12T20:05:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Objective: Subcutaneous Immunotherapy (SCIT) is the long-lasting causal treatment of allergic rhinitis (AR). How to enhance the adherence of patients to maximize the benefit of allergen immunotherapy (AIT) plays a crucial role in the management of AIT. This study aims to leverage novel machine learning models to precisely predict the risk of non-adherence of AR patients and related local symptom scores in three years SCIT.\n  Methods: The research develops and analyzes two models, sequential latent-variable model (SLVM) of Stochastic Latent Actor-Critic (SLAC) and Long Short-Term Memory (LSTM) evaluating them based on scoring and adherence prediction capabilities.\n  Results: Excluding the biased samples at the first time step, the predictive adherence accuracy of the SLAC models is from 60\\% to 72\\%, and for LSTM models, it is 66\\% to 84\\%, varying according to the time steps. The range of Root Mean Square Error (RMSE) for SLAC models is between 0.93 and 2.22, while for LSTM models it is between 1.09 and 1.77. Notably, these RMSEs are significantly lower than the random prediction error of 4.55.\n  Conclusion: We creatively apply sequential models in the long-term management of SCIT with promising accuracy in the prediction of SCIT nonadherence in AR patients. While LSTM outperforms SLAC in adherence prediction, SLAC excels in score prediction for patients undergoing SCIT for AR. The state-action-based SLAC adds flexibility, presenting a novel and effective approach for managing long-term AIT.",
+          "claimed_authors": [
+            "Yin Li",
+            "Yu Xiong",
+            "Wenxin Fan",
+            "Kai Wang",
+            "Qingqing Yu",
+            "Liping Si",
+            "Patrick van der Smagt",
+            "Jun Tang",
+            "Nutan Chen"
+          ],
+          "claimed_title": "Sequential Model for Predicting Patient Adherence in Subcutaneous Immunotherapy for Allergic Rhinitis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.11447"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Sequential Model for Predicting Patient Adherence in Subcutaneous Immunotherapy for Allergic Rhinitis')",
+        "failed_at": "2026-05-12T20:05:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recurrent neural networks (RNNs) are important class of architectures among neural networks useful for language modeling and sequential prediction. However, optimizing RNNs is known to be harder compared to feed-forward neural networks. A number of techniques have been proposed in literature to address this problem. In this paper we propose a simple technique called fraternal dropout that takes advantage of dropout to achieve this goal. Specifically, we propose to train two identical copies of an RNN (that share parameters) with different dropout masks while minimizing the difference between their (pre-softmax) predictions. In this way our regularization encourages the representations of RNNs to be invariant to dropout mask, thus being robust. We show that our regularization term is upper bounded by the expectation-linear dropout objective which has been shown to address the gap due to the difference between the train and inference phases of dropout. We evaluate our model and achieve state-of-the-art results in sequence modeling tasks on two benchmark datasets - Penn Treebank and Wikitext-2. We also show that our approach leads to performance improvement by a significant margin in image captioning (Microsoft COCO) and semi-supervised (CIFAR-10) tasks.",
+          "claimed_authors": [
+            "Konrad Zolna",
+            "Devansh Arpit",
+            "Dendi Suhubdy",
+            "Yoshua Bengio"
+          ],
+          "claimed_title": "Fraternal Dropout",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.00066"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Fraternal Dropout')",
+        "failed_at": "2026-05-12T20:05:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "A. E. Black",
+            "E. Deci"
+          ],
+          "claimed_title": "The effects of instructors' autonomy support and students' autonomous motivation on learning organic chemistry: A self-determination theory perspective",
+          "claimed_venue": "",
+          "claimed_year": 2000,
+          "primary_pointer": "https://doi.org/10.1002/1098-237X(200011)84:6<740::AID-SCE4>3.0.CO;2-3"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title=\"The effects of instructors' autonomy support and students' autonomous motivation on learning organic chemistry: A self-determination theory perspective\")",
+        "failed_at": "2026-05-12T20:05:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Louis N. Schulze"
+          ],
+          "claimed_title": "Alternative Justifications for Law School Academic Support Programs: Self-Determination Theory, Autonomy Support, and Humanizing the Law School",
+          "claimed_venue": "",
+          "claimed_year": 2010,
+          "primary_pointer": "https://www.semanticscholar.org/paper/90e4749b206ccfe85ac0e1ee05fa7c9c50759c63"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Alternative Justifications for Law School Academic Support Programs: Self-Determination Theory, Autonomy Support, and Humanizing the Law School')",
+        "failed_at": "2026-05-12T20:05:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "In this study",
+          "claimed_authors": [
+            "Kimberly Hannah Siacor",
+            "Betsy Ng",
+            "Woon Chia Liu"
+          ],
+          "claimed_title": "Fostering Student Motivation and Engagement Through Teacher Autonomy Support: A Self-Determination Theory Perspective",
+          "claimed_venue": "International Journal of Instruction",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.29333/iji.2024.17232a"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Fostering Student Motivation and Engagement Through Teacher Autonomy Support: A Self-Determination Theory Perspective')",
+        "failed_at": "2026-05-12T20:05:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The application of Self-Determination Theory to understand online help-seeking and the design of online help-seeking technologies presents an interesting avenue for investigation. Improving motivation to engage in the help-seeking process could be achieved using the Basic Psychological Needs Theory as a structure to guide the design of online help-seeking technologies and online mental health resources. Positive online help-seeking experiences have an important role to play in sustained help-seeking and improved health outcomes.",
+          "claimed_authors": [
+            "Claudette Pretorius",
+            "David Coyle"
+          ],
+          "claimed_title": "Using Self Determination Theory to Design to Support Young Peoples Online Help-Seeking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.02299"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Using Self Determination Theory to Design to Support Young Peoples Online Help-Seeking')",
+        "failed_at": "2026-05-12T20:05:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent years have seen a surge in applications and technologies aimed at motivating users to achieve personal goals and improve their wellbeing. However, these often fail to promote long-term behaviour change, and sometimes even backfire. We consider how self-determination theory (SDT), a metatheory of human motivation and wellbeing, can help explain why such technologies fail, and how they may better help users internalise the motivation behind their goals and make enduring changes in their behaviour. In this work, we systematically reviewed 15 papers in the ACM Digital Library that apply SDT to the design of behaviour change technologies (BCTs). We identified 50 suggestions for design features in BCTs, grounded in SDT, that researchers have applied to enhance user motivation. However, we find that SDT is often leveraged to optimise engagement with the technology itself rather than with the targeted behaviour change per se. When interpreted through the lens of SDT, the implication is that BCTs may fail to cultivate sustained changes in behaviour, as users' motivation depends on their enjoyment of the intervention, which may wane over time. An underexplored opportunity remains for designers to leverage SDT to support users to internalise the ultimate goals and value of certain behaviour changes, enhancing their motivation to sustain these changes in the long term.",
+          "claimed_authors": [
+            "Lize Alberts",
+            "Ulrik Lyngs",
+            "Kai Lukoff"
+          ],
+          "claimed_title": "Designing for Sustained Motivation: A Review of Self-Determination Theory in Behaviour Change Technologies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.00121"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Designing for Sustained Motivation: A Review of Self-Determination Theory in Behaviour Change Technologies')",
+        "failed_at": "2026-05-12T20:05:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Trea', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-05-12T20:05:48Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ulysse Côté-Allard",
+            "Minh H. Pham",
+            "Alexandra K. Schultz",
+            "Tine Nordgreen",
+            "Jim Torresen"
+          ],
+          "title": "Adherence Forecasting for Guided Internet-Delivered Cognitive Behavioral Therapy: A Minimally Data-Sensitive Approach",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2201.04967",
+        "summary": "Internet-delivered psychological treatments (IDPT) are seen as an effective and scalable pathway to improving the accessibility of mental healthcare. Within this context, treatment adherence is an especially pertinent challenge to address due to the reduced interaction between healthcare professionals and patients. In parallel, the increase in regulations surrounding the use of personal data, such as the General Data Protection Regulation (GDPR), makes data minimization a core consideration for real-world implementation of IDPTs. Consequently, this work proposes a Self-Attention-based deep learning approach to perform automatic adherence forecasting, while only relying on minimally sensitive login/logout-timestamp data. This approach was tested on a dataset containing 342 patients undergoing Guided Internet-delivered Cognitive Behavioral Therapy (G-ICBT) treatment. Of these 342 patients, 101 (~30%) were considered non-adherent (dropout) based on the adherence definition used in this work (i.e. at least eight connections to the platform lasting more than a minute over 56 days). The proposed model achieved over 70% average balanced accuracy, after only 20 out of the 56 days (~1/3) of the treatment had elapsed. This study demonstrates that automatic adherence forecasting for G-ICBT, is achievable using only minimally sensitive data, thus facilitating the implementation of such tools within real-world IDPT platforms.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2201.04967",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T20:05:45Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gutu Sm",
+            "Cosmoiu A",
+            "Cojocaru D",
+            "Turturescu D",
+            "Popoviciu Cm",
+            "Giosan C"
+          ],
+          "title": "Bot to the Rescue? Effects of a Fully Automated Conversational Agent on Anxiety and Depression: A Randomized Controlled Trial",
+          "venue": "Annals of Depression and Anxiety",
+          "year": 2021
+        },
+        "primary_pointer": "https://doi.org/10.26420/anndepressanxiety.2021.1107",
+        "summary": "Web-based conversational agents powered by Artificial Intelligence (AI) and rooted in cognitive-behavioral therapy have been proven efficacious in alleviating the symptoms of anxiety and depression, when compared to passive controls. However, the benefits of a fully automated agent vs. active controls have not yet been examined. Furthermore, the potential impact of such interventions on the transdiagnostic factors underlying anxiety and depression is not known. To elucidate this, 95 adults were randomized to receive (1) a 2-week intervention with an AI-powered chatbot (Woebot) (n=39) or (2) regular psychoeducational materials (n=54). In completers’ analyses, significant main effects of time were obtained for one of the primary outcomes, anxiety, and for the secondary outcomes, transdiagnostic factors, with both groups showing decreased anxiety and intolerance of uncertainty and increased rumination, selfcompassion, guilt and shame. No group by time interaction effects were found for either of the primary outcomes, depression and anxiety, or for the secondary outcomes. Intent-to-Treat analyses also revealed no significant effects of group on the primary or secondary outcomes. Our findings point to the necessity of further research to better understand the areas where chatbots might bring benefits superior to those obtained through simple and inexpensive strategies.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://austinpublishinggroup.com/depression-anxiety/fulltext/depression-v8-id1107.php",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [
+            "https://doi.org/10.26420/anndepressanxiety.2021.1107"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T20:05:45Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Allissa Davis",
+            "Sara E. Landers",
+            "Yihang Sun",
+            "Victoria O. Nguyen",
+            "Niall Bolger",
+            "Rachel Lewis",
+            "Susan L. Rosenthal"
+          ],
+          "title": "Evaluating the Feasibility and Acceptability of a Mobile Mental Health Intervention for Adolescent Depression and Anxiety",
+          "venue": "La Clinica pediatrica",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1177/00099228251371903",
+        "summary": "The adolescent mental health crisis is compounded by a shortage of mental health services, which mobile health apps may alleviate. We assessed the feasibility and acceptability of the Wysa app (a commercially available app containing cognitive behavioral therapy-based digital modules and an artificial intelligence-based conversational agent) among 13- to 18-year-old adolescents recruited from a primary care clinic in New York City and online from March to June 2022. We assessed adolescent engagement in the Wysa app over a 3-week period. Out of 44 participants, app uptake was 77.3% (34/44). Among those who used the app, participants used the app a median of 9 times (IQR: 5–19). Over 3-quarters (n = 25) of participants who used the app would recommend the app to others, and 60.6% rated the app 4–5 stars (5 stars maximum rating). Pediatricians may find it a useful tool to recommend in their clinical practice to support adolescent mental health.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://journals.sagepub.com/doi/10.1177/00099228251371903",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [
+            "https://doi.org/10.1177/00099228251371903"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T20:05:46Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the impact of perceived agency in ai-driven cognitive behavioral therapy on treatment adherence",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

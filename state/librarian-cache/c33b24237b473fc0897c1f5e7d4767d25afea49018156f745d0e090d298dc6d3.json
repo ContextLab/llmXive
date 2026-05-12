@@ -1,0 +1,856 @@
+{
+  "fetched_at": "2026-05-12T19:59:14Z",
+  "field": "physics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "---\nfield: physics\nsubmitter: google.gemma-3-27b-it\n---\n\n# Quantifying the Impact of Network Structure on Heat Transport in Disordered Alloys\n\n**Field**: physics\n\n## Research question\n\nHow does the topology of atomic disorder networks (clustering, percolation, average path length) modulate thermal conductivity in disordered metallic alloys?\n\n## Motivation\n\nDisorder in crystalline materials is known to reduce thermal conductivity through phonon scattering, but the specific spatial arrangement of atomic defects may introduce additional structural dependencies. Understanding whether network-theoretic features of disorder correlate with transport properties could reveal design principles for thermal management materials and constrain theoretical models of heat conduction in complex solids.\n\n## Literature gap analysis\n\n### What we searched\n\nQuery terms: \"disordered alloy thermal conductivity network structure\", \"phonon transport disorder topology\", \"graph theory heat transport alloys\". Sour",
+      "target_n": 5
+    },
+    "duration_seconds": 818.079,
+    "ended_at": "2026-05-12T19:59:14Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "lattice thermal conductivity in solid solutions"
+        ],
+        [
+          2,
+          "phonon scattering in disordered alloys"
+        ],
+        [
+          3,
+          "spatial correlation functions and thermal transport"
+        ],
+        [
+          4,
+          "short-range order effects on thermal conductivity"
+        ],
+        [
+          5,
+          "phonon mean free path in random alloys"
+        ],
+        [
+          6,
+          "thermal transport in high entropy alloys"
+        ],
+        [
+          7,
+          "percolation thresholds in heat conduction"
+        ],
+        [
+          8,
+          "atomic clustering and phonon scattering"
+        ],
+        [
+          9,
+          "structural heterogeneity and heat flow"
+        ],
+        [
+          10,
+          "effective medium theory for thermal conductivity"
+        ],
+        [
+          11,
+          "vibrational density of states in disordered solids"
+        ],
+        [
+          12,
+          "disorder induced phonon localization"
+        ],
+        [
+          13,
+          "substitutional solid solution thermal transport"
+        ],
+        [
+          14,
+          "network analysis of atomic environments"
+        ],
+        [
+          15,
+          "radial distribution function thermal properties"
+        ],
+        [
+          16,
+          "thermal conductivity in amorphous metals"
+        ],
+        [
+          17,
+          "topological data analysis of crystal structures"
+        ],
+        [
+          18,
+          "complex network metrics in materials science"
+        ],
+        [
+          19,
+          "bond disorder and phonon transport"
+        ],
+        [
+          20,
+          "topological indices of atomic structures"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "How does the topology of atomic disorder networks (clustering, percolation, average path length) modulate thermal conductivity in disordered metallic alloys": 0,
+        "lattice thermal conductivity in solid solutions": 6
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "topological disorder atomic connectivity",
+      "metallic glasses high entropy alloys",
+      "short range order percolation threshold",
+      "lattice thermal conductivity phonon transport",
+      "Anderson localization disorder scattering mechanisms"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://www.semanticscholar.org/paper/bd2a69d659947625c899ba8766ba281b156eec04"
+      ]
+    },
+    "per_query_hit_count": {
+      "Anderson localization disorder scattering mechanisms": 6,
+      "How does the topology of atomic disorder networks (clustering, percolation, average path length) modulate thermal conductivity in disordered metallic alloys": 3,
+      "lattice thermal conductivity phonon transport": 6,
+      "metallic glasses high entropy alloys": 6,
+      "short range order percolation threshold": 6,
+      "topological disorder atomic connectivity": 6
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "1111.3750",
+          "rationale": "The paper investigates abstract network reachability and connectivity thresholds in general lattices and Erdos-Renyi networks rather than thermal transport properties in disordered metallic alloys. It falls under the rejection rule for distinct constructs sharing only homonym keywords (disorder, percolation, path length) because it fails to measure the user's dependent variable (thermal conductivity) or operate within the specific physical domain (atomic disorder in metals).",
+          "title": "Disorder Induced Limited Path Percolation"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1021/jacs.2c13179",
+          "rationale": "This paper studies lattice thermal conductivity in semiconductor solid solutions driven by local crystallographic distortion, which does not match the user's specific domain of metallic alloys or the requested mechanism of network topology metrics (clustering, percolation). It falls under the rejection criteria for having no measurable connection to the user's specific mechanism and empirical setting.",
+          "title": "Silver Atom Off-Centering in Diamondoid Solid Solutions Causes Crystallographic Distortion and Suppresses Lattice Thermal Conductivity."
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1016/j.matchemphys.2022.126366",
+          "rationale": "This paper studies ceramic/oxide spinel solid solutions (alumina content effects) rather than disordered metallic alloys, and investigates compositional effects on thermal conductivity rather than the topological network properties (clustering, percolation, average path length) the user's question targets. It fails the domain and mechanism connection requirements (off-domain entirely: ceramic materials vs metallic alloys; different mechanism: composition vs network topology).",
+          "title": "Effect of alumina content on the crystal structure, lattice thermal expansion and thermal conductivity of aluminium-rich spinel solid solutions"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1109/KhPIWeek61412.2023.10312931",
+          "rationale": "This paper falls under the rejection rule for **distinct constructs sharing only homonym keywords**: the user's question refers to **network topology** (graph-theoretic metrics like clustering and percolation of atomic disorder), whereas the paper discusses **topological phases of matter** (TCI state and band structure) in semiconductors. Additionally, the material domain differs (semiconductor solid solutions vs. disordered metallic alloys), and the paper does not measure the specific atomic di",
+          "title": "Isotherms of Lattice Thermal Conductivity and Self-Organization Processes in Semiconductor Pb1-xSnxTe Solid Solutions"
+        },
+        {
+          "primary_pointer": "1508.02156",
+          "rationale": "The paper falls under the rejection rule for having no measurable connection to the user's mechanism, domain, variables, or empirical setting. It focuses on intrinsic phonon transport in a 2D material rather than disorder network topology in metallic alloys.",
+          "title": "Low lattice thermal conductivity of stanene"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-12T19:45:36Z",
+    "term_input": {
+      "normalized": "how does the topology of atomic disorder networks (clustering, percolation, average path length) modulate thermal conductivity in disordered metallic alloys",
+      "raw": "How does the topology of atomic disorder networks (clustering, percolation, average path length) modulate thermal conductivity in disordered metallic alloys"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Periodic arrays of strongly coupled colloidal quantum dots (QDs) may enable unprecedented control of electronic bandstructure through manipulation of QD size, shape, composition, spacing, and assembly geometry. This includes the possibilities of precisely engineered bandgaps and charge carrier mobilities, as well as remarkable behaviors such as metal-insulator transitions, massless carriers, and topological states. However, experimental realization of these theoretically predicted electronic structures is presently limited by structural disorder. Here, we use aberration-corrected scanning transmission electron microscopy to precisely quantify the orientational disorder of epitaxially connected QD films. In spite of coherent atomic connectivity between nearest neighbor QDs, we find misalignment persists with a standard deviation of 1.9 degrees, resulting in significant bending strain localized to the adjoining necks. We observe and quantify a range of out-of-plane particle orientations over thousands of QDs, and correlate the in-plane and out-of-plane misalignments, finding QDs misoriented out-of-plane display a statistically greater misalignment with respect to their in-plane neighbors as well. Using the bond orientational order metric ψ4, we characterize both the fourfold symmetry and introduce a quantification of the local superlattice (SL) orientation. This enables direct comparison between local orientational order in the SL and atomic lattice (AL). We find significantly larger variations in the SL orientation, and a statistically robust but locally highly variable correlation between the orientations of the two differently scaled lattices. Distinct AL and SL behaviors are observed about a grain boundary, with a sharp boundary in the AL orientations, but a more smooth transition in the SL, facilitated by lattice deformation between the neighboring grains. Coupling between the AL and SL is a fundamental driver of film growth, and these results suggest nontrivial underlying mechanics, implying that simplified models of epitaxial attachment may be insufficient to understand QDs growth and disorder when oriented attachment and superlattice growth occur in concert.",
+          "claimed_authors": [
+            "A. McCray",
+            "B. Savitzky",
+            "Kevin Whitham",
+            "T. Hanrath",
+            "L. Kourkoutis"
+          ],
+          "claimed_title": "Orientational Disorder in Epitaxially Connected Quantum Dot Solids.",
+          "claimed_venue": "ACS Nano",
+          "claimed_year": 2019,
+          "primary_pointer": "https://doi.org/10.1021/acsnano.9b04951"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Orientational Disorder in Epitaxially Connected Quantum Dot Solids.')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "H. R. Foxhall",
+            "K. Travis",
+            "L. Hobbs",
+            "S. C. Rich",
+            "S. L. Owens"
+          ],
+          "claimed_title": "Understanding the radiation-induced amorphization of zirconolite using molecular dynamics and connectivity topology analysis",
+          "claimed_venue": "",
+          "claimed_year": 2013,
+          "primary_pointer": "https://doi.org/10.1080/14786435.2012.718448"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Understanding the radiation-induced amorphization of zirconolite using molecular dynamics and connectivity topology analysis')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Ideal crystalline membranes, realized by graphene and other atomic monolayers, exhibit rich physics - a universal anomalous elasticity of the critical\"flat\"phase characterized by a negative Poisson ratio, universally singular elastic moduli, order-from-disorder and a crumpling transition. We formulate a generalized $D$-dimensional field theory, parameterized by an $O(d)\\times O(D)$ tensor field with an {\\it energetic} longitudinal constraint. For a soft constraint the resulting field theory describes a new class of a fluctuating\"tattered\"membranes, exhibiting a nonzero density of topological connectivity defects - slits, cracks and faults at an effective medium level. For hard, infinite-coupling constraint, the model reproduces the conventional crystalline membrane and its crumpling transition, and thereby demonstrates the essence of the difference between an elastic membrane and conventional field theories. Two additional fixed points emerge within the critical manifold, (i) globally attractive,\"isotropic\"$O(d)\\times O(D)$, and (ii)\"transverse\", which in $D=2$ is the exact\"dual\"of the elastic membrane. Their properties are obtained in general $D,d$ from the renormalization group and the self-consistent screening analyses.",
+          "claimed_authors": [
+            "P. Doussal",
+            "Leo Radzihovsky"
+          ],
+          "claimed_title": "\"Tattered\"membrane",
+          "claimed_venue": "",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.00752"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='\"Tattered\"membrane')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We report the rapid accelerated thermalisation of Potassium 39 K atoms loaded in a magnetic trap, in the presence of a single dipole trap beam. More than an order of magnitude reduction in the thermalisation time, to less than a second, is observed with the focused off- resonant beam occupying only 0.01% of the volume of the magnetic trap. The cold atoms are loaded from a Magneto-Optical Trap(MOT) of 39 K that has gone through a compressed MOT and sub-Doppler cooling stage. The atoms are prepared in the magnetically stretched |F = 2, mF = 2> state prior to loading into the hybrid trap. We also report a direct loading of 39 K atoms, prepared in the state |F = 1>, into a single beam dipole trap.",
+          "claimed_authors": [
+            "Dipankar Nath",
+            "R Kollengode Easwaran",
+            "G. Rajalakshmi",
+            "C. S. Unnikrishnan"
+          ],
+          "claimed_title": "Accelerated Thermalisation of 39K atoms in a Magnetic Trap with Superimposed Optical Potential",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1305.2313"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Accelerated Thermalisation of 39K atoms in a Magnetic Trap with Superimposed Optical Potential')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The subject of this review are atom traps based on optical dipole forces in laser fields, along with their unique features as storage devices at ultralow energies. The basic physics of the dipole interaction is discussed, and the experimental background of dipole trapping experiments is explained. Specific trapping schemes and experiments are presented, where the wide range of applications of dipole traps is explored considering particular examples.",
+          "claimed_authors": [
+            "Rudolf Grimm",
+            "Matthias Weidemüller",
+            "Yurii B. Ovchinnikov"
+          ],
+          "claimed_title": "Optical dipole traps for neutral atoms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1999,
+          "primary_pointer": "physics/9902072"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Optical dipole traps for neutral atoms')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We find that a quantum device having an accessory involving precision measurement can have an enhancement of its metrological precision in estimating an unknown parameter of the quantum system by insertion of glassy disorder, accidental or engineered. We clearly mention how an unbiased estimator can also be identified in a disordered situation, and how the precision thereof can be bounded by the quantum Cr{á}mer-Rao inequality. We compare the Fisher information-based lower bound of the minimum standard deviation of an unbiased estimator, in presence of glassy disorder in the system, with the same of an ideal, viz. disorder-free, situation. The phenomenon can boost the efficiency of certain measuring devices, such as atomic clocks. The precision of these clocks, when measuring time, hinges on the precise determination of the frequency of a two-level atom. In cases where impurities are present in the atom, and can be modeled as a disorder parameter, it is possible for the measurement of frequency to be more accurate than in an ideal, disorder-free scenario. Moreover, disorder insertion can reduce the requirement of entanglement content of the initial probes, which are copies of two-qubit states, along with providing a disorder-induced enhancement.",
+          "claimed_authors": [
+            "Aparajita Bhattacharyya",
+            "Ahana Ghoshal",
+            "Ujjwal Sen"
+          ],
+          "claimed_title": "Enhancing precision of atomic clocks by tuning disorder in accessories",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.08523"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Enhancing precision of atomic clocks by tuning disorder in accessories')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Electrochemical water splitting is a promising approach to convert renewable energy into hydrogen energy and is beneficial for alleviating environmental pollution and energy crises, and is considered a clean method to achieve dual-carbon goals. Electrocatalysts can effectively reduce the reaction energy barrier and improve reaction efficiency. However, designing electrocatalysts with high activity and stability still faces significant challenges, which are closely related to the structure and electronic configuration of catalysts. Nanoporous high-entropy alloys (np-HEAs) and metallic glasses (np-MGs), characterized by long-range chemical disorder intertwined with local chemical order combined with three-dimensional, interconnected nanoporous structure, exhibit distinctive electrocatalytic properties and application potential for electrochemical water splitting. To promote the widespread application of np-HEAs and np-MGs, it is of great significance to rationally design and apply them in the field of electrolytic water splitting. In this review, the basic principles of hydrogen evolution reaction and oxygen evolution reaction as well as the fabrication techniques of np-HEAs and np-MGs are introduced. The recent progress in the efficient application of np-HEAs and np-MGs in electrochemical water splitting, and the current challenges and prospects are summarized. This review will provide theoretical guidance for the development of np-HEAs and np-MGs in electrochemical water splitting applications.",
+          "claimed_authors": [
+            "Yu Zhang",
+            "Yangchuan Cai",
+            "Ying Ding"
+          ],
+          "claimed_title": "Nanoporous high-entropy alloys and metallic glasses: advanced electrocatalytic materials for electrochemical water splitting.",
+          "claimed_venue": "Chemical Communications",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1039/d4cc06087c"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Nanoporous high-entropy alloys and metallic glasses: advanced electrocatalytic materials for electrochemical water splitting.')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Alessandro Troglia",
+            "C. Leriche",
+            "Mike L. van de Poll",
+            "Christoph Morscher",
+            "Gert H. ten Brink",
+            "Bart J. Kooi",
+            "B. Weber",
+            "R. Bliem"
+          ],
+          "claimed_title": "Bridging the gap between high-entropy alloys and metallic glasses: Control over disorder and mechanical properties of coatings",
+          "claimed_venue": "Materials Today Communications",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1016/j.mtcomm.2024.110604"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Bridging the gap between high-entropy alloys and metallic glasses: Control over disorder and mechanical properties of coatings')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Haishun Liu",
+            "Dengfeng Yang",
+            "Qi Jiang",
+            "Y. Jiang",
+            "Weiming Yang",
+            "Lin Liu",
+            "Lai‐Chang Zhang"
+          ],
+          "claimed_title": "Additive manufacturing of metallic glasses and high-entropy alloys: Significance, unsettled issues, and future directions",
+          "claimed_venue": "Journal of Materials Science &amp; Technology",
+          "claimed_year": 2022,
+          "primary_pointer": "https://doi.org/10.1016/j.jmst.2022.09.006"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Additive manufacturing of metallic glasses and high-entropy alloys: Significance, unsettled issues, and future directions')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We have investigated the plastic deformation properties of non-equiatomic single phase Zr-Nb-Ti-Ta-Hf high-entropy alloys from room temperature up to 300 °C. Uniaxial deformation tests at a constant strain rate of 10$^{-4}$ s$^{-1}$ were performed including incremental tests such as stress-relaxations, strain-rate- and temperature changes in order to determine the thermodynamic activation parameters of the deformation process. The microstructure of deformed samples was characterized by transmission electron microscopy. The strength of the investigated Zr-Nb-Ti-Ta-Hf phase is not as high as the values frequently reported for high-entropy alloys in other systems. We find an activation enthalpy of about 1 eV and a stress dependent activation volume between 0.5 and 2 nm$^3$. The measurement of the activation parameters at higher temperatures is affected by structural changes evolving in the material during plastic deformation.",
+          "claimed_authors": [
+            "M. Feuerbacher",
+            "M. Heidelmann",
+            "C. Thomas"
+          ],
+          "claimed_title": "Plasticity of Zr-Nb-Ti-Ta-Hf high-entropy alloys",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1401.3997"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Plasticity of Zr-Nb-Ti-Ta-Hf high-entropy alloys')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Introductory chapter for the book \"Halfmetallic Alloys - Fundamentals and Applications\" to be published in the series Springer Lecture Notes on Physics, P. H. Dederichs and I. Galanakis (eds). It contains a review of the theoretical work on the half-metallic Heusler alloys.",
+          "claimed_authors": [
+            "I. Galanakis",
+            "P. H. Dederichs"
+          ],
+          "claimed_title": "Half-metallicity and Slater-Pauling behavior in the ferromagnetic Heusler alloys",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "cond-mat/0408068"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Half-metallicity and Slater-Pauling behavior in the ferromagnetic Heusler alloys')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This chapter introduces the use of X-ray absorption spectroscopy (XAS) in studying the local electronic and atomic structure of high-entropy materials. The element selectivity of XAS makes it particularly suitable to address the challenges posed by the study of multicomponent compounds. By analysing different parts of the X-ray absorption spectra for each element, one can obtain information on its chemical state from the X-ray absorption near-edge structure (XANES) and its local environment, distortions, and lattice dynamics from the extended X-ray absorption fine structure (EXAFS). The theoretical background underlying X-ray absorption spectra and existing data analysis procedures are briefly described, with particular emphasis on advanced atomistic modelling techniques that enable more reliable extraction of structural information. Finally, an overview of the applications of the XAS technique in studying high-entropy materials is presented.",
+          "claimed_authors": [
+            "Alexei Kuzmin"
+          ],
+          "claimed_title": "6 -- X-ray absorption spectroscopy in high-entropy material research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.05944"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='6 -- X-ray absorption spectroscopy in high-entropy material research')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Recent developments in the percolation theory of passivation have shown that chemical short-range order (SRO) affects the aqueous passivation behavior of alloys. However, there has been no systematic exploration to quantify these SRO effects on percolation in practical alloys and the related passivation behavior. In this study, we quantify the effects of SRO on percolation in a binary size-mismatched Cu-Rh alloy and study the related passivation behavior. We develop a mixed-space cluster expansion model trained on the mixing energy calculated using density functional theory. We use the cluster expansion model to sample the configuration space via variance-constrained semi-grand canonical Monte Carlo simulations and develop SRO diagrams over a range of compositions and temperatures. Building on this with the percolation crossover model, specifically the variation of percolation threshold with SRO in the FCC lattice, we construct the first nearest-neighbor chemical percolation diagram. These diagrams can inform the design of the next generation of corrosion-resistant metallic alloys.",
+          "claimed_authors": [
+            "Abhinav Roy",
+            "K. Sieradzki",
+            "M. J. Waters",
+            "J. Rondinelli",
+            "Ian D. McCue"
+          ],
+          "claimed_title": "Percolation diagrams derived from first-principles investigation of chemical short-range order in binary alloys",
+          "claimed_venue": "Scripta Materialia",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1016/j.scriptamat.2025.117137"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Percolation diagrams derived from first-principles investigation of chemical short-range order in binary alloys')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "We develop a percolation model for face centered cubic binary alloys with chemical short-range order (SRO) to account for chemical ordering/clustering that occurs in nominally random solid solutions. We employ a lattice generation scheme that directly utilizes the first nearest neighbor Warren-Cowley SRO parameter to generate the lattice. We quantify the effects of SRO on the first nearest neighbor three-dimensional (3D) site percolation threshold using the large cell Monte Carlo renormalization group method and find that the 3D site percolation threshold is a function of the SRO parameter. We analyze the effects of SRO on the distribution of the total number of distinct clusters in the percolated structures and find that short-ranged clustering promotes the formation of a dominant spanning cluster. Furthermore, we find that the scaling exponents of percolation are independent of SRO. We also examine the effects of SRO on the 2D-3D percolation crossover and find that the thickness of the thin film for percolation crossover is a function of the SRO parameter. We combine these results to develop a percolation crossover model to understand the electrochemical passivation behavior in binary alloys. The percolation crossover model provides a theoretical framework to understand the critical composition of passivating elements for protective oxide formation. With this model, we show that SRO can be used as a processing parameter to improve corrosion resistance.",
+          "claimed_authors": [
+            "Abhinav Roy",
+            "K. Sieradzki",
+            "J. Rondinelli",
+            "Ian D. McCue"
+          ],
+          "claimed_title": "Effect of chemical short-range order and percolation on passivation in binary alloys",
+          "claimed_venue": "Physical review B",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1103/PhysRevB.110.085420"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Effect of chemical short-range order and percolation on passivation in binary alloys')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "George C. Yu"
+          ],
+          "claimed_title": "Correlated percolation in solid solutions with short-range order",
+          "claimed_venue": "",
+          "claimed_year": 1994,
+          "primary_pointer": "https://doi.org/10.1080/13642819408236882"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Correlated percolation in solid solutions with short-range order')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article is a draft of a book chapter of the book entitled \"Quantum Percolation and Breakdown\", to appear 2008.",
+          "claimed_authors": [
+            "K. Kieling",
+            "J. Eisert"
+          ],
+          "claimed_title": "Percolation in quantum computation and communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0712.1836"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Percolation in quantum computation and communication')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The site percolation problem is one of the core topics in statistical physics. Evaluation of the percolation threshold, which separates two phases (sometimes described as conducting and insulating), is useful for a range of problems from core condensed matter to interdisciplinary application of statistical physics in epidemiology or other transportation or connectivity problems. In this paper with Newman--Ziff fast Monte Carlo algorithm and finite-size scaling theory the random site percolation thresholds $p_c$ for a square lattice with complex neighborhoods containing sites from the sixth coordination zone are computed. Complex neighborhoods are those that contain sites from various coordination zones (which are not necessarily compact). We also present the source codes of the appropriate procedures (written in C) to be replaced in original Newman--Ziff code. Similar to results previously found for the honeycomb lattice, the percolation thresholds for complex neighborhoods on a square lattice follow the power law $p_c(ζ)\\proptoζ^{-γ_2}$ with $γ_2=0.5454(60)$, where $ζ=\\sum_i z_i r_i$ is the weighted distance of sites in complex neighborhoods ($r_i$ and $z_i$ are the distance from the central site and the number of sites in the coordination zone $i$, respectively).",
+          "claimed_authors": [
+            "Krzysztof Malarz"
+          ],
+          "claimed_title": "Random site percolation thresholds on square lattice for complex neighborhoods containing sites up to the sixth coordination zone",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.10423"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Random site percolation thresholds on square lattice for complex neighborhoods containing sites up to the sixth coordination zone')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We develop a percolation model for face centered cubic binary alloys with chemical short-range order (SRO) to account for chemical ordering/clustering that occurs in nominally random solid solutions. We employ a lattice generation scheme that directly utilizes the first nearest neighbor Warren-Cowley SRO parameter to generate the lattice. We quantify the effects of SRO on the first nearest neighbor three-dimensional (3D) site percolation threshold using the large cell Monte Carlo renormalization group method and find that the 3D site percolation threshold is a function of the SRO parameter. We analyze the effects of SRO on the distribution of the total number of distinct clusters in the percolated structures and find that short-ranged clustering promotes the formation of a dominant spanning cluster. Furthermore, we find that the scaling exponents of percolation are independent of SRO. We also examine the effects of SRO on the 2D-3D percolation crossover and find that the thickness of the thin film for percolation crossover is a function of the SRO parameter. We combine these results to develop a percolation crossover model to understand the electrochemical passivation behavior in binary alloys. The percolation crossover model provides a theoretical framework to understand the critical composition of passivating elements for protective oxide formation. With this model, we show that SRO can be used as a processing parameter to improve corrosion resistance.",
+          "claimed_authors": [
+            "Abhinav Roy",
+            "Karl Sieradzki",
+            "James M. Rondinelli",
+            "Ian D. McCue"
+          ],
+          "claimed_title": "Effect of chemical short-range order and percolation on passivation in binary alloys",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.13954"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Effect of chemical short-range order and percolation on passivation in binary alloys')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Fluorographene, a fluorinated graphene-derivative, is expected to feature both high thermal conductivity and electrical insulation simultaneously, making it an emerging material for thermal management in electronic devices. In this paper, we investigated the lattice thermal conductivity and phonon transport properties of monolayer fluorographene using first-principles calculation. The solution of the fully linearized phonon Boltzmann transport equation gives the lattice thermal conductivity of monolayer fluorographene as 145.2 W m−1 K−1 at 300 K, which is about 20 times smaller than that of monolayer graphene. We systematically compared the phonon transport properties of all phonon modes in graphene and fluorographene in terms of phonon polarization. The significantly reduced thermal conductivity of fluorographene can be attributed to the lowering of both the lifetime of the flexural acoustic phonons and the group velocities of all acoustic phonons. We concluded that the broken in-plane mirror symmetry and the weaker in-plane chemical bonds induced by fluorination led to the suppression of the lattice thermal conductivity of fluorographene. Finally, we investigated the anomalously large contribution of optical phonons to the thermal transport process in fluorographene, where the large group velocities of selected optical phonons were derived from the in-plane acoustic modes of graphene. Our work provides a new approach to studying the influence of chemical functionalization on the phonon structure and exploring graphene-derived thermal management materials.",
+          "claimed_authors": [
+            "Seungbin Han",
+            "Dongkyu Lee",
+            "Sungwoo Lee",
+            "Gun-Do Lee",
+            "Sangyeop Lee",
+            "Hyejin Jang"
+          ],
+          "claimed_title": "Lattice thermal conductivity and phonon transport properties of monolayer fluorographene",
+          "claimed_venue": "Journal of Applied Physics",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1063/5.0224083"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Lattice thermal conductivity and phonon transport properties of monolayer fluorographene')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "A computational framework for predicting phonon frequencies, group velocities, scattering rates, and the resulting lattice thermal conductivity is described. The underlying theory and implementation suggestions are also provided. By using input from first principles calculations and taking advantage of advances in computational power, this framework has enabled thermal conductivity predictions that agree with experimental measurements for diverse crystalline materials over a wide range of temperatures. Density functional theory and density functional perturbation theory calculations are first used to obtain the harmonic and cubic force constants. The harmonic force constants are the input to harmonic lattice dynamics calculations, which provide the phonon frequencies and eigenvectors. The harmonic properties and the cubic force constants are then used with perturbation theory and/or phenomenological models to determine intrinsic and extrinsic scattering rates. The full set of phonon properties is then used to solve the Boltzmann transport equation for the mode populations and thermal conductivity. The extension of the framework to include higher-order processes, capture finite temperature effects, and model alloys is described. A case study on silicon is presented that provides benchmarking and convergence data. Available packages that implement the framework are compared.A computational framework for predicting phonon frequencies, group velocities, scattering rates, and the resulting lattice thermal conductivity is described. The underlying theory and implementation suggestions are also provided. By using input from first principles calculations and taking advantage of advances in computational power, this framework has enabled thermal conductivity predictions that agree with experimental measurements for diverse crystalline materials over a wide range of temperatures. Density functional theory and density functional perturbation theory calculations are first used to obtain the harmonic and cubic force constants. The harmonic force constants are the input to harmonic lattice dynamics calculations, which provide the phonon frequencies and eigenvectors. The harmonic properties and the cubic force constants are then used with perturbation theory and/or phenomenological models to determine intrinsic and extrinsic scattering rates. The full set of phonon properties is then use...",
+          "claimed_authors": [
+            "A. McGaughey",
+            "Ankit Jain",
+            "Hyun-Young Kim"
+          ],
+          "claimed_title": "Phonon properties and thermal conductivity from first principles, lattice dynamics, and the Boltzmann transport equation",
+          "claimed_venue": "Journal of Applied Physics",
+          "claimed_year": 2019,
+          "primary_pointer": "https://doi.org/10.1063/1.5064602"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Phonon properties and thermal conductivity from first principles, lattice dynamics, and the Boltzmann transport equation')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Wurtzite gallium nitride (GaN) has great potential for high-frequency and high-power applications due to its excellent electrical and thermal transport properties. However, enhancing the performance of GaN-based power electronics relies on heavy doping. Previous studies showed that electron-phonon interactions have strong effects on the lattice thermal conductivity of GaN due to the Fr\\\"ohlich interaction. Surprisingly, our investigation reveals weak effects of electron-phonon interactions on the lattice thermal conductivity of n-type GaN at ultra-high electron concentrations and the impact of the Fr\\\"ohlich interaction can be ignored. The small phonon-electron scattering rate is attributed to the limited scattering channels, quantified by the Fermi surface nesting function. In contrast, there is a significant reduction in the lattice thermal conductivity of p-type GaN at high hole concentrations due to the relatively larger Fermi surface nesting function. Meanwhile, as p-type GaN has relatively smaller electron-phonon matrix elements, the reduction in lattice thermal conductivity is still weaker than that observed in p-type silicon. Our work provides a deep understanding of thermal transport in doped GaN and the conclusions can be further extended to other wide-bandgap semiconductors, including $\\beta$-Ga2O3, AlN, and ZnO.",
+          "claimed_authors": [
+            "Jianshi Sun",
+            "Shouhang Li",
+            "Zhen Tong",
+            "Cheng Shao",
+            "Xiangchuan Chen",
+            "Qianqian Liu",
+            "Yucheng Xiong",
+            "Meng An",
+            "Xiangjun Liu"
+          ],
+          "claimed_title": "Weak effects of electron-phonon interactions on the lattice thermal conductivity of wurtzite GaN with high electron concentrations",
+          "claimed_venue": "Physical review B",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1103/physrevb.109.134308"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Weak effects of electron-phonon interactions on the lattice thermal conductivity of wurtzite GaN with high electron concentrations')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We report on heavy quark mass calculations using Fermilab heavy quarks. Lattice calculations of heavy-strange meson masses are combined with one-loop (automated) lattice perturbation theory to arrive at the quark mass. Mesons are constructed from Fermilab heavy quarks and staggered light quarks. We use the MILC ensembles at three lattice spacings and sea quark mass ratios of $m_{\\rm u,d} / m_{\\rm s} = 0.1$ to 0.4. Preliminary results for the bottom quark are given in the potential subtracted scheme.",
+          "claimed_authors": [
+            "Elizabeth D. Freeland",
+            "Andreas S. Kronfeld",
+            "James N. Simone",
+            "Ruth S. Van de Water",
+            "Fermilab Lattice",
+            "MILC Collaborations"
+          ],
+          "claimed_title": "Heavy-Quark Masses from the Fermilab Method in Three-Flavor Lattice QCD",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0710.4339"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Heavy-Quark Masses from the Fermilab Method in Three-Flavor Lattice QCD')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the $B \\to Kl^+l^-$ semileptonic decay process in three-flavor lattice QCD. We analyze several ensembles generated by the MILC collaboration at different lattice spacings and sea-quark masses. We use the asqtad improved staggered action for the light quarks and the clover action with the Fermilab interpretation for the heavy $b$ quark. We present preliminary results for the vector current induced form factors for a range of kaon energies. Our analysis includes chiral and continuum extrapolations based on SU(2) staggered χPT.",
+          "claimed_authors": [
+            "Ran Zhou",
+            "Jon A. Bailey",
+            "Alexei Bazavov",
+            "Aida X. El-Khadra",
+            "Steven Gottlieb",
+            "Rajendra D. Jain",
+            "Andreas S. Kronfeld",
+            "Ruth S. Van de Water",
+            "Fermilab Lattice",
+            "MILC Collaborations"
+          ],
+          "claimed_title": "Form factors for $B$ to $Kll$ semileptonic decay from three-flavor lattice QCD",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1111.0981"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Form factors for $B$ to $Kll$ semileptonic decay from three-flavor lattice QCD')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A fundamental understanding of phonon transport in stanene is crucial to predict the thermal performance in potential stanene-based devices. By combining first-principle calculation and phonon Boltzmann transport equation, we obtain the lattice thermal conductivity of stanene. A much lower thermal conductivity (11.6 W/mK) is observed in stanene, which indicates higher thermoelectric efficiency over other 2D materials. The contributions of acoustic and optical phonons to the lattice thermal conductivity are evaluated. Detailed analysis of phase space for three-phonon processes shows that phonon scattering channels LA+LA/TA/ZA$\\leftrightarrow$TA/ZA are restricted, leading to the dominant contributions of high-group-velocity LA phonons to the thermal conductivity. The size dependence of thermal conductivity is investigated as well for the purpose of the design of thermoelectric nanostructures.",
+          "claimed_authors": [
+            "Bo Peng",
+            "Hao Zhang",
+            "Hezhu Shao",
+            "Yuchen Xu",
+            "Xiangchao Zhang",
+            "Heyuan Zhu"
+          ],
+          "claimed_title": "Low lattice thermal conductivity of stanene",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1508.02156"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Low lattice thermal conductivity of stanene')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Motivated by recent experiments on Si/SiGe quantum wells with a co-design of high electron mobility and large valley splitting [B. Paquelet Wuetz, et al., Nature Communications 14, 1385 (2023); D. D. Esposti, et al., arXiv:2309.02832], suitable for a Si-based spin qubit quantum computing platform, we examine the role of disorder by theoretically calculating mobility and quantum mobility from various scattering mechanisms and their dependence on the electron density. At low electron densities $n_e<4 \\times 10^{11}$ cm$^{-2}$, we find that mobility is limited by remote Coulomb impurities in the capping layer, whereas interface roughness becomes the significant limiting factor at higher densities. We also find that alloy disorder scattering is not a limiting mechanism in the reported high-mobility structures. We estimate the critical density of the disorder-driven low-density metal-insulator transition using the Anderson-Ioffe-Regel localization criterion and qualitatively explain the breakdown of the Boltzmann-Born theory at low densities. We also estimate the critical density by considering inhomogeneous density fluctuations induced by long-range Coulomb disorder in the system, and find a larger critical density compared to the one obtained from the Anderson-Ioffe-Regel criterion. For quantum mobility, our calculation suggests that remote and distant background impurities are likely the limiting scattering sources across all density. Future measurements of quantum mobility should provide more information on the distribution of background impurities inside the SiGe barriers. Moreover, we extend our theoretical analysis to the effect of quantum degeneracy on transport properties and predict the mobility and the critical density for the metal-insulator transition in spin-polarized high-mobility structures under an external parallel magnetic field.",
+          "claimed_authors": [
+            "Yi Huang",
+            "S. Das Sarma"
+          ],
+          "claimed_title": "Understanding disorder in silicon quantum computing platforms: Scattering mechanisms in Si/SiGe quantum wells",
+          "claimed_venue": "Physical review B",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.1103/PhysRevB.109.125405"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Understanding disorder in silicon quantum computing platforms: Scattering mechanisms in Si/SiGe quantum wells')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The interplay between order and disorder in photonic lattices opens up a wide range of novel optical scattering mechanisms, cavity-mode resonances, and applications that can be obscured by typical ...",
+          "claimed_authors": [
+            "J. P. Vasco",
+            "S. Hughes"
+          ],
+          "claimed_title": "Exploiting Long-Range Disorder in Slow-Light Photonic Crystal Waveguides: Anderson Localization and Ultrahigh Q/V Cavities",
+          "claimed_venue": "ACS Photonics",
+          "claimed_year": 2018,
+          "primary_pointer": "https://doi.org/10.1021/acsphotonics.9b01026"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Exploiting Long-Range Disorder in Slow-Light Photonic Crystal Waveguides: Anderson Localization and Ultrahigh Q/V Cavities')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Motivated by the link between Anderson localisation on high-dimensional graphs and many-body localisation, we study the effect of periodic driving on Anderson localisation on random trees. The time dependence is eliminated in favour of an extra dimension, resulting in an extended graph wherein the disorder is correlated along the new dimension. The extra dimension increases the number of paths between any two sites and allows for interference between their amplitudes. We study the localisation problem within the forward scattering approximation (FSA) which we adapt to this extended graph. At low frequency, this favours delocalisation as the availability of a large number of extra paths dominates. By contrast, at high frequency, it stabilises localisation compared to the static system. These lead to a regime of re-entrant localisation in the phase diagram. Analysing the statistics of path amplitudes within the FSA, we provide a detailed theoretical picture of the physical mechanisms governing the phase diagram.",
+          "claimed_authors": [
+            "Sthitadhi Roy",
+            "R. Moessner",
+            "A. Lazarides"
+          ],
+          "claimed_title": "How periodic driving stabilizes and destabilizes Anderson localization on random trees",
+          "claimed_venue": "Physical review B",
+          "claimed_year": 2021,
+          "primary_pointer": "https://doi.org/10.1103/PHYSREVB.103.L100204"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='How periodic driving stabilizes and destabilizes Anderson localization on random trees')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We use the transfer tensor method to analyze localization and transport in simple disordered systems, specifically the Anderson and Aubry-André-Harper models. Emphasis is placed on the memory effects that emerge when ensemble-averaging over disorder, even when individual trajectories are strictly Markovian. We find that transfer tensor memory effects arise to remove fictitious terms that would correspond to redrawing static disorder at each time step, which would create a temporally uncorrelated dynamic disorder. Our results show that while eternal memory is a necessary condition for localization, it is not sufficient. We determine that signatures of localization and transport can be found within the transfer tensors themselves by defining a metric called \"outgoing-pseudoflux\". This work establishes connections between theoretical research on dynamical maps and Markovianity and localization phenomena in physically realizable model systems.",
+          "claimed_authors": [
+            "Michelle C. Anderson",
+            "Chern Chuang"
+          ],
+          "claimed_title": "Transfer tensor analysis of localization in the Anderson and Aubry-André-Harper models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.21374"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Transfer tensor analysis of localization in the Anderson and Aubry-André-Harper models')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The supersymmetry method for study of disordered systems is shortly reviewed. The discussion starts with a historical introduction followed by an explanation of the idea of using Grassmann anticommuting variables for investigating disordered metals. After that the nonlinear supermatrix $σ$-model is derived. Solution of several problems obtained with the help of the $σ$-model is presented. This includes the problem of the level statistics in small metal grains, localization in wires and films, and Anderson metal-insulator transition. Calculational schemes developed for studying these problems form the basis of subsequent applications of the supersymmetry approach.",
+          "claimed_authors": [
+            "K. B. Efetov"
+          ],
+          "claimed_title": "Anderson localization and Supersymmetry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2632"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Anderson localization and Supersymmetry')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Mott and the Anderson routes to localization have long been recognized as the two basic processes that can drive the metal-insulator transition (MIT). Theories separately describing each of these mechanisms were discussed long ago, but an accepted approach that can include both has remained elusive. The lack of any obvious static symmetry distinguishing the metal from the insulator poses another fundamental problem, since an appropriate static order parameter cannot be easily found. More recent work, however, has revisited the original arguments of Anderson and Mott, which stressed that the key diference between the metal end the insulator lies in the dynamics of the electron. This physical picture has suggested that the \"typical\" (geometrically averaged) escape rate from a given lattice site should be regarded as the proper dynamical order parameter for the MIT, one that can naturally describe both the Anderson and the Mott mechanism for localization. This article provides an overview of the recent results obtained from the corresponding Typical-Medium Theory, which provided new insight into the the two-fluid character of the Mott-Anderson transition.",
+          "claimed_authors": [
+            "V. Dobrosavljevic"
+          ],
+          "claimed_title": "Typical-Medium Theory of Mott-Anderson Localization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1003.3215"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How does the topology of atomic disorder networks (clustering, percolation, aver', candidate_title='Typical-Medium Theory of Mott-Anderson Localization')",
+        "failed_at": "2026-05-12T19:49:05Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Aftab Alam",
+            "Abhijit Mookerjee"
+          ],
+          "title": "Lattice thermal conductivity of disordered binary alloys : a formulation",
+          "venue": "arXiv",
+          "year": 2005
+        },
+        "primary_pointer": "cond-mat/0511047",
+        "summary": "We present here a formulation for the calculation of the configuration averaged lattice thermal conductivity in random alloys. Our formulation is based on the augmented-space theorem, introduced by one of us, combined with a generalized diagrammatic technique. The diagrammatic approach simplifies the problem of including effects of disorder corrections to a great extent. The approach allows us to obtain an expression for the effective heat current in case of disordered alloys, which in turn is used in a Kubo-Greenwood type formula for the thermal conductivity. We show that disorder scattering renormalizes the phonon propagators as well as the heat currents. The corrections to the current terms have been shown to be related to the self-energy of the propagators. We also study the effect of vertex corrections in a simplified ladder diagram approximation. A mode dependent diffusivity $D_γ$ and then a total thermal diffusivity averaged over different modes are defined. Schemes for implementing the said formalism are discussed. A few initial numerical results on the frequency and temperature dependence of lattice thermal conductivity are presented for NiPd alloy and are also compared with experiment. We also display numerical results on the frequency dependence of thermal diffusivity averaged over modes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/cond-mat/0511047",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T19:49:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "R. F. Angulo",
+            "E. Medina"
+          ],
+          "title": "Conductance Distributions in Random Resistor Networks: Self Averaging and Disorder Lengths",
+          "venue": "arXiv",
+          "year": 1994
+        },
+        "primary_pointer": "cond-mat/9405010",
+        "summary": "The self averaging properties of conductance $g$ are explored in random resistor networks with a broad distribution of bond strengths $P(g)\\simg^{μ-1}$. Distributions of equivalent conductances are estimated numerically on hierarchical lattices as a function of size $L$ and distribution tail parameter $μ$. For networks above the percolation threshold, convergence to a Gaussian basin is always the case, except in the limit $μ$ --> 0. A {\\it disorder length} $ξ_D$ is identified beyond which the system is effectively homogeneous. This length diverges as $ξ_D \\sim |μ|^{-ν}$ ($ν$ is the regular percolation correlation length exponent) as $μ$-->0. This suggest that exactly the same critical behavior can be induced by geometrical disorder and bu strong bond disorder with the bond occupation probability $p$<-->$μ$. Only lattices at the percolation threshold have renormalized probability distribution in a {\\it Levy-like} basin. At the threshold the disorder length diverges at a vritical tail strength $μ_c$ as $|μ-μ_c|^{-z}$, with $z=3.2\\pm 0.1$, a new exponent. Critical path analysis is used in a generalized form to give form to give the macroscopic conductance for lattice above $p_c$.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/cond-mat/9405010",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T19:49:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "R. Tranås",
+            "O. Løvvik",
+            "K. Berland"
+          ],
+          "title": "Attaining Low Lattice Thermal Conductivity in Half-Heusler Sublattice Solid Solutions: Which Substitution Site Is Most Effective?",
+          "venue": "",
+          "year": 2022
+        },
+        "primary_pointer": "https://www.semanticscholar.org/paper/bd2a69d659947625c899ba8766ba281b156eec04",
+        "summary": "",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://www.semanticscholar.org/paper/bd2a69d659947625c899ba8766ba281b156eec04",
+          "http_status": 202,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 0.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T19:50:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Pshenay-Severin D. A.",
+            "Konstantinov P. P.",
+            "Burkov A. T."
+          ],
+          "title": "The study of phonon thermal conductivity of CoSi-CoGe solid solutions using ab initio lattice dynamics",
+          "venue": "Physics of the Solid State",
+          "year": 2022
+        },
+        "primary_pointer": "https://doi.org/10.21883/pss.2022.11.54191.434",
+        "summary": "Lattice thermal conductivity of solid solutions based on cobalt monosilicide and monogermanide was studied. Electrical and thermal conductivities of CoSi and solid solutions of CoGexSi1-x (x=0.03 and 0.07) were experimentally measured in the temperature range of 80-350 K. Phonon spectra and thermal conductivity in CoGexSi1-x solid solutions were calculated using ab initio lattice dynamics. The results of calculations are in good agreement with the results of measurements obtained in the present work and with the literature data. It was shown that already at a content of 10-15 at.% of Ge, the lattice thermal conductivity decreases by about a factor of 2 compared with pure cobalt monosilicide, and at a germanium content of about 70 at.%, the decrease can reach 3.5 times. Keywords: lattice thermal conductivity, thermoelectrics, first principle lattice dynamics.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://journals.ioffe.ru/articles/54191",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [
+            "https://doi.org/10.21883/pss.2022.11.54191.434"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T19:50:20Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "how does the topology of atomic disorder networks (clustering, percolation, average path length) modulate thermal conductivity in disordered metallic alloys",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

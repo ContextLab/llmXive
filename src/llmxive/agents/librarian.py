@@ -34,8 +34,9 @@ from pathlib import Path
 from typing import Any
 
 from llmxive.agents.base import Agent, AgentContext
-from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.backends.base import ChatMessage, ChatResponse, TransientBackendError
 from llmxive.librarian import cache as librarian_cache
+from llmxive.librarian import math_classifier as math_classifier_mod
 from llmxive.librarian import query_extractor, relevance_judge, search_trail
 from llmxive.librarian.expand import (
     DEFAULT_EXPANSION_CAP,
@@ -55,6 +56,7 @@ from llmxive.librarian.search import (
     SemanticScholarClient,
     merge_candidates,
 )
+from llmxive.librarian.theoremsearch import TheoremSearchClient
 from llmxive.librarian.verify import (
     VerificationFailure,
     VerifiedCitation,
@@ -89,6 +91,9 @@ class LibrarianResult:
     relevance_judge: dict[str, Any] = dataclasses.field(default_factory=dict)
     extracted_queries: list[str] = dataclasses.field(default_factory=list)
     per_query_hit_count: dict[str, int] = dataclasses.field(default_factory=dict)
+    math_classifier: dict[str, Any] = dataclasses.field(
+        default_factory=lambda: {"invoked": False, "verdict": None, "error": None}
+    )
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to the JSON shape documented in
@@ -115,6 +120,7 @@ class LibrarianResult:
             "relevance_judge": self.relevance_judge,
             "extracted_queries": self.extracted_queries,
             "per_query_hit_count": self.per_query_hit_count,
+            "math_classifier": self.math_classifier,
         }
 
 
@@ -148,6 +154,7 @@ class LibrarianAgent(Agent):
         idea_md_path: Path | None = None,
         repo_root: Path | None = None,
         no_cache: bool = False,
+        project_id: str | None = None,
         ss_client: SemanticScholarClient | None = None,
         arxiv_client: ArxivClient | None = None,
         relevance_judge_disabled: bool = False,
@@ -260,6 +267,36 @@ class LibrarianAgent(Agent):
                 candidates.append(c)
                 new_for_q += 1
             per_query_hit_count[q] = new_for_q
+
+        # 2.5. TheoremSearch backend (spec 006 / FR-A01..A06).
+        # A third candidate source for theorem-shaped questions. Queried
+        # unconditionally when the project field is mathematics or
+        # statistics; otherwise gated behind the LLM math-classifier.
+        # TheoremSearch candidates carry arXiv IDs the verification chain
+        # already handles, so they flow into the unchanged merge → verify
+        # → judge pipeline. A TheoremSearch outage is non-fatal — the
+        # wrapper returns [] and the librarian completes on SS+arXiv.
+        field_lc = (field or "").strip().lower()
+        math_audit: dict[str, Any] = {"invoked": False, "verdict": None, "error": None}
+        ts_hits: list[Candidate] = []
+        if field_lc in ("mathematics", "statistics"):
+            ts_hits = _theoremsearch_candidates(term, arxiv_client=arxiv_client)
+        else:
+            verdict, math_audit = _maybe_math_question(
+                term,
+                idea_body_excerpt,
+                project_id=project_id,
+                prompt_ver=prompt_ver,
+                entry=self.entry,
+                repo_root=repo_root,
+            )
+            if verdict:
+                ts_hits = _theoremsearch_candidates(term, arxiv_client=arxiv_client)
+        for c in ts_hits:
+            if c.primary_pointer in merged_pointers:
+                continue
+            merged_pointers.add(c.primary_pointer)
+            candidates.append(c)
 
         verified, failures = _verify_each(candidates, query=term)
 
@@ -409,6 +446,7 @@ class LibrarianAgent(Agent):
             },
             extracted_queries=extracted_queries,
             per_query_hit_count=per_query_hit_count,
+            math_classifier=math_audit,
         )
 
         # 5. Cache write.
@@ -499,6 +537,8 @@ def _result_from_dict(d: dict[str, Any]) -> LibrarianResult:
                     summary_grounding_score=log_d.get("summary_grounding_score", 0.0),
                     pdf_sample_score=log_d.get("pdf_sample_score"),
                     verified_at=log_d.get("verified_at", ""),
+                    query_relevance_score=log_d.get("query_relevance_score", 0.0),
+                    backend=log_d.get("backend", ""),
                 ),
             )
         )
@@ -542,7 +582,64 @@ def _result_from_dict(d: dict[str, Any]) -> LibrarianResult:
         relevance_judge=d.get("relevance_judge", {}),
         extracted_queries=list(d.get("extracted_queries", []) or []),
         per_query_hit_count=dict(d.get("per_query_hit_count", {}) or {}),
+        math_classifier=dict(
+            d.get("math_classifier") or {"invoked": False, "verdict": None, "error": None}
+        ),
     )
+
+
+def _theoremsearch_candidates(
+    term: str,
+    *,
+    arxiv_client: ArxivClient,
+) -> list[Candidate]:
+    """Query the TheoremSearch backend for ``term``; never raises.
+
+    A ``TransientBackendError`` (the only thing ``TheoremSearchClient.
+    search`` raises) → log a warning and return ``[]`` so the librarian
+    completes on Semantic Scholar + arXiv (FR-A06 — never depend on
+    TheoremSearch being up). Any other unexpected exception is likewise
+    swallowed (defensive: a backend should never take the librarian down).
+    """
+    try:
+        return TheoremSearchClient(arxiv_client=arxiv_client).search(term)
+    except TransientBackendError as exc:
+        LOGGER.warning("[librarian] TheoremSearch unavailable; skipping: %s", exc)
+        return []
+    except Exception as exc:  # a backend must not crash the librarian
+        LOGGER.warning("[librarian] TheoremSearch raised unexpectedly; skipping: %s", exc)
+        return []
+
+
+def _maybe_math_question(
+    term: str,
+    idea_body_excerpt: str | None,
+    *,
+    project_id: str | None,
+    prompt_ver: str,
+    entry: AgentRegistryEntry,
+    repo_root: Path | None,
+) -> tuple[bool, dict[str, Any]]:
+    """Consult the LLM math-classifier; return ``(should_query_theoremsearch,
+    audit_dict)``.
+
+    ``audit_dict`` is the serialized ``MathClassifierResult`` (minus
+    ``cached``) — the ``math_classifier`` object that lands on
+    ``LibrarianResult``. ``classify`` fails open internally, so this
+    helper never raises.
+    """
+    res = math_classifier_mod.classify(
+        term,
+        idea_body_excerpt,
+        project_id=project_id,
+        librarian_prompt_version=prompt_ver,
+        model=entry.default_model,
+        default_backend=entry.default_backend.value,
+        fallback_backends=[b.value for b in entry.fallback_backends],
+        repo_root=repo_root,
+    )
+    audit = {"invoked": res.invoked, "verdict": res.verdict, "error": res.error}
+    return (bool(res.verdict), audit)
 
 
 def _verify_each(

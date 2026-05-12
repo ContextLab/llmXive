@@ -13,8 +13,8 @@ expanded by the Flesh-Out Agent.
 
 ## Inputs
 
-- `field`: scientific field (e.g., `biology`, `materials-science`,
-  `psychology`, `chemistry`).
+- `field`: scientific field (e.g., `biology`, `mathematics`,
+  `materials-science`, `psychology`, `chemistry`).
 - `existing_titles`: list of titles for currently-tracked projects in
   the same field, to avoid trivial duplicates at brainstorm time
   (deeper duplicate detection happens at Flesh-Out time).

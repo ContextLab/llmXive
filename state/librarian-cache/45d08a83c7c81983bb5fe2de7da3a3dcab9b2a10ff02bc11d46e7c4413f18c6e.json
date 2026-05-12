@@ -1,0 +1,636 @@
+{
+  "fetched_at": "2026-05-12T20:48:21Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Molecular Dipole Moments with Graph Neural Networks",
+      "target_n": 5
+    },
+    "duration_seconds": 977.944,
+    "ended_at": "2026-05-12T20:48:21Z",
+    "expansion": null,
+    "extracted_queries": [
+      "vector valued property prediction",
+      "QM9 dataset dipole moment",
+      "SE3 equivariant graph network",
+      "dipole moment mean absolute error",
+      "density functional theory surrogate"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.1021/acs.jpca.1c10144"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Molecular Dipole Moments with Graph Neural Networks chemistry": 3,
+      "QM9 dataset dipole moment": 2,
+      "SE3 equivariant graph network": 6,
+      "density functional theory surrogate": 6,
+      "dipole moment mean absolute error": 6,
+      "vector valued property prediction": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2111.11840",
+          "rationale": "The paper proposes a general graph neural network architecture validated on generic classification benchmarks without explicitly addressing the chemistry domain, molecular graphs, or the regression of physical properties like dipole moments. It lacks a measurable connection to the user's specific domain variables and empirical setting (Rejection Rule: no measurable connection to mechanism/domain/variables).",
+          "title": "Subgraph Permutation Equivariant Networks"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-12T20:32:03Z",
+    "term_input": {
+      "normalized": "predicting molecular dipole moments with graph neural networks chemistry",
+      "raw": "Predicting Molecular Dipole Moments with Graph Neural Networks chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "A technique for estimating a plasma drift velocity distribution in the ionosphere is presented. This technique is based on a framework for representing a global vector field on a sphere by using a set of localized basis functions which is newly derived as a variant of the spherical elementary current system (SECS). A vector field on a sphere can be divided into its divergence-free (DF) component and curl-free (CF) component. The DF and CF components can then be represented by weighted sums of the DF and CF vector-valued basis functions, respectively. While the SECS basis functions have a singular point, the new basis functions do not diverge over a sphere. This property of the new basis function allows us to achieve robust prediction of the drift velocity at any point in the ionosphere. Assuming that the ionospheric plasma drift velocity has no divergence, its distribution can be represented by a weighted sum of the DF basis functions. The proposed technique estimates the ionospheric plasma drift velocity distribution from the SuperDARN data by using the DF basis functions. Since there are some wide gaps in the spatial coverage of the SuperDARN, an empirical convection model is combined with the framework based on the new basis functions. It is demonstrated that the proposed technique is useful for the estimation and modeling of the ionospheric plasma velocity distribution.",
+          "claimed_authors": [
+            "S. Nakano",
+            "T. Hori",
+            "Kanako Seki",
+            "N. Nishitani"
+          ],
+          "claimed_title": "A framework for estimating spherical vector fields using localized basis functions and its application to SuperDARN data processing",
+          "claimed_venue": "Earth, Planets and Space",
+          "claimed_year": 2020,
+          "primary_pointer": "https://doi.org/10.1186/s40623-020-01168-4"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='A framework for estimating spherical vector fields using localized basis functions and its application to SuperDARN data processing')",
+        "failed_at": "2026-05-12T20:41:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Online sparse linear regression is an online problem where an algorithm repeatedly chooses a subset of coordinates to observe in an adversarially chosen feature vector, makes a real-valued prediction, receives the true label, and incurs the squared loss. The goal is to design an online learning algorithm with sublinear regret to the best sparse linear predictor in hindsight. Without any assumptions, this problem is known to be computationally intractable. In this paper, we make the assumption that data matrix satisfies restricted isometry property, and show that this assumption leads to computationally efficient algorithms with sublinear regret for two variants of the problem. In the first variant, the true label is generated according to a sparse linear model with additive Gaussian noise. In the second, the true label is chosen adversarially.",
+          "claimed_authors": [
+            "Satyen Kale",
+            "Zohar S. Karnin",
+            "Tengyuan Liang",
+            "Dávid Pál"
+          ],
+          "claimed_title": "Adaptive Feature Selection: Computationally Efficient Online Sparse Linear Regression under RIP",
+          "claimed_venue": "International Conference on Machine Learning",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.04690"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Adaptive Feature Selection: Computationally Efficient Online Sparse Linear Regression under RIP')",
+        "failed_at": "2026-05-12T20:41:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Protein function research helps in understanding the complex biological processes that occur within cells. However, the intricate nature of protein structures and functions, along with the rapid growth of protein sequence data, presents a pressing challenge to develop efficient computational methods for accurate protein annotation. In this study, we propose ENGINE, a multi-channel deep learning framework designed for robust protein function prediction. ENGINE integrates an equivariant graph convolutional network model to capture geometric features from protein 3D structures, leverages the large language model ESM-C to encode evolutionary and sequence-derived information, and combines an innovative 3D sequence representation that unifies spatial and sequential signals. We demonstrate that ENGINE consistently surpasses current state-of-the-art methods across diverse protein function prediction benchmarks, demonstrating robust generalisation and high predictive accuracy. Beyond performance, ENGINE provides interpretable insights into key sequence features and structural motifs, enabling the identification of functionally critical residues and substructures within proteins. This facilitates a deeper mechanistic understanding of protein function annotation outcomes and supports hypothesis generation for downstream biological studies. By offering reliable predictions with biological interpretability, ENGINE contributes to advancing research into cellular processes and disease mechanisms. The model is available at GitHub (https://github.com/ABILiLab/ENGINE) and Zenodo (https://doi.org/10.5281/zenodo.17221153), serving as a valuable tool for the broader scientific community.",
+          "claimed_authors": [
+            "Zixu Ran",
+            "Xudong Guo",
+            "Tong Pan",
+            "Yue Bi",
+            "Yi Hao",
+            "Heyun Sun",
+            "Jiangning Song",
+            "Fuyi Li"
+          ],
+          "claimed_title": "A scalable equivariant graph network framework for precise protein function prediction",
+          "claimed_venue": "Genome Biology",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1186/s13059-025-03886-y"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='A scalable equivariant graph network framework for precise protein function prediction')",
+        "failed_at": "2026-05-12T20:41:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The prediction of post-translational modifications (PTMs), a critical regulatory mechanism, is hindered by data sparsity and the challenge of integrating 3D structural information into computational models. We introduce UniProNet, a universal PTM prediction framework that overcomes these limitations using an E(3) equivariant graph neural network with multi-modal fusion. To address data scarcity for rare PTMs, UniProNet incorporates a generative evolutionary network, PTM-AGEN. Its core dual-stream architecture processes parallel sequence and structural data, integrating them through a synergistic fusion strategy that combines a Dominant-Stream Fusion Network, a Symmetric Hierarchical-flow Graph Network for multi-scale geometric representation, and a Kronecker-Hyper-Transport-Refiner based on Gromov-Wasserstein optimal transport theory. A hierarchical contrastive loss function ensures multi-modal consistency. Benchmarked on $\\mathbf{1 0}$ distinct PTM types, UniProNet substantially outperforms state-of-the-art models, with average improvements of $\\mathbf{4. 3 2 \\%}$ in AUC, $\\mathbf{8. 1 1 \\%}$ in MCC, and $\\mathbf{5. 9 4 \\%}$ in AP. Furthermore, its excellent generalization to other tasks, such as protein-protein interaction prediction, highlights its broad applicability and potential as a foundational tool in computational proteomics.",
+          "claimed_authors": [
+            "Yiyu Lin",
+            "Jiahui Wu",
+            "Sen Yang",
+            "Yan Wang"
+          ],
+          "claimed_title": "UniProNet: A Universal PTM Site Prediction Model with an Equivariant Graph Neural Network and Multimodal Fusion",
+          "claimed_venue": "IEEE International Conference on Bioinformatics and Biomedicine",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1109/BIBM66473.2025.11356504"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='UniProNet: A Universal PTM Site Prediction Model with an Equivariant Graph Neural Network and Multimodal Fusion')",
+        "failed_at": "2026-05-12T20:41:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Equivariance of linear neural network layers is well studied. In this work, we relax the equivariance condition to only be true in a projective sense. We propose a way to construct a projectively equivariant neural network through building a standard equivariant network where the linear group representations acting on each intermediate feature space are \"multiplicatively modified lifts\" of projective group representations. By theoretically studying the relation of projectively and linearly equivariant linear layers, we show that our approach is the most general possible when building a network out of linear layers. The theory is showcased in two simple experiments.",
+          "claimed_authors": [
+            "Georg Bökman",
+            "Axel Flinth",
+            "Fredrik Kahl"
+          ],
+          "claimed_title": "In Search of Projectively Equivariant Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.14719"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='In Search of Projectively Equivariant Networks')",
+        "failed_at": "2026-05-12T20:41:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ILC Technology Network (ITN) was established in 2022 by the ILC International Development Team, a subcommittee of the International Committee for Future Accelerators, to advance engineering studies toward the realisation of the International Linear Collider (ILC). While the ITN work packages focus on engineering activities for the ILC, their topics are also relevant to a broad range of accelerator applications in particle physics and beyond. These work packages are being carried out now by laboratories in Asia and Europe in close collaboration. This report summarises the current status of the ITN activities.",
+          "claimed_authors": [
+            "ILC Technology Network"
+          ],
+          "claimed_title": "Midterm Status Report of the ILC Technology Network Activities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.01172"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Midterm Status Report of the ILC Technology Network Activities')",
+        "failed_at": "2026-05-12T20:41:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The dipole moment is a simple electronic property with widespread experimental and theoretical applications. Using vibrational second‐order perturbation theory (VPT2) and density functional theory (DFT), we calculate the dipole moments of 125 small molecules. While it is known that vibrational effects can significantly affect the dipole moments of molecules, there has been no large‐scale study that assessed the effectiveness of including vibrational effects in dipole moment calculations using DFT‐VPT2. We find that DFT‐VPT2 dipole moments calculated with the aug‐cc‐PVTZ basis set and averaged across a variety of exchange‐correlation functionals when compared to DFT dipole moments with no vibrational corrections have an absolute mean error that is lower by 0.003 Debye, a mean absolute error that is lower by 0.005 Debye, a mean percentage error that is lower in units of percentage points by 0.1, and a root mean squared error that is lower by 0.009 Debye relative to experiment for a test set of 125 small molecules. Calculated dipole moments are also often used as a proxy for the accuracy of the electronic density distribution. We investigate the correlation between dipole moments and electronic densities using a measure of the electron density error based on density profiles computed in a previous study (J. Phys. Chem. Lett. 2017 8 (15) 3488). We find that the correlation between the accuracy of the calculated dipole moment and the electronic density error is weak (all R2 values are less than 0.5), suggesting that dipole moments are an inadequate metric for assessing electronic density errors. Based on the results in this study, we find it unnecessary to include VPT2 vibrational effects when using DFT to compute dipole moments, as any increase in accuracy is limited.",
+          "claimed_authors": [
+            "Dylan Fowler",
+            "Kurt R. Brorsen"
+          ],
+          "claimed_title": "Benchmarking Vibrational Second‐Order Perturbation Theory Computations of Dipole Moments and Their Correlation With Electronic Density Errors Using Density Functional Theory",
+          "claimed_venue": "Journal of Computational Chemistry",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1002/jcc.70304"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Benchmarking Vibrational Second‐Order Perturbation Theory Computations of Dipole Moments and Their Correlation With Electronic Density Errors Using Density Functional Theory')",
+        "failed_at": "2026-05-12T20:41:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "A novel magnetic target localization method is proposed based on an intelligent optimization algorithm employing a wireless, distributed magnetic sensor array. In the presence of significant magnetic anomalies, magnetic data from the distributed fluxgate array are utilized to compute the vector magnetic field components and the scalar total field induced by the magnetic target. Subsequently, the target’s spatial position and magnetic moment are iteratively optimized using the magnetic dipole model in conjunction with an enhanced gray wolf optimization algorithm. The effectiveness of the proposed method is validated via the field experiments. The findings demonstrate that the algorithm produces a mean absolute error of 0.052 m and a mean relative error of 7.84% in three-dimensional space. These outcomes underscore the reliability and precision of the proposed method for magnetic target localization.",
+          "claimed_authors": [
+            "Xingen Liu",
+            "Zifan Yuan",
+            "Ming-Yao Xia"
+          ],
+          "claimed_title": "Distributed Three-Axis Magnetometer Networks for Magnetic Dipole Localization",
+          "claimed_venue": "IEEE International Geoscience and Remote Sensing Symposium",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1109/IGARSS55030.2025.11243148"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Distributed Three-Axis Magnetometer Networks for Magnetic Dipole Localization')",
+        "failed_at": "2026-05-12T20:41:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The continued interest in placing bounds on the neutron's Electric Dipole Moment (EDM) is due to the implications regarding the characteristics of the strong interaction and, in particular, its behavior under the CP symmetry. In this work, we discuss the apparent tension resulting from the discrepancy of about 13 orders of magnitude between the current bounds and the expected quantum uncertainty in the relevant quantity. We offer a resolution of the \"puzzle\" in terms of the notion of a weak measurement, using a version of the corresponding formalism adapted to consideration of the nEDM experiment at the Spallation Neutron Source at the Oak Ridge National Laboratory.",
+          "claimed_authors": [
+            "Octavio Guerrero",
+            "Libertad Barrón-Palos",
+            "Daniel Sudarsky"
+          ],
+          "claimed_title": "On the Quantum Uncertainty of the Neutron Electric Dipole Moment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.00208"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='On the Quantum Uncertainty of the Neutron Electric Dipole Moment')",
+        "failed_at": "2026-05-12T20:41:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We have considered a mechanism for inducing a time-reversal violating electric dipole moment (EDM) in atoms through the interaction of a nuclear EDM (d_N) with the hyperfine interaction, the \"magnetic moment effect\". We have derived the operator for this interaction and presented analytical formulas for the matrix elements between atomic states. Induced EDMs in the diamagnetic atoms 129Xe, 171Yb, 199Hg, 211Rn, and 225Ra have been calculated numerically. From the experimental limits on the atomic EDMs of 129Xe and 199Hg, we have placed the following constraints on the nuclear EDMs, |d_N(129Xe)|< 1.1 * 10^{-21} |e|cm and |d_N(199Hg)|< 2.8 * 10^{-24} |e|cm.",
+          "claimed_authors": [
+            "S. G. Porsev",
+            "J. S. M. Ginges",
+            "V. V. Flambaum"
+          ],
+          "claimed_title": "The atomic electric dipole moment induced by the nuclear electric dipole moment; the magnetic moment effect",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1012.0627"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='The atomic electric dipole moment induced by the nuclear electric dipole moment; the magnetic moment effect')",
+        "failed_at": "2026-05-12T20:41:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We used computer simulation to calculate the electric dipole moments of the alpha and beta tubulin monomers and dimer and found those to be |palpha|=552D, |pbeta|=1193D and |palpha-beta|=1740D respectively. Independent surface plasmon resonance (SPR) and refractometry measurements of the high-frequency dielectric constant and polarizability strongly corroborated our previous SPR-derived results giving delta-n/delta-c ~1.800x10^-3 ml/mg. The refractive index of tubulin was measured to be n_tub ~2.90 and the high frequency tubulin dielectric constant kappa_tub ~8.41 while the high-frequency polarizability was found to be alpha_tub ~ 2.1x10^-33 C m^2/V. Methods for the experimental determination of the low-frequency p are explored as well as ways to test the often conjectured quantum coherence and entanglement properties of tubulin. Biobits, bioqubits and other applications to bioelectronics are discussed.",
+          "claimed_authors": [
+            "Andreas Mershin",
+            "Alexandre A. Kolomenski",
+            "Hans A. Schuessler",
+            "Dimitri V. Nanopoulos"
+          ],
+          "claimed_title": "Tubulin dipole moment, dielectric constant and quantum behavior: computer simulations, experimental results and suggestions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "physics/0402053"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Tubulin dipole moment, dielectric constant and quantum behavior: computer simulations, experimental results and suggestions')",
+        "failed_at": "2026-05-12T20:41:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Kevin P. Quirion",
+            "Wang-Yeuk Kong",
+            "Britton Stanley",
+            "J. Joy",
+            "D. Ess"
+          ],
+          "claimed_title": "Density Functional Theory Surrogate Enables Fast and Broad Computational Evaluation of Homogeneous Transition Metal Catalytic Energy Landscapes",
+          "claimed_venue": "ACS Catalysis",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.1021/acscatal.5c09093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Density Functional Theory Surrogate Enables Fast and Broad Computational Evaluation of Homogeneous Transition Metal Catalytic Energy Landscapes')",
+        "failed_at": "2026-05-12T20:41:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The increasing demand for high-performance materials in advanced technologies highlights the importance of achieving a fundamental understanding and potential control of silicon carbide (SiC) deposition processes. However, existing models often lack sufficient theoretical detail, relying heavily on empirical data and offering limited predictive capability. In particular, the complex surface chemistry governing SiC growth remains poorly understood. This study addresses these challenges by employing density functional theory (DFT) to investigate key heterogeneous reactions involving hydrocarbon intermediates on SiC surfaces, including dehydrogenation, hydrogenation, and carbon deposition. Transition state searches were conducted to identify reaction pathways and energy barriers. While first-principles calculations offer high accuracy, they are computationally intensive. To extend the utility of these first-principles results, vibrational analyses were performed using phonon-based statistical thermochemistry to compute temperature-dependent reaction rates which were used to develop Arrhenius-type surrogate kinetic models. The resulting framework provides a more rigorous, physically grounded basis for integrating atomistic insights into continuum-scale modeling, ultimately enabling improved prediction and optimization of SiC film growth in high-performance material systems.",
+          "claimed_authors": [
+            "Atal Bhowmik",
+            "Stephan Irle",
+            "Murat Barisik"
+          ],
+          "claimed_title": "Density functional theory-based surrogate kinetic models for heterogeneous reactions of hydrocarbon intermediates on silicon carbide.",
+          "claimed_venue": "Nanoscale",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1039/d5nr01985k"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Density functional theory-based surrogate kinetic models for heterogeneous reactions of hydrocarbon intermediates on silicon carbide.')",
+        "failed_at": "2026-05-12T20:41:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fundamentals of energy density functional in nuclear physics are presented. Much attention is paid to a mathematically rigorous treatment of deriving the energy density functional. The specific features of the density functional used in studying many-nucleon systems, which is quite different from that used in many-electron systems, are also shown. The intended audience are physicists, chemists and mathematicians. In particular those who will start to study the density functional theory are intended.",
+          "claimed_authors": [
+            "Yoritaka Iwata",
+            "Joachim A. Maruhn"
+          ],
+          "claimed_title": "Energy density functional in nuclear physics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.2355"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Energy density functional in nuclear physics')",
+        "failed_at": "2026-05-12T20:41:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This is a comprehensive review of the strong-interaction limit of density functional theory. It covers the derivation of the limiting strictly correlated electrons (SCE) functional from exact Hohenberg-Kohn DFT, basic aspects of SCE physics such as the nonlocal dependence of the SCE potential on the density, equivalent formulations and the mathematical interpretation as optimal transport with Coulomb cost, rigorous results (including exactly soluble cases), approximations, numerical methods, integration into Kohn-Sham DFT (KS SCE), and applications to molecular systems, an example being that KS SCE, unlike the local density approximation or generalized gradient approximations, dissociates H$_2$ correctly. We have made an effort to make this review accessible to a broad audience of physicists, chemists, and mathematicians.",
+          "claimed_authors": [
+            "Gero Friesecke",
+            "Augusto Gerolin",
+            "Paola Gori-Giorgi"
+          ],
+          "claimed_title": "The strong-interaction limit of density functional theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.09760"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='The strong-interaction limit of density functional theory')",
+        "failed_at": "2026-05-12T20:41:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this chapter, we provide a review of ground-state Kohn-Sham density-functional theory of electronic systems and some of its extensions, we present exact expressions and constraints for the exchange and correlation density functionals, and we discuss the main families of approximations for the exchange-correlation energy: semilocal approximations, single-determinant hybrid approximations, multideterminant hybrid approximations, dispersion-corrected approximations, as well as orbital-dependent exchange-correlation density functionals. The chapter aims at providing both a consistent bird's-eye view of the field and a detailed description of some of the most used approximations. It is intended to be readable by chemists/physicists and applied mathematicians.",
+          "claimed_authors": [
+            "Julien Toulouse"
+          ],
+          "claimed_title": "Review of approximations for the exchange-correlation energy in density-functional theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.02645"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Dipole Moments with Graph Neural Networks chemistry', candidate_title='Review of approximations for the exchange-correlation energy in density-functional theory')",
+        "failed_at": "2026-05-12T20:41:28Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "D. D. Wayo",
+            "Mohd Zulkifli Bin Mohamad Noor",
+            "Masoud Darvish Ganji",
+            "C. Saporetti",
+            "L. Goliatt"
+          ],
+          "title": "Q‐DFTNet: A Chemistry‐Informed Neural Network Framework for Predicting Molecular Dipole Moments via DFT‐Driven QM9 Data",
+          "venue": "Journal of Computational Chemistry",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1002/jcc.70206",
+        "summary": "This study presents Q‐DFTNet, a chemistry‐informed neural network (ChINN) framework designed to benchmark graph neural networks (GNNs) for dipole moment prediction using the QM9 dataset. Seven GNN architectures, GCN, GIN, GraphConv, GATConv, GATNet, SAGEConv, and GIN+EdgeConv, were trained for 100 epochs and evaluated across performance and interpretability metrics. GraphConv achieved the lowest test MSE (0.7054), MAE (0.6196), and the highest R2$$ {R}^2 $$ (0.6513) with only 16.5k trainable parameters, confirming its optimal accuracy‐complexity trade‐off. GIN+EdgeConv followed closely with MSE of 0.7386, MAE of 0.6332, and R2$$ {R}^2 $$ of 0.6349, leveraging edge‐awareness for enhanced expressivity. In contrast, attention‐based models like GATConv and GATNet underperformed, with test MSEs of 0.9667 and 1.0096, and R2$$ {R}^2 $$ values of 0.5221 and 0.5009, despite their higher complexity (43.5k and 37.3k parameters). Latent space analysis via t‐SNE, PCA, and UMAP showed superior cluster separability for GraphConv, GIN+EdgeConv, and GCN. Clustering metrics corroborated these observations: GraphConv achieved a Silhouette Score of 0.4665, a Davies–Bouldin Index of 0.7111, and a Calinski–Harabasz Score of 1278.40. Cluster‐wise molecular dipole means for GIN+EdgeConv ranged from 2.6221 to 2.9606 Debye, reflecting high semantic coherence. Residual analysis and QQ plots confirmed that models with lower MSEs also had near‐Gaussian error distributions, enhancing interpretability. Compared to benchmark models like PhysNet and DimeNet++, Q‐DFTNet offers lower absolute accuracy but excels in modularity, interpretability, and computational efficiency. For a chemically grounded baseline for deploying GNNs in quantum chemistry and materials discovery pipelines, Q‐DFTNet is proposed.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://onlinelibrary.wiley.com/doi/10.1002/jcc.70206",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [
+            "https://doi.org/10.1002/jcc.70206"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T20:41:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "D. P. Nguyen",
+            "P. T. Le"
+          ],
+          "title": "Leveraging Graph Neural Networks for Enhanced Prediction of Molecular Solubility via Transfer Learning",
+          "venue": "Journal of Technical Education Science",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.54644/jte.2024.1571",
+        "summary": "In this study, we explore the potential of graph neural networks (GNNs), in combination with transfer learning, for the prediction of molecular solubility, a crucial property in drug discovery and materials science. Our approach begins with the development of a GNN-based model to predict the dipole moment of molecules. The extracted dipole moment, alongside a selected set of molecular descriptors, feeds into a subsequent predictive model for water solubility. This two-step process leverages the inherent correlations between molecular structure and its physical properties, thus enhancing the accuracy and generalizability. Our data showed that GNN models with attention mechanism and those utilize bond properties outperformed other models. Especially, 3D GNN models such as ViSNet exhibited outstanding performance, with an R2 value of 0.9980. For the prediction of water solubility, the inclusion of dipole moments greatly enhanced the predictive power of various machine learning models. Our methodology demonstrates the effectiveness of GNNs in capturing complex molecular features and the power of transfer learning in bridging related predictive tasks, offering a novel approach for computational predictions in chemistry.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://jte.edu.vn/index.php/jte/article/view/1571",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [
+            "https://doi.org/10.54644/jte.2024.1571"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T20:41:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Oliver T. Unke",
+            "M. Meuwly"
+          ],
+          "title": "PhysNet: A Neural Network for Predicting Energies, Forces, Dipole Moments, and Partial Charges.",
+          "venue": "Journal of Chemical Theory and Computation",
+          "year": 2019
+        },
+        "primary_pointer": "https://doi.org/10.1021/acs.jctc.9b00181",
+        "summary": "In recent years, machine learning (ML) methods have become increasingly popular in computational chemistry. After being trained on appropriate ab initio reference data, these methods allow for accurately predicting the properties of chemical systems, circumventing the need for explicitly solving the electronic Schrödinger equation. Because of their computational efficiency and scalability to large data sets, deep neural networks (DNNs) are a particularly promising ML algorithm for chemical applications. This work introduces PhysNet, a DNN architecture designed for predicting energies, forces, and dipole moments of chemical systems. PhysNet achieves state-of-the-art performance on the QM9, MD17, and ISO17 benchmarks. Further, two new data sets are generated in order to probe the performance of ML models for describing chemical reactions, long-range interactions, and condensed phase systems. It is shown that explicitly including electrostatics in energy predictions is crucial for a qualitatively correct description of the asymptotic regions of a potential energy surface (PES). PhysNet models trained on a systematically constructed set of small peptide fragments (at most eight heavy atoms) are able to generalize to considerably larger proteins like deca-alanine (Ala10): The optimized geometry of helical Ala10 predicted by PhysNet is virtually identical to ab initio results (RMSD = 0.21 Å). By running unbiased molecular dynamics (MD) simulations of Ala10 on the PhysNet-PES in gas phase, it is found that instead of a helical structure, Ala10 folds into a \"wreath-shaped\" configuration, which is more stable than the helical form by 0.46 kcal mol-1 according to the reference ab initio calculations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://pubs.acs.org/doi/10.1021/acs.jctc.9b00181",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8571,
+          "redirect_chain": [
+            "https://doi.org/10.1021/acs.jctc.9b00181"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T20:41:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Weitao Du",
+            "Yuanqi Du",
+            "Limei Wang",
+            "Dieqiao Feng",
+            "Guifeng Wang",
+            "Shuiwang Ji",
+            "Carla P. Gomes",
+            "Zhixin Ma"
+          ],
+          "title": "A new perspective on building efficient and expressive 3D equivariant graph neural networks",
+          "venue": "Neural Information Processing Systems",
+          "year": 2023
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2304.04757",
+        "summary": "Geometric deep learning enables the encoding of physical symmetries in modeling 3D objects. Despite rapid progress in encoding 3D symmetries into Graph Neural Networks (GNNs), a comprehensive evaluation of the expressiveness of these networks through a local-to-global analysis lacks today. In this paper, we propose a local hierarchy of 3D isomorphism to evaluate the expressive power of equivariant GNNs and investigate the process of representing global geometric information from local patches. Our work leads to two crucial modules for designing expressive and efficient geometric GNNs; namely local substructure encoding (LSE) and frame transition encoding (FTE). To demonstrate the applicability of our theory, we propose LEFTNet which effectively implements these modules and achieves state-of-the-art performance on both scalar-valued and vector-valued molecular property prediction tasks. We further point out the design space for future developments of equivariant graph neural networks. Our codes are available at \\url{https://github.com/yuanqidu/LeftNet}.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2304.04757",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2304.04757"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T20:41:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sonam Khattar",
+            "Harshita Kumawat",
+            "Aryan"
+          ],
+          "title": "Predicting Molecular Properties With Quantum Kernels: a Study on the Qm9 Dataset",
+          "venue": "2025 IEEE International Conference for Women in Innovation, Technology & Entrepreneurship (ICWITE)",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1109/ICWITE64848.2025.11307106",
+        "summary": "Predicting molecular properties is a cornerstone of drug discovery, materials science, and quantum chemistry, where accuracy and speed are critical. Classical machine learning mod- els offer rapid predictions but often fail to capture the intricate quantum interactions governing molecular behavior. Our team investigated quantum kernel methods to predict properties of the QM9 dataset, a widely recognized benchmark containing $\\mathbf{1 3 4, 0 0 0}$ organic molecules with diverse chemical structures. By encoding molecular features into quantum circuits, we mapped classical data into highdimensional Hilbert spaces to enhance prediction accuracy. Our pipeline encompasses data preprocessing, quantum circuit design, model training with support vector regression, and evaluation of ten key molecular properties. The quantum kernel approach delivered promising results, achieving mean absolute errors of 0.13 Debye for dipole moment and 0.08 eV for HOMOLUMO gap, even when executed on noisy quantum devices. This work provides a comprehensive, reproducible pipeline, benchmarks quantum and classical models, and discusses practical challenges, contributing significantly to the field of quantumenhanced computational chemistry.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://ieeexplore.ieee.org/document/11307106/",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [
+            "https://doi.org/10.1109/ICWITE64848.2025.11307106"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T20:41:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kadri Muuga",
+            "Lisanne Knijff",
+            "Chao Zhang"
+          ],
+          "title": "Molecular electrostatic potentials from machine learning models for dipole and quadrupole predictions",
+          "venue": "AI for Science",
+          "year": 2026
+        },
+        "primary_pointer": "https://doi.org/10.1088/3050-287X/ae531a",
+        "summary": "The molecular electrostatic potential (MEP) is a key quantity for describing and predicting intermolecular and ion–molecule interactions. Here, we assess the ability of machine-learning (ML) models to infer the MEP, based on the equivariant graph-convolutional neural network architecture PiNet2 and trained on dipole and quadrupole moments. For the established QM9 dataset, we find that including the quadrupole contribution in the ML models substantially improves their ability to recover the MEP compared to dipole-only models. This trend is confirmed on the SPICE dataset, which spans a much broader region of organic chemical space. Together, this study underscores the central role of the quadrupole moment as a fitting target for ML models aiming at rapid access to the MEP.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://validate.perfdrive.com/fb803c746e9148689b3984a31fccd902/?ssa=f9f98168-05e1-48e3-b28b-1b9fa0d1c4a9&ssb=45185233227&ssc=https%3A%2F%2Fiopscience.iop.org%2Farticle%2F10.1088%2F3050-287X%2Fae531a&ssi=226ed751-cnvj-4867-8b03-3544362e0dac&ssk=botmanager_support@radware.com&ssm=02799729030344237106813687074857&ssn=3ed68c53d6e1d4e375d8556673faf84a5aeab1a5ba79-d02a-4de1-b67bd5&sso=65952009-e91af304cd4d2998d8b56391daee81d2f833a3546a057cb0&ssp=63129647461778657831177865535249536&ssq=08516461848389589399118483726465789710882&ssr=MTI5LjE3MC4zMS41NQ==&sst=llmxive-librarian/1.0%20(https://github.com/ContextLab/llmXive)&ssu=&ssv=&ssw=&ssx=eyJ1em14IjoiN2Y5MDAwOGE5Yjg3MmMtYTBjNy00MTI4LWEzMDctYWE3ZDY4OTk5ZDdlMS0xNzc4NjE4NDgzNDg2MC0zNjc5NmYwM2EwNWRjNmU0MTAiLCJfX3V6bWYiOiI3ZjkwMDBiMWE1YmE3OS1kMDJhLTRkZTEtYjAwOS1lOTFhZjMwNGNkNGQxLTE3Nzg2MTg0ODM0ODYwLTAwMzQzNWY5OTI1NTk3NGFjYjQxMCIsInJkIjoiaW9wLm9yZyJ9",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7143,
+          "redirect_chain": [
+            "https://doi.org/10.1088/3050-287X/ae531a",
+            "https://iopscience.iop.org/article/10.1088/3050-287X/ae531a"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T20:41:23Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhao Xu",
+            "Haiyang Yu",
+            "Montgomery Bohde",
+            "Shuiwang Ji"
+          ],
+          "title": "Equivariant Graph Network Approximations of High-Degree Polynomials for Force Field Prediction",
+          "venue": "Trans. Mach. Learn. Res.",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2411.04219",
+        "summary": "Recent advancements in equivariant deep models have shown promise in accurately predicting atomic potentials and force fields in molecular dynamics simulations. Using spherical harmonics (SH) and tensor products (TP), these equivariant networks gain enhanced physical understanding, like symmetries and many-body interactions. Beyond encoding physical insights, SH and TP are also crucial to represent equivariant polynomial functions. In this work, we analyze the equivariant polynomial functions for the equivariant architecture, and introduce a novel equivariant network, named PACE. The proposed PACE utilizes edge booster and the Atomic Cluster Expansion (ACE) technique to approximate a greater number of $SE(3) \\times S_n$ equivariant polynomial functions with enhanced degrees. As experimented in commonly used benchmarks, PACE demonstrates state-of-the-art performance in predicting atomic energy and force fields, with robust generalization capability across various geometric distributions under molecular dynamics (MD) across different temperature conditions. Our code is publicly available as part of the AIRS library https://github.com/divelab/AIRS/.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2411.04219",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2411.04219"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T20:41:23Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ademola Soyemi",
+            "Tibor Szilvási"
+          ],
+          "title": "Benchmarking Semiempirical QM Methods for Calculating the Dipole Moment of Organic Molecules.",
+          "venue": "Journal of Physical Chemistry A",
+          "year": 2022
+        },
+        "primary_pointer": "https://doi.org/10.1021/acs.jpca.1c10144",
+        "summary": "The dipole moment is a simple descriptor of the charge distribution and polarity and is important for understanding and predicting various molecular properties. Semiempirical (SE) methods offer a cost-effective way to calculate dipole moment that can be used in high-throughput screening applications although the accuracy of the methods is still in question. Therefore, we have evaluated AM1, GFN0-xTB, GFN1-xTB, GFN2-xTB, PM3, PM6, PM7, B97-3c, HF-3c, and PBEh-3c SE methods, which cover a variety of SE approximations, to directly assess the performance of SE methods in predicting molecular dipole moments and their directions using 7211 organic molecules contained in the QM7b database. We find that B97-3c and PBEh-3c perform best against coupled-cluster reference values yielding dipole moments with a mean absolute error (MAE) of 0.10 and 0.11 D, respectively, which is similar to the MAE of density functional theory (DFT) methods (∼0.1 D) reported earlier. Analysis of the atomic composition shows that all SE methods show good performance for hydrocarbons for which the spread of error was within 1 D of the reference data, while the worst performances are for sulfur-containing compounds for which only B97-3c and PBEh-3c show acceptable performance. We also evaluate the effect of SE optimized geometry, instead of the benchmark DFT geometry, that shows a dramatic drop in the performance of AM1 and PM3 for which the range of error tripled. Based on our overall findings, we highlight that there is an optimal compromise between accuracy and computational cost using GFN2-xTB (MAE: 0.25 D) that is 3 orders of magnitude faster than B97-3c and PBEh-3c. Thus, we recommend using GFN2-xTB for cost-efficient calculation of the dipole moment of organic molecules containing C, H, O, and N atoms, whereas, for sulfur-containing organic molecules, we suggest PBEh-3c.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://pubs.acs.org/doi/10.1021/acs.jpca.1c10144",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [
+            "https://doi.org/10.1021/acs.jpca.1c10144",
+            "https://pubs.acs.org/doi/10.1021/acs.jpca.1c10144",
+            "https://pubs.acs.org/doi/10.1021/acs.jpca.1c10144?cookieSet=1"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T20:41:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sambit Das",
+            "Bikash Kanungo",
+            "Arghadwip Paul",
+            "V. Gavini"
+          ],
+          "title": "Field theoretic atomistics: Learning thermodynamic and variational surrogate to density functional theory",
+          "venue": "",
+          "year": 2025
+        },
+        "primary_pointer": "2511.08782",
+        "summary": "The Hohenberg-Kohn (HK) theorem -- the bedrock of density functional theory (DFT) -- establishes a universal map from the external potential to the energy. It also relates the electron density and atomic forces to the variation of the energy with the external potential. But the HK map is rarely utilized in atomistics, wherein interatomic potentials are defined using the molecular or crystal structure rather than the external potential. As a break from this tradition, we present a field theoretic atomistics framework where the external potential assumes the central quantity. We machine learn the HK energy map while satisfying the thermodynamic limit. Further, we obtain both forces and electron density from the variation of the HK energy map, that are exact relations. Our models attain good accuracy across diverse benchmarks and compete with state-of-the-art machine learned interatomic potentials. Through electron density, we predict accurate dipole and quadrupole moments, otherwise nontrivial for interatomic potentials. Our formulation paves the way for a scalable electronic structure surrogate to DFT.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2511.08782",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T20:41:24Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular dipole moments with graph neural networks chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

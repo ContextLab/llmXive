@@ -1,0 +1,585 @@
+{
+  "fetched_at": "2026-05-12T20:25:25Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Evaluating the Impact of Code Duplication on LLM Code Understanding",
+      "target_n": 5
+    },
+    "duration_seconds": 334.981,
+    "ended_at": "2026-05-12T20:25:25Z",
+    "expansion": null,
+    "extracted_queries": [
+      "code memorization data contamination",
+      "HumanEval MBPP dataset benchmarks",
+      "code clone detection generalization gap",
+      "functional correctness pass@k metrics",
+      "training data leakage overfitting"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.48550/arXiv.2211.15533"
+      ]
+    },
+    "per_query_hit_count": {
+      "Evaluating the Impact of Code Duplication on LLM Code Understanding computer science": 3,
+      "HumanEval MBPP dataset benchmarks": 6,
+      "code clone detection generalization gap": 6,
+      "code memorization data contamination": 5,
+      "functional correctness pass@k metrics": 6,
+      "training data leakage overfitting": 4
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 8,
+      "rejections": [
+        {
+          "primary_pointer": "2505.21514",
+          "rationale": "This paper evaluates LLM code generation capabilities for copilot-style tasks but does not measure code duplication as an independent variable or assess its impact on LLM code understanding. It fails to satisfy any acceptance criterion (a-f) because it lacks the key mechanism (duplication/deduplication/memorization effects) that the user's research question specifically targets, representing a distinct construct that shares only domain keywords (\"code\", \"LLM\") without addressing the duplication-",
+          "title": "SIMCOPILOT: Evaluating Large Language Models for Copilot-Style Code Generation"
+        },
+        {
+          "primary_pointer": "2508.08322",
+          "rationale": "This paper focuses on multi-agent context engineering workflows to improve LLM code assistant performance, but it does not measure code duplication as a variable or study its impact on LLM code understanding. It falls under the \"off-domain entirely\" rejection rule because while both topics involve LLMs and code, the paper addresses context engineering solutions rather than the empirical relationship between code duplication and LLM understanding that the user's question requires.",
+          "title": "Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code"
+        },
+        {
+          "primary_pointer": "1106.6159",
+          "rationale": "The paper focuses on traditional software quality metrics for human developers (e.g., execution time, lines of code) and lacks any mention of LLMs or the specific impact of duplication on AI model performance, failing to address the dependent variable or the relevant empirical setting.",
+          "title": "Understanding Code Patterns - Analysis, Interpretation & Measurement"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.48550/arXiv.2504.04030",
+          "rationale": "The paper focuses on instruction tuning dataset creation and performance improvement rather than analyzing the impact of code duplication as a variable or mechanism. While it operates in the same domain (Code LLMs), it does not measure or evaluate the specific relationship between code duplication and understanding required for the user's literature review.",
+          "title": "OpenCodeInstruct: A Large-scale Instruction Tuning Dataset for Code LLMs"
+        },
+        {
+          "primary_pointer": "2410.12381",
+          "rationale": "The paper focuses on visual reasoning and diagram interpretation in multimodal models, whereas the user's question specifically concerns the impact of code duplication on LLM code understanding; there is no measurable connection to the user's key independent variable (duplication) or mechanism.",
+          "title": "HumanEval-V: Benchmarking High-Level Visual Reasoning with Complex Diagrams in Coding Tasks"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.3390/bdcc9020041",
+          "rationale": "This paper studies LLMs' ability to DETECT code clones (using LLMs as the detection tool), whereas the user's question asks how code duplication affects LLM code UNDERSTANDING (treating duplication as an input factor that impacts LLM performance). This falls under the rejection rule for \"distinct construct sharing only homonym keywords\" - both involve \"code duplication\" and \"LLMs\" but measure fundamentally different mechanisms (clone detection capability vs. understanding capability affected by ",
+          "title": "Exploring the Boundaries Between LLM Code Clone Detection and Code Similarity Assessment on Human and AI-Generated Code"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1109/ACCESS.2025.3549780",
+          "rationale": "This paper addresses the inverse research question: it evaluates LLMs' ability to DETECT code clones, not how code duplication affects LLM code understanding. While both involve \"code duplication\" and \"LLMs,\" they represent distinct constructs (criterion for rejection: distinct construct sharing only homonym keywords). The user's question requires papers measuring the impact of code duplication as an input variable on LLM understanding capabilities, whereas this paper treats LLMs as the tool per",
+          "title": "Code Clone Detection Techniques Based on Large Language Models"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.17586/2226-1494-2026-26-1-135-144",
+          "rationale": "This paper focuses on evaluation metrics for code generation quality rather than investigating the impact of code duplication on model understanding, failing to measure the key independent variable (duplication) required for the user's specific causal question. It falls under the rejection rule for distinct constructs sharing only broad domain keywords (Code/LLM) without addressing the specific mechanism or variable interaction of interest.",
+          "title": "Natural language processing metrics efficiency for evaluating a generated code: facing the challenge"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-12T20:19:50Z",
+    "term_input": {
+      "normalized": "evaluating the impact of code duplication on llm code understanding computer science",
+      "raw": "Evaluating the Impact of Code Duplication on LLM Code Understanding computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "CDD, or Contamination Detection via output Distribution, identifies data contamination by measuring the peakedness of a model's sampled outputs. We study the conditions under which this approach succeeds and fails on small language models ranging from 70M to 410M parameters. Using controlled contamination experiments on GSM8K, HumanEval, and MATH, we find that CDD's effectiveness depends critically on whether fine-tuning produces verbatim memorization. In the majority of conditions we test, CDD performs at chance level even when the data is verifiably contaminated and detectable by simpler methods. We show that probability-based methods, specifically perplexity and Min-k\\% Prob, outperform CDD in all conditions where any method exceeds chance, suggesting that CDD's peakedness-based approach is insufficient for contamination detection in small language models. Our code is available at https://github.com/Sela-Omer/Contamination-Detection-Small-LM",
+          "claimed_authors": [
+            "Omer Sela"
+          ],
+          "claimed_title": "No Memorization, No Detection: Output Distribution-Based Contamination Detection in Small Language Models",
+          "claimed_venue": "",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.03203"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='No Memorization, No Detection: Output Distribution-Based Contamination Detection in Small Language Models')",
+        "failed_at": "2026-05-12T20:21:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "As Large Language Models (LLMs) for code increasingly utilize massive, often non-permissively licensed datasets, evaluating data contamination through Membership Inference Attacks (MIAs) has become critical. We propose SERSEM (Selective Entropy-Weighted Scoring for Membership Inference), a novel white-box attack framework that suppresses uninformative syntactical boilerplate to amplify specific memorization signals. SERSEM utilizes a dual-signal methodology: first, a continuous character-level weight mask is derived through static Abstract Syntax Tree (AST) analysis, spellchecking-based multilingual logic detection, and offline linting. Second, these heuristic weights are used to pool internal transformer activations and calibrate token-level Z-scores from the output logits. Evaluated on a 25,000-sample balanced dataset, SERSEM achieves a global AUC-ROC of 0.7913 on the StarCoder2-3B model and 0.7867 on the StarCoder2-7B model, consistently outperforming the implemented probability-based baselines Loss, Min-K% Prob, and PAC. Our findings demonstrate that focusing on human-centric coding anomalies provides a significantly more robust indicator of verbatim memorization than sequence-level probability averages.",
+          "claimed_authors": [
+            "Kivancc Kuzey Dikici",
+            "S. Kara",
+            "Semih cCauglar",
+            "Eray Tuzun",
+            "Sinem Sav"
+          ],
+          "claimed_title": "SERSEM: Selective Entropy-Weighted Scoring for Membership Inference in Code Language Models",
+          "claimed_venue": "",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.01147"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='SERSEM: Selective Entropy-Weighted Scoring for Membership Inference in Code Language Models')",
+        "failed_at": "2026-05-12T20:21:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-05-12T20:21:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-05-12T20:21:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The introduction of large language models has significantly advanced code generation. However, open-source models often lack the execution capabilities and iterative refinement of advanced systems like the GPT-4 Code Interpreter. To address this, we introduce OpenCodeInterpreter, a family of open-source code systems designed for generating, executing, and iteratively refining code. Supported by Code-Feedback, a dataset featuring 68K multi-turn interactions, OpenCodeInterpreter integrates execution and human feedback for dynamic code refinement. Our comprehensive evaluation of OpenCodeInterpreter across key benchmarks such as HumanEval, MBPP, and their enhanced versions from EvalPlus reveals its exceptional performance. Notably, OpenCodeInterpreter-33B achieves an accuracy of 83.2 (76.4) on the average (and plus versions) of HumanEval and MBPP, closely rivaling GPT-4's 84.2 (76.2) and further elevates to 91.6 (84.6) with synthesized human feedback from GPT-4. OpenCodeInterpreter brings the gap between open-source code generation models and proprietary systems like GPT-4 Code Interpreter.",
+          "claimed_authors": [
+            "Tianyu Zheng",
+            "Ge Zhang",
+            "Tianhao Shen",
+            "Xueling Liu",
+            "Bill Yuchen Lin",
+            "Jie Fu",
+            "Wenhu Chen",
+            "Xiang Yue"
+          ],
+          "claimed_title": "OpenCodeInterpreter: Integrating Code Generation with Execution and Refinement",
+          "claimed_venue": "Annual Meeting of the Association for Computational Linguistics",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.48550/arXiv.2402.14658"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='OpenCodeInterpreter: Integrating Code Generation with Execution and Refinement')",
+        "failed_at": "2026-05-12T20:21:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-05-12T20:21:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce self-invoking code generation, a new task designed to evaluate the progressive reasoning and problem-solving capabilities of LLMs. In this task, models are presented with a base problem and a related, more complex problem. They must solve the base problem and then utilize its solution to address the more complex one. This work features three key contributions. First, we propose a general recipe for generating more challenging versions of existing benchmarks, resulting in three new benchmarks: HumanEval Pro, MBPP Pro, and BigCodeBench-Lite Pro, specifically designed to assess LLMs on self-invoking code generation. Second, from the analysis of experimental results over twenty LLMs on our benchmarks, we have two important observations: (i) Most LLMs excel in traditional code generation benchmarks like HumanEval and MBPP, but their performance declines on self-invoking tasks. For example, o1-mini achieves 96.2% pass@1 on HumanEval but only 76.2% on HumanEval Pro. (ii) On self-invoking code generation task, the instruction-tuned models demonstrate only marginal improvements compared to the base models. Third, we disclose the types of failure modes that exist in our evaluation results. All these results underscore the need for further advancements in self-invoking code generation tasks and provide a new direction for future research on enhancing LLMs' code reasoning capabilities.",
+          "claimed_authors": [
+            "Zhaojian Yu",
+            "Yilun Zhao",
+            "Arman Cohan",
+            "Xiao-Ping Zhang"
+          ],
+          "claimed_title": "HumanEval Pro and MBPP Pro: Evaluating Large Language Models on Self-invoking Code Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.21199"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='HumanEval Pro and MBPP Pro: Evaluating Large Language Models on Self-invoking Code Generation')",
+        "failed_at": "2026-05-12T20:21:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Code clone detection is vital for software security and plagiarism detection. Traditional syntactic methods struggle with semantic clones. A method is proposed that leverages Graph Isomorphism Network (GIN) and Graph Attention Network (GAT) to analyze Program Dependence Graphs (PDGs), achieving 96% accuracy on a 1-million-sample BigCloneBench subset.",
+          "claimed_authors": [
+            "Cuong Dao",
+            "Van Tong",
+            "Hai-Anh Tran",
+            "Duc Tran",
+            "Giang Nguyen"
+          ],
+          "claimed_title": "POSTER: Multimodal Graph Networks for Systematic Generalization in Code Clone Detection",
+          "claimed_venue": "ACM Asia Conference on Computer and Communications Security",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1145/3708821.3735348"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='POSTER: Multimodal Graph Networks for Systematic Generalization in Code Clone Detection')",
+        "failed_at": "2026-05-12T20:21:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated production systems (aPS) are highly customized systems that consist of hardware and software. Such aPS are controlled by a programmable logic controller (PLC), often in accordance with the IEC 61131-3 standard that divides system implementation into so-called program organization units (POUs) as the smallest software unit and is comprised of multiple textual and graphical programming languages that can be arbitrarily nested. A common practice during the development of such systems is reusing implementation artifacts by copying, pasting, and then modifying code. This approach is referred to as code cloning. It is used on a fine-granular level where a POU is cloned within a system variant. It is also applied on the coarse-granular system level, where the entire system is cloned and adapted to create a system variant, for example for another customer. This ad hoc practice for the development of variants is commonly referred to as clone-and-own. It allows the fast development of variants to meet varying customer requirements or altered regulatory guidelines. However, clone-and-own is a non-sustainable approach and does not scale with an increasing number of variants. It has a detrimental effect on the overall quality of a software system, such as the propagation of bugs to other variants, which harms maintenance. In order to support the effective development and maintenance of such systems, a detailed code clone analysis is required. On the one hand, an analysis of code clones within a variant (i.e., clone detection in the classical sense) supports experts in refactoring respective code into library components. On the other hand, an analysis of commonalities and differences between cloned variants (i.e., variability analysis) supports the maintenance and further reuse and facilitates the migration of variants into a software product line (SPL).",
+          "claimed_authors": [
+            "Kamil Rosiak",
+            "Alexander Schlie",
+            "Lukas Linsbauer",
+            "Birgit Vogel-Heuser",
+            "Ina Schaefer"
+          ],
+          "claimed_title": "Custom-Tailored Clone Detection for IEC 61131-3 Programming Languages",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2108.09753"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='Custom-Tailored Clone Detection for IEC 61131-3 Programming Languages')",
+        "failed_at": "2026-05-12T20:21:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There are a great many clone detection tools proposed in the literature. In this paper, we investigate the state of clone detection tool evaluation. We begin by surveying the clone detection benchmarks, and performing a multi-faceted evaluation and comparison of their features and capabilities. We then survey the existing clone detection tool and technique publications, and evaluate how the authors of these works evaluate their own tools/techniques. We rank the individual works by how well they measure recall, precision, execution time and scalability. We select the works the best evaluate all four metrics as exemplars that should be considered by future researchers publishing clone detection tools/techniques when designing the empirical evaluation of their tool/technique. We measure statistics on tool evaluation by the authors, and find that evaluation is poor amongst the authors. We finish our investigation into clone detection evaluation by surveying the existing tool comparison studies, including both the qualitative and quantitative studies.",
+          "claimed_authors": [
+            "Jeffrey Svajlenko",
+            "Chanchal K. Roy"
+          ],
+          "claimed_title": "A Survey on the Evaluation of Clone Detection Performance and Benchmarking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.15682"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='A Survey on the Evaluation of Clone Detection Performance and Benchmarking')",
+        "failed_at": "2026-05-12T20:21:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Code cloning negatively affects industrial software and threatens intellectual property. This paper presents a novel approach to detecting cloned software by using a bijective matching technique. The proposed approach focuses on increasing the range of similarity measures and thus enhancing the precision of the detection. This is achieved by extending a well-known stable-marriage problem (SMP) and demonstrating how matches between code fragments of different files can be expressed. A prototype of the proposed approach is provided using a proper scenario, which shows a noticeable improvement in several features of clone detection such as scalability and accuracy.",
+          "claimed_authors": [
+            "Hosam AlHakami",
+            "Feng Chen",
+            "Helge Janicke"
+          ],
+          "claimed_title": "An Extended Stable Marriage Problem Algorithm for Clone Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1408.2969"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='An Extended Stable Marriage Problem Algorithm for Clone Detection')",
+        "failed_at": "2026-05-12T20:21:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "—The rise of large language models (LLMs) has revolutionized automated code generation, yet evaluating their outputs remains a complex and multifaceted challenge. This paper presents a comprehensive study of evaluation metrics used for Python code generation, grounded in an analysis of 157 peer-reviewed papers from 2020 to 2024. We propose a formal taxonomy categorizing metrics into lexical similarity, functional correctness, semantic equivalence, edit distance, and ranking-based methods. Empirical trends reveal a transition from traditional lexical metrics like BLEU toward execution-based measures such as pass@k, alongside a growing adoption of semantic metrics like CodeBLEU and CodeBERTScore. Our ﬁndings highlight that no single metric captures all facets of code quality; instead, we advocate for a multi-metric evaluation approach that balances syntactic ﬁdelity, functional success, and structural similarity. The study concludes with actionable recommendations and anticipates future directions where metrics may evolve toward measuring explainability, robustness, and real-world utility. This work provides a principled foundation for the evaluation of AI-generated code and supports the development of more reliable and interpretable benchmarks.",
+          "claimed_authors": [
+            "Hue Luong Thi Minh",
+            "Vinh Nguyen The",
+            "Khanh Nhan Nguyen Huu",
+            "Son Nguyen Kim",
+            "V.N. Van"
+          ],
+          "claimed_title": "Decoding The Metrics: A 5-Year Retrospective on Evaluation AI-Generated Python Code",
+          "claimed_venue": "PROCEEDINGS OF THE 18th NATIONAL CONFERENCE ON FUNDAMENTAL AND APPLIED INFORMATION TECHNOLOGY RESEARCH",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.15625/vap.2025.0291"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='Decoding The Metrics: A 5-Year Retrospective on Evaluation AI-Generated Python Code')",
+        "failed_at": "2026-05-12T20:21:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "While Large Language Models (LLMs) have demonstrated remarkable progress in generating functionally correct Solidity code, they continue to face critical challenges in producing gas-efficient and secure code, which are critical requirements for real-world smart contract deployment. Although recent advances leverage Supervised Fine-Tuning (SFT) and Direct Preference Optimization (DPO) for code preference alignment, existing approaches treat functional correctness, gas optimization, and security as independent objectives, resulting in contracts that may achieve operational soundness but suffer from prohibitive execution costs or dangerous vulnerabilities. To address these limitations, we propose PrefGen, a novel framework that extends standard DPO beyond human preferences to incorporate quantifiable blockchain-specific metrics, enabling holistic multi-objective optimization specifically tailored for smart contract generation. Our framework introduces a comprehensive evaluation methodology with four complementary metrics: Pass@k (functional correctness), Compile@k (syntactic correctness), Gas@k (gas efficiency), and Secure@k (security assessment), providing rigorous multi-dimensional contract evaluation. Through extensive experimentation, we demonstrate that PrefGen significantly outperforms existing approaches across all critical dimensions, achieving 66.7% Pass@5, 58.9% Gas@5, and 62.5% Secure@5, while generating production-ready smart contracts that are functionally correct, cost-efficient, and secure.",
+          "claimed_authors": [
+            "Zhiyuan Peng",
+            "Xin Yin",
+            "Zijie Zhou",
+            "Chenhao Ying",
+            "Chao Ni",
+            "Yuan Luo"
+          ],
+          "claimed_title": "PrefGen: A Preference-Driven Methodology for Secure Yet Gas-Efficient Smart Contract Generation",
+          "claimed_venue": "International Conference on Automated Software Engineering",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1109/ASE63991.2025.00034"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='PrefGen: A Preference-Driven Methodology for Secure Yet Gas-Efficient Smart Contract Generation')",
+        "failed_at": "2026-05-12T20:21:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement Learning with Verifiable Rewards (RLVR) has emerged as a powerful paradigm to improve Large Language Models on reasoning tasks such as coding, math or logic. To assess the reasoning boundary (the fraction of problems a model can solve) researchers often report Pass@k at large sampling budgets. Recent results reveal a crossover phenomenon: while RLVR models outperform the base model at small k values, the base model usually outperforms them when sampling a very large number of completions. This has been interpreted as evidence that base models have a larger reasoning boundary. We argue that on tasks with discrete answer spaces, such as math with numeric outputs, Pass@k at large k reflects the increasingly higher chance of success in the limit of the number of trials rather than genuine reasoning, and can therefore be misleading. We propose Cover@tau, which measures the fraction of problems that a model can solve for which at least a tau proportion of completions are correct. Unlike Pass@k, Cover@tau captures reasoning under an explicit reliability threshold: models that rely on random guessing degrade rapidly as tau increases. We evaluate several RLVR models using Cover@tau-based metrics and illustrate how the relative rankings of popular algorithms change compared to Pass@1, offering a different perspective on reasoning boundaries.",
+          "claimed_authors": [
+            "Marius Dragoi",
+            "Ioana Pintilie",
+            "Florin Gogianu",
+            "Florin Brad"
+          ],
+          "claimed_title": "Beyond Pass@k: Breadth-Depth Metrics for Reasoning Boundaries",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08325"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='Beyond Pass@k: Breadth-Depth Metrics for Reasoning Boundaries')",
+        "failed_at": "2026-05-12T20:21:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Given a monotone convex function on the space of essentially bounded random variables with the Lebesgue property (order continuity), we consider its extension preserving the Lebesgue property to as big solid vector space of random variables as possible. We show that there exists a maximum such extension, with explicit construction, where the maximum domain of extension is obtained as a (possibly proper) subspace of a natural Orlicz-type space, characterized by a certain uniform integrability property. As an application, we provide a characterization of the Lebesgue property of monotone convex function on arbitrary solid spaces of random variables in terms of uniform integrability and a \"nice\" dual representation of the function.",
+          "claimed_authors": [
+            "Keita Owari"
+          ],
+          "claimed_title": "Maximum Lebesgue Extension of Monotone Convex Functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1304.7934"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='Maximum Lebesgue Extension of Monotone Convex Functions')",
+        "failed_at": "2026-05-12T20:21:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article presents a construction of the concept of stochastic integration in Riemannian manifolds from a purely functional-analytic point of view. We show that there are infinitely many such integrals, and that any two of them are related by a simple formula. We also find that the Stratonovich and Itô integrals known to probability theorists are two instances of the general concept constructed herein.",
+          "claimed_authors": [
+            "Alexandru Mustăţea"
+          ],
+          "claimed_title": "Stochastic integration in Riemannian manifolds from a functional-analytic point of view",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.08285"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='Stochastic integration in Riemannian manifolds from a functional-analytic point of view')",
+        "failed_at": "2026-05-12T20:21:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Models that predict function from DNA sequence have become critical tools in deciphering the roles of genomic sequences and genetic variation within them. However, traditional approaches for dividing the genomic sequences into training data, used to create the model, and test data, used to determine the model’s performance on unseen data, fail to account for the widespread homology that permeates the genome. Using models that predict human gene expression from DNA sequence, we demonstrate that model performance on test sequences varies by their similarity with training sequences, consistent with homology-based ‘data leakage’ that influences model performance by rewarding overfitting of homologous sequences. Because the sequence and its function are inexorably linked, even a maximally overfit model with no understanding of gene regulation can predict the expression of sequences that are similar to its training data. To prevent leakage in genome-trained models, we introduce ‘hashFrag,’ a scalable solution for partitioning data with minimal leakage. hashFrag improves estimates of model performance and can actually increase model performance by providing improved splits for model training. Altogether, we demonstrate how to account for homology-based leakage when partitioning genomic sequences for model training and evaluation, and highlight the consequences of failing to do so.",
+          "claimed_authors": [
+            "Abdul Muntakim Rafi",
+            "Brett Kiyota",
+            "Nozomu Yachie",
+            "Carl G. de Boer"
+          ],
+          "claimed_title": "Detecting and avoiding homology-based data leakage in genome-trained sequence models",
+          "claimed_venue": "bioRxiv",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1101/2025.01.22.634321"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='Detecting and avoiding homology-based data leakage in genome-trained sequence models')",
+        "failed_at": "2026-05-12T20:21:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "With the increasing reliance on machine learning (ML) across diverse disciplines, ML code has been subject to a number of issues that impact its quality, such as lack of documentation, algorithmic biases, overfitting, lack of reproducibility, inadequate data preprocessing, and potential for data leakage, all of which can significantly affect the performance and reliability of ML models. Data leakage can affect the quality of ML models where sensitive information from the test set inadvertently influences the training process, leading to inflated performance metrics that do not generalize well to new, unseen data. Data leakage can occur at either the dataset-level (i.e., during dataset construction) or at the code-level. Existing studies introduced methods to detect code-level data leakage using manual and code analysis approaches. However, automated tools with advanced ML techniques are increasingly recognized as essential for efficiently identifying quality issues in large and complex codebases, enhancing the overall effectiveness of code review processes. In this article, we aim to explore ML-based approaches for limited annotated datasets to detect code-level data leakage in ML code. We proposed three approaches, namely, transfer learning, active learning, and low-shot prompting. Additionally, we introduced an automated approached to handle the imbalance issues of code data. Our results show that active learning outperformed the other approaches with an F-2 score of 0.72 and reduced the number of needed annotated samples from 1,523 to 698. We conclude that existing ML-based approaches can effectively mitigate the challenges associated with limited data availability.",
+          "claimed_authors": [
+            "Nouf Alturayeif",
+            "Jameleddine Hassine"
+          ],
+          "claimed_title": "Data leakage detection in machine learning code: transfer learning, active learning, or low-shot prompting?",
+          "claimed_venue": "PeerJ Computer Science",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.7717/peerj-cs.2730"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='Data leakage detection in machine learning code: transfer learning, active learning, or low-shot prompting?')",
+        "failed_at": "2026-05-12T20:21:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Data leakage occurs when information from outside a training dataset inadvertently influences a machine learning\nmodel, leading to overly optimistic performance estimates and reduced generalizability. Detecting data leakage is crucial to\nmaintain model integrity, prevent overfitting, and ensure accurate deployment results in real-world applications. Traditional\nmethods for leakage detection are limited by their inability to capture subtle, complex forms of leakage that arise in highdimensional data or intricate workflows. This study proposes an improved data leakage detection framework that leverages a\ncombination of statistical testing, cross-validation anomaly checks, and interpretability techniques. Our approach systematically\nidentifies suspicious patterns, assesses feature-target relationships across training and test sets, and flags inconsistent data flows\nthat may signal leakage. By implementing these methods, we demonstrate enhanced sensitivity to various leakage types,\nincluding label, feature, and temporal leakage, across several case studies in healthcare, finance, and image processing. Our\nfindings highlight the importance of robust leakage detection techniques in developing reliable machine learning models and\nsuggest practical guidelines for integrating these methods into machine learning pipelines. This approach ultimately promotes\nthe development of models with better generalizability, fairness, and trustworthiness.",
+          "claimed_authors": [
+            "S. Santhosh"
+          ],
+          "claimed_title": "Enhanced Data Leakage Detection in Cloud and Enterprise Environments through NLP-Driven Classification, Metadata Tagging, and Anomaly-Based Learning",
+          "claimed_venue": "International Journal for Research in Applied Science and Engineering Technology",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.22214/ijraset.2025.69255"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='Enhanced Data Leakage Detection in Cloud and Enterprise Environments through NLP-Driven Classification, Metadata Tagging, and Anomaly-Based Learning')",
+        "failed_at": "2026-05-12T20:21:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Duplication on LLM Code Understanding computer sci', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-05-12T20:21:46Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wenhao Hu",
+            "Jinhao Duan",
+            "C. Wei",
+            "Li Zhang",
+            "Yue-feng Zhang",
+            "Kaidi Xu"
+          ],
+          "title": "DynaCode: A Dynamic Complexity-Aware Code Benchmark for Evaluating Large Language Models in Code Generation",
+          "venue": "Annual Meeting of the Association for Computational Linguistics",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2503.10452",
+        "summary": "The rapid advancement of large language models (LLMs) has significantly improved their performance in code generation tasks. However, existing code benchmarks remain static, consisting of fixed datasets with predefined problems. This makes them vulnerable to memorization during training, where LLMs recall specific test cases instead of generalizing to new problems, leading to data contamination and unreliable evaluation results. To address these issues, we introduce DynaCode, a dynamic, complexity-aware benchmark that overcomes the limitations of static datasets. DynaCode evaluates LLMs systematically using a complexity-aware metric, incorporating both code complexity and call-graph structures. DynaCode achieves large-scale diversity, generating up to 189 million unique nested code problems across four distinct levels of code complexity, referred to as units, and 16 types of call graphs. Results on 12 latest LLMs show an average performance drop of 16.8% to 45.7% compared to MBPP+, a static code generation benchmark, with performance progressively decreasing as complexity increases. This demonstrates DynaCode's ability to effectively differentiate LLMs. Additionally, by leveraging call graphs, we gain insights into LLM behavior, particularly their preference for handling subfunction interactions within nested code. Our benchmark and evaluation code are available at https://github.com/HWH-2000/DynaCode.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2503.10452",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2503.10452"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T20:21:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Denis Kocetkov",
+            "Raymond Li",
+            "Loubna Ben Allal",
+            "Jia Li",
+            "Chenghao Mou",
+            "Carlos Muñoz Ferrandis",
+            "Yacine Jernite",
+            "Margaret Mitchell",
+            "Sean Hughes",
+            "Thomas Wolf",
+            "Dzmitry Bahdanau",
+            "L. V. Werra",
+            "H. D. Vries"
+          ],
+          "title": "The Stack: 3 TB of permissively licensed source code",
+          "venue": "Trans. Mach. Learn. Res.",
+          "year": 2022
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2211.15533",
+        "summary": "Large Language Models (LLMs) play an ever-increasing role in the field of Artificial Intelligence (AI)--not only for natural language processing but also for code understanding and generation. To stimulate open and responsible research on LLMs for code, we introduce The Stack, a 3.1 TB dataset consisting of permissively licensed source code in 30 programming languages. We describe how we collect the full dataset, construct a permissively licensed subset, present a data governance plan, discuss limitations, and show promising results on text2code benchmarks by training 350M-parameter decoders on different Python subsets. We find that (1) near-deduplicating the data significantly boosts performance across all experiments, and (2) it is possible to match previously reported HumanEval and MBPP performance using only permissively licensed data. We make the dataset available at https://hf.co/BigCode, provide a tool called\"Am I in The Stack\"(https://hf.co/spaces/bigcode/in-the-stack) for developers to search The Stack for copies of their code, and provide a process for code to be removed from the dataset by following the instructions at https://www.bigcode-project.org/docs/about/the-stack/.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2211.15533",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2211.15533"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T20:21:43Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating the impact of code duplication on llm code understanding computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

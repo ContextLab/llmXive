@@ -83,6 +83,8 @@ class VerificationLog:
     pdf_sample_score: float | None
     verified_at: str  # ISO-8601 UTC
     query_relevance_score: float = 0.0  # spec 005 fix: topical relevance to user query
+    backend: str = ""  # spec 006: the search backend that produced the candidate
+                       # ("semantic_scholar" | "arxiv" | "theoremsearch"); "" for legacy entries
 
 
 @dataclasses.dataclass(frozen=True)
@@ -230,6 +232,7 @@ def verify_citation(
         pdf_sample_score=None,  # filled in by pdf_sample.py if/when sampled
         verified_at=started,
         query_relevance_score=round(relevance_score, 4),
+        backend=candidate.backend,
     )
 
     return VerifiedCitation(

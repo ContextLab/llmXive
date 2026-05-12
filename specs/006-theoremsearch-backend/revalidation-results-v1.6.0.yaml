@@ -1,0 +1,96 @@
+# Spec 006 / T036 — RevalidationResult records (data-model E9 base; spec-005 contracts/revalidation-runs.md procedure re-run)
+# Generated: 2026-05-12 (under librarian v1.6.0 — 3 backends + math-classifier; prompt bump 1.5.0 -> 1.6.0)
+# Aggregate verdict: PASS — both spec-004 carry-forward canonicals judged `verified` under
+# librarian prompt v1.6.0. This is the standard post-prompt-bump regression check (the
+# math-classifier is a new LLM call → cache-invalidating). Reference commit (spec-005 final):
+# 55f6da40; rollback commit (re-validation start): a9d87bd0.
+
+records:
+  - project_id: PROJ-261-evaluating-the-impact-of-code-duplicatio
+    field: computer science
+    prior_state:
+      current_stage: project_initialized
+      validator_verdict: validated
+      reference_commit: 55f6da40   # spec-005 final (also the spec-005 v1.5.0 re-validation result)
+    new_state:
+      current_stage: project_initialized
+      validator_verdict: validated
+      constitution_sha256: dc8dca5bca976687719f12254c191db1acfcbb962de9dc151bfa78589c9de76c   # byte-unchanged from prior
+    librarian_prompt_version: 1.6.0
+    librarian_outcome: exhausted
+    librarian_verified_count: 2
+    librarian_marginal_fallback_used: false
+    math_classifier: {invoked: true, verdict: false, error: null}   # non-math field, classifier consulted, correctly says non-math; no TheoremSearch query
+    theoremsearch_hit_count: 0
+    validator_subchecks: {framing: pass, novelty: pass, feasibility: pass, testability: pass}
+    judgment: verified
+    judgment_rationale: |
+      Validator returns `validated` (4/4 sub-checks pass) — same verdict as
+      spec 004 / spec-005-v1.5.0. State stays at `project_initialized`;
+      project_initializer's skip-if-exists guard preserved the audited
+      constitution byte-for-byte (sha256 dc8dca5b…). The math-classifier
+      was consulted (non-math field), correctly judged the code-duplication
+      question non-math (verdict=false), and TheoremSearch was not queried —
+      zero `backend == "theoremsearch"` citations, exactly as expected for a
+      CS-empirical question.
+
+      The librarian's strict-verified set under v1.6.0 is 2 citations
+      (outcome=exhausted, below target_n=5) vs. 9 marginal-fallback under
+      v1.5.0. This is NOT a regression: (a) the validator verdict is
+      unchanged; (b) the v1.5.0 set was entirely `topically_marginal=True`
+      (the judge had rejected all 9 as not narrowly on-topic and admitted
+      them only via the marginal-fallback), so 2 strict matches is arguably
+      a *cleaner* result; (c) the spec-005 diagnostic already noted a v1.5.0
+      single-query probe of the same question produced 3 strict-pass without
+      marginal — the judge is non-deterministic (GitHub issue #112), so a
+      different strict-pass count on a cache-busting re-run is expected. The
+      research question itself is unchanged; the idea-body diff is confined
+      to the citation list + the auto-generated Search-trail block.
+
+  - project_id: PROJ-262-predicting-molecular-dipole-moments-with
+    field: chemistry
+    prior_state:
+      current_stage: project_initialized
+      validator_verdict: validated
+      reference_commit: 55f6da40
+    new_state:
+      current_stage: project_initialized
+      validator_verdict: validated
+      constitution_sha256: 095f9c7b19ea4b85b7a9b602d9074723de4ec7e3d09db060154fa914224392bf   # byte-unchanged from prior
+    librarian_prompt_version: 1.6.0
+    librarian_outcome: success
+    librarian_verified_count: 9
+    librarian_marginal_fallback_used: false
+    math_classifier: {invoked: true, verdict: false, error: null}
+    theoremsearch_hit_count: 0
+    validator_subchecks: {framing: pass, novelty: pass, feasibility: pass, testability: pass}
+    judgment: verified
+    judgment_rationale: |
+      Validator returns `validated` (4/4 sub-checks pass) — same verdict as
+      spec 004 / spec-005-v1.5.0. State stays at `project_initialized`;
+      constitution byte-unchanged (sha256 095f9c7b…). The math-classifier
+      was consulted (non-math field), correctly judged the dipole-moment
+      ML question non-math (verdict=false), and TheoremSearch was not
+      queried — zero `backend == "theoremsearch"` citations, as expected
+      for a chemistry-ML question.
+
+      Under v1.6.0 the librarian returned 9 strict-verified citations
+      (outcome=success, ≥target_n) — up from 5 under v1.5.0 — including the
+      same canonical bullseye papers (Q-DFTNet 2025, PhysNet 2019, the
+      dipole/quadrupole ML paper 2026, ABT-MPNN-class GNNs, the QM9
+      quantum-kernel paper, the semiempirical-QM dipole benchmark). No
+      marginal-fallback. The carry-forward is unchanged; the idea-body diff
+      is confined to the citation list + Search-trail block.
+
+aggregate_verdict: PASS
+notes: |
+  T036 acceptance (per spec-005 contracts/revalidation-runs.md, re-run under
+  v1.6.0): both canonicals produce `judgment: verified` — validator verdict
+  `validated` for both, state `project_initialized` for both, constitution
+  files byte-unchanged for both. No `shifted_regressed`. Citation-count
+  variation (PROJ-261: 9→2; PROJ-262: 5→9) reflects the cache-busting prompt
+  bump + the documented judge non-determinism (#112), not a verdict
+  regression. The math-classifier correctly returned `verdict=false` on
+  both (genuinely non-math, empirical-ML questions); TheoremSearch
+  contributed nothing to either — the expected behavior for non-math
+  carry-forward canonicals.

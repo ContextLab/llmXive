@@ -14,7 +14,7 @@ selection ranking) is left to future iterations.
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from llmxive.agents.base import Agent, AgentContext
@@ -233,6 +233,7 @@ class FleshOutAgent(_IdeaPhaseAgent):
                 target_n=5,
                 repo_root=repo,
                 idea_md_path=idea_md_path,
+                project_id=ctx.project_id,
             )
         except Exception as exc:  # pragma: no cover — defensive
             print(f"[flesh_out] librarian.invoke failed: {exc!r}")
@@ -330,10 +331,10 @@ class FleshOutAgent(_IdeaPhaseAgent):
                 repo / "projects" / ctx.project_id / ".specify" / "memory" / "scope_rejected.yaml"
             )
             scope_marker.parent.mkdir(parents=True, exist_ok=True)
-            from datetime import datetime, timezone as _tz
+            from datetime import datetime
             scope_marker.write_text(
                 f"reason: flesh-out judged idea out of GHA-feasible scope\n"
-                f"detected_at: {datetime.now(_tz.utc).isoformat()}\n",
+                f"detected_at: {datetime.now(UTC).isoformat()}\n",
                 encoding="utf-8",
             )
             print(f"[flesh_out] {ctx.project_id} marked OUT-OF-SCOPE")
@@ -363,7 +364,7 @@ class IdeaSelectorAgent(_IdeaPhaseAgent):
         )
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(
-            f"selected: true\nselected_at: {datetime.now(timezone.utc).isoformat()}\n",
+            f"selected: true\nselected_at: {datetime.now(UTC).isoformat()}\n",
             encoding="utf-8",
         )
         return [str(target.relative_to(repo))]
@@ -412,7 +413,7 @@ class ResearchQuestionValidatorAgent(_IdeaPhaseAgent):
         revised_question = self._extract_revised_question(body)
         memory_dir = repo / "projects" / ctx.project_id / ".specify" / "memory"
         memory_dir.mkdir(parents=True, exist_ok=True)
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
 
         outputs: list[str] = [str(target.relative_to(repo))]
 
