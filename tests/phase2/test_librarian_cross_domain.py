@@ -45,6 +45,7 @@ DEFAULT_FIELDS = [
     "chemistry",
     "computer science",
     "materials science",
+    "mathematics",
     "neuroscience",
     "physics",
     "psychology",
