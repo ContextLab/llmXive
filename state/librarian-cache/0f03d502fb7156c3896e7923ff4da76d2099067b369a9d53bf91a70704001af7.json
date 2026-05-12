@@ -1,0 +1,965 @@
+{
+  "fetched_at": "2026-05-12T18:51:57Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "---\nfield: chemistry\nsubmitter: google.gemma-3-27b-it\n---\n\n# Predicting Molecular Properties from Quantum Chemical Calculations with Limited Computational Resources\n\n**Field**: chemistry\n\nCan machine learning models trained on a relatively small set of quantum chemical calculations (e.g., DFT with a modest basis set) accurately predict properties like dipole moment, polarizability, and atomic charges when applied to larger, more complex molecules? This research would leverage publicly available datasets of quantum chemical calculations (e.g., from the NIST Computational Chemistry Comparison Key) to train and validate a graph neural network. The focus is on identifying the minimal computational cost required for generating training data that yields meaningful predictive power, potentially enabling rapid screening of molecular properties without resorting to computationally expensive high-accuracy calculations for every molecule. This could accelerate materials discovery and rational mol",
+      "target_n": 5
+    },
+    "duration_seconds": 603.646,
+    "ended_at": "2026-05-12T18:51:57Z",
+    "expansion": null,
+    "extracted_queries": [
+      "surrogate models quantum chemistry DFT",
+      "QM9 dataset DFT benchmark molecular properties",
+      "neural network potentials DFT acceleration",
+      "MAE RMSE wall time efficiency",
+      "multi-fidelity modeling quantum chemistry transfer learning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 2,
+      "sampled_count": 2,
+      "sampled_pointers": [
+        "https://doi.org/10.1088/2632-2153/adc222",
+        "https://doi.org/10.1038/s41597-025-04720-7"
+      ]
+    },
+    "per_query_hit_count": {
+      "MAE RMSE wall time efficiency": 6,
+      "Predicting Molecular Properties from Quantum Chemical Calculations with Limited Computational Resources": 6,
+      "QM9 dataset DFT benchmark molecular properties": 5,
+      "multi-fidelity modeling quantum chemistry transfer learning": 6,
+      "neural network potentials DFT acceleration": 6,
+      "surrogate models quantum chemistry DFT": 6
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-12T18:41:54Z",
+    "term_input": {
+      "normalized": "predicting molecular properties from quantum chemical calculations with limited computational resources",
+      "raw": "Predicting Molecular Properties from Quantum Chemical Calculations with Limited Computational Resources"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Predicting properties of complex, large-scale quantum systems is essential for developing quantum technologies. We present an efficient method for constructing an approximate classical description of a quantum state using very few measurements of the state. This description, called a classical shadow, can be used to predict many different properties: order $\\log M$ measurements suffice to accurately predict $M$ different functions of the state with high success probability. The number of measurements is independent of the system size, and saturates information-theoretic lower bounds. Moreover, target properties to predict can be selected after the measurements are completed. We support our theoretical findings with extensive numerical experiments. We apply classical shadows to predict quantum fidelities, entanglement entropies, two-point correlation functions, expectation values of local observables, and the energy variance of many-body local Hamiltonians. The numerical results highlight the advantages of classical shadows relative to previously known methods.",
+          "claimed_authors": [
+            "Hsin-Yuan Huang",
+            "Richard Kueng",
+            "John Preskill"
+          ],
+          "claimed_title": "Predicting Many Properties of a Quantum System from Very Few Measurements",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.08953"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Predicting Many Properties of a Quantum System from Very Few Measurements')",
+        "failed_at": "2026-05-12T18:44:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            "Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-05-12T18:44:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The theorems of density functional theory (DFT) establish bijective maps between the local external potential of a many-body system and its electron density, wavefunction and, therefore, one-particle reduced density matrix. Building on this foundation, we show that machine learning models based on the one-electron reduced density matrix can be used to generate surrogate electronic structure methods. We generate surrogates of local and hybrid DFT, Hartree-Fock and full configuration interaction theories for systems ranging from small molecules such as water to more complex compounds like benzene and propanol. The surrogate models use the one-electron reduced density matrix as the central quantity to be learned. From the predicted density matrices, we show that either standard quantum chemistry or a second machine-learning model can be used to compute molecular observables, energies, and atomic forces. The surrogate models can generate essentially anything that a standard electronic structure method can, ranging from band gaps and Kohn-Sham orbitals to energy-conserving ab-initio molecular dynamics simulations and infrared spectra, which account for anharmonicity and thermal effects, without the need to employ computationally expensive algorithms such as self-consistent field theory. The algorithms are packaged in an efficient and easy to use Python code, QMLearn, accessible on popular platforms.",
+          "claimed_authors": [
+            "Xuecheng Shao",
+            "Lukas Paetow",
+            "M. Tuckerman",
+            "M. Pavanello"
+          ],
+          "claimed_title": "Machine learning electronic structure methods based on the one-electron reduced density matrix",
+          "claimed_venue": "Nature Communications",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.1038/s41467-023-41953-9"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Machine learning electronic structure methods based on the one-electron reduced density matrix')",
+        "failed_at": "2026-05-12T18:44:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Utilizing quantum computer to investigate quantum chemistry is an important research field nowadays. In addition to the ground-state problems that have been widely studied, the determination of excited-states plays a crucial role in the prediction and modeling of chemical reactions and other physical processes. Here, we propose a non-variational full circuit-based quantum algorithm for obtaining the excited-state spectrum of a quantum chemistry Hamiltonian. Compared with previous classical-quantum hybrid variational algorithms, our method eliminates the classical optimization process, reduces the resource cost caused by the interaction between different systems, and achieves faster convergence rate and stronger robustness against noise without barren plateau. The parameter updating for determining the next energy-level is naturally dependent on the energy measurement outputs of the previous energy-level and can be realized by only modifying the state preparation process of ancillary system, introducing little additional resource overhead. Numerical simulations of the algorithm with hydrogen, LiH, H2O and NH3 molecules are presented. Furthermore, we offer an experimental demonstration of the algorithm on a superconducting quantum computing platform, and the results show a good agreement with theoretical expectations. The algorithm can be widely applied to various Hamiltonian spectrum determination problems on the fault-tolerant quantum computers.",
+          "claimed_authors": [
+            "Jingwei Wen",
+            "Zhengan Wang",
+            "Chitong Chen",
+            "Junxiang Xiao",
+            "Hang Li",
+            "Ling Qian",
+            "Zhiguo Huang",
+            "Heng Fan",
+            "Shijie Wei",
+            "Guilu Long"
+          ],
+          "claimed_title": "A full circuit-based quantum algorithm for excited-states in quantum chemistry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.14193"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='A full circuit-based quantum algorithm for excited-states in quantum chemistry')",
+        "failed_at": "2026-05-12T18:44:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tianyan Quantum Cloud Platform offers cloud services demonstrating quantum advantage capabilities with a Zuchongzhi 3.0-like superconducting quantum processor. This cloud-accessible superconducting quantum prototype, named Tianyan-287, features 105 qubits and achieves high operational fidelities, with single-qubit gates, two-qubit gates, and readout fidelity at 99.90%, 99.56%, 98.7%, respectively. For a specific benchmark task involving random circuit sampling on a 74-qubit system over 24 cycles, the platform completes one million samples in just 18.4 minutes. In contrast, state-of-the-art classical supercomputers would require approximately 16,000 years to complete the equivalent calculation. To facilitate this, the platform provides access via Cqlib, an open-source SDK designed for working with quantum systems at the level of extended quantum circuits, operators, and primitives. The cloud service aims to democratize access to high-performance quantum hardware, enabling the community to validate and explore practical quantum advantages.",
+          "claimed_authors": [
+            "Tianyan Quantum Group"
+          ],
+          "claimed_title": "Tianyan: Cloud services with quantum advantage",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.10504"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Tianyan: Cloud services with quantum advantage')",
+        "failed_at": "2026-05-12T18:44:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We review recent progress made in quantum information processing (QIP) which can be applied in the simulation of quantum systems and chemical phenomena. The review is focused on quantum algorithms which are useful for quantum simulation of chemistry and advances in nuclear magnetic resonance (NMR) and electron spin resonance (ESR) QIP. Discussions also include a number of recent experiments demonstrating the current capabilities of the NMR QIP for quantum simulation and prospects for spin-based implementations of QIP.",
+          "claimed_authors": [
+            "Ben Criger",
+            "Daniel K. Park",
+            "Jonathan Baugh"
+          ],
+          "claimed_title": "Few-Qubit Magnetic Resonance Quantum Information Processors: Simulating Chemistry and Physics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1210.4994"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Few-Qubit Magnetic Resonance Quantum Information Processors: Simulating Chemistry and Physics')",
+        "failed_at": "2026-05-12T18:44:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-05-12T18:44:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-05-12T18:44:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Machine learning-based interatomic potentials (MLIPs) have transformed the prediction of potential energy surfaces (PESs), achieving accuracy comparable to ab initio calculations. However, atomic energy predictions, often assumed to lack physical meaning, remain underexplored. In this study, we demonstrate that inaccuracies in atomic energy predictions reduce the robustness and transferability of Neural Network Potentials (NNPs) and atomic energy error can be masked in total energy predictions due to error cancellation. We validate this finding using challenging configurations involving deformation and failure under tensile loading. By pretraining atomic energy predictions using empirical potentials and applying transfer learning with density functional theory (DFT) data, we achieve notable improvements in the accuracy of total energy, forces, and stress predictions. Furthermore, this approach enhances the robustness and transferability of NNPs, emphasizing the importance of atomic energy predictions in developing high-quality and reliable MLIPs.",
+          "claimed_authors": [
+            "Gang Seob Jung"
+          ],
+          "claimed_title": "Atomic Energy Accuracy of Neural Network Potentials: Harnessing Pretraining and Transfer Learning",
+          "claimed_venue": "Journal of Chemical Information and Modeling",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1021/acs.jcim.5c00079"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Atomic Energy Accuracy of Neural Network Potentials: Harnessing Pretraining and Transfer Learning')",
+        "failed_at": "2026-05-12T18:44:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-05-12T18:44:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Air pollution (AP) poses a great threat to human health, and people are paying more attention than ever to its prediction. Accurate prediction of AP helps people to plan for their outdoor activities and aids protecting human health. In this paper, long-short term memory (LSTM) recurrent neural networks (RNNs) have been used to predict the future concentration of air pollutants (APS) in Macau. Additionally, meteorological data and data on the concentration of APS have been utilized. Moreover, in Macau, some air quality monitoring stations (AQMSs) have less observed data in quantity, and, at the same time, some AQMSs recorded less observed data of certain types of APS. Therefore, the transfer learning and pre-trained neural networks have been employed to assist AQMSs with less observed data to build a neural network with high prediction accuracy. The experimental sample covers a period longer than 12-year and includes daily measurements from several APS as well as other more classical meteorological values. Records from five stations, four out of them are AQMSs and the remaining one is an automatic weather station, have been prepared from the aforesaid period and eventually underwent to computational intelligence techniques to build and extract a prediction knowledge-based system. As shown by experimentation, LSTM RNNs initialized with transfer learning methods have higher prediction accuracy; it incurred shorter training time than randomly initialized recurrent neural networks.",
+          "claimed_authors": [
+            "Iat Hang Fong",
+            "Tengyue Li",
+            "Simon Fong",
+            "Raymond K. Wong",
+            "Antonio J. Tallón-Ballesteros"
+          ],
+          "claimed_title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.01654"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Predicting concentration levels of air pollutants by transfer learning and recurrent neural network')",
+        "failed_at": "2026-05-12T18:44:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the ConditionaL Neural Network (CLNN) and the Masked ConditionaL Neural Network (MCLNN) designed for temporal signal recognition. The CLNN takes into consideration the temporal nature of the sound signal and the MCLNN extends upon the CLNN through a binary mask to preserve the spatial locality of the features and allows an automated exploration of the features combination analogous to hand-crafting the most relevant features for the recognition task. MCLNN has achieved competitive recognition accuracies on the GTZAN and the ISMIR2004 music datasets that surpass several state-of-the-art neural network based architectures and hand-crafted methods applied on both datasets.",
+          "claimed_authors": [
+            "Fady Medhat",
+            "David Chesmore",
+            "John Robinson"
+          ],
+          "claimed_title": "Masked Conditional Neural Networks for Audio Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1803.02421"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Masked Conditional Neural Networks for Audio Classification')",
+        "failed_at": "2026-05-12T18:44:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The front wall acoustic package system plays a crucial role in automotive design, and its performance directly affects the quality and comfort of the interior noise. In response to the limitations of traditional experimental and simulation methods in terms of accuracy and efficiency, this paper proposes a convolutional neural network (AFWL-CNN) based on adaptive weighted feature learning. Using a data-driven method, the sound insulation performance of the entire vehicle’s front wall acoustic package system was predicted and analyzed based on the original parameters of the front wall acoustic package components, thereby effectively avoiding the shortcomings of traditional TPA and CAE methods. Compared to the traditional CNN model (RMSE = 0.042, MAE = 3.89 dB, I-TIME = 13.67 s), the RMSE of the proposed AFWL-CNN model was optimized to 0.031 (approximately 26.19% improvement), the mean absolute error (MAE) was reduced to 2.84 dB (approximately 26.99% improvement), and the inference time (I-TIME) increased to 17.16 s (approximately 25.53% increase). Although the inference time of the AFWL-CNN model increased by 25.53% compared to the CNN model, it achieved a more significant improvement in prediction accuracy, demonstrating a reasonable trade-off between efficiency and accuracy. Compared to AFWL-LSTM (RMSE = 0.039, MAE = 3.35 dB, I-TIME = 19.81 s), LSTM (RMSE = 0.044, MAE = 4.07 dB, I-TIME = 16.71 s), and CNN–Transformer (RMSE = 0.040, MAE = 3.74 dB, I-TIME = 19.55 s) models, the AFWL-CNN model demonstrated the highest prediction accuracy among the five models. Furthermore, the proposed method was verified using the front wall acoustic package data of a new car model, and the results showed the effectiveness and reliability of this method in predicting the acoustic package performance of the front wall system. This study provides a powerful tool for fast and accurate performance prediction of automotive front acoustic packages, significantly improving design efficiency and providing a data-driven framework that can be used to solve other vehicle noise problems.",
+          "claimed_authors": [
+            "Yan Ma",
+            "Jie Yan",
+            "Jianjiao Deng",
+            "Xiaona Liu",
+            "Dianlong Pan",
+            "Jingjing Wang",
+            "Ping Liu"
+          ],
+          "claimed_title": "The Prediction of Sound Insulation for the Front Wall of Pure Electric Vehicles Based on AFWL-CNN",
+          "claimed_venue": "Machines",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.3390/machines13060527"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='The Prediction of Sound Insulation for the Front Wall of Pure Electric Vehicles Based on AFWL-CNN')",
+        "failed_at": "2026-05-12T18:44:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Avishek Dutta",
+            "Kripamoy Sarkar",
+            "K. Tarun"
+          ],
+          "claimed_title": "Machine learning regression algorithms for predicting the susceptibility of jointed rock slopes to planar failure",
+          "claimed_venue": "Earth Science Informatics",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1007/s12145-024-01296-5"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Machine learning regression algorithms for predicting the susceptibility of jointed rock slopes to planar failure')",
+        "failed_at": "2026-05-12T18:44:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Abstract In this research paper, Ag and Fe doped into TiO2 loaded on the Multi wall carbon nanotube (MWCNT/TiO2@Ag/Fe-NC) was prepared and characterized. The adsorption efficiency was modeled by ANFIS (Adaptive Neuro-Fuzzy Inference System), GRNN (Generalized Regression Neural Network) and RSM (response surface methodology). The effect of process factors i.e. sonication time, the concentration of Methylene Blue (MB), MWCNT/TiO2@Ag/Fe-NC mass and pH on the decolorization of MB was investigated by the RSM, GRRN, and ANFIS. The ability of all three models was examined by four statistical visualization such as R2, RMSE (root mean square error), MAE (mean absolute error) and %AAD (absolute average deviation). The statistical visualization result for the validation dataset shows that the proposed approaches (i.e. ANFIS, GRNN and RSM) will be able to predicate and model the removal MB. Nevertheless, from obtained result it clear that the ANFIS approach has more precise in respect to the other models. Though, it was known that the Generalized Regression Neural Network is easier and take a little time for modeling than the Adaptive Neuro-Fuzzy Inference System approach. Therefore, the GRNN algorithm can be built a new prospect in predication and/or modeling and is also feasible that could be applied in actual systems.",
+          "claimed_authors": [
+            "E. Mossavi",
+            "M. Sabzevari",
+            "M. Ghaedi",
+            "M. A. Azqhandi",
+            "S. J. Hosseini"
+          ],
+          "claimed_title": "A rapid and efficient sono-chemistry process for removal of pollutant: Statistical modeling study",
+          "claimed_venue": "Polyhedron",
+          "claimed_year": 2019,
+          "primary_pointer": "https://doi.org/10.1016/J.POLY.2019.07.002"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='A rapid and efficient sono-chemistry process for removal of pollutant: Statistical modeling study')",
+        "failed_at": "2026-05-12T18:44:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Medical image segmentation remains a formidable challenge due to the label scarcity. Pre-training Vision Transformer (ViT) through masked image modeling (MIM) on large-scale unlabeled medical datasets presents a promising solution, providing both computational efficiency and model generalization for various downstream tasks. However, current ViT-based MIM pre-training frameworks predominantly emphasize local aggregation representations in output layers and fail to exploit the rich representations across different ViT layers that better capture fine-grained semantic information needed for more precise medical downstream tasks. To fill the above gap, we hereby present Hierarchical Encoder-driven MAE (Hi-End-MAE), a simple yet effective ViT-based pre-training solution, which centers on two key innovations: (1) Encoder-driven reconstruction, which encourages the encoder to learn more informative features to guide the reconstruction of masked patches; and (2) Hierarchical dense decoding, which implements a hierarchical decoding structure to capture rich representations across different layers. We pre-train Hi-End-MAE on a large-scale dataset of 10K CT scans and evaluated its performance across seven public medical image segmentation benchmarks. Extensive experiments demonstrate that Hi-End-MAE achieves superior transfer learning capabilities across various downstream tasks, revealing the potential of ViT in medical imaging applications. The code is available at: https://github.com/FengheTan9/Hi-End-MAE",
+          "claimed_authors": [
+            "Fenghe Tang",
+            "Qingsong Yao",
+            "Wenxin Ma",
+            "Chenxu Wu",
+            "Zihang Jiang",
+            "S. Kevin Zhou"
+          ],
+          "claimed_title": "Hi-End-MAE: Hierarchical encoder-driven masked autoencoders are stronger vision learners for medical image segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.08347"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Hi-End-MAE: Hierarchical encoder-driven masked autoencoders are stronger vision learners for medical image segmentation')",
+        "failed_at": "2026-05-12T18:44:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We extend the approach of wall modeling via function enrichment to detached-eddy simulation. The wall model aims at using coarse cells in the near-wall region by modeling the velocity profile in the viscous sublayer and log-layer. However, unlike other wall models, the full Navier-Stokes equations are still discretely fulfilled, including the pressure gradient and convective term. This is achieved by enriching the elements of the high-order discontinuous Galerkin method with the law-of-the-wall. As a result, the Galerkin method can \"choose\" the optimal solution among the polynomial and enrichment shape functions. The detached-eddy simulation methodology provides a suitable turbulence model for the coarse near-wall cells. The approach is applied to wall-modeled LES of turbulent channel flow in a wide range of Reynolds numbers. Flow over periodic hills shows the superiority compared to an equilibrium wall model under separated flow conditions.",
+          "claimed_authors": [
+            "Benjamin Krank",
+            "Martin Kronbichler",
+            "Wolfgang A. Wall"
+          ],
+          "claimed_title": "Wall modeling via function enrichment: extension to detached-eddy simulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1712.08469"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Wall modeling via function enrichment: extension to detached-eddy simulation')",
+        "failed_at": "2026-05-12T18:44:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a novel approach to hybrid RANS/LES wall modeling based on function enrichment, which overcomes the common problem of the RANS-LES transition and enables coarse meshes near the boundary. While the concept of function enrichment as an efficient discretization technique for turbulent boundary layers has been proposed in an earlier article by Krank & Wall (J. Comput. Phys. 316 (2016) 94-116), the contribution of this work is a rigorous derivation of a new multiscale turbulence modeling approach and a corresponding discontinuous Galerkin discretization scheme. In the near-wall area, the Navier-Stokes equations are explicitly solved for an LES and a RANS component in one single equation. This is done by providing the Galerkin method with an independent set of shape functions for each of these two methods; the standard high-order polynomial basis resolves turbulent eddies where the mesh is sufficiently fine and the enrichment automatically computes the ensemble-averaged flow if the LES mesh is too coarse. As a result of the derivation, the RANS model is consistently applied solely to the RANS degrees of freedom, which effectively prevents the typical issue of a log-layer mismatch in attached boundary layers. As the full Navier-Stokes equations are solved in the boundary layer, spatial refinement gradually yields wall-resolved LES with exact boundary conditions. Numerical tests show the outstanding characteristics of the wall model regarding grid independence, superiority compared to equilibrium wall models in separated flows, and achieve a speed-up by two orders of magnitude compared to wall-resolved LES.",
+          "claimed_authors": [
+            "Benjamin Krank",
+            "Martin Kronbichler",
+            "Wolfgang A. Wall"
+          ],
+          "claimed_title": "A multiscale approach to hybrid RANS/LES wall modeling within a high-order discontinuous Galerkin scheme using function enrichment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.08813"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='A multiscale approach to hybrid RANS/LES wall modeling within a high-order discontinuous Galerkin scheme using function enrichment')",
+        "failed_at": "2026-05-12T18:44:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Fazhi Tang",
+            "Yubo Li",
+            "Jun Huang",
+            "Feng Liu"
+          ],
+          "claimed_title": "Multi-fidelity modeling method based on adaptive transfer learning",
+          "claimed_venue": "Information Fusion",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1016/j.inffus.2025.103045"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Multi-fidelity modeling method based on adaptive transfer learning')",
+        "failed_at": "2026-05-12T18:44:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Data-driven modeling techniques have been widely applied in industrial systems for process monitoring. However, these models heavily rely on data accuracy and completeness. Challenges emerge when the mode characteristics of the system alter due to equipment deterioration (such as heat exchanger fouling, component wear, catalyst deactivation) or after maintenance activities (like cleaning, repair, replacement, etc.). Data collected from the old mode (before the mode change) no longer accurately reflects the characteristics of the new mode (after the mode change). This presents a significant challenge for multimode process modeling, as the new mode model cannot directly utilize old mode data when there is insufficient training data for the new mode. To address this issue, we propose a novel transfer learning-based multi-fidelity modeling (TL-MFM) method. The key innovation of this method lies in its fusion of limited high-fidelity data from the new mode with sufficient low-fidelity data from the old mode to construct a robust monitoring model. By leveraging a model transfer framework that optimizes the transfer of relevant information across fidelity levels, the TL-MFM method enhances the adaptability of the monitoring model. The effectiveness of the TL-MFM method is validated through a case study on a real-world condenser in a steam turbine generator set.",
+          "claimed_authors": [
+            "Baoyu Zhu",
+            "Shaojun Ren",
+            "Zihang Wei",
+            "Fengqi Si"
+          ],
+          "claimed_title": "Transfer learning-based multi-fidelity modeling method for multimode process monitoring",
+          "claimed_venue": "2024 IEEE 4th International Conference on Digital Twins and Parallel Intelligence (DTPI)",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1109/dtpi61353.2024.10778843"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Transfer learning-based multi-fidelity modeling method for multimode process monitoring')",
+        "failed_at": "2026-05-12T18:44:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We extend the concept of transfer learning, widely applied in modern machine learning algorithms, to the emerging context of hybrid neural networks composed of classical and quantum elements. We propose different implementations of hybrid transfer learning, but we focus mainly on the paradigm in which a pre-trained classical network is modified and augmented by a final variational quantum circuit. This approach is particularly attractive in the current era of intermediate-scale quantum technology since it allows to optimally pre-process high dimensional data (e.g., images) with any state-of-the-art classical network and to embed a select set of highly informative features into a quantum processor. We present several proof-of-concept examples of the convenient application of quantum transfer learning for image recognition and quantum state classification. We use the cross-platform software library PennyLane to experimentally test a high-resolution image classifier with two different quantum computers, respectively provided by IBM and Rigetti.",
+          "claimed_authors": [
+            "Andrea Mari",
+            "Thomas R. Bromley",
+            "Josh Izaac",
+            "Maria Schuld",
+            "Nathan Killoran"
+          ],
+          "claimed_title": "Transfer learning in hybrid classical-quantum neural networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.08278"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Transfer learning in hybrid classical-quantum neural networks')",
+        "failed_at": "2026-05-12T18:44:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multi-fidelity surrogate modeling aims to learn an accurate surrogate at the highest fidelity level by combining data from multiple sources. Traditional methods relying on Gaussian processes can hardly scale to high-dimensional data. Deep learning approaches utilize neural network based encoders and decoders to improve scalability. These approaches share encoded representations across fidelities without including corresponding decoder parameters. This hinders inference performance, especially in out-of-distribution scenarios when the highest fidelity data has limited domain coverage. To address these limitations, we propose Multi-fidelity Residual Neural Processes (MFRNP), a novel multi-fidelity surrogate modeling framework. MFRNP explicitly models the residual between the aggregated output from lower fidelities and ground truth at the highest fidelity. The aggregation introduces decoders into the information sharing step and optimizes lower fidelity decoders to accurately capture both in-fidelity and cross-fidelity information. We show that MFRNP significantly outperforms state-of-the-art in learning partial differential equations and a real-world climate modeling task. Our code is published at: https://github.com/Rose-STL-Lab/MFRNP",
+          "claimed_authors": [
+            "Ruijia Niu",
+            "Dongxia Wu",
+            "Kai Kim",
+            "Yi-An Ma",
+            "Duncan Watson-Parris",
+            "Rose Yu"
+          ],
+          "claimed_title": "Multi-Fidelity Residual Neural Processes for Scalable Surrogate Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.18846"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Multi-Fidelity Residual Neural Processes for Scalable Surrogate Modeling')",
+        "failed_at": "2026-05-12T18:44:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advent of federated learning has facilitated large-scale data exchange amongst machine learning models while maintaining privacy. Despite its brief history, federated learning is rapidly evolving to make wider use more practical. One of the most significant advancements in this domain is the incorporation of transfer learning into federated learning, which overcomes fundamental constraints of primary federated learning, particularly in terms of security. This chapter performs a comprehensive survey on the intersection of federated and transfer learning from a security point of view. The main goal of this study is to uncover potential vulnerabilities and defense mechanisms that might compromise the privacy and performance of systems that use federated and transfer learning.",
+          "claimed_authors": [
+            "Ehsan Hallaji",
+            "Roozbeh Razavi-Far",
+            "Mehrdad Saif"
+          ],
+          "claimed_title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.02337"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms')",
+        "failed_at": "2026-05-12T18:44:09Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Megan A. Lim",
+            "Marybeth G. Yonk",
+            "Kimberly B. Hoang",
+            "A. Molinaro",
+            "Monika Raj",
+            "Yuhong Du",
+            "Nicholas M. Boulis",
+            "Wael Hassaneen",
+            "Kecheng Lei"
+          ],
+          "title": "Leveraging quantum chemical properties in transfer learning for predicting blood-brain barrier permeability of drugs.",
+          "venue": "Drug Delivery and Translational Research",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1007/s13346-025-02005-5",
+        "summary": "",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://link.springer.com/article/10.1007/s13346-025-02005-5",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [
+            "https://doi.org/10.1007/s13346-025-02005-5",
+            "https://link.springer.com/10.1007/s13346-025-02005-5",
+            "https://link.springer.com/article/10.1007/s13346-025-02005-5",
+            "https://idp.springer.com/authorize?response_type=cookie&client_id=springerlink&redirect_uri=https%3A%2F%2Flink.springer.com%2Farticle%2F10.1007%2Fs13346-025-02005-5"
+          ],
+          "summary_grounding_score": 0.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T18:43:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "B. Bako",
+            "E. Etim",
+            "J. P. Shinggu",
+            "S. Humphrey",
+            "L. J. Moses",
+            "M. E. Khan"
+          ],
+          "title": "Quantum chemical calculations of lupeol (C30H50O) isolated from the ethyl acetate leaf extracts of Justicia Secunda",
+          "venue": "Journal of the Nigerian Society of Physical Sciences",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.46481/jnsps.2024.1995",
+        "summary": "The discovery of lupeol, a triterpenoid compound (C30H50O), in the ethyl acetate leaf extract of Justicia secunda (Blood root), has opened doors to extensive research and development opportunities in natural product-based pharmaceuticals. Lupeol’s versatile pharmacological properties, including anti-inflammatory, anticancer, antidiabetic, and antiviral effects, make it a compelling candidate for drug development. To fully harness its potential, a comprehensive understanding of lupeol’s structural and chemical attributes is crucial. Through quantum chemical calculations using the GAUSSIAN 09 suite of programs, we determined the optimized geometry, IR frequencies, bond distances (R), bond angles (A), dipole moments, HOMO-LUMO and other molecular parameters for this solitary molecule. The remarkable accuracy and reliability of computational techniques in predicting the properties of systems and reactants are evident in the consistently favorable results. A strong concordance and consistency between the experimental and computational outcomes further reinforces the credibility of our findings. This study offers a means to explore lupeol’s molecular behavior, providing insights that can guide future drug development efforts rooted in this promising natural compound.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://journal.nsps.org.ng/index.php/jnsps/article/view/1995",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [
+            "https://doi.org/10.46481/jnsps.2024.1995"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T18:43:59Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Arif Ullah",
+            "Yuxinxin Chen",
+            "Pavlo O. Dral"
+          ],
+          "title": "Molecular quantum chemical data sets and databases for machine learning potentials",
+          "venue": "Machine Learning: Science and Technology",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1088/2632-2153/ad8f13",
+        "summary": "The field of computational chemistry is increasingly leveraging machine learning (ML) potentials to predict molecular properties with high accuracy and efficiency, providing a viable alternative to traditional quantum mechanical (QM) methods, which are often computationally intensive. Central to the success of ML models is the quality and comprehensiveness of the data sets on which they are trained. Quantum chemistry data sets and databases, comprising extensive information on molecular structures, energies, forces, and other properties derived from QM calculations, are crucial for developing robust and generalizable ML potentials. In this review, we provide an overview of the current landscape of quantum chemical data sets and databases. We examine key characteristics and functionalities of prominent resources, including the types of information they store, the level of electronic structure theory employed, the diversity of chemical space covered, and the methodologies used for data creation. Additionally, an updatable resource is provided to track new data sets and databases at https://github.com/Arif-PhyChem/datasets_and_databases_4_MLPs. This resource also has the overview in a machine-readable database format with the Jupyter notebook example for analysis. Looking forward, we discuss the challenges associated with the rapid growth of quantum chemical data sets and databases, emphasizing the need for updatable and accessible resources to ensure the long-term utility of them. We also address the importance of data format standardization and the ongoing efforts to align with the FAIR principles to enhance data interoperability and reusability. Drawing inspiration from established materials databases, we advocate for the development of user-friendly and sustainable platforms for these data sets and databases.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://validate.perfdrive.com/fb803c746e9148689b3984a31fccd902/?ssa=7cf6f2f8-301f-4921-b150-a91f83e045bf&ssb=73655251107&ssc=https%3A%2F%2Fiopscience.iop.org%2Farticle%2F10.1088%2F2632-2153%2Fad8f13&ssi=73ba059f-cnvj-45ad-af37-c07af16ead8a&ssk=botmanager_support@radware.com&ssm=36286234306268941109209187681097&ssn=8a2d6cb2f7a97ad01dbfb38d5ce539bea73a46a6e984-3e56-4461-a3ea11&sso=a2f51e4d-592d01f376c213805eda30b03e8b09de2f67103dbce94bc9&ssp=20640166511778647658177862619334449&ssq=46467841144423756898311444626618216858788&ssr=MTI5LjE3MC4zMS41NQ==&sst=llmxive-librarian/1.0%20(https://github.com/ContextLab/llmXive)&ssu=&ssv=&ssw=&ssx=eyJyZCI6ImlvcC5vcmciLCJfX3V6bWYiOiI3ZjkwMDA0NmE2ZTk4NC0zZTU2LTQ0NjEtYWU0ZC01OTJkMDFmMzc2YzIxLTE3Nzg2MTE0NDQxNDEwLTAwMzBjMGIzODQwMWNlMjEzZGMxMCIsInV6bXgiOiI3ZjkwMDAzZmMwNDg3OS00N2RiLTRjMGQtYjNhZC0wZjQ1NTkxYTBlNjIxLTE3Nzg2MTE0NDQxNDEwLWVmY2Y4Nzc4M2QxMTgwODAxMCJ9",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.875,
+          "redirect_chain": [
+            "https://doi.org/10.1088/2632-2153/ad8f13",
+            "https://iopscience.iop.org/article/10.1088/2632-2153/ad8f13"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T18:44:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cheng-Lin Hong",
+            "Ting Tsai",
+            "Jyh-Pin Chou",
+            "Peng-Jen Chen",
+            "Pei-Kai Tsai",
+            "Yu-Cheng Chen",
+            "En-Jui Kuo",
+            "David Srolovitz",
+            "Alice Hu",
+            "Yuan-Chung Cheng",
+            "Hsi-Sheng Goan"
+          ],
+          "title": "Accurate and Efficient Quantum Computations of Molecular Properties Using Daubechies Wavelet Molecular Orbitals: A Benchmark Study against Experimental Data",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2205.14476",
+        "summary": "Although quantum computation (QC) is regarded as a promising numerical method for computational quantum chemistry, current applications of quantum-chemistry calculations on quantum computers are limited to small molecules. This limitation can be ascribed to technical problems in building and manipulating more qubits and the associated complicated operations of quantum gates in a quantum circuit when the size of the molecular system becomes large. As a result, reducing the number of required qubits is necessary to make QC practical. Currently, the minimal STO-3G basis set is commonly used in benchmark studies because it requires the minimum number of spin orbitals. Nonetheless, the accuracy of using STO-3G is generally low and thus cannot provide useful predictions. We propose to adopt Daubechies wavelet functions as an accurate and efficient method for QCs of molecular electronic properties. We demonstrate that a minimal basis set constructed from Daubechies wavelet basis can yield accurate results through a better description of the molecular Hamiltonian, while keeping the number of spin orbitals minimal. With the improved Hamiltonian through Daubechies wavelets, we calculate vibrational frequencies for H$_2$ and LiH using quantum-computing algorithm to show that the results are in excellent agreement with experimental data. As a result, we achieve quantum calculations in which accuracy is comparable with that of the full configuration interaction calculation using the cc-pVDZ basis set, whereas the computational cost is the same as that of a STO-3G calculation. Thus, our work provides a more efficient and accurate representation of the molecular Hamiltonian for efficient QCs of molecular systems, and for the first time demonstrates that predictions in agreement with experimental measurements are possible to be achieved with quantum resources available in near-term quantum computers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2205.14476",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.875,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T18:44:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cong Fu",
+            "Yu-Ching Lin",
+            "Zachary Krueger",
+            "Wendi Yu",
+            "Xiaoning Qian",
+            "Byung-Jun Yoon",
+            "Raymundo Arr'oyave",
+            "Xiaofeng Qian",
+            "Toshiyuki Maeda",
+            "Maho Nakata",
+            "Shuiwang Ji"
+          ],
+          "title": "A Benchmark for Quantum Chemistry Relaxations via Machine Learning Interatomic Potentials",
+          "venue": "arXiv.org",
+          "year": 2025
+        },
+        "primary_pointer": "2506.23008",
+        "summary": "Computational quantum chemistry plays a critical role in drug discovery, chemical synthesis, and materials science. While first-principles methods, such as density functional theory (DFT), provide high accuracy in modeling electronic structures and predicting molecular properties, they are computationally expensive. Machine learning interatomic potentials (MLIPs) have emerged as promising surrogate models that aim to achieve DFT-level accuracy while enabling efficient large-scale atomistic simulations. The development of accurate and transferable MLIPs requires large-scale, high-quality datasets with both energy and force labels. Critically, MLIPs must generalize not only to stable geometries but also to intermediate, non-equilibrium conformations encountered during atomistic simulations. In this work, we introduce PubChemQCR, a large-scale dataset of molecular relaxation trajectories curated from the raw geometry optimization outputs of the PubChemQC project. PubChemQCR is the largest publicly available dataset of DFT-based relaxation trajectories for small organic molecules, comprising approximately 3.5 million trajectories and over 300 million molecular conformations computed at various levels of theory. Each conformation is labeled with both total energy and atomic forces, making the dataset suitable for training and evaluating MLIPs. To provide baselines for future developments, we benchmark nine representative MLIP models on the dataset. Our resources are publicly available at https://huggingface.co/divelab.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2506.23008",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T18:44:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Stefan Ganscha",
+            "Oliver T. Unke",
+            "Daniel Ahlin",
+            "H. Maennel",
+            "S. Kashubin",
+            "Klaus-Robert Müller"
+          ],
+          "title": "The QCML dataset, Quantum chemistry reference data from 33.5M DFT and 14.7B semi-empirical calculations",
+          "venue": "Scientific Data",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1038/s41597-025-04720-7",
+        "summary": "Machine learning (ML) methods enable prediction of the properties of chemical structures without computationally expensive ab initio calculations. The quality of such predictions depends on the reference data that was used to train the model. In this work, we introduce the QCML dataset: A comprehensive dataset for training ML models for quantum chemistry. The QCML dataset systematically covers chemical space with small molecules consisting of up to 8 heavy atoms and includes elements from a large fraction of the periodic table, as well as different electronic states. Starting from chemical graphs, conformer search and normal mode sampling are used to generate both equilibrium and off-equilibrium 3D structures, for which various properties are calculated with semi-empirical methods (14.7 billion entries) and density functional theory (33.5 million entries). The covered properties include energies, forces, multipole moments, and other quantities, e.g., Kohn-Sham matrices. We provide a first demonstration of the utility of our dataset by training ML-based force fields on the data and applying them to run molecular dynamics simulations.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://www.nature.com/articles/s41597-025-04720-7",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [
+            "https://doi.org/10.1038/s41597-025-04720-7",
+            "https://www.nature.com/articles/s41597-025-04720-7",
+            "https://idp.nature.com/authorize?response_type=cookie&client_id=grover&redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41597-025-04720-7",
+            "https://idp.nature.com/transit?redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41597-025-04720-7&code=81eee30d-d9c8-45d4-b881-7840b3e65ebc"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T18:44:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Haiyang Yu",
+            "Meng Liu",
+            "Youzhi Luo",
+            "A. Strasser",
+            "X. Qian",
+            "Xiaoning Qian",
+            "Shuiwang Ji"
+          ],
+          "title": "QH9: A Quantum Hamiltonian Prediction Benchmark for QM9 Molecules",
+          "venue": "Neural Information Processing Systems",
+          "year": 2023
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2306.09549",
+        "summary": "Supervised machine learning approaches have been increasingly used in accelerating electronic structure prediction as surrogates of first-principle computational methods, such as density functional theory (DFT). While numerous quantum chemistry datasets focus on chemical properties and atomic forces, the ability to achieve accurate and efficient prediction of the Hamiltonian matrix is highly desired, as it is the most important and fundamental physical quantity that determines the quantum states of physical systems and chemical properties. In this work, we generate a new Quantum Hamiltonian dataset, named as QH9, to provide precise Hamiltonian matrices for 999 or 2998 molecular dynamics trajectories and 130,831 stable molecular geometries, based on the QM9 dataset. By designing benchmark tasks with various molecules, we show that current machine learning models have the capacity to predict Hamiltonian matrices for arbitrary molecules. Both the QH9 dataset and the baseline models are provided to the community through an open-source benchmark, which can be highly valuable for developing machine learning methods and accelerating molecular and materials design for scientific and technological applications. Our benchmark is publicly available at https://github.com/divelab/AIRS/tree/main/OpenDFT/QHBench.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2306.09549",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2306.09549"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T18:44:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sonam Khattar",
+            "Harshita Kumawat",
+            "Aryan"
+          ],
+          "title": "Predicting Molecular Properties With Quantum Kernels: a Study on the Qm9 Dataset",
+          "venue": "2025 IEEE International Conference for Women in Innovation, Technology & Entrepreneurship (ICWITE)",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1109/ICWITE64848.2025.11307106",
+        "summary": "Predicting molecular properties is a cornerstone of drug discovery, materials science, and quantum chemistry, where accuracy and speed are critical. Classical machine learning mod- els offer rapid predictions but often fail to capture the intricate quantum interactions governing molecular behavior. Our team investigated quantum kernel methods to predict properties of the QM9 dataset, a widely recognized benchmark containing $\\mathbf{1 3 4, 0 0 0}$ organic molecules with diverse chemical structures. By encoding molecular features into quantum circuits, we mapped classical data into highdimensional Hilbert spaces to enhance prediction accuracy. Our pipeline encompasses data preprocessing, quantum circuit design, model training with support vector regression, and evaluation of ten key molecular properties. The quantum kernel approach delivered promising results, achieving mean absolute errors of 0.13 Debye for dipole moment and 0.08 eV for HOMOLUMO gap, even when executed on noisy quantum devices. This work provides a comprehensive, reproducible pipeline, benchmarks quantum and classical models, and discusses practical challenges, contributing significantly to the field of quantumenhanced computational chemistry.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://ieeexplore.ieee.org/document/11307106/",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [
+            "https://doi.org/10.1109/ICWITE64848.2025.11307106"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T18:44:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "D. D. Wayo",
+            "Mohd Zulkifli Bin Mohamad Noor",
+            "Masoud Darvish Ganji",
+            "C. Saporetti",
+            "L. Goliatt"
+          ],
+          "title": "Q‐DFTNet: A Chemistry‐Informed Neural Network Framework for Predicting Molecular Dipole Moments via DFT‐Driven QM9 Data",
+          "venue": "Journal of Computational Chemistry",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1002/jcc.70206",
+        "summary": "This study presents Q‐DFTNet, a chemistry‐informed neural network (ChINN) framework designed to benchmark graph neural networks (GNNs) for dipole moment prediction using the QM9 dataset. Seven GNN architectures, GCN, GIN, GraphConv, GATConv, GATNet, SAGEConv, and GIN+EdgeConv, were trained for 100 epochs and evaluated across performance and interpretability metrics. GraphConv achieved the lowest test MSE (0.7054), MAE (0.6196), and the highest R2$$ {R}^2 $$ (0.6513) with only 16.5k trainable parameters, confirming its optimal accuracy‐complexity trade‐off. GIN+EdgeConv followed closely with MSE of 0.7386, MAE of 0.6332, and R2$$ {R}^2 $$ of 0.6349, leveraging edge‐awareness for enhanced expressivity. In contrast, attention‐based models like GATConv and GATNet underperformed, with test MSEs of 0.9667 and 1.0096, and R2$$ {R}^2 $$ values of 0.5221 and 0.5009, despite their higher complexity (43.5k and 37.3k parameters). Latent space analysis via t‐SNE, PCA, and UMAP showed superior cluster separability for GraphConv, GIN+EdgeConv, and GCN. Clustering metrics corroborated these observations: GraphConv achieved a Silhouette Score of 0.4665, a Davies–Bouldin Index of 0.7111, and a Calinski–Harabasz Score of 1278.40. Cluster‐wise molecular dipole means for GIN+EdgeConv ranged from 2.6221 to 2.9606 Debye, reflecting high semantic coherence. Residual analysis and QQ plots confirmed that models with lower MSEs also had near‐Gaussian error distributions, enhancing interpretability. Compared to benchmark models like PhysNet and DimeNet++, Q‐DFTNet offers lower absolute accuracy but excels in modularity, interpretability, and computational efficiency. For a chemically grounded baseline for deploying GNNs in quantum chemistry and materials discovery pipelines, Q‐DFTNet is proposed.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://onlinelibrary.wiley.com/doi/10.1002/jcc.70206",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [
+            "https://doi.org/10.1002/jcc.70206"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T18:44:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Stephen T Lam",
+            "Yu Shi",
+            "T. Beck"
+          ],
+          "title": "Modeling Solvation Thermodynamics in Molten Salts with Quasichemical Theory and Ab Initio-Accurate Deep Learning-Accelerated Simulations",
+          "venue": "ECS Meeting Abstracts",
+          "year": 2022
+        },
+        "primary_pointer": "https://doi.org/10.1149/ma2022-01461956mtgabs",
+        "summary": "Molten salts are a promising class of ionic liquids used in advanced energy applications including next-generation nuclear reactors, batteries, and solar thermal energy storage. In these applications, understanding corrosion processes and predicting phase behavior remains a critical challenge. This requires accurate prediction of the solvation thermodynamics of ionic species in a variety of chemical and configurational states. In this work, we fundamentally address these challenges by combining quasichemical theory (QCT), ab initio simulation with density functional theory (DFT), and neural network interatomic potentials (NNIP) to accurately predict the solvation free energy of solute ions in molten salt. Ab initio data is used to train neural networks that learn the environment-dependent atomic forces and energies. This enables acceleration of atomistic simulation by more than three orders of magnitude. Using chemically accurate and highly efficient neural network-based molecular simulations, we perform free energy calculations within the QCT framework. Namely, QCT provides an exact partitioning of the free energy that includes contributions from 1) formation of a cavity in solution, 2) insertion of a solute ion into the cavity, and 3) relaxation of the cavity surrounding the solute ion. This requires simulations in timescales totaling tens of nanoseconds. As such, using AIMD alone is impractical for exploring a wide range of solutes, compositions, and thermodynamic conditions. In this work, we show that the NNIPs can accurately predict molten salt thermodynamics and local coordination structures. We provide a demonstration of the combined methods (DFT-NNIP-QCT) on molten NaCl, in which we obtain the total excess potentials of Na+ and Cl- ions, and perform corrections to errors in electrostatic energy caused by finite size of the simulation cell. The calculated excess chemical potential for Na+/Cl− was predicted to be -161.7±10.6 kcal/mol, which is consistent with previous calculations and an experimental value of -163.5 kcal/mol from thermochemical tables. These results provide initial validation of the methods for predicting excess chemical potentials, which can be directly exploited for the determination of solute chemistry, and the solubility of dissolved gases and metallic ions in molten salts. This provides motivation for the use of these methods to understanding solute chemistry in a wide range of molten salt systems in advanced energy applications.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://validate.perfdrive.com/fb803c746e9148689b3984a31fccd902/?ssa=c1581899-8b38-4b6b-bec3-3e2e3d6a991c&ssb=42863259114&ssc=https%3A%2F%2Fiopscience.iop.org%2Farticle%2F10.1149%2FMA2022-01461956mtgabs&ssi=8d7b2fd2-cnvj-4774-8d9f-4480a5e51211&ssk=botmanager_support@radware.com&ssm=63268086269304439102768081867808&ssn=2d4bb698d3d36bffa85cfc4aac13657e3e4b1742121e-9438-4f7d-a1526a&sso=d1d43909-d13755b68658c686d0b4fef9cf38590e92a44066bc1f11b9&ssp=50318511921778654539177860943760965&ssq=24200881144714663326411447160140568523491&ssr=MTI5LjE3MC4zMS41NQ==&sst=llmxive-librarian/1.0%20(https://github.com/ContextLab/llmXive)&ssu=&ssv=&ssw=&ssx=eyJyZCI6ImlvcC5vcmciLCJfX3V6bWYiOiI3ZjkwMDAxNzQyMTIxZS05NDM4LTRmN2QtYTkwOS1kMTM3NTViNjg2NTgxLTE3Nzg2MTE0NDc5ODcwLTAwM2YxODVhNjZlZDE3YWQyMTkxMCIsInV6bXgiOiI3ZjkwMDA5ZDU4MTQ3My1lNjZjLTQ1YmEtYmRlNS1jYzUzZDgwNTc4YmUxLTE3Nzg2MTE0NDc5ODcwLTdmZDIwZDA0NDM3ZDhiYmYxMCJ9",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [
+            "https://doi.org/10.1149/ma2022-01461956mtgabs",
+            "https://iopscience.iop.org/article/10.1149/MA2022-01461956mtgabs"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T18:44:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tatsuya Joutsuka",
+            "Yoshiteru Itagaki"
+          ],
+          "title": "Computational Evaluation of Molecular Binding on Metal Surfaces in Temperature Programmed Desorption: Accuracy of DFT Functionals and Neural Network Potentials",
+          "venue": "Journal of Computational Chemistry",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1002/jcc.70279",
+        "summary": "Understanding molecular adsorption and desorption on metal surfaces is crucial for heterogeneous catalysis and surface science. In this work, we systematically evaluate the performance of various density functional theory (DFT) exchange–correlation functionals—PBE, PBE‐D3, revPBE‐D3, optB88‐vdW, BEEF‐vdW, and SCAN+rVV10—and a neural network potential for modeling molecular binding relevant to temperature programmed desorption (TPD). Using well‐characterized systems, we compare computed bulk lattice constants, surface energies, and binding energies of representative adsorbates (CO, CO2, methanol, and benzene) on transition metal surfaces (Ni, Cu, Ru, Rh, Pd, Ag, Pt, Au) against experimental TPD data. Our results reveal that dispersion‐corrected functionals like PBE‐D3 and SCAN+rVV10 yield accurate bulk lattice constants, while BEEF‐vdW tends to overestimate them. optB88‐vdW and SCAN+rVV10 accurately reproduce surface energies, while PBE‐D3 and revPBE‐D3 often overestimate them. On the other hand, BEEF‐vdW provides better agreement for binding energies but at the cost of less accurate bulk properties. We further demonstrate how machine‐learned potentials can efficiently reproduce DFT‐level energetics and enable molecular dynamics simulations to extract more realistic kinetic parameters, including pre‐exponential factors and potential of mean force (PMF) profiles. This study demonstrates the accuracy of modeling molecular adsorption using DFT and neural network potentials, elucidating the trade‐offs associated with functional selection in surface science and offering practical guidance for choosing appropriate computational methods for accurately simulating desorption processes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://onlinelibrary.wiley.com/doi/10.1002/jcc.70279",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [
+            "https://doi.org/10.1002/jcc.70279"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T18:44:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mengnan Cui",
+            "K. Reuter",
+            "Johannes T. Margraf"
+          ],
+          "title": "Multi-fidelity transfer learning for quantum chemical data using a robust density functional tight binding baseline",
+          "venue": "Machine Learning: Science and Technology",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1088/2632-2153/adc222",
+        "summary": "Machine learning has revolutionized the development of interatomic potentials over the past decade, offering unparalleled computational speed without compromising accuracy. However, the performance of these models is highly dependent on the quality and amount of training data. Consequently, the current scarcity of high-fidelity datasets (i.e. beyond semilocal density functional theory) represents a significant challenge for further improvement. To address this, this study investigates the performance of transfer learning (TL) across multiple fidelities for both molecules and materials. Crucially, we disentangle the effects of multiple fidelities and different configuration/chemical spaces for pre-training and fine-tuning, in order to gain a deeper understanding of TL for chemical applications. This reveals that negative transfer, driven by noise from low-fidelity methods such as a density functional tight binding baseline, can significantly impact fine-tuned models. Despite this, the multi-fidelity approach demonstrates superior performance compared to single-fidelity learning. Interestingly, it even outperforms TL based on foundation models in some cases, by leveraging an optimal overlap of pre-training and fine-tuning chemical spaces.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://validate.perfdrive.com/fb803c746e9148689b3984a31fccd902/?ssa=1042bcf3-9553-48f0-9da9-47575a564dee&ssb=20031203141&ssc=https%3A%2F%2Fiopscience.iop.org%2Farticle%2F10.1088%2F2632-2153%2Fadc222&ssi=b510491f-cnvj-48ae-9f7d-e5c9c32a13ca&ssk=botmanager_support@radware.com&ssm=20613160474928484107494573844036&ssn=8455d2a00ae96d3f40a3b3629c71c5342969cb86db0f-3bb9-4188-91fea6&sso=25440bef-a85656466298419ddfde44abb5a36806f479f0b04ad1c146&ssp=51020396771778689936177865791833308&ssq=62327881144889994743011448440839632919250&ssr=MTI5LjE3MC4zMS41NQ==&sst=llmxive-librarian/1.0%20(https://github.com/ContextLab/llmXive)&ssu=&ssv=&ssw=&ssx=eyJyZCI6ImlvcC5vcmciLCJfX3V6bWYiOiI3ZjkwMDBjYjg2ZGIwZi0zYmI5LTQxODgtOWJlZi1hODU2NTY0NjYyOTgxLTE3Nzg2MTE0NDg3NjMwLTAwM2ZiNTM0ZWY0MmU0NDlmZTMxMCIsInV6bXgiOiI3ZjkwMDAwZjEzMmFmMS04ZjVhLTRmMWQtYjkxNC0zYzQ2NjA2MTllMjYxLTE3Nzg2MTE0NDg3NjMwLTI1OTJiNGMxODc2MmIxOGMxMCJ9",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [
+            "https://doi.org/10.1088/2632-2153/adc222",
+            "https://iopscience.iop.org/article/10.1088/2632-2153/adc222"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T18:44:08Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular properties from quantum chemical calculations with limited computational resources",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

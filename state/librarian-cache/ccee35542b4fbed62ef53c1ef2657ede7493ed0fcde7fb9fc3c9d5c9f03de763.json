@@ -1,0 +1,931 @@
+{
+  "fetched_at": "2026-05-12T19:45:36Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "---\nfield: neuroscience\nsubmitter: google.gemma-3-27b-it\n---\n\n# Neural Correlates of Error Monitoring During Simulated Navigation\n\nI'll search for relevant literature to ground this research idea, then flesh it out according to the required structure.\n\n```bash\nlit_search(query=\"medial frontal negativity error monitoring navigation EEG\", max_results=8)\n```\n\n```bash\nlit_search(query=\"EEG error-related negativity spatial navigation virtual environment\", max_results=8)\n```\n\n```bash\nlit_search(query=\"neural correlates navigation errors EEG medial frontal\", max_results=8)\n```\n\n---\n\n**Verified literature search results — use ONLY these URLs**\n\n1. **Title**: Error-related negativity (ERN) and medial frontal negativity (MFN) in spatial navigation tasks\n   **Authors**: Cohen MX, Ranganath C\n   **Year**: 2019\n   **Source URL**: https://pubmed.ncbi.nlm.nih.gov/31234567/\n   **Abstract**: We review evidence for medial frontal EEG signals during navigation and spatial decision-making. The ERN/MFN app",
+      "target_n": 5
+    },
+    "duration_seconds": 942.864,
+    "ended_at": "2026-05-12T19:45:36Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Error-related negativity (ERN) in spatial navigation"
+        ],
+        [
+          2,
+          "Medial frontal cortex activity during spatial errors"
+        ],
+        [
+          3,
+          "EEG performance monitoring during navigation tasks"
+        ],
+        [
+          4,
+          "Neural correlates of navigational error magnitude"
+        ],
+        [
+          5,
+          "Feedback-related negativity (FRN) during virtual wayfinding"
+        ],
+        [
+          6,
+          "Heading direction error processing EEG"
+        ],
+        [
+          7,
+          "Anterior cingulate cortex navigation error signals"
+        ],
+        [
+          8,
+          "Virtual reality navigation performance monitoring EEG"
+        ],
+        [
+          9,
+          "Error magnitude encoding in medial frontal theta"
+        ],
+        [
+          10,
+          "Spatial decision-making conflict monitoring EEG"
+        ],
+        [
+          11,
+          "Path integration error neural signatures"
+        ],
+        [
+          12,
+          "EEG theta oscillations during navigation mistakes"
+        ],
+        [
+          13,
+          "Cognitive control mechanisms in virtual environments"
+        ],
+        [
+          14,
+          "Behavioral error size correlation with ERP components"
+        ],
+        [
+          15,
+          "Spatial orientation error monitoring neurophysiology"
+        ],
+        [
+          16,
+          "Medial frontal oscillations during virtual locomotion"
+        ],
+        [
+          17,
+          "Navigation task performance evaluation EEG biomarkers"
+        ],
+        [
+          18,
+          "Error processing networks in spatial cognition"
+        ],
+        [
+          19,
+          "Directional deviation neural response EEG"
+        ],
+        [
+          20,
+          "Spatial learning error signal amplitude"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the magnitude of directional errors made during virtual navigation tasks": 0,
+        "Error-related negativity (ERN) in spatial navigation": 7
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "feedback related negativity error monitoring",
+      "virtual reality spatial navigation task",
+      "frontal midline theta oscillations",
+      "error magnitude parametric modulation ERP",
+      "reinforcement learning prediction error signaling"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.1038/s41598-026-43451-6"
+      ]
+    },
+    "per_query_hit_count": {
+      "Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the magnitude of directional errors made during virtual navigation tasks": 3,
+      "error magnitude parametric modulation ERP": 6,
+      "feedback related negativity error monitoring": 6,
+      "frontal midline theta oscillations": 6,
+      "reinforcement learning prediction error signaling": 6,
+      "virtual reality spatial navigation task": 5
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "https://doi.org/10.1007/s10608-020-10164-7",
+          "rationale": "The paper investigates the effect of anxiety and working memory training on ERN amplitude, which does not address the user's specific mechanism (scaling of MFN with directional error magnitude) or empirical setting (virtual navigation tasks). It fails to meet inclusion criteria as it measures a different independent variable and task context, making it tangential rather than canonical for a review on navigation error monitoring.",
+          "title": "The Effects of Emotional Working Memory Training on Worry Symptoms and Error-Related Negativity of Individuals with High Trait Anxiety: A Randomized Controlled Study"
+        },
+        {
+          "primary_pointer": "2201.01708",
+          "rationale": "This paper is off-domain entirely (applied mathematics/numerical analysis vs. cognitive neuroscience) and relies on the distinct construct sharing only homonym keywords rule, where \"approximation errors\" in finite element methods share no mechanism or variable connection with \"directional errors\" in virtual navigation tasks.",
+          "title": "Local decay rates of best-approximation errors using vector-valued finite elements for fields with low regularity and integrable curl or divergence"
+        },
+        {
+          "primary_pointer": "2501.10696",
+          "rationale": "The paper focuses on deriving navigation indices from eye movement (EOG) data rather than measuring EEG MFN amplitude or the neural scaling of directional errors. It lacks the specific neural mechanism and dependent variable required to address the user's question about error monitoring in navigation.",
+          "title": "Algorithmic Derivation of Human Spatial Navigation Indices From Eye Movement Data"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-12T19:29:53Z",
+    "term_input": {
+      "normalized": "does medial frontal negativity (mfn) amplitude in eeg recordings scale with the magnitude of directional errors made during virtual navigation tasks",
+      "raw": "Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the magnitude of directional errors made during virtual navigation tasks"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Real-time fMRI neurofeedback (rtfMRI-nf) is an emerging approach for studies and novel treatments of major depressive disorder (MDD). EEG performed simultaneously with an rtfMRI-nf procedure allows an independent evaluation of rtfMRI-nf brain modulation effects. Frontal EEG asymmetry in the alpha band is a widely used measure of emotion and motivation that shows profound changes in depression. However, it has never been directly related to simultaneously acquired fMRI data. We report the first study investigating electrophysiological correlates of the rtfMRI-nf procedure, by combining rtfMRI-nf with simultaneous and passive EEG recordings. In this pilot study, MDD patients in the experimental group (n=13) learned to upregulate BOLD activity of the left amygdala using an rtfMRI-nf during a happy emotion induction task. MDD patients in the control group (n=11) were provided with a sham rtfMRI-nf. Correlations between frontal EEG asymmetry in the upper alpha band and BOLD activity across the brain were examined. Average individual changes in frontal EEG asymmetry during the rtfMRI-nf task for the experimental group showed a significant positive correlation with the MDD patients' depression severity ratings, consistent with an inverse correlation between the depression severity and frontal EEG asymmetry at rest. Temporal correlations between frontal EEG asymmetry and BOLD activity were significantly enhanced, during the rtfMRI-nf task, for the amygdala and many regions associated with emotion regulation. Our findings demonstrate an important link between amygdala BOLD activity and frontal EEG asymmetry. Our EEG asymmetry results suggest that the rtfMRI-nf training targeting the amygdala is beneficial to MDD patients, and that alpha-asymmetry EEG-nf would be compatible with the amygdala rtfMRI-nf. Combination of the two could enhance emotion regulation training and benefit MDD patients.",
+          "claimed_authors": [
+            "Vadim Zotev",
+            "Han Yuan",
+            "Masaya Misaki",
+            "Raquel Phillips",
+            "Kymberly D. Young",
+            "Matthew T. Feldner",
+            "Jerzy Bodurka"
+          ],
+          "claimed_title": "Correlation between amygdala BOLD activity and frontal EEG asymmetry during real-time fMRI neurofeedback training in patients with depression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1409.2046"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Correlation between amygdala BOLD activity and frontal EEG asymmetry during real-time fMRI neurofeedback training in patients with depression')",
+        "failed_at": "2026-05-12T19:32:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In various applications of land vehicle navigation and automatic guidance systems, Global Navigation Satellite System/Inertial Measurement Unit (GNSS/IMU) positioning performance crucially depends on the attitude determination accuracy affected by gyro and accelerometer bias instabilities. Traditional bias estimation approaches based on the Kalman filter suffer from implementation complexity and require non-intuitive tuning procedures. In this paper we propose, as an alternative, a simple observer that estimates inertial sensor biases exclusively in terms of quantities with obvious geometrical meaning. By this, any multidimensional vector-matrix operations are avoided and observer tuning is substantially simplified. The observer has been successfully tested in a farming vehicle navigation system.",
+          "claimed_authors": [
+            "Vasiliy M. Tereshkov"
+          ],
+          "claimed_title": "A Simple Observer for Gyro and Accelerometer Biases in Land Navigation Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1501.06618"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='A Simple Observer for Gyro and Accelerometer Biases in Land Navigation Systems')",
+        "failed_at": "2026-05-12T19:32:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the era of the metaverse, self-avatars are gaining popularity, as they can enhance presence and provide embodiment when a user is immersed in Virtual Reality. They are also very important in collaborative Virtual Reality to improve communication through gestures. Whether we are using a complex motion capture solution or a few trackers with inverse kinematics (IK), it is essential to have a good match in size between the avatar and the user, as otherwise mismatches in self-avatar posture could be noticeable for the user. To achieve such a correct match in dimensions, a manual process is often required, with the need for a second person to take measurements of body limbs and introduce them into the system. This process can be time-consuming, and prone to errors. In this paper, we propose an automatic measuring method that simply requires the user to do a small set of exercises while wearing a Head-Mounted Display (HMD), two hand controllers, and three trackers. Our work provides an affordable and quick method to automatically extract user measurements and adjust the virtual humanoid skeleton to the exact dimensions. Our results show that our method can reduce the misalignment produced by the IK system when compared to other solutions that simply apply a uniform scaling to an avatar based on the height of the HMD, and make assumptions about the locations of joints with respect to the trackers.",
+          "claimed_authors": [
+            "Jose Luis Ponton",
+            "Víctor Ceballos",
+            "Lesly Acosta",
+            "Alejandro Ríos",
+            "Eva Monclús",
+            "Nuria Pelechano"
+          ],
+          "claimed_title": "Fitted avatars: automatic skeleton adjustment for self-avatars in virtual reality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.09558"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Fitted avatars: automatic skeleton adjustment for self-avatars in virtual reality')",
+        "failed_at": "2026-05-12T19:32:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The feedback negativity (FN) and reward positivity (RewP) are event-related brain potentials (ERPs) that follow the presentation of negative and positive feedback information, respectively, and have become the focus of recent research on psychopathology because of their associations with symptom severity of and risk for depression. We advanced our understanding of these feedback-related ERPs by examining developmental differences, familial transmission, and associations with error-monitoring ERPs. Parents and their children completed parallel, developmentally-tailored guessing and go/no-go tasks while feedback- and error-related ERPs were measured. We found that the Δ FN and RewP amplitudes increased with age and were larger in males than females among the child participants. The RewP also demonstrated familial transmission between fathers and their children. Finally, the FN and RewP were associated with error-related ERPs in children and adults, albeit in different ways. The current findings demonstrate that the FN and RewP have promise as developmentally-sensitive neural markers of reward and action monitoring processes associated with risk for psychopathology.",
+          "claimed_authors": [
+            "Jason S. Moser",
+            "Megan Fisher",
+            "Brian M. Hicks",
+            "Robert A. Zucker",
+            "C. Durbin"
+          ],
+          "claimed_title": "Feedback-related neurophysiology in children and their parents: Developmental differences, familial transmission, and relationship to error-monitoring.",
+          "claimed_venue": "International Journal of Psychophysiology",
+          "claimed_year": 2018,
+          "primary_pointer": "https://doi.org/10.1016/j.ijpsycho.2018.08.015"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Feedback-related neurophysiology in children and their parents: Developmental differences, familial transmission, and relationship to error-monitoring.')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Elizabeth Ridley"
+          ],
+          "claimed_title": "Digital Commons @ East Tennessee Digital Commons @ East Tennessee State University State University Error-Related Negativity and Feedback-Related Negativity on a Error-Related Negativity and Feedback-Related Negativity on a Reinforcement Learning Task Reinforcement Learning Task",
+          "claimed_venue": "",
+          "claimed_year": 2020,
+          "primary_pointer": "https://www.semanticscholar.org/paper/1fc94259ac11dc1388209e7d784a50ceee48ff41"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Digital Commons @ East Tennessee Digital Commons @ East Tennessee State University State University Error-Related Negativity and Feedback-Related Negativity on a Error-Related Negativity and Feedback-Related Negativity on a Reinforcement Learning Task Reinforcement Learning Task')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Results of the first comprehensive light pollution survey in Hong Kong are presented. The night-sky brightness was measured and monitored around the city using a portable light sensing device called the Sky Quality Meter over a 15-month period beginning in March 2008. A total of 1,957 data sets were taken at 199 distinct locations, including urban and rural sites covering all 18 Administrative Districts of Hong Kong. The survey shows that the environmental light pollution problem in Hong Kong is severe - the urban night-skies (sky brightness at 15.0 mag per arcsec square) are on average ~100 times brighter than at the darkest rural sites (20.1 mag per arcsec square), indicating that the high lighting densities in the densely populated residential and commercial areas lead to light pollution. In the worst polluted urban location studied, the night-sky at 13.2 mag per arcsec square can be over 500 times brighter than the darkest sites in Hong Kong. The observed night-sky brightness is found to be affected by human factors such as land utilization and population density of the observation sites, together with meteorological and/or environmental factors. Moreover, earlier night-skies (at 9:30pm local time) are generally brighter than later time (at 11:30pm), which can be attributed to some public and commercial lightings being turned off later at night. On the other hand, no concrete relationship between the observed sky brightness and air pollutant concentrations could be established with the limited survey sampling. Results from this survey will serve as an important database for the public to assess whether new rules and regulations are necessary to control the use of outdoor lightings in Hong Kong.",
+          "claimed_authors": [
+            "Chun Shing Jason Pun",
+            "Chu Wing So"
+          ],
+          "claimed_title": "Night-sky brightness monitoring in Hong Kong - a city-wide light pollution assessment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1106.3842"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Night-sky brightness monitoring in Hong Kong - a city-wide light pollution assessment')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Continuous-time quantum error correction (CTQEC) is an approach to protecting quantum information from noise in which both the noise and the error correcting operations are treated as processes that are continuous in time. This chapter investigates CTQEC based on continuous weak measurements and feedback from the point of view of the subsystem principle, which states that protected quantum information is contained in a subsystem of the Hilbert space. We study how to approach the problem of constructing CTQEC protocols by looking at the evolution of the state of the system in an encoded basis in which the subsystem containing the protected information is explicit. This point of view allows us to reduce the problem to that of protecting a known state, and to design CTQEC procedures from protocols for the protection of a single qubit. We show how previously studied CTQEC schemes with both direct and indirect feedback can be obtained from strategies for the protection of a single qubit via weak measurements and weak unitary operations. We also review results on the performance of CTQEC with direct feedback in cases of Markovian and non-Markovian decoherence, where we have shown that due to the existence of a Zeno regime in non-Markovian dynamics, the performance of CTQEC can exhibit a quadratic improvement if the time resolution of the weak error-correcting operations is high enough to reveal the non-Markovian character of the noise process.",
+          "claimed_authors": [
+            "Ognyan Oreshkov"
+          ],
+          "claimed_title": "Continuous-time quantum error correction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.2485"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Continuous-time quantum error correction')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With our growing reliability on distributed networks, the security aspect of such networks becomes of prime importance. In large scale distributed networks it becomes cardinal to have an efficient and effective monitoring scheme. The monitoring schemes supervise the node behaviour in the network and look out for any discrepancy. Monitoring schemes comprise of monitoring components that work together to help schemes in meeting various security requirement parameters for the networks. These security parameters are breached via various attacks by manipulation of monitoring components of particular monitoring schemes to produce faulty results and thereby reducing efficiency of networks, reliability and security. In this paper we have discussed these components of monitoring, multiple monitoring schemes, their security parameters and various types of attacks possible on these monitoring components by manipulating assumptions of monitoring schemes.",
+          "claimed_authors": [
+            "Atul Vaibhav"
+          ],
+          "claimed_title": "Security in Monitoring Schemes: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1411.5213"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Security in Monitoring Schemes: A Survey')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "P. Salgado-Pineda",
+            "R. Landin-Romero",
+            "F. Portillo",
+            "C. Bosque",
+            "Ausiàs Pomés",
+            "B. Spanlang",
+            "Jose Carlos Franquelo",
+            "C. Teixidó",
+            "S. Sarró",
+            "R. Salvador",
+            "M. Slater",
+            "E. Pomarol-Clotet",
+            "P. McKenna"
+          ],
+          "claimed_title": "Examining hippocampal function in schizophrenia using a virtual reality spatial navigation task.",
+          "claimed_venue": "Schizophrenia Research",
+          "claimed_year": 2016,
+          "primary_pointer": "https://doi.org/10.1016/j.schres.2016.02.033"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Examining hippocampal function in schizophrenia using a virtual reality spatial navigation task.')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "C. Shayman",
+            "Mirinda M Whitaker",
+            "Erica M. Barhorst-Cates",
+            "T. Hullar",
+            "Jeanine K. Stefanucci",
+            "Sarah H. Creem-Regehr"
+          ],
+          "claimed_title": "The addition of a spatial auditory cue improves spatial updating in a virtual reality navigation task",
+          "claimed_venue": "Attention, Perception, & Psychophysics",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.3758/s13414-024-02890-x"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='The addition of a spatial auditory cue improves spatial updating in a virtual reality navigation task')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Finding one’s way in unfamiliar environments is an essential ability. When navigating, people are overwhelmed with an enormous amount of information. However, some information might be more relevant than others. Despite the mounting knowledge about the mechanisms underlying orientational skills, and the notable effects of facial emotions on human behavior, little is known about emotions’ effects on spatial navigation. Hereby, this study aimed to explore how exposure to others’ negative emotional facial expressions affects wayfinding performances. Moreover, gender differences that characterize both processes were considered. Fifty-five participants (31 females) entered twice in three realistic virtual reality environments: the first time, to encode a route to find an object and then to recall the learned path to reach the same object again. In between the two explorations of the virtual environment, participants were asked to undergo a gender categorization task during which they were exposed to sixty faces showing either neutral, fearful, or angry expressions. Results showed a significant interaction between emotions, time, and gender. In particular, the exposition to fearful faces, but not angry and neutral ones, decreased males’ wayfinding performances (i.e., travel times and distance travelled), while females’ performances were unaffected. Possible explanations for such gender and emotional dissimilarities are discussed.",
+          "claimed_authors": [
+            "Linda Mohamed Aly",
+            "Matteo Masi",
+            "Massimo Montanaro",
+            "Paola Ricciardelli"
+          ],
+          "claimed_title": "The effect of negative emotion processing on spatial navigation: an experimental study using virtual reality",
+          "claimed_venue": "Frontiers in Psychology",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.3389/fpsyg.2023.1301981"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='The effect of negative emotion processing on spatial navigation: an experimental study using virtual reality')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This publication reports on a research project in which we set out to explore the advantages and disadvantages augmented reality (AR) technology has for visual data analytics. We developed a prototype of an AR data analytics application, which provides users with an interactive 3D interface, hand gesture-based controls and multi-user support for a shared experience, enabling multiple people to collaboratively visualize, analyze and manipulate data with high dimensional features in 3D space. Our software prototype, called DataCube, runs on the Microsoft HoloLens - one of the first true stand-alone AR headsets, through which users can see computer-generated images overlaid onto real-world objects in the user's physical environment. Using hand gestures, the users can select menu options, control the 3D data visualization with various filtering and visualization functions, and freely arrange the various menus and virtual displays in their environment. The shared multi-user experience allows all participating users to see and interact with the virtual environment, changes one user makes will become visible to the other users instantly. As users engage together they are not restricted from observing the physical world simultaneously and therefore they can also see non-verbal cues such as gesturing or facial reactions of other users in the physical environment. The main objective of this research project was to find out if AR interfaces and collaborative analysis can provide an effective solution for data analysis tasks, and our experience with our prototype system confirms this.",
+          "claimed_authors": [
+            "Wanze Xie",
+            "Yining Liang",
+            "Janet Johnson",
+            "Andrea Mower",
+            "Samuel Burns",
+            "Colleen Chelini",
+            "Paul D Alessandro",
+            "Nadir Weibel",
+            "Jürgen P. Schulze"
+          ],
+          "claimed_title": "Interactive Multi-User 3D Visual Analytics in Augmented Reality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.05305"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Interactive Multi-User 3D Visual Analytics in Augmented Reality')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data-driven algorithms have surpassed traditional techniques in almost every aspect in robotic vision problems. Such algorithms need vast amounts of quality data to be able to work properly after their training process. Gathering and annotating that sheer amount of data in the real world is a time-consuming and error-prone task. Those problems limit scale and quality. Synthetic data generation has become increasingly popular since it is faster to generate and automatic to annotate. However, most of the current datasets and environments lack realism, interactions, and details from the real world. UnrealROX is an environment built over Unreal Engine 4 which aims to reduce that reality gap by leveraging hyperrealistic indoor scenes that are explored by robot agents which also interact with objects in a visually realistic manner in that simulated world. Photorealistic scenes and robots are rendered by Unreal Engine into a virtual reality headset which captures gaze so that a human operator can move the robot and use controllers for the robotic hands; scene information is dumped on a per-frame basis so that it can be reproduced offline to generate raw data and ground truth annotations. This virtual reality environment enables robotic vision researchers to generate realistic and visually plausible data with full ground truth for a wide variety of problems such as class and instance semantic segmentation, object detection, depth estimation, visual grasping, and navigation.",
+          "claimed_authors": [
+            "Pablo Martinez-Gonzalez",
+            "Sergiu Oprea",
+            "Alberto Garcia-Garcia",
+            "Alvaro Jover-Alvarez",
+            "Sergio Orts-Escolano",
+            "Jose Garcia-Rodriguez"
+          ],
+          "claimed_title": "UnrealROX: An eXtremely Photorealistic Virtual Reality Environment for Robotics Simulations and Synthetic Data Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.06936"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='UnrealROX: An eXtremely Photorealistic Virtual Reality Environment for Robotics Simulations and Synthetic Data Generation')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Optically pumped magnetometers (OPMs) are an emerging lightweight and compact sensor that can measure magnetic fields generated by the human brain. OPMs enable construction of wearable magnetoencephalography (MEG) systems, which offer advantages over conventional instrumentation. However, when trying to measure signals at low frequency, higher levels of inherent sensor noise, magnetic interference and movement artefact introduce a significant challenge. Accurate characterisation of low frequency brain signals is important for neuroscientific, clinical, and paediatric MEG applications and consequently, demonstrating the viability of OPMs in this area is critical. Here, we undertake measurement of theta band (4–8 Hz) neural oscillations and contrast a newly developed 174 channel triaxial wearable OPM-MEG system with conventional (cryogenic-MEG) instrumentation. Our results show that visual steady state responses at 4 Hz, 6 Hz and 8 Hz can be recorded using OPM-MEG with a signal-to-noise ratio (SNR) that is not significantly different to conventional MEG. Moreover, we measure frontal midline theta oscillations during a 2-back working memory task, again demonstrating comparable SNR for both systems. We show that individual differences in both the amplitude and spatial signature of induced frontal-midline theta responses are maintained across systems. Finally, we show that our OPM-MEG results could not have been achieved without a triaxial sensor array, or the use of postprocessing techniques. Our results demonstrate the viability of OPMs for characterising theta oscillations and add weight to the argument that OPMs can replace cryogenic sensors as the fundamental building block of MEG systems.",
+          "claimed_authors": [
+            "Natalie Rhodes",
+            "M. Rea",
+            "E. Boto",
+            "Lukas Rier",
+            "V. Shah",
+            "Ryan M. Hill",
+            "James Osborne",
+            "Cody Doyle",
+            "N. Holmes",
+            "Sebastian C. Coleman",
+            "K. Mullinger",
+            "R. Bowtell",
+            "M. Brookes"
+          ],
+          "claimed_title": "Measurement of Frontal Midline Theta Oscillations using OPM-MEG",
+          "claimed_venue": "NeuroImage",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.1016/j.neuroimage.2023.120024"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Measurement of Frontal Midline Theta Oscillations using OPM-MEG')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Liang-Tien Hsieh",
+            "C. Ranganath"
+          ],
+          "claimed_title": "Frontal midline theta oscillations during working memory maintenance and episodic encoding and retrieval",
+          "claimed_venue": "NeuroImage",
+          "claimed_year": 2014,
+          "primary_pointer": "https://doi.org/10.1016/j.neuroimage.2013.08.003"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Frontal midline theta oscillations during working memory maintenance and episodic encoding and retrieval')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Frontal midline theta oscillatory dynamics have been implicated as an important neural signature of inhibitory control. However, most proactive cognitive control studies rely on behavioral tasks where individual differences are inferred through button presses. We applied computational modeling to further refine our understanding of theta dynamics in a cued anti-saccade task with gaze-contingent eye tracking. Using a drift diffusion model, increased frontal midline theta power during high-conflict, relative to low-conflict, trials predicted a more conservative style of responding through the starting point (bias). During both high- and low-conflict trials, increases in frontal midline theta also predicted improvements in response efficiency (drift rate). Regression analyses provided support for the importance of the starting point bias, which was associated with frontal midline theta over the course of the task above-and-beyond both drift rate and mean reaction time. Our findings provide a more thorough understanding of proactive gaze control by linking trial-by-trial increases of frontal midline theta to a shift in starting point bias facilitating a more neutral style of responding.",
+          "claimed_authors": [
+            "Peter J. Castagna",
+            "S. Noordt",
+            "P. Sederberg",
+            "M. Crowley"
+          ],
+          "claimed_title": "Modeling brain dynamics and gaze behavior: Starting point bias and drift rate relate to frontal midline theta oscillations",
+          "claimed_venue": "NeuroImage",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.1016/j.neuroimage.2023.119871"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Modeling brain dynamics and gaze behavior: Starting point bias and drift rate relate to frontal midline theta oscillations')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We give evaluations of certain Borwein's theta functions which appear in Ramanujan theory of alternative elliptic modular bases. Most of this theory where developed by B.C. Berndt, S. Bhargava and F.G. Garvan. We also study the most general class of these theta functions and give evaluation theorems and conjectures.",
+          "claimed_authors": [
+            "N. D. Bagis"
+          ],
+          "claimed_title": "Evaluations of certain theta functions in Ramanujan theory of alternative modular bases",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1511.03716"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Evaluations of certain theta functions in Ramanujan theory of alternative modular bases')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this article we study properties of Ramanujan's mock theta functions that can be expressed in Lerch sums. We mainly show that each Lerch sum is actually the integral of a Jacobian theta function (here we show that for $\\vartheta_3(t,q)$ and $\\vartheta_4(t,q)$) and the $\\sec-$function. We also prove some modular relations and evaluate the Fourier coefficients of a class of Lerch sums.",
+          "claimed_authors": [
+            "N. D. Bagis"
+          ],
+          "claimed_title": "Properties of Lerch Sums and Ramanujan's Mock Theta Functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.07970"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title=\"Properties of Lerch Sums and Ramanujan's Mock Theta Functions\")",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While it has been shown repeatedly that ocean conditions exhibit an important control on the behaviour of grounded tidewater glaciers, modelling studies have focused largely on the effects of basal and surface melting. Here, a finite-element model of stresses near the front of a tidewater glacier is used to investigate the effects of frontal melting on calving, independently of the calving criterion used. Applications of the stress model to idealized scenarios reveal that undercutting of the ice front due to frontal melting can drive calving at up to ten times the mean melt rate. Factors which cause increased frontal melt-driven calving include a strong thermal gradient in the ice, and a concentration of frontal melt at the base of the glacier. These properties are typical of both Arctic and Antarctic tidewater glaciers. The finding that frontal melt near the base is a strong driver of calving leads to the conclusion that water temperatures near the bed of the glacier are critically important to the glacier front, and thus the flow of the glacier. These conclusions are robust against changes in the basal boundary condition and the choice of calving criterion, as well as variations in the glacier size or level of crevassing.",
+          "claimed_authors": [
+            "Martin O'Leary",
+            "Poul Christoffersen"
+          ],
+          "claimed_title": "Calving on tidewater glaciers amplified by submarine frontal melting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1208.1296"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Calving on tidewater glaciers amplified by submarine frontal melting')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Roland Vocat",
+            "G. Pourtois",
+            "Patrik Vuilleumier"
+          ],
+          "claimed_title": "Parametric modulation of error-related ERP components by the magnitude of visuo-motor mismatch.",
+          "claimed_venue": "Neuropsychologia",
+          "claimed_year": 2011,
+          "primary_pointer": "https://doi.org/10.1016/j.neuropsychologia.2010.12.027"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Parametric modulation of error-related ERP components by the magnitude of visuo-motor mismatch.')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The optical modulation conversion of a quadrature phase-shift keying (QPSK) signal to two binary phase-shift keying (BPSK) signals is theoretically realized in a phase-sensitive amplification (PSA) conversion system. We propose a multi-slot silicon-carbon nanotube/polydimethylsiloxane hybrid waveguide to achieve high nonlinearity of 108 W -1 m -1 for improving PSA performance. Constellation diagrams, error vector magnitude, and bit error rate (BER) are used to investigate and measure the performance of the output. The results show that the converted BPSK signal has more than a 10 dB higher signal-to-noise ratio than the QPSK signal with a BER threshold of 10-3. Furthermore, the system has great potential for hierarchical modulation of advanced format signals and long-distance transmission.",
+          "claimed_authors": [
+            "Xiao Wu",
+            "Xuefeng Li",
+            "Li Ren",
+            "Hongjun Liu"
+          ],
+          "claimed_title": "QPSK to BPSK modulation format conversion by phase-sensitive parametric amplification in multi-slot waveguides.",
+          "claimed_venue": "Applied Optics",
+          "claimed_year": 2022,
+          "primary_pointer": "https://doi.org/10.1364/ao.472444"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='QPSK to BPSK modulation format conversion by\\xa0phase-sensitive parametric amplification in\\xa0multi-slot waveguides.')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "We demonstrate that employment of gain fibers with low dispersion slope in fiber optical parametric amplifiers reduces the incurred error vector magnitude by up to 4.9 dB via mitigation of the impact of the pump phase modulation. © 2025 The Author(s)",
+          "claimed_authors": [
+            "V. Gordienko",
+            "A. Ellis",
+            "N. Doran"
+          ],
+          "claimed_title": "Role of Dispersion Slope in Fiber Optical Parametric Amplifiers",
+          "claimed_venue": "Optical Fiber Communications Conference and Exhibition",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1364/ofc.2025.w3k.3"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Role of Dispersion Slope in Fiber Optical Parametric Amplifiers')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Workday's compliance with global standards -- such as GDPR, SOC 2, HIPAA, ISO 27001, and FedRAMP -- shows its ability to best protect critical financial, healthcare, and government data.Automated compliance attributes like audit trails, behavioral analytics, and continuous reporting improve automation of the process and cut down on the manual effort to audit. A comparative review demonstrates enhanced risk management, operational flexibility, and breach mitigation. The paper also discusses potential future solutions with AI, ML and blockchain, to enhance attackdetection and data integrity. Overall, Workday turns out to be a secure, compliant and future-ready ERP solution. The paper also explores emerging trends, including the integration of AI, machine learning, and blockchain technologies to enhance next-generation threat detection and data integrity. The findings position Workday as a reliable, compliant, and future-ready ERP solution, setting a new benchmark for secure enterprise cloud management.",
+          "claimed_authors": [
+            "Monu Sharma"
+          ],
+          "claimed_title": "Workday's Approach to Secure and Compliant Cloud ERP Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.02856"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title=\"Workday's Approach to Secure and Compliant Cloud ERP Systems\")",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Let X be a closed connected contact manifold. On X there is a naturally arising class of hypoelliptic (but not elliptic) operators which are Fredholm. In this paper we solve the index problem for this class of operators. The solution is achieved by combining Van Erp's earlier partial result with the Baum-Douglas isomorphism of analytic and geometric K-homology.",
+          "claimed_authors": [
+            "Paul F. Baum",
+            "Erik van Erp"
+          ],
+          "claimed_title": "K-homology and index theory on contact manifolds",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1107.1741"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='K-homology and index theory on contact manifolds')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents the design, implementation, and evaluation behind a Large Language Model (LLM) agent that chats with an industrial production-grade ERP system. The agent is capable of interpreting natural language queries and translating them into executable SQL statements, leveraging open-weight LLMs. A novel dual-agent architecture combining reasoning and critique stages was proposed to improve query generation reliability.",
+          "claimed_authors": [
+            "Jorge Ruiz Gómez",
+            "Lidia Andrés Susinos",
+            "Jorge Alamo Olivé",
+            "Sonia Rey Osorno",
+            "Manuel Luis Gonzalez Hernández"
+          ],
+          "claimed_title": "Chatting with your ERP: A Recipe",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.23429"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Chatting with your ERP: A Recipe')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Adolescence is characterized by significant shifts in effort allocation. A well-known neuro-economic framework suggests that rewards help overcome potential effort costs. However, few studies have examined the neurobiological mechanisms by which rewards and associated effort costs drive adolescent learning. This study utilized functional magnetic resonance imaging in a sample of adolescents (N = 146, 13–25 years) and employed a reinforcement-learning paradigm that manipulated effort and reward levels, by varying task demands and varying potential rewards. The analysis of trial-by-trial learning signals (reward prediction errors) and behavioral learning performance demonstrated that greater reward levels enhanced adolescent learning, especially when faced with greater effort demands. Moreover, this effect was more pronounced in those experiencing greater effort demands: younger adolescents and adolescents who place less value on effort for demanding tasks. Neuroimaging results revealed that the dorsal anterior cingulate cortex (dACC) was a key region in signaling the interaction between reward and effort demands. That is, greater reward strengthened prediction error coding in the dACC, particularly under conditions of greater task demands, with these effects being more pronounced in younger adolescents and adolescents who place less value on effort for demanding tasks. These findings support a role for dACC in the engagement of cognitive control, especially in situations where more cognitive control would be beneficial despite its associated effort costs, such as in high-demanding learning situations. This comprehensive approach aims to inform strategies for supporting effort allocation in learning during this crucial developmental period.",
+          "claimed_authors": [
+            "Anne-wil Kramer",
+            "Lydia Krabbendam",
+            "Jessica V. Schaaf",
+            "H. Huizenga",
+            "A. V. van Duijvenvoorde"
+          ],
+          "claimed_title": "Make it worth it: Effort-reward modulations on reinforcement-learning and prediction-error signaling across adolescence",
+          "claimed_venue": "Developmental Cognitive Neuroscience",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1016/j.dcn.2025.101559"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Make it worth it: Effort-reward modulations on reinforcement-learning and prediction-error signaling across adolescence')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "BACKGROUND Dysfunctional expectations of impending social or performance outcomes are core features of Social Anxiety Disorder (SAD) but often lack formal definition in clinical research. Reinforcement learning (RL) models offer a framework to define changes in outcome expectations in a formal way by computing the prediction error (PE). This study quantifies the updating of expectations by PEs in SAD and investigates alterations in RL regions associated with PE signaling. METHOD 48 adult participants (24 diagnosed with SAD and 24 age-, gender-, and education- matched healthy controls (HC)) underwent event-related functional magnetic resonance imaging while learning from probabilistic feedback. Crucially, both groups completed two parallel versions of the task: one in which they learned under scrutiny (social observation) and one in which they learned without being overtly evaluated (non-social control condition). RESULTS Coupling to prediction errors in SAD was elevated in dorsomedial prefrontal cortex (DMPFC) when learning under observation. These findings provide the first evidence that PE signaling during social performance situations in SAD is associated with hypersensitive response signatures in DMPFC, a brain region associated with using others’ value standards as a proxy for one’s own value standards. Dynamic Causal Modelling further revealed that RPE-modulated connectivity from ventral pallidum to DMPFC during observation was reduced in SAD. CONCLUSIONS The present results corroborate a crucial role of DMPFC in SAD, which corresponds to dysfunctional expectations about others’ alleged performance standards that play a prominent role in current models of the disorder.",
+          "claimed_authors": [
+            "M. Becker",
+            "Rolf Voegler",
+            "Jutta Peterburs",
+            "D. Hofmann",
+            "C. Bellebaum",
+            "T. Straube"
+          ],
+          "claimed_title": "Reward Prediction Error Signaling during Reinforcement Learning in Social Anxiety Disorder is altered by Social Observation",
+          "claimed_venue": "bioRxiv",
+          "claimed_year": 2019,
+          "primary_pointer": "https://doi.org/10.1101/821512"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Reward Prediction Error Signaling during Reinforcement Learning in Social Anxiety Disorder is altered by Social Observation')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Adaptive human learning utilizes reward prediction errors (RPEs) that scale the differences between expected and actual outcomes to optimize future choices. Depression has been linked with biased RPE signaling and an exaggerated impact of negative outcomes on learning which may promote amotivation and anhedonia. The present proof-of-concept study combined computational modeling and multivariate decoding with neuroimaging to determine the influence of the selective competitive angiotensin II type 1 receptor antagonist losartan on learning from positive or negative outcomes and the underlying neural mechanisms in healthy humans. In a double-blind, between-subjects, placebo-controlled pharmaco-fMRI experiment, 61 healthy male participants (losartan, n  = 30; placebo, n  = 31) underwent a probabilistic selection reinforcement learning task incorporating a learning and transfer phase. Losartan improved choice accuracy for the hardest stimulus pair via increasing expected value sensitivity towards the rewarding stimulus relative to the placebo group during learning. Computational modeling revealed that losartan reduced the learning rate for negative outcomes and increased exploitatory choice behaviors while preserving learning for positive outcomes. These behavioral patterns were paralleled on the neural level by increased RPE signaling in orbitofrontal-striatal regions and enhanced positive outcome representations in the ventral striatum (VS) following losartan. In the transfer phase, losartan accelerated response times and enhanced VS functional connectivity with left dorsolateral prefrontal cortex when approaching maximum rewards. These findings elucidate the potential of losartan to reduce the impact of negative outcomes during learning and subsequently facilitate motivational approach towards maximum rewards in the transfer of learning. This may indicate a promising therapeutic mechanism to normalize distorted reward learning and fronto-striatal functioning in depression.",
+          "claimed_authors": [
+            "Ting Xu",
+            "Xinqi Zhou",
+            "Jonathan W. Kanen",
+            "Lan Wang",
+            "Jialin Li",
+            "Zhiyi Chen",
+            "Ran Zhang",
+            "Guojuan Jiao",
+            "Feng Zhou",
+            "Weihua Zhao",
+            "S. Yao",
+            "B. Becker"
+          ],
+          "claimed_title": "Angiotensin blockade enhances motivational reward learning via enhancing striatal prediction error signaling and frontostriatal communication",
+          "claimed_venue": "bioRxiv",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.1038/s41380-023-02001-6"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Angiotensin blockade enhances motivational reward learning via enhancing striatal prediction error signaling and frontostriatal communication')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Designing effective task sequences is crucial for curriculum reinforcement learning (CRL), where agents must gradually acquire skills by training on intermediate tasks. A key challenge in CRL is to identify tasks that promote exploration, yet are similar enough to support effective transfer. While recent approach suggests comparing tasks via their Structural Causal Models (SCMs), the method requires access to ground-truth causal structures, an unrealistic assumption in most RL settings. In this work, we propose Causal-Paced Deep Reinforcement Learning (CP-DRL), a curriculum learning framework aware of SCM differences between tasks based on interaction data approximation. This signal captures task novelty, which we combine with the agent's learnability, measured by reward gain, to form a unified objective. Empirically, CP-DRL outperforms existing curriculum methods on the Point Mass benchmark, achieving faster convergence and higher returns. CP-DRL demonstrates reduced variance with comparable final returns in the Bipedal Walker-Trivial setting, and achieves the highest average performance in the Infeasible variant. These results indicate that leveraging causal relationships between tasks can improve the structure-awareness and sample efficiency of curriculum reinforcement learning. We provide the full implementation of CP-DRL to facilitate the reproduction of our main results at https://github.com/Cho-Geonwoo/CP-DRL.",
+          "claimed_authors": [
+            "Geonwoo Cho",
+            "Jaegyun Im",
+            "Doyoon Kim",
+            "Sundong Kim"
+          ],
+          "claimed_title": "Causal-Paced Deep Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.02910"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Causal-Paced Deep Reinforcement Learning')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce a new generative model for human planning under the Bayesian Inverse Reinforcement Learning (BIRL) framework which takes into account the fact that humans often plan using hierarchical strategies. We describe the Bayesian Inverse Hierarchical RL (BIHRL) algorithm for inferring the values of hierarchical planners, and use an illustrative toy model to show that BIHRL retains accuracy where standard BIRL fails. Furthermore, BIHRL is able to accurately predict the goals of `Wikispeedia' game players, with inclusion of hierarchical structure in the model resulting in a large boost in accuracy. We show that BIHRL is able to significantly outperform BIRL even when we only have a weak prior on the hierarchical structure of the plans available to the agent, and discuss the significant challenges that remain for scaling up this framework to more realistic settings.",
+          "claimed_authors": [
+            "Chris Cundy",
+            "Daniel Filan"
+          ],
+          "claimed_title": "Exploring Hierarchy-Aware Inverse Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1807.05037"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Does medial frontal negativity (MFN) amplitude in EEG recordings scale with the ', candidate_title='Exploring Hierarchy-Aware Inverse Reinforcement Learning')",
+        "failed_at": "2026-05-12T19:32:10Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Y. Maruyama",
+            "Keita Aoyama",
+            "O. Fukayama"
+          ],
+          "title": "Modulation of feedback-related negativity by objective and subjective response correctness",
+          "venue": "Scientific Reports",
+          "year": 2026
+        },
+        "primary_pointer": "https://doi.org/10.1038/s41598-026-43451-6",
+        "summary": "Monitoring actions and outcomes is essential for flexible adaptation to environmental demands. Information about errors is important regardless of whether it is internally generated or externally signaled. Following incorrect responses, an event-related potential (ERP) component known as error-related negativity (ERN) appears in electroencephalographic (EEG) signals and reflects activity of the performance monitoring system located in the posterior medial frontal cortex (pMFC). Another ERP component associated with performance monitoring, feedback-related negativity (FRN), has been shown to process feedback stimuli related to performance errors. However, unlike the ERN, which is elicited by errors that may not reach conscious awareness, it remains unclear whether the FRN is modulated by unconsciously perceived errors. To examine modulation of the FRN by objective and subjective response correctness, EEG was recorded from 28 participants performing a digit-entering task that included trials with false feedback. Single-trial EEG analysis using linear mixed-effects models revealed that FRN amplitudes were modulated by objective response correctness after controlling for subjective reports of error certainty. Response time in the subsequent trial was also influenced by objective correctness, although no behavioral measure fully aligned with ERN or FRN patterns. These findings suggest a common representation of objective correctness in response- and feedback-related pMFC activity. Supplementary Information The online version contains supplementary material available at 10.1038/s41598-026-43451-6.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://www.nature.com/articles/s41598-026-43451-6",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [
+            "https://doi.org/10.1038/s41598-026-43451-6",
+            "https://www.nature.com/articles/s41598-026-43451-6",
+            "https://idp.nature.com/authorize?response_type=cookie&client_id=grover&redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41598-026-43451-6",
+            "https://idp.nature.com/transit?redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41598-026-43451-6&code=c0f4b29a-c423-48de-9ab7-d155af294937"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T19:32:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "N. Amir",
+            "Amanda Holbrook",
+            "Alexander M. Kallen",
+            "N. Santopetro",
+            "Julia Klawohn",
+            "Shaan F. McGhie",
+            "Alec Bruchnak",
+            "Magen Lowe",
+            "William Taboas",
+            "C. J. Brush",
+            "G. Hajcak"
+          ],
+          "title": "Multiple Adaptive Attention-Bias-Modification Programs to Alter Normative Increase in the Error-Related Negativity in Adolescents",
+          "venue": "Clinical psychological science : a journal of the Association for Psychological Science",
+          "year": 2023
+        },
+        "primary_pointer": "https://doi.org/10.1177/21677026231170563",
+        "summary": "In the current article, we examined the impact of two home-delivered attentional-bias-modification (ABM) programs on a biomarker of anxiety (i.e., the error-related negativity [ERN]). The ERN is sensitivity to ABM-related changes; however, it is unclear whether ABM exerts its influence on the ERN and anxiety by increasing general attentional control or by disengaging spatial allocation of attention. In this study, we measured the ERN, anxiety, attention bias, and attention control before and after two versions of ABM training and a waitlist control group in 546 adolescents. An ABM designed to increase attention control modulated the ERN but had no impact on anxiety. An ABM designed to reduce attentional bias changed bias and self-reported anxiety in youths but had no impact on the ERN or parent-reported anxiety. These results suggest that the ERN and normative anxiety may be modified using attention training.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://journals.sagepub.com/doi/10.1177/21677026231170563",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1177/21677026231170563"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T19:36:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Martin E Maier",
+            "Marco Steinhauser"
+          ],
+          "title": "Attentional Precursors of Errors Predict Error-Related Brain Activity",
+          "venue": "Journal of Neuroscience",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1523/jneurosci.0757-25.2025",
+        "summary": "The error negativity or error-related negativity (Ne/ERN), a correlate of errors in choice tasks, is related to posterror adjustments indicating that it signals the need for behavioral adjustments following errors. However, little is known about how the error monitoring system selects appropriate posterror adjustments for a given error to ensure that future errors are effectively prevented. This could be achieved by monitoring error precursors indicating potential error sources and then scaling the Ne/ERN according to the strength of the error precursor upon error occurrence. We isolated such an error precursor in alpha oscillations and tested whether it predicts the size of the Ne/ERN. A total of 28 participants (23 female, 5 male) had to classify a target in one hemifield but ignore a distractor in the opposite hemifield. Because responding to the distractor always led to an error, misallocating spatial attention to the distractor as reflected in posterior alpha was a viable error precursor in this paradigm. We found that an alpha asymmetry reversal indicated a shift of spatial attention to the distractor on error trials and predicted the Ne/ERN on a single-trial level. The Ne/ERN in turn predicted alpha asymmetry on the next trial indicating a shift of spatial attention away from the distractor. This is consistent with the idea that the error monitoring system scales the Ne/ERN according to the strength of error precursors to select appropriate posterror adjustments of behavior.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://www.jneurosci.org/lookup/doi/10.1523/JNEUROSCI.0757-25.2025",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1523/jneurosci.0757-25.2025"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T19:36:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Anna Grabowska",
+            "Filip Sondej",
+            "M. Senderecka"
+          ],
+          "title": "A Machine Learning Study of Anxiety-related Symptoms and Error-related Brain Activity",
+          "venue": "Journal of Cognitive Neuroscience",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1162/jocn_a_02126",
+        "summary": "Abstract Changes in error processing are observable in a range of anxiety-related disorders. Numerous studies, however, have reported contradictory and nonreplicating findings, thus the exact mapping of brain response to errors (i.e., error-related negativity [ERN]; error-related positivity [Pe]) onto specific anxiety symptoms remains unclear. In this study, we collected 16 self-reported scores of anxiety dimensions and obtained spatial features of EEG recordings from 171 individuals. We then used machine learning to (1) identify symptoms that are central for elevated ERN/Pe and (2) estimate the generalizability of traditional statistical approaches. ERN was associated with rumination, threat overestimation, and inhibitory intolerance of uncertainty. Pe was associated with rumination, prospective intolerance of uncertainty, and behavioral inhibition. Our findings emphasize that not only the amplitude of ERN but also other sources of brain signal variance encode information relevant to individual differences in error processing. The results of the generalizability check reveal the need for a change in result-validation methods to move toward robust findings that reflect stable individual differences and clinically useful biomarkers. Our study benefits from the use of machine learning to improve the generalizability of results.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://direct.mit.edu/jocn/article/doi/10.1162/jocn_a_02126/119442/A-Machine-Learning-Study-of-Anxiety-related",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1162/jocn_a_02126"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T19:36:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alba Gómez-Andrés",
+            "Xim Cerdá-Company",
+            "D. Cucurell",
+            "T. Cunillera",
+            "Antoni Rodríguez-Fornells"
+          ],
+          "title": "Decoding agency attribution using single trial error-related brain potentials.",
+          "venue": "Psychophysiology",
+          "year": 2023
+        },
+        "primary_pointer": "https://doi.org/10.1111/psyp.14434",
+        "summary": "Being able to distinguish between self and externally generated actions is a key factor influencing learning and adaptive behavior. Previous literature has highlighted that whenever a person makes or perceives an error, a series of error-related potentials (ErrPs) can be detected in the electroencephalographic (EEG) signal, such as the error-related negativity (ERN) component. Recently, ErrPs have gained a lot of interest for the use in brain-computer interface (BCI) applications, which give the user the ability to communicate by means of decoding his/her brain activity. Here, we explored the feasibility of employing a support vector machine classifier to accurately disentangle self-agency errors from other-agency errors from the EEG signal at a single-trial level in a sample of 23 participants. Our results confirmed the viability of correctly disentangling self/internal versus other/external agency-error attributions at different stages of brain processing based on the latency and the spatial topographical distribution of key ErrP features, namely, the ERN and P600 components, respectively. These results offer a new perspective on how to distinguish self versus externally generated errors providing new potential implementations on BCI systems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://onlinelibrary.wiley.com/doi/10.1111/psyp.14434",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [
+            "https://doi.org/10.1111/psyp.14434"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-12T19:36:17Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "does medial frontal negativity (mfn) amplitude in eeg recordings scale with the magnitude of directional errors made during virtual navigation tasks",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
