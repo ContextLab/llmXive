@@ -205,11 +205,9 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
     for p in existing_projects:
         existing_titles_by_field.setdefault((p.field or "general").lower(), []).append(p.title)
 
-    default_fields = [
-        "biology", "chemistry", "computer science", "materials science",
-        "mathematics", "neuroscience", "physics", "psychology", "statistics",
-    ]
-    field_pool = [args.field] if args.field else default_fields
+    from llmxive.librarian import LIBRARIAN_DEFAULT_FIELDS
+
+    field_pool = [args.field] if args.field else list(LIBRARIAN_DEFAULT_FIELDS)
 
     n_target = max(1, args.count)
     now = datetime.now(timezone.utc)
