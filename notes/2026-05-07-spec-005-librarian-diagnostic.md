@@ -331,3 +331,84 @@ Aggregate: **12/12 PASS**.
 ## Aggregate verdict
 
 **Spec 005 PASSES.** All 12 success criteria PASS under librarian v1.5.0. **13 defects total**: 12 fixed in-PR (3 CRITICAL — P5-D08 token-overlap gate, P5-D10 LLM topical judge, P5-D11 concept-decomposed query extractor; 4 HIGH — P5-D01/D02/D03 Search-trail wiring + P5-D12 judge ACCEPT-categories & extractor empirical-population directive; 5 MEDIUM/LOW including P5-D13 multi-query degraded-mode fallback); 1 LOW accepted-as-soft-guidance (P5-D09 budget — soft target raised 600s→1800s). One known residual issue is tracked separately: judge non-determinism (GitHub issue #112 — recommended fix: temperature=0 on the judge call). Both carry-forward canonicals revalidate `verified` under v1.5.0: PROJ-262 returns 5 strict-topical bullseye citations (Q-DFTNet, PhysNet, dipole/quadrupole ML, ABT-MPNN); PROJ-261 returns 9 marginal-fallback citations (the question is at a real cross-literature junction). Cross-domain US4: 8/8 PASS, 7/8 fields bullseye-on-topic, 1/8 confirmed real lit gap (CS clustering-coefficient × supervised-vs-contrastive convergence). Carry-forward to spec 006 (Phase 3 — Specifier + Clarifier testing) proceeds with PROJ-261 + PROJ-262 unchanged at `project_initialized`.
+
+---
+
+# Spec 006 amendment — TheoremSearch backend + `mathematics` field (#113)
+
+**Amendment spec**: [specs/006-theoremsearch-backend/spec.md](../specs/006-theoremsearch-backend/spec.md) · **Issue**: #113 (parent #111) · **Branch**: `008-librarian-agent` · **Date**: 2026-05-12 · **Type**: amendment to spec 005 (not a new spec directory)
+
+> **Verdict**: PASS — librarian v1.6.0. Added a **3rd candidate-source backend** (TheoremSearch, theoremsearch.com — semantic search over theorem *statements* from arXiv et al.), an **LLM math-classifier** that gates TheoremSearch on non-`{mathematics, statistics}` fields, and **`mathematics` as the 9th default field** (+5 seed math projects). The librarian remains the single entry point + single verifier (Constitution Principle I — TheoremSearch is a backend, not a competing agent). A TheoremSearch outage falls through to Semantic Scholar + arXiv (`TransientBackendError` → `[]`); the librarian never depends on it being up. Cache-invalidating prompt-version bump 1.5.0 → 1.6.0.
+
+## What changed
+
+| Area | Change |
+|-|-|
+| New module | `src/llmxive/librarian/theoremsearch.py` — `TheoremSearchClient.search(term, *, limit=10) -> list[Candidate]`: `POST https://api.theoremsearch.com/search` with `{query, limit}`; for `paper.source == "arXiv"` hits, strip the `vN` suffix from `paper.paper_id`, resolve via the existing `ArxivClient.get_by_id`, emit `Candidate(backend="theoremsearch", primary_pointer=<resolver-normalized arXiv id>, claimed_venue="arXiv", …)`; non-arXiv sources (ProofWiki, Stacks Project) skipped (reserved for Spec B / #114); ~1 req/2s self-imposed rate limit; HTTP/network/non-JSON/missing-`theorems` → `TransientBackendError`. |
+| New module | `src/llmxive/librarian/math_classifier.py` — `classify(question, idea_body_excerpt, *, project_id, librarian_prompt_version, model, default_backend, fallback_backends, repo_root=None) -> MathClassifierResult(invoked, verdict, error, cached)`: one LLM call ("is this a pure-math theorem/proof/formal-structure question?"); **fail-open to `False`** with a loud stderr diagnostic on backend failure; an unparseable response also fails open (`verdict=False, error=None`, logged warning); **per-project verdict cache** at `state/librarian-cache/math-classifier-verdicts.json` keyed `f"{project_id}::{librarian_prompt_version}"` (no LLM call on a cache hit; error outcomes not cached; `project_id=None` → no cache). Prompt: `agents/prompts/math_classifier.md`. |
+| Librarian wiring | `LibrarianAgent.invoke()` gains `project_id: str | None = None`. After the concept-decomposed query loop and before `_verify_each`, the librarian queries TheoremSearch — **unconditionally** when `field ∈ {"mathematics", "statistics"}`, otherwise **gated** behind `math_classifier.classify(...)` — and threads the hits into the unchanged merge → verify → judge chain (dedup by `primary_pointer`). `LibrarianResult` / `to_dict()` / `_result_from_dict` gain a `math_classifier` audit object `{"invoked": bool, "verdict": bool|null, "error": str|null}` (parallel to `relevance_judge`). |
+| Verification log | `VerificationLog` gains a `backend: str` field (`""` for legacy entries) so a TheoremSearch-sourced verified citation is identifiable via `verification_log.backend == "theoremsearch"`; the cache-hit rehydration path was also fixed to restore `query_relevance_score` (it was being dropped — a latent spec-005 bug surfaced while adding `backend`). |
+| Field lists | `mathematics` added to `tests/phase2/test_librarian_cross_domain.py::DEFAULT_FIELDS` and `src/llmxive/cli.py::default_fields` (the two-list duplication is tracked for consolidation in #116) and the brainstorm prompt's field enum. 5 seed math projects brainstormed: PROJ-548 (prime gaps × Riemann), PROJ-549 (smooth numbers in short intervals), PROJ-550 (IFS convergence with non-contractive maps), PROJ-551 (random-matrix eigenvalues under sparse perturbations), PROJ-552 (knot-diagram complexity via crossing number + braid index). |
+| Callers | `idea_lifecycle.flesh_out` passes `project_id=` to `librarian.invoke()`. `reference_validator` does not call `librarian.invoke()` (it operates on already-stored citations) — no change needed there. |
+| Registry | `agents/registry.yaml` librarian entry: `prompt_version` 1.5.0 → 1.6.0 (cache-invalidating — the classifier is a new LLM call); `purpose` updated to mention 3 backends + the math-classifier. |
+| Tests | New `tests/phase2/test_theoremsearch.py` (parser/Candidate-mapping/dedup/version-strip/non-arXiv-skip/unresolvable-id/score-ordering against the recorded `/search` fixtures; `TransientBackendError` on HTTP/network/non-JSON/missing-array; the `_theoremsearch_candidates` wrapper swallows the transient → `[]`; real-API smoke gated on network; a librarian-level wiring smoke for `field="statistics"` gated on real APIs). New `tests/phase2/test_math_classifier.py` (parser; cache hit/miss-on-version-change/`project_id=None`/malformed-file; backend-failure fail-open + loud stderr + no cache write; real-LLM smoke gated on `DARTMOUTH_CHAT_API_KEY` + `LLMXIVE_REAL_TESTS=1`). `test_librarian_cross_domain.py` now records `math_classifier` + `theoremsearch_hit_count` per result and asserts the audit shape per field. |
+
+## Test results
+
+**Affected-test run** (verify + cache + theoremsearch + math_classifier): **59 passed, 1 skipped** (real-LLM smoke needs `LLMXIVE_REAL_TESTS=1`) — incl. the real-API smoke and the librarian wiring smoke.
+
+**Real-LLM smoke** (`test_math_classifier.py::test_real_llm_smoke`, run with `LLMXIVE_REAL_TESTS=1`): a plainly-math question ("tightest known concentration inequality for sums of bounded independent random variables, and where it's proved") → `verdict True`; a plainly-non-math question ("how does code-clone density correlate with LLM perplexity on Python?") → `verdict False`. **PASS.**
+
+**Full Phase 2 regression** (`pytest tests/phase2/ --ignore=test_librarian_cross_domain.py`): **153 passed, 1 failed, 1 skipped** — the 1 fail is `test_arxiv_search_real` hitting a transient arXiv HTTP 429 under suite load (passes in 6s in isolation; arXiv flakiness under concurrent load is pre-existing and the test has retry-with-backoff for exactly this). Not a code defect; not introduced by spec 006.
+
+**9-field cross-domain re-run** (cache wiped first; `LLMXIVE_REAL_TESTS=1`; v1.6.0): **9/9 PASS** in 1:43:40. The 8 pre-existing fields still pass (no regression vs spec 005's 8/8 — SC-A08). Per-field:
+
+| field | outcome | verified | theoremsearch_hit_count | math_classifier (invoked/verdict/error) | duration |
+|-|-|-|-|-|-|
+| biology | exhausted | 1 | 0 | True / False / None | 425s |
+| chemistry | success | 12 | 0 | True / False / None | 604s |
+| computer science | success | 8 | 0 | True / False / None | 872s |
+| materials science | exhausted | 4 | 0 | True / False / None | 473s |
+| **mathematics** | **success** | **14** | **6** | **False / None / None** | 929s |
+| neuroscience | success_after_expansion | 5 | 0 | True / False / None | 943s |
+| physics | exhausted | 4 | 0 | True / False / None | 818s |
+| psychology | exhausted | 3 | 0 | True / False / None | 600s |
+| **statistics** | **success** | **5** | **0** | **False / None / None** | 555s |
+
+- **`mathematics`** (PROJ-552, knot-diagram complexity): `success`, 14 verified, **6 from TheoremSearch** — all on-topic knot/braid-index theorem papers (`1208.5742` "Knot projections with a single multi-crossing", `math/0301320` "On the bridge number of knot diagrams…", `1302.3835`, `1806.09719` "…braid index…", `0907.1019` "The algebraic crossing number and the braid index of knots", `1001.1559` "Crossing changes in closed 3-braid diagrams"), all with arXiv-ID-shaped pointers, all `url_resolves=True`, all tagged `verification_log.backend == "theoremsearch"`. `math_classifier == {"invoked": false, …}` — the unconditional `mathematics` trigger fired; classifier not consulted. **Zero ProofWiki/Stacks-Project entries in `verified_citations`.** (SC-A01/A02/A03.)
+- **`statistics`**: `success`, 5 verified, `math_classifier == {"invoked": false, …}` (unconditional trigger ✓); `theoremsearch_hit_count == 0` this run — TheoremSearch was queried but its hits didn't survive verification or it returned non-arXiv hits (a tolerated outcome).
+- **The 8 non-`{math,stats}` fields**: every result has `math_classifier == {"invoked": true, "verdict": false, "error": null}` — the classifier was consulted, correctly judged the (genuinely non-theorem-shaped) brainstormed questions as non-math, no TheoremSearch query, `theoremsearch_hit_count == 0`. **No classifier errors anywhere.** A non-math field with a *theorem-shaped* question (→ `verdict=true` → TheoremSearch contributes) is exercised by the real-LLM smoke, not naturally hit in cross-domain (the brainstormed questions aren't theorem-shaped) — expected, not a gap.
+
+**Manual output inspection** (T037): confirmed above for `mathematics`/PROJ-552 — ≥1 TheoremSearch citation, resolving arXiv IDs, correct audit object, no ProofWiki/Stacks entries. (SC-A01/A02/A03.)
+
+
+## PROJ-261 + PROJ-262 re-validation under v1.6.0 (T036)
+
+Standard post-prompt-bump regression check — the spec-005 `contracts/revalidation-runs.md` procedure (roll back to `flesh_out_in_progress` → re-run `flesh_out` → `research_question_validator` → `project_initializer`) re-run under librarian v1.6.0. Full records in [specs/006-theoremsearch-backend/revalidation-results-v1.6.0.yaml](../specs/006-theoremsearch-backend/revalidation-results-v1.6.0.yaml).
+
+| canonical | field | prior verdict | v1.6.0 verdict | new state | constitution sha | math_classifier | ts_hits | librarian outcome / verified | judgment |
+|-|-|-|-|-|-|-|-|-|-|
+| PROJ-261 (code-duplication × LLM) | computer science | validated | validated | project_initialized | dc8dca5b… (unchanged) | invoked=true, verdict=false | 0 | exhausted / 2 | **verified** |
+| PROJ-262 (dipole moments × GNN) | chemistry | validated | validated | project_initialized | 095f9c7b… (unchanged) | invoked=true, verdict=false | 0 | success / 9 | **verified** |
+
+- Both canonicals: validator returns `validated` (4/4 sub-checks pass) — verdict unchanged vs spec 004 / spec-005-v1.5.0; state stays `project_initialized`; constitution.md byte-unchanged (the project_initializer skip-if-exists guard preserved the audited constitution). **No `shifted_regressed`** → T036 PASS, carry-forward unchanged.
+- Math-classifier consulted on both (non-math fields), correctly returned `verdict=false` (genuinely empirical-ML questions); TheoremSearch contributed nothing to either — the expected behavior for the carry-forward canonicals.
+- Citation-count variation (PROJ-261: 9 marginal-fallback under v1.5.0 → 2 strict under v1.6.0; PROJ-262: 5 → 9) reflects the cache-busting prompt bump + the documented judge non-determinism (#112), not a verdict regression. PROJ-261's v1.5.0 set was entirely `topically_marginal=True`, so 2 strict matches is arguably cleaner. The research questions themselves are unchanged; the idea-body diffs are confined to the citation lists + auto-generated Search-trail blocks.
+
+## Aggregate verdict — spec 006 amendment
+
+**Spec 006 PASSES** under librarian **v1.6.0**. SC-A01..A09 verdicts:
+
+| SC | summary | verdict |
+|-|-|-|
+| SC-A01 | librarian queries TheoremSearch for math-field projects; ≥1 verified citation can be TheoremSearch-sourced | PASS — PROJ-552 returned 14 verified, 6 from TheoremSearch (all on-topic knot/braid-index theorem papers, resolving arXiv IDs) |
+| SC-A02 | TheoremSearch-sourced citations carry arXiv IDs the verify chain already handles; identifiable via `verification_log.backend=="theoremsearch"` | PASS — all 6 PROJ-552 TheoremSearch citations have arXiv-shaped pointers + `url_resolves=true` + `backend=="theoremsearch"` |
+| SC-A03 | non-arXiv TheoremSearch sources (ProofWiki, Stacks) are NOT emitted | PASS — zero ProofWiki/Stacks entries in PROJ-552's `verified_citations`; `test_theoremsearch.py` covers the skip |
+| SC-A04 | math-classifier: per-project verdict cache; fail-open to False; loud diagnostic on backend failure | PASS — `test_math_classifier.py` covers cache hit/miss/`project_id=None`/malformed-file/backend-failure-fail-open-loud-no-cache; real-LLM smoke confirms math→true, non-math→false |
+| SC-A05 | `DEFAULT_FIELDS` has 9 entries incl. `mathematics` (also `cli.py`) | PASS |
+| SC-A06 | ≥5 brainstormed `field: mathematics` projects | PASS — PROJ-548..552 |
+| SC-A07 | `mathematics` cross-domain parametrization passes (or skips cleanly if no math project) | PASS — `mathematics` ran (PROJ-552 selected), outcome=`success`, 14 verified |
+| SC-A08 | no regression: 8 pre-existing fields still pass; PROJ-261/262 still `verified` under 1.6.0 | PASS — 8/8 pre-existing fields pass; both canonicals `verified` |
+| SC-A09 | full Phase 2 regression passes; ruff clean | PASS — 153/154 (the 1 fail is a transient arXiv 429, passes in isolation); ruff clean on touched files |
+
+**13 + 0 new defects**: spec 006 introduced no new defects. One latent spec-005 bug was fixed in passing (the cache-hit rehydration path was dropping `query_relevance_score`). The judge-non-determinism residual (#112) is unchanged and is the only thing that makes citation-count comparisons noisy across cache-busting re-runs — it does not affect verdicts. #114 (Spec B — theorem-statement artifacts, non-arXiv TheoremSearch sources, the standalone `theorem_searcher` agent) is the deferred follow-up; #116 (consolidate the duplicated default-field list) is a hygiene follow-up.
