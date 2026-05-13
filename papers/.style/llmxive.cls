@@ -124,8 +124,18 @@
   }{\newcommand{\llmxmono}{\ttfamily}}
   \IfFontExistsTF{Fraunces}{%
     % Display family at wght=400; the opsz axis bumps proportions for big titles.
+    % NoCommonLigatures + -liga,-clig,-dlig disable the fi/fl/ffi ligatures
+    % for headings and the author block. Fraunces's `fi` ligature collides
+    % with names like "Latifi" (the substitution leaves a visible gap
+    % between the ligature glyph and the following `i`), and there's no
+    % typographic benefit at display sizes anyway. We also turn ligatures
+    % off in BOTH the upright and the synthesised italic variants because
+    % `\itshape` of the display family falls back to a slanted upright (no
+    % real italic shape is declared) and the ligature substitution applies
+    % to that slanted upright too.
     \newfontfamily\llmxdisplay{Fraunces}[
-      RawFeature = {+axis={wght=400,opsz=144}},
+      RawFeature = {+axis={wght=400,opsz=144};-liga;-clig;-dlig;-rlig},
+      Ligatures = {NoCommon,NoRequired},
       Numbers=Lining]%
   }{\newcommand{\llmxdisplay}{}}
   % math
