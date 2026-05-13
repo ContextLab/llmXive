@@ -152,6 +152,27 @@
     return D.STAGE_LABELS[project.current_stage] || project.current_stage || "this stage";
   }
 
+  // The "farthest along the pipeline" artifact to feature. Prefer the explicit
+  // current_artifact block from web_data.py (E3); if the payload predates it
+  // (e.g. a not-yet-redeployed projects.json), derive it from artifact_links
+  // the same way web_data.py does — published PDF → LaTeX source → paper
+  // tasks/plan/spec → research tasks/plan/spec → citations → idea — so the
+  // modal still shows a real artifact instead of "none".
+  const _MD_KEYS = ["paper_tasks", "paper_plan", "paper_spec", "tasks", "plan", "spec", "idea"];
+  function _resolveArtifact(project) {
+    const ca = project.current_artifact;
+    if (ca && ca.type && ca.type !== "none") return ca;
+    const links = project.artifact_links || {};
+    const mk = (type, rel) => rel
+      ? { type, repo_path: rel, github_url: blob(rel), raw_url: raw(rel) }
+      : null;
+    if (links.paper_pdf) return mk("pdf", links.paper_pdf);
+    if (links.paper_source) return mk("latex", links.paper_source);
+    for (const k of _MD_KEYS) { if (links[k]) return mk("markdown", links[k]); }
+    if (links.citations) return mk("yaml", links.citations);
+    return { type: "none", repo_path: null, github_url: null, raw_url: null };
+  }
+
   // FR-009 / FR-009b: render whatever artifact best represents the project's
   // current state into the left pane — a published PDF, else the current-stage
   // text artifact (Markdown rendered, LaTeX/JSON/YAML shown as formatted
@@ -159,7 +180,7 @@
   // doesn't exist.
   function _renderArtifactPane(pdfEl, project) {
     pdfEl.replaceChildren();
-    const ca = project.current_artifact || { type: "none" };
+    const ca = _resolveArtifact(project);
     const M = window.LlmxiveMarkdown;
 
     // Helper: a "view on GitHub" footer link.
