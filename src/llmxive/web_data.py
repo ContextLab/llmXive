@@ -589,6 +589,24 @@ def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
         ) else "human"
         add(submitter, kind, "brainstorm_submitter")
 
+    # 1b. Paper authors (parsed from the paper itself by `submission_intake`)
+    #     — the user's rule: credit on a submitted paper goes to its *authors*,
+    #     separately from whoever submitted it. The `paper_authors:` list lives
+    #     in the idea front-matter and gets surfaced here as kind="human"
+    #     contributors with a `paper_author` role.
+    idea = next(iter(pdir.glob("idea/*.md")), None) if pdir.exists() else None
+    if idea is not None and idea.exists():
+        text = idea.read_text(encoding="utf-8", errors="replace")
+        if text.startswith("---"):
+            try:
+                fm = yaml.safe_load(text[3:text.index("---", 3)]) or {}
+            except (ValueError, yaml.YAMLError):
+                fm = {}
+            for author in (fm.get("paper_authors") or []):
+                name = str(author).strip()
+                if name:
+                    add(name, "human", "paper_author")
+
     # 2. Run-log: every successful agent invocation contributes its model
     runlog_root = repo / "state" / "run-log"
     if runlog_root.is_dir():
