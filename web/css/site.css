@@ -600,15 +600,79 @@ a:hover { color: var(--accent-2); }
 .artifact-dialog .ad-pdf {
   background: var(--bg-2);
   border-right: 1px solid var(--line-soft);
-  display: flex; align-items: stretch;
+  display: flex; align-items: stretch; flex-direction: column;
   min-height: 480px;
 }
 .artifact-dialog .ad-pdf embed,
-.artifact-dialog .ad-pdf iframe { width: 100%; height: 100%; border: 0; }
+.artifact-dialog .ad-pdf iframe { width: 100%; height: 100%; border: 0; flex: 1; }
 .artifact-dialog .ad-pdf .ad-pdf-empty {
   padding: 24px; color: var(--muted); font-size: 12px;
   display: flex; align-items: center; justify-content: center;
   text-align: center; flex: 1;
+}
+.artifact-dialog .ad-pdf .ad-pdf-empty strong { color: var(--text); }
+
+/* FR-009: non-PDF artifact panes — rendered Markdown body, formatted source
+   view, and the "view on GitHub" footer. */
+.artifact-dialog .ad-art-body {
+  flex: 1; overflow-y: auto;
+  padding: 20px 24px;
+  background: var(--bg);
+}
+.artifact-dialog .ad-art-loading { color: var(--muted); font-size: 12px; }
+.artifact-dialog .ad-art-foot {
+  border-top: 1px solid var(--line-soft);
+  padding: 10px 16px; background: var(--bg-2);
+  flex: 0 0 auto;
+}
+/* rendered-Markdown body */
+.artifact-dialog .md-body { font-size: 13px; line-height: 1.6; color: var(--text-2); }
+.artifact-dialog .md-body h1,
+.artifact-dialog .md-body h2,
+.artifact-dialog .md-body h3,
+.artifact-dialog .md-body h4 {
+  font-family: var(--serif); font-weight: 500; color: var(--text);
+  margin: 1.2em 0 0.4em; line-height: 1.2;
+}
+.artifact-dialog .md-body h1 { font-size: 22px; }
+.artifact-dialog .md-body h2 { font-size: 18px; }
+.artifact-dialog .md-body h3 { font-size: 15px; }
+.artifact-dialog .md-body h1:first-child,
+.artifact-dialog .md-body h2:first-child,
+.artifact-dialog .md-body h3:first-child { margin-top: 0; }
+.artifact-dialog .md-body p { margin: 0.6em 0; }
+.artifact-dialog .md-body ul,
+.artifact-dialog .md-body ol { margin: 0.6em 0; padding-left: 1.4em; }
+.artifact-dialog .md-body li { margin: 0.2em 0; }
+.artifact-dialog .md-body a { color: var(--accent); }
+.artifact-dialog .md-body code {
+  font-family: var(--mono); font-size: 0.9em;
+  background: var(--bg-2); padding: 1px 4px; border-radius: 3px;
+}
+.artifact-dialog .md-body pre {
+  background: var(--bg-2); border: 1px solid var(--line-soft);
+  border-radius: var(--r-sm); padding: 10px 12px; overflow-x: auto;
+  font-family: var(--mono); font-size: 11.5px; line-height: 1.5;
+}
+.artifact-dialog .md-body pre code { background: transparent; padding: 0; }
+.artifact-dialog .md-body blockquote {
+  border-left: 3px solid var(--line); margin: 0.6em 0; padding-left: 12px;
+  color: var(--muted);
+}
+.artifact-dialog .md-body table { border-collapse: collapse; font-size: 12px; margin: 0.6em 0; }
+.artifact-dialog .md-body th,
+.artifact-dialog .md-body td { border: 1px solid var(--line-soft); padding: 4px 8px; }
+.artifact-dialog .md-body img { max-width: 100%; height: auto; }
+/* formatted-source view (LaTeX/JSON/YAML) */
+.artifact-dialog .ad-art-src {
+  font-family: var(--mono); font-size: 11.5px; line-height: 1.5;
+  white-space: pre-wrap; word-break: break-word;
+  color: var(--text-2); margin: 0;
+}
+/* the markdown fallback when no renderer is loaded */
+.artifact-dialog .md-fallback {
+  font-family: var(--mono); font-size: 11.5px; white-space: pre-wrap;
+  color: var(--text-2);
 }
 
 .artifact-dialog .ad-list {

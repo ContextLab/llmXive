@@ -113,7 +113,9 @@
     return authors.map(a => {
       const icon = a.kind === "human"
         ? '<i class="fa-regular fa-user"></i>'
-        : '<i class="fa-solid fa-robot"></i>';
+        : (a.kind === "unattributed"
+            ? '<i class="fa-regular fa-circle-question"></i>'
+            : '<i class="fa-solid fa-robot"></i>');
       const roles = (a.roles || []).slice(0, 4).map(escapeHtml).join(", ");
       const moreRoles = (a.roles || []).length > 4 ? `, +${a.roles.length - 4} more` : "";
       return '<div class="ad-row" style="cursor:default;">' +
@@ -146,6 +148,92 @@
       '</a>';
   }
 
+  function _stageLabel(project) {
+    return D.STAGE_LABELS[project.current_stage] || project.current_stage || "this stage";
+  }
+
+  // FR-009 / FR-009b: render whatever artifact best represents the project's
+  // current state into the left pane — a published PDF, else the current-stage
+  // text artifact (Markdown rendered, LaTeX/JSON/YAML shown as formatted
+  // source), else a clear placeholder. NEVER an <embed> pointing at a PDF that
+  // doesn't exist.
+  function _renderArtifactPane(pdfEl, project) {
+    pdfEl.replaceChildren();
+    const ca = project.current_artifact || { type: "none" };
+    const M = window.LlmxiveMarkdown;
+
+    // Helper: a "view on GitHub" footer link.
+    const ghLink = (url, label) => url
+      ? '<div class="ad-art-foot"><a class="btn" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">' +
+        '<i class="fa-brands fa-github"></i> ' + (label || "View on GitHub") + '</a></div>'
+      : "";
+
+    if (ca.type === "pdf") {
+      // Prefer the explicit current_artifact.raw_url; fall back to the legacy
+      // artifact_links.paper_pdf for older payloads.
+      const pdfUrl = ca.raw_url || raw((project.artifact_links || {}).paper_pdf);
+      pdfEl.insertAdjacentHTML("beforeend", '<embed type="application/pdf" src="' + escapeHtml(pdfUrl) + '" />');
+      setTimeout(() => {
+        const embed = pdfEl.querySelector("embed");
+        if (embed && !embed.clientHeight) {
+          pdfEl.replaceChildren();
+          pdfEl.insertAdjacentHTML("beforeend",
+            '<div class="ad-pdf-empty"><div>PDF preview unavailable in this browser.<br/>' +
+            '<a class="btn primary" style="margin-top:12px;" href="' + escapeHtml(pdfUrl) + '" target="_blank" rel="noopener">' +
+            '<i class="fa-solid fa-download"></i> Download PDF</a></div></div>');
+        }
+      }, 1500);
+      return;
+    }
+
+    if (ca.type === "markdown" && ca.raw_url && M) {
+      pdfEl.insertAdjacentHTML("beforeend",
+        '<div class="ad-art-body md-body"><div class="ad-art-loading">Loading ' + escapeHtml(ca.repo_path || "artifact") + '…</div></div>'
+        + ghLink(ca.github_url));
+      M.fetchAndRenderMarkdown(ca.raw_url).then(html => {
+        const body = pdfEl.querySelector(".ad-art-body");
+        if (body) body.innerHTML = html;
+      }).catch(err => {
+        const body = pdfEl.querySelector(".ad-art-body");
+        if (body) body.innerHTML = '<div class="ad-pdf-empty">Could not load this artifact (' + escapeHtml(String(err.message || err)) + ').</div>';
+      });
+      return;
+    }
+
+    if ((ca.type === "latex" || ca.type === "json" || ca.type === "yaml") && ca.raw_url) {
+      pdfEl.insertAdjacentHTML("beforeend",
+        '<div class="ad-art-body src-body"><pre class="ad-art-loading">Loading ' + escapeHtml(ca.repo_path || "source") + '…</pre></div>'
+        + ghLink(ca.github_url));
+      fetch(ca.raw_url, { cache: "no-cache" }).then(r => {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.text();
+      }).then(text => {
+        const body = pdfEl.querySelector(".ad-art-body");
+        if (body) {
+          const pre = document.createElement("pre");
+          pre.className = "ad-art-src";
+          pre.textContent = text;          // textContent — no HTML injection
+          body.replaceChildren(pre);
+        }
+      }).catch(err => {
+        const body = pdfEl.querySelector(".ad-art-body");
+        if (body) body.innerHTML = '<div class="ad-pdf-empty">Could not load this source (' + escapeHtml(String(err.message || err)) + ').</div>';
+      });
+      return;
+    }
+
+    // type === "none" (or markdown with no renderer / no raw_url): placeholder
+    // that uses the space — what stage we're at, what's coming, and a GitHub link.
+    pdfEl.insertAdjacentHTML("beforeend",
+      '<div class="ad-pdf-empty"><div>' +
+      '<i class="fa-regular fa-file" style="font-size:32px;opacity:.4;display:block;margin-bottom:12px;"></i>' +
+      'No artifact to preview yet — this project is at the <strong>' + escapeHtml(_stageLabel(project)) + '</strong> stage.<br/>' +
+      'The next artifact will appear here. Meanwhile, the artifact list on the right links to everything produced so far.' +
+      '<div style="margin-top:14px;"><a class="btn" href="https://github.com/ContextLab/llmXive/tree/main/projects/' + escapeHtml(project.id) + '" target="_blank" rel="noopener">' +
+      '<i class="fa-brands fa-github"></i> Browse this project on GitHub</a></div>' +
+      '</div></div>');
+  }
+
   function open(project) {
     const bd = _ensureMount();
     bd.querySelector(".ad-title").textContent = project.title || project.id;
@@ -154,27 +242,7 @@
     list.replaceChildren();
     list.insertAdjacentHTML("beforeend", _renderListColumn(project));
 
-    const pdfEl = bd.querySelector(".ad-pdf");
-    pdfEl.replaceChildren();
-    const pdfRel = (project.artifact_links || {}).paper_pdf;
-    if (pdfRel) {
-      const pdfUrl = raw(pdfRel);
-      pdfEl.insertAdjacentHTML("beforeend", '<embed type="application/pdf" src="' + escapeHtml(pdfUrl) + '" />');
-      setTimeout(() => {
-        const embed = pdfEl.querySelector("embed");
-        if (embed && !embed.clientHeight) {
-          pdfEl.replaceChildren();
-          const fallback = '<div class="ad-pdf-empty"><div>' +
-            'PDF preview unavailable in this browser.<br/>' +
-            '<a class="btn primary" style="margin-top:12px;" href="' + escapeHtml(pdfUrl) + '" target="_blank" rel="noopener">' +
-            '<i class="fa-solid fa-download"></i> Download PDF</a>' +
-            '</div></div>';
-          pdfEl.insertAdjacentHTML("beforeend", fallback);
-        }
-      }, 1500);
-    } else {
-      pdfEl.insertAdjacentHTML("beforeend", '<div class="ad-pdf-empty">No PDF compiled yet for this project.</div>');
-    }
+    _renderArtifactPane(bd.querySelector(".ad-pdf"), project);
 
     bd.classList.add("open");
   }
