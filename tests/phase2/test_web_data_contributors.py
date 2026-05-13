@@ -82,11 +82,19 @@ def test_aggregates_match_contributor_list(payload):
     assert agg["ai_contributors"] == sum(1 for c in contribs if c["kind"] == "llm")
 
 
-def test_at_least_one_contributor_count_is_independently_reproducible(payload):
-    """For the top contributor, recount run-log success entries for that model
-    and assert the contributor count is at least that many (it also includes
-    review + submitter contributions, so it can only be ≥)."""
+def test_contribution_counts_are_distinct_artifacts_not_runlog_lines(payload):
+    """FR-008: `contribution_count` MUST equal the count of *distinct artifacts*
+    a contributor produced, not the number of run-log lines (a model that
+    re-ran an agent N times on a project produced one logical contribution, not
+    N). For the top LLM contributor, independently recount:
+      distinct (model, project_id, agent_name) run-log tuples
+      + distinct review files with model_name == this model
+      + distinct project ideas submitted by this model (idea front-matter)
+    and assert the contributor count equals that — and is strictly less than
+    the raw run-log line count (which proves dedup actually happened)."""
     import json
+
+    import yaml
 
     from llmxive.web_data import _normalize_model_name
 
@@ -95,24 +103,74 @@ def test_at_least_one_contributor_count_is_independently_reproducible(payload):
     top = contribs[0]
     if top["kind"] != "llm":
         pytest.skip("top contributor is not an LLM model")
+    name = top["name"]
+
+    # 1. distinct (model, project, agent) run-log tuples + raw line count.
     runlog_root = REPO_ROOT / "state" / "run-log"
-    if not runlog_root.is_dir():
-        pytest.skip("no run-log in repo")
-    n = 0
-    for month_dir in runlog_root.iterdir():
-        if not month_dir.is_dir() or month_dir.name.startswith("."):
-            continue
-        for jsonl in month_dir.glob("*.jsonl"):
-            for line in jsonl.read_text(encoding="utf-8").splitlines():
-                if not line.strip():
+    distinct_runlog: set[tuple[str, str, str]] = set()
+    raw_lines = 0
+    if runlog_root.is_dir():
+        for month_dir in runlog_root.iterdir():
+            if not month_dir.is_dir() or month_dir.name.startswith("."):
+                continue
+            for jsonl in month_dir.glob("*.jsonl"):
+                for line in jsonl.read_text(encoding="utf-8").splitlines():
+                    if not line.strip():
+                        continue
+                    try:
+                        e = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    if e.get("outcome") != "success":
+                        continue
+                    m = (e.get("model_name") or "").strip()
+                    if not m or _normalize_model_name(m) != name:
+                        continue
+                    raw_lines += 1
+                    distinct_runlog.add((name, e.get("project_id") or "", (e.get("agent_name") or "").strip()))
+
+    # 2. distinct review files attributing this model.
+    review_files = 0
+    proj_root = REPO_ROOT / "projects"
+    if proj_root.is_dir():
+        for pdir in proj_root.glob("PROJ-*"):
+            for sub in ("reviews/research", "paper/reviews", "reviews/paper"):
+                rdir = pdir / sub
+                if not rdir.is_dir():
+                    continue
+                for md in rdir.rglob("*.md"):
+                    text = md.read_text(encoding="utf-8", errors="ignore")
+                    if not text.startswith("---"):
+                        continue
+                    try:
+                        fm = yaml.safe_load(text[3:text.index("---", 3)]) or {}
+                    except (ValueError, yaml.YAMLError):
+                        continue
+                    rm = str(fm.get("model_name", "")).strip()
+                    rk = str(fm.get("reviewer_kind", "")).strip()
+                    if rk != "human" and rm and _normalize_model_name(rm) == name:
+                        review_files += 1
+
+    # 3. distinct project ideas submitted by this model (idea front-matter).
+    submitted_ideas = 0
+    if proj_root.is_dir():
+        for pdir in proj_root.glob("PROJ-*"):
+            for md in (pdir / "idea").glob("*.md") if (pdir / "idea").is_dir() else []:
+                text = md.read_text(encoding="utf-8", errors="replace")
+                if not text.startswith("---"):
                     continue
                 try:
-                    e = json.loads(line)
-                except json.JSONDecodeError:
+                    fm = yaml.safe_load(text[3:text.index("---", 3)]) or {}
+                except (ValueError, yaml.YAMLError):
                     continue
-                if e.get("outcome") != "success":
-                    continue
-                model = (e.get("model_name") or "").strip()
-                if model and _normalize_model_name(model) == top["name"]:
-                    n += 1
-    assert top["contribution_count"] >= n, (top, n)
+                sub = str(fm.get("submitter") or fm.get("submitted_by") or fm.get("author") or "").strip()
+                if sub and _normalize_model_name(sub) == name:
+                    submitted_ideas += 1
+
+    expected = len(distinct_runlog) + review_files + submitted_ideas
+    assert top["contribution_count"] == expected, (name, top["contribution_count"], expected,
+                                                   len(distinct_runlog), review_files, submitted_ideas)
+    # And: the displayed count must be < the raw run-log line count when there
+    # were repeated invocations — proves we deduped (this is the #115-item-4 bug).
+    if raw_lines > len(distinct_runlog):
+        assert top["contribution_count"] < raw_lines, (top["contribution_count"], raw_lines)

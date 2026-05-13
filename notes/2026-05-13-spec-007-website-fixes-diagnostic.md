@@ -140,3 +140,64 @@ to be confirmed manually post-merge; the mechanism is in place and unit-verified
   regression from this spec.
 - `ruff`: `web_data.py`, `submission_intake.py`, all four new test files clean;
   `cli.py` keeps its 8 pre-existing nits unchanged (no new debt).
+
+## Post-implementation audit (2026-05-13)
+
+A second pass over #115 + the spec's FRs/SCs caught two gaps:
+
+1. **#115 item 4 / FR-008 — `contribution_count` was wrong.** `_agent_contributors`
+   counted *run-log lines* (each agent retry/continuation appended a line), so
+   e.g. `qwen.qwen3.5-122b` showed **2202** contributions. FR-008 (and
+   data-model E4) require "the count of *distinct artifacts* — no
+   double-counting". Fixed: dedup the run-log by `(model, project_id,
+   agent_name)` ("this model did this role's work on this project" counts once);
+   review files and idea submissions were already once-each. Now
+   `qwen.qwen3.5-122b` = **604** (549 distinct run-log tuples + 55 review files);
+   `total_contributions` 2914 → 1266. `web/data/projects.json` regenerated.
+   New direct test: `test_contribution_counts_are_distinct_artifacts_not_runlog_lines`
+   independently recounts (distinct `(model,project,agent)` tuples + review
+   files attributing the model + ideas the model submitted) and asserts the
+   displayed count equals that **and** is strictly less than the raw run-log
+   line count (proving dedup happened — the #115-item-4 bug).
+
+2. **Previously gated/untested paths now directly exercised** (with `gh` authed
+   + the Dartmouth key + `LLMXIVE_REAL_TESTS=1`):
+   - `tests/phase2/test_submission_helpers.py` real-GitHub-API roundtrips (3) —
+     created a real `human-submission`+`feedback` issue, asserted labels+body,
+     closed+deleted; same for `new-paper`+URL; staged a tiny PDF to
+     `submissions/inbox/`, asserted it appeared, deleted. **PASS** → `submitFeedback`/
+     `submitPaper`'s payload behavior is verified against the real API.
+   - `tests/phase2/test_submission_intake.py::test_real_acknowledge_roundtrip` —
+     created a real `human-submission`+`feedback` issue, ran `process_submission_issue`
+     (stubbed `acknowledge` verdict), asserted it posted a comment and closed the
+     issue, deleted it. **PASS** → the agent's comment+close path is verified
+     against a real issue.
+   - `tests/phase2/test_submission_intake.py::test_real_llm_triage_smoke` (3) —
+     real Dartmouth model calls: "the spec for PROJ-X is missing an edge case" →
+     `route-to-<step>`; "you should look into diffusion models for protein
+     structure prediction" → `create-project`; "nice work on the dashboard" →
+     `acknowledge`. **PASS** → the LLM triage path is verified end-to-end.
+   - **End-to-end CLI exercise**: created a real `human-submission`+`feedback`
+     issue, ran `python -m llmxive submissions process`. It saw the issue and
+     (because Dartmouth Chat was having an outage right then —
+     `302 → outage.dartmouth.edu`, no `HF_TOKEN`, no local `transformers`) the
+     agent caught the `BackendError`, **posted an explanatory comment**, and
+     **left the issue open** — exactly the per-submission-failure handling
+     FR-021 specifies — and the run **exited 0** ("processed 1 issue(s): 0 ok,
+     0 skipped, 1 failed"). Test issue deleted. (One observation: the first
+     attempt right after issue creation said "nothing to do" — GitHub's
+     `labels=` search index lags a few seconds; irrelevant for an hourly cron,
+     but noted.)
+
+Updated SC verdicts: **SC-008 now PASS** (the deduped count is directly tested).
+**SC-015 upgraded to PASS** for the agent + CLI mechanics (the comment+close
+path, the LLM triage, and the CLI's list→process→exit-0 flow incl. correct
+failure-handling are all directly verified against real issues / the real model);
+the only thing still pending is the *scheduled* run, which starts once the
+workflow is on `main`. **SC-007** still PARTIAL (the account-chooser fallback is
+in place + unit-verified; the full re-sign-in-as-a-different-user round-trip
+needs the deployed site + a live GitHub OAuth flow).
+
+Re-run after the fix: `tests/phase2/test_web_data_{contributors,blocks}.py`
+15/15 pass; `ruff` clean (`web_data.py`, the test file). The full
+`tests/phase2/` regression is re-run in CI on the PR.

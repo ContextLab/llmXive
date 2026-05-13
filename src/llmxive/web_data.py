@@ -802,10 +802,21 @@ def _agent_contributors(repo: Path) -> list[dict[str, Any]]:
     role (``tasker``/``implementer``). Multiple roles using the same
     model collapse into a single contributor row. Areas reflect the
     research field of the project worked on, NOT the pipeline step.
+
+    FR-008 — `contribution_count` is a count of *distinct artifacts*, not of
+    run-log lines: a model that re-ran the implementer 56 times on one project
+    (each retry / continuation appended a line) produced one logical
+    contribution, not 56. We dedup by ``(model, project_id, agent_name)`` —
+    "this model did this role's work on this project" counts once. (Idea
+    submissions and review files are counted once each elsewhere — in
+    `_submitter_contributors` / `_collect_reviews` — so the merged total has
+    no double-counting.)
     """
     runlog_root = repo / "state" / "run-log"
-    counts: dict[str, dict[str, Any]] = {}
     fields = _project_fields(repo)
+    # (model, project_id, agent_name) tuples, deduped.
+    seen: set[tuple[str, str, str]] = set()
+    areas_by_model: dict[str, set[str]] = {}
     if runlog_root.is_dir():
         for month_dir in runlog_root.iterdir():
             if not month_dir.is_dir() or month_dir.name.startswith("."):
@@ -826,19 +837,23 @@ def _agent_contributors(repo: Path) -> list[dict[str, Any]]:
                         # agent_name (e.g. "tasker") would mislead.
                         continue
                     model = _normalize_model_name(model)
-                    row = counts.setdefault(
-                        model,
-                        {"name": model, "kind": "llm", "contribution_count": 0, "areas": set()},
-                    )
-                    row["contribution_count"] += 1
                     pid = e.get("project_id") or ""
+                    agent_name = (e.get("agent_name") or "").strip()
+                    seen.add((model, pid, agent_name))
                     field = fields.get(pid, "")
                     if field and field != "general":
-                        row["areas"].add(field)
+                        areas_by_model.setdefault(model, set()).add(field)
+    counts: dict[str, int] = {}
+    for model, _pid, _agent in seen:
+        counts[model] = counts.get(model, 0) + 1
     out = []
-    for r in counts.values():
-        r["areas"] = sorted(r["areas"])
-        out.append(r)
+    for model, n in counts.items():
+        out.append({
+            "name": model,
+            "kind": "llm",
+            "contribution_count": n,
+            "areas": sorted(areas_by_model.get(model, set())),
+        })
     return out
 
 

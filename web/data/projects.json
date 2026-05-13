@@ -886,7 +886,7 @@
     "human_contributors": 1,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2919,
+    "total_contributions": 1266,
     "total_contributors": 8
   },
   "contributors": [
@@ -907,7 +907,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 2202,
+      "contribution_count": 604,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -940,7 +940,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 164,
+      "contribution_count": 109,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -994,7 +994,7 @@
       "name": "jeremymanning"
     }
   ],
-  "generated_at": "2026-05-13T03:38:59.785911+00:00",
+  "generated_at": "2026-05-13T04:20:19.590622+00:00",
   "pipeline_steps": [
     {
       "agents": [
