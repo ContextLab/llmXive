@@ -53,6 +53,16 @@
     return [...buf].map(b => b.toString(16).padStart(2, "0")).join("");
   }
 
+  function _authorizeUrl() {
+    const params = new URLSearchParams({
+      client_id: CLIENT_ID,
+      redirect_uri: location.origin + location.pathname,
+      scope: "public_repo",
+      state: sessionStorage.getItem(KEY_STATE) || "",
+    });
+    return "https://github.com/login/oauth/authorize?" + params.toString();
+  }
+
   function startLogin() {
     if (!CLIENT_ID) {
       console.warn("OAuth client id not configured");
@@ -60,19 +70,54 @@
     }
     const state = _randomState();
     sessionStorage.setItem(KEY_STATE, state);
-    const params = new URLSearchParams({
-      client_id: CLIENT_ID,
-      redirect_uri: location.origin + location.pathname,
-      scope: "public_repo",
-      state,
-    });
-    location.href = "https://github.com/login/oauth/authorize?" + params.toString();
+    const authorize = _authorizeUrl();
+    // FR-011 (account-switching): route through github.com/logout first so the
+    // user is presented with GitHub's account/consent screen and a *different*
+    // account can be chosen. This works regardless of whether the OAuth proxy's
+    // /revoke route is deployed (it's the no-Worker-change fallback path); when
+    // /revoke IS deployed, signOut() also revokes the grant for good measure.
+    const logoutUrl = "https://github.com/logout?return_to=" + encodeURIComponent(authorize);
+    location.href = logoutUrl;
   }
 
-  function signOut() {
+  // Non-blocking, dismissible notice (used when grant-revocation fails).
+  function _notice(msg) {
+    try {
+      const root = document.getElementById("banners");
+      if (!root) return;
+      const div = document.createElement("div");
+      div.className = "shell banner warn";
+      div.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + escapeHtml(msg) +
+        ' <span class="x" title="dismiss"><i class="fa-solid fa-xmark"></i></span>';
+      div.querySelector(".x").addEventListener("click", () => div.remove());
+      root.appendChild(div);
+    } catch { /* never throw from a notice */ }
+  }
+
+  async function signOut() {
+    // FR-010: unconditional local clear, FIRST — so a proxy outage still
+    // signs the user out locally, and a reload can't resurrect the session.
+    const t = token();
     localStorage.removeItem(KEY_TOKEN);
     localStorage.removeItem(KEY_USER);
+    sessionStorage.removeItem(KEY_STATE);   // the OAuth-state nonce — was forgotten
     renderSlot();
+    // FR-011: best-effort grant revocation via the proxy's /revoke route
+    // (the Worker holds the client secret and calls
+    // DELETE /applications/{client_id}/grant). Non-blocking; never throws.
+    if (PROXY && t) {
+      try {
+        const r = await fetch(PROXY + "/revoke", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: t }),
+        });
+        if (!r.ok) throw new Error("revoke " + r.status);
+      } catch (err) {
+        console.warn("OAuth grant revocation failed (will fall back to the account-chooser on next sign-in):", err);
+        _notice("Signed out. You may need to sign out of github.com to switch accounts.");
+      }
+    }
   }
 
   async function handleCallback() {
@@ -197,8 +242,117 @@
     });
   }
 
+  // ── Human-submission helpers (FR-012..015) ─────────────────────────────
+  // Each creates a GitHub issue labelled `human-submission` + a sub-type label;
+  // the submission_intake maintenance agent (hourly cron) triages + closes it.
+  // No new HTTP layer — uses the same ghFetch plumbing as submitIdea/submitReview.
+
+  function _slug(s) {
+    return String(s || "submission").toLowerCase().replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "").slice(0, 48) || "submission";
+  }
+
+  async function submitFeedback({ target_id, target_kind, target_stage, content }) {
+    const text = (content || "").trim();
+    if (!text) throw new Error("Feedback text is required.");
+    const who = (user() && user().login) || "anonymous";
+    const summary = (text.split("\n", 1)[0] || "").slice(0, 200);
+    const lines = [
+      "> " + summary,
+      "",
+      "## Feedback",
+      "",
+      text,
+      "",
+      "## Target",
+      "",
+      "- **Project / artifact:** " + (target_id || "(unspecified)"),
+      "- **Artifact kind:** " + (target_kind || "(unspecified)"),
+      "- **Stage:** " + (target_stage || "(unspecified)"),
+      "- **Submitter:** " + who,
+      "",
+      "---",
+      "*Submitted via the llmXive dashboard. The submission-intake agent will triage this to the appropriate pipeline step within the hour.*",
+    ];
+    const title = "Feedback: " + (target_id || "general") + (target_stage ? " (" + target_stage + ")" : "");
+    return ghFetch("/repos/" + OWNER + "/" + REPO + "/issues", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, body: lines.join("\n"), labels: ["human-submission", "feedback"] }),
+    });
+  }
+
+  async function _stagePdf(file) {
+    // Read the File as base64 (sans data: prefix), PUT to submissions/inbox/.
+    const dataUrl = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = () => rej(new Error("could not read the PDF"));
+      r.readAsDataURL(file);
+    });
+    const b64 = String(dataUrl).split(",", 2)[1] || "";
+    const ts = new Date().toISOString().replace(/[:.]/g, "-");
+    const path = "submissions/inbox/" + ts + "-" + _slug(file.name.replace(/\.pdf$/i, "")) + ".pdf";
+    await ghFetch("/repos/" + OWNER + "/" + REPO + "/contents/" + encodeURI(path), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: "submission: stage a submitted paper PDF",
+        content: b64,
+        branch: "main",
+      }),
+    });
+    return path;
+  }
+
+  async function submitPaper({ url, pdfFile } = {}) {
+    const who = (user() && user().login) || "anonymous";
+    if (pdfFile) {
+      if (!(pdfFile instanceof File)) throw new Error("Expected a PDF file.");
+      if (!/\.pdf$/i.test(pdfFile.name)) throw new Error("Please choose a PDF file.");
+      if (pdfFile.size > 10 * 1024 * 1024) throw new Error("PDF too large (over 10 MB); please submit a URL instead.");
+      const path = await _stagePdf(pdfFile);
+      const lines = [
+        "> A paper has been submitted for consideration/review (uploaded PDF).",
+        "",
+        "## Submitted paper",
+        "",
+        "- **Staged file:** `" + path + "`",
+        "- **Original filename:** " + pdfFile.name,
+        "- **Submitter:** " + who,
+        "",
+        "---",
+        "*Submitted via the llmXive dashboard. The submission-intake agent will file this and create/link a project within the hour.*",
+      ];
+      return ghFetch("/repos/" + OWNER + "/" + REPO + "/issues", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: "New paper (upload): " + pdfFile.name, body: lines.join("\n"), labels: ["human-submission", "new-paper"] }),
+      });
+    }
+    const u = (url || "").trim();
+    if (!u) throw new Error("Provide a paper URL or upload a PDF.");
+    if (!/^https?:\/\//i.test(u)) throw new Error("Please enter a valid http(s) URL.");
+    const lines = [
+      "> A paper has been submitted for consideration/review (link).",
+      "",
+      "## Submitted paper",
+      "",
+      "- **URL:** " + u,
+      "- **Submitter:** " + who,
+      "",
+      "---",
+      "*Submitted via the llmXive dashboard. The submission-intake agent will file this and create/link a project within the hour.*",
+    ];
+    return ghFetch("/repos/" + OWNER + "/" + REPO + "/issues", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "New paper (link): " + u.slice(0, 80), body: lines.join("\n"), labels: ["human-submission", "new-paper"] }),
+    });
+  }
+
   window.LlmxiveAuth = {
     mount, handleCallback, startLogin, signOut, isSignedIn,
-    user, token, submitIdea, submitReview,
+    user, token, submitIdea, submitReview, submitFeedback, submitPaper,
   };
 })();

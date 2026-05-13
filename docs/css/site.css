@@ -54,20 +54,32 @@ a:hover { color: var(--accent-2); }
   height: 64px;
 }
 .brand {
-  display: flex; align-items: baseline; gap: 12px;
+  display: flex; align-items: center; gap: 12px;
   font-family: var(--serif); font-weight: 500;
   font-size: 22px; letter-spacing: -0.01em; color: var(--text);
 }
-.brand .glyph {
+/* The wordmark "llmXive" is ONE unbroken token inside a bordered box
+   (FR-001). white-space:nowrap + inline-flex keeps it on one line at every
+   width; padding/border give it the logo treatment the old split [llm]Xive
+   had — but applied to the whole word. */
+.brand .wordmark {
   font-family: var(--mono);
   font-size: 18px; font-weight: 600; color: var(--accent);
   border: 1px solid var(--accent); padding: 2px 8px; border-radius: var(--r-sm);
   letter-spacing: 0.02em;
-  transform: translateY(-2px);
+  white-space: nowrap;
+  display: inline-flex; align-items: center;
+  flex: 0 0 auto;
 }
 .brand .tag {
   font-family: var(--mono); font-size: 11px; color: var(--muted);
   font-weight: 400; letter-spacing: 0.04em; text-transform: uppercase;
+  white-space: nowrap;
+}
+/* On narrow screens drop the secondary tag so the wordmark never has to
+   compete for width. */
+@media (max-width: 480px) {
+  .brand .tag { display: none; }
 }
 .top-actions { display: flex; align-items: center; gap: 8px; }
 
@@ -102,6 +114,7 @@ a:hover { color: var(--accent-2); }
 .tabs-row {
   display: flex; gap: 4px; overflow-x: auto;
   scrollbar-width: none;
+  position: relative;   /* containing block for .tab-underline (FR-002) */
 }
 .tabs-row::-webkit-scrollbar { display: none; }
 .tab {
@@ -129,7 +142,7 @@ a:hover { color: var(--accent-2); }
 }
 .tab.active .count { background: var(--accent-tint); color: var(--accent); }
 .tab-underline {
-  position: absolute; bottom: -1px; height: 2px;
+  position: absolute; bottom: -1px; left: 0; width: 0; height: 2px;
   background: var(--accent);
   transition: left var(--t-med), width var(--t-med);
   border-radius: 2px 2px 0 0;
@@ -377,7 +390,16 @@ a:hover { color: var(--accent-2); }
   content: ''; position: absolute; top: 24px; left: 10%; right: 10%;
   height: 1px; background: var(--line); z-index: 0;
 }
-.stage { text-align: center; position: relative; padding: 0 8px; }
+/* .stage is now a <button> (FR-003 — click for the step modal): reset the
+   native button chrome, keep the centered-node layout. */
+.stage {
+  text-align: center; position: relative; padding: 8px;
+  background: transparent; border: 0; cursor: pointer; font: inherit; color: inherit;
+  border-radius: var(--r-sm);
+  transition: background var(--t-fast);
+}
+.stage:hover, .stage:focus-visible { background: var(--bg-2); outline: none; }
+.stage:focus-visible { box-shadow: 0 0 0 2px var(--accent-soft); }
 .stage .node {
   width: 48px; height: 48px; border-radius: 50%;
   background: var(--surface); border: 1.5px solid var(--accent);
@@ -388,12 +410,16 @@ a:hover { color: var(--accent-2); }
   position: relative; z-index: 1;
   transition: all var(--t-med);
 }
-.stage:hover .node { background: var(--accent); color: white; transform: scale(1.06); }
+.stage:hover .node, .stage:focus-visible .node { background: var(--accent); color: white; transform: scale(1.06); }
 .stage h4 {
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
-  color: var(--text); margin: 0 0 6px;
+  color: var(--text); margin: 0;
 }
-.stage p { font-size: 11.5px; color: var(--muted); margin: 0; line-height: 1.5; }
+.stage p { font-size: 11.5px; color: var(--muted); margin: 6px 0 0; line-height: 1.5; }
+.pipeline-hint {
+  font-size: 12px; color: var(--muted); margin: 24px 0 4px;
+  display: flex; align-items: center; gap: 6px;
+}
 
 /* ── Buttons ───────────────────────────────────────────────── */
 .btn {
@@ -587,15 +613,79 @@ a:hover { color: var(--accent-2); }
 .artifact-dialog .ad-pdf {
   background: var(--bg-2);
   border-right: 1px solid var(--line-soft);
-  display: flex; align-items: stretch;
+  display: flex; align-items: stretch; flex-direction: column;
   min-height: 480px;
 }
 .artifact-dialog .ad-pdf embed,
-.artifact-dialog .ad-pdf iframe { width: 100%; height: 100%; border: 0; }
+.artifact-dialog .ad-pdf iframe { width: 100%; height: 100%; border: 0; flex: 1; }
 .artifact-dialog .ad-pdf .ad-pdf-empty {
   padding: 24px; color: var(--muted); font-size: 12px;
   display: flex; align-items: center; justify-content: center;
   text-align: center; flex: 1;
+}
+.artifact-dialog .ad-pdf .ad-pdf-empty strong { color: var(--text); }
+
+/* FR-009: non-PDF artifact panes — rendered Markdown body, formatted source
+   view, and the "view on GitHub" footer. */
+.artifact-dialog .ad-art-body {
+  flex: 1; overflow-y: auto;
+  padding: 20px 24px;
+  background: var(--bg);
+}
+.artifact-dialog .ad-art-loading { color: var(--muted); font-size: 12px; }
+.artifact-dialog .ad-art-foot {
+  border-top: 1px solid var(--line-soft);
+  padding: 10px 16px; background: var(--bg-2);
+  flex: 0 0 auto;
+}
+/* rendered-Markdown body */
+.artifact-dialog .md-body { font-size: 13px; line-height: 1.6; color: var(--text-2); }
+.artifact-dialog .md-body h1,
+.artifact-dialog .md-body h2,
+.artifact-dialog .md-body h3,
+.artifact-dialog .md-body h4 {
+  font-family: var(--serif); font-weight: 500; color: var(--text);
+  margin: 1.2em 0 0.4em; line-height: 1.2;
+}
+.artifact-dialog .md-body h1 { font-size: 22px; }
+.artifact-dialog .md-body h2 { font-size: 18px; }
+.artifact-dialog .md-body h3 { font-size: 15px; }
+.artifact-dialog .md-body h1:first-child,
+.artifact-dialog .md-body h2:first-child,
+.artifact-dialog .md-body h3:first-child { margin-top: 0; }
+.artifact-dialog .md-body p { margin: 0.6em 0; }
+.artifact-dialog .md-body ul,
+.artifact-dialog .md-body ol { margin: 0.6em 0; padding-left: 1.4em; }
+.artifact-dialog .md-body li { margin: 0.2em 0; }
+.artifact-dialog .md-body a { color: var(--accent); }
+.artifact-dialog .md-body code {
+  font-family: var(--mono); font-size: 0.9em;
+  background: var(--bg-2); padding: 1px 4px; border-radius: 3px;
+}
+.artifact-dialog .md-body pre {
+  background: var(--bg-2); border: 1px solid var(--line-soft);
+  border-radius: var(--r-sm); padding: 10px 12px; overflow-x: auto;
+  font-family: var(--mono); font-size: 11.5px; line-height: 1.5;
+}
+.artifact-dialog .md-body pre code { background: transparent; padding: 0; }
+.artifact-dialog .md-body blockquote {
+  border-left: 3px solid var(--line); margin: 0.6em 0; padding-left: 12px;
+  color: var(--muted);
+}
+.artifact-dialog .md-body table { border-collapse: collapse; font-size: 12px; margin: 0.6em 0; }
+.artifact-dialog .md-body th,
+.artifact-dialog .md-body td { border: 1px solid var(--line-soft); padding: 4px 8px; }
+.artifact-dialog .md-body img { max-width: 100%; height: auto; }
+/* formatted-source view (LaTeX/JSON/YAML) */
+.artifact-dialog .ad-art-src {
+  font-family: var(--mono); font-size: 11.5px; line-height: 1.5;
+  white-space: pre-wrap; word-break: break-word;
+  color: var(--text-2); margin: 0;
+}
+/* the markdown fallback when no renderer is loaded */
+.artifact-dialog .md-fallback {
+  font-family: var(--mono); font-size: 11.5px; white-space: pre-wrap;
+  color: var(--text-2);
 }
 
 .artifact-dialog .ad-list {
@@ -788,3 +878,124 @@ a:hover { color: var(--accent-2); }
   color: var(--text-2);
 }
 .card .submitter-row .submitter i { font-size: 9px; }
+
+/* ── About-page modals (FR-003 pipeline step, FR-004 agent registry) ── */
+.about-modal-backdrop .about-modal {
+  max-width: 760px; width: min(760px, 94vw);
+  max-height: 88vh; display: flex; flex-direction: column;
+  padding: 0;
+}
+.about-modal .am-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--line-soft);
+  flex: 0 0 auto;
+}
+.about-modal .am-title { font-family: var(--serif); font-weight: 400; font-size: 22px; margin: 0; }
+.about-modal .am-close {
+  background: transparent; border: 0; cursor: pointer; color: var(--muted);
+  font-size: 12px; padding: 6px 10px; border-radius: var(--r-sm);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.about-modal .am-close:hover { color: var(--text); background: var(--bg-2); }
+.about-modal .am-body { padding: 20px; overflow-y: auto; flex: 1; font-size: 13px; }
+.about-modal .am-section { margin-bottom: 20px; }
+.about-modal .am-section:last-child { margin-bottom: 0; }
+.about-modal .am-section h3 {
+  font-family: var(--mono); font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--muted); margin: 0 0 8px;
+}
+.about-modal .am-section ul { margin: 0; padding-left: 1.3em; }
+.about-modal .am-section li { margin: 3px 0; color: var(--text-2); line-height: 1.5; }
+.about-modal .am-section li p { display: inline; margin: 0; }
+.about-modal .am-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.about-modal .am-desc { color: var(--text-2); line-height: 1.6; }
+.about-modal .muted { color: var(--muted); }
+.about-modal .am-hint { font-size: 11px; margin: 8px 0 0; }
+.about-modal .am-agents { display: flex; flex-wrap: wrap; gap: 6px; }
+.about-modal .am-agent-chip {
+  background: var(--bg-2); border: 1px solid var(--line-soft); border-radius: 999px;
+  font-family: var(--mono); font-size: 11px; padding: 4px 10px; cursor: pointer;
+  color: var(--text-2); display: inline-flex; align-items: center; gap: 5px;
+}
+.about-modal .am-agent-chip:hover:not([disabled]) { border-color: var(--accent); color: var(--accent); }
+.about-modal .am-agent-chip[disabled] { opacity: 0.5; cursor: default; }
+.about-modal .am-examples a { color: var(--accent); }
+/* agent-registry list */
+.about-modal .am-agent-list { display: flex; flex-direction: column; gap: 4px; }
+.about-modal .am-agent-row {
+  display: grid; grid-template-columns: 200px 1fr 16px; gap: 12px; align-items: center;
+  background: transparent; border: 0; border-bottom: 1px solid var(--line-soft);
+  padding: 10px 4px; cursor: pointer; text-align: left; width: 100%;
+}
+.about-modal .am-agent-row:hover { background: var(--bg-2); }
+.about-modal .am-agent-row .ar-name { font-family: var(--mono); font-size: 12px; color: var(--text); font-weight: 500; }
+.about-modal .am-agent-row .ar-purpose { font-size: 12px; color: var(--text-2); line-height: 1.4; }
+.about-modal .am-agent-row .ar-go { color: var(--muted); font-size: 10px; }
+/* agent detail */
+.about-modal .am-agent-meta p { margin: 0 0 12px; color: var(--text-2); line-height: 1.6; }
+.about-modal .am-kv { display: flex; gap: 8px; font-size: 12px; margin: 4px 0; align-items: baseline; }
+.about-modal .am-kv > span { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); width: 64px; flex: 0 0 auto; }
+.about-modal .am-tool { font-family: var(--mono); font-size: 11px; background: var(--bg-2); border-radius: 4px; padding: 1px 6px; margin-right: 4px; }
+.about-modal .am-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.about-modal .am-prompt { background: var(--bg-2); border: 1px solid var(--line-soft); border-radius: var(--r-sm); padding: 14px 16px; }
+.about-modal .am-prompt.md-body { font-size: 12.5px; }
+
+/* ── "How to contribute" section (FR-005) ── */
+.about-contribute { margin-top: 32px; }
+.about-contribute h3 { font-family: var(--serif); font-weight: 400; font-size: 22px; margin: 0 0 4px; }
+.about-contribute .sub { font-size: 13px; color: var(--muted); margin: 0 0 18px; }
+.contribute-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.contribute-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
+  padding: 20px; display: flex; flex-direction: column; gap: 8px;
+}
+.contribute-card .ci {
+  width: 36px; height: 36px; border-radius: 8px; background: var(--accent-soft); color: var(--accent);
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.contribute-card h4 { font-size: 14px; margin: 4px 0 0; color: var(--text); }
+.contribute-card p { font-size: 12.5px; color: var(--text-2); line-height: 1.55; margin: 0; flex: 1; }
+.contribute-card .btn { align-self: flex-start; margin-top: 4px; }
+
+@media (max-width: 720px) {
+  .about-modal .am-cols { grid-template-columns: 1fr; }
+  .about-modal .am-agent-row { grid-template-columns: 1fr; gap: 2px; }
+  .about-modal .am-agent-row .ar-go { display: none; }
+  .contribute-grid { grid-template-columns: 1fr; }
+  .pipeline.two-lane .stage p { display: none; }
+}
+
+/* ── Modal status messages + per-artifact feedback panel (FR-013b, FR-012) ── */
+.modal-msg { margin-top: 12px; font-size: 12.5px; line-height: 1.5; min-height: 0; }
+.modal-msg:empty { display: none; }
+.modal-msg.ok { color: oklch(0.4 0.15 150); }
+.modal-msg.err { color: oklch(0.5 0.18 30); }
+.modal-msg a { color: var(--accent); text-decoration: underline; }
+
+.artifact-dialog .ad-head-actions { display: flex; align-items: center; gap: 8px; }
+.artifact-dialog .ad-feedback-btn {
+  background: transparent; border: 1px solid var(--line-soft); border-radius: var(--r-sm);
+  color: var(--text-2); font-size: 12px; padding: 6px 10px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.artifact-dialog .ad-feedback-btn:hover { border-color: var(--accent); color: var(--accent); }
+.artifact-dialog .ad-feedback {
+  border-bottom: 1px solid var(--line-soft); background: var(--bg-2);
+  padding: 14px 20px;
+}
+.artifact-dialog .ad-feedback[hidden] { display: none; }
+.artifact-dialog .ad-fb-inner .field { display: block; margin: 0; }
+.artifact-dialog .ad-fb-inner .field .l {
+  display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--muted); margin-bottom: 6px;
+}
+.artifact-dialog .ad-fb-text {
+  width: 100%; min-height: 70px; resize: vertical;
+  border: 1px solid var(--line); border-radius: var(--r-sm); padding: 8px 10px;
+  font-family: var(--mono); font-size: 12.5px; background: var(--surface); color: var(--text);
+}
+.artifact-dialog .ad-fb-actions { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.artifact-dialog .ad-fb-msg { flex: 1; font-size: 11.5px; }
+.artifact-dialog .ad-fb-msg.ok { color: oklch(0.4 0.15 150); }
+.artifact-dialog .ad-fb-msg.err { color: oklch(0.5 0.18 30); }
+.artifact-dialog .ad-fb-msg a { color: var(--accent); text-decoration: underline; }

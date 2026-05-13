@@ -1038,7 +1038,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-13T12:15:07.209439+00:00",
+  "generated_at": "2026-05-13T12:17:17.964981+00:00",
   "pipeline_steps": [
     {
       "agents": [
@@ -42805,7 +42805,7 @@
       },
       "authors": [
         {
-          "contributions": 70,
+          "contributions": 71,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -42840,6 +42840,14 @@
       "id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 84.022919,
+          "ended_at": "2026-05-13T11:51:42.978704Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T11:50:18.955785Z"
+        },
         {
           "agent": "flesh_out",
           "duration_s": 32.178456,
@@ -42911,14 +42919,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-13T03:19:15.714570Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 69.6991,
-          "ended_at": "2026-05-13T01:14:29.308949Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T01:13:19.609849Z"
         }
       ],
       "phase_group": "idea",
