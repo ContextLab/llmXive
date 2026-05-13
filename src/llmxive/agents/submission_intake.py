@@ -202,8 +202,27 @@ def _slugify(s: str) -> str:
     return base[:40].strip("-") or "submission"
 
 
-def _arxiv_authors(url: str) -> tuple[list[str], str | None]:
-    """Best-effort arXiv author + title fetch for a paper-submission URL.
+# arXiv top-level category → project field (best-effort; the user can refine).
+_ARXIV_CATEGORY_TO_FIELD: dict[str, str] = {
+    "cs": "computer science",
+    "math": "mathematics",
+    "stat": "statistics",
+    "physics": "physics",
+    "astro-ph": "astronomy", "astro": "astronomy",
+    "cond-mat": "physics",
+    "gr-qc": "physics", "hep-th": "physics", "hep-ph": "physics",
+    "hep-ex": "physics", "hep-lat": "physics", "nucl-ex": "physics",
+    "nucl-th": "physics", "quant-ph": "physics",
+    "q-bio": "biology", "bio": "biology",
+    "q-fin": "economics", "econ": "economics",
+    "eess": "engineering",
+    # cs.CL is computation+language — closer to linguistics than CS for our taxonomy
+    "cs.cl": "linguistics",
+}
+
+
+def _arxiv_metadata(url: str) -> tuple[list[str], str | None, str | None]:
+    """Best-effort arXiv metadata fetch for a paper-submission URL.
 
     The user's rule: credit on a submitted paper goes to its *authors* (parsed
     from the paper itself), not the submitter. For arXiv URLs we can grab the
@@ -211,14 +230,15 @@ def _arxiv_authors(url: str) -> tuple[list[str], str | None]:
     other URLs / uploaded PDFs the paper-pipeline's existing tooling handles
     author parsing later.
 
-    Returns `(authors, title)` — both empty / None when not applicable or on
-    any failure (a missing/failed lookup never blocks intake).
+    Returns `(authors, title, field)` — empty / None when not applicable or on
+    any failure (a missing/failed lookup never blocks intake). `field` is
+    derived from the primary arXiv category via `_ARXIV_CATEGORY_TO_FIELD`.
     """
     if not url:
-        return [], None
+        return [], None, None
     m = re.search(r"arxiv\.org/(?:abs|pdf|html)/([0-9]{4}\.[0-9]{4,6})", url)
     if not m:
-        return [], None
+        return [], None, None
     arxiv_id = m.group(1)
     try:
         import urllib.request
@@ -227,20 +247,33 @@ def _arxiv_authors(url: str) -> tuple[list[str], str | None]:
             f"http://export.arxiv.org/api/query?id_list={arxiv_id}", timeout=15
         ) as r:
             xml = r.read().decode("utf-8", errors="replace")
-        ns = {"a": "http://www.w3.org/2005/Atom"}
+        ns = {"a": "http://www.w3.org/2005/Atom", "ar": "http://arxiv.org/schemas/atom"}
         root = ET.fromstring(xml)
         entry = root.find("a:entry", ns)
         if entry is None:
-            return [], None
+            return [], None, None
         authors = [
             (a.findtext("a:name", default="", namespaces=ns) or "").strip()
             for a in entry.findall("a:author", ns)
         ]
         authors = [a for a in authors if a]
         title = (entry.findtext("a:title", default="", namespaces=ns) or "").strip()
-        return authors, (title or None)
+        # Map the primary arXiv category to a project field — exact-match first
+        # (e.g. cs.CL → linguistics), then top-level (cs → computer science).
+        primary = entry.find("ar:primary_category", ns)
+        field = None
+        if primary is not None:
+            cat = (primary.get("term") or "").strip().lower()
+            field = _ARXIV_CATEGORY_TO_FIELD.get(cat) or _ARXIV_CATEGORY_TO_FIELD.get(cat.split(".")[0])
+        return authors, (title or None), field
     except Exception:
-        return [], None
+        return [], None, None
+
+
+# Backwards-compatible shim — older test imports + callers expect a 2-tuple.
+def _arxiv_authors(url: str) -> tuple[list[str], str | None]:
+    authors, title, _ = _arxiv_metadata(url)
+    return authors, title
 
 
 # Sentinels that mean "no real submitter named" — fall back to the GitHub issue
@@ -668,17 +701,18 @@ def _handle_new_paper(issue, number, body, author, *, repo: Path, gh: GhFn) -> I
     # in `paper_authors` (parsed from the paper itself when possible).
     comments = _fetch_comments(gh, number)
     submitter = _resolve_submitter(issue, body_submitter=parsed.get("submitter", ""), comments=comments)
-    # Best-effort paper-author parsing: arXiv URLs are cheap to look up via the
-    # public API; for other URLs / uploaded PDFs the paper-pipeline's tooling
-    # parses authors later (a missing lookup never blocks intake).
-    paper_authors, fetched_title = _arxiv_authors(url) if url else ([], None)
+    # Best-effort paper-author + title + field parsing from arXiv (cheap public
+    # API, no auth). For non-arXiv URLs / uploaded PDFs the paper-pipeline's
+    # tooling parses authors later — a missing lookup never blocks intake.
+    paper_authors, fetched_title, fetched_field = (_arxiv_metadata(url) if url else ([], None, None))
     if paper_authors:
         content_lines.append("Paper authors (from arXiv): " + ", ".join(paper_authors))
     title = (fetched_title or title_seed or "Submitted paper").strip()
+    field = (fetched_field if (fetched_field and fetched_field in VALID_FIELDS) else "other")
     content_lines += ["", f"Submitted by: {submitter}", "", f"(Intake from human-submission issue #{number}.)"]
     pid = _create_brainstormed_project(repo, title=title[:200] or "Submitted paper",
                                        content="\n".join(content_lines),
-                                       submitter=submitter, field="other",
+                                       submitter=submitter, field=field,
                                        issue_number=number, paper_authors=paper_authors)
 
     # If a PDF was staged, move it to the project's canonical home.

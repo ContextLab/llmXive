@@ -939,6 +939,44 @@ def _submitter_contributors(repo: Path, projects: list) -> list[dict[str, Any]]:
     ]
 
 
+def _paper_author_contributors(repo: Path, projects: list) -> list[dict[str, Any]]:
+    """Each `paper_authors:` entry in a project's idea front-matter counts as
+    one contribution by that human author (FR-007 + the user's "credit goes to
+    the paper's authors not just the submitter" rule). Surfaced in the
+    top-level contributors list as kind="human".
+    """
+    rows: dict[tuple[str, str], dict[str, Any]] = {}
+    for p in projects:
+        idea_dir = repo / "projects" / p.id / "idea"
+        if not idea_dir.is_dir():
+            continue
+        for md in idea_dir.glob("*.md"):
+            text = md.read_text(encoding="utf-8", errors="replace")
+            if not text.startswith("---"):
+                continue
+            try:
+                fm = yaml.safe_load(text[3:text.index("---", 3)]) or {}
+            except (ValueError, yaml.YAMLError):
+                continue
+            for author in (fm.get("paper_authors") or []):
+                name = str(author).strip()
+                if not name:
+                    continue
+                key = (name, "human")
+                row = rows.setdefault(
+                    key, {"name": name, "kind": "human", "contribution_count": 0, "areas": set()}
+                )
+                row["contribution_count"] += 1
+                field = (p.field or "").strip().lower()
+                if field and field != "general":
+                    row["areas"].add(field)
+    return [
+        {"name": r["name"], "kind": r["kind"],
+         "contribution_count": r["contribution_count"], "areas": sorted(r["areas"])}
+        for r in rows.values()
+    ]
+
+
 def build_payload(repo: Path) -> dict[str, Any]:
     """Top-level builder: returns the dict to be serialized to projects.json."""
     # Clear the per-build registry-name cache (a long-lived process building
@@ -949,6 +987,7 @@ def build_payload(repo: Path) -> dict[str, Any]:
     by_kind, human_rows = _collect_reviews(repo)
     ai_rows = _agent_contributors(repo)
     submitter_rows = _submitter_contributors(repo, projects)
+    paper_author_rows = _paper_author_contributors(repo, projects)
 
     # FR-007: drop any row whose `name` is a pipeline agent/prompt role (a
     # belt-and-suspenders sweep — _collect_reviews/_agent_contributors already
@@ -967,7 +1006,7 @@ def build_payload(repo: Path) -> dict[str, Any]:
 
     # Merge human reviewer rows + AI agent rows + per-project submitters.
     rows_by_key: dict[tuple[str, str], dict[str, Any]] = {}
-    for r in _scrub(ai_rows) + _scrub(human_rows) + _scrub(submitter_rows):
+    for r in _scrub(ai_rows) + _scrub(human_rows) + _scrub(submitter_rows) + _scrub(paper_author_rows):
         key = (r["name"], r["kind"])
         if key in rows_by_key:
             rows_by_key[key]["contribution_count"] += r["contribution_count"]

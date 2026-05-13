@@ -1,0 +1,17 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-13T12:10:00.961169Z'
+current_stage: brainstormed
+failed_stage: null
+field: linguistics
+human_escalation_reason: null
+id: PROJ-562-a-stylometric-application-of-large-langu
+last_run_id: null
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+speckit_paper_dir: null
+speckit_research_dir: null
+title: A Stylometric Application of Large Language Models
+updated_at: '2026-05-13T12:10:00.961169Z'
