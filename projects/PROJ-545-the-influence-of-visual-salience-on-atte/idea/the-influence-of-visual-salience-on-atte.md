@@ -13,7 +13,7 @@ Does visual salience of actors in morally ambiguous images systematically bias h
 
 ## Motivation
 
-Visual attention mechanisms are well-documented to prioritize salient stimuli (bright colors, high contrast, motion), but it is unclear whether this perceptual bias extends to higher-order moral reasoning. If salient actors are disproportionately blamed regardless of their actual culpability, this could have implications for legal judgments, media framing, and eyewitness testimony. This gap is particularly pressing given the increasing use of visual media in public discourse and legal proceedings.
+Visual attention mechanisms are well-documented to prioritize salient stimuli, but it is unclear whether this perceptual bias extends to higher-order moral reasoning. If salient actors are disproportionately blamed regardless of their actual culpability, this could have implications for legal judgments, media framing, and eyewitness testimony. This gap is particularly pressing given the increasing use of visual media in public discourse and legal proceedings.
 
 ## Literature gap analysis
 
@@ -24,12 +24,11 @@ Searches were conducted via Semantic Scholar / arXiv / OpenAlex using two distin
 ### What is known
 
 - [Visual moral inference and communication (2025)](https://arxiv.org/abs/2504.11473) — Establishes that automated moral inference typically relies on textual input rather than visual, but does not test human perceptual biases in moral evaluation.
-- [Quantum decision making by social agents (2012)](https://arxiv.org/abs/1202.4918) — Provides a theoretical framework for how additional information influences social decision-making, though not specifically visual salience effects on moral judgment.
 - [Moral Dilemmas for Moral Machines (2022)](https://arxiv.org/abs/2203.06152) — Discusses ethical decision-making in autonomous systems but does not address human perceptual biases in moral evaluation.
 
 ### What is NOT known
 
-No published work has experimentally tested whether systematically varying visual salience of actors in moral scenarios (while holding their actual role constant) produces measurable shifts in blame ratings. The specific mechanism—whether this operates through attentional capture, perceived agency, or heuristic processing—remains unexamined in the literature. Existing work focuses on either moral content framing or AI moral reasoning, leaving the perceptual → moral judgment pathway unexplored.
+No published work has experimentally tested whether systematically varying visual salience of actors in moral scenarios (while holding their actual role constant) produces measurable shifts in blame ratings. The specific mechanism—whether this operates through attentional capture, perceived agency, or heuristic processing—remains unexamined in the literature.
 
 ### Why this gap matters
 
@@ -47,7 +46,7 @@ We expect a statistically significant positive correlation between objective vis
 
 - **Stimulus creation**: Use Open Images Dataset (https://storage.googleapis.com/openimages/web/index.html) to extract images depicting multi-agent scenarios; manipulate visual salience of target actors via color saturation, contrast, and edge intensity using standard image processing libraries (PIL/OpenCV).
 - **Salience quantification**: Compute objective visual salience metrics for each actor (saliency map integration, contrast ratio, color distinctiveness) using existing saliency detection algorithms (e.g., GBVS or ITTI implementations from public repositories).
-- **Moral scenario annotation**: Attempt to identify images with pre-existing human blame ratings from public repositories (e.g., HuggingFace Datasets search: "moral judgment", "social reasoning"); verify actors' actual moral role (perpetrator, bystander, victim) remains constant across salience manipulations.
+- **Moral scenario annotation**: Identify images with pre-existing human blame ratings from public repositories (e.g., HuggingFace Datasets search: "moral judgment", "social reasoning"); verify actors' actual moral role (perpetrator, bystander, victim) remains constant across salience manipulations.
 - **Data limitation acknowledgment**: No existing public dataset combines visual stimuli with human moral judgment ratings suitable for this specific intersection; computational simulation using pre-trained vision-language models (e.g., CLIP, BLIP-2 from HuggingFace) will be used to generate predicted blame scores as a proxy, acknowledging this does not validate against human ground truth.
 - **Statistical analysis**: Fit linear mixed-effects model with visual salience as predictor, blame rating (human or proxy) as outcome, and random effects for image and condition; test significance of salience coefficient using restricted maximum likelihood estimation.
 - **Power estimation**: Conduct post-hoc power analysis on effect sizes from comparable attention-bias literature to estimate minimum detectable effects given dataset constraints.
@@ -61,7 +60,7 @@ We expect a statistically significant positive correlation between objective vis
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-05-13T09:13:57Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-05-13T09:18:26Z
 **Outcome**: success_after_expansion
 **Original term**: The Influence of Visual Salience on Attentional Bias in Moral Decision-Making psychology
 **Verified citation count**: 7
