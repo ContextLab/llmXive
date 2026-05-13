@@ -964,3 +964,38 @@ a:hover { color: var(--accent-2); }
   .contribute-grid { grid-template-columns: 1fr; }
   .pipeline.two-lane .stage p { display: none; }
 }
+
+/* ── Modal status messages + per-artifact feedback panel (FR-013b, FR-012) ── */
+.modal-msg { margin-top: 12px; font-size: 12.5px; line-height: 1.5; min-height: 0; }
+.modal-msg:empty { display: none; }
+.modal-msg.ok { color: oklch(0.4 0.15 150); }
+.modal-msg.err { color: oklch(0.5 0.18 30); }
+.modal-msg a { color: var(--accent); text-decoration: underline; }
+
+.artifact-dialog .ad-head-actions { display: flex; align-items: center; gap: 8px; }
+.artifact-dialog .ad-feedback-btn {
+  background: transparent; border: 1px solid var(--line-soft); border-radius: var(--r-sm);
+  color: var(--text-2); font-size: 12px; padding: 6px 10px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.artifact-dialog .ad-feedback-btn:hover { border-color: var(--accent); color: var(--accent); }
+.artifact-dialog .ad-feedback {
+  border-bottom: 1px solid var(--line-soft); background: var(--bg-2);
+  padding: 14px 20px;
+}
+.artifact-dialog .ad-feedback[hidden] { display: none; }
+.artifact-dialog .ad-fb-inner .field { display: block; margin: 0; }
+.artifact-dialog .ad-fb-inner .field .l {
+  display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--muted); margin-bottom: 6px;
+}
+.artifact-dialog .ad-fb-text {
+  width: 100%; min-height: 70px; resize: vertical;
+  border: 1px solid var(--line); border-radius: var(--r-sm); padding: 8px 10px;
+  font-family: var(--mono); font-size: 12.5px; background: var(--surface); color: var(--text);
+}
+.artifact-dialog .ad-fb-actions { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.artifact-dialog .ad-fb-msg { flex: 1; font-size: 11.5px; }
+.artifact-dialog .ad-fb-msg.ok { color: oklch(0.4 0.15 150); }
+.artifact-dialog .ad-fb-msg.err { color: oklch(0.5 0.18 30); }
+.artifact-dialog .ad-fb-msg a { color: var(--accent); text-decoration: underline; }

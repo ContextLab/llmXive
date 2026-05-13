@@ -34,6 +34,9 @@
     ["citations",       "fa-quote-left",       "Citations"],
   ];
 
+  let _currentProject = null;
+  let _feedbackArtifactKind = null;
+
   function _ensureMount() {
     let bd = document.getElementById("ad-backdrop");
     if (bd) return bd;
@@ -44,8 +47,20 @@
       + '<div class="modal artifact-dialog" role="dialog" aria-modal="true">'
       + '<div class="ad-head">'
       + '<div><h2 class="ad-title">—</h2><span class="ad-stage-badge"></span></div>'
+      + '<div class="ad-head-actions">'
+      + '<button class="ad-feedback-btn" type="button"><i class="fa-regular fa-comment-dots"></i> Send feedback</button>'
       + '<button class="ad-close" aria-label="close"><i class="fa-solid fa-xmark"></i> Close</button>'
       + '</div>'
+      + '</div>'
+      + '<div class="ad-feedback" hidden>'
+      + '<div class="ad-fb-inner">'
+      + '<label class="field"><span class="l">Your feedback on this artifact</span>'
+      + '<textarea class="ad-fb-text" placeholder="What\'s missing, wrong, or could be improved? A maintenance agent will triage this to the right pipeline step within the hour."></textarea></label>'
+      + '<div class="ad-fb-actions">'
+      + '<span class="ad-fb-msg"></span>'
+      + '<button class="btn ghost ad-fb-cancel" type="button">Cancel</button>'
+      + '<button class="btn primary ad-fb-submit" type="button"><i class="fa-solid fa-paper-plane"></i> Submit feedback</button>'
+      + '</div></div></div>'
       + '<div class="ad-body">'
       + '<div class="ad-pdf"><div class="ad-pdf-empty">No PDF available yet.</div></div>'
       + '<div class="ad-list"></div>'
@@ -58,6 +73,47 @@
     });
     document.addEventListener("keydown", e => {
       if (e.key === "Escape" && bd.classList.contains("open")) close();
+    });
+
+    // Feedback panel wiring.
+    const fbPanel = bd.querySelector(".ad-feedback");
+    const fbText = bd.querySelector(".ad-fb-text");
+    const fbMsg = bd.querySelector(".ad-fb-msg");
+    bd.querySelector(".ad-feedback-btn").addEventListener("click", () => {
+      fbPanel.hidden = !fbPanel.hidden;
+      if (!fbPanel.hidden) { fbMsg.innerHTML = ""; fbMsg.className = "ad-fb-msg"; fbText.focus(); }
+    });
+    bd.querySelector(".ad-fb-cancel").addEventListener("click", () => { fbPanel.hidden = true; });
+    bd.querySelector(".ad-fb-submit").addEventListener("click", async () => {
+      const Auth = window.LlmxiveAuth;
+      const text = (fbText.value || "").trim();
+      if (!text) { fbMsg.textContent = "Please enter some feedback."; fbMsg.className = "ad-fb-msg err"; return; }
+      if (!Auth || !Auth.isSignedIn()) {
+        fbMsg.textContent = "Sign in with GitHub to submit feedback.";
+        fbMsg.className = "ad-fb-msg err";
+        if (Auth) Auth.startLogin();
+        return;
+      }
+      const btn = bd.querySelector(".ad-fb-submit");
+      btn.disabled = true; fbMsg.textContent = "Submitting…"; fbMsg.className = "ad-fb-msg";
+      try {
+        const issue = await Auth.submitFeedback({
+          target_id: _currentProject ? _currentProject.id : null,
+          target_kind: _feedbackArtifactKind,
+          target_stage: _currentProject ? _currentProject.current_stage : null,
+          content: text,
+        });
+        // FR-013b: confirmation with a clickable issue link + "within the hour".
+        fbMsg.innerHTML = 'Thanks — created <a href="' + escapeHtml(issue.html_url) + '" target="_blank" rel="noopener">issue #' + issue.number + '</a>. ' +
+          'A maintenance agent will process it within the next hour.';
+        fbMsg.className = "ad-fb-msg ok";
+        fbText.value = "";
+      } catch (err) {
+        fbMsg.textContent = "Could not submit: " + (err && err.message ? err.message : String(err));
+        fbMsg.className = "ad-fb-msg err";
+      } finally {
+        btn.disabled = false;
+      }
     });
     return bd;
   }
@@ -257,8 +313,18 @@
 
   function open(project) {
     const bd = _ensureMount();
+    _currentProject = project;
+    const ca = _resolveArtifact(project);
+    _feedbackArtifactKind = ca.type === "none" ? "project" : ca.type;
     bd.querySelector(".ad-title").textContent = project.title || project.id;
     bd.querySelector(".ad-stage-badge").textContent = (D.STAGE_LABELS[project.current_stage] || project.current_stage || "");
+    // Reset the feedback panel for the new project.
+    const fbPanel = bd.querySelector(".ad-feedback");
+    if (fbPanel) {
+      fbPanel.hidden = true;
+      const fbText = bd.querySelector(".ad-fb-text"); if (fbText) fbText.value = "";
+      const fbMsg = bd.querySelector(".ad-fb-msg"); if (fbMsg) { fbMsg.innerHTML = ""; fbMsg.className = "ad-fb-msg"; }
+    }
     const list = bd.querySelector(".ad-list");
     list.replaceChildren();
     list.insertAdjacentHTML("beforeend", _renderListColumn(project));

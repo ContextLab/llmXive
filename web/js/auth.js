@@ -242,8 +242,117 @@
     });
   }
 
+  // ── Human-submission helpers (FR-012..015) ─────────────────────────────
+  // Each creates a GitHub issue labelled `human-submission` + a sub-type label;
+  // the submission_intake maintenance agent (hourly cron) triages + closes it.
+  // No new HTTP layer — uses the same ghFetch plumbing as submitIdea/submitReview.
+
+  function _slug(s) {
+    return String(s || "submission").toLowerCase().replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "").slice(0, 48) || "submission";
+  }
+
+  async function submitFeedback({ target_id, target_kind, target_stage, content }) {
+    const text = (content || "").trim();
+    if (!text) throw new Error("Feedback text is required.");
+    const who = (user() && user().login) || "anonymous";
+    const summary = (text.split("\n", 1)[0] || "").slice(0, 200);
+    const lines = [
+      "> " + summary,
+      "",
+      "## Feedback",
+      "",
+      text,
+      "",
+      "## Target",
+      "",
+      "- **Project / artifact:** " + (target_id || "(unspecified)"),
+      "- **Artifact kind:** " + (target_kind || "(unspecified)"),
+      "- **Stage:** " + (target_stage || "(unspecified)"),
+      "- **Submitter:** " + who,
+      "",
+      "---",
+      "*Submitted via the llmXive dashboard. The submission-intake agent will triage this to the appropriate pipeline step within the hour.*",
+    ];
+    const title = "Feedback: " + (target_id || "general") + (target_stage ? " (" + target_stage + ")" : "");
+    return ghFetch("/repos/" + OWNER + "/" + REPO + "/issues", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, body: lines.join("\n"), labels: ["human-submission", "feedback"] }),
+    });
+  }
+
+  async function _stagePdf(file) {
+    // Read the File as base64 (sans data: prefix), PUT to submissions/inbox/.
+    const dataUrl = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = () => rej(new Error("could not read the PDF"));
+      r.readAsDataURL(file);
+    });
+    const b64 = String(dataUrl).split(",", 2)[1] || "";
+    const ts = new Date().toISOString().replace(/[:.]/g, "-");
+    const path = "submissions/inbox/" + ts + "-" + _slug(file.name.replace(/\.pdf$/i, "")) + ".pdf";
+    await ghFetch("/repos/" + OWNER + "/" + REPO + "/contents/" + encodeURI(path), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: "submission: stage a submitted paper PDF",
+        content: b64,
+        branch: "main",
+      }),
+    });
+    return path;
+  }
+
+  async function submitPaper({ url, pdfFile } = {}) {
+    const who = (user() && user().login) || "anonymous";
+    if (pdfFile) {
+      if (!(pdfFile instanceof File)) throw new Error("Expected a PDF file.");
+      if (!/\.pdf$/i.test(pdfFile.name)) throw new Error("Please choose a PDF file.");
+      if (pdfFile.size > 10 * 1024 * 1024) throw new Error("PDF too large (over 10 MB); please submit a URL instead.");
+      const path = await _stagePdf(pdfFile);
+      const lines = [
+        "> A paper has been submitted for consideration/review (uploaded PDF).",
+        "",
+        "## Submitted paper",
+        "",
+        "- **Staged file:** `" + path + "`",
+        "- **Original filename:** " + pdfFile.name,
+        "- **Submitter:** " + who,
+        "",
+        "---",
+        "*Submitted via the llmXive dashboard. The submission-intake agent will file this and create/link a project within the hour.*",
+      ];
+      return ghFetch("/repos/" + OWNER + "/" + REPO + "/issues", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: "New paper (upload): " + pdfFile.name, body: lines.join("\n"), labels: ["human-submission", "new-paper"] }),
+      });
+    }
+    const u = (url || "").trim();
+    if (!u) throw new Error("Provide a paper URL or upload a PDF.");
+    if (!/^https?:\/\//i.test(u)) throw new Error("Please enter a valid http(s) URL.");
+    const lines = [
+      "> A paper has been submitted for consideration/review (link).",
+      "",
+      "## Submitted paper",
+      "",
+      "- **URL:** " + u,
+      "- **Submitter:** " + who,
+      "",
+      "---",
+      "*Submitted via the llmXive dashboard. The submission-intake agent will file this and create/link a project within the hour.*",
+    ];
+    return ghFetch("/repos/" + OWNER + "/" + REPO + "/issues", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "New paper (link): " + u.slice(0, 80), body: lines.join("\n"), labels: ["human-submission", "new-paper"] }),
+    });
+  }
+
   window.LlmxiveAuth = {
     mount, handleCallback, startLogin, signOut, isSignedIn,
-    user, token, submitIdea, submitReview,
+    user, token, submitIdea, submitReview, submitFeedback, submitPaper,
   };
 })();

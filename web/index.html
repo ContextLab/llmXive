@@ -38,6 +38,9 @@
     </a>
     <nav class="top-actions">
       <span id="auth-slot"></span>
+      <button class="btn" data-open-modal="paper">
+        <i class="fa-regular fa-file-pdf"></i> Submit a paper
+      </button>
       <button class="btn primary" data-open-modal="submit">
         <i class="fa-solid fa-plus"></i> Submit Idea
       </button>
@@ -353,6 +356,22 @@
       <button class="btn ghost" data-close-modal>Cancel</button>
       <button class="btn primary" id="submit-idea-btn"><i class="fa-solid fa-paper-plane"></i> Submit Idea</button>
     </div>
+    <div class="modal-msg" id="submit-msg"></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-paper">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3>Submit a paper</h3>
+    <p class="sub">Submit an existing paper for consideration / review — by link or by uploading a PDF (≤ 10 MB). It's recorded as a tagged GitHub issue; the submission-intake agent files it and creates or links a project within the hour.</p>
+    <label class="field"><span class="l">Paper URL</span><input data-paper="url" placeholder="https://arxiv.org/abs/… or a DOI / PDF link" /></label>
+    <p class="sub" style="text-align:center;margin:8px 0;">— or —</p>
+    <label class="field"><span class="l">Upload a PDF</span><input type="file" accept="application/pdf,.pdf" data-paper="file" /></label>
+    <div class="actions">
+      <button class="btn ghost" data-close-modal>Cancel</button>
+      <button class="btn primary" id="submit-paper-btn"><i class="fa-solid fa-paper-plane"></i> Submit Paper</button>
+    </div>
+    <div class="modal-msg" id="paper-msg"></div>
   </div>
 </div>
 
@@ -385,6 +404,7 @@
       <button class="btn ghost" data-close-modal>Cancel</button>
       <button class="btn primary" id="submit-review-btn"><i class="fa-solid fa-check"></i> Submit Review</button>
     </div>
+    <div class="modal-msg" id="review-msg"></div>
   </div>
 </div>
 

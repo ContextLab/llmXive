@@ -314,28 +314,37 @@
       if (e.key === "Escape") document.querySelectorAll(".modal-backdrop.open").forEach(m => m.classList.remove("open"));
     });
 
+    // FR-013b: on a successful artifact submission show, IN THE MODAL, a
+    // confirmation with a clickable link to the created issue + that the
+    // contribution will be processed within the next hour. On failure: an
+    // inline error, input preserved for retry.
+    function setMsg(id, kind, html) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.className = "modal-msg " + (kind || "");
+      el.innerHTML = html;
+    }
+    function confirmHtml(issue, what) {
+      return (what || "Submitted") + ' as <a href="' + escapeHtml(issue.html_url) + '" target="_blank" rel="noopener">issue #' + issue.number +
+        '</a>. A maintenance agent will process it within the next hour.';
+    }
+
     document.getElementById("submit-idea-btn").addEventListener("click", async () => {
       const title = document.querySelector("[data-submit='title']").value.trim();
       const field = document.querySelector("[data-submit='field']").value.trim();
       const desc  = document.querySelector("[data-submit='description']").value.trim();
       const kw    = document.querySelector("[data-submit='keywords']").value.trim();
-      if (!title || !field || !desc) {
-        banner("warn", "Title, field, and description are required.");
-        return;
-      }
-      if (!Auth.isSignedIn()) {
-        banner("warn", "Please sign in with GitHub to submit an idea.");
-        Auth.startLogin();
-        return;
-      }
+      setMsg("submit-msg", "", "");
+      if (!title || !field || !desc) { setMsg("submit-msg", "err", "Title, field, and description are required."); return; }
+      if (!Auth.isSignedIn()) { setMsg("submit-msg", "err", "Please sign in with GitHub to submit an idea."); Auth.startLogin(); return; }
+      const btn = document.getElementById("submit-idea-btn"); btn.disabled = true;
       try {
         const issue = await Auth.submitIdea({ title, field, description: desc, keywords: kw });
-        document.getElementById("modal-submit").classList.remove("open");
-        const safeUrl = escapeHtml(issue.html_url);
-        banner("info", 'Idea submitted as <a href="' + safeUrl + '" target="_blank" rel="noopener">issue #' + issue.number + '</a>.');
+        setMsg("submit-msg", "ok", confirmHtml(issue, "Idea submitted"));
+        ["title", "field", "description", "keywords"].forEach(k => { const f = document.querySelector("[data-submit='" + k + "']"); if (f) f.value = ""; });
       } catch (err) {
-        banner("error", "Could not submit idea: " + escapeHtml(String(err.message || err)));
-      }
+        setMsg("submit-msg", "err", "Could not submit idea: " + escapeHtml(String(err.message || err)));
+      } finally { btn.disabled = false; }
     });
 
     document.getElementById("submit-review-btn").addEventListener("click", async () => {
@@ -345,18 +354,39 @@
       const summary = document.querySelector("[data-review='summary']").value.trim();
       const strengths = document.querySelector("[data-review='strengths']").value.trim();
       const concerns = document.querySelector("[data-review='concerns']").value.trim();
-      if (!pid || !summary) {
-        banner("warn", "Pick a project and provide a summary.");
-        return;
-      }
-      if (!Auth.isSignedIn()) { Auth.startLogin(); return; }
+      setMsg("review-msg", "", "");
+      if (!pid || !summary) { setMsg("review-msg", "err", "Pick a project and provide a summary."); return; }
+      if (!Auth.isSignedIn()) { setMsg("review-msg", "err", "Sign in with GitHub to submit a review."); Auth.startLogin(); return; }
+      const btn = document.getElementById("submit-review-btn"); btn.disabled = true;
       try {
-        await Auth.submitReview({ project_id: pid, stage, verdict, summary, strengths, concerns });
-        document.getElementById("modal-review").classList.remove("open");
-        banner("info", "Review submitted for " + escapeHtml(pid) + ".");
+        const res = await Auth.submitReview({ project_id: pid, stage, verdict, summary, strengths, concerns });
+        // submitReview returns the Contents-API response (the commit), not an
+        // issue — link to the created review file + still say "within the hour"
+        // (the advancement evaluator picks it up on the next cycle).
+        const url = (res && res.content && res.content.html_url) || ("https://github.com/ContextLab/llmXive/tree/main/projects/" + pid + "/reviews");
+        setMsg("review-msg", "ok", 'Review submitted for ' + escapeHtml(pid) + ' — <a href="' + escapeHtml(url) + '" target="_blank" rel="noopener">view it on GitHub</a>. It will be counted on the next pipeline cycle (within the hour).');
       } catch (err) {
-        banner("error", "Could not submit review: " + escapeHtml(String(err.message || err)));
-      }
+        setMsg("review-msg", "err", "Could not submit review: " + escapeHtml(String(err.message || err)));
+      } finally { btn.disabled = false; }
+    });
+
+    const paperBtn = document.getElementById("submit-paper-btn");
+    if (paperBtn) paperBtn.addEventListener("click", async () => {
+      const url = (document.querySelector("[data-paper='url']").value || "").trim();
+      const fileInput = document.querySelector("[data-paper='file']");
+      const pdfFile = fileInput && fileInput.files && fileInput.files[0];
+      setMsg("paper-msg", "", "");
+      if (!url && !pdfFile) { setMsg("paper-msg", "err", "Enter a paper URL or choose a PDF."); return; }
+      if (!Auth.isSignedIn()) { setMsg("paper-msg", "err", "Sign in with GitHub to submit a paper."); Auth.startLogin(); return; }
+      paperBtn.disabled = true; setMsg("paper-msg", "", pdfFile ? "Uploading PDF…" : "Submitting…");
+      try {
+        const issue = await Auth.submitPaper(pdfFile ? { pdfFile } : { url });
+        setMsg("paper-msg", "ok", confirmHtml(issue, "Paper submitted"));
+        document.querySelector("[data-paper='url']").value = "";
+        if (fileInput) fileInput.value = "";
+      } catch (err) {
+        setMsg("paper-msg", "err", "Could not submit paper: " + escapeHtml(String(err.message || err)));
+      } finally { paperBtn.disabled = false; }
     });
   }
 
