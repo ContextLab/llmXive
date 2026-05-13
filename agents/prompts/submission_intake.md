@@ -26,15 +26,22 @@ For a `feedback` issue, this prompt is rendered to decide **what to do with it**
 **Reply with EXACTLY ONE line of JSON — nothing before or after it.** Shape:
 
 ```json
-{"target": "<project id, or \"new\">", "action": "<route-to-<step> | create-project | acknowledge>", "rationale": "<one short sentence>"}
+{"target": "<project id, or \"new\">", "action": "<route-to-<step> | create-project | acknowledge>", "field": "<one of the valid fields below, or empty>", "rationale": "<one short sentence>"}
 ```
 
 - `target`: the project id the feedback is about (echo it from `{{target_context}}` when a target was named and found); `"new"` only when `action` is `create-project`.
 - `action`:
   - `route-to-<step>` — the feedback is about an existing project and points at a specific step (`<step>` ∈ `{{valid_steps}}`). The agent will post the feedback as a comment on that project's tracking issue and, only if the routing is unambiguous and safe, nudge the project toward that step. Default to routing-as-a-comment.
-  - `create-project` — the feedback is really a *new research idea*, not feedback on existing work. The agent will create a `brainstormed` project from it.
+  - `create-project` — the feedback is really a *new research idea*, not feedback on existing work. The agent will create a `brainstormed` project from it. **Be generous here** — a research-question-shaped submission with concrete substance (technical components, an approach, a hypothesis) should be `create-project` even if it's phrased loosely; only fall back to `acknowledge` for thank-yous, vague complaints, or non-actionable opinions.
   - `acknowledge` — the feedback is off-topic, non-actionable, a thank-you, or too vague to route. The agent will post a brief acknowledgement and close the issue.
+- `field`: the project's research field — REQUIRED when `action == "create-project"`. Pick the best fit from the valid-fields list below; if none fits, return `"other"`. For other actions, return `""`.
 - `rationale`: one sentence (≤25 words), no markdown.
+
+### Valid fields
+
+Pick the field that best describes the research domain of the idea / project. Use ONE of these values (lowercase, exact):
+
+`biology`, `chemistry`, `computer science`, `materials science`, `mathematics`, `neuroscience`, `physics`, `psychology`, `statistics`, `astronomy`, `environmental science`, `economics`, `engineering`, `medicine`, `philosophy`, `linguistics`, `other`
 
 If you are unsure, prefer `acknowledge` (or `route-to-<the project's current step>` when a real project is named) over `create-project` or an aggressive route. An unparseable reply is treated as a failure — the agent leaves the issue open with an explanatory comment for a maintainer.
 
