@@ -860,6 +860,24 @@
       "purpose": "Research-stage specialist reviewer focusing exclusively on filesystem hygiene aspects of the implementation",
       "registry_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/registry.yaml",
       "tools": []
+    },
+    {
+      "default_backend": "dartmouth",
+      "default_model": "google.gemma-3-27b-it",
+      "inputs": [
+        "review"
+      ],
+      "name": "submission_intake",
+      "outputs": [
+        "status_comment",
+        "project_state"
+      ],
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/submission_intake.md",
+      "prompt_path": "agents/prompts/submission_intake.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/submission_intake.md",
+      "purpose": "Triage human-submission GitHub issues from the website \u2014 route feedback to the right pipeline step, create a project, file a submitted paper, or acknowledge \u2014 then comment and close.",
+      "registry_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/registry.yaml",
+      "tools": []
     }
   ],
   "aggregates": {
@@ -976,7 +994,7 @@
       "name": "jeremymanning"
     }
   ],
-  "generated_at": "2026-05-13T02:52:31.864105+00:00",
+  "generated_at": "2026-05-13T03:25:34.987297+00:00",
   "pipeline_steps": [
     {
       "agents": [
