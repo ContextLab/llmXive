@@ -1,0 +1,67 @@
+%% preamble.tex — drop-in llmXive house-style preamble for an EXTERNAL paper.
+%%
+%% Use this when re-styling a paper that already has its own \documentclass
+%% and preamble (typical for arXiv-submitted papers). Put it AFTER the existing
+%% \documentclass and AFTER the existing \usepackage{...} lines, but BEFORE
+%% \begin{document}. The goal is to restyle the typography + colors WITHOUT
+%% rewriting the paper's own structural commands (sections, citations, etc.).
+%%
+%% Required engine: XeLaTeX or LuaLaTeX (uses fontspec). The compile MUST be
+%% run from the llmXive repository root so the fontspec Path resolves.
+%%
+%% Usage:
+%%   \documentclass[11pt]{article}     %% (the paper's own class)
+%%   \usepackage{...}                  %% (the paper's own packages)
+%%   \input{papers/.style/preamble.tex}
+%%   \begin{document} ... \end{document}
+
+% ── Fonts (XeLaTeX / LuaLaTeX via fontspec) ────────────────────────────────
+\usepackage{fontspec}
+\defaultfontfeatures{Path=papers/.style/fonts/}
+\setmainfont{Fraunces-Variable.ttf}[
+  UprightFont       = Fraunces-Variable.ttf,
+  BoldFont          = Fraunces-Variable.ttf,
+  ItalicFont        = Fraunces-Italic-Variable.ttf,
+  BoldItalicFont    = Fraunces-Italic-Variable.ttf,
+  UprightFeatures   = {RawFeature={axis={opsz=24,SOFT=50,WONK=0,wght=400}}},
+  BoldFeatures      = {RawFeature={axis={opsz=24,SOFT=50,WONK=0,wght=700}}},
+  ItalicFeatures    = {RawFeature={axis={opsz=24,SOFT=50,WONK=0,wght=400}}},
+  BoldItalicFeatures= {RawFeature={axis={opsz=24,SOFT=50,WONK=0,wght=700}}},
+  Ligatures         = TeX,
+]
+\setmonofont{JetBrainsMono-Regular.ttf}[
+  ItalicFont = JetBrainsMono-Italic.ttf,
+  BoldFont   = JetBrainsMono-Bold.ttf,
+  Scale      = 0.92,
+]
+
+% ── Colors (match the website's --accent et al.) ──────────────────────────
+\usepackage{xcolor}
+\definecolor{llmxAccent}{HTML}{00693E}
+\definecolor{llmxAccent2}{HTML}{0A8A55}
+\definecolor{llmxText}{HTML}{16241B}
+\definecolor{llmxText2}{HTML}{405548}
+\definecolor{llmxMuted}{HTML}{6E8478}
+\AtBeginDocument{\color{llmxText}}
+
+% ── Hyperlinks in accent green ─────────────────────────────────────────────
+\usepackage[unicode]{hyperref}
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = llmxAccent2,
+  citecolor  = llmxAccent,
+  urlcolor   = llmxAccent,
+  filecolor  = llmxAccent,
+  pdfborder  = {0 0 0},
+}
+
+% ── Color the section numbers to match the house style ────────────────────
+% (Use \section, \subsection, \subsubsection without redefining the format —
+% just color the numbers.)
+\usepackage{titlesec}
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{llmxAccent}}{\thesection}{0.8em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{llmxText}}{\thesubsection}{0.7em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\itshape\color{llmxText2}}{\thesubsubsection}{0.6em}{}

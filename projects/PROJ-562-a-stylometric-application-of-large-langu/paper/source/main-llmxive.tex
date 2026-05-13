@@ -1,0 +1,93 @@
+%% main-llmxive.tex — PROJ-562's paper, re-styled in the llmXive house style.
+%%
+%% This is the "publication-ready" version of the paper that llmXive shows on
+%% its dashboard. It wraps the original main.tex body in the llmxive document
+%% class — typography (Fraunces + JetBrains Mono) and color (Dartmouth green)
+%% match the website. The original main.tex (and main.pdf, if you compile it
+%% with pdflatex) is kept for reference + provenance.
+%%
+%% Compile from the llmXive repo root:
+%%   cd /path/to/llmXive
+%%   xelatex -output-directory=projects/PROJ-562-…/paper/pdf \
+%%           projects/PROJ-562-…/paper/source/main-llmxive.tex
+
+\documentclass[11pt]{llmxive}
+
+% Re-declare the original's figure-number aliases (the body uses them in
+% \cref / \autoref calls — they're cross-reference labels, not figure data).
+\newcommand{\crossentropyContent}{1}
+\newcommand{\crossentropyFunction}{2}
+\newcommand{\crossentropyPOS}{3}
+\newcommand{\ttestsContent}{4}
+\newcommand{\ttestsFunction}{5}
+\newcommand{\ttestsPOS}{6}
+\newcommand{\confusion}{7}
+\newcommand{\mds}{8}
+\newcommand{\authortableContent}{1}
+\newcommand{\authortableFunction}{2}
+\newcommand{\authortablePOS}{3}
+
+% The original is double-spaced; this re-style is single-spaced (more
+% web-aligned). Comment-in to restore double-spacing:
+% \usepackage{setspace}\doublespacing
+
+\title{A Stylometric Application of Large Language Models}
+\author{Harrison F. Stropkay, Jiayi Chen, Mohammad J. Latifi,\\
+        Daniel N. Rockmore, and Jeremy R. Manning\\[0.3em]
+        \normalsize\itshape Dartmouth College, Hanover, NH 03755, USA}
+\date{October 2025}
+\arxivid{2510.21958}
+\githubrepo{https://github.com/ContextLab/llm-stylometry}
+\journal{llmXive --- automated scientific discovery}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We show that large language models (LLMs) can be used to distinguish the
+writings of different authors. Specifically, an individual GPT-2 model,
+trained from scratch on the works of one author, will predict held-out text
+from that author more accurately than held-out text from other authors. We
+suggest that, in this way, a model trained on one author's works embodies the
+unique writing style of that author. We first demonstrate our approach on
+books written by eight different (known) authors. We also use this approach
+to confirm R.~P.~Thompson's authorship of the well-studied
+15\textsuperscript{th} book of the \textit{Oz} series, originally attributed
+to F.~L.~Baum.
+\end{abstract}
+
+\section{Introduction}
+
+Herein we introduce \textit{predictive comparison}, a new LLM-based relative
+stylometric measure. It derives from a simple idea, that if an LLM can be
+trained to write like---i.e., in the style of---a given author by training on
+their work~\citep[e.g., ][]{Mikr25}, then the degree to which such a model
+can be used to predict held-out text from any \emph{candidate} author should
+reflect the relative similarity of the styles of the two authors.
+
+For ease of exposition, throughout this paper we focus on prose written by
+known novelists. To this end, we adapted and trained a series of small GPT-2
+models~\citep{RadEtal19} to write in the style of any of $N=8$ different
+authors. Specifically, for each author, we trained one model on a training
+partition of that author's complete works, and evaluated each model's
+predictive accuracy on held-out passages from each of the eight authors.
+
+\section*{Acknowledgments}
+
+The authors thank Wenjia Tracy Yu and Lucy L.~W.~Owen for useful comments and
+discussion. We acknowledge support from NSF grant number CAREER-2145172.
+
+\section*{Code availability}
+
+Code: \url{https://github.com/ContextLab/llm-stylometry}. See the
+project's README for setup instructions.
+
+\section*{Note}
+
+\textbf{This is an abbreviated re-styled excerpt} of the full paper, produced
+as a demonstration of the llmXive house style. The full content
+(Methods, Results, Discussion, all figures, and the complete bibliography) is
+available in the original on arXiv at
+\href{https://arxiv.org/abs/2510.21958}{arXiv:2510.21958}.
+
+\end{document}
