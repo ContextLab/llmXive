@@ -106,6 +106,59 @@ def _load_registry(repo: Path) -> dict[str, Any]:
 
 
 _AGENT_NAMES_CACHE: dict[str, set[str]] = {}
+_ALIAS_CACHE: dict[str, dict[str, dict[str, Any]]] = {}
+
+
+def _load_contributor_aliases(repo: Path) -> dict[str, dict[str, Any]]:
+    """Load `state/contributor_aliases.yaml` and return a flat lookup
+    ``{lowercased_alias: {canonical, kind, github}}`` so any GH username /
+    paper-author display-name pair the user has registered as the same person
+    merges into a single contributor entry.
+
+    The file is OPTIONAL — if it doesn't exist or is malformed, dedup just
+    doesn't happen (and the build still succeeds).
+    """
+    key = str(repo)
+    cached = _ALIAS_CACHE.get(key)
+    if cached is not None:
+        return cached
+    path = repo / "state" / "contributor_aliases.yaml"
+    lookup: dict[str, dict[str, Any]] = {}
+    if path.is_file():
+        try:
+            data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        except yaml.YAMLError:
+            data = {}
+        for entry in (data.get("aliases") or []):
+            canonical = str(entry.get("canonical", "")).strip()
+            kind = str(entry.get("kind", "human")).strip() or "human"
+            github = str(entry.get("github", "")).strip() or None
+            if not canonical:
+                continue
+            # The canonical name itself counts as an alias (self-match).
+            names = list(entry.get("aliases") or [])
+            names.append(canonical)
+            for n in names:
+                k = str(n).strip().lower()
+                if k:
+                    lookup[k] = {"canonical": canonical, "kind": kind, "github": github}
+    _ALIAS_CACHE[key] = lookup
+    return lookup
+
+
+def _resolve_alias(name: str, kind: str, repo: Path) -> tuple[str, str]:
+    """Map ``(name, kind)`` to its canonical form via contributor_aliases.yaml.
+
+    Returns ``(canonical_name, canonical_kind)``. If no alias rule applies
+    (or the file is absent), returns the inputs unchanged.
+    """
+    if not name:
+        return name, kind
+    lookup = _load_contributor_aliases(repo)
+    entry = lookup.get(name.strip().lower())
+    if entry is None:
+        return name, kind
+    return entry["canonical"], entry["kind"] or kind
 
 
 def _load_agent_names(repo: Path) -> set[str]:
@@ -382,12 +435,36 @@ def _build_artifact_links(repo: Path, project: Project) -> dict[str, str | None]
     paper_plan = (repo / paper_speckit / "plan.md") if paper_speckit else None
     paper_tasks = (repo / paper_speckit / "tasks.md") if paper_speckit else None
     paper_source_main = pdir / "paper" / "source" / "main.tex"
+    paper_source_supplement = pdir / "paper" / "source" / "supplement.tex"
     # Look for the compiled PDF in two canonical locations:
     #   paper/pdf/*.pdf   — used when a separate publish step copies it
     #   paper/source/main.pdf — used when pdflatex runs in-place
+    #
+    # The pdf/ dir may contain BOTH the main PDF and a supplement (when the
+    # paper has supplementary materials). Pick the main one explicitly so the
+    # supplement PDF doesn't shadow it. Filename precedence for main:
+    #   main-llmxive.pdf → main.pdf → first *.pdf that doesn't look like a
+    #   supplement.
     paper_pdf = None
-    if (pdir / "paper" / "pdf").exists():
-        paper_pdf = next(iter((pdir / "paper" / "pdf").glob("*.pdf")), None)
+    paper_supplement_pdf = None
+    pdf_dir = pdir / "paper" / "pdf"
+    if pdf_dir.exists():
+        candidates = sorted(pdf_dir.glob("*.pdf"))
+        # Identify supplement (anything with "supplement" in the stem).
+        for c in candidates:
+            if "supplement" in c.stem.lower() and paper_supplement_pdf is None:
+                paper_supplement_pdf = c
+        # Identify main: explicit preferred names, then anything not the supplement.
+        for name in ("main-llmxive.pdf", "main.pdf"):
+            cand = pdf_dir / name
+            if cand.exists():
+                paper_pdf = cand
+                break
+        if paper_pdf is None:
+            for c in candidates:
+                if c != paper_supplement_pdf:
+                    paper_pdf = c
+                    break
     if paper_pdf is None and (pdir / "paper" / "source" / "main.pdf").exists():
         paper_pdf = pdir / "paper" / "source" / "main.pdf"
     figures_dir = pdir / "paper" / "figures"
@@ -406,7 +483,9 @@ def _build_artifact_links(repo: Path, project: Project) -> dict[str, str | None]
         "paper_plan": rel(paper_plan) if (paper_plan and paper_plan.exists()) else None,
         "paper_tasks": rel(paper_tasks) if (paper_tasks and paper_tasks.exists()) else None,
         "paper_source": rel(paper_source_main) if paper_source_main.exists() else None,
+        "paper_supplement_source": rel(paper_source_supplement) if paper_source_supplement.exists() else None,
         "paper_pdf": rel(paper_pdf) if paper_pdf else None,
+        "paper_supplement": rel(paper_supplement_pdf) if paper_supplement_pdf else None,
         "paper_figures": rel(figures_dir) if figures_dir.exists() else None,
         "reviews_research": rel(reviews_research) if reviews_research.exists() else None,
         "reviews_paper": rel(reviews_paper) if reviews_paper.exists() else None,
@@ -569,10 +648,15 @@ def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
     def add(name: str, kind: str, role: str) -> None:
         if not name:
             return
-        key = (_normalize_model_name(name), kind)
+        # Resolve aliases FIRST (handles the GH-username vs full-name dup case),
+        # then normalize. This way one person's GitHub login and paper-author
+        # display name collapse into a single contributor entry.
+        canonical, canonical_kind = _resolve_alias(name, kind, repo)
+        key = (_normalize_model_name(canonical), canonical_kind)
         row = bucket.setdefault(
             key,
-            {"name": _normalize_model_name(name), "kind": kind, "roles": set(), "contributions": 0},
+            {"name": _normalize_model_name(canonical), "kind": canonical_kind,
+             "roles": set(), "contributions": 0},
         )
         row["roles"].add(role)
         row["contributions"] += 1
@@ -920,6 +1004,9 @@ def _submitter_contributors(repo: Path, projects: list) -> list[dict[str, Any]]:
         kind = "llm" if is_model else "human"
         if kind == "llm":
             sub = _normalize_model_name(sub)
+        # Apply alias resolution so a GH-username submitter doesn't show up
+        # separately from their paper-author display name.
+        sub, kind = _resolve_alias(sub, kind, repo)
         key = (sub, kind)
         row = rows.setdefault(
             key, {"name": sub, "kind": kind, "contribution_count": 0, "areas": set()}
@@ -962,9 +1049,11 @@ def _paper_author_contributors(repo: Path, projects: list) -> list[dict[str, Any
                 name = str(author).strip()
                 if not name:
                     continue
-                key = (name, "human")
+                # Merge GH-username submitter ↔ paper-author display name.
+                canon, kind = _resolve_alias(name, "human", repo)
+                key = (canon, kind)
                 row = rows.setdefault(
-                    key, {"name": name, "kind": "human", "contribution_count": 0, "areas": set()}
+                    key, {"name": canon, "kind": kind, "contribution_count": 0, "areas": set()}
                 )
                 row["contribution_count"] += 1
                 field = (p.field or "").strip().lower()
@@ -982,6 +1071,7 @@ def build_payload(repo: Path) -> dict[str, Any]:
     # Clear the per-build registry-name cache (a long-lived process building
     # multiple repos / fixtures must not see a stale set).
     _AGENT_NAMES_CACHE.clear()
+    _ALIAS_CACHE.clear()
     registry_names = _load_agent_names(repo)
     projects = project_store.list_all(repo_root=repo)
     by_kind, human_rows = _collect_reviews(repo)

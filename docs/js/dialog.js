@@ -16,22 +16,42 @@
   function blob(rel) { return rel ? REPO_BASE + "/blob/main/" + rel : null; }
   function raw(rel)  { return rel ? RAW_BASE + "/" + rel : null; }
 
+  // Map `projects/<PID>/paper/pdf/<file>.pdf` to the same-origin mirror at
+  // `<site-base>/papers/<PID>/<file>.pdf`. The deploy workflow (pages.yml)
+  // copies every project's PDFs into that location so we can <embed> them
+  // inline — raw.githubusercontent.com forces a download instead.
+  // Returns null if `repoPath` doesn't match the expected layout (e.g. a
+  // non-paper PDF or a malformed path).
+  function _toSameOriginPdf(repoPath) {
+    if (!repoPath) return null;
+    const m = String(repoPath).match(/^projects\/([^/]+)\/paper\/pdf\/(.+\.pdf)$/i);
+    if (!m) return null;
+    // Compute the site base from the current location so this works both at
+    // https://context-lab.com/llmXive/ and at GitHub Pages preview URLs.
+    // pathname is e.g. "/llmXive/" — keep that prefix when constructing
+    // mirror URLs.
+    const base = window.location.pathname.replace(/\/[^/]*$/, "/");
+    return base + "papers/" + m[1] + "/" + m[2];
+  }
+
   const ARTIFACT_ROWS = [
-    ["idea",            "fa-lightbulb",        "Idea"],
-    ["spec",            "fa-file-lines",       "Research spec"],
-    ["plan",            "fa-rectangle-list",   "Research plan"],
-    ["tasks",           "fa-list-check",       "Research tasks"],
-    ["code",            "fa-code",             "Code"],
-    ["data",            "fa-database",         "Data"],
-    ["paper_spec",      "fa-newspaper",        "Paper spec"],
-    ["paper_plan",      "fa-rectangle-list",   "Paper plan"],
-    ["paper_tasks",     "fa-list-check",       "Paper tasks"],
-    ["paper_source",    "fa-file-code",        "LaTeX source"],
-    ["paper_figures",   "fa-image",            "Figures"],
-    ["paper_pdf",       "fa-file-pdf",         "Paper PDF"],
-    ["reviews_research","fa-magnifying-glass", "Research reviews"],
-    ["reviews_paper",   "fa-magnifying-glass-plus", "Paper reviews"],
-    ["citations",       "fa-quote-left",       "Citations"],
+    ["idea",                    "fa-lightbulb",            "Idea"],
+    ["spec",                    "fa-file-lines",           "Research spec"],
+    ["plan",                    "fa-rectangle-list",       "Research plan"],
+    ["tasks",                   "fa-list-check",           "Research tasks"],
+    ["code",                    "fa-code",                 "Code"],
+    ["data",                    "fa-database",             "Data"],
+    ["paper_spec",              "fa-newspaper",            "Paper spec"],
+    ["paper_plan",              "fa-rectangle-list",       "Paper plan"],
+    ["paper_tasks",             "fa-list-check",           "Paper tasks"],
+    ["paper_source",            "fa-file-code",            "LaTeX source (main)"],
+    ["paper_supplement_source", "fa-file-code",            "LaTeX source (supplement)"],
+    ["paper_figures",           "fa-image",                "Figures"],
+    ["paper_pdf",               "fa-file-pdf",             "Paper PDF"],
+    ["paper_supplement",        "fa-file-pdf",             "Supplement PDF"],
+    ["reviews_research",        "fa-magnifying-glass",     "Research reviews"],
+    ["reviews_paper",           "fa-magnifying-glass-plus", "Paper reviews"],
+    ["citations",               "fa-quote-left",           "Citations"],
   ];
 
   let _currentProject = null;
@@ -246,17 +266,29 @@
       : "";
 
     if (ca.type === "pdf") {
-      // Prefer the explicit current_artifact.raw_url; fall back to the legacy
-      // artifact_links.paper_pdf for older payloads.
-      const pdfUrl = ca.raw_url || raw((project.artifact_links || {}).paper_pdf);
-      pdfEl.insertAdjacentHTML("beforeend", '<embed type="application/pdf" src="' + escapeHtml(pdfUrl) + '" />');
+      // raw.githubusercontent.com serves PDFs with Content-Disposition:
+      // attachment + X-Frame-Options: deny, which forces a download and blocks
+      // iframe embedding. The deploy workflow mirrors every project's PDFs
+      // under <site>/papers/<project_id>/<name>.pdf where they're served from
+      // the same origin with proper Content-Type: application/pdf — those can
+      // be embedded inline.
+      const repoPath = ca.repo_path
+        || (project.artifact_links || {}).paper_pdf
+        || "";
+      const sameOriginUrl = _toSameOriginPdf(repoPath);
+      const rawUrl = ca.raw_url || raw((project.artifact_links || {}).paper_pdf);
+      // Prefer the same-origin mirror; fall back to the raw URL (link only,
+      // no embed) when no mirror exists (older payload that predates the
+      // pages.yml workflow change).
+      const embedUrl = sameOriginUrl || rawUrl;
+      pdfEl.insertAdjacentHTML("beforeend", '<embed type="application/pdf" src="' + escapeHtml(embedUrl) + '" />');
       setTimeout(() => {
         const embed = pdfEl.querySelector("embed");
         if (embed && !embed.clientHeight) {
           pdfEl.replaceChildren();
           pdfEl.insertAdjacentHTML("beforeend",
             '<div class="ad-pdf-empty"><div>PDF preview unavailable in this browser.<br/>' +
-            '<a class="btn primary" style="margin-top:12px;" href="' + escapeHtml(pdfUrl) + '" target="_blank" rel="noopener">' +
+            '<a class="btn primary" style="margin-top:12px;" href="' + escapeHtml(rawUrl || embedUrl) + '" target="_blank" rel="noopener">' +
             '<i class="fa-solid fa-download"></i> Download PDF</a></div></div>');
         }
       }, 1500);
@@ -267,12 +299,15 @@
       pdfEl.insertAdjacentHTML("beforeend",
         '<div class="ad-art-body md-body"><div class="ad-art-loading">Loading ' + escapeHtml(ca.repo_path || "artifact") + '…</div></div>'
         + ghLink(ca.github_url));
-      M.fetchAndRenderMarkdown(ca.raw_url).then(html => {
-        const body = pdfEl.querySelector(".ad-art-body");
-        if (body) body.innerHTML = html;
-      }).catch(err => {
-        const body = pdfEl.querySelector(".ad-art-body");
-        if (body) body.innerHTML = '<div class="ad-pdf-empty">Could not load this artifact (' + escapeHtml(String(err.message || err)) + ').</div>';
+      // Use the `*Into` helper so Prism highlights fenced code blocks
+      // (matches the agent-registry modal behaviour).
+      const body = pdfEl.querySelector(".ad-art-body");
+      M.fetchAndRenderMarkdownInto(body, ca.raw_url).catch(err => {
+        if (body) {
+          body.replaceChildren();
+          body.insertAdjacentHTML("beforeend",
+            '<div class="ad-pdf-empty">Could not load this artifact (' + escapeHtml(String(err.message || err)) + ').</div>');
+        }
       });
       return;
     }

@@ -37,7 +37,45 @@
     return root.innerHTML;
   }
 
-  // Render a Markdown string to sanitized HTML.
+  // Map fenced-code-block info-strings (the bit after ```) to a Prism
+  // language alias. snarkdown emits e.g. ```python\n…``` as
+  // <pre><code class="language-python">…</code></pre>, so the class is
+  // already there — but we also normalize a few common aliases to the
+  // canonical Prism name so highlighting is consistent.
+  const _LANG_ALIASES = {
+    py: "python", sh: "bash", shell: "bash",
+    js: "javascript", jsx: "javascript",
+    yml: "yaml", md: "markdown", html: "markup", xml: "markup",
+  };
+  function _normalizeCodeLang(el) {
+    if (!el || !el.classList) return;
+    for (const cls of [...el.classList]) {
+      const m = cls.match(/^language-(.+)$/i);
+      if (!m) continue;
+      const canon = _LANG_ALIASES[m[1].toLowerCase()];
+      if (canon && canon !== m[1].toLowerCase()) {
+        el.classList.remove(cls);
+        el.classList.add("language-" + canon);
+      }
+    }
+  }
+
+  // Run Prism over a freshly-injected `.md-body` container. Safe to call
+  // even when Prism isn't loaded — silently no-ops. Highlighting only
+  // mutates the inner content of <code> elements that already have a
+  // `language-*` class (which the renderer just produced from fenced
+  // blocks), so we're not introducing new HTML sinks here.
+  function highlightCodeBlocks(rootEl) {
+    if (!rootEl || !window.Prism || typeof Prism.highlightElement !== "function") return;
+    rootEl.querySelectorAll("pre > code[class*='language-'], code[class*='language-']").forEach(el => {
+      _normalizeCodeLang(el);
+      try { Prism.highlightElement(el); } catch (_) { /* swallow per-block errors */ }
+    });
+  }
+
+  // Render a Markdown string to sanitized HTML. Always passes through
+  // `_sanitize()` — see the sanitize comments above — before returning, so
+  // callers can safely insert the result via insertAdjacentHTML.
   function renderMarkdown(rawMd) {
     if (rawMd == null) return "";
     const md = String(rawMd);
@@ -61,6 +99,19 @@
     return _sanitize(html);
   }
 
+  // Render Markdown into a target element AND syntax-highlight the result.
+  // The HTML is sanitized by `renderMarkdown` first, then attached via
+  // `replaceChildren` + `insertAdjacentHTML` (matches the pattern used in
+  // dialog.js). Use this when injecting into the DOM — Prism walks the live
+  // nodes so highlighting must happen AFTER the HTML is attached.
+  function renderMarkdownInto(rootEl, rawMd) {
+    if (!rootEl) return;
+    const safeHtml = renderMarkdown(rawMd);
+    rootEl.replaceChildren();
+    rootEl.insertAdjacentHTML("beforeend", safeHtml);
+    highlightCodeBlocks(rootEl);
+  }
+
   // Fetch a .md file from a raw.githubusercontent.com URL and render it.
   async function fetchAndRenderMarkdown(rawUrl) {
     if (!rawUrl) throw new Error("no URL");
@@ -70,5 +121,21 @@
     return renderMarkdown(text);
   }
 
-  window.LlmxiveMarkdown = { renderMarkdown, fetchAndRenderMarkdown };
+  // Same as fetchAndRenderMarkdown, but injects directly into a target
+  // element AND runs syntax highlighting. Use this for agent prompts,
+  // pipeline-step descriptions, project ideas — anywhere we want fenced
+  // code blocks to look styled rather than monochrome.
+  async function fetchAndRenderMarkdownInto(rootEl, rawUrl) {
+    const safeHtml = await fetchAndRenderMarkdown(rawUrl);
+    if (!rootEl) return;
+    rootEl.replaceChildren();
+    rootEl.insertAdjacentHTML("beforeend", safeHtml);
+    highlightCodeBlocks(rootEl);
+  }
+
+  window.LlmxiveMarkdown = {
+    renderMarkdown, fetchAndRenderMarkdown,
+    renderMarkdownInto, fetchAndRenderMarkdownInto,
+    highlightCodeBlocks,
+  };
 })();

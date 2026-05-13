@@ -438,7 +438,18 @@ def _render_artifacts(artifacts: list[dict[str, str]]) -> str:
 
 def _load_artifacts(path: Path) -> list[dict[str, str]]:
     """Read a JSON file of artifact links. Format:
-       [{"label": "Project page", "url": "..."}, {"label": "Reviews", "url": "..."}, ...]
+       [{"label": "Project folder", "url": "https://github.com/.../tree/main/projects/PROJ-XXX-..."},
+        {"label": "Reviews", "url": "..."}, ...]
+
+    Convention for the publication agent:
+      - Use "Project folder" (not "Project page") and link to the *folder* in
+        the GitHub repo under projects/PROJ-XXX-… — not to the original
+        submission issue.
+      - "Reviews" links to projects/PROJ-XXX-…/reviews/paper/ (or wherever
+        the paper reviews live).
+      - Only emit either of these *after* reviews have actually been
+        generated (the script gates the entire artifact strip on whether
+        an editorial summary was supplied — see restyle_paper).
     """
     if not path.exists():
         return []
@@ -563,7 +574,11 @@ def restyle_paper(
         editorial_metadata_lines.append(
             "\\seteditorialsummary{%\n" + summary_tex + "\n}"
         )
-    if combined_artifacts:
+    # Gate the artifact strip on having an editorial summary. The user's rule
+    # is that the title-page artifacts list belongs to the editorial summary —
+    # without reviews/summary, no artifact strip on the PDF. (The website
+    # still surfaces all artifacts in the project modal.)
+    if combined_artifacts and editorial_summary_md:
         inner = _render_artifacts(combined_artifacts)
         if inner:
             editorial_metadata_lines.append(
