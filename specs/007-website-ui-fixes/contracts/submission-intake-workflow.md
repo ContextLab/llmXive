@@ -29,7 +29,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
-        run: python -m llmxive submissions process     # (or: python scripts/process_submissions.py)
+        run: python -m llmxive submissions process
       # If the agent committed file moves, push them:
       - name: Push changes if any
         run: |
@@ -39,7 +39,7 @@ jobs:
           git diff --cached --quiet || git commit -m "submission-intake: process submissions [skip ci]"
           git push || true
 ```
-(Exact entry-point name — a new `submissions process` CLI subcommand vs. a `scripts/process_submissions.py` — decided at `/speckit-tasks`; the contract is "a Python entry point that lists open `human-submission` issues and calls `submission_intake.process_submission_issue` on each".)
+**Entry point** (resolved at `/speckit-analyze`): a new `submissions process` subcommand on the existing `python -m llmxive` CLI (`src/llmxive/cli.py`) — consistent with the existing `run` / `brainstorm` subcommands the other pipeline crons use (`python -m llmxive run`). Not a loose `scripts/` file.
 
 ## The entry point's behavior (FR-021)
 

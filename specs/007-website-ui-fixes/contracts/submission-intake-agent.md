@@ -11,6 +11,7 @@
   inputs: [issue]
   outputs: [project]            # tool-style; does not own a project stage
   prompt_path: agents/prompts/submission_intake.md
+  prompt_version: 1.0.0             # for consistency with the other registry entries
   default_backend: dartmouth
   fallback_backends: [huggingface, local]
   default_model: gemma.gemma3.27b   # fast — triage is a quick classification

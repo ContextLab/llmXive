@@ -225,7 +225,8 @@ On the About page there is a "How to contribute" section explaining the four way
 - The maintenance agent (FR-020) follows the existing agent pattern (`agents/registry.yaml` entry + `agents/prompts/<name>.md` + the backend router for LLM calls). It is *not* a pipeline-stage agent (it doesn't own a project stage); it's invoked by the intake cron (FR-021), similar in spirit to the librarian being tool-style. Its scope is bounded to "triage one `human-submission` issue and act on it" — no broader pipeline changes.
 - The intake cron (FR-021) is a new GitHub Action workflow (hourly schedule), alongside the existing pipeline crons; it uses the repo's GitHub token to list/comment/close issues and to commit any file moves the maintenance agent decides on.
 - Markdown rendering on the site (FR-009b) uses a single small vendored client-side library (~10KB), bundled into `web/js/`; the raw `.md` is fetched from the repo at modal-open. No `web_data.py` change for rendering; no heavyweight build-time dependency.
-- The four pipeline-diagram steps / lanes already exist on the About page; FR-003 makes the existing circles interactive, it doesn't redesign the diagram.
+- The pipeline-diagram steps / lanes already exist on the About page; FR-003 makes the existing circles interactive, it doesn't redesign the diagram.
+- Per Constitution III's UI clause, the static-site fixes (FR-001..006, FR-009, FR-009b, FR-017) are **visually verified** — screenshots at a desktop width (~1280px) and a mobile width (~375px) of every fixed/added element + a click-through of every new/modified modal — and the screenshots are recorded in the implementation diagnostic. The site JS itself isn't unit-tested (it's vanilla, no test harness); this visual verification + the `web_data.py` / `submission_intake` real-call tests are the verification surface.
 
 ## Out of Scope
 

@@ -114,6 +114,7 @@ A PDF uploaded via the "submit a paper" control, staged into the repo because th
 | `purpose` | ≤ 200 chars — "Triage human-submission GitHub issues from the website: route feedback to the right pipeline step / create a project / file a submitted paper / acknowledge — then comment and close the issue." |
 | `inputs` / `outputs` | the issue → project/comment (tool-style; doesn't own a stage) |
 | `prompt_path` | `agents/prompts/submission_intake.md` |
+| `prompt_version` | `1.0.0` (for consistency with the other registry entries; bumped if the triage prompt changes materially) |
 | `default_backend` | `dartmouth` (fallback `huggingface`, then `local`) |
 | `default_model` | `gemma.gemma3.27b` (fast — triage is a quick classification) |
 | `wall_clock_budget_seconds` | `300` |
@@ -142,7 +143,7 @@ A PDF uploaded via the "submit a paper" control, staged into the repo because th
 |-|-|
 | Triggers | `schedule: - cron: "0 * * * *"` (hourly) + `workflow_dispatch`. |
 | Permissions | `contents: write`, `issues: write`. |
-| Steps | checkout (`@v5`) → setup-python (`@v6`) → `pip install -e .` → run the entry point (`python -m llmxive submissions process` or `scripts/process_submissions.py`) which lists open `human-submission` issues and calls `submission_intake.process_submission_issue` on each. |
+| Steps | checkout (`@v5`) → setup-python (`@v6`) → `pip install -e .` → `python -m llmxive submissions process` (a new CLI subcommand — consistent with the existing `run`/`brainstorm` subcommands) which lists open `human-submission` issues and calls `submission_intake.process_submission_issue` on each. |
 | Failure semantics | A per-submission failure → the issue stays open with a comment; the run still exits 0. Only a setup-precondition failure (no token / missing label / import error) exits non-zero. |
 | Idempotency | Closed issues aren't in the "open issues" query → handled submissions are skipped on re-runs; partly-processed ones are re-attempted from a safe point. |
 | Secrets | `${{ secrets.GITHUB_TOKEN }}` (issue/Contents API) + `${{ secrets.DARTMOUTH_CHAT_API_KEY }}` (the agent's LLM calls — already configured for the other pipeline crons). |

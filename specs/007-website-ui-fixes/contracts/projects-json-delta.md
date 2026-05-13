@@ -6,7 +6,7 @@
 
 ```jsonc
 {
-  "schema_version": "...",        // bump if the consumer needs to know (decided at /speckit-tasks)
+  "schema_version": "...",        // NOT bumped — the new keys (agents, pipeline_steps, per-project current_artifact) are purely additive; old consumers ignore them. (Resolved at /speckit-analyze.)
   "generated_at": "...",
   "aggregates": { ... },          // unchanged
   "projects": [ { ... , "current_artifact": { ... } }, ... ],   // each entry GAINS current_artifact (E3)
