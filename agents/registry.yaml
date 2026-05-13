@@ -803,3 +803,22 @@ agents:
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
+- name: submission_intake
+  purpose: Triage human-submission GitHub issues from the website — route feedback
+    to the right pipeline step, create a project, file a submitted paper, or
+    acknowledge — then comment and close.
+  inputs:
+  - review
+  outputs:
+  - status_comment
+  - project_state
+  prompt_path: agents/prompts/submission_intake.md
+  prompt_version: 1.0.0
+  default_backend: dartmouth
+  fallback_backends:
+  - huggingface
+  - local
+  default_model: google.gemma-3-27b-it
+  tools: []
+  wall_clock_budget_seconds: 300
+  paid_opt_in: false

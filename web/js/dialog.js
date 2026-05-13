@@ -34,6 +34,9 @@
     ["citations",       "fa-quote-left",       "Citations"],
   ];
 
+  let _currentProject = null;
+  let _feedbackArtifactKind = null;
+
   function _ensureMount() {
     let bd = document.getElementById("ad-backdrop");
     if (bd) return bd;
@@ -44,8 +47,20 @@
       + '<div class="modal artifact-dialog" role="dialog" aria-modal="true">'
       + '<div class="ad-head">'
       + '<div><h2 class="ad-title">—</h2><span class="ad-stage-badge"></span></div>'
+      + '<div class="ad-head-actions">'
+      + '<button class="ad-feedback-btn" type="button"><i class="fa-regular fa-comment-dots"></i> Send feedback</button>'
       + '<button class="ad-close" aria-label="close"><i class="fa-solid fa-xmark"></i> Close</button>'
       + '</div>'
+      + '</div>'
+      + '<div class="ad-feedback" hidden>'
+      + '<div class="ad-fb-inner">'
+      + '<label class="field"><span class="l">Your feedback on this artifact</span>'
+      + '<textarea class="ad-fb-text" placeholder="What\'s missing, wrong, or could be improved? A maintenance agent will triage this to the right pipeline step within the hour."></textarea></label>'
+      + '<div class="ad-fb-actions">'
+      + '<span class="ad-fb-msg"></span>'
+      + '<button class="btn ghost ad-fb-cancel" type="button">Cancel</button>'
+      + '<button class="btn primary ad-fb-submit" type="button"><i class="fa-solid fa-paper-plane"></i> Submit feedback</button>'
+      + '</div></div></div>'
       + '<div class="ad-body">'
       + '<div class="ad-pdf"><div class="ad-pdf-empty">No PDF available yet.</div></div>'
       + '<div class="ad-list"></div>'
@@ -58,6 +73,47 @@
     });
     document.addEventListener("keydown", e => {
       if (e.key === "Escape" && bd.classList.contains("open")) close();
+    });
+
+    // Feedback panel wiring.
+    const fbPanel = bd.querySelector(".ad-feedback");
+    const fbText = bd.querySelector(".ad-fb-text");
+    const fbMsg = bd.querySelector(".ad-fb-msg");
+    bd.querySelector(".ad-feedback-btn").addEventListener("click", () => {
+      fbPanel.hidden = !fbPanel.hidden;
+      if (!fbPanel.hidden) { fbMsg.innerHTML = ""; fbMsg.className = "ad-fb-msg"; fbText.focus(); }
+    });
+    bd.querySelector(".ad-fb-cancel").addEventListener("click", () => { fbPanel.hidden = true; });
+    bd.querySelector(".ad-fb-submit").addEventListener("click", async () => {
+      const Auth = window.LlmxiveAuth;
+      const text = (fbText.value || "").trim();
+      if (!text) { fbMsg.textContent = "Please enter some feedback."; fbMsg.className = "ad-fb-msg err"; return; }
+      if (!Auth || !Auth.isSignedIn()) {
+        fbMsg.textContent = "Sign in with GitHub to submit feedback.";
+        fbMsg.className = "ad-fb-msg err";
+        if (Auth) Auth.startLogin();
+        return;
+      }
+      const btn = bd.querySelector(".ad-fb-submit");
+      btn.disabled = true; fbMsg.textContent = "Submitting…"; fbMsg.className = "ad-fb-msg";
+      try {
+        const issue = await Auth.submitFeedback({
+          target_id: _currentProject ? _currentProject.id : null,
+          target_kind: _feedbackArtifactKind,
+          target_stage: _currentProject ? _currentProject.current_stage : null,
+          content: text,
+        });
+        // FR-013b: confirmation with a clickable issue link + "within the hour".
+        fbMsg.innerHTML = 'Thanks — created <a href="' + escapeHtml(issue.html_url) + '" target="_blank" rel="noopener">issue #' + issue.number + '</a>. ' +
+          'A maintenance agent will process it within the next hour.';
+        fbMsg.className = "ad-fb-msg ok";
+        fbText.value = "";
+      } catch (err) {
+        fbMsg.textContent = "Could not submit: " + (err && err.message ? err.message : String(err));
+        fbMsg.className = "ad-fb-msg err";
+      } finally {
+        btn.disabled = false;
+      }
     });
     return bd;
   }
@@ -113,7 +169,9 @@
     return authors.map(a => {
       const icon = a.kind === "human"
         ? '<i class="fa-regular fa-user"></i>'
-        : '<i class="fa-solid fa-robot"></i>';
+        : (a.kind === "unattributed"
+            ? '<i class="fa-regular fa-circle-question"></i>'
+            : '<i class="fa-solid fa-robot"></i>');
       const roles = (a.roles || []).slice(0, 4).map(escapeHtml).join(", ");
       const moreRoles = (a.roles || []).length > 4 ? `, +${a.roles.length - 4} more` : "";
       return '<div class="ad-row" style="cursor:default;">' +
@@ -146,35 +204,132 @@
       '</a>';
   }
 
-  function open(project) {
-    const bd = _ensureMount();
-    bd.querySelector(".ad-title").textContent = project.title || project.id;
-    bd.querySelector(".ad-stage-badge").textContent = (D.STAGE_LABELS[project.current_stage] || project.current_stage || "");
-    const list = bd.querySelector(".ad-list");
-    list.replaceChildren();
-    list.insertAdjacentHTML("beforeend", _renderListColumn(project));
+  function _stageLabel(project) {
+    return D.STAGE_LABELS[project.current_stage] || project.current_stage || "this stage";
+  }
 
-    const pdfEl = bd.querySelector(".ad-pdf");
+  // The "farthest along the pipeline" artifact to feature. Prefer the explicit
+  // current_artifact block from web_data.py (E3); if the payload predates it
+  // (e.g. a not-yet-redeployed projects.json), derive it from artifact_links
+  // the same way web_data.py does — published PDF → LaTeX source → paper
+  // tasks/plan/spec → research tasks/plan/spec → citations → idea — so the
+  // modal still shows a real artifact instead of "none".
+  const _MD_KEYS = ["paper_tasks", "paper_plan", "paper_spec", "tasks", "plan", "spec", "idea"];
+  function _resolveArtifact(project) {
+    const ca = project.current_artifact;
+    if (ca && ca.type && ca.type !== "none") return ca;
+    const links = project.artifact_links || {};
+    const mk = (type, rel) => rel
+      ? { type, repo_path: rel, github_url: blob(rel), raw_url: raw(rel) }
+      : null;
+    if (links.paper_pdf) return mk("pdf", links.paper_pdf);
+    if (links.paper_source) return mk("latex", links.paper_source);
+    for (const k of _MD_KEYS) { if (links[k]) return mk("markdown", links[k]); }
+    if (links.citations) return mk("yaml", links.citations);
+    return { type: "none", repo_path: null, github_url: null, raw_url: null };
+  }
+
+  // FR-009 / FR-009b: render whatever artifact best represents the project's
+  // current state into the left pane — a published PDF, else the current-stage
+  // text artifact (Markdown rendered, LaTeX/JSON/YAML shown as formatted
+  // source), else a clear placeholder. NEVER an <embed> pointing at a PDF that
+  // doesn't exist.
+  function _renderArtifactPane(pdfEl, project) {
     pdfEl.replaceChildren();
-    const pdfRel = (project.artifact_links || {}).paper_pdf;
-    if (pdfRel) {
-      const pdfUrl = raw(pdfRel);
+    const ca = _resolveArtifact(project);
+    const M = window.LlmxiveMarkdown;
+
+    // Helper: a "view on GitHub" footer link.
+    const ghLink = (url, label) => url
+      ? '<div class="ad-art-foot"><a class="btn" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">' +
+        '<i class="fa-brands fa-github"></i> ' + (label || "View on GitHub") + '</a></div>'
+      : "";
+
+    if (ca.type === "pdf") {
+      // Prefer the explicit current_artifact.raw_url; fall back to the legacy
+      // artifact_links.paper_pdf for older payloads.
+      const pdfUrl = ca.raw_url || raw((project.artifact_links || {}).paper_pdf);
       pdfEl.insertAdjacentHTML("beforeend", '<embed type="application/pdf" src="' + escapeHtml(pdfUrl) + '" />');
       setTimeout(() => {
         const embed = pdfEl.querySelector("embed");
         if (embed && !embed.clientHeight) {
           pdfEl.replaceChildren();
-          const fallback = '<div class="ad-pdf-empty"><div>' +
-            'PDF preview unavailable in this browser.<br/>' +
+          pdfEl.insertAdjacentHTML("beforeend",
+            '<div class="ad-pdf-empty"><div>PDF preview unavailable in this browser.<br/>' +
             '<a class="btn primary" style="margin-top:12px;" href="' + escapeHtml(pdfUrl) + '" target="_blank" rel="noopener">' +
-            '<i class="fa-solid fa-download"></i> Download PDF</a>' +
-            '</div></div>';
-          pdfEl.insertAdjacentHTML("beforeend", fallback);
+            '<i class="fa-solid fa-download"></i> Download PDF</a></div></div>');
         }
       }, 1500);
-    } else {
-      pdfEl.insertAdjacentHTML("beforeend", '<div class="ad-pdf-empty">No PDF compiled yet for this project.</div>');
+      return;
     }
+
+    if (ca.type === "markdown" && ca.raw_url && M) {
+      pdfEl.insertAdjacentHTML("beforeend",
+        '<div class="ad-art-body md-body"><div class="ad-art-loading">Loading ' + escapeHtml(ca.repo_path || "artifact") + '…</div></div>'
+        + ghLink(ca.github_url));
+      M.fetchAndRenderMarkdown(ca.raw_url).then(html => {
+        const body = pdfEl.querySelector(".ad-art-body");
+        if (body) body.innerHTML = html;
+      }).catch(err => {
+        const body = pdfEl.querySelector(".ad-art-body");
+        if (body) body.innerHTML = '<div class="ad-pdf-empty">Could not load this artifact (' + escapeHtml(String(err.message || err)) + ').</div>';
+      });
+      return;
+    }
+
+    if ((ca.type === "latex" || ca.type === "json" || ca.type === "yaml") && ca.raw_url) {
+      pdfEl.insertAdjacentHTML("beforeend",
+        '<div class="ad-art-body src-body"><pre class="ad-art-loading">Loading ' + escapeHtml(ca.repo_path || "source") + '…</pre></div>'
+        + ghLink(ca.github_url));
+      fetch(ca.raw_url, { cache: "no-cache" }).then(r => {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.text();
+      }).then(text => {
+        const body = pdfEl.querySelector(".ad-art-body");
+        if (body) {
+          const pre = document.createElement("pre");
+          pre.className = "ad-art-src";
+          pre.textContent = text;          // textContent — no HTML injection
+          body.replaceChildren(pre);
+        }
+      }).catch(err => {
+        const body = pdfEl.querySelector(".ad-art-body");
+        if (body) body.innerHTML = '<div class="ad-pdf-empty">Could not load this source (' + escapeHtml(String(err.message || err)) + ').</div>';
+      });
+      return;
+    }
+
+    // type === "none" (or markdown with no renderer / no raw_url): placeholder
+    // that uses the space — what stage we're at, what's coming, and a GitHub link.
+    pdfEl.insertAdjacentHTML("beforeend",
+      '<div class="ad-pdf-empty"><div>' +
+      '<i class="fa-regular fa-file" style="font-size:32px;opacity:.4;display:block;margin-bottom:12px;"></i>' +
+      'No artifact to preview yet — this project is at the <strong>' + escapeHtml(_stageLabel(project)) + '</strong> stage.<br/>' +
+      'The next artifact will appear here. Meanwhile, the artifact list on the right links to everything produced so far.' +
+      '<div style="margin-top:14px;"><a class="btn" href="https://github.com/ContextLab/llmXive/tree/main/projects/' + escapeHtml(project.id) + '" target="_blank" rel="noopener">' +
+      '<i class="fa-brands fa-github"></i> Browse this project on GitHub</a></div>' +
+      '</div></div>');
+  }
+
+  function open(project) {
+    const bd = _ensureMount();
+    _currentProject = project;
+    const ca = _resolveArtifact(project);
+    _feedbackArtifactKind = ca.type === "none" ? "project" : ca.type;
+    bd.querySelector(".ad-title").textContent = project.title || project.id;
+    bd.querySelector(".ad-stage-badge").textContent = (D.STAGE_LABELS[project.current_stage] || project.current_stage || "");
+    // Reset the feedback panel for the new project.
+    const fbPanel = bd.querySelector(".ad-feedback");
+    if (fbPanel) {
+      fbPanel.hidden = true;
+      const fbText = bd.querySelector(".ad-fb-text"); if (fbText) fbText.value = "";
+      const fbMsg = bd.querySelector(".ad-fb-msg"); if (fbMsg) { fbMsg.innerHTML = ""; fbMsg.className = "ad-fb-msg"; }
+    }
+    const list = bd.querySelector(".ad-list");
+    list.replaceChildren();
+    list.insertAdjacentHTML("beforeend", _renderListColumn(project));
+
+    _renderArtifactPane(bd.querySelector(".ad-pdf"), project);
 
     bd.classList.add("open");
   }

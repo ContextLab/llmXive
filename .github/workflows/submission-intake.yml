@@ -1,0 +1,47 @@
+name: Submission Intake
+
+# Hourly: triage open `human-submission` GitHub issues from the public website
+# (feedback / new-paper) — route / create-project / file-paper / acknowledge,
+# then comment + close. A per-submission failure never fails the run; a
+# precondition failure does. Entry point: `python -m llmxive submissions process`.
+# (No untrusted github.event.* inputs are interpolated into run: steps — the
+# issue contents are read by the Python entry point via the GitHub API, never
+# echoed into a shell.)
+
+on:
+  schedule:
+    - cron: "0 * * * *"     # hourly, at :00
+  workflow_dispatch: {}       # for the one-time manual exercise + ad-hoc runs
+
+permissions:
+  contents: write             # commit staged-PDF moves / inbox cleanup
+  issues: write               # comment on + close human-submission issues
+
+concurrency:
+  group: submission-intake
+  cancel-in-progress: false
+
+jobs:
+  intake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: pip install -e .
+      - name: Process open human-submission issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+        run: python -m llmxive submissions process
+      - name: Push file moves if any
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "submission-intake: process submissions [skip ci]"
+          git push || true

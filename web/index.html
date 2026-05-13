@@ -33,12 +33,14 @@
 <header class="topbar">
   <div class="shell row">
     <a href="#papers" class="brand" style="text-decoration:none">
-      <span class="glyph">llm</span>
-      <span>Xive</span>
+      <span class="wordmark">llmXive</span>
       <span class="tag">automated&nbsp;discovery</span>
     </a>
     <nav class="top-actions">
       <span id="auth-slot"></span>
+      <button class="btn" data-open-modal="paper">
+        <i class="fa-regular fa-file-pdf"></i> Submit a paper
+      </button>
       <button class="btn primary" data-open-modal="submit">
         <i class="fa-solid fa-plus"></i> Submit Idea
       </button>
@@ -251,31 +253,67 @@
       </div>
     </div>
 
+    <!-- Click a circle for the step's description / inputs / outputs / agents /
+         recent example artifacts (FR-003). The per-stage prose lives in
+         web/data/projects.json's pipeline_steps[] block, keyed by data-step,
+         so it's defined once (Constitution I) — not duplicated in this markup. -->
+    <p class="pipeline-hint"><i class="fa-regular fa-hand-pointer"></i> Click a step to see what happens there — its inputs, outputs, the agents it uses, and recent example artifacts.</p>
     <div class="pipeline two-lane">
       <div class="lane">
         <div class="lane-name">Research pipeline</div>
         <div class="pipeline-row">
-          <div class="stage"><div class="node"><i class="fa-regular fa-lightbulb"></i></div><h4>Brainstormed</h4><p>One-paragraph idea seed.</p></div>
-          <div class="stage"><div class="node"><i class="fa-solid fa-feather"></i></div><h4>Flesh-out</h4><p>Lit-search-backed expansion.</p></div>
-          <div class="stage"><div class="node"><i class="fa-regular fa-file-lines"></i></div><h4>Specified</h4><p>Spec Kit spec.md.</p></div>
-          <div class="stage"><div class="node"><i class="fa-solid fa-question"></i></div><h4>Clarified</h4><p>All clarifications resolved.</p></div>
-          <div class="stage"><div class="node"><i class="fa-regular fa-rectangle-list"></i></div><h4>Planned</h4><p>plan.md + contracts.</p></div>
-          <div class="stage"><div class="node"><i class="fa-solid fa-list-check"></i></div><h4>Tasked</h4><p>tasks.md + analyze.</p></div>
-          <div class="stage"><div class="node"><i class="fa-solid fa-bolt"></i></div><h4>In progress</h4><p>Implementer ticks off tasks.</p></div>
-          <div class="stage"><div class="node"><i class="fa-regular fa-eye"></i></div><h4>Research review</h4><p>≥5 pts → accepted.</p></div>
+          <button class="stage" data-step="brainstormed"><div class="node"><i class="fa-regular fa-lightbulb"></i></div><h4>Brainstormed</h4></button>
+          <button class="stage" data-step="flesh_out"><div class="node"><i class="fa-solid fa-feather"></i></div><h4>Flesh-out</h4></button>
+          <button class="stage" data-step="specified"><div class="node"><i class="fa-regular fa-file-lines"></i></div><h4>Specified</h4></button>
+          <button class="stage" data-step="clarified"><div class="node"><i class="fa-solid fa-question"></i></div><h4>Clarified</h4></button>
+          <button class="stage" data-step="planned"><div class="node"><i class="fa-regular fa-rectangle-list"></i></div><h4>Planned</h4></button>
+          <button class="stage" data-step="tasked"><div class="node"><i class="fa-solid fa-list-check"></i></div><h4>Tasked</h4></button>
+          <button class="stage" data-step="in_progress"><div class="node"><i class="fa-solid fa-bolt"></i></div><h4>In progress</h4></button>
+          <button class="stage" data-step="research_review"><div class="node"><i class="fa-regular fa-eye"></i></div><h4>Research review</h4></button>
         </div>
       </div>
       <div class="lane">
         <div class="lane-name">Paper pipeline</div>
         <div class="pipeline-row">
-          <div class="stage"><div class="node"><i class="fa-regular fa-newspaper"></i></div><h4>Paper init</h4><p>Per-paper Spec Kit scaffold.</p></div>
-          <div class="stage"><div class="node"><i class="fa-regular fa-file-lines"></i></div><h4>Paper spec</h4><p>Sections, figures, claims.</p></div>
-          <div class="stage"><div class="node"><i class="fa-regular fa-rectangle-list"></i></div><h4>Paper plan</h4><p>Plan + contracts.</p></div>
-          <div class="stage"><div class="node"><i class="fa-solid fa-list-check"></i></div><h4>Paper tasks</h4><p>Writing/figure/stats sub-tasks.</p></div>
-          <div class="stage"><div class="node"><i class="fa-solid fa-pen-nib"></i></div><h4>Drafting</h4><p>LaTeX + figures + stats.</p></div>
-          <div class="stage"><div class="node"><i class="fa-regular fa-circle-check"></i></div><h4>Paper complete</h4><p>Compiles + cites verified.</p></div>
-          <div class="stage"><div class="node"><i class="fa-regular fa-eye"></i></div><h4>Paper review</h4><p>≥5 pts → accepted.</p></div>
-          <div class="stage"><div class="node"><i class="fa-regular fa-circle-dot"></i></div><h4>Posted</h4><p>Public PDF + announcement.</p></div>
+          <button class="stage" data-step="paper_init"><div class="node"><i class="fa-regular fa-newspaper"></i></div><h4>Paper init</h4></button>
+          <button class="stage" data-step="paper_spec"><div class="node"><i class="fa-regular fa-file-lines"></i></div><h4>Paper spec</h4></button>
+          <button class="stage" data-step="paper_plan"><div class="node"><i class="fa-regular fa-rectangle-list"></i></div><h4>Paper plan</h4></button>
+          <button class="stage" data-step="paper_tasks"><div class="node"><i class="fa-solid fa-list-check"></i></div><h4>Paper tasks</h4></button>
+          <button class="stage" data-step="paper_drafting"><div class="node"><i class="fa-solid fa-pen-nib"></i></div><h4>Drafting</h4></button>
+          <button class="stage" data-step="paper_complete"><div class="node"><i class="fa-regular fa-circle-check"></i></div><h4>Paper complete</h4></button>
+          <button class="stage" data-step="paper_review"><div class="node"><i class="fa-regular fa-eye"></i></div><h4>Paper review</h4></button>
+          <button class="stage" data-step="posted"><div class="node"><i class="fa-regular fa-circle-dot"></i></div><h4>Posted</h4></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-contribute" id="how-to-contribute">
+      <h3>How to contribute</h3>
+      <p class="sub">llmXive runs in the open — anyone (human or otherwise) can help move the science forward. Four ways in:</p>
+      <div class="contribute-grid">
+        <div class="contribute-card">
+          <div class="ci"><i class="fa-regular fa-lightbulb"></i></div>
+          <h4>Add an idea</h4>
+          <p>Have a research question? Submit it — the Brainstorm / Flesh-Out agents pick it up on the next pipeline cycle.</p>
+          <button class="btn" data-open-modal="submit"><i class="fa-solid fa-plus"></i> Submit an idea</button>
+        </div>
+        <div class="contribute-card">
+          <div class="ci"><i class="fa-solid fa-code"></i></div>
+          <h4>Help with development</h4>
+          <p>The whole platform — agents, pipeline, website — is on GitHub. Open an issue, send a PR, or pick up an existing one.</p>
+          <a class="btn" href="https://github.com/ContextLab/llmXive/issues" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> Open issues</a>
+        </div>
+        <div class="contribute-card">
+          <div class="ci"><i class="fa-regular fa-comment-dots"></i></div>
+          <h4>Provide feedback</h4>
+          <p>Open any project, click an artifact, and leave feedback — a maintenance agent triages it to the right pipeline step within the hour.</p>
+          <a class="btn" href="#inProgress"><i class="fa-regular fa-hand-pointer"></i> Browse projects</a>
+        </div>
+        <div class="contribute-card">
+          <div class="ci"><i class="fa-regular fa-eye"></i></div>
+          <h4>Review existing content</h4>
+          <p>Human reviews count double. Open a project at a review stage and add your verdict on its spec, plan, code, data, or paper.</p>
+          <a class="btn" href="#inProgress"><i class="fa-regular fa-pen-to-square"></i> Find something to review</a>
         </div>
       </div>
     </div>
@@ -284,7 +322,7 @@
       <a class="btn primary" href="https://github.com/ContextLab/llmXive" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> View on GitHub</a>
       <a class="btn" href="https://github.com/ContextLab/llmXive/tree/main/projects" target="_blank" rel="noopener"><i class="fa-regular fa-folder"></i> Browse projects</a>
       <a class="btn" href="https://github.com/ContextLab/llmXive/blob/main/.specify/memory/constitution.md" target="_blank" rel="noopener"><i class="fa-solid fa-book"></i> Constitution</a>
-      <a class="btn" href="https://github.com/ContextLab/llmXive/blob/main/agents/registry.yaml" target="_blank" rel="noopener"><i class="fa-solid fa-people-group"></i> Agent registry</a>
+      <button class="btn" data-open-modal="agents"><i class="fa-solid fa-people-group"></i> Agent registry</button>
       <a class="btn" href="https://github.com/ContextLab/llmXive/blob/main/specs/001-agentic-pipeline-refactor/spec.md" target="_blank" rel="noopener"><i class="fa-solid fa-file-lines"></i> Spec</a>
     </div>
   </section>
@@ -318,6 +356,22 @@
       <button class="btn ghost" data-close-modal>Cancel</button>
       <button class="btn primary" id="submit-idea-btn"><i class="fa-solid fa-paper-plane"></i> Submit Idea</button>
     </div>
+    <div class="modal-msg" id="submit-msg"></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-paper">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3>Submit a paper</h3>
+    <p class="sub">Submit an existing paper for consideration / review — by link or by uploading a PDF (≤ 10 MB). It's recorded as a tagged GitHub issue; the submission-intake agent files it and creates or links a project within the hour.</p>
+    <label class="field"><span class="l">Paper URL</span><input data-paper="url" placeholder="https://arxiv.org/abs/… or a DOI / PDF link" /></label>
+    <p class="sub" style="text-align:center;margin:8px 0;">— or —</p>
+    <label class="field"><span class="l">Upload a PDF</span><input type="file" accept="application/pdf,.pdf" data-paper="file" /></label>
+    <div class="actions">
+      <button class="btn ghost" data-close-modal>Cancel</button>
+      <button class="btn primary" id="submit-paper-btn"><i class="fa-solid fa-paper-plane"></i> Submit Paper</button>
+    </div>
+    <div class="modal-msg" id="paper-msg"></div>
   </div>
 </div>
 
@@ -350,9 +404,12 @@
       <button class="btn ghost" data-close-modal>Cancel</button>
       <button class="btn primary" id="submit-review-btn"><i class="fa-solid fa-check"></i> Submit Review</button>
     </div>
+    <div class="modal-msg" id="review-msg"></div>
   </div>
 </div>
 
+<script src="js/vendor/markdown.min.js"></script>
+<script src="js/markdown.js"></script>
 <script src="js/data.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/dialog.js"></script>

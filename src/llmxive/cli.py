@@ -331,6 +331,110 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
     return 0 if created > 0 else 1
 
 
+def _cmd_submissions_process(_args: argparse.Namespace) -> int:
+    """Process open `human-submission` GitHub issues via the submission_intake agent (FR-021).
+
+    Hourly cron entry point (.github/workflows/submission-intake.yml). Fails
+    fast on a precondition (no token / no `gh` / the agent doesn't import / the
+    `human-submission` label can't be ensured); a per-submission failure never
+    fails the run — the issue stays open with an explanatory comment.
+    """
+    import json
+    import os
+    import re
+    import shutil
+    import subprocess
+    from pathlib import Path
+
+    repo = Path.cwd()
+    REPO = "ContextLab/llmXive"
+
+    # ── precondition checks (Constitution V — fail fast) ──
+    if shutil.which("gh") is None:
+        print("error: `gh` CLI not found on PATH", file=sys.stderr)
+        return 2
+    if not (os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")):
+        # `gh` may also be authed via keyring; check `gh auth status`.
+        rc = subprocess.run(["gh", "auth", "status"], capture_output=True, text=True).returncode
+        if rc != 0:
+            print("error: no GitHub token (GITHUB_TOKEN/GH_TOKEN) and `gh` is not authenticated", file=sys.stderr)
+            return 2
+    try:
+        from llmxive.agents.submission_intake import process_submission_issue
+    except Exception as exc:
+        print(f"error: could not import submission_intake agent: {exc!r}", file=sys.stderr)
+        return 2
+
+    def _gh(*args: str) -> tuple[int, str, str]:
+        proc = subprocess.run(["gh", *args], capture_output=True, text=True)
+        return proc.returncode, proc.stdout, proc.stderr
+
+    # Ensure the labels exist (idempotent — `gh label create` 422s if it does).
+    for name, color, desc in [
+        ("human-submission", "0e8a16", "A submission from the public website"),
+        ("feedback", "fbca04", "Human feedback on an artifact"),
+        ("new-paper", "1d76db", "A paper submitted for consideration/review"),
+    ]:
+        rc, _, err = _gh("label", "create", name, "--repo", REPO, "--color", color, "--description", desc)
+        if rc != 0 and "already exists" not in (err or ""):
+            # Non-fatal: maybe insufficient perms to create labels but issues still listable.
+            print(f"warn: could not ensure label {name!r}: {err.strip()}", file=sys.stderr)
+
+    # ── list open human-submission issues (paginated) ──
+    rc, out, err = _gh("api", "--paginate",
+                       f"repos/{REPO}/issues?state=open&labels=human-submission&per_page=100")
+    if rc != 0:
+        print(f"error: could not list human-submission issues: {err.strip()}", file=sys.stderr)
+        return 2
+    # `gh api --paginate` concatenates JSON arrays — handle either one array or
+    # several concatenated arrays.
+    issues: list[dict] = []
+    out = out.strip()
+    if out:
+        try:
+            issues = json.loads(out)
+        except json.JSONDecodeError:
+            # Concatenated arrays: split on "]\n[" boundaries.
+            for chunk in re.split(r"\]\s*\[", out):
+                chunk = chunk.strip()
+                if not chunk.startswith("["):
+                    chunk = "[" + chunk
+                if not chunk.endswith("]"):
+                    chunk = chunk + "]"
+                try:
+                    issues.extend(json.loads(chunk))
+                except json.JSONDecodeError:
+                    pass
+    # Filter out pull requests (the issues endpoint includes PRs).
+    issues = [i for i in issues if "pull_request" not in i]
+
+    if not issues:
+        print("[submissions] no open human-submission issues — nothing to do")
+        return 0
+
+    n_ok = n_skipped = n_failed = 0
+    for issue in issues:
+        num = issue.get("number")
+        try:
+            res = process_submission_issue(issue, repo_root=repo, gh=_gh)
+        except Exception as exc:  # never let one submission fail the run (FR-021)
+            print(f"[submissions] #{num}: unexpected error {exc!r}", file=sys.stderr)
+            n_failed += 1
+            continue
+        if res.status == "ok":
+            n_ok += 1
+            print(f"[submissions] #{num}: ok ({res.action}{(' → ' + res.target) if res.target else ''})")
+        elif res.status == "skipped":
+            n_skipped += 1
+            print(f"[submissions] #{num}: skipped (already handled)")
+        else:
+            n_failed += 1
+            print(f"[submissions] #{num}: failed ({res.error}) — left open for a maintainer", file=sys.stderr)
+
+    print(f"[submissions] processed {len(issues)} issue(s): {n_ok} ok, {n_skipped} skipped, {n_failed} failed")
+    return 0  # a per-submission failure never fails the run (FR-021)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="llmxive")
     subs = parser.add_subparsers(dest="cmd", required=True)
@@ -376,6 +480,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_brainstorm.add_argument("--field", default=None,
                               help="restrict to a single research field")
     p_brainstorm.set_defaults(func=_cmd_brainstorm)
+
+    p_subs = subs.add_parser("submissions", help="human-submission intake operations")
+    subs_subs = p_subs.add_subparsers(dest="submissions_cmd", required=True)
+    p_subs_proc = subs_subs.add_parser("process", help="triage open human-submission GitHub issues")
+    p_subs_proc.set_defaults(func=_cmd_submissions_process)
 
     return parser
 
