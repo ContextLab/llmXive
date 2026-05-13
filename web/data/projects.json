@@ -994,7 +994,7 @@
       "name": "jeremymanning"
     }
   ],
-  "generated_at": "2026-05-13T04:20:19.590622+00:00",
+  "generated_at": "2026-05-13T11:36:34.770436+00:00",
   "pipeline_steps": [
     {
       "agents": [
@@ -1525,7 +1525,7 @@
       },
       "authors": [
         {
-          "contributions": 394,
+          "contributions": 410,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -1570,83 +1570,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 4.054608,
-          "ended_at": "2026-05-12T13:19:48.310635Z",
+          "duration_s": 20.836627,
+          "ended_at": "2026-05-13T09:30:09.732374Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-12T13:19:44.256027Z"
+          "started_at": "2026-05-13T09:29:48.895747Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 39.36819,
-          "ended_at": "2026-05-12T13:19:43.585102Z",
+          "duration_s": 5.60524,
+          "ended_at": "2026-05-13T09:29:48.094176Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-12T13:19:04.216912Z"
+          "started_at": "2026-05-13T09:29:42.488936Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 292.080427,
-          "ended_at": "2026-05-12T13:19:03.540692Z",
+          "duration_s": 15.4483,
+          "ended_at": "2026-05-13T09:29:41.689538Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-12T13:14:11.460265Z"
+          "started_at": "2026-05-13T09:29:26.241238Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 82.678996,
-          "ended_at": "2026-05-12T13:14:10.787692Z",
+          "duration_s": 4.76232,
+          "ended_at": "2026-05-13T09:29:25.444484Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-12T13:12:48.108696Z"
+          "started_at": "2026-05-13T09:29:20.682164Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 5.782064,
-          "ended_at": "2026-05-12T13:12:47.435592Z",
+          "duration_s": 10.624897,
+          "ended_at": "2026-05-13T09:29:19.886538Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-12T13:12:41.653528Z"
+          "started_at": "2026-05-13T09:29:09.261641Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 30.307579,
-          "ended_at": "2026-05-12T13:12:40.976269Z",
+          "duration_s": 8.813247,
+          "ended_at": "2026-05-13T09:29:08.471645Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-12T13:12:10.668690Z"
+          "started_at": "2026-05-13T09:28:59.658398Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 56.483544,
-          "ended_at": "2026-05-12T13:12:09.937720Z",
+          "duration_s": 70.641441,
+          "ended_at": "2026-05-13T09:28:58.820445Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-12T13:11:13.454176Z"
+          "started_at": "2026-05-13T09:27:48.179004Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 7.514233,
-          "ended_at": "2026-05-12T13:11:12.772680Z",
+          "duration_s": 30.737701,
+          "ended_at": "2026-05-13T09:27:47.369849Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-12T13:11:05.258447Z"
+          "started_at": "2026-05-13T09:27:16.632148Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 7.374739,
-          "ended_at": "2026-05-12T09:26:47.480257Z",
+          "duration_s": 7.926753,
+          "ended_at": "2026-05-13T05:55:09.210143Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-12T09:26:40.105518Z"
+          "started_at": "2026-05-13T05:55:01.283390Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 4.375107,
-          "ended_at": "2026-05-12T09:26:39.319186Z",
+          "duration_s": 19.31584,
+          "ended_at": "2026-05-13T05:55:00.605821Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-12T09:26:34.944079Z"
+          "started_at": "2026-05-13T05:54:41.289981Z"
         }
       ],
       "phase_group": "research_speckit",
@@ -42761,7 +42761,7 @@
       },
       "authors": [
         {
-          "contributions": 63,
+          "contributions": 70,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -42791,11 +42791,67 @@
         "type": "markdown"
       },
       "current_stage": "brainstormed",
-      "description": "Field: psychology Does visual salience of actors in morally ambiguous images systematically bias human blame attribution, independent of the actors' actual role in the moral event? Visual attention mechanisms are well-documented to prioritize salient stimuli (bright colors, high contrast, motion), but it is unclear\u2026",
+      "description": "Field: psychology Does visual salience of actors in morally ambiguous images systematically bias human blame attribution, independent of the actors' actual role in the moral event? Visual attention mechanisms are well-documented to prioritize salient stimuli, but it is unclear whether this perceptual bias extends to\u2026",
       "field": "psychology",
       "id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 32.178456,
+          "ended_at": "2026-05-13T10:59:01.536144Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T10:58:29.357688Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 76.808226,
+          "ended_at": "2026-05-13T09:19:42.699092Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T09:18:25.890866Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 28.575738,
+          "ended_at": "2026-05-13T09:14:25.341124Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T09:13:56.765386Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 35.072876,
+          "ended_at": "2026-05-13T07:22:42.825276Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T07:22:07.752400Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 30.061652,
+          "ended_at": "2026-05-13T07:17:20.437046Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T07:16:50.375394Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 24.756316,
+          "ended_at": "2026-05-13T05:33:39.057764Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T05:33:14.301448Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 32.236081,
+          "ended_at": "2026-05-13T05:26:27.700409Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T05:25:55.464328Z"
+        },
         {
           "agent": "flesh_out",
           "duration_s": 24.212811,
@@ -42819,62 +42875,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-13T01:13:19.609849Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 84.550933,
-          "ended_at": "2026-05-13T01:06:19.896574Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T01:04:55.345641Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 32.215556,
-          "ended_at": "2026-05-12T23:30:39.779459Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T23:30:07.563903Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 27.981259,
-          "ended_at": "2026-05-12T22:34:22.891923Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T22:33:54.910664Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 469.878449,
-          "ended_at": "2026-05-12T21:43:03.753210Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T21:35:13.874761Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 30.993617,
-          "ended_at": "2026-05-12T20:49:06.167946Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T20:48:35.174329Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 28.504062,
-          "ended_at": "2026-05-12T20:41:10.677009Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T20:40:42.172947Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 33.291263,
-          "ended_at": "2026-05-12T19:39:34.376735Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T19:39:01.085472Z"
         }
       ],
       "phase_group": "idea",
