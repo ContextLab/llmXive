@@ -195,6 +195,115 @@ def _issue_number_for_project(repo: Path, project_id: str) -> int | None:
     return None
 
 
+def _fetch_arxiv_source(arxiv_id: str, dest_dir: Path) -> dict[str, Any]:
+    """Fetch the .tar.gz source for an arXiv paper and extract it into
+    `dest_dir`. Returns a dict with `{ok, files, toplevel_tex, error}`.
+
+    The arXiv e-print endpoint returns a gzipped tar (or sometimes a bare
+    `.tex.gz` for single-file submissions). We sniff the magic bytes and
+    handle both. Safe-extract per Python 3.12's `filter="data"` (rejects
+    absolute paths, `..`, symlinks).
+    """
+    import io
+    import tarfile
+    import urllib.request
+    out: dict[str, Any] = {"ok": False, "files": [], "toplevel_tex": [], "error": None}
+    url = f"https://arxiv.org/e-print/{arxiv_id}"
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "llmXive-bot/0.1 (https://context-lab.com/llmXive)",
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            data = r.read()
+    except Exception as exc:
+        out["error"] = f"download failed: {exc}"
+        return out
+    # Cap size at 50 MB compressed (arXiv's hard cap).
+    if len(data) > 50 * 1024 * 1024:
+        out["error"] = f"source too large ({len(data)} bytes)"
+        return out
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    # Detect tar.gz vs. bare gzipped single file.
+    # gzip magic = 0x1f 0x8b; tar inside gzip = "ustar" at byte offset 257 of
+    # the *decompressed* stream.
+    try:
+        import gzip
+        decompressed = gzip.decompress(data)
+    except Exception as exc:
+        out["error"] = f"not gzip: {exc}"
+        return out
+    is_tar = (len(decompressed) >= 262 and decompressed[257:262] == b"ustar")
+    try:
+        if is_tar:
+            with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
+                # Defensive: reject members with .., absolute paths, links.
+                for m in tar.getmembers():
+                    name = m.name
+                    if name.startswith("/") or ".." in Path(name).parts or m.issym() or m.islnk() or m.isdev():
+                        continue
+                    tar.extract(m, path=dest_dir, filter="data")
+                    out["files"].append(name)
+        else:
+            # Bare .tex.gz — single file.
+            (dest_dir / "main.tex").write_bytes(decompressed)
+            out["files"].append("main.tex")
+    except Exception as exc:
+        out["error"] = f"extract failed: {exc}"
+        return out
+    # Identify toplevel .tex files via 00README.json if present; else heuristics.
+    readme = dest_dir / "00README.json"
+    if readme.exists():
+        try:
+            j = json.loads(readme.read_text(encoding="utf-8"))
+            out["toplevel_tex"] = [s["filename"] for s in j.get("sources", [])
+                                   if s.get("usage") == "toplevel" and s.get("filename", "").endswith(".tex")]
+        except Exception:
+            pass
+    if not out["toplevel_tex"]:
+        # Heuristics: a top-level .tex containing \documentclass.
+        for f in sorted(dest_dir.glob("*.tex")):
+            try:
+                t = f.read_text(encoding="utf-8", errors="replace")
+                if r"\documentclass" in t:
+                    out["toplevel_tex"].append(f.name)
+            except Exception:
+                pass
+    out["ok"] = True
+    return out
+
+
+_GITHUB_RE = re.compile(r"https?://github\.com/([A-Za-z0-9._-]+/[A-Za-z0-9._-]+)")
+_OSF_RE = re.compile(r"https?://osf\.io/[A-Za-z0-9_-]+")
+_ZENODO_RE = re.compile(r"https?://zenodo\.org/(?:record|doi)/[A-Za-z0-9./_-]+")
+
+
+def _parse_tex_external_resources(tex_dir: Path) -> dict[str, list[str]]:
+    """Scan all .tex files in `tex_dir` for code + data resource pointers
+    (github / osf / zenodo URLs). Returns `{code: [...], data: [...]}`.
+    """
+    out: dict[str, list[str]] = {"code": [], "data": []}
+    seen_code, seen_data = set(), set()
+    for f in tex_dir.rglob("*.tex"):
+        try:
+            text = f.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            continue
+        for u in _GITHUB_RE.findall(text):
+            url = f"https://github.com/{u}"
+            if url not in seen_code:
+                seen_code.add(url)
+                out["code"].append(url)
+        for u in _OSF_RE.findall(text):
+            if u not in seen_data:
+                seen_data.add(u)
+                out["data"].append(u)
+        for u in _ZENODO_RE.findall(text):
+            if u not in seen_data:
+                seen_data.add(u)
+                out["data"].append(u)
+    return out
+
+
 def _slugify(s: str) -> str:
     # Strip BOTH before AND after truncation — otherwise the [:40] cut can land
     # on a `-` and leave the slug ending with one (e.g. "ecotourism-in-").
@@ -715,6 +824,56 @@ def _handle_new_paper(issue, number, body, author, *, repo: Path, gh: GhFn) -> I
                                        submitter=submitter, field=field,
                                        issue_number=number, paper_authors=paper_authors)
 
+    # ── arXiv flow: fetch the .tex source, parse for code/data, stage under
+    #    paper/source/, then transition the project to paper_review so the 12
+    #    paper-stage specialist reviewers run on the next pipeline tick. The
+    #    user's rule for submitted papers: they skip the research + drafting
+    #    stages (the work is already done) and go straight to review. The
+    #    `speckit_paper_dir` validator only kicks in at paper_specified..
+    #    paper_complete, so a project at paper_review can have it unset.
+    arxiv_id = None
+    if url:
+        am = re.search(r"arxiv\.org/(?:abs|pdf|html|e-print)/([0-9]{4}\.[0-9]{4,6})", url)
+        if am:
+            arxiv_id = am.group(1)
+    arxiv_status = "skipped"
+    if arxiv_id:
+        paper_dir = repo / "projects" / pid / "paper"
+        source_dir = paper_dir / "source"
+        fetch = _fetch_arxiv_source(arxiv_id, source_dir)
+        if fetch["ok"]:
+            ext = _parse_tex_external_resources(source_dir)
+            # Write metadata.json + external_resources.md
+            (paper_dir / "metadata.json").write_text(json.dumps({
+                "arxiv_id": arxiv_id,
+                "arxiv_url": f"https://arxiv.org/abs/{arxiv_id}",
+                "title": title, "authors": paper_authors, "submitter": submitter,
+                "submitted_via": f"llmXive dashboard, GitHub issue #{number}",
+                "license": "arXiv Non-exclusive Distribution License",
+                "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+                "code": ext["code"], "data": ext["data"],
+                "toplevel_tex": fetch["toplevel_tex"],
+                "source_files": fetch["files"],
+            }, indent=2), encoding="utf-8")
+            ext_lines = ["# External resources", "", "This project was created from an arXiv-submitted paper.", "",
+                         "## Source", "", f"- **arXiv**: [{arxiv_id}](https://arxiv.org/abs/{arxiv_id})",
+                         "- **License**: arXiv Non-exclusive Distribution License", "", "## Code"]
+            ext_lines += [f"- {u}" for u in ext["code"]] or ["- (none found in the paper source)"]
+            if ext["data"]:
+                ext_lines += ["", "## Data"] + [f"- {u}" for u in ext["data"]]
+            (paper_dir / "external_resources.md").write_text("\n".join(ext_lines) + "\n", encoding="utf-8")
+            # Transition the project to paper_review so the reviewers pick it up.
+            try:
+                p = project_store.load(pid, repo_root=repo)
+                p = p.model_copy(update={"current_stage": Stage.PAPER_REVIEW,
+                                          "updated_at": datetime.now(UTC)})
+                project_store.save(p, repo_root=repo)
+                arxiv_status = "staged"
+            except Exception as exc:
+                arxiv_status = f"staged but couldn't transition: {exc}"
+        else:
+            arxiv_status = f"fetch failed: {fetch.get('error')}"
+
     # If a PDF was staged, move it to the project's canonical home.
     moved = None
     if staged and staged.startswith(INBOX_DIR + "/"):
@@ -723,13 +882,16 @@ def _handle_new_paper(issue, number, body, author, *, repo: Path, gh: GhFn) -> I
         ok = _move_staged_pdf(gh, staged_path=staged, dest_path=dest)
         moved = dest if ok else None
 
-    bits = [f"created **{pid}** (brainstormed stage)"]
+    stage_word = "paper_review (source fetched + staged)" if arxiv_status == "staged" else "brainstormed"
+    bits = [f"created **{pid}** ({stage_word})"]
     if url:
         bits.append(f"recorded the source URL ({url})")
     if moved:
         bits.append(f"filed the uploaded PDF at `{moved}`")
     elif staged:
         bits.append(f"(couldn't move the staged PDF `{staged}` automatically — a maintainer should)")
+    if arxiv_id and arxiv_status != "staged":
+        bits.append(f"arXiv source: {arxiv_status}")
     cu = _comment(gh, number, "🤖 Thanks for the submission — " + "; ".join(bits) + ". "
                   "The pipeline / a maintainer will review it from there.")
     _close_issue(gh, number)

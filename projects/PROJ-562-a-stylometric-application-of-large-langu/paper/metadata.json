@@ -1,0 +1,24 @@
+{
+  "arxiv_id": "2510.21958",
+  "arxiv_url": "https://arxiv.org/abs/2510.21958",
+  "title": "A Stylometric Application of Large Language Models",
+  "authors": [
+    "Harrison F. Stropkay",
+    "Jiayi Chen",
+    "Mohammad J. Latifi",
+    "Daniel N. Rockmore",
+    "Jeremy R. Manning"
+  ],
+  "submitter": "jeremymanning",
+  "submitted_via": "llmXive dashboard, GitHub issue #126",
+  "fetched_at": "2026-05-13T13:00:00Z",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": "https://github.com/ContextLab/llm-stylometry",
+  "data": [],
+  "toplevel_tex": ["main.tex", "supplement.tex"],
+  "source_files": ["main.tex", "supplement.tex", "main.bbl", "custom.bib", "00README.json", "figs/"],
+  "original_pdf_engine": "pdflatex",
+  "llmxive_restyle": "main-llmxive.tex (xelatex + papers/.style/llmxive.cls)",
+  "notes": "Re-styled excerpt only; full paper available at arXiv. Submitter is one of the authors; redistribution of the source is permitted under the arXiv non-exclusive license. The llmXive-restyled version is a derivative for the llmXive archive."
+}

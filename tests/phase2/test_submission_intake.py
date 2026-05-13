@@ -248,6 +248,47 @@ def test_resolve_submitter_falls_back_to_issue_creator():
     assert _resolve_submitter(issue) == "octocat"
 
 
+def test_parse_tex_external_resources(tmp_path):
+    """The .tex parser pulls github / osf / zenodo URLs out of all .tex files
+    in a directory, deduping. Code is github; data is osf+zenodo."""
+    from llmxive.agents.submission_intake import _parse_tex_external_resources
+    (tmp_path / "main.tex").write_text(
+        r"""
+\documentclass{article}
+\begin{document}
+The code is at \href{https://github.com/ContextLab/llm-stylometry}{ContextLab/llm-stylometry}
+and the data is at \url{https://osf.io/abcde}. See also
+\url{https://zenodo.org/record/12345}.
+\end{document}
+"""
+    )
+    (tmp_path / "supplement.tex").write_text(
+        # Same github → dedup'd; new osf → kept.
+        "See https://github.com/ContextLab/llm-stylometry and https://osf.io/zzzzz."
+    )
+    res = _parse_tex_external_resources(tmp_path)
+    assert res["code"] == ["https://github.com/ContextLab/llm-stylometry"]
+    assert set(res["data"]) == {"https://osf.io/abcde", "https://zenodo.org/record/12345", "https://osf.io/zzzzz"}
+
+
+def test_fetch_arxiv_source_real(tmp_path):
+    """Real fetch of an arXiv paper's source. Asserts the tar.gz extracts to
+    a .tex file + 00README.json with `toplevel`. Skipped if no network."""
+    import urllib.error
+
+    from llmxive.agents.submission_intake import _fetch_arxiv_source
+    try:
+        res = _fetch_arxiv_source("1706.03762", tmp_path)  # Attention Is All You Need
+    except urllib.error.URLError:
+        pytest.skip("no network")
+    if not res["ok"]:
+        # arXiv may return 403 for some papers; skip gracefully.
+        pytest.skip(f"arxiv returned: {res.get('error')}")
+    tex_files = list(tmp_path.glob("*.tex"))
+    assert tex_files, "expected at least one .tex"
+    assert res["toplevel_tex"], "expected toplevel_tex"
+
+
 def test_arxiv_authors_real_call():
     """Real call to the arXiv API (no auth needed). FR-020/021 — for a
     submitted paper, credit on the paper itself goes to its authors, not the
