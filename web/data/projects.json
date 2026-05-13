@@ -886,7 +886,7 @@
     "human_contributors": 1,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2914,
+    "total_contributions": 2919,
     "total_contributors": 8
   },
   "contributors": [
@@ -907,7 +907,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 2197,
+      "contribution_count": 2202,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -994,7 +994,7 @@
       "name": "jeremymanning"
     }
   ],
-  "generated_at": "2026-05-13T03:25:34.987297+00:00",
+  "generated_at": "2026-05-13T03:38:59.785911+00:00",
   "pipeline_steps": [
     {
       "agents": [
@@ -42761,7 +42761,7 @@
       },
       "authors": [
         {
-          "contributions": 58,
+          "contributions": 63,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -42796,6 +42796,46 @@
       "id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 24.212811,
+          "ended_at": "2026-05-13T03:24:09.742479Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T03:23:45.529668Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 28.79095,
+          "ended_at": "2026-05-13T03:19:44.505520Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T03:19:15.714570Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 69.6991,
+          "ended_at": "2026-05-13T01:14:29.308949Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T01:13:19.609849Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 84.550933,
+          "ended_at": "2026-05-13T01:06:19.896574Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T01:04:55.345641Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 32.215556,
+          "ended_at": "2026-05-12T23:30:39.779459Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-12T23:30:07.563903Z"
+        },
         {
           "agent": "flesh_out",
           "duration_s": 27.981259,
@@ -42835,46 +42875,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-12T19:39:01.085472Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 29.419684,
-          "ended_at": "2026-05-12T18:54:20.350646Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T18:53:50.930962Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 29.114956,
-          "ended_at": "2026-05-12T18:48:25.832327Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T18:47:56.717371Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 25.344096,
-          "ended_at": "2026-05-12T17:47:50.623443Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T17:47:25.279347Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 25.959125,
-          "ended_at": "2026-05-12T16:58:59.094115Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T16:58:33.134990Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 79.97871,
-          "ended_at": "2026-05-12T16:54:24.485127Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-12T16:53:04.506417Z"
         }
       ],
       "phase_group": "idea",
