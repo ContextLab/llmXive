@@ -54,20 +54,32 @@ a:hover { color: var(--accent-2); }
   height: 64px;
 }
 .brand {
-  display: flex; align-items: baseline; gap: 12px;
+  display: flex; align-items: center; gap: 12px;
   font-family: var(--serif); font-weight: 500;
   font-size: 22px; letter-spacing: -0.01em; color: var(--text);
 }
-.brand .glyph {
+/* The wordmark "llmXive" is ONE unbroken token inside a bordered box
+   (FR-001). white-space:nowrap + inline-flex keeps it on one line at every
+   width; padding/border give it the logo treatment the old split [llm]Xive
+   had — but applied to the whole word. */
+.brand .wordmark {
   font-family: var(--mono);
   font-size: 18px; font-weight: 600; color: var(--accent);
   border: 1px solid var(--accent); padding: 2px 8px; border-radius: var(--r-sm);
   letter-spacing: 0.02em;
-  transform: translateY(-2px);
+  white-space: nowrap;
+  display: inline-flex; align-items: center;
+  flex: 0 0 auto;
 }
 .brand .tag {
   font-family: var(--mono); font-size: 11px; color: var(--muted);
   font-weight: 400; letter-spacing: 0.04em; text-transform: uppercase;
+  white-space: nowrap;
+}
+/* On narrow screens drop the secondary tag so the wordmark never has to
+   compete for width. */
+@media (max-width: 480px) {
+  .brand .tag { display: none; }
 }
 .top-actions { display: flex; align-items: center; gap: 8px; }
 
@@ -102,6 +114,7 @@ a:hover { color: var(--accent-2); }
 .tabs-row {
   display: flex; gap: 4px; overflow-x: auto;
   scrollbar-width: none;
+  position: relative;   /* containing block for .tab-underline (FR-002) */
 }
 .tabs-row::-webkit-scrollbar { display: none; }
 .tab {
@@ -129,7 +142,7 @@ a:hover { color: var(--accent-2); }
 }
 .tab.active .count { background: var(--accent-tint); color: var(--accent); }
 .tab-underline {
-  position: absolute; bottom: -1px; height: 2px;
+  position: absolute; bottom: -1px; left: 0; width: 0; height: 2px;
   background: var(--accent);
   transition: left var(--t-med), width var(--t-med);
   border-radius: 2px 2px 0 0;
