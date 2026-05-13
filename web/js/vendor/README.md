@@ -21,3 +21,32 @@ licenses are recorded.
 
 To update: download a new build to this file, bump the version above, and
 re-test the modals that render Markdown.
+
+## `prism.min.js`
+
+- **Library**: [Prism](https://prismjs.com/)
+- **Version**: 1.29.0
+- **License**: MIT
+- **Source**: cdnjs Prism 1.29.0 components, concatenated in load order:
+  - `prism-core.min.js`
+  - `prism-markup.min.js`
+  - `prism-clike.min.js`
+  - `prism-javascript.min.js`
+  - `prism-bash.min.js`
+  - `prism-json.min.js`
+  - `prism-yaml.min.js`
+  - `prism-python.min.js`
+  - `prism-markdown.min.js`
+- **Why**: syntax highlighting for code blocks rendered from agent prompts
+  (Python tools, bash hooks, YAML config snippets, JSON contracts, etc.).
+  Themed in `css/site.css` to match the site palette — Dartmouth-green
+  keywords + accent strings + muted comments.
+- **Wrapper**: `web/js/markdown.js` calls `Prism.highlightElement(el)` on
+  every `<code class="language-*">` block produced by `renderMarkdown` /
+  `fetchAndRenderMarkdown`. Auto-detects language hints from snarkdown's
+  fenced-code-block class.
+
+To update: re-download each component from cdnjs at the new version, bump
+the version above, re-concatenate in the SAME ORDER (core first, then markup,
+then clike, then the rest), and re-test the agent-registry + artifact
+modals.

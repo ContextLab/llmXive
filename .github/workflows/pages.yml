@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'web/**'
+      - 'projects/**/paper/pdf/**.pdf'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -28,6 +29,25 @@ jobs:
           rm -rf docs
           cp -R web docs
           touch docs/.nojekyll
+
+      - name: Mirror paper PDFs into docs/ for same-origin inline rendering
+        # raw.githubusercontent.com serves PDFs with Content-Disposition:
+        # attachment + X-Frame-Options: deny so browsers refuse to render
+        # them inline. GitHub Pages serves PDFs from the same origin with a
+        # proper Content-Type: application/pdf, so we mirror every paper PDF
+        # under docs/papers/<project_id>/<filename>.pdf for the paper modal
+        # to embed.
+        run: |
+          set -euo pipefail
+          mkdir -p docs/papers
+          # File paths are entirely under our control here (repo-checked-out
+          # paths only). No untrusted input is interpolated into the shell.
+          while IFS= read -r src; do
+            proj=$(echo "$src" | awk -F/ '{print $2}')
+            name=$(basename "$src")
+            mkdir -p "docs/papers/$proj"
+            cp "$src" "docs/papers/$proj/$name"
+          done < <(find projects -path 'projects/*/paper/pdf/*.pdf' -type f)
 
       - name: Commit if changed
         run: |

@@ -71,12 +71,22 @@
       .map(k => '<span>' + escapeHtml(k) + '</span>').join("");
     const desc = item.description || item.field || "";
     const authors = item.authors || [];
-    const authorPills = authors.slice(0, 3).map(a =>
+    // Render the first 3 inline; everything beyond becomes a hidden tail that
+    // the "+N more" pill reveals on click. The CSS sets the row to nowrap +
+    // overflow-x:auto so the first 3 pills can stay on a single line; clicking
+    // "+N more" adds the `.expanded` class which switches to flex-wrap and
+    // injects the remaining pills.
+    const headPills = authors.slice(0, 3).map(a =>
       '<span class="submitter">' + kindIcon(a.kind) + ' ' + escapeHtml(a.name) + '</span>'
     ).join(" ");
-    const more = authors.length > 3 ? ` <span class="submitter-more">+${authors.length - 3} more</span>` : "";
+    const tailPills = authors.slice(3).map(a =>
+      '<span class="submitter submitter-tail">' + kindIcon(a.kind) + ' ' + escapeHtml(a.name) + '</span>'
+    ).join(" ");
+    const more = authors.length > 3
+      ? ` <button type="button" class="submitter-more" aria-expanded="false">+${authors.length - 3} more</button>`
+      : "";
     const authorsRow = authors.length
-      ? '<div class="submitter-row">authors ' + authorPills + more + '</div>'
+      ? '<div class="submitter-row">authors ' + headPills + (tailPills ? ' <span class="submitter-tail-group" hidden>' + tailPills + '</span>' : "") + more + '</div>'
       : (item.submitter
           ? '<div class="submitter-row">submitted by <span class="submitter">'
             + kindIcon(kindOf(item.submitter))
@@ -112,7 +122,21 @@
     el.replaceChildren();
     el.insertAdjacentHTML("beforeend", items.map(it => cardHTML(it, kind)).join(""));
     el.querySelectorAll(".card").forEach(card => {
-      card.addEventListener("click", () => {
+      card.addEventListener("click", e => {
+        // Clicks on the "+N more" pill toggle the author tail; they should NOT
+        // also open the project modal (the most surprising behaviour we could
+        // ship would be "click to see more authors → modal pops over them").
+        const moreBtn = e.target.closest(".submitter-more");
+        if (moreBtn && card.contains(moreBtn)) {
+          e.stopPropagation();
+          const row = moreBtn.closest(".submitter-row");
+          const tail = row && row.querySelector(".submitter-tail-group");
+          const expanded = row && row.classList.toggle("expanded");
+          if (tail) tail.hidden = !expanded;
+          moreBtn.setAttribute("aria-expanded", String(!!expanded));
+          moreBtn.textContent = expanded ? "show less" : `+${(tail ? tail.querySelectorAll(".submitter-tail").length : 0)} more`;
+          return;
+        }
         const pid = card.getAttribute("data-pid");
         const proj = (payload.projects || []).find(p => p.id === pid);
         if (proj) Dialog.open(proj);
@@ -489,10 +513,20 @@
     const promptEl = body.querySelector(".am-prompt");
     const M = window.LlmxiveMarkdown;
     if (a.prompt_raw_url && M) {
-      M.fetchAndRenderMarkdown(a.prompt_raw_url).then(html => { if (promptEl) promptEl.innerHTML = html; })
-        .catch(err => { if (promptEl) promptEl.innerHTML = '<p class="muted">Could not load the prompt (' + escapeHtml(String(err.message || err)) + ').</p>'; });
+      // Use the `*Into` helper so Prism runs over the live nodes after the
+      // sanitized HTML is inserted — that's how fenced code blocks
+      // (Python tools, bash hooks, YAML config) get syntax-highlighted.
+      M.fetchAndRenderMarkdownInto(promptEl, a.prompt_raw_url)
+        .catch(err => {
+          if (promptEl) {
+            promptEl.replaceChildren();
+            promptEl.insertAdjacentHTML("beforeend",
+              '<p class="muted">Could not load the prompt (' + escapeHtml(String(err.message || err)) + ').</p>');
+          }
+        });
     } else if (promptEl) {
-      promptEl.innerHTML = '<p class="muted">No prompt available.</p>';
+      promptEl.replaceChildren();
+      promptEl.insertAdjacentHTML("beforeend", '<p class="muted">No prompt available.</p>');
     }
   }
 

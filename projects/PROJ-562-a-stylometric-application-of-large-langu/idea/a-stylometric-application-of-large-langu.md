@@ -1,5 +1,5 @@
 ---
-field: linguistics
+field: computer science
 submitter: jeremymanning
 github_issue: https://github.com/ContextLab/llmXive/issues/126
 paper_authors:

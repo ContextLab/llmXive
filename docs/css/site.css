@@ -869,15 +869,58 @@ a:hover { color: var(--accent-2); }
   border-top: 1px dashed var(--line-soft);
   font-size: 10px; color: var(--muted);
   letter-spacing: 0.04em;
+  /* Single-line layout: the "authors" label sits on the left, pills scroll
+     horizontally on the right when there are too many to fit. nowrap +
+     overflow-x:auto keeps the row at one line and gives the user a way to
+     reach hidden pills without expanding the card height. */
   display: flex; align-items: center; gap: 6px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scroll-behavior: smooth;
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), transparent 100%);
+          mask-image: linear-gradient(to right, black calc(100% - 24px), transparent 100%);
 }
+/* Hide scrollbar visually on WebKit unless hovered — keeps the card clean. */
+.card .submitter-row::-webkit-scrollbar { height: 6px; background: transparent; }
+.card .submitter-row::-webkit-scrollbar-thumb { background: var(--line-soft); border-radius: 3px; }
 .card .submitter-row .submitter {
   display: inline-flex; align-items: center; gap: 4px;
   background: var(--bg-2); padding: 2px 8px; border-radius: 999px;
   font-family: var(--mono);
   color: var(--text-2);
+  white-space: nowrap;
+  flex: 0 0 auto;            /* never shrink/wrap an individual pill */
+  max-width: 200px;          /* truncate ridiculously long author names */
+  overflow: hidden; text-overflow: ellipsis;
 }
-.card .submitter-row .submitter i { font-size: 9px; }
+.card .submitter-row .submitter i { font-size: 9px; flex: 0 0 auto; }
+/* "+N more" — clickable pill that expands the row in place. */
+.card .submitter-row .submitter-more {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: transparent; padding: 2px 8px; border-radius: 999px;
+  border: 1px dashed var(--line-soft);
+  font-family: var(--mono);
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  transition: background 120ms ease, color 120ms ease;
+}
+.card .submitter-row .submitter-more:hover,
+.card .submitter-row .submitter-more:focus-visible {
+  background: var(--bg-2); color: var(--text-2);
+  outline: none;
+}
+/* Expanded state: row wraps onto multiple lines so every pill is visible.
+   Toggled by clicking the "+N more" pill (see app.js). */
+.card .submitter-row.expanded {
+  flex-wrap: wrap;
+  overflow: visible;
+  -webkit-mask-image: none;
+          mask-image: none;
+}
 
 /* ── About-page modals (FR-003 pipeline step, FR-004 agent registry) ── */
 .about-modal-backdrop .about-modal {
@@ -939,6 +982,105 @@ a:hover { color: var(--accent-2); }
 .about-modal .am-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
 .about-modal .am-prompt { background: var(--bg-2); border: 1px solid var(--line-soft); border-radius: var(--r-sm); padding: 14px 16px; }
 .about-modal .am-prompt.md-body { font-size: 12.5px; }
+
+/* Shared markdown rules that apply everywhere `.md-body` is used (artifact
+   dialog, agent-registry modal, pipeline-step modal). The artifact-dialog
+   rules above are kept as-is for backward compatibility; these add equivalent
+   handling for `.md-body` outside that scope (notably the agent modals where
+   code blocks were previously getting cut off and unstyled). */
+.md-body { font-size: 13px; line-height: 1.6; color: var(--text-2); }
+.md-body h1, .md-body h2, .md-body h3, .md-body h4 {
+  font-family: var(--serif); font-weight: 400; margin: 1.2em 0 0.5em;
+  color: var(--text);
+}
+.md-body h1 { font-size: 22px; }
+.md-body h2 { font-size: 18px; }
+.md-body h3 { font-size: 15px; }
+.md-body h1:first-child, .md-body h2:first-child, .md-body h3:first-child { margin-top: 0; }
+.md-body p { margin: 0.6em 0; }
+.md-body ul, .md-body ol { margin: 0.6em 0; padding-left: 1.4em; }
+.md-body li { margin: 0.2em 0; }
+.md-body a { color: var(--accent); }
+.md-body blockquote {
+  border-left: 3px solid var(--line); margin: 0.6em 0; padding-left: 12px;
+  color: var(--muted);
+}
+.md-body table { border-collapse: collapse; font-size: 12px; margin: 0.6em 0; }
+.md-body th, .md-body td { border: 1px solid var(--line-soft); padding: 4px 8px; }
+.md-body img { max-width: 100%; height: auto; }
+.md-body code {
+  font-family: var(--mono); font-size: 0.9em;
+  background: var(--bg-2); padding: 1px 4px; border-radius: 3px;
+}
+/* Code blocks: scroll on overflow, preserve indentation, allow long single
+   lines to wrap. `max-width:100%` makes the block obey its parent container's
+   width even when a `code` element is wider than the screen. */
+.md-body pre {
+  background: var(--bg-2); border: 1px solid var(--line-soft);
+  border-radius: var(--r-sm); padding: 10px 12px;
+  font-family: var(--mono); font-size: 11.5px; line-height: 1.5;
+  overflow-x: auto;
+  max-width: 100%;
+  white-space: pre;     /* preserve indentation; overflow-x handles long lines */
+  margin: 0.8em 0;
+}
+.md-body pre code {
+  background: transparent; padding: 0; font-size: inherit;
+  display: block; min-width: max-content;
+}
+
+/* About-modal-specific: the agent prompt panel needs an explicit width so
+   long code blocks scroll inside it rather than stretching the modal. */
+.about-modal .am-prompt {
+  max-width: 100%; box-sizing: border-box; overflow: hidden;
+}
+.about-modal .am-prompt pre {
+  /* The prompt panel has 16px of horizontal padding; subtract that so the
+     pre block fills the inner content area without forcing horizontal
+     overflow on the panel itself. */
+  width: 100%;
+}
+
+/* ── Syntax highlighting (matches the site palette) ──────────────────────
+   Applied to `<code class="language-…">` blocks emitted by Prism. The
+   colors are chosen to feel like the rest of the UI: Dartmouth-green for
+   keywords/built-ins, muted gray for comments, accent for strings, ink for
+   plain text. Works on the existing --bg-2 code-block background. */
+.md-body pre[class*="language-"],
+.md-body code[class*="language-"] { color: var(--text); }
+.md-body .token.comment,
+.md-body .token.prolog,
+.md-body .token.doctype,
+.md-body .token.cdata { color: var(--muted); font-style: italic; }
+.md-body .token.punctuation { color: var(--text-2); }
+.md-body .token.namespace { opacity: 0.7; }
+.md-body .token.property,
+.md-body .token.tag,
+.md-body .token.constant,
+.md-body .token.symbol,
+.md-body .token.deleted { color: #b35b00; }
+.md-body .token.boolean,
+.md-body .token.number { color: #b35b00; }
+.md-body .token.selector,
+.md-body .token.attr-name,
+.md-body .token.string,
+.md-body .token.char,
+.md-body .token.builtin,
+.md-body .token.inserted { color: var(--accent); }
+.md-body .token.operator,
+.md-body .token.entity,
+.md-body .token.url,
+.md-body .token.variable { color: #006e7a; }
+.md-body .token.atrule,
+.md-body .token.attr-value,
+.md-body .token.function,
+.md-body .token.class-name { color: #6a3da8; }
+.md-body .token.keyword { color: var(--accent); font-weight: 600; }
+.md-body .token.regex,
+.md-body .token.important { color: #b35b00; font-weight: 600; }
+.md-body .token.important,
+.md-body .token.bold { font-weight: bold; }
+.md-body .token.italic { font-style: italic; }
 
 /* ── "How to contribute" section (FR-005) ── */
 .about-contribute { margin-top: 32px; }

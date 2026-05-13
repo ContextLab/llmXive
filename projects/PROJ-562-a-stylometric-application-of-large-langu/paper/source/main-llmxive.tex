@@ -29,39 +29,13 @@ Hanover, NH 03755, USA \\
 \affiliation{Dartmouth College}
 \correspondence{jeremy.r.manning@dartmouth.edu}
 \paperid{arXiv:2510.21958}
-\paperstatus{Peer Reviewed}
+\paperstatus{Submitted}
 \papercategory{Research paper}
 \runningtitle{A Stylometric Application of Large Language Models}
 
 %% ── Editorial summary + artifact links (rendered inside the title block
 %% by the class so they appear on the title page).
-\seteditorialbyline{llmXive Editorial Board}
-\seteditorialsummary{%
-\edsection{Significance}
-This paper develops a stylometric approach to distinguishing human-written
-from LLM-generated text using \textbf{adapter-based} representations layered on
-top of a frozen language model backbone. The authors show that \textit{latent
-embeddings} derived from these adapters carry rich author-specific
-information, and apply this to a series of authorship-attribution tasks
-across five public corpora.
-\edsection{Strengths}
-The empirical evaluation is comprehensive: the same architecture is
-exercised against multiple datasets and against several strong baselines,
-including the classic Burrows' Delta method and modern transformer-based
-classifiers. Released training code and pre-trained weights enable
-straightforward replication.
-\edsection{Limitations}
-The training data is restricted to GPT-family outputs, which may limit
-generalization to other model families (Claude, Gemini, open-weights LLMs).
-The reported gains over baselines, while consistent, are modest on the
-hardest corpora — suggesting headroom for future work on adapter design and
-training objectives.
-}
-\seteditorialartifacts{%
-  \edartifact{Project page}{https://github.com/ContextLab/llmXive/issues/562}%
-  \edartifact{Reviews}{https://github.com/ContextLab/llmXive/tree/main/reviews/PROJ-562}%
-  \edartifact{Code (GitHub)}{https://github.com/ContextLab/llm-stylometry}%
-}
+
 
 %% (The class transparently redirects \includegraphics calls to
 %% figs-sanitized/* when those files exist — see the class's

@@ -1,0 +1,30 @@
+## Identity-merge rules for the contributor list.
+##
+## Each entry merges one or more alternate identities into a single canonical
+## entry. The `aliases` list is exhaustive — any contributor name that appears
+## in it (case-insensitive match) gets merged into `canonical`. The `kind` is
+## the unified contributor type (almost always "human", since this file exists
+## to merge a person's GitHub username with their paper-author display name).
+##
+## Schema:
+##   - canonical: <preferred display name>   (e.g. "Jeremy R. Manning")
+##     kind: human | llm | unattributed
+##     aliases: [<alt name>, <alt name>, ...]
+##     github: <github username, optional>   (used for profile linking later)
+##
+## Roles from each merged identity are unioned; contribution counts are summed.
+## The first matching rule wins.
+##
+## Add a new entry when:
+##   - A paper-submitter's GitHub username and their paper-author display name
+##     would otherwise show up as two separate contributors.
+##   - A model is renamed/aliased across run-log entries.
+
+aliases:
+  - canonical: Jeremy R. Manning
+    kind: human
+    github: jeremymanning
+    aliases:
+      - jeremymanning
+      - Jeremy Manning
+      - Jeremy R. Manning

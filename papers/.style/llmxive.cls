@@ -201,8 +201,20 @@
 \newcommand{\llmx@editorialsummary}{}
 \newcommand{\llmx@editorialartifacts}{}
 \newcommand{\llmx@editorialbyline}{llmXive Editorial}
-\newcommand{\seteditorialsummary}[1]{\renewcommand{\llmx@editorialsummary}{#1}}
-\newcommand{\seteditorialartifacts}[1]{\renewcommand{\llmx@editorialartifacts}{#1}}
+%% Flags: set to "1" by \seteditorial*; the title block consults these
+%% (rather than \ifx \@empty, which is unreliable across engines) so the
+%% editorial-summary box only appears when the publication agent actually
+%% supplied content.
+\newcommand{\llmx@hassummary}{0}
+\newcommand{\llmx@hasartifacts}{0}
+\newcommand{\seteditorialsummary}[1]{%
+  \renewcommand{\llmx@editorialsummary}{#1}%
+  \renewcommand{\llmx@hassummary}{1}%
+}
+\newcommand{\seteditorialartifacts}[1]{%
+  \renewcommand{\llmx@editorialartifacts}{#1}%
+  \renewcommand{\llmx@hasartifacts}{1}%
+}
 \newcommand{\seteditorialbyline}[1]{\renewcommand{\llmx@editorialbyline}{#1}}
 
 %% ---- title block -------------------------------------------------------
@@ -238,9 +250,18 @@
     {\llmxdisplay\fontsize{28}{32}\selectfont\color{llmxInk}%
       \raggedright\@title\par}%
     \vspace{12pt}%
-    % authors
+    % authors. Inside the author block we locally redefine \texttt so that
+    % email addresses embedded in \author{...} (a common arXiv pattern, e.g.
+    % \texttt{first.last@example.edu}) render in the same monospace small
+    % muted style as the \affiliation and \correspondence lines — instead of
+    % inheriting the larger italic display font that wraps the rest of the
+    % author block.
     {\llmxdisplay\fontsize{12.5}{16}\selectfont\itshape\color{llmxInk2}%
-      \raggedright\@author\par}%
+      \raggedright
+      \renewcommand{\texttt}[1]{%
+        {\normalfont\llmxmono\footnotesize\color{llmxMuted}##1}%
+      }%
+      \@author\par}%
     \ifx\llmx@affiliation\@empty\else
       \vspace{5pt}%
       {\llmxmono\footnotesize\color{llmxMuted}\raggedright\llmx@affiliation\par}%
@@ -257,8 +278,10 @@
     %% title page; positioned between the title rule and the abstract).
     %% Compact layout — tight inner-sep + no spacer between summary box
     %% and artifact strip so editorial + artifacts always travel together
-    %% on the title page.
-    \ifx\llmx@editorialsummary\@empty\else
+    %% on the title page. We test the explicit \llmx@hassummary flag
+    %% (set by \seteditorialsummary) rather than \ifx \@empty — \ifx on
+    %% \renewcommand'd tokens is unreliable across engines.
+    \if1\llmx@hassummary
       \noindent\begin{tikzpicture}
         \node[
           draw=llmxLine, line width=0.4pt,
@@ -271,13 +294,19 @@
           \ifx\llmx@editorialbyline\@empty\else
             \hfill{\llmxmono\scriptsize\color{llmxMuted}\llmx@editorialbyline}%
           \fi\\[4pt]
+          %% Force a uniform baseline inside the box. Without this the
+          %% global \linespread{1.13} interacts with TikZ's \pgfutil@font-
+          %% rebuild and lines drift wider top-to-bottom. Setting
+          %% \linespread{1.0} + an explicit \selectfont locks the
+          %% line-height to the font's natural value.
+          \linespread{1.0}\selectfont
           \color{llmxInk2}\footnotesize\ignorespaces
           \llmx@editorialsummary
         \egroup ;
       \end{tikzpicture}\par
       \vspace{6pt}%
     \fi
-    \ifx\llmx@editorialartifacts\@empty\else
+    \if1\llmx@hasartifacts
       \noindent{\llmxmono\footnotesize\color{llmxGreen}\MakeUppercase{Artifacts}\hspace{0.8em}}%
       {\llmxmono\footnotesize\color{llmxInk2}\llmx@editorialartifacts}\par
       \vspace{6pt}%
