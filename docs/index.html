@@ -208,8 +208,17 @@
 
     <div class="table" id="contrib-table">
       <div class="tr head">
-        <div>Rank</div><div>Contributor</div><div>Type</div><div>Contributions</div><div>Areas</div>
+        <div class="sortable" data-sort="rank" title="sort by rank">Rank <span class="sort-ind"></span></div>
+        <div class="sortable" data-sort="name" title="sort by name">Contributor <span class="sort-ind"></span></div>
+        <div class="sortable" data-sort="type" title="sort by type">Type <span class="sort-ind"></span></div>
+        <div class="sortable" data-sort="count" title="sort by contributions">Contributions <span class="sort-ind"></span></div>
+        <div class="sortable" data-sort="areas" title="sort by primary area">Areas <span class="sort-ind"></span></div>
       </div>
+    </div>
+    <div class="pager" id="contrib-pager" hidden>
+      <button class="btn small" data-page-prev disabled>&larr; Prev</button>
+      <span class="pager-info" data-page-info></span>
+      <button class="btn small" data-page-next disabled>Next &rarr;</button>
     </div>
   </section>
 

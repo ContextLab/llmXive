@@ -105,8 +105,6 @@
 
 \begin{document}
 \maketitle
-\vspace{-3mm}
-
 \begin{abstract}
 We present Qwen-Image-VAE-2.0, a suite of high-compression Variational Autoencoders (VAEs) that achieve significant advances in both reconstruction fidelity and diffusability\footnote{Diffusability describes how easily a distribution can be modeled by diffusion.}. 
 To address the reconstruction bottlenecks of high compression, we adopt an improved architecture featuring Global Skip Connections (GSC) and expanded latent channels. Moreover, we scale training to billions of images and incorporate a synthetic rendering engine to improve performance in text-rich scenarios. 
@@ -116,6 +114,9 @@ We present a comprehensive evaluation of Qwen-Image-VAE-2.0 on public reconstruc
 Furthermore, downstream DiT experiments reveal our models possess superior diffusability, significantly accelerating convergence compared to existing high-compression baselines. 
 These establish Qwen-Image-VAE-2.0 as a leading model with high compression, superior reconstruction, and exceptional diffusability.
 \end{abstract}
+\vspace{-3mm}
+
+
 
 
 
@@ -449,14 +450,14 @@ To empirically validate the diffusability of our learned latent space, we evalua
     \begin{subfigure}{\textwidth}
         \centering
         \includegraphics[width=1.0\textwidth]{pics/vae_figure_f16.pdf}
-        \caption{$f16$ Compression VAEs. Baselines exhibit character blurring and stroke merging, while ours \textcolor[RGB]{215,36,36}{$f16$ VAEs} preserves crisp boundaries.}
+        \caption{$f16$ Compression VAEs. Baselines exhibit character blurring and stroke merging, while ours $f16$ VAEs preserves crisp boundaries.}
         \label{fig:f16_comparison}
     \end{subfigure}
 
     \begin{subfigure}{\textwidth}
         \centering
         \includegraphics[width=1.0\textwidth]{pics/vae_figure_f32.pdf}
-        \caption{$f32$ Compression VAEs. Competing models reduce text to illegible smears; our \textcolor[RGB]{215,36,36}{$f32$ VAEs} retains distinguishable characters and word boundaries.}
+        \caption{$f32$ Compression VAEs. Competing models reduce text to illegible smears; our $f32$ VAEs retains distinguishable characters and word boundaries.}
         \label{fig:f32_comparison}
     \end{subfigure}
     

@@ -62,10 +62,10 @@
 \makeatother
 
 %% ── User-defined macros forwarded from original preamble ─────
-\providecommand{\red}[1]{{\color{red}#1}}
-\providecommand{\pic}[1]{\textbf{\color{iccvblue}[PIC: #1]}}
-\providecommand{\han}[1]{\textcolor{mydarkred}{[Han: #1]}}
-\providecommand{\SH}[1]{\textcolor{mydarkred}{[Song: #1]}}
+\providecommand{\red}[1]{{#1}}
+\providecommand{\pic}[1]{\textbf{[PIC: #1]}}
+\providecommand{\han}[1]{[Han: #1]}
+\providecommand{\SH}[1]{[Song: #1]}
 \providecommand{\cmark}{\ding{51}}
 \providecommand{\xmark}{\ding{55}}
 \providecommand{\myPara}[1]{\noindent\textbf{#1}}
@@ -103,9 +103,9 @@
         \minisection{Key Insight #1:} #2
     \end{tcolorbox}
 }
-\providecommand{\rebuttaltext}[1]{\textcolor{gold}{#1}}
-\providecommand{\mycomment}[1]{\textcolor{commentcolor}{\# #1}}
-\providecommand{\func}[1]{\textcolor{funccolor}{\texttt{#1}}}
+\providecommand{\rebuttaltext}[1]{#1}
+\providecommand{\mycomment}[1]{\# #1}
+\providecommand{\func}[1]{\texttt{#1}}
 \providecommand{\arraystretch}{1.55}
 \providecommand{\tablecite}[1]{[\citenum{#1}]}
 \providecommand{\modelname}{AnyFlow\xspace}
@@ -130,6 +130,17 @@
 
 \begin{document}
 \maketitle
+\begin{abstract}
+Few-step video generation has been significantly advanced by consistency distillation.
+  However, the performance of consistency-distilled models often degrades as more sampling steps are allocated at test time, limiting their effectiveness for any-step video diffusion.
+  We argue that this limitation arises because consistency distillation replaces the original probability-flow ODE trajectory with a consistency-sampling trajectory, weakening the desirable test-time scaling behavior of ODE sampling.
+  To address this limitation, we introduce \textbf{AnyFlow}, the first any-step video diffusion distillation framework based on flow maps.
+  Instead of distilling a model for only a few fixed sampling steps, AnyFlow optimizes the full ODE sampling trajectory.
+  To this end, we shift the distillation target from endpoint consistency mapping ($\mathbf{z}_t\!\to\!\mathbf{z}_0$) to flow-map transition learning ($\mathbf{z}_t\!\to\!\mathbf{z}_r$) over arbitrary time intervals.
+  We further propose \textbf{Flow Map Backward Simulation}, which decomposes a full Euler rollout into shortcut flow-map transitions, enabling efficient on-policy distillation that reduces test-time errors (\ie discretization error in few-step sampling and exposure bias in causal generation).
+  Extensive experiments across both bidirectional and causal architectures, at scales ranging from 1.3B to 14B parameters, demonstrate that AnyFlow achieves performance comparable to or better than consistency-based counterparts in the few-step regime, while supporting flexible and scalable sampling under varying step budgets. In the causal text-to-video setting, AnyFlow-FAR reaches a VBench score of 84.05 at 4 NFEs and further improves to 84.41 at 32 NFEs, surpassing Krea-Realtime-14B (83.25 at 4 NFEs). For image-to-video generation, AnyFlow-FAR achieves a VBench-I2V score of 87.87 at 4 NFEs, comparable to Wan2.1-I2V-14B using 50$\times$2 NFEs (87.71). In the 14B bidirectional text-to-video setting, AnyFlow reaches 84.04 at 4 NFEs, outperforming rCM-14B (83.73 at 4 NFEs).
+  Code is released at \url{https://github.com/NVLabs/AnyFlow}.
+\end{abstract}
 \section{Introduction}
 \label{sec:intro}
 
@@ -152,7 +163,7 @@ To address this gap, we propose \textbf{AnyFlow}, the first any-step video diffu
     \animategraphics[width=\linewidth]{8}{figures/videosrc/teaser/}{00000}{00020}
     \caption{Qualitative comparison of AnyFlow test-time scaling against consistency-based methods and the teacher model.}
   \end{subfigure}
-  \caption{\textbf{Test-Time Scaling of AnyFlow.} Compared to consistency-based methods (\eg rCM~\cite{zheng2025large} for bidirectional video diffusion and Self-Forcing~\cite{huang2025selfforcing} for causal video diffusion), AnyFlow achieves strong performance in the few-step regime and scales effectively with increased sample steps. Compared to the teacher model, AnyFlow preserves test-time scaling ability while significantly improving the full trajectory. Readers can \textcolor{magenta}{click and play} the video clips in this figure using Adobe Acrobat.}
+  \caption{\textbf{Test-Time Scaling of AnyFlow.} Compared to consistency-based methods (\eg rCM~\cite{zheng2025large} for bidirectional video diffusion and Self-Forcing~\cite{huang2025selfforcing} for causal video diffusion), AnyFlow achieves strong performance in the few-step regime and scales effectively with increased sample steps. Compared to the teacher model, AnyFlow preserves test-time scaling ability while significantly improving the full trajectory. Readers can click and play the video clips in this figure using Adobe Acrobat.}
   \label{fig:teaser}
 \end{figure*}
 
@@ -315,7 +326,7 @@ where $s_{\text{real}}$ and $s_{\text{fake}}$ are the real and fake score functi
 \begin{figure*}[!tb]
   \centering
   \animategraphics[width=\linewidth]{8}{figures/videosrc/ablation_onpolicy/}{00000}{00020}
-   \caption{\textbf{Qualitative Ablation of On-Policy Distillation.} (a) Forward flow map training alone still suffers from test-time errors, including discretization error and exposure bias. (b) On-policy flow map distillation optimizes reverse divergence on model self-rollouts to mitigate these test-time errors. Readers can \textcolor{magenta}{click and play} the video clips in this figure using Adobe Acrobat.}
+   \caption{\textbf{Qualitative Ablation of On-Policy Distillation.} (a) Forward flow map training alone still suffers from test-time errors, including discretization error and exposure bias. (b) On-policy flow map distillation optimizes reverse divergence on model self-rollouts to mitigate these test-time errors. Readers can click and play the video clips in this figure using Adobe Acrobat.}
   \label{fig:ablation_onpolicy}
 \end{figure*}
 
@@ -355,8 +366,8 @@ As summarized in \cref{tab:paradigm_comp}, most recent few-step video distillati
 
 \definecolor{commentcolor}{RGB}{84, 137, 137}
 \definecolor{funccolor}{RGB}{201, 62, 116}
-\newcommand{\mycomment}[1]{\textcolor{commentcolor}{\# #1}}
-\newcommand{\func}[1]{\textcolor{funccolor}{\texttt{#1}}}
+\newcommand{\mycomment}[1]{\# #1}
+\newcommand{\func}[1]{\texttt{#1}}
 
 \setlength{\algomargin}{0pt}
 \setlength{\AlCapHSkip}{0pt}
@@ -481,7 +492,7 @@ where $\mu_{t=r} = \mathbb{E}_{t=r} [ \|\Delta\|_2^2 ]$ is the average regressio
 \begin{figure*}[!tb]
     \centering
     \animategraphics[width=\linewidth]{8}{figures/videosrc/ablation_anyflow_simulation/}{00000}{00020}
-      \caption{\textbf{Qualitative Ablation of Backward Simulation.} (a) Consistency backward simulation exhibits over-smoothed textures and degraded motion as more sampling steps are allocated. (b) Flow map backward simulation produces a straighter trajectory, enabling test-time scaling while maintaining strong few-step quality. Readers can \textcolor{magenta}{click and play} the video clips in this figure using Adobe Acrobat.}
+      \caption{\textbf{Qualitative Ablation of Backward Simulation.} (a) Consistency backward simulation exhibits over-smoothed textures and degraded motion as more sampling steps are allocated. (b) Flow map backward simulation produces a straighter trajectory, enabling test-time scaling while maintaining strong few-step quality. Readers can click and play the video clips in this figure using Adobe Acrobat.}
 \label{fig:ablation_backward_simulation}
 \end{figure*}
 
@@ -633,7 +644,7 @@ $^\dag$FastVideo-CausalWan2.2-A14B-Preview~\tablecite{causalwan2025} & 14B & $48
         \animategraphics[width=\linewidth]{8}{figures/videosrc/i2v14b/}{00000}{00020}
         \caption{Image-to-video comparison of video diffusion model (14B).}
     \end{subfigure}
-    \caption{\textbf{Qualitative Comparison of AnyFlow and Baselines at the 14B Model Scale.} Readers can \textcolor{magenta}{click and play} the video clips in this figure using Adobe Acrobat.}
+    \caption{\textbf{Qualitative Comparison of AnyFlow and Baselines at the 14B Model Scale.} Readers can click and play the video clips in this figure using Adobe Acrobat.}
 \label{fig:14b_compare}
 \end{figure*}
  \section{Experiments}
@@ -713,7 +724,7 @@ We investigate different choices of the time sampler, with their induced densiti
 \begin{figure*}[!tb]
   \centering
   \animategraphics[width=\linewidth]{8}{figures/videosrc/ablation_odeinit/}{00000}{00020}
-  \vspace{-.3in}\caption{\textbf{Qualitative Ablation Study of ODE-Init and AnyFlow on Causal Video Generation.} Readers can \textcolor{magenta}{click and play} the video clips in this figure using Adobe Acrobat.}
+  \vspace{-.3in}\caption{\textbf{Qualitative Ablation Study of ODE-Init and AnyFlow on Causal Video Generation.} Readers can click and play the video clips in this figure using Adobe Acrobat.}
   \label{fig:ablation_odeinit}
 \end{figure*}
 
@@ -740,9 +751,9 @@ We compare AnyFlow with Consistency ODE-Init for causal video generation in \cre
         \multicolumn{3}{c}{\textbf{On-Policy Distillation}} \\
         \midrule\midrule
         Consistency Backward Simulation (4 Steps) & 45.9 & 41.8 \\
-        \rowcolor{mitblue}Flow Map Backward Simulation (4 Steps) & 53.1 (\textcolor{red}{+15.7\%}) & 51.2 (\textcolor{red}{+22.5\%}) \\\midrule
+        \rowcolor{mitblue}Flow Map Backward Simulation (4 Steps) & 53.1 (+15.7\%) & 51.2 (+22.5\%) \\\midrule
         Consistency Backward Simulation (16 Steps) & 93.8 & 96.6 \\
-        \rowcolor{mitblue}Flow Map Backward Simulation (16 Steps) & 53.1 (\textcolor{green!50!black}{-43.4\%}) & 51.2 (\textcolor{green!50!black}{-47.0\%}) \\
+        \rowcolor{mitblue}Flow Map Backward Simulation (16 Steps) & 53.1 (-43.4\%) & 51.2 (-47.0\%) \\
         \bottomrule
     \end{tabular}}
       \caption{\textbf{Training Cost Breakdown of AnyFlow.} Costs are measured on Wan2.1-1.3B-T2V with batch size 16 on a node with 8$\times$NVIDIA H100 GPUs. During on-policy distillation, we evaluate the upper-bound cost (comprising one generator and one discriminator update) for the  simulation trajectories.}

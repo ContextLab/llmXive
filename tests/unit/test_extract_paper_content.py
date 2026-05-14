@@ -292,3 +292,134 @@ class TestStripBodyCommands:
         out = ex._strip_body_commands(r"x \icmltitle{The Title} y")
         assert r"\icmltitle" not in out
         assert "The Title" not in out
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Title / author / body cleanup helpers (added in PDF polish pass)
+# ──────────────────────────────────────────────────────────────────────
+
+class TestStripChapterPrefix:
+    def test_strips_chapter_n_colon(self, ex) -> None:
+        assert ex._strip_chapter_prefix("Chapter 41: Some Topic") == "Some Topic"
+
+    def test_strips_chapter_with_period_after_n(self, ex) -> None:
+        assert ex._strip_chapter_prefix("Chapter 7. Foo") == "Foo"
+
+    def test_case_insensitive(self, ex) -> None:
+        assert ex._strip_chapter_prefix("CHAPTER 3: Bar") == "Bar"
+
+    def test_leaves_normal_titles_alone(self, ex) -> None:
+        assert ex._strip_chapter_prefix("MinT: Managed Infrastructure") == "MinT: Managed Infrastructure"
+
+    def test_none_passthrough(self, ex) -> None:
+        assert ex._strip_chapter_prefix(None) is None
+
+
+class TestICMLAuthorLine:
+    def test_simple_authors_with_affiliations(self, ex) -> None:
+        src = (
+            r"\icmlauthor{Alice}{a}" + "\n"
+            r"\icmlauthor{Bob}{b}" + "\n"
+            r"\icmlaffiliation{a}{Acme U}" + "\n"
+            r"\icmlaffiliation{b}{Beta Inc}" + "\n"
+        )
+        line = ex._build_icml_author_line(src)
+        assert "Alice" in line and "Bob" in line
+        # Superscripts on the names + affiliations listed
+        assert "Acme U" in line and "Beta Inc" in line
+
+    def test_shared_affiliation_dedupes(self, ex) -> None:
+        src = (
+            r"\icmlauthor{Alice}{ust}" + "\n"
+            r"\icmlauthor{Bob}{ust}" + "\n"
+            r"\icmlaffiliation{ust}{Hong Kong U}" + "\n"
+        )
+        line = ex._build_icml_author_line(src)
+        # Hong Kong U appears once even though two authors share it
+        assert line.count("Hong Kong U") == 1
+
+    def test_no_icml_authors_returns_none(self, ex) -> None:
+        assert ex._build_icml_author_line(r"\author{Plain Author}") is None
+
+
+class TestStripTextcolor:
+    def test_unwraps_textcolor(self, ex) -> None:
+        out = ex._strip_textcolor(r"hello \textcolor{red}{warm} world")
+        assert out == "hello warm world"
+
+    def test_keeps_nested_braces_in_content(self, ex) -> None:
+        out = ex._strip_textcolor(r"\textcolor{red}{nested {braces} ok}")
+        assert out == "nested {braces} ok"
+
+    def test_strips_optional_model(self, ex) -> None:
+        out = ex._strip_textcolor(r"\textcolor[rgb]{1,0,0}{red text}")
+        assert out == "red text"
+
+    def test_leaves_other_macros_alone(self, ex) -> None:
+        out = ex._strip_textcolor(r"plain \emph{italic} text")
+        assert out == r"plain \emph{italic} text"
+
+
+class TestConvertWrapfigure:
+    def test_basic_wrapfigure_becomes_figure(self, ex) -> None:
+        src = (
+            r"\begin{wrapfigure}{r}{0.5\textwidth}" + "\n"
+            r"\includegraphics{foo}" + "\n"
+            r"\caption{x}" + "\n"
+            r"\end{wrapfigure}"
+        )
+        out = ex._convert_wrapfigure(src)
+        assert "wrapfigure" not in out
+        assert r"\begin{figure}" in out and r"\end{figure}" in out
+        assert r"\includegraphics{foo}" in out
+
+    def test_with_optional_arg(self, ex) -> None:
+        src = (
+            r"\begin{wrapfigure}[10]{l}{0.4\linewidth}" + "\n"
+            r"content" + "\n"
+            r"\end{wrapfigure}"
+        )
+        out = ex._convert_wrapfigure(src)
+        assert "wrapfigure" not in out
+        assert "content" in out
+
+    def test_multiple_wrapfigures(self, ex) -> None:
+        src = (
+            r"\begin{wrapfigure}{r}{0.5\textwidth}A\end{wrapfigure}" + "\n"
+            r"middle" + "\n"
+            r"\begin{wrapfigure}{l}{0.5\textwidth}B\end{wrapfigure}"
+        )
+        out = ex._convert_wrapfigure(src)
+        # Both converted, middle text preserved
+        assert out.count(r"\begin{figure}") == 2
+        assert "middle" in out
+        assert "wrapfigure" not in out
+
+
+class TestBodyCleanupPasses:
+    def test_strips_keywords(self, ex) -> None:
+        out = ex._body_cleanup_passes(r"\keywords{a, b, c} after")
+        assert r"\keywords" not in out
+        assert "after" in out
+
+    def test_strips_icmlkeywords(self, ex) -> None:
+        out = ex._body_cleanup_passes(r"x \icmlkeywords{ML, ICML} y")
+        assert "icmlkeywords" not in out
+        assert "x" in out and "y" in out
+
+    def test_strips_textcolor(self, ex) -> None:
+        out = ex._body_cleanup_passes(r"\textcolor{blue}{label} text")
+        assert r"\textcolor" not in out
+        assert "label text" in out
+
+    def test_strips_bare_color(self, ex) -> None:
+        out = ex._body_cleanup_passes(r"\color{red} pink text")
+        assert r"\color" not in out
+        assert "pink text" in out
+
+    def test_converts_wrapfigure(self, ex) -> None:
+        out = ex._body_cleanup_passes(
+            r"\begin{wrapfigure}{r}{4cm}fig\end{wrapfigure}"
+        )
+        assert "wrapfigure" not in out
+        assert r"\begin{figure}" in out

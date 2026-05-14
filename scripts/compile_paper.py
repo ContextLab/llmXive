@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -211,6 +212,41 @@ def _run_lualatex(project: Path, wrapper: Path) -> tuple[bool, str]:
     return True, last_tail
 
 
+def _scan_overflow_warnings(pdf_dir: Path, base: str, *, threshold_pt: float = 50.0) -> list[dict]:
+    """Scan the lualatex log for severe Overfull \\hbox warnings.
+
+    Anything over `threshold_pt` (default: 50pt — about 8mm at A4) is
+    bad enough to suggest the figure/table overflowed the page rather
+    than just nudging slightly past the column. Returns a list of
+    {amount_pt, lines_range} dicts. An empty list means the document
+    looks clean.
+
+    The workflow can surface this as a per-project warning so a human
+    can act on the bad figure — wrapfigure conversion already handles
+    the most common cause but graphics with their own \\includegraphics
+    sizing can still overflow.
+    """
+    log_path = pdf_dir / f"{base}.log"
+    if not log_path.is_file():
+        return []
+    try:
+        text = log_path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return []
+    pat = re.compile(
+        r"Overfull \\hbox \(([\d.]+)pt too wide\) in paragraph at lines (\S+)",
+    )
+    out: list[dict] = []
+    for m in pat.finditer(text):
+        try:
+            amt = float(m.group(1))
+        except ValueError:
+            continue
+        if amt >= threshold_pt:
+            out.append({"amount_pt": amt, "lines": m.group(2)})
+    return out
+
+
 def _fetch_arxiv_fallback(project: Path, arxiv_id: str) -> Path | None:
     """Download the canonical arXiv PDF as a fallback when the restyle
     compile fails. Returns the on-disk path or None.
@@ -263,7 +299,14 @@ def compile_project(project: Path) -> dict[str, Any]:
                 ok, tail = _run_lualatex(project, wrapper)
                 if ok:
                     pdf = _pdf_dir(project) / f"{wrapper.stem}.pdf"
-                    result.update(ok=True, strategy="llmxive-compile", pdf=str(pdf))
+                    # Scan the lualatex log for severe Overfull warnings —
+                    # boxes >50pt too wide almost always mean a figure or
+                    # table overflowed the page. The compile itself
+                    # succeeds, but we want to surface these so a human can
+                    # diagnose without manually grepping the .log.
+                    overflow = _scan_overflow_warnings(_pdf_dir(project), wrapper.stem)
+                    result.update(ok=True, strategy="llmxive-compile",
+                                  pdf=str(pdf), overflow=overflow)
                     return result
                 else:
                     result["errors"].append(f"lualatex failed:\n{tail[-2000:]}")
@@ -320,6 +363,11 @@ def main(argv: list[str] | None = None) -> int:
         res = compile_project(project)
         if res["ok"]:
             print(f"[compile] {project.name}: {res['strategy']} → {Path(res['pdf']).name}")
+            # Surface page-overflow warnings — these don't fail the
+            # compile but mean a figure/table is wider than the page.
+            for w in (res.get("overflow") or []):
+                print(f"  ⚠ overflow {w['amount_pt']:.0f}pt at lines {w['lines']}",
+                      file=sys.stderr)
         else:
             fail_count += 1
             print(f"[compile] {project.name}: FAILED", file=sys.stderr)

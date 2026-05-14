@@ -59,71 +59,6 @@
 
 %% ── User-defined macros forwarded from original preamble ─────
 \providecommand{\theHalgorithm}{\arabic{algorithm}}
-\providecommand{\icmlauthor}[2]{%
-  \ificmlshowauthors
-    \mbox{\bf #1}\,\@for\theaffil:=#2\do{\@pa{\theaffil}} \addtofullauthorlist{#1}%
-  \else
-    \ifdefined\@icmlfirsttime\else
-      \gdef\@icmlfirsttime{1}
-      \mbox{\bf Anonymous Authors}\@pa{@anon} \addtofullauthorlist{Anonymous Authors}
-    \fi
-  \fi
-}
-\providecommand{\icmlsetsymbol}[2]{%
-  \expandafter\gdef\csname @icmlsymbol#1\endcsname{#2}
-}
-\providecommand{\icmlaffiliation}[2]{%
-  \ificmlshowauthors
-    \ifcsname the@affil#1\endcsname
-      \expandafter\gdef\csname @affilname\csname the@affil#1\endcsname\endcsname{#2}%
-    \else
-      {\bf AUTHORERR: Error in use of \textbackslash{}icmlaffiliation command. Label ``#1'' not mentioned in some \textbackslash{}icmlauthor\{author name\}\{labels here\} command beforehand. }
-      \typeout{}%
-      \typeout{}%
-      \typeout{*******************************************************}%
-      \typeout{Affiliation label undefined. }%
-      \typeout{Make sure \string\icmlaffiliation\space follows }%
-      \typeout{all of \string\icmlauthor\space commands}%
-      \typeout{*******************************************************}%
-      \typeout{}%
-      \typeout{}%
-    \fi
-  \else
-    \expandafter\gdef\csname @affilname1\endcsname{Anonymous Institution, Anonymous City, Anonymous Region, Anonymous Country}
-  \fi
-}
-\providecommand{\icmlcorrespondingauthor}[2]{%
-  \ificmlshowauthors
-    \ifdefined\icmlcorrespondingauthor@text
-      \g@addto@macro\icmlcorrespondingauthor@text{, #1 \textless{}#2\textgreater{}}
-    \else
-      \gdef\icmlcorrespondingauthor@text{#1 \textless{}#2\textgreater{}}
-    \fi
-  \else
-    \gdef\icmlcorrespondingauthor@text{Anonymous Author \textless{}anon.email@domain.com\textgreater{}}
-  \fi
-}
-\providecommand{\printAffiliationsAndNotice}[1]{\global\icml@noticeprintedtrue%
-  \stepcounter{@affiliationcounter}%
-  {\let\thefootnote\relax\footnotetext{\hspace*{-\footnotesep}\ificmlshowauthors #1\fi%
-      \forloop{@affilnum}{1}{\value{@affilnum} < \value{@affiliationcounter}}{
-        \textsuperscript{\arabic{@affilnum}}\ifcsname @affilname\the@affilnum\endcsname%
-          \csname @affilname\the@affilnum\endcsname%
-        \else
-          {\bf AUTHORERR: Missing \textbackslash{}icmlaffiliation.}
-        \fi
-      }.%
-      \ifdefined\icmlcorrespondingauthor@text
-         { }Correspondence to: \icmlcorrespondingauthor@text.
-      \else
-        {\bf AUTHORERR: Missing \textbackslash{}icmlcorrespondingauthor.}
-      \fi
-
-      \ \\
-      \Notice@String
-    }
-  }
-}
 \providecommand{\STATE}{\ALC@it}
 \providecommand{\IF}[2][default]{\ALC@it\algorithmicif\ ##2\ \algorithmicthen%
 \ALC@com{##1}\begin{ALC@if}}
@@ -134,78 +69,22 @@
 \ALC@com{##1}\begin{ALC@for}}
 \providecommand{\ENDIF}{\end{ALC@if}}
 \providecommand{\ENDFOR}{\end{ALC@for}}
-\providecommand{\icmltitle}[1]{%
-
-   %check whether @icmltitlerunning exists
-   % if not \icmltitle is used as running head
-   \ifx\undefined\@icmltitlerunning%
-      \gdef\@icmltitlerunning{#1}
-   \fi
-
-   %add it to pdf information
-  \ifdefined\nohyperref\else\ifdefined\hypersetup
-     \hypersetup{pdftitle={#1}}
-   \fi\fi
-
-   %get the dimension of the running title
-   \global\setbox\titrun=\vbox{\small\bf\@icmltitlerunning}
-
-   % error flag
-   \gdef\@runningtitleerror{0}
-
-    % running title too long
-    \ifdim\wd\titrun>\textwidth%
-      \gdef\@runningtitleerror{1}%
-      % running title breaks a line
-    \else \ifdim\ht\titrun>6.25pt
-    \gdef\@runningtitleerror{2}%
-      \fi
-    \fi
-
-       % if there is somthing wrong with the running title
-    \ifnum\@runningtitleerror>0
-      \typeout{}%
-                 \typeout{}%
-                 \typeout{*******************************************************}%
-                 \typeout{Title exceeds size limitations for running head.}%
-                 \typeout{Please supply a shorter form for the running head}
-                 \typeout{with \string\icmltitlerunning{...}\space prior to \string\begin{document}}%
-      \typeout{*******************************************************}%
-      \typeout{}%
-      \typeout{}%
-      % set default running title
-      \gdef\@icmltitlerunning{Title Suppressed Due to Excessive Size}
-    \fi
-
-    % no running title on the first page of the paper
-    \thispagestyle{plain}
-
-    {\center\baselineskip 18pt
-      \toptitlebar{\Large\bf #1}\bottomtitlebar}
-}
-\providecommand{\icmlkeywords}[1]{%
-  \ifdefined\nohyperref\else\ifdefined\hypersetup
-      \hypersetup{pdfkeywords={#1}}
-    \fi\fi
-}
 \definecolor{mydarkblue}{rgb}{0,0.08,0.45}
 
 %% ── llmXive paper metadata ──────────────────────────────────
 \title{Many-Shot CoT-ICL: Making In-Context Learning Truly Learn}
-\author{\icmlauthor{Tsz Ting Chung}{ust}
-    \icmlauthor{Lemao Liu}{fd}
-    \icmlauthor{Mo Yu}{wechat}
-    \icmlauthor{Dit-Yan Yeung}{ust}}
+\author{Tsz Ting Chung², Lemao Liu³, Mo Yu⁴, Dit-Yan Yeung² \\ \small ²Hong Kong University of Science and Technology · ³Fudan Univeristy · ⁴Wechat AI, Tencent}
 \paperid{arXiv:2605.13511}
 \paperstatus{Preprint}
 
 \begin{document}
 \maketitle
-% no special notice (required even if empty)
-
 \begin{abstract}
 In-context learning (ICL) adapts large language models (LLMs) to new tasks by conditioning on demonstrations in the prompt without parameter updates. With long-context models, many-shot ICL can use dozens to hundreds of examples and achieve performance comparable to fine-tuning, yet current understanding of its scaling behavior is largely derived from non-reasoning tasks. We study many-shot chain-of-thought in-context learning (CoT-ICL) for reasoning and show that standard many-shot rules do not transfer. Across non-reasoning and reasoning-oriented LLMs and across non-reasoning and reasoning tasks, we find: (i) a setting-dependent scaling effect, where increasing the number of CoT demonstrations is unstable for non-reasoning LLMs and benefits mainly reasoning-oriented LLMs; (ii) similarity-based retrieval helps on non-reasoning tasks but fails on reasoning, since semantic similarity poorly predicts procedural (i.e., CoT) compatibility; and (iii) an order-scaling effect, where performance variance grows with more CoT demonstrations. We interpret these behaviors by viewing many-shot CoT-ICL as in-context test-time learning rather than scaled pattern matching, and suggests two principles: (i) demonstrations should be easy for the target model to understand, and (ii) they should be ordered to support a smooth conceptual progression. Guided by the principle, we propose Curvilinear Demonstration Selection (CDS), a simple ordering method that yields up to a 5.42 percentage-point gain on geometry with 64 demonstrations. Overall, our results reframe the long context window from a retrieval buffer into a structured curriculum for in-context test-time learning.
 \end{abstract}
+% no special notice (required even if empty)
+
+
 
 
 \begin{figure}[t]
@@ -360,7 +239,7 @@ Together, these results suggest a qualitative difference between scaling traditi
         \includegraphics[width=\linewidth]{figures/qwen2.5_14b.pdf}
         \caption{Qwen2.5-14B-Instruct}
     \end{subfigure}
-    \caption{Scaling disparity between task types. Performance (normalized accuracy) of non-reasoning LLMs on classification tasks (\textcolor{orange}{warm colors}) versus reasoning tasks (\textcolor{Cerulean}{cool colors}). The x-axis represents normalized accuracy (i.e., $\frac{x-\bar{x}}{\sigma_x}$ for accuracy $x$), while the y-axis indicates the number of in-context demonstrations.}
+    \caption{Scaling disparity between task types. Performance (normalized accuracy) of non-reasoning LLMs on classification tasks (warm colors) versus reasoning tasks (cool colors). The x-axis represents normalized accuracy (i.e., $\frac{x-\bar{x}}{\sigma_x}$ for accuracy $x$), while the y-axis indicates the number of in-context demonstrations.}
     \label{fig:overview}
     \vspace{-1mm}
 \end{figure}
@@ -472,7 +351,7 @@ From a learning perspective, a plausible explanation is that reasoning-oriented 
     \centering
     \vspace{-2mm}
     \includegraphics[width=\linewidth]{figures/standard_deviation.pdf}
-    \caption{Standard deviation of performance across five random demonstration orders on classification tasks (\textcolor{orange}{warm colors}) versus reasoning tasks (\textcolor{Cerulean}{cool colors}), where nt corresponds to number\_theory. Results shown for Qwen2.5 (14B) (non-reasoning) and Qwen3 (14B) (reasoning).}
+    \caption{Standard deviation of performance across five random demonstration orders on classification tasks (warm colors) versus reasoning tasks (cool colors), where nt corresponds to number\_theory. Results shown for Qwen2.5 (14B) (non-reasoning) and Qwen3 (14B) (reasoning).}
     \label{fig:std}
     \vspace{-3mm}
 \end{figure}
