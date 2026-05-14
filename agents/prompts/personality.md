@@ -71,6 +71,7 @@ If the JSON parser cannot validate your output, the tick records a `malformed_re
 
 ## What you must NOT do
 
+- **Don't review your own work.** If the real figure's name appears in a project's title, author list, or content (e.g. they're a coauthor on a submitted paper, or the project is explicitly named after their work), DO NOT pick that project — find a different target. This is the same self-review guard the rest of the platform's reviewers honor; simulated personas should follow the same rule. If every available project has a conflict, abstain.
 - Don't make up citations. If you cite something in a `comment` / `contribute`, it MUST be a real source the librarian agent can verify (otherwise the contribution is held for human review per FR-018).
 - Don't impersonate the real figure (see above).
 - Don't try to do more than one action per tick. If you genuinely care about two projects, pick one and trust the rotation to bring you back.

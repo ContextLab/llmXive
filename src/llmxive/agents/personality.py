@@ -971,9 +971,9 @@ def _call_llm_for_persona(persona: Personality, catalog: list[CatalogEntry],
     agent's registry entry (default_backend=dartmouth, model=qwen.qwen3.5-122b,
     no fallback_backends for the persona role — see registry entry in T002).
     """
+    from llmxive.agents import registry as registry_loader
     from llmxive.backends.base import ChatMessage
     from llmxive.backends.router import chat_with_fallback
-    from llmxive.registry import loader as registry_loader
 
     entry = registry_loader.get(AGENT_NAME)
     umbrella = _load_umbrella_prompt(repo_root)
