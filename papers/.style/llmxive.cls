@@ -39,7 +39,24 @@
 \RequirePackage[T1]{fontenc}
 \RequirePackage[utf8]{inputenc}
 \RequirePackage{geometry}
-\RequirePackage{xcolor}
+\RequirePackage[dvipsnames,svgnames]{xcolor}  %% dvipsnames adds Cerulean, etc.
+\RequirePackage{float}  %% needed for the [H] float specifier used by many publishers
+%% Algorithm packages: load `algorithm` + `algorithmic` (the older, \STATE /
+%% \REQUIRE / \ENSURE variant). Papers using `algorithm2e` (\KwIn / \KwOut)
+%% or `algpseudocode` (\Require / \Ensure / \State) need to declare those
+%% packages themselves AND the strip rule (in restyle.py _CONFLICT_PACKAGES)
+%% has to be relaxed for them. Three groups currently: algorithmic (loaded
+%% here), algorithm2e (per-paper, FR-020 fail-loud if mixed), algpseudocode
+%% (per-paper, same). The deterministic-pipeline registry grows by paper
+%% as compatibility is added.
+\AtBeginDocument{%
+  \@ifpackageloaded{algorithm2e}{}{%
+    \@ifpackageloaded{algpseudocode}{}{%
+      \@ifpackageloaded{algorithm}{}{\RequirePackage{algorithm}}%
+      \@ifpackageloaded{algorithmic}{}{\RequirePackage{algorithmic}}%
+    }%
+  }%
+}
 \RequirePackage{microtype}
 \RequirePackage{graphicx}
 \RequirePackage{caption}
@@ -681,6 +698,79 @@
 %% in this macro.
 \newcommand{\unsupportedblock}[2]{%
   \PackageError{llmxive}{Unsupported construct: #1}{The llmxive class does not yet support the construct named "#1". The deterministic pdf_pipeline marked it for explicit attention. Either add support to llmxive.cls or exclude this paper from the supported-PDFs registry. Body was: #2}%
+}
+
+%% =====================================================================
+%% Publisher-class no-op compatibility shims
+%% =====================================================================
+%% When the pipeline strips a publisher's .sty/.cls (neurips, colm,
+%% llncs, mindlab, etc.) — see _discover_local_styles in
+%% src/llmxive/pipeline/pdf_pipeline/restyle.py — the source may still
+%% call commands that the publisher class defined. Rather than re-load
+%% the publisher class (which conflicts), we no-op the most common
+%% publisher commands so the build doesn't crash with "Undefined
+%% control sequence". Spec 009 FR-019 forbids LLM-driven workarounds;
+%% these are deterministic no-op shims.
+\providecommand{\titlerunning}[1]{}      %% Springer LNCS
+\providecommand{\authorrunning}[1]{}     %% Springer LNCS
+\providecommand{\toctitle}[1]{}          %% Springer LNCS
+\providecommand{\tocauthor}[1]{}         %% Springer LNCS
+\providecommand{\institute}[1]{\affiliation{#1}}  %% Springer LNCS -> our affil
+\providecommand{\email}[1]{\href{mailto:#1}{\texttt{#1}}}  %% LNCS email link
+\providecommand{\inst}[1]{$^{#1}$}       %% LNCS inst superscript
+\providecommand{\thefnsymbol}[1]{}       %% NeurIPS thanks marker
+
+%% tocloft commands — registers (lengths), not macros, so \setlength works.
+\@ifundefined{cftbeforesubsecskip}{\newlength{\cftbeforesubsecskip}}{}
+\@ifundefined{cftbeforesecskip}{\newlength{\cftbeforesecskip}}{}
+\@ifundefined{cftbeforechapskip}{\newlength{\cftbeforechapskip}}{}
+\providecommand{\cftsetindents}[3]{}
+
+%% NeurIPS / COLM \AND — do nothing in the class; if a paper needs it the
+%% paper or its publisher class supplies it. Class-side definition
+%% conflicts unpredictably with publisher classes that ship their own \AND.
+\providecommand{\correspondingauthor}[1]{\correspondence{#1}}
+\providecommand{\equalcontrib}[1]{}
+\providecommand{\corresponding}[1]{}
+\providecommand{\affil}[2][]{\affiliation{#2}}
+\providecommand{\authornote}[1]{}
+\providecommand{\authorinfo}[1]{}
+%% ICML 2026 class commands
+\providecommand{\icmltitlerunning}[1]{\runningtitle{#1}}
+\providecommand{\icmltitle}[1]{\title{#1}}
+\providecommand{\icmlauthor}[2]{}
+\providecommand{\icmlsetsymbol}[2]{}
+\providecommand{\icmlaffiliation}[2]{}
+\providecommand{\icmlcorrespondingauthor}[2]{\correspondence{#1: #2}}
+\providecommand{\icmlkeywords}[1]{\keywords{#1}}
+\providecommand{\printAffiliationsAndNotice}[1]{}
+\providecommand{\icmlEqualContribution}{}
+\@ifundefined{icmlauthorlist}{%
+  \newenvironment{icmlauthorlist}{}{}%
+}{}
+%% Springer LNCS extras
+\providecommand{\orcidID}[1]{}
+\providecommand{\Letter}{}
+%% NeurIPS extras (in case neurips_2026 macros leak through)
+\providecommand{\hypersetup}[1]{}
+
+%% Theorem-env reservation: sources often \newtheorem{theorem}{Theorem}.
+%% We pre-define them so the source's redef does nothing harmful. Use
+%% \providecommand-style guarded \newtheorem (xparse) — if the env exists,
+%% silently swallow the redef instead of erroring.
+\@ifundefined{theorem}{\newtheorem{theorem}{Theorem}}{}
+\@ifundefined{lemma}{\newtheorem{lemma}[theorem]{Lemma}}{}
+\@ifundefined{proposition}{\newtheorem{proposition}[theorem]{Proposition}}{}
+\@ifundefined{corollary}{\newtheorem{corollary}[theorem]{Corollary}}{}
+\@ifundefined{definition}{\newtheorem{definition}[theorem]{Definition}}{}
+\@ifundefined{remark}{\newtheorem{remark}[theorem]{Remark}}{}
+\@ifundefined{example}{\newtheorem{example}[theorem]{Example}}{}
+
+%% natbib — load if not already provided so \citet/\citep/\cite all work.
+%% The deterministic restyle pipeline normalises every variant to \cite,
+%% but if a residual \citep/\citet slips through, natbib lets it render.
+\@ifpackageloaded{natbib}{}{%
+  \RequirePackage[numbers,sort]{natbib}%
 }
 
 \endinput

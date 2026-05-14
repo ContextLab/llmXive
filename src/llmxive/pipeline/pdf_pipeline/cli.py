@@ -72,6 +72,20 @@ def _cmd_build(args: argparse.Namespace) -> int:
         else:
             sys.exit(f"FATAL: llmxive.cls not found in source dir or {repo_cls}")
 
+    # Spec 009: strip clobbering redefs (\newcommand{\todo} etc.) and pdflatex
+    # primitives (\pdfoutput=1) from EVERY .tex file in the staged tree —
+    # not just the main source — because publisher templates often \input
+    # a preamble.tex that re-defines macros our class already shims.
+    from .restyle import _strip_clobbering_redefs, _strip_pdflatex_primitives
+    for tex in out_dir.rglob("*.tex"):
+        try:
+            text = tex.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            continue
+        new_text = _strip_pdflatex_primitives(_strip_clobbering_redefs(text))
+        if new_text != text:
+            tex.write_text(new_text, encoding="utf-8")
+
     staged_tex = out_dir / src.name
     restyled = restyle_file(staged_tex)
     pdf = compile_pdf(restyled, out_dir=out_dir, source_date_epoch=args.source_date_epoch)

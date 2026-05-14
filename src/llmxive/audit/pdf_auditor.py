@@ -183,19 +183,27 @@ def audit(*, papers_dir: Path | str, repo_root: Path | str = ".", class_path: Pa
 
     manifest = new_manifest("pdf")
 
-    # Walk PDFs but exclude figure subdirectories — they're not papers,
-    # they're embedded figures. `figs/`, `figs-sanitized/`, and any
-    # `source/` subdir contain figure PDFs that the paper renders into.
-    _FIGURE_DIRS = {"figs", "figs-sanitized", "source", "fig", "figures"}
+    # Only paper PDFs enter the registry. A "paper PDF" is one of:
+    #   - directly under papers_dir (e.g. papers/foo.pdf)
+    #   - in a paper-dir whose name follows main-llmxive / supplement-llmxive
+    #     naming (the convention enforced by the pipeline)
+    # Any PDF deeper than 1 level OR with a non-canonical name is a figure
+    # / logo / asset, not a paper.
+    _PAPER_PDF_STEMS = {"main-llmxive", "supplement-llmxive"}
 
     def _is_paper_pdf(p: Path) -> bool:
-        # Reject if any parent directory between papers_dir and p is a known
-        # figure-bucket name.
         try:
             rel = p.resolve().relative_to(papers_dir)
         except ValueError:
             return True
-        return not any(part in _FIGURE_DIRS for part in rel.parts[:-1])
+        # Top-level PDFs: keep (e.g. papers/foo.pdf)
+        if len(rel.parts) == 1:
+            return True
+        # Otherwise must be at depth 2 (papers_dir/<project>/<name>.pdf)
+        # AND the stem must match the canonical paper-PDF naming convention.
+        if len(rel.parts) == 2:
+            return p.stem in _PAPER_PDF_STEMS
+        return False
 
     pdfs = sorted([
         p.resolve() for p in papers_dir.glob("*.pdf")

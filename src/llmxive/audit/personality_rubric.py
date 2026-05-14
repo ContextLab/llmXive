@@ -47,6 +47,13 @@ ADJACENT_PATTERNS = [
     # X can be a single capitalized word, an Aname-Bname hyphenated, or a
     # multi-word "Foo Bar baz" sequence.
     re.compile(r"\b(?:the|a)\s+[A-Z][A-Za-z]+(?:[-\s][A-Z][A-Za-z]+)*(?:[-\s][a-z]+)*\s+(?:method|approach|framework|theorem|inequality|technique|algorithm)\b"),
+    # Canonical-named work references (multi-word proper-noun phrases that
+    # refer to historically-named systems/results). E.g. "Analytical Engine",
+    # "Jacquard-loom", "Nicomachean Ethics", "Theory of Games", "EDVAC",
+    # "Hilbert space". Captures any multi-Capitalized-word phrase 2+ words.
+    re.compile(r"\b[A-Z][a-z]+(?:[-\s][A-Z][a-z]+){1,}\b"),
+    # Explicit "Curatorial Pointer:" / "Reference:" / "Compare to" / "See also"
+    re.compile(r"\b(?:Curatorial Pointer|Compare to|See also|Reference|Cf\.|Recommended reading)\b[:.]", re.IGNORECASE),
 ]
 
 # Praise that's specific (laudatory verb + concrete element)
