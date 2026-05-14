@@ -73,23 +73,83 @@
     });
   }
 
+  // Code-fence-aware block splitter. snarkdown is block-naive about
+  // paragraphs, so we render block-by-block (blank lines = paragraph
+  // breaks) — BUT a naive `split(/\n{2,}/)` shatters fenced code blocks
+  // that contain blank lines (very common in agent prompts and code
+  // samples) into broken fragments where fences never close. So: walk
+  // the source line-by-line, toggling an "inside fence" flag on the
+  // exact ``` / ~~~ run that opened the current fence, and only treat
+  // blank lines as block separators outside fences. Matches CommonMark
+  // §4.5 closely enough for our content (agent prompts, project ideas,
+  // technical specs).
+  function _splitBlocks(md) {
+    const lines = md.split("\n");
+    const blocks = [];
+    let buf = [];
+    let inFence = false;
+    let fenceChar = "";   // "`" or "~"
+    let fenceLen = 0;      // length of the opener (closer must match or exceed)
+    const fenceRe = /^(\s{0,3})(`{3,}|~{3,})(.*)$/;
+    const flush = () => {
+      if (buf.length && buf.some(l => l.trim() !== "")) {
+        blocks.push(buf.join("\n"));
+      }
+      buf = [];
+    };
+    for (const line of lines) {
+      const m = line.match(fenceRe);
+      if (m) {
+        const marker = m[2];
+        if (!inFence) {
+          // opening fence: close any accumulated paragraph block first
+          flush();
+          inFence = true;
+          fenceChar = marker[0];
+          fenceLen = marker.length;
+          buf.push(line);
+          continue;
+        }
+        // already inside a fence — close only if the marker matches the
+        // opener's char and is at least as long (CommonMark §4.5).
+        if (marker[0] === fenceChar && marker.length >= fenceLen && m[3].trim() === "") {
+          buf.push(line);
+          inFence = false;
+          fenceChar = "";
+          fenceLen = 0;
+          flush();
+          continue;
+        }
+      }
+      if (inFence) {
+        buf.push(line);
+        continue;
+      }
+      if (line.trim() === "") {
+        flush();
+      } else {
+        buf.push(line);
+      }
+    }
+    if (buf.length) flush();
+    return blocks;
+  }
+
   // Render a Markdown string to sanitized HTML. Always passes through
   // `_sanitize()` — see the sanitize comments above — before returning, so
   // callers can safely insert the result via insertAdjacentHTML.
   function renderMarkdown(rawMd) {
     if (rawMd == null) return "";
-    const md = String(rawMd);
+    const md = String(rawMd).replace(/\r\n/g, "\n");
     const renderer = window.snarkdown;
     if (typeof renderer !== "function") {
       // Fallback: no renderer loaded — escape and preserve line breaks.
       const esc = md.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       return "<pre class=\"md-fallback\">" + esc + "</pre>";
     }
-    // snarkdown is block-naive about paragraphs; render block-by-block so blank
-    // lines become paragraph breaks, then sanitize the whole thing.
-    const blocks = md.replace(/\r\n/g, "\n").split(/\n{2,}/);
+    const blocks = _splitBlocks(md);
     const html = blocks.map(b => {
-      const t = b.trim();
+      const t = b.replace(/^\n+|\n+$/g, "");
       if (!t) return "";
       const out = renderer(t);
       // If snarkdown already produced a block-level element, don't wrap it.
@@ -137,5 +197,7 @@
     renderMarkdown, fetchAndRenderMarkdown,
     renderMarkdownInto, fetchAndRenderMarkdownInto,
     highlightCodeBlocks,
+    // Exposed for testing only — not part of the documented API.
+    _splitBlocks,
   };
 })();
