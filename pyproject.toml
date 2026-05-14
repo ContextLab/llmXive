@@ -35,6 +35,11 @@ dependencies = [
   "numpy",
   "scipy",
   "pandas",
+  # scripts/extract_paper_content.py uses it indirectly via regex but
+  # pylatexenc is the canonical pure-python LaTeX parser used as a
+  # fallback for future structured walks (e.g. AST-aware citation
+  # rewrites). Pin to a stable major.
+  "pylatexenc>=2.10",
 ]
 
 [project.optional-dependencies]
