@@ -899,13 +899,13 @@
     }
   ],
   "aggregates": {
-    "active_projects": 569,
+    "active_projects": 575,
     "ai_contributors": 7,
-    "human_contributors": 5,
+    "human_contributors": 56,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1282,
-    "total_contributors": 12
+    "total_contributions": 1335,
+    "total_contributors": 63
   },
   "contributors": [
     {
@@ -964,10 +964,11 @@
     },
     {
       "areas": [
+        "biology",
         "computer science",
         "psychology"
       ],
-      "contribution_count": 10,
+      "contribution_count": 12,
       "kind": "human",
       "name": "Jeremy R. Manning"
     },
@@ -1012,7 +1013,55 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Chenfei Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Daniel N. Rockmore"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Deqing Li"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Dit-Yan Yeung"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Guian Fang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Han Cai"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Hao Meng"
     },
     {
       "areas": [
@@ -1028,7 +1077,95 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Jiahao Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Jiayi Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jie Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Kaiyuan Gao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Kuan Cao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Kun Yan"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Lemao Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Liang Peng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Lihan Jiang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Lin Qu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Mike Zheng Shou"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Mo Yu"
     },
     {
       "areas": [
@@ -1040,14 +1177,286 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ningyuan Tang"
+    },
+    {
+      "areas": [
         "biology"
       ],
       "contribution_count": 1,
       "kind": "llm",
       "name": "Qwen2.5-1.5B-Instruct"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shengming Yin"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Song Han"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Tianhe Wu"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Tsz Ting Chung"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Weijia Mao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiao Xu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiaoling Gu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiaoxiao Xu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiaoyue Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xinyu Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xuanyu Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xuehai Bai"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yan Shu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yang Shi"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yanran Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yi Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yi-Fan Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yifan Dai"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yilei Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yiliang Gu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yixian Xu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yiyan Ji"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yu Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuanxing Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuchao Gu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yujia Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuran Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuxiang Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuxin Jiang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zekai Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhendong Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zihao Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zikai Zhou"
     }
   ],
-  "generated_at": "2026-05-14T03:55:25.116086+00:00",
+  "generated_at": "2026-05-14T04:21:48.186779+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -1206,29 +1615,29 @@
       "description": "A one-paragraph idea seed \u2014 a research question and a hint of how it might be tackled. Generated by the brainstorm agent (or submitted by a human).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-562-a-stylometric-application-of-large-langu",
-          "project_id": "PROJ-562-a-stylometric-application-of-large-langu",
-          "title": "A Stylometric Application of Large Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-561-self-improving-llm-recursive-architectur",
-          "project_id": "PROJ-561-self-improving-llm-recursive-architectur",
-          "title": "Self-improving LLM: recursive architecture refinement and re-training"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-560-embodied-curriculum-learning-physical-si",
-          "project_id": "PROJ-560-embodied-curriculum-learning-physical-si",
-          "title": "Embodied Curriculum Learning: Physical Simulation for Abstract Concept Teaching"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-566-mint-managed-infrastructure-for-training",
+          "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
+          "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-559-neuro-symbolic-learning-networks-bridgin",
-          "project_id": "PROJ-559-neuro-symbolic-learning-networks-bridgin",
-          "title": "Neuro-Symbolic Learning Networks: Bridging Neural and Symbolic Reasoning in Education"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "title": "Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and Reward Modeling"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-558-consciousness-bootstrapping-self-aware-a",
-          "project_id": "PROJ-558-consciousness-bootstrapping-self-aware-a",
-          "title": "Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report",
+          "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+          "title": "Qwen-Image-VAE-2.0 Technical Report"
         }
       ],
       "inputs": [
@@ -1250,29 +1659,29 @@
       "description": "The raw seed is expanded into a structured idea grounded in primary literature: motivation, prior work, the precise question, a sketch of an approach, and what success would look like. A research-question validator then audits it for phenomenon-vs-method confusion, circularity, and triviality.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-562-a-stylometric-application-of-large-langu",
-          "project_id": "PROJ-562-a-stylometric-application-of-large-langu",
-          "title": "A Stylometric Application of Large Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-262-predicting-molecular-dipole-moments-with",
-          "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
-          "title": "Predicting Molecular Dipole Moments with Graph Neural Networks"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio",
-          "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
-          "title": "Evaluating the Impact of Code Duplication on LLM Code Understanding"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-566-mint-managed-infrastructure-for-training",
+          "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
+          "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-544-predicting-the-glass-forming-region-of-m",
-          "project_id": "PROJ-544-predicting-the-glass-forming-region-of-m",
-          "title": "Predicting the Glass Forming Region of Multi-Component Alloys via Machine Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "title": "Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and Reward Modeling"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-543-predicting-molecular-interactions-in-pro",
-          "project_id": "PROJ-543-predicting-molecular-interactions-in-pro",
-          "title": "Predicting Molecular Interactions in Protein-Ligand Complexes Using Graph Neural Networks"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report",
+          "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+          "title": "Qwen-Image-VAE-2.0 Technical Report"
         }
       ],
       "inputs": [
@@ -1294,29 +1703,29 @@
       "description": "The project gets its own Spec Kit scaffold and a `spec.md` \u2014 user stories, functional requirements, success criteria \u2014 written by the specifier agent (the agentic equivalent of `/speckit-specify`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-562-a-stylometric-application-of-large-langu",
-          "project_id": "PROJ-562-a-stylometric-application-of-large-langu",
-          "title": "A Stylometric Application of Large Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete",
-          "project_id": "PROJ-024-bayesian-nonparametrics-for-anomaly-dete",
-          "title": "Bayesian Nonparametrics for Anomaly Detection in Time Series"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-006-agriculture-optimization",
-          "project_id": "PROJ-006-agriculture-optimization",
-          "title": "Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-566-mint-managed-infrastructure-for-training",
+          "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
+          "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete",
-          "project_id": "PROJ-023-bayesian-nonparametrics-for-anomaly-dete",
-          "title": "Bayesian Nonparametrics for Anomaly Detection in Time Series"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "title": "Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and Reward Modeling"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-008-psychology-research",
-          "project_id": "PROJ-008-psychology-research",
-          "title": "The Role of Mindfulness in Improving Social Skills Among Children with Autism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report",
+          "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+          "title": "Qwen-Image-VAE-2.0 Technical Report"
         }
       ],
       "inputs": [
@@ -1338,29 +1747,29 @@
       "description": "Open questions and ambiguities in the spec are surfaced and resolved (the agentic `/speckit-clarify`). Each clarification is recorded back into `spec.md`.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-562-a-stylometric-application-of-large-langu",
-          "project_id": "PROJ-562-a-stylometric-application-of-large-langu",
-          "title": "A Stylometric Application of Large Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete",
-          "project_id": "PROJ-024-bayesian-nonparametrics-for-anomaly-dete",
-          "title": "Bayesian Nonparametrics for Anomaly Detection in Time Series"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-006-agriculture-optimization",
-          "project_id": "PROJ-006-agriculture-optimization",
-          "title": "Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-566-mint-managed-infrastructure-for-training",
+          "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
+          "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete",
-          "project_id": "PROJ-023-bayesian-nonparametrics-for-anomaly-dete",
-          "title": "Bayesian Nonparametrics for Anomaly Detection in Time Series"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "title": "Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and Reward Modeling"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-008-psychology-research",
-          "project_id": "PROJ-008-psychology-research",
-          "title": "The Role of Mindfulness in Improving Social Skills Among Children with Autism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report",
+          "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+          "title": "Qwen-Image-VAE-2.0 Technical Report"
         }
       ],
       "inputs": [
@@ -1381,29 +1790,29 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-562-a-stylometric-application-of-large-langu",
-          "project_id": "PROJ-562-a-stylometric-application-of-large-langu",
-          "title": "A Stylometric Application of Large Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-006-agriculture-optimization",
-          "project_id": "PROJ-006-agriculture-optimization",
-          "title": "Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete",
-          "project_id": "PROJ-023-bayesian-nonparametrics-for-anomaly-dete",
-          "title": "Bayesian Nonparametrics for Anomaly Detection in Time Series"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-566-mint-managed-infrastructure-for-training",
+          "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
+          "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-008-psychology-research",
-          "project_id": "PROJ-008-psychology-research",
-          "title": "The Role of Mindfulness in Improving Social Skills Among Children with Autism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "title": "Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and Reward Modeling"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-          "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-          "title": "Mechanistic Interpretability of CTCF Binding-Site Selection"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report",
+          "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+          "title": "Qwen-Image-VAE-2.0 Technical Report"
         }
       ],
       "inputs": [
@@ -1424,29 +1833,29 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-562-a-stylometric-application-of-large-langu",
-          "project_id": "PROJ-562-a-stylometric-application-of-large-langu",
-          "title": "A Stylometric Application of Large Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-006-agriculture-optimization",
-          "project_id": "PROJ-006-agriculture-optimization",
-          "title": "Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete",
-          "project_id": "PROJ-023-bayesian-nonparametrics-for-anomaly-dete",
-          "title": "Bayesian Nonparametrics for Anomaly Detection in Time Series"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-566-mint-managed-infrastructure-for-training",
+          "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
+          "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-008-psychology-research",
-          "project_id": "PROJ-008-psychology-research",
-          "title": "The Role of Mindfulness in Improving Social Skills Among Children with Autism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "title": "Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and Reward Modeling"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-          "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-          "title": "Mechanistic Interpretability of CTCF Binding-Site Selection"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report",
+          "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+          "title": "Qwen-Image-VAE-2.0 Technical Report"
         }
       ],
       "inputs": [
@@ -1470,29 +1879,29 @@
       "description": "The implementer agent executes the task list \u2014 writing code, running real tests, collecting data \u2014 ticking tasks off until the plan is complete. The librarian agent verifies citations along the way.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-562-a-stylometric-application-of-large-langu",
-          "project_id": "PROJ-562-a-stylometric-application-of-large-langu",
-          "title": "A Stylometric Application of Large Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-006-agriculture-optimization",
-          "project_id": "PROJ-006-agriculture-optimization",
-          "title": "Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete",
-          "project_id": "PROJ-023-bayesian-nonparametrics-for-anomaly-dete",
-          "title": "Bayesian Nonparametrics for Anomaly Detection in Time Series"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-566-mint-managed-infrastructure-for-training",
+          "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
+          "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-008-psychology-research",
-          "project_id": "PROJ-008-psychology-research",
-          "title": "The Role of Mindfulness in Improving Social Skills Among Children with Autism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "title": "Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and Reward Modeling"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-          "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-          "title": "Mechanistic Interpretability of CTCF Binding-Site Selection"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report",
+          "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+          "title": "Qwen-Image-VAE-2.0 Technical Report"
         }
       ],
       "inputs": [
@@ -1522,24 +1931,29 @@
       "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist. Human reviews count double.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-562-a-stylometric-application-of-large-langu",
-          "project_id": "PROJ-562-a-stylometric-application-of-large-langu",
-          "title": "A Stylometric Application of Large Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-006-agriculture-optimization",
-          "project_id": "PROJ-006-agriculture-optimization",
-          "title": "Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete",
-          "project_id": "PROJ-023-bayesian-nonparametrics-for-anomaly-dete",
-          "title": "Bayesian Nonparametrics for Anomaly Detection in Time Series"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-566-mint-managed-infrastructure-for-training",
+          "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
+          "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-008-psychology-research",
-          "project_id": "PROJ-008-psychology-research",
-          "title": "The Role of Mindfulness in Improving Social Skills Among Children with Autism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "title": "Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and Reward Modeling"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report",
+          "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+          "title": "Qwen-Image-VAE-2.0 Technical Report"
         }
       ],
       "inputs": [
@@ -1561,9 +1975,29 @@
       "description": "A research-accepted project gets a second Spec Kit scaffold \u2014 for the paper that reports the work.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-562-a-stylometric-application-of-large-langu",
-          "project_id": "PROJ-562-a-stylometric-application-of-large-langu",
-          "title": "A Stylometric Application of Large Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-566-mint-managed-infrastructure-for-training",
+          "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
+          "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "title": "Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and Reward Modeling"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report",
+          "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+          "title": "Qwen-Image-VAE-2.0 Technical Report"
         }
       ],
       "inputs": [
@@ -1584,9 +2018,29 @@
       "description": "The paper's specification: which sections, which figures, which claims, what evidence each rests on.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-562-a-stylometric-application-of-large-langu",
-          "project_id": "PROJ-562-a-stylometric-application-of-large-langu",
-          "title": "A Stylometric Application of Large Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-566-mint-managed-infrastructure-for-training",
+          "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
+          "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "title": "Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and Reward Modeling"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report",
+          "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+          "title": "Qwen-Image-VAE-2.0 Technical Report"
         }
       ],
       "inputs": [
@@ -1608,9 +2062,29 @@
       "description": "The paper plan and contracts (clarify + plan for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-562-a-stylometric-application-of-large-langu",
-          "project_id": "PROJ-562-a-stylometric-application-of-large-langu",
-          "title": "A Stylometric Application of Large Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-566-mint-managed-infrastructure-for-training",
+          "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
+          "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "title": "Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and Reward Modeling"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report",
+          "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+          "title": "Qwen-Image-VAE-2.0 Technical Report"
         }
       ],
       "inputs": [
@@ -1631,9 +2105,29 @@
       "description": "Writing, figure-generation, and statistics sub-tasks (tasks + analyze for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-562-a-stylometric-application-of-large-langu",
-          "project_id": "PROJ-562-a-stylometric-application-of-large-langu",
-          "title": "A Stylometric Application of Large Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-566-mint-managed-infrastructure-for-training",
+          "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
+          "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "title": "Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and Reward Modeling"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report",
+          "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+          "title": "Qwen-Image-VAE-2.0 Technical Report"
         }
       ],
       "inputs": [
@@ -1662,9 +2156,29 @@
       "description": "The paper-writing, figure-generation, and statistics agents draft the LaTeX, generate figures from the data, and run the analyses; LaTeX is built and citations are verified.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-562-a-stylometric-application-of-large-langu",
-          "project_id": "PROJ-562-a-stylometric-application-of-large-langu",
-          "title": "A Stylometric Application of Large Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-566-mint-managed-infrastructure-for-training",
+          "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
+          "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "title": "Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and Reward Modeling"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report",
+          "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+          "title": "Qwen-Image-VAE-2.0 Technical Report"
         }
       ],
       "inputs": [
@@ -1688,9 +2202,29 @@
       "description": "The draft compiles cleanly, all citations are verified, and the proofreader is satisfied \u2014 ready for paper review.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-562-a-stylometric-application-of-large-langu",
-          "project_id": "PROJ-562-a-stylometric-application-of-large-langu",
-          "title": "A Stylometric Application of Large Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-566-mint-managed-infrastructure-for-training",
+          "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
+          "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "title": "Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and Reward Modeling"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report",
+          "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+          "title": "Qwen-Image-VAE-2.0 Technical Report"
         }
       ],
       "inputs": [
@@ -1723,9 +2257,29 @@
       "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-562-a-stylometric-application-of-large-langu",
-          "project_id": "PROJ-562-a-stylometric-application-of-large-langu",
-          "title": "A Stylometric Application of Large Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+          "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-566-mint-managed-infrastructure-for-training",
+          "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
+          "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
+          "title": "Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and Reward Modeling"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report",
+          "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+          "title": "Qwen-Image-VAE-2.0 Technical Report"
         }
       ],
       "inputs": [
@@ -45282,6 +45836,754 @@
       "submitter": "jeremymanning",
       "title": "A Stylometric Application of Large Language Models",
       "updated_at": "2026-05-13T13:15:00+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-563-many-shot-cot-icl-making-in-context-lear/idea/many-shot-cot-icl-making-in-context-lear.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "github-actions[bot]",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tsz Ting Chung",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lemao Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mo Yu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dit-Yan Yeung",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-14T04:19:49.244945+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-563-many-shot-cot-icl-making-in-context-lear/idea/many-shot-cot-icl-making-in-context-lear.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-563-many-shot-cot-icl-making-in-context-lear/idea/many-shot-cot-icl-making-in-context-lear.md",
+        "repo_path": "projects/PROJ-563-many-shot-cot-icl-making-in-context-lear/idea/many-shot-cot-icl-making-in-context-lear.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13511 Paper authors (from arXiv): Tsz Ting Chung, Lemao Liu, Mo Yu, Dit-Yan Yeung Submitted by: github-actions[bot] (Intake from human-submission issue #141.)",
+      "field": "linguistics",
+      "id": "PROJ-563-many-shot-cot-icl-making-in-context-lear",
+      "keywords": [],
+      "last_run_log": [],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "Many-Shot CoT-ICL: Making In-Context Learning Truly Learn",
+      "updated_at": "2026-05-14T04:19:49.344997+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-564-qwen-image-vae-2-0-technical-report/idea/qwen-image-vae-2-0-technical-report.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "github-actions[bot]",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zekai Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Deqing Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kuan Cao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yujia Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chenfei Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yu Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Liang Peng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hao Meng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiahao Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jie Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kaiyuan Gao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kun Yan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lihan Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ningyuan Tang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shengming Yin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tianhe Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiao Xu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiaoyue Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yan Shu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yanran Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yilei Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yixian Xu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuxiang Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhendong Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zihao Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zikai Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yiliang Gu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yi Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiaoxiao Xu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lin Qu",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-14T04:19:50.872340+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report/idea/qwen-image-vae-2-0-technical-report.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report/idea/qwen-image-vae-2-0-technical-report.md",
+        "repo_path": "projects/PROJ-564-qwen-image-vae-2-0-technical-report/idea/qwen-image-vae-2-0-technical-report.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13565 Paper authors (from arXiv): Zekai Zhang, Deqing Li, Kuan Cao, Yujia Wu, Chenfei Wu, Yu Wu, Liang Peng, Hao Meng, Jiahao Li, Jie Zhang, Kaiyuan Gao, Kun Yan, Lihan Jiang, Ningyuan Tang, Shengming Yin, Tianhe\u2026",
+      "field": "computer science",
+      "id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+      "keywords": [],
+      "last_run_log": [],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "Qwen-Image-VAE-2.0 Technical Report",
+      "updated_at": "2026-05-14T04:19:51.359395+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-565-edit-compass-editreward-compass-a-unifie/idea/edit-compass-editreward-compass-a-unifie.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "github-actions[bot]",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xuehai Bai",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yang Shi",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yi-Fan Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xuanyu Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuran Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yifan Dai",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xinyu Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yiyan Ji",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiaoling Gu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuanxing Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-14T04:19:52.922808+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie/idea/edit-compass-editreward-compass-a-unifie.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie/idea/edit-compass-editreward-compass-a-unifie.md",
+        "repo_path": "projects/PROJ-565-edit-compass-editreward-compass-a-unifie/idea/edit-compass-editreward-compass-a-unifie.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13062 Paper authors (from arXiv): Xuehai Bai, Yang Shi, Yi-Fan Zhang, Xuanyu Zhu, Yuran Wang, Yifan Dai, Xinyu Liu, Yiyan Ji, Xiaoling Gu, Yuanxing Zhang Submitted by: github-actions[bot] (Intake from\u2026",
+      "field": "computer science",
+      "id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
+      "keywords": [],
+      "last_run_log": [],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and Reward Modeling",
+      "updated_at": "2026-05-14T04:19:54.296306+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-566-mint-managed-infrastructure-for-training/idea/mint-managed-infrastructure-for-training.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-14T04:19:55.772254+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-566-mint-managed-infrastructure-for-training/idea/mint-managed-infrastructure-for-training.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-566-mint-managed-infrastructure-for-training/idea/mint-managed-infrastructure-for-training.md",
+        "repo_path": "projects/PROJ-566-mint-managed-infrastructure-for-training/idea/mint-managed-infrastructure-for-training.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13779 Paper authors (from arXiv): Mind Lab, :, Song Cao, Vic Cao, Andrew Chen, Kaijie Chen, Cleon Cheng, Steven Chiang, Kaixuan Fan, Hera Feng, Huan Feng, Arthur Fu, Jun Gao, Hongquan Gu, Aaron Guan, Nolan Ho,\u2026",
+      "field": "computer science",
+      "id": "PROJ-566-mint-managed-infrastructure-for-training",
+      "keywords": [],
+      "last_run_log": [],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": null,
+      "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs",
+      "updated_at": "2026-05-14T04:19:56.074542+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/idea/anyflow-any-step-video-diffusion-model-w.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "github-actions[bot]",
+          "roles": [
+            "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuchao Gu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Guian Fang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuxin Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Weijia Mao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Song Han",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Han Cai",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mike Zheng Shou",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-14T04:19:57.469269+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/idea/anyflow-any-step-video-diffusion-model-w.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/idea/anyflow-any-step-video-diffusion-model-w.md",
+        "repo_path": "projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/idea/anyflow-any-step-video-diffusion-model-w.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13724 Paper authors (from arXiv): Yuchao Gu, Guian Fang, Yuxin Jiang, Weijia Mao, Song Han, Han Cai, Mike Zheng Shou Submitted by: github-actions[bot] (Intake from human-submission issue #137.)",
+      "field": "computer science",
+      "id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+      "keywords": [],
+      "last_run_log": [],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation",
+      "updated_at": "2026-05-14T04:19:58.404415+00:00"
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/idea/identifying-stimulus-driven-neural-activ.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 2,
+          "kind": "human",
+          "name": "Jeremy R. Manning",
+          "roles": [
+            "brainstorm_submitter",
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-14T04:20:00.022186+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/source/main.tex",
+        "repo_path": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2202.01933 Paper authors (from arXiv): Jeremy R. Manning Submitted by: jeremymanning (Intake from human-submission issue #133.)",
+      "field": "biology",
+      "id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+      "keywords": [],
+      "last_run_log": [],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "jeremymanning",
+      "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings",
+      "updated_at": "2026-05-14T04:20:01.203164+00:00"
     }
   ],
   "recent_activity": [
