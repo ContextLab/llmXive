@@ -904,7 +904,7 @@
     "human_contributors": 56,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1335,
+    "total_contributions": 1342,
     "total_contributors": 63
   },
   "contributors": [
@@ -918,6 +918,7 @@
         "energy",
         "environmental science",
         "materials science",
+        "mathematics",
         "neuroscience",
         "ocean science",
         "physics",
@@ -925,7 +926,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 605,
+      "contribution_count": 612,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -1456,7 +1457,7 @@
       "name": "Zikai Zhou"
     }
   ],
-  "generated_at": "2026-05-14T04:21:48.186779+00:00",
+  "generated_at": "2026-05-14T11:41:39.804616+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -2336,7 +2337,7 @@
       },
       "authors": [
         {
-          "contributions": 434,
+          "contributions": 442,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -2381,6 +2382,70 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 15.817491,
+          "ended_at": "2026-05-14T05:47:10.839416Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T05:46:55.021925Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 11.671119,
+          "ended_at": "2026-05-14T05:46:54.207153Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T05:46:42.536034Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 7.54748,
+          "ended_at": "2026-05-14T05:46:41.719023Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T05:46:34.171543Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 13.001309,
+          "ended_at": "2026-05-14T05:46:33.349318Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T05:46:20.348009Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 11.674553,
+          "ended_at": "2026-05-14T05:46:19.523616Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T05:46:07.849063Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 9.024347,
+          "ended_at": "2026-05-14T05:46:07.022478Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T05:45:57.998131Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 21.351795,
+          "ended_at": "2026-05-14T05:45:57.095587Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T05:45:35.743792Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 8.779367,
+          "ended_at": "2026-05-14T05:45:34.917843Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T05:45:26.138476Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 7.125095,
           "ended_at": "2026-05-13T21:06:02.228913Z",
           "model": "qwen.qwen3.5-122b",
@@ -2394,70 +2459,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-13T21:05:49.284734Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 6.865143,
-          "ended_at": "2026-05-13T21:05:48.483659Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T21:05:41.618516Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 24.3017,
-          "ended_at": "2026-05-13T21:05:40.833805Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T21:05:16.532105Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.74452,
-          "ended_at": "2026-05-13T21:05:15.737968Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T21:05:09.993448Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 72.661392,
-          "ended_at": "2026-05-13T21:05:09.192835Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T21:03:56.531443Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 76.660187,
-          "ended_at": "2026-05-13T21:03:55.682188Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T21:02:39.022001Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 51.847655,
-          "ended_at": "2026-05-13T21:02:38.221077Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T21:01:46.373422Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 33.743101,
-          "ended_at": "2026-05-13T17:17:02.213350Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T17:16:28.470249Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.75165,
-          "ended_at": "2026-05-13T17:16:27.777406Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T17:16:22.025756Z"
         }
       ],
       "phase_group": "research_speckit",
@@ -44445,25 +44446,26 @@
         "paper_tasks": null,
         "plan": null,
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-542-predicting-defect-formation-energies-in-/reviews/research",
         "spec": null,
         "tasks": null
       },
       "authors": [
+        {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out",
+            "marie-curie-simulated"
+          ]
+        },
         {
           "contributions": 1,
           "kind": "llm",
           "name": "google.gemma-3-27b-it",
           "roles": [
             "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
-          "roles": [
-            "flesh_out"
           ]
         }
       ],
@@ -44486,6 +44488,14 @@
       "id": "PROJ-542-predicting-defect-formation-energies-in-",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 55.302446,
+          "ended_at": "2026-05-14T11:16:37.840359+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-14T11:15:42.537913+00:00"
+        },
         {
           "agent": "flesh_out",
           "duration_s": 29.471912,
@@ -44670,16 +44680,17 @@
         "paper_tasks": null,
         "plan": null,
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-545-the-influence-of-visual-salience-on-atte/reviews/research",
         "spec": null,
         "tasks": null
       },
       "authors": [
         {
-          "contributions": 92,
+          "contributions": 102,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
+            "daniel-kahneman-simulated",
             "flesh_out"
           ]
         },
@@ -44713,83 +44724,83 @@
       "last_run_log": [
         {
           "agent": "flesh_out",
-          "duration_s": 26.290644,
-          "ended_at": "2026-05-14T03:23:26.861233Z",
+          "duration_s": 27.542093,
+          "ended_at": "2026-05-14T11:41:37.103669Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-14T03:23:00.570589Z"
+          "started_at": "2026-05-14T11:41:09.561576Z"
         },
         {
           "agent": "flesh_out",
-          "duration_s": 25.782505,
-          "ended_at": "2026-05-14T03:18:11.258276Z",
+          "duration_s": 66.529518,
+          "ended_at": "2026-05-14T11:03:42.875539Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-14T03:17:45.475771Z"
+          "started_at": "2026-05-14T11:02:36.346021Z"
         },
         {
           "agent": "flesh_out",
-          "duration_s": 31.76699,
-          "ended_at": "2026-05-14T01:15:24.770822Z",
+          "duration_s": 32.908102,
+          "ended_at": "2026-05-14T10:56:12.081352Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-14T01:14:53.003832Z"
+          "started_at": "2026-05-14T10:55:39.173250Z"
         },
         {
           "agent": "flesh_out",
-          "duration_s": 30.139904,
-          "ended_at": "2026-05-14T01:06:52.424507Z",
+          "duration_s": 22.89134,
+          "ended_at": "2026-05-14T09:12:28.333081Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-14T01:06:22.284603Z"
+          "started_at": "2026-05-14T09:12:05.441741Z"
         },
         {
           "agent": "flesh_out",
-          "duration_s": 28.935503,
-          "ended_at": "2026-05-13T23:31:46.659496Z",
+          "duration_s": 29.971609,
+          "ended_at": "2026-05-14T09:07:57.584908Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-13T23:31:17.723993Z"
+          "started_at": "2026-05-14T09:07:27.613299Z"
+        },
+        {
+          "agent": "personality",
+          "duration_s": 18.724374,
+          "ended_at": "2026-05-14T07:30:33.744800+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-14T07:30:15.020426+00:00"
         },
         {
           "agent": "flesh_out",
-          "duration_s": 32.612011,
-          "ended_at": "2026-05-13T22:42:29.585722Z",
+          "duration_s": 26.387661,
+          "ended_at": "2026-05-14T07:19:27.887661Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-13T22:41:56.973711Z"
+          "started_at": "2026-05-14T07:19:01.500000Z"
         },
         {
           "agent": "flesh_out",
-          "duration_s": 24.269646,
-          "ended_at": "2026-05-13T22:35:05.983680Z",
+          "duration_s": 28.05249,
+          "ended_at": "2026-05-14T07:14:37.514782Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-13T22:34:41.714034Z"
+          "started_at": "2026-05-14T07:14:09.462292Z"
         },
         {
           "agent": "flesh_out",
-          "duration_s": 33.220469,
-          "ended_at": "2026-05-13T21:38:44.410783Z",
+          "duration_s": 28.524259,
+          "ended_at": "2026-05-14T05:32:53.354300Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-13T21:38:11.190314Z"
+          "started_at": "2026-05-14T05:32:24.830041Z"
         },
         {
           "agent": "flesh_out",
-          "duration_s": 31.841421,
-          "ended_at": "2026-05-13T20:51:15.670807Z",
+          "duration_s": 33.61896,
+          "ended_at": "2026-05-14T05:26:47.910526Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-13T20:50:43.829386Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 26.474917,
-          "ended_at": "2026-05-13T20:42:22.106120Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T20:41:55.631203Z"
+          "started_at": "2026-05-14T05:26:14.291566Z"
         }
       ],
       "phase_group": "idea",
@@ -44933,7 +44944,7 @@
         "paper_tasks": null,
         "plan": null,
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-548-exploring-the-relationship-between-prime/reviews/research",
         "spec": null,
         "tasks": null
       },
@@ -44944,6 +44955,14 @@
           "name": "google.gemma-3-27b-it",
           "roles": [
             "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "dan-rockmore-simulated"
           ]
         }
       ],
@@ -44965,7 +44984,16 @@
       "field": "mathematics",
       "id": "PROJ-548-exploring-the-relationship-between-prime",
       "keywords": [],
-      "last_run_log": [],
+      "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 112.137227,
+          "ended_at": "2026-05-14T06:08:56.193494+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-14T06:07:04.056267+00:00"
+        }
+      ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
@@ -45397,7 +45425,7 @@
         "paper_tasks": null,
         "plan": null,
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-556-llmxive-automation-system-fully-autonomo/reviews/research",
         "spec": null,
         "tasks": null
       },
@@ -45408,6 +45436,14 @@
           "name": "Jeremy R. Manning",
           "roles": [
             "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "geoffrey-west-simulated"
           ]
         }
       ],
@@ -45429,7 +45465,16 @@
       "field": "computer science",
       "id": "PROJ-556-llmxive-automation-system-fully-autonomo",
       "keywords": [],
-      "last_run_log": [],
+      "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 75.082291,
+          "ended_at": "2026-05-14T09:23:13.443385+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-14T09:21:58.361094+00:00"
+        }
+      ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
@@ -45455,7 +45500,7 @@
         "paper_tasks": null,
         "plan": null,
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/reviews/research",
         "spec": null,
         "tasks": null
       },
@@ -45466,6 +45511,14 @@
           "name": "Jeremy R. Manning",
           "roles": [
             "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "aristotle-simulated"
           ]
         }
       ],
@@ -45487,7 +45540,16 @@
       "field": "psychology",
       "id": "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
       "keywords": [],
-      "last_run_log": [],
+      "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 16.935171,
+          "ended_at": "2026-05-14T04:45:49.022997+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-14T04:45:32.087826+00:00"
+        }
+      ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
@@ -45704,11 +45766,20 @@
         "paper_tasks": null,
         "plan": null,
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research",
         "spec": null,
         "tasks": null
       },
       "authors": [
+        {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "david-krakauer-simulated",
+            "john-von-neumann-simulated"
+          ]
+        },
         {
           "contributions": 1,
           "kind": "human",
@@ -45736,7 +45807,24 @@
       "field": "computer science",
       "id": "PROJ-561-self-improving-llm-recursive-architectur",
       "keywords": [],
-      "last_run_log": [],
+      "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 70.80051,
+          "ended_at": "2026-05-14T10:17:17.060766+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-14T10:16:06.260256+00:00"
+        },
+        {
+          "agent": "personality",
+          "duration_s": 43.213799,
+          "ended_at": "2026-05-14T08:25:29.672560+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-14T08:24:46.458761+00:00"
+        }
+      ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
@@ -45844,7 +45932,7 @@
         "data": null,
         "idea": "projects/PROJ-563-many-shot-cot-icl-making-in-context-lear/idea/many-shot-cot-icl-making-in-context-lear.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-563-many-shot-cot-icl-making-in-context-lear/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -45907,10 +45995,10 @@
       },
       "created_at": "2026-05-14T04:19:49.244945+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-563-many-shot-cot-icl-making-in-context-lear/idea/many-shot-cot-icl-making-in-context-lear.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-563-many-shot-cot-icl-making-in-context-lear/idea/many-shot-cot-icl-making-in-context-lear.md",
-        "repo_path": "projects/PROJ-563-many-shot-cot-icl-making-in-context-lear/idea/many-shot-cot-icl-making-in-context-lear.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-563-many-shot-cot-icl-making-in-context-lear/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-563-many-shot-cot-icl-making-in-context-lear/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-563-many-shot-cot-icl-making-in-context-lear/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13511 Paper authors (from arXiv): Tsz Ting Chung, Lemao Liu, Mo Yu, Dit-Yan Yeung Submitted by: github-actions[bot] (Intake from human-submission issue #141.)",
@@ -45934,7 +46022,7 @@
         "data": null,
         "idea": "projects/PROJ-564-qwen-image-vae-2-0-technical-report/idea/qwen-image-vae-2-0-technical-report.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-564-qwen-image-vae-2-0-technical-report/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -46205,10 +46293,10 @@
       },
       "created_at": "2026-05-14T04:19:50.872340+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report/idea/qwen-image-vae-2-0-technical-report.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report/idea/qwen-image-vae-2-0-technical-report.md",
-        "repo_path": "projects/PROJ-564-qwen-image-vae-2-0-technical-report/idea/qwen-image-vae-2-0-technical-report.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-564-qwen-image-vae-2-0-technical-report/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-564-qwen-image-vae-2-0-technical-report/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13565 Paper authors (from arXiv): Zekai Zhang, Deqing Li, Kuan Cao, Yujia Wu, Chenfei Wu, Yu Wu, Liang Peng, Hao Meng, Jiahao Li, Jie Zhang, Kaiyuan Gao, Kun Yan, Lihan Jiang, Ningyuan Tang, Shengming Yin, Tianhe\u2026",
@@ -46232,7 +46320,7 @@
         "data": null,
         "idea": "projects/PROJ-565-edit-compass-editreward-compass-a-unifie/idea/edit-compass-editreward-compass-a-unifie.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-565-edit-compass-editreward-compass-a-unifie/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -46343,10 +46431,10 @@
       },
       "created_at": "2026-05-14T04:19:52.922808+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie/idea/edit-compass-editreward-compass-a-unifie.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie/idea/edit-compass-editreward-compass-a-unifie.md",
-        "repo_path": "projects/PROJ-565-edit-compass-editreward-compass-a-unifie/idea/edit-compass-editreward-compass-a-unifie.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-565-edit-compass-editreward-compass-a-unifie/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-565-edit-compass-editreward-compass-a-unifie/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13062 Paper authors (from arXiv): Xuehai Bai, Yang Shi, Yi-Fan Zhang, Xuanyu Zhu, Yuran Wang, Yifan Dai, Xinyu Liu, Yiyan Ji, Xiaoling Gu, Yuanxing Zhang Submitted by: github-actions[bot] (Intake from\u2026",
@@ -46370,7 +46458,7 @@
         "data": null,
         "idea": "projects/PROJ-566-mint-managed-infrastructure-for-training/idea/mint-managed-infrastructure-for-training.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-566-mint-managed-infrastructure-for-training/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -46392,10 +46480,10 @@
       },
       "created_at": "2026-05-14T04:19:55.772254+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-566-mint-managed-infrastructure-for-training/idea/mint-managed-infrastructure-for-training.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-566-mint-managed-infrastructure-for-training/idea/mint-managed-infrastructure-for-training.md",
-        "repo_path": "projects/PROJ-566-mint-managed-infrastructure-for-training/idea/mint-managed-infrastructure-for-training.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-566-mint-managed-infrastructure-for-training/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-566-mint-managed-infrastructure-for-training/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-566-mint-managed-infrastructure-for-training/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13779 Paper authors (from arXiv): Mind Lab, :, Song Cao, Vic Cao, Andrew Chen, Kaijie Chen, Cleon Cheng, Steven Chiang, Kaixuan Fan, Hera Feng, Huan Feng, Arthur Fu, Jun Gao, Hongquan Gu, Aaron Guan, Nolan Ho,\u2026",
@@ -46419,7 +46507,7 @@
         "data": null,
         "idea": "projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/idea/anyflow-any-step-video-diffusion-model-w.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -46506,10 +46594,10 @@
       },
       "created_at": "2026-05-14T04:19:57.469269+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/idea/anyflow-any-step-video-diffusion-model-w.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/idea/anyflow-any-step-video-diffusion-model-w.md",
-        "repo_path": "projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/idea/anyflow-any-step-video-diffusion-model-w.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13724 Paper authors (from arXiv): Yuchao Gu, Guian Fang, Yuxin Jiang, Weijia Mao, Song Han, Han Cai, Mike Zheng Shou Submitted by: github-actions[bot] (Intake from human-submission issue #137.)",
@@ -46533,7 +46621,7 @@
         "data": null,
         "idea": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/idea/identifying-stimulus-driven-neural-activ.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/source/main.tex",
         "paper_spec": null,
@@ -46565,10 +46653,10 @@
       },
       "created_at": "2026-05-14T04:20:00.022186+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/source/main.tex",
-        "repo_path": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2202.01933 Paper authors (from arXiv): Jeremy R. Manning Submitted by: jeremymanning (Intake from human-submission issue #133.)",
@@ -46587,6 +46675,250 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "flesh_out",
+      "duration_s": 27.542093,
+      "ended_at": "2026-05-14T11:41:37.103669Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
+      "started_at": "2026-05-14T11:41:09.561576Z"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Marie Curie (simulated)",
+      "duration_s": 55.302446,
+      "ended_at": "2026-05-14T11:16:37.840359+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "marie-curie",
+      "project_id": "PROJ-542-predicting-defect-formation-energies-in-",
+      "started_at": "2026-05-14T11:15:42.537913+00:00"
+    },
+    {
+      "agent": "flesh_out",
+      "duration_s": 66.529518,
+      "ended_at": "2026-05-14T11:03:42.875539Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
+      "started_at": "2026-05-14T11:02:36.346021Z"
+    },
+    {
+      "agent": "flesh_out",
+      "duration_s": 32.908102,
+      "ended_at": "2026-05-14T10:56:12.081352Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
+      "started_at": "2026-05-14T10:55:39.173250Z"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "John von Neumann (simulated)",
+      "duration_s": 70.80051,
+      "ended_at": "2026-05-14T10:17:17.060766+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "john-von-neumann",
+      "project_id": "PROJ-561-self-improving-llm-recursive-architectur",
+      "started_at": "2026-05-14T10:16:06.260256+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Geoffrey West (simulated)",
+      "duration_s": 75.082291,
+      "ended_at": "2026-05-14T09:23:13.443385+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "geoffrey-west",
+      "project_id": "PROJ-556-llmxive-automation-system-fully-autonomo",
+      "started_at": "2026-05-14T09:21:58.361094+00:00"
+    },
+    {
+      "agent": "flesh_out",
+      "duration_s": 22.89134,
+      "ended_at": "2026-05-14T09:12:28.333081Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
+      "started_at": "2026-05-14T09:12:05.441741Z"
+    },
+    {
+      "agent": "flesh_out",
+      "duration_s": 29.971609,
+      "ended_at": "2026-05-14T09:07:57.584908Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
+      "started_at": "2026-05-14T09:07:27.613299Z"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "David Krakauer (simulated)",
+      "duration_s": 43.213799,
+      "ended_at": "2026-05-14T08:25:29.672560+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "david-krakauer",
+      "project_id": "PROJ-561-self-improving-llm-recursive-architectur",
+      "started_at": "2026-05-14T08:24:46.458761+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Daniel Kahneman (simulated)",
+      "duration_s": 18.724374,
+      "ended_at": "2026-05-14T07:30:33.744800+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "daniel-kahneman",
+      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
+      "started_at": "2026-05-14T07:30:15.020426+00:00"
+    },
+    {
+      "agent": "flesh_out",
+      "duration_s": 26.387661,
+      "ended_at": "2026-05-14T07:19:27.887661Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
+      "started_at": "2026-05-14T07:19:01.500000Z"
+    },
+    {
+      "agent": "flesh_out",
+      "duration_s": 28.05249,
+      "ended_at": "2026-05-14T07:14:37.514782Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
+      "started_at": "2026-05-14T07:14:09.462292Z"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Dan Rockmore (simulated)",
+      "duration_s": 112.137227,
+      "ended_at": "2026-05-14T06:08:56.193494+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "dan-rockmore",
+      "project_id": "PROJ-548-exploring-the-relationship-between-prime",
+      "started_at": "2026-05-14T06:07:04.056267+00:00"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 15.817491,
+      "ended_at": "2026-05-14T05:47:10.839416Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+      "started_at": "2026-05-14T05:46:55.021925Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 11.671119,
+      "ended_at": "2026-05-14T05:46:54.207153Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+      "started_at": "2026-05-14T05:46:42.536034Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 7.54748,
+      "ended_at": "2026-05-14T05:46:41.719023Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+      "started_at": "2026-05-14T05:46:34.171543Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 13.001309,
+      "ended_at": "2026-05-14T05:46:33.349318Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+      "started_at": "2026-05-14T05:46:20.348009Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 11.674553,
+      "ended_at": "2026-05-14T05:46:19.523616Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+      "started_at": "2026-05-14T05:46:07.849063Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 9.024347,
+      "ended_at": "2026-05-14T05:46:07.022478Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+      "started_at": "2026-05-14T05:45:57.998131Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 21.351795,
+      "ended_at": "2026-05-14T05:45:57.095587Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+      "started_at": "2026-05-14T05:45:35.743792Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 8.779367,
+      "ended_at": "2026-05-14T05:45:34.917843Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+      "started_at": "2026-05-14T05:45:26.138476Z"
+    },
+    {
+      "agent": "flesh_out",
+      "duration_s": 28.524259,
+      "ended_at": "2026-05-14T05:32:53.354300Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
+      "started_at": "2026-05-14T05:32:24.830041Z"
+    },
+    {
+      "agent": "flesh_out",
+      "duration_s": 33.61896,
+      "ended_at": "2026-05-14T05:26:47.910526Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
+      "started_at": "2026-05-14T05:26:14.291566Z"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Aristotle (simulated)",
+      "duration_s": 16.935171,
+      "ended_at": "2026-05-14T04:45:49.022997+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "aristotle",
+      "project_id": "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
+      "started_at": "2026-05-14T04:45:32.087826+00:00"
+    },
     {
       "agent": "flesh_out",
       "duration_s": 26.290644,
@@ -46914,222 +47246,6 @@
       "outcome": "success",
       "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "started_at": "2026-05-13T13:51:43.191403Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 13.924339,
-      "ended_at": "2026-05-13T13:17:28.634785Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T13:17:14.710446Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 5.461546,
-      "ended_at": "2026-05-13T13:17:13.886826Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T13:17:08.425280Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 6.661125,
-      "ended_at": "2026-05-13T13:17:07.605794Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T13:17:00.944669Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 90.47539,
-      "ended_at": "2026-05-13T13:17:00.128613Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T13:15:29.653223Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 21.577145,
-      "ended_at": "2026-05-13T13:15:28.840515Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T13:15:07.263370Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 9.973086,
-      "ended_at": "2026-05-13T13:15:06.439208Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T13:14:56.466122Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 14.693137,
-      "ended_at": "2026-05-13T13:14:55.553003Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T13:14:40.859866Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 6.937311,
-      "ended_at": "2026-05-13T13:14:40.040250Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T13:14:33.102939Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 29.733006,
-      "ended_at": "2026-05-13T13:03:23.993055Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "started_at": "2026-05-13T13:02:54.260049Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 26.323885,
-      "ended_at": "2026-05-13T12:58:00.918985Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "started_at": "2026-05-13T12:57:34.595100Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 84.022919,
-      "ended_at": "2026-05-13T11:51:42.978704Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "started_at": "2026-05-13T11:50:18.955785Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 32.178456,
-      "ended_at": "2026-05-13T10:59:01.536144Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "started_at": "2026-05-13T10:58:29.357688Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 20.836627,
-      "ended_at": "2026-05-13T09:30:09.732374Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T09:29:48.895747Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 5.60524,
-      "ended_at": "2026-05-13T09:29:48.094176Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T09:29:42.488936Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 15.4483,
-      "ended_at": "2026-05-13T09:29:41.689538Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T09:29:26.241238Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.76232,
-      "ended_at": "2026-05-13T09:29:25.444484Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T09:29:20.682164Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 10.624897,
-      "ended_at": "2026-05-13T09:29:19.886538Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T09:29:09.261641Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 8.813247,
-      "ended_at": "2026-05-13T09:29:08.471645Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T09:28:59.658398Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 70.641441,
-      "ended_at": "2026-05-13T09:28:58.820445Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T09:27:48.179004Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 30.737701,
-      "ended_at": "2026-05-13T09:27:47.369849Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T09:27:16.632148Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 76.808226,
-      "ended_at": "2026-05-13T09:19:42.699092Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "started_at": "2026-05-13T09:18:25.890866Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 28.575738,
-      "ended_at": "2026-05-13T09:14:25.341124Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "started_at": "2026-05-13T09:13:56.765386Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 35.072876,
-      "ended_at": "2026-05-13T07:22:42.825276Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "started_at": "2026-05-13T07:22:07.752400Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 30.061652,
-      "ended_at": "2026-05-13T07:17:20.437046Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "started_at": "2026-05-13T07:16:50.375394Z"
     }
   ],
   "schema_version": "2.0.0"
