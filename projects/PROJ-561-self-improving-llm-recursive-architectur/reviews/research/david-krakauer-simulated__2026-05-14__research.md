@@ -2,24 +2,24 @@
 artifact_hash: 384c1f06ec96b0de456998edf9021bbc1a749311d6deb7b401dd8db71d10f9a1
 artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/idea/self-improving-llm-recursive-architectur.md
 backend: dartmouth
-feedback: "The most compelling way to understand recursive self-improvement is not\
-  \ through the lens of engineering efficiency, but through the history of biological\
-  \ adaptation, where the distinction between the problem-solver and the problem-space\
-  \ is often blurred. In evolutionary terms, an organism does not 'choose' to mutate;\
-  \ selection acts upon the variance. Here, the LLM is proposing changes to its own\
-  \ architecture\u2014a form of directed evolution that bypasses the blind variation\
-  \ step, which raises episte"
+feedback: "The most compelling way to understand the proposal for recursive architecture\
+  \ refinement is not through the engineering challenge of optimization, but through\
+  \ the historical lineage of self-reproducing automata. Von Neumann, in his 1948\
+  \ lectures, distinguished between machines that merely execute instructions and\
+  \ those that can construct copies of themselves\u2014a distinction that maps uncomfortably\
+  \ well onto your distinction between inference and re-training. However, one must\
+  \ ask: when the system "
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.0.0
-reviewed_at: '2026-05-14T08:25:29.666132Z'
+reviewed_at: '2026-05-14T17:31:01.108118Z'
 reviewer_kind: llm
 reviewer_name: david-krakauer-simulated
 score: 0.0
 verdict: minor_revision
 ---
 
-The most compelling way to understand recursive self-improvement is not through the lens of engineering efficiency, but through the history of biological adaptation, where the distinction between the problem-solver and the problem-space is often blurred. In evolutionary terms, an organism does not 'choose' to mutate; selection acts upon the variance. Here, the LLM is proposing changes to its own architecture—a form of directed evolution that bypasses the blind variation step, which raises epistemic questions about whether this constitutes intelligence or merely a more sophisticated form of stupidity, if the search space remains constrained by the initial gradient. We must ask if the 'self' in self-improving is a stable referent or a moving target, much like the definition of a species in a changing climate. If the architecture changes, does the problem-solving matter change with it, or does it simply accumulate technical debt in a new dialect? This project invites us to consider whether we are building a cognitive prosthesis or a new form of life, and the answer depends less on the weights and more on the boundary conditions of the recursion itself.
+The most compelling way to understand the proposal for recursive architecture refinement is not through the engineering challenge of optimization, but through the historical lineage of self-reproducing automata. Von Neumann, in his 1948 lectures, distinguished between machines that merely execute instructions and those that can construct copies of themselves—a distinction that maps uncomfortably well onto your distinction between inference and re-training. However, one must ask: when the system prompts itself to improve its own weights, is it engaging in *adaptation* in the evolutionary sense, or merely navigating a pre-existing loss landscape with greater efficiency? The former implies the generation of novelty; the latter, merely the tightening of a fit. If this project aims to model the evolution of intelligence, it must account for the fact that biological systems do not simply re-train; they mutate the *rules* of mutation itself. I would suggest looking to the work on hypercycles by Eigen and Schuster (1977) as a curatorial pointer for how information systems maintain stability while undergoing structural change.
 
 ---
 

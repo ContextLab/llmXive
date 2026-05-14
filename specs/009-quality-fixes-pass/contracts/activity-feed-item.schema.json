@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://llmxive.local/contracts/activity-feed-item.schema.json",
+  "title": "Activity Feed Item",
+  "description": "One JSON object per line in projects/<project_id>/activity.jsonl. Spec 009 FR-025 through FR-033.",
+  "type": "object",
+  "required": ["id", "kind", "author", "summary", "created_at", "audit_status"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "ULID — chronologically sortable, no central authority needed."
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["personality_tick", "revision", "review", "human_comment", "speckit_emission", "paper_emission", "dispatch_failure", "manifest", "edit"]
+    },
+    "author": {
+      "type": "object",
+      "required": ["type", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {"type": "string", "enum": ["agent", "human"]},
+        "name": {"type": "string"},
+        "persona": {"type": "string", "description": "slug from agents/prompts/personalities/<slug>.md (agent kind only)"},
+        "display_name": {"type": "string", "description": "e.g. 'John von Neumann (simulated)'"}
+      }
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 280,
+      "description": "One-line human-readable summary. Used for context-budget truncation per FR-031."
+    },
+    "body": {
+      "type": "string",
+      "description": "Full content. Omitted from agent context when summary suffices under budget."
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "artifact_path": {"type": "string", "description": "Repo-relative."},
+        "artifact_kind": {
+          "type": "string",
+          "enum": ["idea", "spec", "plan", "tasks", "paper_spec", "paper_plan", "paper_tasks", "paper_source", "paper_pdf", "paper_supplement", "code", "data", "reviews_research", "reviews_paper", "citations"]
+        }
+      }
+    },
+    "parent_id": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "If this item responds to or builds on another, the parent's ULID. Enables 'I am building on X' traversal (FR-029)."
+    },
+    "created_at": {"type": "string", "format": "date-time"},
+    "edited_at": {"type": "string", "format": "date-time"},
+    "audit_status": {
+      "type": "string",
+      "enum": ["live", "rejected", "superseded"],
+      "description": "Only `live` items are delivered to downstream agents (FR-030)."
+    },
+    "rubric_scores": {
+      "type": "object",
+      "description": "Present on kind=personality_tick when the rubric was run.",
+      "required": ["voice", "critical_judgement", "curatorial_pointer", "honesty"],
+      "additionalProperties": false,
+      "properties": {
+        "voice": {"type": "integer", "minimum": 0, "maximum": 3},
+        "critical_judgement": {"type": "integer", "minimum": 0, "maximum": 3},
+        "curatorial_pointer": {"type": "integer", "minimum": 0, "maximum": 3},
+        "honesty": {"type": "integer", "minimum": 0, "maximum": 3}
+      }
+    },
+    "curatorial_pointer": {
+      "type": "object",
+      "description": "Required on kind=personality_tick with action=comment|contribute (FR-001).",
+      "required": ["kind", "ref"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"type": "string", "enum": ["paper", "technique", "prior_work", "missing_experiment"]},
+        "ref": {"type": "string"}
+      }
+    },
+    "interest_signals_invoked": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "IDs from the persona card's interest_signals (FR-003)."
+    },
+    "failure": {
+      "type": "object",
+      "description": "Present only on kind=dispatch_failure (FR-028).",
+      "required": ["reason", "agent", "retried"],
+      "additionalProperties": false,
+      "properties": {
+        "reason": {"type": "string"},
+        "agent": {"type": "string"},
+        "retried": {"type": "boolean"}
+      }
+    }
+  }
+}

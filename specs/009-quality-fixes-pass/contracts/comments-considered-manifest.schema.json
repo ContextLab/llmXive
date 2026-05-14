@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://llmxive.local/contracts/comments-considered-manifest.schema.json",
+  "title": "Comments Considered Manifest",
+  "description": "Structured block embedded at the END of every agent's output. Validated by runner.py per FR-028 before the contribution is committed to the activity feed.",
+  "type": "object",
+  "required": ["dispatch_id", "agent", "feed_snapshot_at", "items", "truncation_acknowledged"],
+  "additionalProperties": false,
+  "properties": {
+    "dispatch_id": {
+      "type": "string",
+      "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "ULID matching the runner's dispatch record for this call. Bogus IDs are rejected (FR-028)."
+    },
+    "agent": {
+      "type": "string",
+      "description": "Agent identifier (e.g. 'personality:von-neumann', 'paper_reviewer', 'speckit:plan_cmd')."
+    },
+    "feed_snapshot_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp of the feed version this agent saw. Used by FR-033 to detect concurrent races."
+    },
+    "items": {
+      "type": "array",
+      "description": "One entry per non-trivial feed item the agent considered.",
+      "items": {
+        "type": "object",
+        "required": ["feed_item_id", "response"],
+        "additionalProperties": false,
+        "properties": {
+          "feed_item_id": {
+            "type": "string",
+            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$",
+            "description": "Must resolve to a real entry in the project's activity.jsonl at or before feed_snapshot_at (FR-028)."
+          },
+          "response": {
+            "type": "string",
+            "enum": ["addressed", "acknowledged", "rebutted", "deferred"]
+          },
+          "reason": {
+            "type": "string",
+            "description": "Required when response is 'rebutted' or 'deferred'."
+          }
+        }
+      }
+    },
+    "truncation_acknowledged": {
+      "type": "boolean",
+      "description": "If the agent's input context included a '[truncated N earlier items]' marker, this MUST be true. Otherwise false. (FR-031)."
+    }
+  }
+}

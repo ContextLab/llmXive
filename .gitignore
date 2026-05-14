@@ -284,3 +284,4 @@ projects/*/paper/source/.fig-cache/
 projects/*/paper/source/figs/**/*.orig.pdf
 projects/*/paper/source/figs/**/*.sanitized.pdf
 projects/*/paper/source/figs/.sanitized/
+.audit/

@@ -92,6 +92,9 @@ class PaperTaskerAgent(SlashCommandAgent):
         tasks_path = Path(mechanical_output["tasks_path"])
         tasks_path.parent.mkdir(parents=True, exist_ok=True)
         tasks_path.write_text(llm_response.text.strip() + "\n", encoding="utf-8")
+        # FR-009: real-only guard — refuse template tasks emissions
+        from llmxive.speckit._real_only_guard import guard_emit
+        guard_emit(tasks_path, repo_root=repo)
         written = [str(tasks_path.relative_to(repo))]
 
         spec_path = Path(mechanical_output["spec_path"])

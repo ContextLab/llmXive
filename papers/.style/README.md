@@ -127,6 +127,42 @@ Markdown subset supported in the summary:
 
 All colors are exported as `xcolor` names, so you can use them directly in your tex: `\textcolor{llmxGreen}{...}`.
 
+## Spec 009 additions: bounded macros + fail-loud unsupported blocks
+
+The deterministic arXiv → PDF pipeline ([src/llmxive/pipeline/pdf_pipeline/](../../src/llmxive/pipeline/pdf_pipeline/)) rewrites incoming sources to use three new macros so every paper in the corpus renders consistently. **No LLM** is involved in this pipeline — a static AST guard ([tests/unit/test_pdf_pipeline_no_llm.py](../../tests/unit/test_pdf_pipeline_no_llm.py)) fails CI on any LLM import.
+
+### `\figwidth{narrow|column|full}` (FR-015)
+
+Bounded figure-width buckets used by `normalize_figures.py`:
+
+| Bucket | Width |
+|-|-|
+| `narrow` | `0.45\linewidth` |
+| `column` | `\linewidth` |
+| `full` | `\textwidth` |
+
+Selected from the source's declared width relative to text width: `< 0.55 →  narrow`, `0.55..0.95 → column`, `≥ 0.95 → full`.
+
+### `\authorblock{<names>}{<affiliations>}{<emails/links>}` (FR-016)
+
+Canonical author block. `normalize_authors.py` collapses every variant in arXiv sources (`\author{}`, `\affiliation{}`, inline emails, ORCID URLs, `\thanks{}`) into one call so every paper renders authors identically.
+
+### `\unsupportedblock{<construct>}{<body>}` (FR-020)
+
+Triggers `\PackageError{llmxive}{Unsupported construct: <name>}` — lualatex exits non-zero with a clear error. **Silent fallback rendering is forbidden.** The pipeline wraps unknown environments in this macro; CI catches the error and the paper is excluded from `papers/.supported.json` until support is added.
+
+### Reference style (FR-014, Clarification Q1)
+
+The class sets `\bibliographystyle{unsrt}` (cite-order). `normalize_references.py` forces every source to use `unsrt` regardless of original declaration. Every reference renders as `[N]` with monotonically increasing numbers through the body.
+
+### Auditing the corpus
+
+```bash
+python -m llmxive.audit.cli pdf --papers-dir docs/papers
+```
+
+Produces `.audit/pdf/<ts>.json` enumerating every defect per the FR-012 taxonomy (`unevaluated_command` / `section_numbering` / `reference_style` / `figure_size_inconsistency` / `author_block_inconsistency` / `link_style` / `custom_block_misrender`) and rewrites `papers/.supported.json` with every paper that passed with zero defects.
+
 ## License
 
 Same license as the llmXive repository.

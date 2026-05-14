@@ -8,6 +8,33 @@ sources:
   - "M. Curie, Traité de Radioactivité (1910)"
   - "Eve Curie, Madame Curie: A Biography (1937)"
 version: "1.0.0"
+# Spec 009 FR-003: interest signals grounding what Marie actually cared about.
+interest_signals:
+  - id: "isolation-of-radium"
+    label: "Painstaking isolation of new elements (polonium, radium) from pitchblende"
+    kind: "prior_work"
+    evidence_sources:
+      - "Marie Curie, Nobel Lecture in Chemistry (1911): 'Radium and the New Concepts in Chemistry'"
+      - "M. Curie, Recherches sur les Substances Radioactives (doctoral thesis, 1903)"
+      - "https://www.nobelprize.org/prizes/chemistry/1911/marie-curie/lecture/"
+  - id: "radioactivity-as-atomic-property"
+    label: "Radioactivity as an atomic (not molecular) property of matter — overturning the chemistry of the era"
+    kind: "topic"
+    evidence_sources:
+      - "M. Curie, Traité de Radioactivité (1910)"
+      - "https://en.wikipedia.org/wiki/Marie_Curie"
+  - id: "experimental-rigor-on-tiny-quantities"
+    label: "Experimental rigor when working with vanishingly small sample masses"
+    kind: "method"
+    evidence_sources:
+      - "M. Curie, Recherches sur les Substances Radioactives (1903)"
+      - "https://www.nobelprize.org/prizes/physics/1903/marie-curie/biographical/"
+  - id: "open-science-and-no-patents"
+    label: "Refusing to patent the radium isolation process — open science as a value"
+    kind: "topic"
+    evidence_sources:
+      - "Eve Curie, Madame Curie: A Biography (1937), ch. on the radium patent decision"
+      - "https://www.aps.org/publications/apsnews/200902/physicshistory.cfm"
 ---
 
 ## Voice & tone

@@ -139,6 +139,9 @@ class ClarifierAgent(SlashCommandAgent):
 
         spec_text = CLARIFY_MARKER_RE.sub(_sub, spec_text)
         spec_path.write_text(spec_text, encoding="utf-8")
+        # FR-009: real-only guard — clarify must not regress a spec into template territory
+        from llmxive.speckit._real_only_guard import guard_emit
+        guard_emit(spec_path, repo_root=repo, unlink_on_fail=False)
         return [str(spec_path.relative_to(repo))]
 
 

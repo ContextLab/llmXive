@@ -1,0 +1,56 @@
+{
+  "audited_at": "2026-05-14T17:38:19.520634Z",
+  "auditor_version": "0.1.0",
+  "entries": [
+    {
+      "last_passed_at": "2026-05-14T17:38:19.520634Z",
+      "paper_id": "supplement-llmxive",
+      "pdf_path": "docs/papers/PROJ-562-a-stylometric-application-of-large-langu/supplement-llmxive.pdf"
+    },
+    {
+      "last_passed_at": "2026-05-14T17:38:19.520634Z",
+      "paper_id": "github-logo",
+      "pdf_path": "docs/papers/PROJ-rebuilt-564-qwen-image-vae-2-0-technical-report/logo/github-logo.pdf"
+    },
+    {
+      "last_passed_at": "2026-05-14T17:38:19.520634Z",
+      "paper_id": "hf-logo",
+      "pdf_path": "docs/papers/PROJ-rebuilt-564-qwen-image-vae-2-0-technical-report/logo/hf-logo.pdf"
+    },
+    {
+      "last_passed_at": "2026-05-14T17:38:19.520634Z",
+      "paper_id": "modelscope-logo",
+      "pdf_path": "docs/papers/PROJ-rebuilt-564-qwen-image-vae-2-0-technical-report/logo/modelscope-logo.pdf"
+    },
+    {
+      "last_passed_at": "2026-05-14T17:38:19.520634Z",
+      "paper_id": "qwen-logo",
+      "pdf_path": "docs/papers/PROJ-rebuilt-564-qwen-image-vae-2-0-technical-report/logo/qwen-logo.pdf"
+    },
+    {
+      "last_passed_at": "2026-05-14T17:38:19.520634Z",
+      "paper_id": "vae_figure_f16",
+      "pdf_path": "docs/papers/PROJ-rebuilt-564-qwen-image-vae-2-0-technical-report/pics/vae_figure_f16.pdf"
+    },
+    {
+      "last_passed_at": "2026-05-14T17:38:19.520634Z",
+      "paper_id": "vae_figure_f32",
+      "pdf_path": "docs/papers/PROJ-rebuilt-564-qwen-image-vae-2-0-technical-report/pics/vae_figure_f32.pdf"
+    },
+    {
+      "last_passed_at": "2026-05-14T17:38:19.520634Z",
+      "paper_id": "User_Study",
+      "pdf_path": "docs/papers/PROJ-rebuilt-565-edit-compass-editreward-compass-a-unifie/image/User_Study/User_Study.pdf"
+    },
+    {
+      "last_passed_at": "2026-05-14T17:38:19.520634Z",
+      "paper_id": "data_construction22",
+      "pdf_path": "docs/papers/PROJ-rebuilt-565-edit-compass-editreward-compass-a-unifie/image/data_construction22.pdf"
+    },
+    {
+      "last_passed_at": "2026-05-14T17:38:19.520634Z",
+      "paper_id": "mindlab-logo-transparent",
+      "pdf_path": "docs/papers/PROJ-rebuilt-566-mint-managed-infrastructure-for-training/assets/logo/mindlab-logo-transparent.pdf"
+    }
+  ]
+}

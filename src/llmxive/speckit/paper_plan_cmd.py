@@ -93,12 +93,17 @@ class PaperPlannerAgent(SlashCommandAgent):
         if not feature_dir.is_absolute():
             feature_dir = repo / feature_dir
         feature_dir.mkdir(parents=True, exist_ok=True)
+        from llmxive.speckit._real_only_guard import guard_emit
+
         files = _split_multi_file(llm_response.text)
         written: list[str] = []
         for relpath, content in files.items():
             target = feature_dir / relpath
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(content + "\n", encoding="utf-8")
+            # FR-009: real-only guard for markdown artifacts
+            if target.suffix == ".md":
+                guard_emit(target, repo_root=repo)
             written.append(str(target.relative_to(repo)))
         return written
 

@@ -1,6 +1,26 @@
 #!/usr/bin/env python3
 """Restyle an arXiv paper's LaTeX source into the llmXive house style.
 
+Spec 009 relationship (T060):
+    The new deterministic pipeline at
+    ``src/llmxive/pipeline/pdf_pipeline/`` provides a stricter restyle path
+    (cite-order [N] refs, bounded figure widths, canonical \\authorblock,
+    LLM-free guarantee with AST-static guard). Use it FIRST for new papers:
+
+        python -m llmxive.pipeline.pdf_pipeline.cli build --source main.tex
+
+    This legacy script remains the canonical implementation for:
+      - figure-PDF ghostscript sanitization (Adobe Illustrator clipping)
+      - editorial-summary + artifact-link rendering on the title page
+      - arXiv-id metadata extraction
+      - the canonical _CLASS_PROVIDED_PACKAGES / _FONT_PACKAGES /
+        _LAYOUT_PACKAGES lists (imported BY the new pipeline at runtime —
+        see restyle.py:_legacy_path).
+
+    Keep both. The new pipeline is the deterministic-build entry point;
+    this legacy script is the publication-flow entry point. They share
+    constants via importlib (single source of truth, Constitution I).
+
 Per the requirement: the paper content MUST be preserved EXACTLY — figures,
 writing, tables, titles, authors, affiliations, web links, bibliography.
 The ONLY thing that changes is the style (the document class). The body

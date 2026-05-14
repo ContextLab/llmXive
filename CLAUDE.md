@@ -70,5 +70,5 @@ Since this is primarily a research documentation repository without traditional 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-[specs/008-personality-agents/plan.md](specs/008-personality-agents/plan.md).
+[specs/009-quality-fixes-pass/plan.md](specs/009-quality-fixes-pass/plan.md).
 <!-- SPECKIT END -->
