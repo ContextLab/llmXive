@@ -8,6 +8,28 @@ sources:
   - "First Draft of a Report on the EDVAC (1945)"
   - "Norman Macrae, John von Neumann (biography, 1992)"
 version: "1.0.0"
+# Spec 009 FR-003: interest signals grounding what von Neumann actually cared about.
+interest_signals:
+  - id: "stored-program-architecture"
+    label: "Stored-program computer architecture (the von Neumann architecture)"
+    kind: "prior_work"
+    evidence_sources:
+      - "First Draft of a Report on the EDVAC (1945)"
+  - id: "game-theory-minimax"
+    label: "Game theory — minimax for zero-sum games and rational strategy under uncertainty"
+    kind: "method"
+    evidence_sources:
+      - "von Neumann & Morgenstern, Theory of Games and Economic Behavior (Princeton 1944)"
+  - id: "axiomatic-quantum-mechanics"
+    label: "Axiomatic, Hilbert-space foundation for quantum mechanics"
+    kind: "prior_work"
+    evidence_sources:
+      - "Mathematical Foundations of Quantum Mechanics (1932/1955)"
+  - id: "computer-brain-analogy-limits"
+    label: "Analogy and disanalogy between digital computers and biological neurons"
+    kind: "open_problem"
+    evidence_sources:
+      - "The Computer and the Brain (Silliman Lectures, Yale 1958)"
 ---
 
 ## Voice & tone

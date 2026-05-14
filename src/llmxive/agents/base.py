@@ -37,6 +37,19 @@ class AgentContext:
     inputs: list[str]
     expected_outputs: list[str] = field(default_factory=list)
     metadata: dict[str, str] = field(default_factory=dict)
+    # Spec 009 FR-026: activity-feed context block injected by runner BEFORE
+    # any other project-scoped instruction. Empty when no feed is available
+    # (e.g. project has no activity.jsonl yet).
+    feed_context: str = ""
+    # Spec 009 FR-027/FR-028: ULID identifying this dispatch; required to be
+    # echoed back in the agent's comments-considered manifest.
+    dispatch_id: str = ""
+    # Spec 009 FR-031: True iff the packed feed included a "[truncated N earlier
+    # items]" marker; the agent's manifest MUST acknowledge truncation when set.
+    feed_truncated: bool = False
+    # Spec 009 FR-033: ISO 8601 snapshot timestamp of the feed delivered to the
+    # agent — used by the post-tick validator to detect concurrent-write races.
+    feed_snapshot_at: str = ""
 
 
 class Agent(abc.ABC):

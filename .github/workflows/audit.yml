@@ -1,0 +1,113 @@
+name: audit
+
+# This workflow runs the four spec-009 auditors on every push and PR.
+# It does NOT consume any untrusted PR/issue input in run: commands — every
+# `run:` step works against the checked-out repository state only.
+
+on:
+  push:
+    branches: [main, '009-quality-fixes-pass']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit-speckit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install package
+        run: pip install -e .
+      - name: Run template-vs-real auditor (FR-011)
+        run: python -m llmxive.audit.cli speckit --projects-dir projects --templates-dir .specify/templates
+      - name: Fail on any template-classified artifact
+        run: |
+          python - <<'PY'
+          import json, glob, sys
+          manifests = sorted(glob.glob('.audit/template_vs_real/*.json'))
+          if not manifests:
+              sys.exit(0)
+          m = json.load(open(manifests[-1]))
+          tmpl = m['summary'].get('by_classification', {}).get('template', 0)
+          if tmpl > 0:
+              print(f"FAIL: {tmpl} template-classified artifact(s) remain")
+              sys.exit(1)
+          print("OK: zero template artifacts")
+          PY
+
+  audit-pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install package
+        run: pip install -e .
+      - name: Install poppler
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - name: Run PDF auditor (FR-022, SC-005)
+        run: python -m llmxive.audit.cli pdf --papers-dir papers
+      - name: Fail if any registered paper now has defects
+        run: |
+          python - <<'PY'
+          import json, glob, sys, pathlib
+          reg = pathlib.Path('papers/.supported.json')
+          if not reg.exists():
+              print("no registry yet — skipping")
+              sys.exit(0)
+          r = json.loads(reg.read_text())
+          manifests = sorted(glob.glob('.audit/pdf/*.json'))
+          if not manifests:
+              sys.exit(0)
+          m = json.load(open(manifests[-1]))
+          registered_paths = {e['pdf_path'] for e in r.get('entries', [])}
+          failing = [i for i in m['items'] if i.get('target') in registered_paths and i.get('classification') == 'fails']
+          if failing:
+              print(f"FAIL: {len(failing)} registered paper(s) regressed")
+              for f in failing[:5]:
+                  print(f"  - {f['target']}: {len(f.get('defects', []))} defect(s)")
+              sys.exit(1)
+          print("OK: registry green")
+          PY
+
+  audit-personality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install package
+        run: pip install -e .
+      - name: Run personality rubric auditor
+        run: python -m llmxive.audit.cli personality --personalities-dir agents/prompts/personalities
+      - name: Verify persona evidence URLs (T022a, Constitution II)
+        run: |
+          if [ -f scripts/verify_persona_evidence.py ]; then
+            python scripts/verify_persona_evidence.py agents/prompts/personalities
+          else
+            echo "verify_persona_evidence.py not yet present - passing"
+          fi
+
+  audit-feedback-loop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install package
+        run: pip install -e .
+      - name: Run feedback-loop auditor (FR-034)
+        run: python -m llmxive.audit.cli feedback_loop --projects-dir projects --since 7d

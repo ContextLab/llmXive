@@ -112,6 +112,9 @@ class PaperSpecifierAgent(SlashCommandAgent):
         feature_dir.mkdir(parents=True, exist_ok=True)
         spec_path = feature_dir / "spec.md"
         spec_path.write_text(llm_response.text.strip() + "\n", encoding="utf-8")
+        # FR-009: real-only guard — refuse template paper spec emissions
+        from llmxive.speckit._real_only_guard import guard_emit
+        guard_emit(spec_path, repo_root=repo)
         # Persist speckit_paper_dir on project state so the validator
         # accepts the `paper_specified` stage transition.
         from llmxive.state import project as project_store

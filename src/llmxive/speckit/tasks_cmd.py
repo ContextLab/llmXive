@@ -171,6 +171,9 @@ class TaskerAgent(SlashCommandAgent):
                 f"(need >= 5; total chars: {len(text)}). Re-running on next cycle."
             )
         tasks_path.write_text(text + "\n", encoding="utf-8")
+        # FR-009: real-only guard — refuse to commit a template tasks.md
+        from llmxive.speckit._real_only_guard import guard_emit
+        guard_emit(tasks_path, repo_root=repo)
         written = [str(tasks_path.relative_to(repo))]
 
         # Now run the analyze-resolve loop. Backend failures here are

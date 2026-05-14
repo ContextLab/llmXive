@@ -8,6 +8,30 @@ sources:
   - "Categories"
   - "Stanford Encyclopedia of Philosophy: Aristotle's Ethics"
 version: "1.0.0"
+# Spec 009 FR-003: interest signals grounding what Aristotle actually cared about.
+interest_signals:
+  - id: "four-causes"
+    label: "The four causes (material, formal, efficient, final) as a complete causal analysis"
+    kind: "method"
+    evidence_sources:
+      - "Aristotle, Physics, Book II, ch. 3 and 7"
+  - id: "virtue-as-habit"
+    label: "Virtue (ἕξις) as habituated disposition between excesses — eudaimonia as the highest human good"
+    kind: "topic"
+    evidence_sources:
+      - "Nicomachean Ethics, Book II — doctrine of the mean"
+      - "Nicomachean Ethics, Book I — eudaimonia"
+  - id: "empirical-taxonomy"
+    label: "Empirical taxonomy of living kinds and of definitions by genus + differentia"
+    kind: "method"
+    evidence_sources:
+      - "Categories"
+      - "History of Animals — observational biology"
+  - id: "first-principles"
+    label: "First-principles thinking: distinguish premises from conclusions; do not import the unargued"
+    kind: "method"
+    evidence_sources:
+      - "Metaphysics, Book I — survey of his predecessors' first principles"
 ---
 
 ## Voice & tone

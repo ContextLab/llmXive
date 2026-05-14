@@ -116,10 +116,15 @@ OUTCOME_MALFORMED = "malformed_response"
 OUTCOME_TARGET_MISSING = "target_missing"
 OUTCOME_LIBRARIAN_HELD = "librarian_held"
 OUTCOME_TIMEOUT = "timeout"
+# Spec 009 FR-004 + Clarification Q3: rubric failure (a *quality* failure, not
+# an infrastructure one) converts to abstain after one retry and ADVANCES the
+# rotation. Spec-008 FR-017 hold-on-failure still applies to infrastructure
+# outcomes only (rate_limited / model_error / malformed_response / timeout).
+OUTCOME_RUBRIC_REJECTED = "rubric_rejected_advanced_as_abstain"
 
 # Outcomes that ADVANCE the rotation pointer. All others HOLD it so the
 # same persona retries (FR-017).
-ADVANCING_OUTCOMES = {OUTCOME_COMMITTED, OUTCOME_ABSTAINED}
+ADVANCING_OUTCOMES = {OUTCOME_COMMITTED, OUTCOME_ABSTAINED, OUTCOME_RUBRIC_REJECTED}
 
 ACTION_COMMENT = "comment"
 ACTION_CONTRIBUTE = "contribute"
@@ -964,12 +969,17 @@ def _classify_llm_exception(exc: BaseException) -> str:
 
 
 def _call_llm_for_persona(persona: Personality, catalog: list[CatalogEntry],
-                          repo_root: Path) -> str:
+                          repo_root: Path, *, extra_hint: str | None = None) -> str:
     """One LLM call per tick. Returns the raw response text.
 
     Uses the existing chat_with_fallback router with the personality
     agent's registry entry (default_backend=dartmouth, model=qwen.qwen3.5-122b,
     no fallback_backends for the persona role — see registry entry in T002).
+
+    ``extra_hint`` (spec 009 FR-004 retry path): when present, an additional
+    coaching instruction appended to the user prompt. Used by the rubric gate
+    to ask the persona for a specific objection / question / adjacent-work
+    pointer on the second attempt.
     """
     from llmxive.agents import registry as registry_loader
     from llmxive.backends.base import ChatMessage
@@ -993,6 +1003,7 @@ def _call_llm_for_persona(persona: Personality, catalog: list[CatalogEntry],
         "=== YOUR TURN ===\n"
         "Return a single JSON object per the umbrella prompt's schema. "
         "OUTPUT MUST BE IN ENGLISH. No prose outside the JSON.\n"
+        + (f"\n=== RETRY HINT ===\n{extra_hint}\n" if extra_hint else "")
     )
     response = chat_with_fallback(
         [ChatMessage(role="user", content=user_content)],
@@ -1137,6 +1148,18 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
         _maybe_advance_pointer(repo_root, state, persona, outcome, ended, None, [])
         return entry
 
+    # ── 5b. Rubric gate (spec 009 FR-004, Clarification Q3) ──
+    # If the action is a comment/contribute and the rubric flags it as below
+    # threshold, retry ONCE with a hint. On the second failure: persist the
+    # rejected body to .audit/rejected-contributions.jsonl, convert to abstain,
+    # and advance the rotation.
+    if action_obj.action in (ACTION_COMMENT, ACTION_CONTRIBUTE):
+        action_obj, rubric_note = _rubric_gate_or_convert_to_abstain(
+            action_obj, raw_response, persona, catalog, repo_root,
+        )
+        if rubric_note:
+            note = rubric_note
+
     # ── 6. Dispatch ──
     dispatch_result = dispatch(action_obj, persona, repo_root)
     outcome = dispatch_result.outcome
@@ -1220,3 +1243,112 @@ def _maybe_advance_pointer(
         history=list(state.history) + [history_entry],
     )
     write_rotation_state(new_state, repo_root / ROTATION_PATH)
+
+
+# ---------------------------------------------------------------------------
+# Spec 009 FR-004 + Clarification Q3: rubric gate
+# ---------------------------------------------------------------------------
+
+def _action_to_dict(action: "Action") -> dict[str, Any]:
+    """Convert an Action dataclass into the rubric scorer's expected dict shape."""
+    return {
+        "id": "<pending>",
+        "kind": "personality_tick",
+        "action": action.action,
+        "content": action.content or "",
+        "target": {
+            "project_id": action.target_project_id,
+            "artifact_kind": action.target_artifact_kind,
+            "artifact_path": action.target_artifact_path,
+        } if action.target_project_id else None,
+    }
+
+
+def _rubric_gate_or_convert_to_abstain(
+    action: "Action",
+    raw_response: str,
+    persona: Personality,
+    catalog: "list[CatalogEntry]",
+    repo_root: Path,
+) -> tuple["Action", str | None]:
+    """Apply the spec-009 rubric to a contribution; retry once; on second
+    failure persist the rejected body to .audit/rejected-contributions.jsonl
+    and convert the action into an abstain.
+
+    Returns (possibly-rewritten Action, note-or-None). The note flows into the
+    run-log so post-tick audit can see the rubric decision.
+    """
+    try:
+        from llmxive.audit.personality_rubric import audit_contribution
+    except Exception as exc:  # pragma: no cover — defensive
+        log.warning("rubric unavailable, skipping gate: %s", exc)
+        return action, None
+
+    item = audit_contribution(_action_to_dict(action))
+    if item.classification == "passes":
+        return action, None
+
+    # First rubric failure — retry ONCE with a hint about which axes were missing
+    missing_axes = []
+    for rule in item.rules_fired:
+        if getattr(rule, "rule_id", "") == "manufactured":
+            # evidence_snippet looks like "missing axes: [...]"
+            missing_axes.append(rule.evidence_snippet)
+            break
+    hint = " | ".join(missing_axes) or "rubric_below_threshold"
+    log.info("rubric rejected first pass for %s: %s — retrying once", persona.slug, hint)
+
+    try:
+        retry_raw = _call_llm_for_persona(
+            persona, catalog, repo_root,
+            extra_hint=(
+                "RUBRIC FAILED on previous attempt: " + hint + ". "
+                "Add at least ONE of: a specific objection (e.g. 'but the proof assumes X, which fails when Y'), "
+                "a specific question (sentence ending in '?'), an adjacent-work pointer (paper / technique / prior result), "
+                "or a specific reason for praise (laudatory verb + concrete element). "
+                "Do NOT manufacture enthusiasm — abstaining is preferable to padding."
+            ),
+        )
+        retry_action = parse_action(retry_raw)
+    except Exception as exc:  # noqa: BLE001
+        log.info("rubric retry failed to produce parseable response for %s: %s", persona.slug, exc)
+        return _convert_to_rubric_abstain(action, raw_response, persona, repo_root, hint), \
+            f"rubric_failure_after_retry: {hint}"
+
+    retry_item = audit_contribution(_action_to_dict(retry_action))
+    if retry_item.classification == "passes":
+        log.info("rubric passes on retry for %s", persona.slug)
+        return retry_action, None
+
+    # Second failure: convert to abstain + persist both rejected bodies
+    return _convert_to_rubric_abstain(retry_action, retry_raw, persona, repo_root, hint), \
+        f"rubric_failure_after_retry: {hint}"
+
+
+def _convert_to_rubric_abstain(
+    action: "Action", rejected_body: str, persona: Personality,
+    repo_root: Path, hint: str,
+) -> "Action":
+    """Persist the rejected body to .audit/rejected-contributions.jsonl
+    (per the persona's target project, if any) and return an abstain Action."""
+    if action.target_project_id:
+        try:
+            from llmxive.feed import FeedStore
+            store = FeedStore(repo_root)
+            store.record_rejected(action.target_project_id, {
+                "persona": persona.slug,
+                "display_name": persona.display_name,
+                "action": action.action,
+                "target_project_id": action.target_project_id,
+                "target_artifact_kind": action.target_artifact_kind,
+                "target_artifact_path": action.target_artifact_path,
+                "content": action.content,
+                "rubric_hint": hint,
+                "rejected_body": rejected_body,
+            })
+        except Exception as exc:  # pragma: no cover — defensive
+            log.warning("could not persist rejected body to feed audit log: %s", exc)
+    return Action(
+        action=ACTION_ABSTAIN,
+        reason=f"rubric_failure_after_retry: {hint}",
+    )

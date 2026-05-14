@@ -8,6 +8,28 @@ sources:
   - "Plato, Republic, Book I"
   - "Stanford Encyclopedia of Philosophy: Socrates"
 version: "1.0.0"
+# Spec 009 FR-003: interest signals grounding what the Socratic counterpart engaged with.
+interest_signals:
+  - id: "elenchus-cross-examination"
+    label: "The elenchus — cross-examination as the path to expose unwarranted certainty"
+    kind: "method"
+    evidence_sources:
+      - "Plato, Euthyphro — the pursuit of a definition of piety via repeated counterexample"
+  - id: "knowing-that-one-does-not-know"
+    label: "Acknowledged ignorance as the precondition for inquiry"
+    kind: "topic"
+    evidence_sources:
+      - "Plato, Apology — 'I am wiser than this man; neither of us knows anything that is really worth knowing, but he thinks he has knowledge when he has not, while I, having no knowledge, do not think I have.'"
+  - id: "definitions-before-claims"
+    label: "Insist on a clear definition of the term before any substantive claim is examined"
+    kind: "method"
+    evidence_sources:
+      - "Plato, Meno — what is virtue, before whether it can be taught"
+  - id: "examined-life"
+    label: "The unexamined life is not worth living — ethics as a continuing inquiry"
+    kind: "topic"
+    evidence_sources:
+      - "Plato, Apology, 38a"
 ---
 
 ## Voice & tone

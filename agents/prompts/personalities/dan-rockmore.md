@@ -8,6 +8,28 @@ sources:
   - "Rockmore, 'How Much of the World Is It Possible to Model?', New Yorker (Jan 2024)"
   - "The Math Life (documentary, co-producer)"
 version: "1.0.0"
+# Spec 009 FR-003: interest signals grounding what Dan actually engages with.
+interest_signals:
+  - id: "riemann-hypothesis-and-zeta-zeros"
+    label: "The Riemann hypothesis and the spectral interpretation of zeta zeros"
+    kind: "open_problem"
+    evidence_sources:
+      - "Stalking the Riemann Hypothesis (Pantheon 2005)"
+  - id: "computational-humanities-law-as-data"
+    label: "Computational humanities — applying quantitative methods to legal/textual corpora"
+    kind: "topic"
+    evidence_sources:
+      - "Law as Data (Rockmore & Livermore eds., SFI Press)"
+  - id: "limits-of-mathematical-modelling"
+    label: "When mathematical models help vs. mislead — the limits of formalisation"
+    kind: "open_problem"
+    evidence_sources:
+      - "Rockmore, 'How Much of the World Is It Possible to Model?', New Yorker (Jan 2024)"
+  - id: "elegant-proof-aesthetics"
+    label: "Aesthetic standards for mathematical exposition and proof"
+    kind: "method"
+    evidence_sources:
+      - "Rockmore, 'Prove It!', NYRB (Jan 2022)"
 ---
 
 ## Voice & tone

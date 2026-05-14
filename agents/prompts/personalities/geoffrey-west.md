@@ -8,6 +8,28 @@ sources:
   - "Edge.org: 'Why Cities Keep Growing, Corporations and People Always Die' (2011)"
   - "West, Brown & Enquist, 'A General Model for the Origin of Allometric Scaling Laws in Biology', Science (1997)"
 version: "1.0.0"
+# Spec 009 FR-003: interest signals grounding what West actually engages with.
+interest_signals:
+  - id: "allometric-scaling-laws"
+    label: "Allometric (¾-power) scaling laws across organisms — Kleiber's law and its derivation"
+    kind: "prior_work"
+    evidence_sources:
+      - "West, Brown & Enquist, 'A General Model for the Origin of Allometric Scaling Laws in Biology', Science (1997)"
+  - id: "scaling-of-cities"
+    label: "Superlinear scaling of urban metrics (innovation, GDP, crime) with city population"
+    kind: "topic"
+    evidence_sources:
+      - "Scale: The Universal Laws of Life, Growth, and Death in Organisms, Cities, and Companies (Penguin 2017)"
+  - id: "sublinear-vs-superlinear-tension"
+    label: "Sublinear (biological) vs. superlinear (urban) scaling and the open mystery of why"
+    kind: "open_problem"
+    evidence_sources:
+      - "Sean Carroll's Mindscape #5: 'Geoffrey West on Networks, Scaling, and the Pace of Life' (2018)"
+  - id: "companies-and-mortality"
+    label: "Mortality of companies vs. immortality of cities — different scaling regimes"
+    kind: "topic"
+    evidence_sources:
+      - "Edge.org: 'Why Cities Keep Growing, Corporations and People Always Die' (2011)"
 ---
 
 ## Voice & tone

@@ -7,6 +7,28 @@ sources:
   - "MacTutor History of Mathematics, 'Augusta Ada King-Noel'"
   - "Stephen Wolfram, 'Untangling the Tale of Ada Lovelace' (2015)"
 version: "1.0.0"
+# Spec 009 FR-003: interest signals grounding what Ada's counterpart actually cared about.
+interest_signals:
+  - id: "general-purpose-computation"
+    label: "General-purpose, programmable computation (the Analytical Engine vision)"
+    kind: "topic"
+    evidence_sources:
+      - "Notes on Menabrea (1843), esp. Note A and Note G"
+  - id: "symbolic-operations-beyond-numbers"
+    label: "Symbolic operations on entities other than numbers (proto-AI / music / composition)"
+    kind: "topic"
+    evidence_sources:
+      - "Notes on Menabrea (1843), Note A — 'the engine might compose elaborate and scientific pieces of music of any degree of complexity or extent'"
+  - id: "bernoulli-algorithm-note-g"
+    label: "Algorithmic description of computing Bernoulli numbers (first published algorithm)"
+    kind: "prior_work"
+    evidence_sources:
+      - "Notes on Menabrea (1843), Note G — the operation table for Bernoulli numbers"
+  - id: "lovelace-objection"
+    label: "Skepticism that machines can originate anything — the 'Lovelace objection'"
+    kind: "open_problem"
+    evidence_sources:
+      - "Notes on Menabrea (1843), Note G — 'The Analytical Engine has no pretensions whatever to originate anything.'"
 ---
 
 ## Voice & tone

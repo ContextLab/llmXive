@@ -1,0 +1,187 @@
+"""Template-vs-real auditor (FR-006, FR-007).
+
+Deterministic classifier per research.md §3:
+  1. Literal-template-string density >=3 hits  -> template
+  2. Unfilled [bracket] markers >=40%          -> template
+  3. Body length <60% bodies short             -> partial (escalates with #1)
+  Legacy-migration discriminator (research.md §10) rescues real prose
+  even when templated headings remain.
+
+Outputs an Audit Manifest. Pruning is a separate mode invoked by audit.cli.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+from glob import glob
+from pathlib import Path
+from typing import Any
+
+from . import register
+from .manifest import ManifestItem, RuleFired, add_item, new_manifest
+
+# Literal placeholder strings drawn from .specify/templates/*.md
+# We extract them at runtime so we stay in sync with template evolution.
+PLACEHOLDER_BRACKET_RE = re.compile(r"\[[A-Z][^\]]{2,80}\]")  # [FEATURE NAME], [Brief Title], etc.
+ACTION_REQUIRED_RE = re.compile(r"ACTION REQUIRED:", re.IGNORECASE)
+META_INSTRUCTION_RE = re.compile(
+    r"(fill (?:them|it|this|out|in) (?:out )?with the right|placeholders\?|REMOVE IF UNUSED)",
+    re.IGNORECASE,
+)
+LEGACY_MIGRATION_RE = re.compile(
+    r"\*\*Status\*\*:\s*migrated from legacy technical-design|^\*\*Status\*\*:\s*active",
+    re.MULTILINE,
+)
+
+# H2 + H3 headings to gauge body density
+HEADING_RE = re.compile(r"^(##+)\s+(.*?)$", re.MULTILINE)
+
+
+def _load_template_phrases(templates_dir: Path) -> list[str]:
+    """Pull literal placeholder/meta strings from the template files."""
+    phrases: list[str] = []
+    for tmpl in sorted(templates_dir.glob("*.md")):
+        text = tmpl.read_text()
+        # Take [Bracketed Placeholder] strings
+        phrases.extend(PLACEHOLDER_BRACKET_RE.findall(text))
+        # Take meta-instruction sentences
+        for m in META_INSTRUCTION_RE.finditer(text):
+            phrases.append(m.group(0))
+    # Dedupe; keep stable order
+    seen = set()
+    out: list[str] = []
+    for p in phrases:
+        if p not in seen:
+            seen.add(p)
+            out.append(p)
+    return out
+
+
+def classify(path: Path, templates_dir: Path | None = None) -> tuple[str, list[RuleFired]]:
+    """Classify one artifact as real | partial | template."""
+    text = Path(path).read_text()
+    rules: list[RuleFired] = []
+
+    # Rule 0: legacy migration with substantive body -> always real
+    if LEGACY_MIGRATION_RE.search(text) and len(_strip_md(text)) >= 500:
+        rules.append(RuleFired(
+            rule_id="legacy_migration_discriminator",
+            evidence_snippet=text.splitlines()[2][:200] if len(text.splitlines()) > 2 else "<status>",
+        ))
+        return "real", rules
+
+    # Rule 1: literal template strings
+    template_phrases = _load_template_phrases(templates_dir) if templates_dir else []
+    hits = 0
+    sample_hits: list[str] = []
+    for phrase in template_phrases:
+        if phrase and phrase in text:
+            hits += 1
+            if len(sample_hits) < 3:
+                sample_hits.append(phrase)
+    if hits >= 3:
+        rules.append(RuleFired(
+            rule_id="literal_template_phrases>=3",
+            evidence_snippet=f"hits={hits}; sample={sample_hits}",
+        ))
+        # Also check action-required meta-instructions
+        if ACTION_REQUIRED_RE.search(text):
+            rules.append(RuleFired(
+                rule_id="action_required_marker_present",
+                evidence_snippet="<ACTION REQUIRED block remains>",
+            ))
+        return "template", rules
+
+    # Rule 2: unfilled bracket density
+    brackets = PLACEHOLDER_BRACKET_RE.findall(text)
+    if brackets and len(brackets) >= 6:
+        # treat >=6 unfilled bracket placeholders as template
+        rules.append(RuleFired(
+            rule_id="unfilled_bracket_density",
+            evidence_snippet=f"{len(brackets)} bracket markers; sample={brackets[:3]}",
+        ))
+        return "template", rules
+
+    # Rule 3: section-body density
+    short_bodies, total_bodies = _body_density(text)
+    if total_bodies >= 3 and short_bodies / total_bodies >= 0.6:
+        rules.append(RuleFired(
+            rule_id="body_density_short>=60pct",
+            evidence_snippet=f"{short_bodies}/{total_bodies} sections <20 chars",
+        ))
+        # Escalate to template if rule 1 also fired -> already returned above
+        return "partial", rules
+
+    # Default: real
+    rules.append(RuleFired(rule_id="default_real", evidence_snippet="no template signal"))
+    return "real", rules
+
+
+def _body_density(text: str) -> tuple[int, int]:
+    """Count (short, total) section bodies between H2+ headings."""
+    headings = list(HEADING_RE.finditer(text))
+    if not headings:
+        return 0, 0
+    short = 0
+    total = 0
+    for i, h in enumerate(headings):
+        body_start = h.end()
+        body_end = headings[i + 1].start() if i + 1 < len(headings) else len(text)
+        body = text[body_start:body_end].strip()
+        # strip code fences + HTML comments
+        body = re.sub(r"```.*?```", "", body, flags=re.S)
+        body = re.sub(r"<!--.*?-->", "", body, flags=re.S)
+        body_clean = re.sub(r"\s+", " ", body).strip()
+        if len(body_clean) < 20:
+            short += 1
+        total += 1
+    return short, total
+
+
+def _strip_md(text: str) -> str:
+    """Strip markdown for body-length heuristics (rule 0)."""
+    text = re.sub(r"```.*?```", "", text, flags=re.S)
+    text = re.sub(r"<!--.*?-->", "", text, flags=re.S)
+    text = re.sub(r"^#+\s+.*$", "", text, flags=re.M)
+    text = re.sub(r"\[[^\]]{0,80}\]", "", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def audit(*, projects_dir: Path | str, templates_dir: Path | str, repo_root: Path | str = ".", **_: Any) -> dict:
+    repo_root = Path(repo_root).resolve()
+    projects_dir = Path(projects_dir).resolve()
+    templates_dir = Path(templates_dir).resolve()
+    if not projects_dir.exists():
+        raise FileNotFoundError(f"projects_dir does not exist: {projects_dir}")
+    if not templates_dir.exists():
+        raise FileNotFoundError(f"templates_dir does not exist: {templates_dir}")
+
+    manifest = new_manifest("template_vs_real")
+
+    artifacts = sorted(
+        [p.resolve() for p in projects_dir.glob("PROJ-*/specs/**/*.md")]
+        + [p.resolve() for p in projects_dir.glob("PROJ-*/specs/**/*.yaml")]
+        + [p.resolve() for p in projects_dir.glob("PROJ-*/specs/**/*.yml")]
+    )
+
+    def _rel(p: Path) -> str:
+        try:
+            return str(p.relative_to(repo_root))
+        except ValueError:
+            return str(p)
+
+    manifest["inputs_scanned"] = [_rel(p) for p in artifacts]
+
+    for art in artifacts:
+        cls, rules = classify(art, templates_dir=templates_dir)
+        add_item(manifest, ManifestItem(
+            target=_rel(art),
+            rules_fired=rules,
+            classification=cls,
+        ))
+
+    return manifest
+
+
+register("template_vs_real", audit)

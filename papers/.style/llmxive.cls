@@ -636,4 +636,51 @@
     \end{tikzpicture}}
 \fi
 
+%% =====================================================================
+%% Spec 009 additions (FR-015, FR-016, FR-020)
+%% Bounded figure widths, canonical author block, fail-loud on unsupported.
+%% =====================================================================
+
+%% FR-015: \figwidth{narrow|column|full} -> sets the next \includegraphics width.
+%% Used by the deterministic restyle pipeline (src/llmxive/pipeline/pdf_pipeline/
+%% normalize_figures.py) which rewrites every \includegraphics to a bounded set.
+\newlength{\llmx@figw}
+\newcommand{\figwidth}[1]{%
+  \def\llmx@figw@arg{#1}%
+  \ifx\llmx@figw@arg\@empty
+    \setlength{\llmx@figw}{\linewidth}%
+  \else
+    \edef\llmx@figw@narrow{narrow}%
+    \edef\llmx@figw@column{column}%
+    \edef\llmx@figw@full{full}%
+    \ifx\llmx@figw@arg\llmx@figw@narrow
+      \setlength{\llmx@figw}{0.45\linewidth}%
+    \else\ifx\llmx@figw@arg\llmx@figw@column
+      \setlength{\llmx@figw}{\linewidth}%
+    \else\ifx\llmx@figw@arg\llmx@figw@full
+      \setlength{\llmx@figw}{\textwidth}%
+    \else
+      \setlength{\llmx@figw}{\linewidth}%
+    \fi\fi\fi
+  \fi
+  \llmx@figw
+}
+
+%% FR-016: canonical author block.
+%% \authorblock{Name1, Name2}{Affiliation 1; Affiliation 2}{email1, orcid1}
+%% Produces a uniform layout regardless of how the arXiv source formatted authors.
+\newcommand{\authorblock}[3]{%
+  \author{#1}%
+  \ifx\\#2\\\else\renewcommand{\llmx@affiliation}{#2}\fi
+  \ifx\\#3\\\else\renewcommand{\llmx@correspondence}{#3}\fi
+}
+
+%% FR-020: \unsupportedblock{<construct>}{<body>} fails loudly so the pipeline
+%% explicitly surfaces an unsupported construct rather than silently rendering
+%% raw text. The deterministic restyle pipeline wraps unsupported environments
+%% in this macro.
+\newcommand{\unsupportedblock}[2]{%
+  \PackageError{llmxive}{Unsupported construct: #1}{The llmxive class does not yet support the construct named "#1". The deterministic pdf_pipeline marked it for explicit attention. Either add support to llmxive.cls or exclude this paper from the supported-PDFs registry. Body was: #2}%
+}
+
 \endinput
