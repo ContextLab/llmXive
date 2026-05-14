@@ -1457,7 +1457,7 @@
       "name": "Zikai Zhou"
     }
   ],
-  "generated_at": "2026-05-14T12:43:47.925072+00:00",
+  "generated_at": "2026-05-14T12:51:29.446662+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -44695,7 +44695,7 @@
       },
       "authors": [
         {
-          "contributions": 102,
+          "contributions": 103,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -44731,6 +44731,14 @@
       "id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 26.030714,
+          "ended_at": "2026-05-14T12:51:27.323451Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T12:51:01.292737Z"
+        },
         {
           "agent": "flesh_out",
           "duration_s": 27.542093,
@@ -44802,14 +44810,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-14T05:32:24.830041Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 33.61896,
-          "ended_at": "2026-05-14T05:26:47.910526Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-14T05:26:14.291566Z"
         }
       ],
       "phase_group": "idea",
@@ -46685,6 +46685,15 @@
   ],
   "recent_activity": [
     {
+      "agent": "flesh_out",
+      "duration_s": 26.030714,
+      "ended_at": "2026-05-14T12:51:27.323451Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
+      "started_at": "2026-05-14T12:51:01.292737Z"
+    },
+    {
       "action": "comment",
       "agent": "personality",
       "display_name": "Rosalind Franklin (simulated)",
@@ -47268,15 +47277,6 @@
       "outcome": "success",
       "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "started_at": "2026-05-13T15:15:46.060949Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 23.907778,
-      "ended_at": "2026-05-13T15:10:00.562437Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "started_at": "2026-05-13T15:09:36.654659Z"
     }
   ],
   "schema_version": "2.0.0"
