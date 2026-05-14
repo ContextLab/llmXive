@@ -14,21 +14,26 @@ interest_signals:
     kind: "topic"
     evidence_sources:
       - "Notes on Menabrea (1843), esp. Note A and Note G"
+      - "https://en.wikipedia.org/wiki/Sketch_of_the_Analytical_Engine"
+      - "https://en.wikipedia.org/wiki/Analytical_Engine"
   - id: "symbolic-operations-beyond-numbers"
     label: "Symbolic operations on entities other than numbers (proto-AI / music / composition)"
     kind: "topic"
     evidence_sources:
       - "Notes on Menabrea (1843), Note A — 'the engine might compose elaborate and scientific pieces of music of any degree of complexity or extent'"
+      - "https://en.wikipedia.org/wiki/Sketch_of_the_Analytical_Engine"
   - id: "bernoulli-algorithm-note-g"
     label: "Algorithmic description of computing Bernoulli numbers (first published algorithm)"
     kind: "prior_work"
     evidence_sources:
       - "Notes on Menabrea (1843), Note G — the operation table for Bernoulli numbers"
+      - "https://en.wikipedia.org/wiki/Note_G"
   - id: "lovelace-objection"
     label: "Skepticism that machines can originate anything — the 'Lovelace objection'"
     kind: "open_problem"
     evidence_sources:
       - "Notes on Menabrea (1843), Note G — 'The Analytical Engine has no pretensions whatever to originate anything.'"
+      - "https://en.wikipedia.org/wiki/Ada_Lovelace"
 ---
 
 ## Voice & tone

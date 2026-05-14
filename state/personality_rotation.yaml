@@ -1,5 +1,5 @@
-last_used: marie-curie
-last_used_at: '2026-05-14T11:16:37.840359+00:00'
+last_used: ada-lovelace
+last_used_at: '2026-05-14T15:26:28.967166+00:00'
 last_outcome: committed
 history:
 - slug: ada-lovelace
@@ -58,3 +58,28 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-542-predicting-defect-formation-energies-in-/reviews/research/marie-curie-simulated__2026-05-14__research.md
+- slug: rosalind-franklin
+  started_at: '2026-05-14T11:16:37.840359+00:00'
+  ended_at: '2026-05-14T15:22:04.391685+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-544-predicting-the-glass-forming-region-of-m/reviews/research/rosalind-franklin-simulated__2026-05-14__research.md
+- slug: socrates
+  started_at: '2026-05-14T15:22:04.391685+00:00'
+  ended_at: '2026-05-14T15:23:39.592131+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-545-the-influence-of-visual-salience-on-atte/reviews/research/socrates-simulated__2026-05-14__research.md
+- slug: ada-lovelace
+  started_at: '2026-05-14T15:23:39.592131+00:00'
+  ended_at: '2026-05-14T15:25:05.274446+00:00'
+  outcome: malformed_response
+- slug: ada-lovelace
+  started_at: '2026-05-14T15:25:05.274446+00:00'
+  ended_at: '2026-05-14T15:26:28.967166+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research/ada-lovelace-simulated__2026-05-14__research.md

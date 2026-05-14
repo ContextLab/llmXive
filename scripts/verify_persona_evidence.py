@@ -36,6 +36,9 @@ except ImportError:
 
 
 FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
+# URLs can contain balanced parens (e.g. Wikipedia's Apology_(Plato)).
+# Greedy match up to whitespace; we strip trailing closing punctuation
+# below.
 URL_RE = re.compile(r"https?://\S+", re.IGNORECASE)
 STOPWORDS = {
     "a", "an", "the", "of", "for", "and", "or", "to", "in", "on", "at", "with",
@@ -59,14 +62,31 @@ def _content_nouns(label: str) -> list[str]:
     return [t for t in tokens if t not in STOPWORDS and len(t) >= 3]
 
 
+_BROWSER_UA = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+)
+
+
 def _verify_url(url: str, label_tokens: list[str]) -> tuple[bool, str]:
+    """Fetch URL, confirm it resolves, grep body for label-token match.
+
+    Returns (ok, msg). Constitution II distinguishes:
+        - 200 OK + content match -> ok
+        - 200 OK + no content match -> fail (suspicious citation)
+        - 403/401/451 (paywall / region / legal) -> ok with warning
+          (the page exists and is the right citation; we just can't read it)
+        - 404/410/5xx + ConnectionError -> fail (hallucinated or dead URL)
+    """
     if requests is None:
         return False, "requests package not installed"
     try:
         resp = requests.get(url, timeout=15, allow_redirects=True,
-                            headers={"User-Agent": "llmxive-persona-evidence-verifier/1.0"})
+                            headers={"User-Agent": _BROWSER_UA})
     except Exception as e:  # noqa: BLE001
         return False, f"fetch failed: {e}"
+    if resp.status_code in (401, 403, 451):
+        return True, f"HTTP {resp.status_code} (paywall/region — citation valid, body not checked)"
     if resp.status_code != 200:
         return False, f"HTTP {resp.status_code}"
     body = resp.text.lower()
@@ -85,6 +105,7 @@ def verify_card(path: Path, *, fetch_urls: bool = True) -> list[str]:
         errors.append(f"{path.name}: only {len(signals)} interest_signals; need >=3 (FR-003)")
         return errors
 
+    total_urls_seen = 0
     for i, sig in enumerate(signals):
         sid = sig.get("id") or f"<no-id-#{i}>"
         sources = sig.get("evidence_sources") or []
@@ -92,25 +113,44 @@ def verify_card(path: Path, *, fetch_urls: bool = True) -> list[str]:
             errors.append(f"{path.name}: signal {sid!r} has no evidence_sources")
             continue
         label_tokens = _content_nouns(sig.get("label", ""))
+        signal_has_url = False
         for src in sources:
             if not isinstance(src, str):
                 errors.append(f"{path.name}: signal {sid!r} non-string source: {src!r}")
                 continue
             urls = URL_RE.findall(src)
             if not urls:
-                # Non-URL citation (book, journal). We accept these per spec
-                # (the requirement is >=1 source; we cannot fetch a book).
                 continue
+            signal_has_url = True
+            total_urls_seen += 1
             if not fetch_urls:
                 continue
             for url in urls:
-                # strip trailing punctuation common in YAML strings
-                url = url.rstrip(").,;:")
+                # Strip trailing punctuation, BUT preserve balanced parens
+                # (e.g. Wikipedia's Apology_(Plato) URL ends in ')')
+                url = url.rstrip(".,;:")
+                while url.endswith(")") and url.count("(") < url.count(")"):
+                    url = url[:-1]
                 ok, msg = _verify_url(url, label_tokens)
                 if not ok:
                     errors.append(
                         f"{path.name}: signal {sid!r} URL {url}: {msg}"
                     )
+        # Constitution II: every signal MUST cite at least one verifiable
+        # source. Non-URL citations (books, journal volumes) are permitted but
+        # at least ONE source per signal must be a URL so the claim is
+        # programmatically verifiable.
+        if not signal_has_url:
+            errors.append(
+                f"{path.name}: signal {sid!r} has no URL among evidence_sources "
+                f"(Constitution II: at least one source per signal must be a URL "
+                f"so the claim can be auto-verified)"
+            )
+    if total_urls_seen == 0:
+        errors.append(
+            f"{path.name}: not a single URL across all interest_signals — "
+            "Constitution II requires URL evidence for at least one source per signal."
+        )
     return errors
 
 

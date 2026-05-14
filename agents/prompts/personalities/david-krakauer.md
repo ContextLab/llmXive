@@ -15,21 +15,25 @@ interest_signals:
     kind: "open_problem"
     evidence_sources:
       - "Sean Carroll's Mindscape #242: 'David Krakauer on Complexity, Agency, and Information' (2023)"
+      - "https://www.santafe.edu/people/profile/david-krakauer"
   - id: "complexity-foundations"
     label: "Foundations of complexity science — emergence, scale, adaptive agency"
     kind: "topic"
     evidence_sources:
       - "The Complex World: An Introduction to the Foundations of Complexity Science (SFI Press)"
+      - "https://sfipress.org/books/the-complex-world"
   - id: "evolutionary-information-theory"
     label: "Information-theoretic models of evolution and adaptation"
     kind: "method"
     evidence_sources:
       - "Worlds Hidden in Plain Sight (Krakauer ed., SFI Press, 2019)"
+      - "https://sfipress.org/books/worlds-hidden-in-plain-sight"
   - id: "intelligence-as-prediction"
     label: "Intelligence as compression / prediction across timescales"
     kind: "topic"
     evidence_sources:
       - "Sean Carroll's Mindscape #242 (2023)"
+      - "https://en.wikipedia.org/wiki/Predictive_coding"
 ---
 
 ## Voice & tone

@@ -65,11 +65,17 @@ def _ratio_to_bucket(ratio: float) -> str:
 
 
 def _rewrite_options(opts: str, bucket: str) -> str:
-    """Remove width=... and inject a clean width directive for the bucket."""
+    """Remove width=... and inject a clean width directive for the bucket.
+
+    Note on backslashes: these strings end up in LaTeX source as literal
+    `\\linewidth` etc. — so we use SINGLE backslashes here (in raw-string
+    form `r"\\linewidth"` is two chars in Python, which would emit double
+    backslashes to LaTeX). LaTeX wants exactly one.
+    """
     target_width = {
-        "narrow": r"0.45\\linewidth",
-        "column": r"\\linewidth",
-        "full":   r"\\textwidth",
+        "narrow": "0.45\\linewidth",
+        "column": "\\linewidth",
+        "full":   "\\textwidth",
     }[bucket]
     new_opts = WIDTH_OPT_RE.sub("", opts)
     # Clean up adjacent commas left behind by removal
@@ -85,7 +91,8 @@ def normalize(src: str) -> str:
         path = m.group("path")
         wm = WIDTH_OPT_RE.search(opts)
         if not wm:
-            # No width specified — fallback to column
+            # No width specified — fallback to column. Use a SINGLE backslash
+            # in the emitted LaTeX (Python's `\\` here is one literal `\`).
             new_opts = (opts + ",width=\\linewidth").lstrip(",").strip()
             if not new_opts:
                 new_opts = "width=\\linewidth"

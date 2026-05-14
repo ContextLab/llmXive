@@ -1172,6 +1172,43 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
         note=dispatch_result.error,
     )
     _write_run_log_entry(repo_root, entry)
+
+    # ── 6b. Spec 009: append to the project's activity feed + record dispatch ──
+    # Personality ticks bypass the central runner (since they have their own
+    # rotation + dispatch flow), so we mirror runner.py's feed integration
+    # here. This is intentional duplication of the *integration point*, not
+    # of the FeedStore logic itself (Constitution I: FeedStore is still the
+    # single canonical reader/writer).
+    if outcome == OUTCOME_COMMITTED and action_obj.target_project_id:
+        try:
+            from llmxive.feed import FeedStore
+            store = FeedStore(repo_root)
+            feed_item = store.append(action_obj.target_project_id, {
+                "kind": "personality_tick",
+                "author": {
+                    "type": "agent",
+                    "name": persona.slug,
+                    "persona": persona.slug,
+                    "display_name": display,
+                },
+                "summary": (action_obj.reason or "")[:280] or "personality contribution",
+                "body": action_obj.content or "",
+                "target": {
+                    "artifact_path": action_obj.target_artifact_path or "",
+                    "artifact_kind": action_obj.target_artifact_kind or "",
+                } if action_obj.target_project_id else None,
+            })
+            # FR-034 input: record dispatch metadata
+            store.record_dispatch(action_obj.target_project_id, {
+                "dispatch_id": feed_item["id"],
+                "agent": f"personality:{persona.slug}",
+                "feed_delivered": True,
+                "manifest": {"items": []},  # personality tick reads catalog, not feed (yet)
+                "outcome": outcome,
+                "committed_paths": dispatch_result.committed_paths,
+            })
+        except Exception as exc:  # pragma: no cover — defensive
+            log.warning("could not record personality tick to activity feed: %s", exc)
     # Advance the rotation pointer ONLY on committed/abstained; HOLD on
     # everything else (FR-017). Also honor force_slug — testing flag
     # never updates the pointer.

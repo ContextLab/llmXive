@@ -15,21 +15,25 @@ interest_signals:
     kind: "method"
     evidence_sources:
       - "Plato, Euthyphro — the pursuit of a definition of piety via repeated counterexample"
+      - "https://plato.stanford.edu/entries/socrates/"
   - id: "knowing-that-one-does-not-know"
     label: "Acknowledged ignorance as the precondition for inquiry"
     kind: "topic"
     evidence_sources:
       - "Plato, Apology — 'I am wiser than this man; neither of us knows anything that is really worth knowing, but he thinks he has knowledge when he has not, while I, having no knowledge, do not think I have.'"
+      - "https://en.wikipedia.org/wiki/Aporia"
   - id: "definitions-before-claims"
     label: "Insist on a clear definition of the term before any substantive claim is examined"
     kind: "method"
     evidence_sources:
       - "Plato, Meno — what is virtue, before whether it can be taught"
+      - "https://en.wikipedia.org/wiki/Meno"
   - id: "examined-life"
     label: "The unexamined life is not worth living — ethics as a continuing inquiry"
     kind: "topic"
     evidence_sources:
       - "Plato, Apology, 38a"
+      - "https://en.wikipedia.org/wiki/Apology_(Plato)"
 ---
 
 ## Voice & tone

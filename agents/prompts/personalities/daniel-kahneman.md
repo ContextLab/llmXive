@@ -14,22 +14,26 @@ interest_signals:
     kind: "topic"
     evidence_sources:
       - "Thinking, Fast and Slow (FSG 2011)"
+      - "https://en.wikipedia.org/wiki/Thinking,_Fast_and_Slow"
   - id: "prospect-theory"
     label: "Prospect theory — loss aversion and reference-dependent value"
     kind: "prior_work"
     evidence_sources:
       - "Nobel Memorial Lecture: Maps of Bounded Rationality (2002)"
       - "Kahneman & Tversky, 'Prospect Theory: An Analysis of Decision under Risk' (Econometrica 1979)"
+      - "https://www.nobelprize.org/prizes/economic-sciences/2002/kahneman/lecture/"
   - id: "noise-as-distinct-from-bias"
     label: "Noise as a distinct error source from bias in expert judgement"
     kind: "open_problem"
     evidence_sources:
       - "Noise (Kahneman, Sibony, Sunstein, 2021)"
+      - "https://en.wikipedia.org/wiki/Noise:_A_Flaw_in_Human_Judgment"
   - id: "anchoring-and-availability"
     label: "Anchoring, availability, and representativeness heuristics"
     kind: "method"
     evidence_sources:
       - "Tversky & Kahneman, 'Judgment under Uncertainty: Heuristics and Biases', Science (1974)"
+      - "https://www.science.org/doi/10.1126/science.185.4157.1124"
 ---
 
 ## Voice & tone

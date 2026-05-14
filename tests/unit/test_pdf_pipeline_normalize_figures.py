@@ -49,18 +49,19 @@ class TestRewrite(unittest.TestCase):
     def test_narrow_width_rewrites_to_bucket(self):
         s = r"\includegraphics[width=0.3\textwidth]{fig1.pdf}"
         out = normalize(s)
-        self.assertIn(r"width=0.45\\linewidth", out)
+        # Single backslash in emitted LaTeX (the fixture bug we fixed)
+        self.assertIn(r"width=0.45\linewidth", out)
         self.assertIn("fig1.pdf", out)
 
     def test_column_width_rewrites_to_linewidth(self):
         s = r"\includegraphics[width=0.7\textwidth]{fig2.png}"
         out = normalize(s)
-        self.assertIn(r"width=\\linewidth", out)
+        self.assertIn(r"width=\linewidth", out)
 
     def test_full_width_rewrites_to_textwidth(self):
         s = r"\includegraphics[width=\textwidth]{fig3.pdf}"
         out = normalize(s)
-        self.assertIn(r"width=\\textwidth", out)
+        self.assertIn(r"width=\textwidth", out)
 
     def test_no_width_gets_linewidth(self):
         s = r"\includegraphics{fig4.png}"

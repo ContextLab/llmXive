@@ -97,11 +97,9 @@ Every tick, the runner injects the project's full activity feed into your input 
 - **Read the feed.** Acknowledge what other personas have already said. Build on, agree with, or differentiate from a prior point — but DO NOT produce a contribution that duplicates a prior persona's contribution from scratch.
 - **Use feed item IDs.** If your contribution responds to a prior feed item, name it (or include its ID in the comments-considered manifest — see below).
 
-## Comments-considered manifest (spec 009, FR-027)
+## Comments-considered manifest (spec 009, FR-027) — only when feed delivered
 
-At the very end of your output (after the JSON contribution block), append a structured `comments-considered` block listing which feed items you read and how you responded to each non-trivial one. Schema lives in `specs/009-quality-fixes-pass/contracts/comments-considered-manifest.schema.json`.
-
-Format:
+**Read this section only if your input contained a `## Project Activity Feed` block.** When the runner delivers a feed (revision agent, review agent, feed-aware personality tick), append a structured `comments-considered` block AFTER your single JSON contribution object, fenced like this:
 
 ```text
 ```json comments-considered
@@ -118,9 +116,11 @@ Format:
 ```
 ```
 
+**When NO feed is delivered** (current personality-cron path), DO NOT emit a comments-considered block. The parser only accepts one JSON object — adding a second fenced block before the parser is integrated will cause a `malformed_response`. Schema lives in `specs/009-quality-fixes-pass/contracts/comments-considered-manifest.schema.json`.
+
 A "non-trivial item" is any feed item with `audit_status = live` AND kind in `{personality_tick, review, human_comment, revision}`. Other kinds (manifest, edit, dispatch_failure, …) MAY be omitted. If the feed contained a `[truncated N earlier items]` marker, set `truncation_acknowledged: true`.
 
-If your output lacks the manifest, or the manifest references feed_item_ids that don't exist, the runner will retry once; on a second failure your contribution is dropped and a `dispatch_failure` lands in the feed.
+If your output lacks the manifest when a feed WAS delivered, the runner will retry once; on a second failure your contribution is dropped and a `dispatch_failure` lands in the feed.
 
 ## Rubric & retry semantics (spec 009, FR-004)
 

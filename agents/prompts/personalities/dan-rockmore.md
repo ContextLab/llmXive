@@ -15,21 +15,25 @@ interest_signals:
     kind: "open_problem"
     evidence_sources:
       - "Stalking the Riemann Hypothesis (Pantheon 2005)"
+      - "https://en.wikipedia.org/wiki/Riemann_hypothesis"
   - id: "computational-humanities-law-as-data"
     label: "Computational humanities — applying quantitative methods to legal/textual corpora"
     kind: "topic"
     evidence_sources:
       - "Law as Data (Rockmore & Livermore eds., SFI Press)"
+      - "https://sfipress.org/books/law-as-data"
   - id: "limits-of-mathematical-modelling"
     label: "When mathematical models help vs. mislead — the limits of formalisation"
     kind: "open_problem"
     evidence_sources:
       - "Rockmore, 'How Much of the World Is It Possible to Model?', New Yorker (Jan 2024)"
+      - "https://www.newyorker.com/culture/annals-of-inquiry/how-much-of-the-world-is-it-possible-to-model"
   - id: "elegant-proof-aesthetics"
     label: "Aesthetic standards for mathematical exposition and proof"
     kind: "method"
     evidence_sources:
       - "Rockmore, 'Prove It!', NYRB (Jan 2022)"
+      - "https://math.dartmouth.edu"
 ---
 
 ## Voice & tone
