@@ -75,6 +75,7 @@
       <button class="tab"        data-tab="designs"     role="tab"><i class="fa-regular fa-compass"></i> Research specs <span class="count" data-count="designs"></span></button>
       <button class="tab"        data-tab="backlog"     role="tab"><i class="fa-solid fa-diagram-project"></i> Backlog <span class="count" data-count="backlog"></span></button>
       <button class="tab"        data-tab="contributors"role="tab"><i class="fa-regular fa-user"></i> Contributors</button>
+      <button class="tab"        data-tab="activity"    role="tab"><i class="fa-regular fa-clock"></i> Activity</button>
       <button class="tab"        data-tab="about"       role="tab"><i class="fa-regular fa-circle-question"></i> About</button>
       <span class="tab-underline" id="underline"></span>
     </div>
@@ -190,14 +191,10 @@
         <p>Human and AI collaborators ranked by successful pipeline contributions across spec, plan, code, data, paper, and review work.</p>
       </div>
     </div>
-    <div class="bar">
-      <span class="label">Filter</span>
-      <button class="chip active" data-filter="all">All areas</button>
-      <button class="chip" data-filter="spec">Specs</button>
-      <button class="chip" data-filter="plan">Plans</button>
-      <button class="chip" data-filter="code">Code</button>
-      <button class="chip" data-filter="paper">Papers</button>
-      <button class="chip" data-filter="review">Reviews</button>
+    <div class="bar" id="contrib-filter-bar">
+      <span class="label">Filter by area</span>
+      <!-- chips rendered dynamically by app.js renderContributors() from the
+           areas actually present in payload.contributors[].areas -->
     </div>
 
     <div class="podium" id="podium"></div>
@@ -213,6 +210,26 @@
       <div class="tr head">
         <div>Rank</div><div>Contributor</div><div>Type</div><div>Contributions</div><div>Areas</div>
       </div>
+    </div>
+  </section>
+
+  <section class="panel" data-panel="activity">
+    <div class="panel-head">
+      <div>
+        <h2>Recent activity</h2>
+        <p>The most recent agent runs across every project. Pipeline ticks, reviews, paper submissions, and simulated-personality contributions land here as they happen.</p>
+      </div>
+    </div>
+    <div class="bar">
+      <span class="label">Filter</span>
+      <button class="chip active" data-activity-filter="all">All</button>
+      <button class="chip" data-activity-filter="personality">Personalities</button>
+      <button class="chip" data-activity-filter="pipeline">Pipeline</button>
+      <button class="chip" data-activity-filter="reviews">Reviews</button>
+      <input type="search" data-activity-search="" placeholder="Search by project, agent, persona…" />
+    </div>
+    <div class="activity-list" id="activity-list">
+      <!-- rows rendered by app.js renderActivity() -->
     </div>
   </section>
 
