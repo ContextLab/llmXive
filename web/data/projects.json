@@ -1457,7 +1457,7 @@
       "name": "Zikai Zhou"
     }
   ],
-  "generated_at": "2026-05-14T16:51:58.386552+00:00",
+  "generated_at": "2026-05-14T16:56:26.854084+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -44695,7 +44695,7 @@
       },
       "authors": [
         {
-          "contributions": 109,
+          "contributions": 110,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -44731,6 +44731,14 @@
       "id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 34.338506,
+          "ended_at": "2026-05-14T16:56:23.817705Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T16:55:49.479199Z"
+        },
         {
           "agent": "flesh_out",
           "duration_s": 24.972338,
@@ -44802,14 +44810,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-14T11:02:36.346021Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 32.908102,
-          "ended_at": "2026-05-14T10:56:12.081352Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-14T10:55:39.173250Z"
         }
       ],
       "phase_group": "idea",
@@ -46746,6 +46746,15 @@
   "recent_activity": [
     {
       "agent": "flesh_out",
+      "duration_s": 34.338506,
+      "ended_at": "2026-05-14T16:56:23.817705Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
+      "started_at": "2026-05-14T16:55:49.479199Z"
+    },
+    {
+      "agent": "flesh_out",
       "duration_s": 24.972338,
       "ended_at": "2026-05-14T16:51:56.237844Z",
       "model": "qwen.qwen3.5-122b",
@@ -47352,15 +47361,6 @@
       "outcome": "success",
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "started_at": "2026-05-13T21:03:56.531443Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 76.660187,
-      "ended_at": "2026-05-13T21:03:55.682188Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T21:02:39.022001Z"
     }
   ],
   "schema_version": "2.0.0"
