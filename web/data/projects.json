@@ -1456,7 +1456,7 @@
       "name": "Zikai Zhou"
     }
   ],
-  "generated_at": "2026-05-14T05:37:41.268106+00:00",
+  "generated_at": "2026-05-14T05:47:13.994338+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -2336,7 +2336,7 @@
       },
       "authors": [
         {
-          "contributions": 434,
+          "contributions": 442,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -2381,6 +2381,70 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 15.817491,
+          "ended_at": "2026-05-14T05:47:10.839416Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T05:46:55.021925Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 11.671119,
+          "ended_at": "2026-05-14T05:46:54.207153Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T05:46:42.536034Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 7.54748,
+          "ended_at": "2026-05-14T05:46:41.719023Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T05:46:34.171543Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 13.001309,
+          "ended_at": "2026-05-14T05:46:33.349318Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T05:46:20.348009Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 11.674553,
+          "ended_at": "2026-05-14T05:46:19.523616Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T05:46:07.849063Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 9.024347,
+          "ended_at": "2026-05-14T05:46:07.022478Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T05:45:57.998131Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 21.351795,
+          "ended_at": "2026-05-14T05:45:57.095587Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T05:45:35.743792Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 8.779367,
+          "ended_at": "2026-05-14T05:45:34.917843Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T05:45:26.138476Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 7.125095,
           "ended_at": "2026-05-13T21:06:02.228913Z",
           "model": "qwen.qwen3.5-122b",
@@ -2394,70 +2458,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-13T21:05:49.284734Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 6.865143,
-          "ended_at": "2026-05-13T21:05:48.483659Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T21:05:41.618516Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 24.3017,
-          "ended_at": "2026-05-13T21:05:40.833805Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T21:05:16.532105Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.74452,
-          "ended_at": "2026-05-13T21:05:15.737968Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T21:05:09.993448Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 72.661392,
-          "ended_at": "2026-05-13T21:05:09.192835Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T21:03:56.531443Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 76.660187,
-          "ended_at": "2026-05-13T21:03:55.682188Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T21:02:39.022001Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 51.847655,
-          "ended_at": "2026-05-13T21:02:38.221077Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T21:01:46.373422Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 33.743101,
-          "ended_at": "2026-05-13T17:17:02.213350Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T17:16:28.470249Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.75165,
-          "ended_at": "2026-05-13T17:16:27.777406Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T17:16:22.025756Z"
         }
       ],
       "phase_group": "research_speckit",
@@ -46605,6 +46605,78 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 15.817491,
+      "ended_at": "2026-05-14T05:47:10.839416Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+      "started_at": "2026-05-14T05:46:55.021925Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 11.671119,
+      "ended_at": "2026-05-14T05:46:54.207153Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+      "started_at": "2026-05-14T05:46:42.536034Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 7.54748,
+      "ended_at": "2026-05-14T05:46:41.719023Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+      "started_at": "2026-05-14T05:46:34.171543Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 13.001309,
+      "ended_at": "2026-05-14T05:46:33.349318Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+      "started_at": "2026-05-14T05:46:20.348009Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 11.674553,
+      "ended_at": "2026-05-14T05:46:19.523616Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+      "started_at": "2026-05-14T05:46:07.849063Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 9.024347,
+      "ended_at": "2026-05-14T05:46:07.022478Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+      "started_at": "2026-05-14T05:45:57.998131Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 21.351795,
+      "ended_at": "2026-05-14T05:45:57.095587Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+      "started_at": "2026-05-14T05:45:35.743792Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 8.779367,
+      "ended_at": "2026-05-14T05:45:34.917843Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+      "started_at": "2026-05-14T05:45:26.138476Z"
+    },
+    {
       "agent": "flesh_out",
       "duration_s": 28.524259,
       "ended_at": "2026-05-14T05:32:53.354300Z",
@@ -47079,78 +47151,6 @@
       "outcome": "success",
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "started_at": "2026-05-13T09:29:48.895747Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 5.60524,
-      "ended_at": "2026-05-13T09:29:48.094176Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T09:29:42.488936Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 15.4483,
-      "ended_at": "2026-05-13T09:29:41.689538Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T09:29:26.241238Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.76232,
-      "ended_at": "2026-05-13T09:29:25.444484Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T09:29:20.682164Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 10.624897,
-      "ended_at": "2026-05-13T09:29:19.886538Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T09:29:09.261641Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 8.813247,
-      "ended_at": "2026-05-13T09:29:08.471645Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T09:28:59.658398Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 70.641441,
-      "ended_at": "2026-05-13T09:28:58.820445Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T09:27:48.179004Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 30.737701,
-      "ended_at": "2026-05-13T09:27:47.369849Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T09:27:16.632148Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 76.808226,
-      "ended_at": "2026-05-13T09:19:42.699092Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "started_at": "2026-05-13T09:18:25.890866Z"
     }
   ],
   "schema_version": "2.0.0"
