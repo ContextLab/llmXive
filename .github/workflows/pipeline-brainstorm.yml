@@ -50,6 +50,15 @@ jobs:
           if git diff --cached --quiet; then
             echo "no changes"
           else
-            git commit -m "pipeline(brainstorm): hourly tick [skip ci]"
-            git push
+            git commit -m "pipeline(brainstorm): hourly tick"
+
+            for i in 1 2 3 4 5; do
+
+              git pull --rebase origin main && git push && break
+
+              echo "push attempt $i failed; retrying..." >&2
+
+              sleep $((5 * i))
+
+            done
           fi

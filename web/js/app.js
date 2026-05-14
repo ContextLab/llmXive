@@ -52,7 +52,30 @@
     return '<i class="fa-regular fa-circle-question" title="contributor not attributed"></i>';
   }
 
+  // Per-project recent-activity index: project_id → { comments_n, last_personality }.
+  // Built once on boot from payload.recent_activity so card render is O(1).
+  let activityByProject = null;
+  function _buildActivityByProject() {
+    if (activityByProject || !payload) return;
+    activityByProject = {};
+    for (const a of (payload.recent_activity || [])) {
+      const pid = a.project_id;
+      if (!pid) continue;
+      const e = activityByProject[pid] || { comments: 0, latest: null, simulators: [] };
+      // Personality "comment" entries are the ones the user wants surfaced.
+      if (a.action === "comment" && a.display_name) {
+        e.comments++;
+        if (!e.latest || (a.ended_at || "") > (e.latest.ended_at || "")) {
+          e.latest = a;
+        }
+        if (!e.simulators.includes(a.display_name)) e.simulators.push(a.display_name);
+      }
+      activityByProject[pid] = e;
+    }
+  }
+
   function cardHTML(item, kind) {
+    _buildActivityByProject();
     const kicker = ({
       papers:    "Published",
       paper:     "Paper pipeline",
@@ -92,11 +115,40 @@
             + kindIcon(kindOf(item.submitter))
             + ' ' + escapeHtml(item.submitter) + '</span></div>'
           : "");
+    // Featured-artifact strip: shows the paper PDF prominently when one
+    // exists, plus a personality-comment count badge. Both link into the
+    // artifact dialog when present so the click target is consistent.
+    const artifacts = item.artifact_links || {};
+    const pdfPath = artifacts.paper_pdf;
+    const supplementPath = artifacts.paper_supplement;
+    const activity = (activityByProject || {})[item.id];
+    const commentBadge = activity && activity.comments
+      ? '<span class="feat-badge" title="' + escapeHtml(activity.simulators.join(", ")) + '">'
+        + '<i class="fa-regular fa-comment"></i> ' + activity.comments
+        + ' personality ' + (activity.comments === 1 ? 'comment' : 'comments')
+        + '</span>'
+      : "";
+    const pdfBadge = pdfPath
+      ? '<a class="feat-badge primary" href="' + escapeHtml(pdfPath) + '" target="_blank" rel="noopener" '
+        + 'onclick="event.stopPropagation();">'
+        + '<i class="fa-regular fa-file-pdf"></i> PDF'
+        + '</a>'
+      : "";
+    const supplementBadge = supplementPath
+      ? '<a class="feat-badge" href="' + escapeHtml(supplementPath) + '" target="_blank" rel="noopener" '
+        + 'onclick="event.stopPropagation();">'
+        + '<i class="fa-regular fa-file-pdf"></i> supplement'
+        + '</a>'
+      : "";
+    const featuredRow = (pdfBadge || supplementBadge || commentBadge)
+      ? '<div class="featured">' + pdfBadge + supplementBadge + commentBadge + '</div>'
+      : "";
     return ''
       + '<article class="card" tabindex="0" data-pid="' + escapeHtml(item.id) + '">'
       + '<div class="kicker"><span class="dot"></span>' + kicker + '<span class="stage-pill ' + escapeHtml(stage) + '" style="margin-left:auto">' + escapeHtml(stageLabel) + '</span></div>'
       + '<h3>' + escapeHtml(item.title) + '</h3>'
       + '<p class="desc">' + escapeHtml(desc) + '</p>'
+      + featuredRow
       + '<div class="meta">'
       + '<div class="keys">' + keys + '</div>'
       + '<div class="right">' + points + '<span><i class="fa-regular fa-clock"></i> ' + escapeHtml(updated) + '</span></div>'

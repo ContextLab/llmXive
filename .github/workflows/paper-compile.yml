@@ -80,13 +80,22 @@ jobs:
       - name: Regenerate web data (project list reflects new PDFs)
         run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
       - name: Commit + push
+        # Concurrent cron workflows commit to main while this is compiling
+        # (paper compile takes ~5min; other crons run every 30m–1h). A
+        # naive `git push` races and fails ~half the time. Pull --rebase
+        # before each push attempt; retry up to 5 times.
         run: |
+          set -e
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add 'projects/*/paper/pdf/*.pdf' web/data/projects.json 2>/dev/null || true
           if git diff --cached --quiet; then
-            echo "no changes"
-          else
-            git commit -m "paper-compile: produce/refresh paper PDFs"
-            git push
+            echo "no changes"; exit 0
           fi
+          git commit -m "paper-compile: produce/refresh paper PDFs"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && exit 0 || true
+            echo "push attempt $i failed; retrying after backoff..."
+            sleep $((5 * i))
+          done
+          echo "push failed after 5 attempts" >&2; exit 1
