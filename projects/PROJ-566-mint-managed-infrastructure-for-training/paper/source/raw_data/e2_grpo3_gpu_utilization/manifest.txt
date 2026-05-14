@@ -1,0 +1,21 @@
+E2 GRPO3 GPU utilization source data
+
+This directory contains the source data for figures/eval_gpu_utilization.svg
+and the E2 concurrent-training summary in sections/5_capabilities.tex.
+
+Runs:
+- 4b_sequential_gpu_samples.csv:
+  e2_4b_sequential_grpo3_v2_lockaddlora_worker2_20260509T043000Z
+- 4b_concurrent_gpu_samples.csv:
+  e2_4b_concurrent_grpo3_v2_cap192full_worker2_20260509T0316Z
+- 30b_sequential_gpu_samples.csv:
+  e2_30b_sequential_grpo3_v2_cap192full_worker5_retry_20260509T0321Z
+- 30b_concurrent_gpu_samples.csv:
+  e2_30b_concurrent_grpo3_v2_cap192full_worker7_retry_20260509T0321Z
+
+Files:
+- *_gpu_samples.csv: full per-GPU telemetry copied from the run directories.
+- summary.csv: one row per paper table entry, including wall time, peak memory,
+  utilization, idle fraction, task completion count, and run id.
+- plot_series.csv: elapsed-time series used to draw the SVG figure, aggregated
+  across GPUs at each telemetry sample timestamp.

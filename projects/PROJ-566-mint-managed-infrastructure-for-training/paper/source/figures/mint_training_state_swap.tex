@@ -1,0 +1,41 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,font=\scriptsize\sffamily]
+  \tikzstyle{actor}=[draw=mindlabfg, thick, rounded corners=1mm, fill=white, align=center]
+  \tikzstyle{base}=[draw=mindlabfg, thick, rounded corners=0.8mm, fill=mindlabbluepale!45, align=center, inner sep=3pt]
+  \tikzstyle{slot}=[draw=mindlabfg, thick, rounded corners=0.8mm, fill=mindlabblue!18, align=center, inner sep=3pt]
+  \tikzstyle{switch}=[draw=mindlabfg, thick, rounded corners=0.8mm, fill=white, align=center, inner sep=3pt]
+  \tikzstyle{store}=[draw=mindlabfg, thick, rounded corners=0.8mm, fill=white, align=center, inner sep=3pt]
+  \tikzstyle{arrow}=[->, thick, draw=mindlabfg, shorten >=1pt, shorten <=1pt]
+  \tikzstyle{both}=[<->, thick, draw=mindlabfg, shorten >=1pt, shorten <=1pt]
+  \tikzstyle{label}=[font=\scriptsize\sffamily, align=center, fill=white, inner sep=1pt]
+  \tikzstyle{title}=[font=\bfseries\footnotesize\sffamily, align=center, text=mindlabfg]
+
+  \path[use as bounding box] (-0.20,-2.35) rectangle (10.15,1.85);
+
+  \draw[arrow] (0.70,1.34) -- (9.45,1.34);
+  \node[label] at (1.30,1.58) {$t_1$};
+  \node[label] at (4.92,1.58) {$t_2$};
+  \node[label] at (8.55,1.58) {$t_3$};
+
+  \node[actor, minimum width=8.90cm, minimum height=1.70cm] (trainer) at (4.92,0.35) {};
+  \node[title] at (4.92,1.05) {one trainer actor};
+  \node[base, minimum width=7.95cm, minimum height=0.36cm] (base) at (4.92,-0.16) {resident base model};
+
+  \node[slot, minimum width=1.05cm, minimum height=0.38cm] (a1) at (1.30,0.45) {LoRA A};
+  \node[switch, minimum width=1.08cm, minimum height=0.46cm] (sw1) at (3.10,0.45) {switch};
+  \node[slot, minimum width=1.05cm, minimum height=0.38cm] (b2) at (4.92,0.45) {LoRA B};
+  \node[switch, minimum width=1.08cm, minimum height=0.46cm] (sw2) at (6.75,0.45) {switch};
+  \node[slot, minimum width=1.05cm, minimum height=0.38cm] (a3) at (8.55,0.45) {LoRA A};
+
+  \node[store, minimum width=4.35cm, minimum height=0.62cm] (records) at (4.92,-1.48)
+    {policy records\\\scriptsize LoRA tensors, optimizer, gradients, rollouts};
+
+  \draw[arrow] (a1.east) -- (sw1.west);
+  \draw[arrow] (sw1.east) -- (b2.west);
+  \draw[arrow] (b2.east) -- (sw2.west);
+  \draw[arrow] (sw2.east) -- (a3.west);
+
+  \draw[both] (sw1.south) -- (records.north -| sw1.south);
+  \node[label, anchor=east] at (3.02,-0.78) {save A / load B};
+  \draw[both] (sw2.south) -- (records.north -| sw2.south);
+  \node[label, anchor=west] at (6.82,-0.78) {save B / load A};
+\end{tikzpicture}

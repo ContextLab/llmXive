@@ -1,0 +1,263 @@
+\usetikzlibrary{arrows.meta,calc,fit,positioning}
+\colorlet{mintdark}{mindlabfg}
+\colorlet{mintfill}{mindlabbluepale!45}
+\begin{tikzpicture}[
+    font=\sffamily\small,
+    >=Latex,
+    x=1cm,
+    y=1cm,
+    line cap=round,
+    line join=round,
+    panel/.style={
+        draw=mintdark,
+        very thick,
+        rounded corners=3mm,
+        fill=white
+    },
+    box/.style={
+        draw=mintdark,
+        thick,
+        rounded corners=2mm,
+        fill=mintfill,
+        align=center,
+        inner sep=3pt,
+        minimum height=0.62cm
+    },
+    storagebox/.style={
+        draw=black!55,
+        thick,
+        rounded corners=2mm,
+        fill=white,
+        align=center,
+        inner sep=3pt,
+        minimum height=0.50cm
+    },
+    patharrow/.style={
+        ->,
+        thick,
+        draw=mintdark
+    },
+    softarrow/.style={
+        ->,
+        semithick,
+        draw=black!50
+    },
+    botharrow/.style={
+        <->,
+        semithick,
+        draw=black!50
+    },
+    statepath/.style={
+        -,
+        semithick,
+        draw=black!45
+    },
+    metapath/.style={
+        -,
+        semithick,
+        dashed,
+        draw=black!50
+    },
+    label/.style={
+        font=\sffamily\scriptsize,
+        fill=white,
+        inner sep=1pt,
+        text=black!75,
+        align=center
+    },
+    sublabel/.style={
+        font=\sffamily\tiny,
+        text=black!62,
+        align=center
+    },
+    paneltitle/.style={
+        font=\sffamily\bfseries\large,
+        text=mintdark,
+        fill=white,
+        inner sep=2pt
+    },
+    storagetitle/.style={
+        font=\sffamily\bfseries\normalsize,
+        text=black!70,
+        fill=white,
+        inner sep=2pt
+    },
+    note/.style={
+        font=\sffamily\scriptsize,
+        text=black!65,
+        align=center
+    }
+]
+
+\path[use as bounding box] (-2.00,0.15) rectangle (20.80,5.92);
+
+% =========================================================
+% Top-level regions
+% =========================================================
+
+\node[
+    box,
+    minimum width=2.60cm,
+    minimum height=1.35cm,
+    text width=2.30cm
+] (clients) at (-0.70,4.55) {
+    MinT clients\\
+    Tinker API
+};
+
+\draw[panel] (1.40,2.20) rectangle (10.70,5.65);
+\node[paneltitle] at (6.05,5.65) {Service and control plane};
+
+\draw[panel] (11.90,2.20) rectangle (17.40,5.65);
+\node[paneltitle] at (14.65,5.65) {Compute plane};
+
+\draw[
+    draw=black!55,
+    very thick,
+    rounded corners=3mm,
+    fill=mintfill
+] (1.40,0.40) rectangle (17.40,1.55);
+
+\node[storagetitle] at (9.40,1.55) {Durable storage};
+
+% =========================================================
+% Service and control plane
+% =========================================================
+
+\node[
+    box,
+    minimum width=1.25cm,
+    minimum height=0.70cm
+] (api) at (2.95,4.55) {
+    API
+};
+
+\node[
+    box,
+    minimum width=1.35cm,
+    minimum height=0.70cm
+] (queue) at (4.72,4.55) {
+    Queue
+};
+
+\node[
+    box,
+    minimum width=1.70cm,
+    minimum height=0.88cm,
+    text width=1.45cm
+] (lookup) at (6.72,4.55) {
+    Policy\\
+    lookup
+};
+
+\node[
+    box,
+    minimum width=1.72cm,
+    minimum height=0.88cm,
+    text width=1.50cm
+] (admit) at (8.91,4.55) {
+    Resource\\
+    admission
+};
+
+\node[
+    box,
+    minimum width=2.15cm,
+    minimum height=0.70cm
+] (future) at (6.05,3.15) {
+    Operation state
+};
+
+% =========================================================
+% Compute plane
+% =========================================================
+
+\node[
+    box,
+    minimum width=3.85cm,
+    minimum height=0.90cm,
+    text width=3.60cm
+] (trainers) at (14.65,4.55) {
+    PEFT / Megatron trainers
+};
+
+\node[
+    box,
+    minimum width=3.10cm,
+    minimum height=0.90cm,
+    text width=2.85cm
+] (samplers) at (14.65,3.00) {
+    vLLM samplers
+};
+
+% =========================================================
+% Durable storage compartments
+% =========================================================
+
+\node[
+    storagebox,
+    minimum width=2.25cm
+] (policy_store) at (3.80,0.88) {
+    Policy records
+};
+
+\node[
+    storagebox,
+    minimum width=2.20cm
+] (ckpt) at (7.55,0.88) {
+    Checkpoints
+};
+
+\node[
+    storagebox,
+    minimum width=2.75cm
+] (rollout) at (11.30,0.88) {
+    Rollout records
+};
+
+\node[
+    storagebox,
+    minimum width=3.10cm
+] (adapter) at (15.05,0.88) {
+    Exported adapters
+};
+
+% =========================================================
+% Request / admission path
+% =========================================================
+
+\draw[patharrow]
+    (clients.east) -- (api.west);
+
+\draw[patharrow] (api.east) -- (queue.west);
+\draw[patharrow] (queue.east) -- (lookup.west);
+\draw[patharrow] (lookup.east) -- (admit.west);
+
+\draw[patharrow]
+    (admit.east) -- (trainers.west);
+\node[label] at (11.30,4.79) {schedule};
+
+% =========================================================
+% Operation state path through the API and compute result path
+% =========================================================
+
+\draw[botharrow]
+    (api.south) |- (future.west);
+
+\draw[softarrow]
+    (11.90,3.15) -- node[label, above, pos=0.47] {result} (future.east);
+
+% =========================================================
+% Policy metadata and artifact paths
+% =========================================================
+
+\draw[softarrow]
+    (trainers.south) -- (samplers.north);
+
+\draw[botharrow]
+    (14.65,2.20) -- node[label, right, pos=0.50] {state / artifacts} (14.65,1.55);
+
+\draw[botharrow]
+    (future.south) -- node[label, left, pos=0.68] {records} (6.05,1.55);
+
+\end{tikzpicture}

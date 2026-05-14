@@ -1,0 +1,74 @@
+\section{Settings}
+We establish an experimental framework for studying many-shot In-Context Learning (ICL), with and without Chain-of-Thought (CoT), under long-context constraints.
+Our design spans three dimensions: \emph{task type} (non-reasoning vs.\ reasoning), \emph{model type} (standard instruction-tuned vs.\ explicitly ``reasoning'' models), and \emph{ICL configuration} (prompt format and number of demonstrations).
+
+
+
+\subsection{Tasks Studied} 
+Prior many-shot work has largely emphasized non-reasoning classification benchmarks~\cite{struggle, bertsch-etal-2025-context}.
+We extend evaluation to include both classification-style tasks and multi-step reasoning tasks, while using a unified \emph{open-ended generation} evaluation for all datasets.
+
+
+\paragraph{Evaluation protocol.}
+For each test instance, the model generates a free-form text completion.
+We map the completion to a predicted answer using task-specific extraction and normalization, and score it by \emph{exact match} against the reference. Prompt templates for evaluation are provided in Appendix~\ref{sc:apx_tasks}.
+For numerical datasets (e.g., GSM8K/MATH), we extract the final numeric value or mathematical expression from the completion and compare it to the ground truth under the same exact-match criterion.
+
+
+\paragraph{Non-reasoning tasks.}
+These tasks require little intermediate reasoning and primarily test semantic understanding and label mapping.
+We include benchmarks with different label-space sizes: SuperGLUE~\cite{superglue} (small label space), NLU~\cite{nlu}, TREC~\cite{trec}, and BANKING77~\cite{banking} (large label space).
+
+\paragraph{Reasoning tasks.}
+These tasks require deduction and/or mathematical derivation.
+We focus on mathematical reasoning with GSM8K~\cite{cobbe2021gsm8k} and MATH~\cite{hendrycksmath2021}, and include DetectiveQA~\cite{xu2025detectiveqaevaluatinglongcontextreasoning} for narrative reasoning over long contexts.
+For tasks that provide gold rationales, we use the dataset-provided reasoning chains $C_i$ as the CoT component in demonstrations (Section~\ref{sec:icl_config}).
+
+\subsection{LLMs Studied}
+\label{sec:models}
+We evaluate a range of LLMs and group them by whether they explicitly contain extended reasoning at inference time.
+
+\paragraph{Non-reasoning LLMs.}
+These models are primarily tuned to produce direct answers given instructions, without an explicit ``thinking'' token.
+We evaluate LLaMA 3.1 (\texttt{\small Llama-3.1-8B-Instruct}), LLaMA 3.3 (\texttt{\small Llama-3.3-70B-Instruct})~\cite{llama3}, Qwen 2.5 (7B) (\texttt{\small Qwen2.5-7B-Instruct}), and Qwen 2.5 (14B) (\texttt{\small Qwen2.5-14B-Instruct}).
+
+\paragraph{Reasoning-oriented LLMs.}
+These models expose an explicit reasoning segment (e.g., a \texttt{<think>} token)
+We evaluate Qwen 3 (8B) (\texttt{\small Qwen3-8B}) and Qwen 3 (14B) (\texttt{\small Qwen3-14B})~\cite{yang2025qwen3technicalreport}, QwQ (32B) (\texttt{\small QwQ-32B})~\cite{qwen2025qwen25technicalreport}, and DeepSeek-R1 (685B) (\texttt{\small DeepSeek-R1})~\cite{deepseekai2025deepseekr1incentivizingreasoningcapability}.
+For reasoning-oriented models, we enable the model's reasoning mode during inference to allow the generation of intermediate reasoning tokens.
+
+\paragraph{Long-context configuration.}
+To support many-shot prompts (up to 131K tokens for Qwen-family models), we apply the official RoPE scaling configurations provided by each model release.
+All other decoding and system-prompt settings follow the model providers' recommended defaults unless stated otherwise.
+
+\subsection{ICL Configuration}
+\label{sec:icl_config}
+We study scaling from few-shot to many-shot under two prompting paradigms.
+
+\paragraph{Traditional ICL.}
+Prompts consist of $k$ input--output pairs $(x_i, y_i)$ followed by a query $x'$.
+The model produces an output $y'$ conditioned on the demonstration set:
+\begin{equation}
+y' = \mathrm{LLM}\!\left(x' \mid \{(x_i, y_i)\}_{i=1}^n\right).
+\end{equation}
+
+\paragraph{CoT-ICL.}
+Prompts consist of $k$ triples $(x_i, C_i, y_i)$, where $C_i$ is a reasoning chain.
+Given a query $x'$, the model generates both an intermediate chain $C'$ and a final answer:
+\begin{equation}
+(C', y') = \mathrm{LLM}\!\left(x' \mid \{(x_i, C_i, y_i)\}_{i=1}^n\right).
+\end{equation}
+
+\paragraph{Context scaling.}
+CoT demonstrations are substantially longer than standard ICL examples (e.g., in our geometry setting, a single CoT demonstration can be $\sim$30$\times$ longer than a BANKING77 example).
+As a result, while hundreds to thousands of demonstrations may fit for traditional ICL, CoT-ICL is typically limited to at most a few hundred demonstrations by context length.
+We therefore focus our scaling analysis on $n \le 128$, which captures the most informative trade-offs between model type, task type, and demonstration count in our long-context regime.
+
+
+
+
+
+
+
+
+

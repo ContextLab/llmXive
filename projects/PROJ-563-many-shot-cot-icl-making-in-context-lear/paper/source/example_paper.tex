@@ -1,0 +1,750 @@
+
+\pdfoutput=1
+\documentclass{article}
+
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs} % for professional tables
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{listings} % 引入 listings 套件
+
+\lstset{
+    basicstyle=\ttfamily, % 使用等寬字體
+    breaklines=true,      % 開啟自動換行
+    columns=fullflexible,
+    keepspaces=true
+}
+
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+\usepackage[accepted]{icml2026}
+
+
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+
+
+\usepackage[capitalize,noabbrev]{cleveref}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\usepackage{tcolorbox}
+\usepackage{amsmath}        % For math symbols
+\usepackage{amssymb}        % For additional math symbols
+\usepackage[dvipsnames]{xcolor}
+\usepackage[textsize=tiny]{todonotes}
+
+\icmltitlerunning{Many-Shot CoT-ICL: Making In-Context Learning Truly Learn}
+
+\begin{document}
+
+\twocolumn[
+  \icmltitle{Many-Shot CoT-ICL: Making In-Context Learning Truly Learn}
+
+
+
+  \icmlsetsymbol{equal}{*}
+
+  \begin{icmlauthorlist}
+    \icmlauthor{Tsz Ting Chung}{ust}
+    \icmlauthor{Lemao Liu}{fd}
+    \icmlauthor{Mo Yu}{wechat}
+    \icmlauthor{Dit-Yan Yeung}{ust}
+  \end{icmlauthorlist}
+
+  \icmlaffiliation{ust}{Hong Kong University of Science and Technology}
+  \icmlaffiliation{wechat}{Wechat AI, Tencent}
+  \icmlaffiliation{fd}{Fudan Univeristy}
+
+  \icmlcorrespondingauthor{Tsz Ting Chung}{ttchungac@connect.ust.hk}
+
+  \icmlcorrespondingauthor{Dit-yan Yeung}{dyyeung@ust.hk}
+
+  \icmlkeywords{Machine Learning, ICML}
+
+  \vskip 0.3in
+]
+
+
+
+\printAffiliationsAndNotice{}  % no special notice (required even if empty)
+
+\begin{abstract}
+In-context learning (ICL) adapts large language models (LLMs) to new tasks by conditioning on demonstrations in the prompt without parameter updates. With long-context models, many-shot ICL can use dozens to hundreds of examples and achieve performance comparable to fine-tuning, yet current understanding of its scaling behavior is largely derived from non-reasoning tasks. We study many-shot chain-of-thought in-context learning (CoT-ICL) for reasoning and show that standard many-shot rules do not transfer. Across non-reasoning and reasoning-oriented LLMs and across non-reasoning and reasoning tasks, we find: (i) a setting-dependent scaling effect, where increasing the number of CoT demonstrations is unstable for non-reasoning LLMs and benefits mainly reasoning-oriented LLMs; (ii) similarity-based retrieval helps on non-reasoning tasks but fails on reasoning, since semantic similarity poorly predicts procedural (i.e., CoT) compatibility; and (iii) an order-scaling effect, where performance variance grows with more CoT demonstrations. We interpret these behaviors by viewing many-shot CoT-ICL as in-context test-time learning rather than scaled pattern matching, and suggests two principles: (i) demonstrations should be easy for the target model to understand, and (ii) they should be ordered to support a smooth conceptual progression. Guided by the principle, we propose Curvilinear Demonstration Selection (CDS), a simple ordering method that yields up to a 5.42 percentage-point gain on geometry with 64 demonstrations. Overall, our results reframe the long context window from a retrieval buffer into a structured curriculum for in-context test-time learning.
+\end{abstract}
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/main.pdf}
+    \caption{Reframing of CoT-ICL as in-context test-time learning.}
+    \label{fig:main}
+    \vspace{-5mm}
+\end{figure}
+
+
+\section{Introduction}
+In-context learning (ICL) enables large language models (LLMs) to perform tasks by conditioning on a sequence of input-output demonstrations without updating their parameters \cite{min-etal-2022-rethinking, vonoswald2023transformerslearnincontextgradient}. Research has focused on improving ICL through strategies like selecting effective demonstrations \cite{sorensen-etal-2022-information, liu-etal-2022-makes, wu-etal-2023-self}. Recently, with the expansion of context windows, many-shot ICL has emerged, where dozens to hundreds of demonstrations can be provided, achieving performance competitive with fine-tuning~\cite{agarwal2024manyshot, bertsch-etal-2025-context}. A consistent finding in this setting is that for non-reasoning tasks (e.g., classification), the impact of demonstration order diminishes with scale~\cite{bertsch-etal-2025-context, baek2025revisitingincontextlearninglong}.
+
+In parallel, chain-of-thought (CoT) prompting has become a standard tool for complex reasoning (e.g., arithmetic and narrative reasoning), where models generate intermediate steps before an answer~\cite{wei2022chain, kojima2022large}.
+At the same time, test-time scaling studies how to improve model performance during inference through additional computation rather than parameter updates, via mechanisms such as revision and sampling~\cite{snell2025scaling, lin2024the}.
+These threads naturally intersect: many-shot CoT-ICL is a basic form of test-time computation, where long sequences of reasoning demonstrations shape the model's behavior at inference time.
+
+However, a critical gap exists. Our understanding of many-shot dynamics derives almost entirely from studies of non-reasoning tasks. It remains unknown whether the established principles (e.g., that order matters less and similarity-based selection works) extend to many-shot CoT-ICL for reasoning. Does providing more reasoning demonstrations lead to reliable improvement, or does it introduce new instabilities? This question is practically important for deploying reasoning-capable LLMs and theoretically fundamental: it probes whether ICL for reasoning is merely large-scale pattern matching or a form of genuine learning in in-context learning that follows pedagogical principles.
+
+In this work, we demonstrate that the established rules of many-shot ICL break down for reasoning tasks. Through systematic experiments across model types (non-reasoning vs. reasoning-oriented) and tasks (non-reasoning vs. reasoning), our experiment uncover: (1) a setting-dependent scaling effect, where many-shot ICL scales on non-reasoning tasks but many-shot CoT-ICL on reasoning tasks is unstable for non-reasoning LLMs and improves mainly for reasoning-oriented LLMs; (2) that similarity-based retrieval explains non-reasoning scaling but fails on reasoning because question similarity does not ensure procedural compatibility, pointing to in-context learning beyond surface matching; and (3) an order-scaling effect, where performance variance grows with the number of CoT demonstrations.
+
+We explain these results by reframing effective many-shot CoT as in-context test-time learning rather than pattern matching. We propose that successful demonstrations must be both understandable to the model and smoothly sequenced. We formalize this through two principles: (1) The Ease of Understanding: demonstrations should align with the model's current knowledge (explaining why self-generated demonstrations work best for weaker models); and (2) The Smoothness of Knowledge Progression: the conceptual transition between consecutive demonstrations should be gradual (quantifiable via the curvature of their embedding trajectory) as illustrated in Figure~\ref{fig:main}.
+
+Building on these principles, we introduce Curvilinear Demonstration Selection (CDS), a practical method that orders demonstrations to minimize total conceptual curvature. This approach yields up to a 5.42 percentage-point gain on geometry with 64 demonstrations.
+
+Our contributions are threefold: (1) We explore the dynamic with CoT-ICL; (2) We reframe effective many-shot CoT through the ease of understanding and smoothness of information flow, bridging ICL with insights from test-time learning; (3) We introduce and validate a practical, principle-driven method for demonstration ordering that advances many-shot reasoning.
+
+
+
+
+\section{Related Works}
+
+
+\paragraph{Many-shot ICL}
+The extension of LLM context windows \cite{peng2024yarn, lminfinite} has enabled many-shot ICL, where models process significantly more demonstrations \cite{agarwal2024manyshot, bertsch-etal-2025-context, chung-etal-2024-selection}. Initial findings revealed that with sufficient demonstrations, model sensitivity to their ordering diminishes for standard classification tasks \cite{baek2025revisitingincontextlearninglong, bertsch-etal-2025-context}, suggesting a form of  robustness with scaling. This led to a narrative that in many-shot settings, careful demonstration engineering may be unnecessary. However, these studies focused overwhelmingly on non-reasoning tasks (e.g., classification, simple QA)~\cite{baek2025revisitingincontextlearninglong, bertsch-etal-2025-context}, neglecting the performance on reasoning tasks~\cite{hendrycksmath2021, chung-etal-2025-divlogiceval, xu2025detectiveqaevaluatinglongcontextreasoning, yu2025preludebenchmarkdesignedrequire}. Concurrent work on test-time scaling leveraging extended computation for self-improvement without parameter updates \cite{snell2024scaling, tpo}, suggests that effective in-context learning can be viewed as a form of real-time optimization. Our work connects many-shot CoT-ICL to test-time learning, guided by two key principles that explain how learning occurs inside.
+
+\paragraph{Chain-of-Thought}
+CoT prompting \cite{wei2022chain} decomposes reasoning into intermediate steps, substantially improving LLM performance on complex tasks. Subsequent studies like Tree-of-Thoughts \cite{tot} and Program-of-Thoughts \cite{pot} explore structured reasoning paths, while methods like rStar-Math \cite{guan2025rstar} employ search algorithms for trajectory optimization. These approaches primarily focus on enhancing the reasoning process for a single query. In the ICL setting, Dr.ICL \cite{dricl} demonstrates that retrieving relevant CoT demonstrations boosts few-shot performance, Auto-CoT~\cite{zhang2022automaticchainthoughtprompting} propose an automatic few-shot CoT prompting method that clusters questions to sample diverse representatives and generate reasosning chains as demonstrations. However, a critical gap remains with all existing CoT-ICL work operates in the few-shot settings. The fundamental question of how CoT demonstrations scale with context length and whether the principles of effective demonstration design change from few-shot to many-shot is largely unexplored. Our work positions many-shot CoT not merely as "more examples", but as a potential in-context curriculum that requires principled sequencing.
+
+\paragraph{Demonstration Selection}
+Demonstration selection has long been studied for effective few-shot ICL. The dominant paradigm is similarity-based retrieval, where demonstrations semantically closest to the test query are selected \cite{liu-etal-2022-makes, wu-etal-2023-self, kapuriya2025exploringrolediversityexample}. This approach implicitly frames ICL as a form of pattern matching~\cite{olsson2022incontextlearninginductionheads, crosbie-shutova-2025-induction, yu-etal-2025-stochastic}. Interestingly, this paradigm finds a direct analogy in Retrieval-Augmented Generation (RAG), where relevant context chunks are retrieved via embedding similarity \cite{lewis2020retrieval}. Our work challenges whether this conclusion extends to reasoning tasks. We hypothesize that for CoT-ICL, effective demonstration selection is less about retrieving semantically similar examples and more about constructing a smooth learning sequence that facilitates conceptual understanding, acting as a shift from "retrieval for matching" to "retrieval for learning".
+
+
+
+
+
+
+
+\input{section/experiment_setup}
+\input{section/property}
+\input{section/factor}
+\input{section/curvature}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Conclusion}
+Many-shot ICL has been largely understood through non-reasoning tasks, where scaling up demonstrations is typically stable and ordering effects often fade.
+Our results show that these regularities do not transfer to many-shot CoT-ICL for reasoning.
+Across models and tasks, we observe setting-dependent scaling behavior, the failure of similarity-based retrieval on reasoning due to procedural mismatch, and an order-scaling effect in which variance increases as more CoT demonstrations are added. To account for these phenomena, we reframe many-shot CoT-ICL as in-context test-time learning rather than large-scale pattern matching.
+We argue that effective prompts must satisfy requirements of ease to understand and the sequence with a smooth knowledge progression.
+Accordingly, we introduce CDS, a rapid, low cost customization demonstrations orders by minimizing conceptual curvature without parameter change, and yields consistent gains across math and narrative reasoning. The gains we observe even at smaller budgets (i.e., few-shots), together with the importance of thinking traces, suggest that stored or self-generated reasoning trajectories can serve as reusable procedural guidance for future retrieval and prompting.
+
+
+
+\section*{Impact Statement}
+This paper presents work whose goal is to advance the field of Machine
+Learning. There are many potential societal consequences of our work, none
+which we feel must be specifically highlighted here.
+
+
+
+
+
+\nocite{langley00}
+
+\bibliography{example_paper}
+\bibliographystyle{icml2026}
+
+\clearpage
+\appendix
+
+
+
+\section{Details for Similarity-Based Demonstration Selection}
+\label{sec:sim_setup}
+
+This appendix provides implementation details for the similarity-based demonstration selection experiments in Section~\ref{sec:sim}.
+
+\subsection{Candidate pool and data splits}
+For each task, we form a demonstration candidate pool from the task's training split. All test queries are drawn from the task's test split.  Since candidate demonstrations and evaluated queries come from disjoint splits, there is no overlap between a test query and any candidate demonstration.
+
+\subsection{Embedding model and similarity}
+We embed each \emph{question} (not the answer or rationale) using Qwen3-Embedding-4B~\cite{zhang2025qwen3embeddingadvancingtext}.
+Let $e(q)\in\mathbb{R}^d$ denote the embedding of a test question and $e(x)\in\mathbb{R}^d$ the embedding of a candidate training question.
+We measure semantic similarity by cosine similarity:
+\[
+s(q,x) = \frac{e(q)^\top e(x)}{\|e(q)\|\|e(x)\|}.
+\]
+For each test query $q$, we rank all candidates $x$ by $s(q,x)$.
+
+\subsection{Constructing the most-similar and most-dissimilar sets}
+Given a target number of demonstrations $k$, we construct:
+(i) the \textbf{most-similar} set by selecting the top-$k$ candidates under $s(q,x)$, and
+(ii) the \textbf{most-dissimilar} set by selecting the bottom-$k$ candidates.
+
+Unless otherwise stated, we present the selected examples to the LLM in descending order of similarity for the most-similar set, and ascending order of similarity for the most-dissimilar set.
+
+
+\subsection{Qualitative Example: When ``Similar'' Questions Provide Misleading CoT}
+\label{sec:sim_qual}
+
+Table~\ref{tab:sim_example} shows an illustrative failure case from a reasoning task.
+Although the retrieved demonstration question is highly similar under embedding similarity, its solution uses a different invariant/decomposition than the query.
+When the LLM is conditioned on this demonstration, it tends to reuse the same intermediate steps, leading to an incorrect conclusion.
+In contrast, a less similar (but structurally closer) demonstration encourages the correct decomposition and improves accuracy.
+
+\begin{table}[H]
+\centering
+\tiny
+\begin{tabular}{p{0.97\linewidth}}
+\toprule
+\textbf{Test query (geometry).} 
+\vspace{-2mm}
+\begin{lstlisting}
+In the diagram, $\triangle XYZ$ is right-angled at $X,$ with $YX=60$ and $XZ=80.$ The point $W$ is on $YZ$ so that $WX$ is perpendicular to $YZ.$ Determine the length of $WZ.$ [asy]
+pair X, Y, Z, W;
+Y=(0,0);
+X=(36,48);
+Z=(100,0);
+W=(36,0);
+draw(X--Y--Z--X--W);
+label("Y", Y, SW);
+label("X", X, N);
+label("W", W, S);
+label("Z", Z, SE);
+label("60", (X+Y)/2, NW);
+label("80", (X+Z)/2, NE);
+{[/asy]}\\
+\end{lstlisting}
+\textbf{Solution.}
+\vspace{-2mm}
+\begin{lstlisting}
+By the Pythagorean Theorem, \begin{align*}
+YZ^2 &= YX^2 + XZ^2 
+&= 60^2+80^2 
+&= 3600+6400 
+&=10000,
+\end{align*} so $YZ=100.$
+
+(We could also have found $YZ$ without using the Pythagorean Theorem by noticing that $\triangle XYZ$ is a right-angled triangle with its right-angle at $X$ and $XY=60=3\cdot 20$ and $XZ=80=4\cdot 20.$ This means that $\triangle XYZ$ is similar to a 3-4-5 triangle, and so $YZ=5\cdot 20=100.$)
+
+Since $\triangle YXZ$ is right-angled at $X,$ its area is $$\frac{1}{2}\cdot 60\cdot 80=2400.$$ Since $XW$ is perpendicular to $YZ,$ then the area of $\triangle YXZ$ is also equal to $$\frac{1}{2}\cdot 100\cdot XW=50XW.$$ Therefore, $50XW=2400,$ so $XW=48.$ By the Pythagorean Theorem, \begin{align*}
+WZ^2 &= 80^2 - 48^2
+&= 6400 - 2304
+&= 4096.
+\end{align*} Thus, $WZ = \sqrt{4096}=\boxed{64}.$
+
+An alternative solution comes by noticing that $\triangle XZW$ and $\triangle YZX$ are similar. Therefore \[\frac{WZ}{XZ}=\frac{XZ}{YZ}\] or \[\frac{WZ}{80}=\frac{80}{100}=\frac45.\] This tells us that  \[WZ=\frac45\cdot80=\boxed{64}.\]
+\end{lstlisting}
+
+\\ \midrule
+\textbf{Similar demonstration with cosine similarity.} \\
+\textbf{Test query.} 
+\vspace{-2mm}
+\begin{lstlisting}
+In the diagram, $\triangle ABE$, $\triangle BCE$ and $\triangle CDE$ are right-angled, with $\angle AEB=\angle BEC = \angle CED = 60^\circ$, and $AE=24$. [asy] 
+pair A, B, C, D, E;
+A=(0,20.785);
+B=(0,0);
+C=(9,-5.196);
+D=(13.5,-2.598);
+E=(12,0);
+draw(A--B--C--D--E--A);
+draw(B--E);
+draw(C--E);
+label("A", A, N);
+label("B", B, W);
+label("C", C, SW);
+label("D", D, dir(0));
+label("E", E, NE);
+[/asy] Find the length of $CE.$
+\end{lstlisting}
+\textbf{Solution.}
+\vspace{-2mm}
+\begin{lstlisting}
+We find $CE$ by first finding $BE$.
+
+Since $AE = 24$ and $\angle AEB = 60^\circ$ and $AEB$ is a right triangle, then we can see that $AE$ is the hypotenuse and $BE$ is the shorter leg, so $BE = \dfrac{1}{2} \cdot 24 = 12.$
+
+Likewise, since $BE = 12$ and $\angle BEC = 60^\circ$, then $CE = \dfrac{1}{2} \cdot 12 = \boxed{6}$.
+\end{lstlisting}
+\textbf{Why it is misleading.} \\
+Since the retrieved example uses a \(30^\circ\!-\!60^\circ\!-\!90^\circ\) triangle with the \(1:2\) ratio and never uses an altitude-to-hypotenuse configuration, its method does not transfer. \\
+\bottomrule
+\end{tabular}
+\caption{A qualitative example illustrating why question-level semantic similarity selects demonstrations with incompatible reasoning trajectories.}
+\label{tab:sim_example}
+\end{table}
+
+\subsection{Analysis of Similarity in Different LLM Types}
+\label{sec:simdis_reasoningornot}
+Result in Figures~\ref{fig:sim_nr} and \ref{fig:sim_r} shows the performance comparison in different types of LLMs.
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\linewidth]{figures/similarity_non_reasoning.pdf}
+    \caption{Performance with original (ori), similarity(sim) and dissimilar(dis) sets averaged across \emph{three non-reasoning LLMs}. The area between the two sets is filled with colors, indicating the relative performance at each point.}
+    \label{fig:sim_nr}
+    \vspace{-2mm}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\linewidth]{figures/similarity_reasoning.pdf}
+    \caption{Performance with original (ori), similarity(sim) and dissimilar(dis) sets averaged across \emph{two reasoning LLMs}. The area between the two sets is filled with colors, indicating the relative performance at each point.}
+    \label{fig:sim_r}
+    \vspace{-2mm}
+\end{figure}
+
+\section{Statistical Robustness on a New ICL Subset}
+\label{sec:statistical_robustness}
+
+We compute the mean and standard deviation across five random demonstration-ordering seeds, and repeat the analysis on a newly sampled ICL subset.
+These results strengthen the claims in Figures~\ref{fig:modelr}, \ref{fig:modelfr}, and~\ref{fig:std}: the observed trends persist beyond a single ordering or candidate pool.
+
+\begin{table}[H]
+\centering
+\small
+\resizebox{0.82\linewidth}{!}{%
+\begin{tabular}{llcc}
+\toprule
+Model & Shots & Origin ($\mu \pm \sigma$) & First ($\mu \pm \sigma$) \\ \midrule
+Qwen3-14B & 16 & $86.33 \pm 0.86$ & $\textbf{89.33} \pm 1.28$ \\
+ & 32 & $88.07 \pm 0.34$ & $\textbf{92.19} \pm 0.50$ \\
+ & 64 & $88.85 \pm 0.80$ & $\textbf{93.30} \pm 0.73$ \\
+ & 128 & $91.19 \pm 0.76$ & $\textbf{94.44} \pm 0.57$ \\
+Qwen3-8B & 16 & $83.48 \pm 0.81$ & $\textbf{83.63} \pm 0.79$ \\
+ & 32 & $85.19 \pm 0.51$ & $\textbf{87.41} \pm 0.74$ \\
+ & 64 & $88.04 \pm 0.84$ & $\textbf{91.08} \pm 0.69$ \\
+ & 128 & $86.93 \pm 1.42$ & $\textbf{88.52} \pm 0.49$ \\ \bottomrule
+\end{tabular}%
+}
+\caption{Reasoning-oriented LLMs on number\_theory across five random ordering seeds.}
+\label{tab:stat_reasoning_number_theory}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\resizebox{0.85\linewidth}{!}{%
+\begin{tabular}{llcc}
+\toprule
+Model & Shots & Origin ($\mu \pm \sigma$) & Wrong ($\mu \pm \sigma$) \\ \midrule
+Llama-3.1-8B & 16 & $23.55 \pm 3.58$ & $\textbf{35.57} \pm 0.72$ \\
+ & 32 & $22.21 \pm 8.08$ & $\textbf{35.91} \pm 1.13$ \\
+ & 64 & $25.97 \pm 6.42$ & $\textbf{35.61} \pm 1.62$ \\
+ & 90 & $32.78 \pm 6.29$ & $\textbf{36.12} \pm 1.16$ \\
+Qwen2.5-14B & 16 & $58.37 \pm 0.83$ & $\textbf{61.05} \pm 1.19$ \\
+ & 32 & $59.00 \pm 0.91$ & $\textbf{59.67} \pm 0.97$ \\
+ & 64 & $57.70 \pm 1.13$ & $\textbf{60.75} \pm 1.25$ \\
+ & 90 & $57.41 \pm 1.58$ & $\textbf{59.46} \pm 0.70$ \\ \bottomrule
+\end{tabular}%
+}
+\caption{Non-reasoning LLMs on geometry across five random ordering seeds.}
+\label{tab:stat_nonreasoning_geometry}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lllcc}
+\toprule
+Task & Target model & Shots & Stronger LLM & Self-generated \\ \midrule
+number\_theory & Qwen3-8B & 16 & $\textbf{86.26} \pm 0.61$ & $83.63 \pm 0.79$ \\
+ &  & 32 & $\textbf{89.55} \pm 1.00$ & $87.41 \pm 0.74$ \\
+ &  & 64 & $88.19 \pm 1.63$ & $\textbf{91.08} \pm 0.69$ \\
+ &  & 128 & $81.15 \pm 2.01$ & $\textbf{88.52} \pm 0.49$ \\ \midrule
+geometry & Llama-3.1-8B & 16 & $33.53 \pm 2.05$ & $\textbf{35.57} \pm 0.72$ \\
+ &  & 32 & $34.28 \pm 2.06$ & $\textbf{35.91} \pm 1.13$ \\
+ &  & 64 & $35.61 \pm 1.05$ & $35.61 \pm 1.62$ \\
+ &  & 90 & $33.48 \pm 0.52$ & $\textbf{36.12} \pm 1.16$ \\ \bottomrule
+\end{tabular}%
+}
+\caption{CoT-ICL generated from stronger LLMs versus self-generated demonstrations across five random ordering seeds. Values report $\mu \pm \sigma$.}
+\label{tab:stat_stronger_vs_self}
+\end{table}
+
+\section{Curvature-based Smoothness: Details and Implementation}
+\label{sec:algocurvature}
+
+To quantify the relationship between demonstration ordering smoothness and ICL performance, we develop Algorithm~\ref{alg:curvature-correlation}. The algorithm takes as input multiple orderings of demonstrations and their corresponding performance scores, and outputs a correlation coefficient between ordering smoothness and performance.
+
+\begin{algorithm}[tb]
+  \caption{Curvature--Performance Correlation Analysis}
+  
+  \label{alg:curvature-correlation}
+  \begin{algorithmic}
+  \footnotesize
+    \STATE {\bfseries Input:} $k$ orderings $\{E^{(j)}\}_{j=1}^k$, where $E^{(j)} = [\mathbf{e}^{(j)}_1,\ldots,\mathbf{e}^{(j)}_N]^\top$; performance scores $S=[S_1,\ldots,S_k]$
+    \STATE {\bfseries Output:} Pearson correlation coefficient $r$ between smoothness scores $\mathbf{m}$ and performance $S$
+    \STATE Initialize smoothness scores $\mathbf{m} \leftarrow [0,\ldots,0]$ (length $k$)
+    \FORALL{$M \in \{\mathrm{PCA}, \mathrm{UMAP}\}$}
+      \FOR{$j=1$ {\bfseries to} $k$}
+        \STATE $\tilde{E}^{(j)} \leftarrow \mathrm{ReduceDim}(E^{(j)}, M)$
+        \STATE Initialize curvature list $\Theta \leftarrow [\,]$
+        \FOR{$i=2$ {\bfseries to} $N-1$}
+          \STATE $\mathbf{v}_1 \leftarrow \tilde{\mathbf{e}}^{(j)}_{i} - \tilde{\mathbf{e}}^{(j)}_{i-1}$
+          \STATE $\mathbf{v}_2 \leftarrow \tilde{\mathbf{e}}^{(j)}_{i+1} - \tilde{\mathbf{e}}^{(j)}_{i}$
+          \IF{$\|\mathbf{v}_1\|>0$ {\bfseries and} $\|\mathbf{v}_2\|>0$}
+            \STATE $c \leftarrow \dfrac{\mathbf{v}_1^\top \mathbf{v}_2}{\|\mathbf{v}_1\|\;\|\mathbf{v}_2\|}$
+
+            \STATE $\theta \leftarrow \arccos(c)$
+            \STATE Append $\theta$ to $\Theta$
+          \ENDIF
+        \ENDFOR
+        \STATE $\bar{\theta}^{(j)} \leftarrow \mathrm{mean}(\Theta)$
+        \STATE $\mathrm{score}^{(j)}_{M} \leftarrow \dfrac{1}{1+\bar{\theta}^{(j)}}$
+        \STATE $\mathbf{m}[j] \leftarrow \mathbf{m}[j] + \times \mathrm{score}^{(j)}_{M}$ 
+      \ENDFOR
+    \ENDFOR
+    \STATE $r \leftarrow \mathrm{PearsonCorrelation}(\mathbf{m}, S)$
+    \STATE {\bfseries return} $r$
+  \end{algorithmic}
+\end{algorithm}
+
+
+\subsection{Demonstration Format}
+\label{sec:demo_template}
+For the smoothness analysis in Section~\ref{sec:curvature_corr}, each demonstration is embedded as a single text string that concatenates the (\texttt{Question + Chain-of-Thought + Answer} ).
+We use the same template in Appendix~\ref{sc:apx_tasks} for constructing demonstrations. All curvature results in the main paper use this template unless stated otherwise.
+
+\subsection{Embedding Model}
+\label{sec:embedding_details}
+Similar to section~\ref{sec:sim}, we encode demonstrations using Qwen3-Embedding-4B~\cite{zhang2025qwen3embeddingadvancingtext}.
+Let $\mathbf{d}_i$ denote the formatted demonstration string and $\mathrm{Embed}(\cdot)$ the embedding model.
+We obtain vectors $\mathbf{e}_i = \mathrm{Embed}(\mathbf{d}_i) \in \mathbb{R}^d$ using the embedding model's default output representation with vLLM deployment~\cite{vllm}. 
+
+
+
+
+
+
+
+
+\subsubsection{Smoothness score.}
+We convert curvature to a bounded smoothness score:
+\begin{equation}
+m(O) \;=\; \frac{1}{1 + \frac{1}{n-2}\sum_{i=2}^{n-1}\theta_i}
+\;=\;
+\frac{1}{1+\bar{\theta}(O)}.
+\end{equation}
+
+
+\subsection{Correlation Protocol}
+\label{sec:correlation_protocol}
+To study the relationship between ordering smoothness and downstream accuracy, we follow the multiple orderings (random permutations) generated of a fixed demonstration set with $n=128$ demonstrations in section~\ref{sec:variance}.
+For each ordering $O$, we compute the smoothness score $m(O)$ (Eq.~\eqref{eq:smoothness_aggregate}) and evaluate task accuracy under the corresponding prompt.
+We then compute Pearson correlation between $\{m(O)\}$ and accuracy over the sampled orderings.
+
+
+\section{CDS: Details and
+Implementation}
+\subsection{Model Studies}
+\label{sec:exp_setting}
+We design our experiments to isolate the effect of \emph{demonstration ordering} in many-shot CoT-ICL.
+To this end, we focus on reasoning-oriented LLMs that exhibit a positive scaling trend with more demonstrations, since such models demonstrate in-context learning capacity and should benefit from improved ordering.
+
+We also control for confounding factors unrelated to ordering quality by using dataset-provided CoT rationales and answers, avoiding performance degradation due to incorrect or low-quality generated rationales (i.e., self-generated CoT in section~\ref{sec:understanding}).
+Under this setup, we study models that can interpret and leverage the provided CoT..
+
+Our primary evaluation uses Qwen3 (8B and 14B) across varying numbers of demonstrations and three tasks (geometry, number theory, and DetectiveQA), as these models satisfy the above criteria and provide a stable platform for many-shot experiments.
+
+
+
+\section{Prompt formatting and LLM performance for each task}
+\label{sc:apx_tasks}
+
+\subsection{SuperGlue}
+
+We evaluate the Winograd Schema Challenge (WSC) for coreference resolution, and the Choice of Plausible Alternatives (COPA) for open-domain commonsense causal reasoning. Both are formatted as a binary-label classification task. The prompt for inference is presented in Figure~\ref{fig:prompt_wsc}. %The task evaluation result for sections~\ref{sec:scalingtasks} and \ref{sec:scalingllms} is shown in Figure \ref{fig:wsc} and \ref{fig:copa} respectively.
+
+
+
+\begin{figure}
+    \centering
+    {\tiny
+\begin{lstlisting}
+Given a query, answer yes or no to the query.
+The predicted answer must come from the demonstration examples with the exact format. The examples are as follows:
+Question: In the sentence "{text_1}", does the pronoun "{span2_text_1}" refer to {span1_text_1}?
+Answer: {answer_1}
+...
+Question: In the sentence "{text_n}", does the pronoun "{span2_text_n}" refer to {span1_text_n}?
+Answer: {answer_n}
+
+Now predict the answer for the following query:
+Question: In the sentence "{text_i}", does the pronoun "{span2_text_i}" refer to {span1_text_i}?
+Reply in the following format:
+Answer: [yes | no]
+\end{lstlisting}
+}
+    \caption{Prompt for WSC task}
+    \label{fig:prompt_wsc}
+
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    {\tiny
+\begin{lstlisting}
+Answer in A or B.
+The predicted answer must come from the demonstration examples with the exact format. The examples are as follows:
+Premise: {premise_1}
+Question: What is the {question_1} for this?
+Options:
+A. {choice1_1}
+B. {choice2_1}
+Answer: {answer_1}
+...
+Premise: {premise_n}
+Question: What is the {question_n} for this?
+Options:
+A. {choice1_n}
+B. {choice2_n}
+Answer: {answer_n}
+
+Now predict the answer for the following query:
+Premise: {premise_i}
+Question: What is the {question_i} for this?
+Options:
+A. {choice1_i}
+B. {choice2_i}
+Reply in the following format:
+Answer: [A | B]
+\end{lstlisting}
+}
+    \caption{Prompt for COPA task}
+    \label{fig:prompt_copa}
+\end{figure}
+
+
+
+
+
+\subsection{TREC}
+We evaluate the Text REtrieval Conference (TREC) Question Classification dataset with 50 fine class labels. The prompt for inference is presented in Figure \ref{fig:prompt_trec}. %The task evaluation result for sections~\ref{sec:scalingtasks} and \ref{sec:scalingllms} is shown in Figure \ref{fig:trec}.
+
+\begin{figure}[ht]
+    \centering
+    {\tiny
+\begin{lstlisting}
+Given a question, predict the label of the question. You can only make predictions from the following categories: {LIST_OF_CATEGORIES}
+Please predict the label of the FINAL question with the provided demonstration example queries as follows:
+question: {question_1}
+label: {label_1}
+...
+question: {question_n}
+label: {label_n}
+
+Now predict the answer for the following query:
+question: {question_i}
+
+Reply in the following format:
+label: [category_name]
+\end{lstlisting}
+}
+    \caption{Prompt for TREC task}
+    \label{fig:prompt_trec}
+\end{figure}
+
+
+
+\subsection{BANKING77}
+We evaluate the BANKING77 dataset with 77 fine-grained intents in the banking domain. The prompt for inference is presented in Figure \ref{fig:prompt_banking77}. %The task evaluation result for sections~\ref{sec:scalingtasks} and \ref{sec:scalingllms} is shown in Figure \ref{fig:banking77}.
+
+\begin{figure}[ht]
+    \centering
+    {\tiny
+\begin{lstlisting}
+Given a question, predict the label of the question. You can only make predictions from the following categories: {LIST_OF_CATEGORIES}
+Please predict the intent category of the FINAL query with the provided demonstration example queries as follows:
+service query: {question_1}
+intent category: {label_1}
+...
+service query: {question_n}
+intent category: {label_n}
+
+Now predict the intent category for the following query:
+service query: {question_i}
+
+Reply in the following format:
+intent category: [category_name]
+\end{lstlisting}
+}
+    \caption{Prompt for BANKING77 task}
+    \label{fig:prompt_banking77}
+\end{figure}
+
+
+
+\subsection{NLU}
+We evaluate the NLU dataset with 68 fine-grained intents in the conversational domain. The prompt for inference is presented in Figure \ref{fig:prompt_nlu}. %The task evaluation result for sections~\ref{sec:scalingtasks} and \ref{sec:scalingllms} is shown in Figure \ref{fig:nlu}.
+
+\begin{figure}[ht]
+    \centering
+    {\tiny
+\begin{lstlisting}
+Given a question, predict the label of the question. You can only make predictions from the following categories: {LIST_OF_CATEGORIES}
+Please predict the intent category of the FINAL utterance with the provided demonstration example queries as follows:
+utterance: {question_1}
+intent category: {label_1}
+...
+utterance: {question_n}
+intent category: {label_n}
+
+Now predict the intent category for the following utterance:
+utterance: {question_i}
+
+Reply in the following format:
+intent category: [category_name]
+\end{lstlisting}
+}
+    \caption{Prompt for NLU task}
+    \label{fig:prompt_nlu}
+\end{figure}
+
+
+
+
+\subsection{GSM8K}
+We evaluate the GSM8K dataset for grade school math word problems. The prompt for inference is presented in Figure \ref{fig:prompt_gsm8k}. %The task evaluation result for sections~\ref{sec:scalingtasks} and \ref{sec:scalingllms} is shown in Figure \ref{fig:gsm8k}.
+
+\begin{figure}[ht]
+    \centering
+    {\tiny
+\begin{lstlisting}
+In the end of the response, add a summary `The answer is [answer].'
+Q: {question_1}
+A: {CoT_1} {answer_1}
+...
+Q: {question_n}
+A: {CoT_n} {answer_n}
+
+### Q: {question_t}
+### A: Let's think step by step.
+\end{lstlisting}
+}
+    \caption{Prompt for GSM8K task}
+    \label{fig:prompt_gsm8k}
+\end{figure}
+
+
+
+
+\subsection{MATH}
+We evaluate the Mathematics Aptitude Test of Heuristics (MATH) dataset for mathematics competition problems, including the question types of counting\_and\_probability, prealgebra, geometry, precalculus, number\_theory and algebra. The prompt for inference is presented in Figure \ref{fig:prompt_math}. %The task evaluation result for sections~\ref{sec:scalingtasks} and \ref{sec:scalingllms} is shown in Figure \ref{fig:c&p}, \ref{fig:prealg}, \ref{fig:geo}, \ref{fig:precal}, \ref{fig:nt} and \ref{fig:alg}.
+
+\begin{figure}[ht]
+    \centering
+    {\tiny
+\begin{lstlisting}
+Write a response that appropriately completes the request and wrap the final answer inside \boxed{}.
+Problem: {question_1}
+Solution: {CoT_with_answer_1}
+...
+Problem: {question_n}
+Solution: {CoT_with_answer_n}
+
+### Problem: {question_t}
+### Solution: Let's think step by step.
+\end{lstlisting}
+}
+    \caption{Unified prompt for MATH task}
+    \label{fig:prompt_math}
+\end{figure}
+
+
+
+
+
+\subsection{DetectiveQA}
+DetectiveQA~\cite{xu2025detectiveqaevaluatinglongcontextreasoning} is a long-context narrative reasoning benchmark. Each instance includes an \emph{evidence} section as part of the input, and the goal is to answer a question by reasoning over this evidence. DetectiveQA additionally provides annotated reasoning chains for deriving the answer from the evidence. When constructing CoT demonstrations, we use the derivation labeled ``-1'' as the corresponding chain-of-thought.
+
+To avoid potential information leakage, we further filter the test split. We exclude any test instances that share the same data source (i.e., novel ID) with the training split. This prevents the model from receiving extra clues through CoT-ICL demonstrations drawn from the same underlying narrative. The prompt for inference is presented in Figure~\ref{fig:prompt_dqa}. %The task evaluation result for sections~\ref{sec:scalingtasks} and \ref{sec:scalingllms} is shown in Figure \ref{fig:dqa}.
+\vspace{-3mm}
+
+\begin{figure}[ht]
+    \centering
+    {\tiny
+\begin{lstlisting}
+Below is an instruction that describes a task.\n Select the correct option from A/B/C/D. Answer with 'The answer is {A/B/C/D}.' in the end of your response.\n\n"
+
+Question: {question_1}
+Context: {context_1}
+Options:
+A. {option_1_1}
+B. {option_1_2}
+C. {option_1_3}
+D. {option_1_4}
+Answer:
+{derivation_1}
+The answer is {answer_1}.
+
+...
+
+Question: {question_n}
+Context: {context_n}
+Options:
+A. {option_n_1}
+B. {option_n_2}
+C. {option_n_3}
+D. {option_n_4}
+Answer:
+{derivation_n}
+The answer is {answer_n}.
+
+### Question: {question_i}
+### Context: {context_i}
+### Options:
+A. {option_i_1}
+B. {option_i_2}
+C. {option_i_3}
+D. {option_i_4}
+### Answer:
+
+\end{lstlisting}
+}
+    \caption{Prompt for DetectiveQA task}
+    \label{fig:prompt_dqa}
+\end{figure}
+
+
+
+
+
+        
+
+
+    
+
+    
+
+    
+\end{document}
+

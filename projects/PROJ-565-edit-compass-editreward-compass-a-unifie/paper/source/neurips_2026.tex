@@ -1,0 +1,254 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+%     \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2026
+
+% The authors should use one of these tracks.
+% Before accepting by the NeurIPS conference, select one of the options below.
+% 0. "default" for submission
+% \usepackage{neurips_2026}
+% the "default" option is equal to the "main" option, which is used for the Main Track with double-blind reviewing.
+% 1. "main" option is used for the Main Track
+%  \usepackage[main]{neurips_2026}
+% 2. "position" option is used for the Position Paper Track
+%  \usepackage[position]{neurips_2026}
+% 3. "eandd" option is used for the Evaluations & Datasets Track
+ % \usepackage[eandd]{neurips_2026}
+% 4. "creativeai" option is used for the Creative AI Track
+%  \usepackage[creativeai]{neurips_2026}
+% 5. "sglblindworkshop" option is used for the Workshop with single-blind reviewing
+ % \usepackage[sglblindworkshop]{neurips_2026}
+% 6. "dblblindworkshop" option is used for the Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop]{neurips_2026}
+
+% After being accepted, the authors should add "final" behind the track to compile a camera-ready version.
+% 1. Main Track
+ % \usepackage[main, final]{neurips_2026}
+% 2. Position Paper Track
+%  \usepackage[position, final]{neurips_2026}
+% 3. Evaluations & Datasets Track
+ % \usepackage[eandd, final]{neurips_2026}
+% 4. Creative AI Track
+%  \usepackage[creativeai, final]{neurips_2026}
+% 5. Workshop with single-blind reviewing
+%  \usepackage[sglblindworkshop, final]{neurips_2026}
+% 6. Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop, final]{neurips_2026}
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote.
+% For workshops (5., 6.), the authors should add the name of the workshop, "\workshoptitle" command is used to set the workshop title.
+% \workshoptitle{WORKSHOP TITLE}
+
+% "preprint" option is used for arXiv or other preprint submissions
+ \usepackage[preprint]{neurips_2026}
+
+% to avoid loading the natbib package, add option nonatbib:
+%    \usepackage[nonatbib]{neurips_2026}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\hypersetup{
+    colorlinks=true,
+    citecolor=green
+}
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{xcolor}         % colors
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amssymb}
+\usepackage{colortbl}
+\usepackage{fontawesome}
+\usepackage{xspace}
+\usepackage{pifont}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage[most]{tcolorbox}
+\newcommand{\bench}{Edit-Compass}
+\newcommand{\rmbench}{EditReward-Compass}
+
+
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4} % 如果你也想让它出现在目录里
+
+\definecolor{blue1}{HTML}{196ab1}
+\definecolor{blue2}{HTML}{4886c1}
+\definecolor{blue3}{HTML}{5e9bd6}
+\definecolor{blue4}{HTML}{77b1e2}
+\definecolor{blue5}{HTML}{bdd930}
+\definecolor{blue6}{HTML}{dfebf6}
+
+\definecolor{red1}{HTML}{de512c}
+\definecolor{red2}{HTML}{f2642d}
+\definecolor{red3}{HTML}{f68f58}
+\definecolor{red4}{HTML}{febf92}
+\definecolor{red5}{HTML}{f8e9c8}
+\definecolor{darkorange}{rgb}{1.0, 0.55, 0.0}
+\definecolor{forestgreen}{rgb}{0.0, 0.5, 0.0}
+\definecolor{ashgrey}{rgb}{0.7, 0.75, 0.71}
+\newcommand{\icono}{\textcolor{ashgrey}{\faTimesCircle}\xspace}
+\newcommand{\icoyes}{\textcolor{forestgreen}{\faCheckCircle}\xspace}
+\newcommand{\icohalf}{\textcolor{darkorange}{\ding{51}\kern-0.65em\ding{55}}}
+\newcommand{\icohalfno}{\ding{51}\kern-0.65em\ding{55}}
+\newcommand{\gain}[1]{\textcolor{green!50!black}{\small$\uparrow$#1}}
+
+\geometry{a4paper, margin=1in}
+
+\newtcolorbox[auto counter]{promptbox}[2][]{
+  colback=gray!5,
+  colframe=gray!40,
+  title=\textbf{Box~\thetcbcounter: #2},
+  fonttitle=\bfseries,
+  breakable,
+  sharp corners,
+  boxrule=0.8pt,
+  #1
+}
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true
+}
+
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote. 
+\title{\bench~\&~\rmbench: A Unified Benchmark for Image Editing and Reward Modeling}
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+
+% \author{%
+%   David S.~Hippocampus\thanks{Use footnote for providing further information
+%     about author (webpage, alternative address)---\emph{not} for acknowledging
+%     funding agencies.} \\
+%   Department of Computer Science\\
+%   Cranberry-Lemon University\\
+%   Pittsburgh, PA 15213 \\
+%   \texttt{hippo@cs.cranberry-lemon.edu} \\
+%   % examples of more authors
+%   % \And
+%   % Coauthor \\
+%   % Affiliation \\
+%   % Address \\
+%   % \texttt{email} \\
+%   % \AND
+%   % Coauthor \\
+%   % Affiliation \\
+%   % Address \\
+%   % \texttt{email} \\
+%   % \And
+%   % Coauthor \\
+%   % Affiliation \\
+%   % Address \\
+%   % \texttt{email} \\
+%   % \And
+%   % Coauthor \\
+%   % Affiliation \\
+%   % Address \\
+%   % \texttt{email} \\
+% }
+
+\author{%
+    Xuehai Bai$^{1}$\thanks{Equal Contribution} \,\,\,
+    Yang Shi$^{2,3}$\footnotemark[1] \,\,\,
+    Yi-Fan Zhang$^{4}$\footnotemark[1]\,\,\thanks{Project Lead} \,\,\,
+    Xuanyu Zhu$^{2}$ \,
+    Yuran Wang$^{2}$ \,
+    \\
+    \bfseries
+    Yifan Dai$^{3}$ \,
+    Xinyu Liu$^{3}$ \,
+    Yiyan Ji$^{3}$ \,
+    Xiaoling Gu$^{1}$\thanks{Corresponding Author} \,\,\,
+    Yuanxing Zhang$^{3}$\footnotemark[3] \,\,\,
+    % Qixun Wang$^{2}$ \,
+    % Zhuoran Zhang$^{2}$ \,
+    % Huanyu Zhang$^{7}$ \,
+    % Dianyi Wang$^{8,9}$ \
+    % \\
+    % \bfseries
+    % Ruizhe Chen$^{10}$ \,
+    % Haotian Wang$^{11}$ \,
+    % Pengfei Wan$^{3}$ \,
+    \\ 
+    $^1$HDU\quad
+    $^2$PKU\quad
+    $^3$Kling Team\quad
+    $^4$CASIA\quad
+    % $^4$SJTU\quad
+    % $^5$HKUST\quad
+    % $^6$NJU\quad
+    \\
+    % $^8$FDU\quad
+    % $^9$SII\quad
+    % $^{10}$ZJU\quad
+    % $^{11}$THU
+    % \\
+    {\centering}
+    \url{https://github.com/bxhsort/Edit-Compass-and-EditReward-Compass}
+}
+
+
+\begin{document}
+
+
+\maketitle
+
+
+\begin{abstract}
+Recent image editing models have achieved remarkable progress in instruction following, multimodal understanding, and complex visual editing. However, existing benchmarks often fail to faithfully reflect human judgment, especially for strong frontier models, due to limited task difficulty and coarse-grained evaluation protocols. In parallel, reward models have become increasingly important for RL-based image editing optimization, yet existing reward model benchmarks still rely on unrealistic evaluation settings that deviate from practical RL scenarios. These limitations hinder reliable assessment of both image editing models and reward models.
+To address these challenges, we introduce \textbf{{\bench}} and \textbf{{\rmbench}}, a unified evaluation suite for image editing and reward modeling. {\bench} contains $2,388$ carefully annotated instances spanning six progressively challenging task categories, covering capabilities such as world knowledge reasoning, visual reasoning, and multi-image editing. Beyond broad task coverage, {\bench} adopts a fine-grained multidimensional evaluation framework based on structured reasoning and carefully designed scoring rubrics. In parallel, {\rmbench} contains $2,251$ preference pairs that simulate realistic reward modeling scenarios during RL optimization.
+We conduct extensive evaluations on $29$ frontier image editing models and $21$ reward models. The results reveal a substantial gap between proprietary and open-source systems, while also exposing persistent weaknesses in world knowledge understanding, visual reasoning, and multi-image editing. Moreover, native multimodal large language models outperform existing open-source reward models, including models explicitly trained on preference data. Overall, our benchmark suite provides a comprehensive and human-aligned framework for evaluating frontier image editing systems and reward models.
+\end{abstract}
+
+
+
+\input{section/1_introduction}
+
+\input{section/2_related_work}
+
+\input{section/3_method}
+
+\input{section/4_experiment}
+
+\input{section/5_conclusion}
+
+\input{section/Acknowledgements}
+
+\bibliographystyle{plain}
+
+\bibliography{neurips_2026}
+
+\newpage
+
+\appendix
+
+\input{section/x_appendix}
+
+ 
+
+\end{document}

@@ -1,0 +1,320 @@
+\begin{table*}[t]
+    \centering
+     
+    \caption{Performance of image editing models on the Multi-Image and Complex Task categories of {\bench}. The best results are marked in \textbf{bold} for
+    {\color[HTML]{F88825} open-} and {\color[HTML]{319B62} closed-} models, respectively.}
+    \label{supp: Multi-Image and Complex results}
+
+    \resizebox{\linewidth}{!}{%
+        \begin{tabular}{l|cccc|cccc}
+            \toprule
+           
+            \multirow{2}{*}{Model}
+            & \multicolumn{4}{c|}{\textbf{Multi-Image}}
+            & \multicolumn{4}{c}{\textbf{Complex}} \\
+            \cmidrule(lr){2-5} \cmidrule(lr){6-9}
+            & \textbf{Multi-Image Awareness}
+            & \textbf{Multi-Image Composition}
+            & \textbf{Virtual Try on}
+            & \textbf{AVG}
+            & \textbf{Complex Instruction}
+            & \textbf{Complex Paint(en)}
+            & \textbf{Complex Paint(cn)}
+            & \textbf{AVG} \\
+            \midrule
+            \multicolumn{9}{c}{\textit{English Version}} \\
+            \midrule
+
+            InstructPix2Pix~\cite{brooks2023instructpix2pix}
+            & -- & -- & -- & -- & 1.13 & 1.03 & 1.00  
+            & \cellcolor[HTML]{C8C8C8}1.07 \\
+
+            UltraEdit~\cite{zhao2024ultraedit}
+            & -- & -- & -- & -- & 1.20 & 1.02 & 1.00
+            & \cellcolor[HTML]{C8C8C8}1.10 \\
+            
+            AnyEdit~\cite{yu2025anyedit}
+            & -- & -- & -- & -- & 1.36 & 1.00 & 1.00
+            & \cellcolor[HTML]{C8C8C8}1.18 \\
+
+            MagicBrush~\cite{zhang2023magicbrush}
+            & -- & -- & -- & -- & 1.41 & 1.03 & 1.00
+            & \cellcolor[HTML]{C8C8C8}1.21 \\
+
+            FLUX.1 Kontext Dev~\cite{labs2025flux}
+            & -- & -- & -- & -- & 2.72 & 1.09 & 1.11
+            & \cellcolor[HTML]{C8C8C8}1.90 \\
+
+            FLUX.2 Dev~\cite{flux-2-2025}
+            & 1.80 & {\color[HTML]{F88825}\textbf{3.43}} & {\color[HTML]{F88825}\textbf{3.99}} & \cellcolor[HTML]{C8C8C8}{\color[HTML]{F88825}\textbf{2.93}}  & 3.73 & 1.08 & 1.00
+            & \cellcolor[HTML]{C8C8C8}2.61 \\
+
+            \midrule
+
+            OneCAT~\cite{li2025onecat}
+            & -- & -- & -- & --
+            & 1.02 & 1.02 & 1.00
+            & \cellcolor[HTML]{C8C8C8}1.01 \\
+
+            ChronoEdit~\cite{wu2025chronoedit}
+            & -- & -- & -- & --
+            & 2.72 & 1.20 & 1.09
+            & \cellcolor[HTML]{C8C8C8}1.02 \\
+
+            UniWorld-V1~\cite{lin2025uniworld}
+            & 1.30 & 1.35 & 1.10 & \cellcolor[HTML]{C8C8C8}1.54 & 2.41 & 1.07 & 1.03
+            & \cellcolor[HTML]{C8C8C8}1.17 \\
+
+            Lumina-DiMOO~\cite{xin2025lumina}
+            & -- & -- & -- & --
+            & 1.44 & 1.05 & 1.04
+            & \cellcolor[HTML]{C8C8C8}1.24 \\
+
+            
+            Nextstep-V1~\cite{han2025nextstep}
+            & -- & -- & -- & --
+            & 1.52 & 1.00 & 1.00
+            & \cellcolor[HTML]{C8C8C8}1.26 \\
+
+            InternVL-U~\cite{tian2026internvl}
+            & -- & -- & -- & --
+            & 1.61 & 1.02 & 1.00
+            & \cellcolor[HTML]{C8C8C8}1.31 \\
+
+            DeepGen 1.0~\cite{wang2026deepgen}
+            & -- & -- & -- & --
+            & 1.87 & 1.11 & 1.05
+            & \cellcolor[HTML]{C8C8C8}1.47 \\
+
+            UniReason1.0~\cite{wang2026unireason}
+            & 1.02 & 1.66 & 1.00 & \cellcolor[HTML]{C8C8C8}1.18 & 1.93 & 1.09 & 1.20
+            & \cellcolor[HTML]{C8C8C8}1.53 \\
+
+            HiDream-E1~\cite{cai2025hidream}
+            & -- & -- & -- & --
+            & 2.20 & 1.00 & 1.00
+            & \cellcolor[HTML]{C8C8C8}1.59 \\
+
+            OmniGen2~\cite{wu2025omnigen2}
+            & 1.32 & 1.51 & 1.14 & \cellcolor[HTML]{C8C8C8}1.31 & 2.67 & 1.17 & 1.09 
+            & \cellcolor[HTML]{C8C8C8}1.89 \\
+
+            Bagel~\cite{deng2025emerging}
+            & 1.13 & 1.63 & 1.10 & \cellcolor[HTML]{C8C8C8}1.25 & 3.43 & 1.02 & 1.03
+            & \cellcolor[HTML]{C8C8C8}2.22 \\
+
+            
+            Unipic3~\cite{wei2026skywork}
+            & 1.85 & 2.52 & 2.65 & \cellcolor[HTML]{C8C8C8}2.28 & 3.25 & 1.24 & 1.23
+            & \cellcolor[HTML]{C8C8C8}2.23 \\
+
+            Bagel-Think~\cite{deng2025emerging}
+            & 1.12 & 1.61 & 1.12 & \cellcolor[HTML]{C8C8C8}1.25 & 3.16 & 1.47 & 1.37
+            & \cellcolor[HTML]{C8C8C8} 2.28 \\
+
+            EMU3.5~\cite{cui2025emu3}
+            & \color[HTML]{F88825}\textbf{2.26} &  3.05  & 3.64 & \cellcolor[HTML]{C8C8C8}2.91 & 3.67 & 1.02 & 1.16
+            & \cellcolor[HTML]{C8C8C8}2.37 \\
+
+            
+
+            UniWorld-V2~\cite{li2025uniworld}
+            & 1.89 & 2.71 & 3.21 & \cellcolor[HTML]{C8C8C8}2.53 & 3.51 & 1.43 & 1.17
+            & \cellcolor[HTML]{C8C8C8}2.39 \\
+
+            Qwen-Image-Edit-2511~\cite{wu2025qwen}
+            & 1.90 & 2.84 & 3.80 & \cellcolor[HTML]{C8C8C8}2.75 & 3.79 & 1.35 & 1.10
+            & \cellcolor[HTML]{C8C8C8}2.49 \\
+
+            Longcat-Image-Edit~\cite{team2025longcat}
+            & -- & -- & -- & --
+            & \color[HTML]{F88825}\textbf{3.92} & 1.12 & 1.19
+            & \cellcolor[HTML]{C8C8C8}2.52 \\
+
+            JoyAI-Image-Edit~\cite{joyaiimageedit}
+            & -- & -- & -- & --
+            &  3.84  & 1.73 & 1.54
+            & \cellcolor[HTML]{C8C8C8}2.73 \\
+
+            Step1X-Edit-v1p2~\cite{liu2025step1x}
+            & -- & -- & -- & --
+            & 3.43 & \color[HTML]{F88825}\textbf{2.21} & \color[HTML]{F88825}\textbf{1.99}
+            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{F88825}\textbf{2.76}} \\
+
+           
+        
+
+            \midrule
+            Wan2.7-image~\cite{nanobananapro}
+            & 3.31 & 3.72 & 4.34 & \cellcolor[HTML]{C8C8C8}3.75 & 3.90 & 3.05 & 3.44
+            & \cellcolor[HTML]{C8C8C8} 3.57 \\
+
+            Seedream 4.5~\cite{seedream2025seedream}
+            & 3.31 & 3.70 & 4.33 & \cellcolor[HTML]{C8C8C8}3.74 & 4.07 & 3.19 & 3.32
+            & \cellcolor[HTML]{C8C8C8}3.66 \\
+
+            Nano Banana Pro~\cite{nanobananapro}
+            & 3.60 & 3.62 & 4.43 & \cellcolor[HTML]{C8C8C8}3.87 & {\color[HTML]{319B62}\textbf{4.40}} & 3.58 & 3.72
+            & \cellcolor[HTML]{C8C8C8}4.02 \\
+
+            Nano Banana 2~\cite{gemini3pro}
+            & {\color[HTML]{319B62}\textbf{3.71}} & {\color[HTML]{319B62}\textbf{3.76}} & {\color[HTML]{319B62}\textbf{4.60}} & \cellcolor[HTML]{C8C8C8}{\color[HTML]{319B62}\textbf{4.01}} & 4.32 & {\color[HTML]{319B62}\textbf{3.69}} & {\color[HTML]{319B62}\textbf{3.82}}
+            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{319B62}\textbf{4.04}} \\
+
+            
+
+            
+
+            \midrule
+            \multicolumn{9}{c}{\textit{Chinese Version}} \\
+            \midrule
+
+            InstructPix2Pix~\cite{brooks2023instructpix2pix}
+            & -- & -- & -- & -- & 1.13 & 1.02 & 1.02 
+            & \cellcolor[HTML]{C8C8C8}1.07 \\
+
+            UltraEdit~\cite{zhao2024ultraedit}
+            & -- & -- & -- & -- & 1.12 & 1.00 & 1.03
+            & \cellcolor[HTML]{C8C8C8}1.07 \\
+
+            MagicBrush~\cite{zhang2023magicbrush}
+            & -- & -- & -- & -- & 1.20 & 1.00 & 1.02 
+            & \cellcolor[HTML]{C8C8C8}1.10 \\
+
+            AnyEdit~\cite{yu2025anyedit}
+            & -- & -- & -- & --
+            & 1.13 & 1.00 & 1.00
+            & \cellcolor[HTML]{C8C8C8}1.13 \\
+
+           
+
+            FLUX.1 Kontext Dev~\cite{labs2025flux}
+            & -- & -- & -- & -- & 1.21 & 1.11 & 1.02
+            & \cellcolor[HTML]{C8C8C8}1.13 \\
+
+            FLUX.2 Dev~\cite{flux-2-2025}
+            & 2.15 & \color[HTML]{F88825}\textbf{3.92} & \color[HTML]{F88825}\textbf{4.00} & \cellcolor[HTML]{C8C8C8}{\color[HTML]{F88825}\textbf{3.21}} & 3.62 & 1.05 & 1.02
+            & \cellcolor[HTML]{C8C8C8}2.60 \\
+
+            \midrule
+            OneCAT~\cite{li2025onecat}
+            & -- & -- & -- & --
+            & 1.04 & 1.00 & 1.00
+            & \cellcolor[HTML]{C8C8C8}1.02 \\
+
+            Lumina-DiMOO~\cite{xin2025lumina}
+            & -- & -- & -- & --
+            & 1.40 & 1.02 & 1.00
+            & \cellcolor[HTML]{C8C8C8}1.20 \\
+
+            Nextstep-V1~\cite{han2025nextstep}
+            & -- & -- & -- & --
+            & 1.50 & 1.00 & 1.00
+            & \cellcolor[HTML]{C8C8C8}1.25 \\
+
+            UniWorld-V1~\cite{lin2025uniworld}
+            & 1.34 & 1.23 & 1.26 & \cellcolor[HTML]{C8C8C8}1.29 & 1.53 & 1.09 & 1.02
+            & \cellcolor[HTML]{C8C8C8}1.29 \\
+
+            InternVL-U~\cite{tian2026internvl}
+            & -- & -- & -- & --
+            & 1.59 & 1.02 & 1.00
+            & \cellcolor[HTML]{C8C8C8}1.29 \\
+
+            
+
+            HiDream-E1~\cite{cai2025hidream}
+            & -- & -- & -- & --
+            & 1.62 & 1.00 & 1.00
+            & \cellcolor[HTML]{C8C8C8}1.30 \\
+
+            DeepGen 1.0~\cite{wang2026deepgen}
+            & - & - & - & --
+            & 1.56 & 1.09 & 1.06
+            & \cellcolor[HTML]{C8C8C8}1.31 \\
+
+            UniReason1.0~\cite{wang2026unireason}
+            & 1.08 & 1.47 & 1.04 & \cellcolor[HTML]{C8C8C8}1.17 & 1.68 & 1.07 & 1.16
+            & \cellcolor[HTML]{C8C8C8}1.40 \\
+
+            ChronoEdit~\cite{wu2025chronoedit}
+            & - & - & - & --
+            & 2.91 & 1.07 & 1.13
+            & \cellcolor[HTML]{C8C8C8}1.99 \\
+
+            OmniGen2~\cite{wu2025omnigen2}
+            & 1.12 & 1.48 & 1.13 & \cellcolor[HTML]{C8C8C8}1.22 & 2.91 & 1.14 & 1.11
+            & \cellcolor[HTML]{C8C8C8}2.01 \\
+
+
+            Bagel-Think~\cite{deng2025emerging}
+            & 1.08 & 1.55 & 1.13 & \cellcolor[HTML]{C8C8C8}1.22 & 3.04 & 1.37 & 1.27
+            & \cellcolor[HTML]{C8C8C8}2.17 \\
+
+            Bagel~\cite{deng2025emerging}
+            & 1.14 & 1.54 & 1.12 & \cellcolor[HTML]{C8C8C8}1.24 & 3.42 & 1.18 & 1.07 
+            & \cellcolor[HTML]{C8C8C8}2.26 \\
+
+            UniWorld-V2~\cite{li2025uniworld}
+            & 1.65 & 2.61 & 3.33 & \cellcolor[HTML]{C8C8C8}2.44 & 3.60 & 1.37 & 1.09
+            & \cellcolor[HTML]{C8C8C8}2.40 \\
+
+            Unipic3~\cite{wei2026skywork}
+            & 1.62 & 2.79 & 2.19 & \cellcolor[HTML]{C8C8C8}2.11 & 3.59 & 1.44 & 1.27
+            & \cellcolor[HTML]{C8C8C8}2.46 \\
+
+            Qwen-Image-Edit-2511~\cite{wu2025qwen}
+            & 1.66 & 2.92 & 3.88 & \cellcolor[HTML]{C8C8C8}2.71 & 3.99 & 1.35 & 1.06
+            & \cellcolor[HTML]{C8C8C8}2.58 \\
+            
+            Longcat-Image-Edit~\cite{team2025longcat}
+            & -- & -- & -- & --
+            & \color[HTML]{F88825}\textbf{4.01} & 1.17 & 1.29
+            & \cellcolor[HTML]{C8C8C8}2.60 \\
+
+            JoyAI-Image-Edit~\cite{joyaiimageedit}
+            & - & - & - & --
+            & 3.69 & 1.68 & 1.46
+            & \cellcolor[HTML]{C8C8C8}2.62 \\
+
+            EMU3.5~\cite{cui2025emu3}
+            & \color[HTML]{F88825}\textbf{2.17} & 2.97 & 3.34 & \cellcolor[HTML]{C8C8C8}2.76 & 3.61 & 1.11 & 1.13
+            & \cellcolor[HTML]{C8C8C8}2.63 \\
+
+
+            Step1X-Edit-v1p2~\cite{liu2025step1x}
+            & -- & -- & -- & --
+            & 3.47 & \color[HTML]{F88825}\textbf{2.02} & \color[HTML]{F88825}\textbf{1.71}
+            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{F88825}\textbf{2.66}} \\
+
+     
+
+    
+            \midrule
+
+            Wan2.7-image~\cite{nanobananapro}
+            &  \color[HTML]{319B62}\textbf{3.48} & 3.64 & 4.32 & \cellcolor[HTML]{C8C8C8}3.79 & 4.01 & 3.33 & 3.45
+            & \cellcolor[HTML]{C8C8C8} 3.70 \\
+            
+            Seedream 4.5~\cite{seedream2025seedream}
+            & 3.40 & 3.73 & 4.31 & \cellcolor[HTML]{C8C8C8}3.78 & \color[HTML]{319B62}\textbf{4.05} & 3.45 & 3.44
+            & \cellcolor[HTML]{C8C8C8} 3.74 \\
+
+            
+            Nano Banana Pro~\cite{nanobananapro}
+            & 3.29 & 4.05 & 4.47 & \cellcolor[HTML]{C8C8C8}{\color[HTML]{319B62}\textbf{3.87}} & \color[HTML]{319B62}\textbf{4.34} & \color[HTML]{319B62}\textbf{3.78} & 3.80
+            & \cellcolor[HTML]{C8C8C8}4.06 \\
+
+            Nano Banana 2~\cite{gemini3pro}
+            & 3.37 & 3.58 & \color[HTML]{319B62}\textbf{4.58} & \cellcolor[HTML]{C8C8C8}3.81 & 4.31 & 3.73 & \color[HTML]{319B62}\textbf{3.94}
+            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{319B62}\textbf{4.07}} \\
+
+            
+
+            
+
+            \bottomrule
+        \end{tabular}%
+    }
+    \vspace{-1.0em}
+\end{table*}

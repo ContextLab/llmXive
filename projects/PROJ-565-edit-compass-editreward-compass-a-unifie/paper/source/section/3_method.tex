@@ -1,0 +1,87 @@
+\section{\bench}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.8\linewidth]{image/NIPS_Gallery_num3.pdf}
+   
+  \caption{\textbf{{\bench}} covers 36 diverse image editing tasks, spanning single-image and multi-image settings as well as general editing and algorithmic visual reasoning. Each panel shows a representative example for a task type, with the number of examples (\#) indicated.}
+  \label{fig:gallery}
+  \vspace{-1.0em}
+\end{figure}
+
+\subsection{Task Taxonomy}
+
+\textbf{General Tasks.} 
+General tasks evaluate the fundamental image editing capabilities of models, focusing on instruction understanding and accurate execution across both global and local editing scenarios. Global editing includes tasks such as \textit{style transfer} and \textit{background transformation}, while local editing extends beyond conventional operations like addition, removal, and replacement to more fine-grained edits.
+As illustrated in Figure~\ref{fig:gallery}, we introduce a novel \textit{Copy} task, which requires models to duplicate an existing object within the input image while preserving its visual attributes and maintaining spatial coherence. We further include challenging tasks such as \textit{change size}, which evaluate the ability to manipulate object scale and spatial relationships. Together, these tasks provide a comprehensive evaluation of general image editing capabilities at both global and object levels.
+
+\textbf{Dynamic Manipulation Tasks.}
+Dynamic Manipulation tasks evaluate a model's ability to perform object-level dynamic edits in real-world scenes, focusing on actions, movements, emotional changes, and inter-object interactions. Unlike general editing tasks, this category emphasizes dynamic scene understanding and interaction modeling.
+Specifically, this category includes five subtasks: (1) \textit{Action}, which modifies object motion; (2) \textit{Emotion Change}, which alters object expressions or affective states; (3) \textit{Object Movement}, which repositions objects within the scene; (4) \textit{Object Swap}, which exchanges attributes such as appearance, color, or state between objects; and (5) \textit{Object Interaction}, which evaluates the modeling of interactions among multiple objects.
+
+
+\textbf{World Knowledge Reasoning Tasks.}
+These tasks evaluate a model's ability to leverage real-world knowledge to infer and execute intended edits. We define five representative subtasks: (1) \textit{Temporal Reasoning}, which involves reasoning about past and future changes over time; (2) \textit{Causal Reasoning}, which evaluates understanding of object changes under external conditions; (3) \textit{Game Reasoning}, which requires reasoning about game rules and states; (4) \textit{Math Reasoning}, which tests mathematical reasoning ability; and (5) \textit{Chemical Reasoning}, which involves understanding chemical phenomena and reactions.
+These tasks evaluate models' abilities in temporal, causal, and domain-specific reasoning for complex image editing scenarios.
+
+\textbf{Algorithmic Visual Reasoning Tasks.}  
+Algorithmic visual reasoning tasks evaluate whether models can interpret visual inputs and perform multi-step reasoning to execute corresponding edits. This category includes ten task types, such as \textit{Optimal Path Identification}, \textit{Convex Hull Identification}, \textit{Maximum Submatrix Sum Identification}, and \textit{Knapsack Selection}. These tasks require models to understand visual structures, reason over them, and faithfully render the results through image editing, providing a challenging benchmark for deep visual reasoning in image editing.
+
+\textbf{Multi-Image Tasks.} 
+Multi-image tasks evaluate a model's ability to understand and integrate multiple input images for image editing. Beyond \textit{Multi-Image Composition} and \textit{Virtual Try-On}, we introduce a novel task termed \textit{Multi-Image-Aware Editing}, where models edit a target image based on fine-grained attributes extracted from reference images, such as object properties, actions, orientations, and colors. These tasks comprehensively evaluate models' abilities to understand, transfer, and manipulate visual information across multiple images.
+
+\textbf{Complex Tasks.} 
+Complex tasks evaluate a model's ability to handle compound instructions involving multiple editing intents. Unlike single-step editing tasks, these tasks require coherent execution of multiple edits within the source image.
+We further introduce \textit{Complex Paint}, a multimodal editing task that incorporates visual guidance directly into the source image through cues such as arrows, circles, and cross marks. This setting better reflects real-world interactive editing scenarios, where users combine textual instructions with visual indications to specify complex edits.
+These tasks provide a more rigorous evaluation of compositional and multimodal image editing capabilities.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.95\textwidth]{image/data_construction22.pdf}
+   
+  \caption{\textbf{Overview of the source data construction pipelines in \bench.}
+(a) General and Complex tasks.
+(b) Dynamic Manipulation, World Knowledge Reasoning, and Multi-Image tasks.
+(c) Algorithmic Visual Reasoning tasks.}
+  \label{Fig: Data Construction}
+  \vspace{-1em}
+\end{figure}
+
+
+% Summary
+\subsection{Benchmark Construction}
+The source data in {\bench} consists of original images and executable editing instructions. As illustrated in Figure~\ref{Fig: Data Construction}, we adopt three data construction strategies tailored to different task categories.
+For General and Complex tasks, original images are collected from online resources and real-world photographs, while editing instructions are generated with Gemini 3 Pro~\cite{gemini3pro} and GPT-5.1~\cite{gpt4o20250325}, followed by human verification. For Dynamic Manipulation, World Knowledge Reasoning, and Multi-Image tasks, image-editing experts design challenging yet realistic scenarios, describe the desired source images, and construct bilingual editing instructions in Chinese and English. The source images are then generated from enhanced prompts refined by Gemini 3 Pro~\cite{gemini3pro}. For Algorithmic Visual Reasoning tasks, we programmatically generate source images using Python and derive ground-truth annotations from algorithmic solutions.
+To ensure consistency and clarity, we design unified instruction templates for each task category that specify task requirements and intended outcomes. All samples are further reviewed by multiple human experts to ensure data quality. More details are provided in Appendix~\ref{supp: Edit-Compass Data Construction}.
+
+\subsection{Evaluation Pipeline}
+Accurately evaluating diverse image editing tasks in a human-aligned manner remains challenging, especially for instruction adherence and visual consistency. To address this, we structure the evaluation around three core dimensions: \textbf{Instruction Awareness}, \textbf{Visual Consistency}, and \textbf{Visual Quality}. Based on these dimensions, we design an MLLM-as-judge evaluation pipeline that produces both scalar scores and fine-grained rationales. For reasoning-intensive tasks, the rationale further includes the expected ground-truth outcome, improving evaluation accuracy and interpretability. More details are provided in Appendix~\ref{supp: Evaluation pipeline}.
+
+\textbf{Dimension 1: Instruction Awareness.}
+This dimension evaluates whether the edited image correctly follows the instruction and reflects the intended change. It consists of two dynamic subcomponents: \textit{Instruction Following} and \textit{World Knowledge Awareness}. Instruction following assesses whether the model correctly identifies the target object, applies the required attribute or spatial modification, and satisfies explicit constraints. World knowledge awareness evaluates whether the model incorporates relevant real-world knowledge and visual cues to infer implicit editing intent.
+
+\textbf{Dimension 2: Visual Consistency.}
+This dimension measures whether visual content unrelated to the requested edit is preserved. It includes \textit{Unedited Region Consistency (URC)} and \textit{Identity Consistency}. URC evaluates whether non-edited regions remain unchanged at both local and global levels. Identity consistency assesses whether the edited object preserves attributes irrelevant to the requested modification, avoiding unintended changes in appearance, structure, or identity.
+
+\textbf{Dimension 3: Visual Quality.}
+This dimension evaluates whether the edited image is visually plausible, coherent, and artifact-free. It considers naturalness, structural fidelity, artifact severity, distortion, and text legibility when applicable.
+
+
+
+
+\section{\rmbench}
+{\rmbench} is designed to systematically evaluate reward models for image editing. It contains $2,251$ preference pairs, each consisting of an editing instruction and two candidate edited images. We evaluate reward models using the same rubric-based judging framework as {\bench}, enabling consistent assessment across image editing models and reward models. This also allows us to examine the robustness and generality of our evaluation prompts. The construction of {\rmbench} follows two stages: sampling (Section~\ref{Sampling Stage}) and human annotation (Section~\ref{Reward Model Benchmark Human Annotation}).
+
+
+
+\subsection{Sampling Stage}
+\label{Sampling Stage}
+We use {\bench} as the source data for constructing {\rmbench}, as its diverse and executable editing instructions provide broad coverage of realistic editing scenarios. To better reflect reward modeling during RL optimization, we simulate the sampling process with a FlowGRPO-inspired strategy~\cite{liu2025flow} and introduce stochasticity through stochastic differential equations~\cite{song2020score}.
+Specifically, we sample candidate outputs from six image editing models and control the denoising steps to ensure visually clear and valid results. For tasks involving world knowledge or complex reasoning, where open-source models often show limited capability, we further expand the sampling pool to ten diverse open-source and proprietary models to improve task diversity and coverage. Additional implementation details are provided in Appendix~\ref{supp: EditReward-Compass Data Construction}.
+
+\subsection{Human Annotation Stage}
+\label{Reward Model Benchmark Human Annotation}
+To ensure the quality of {\rmbench}, we employ a two-stage human annotation pipeline to select preference pairs along multiple dimensions, including instruction adherence, visual consistency, and visual quality. Given the complexity of image editing evaluation, {\rmbench} places particular emphasis on instruction adherence and visual consistency. The annotation process involves eight human experts in image editing.
+In the first stage, three annotators independently review sampled outputs to construct candidate preference pairs. Ambiguous cases are flagged and resolved through discussion, leading to either consensus decisions or sample removal. In the second stage, five annotators conduct fine-grained verification of the selected pairs, checking both task validity and preference correctness. A pair is retained only when all five annotators reach unanimous agreement, ensuring high annotation consistency.
+
+\input{table/overall_en}

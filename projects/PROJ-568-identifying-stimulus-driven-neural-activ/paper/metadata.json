@@ -1,0 +1,33 @@
+{
+  "arxiv_id": "2202.01933",
+  "arxiv_url": "https://arxiv.org/abs/2202.01933",
+  "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings",
+  "authors": [
+    "Jeremy R. Manning"
+  ],
+  "submitter": "jeremymanning",
+  "submitted_via": "llmXive dashboard, GitHub issue #133",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "figs",
+    "figs/tfa.pdf",
+    "figs/signals.pdf",
+    "figs/superEEG.pdf",
+    "figs/electrodes.pdf",
+    "figs/stimulus_timeseries.pdf",
+    "figs/spatial_vs_temporal_resolution.pdf",
+    "figs/binary_vs_category.pdf",
+    "figs/joint_stimulus_activity_models.pdf",
+    "figs/patterns.pdf",
+    "llncs.cls",
+    "main.bbl",
+    "main.tex",
+    "splncs04.bst"
+  ]
+}

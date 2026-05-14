@@ -1,0 +1,853 @@
+\begin{thebibliography}{100}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\providecommand{\doi}[1]{https://doi.org/#1}
+
+\bibitem{AbadEtal16}
+Abadi, M., Barham, P., Chen, J., Chen, Z., Davis, A., Dean, J., Devin, M.,
+  Ghemawat, S., Irving, G., Isard, M., Kudlur, M., Levenberg, J., Monga, R.,
+  Moore, S., Murray, D.G., Steiner, B., Tucker, P., Vasudevan, V., Warden, P.,
+  Wicke, M., Yu, Y., Zheng, X.: {TensorFlow}: a system for large-scale machine
+  learning. Proceedings of the {USENIX} Symposium on Operating Systems Design
+  and Implementation pp. 265--283 (2016)
+
+\bibitem{deAnEtal18}
+de~Andrade, D.O.S., Maia, L.F., de~Figueir{\^e}do, H.F., Viana, W., Trinta, F.,
+  {de Souza Baptista}, C.: Photo annotation: a survey. Multimedia Tools and
+  Applications  \textbf{77},  423--457 (2018)
+
+\bibitem{ArchEtal07}
+Archip, N., Clatz, O., Whalen, S., Kacher, D., Fedorov, A., Kot, A.,
+  Chrisochoides, N., Jolesz, F., Golby, A., Black, P.M., Warfield, S.K.:
+  Non-rigid alignment of pre-operative {MRI}, {fMRI}, and {DT-MRI} with
+  intra-operative {MRI} for enhanced visualization and navigation in
+  image-guided neurosurgery. {NeuroImage}  \textbf{35}(2),  609--624 (2007)
+
+\bibitem{AverEtal06}
+Averbeck, B.B., Latham, P.E., Pouget, A.: Neural correlations, population
+  coding and computation. Nature Reviews Neuroscience  \textbf{7}(5),  358--366
+  (2006)
+
+\bibitem{AzevEtal09}
+Azevedo, F.A.C., Carvalho, L.R.B., Grinberg, L.T., Farfel, J.M., Ferretti,
+  R.E.L., Leite, R.E.P., Filho, W.J., Lent, R., Herculano-Houzel, S.: Equal
+  numbers of neuronal and nonneuronal cells make the human brain an
+  isometrically scaled-up primate brain. The Journal of Comparative Neurology
+  \textbf{513}(5),  532--541 (2009)
+
+\bibitem{BaboEtal11}
+Baboud, L., {\v C}adik, M., Eisemann, E., Seidel, H.P.: Automatic
+  photo-to-terrain alignment for the annotation of mountain pictures. {IEEE}
+  {Xplore} p. doi.org/10.1109/CVPR.2011.5995727 (2011)
+
+\bibitem{BakkEtal08}
+Bakker, A., Kirwan, C.B., Miller, M., Stark, C.E.L.: Pattern separation in the
+  human hippocampal {CA3} and dentate gyrus. Science  \textbf{319}(5870),
+  1640--1642 (2008)
+
+\bibitem{BaldEtal17}
+Baldassano, C., Chen, J., Zadbood, A., Pillow, J.W., Hasson, U., Norman, K.A.:
+  Discovering event structure in continuous narrative perception and memory.
+  Neuron  \textbf{95}(3),  709--721 (2017)
+
+\bibitem{Barr08}
+Barrs, B.A.: The mystery and magic of glia: a perspective on their roles in
+  health and disease. Neuron  \textbf{60}(3),  430--440 (2008)
+
+\bibitem{BassBull06}
+Bassett, D.E., Bullmore, E.D.: Small-world brain networks. The Neuroscientist
+  \textbf{12}(6),  512--523 (2006)
+
+\bibitem{BassSpor17}
+Bassett, D.S., Sporns, O.: Network neuroscience. Nature Neuroscience
+  \textbf{20}(3),  353--364 (2017)
+
+\bibitem{BeliEtal08}
+Belitski, A., Gretton, A., Magri, C., Murayama, Y., Montemurro, M.A.,
+  Logothetis, N.K.: Local field potentials and spiking activity in primary
+  visual cortex convey independent information about natural visual stimuli.
+  The Journal of Neuroscience  (2008)
+
+\bibitem{BeliEtal10}
+Belitski, A., Panzeri, S., Magri, C., Logothetis, N.K., Kayser, C.: Sensory
+  information in local field potentials and spikes from visual and auditory
+  cortices: time scales and frequency bands. Journal of Computational
+  Neuroscience  \textbf{29},  533--545 (2010)
+
+\bibitem{BengEtal03}
+Bengio, Y., Ducharme, R., Vincent, P.: A neural probabilistic language model.
+  Journal of Machine Learning Research  \textbf{3},  1137--1155 (2003)
+
+\bibitem{BetzEtal17b}
+Betzel, R.F., Medaglia, J.D., Kahn, A.E., Soffer, J., Schonhaut, D.R., Bassett,
+  D.S.: Inter-regional {ECoG} correlations predicted by communication dynamics,
+  geometry, and correlated gene expression. {arXiv}  \textbf{1706.06088} (2017)
+
+\bibitem{BlayEtal06}
+Blaye, A., Bernard-Peyron, V., Paour, J.L., Bonthoux, F.: Category flexibility
+  in children: distinguishing response flexibility from conceptual flexibility;
+  the protracted development of taxonomic representations. {European} Journal
+  of Developmental Psychology  \textbf{3}(2),  163--188 (2006)
+
+\bibitem{BleiEtal03}
+Blei, D.M., Ng, A.Y., Jordan, M.I.: Latent dirichlet allocation. Journal of
+  Machine Learning Research  \textbf{3},  993--1022 (2003)
+
+\bibitem{BoseEtal92}
+Boser, B.E., Guyon, I.M., Vapnick, V.: A training algorithm for optimal margin
+  classifiers. Fifth Annual Workshop on Computational Learning Theory, {ACM}
+  (1992)
+
+\bibitem{BrowEtal92}
+Brown, P.F., {deSouza}, P.V., Mercer, R.L.: Class-based $n$-gram models of
+  natural language. Computational Linguistics  \textbf{18}(4),  467--480 (1992)
+
+\bibitem{BrowEtal20}
+Brown, T.B., Mann, B., Ryder, N., Subbiah, M., Kaplan, J., Dhariwal, P.,
+  Neelakantan, A., Shyam, P., Sastry, G., Askell, A., Agarwal, S.,
+  Herbert-Voss, A., Krueger, G., Henighan, T., Child, R., Ramesh, A., Ziegler,
+  D.M., Wu, J., Winter, C., Hesse, C., Chen, M., Sigler, E., Litwin, M., Gray,
+  S., Chess, B., Clark, J., Berner, C., McCandlish, S., Radford, A., Sutskever,
+  I., Amodei, D.: Language models are few-shot learners. {arXiv}
+  \textbf{2005.14165} (2020)
+
+\bibitem{BullSpor09}
+Bullmore, E., Sporns, O.: Complex brain networks: graph theoretical analysis of
+  structural and functional systems. Nature Reviews Neuroscience
+  \textbf{10}(3),  186--198 (2009)
+
+\bibitem{Buzs06}
+Buzs\'{a}ki, G.: Rhythms of the brain. {Oxford} {University} Press, New York,
+  {NY} (2006)
+
+\bibitem{CarrChan70}
+Carroll, J.D., Chang, J.: Analysis of individual differences in
+  multidimensional scaling via an n-way generalization of ``eckart-young''
+  decomposition. Psychometrika  \textbf{35}(3),  283--319 (1970)
+
+\bibitem{CerEtal18}
+Cer, D., Yang, Y., Kong, S.Y., Hua, N., Limtiaco, N., John, R.S., Constant, N.,
+  Guajardo-Cespedes, M., Yuan, S., Tar, C., Sung, Y.H., Strope, B., Kurzweil,
+  R.: Universal sentence encoder. {arXiv}  \textbf{1803.11175} (2018)
+
+\bibitem{ChanEtal21a}
+Chang, L.J., Jolly, E., Cheong, J.H., Rapuano, K., Greenstein, N., Chen,
+  P.H.A., Manning, J.R.: Endogenous variation in ventromedial prefrontal cortex
+  state dynamics during naturalistic viewing reflects affective experience.
+  Science Advances  \textbf{7}(17),  doi.org/10.1126/sciadv.abf7129 (2021)
+
+\bibitem{ChanEtal20}
+Chang, L.J., Manning, J.R., Baldassano, C., {de la Vega}, A., Fleetwood, G.,
+  Geerlings, L., Haxby, J., Lahnakoski, J., Parkinson, C., Shappell, H., Shim,
+  W.M., Wager, T., Yarkoni, T., Yeshurun, Y., Finn, E.: Naturalistic data
+  analysis. Zenodo  \textbf{doi.org/10.5281/zenodo.3937848} (2020)
+
+\bibitem{ChenEtal21}
+Chen, H.T., Manning, J.R., van~der Meer, M.A.A.: Between-subject prediction
+  reveals a shared representational geometry in the rodent hippocampus. Current
+  Biology  \textbf{31}(19),  4293--4304 (2021)
+
+\bibitem{ChenEtal17}
+Chen, J., Leong, Y.C., Honey, C.J., Yong, C.H., Norman, K.A., Hasson, U.:
+  Shared memories reveal shared structure in neural activity across
+  individuals. Nature Neuroscience  \textbf{20}(1), ~115 (2017)
+
+\bibitem{ChenEtal13b}
+Chen, M., Zheng, A., Weinberger, K.: Fast image tagging. Proceedings of Machine
+  Learning Research  \textbf{28}(3),  1274--1282 (2013)
+
+\bibitem{ChenEtal15a}
+Chen, P.H., Chen, J., Yeshurun, Y., Hasson, U., Haxby, J., Ramadge, P.J.: A
+  reduced-dimension {fMRI} shared response model. In: Cortes, C., Lawrence,
+  N.D., Lee, D.D., Sugiyama, M., Garnett, R. (eds.) Advances in Neural
+  Information Processing Systems, pp. 460--468. Curran Associates, Incorporated
+  (2015)
+
+\bibitem{ChiuEtal21}
+Chiu, Y.C., Wang, T.H., Beck, D.M., Lewis-Peacock, J.A., Sahakyan, L.:
+  Separation of item and context in item-method directed forgetting.
+  {NeuroImage}  \textbf{235},  117983 (2021)
+
+\bibitem{ChurSejn88}
+Churchland, P.A., Sejnowski, T.J.: Perspectives on cognitive neuroscience.
+  Science  \textbf{242}(4879),  741--745 (1988)
+
+\bibitem{ComoEtal91}
+Comon, P., Jutten, C., Herault, J.: Blind separation of sources, part {II}:
+  problems statement. Signal Processing  \textbf{24}(1),  11--20 (1991)
+
+\bibitem{ConnEtal18}
+Conneau, A., Kiela, D., Schwenk, H., Barrault, L., Bordes, A.: Supervised
+  learning of universal sentence representations from natural language
+  inference data. {arXiv}  \textbf{1705.02364} (2018)
+
+\bibitem{CortVapn95}
+Cortes, C., Vapnick, V.: Support vector networks. Machine Learning
+  \textbf{20},  273--297 (1995)
+
+\bibitem{CronEtal11}
+Crone, N.E., Korzeniewska, A., Franaszczuk, P.J.: Cortical gamma responses:
+  searching high and low. International Journal of Psychophysiology
+  \textbf{79}(1),  9--15 (2011)
+
+\bibitem{DeerEtal90}
+Deerwester, S., Dumais, S.T., Furnas, G.W., Landauer, T.K., Harshman, R.:
+  Indexing by latent semantic analysis. Journal of the {American} Society for
+  Information Science  \textbf{41}(6),  391--407 (1990)
+
+\bibitem{DevlEtal18}
+Devlin, J., Chang, M.W., Lee, K., Toutanova, K.: {BERT}: pre-training of deep
+  bidirectional transformers for language understanding. {arXiv}
+  \textbf{1810.04805} (2018)
+
+\bibitem{DezfDali20}
+Dezfouli, M.P., Daliri, M.R.: Single-trial decoding from local field potential
+  using bag of word representation. Brain Topography  \textbf{33},  10--21
+  (2020)
+
+\bibitem{EkstEtal03}
+Ekstrom, A.D., Kahana, M.J., Caplan, J.B., Fields, T.A., Isham, E.A., Newman,
+  E.L., Fried, I.: Cellular networks underlying human spatial navigation.
+  Nature  \textbf{425},  184--187 (2003)
+
+\bibitem{EnniEtal88}
+Ennis, D.M., Palen, J., Mullen, K.: A multidimensional stochastic theory of
+  similarity. Journal of Mathematical Psychology  \textbf{32},  449--465 (1988)
+
+\bibitem{EzzyEtal17}
+Ezzyat, Y., Kragel, J.E., Burke, J.F., Levy, D.F., Lyalenko, A., Wanda, P.,
+  O'Sullivan, L., Hurley, K.B., Busygin, S., Pedisich, I., Sperling, M.R.,
+  Worrell, G.A., Kucewicz, M.T., Davis, K.A., Lucas, T.H., Inman, C.S., Lega,
+  B.C., Jobst, B.C., Sheth, S.A., Zaghloul, K., Jutras, M.J., Stein, J.M., Das,
+  S.R., Gorniak, R., Rizzuto, D.S., Kahana, M.J.: Direct brain stimulation
+  modulates encoding states and memory performance in humans. Current Biology
+  \textbf{27}, ~1--8 (2017)
+
+\bibitem{Finn21}
+Finn, E.S.: Is it time to put rest to rest? Trends in Cognitive Sciences
+  \textbf{doi.org/10.1016/j.tics.2021.09.005} (2021)
+
+\bibitem{FinnBand21}
+Finn, E.S., Bandettini, P.A.: Movie-watching outperforms rest for functional
+  connectivity-based prediction of behavior. {NeuroImage}  \textbf{235},
+  117963 (2021)
+
+\bibitem{FixHodg51}
+Fix, E., Hodges, J.L.: Discriminatory analysis. nonparametric discrimination:
+  consistency properties. Tech. rep., USAF School of Aviation Medicine (1951)
+
+\bibitem{FrieEtal07}
+Fries, P., Nikoli{\'c}, D., Singer, W.: The gamma cycle. Trends in
+  Neurosciences  \textbf{30}(7),  309--316 (2007)
+
+\bibitem{FuruEtal04}
+Furui, S., Kikuchi, T., Shinnaka, Y., Hori, C.: Speech-to-text and
+  speech-to-speech summarization of spontaneous speech. {IEEE} Transactions on
+  Speech and Audio Processing  \textbf{12}(4),  401--408 (2004)
+
+\bibitem{GelmHill07}
+Gelman, A., Hill, J.: Data analysis using regression and
+  multilevel/hierarchical models. Cambridge {University} Press (2007)
+
+\bibitem{GelmEtal15}
+Gelman, A., Lee, D., Guo, J.: Stan: a probabilistic programming language for
+  {Bayesian} inference and optimization. Journal of Educational and Behavioral
+  Statistics  \textbf{20}(5),  530--543 (2015)
+
+\bibitem{GersEtal11}
+Gershman, S.J., Blei, D.M., Pereira, F., Norman, K.A.: A topographic latent
+  source model for {fMRI} data. {NeuroImage}  \textbf{57},  89--100 (2011)
+
+\bibitem{GersEtal13}
+Gershman, S.J., Schapiro, A.C., Hupbach, A., Norman, K.A.: Neural context
+  reinstatement predicts memory misattribution. The Journal of Neuroscience
+  \textbf{33}(20),  8590--8595 (2013)
+
+\bibitem{HamiEtal21}
+Hamilton, L.S., Oganian, Y., Hall, J., Chang, E.F.: Parallel and distributed
+  encoding of speech across human auditory cortex. Cell  \textbf{184}(18),
+  4626--4639 (2021)
+
+\bibitem{HassEtal10}
+Hasson, U., Malach, R., Heeger, D.J.: Reliability of cortical activity during
+  natural stimulation. Trends in Cognitive Sciences  \textbf{14},  40--48
+  (2010)
+
+\bibitem{HassEtal04}
+Hasson, U., Nir, Y., Levy, I., Fuhrmann, G., Malach, R.: Intersubject
+  synchronization of cortical activity during natural vision. Science
+  \textbf{303},  1634--1640 (2004)
+
+\bibitem{HaufEtal18}
+Haufe, S., {DeGuzman}, P., Henin, S., Arcaro, M., Honey, C.J., Hasson, U.,
+  Parra, L.C.: Elucidating relations between {fMRI}, {ECoG}, and {EEG} through
+  a common natural stimulus. {NeuroImage}  \textbf{179}(1),  79--91 (2018)
+
+\bibitem{HaxbEtal01}
+Haxby, J.V., Gobbini, M.I., Furey, M.L., Ishai, A., Schouten, J.L., Pietrini,
+  P.: Distributed and overlapping representations of faces and objects in
+  ventral temporal cortex. Science  \textbf{293},  2425--2430 (2001)
+
+\bibitem{HaxbEtal11}
+Haxby, J.V., Guntupalli, J.S., Connolly, A.C., Halchenko, Y.O., Conroy, B.R.,
+  Gobbini, M.I., Hanke, M., Ramadge, P.J.: A common, high-dimensional model of
+  the representational space in human ventral temporal cortex. Neuron
+  \textbf{72},  404--416 (2011)
+
+\bibitem{HaxbEtal20}
+Haxby, J.V., Guntupalli, J.S., Nastase, S.A., Ma, F.: Hyperalignment: modeling
+  shared information encoded in idiosyncratic cortical topographies. {eLife}
+  \textbf{9},  e56601 (2020)
+
+\bibitem{Herc09}
+Herculano-Houzel, S.: The human brain in numbers: a linearly scaled-up primate
+  brain. Frontiers in Human Neuroscience  \textbf{3}(31),
+  doi.org/10.3389/neuro.09.031.2009 (2009)
+
+\bibitem{HermEtal10}
+Hermes, D., Miller, K.J., Noordmans, H.J., Vansteensel, M.J., Ramsey, N.F.:
+  Automated electocorticographic electrode localization on individually
+  rendered brain surfaces. Journal of Neuroscience Methods  \textbf{185}(2),
+  293--298 (2010)
+
+\bibitem{HeusEtal21}
+Heusser, A.C., Fitzpatrick, P.C., Manning, J.R.: Geometric models reveal
+  behavioral and neural signatures of transforming naturalistic experiences
+  into episodic memories. Nature Human Behavior  \textbf{5},  905--919 (2021)
+
+\bibitem{HeusEtal18a}
+Heusser, A.C., Ziman, K., Owen, L.L.W., Manning, J.R.: {HyperTools}: a {Python}
+  toolbox for gaining geometric insights into high-dimensional data. Journal of
+  Machine Learning Research  \textbf{18}(152), ~1--6 (2018)
+
+\bibitem{HodgHuxl52}
+Hodgkin, A.L., Huxley, A.F.: A quantitative description of membrane current and
+  its application to conduction and excitation in nerve. Journal of Physiology
+  \textbf{117},  500--544 (1952)
+
+\bibitem{HoneEtal07}
+Honey, C.J., K\"{o}tter, R., Breakspear, M., Sporns, O.: Network structure of
+  cerebral cortex shapes functional connectivity on multiple time scales.
+  Proceedings of the National Academy of Sciences, {USA}  \textbf{104}(24),
+  10240--10245 (2007)
+
+\bibitem{HoneEtal12a}
+Honey, C.J., Thesen, T., Donner, T.H., Silbert, L.J., Carlson, C.E., Devinsky,
+  O., Doyle, J.C., Rubin, N., Heeger, D.J., Hasson, U.: Slow cortical dynamics
+  and the accumulation of information over long timescales. Neuron
+  \textbf{76},  423--434 (2012)
+
+\bibitem{HubeWies62}
+Hubel, D.H., Wiesel, T.N.: Receptive fields, binocular interaction and
+  functional architecture in the cat's visual cortex. The Journal of Physiology
+   \textbf{160}(1), ~106 (1962)
+
+\bibitem{HubeWies68}
+Hubel, D.H., Wiesel, T.N.: Receptive fields and functional architecture of
+  monkey striate cortex. The Journal of Physiology  \textbf{195}(1), ~215
+  (1968)
+
+\bibitem{HuthEtal16}
+Huth, A.G., de~Heer, W.A., Griffiths, T.L., Theunissen, F.E., Gallant, J.L.:
+  Natural speech reveals the semantic maps that tile human cerebral cortex.
+  Nature  \textbf{532},  453--458 (2016)
+
+\bibitem{HuthEtal12}
+Huth, A.G., Nisimoto, S., Vu, A.T., Gallant, J.L.: A continuous semantic space
+  describes the representation of thousands of object and action categories
+  across the human brain. Neuron  \textbf{76}(6),  1210--1224 (2012)
+
+\bibitem{HuxtEtal08}
+Huxter, J., J, T., Allen, K., Csicsvari, J.: Theta phase-specific codes for
+  two-dimensional position, trajectory and heading in the hippocampus. Nature
+  Neuroscience  \textbf{11}(5),  587--594 (2008)
+
+\bibitem{Jaco21}
+Jacobs, G.H.: Color vision. In: Encyclopedia of Biological Chemistry {III}
+  {({Third} Edition}). Elsevier (2021)
+
+\bibitem{JacoEtal07}
+Jacobs, J., Kahana, M.J., Ekstrom, A.D., Fried, I.: Brain oscillations control
+  timing of single-neuron activity in humans. The Journal of Neuroscience
+  \textbf{27}(14),  3839--3844 (2007)
+
+\bibitem{JonaKord17}
+Jonas, E., Kording, K.P.: Could a neuroscientist understand a microprocessor?
+  {PLoS} Computational Biology  \textbf{13}(1),  e1005268 (2017)
+
+\bibitem{JoneEtal03}
+Jones, D.A., Wolf, F., Gibson, E., Williams, E., Fedorenko, E., Reynolds, D.A.,
+  Zissman, M.A.: Measuring the readability of automatic speech-to-text
+  transcripts. Proceedings of the Eurospeech Conference pp. 1585--1588 (2003)
+
+\bibitem{JuttHera91}
+Jutten, C., Herault, J.: Blind separation of sources, part {I}: an adaptive
+  algorithm based on neuromimetic architecture. Signal Processing
+  \textbf{24}(1),  1--10 (1991)
+
+\bibitem{KamoEtal98}
+Kamondi, A., Acsady, L., Wang, X.J., Buzs\'aki, G.: Theta oscillations in
+  somata and dendrites of hippocampal pyramidal cells in vivo:
+  activity-dependent phase-precession of action potentials. Hippocampus
+  \textbf{8},  244--261 (1998)
+
+\bibitem{KandEtal00}
+Kandel, E.R., Schwartz, J.H., Jessell, T.M.: Principles of neural science.
+  Appleton and Lange (2000)
+
+\bibitem{KharEtal21}
+Kharitonov, E., Lee, A., Polyak, A., Adi, Y., Copet, J., Lakhotia, K., Nguyen,
+  T.A., Rivi{\`e}re, M., Mohamed, A., Dupoux, E., Hsu, W.N.: Text-free
+  prosody-aware generative spoken language modeling. {arXiv}
+  \textbf{2109.03264} (2021)
+
+\bibitem{KhosEtal21}
+Khosla, M., Ngo, G.H., Jamison, K., Kuceveski, A., Sabuncu, M.R.: Cortical
+  response to naturalistic stimuli is largely predictable with deep neural
+  networks. Science Advances  \textbf{8}(22),  doi.org/10.1126/sciad.abe7547
+  (2021)
+
+\bibitem{KiEtal16}
+Ki, J.J., Kelly, S.P., Parra, L.C.: Attention stronly modulates reliability of
+  neural responses to naturalistic narrative stimuli. The Journal of
+  Neuroscience  \textbf{36}(10),  3092--3101 (2016)
+
+\bibitem{KiroEtal15}
+Kiros, R., Zhu, Y., Salakhutdinov, R., Zemel, R., Torralba, A., Urtasun, R.,
+  Fidler, S.: Skip-thought vectors. Advances in Neural Information Processing
+  Systems pp. 3294--3302 (2015)
+
+\bibitem{KnieEtal95}
+Knierim, J.J., Kudrimoti, H.S., McNaughton, B.L.: Place cells, head direction
+  cells, and the learning of landmark stability. The Journal of Neuroscience
+  \textbf{15}(3),  1648--1659 (1995)
+
+\bibitem{KrieEtal08b}
+Kriegeskorte, N., Mur, M., Bandettini, P.: Representational similarity
+  analysis--- connecting the branches of systems neuroscience. Frontiers in
+  Systems Neuroscience  \textbf{2},  1--28 (2008)
+
+\bibitem{KrizEtal12}
+Krizhevsky, A., Sutskever, I., Hinton, G.E.: {ImageNet} classification with
+  deep convolutional neural networks. Advances in Neural Information Processing
+  Systems  \textbf{25},  1097--1105 (2012)
+
+\bibitem{KrolSund03}
+Kroll, J.F., Sunderman, G.: Cognitive processes in second language learners and
+  bilinguals: the development of lexical and conceptual representations. In:
+  Doughty, C.J. (ed.) The Handbook of Second Language Acquisition. Wiley (2003)
+
+\bibitem{KumaEtal21}
+Kumar, M., Anderson, M.J., Antony, J.W., Baldassano, C., Brooks, P.P., Cai,
+  M.B., Chen, P.H., Ellis, C.T., Henselman-Petrusek, G., Huberdeau, D.,
+  Hutchinson, J.B., Li, Y.P., Lu, Q., Manning, J.R., Mennen, A.C., Nastase,
+  S.A., Richard, H., Schapiro, A.C., Schuck, N.W., Shvartsman, M., Sundaram,
+  N., Suo, D., Turek, J.S., Turner, D., Vo, V.A., Wallace, G., Wang, Y.,
+  Williams, J.A., Zhang, H., Zhu, X., Capota, M., Cohen, J.D., Hasson, U., Li,
+  K., Ramadge, P.J., Turk-Browne, N.B., Willke, T.L., Norman, K.A.: {BrainIAK}:
+  the brain image analysis kit. Aperture  \textbf{In press} (2021)
+
+\bibitem{LandDuma97}
+Landauer, T.K., Dumais, S.T.: A solution to {P}lato's problem: the latent
+  semantic analysis theory of acquisition, induction, and representation of
+  knowledge. Psychological Review  \textbf{104},  211--240 (1997)
+
+\bibitem{LeCuBeng95}
+LeCun, Y., Bengio, Y.: Convolutional neural networks for images, speech, and
+  time series. The Handbook of Brain Theory and Neural Networks
+  \textbf{3361}(10),  1--14 (1995)
+
+\bibitem{LeeEtal12}
+Lee, K.H., Kung, S.Y., Verma, N.: Low-energy formulations of support vector
+  machine kernel functions for biomedical sensor applications. Journal of
+  Signal Processing Systems  \textbf{69}(3),  339--349 (2012)
+
+\bibitem{LeutEtal07b}
+Leutgeb, J.K., Leutgeb, S., Moser, M.B., Moser, E.I.: Pattern separation in the
+  dentate gyrus and {CA3} of the hippocampus. Science  \textbf{315}(5814), ~961
+  (2007)
+
+\bibitem{Lism05}
+Lisman, J.: The theta/gamma discrete phase code occurring during the
+  hippocampal phase precession may be a more general brain coding scheme.
+  Hippocampus  \textbf{15},  913--922 (2005)
+
+\bibitem{Mann20}
+Manning, J.R.: Context reinstatement. In: Kahana, M.J., Wagner, A.D. (eds.)
+  Handbook of Human Memory. {Oxford} {University} Press (2020)
+
+\bibitem{MannEtal16}
+Manning, J.R., Hulbert, J.C., Williams, J., Piloto, L., Sahakyan, L., Norman,
+  K.A.: A neural signature of contextually mediated intentional forgetting.
+  Psychonomic Bulletin and Review  \textbf{23}(5),  1534--1542 (2016)
+
+\bibitem{MannEtal09a}
+Manning, J.R., Jacobs, J., Fried, I., Kahana, M.J.: Broadband shifts in {LFP}
+  power spectra are correlated with single-neuron spiking in humans. The
+  Journal of Neuroscience  \textbf{29}(43),  13613--13620 (2009)
+
+\bibitem{MannEtal11}
+Manning, J.R., Polyn, S.M., Baltuch, G., Litt, B., Kahana, M.J.: Oscillatory
+  patterns in temporal lobe reveal context reinstatement during memory search.
+  Proceedings of the National Academy of Sciences, {USA}  \textbf{108}(31),
+  12893--12897 (2011)
+
+\bibitem{MannEtal14b}
+Manning, J.R., Ranganath, R., Norman, K.A., Blei, D.M.: Topographic factor
+  analysis: a {B}ayesian model for inferring brain networks from neural data.
+  {PLoS} One  \textbf{9}(5),  e94914 (2014)
+
+\bibitem{MannEtal12}
+Manning, J.R., Sperling, M.R., Sharan, A., Rosenberg, E.A., Kahana, M.J.:
+  Spontaneously reactivated patterns in frontal and temporal lobe predict
+  semantic clustering during memory search. The Journal of Neuroscience
+  \textbf{32}(26),  8871--8878 (2012)
+
+\bibitem{MannEtal18}
+Manning, J.R., Zhu, X., Willke, T.L., Ranganath, R., Stachenfeld, K., Hasson,
+  U., Blei, D.M., Norman, K.A.: A probabilistic approach to discovering dynamic
+  full-brain functional connectivity patterns. {NeuroImage}  \textbf{180},
+  243--252 (2018)
+
+\bibitem{MikoEtal13a}
+Mikolov, T., Chen, K., Corrado, G., Dean, J.: Efficient estimation of word
+  representations in vector space. {arXiv}  \textbf{1301.3781} (2013)
+
+\bibitem{MikoEtal13b}
+Mikolov, T., Yih, W.T., Zweig, G.: Linguistic regularities in continuous space
+  word representations. Proceedings of the National Association for
+  Computational Linguistics pp. 746--751 (2013)
+
+\bibitem{MitcEtal08a}
+Mitchell, T.M., Shinkareva, S.V., Carlson, A., Chang, K.M., Malave, V.L.,
+  Mason, R.A., Just, M.A.: Predicting human brain activity associated with the
+  meanings of nouns. Science  \textbf{320}(5880), ~1191 (2008)
+
+\bibitem{MnihHint09}
+Mnih, A., Hinton, G.: A scalable hierarchical distributed language model.
+  Advances in Neural Information Processing Systems  (2009)
+
+\bibitem{MotaHerc14}
+Mota, B., Herculano-Houzel, S.: All brains are made of this: a fundamental
+  building block of brain matter with matching neuronal and glial masses.
+  Frontiers in Neuroanatomy  \textbf{8}(127),  doi.org/10.3389/fnana.2014.00127
+  (2014)
+
+\bibitem{MukaEtal05}
+Mukamel, R., Gelbard, H., Arieli, A., Hasson, U., Fried, I., Malach, R.:
+  Coupling between neuronal firing, field potentials, and {fMRI} in human
+  auditory cortex. Science  \textbf{309}(5736),  951--954 (2005)
+
+\bibitem{NastEtal18}
+Nastase, S.A., Halchenko, Y.O., Connolly, A.C., Gobbini, M.I., Haxby, J.V.:
+  Neural responses to naturalistic clips of behaving animals in two different
+  task contexts. Frontiers in Neuroscience  \textbf{12}(316),
+  doi.org/103389/fnins.2018.00316 (2018)
+
+\bibitem{NeldWedd72}
+Nelder, J.A., Wedderburn, R.W.M.: Generalized linear models. Journal of the
+  Royal Statistical Society  \textbf{135}(3),  370--384 (1972)
+
+\bibitem{NelsEtal04}
+Nelson, D.L., McEvoy, C.L., Schreiber, T.A.: The {U}niversity of {S}outh
+  {F}lorida free association, rhyme, and word fragment norms. Behavior Research
+  Methods, Instruments, and Computers  \textbf{36(3)},  402--407 (2004)
+
+\bibitem{Nobl04}
+Noble, W.S.: Support vector machine applications in computational biology.
+  Kernel Methods in Computational Biology pp. 71--92 (2004)
+
+\bibitem{NormEtal06b}
+Norman, K.A., Polyn, S.M., Detre, G.J., Haxby, J.V.: Beyond mind-reading:
+  multi-voxel pattern analysis of {fMRI} data. Trends in Cognitive Sciences
+  \textbf{10}(9),  424--430 (2006)
+
+\bibitem{OwenEtal21}
+Owen, L.L.W., Chang, T.H., Manning, J.R.: High-level cognition during story
+  listening is reflected in high-order dynamic correlations in neural activity
+  patterns. Nature Communications  \textbf{12}(5728),
+  doi.org/10.1038/s41467--021--25876--x (2021)
+
+\bibitem{OwenEtal20}
+Owen, L.L.W., Muntianu, T.A., Heusser, A.C., Daly, P., Scangos, K.W., Manning,
+  J.R.: A {Gaussian} process model of human electrocorticographic data.
+  Cerebral Cortex  \textbf{30}(10),  5333--5345 (2020)
+
+\bibitem{PaslEtal12}
+Pasley, B.N., David, S.V., Mesgarani, N., Flinker, A., Shamma, S.A., Crone,
+  N.E., Knight, R.T., Chang, E.F.: Reconstructing speech from human auditory
+  cortex. {PLoS} Biology  \textbf{10}(1),  e1001251 (2012)
+
+\bibitem{PaszEtal19}
+Paszke, A., Gross, S., Massa, F., Lerer, A., Bradbury, J., Chanan, G., Killeen,
+  T., Lin, Z., Gimelshein, N., Antiga, L., Desmaison, A., K{\" o}pf, A., Yang,
+  E., DeVito, Z., Raison, M., Tejani, A., Chilamkurthy, S., Steiner, B., Fang,
+  L., Bai, J., Chintala, S.: {PyTorch}: an imperative style, high-performance
+  deep learning library. Advances in Neural Information Processing Systems pp.
+  8026--8037 (2019)
+
+\bibitem{Pear01}
+Pearson, K.: On lines and planes of closest fit to systems of points in space.
+  The London, Edinburgh, and Dublin Philosophical Magazine and Journal of
+  Science  \textbf{2},  559--572 (1901)
+
+\bibitem{PennEtal14}
+Pennington, J., Socher, R., Manning, C.D.: {GloVe}: global vectors for word
+  representation. In: Proceedings of the Conference on Empirical Methods in
+  Natural Language Processing (2014)
+
+\bibitem{PeteEtal18}
+Peters, M.E., Neumann, M., Iyyer, M., Gardner, M., Clark, C., Lee, K.,
+  Zettlemoyer, L.: Deep contextualized word representations. {arXiv}
+  \textbf{1802.05365} (2018)
+
+\bibitem{PoldEtal99}
+Poldrack, R.A., Wagner, A.D., Prull, M.W., Desmond, J.E., Glover, G.H.,
+  Gabrieli, J.D.: Functional specialization for semantic and phonological
+  processing in the left inferior prefrontal cortex. {NeuroImage}  \textbf{10},
+   15--35 (1999)
+
+\bibitem{PolyEtal07}
+Polyn, S.M., Miller, J.F., Koshkin, V.S., Morton, N.W., Kahana, M.J.: Tracking
+  category-related neural patterns during free recall using scalp {EEG}.
+  Society for Neuroscience (2007)
+
+\bibitem{PolyEtal05a}
+Polyn, S.M., Natu, V.S., Cohen, J.D., Norman, K.A.: Category-specific cortical
+  activity precedes retrieval during memory search. Science  \textbf{310},
+  1963--1966 (2005)
+
+\bibitem{PoteEtal14}
+Potes, C., Brunner, P., Gunduz, A., Knight, R.T., Schalk, G.: Spatial and
+  temporal relationships of electrocorticographic alpha and gamma activity
+  during auditory processing. {NeuroImage}  \textbf{97},  188--195 (2014)
+
+\bibitem{PougEtal00}
+Pouget, A., Dayan, P., Zemel, R.: Information processing with population codes.
+  Nature Reviews Neuroscience  \textbf{1},  125--132 (2000)
+
+\bibitem{ProiEtal22}
+Proix, T., Saa, J.D., Christen, A., Martin, S., Pasley, B.N., Knight, R.T.,
+  Tian, X., Poeppel, D., Doyle, W.K., Devinsky, O., Arnal, L.H., M\'{e}gevand,
+  P., Giraud, A.L.: Imagined speech can be decoded from low- and
+  cross-frequency intracranial {EEG} features. Nature Communications
+  \textbf{13}(48),  doi.org/10.1038/s41467--021--27725--3 (2022)
+
+\bibitem{QuirEtal05}
+Quiroga, R.Q., Reddy, L., Kreiman, G., Koch, C., Fried, I.: Invariant visual
+  representation by single neurons in the human brain. Nature
+  \textbf{435}(23),  1102--1107 (2005)
+
+\bibitem{Rabi89}
+Rabiner, L.R.: A tutorial on {Hidden Markov Models} and selected applications
+  in speech recognition. Proceedings of the {IEEE}  \textbf{77}(2),  257--286
+  (1989)
+
+\bibitem{RadfEtal19}
+Radford, A., Wu, J., Child, R., Luan, D., Amodei, D., Sutskever, I.: Language
+  models are unsupervised multitask learners. {OpenAI} Blog  \textbf{1}(8)
+  (2019)
+
+\bibitem{Rasm06}
+Rasmussen, C.E.: {Gaussian} processes for machine learning. {MIT} Press (2006)
+
+\bibitem{RigoEtal13}
+Rigotti, M., Barak, O., Warden, M.R., Wang, X.J., Daw, N.D., Miller, E.K.,
+  Fusi, S.: The importance of mixed selectivity in complex cognitive tasks.
+  Nature  (2013)
+
+\bibitem{Roll13}
+Rolls, E.T.: The mechanisms for pattern completion and pattern separation in
+  the hippocampus. Frontiers in Systems Neuroscience  \textbf{7}(74),  1--21
+  (2013)
+
+\bibitem{RubiSpor10}
+Rubinov, M., Sporns, O.: Complex network measures of brain connectivity: uses
+  and interpretations. {NeuroImage}  \textbf{52},  1059--1069 (2010)
+
+\bibitem{SabuEtal10}
+Sabuncu, M.R., Singer, B.D., Conroy, B., Bryan, R.E., Ramadge, P.J., Haxby,
+  J.V.: Function-based intersubject alignment of human cortical anatomy.
+  Cerebral Cortex  \textbf{20}(1),  130--140 (2010)
+
+\bibitem{ScanEtal21}
+Scangos, K.W., Khambhati, A.N., Daly, P.M., Owen, L.L.W., Manning, J.R.,
+  Ambrose, J.B., Austin, E., Dawes, H.E., Krystal, A.D., Chang, E.F.:
+  Biomarkers of depression symptoms defined by direct intracranial
+  neurophysiology. Frontiers in Human Neuroscience  \textbf{In press} (2021)
+
+\bibitem{Scha03}
+Schapire, R.E.: The boosting approach to machine learning: an overview.
+  Nonlinear Estimation and Classification pp. 149--171 (2003)
+
+\bibitem{SedeEtal03}
+Sederberg, P.B., Kahana, M.J., Howard, M.W., Donner, E.J., Madsen, J.R.: Theta
+  and gamma oscillations during encoding predict subsequent recall. The Journal
+  of Neuroscience  \textbf{23}(34),  10809--10814 (2003)
+
+\bibitem{SedeEtal07b}
+Sederberg, P.B., Schulze-Bonhage, A., Madsen, J.R., Bromfield, E.B., Litt, B.,
+  Brandt, A., Kahana, M.J.: Gamma oscillations distinguish true from false
+  memories. Psychological Science  \textbf{18}(11),  927--932 (2007)
+
+\bibitem{SedeEtal07a}
+Sederberg, P.B., Schulze-Bonhage, A., Madsen, J.R., Bromfield, E.B., McCarthy,
+  D.C., Brandt, A., Tully, M.S., Kahana, M.J.: Hippocampal and neocortical
+  gamma oscillations predict memory formation in humans. Cerebral Cortex
+  \textbf{17}(5),  1190--1196 (2007)
+
+\bibitem{SejnEtal14}
+Sejnowski, T.J., Churchland, P.S., Movshon, J.A.: Putting big data to good use
+  in neuroscience. Nature Neuroscience  \textbf{17},  1440--1441 (2014)
+
+\bibitem{SekiEtal02}
+Sekihara, K., Nagarajan, S.S., Poeppel, D., Marantz, A., Miyashita, Y.:
+  Application of an {MEG} eigenspace beamformer to reconstructing
+  spatio-temporal activities of neural sources. Human Brain Mapping
+  \textbf{15}(4),  199--215 (2002)
+
+\bibitem{ShinEtal08}
+Shinkareva, S.V., Mason, R.A., Malave, V.L., Wang, W., Mitchell, T.M., Just,
+  M.A.: Using {fMRI} brain activation to identify cognitive states associated
+  with perception of tools and dwellings. {PLoS} One  \textbf{e1394}, ~1--9
+  (2008)
+
+\bibitem{SimoChan20}
+Simony, E., Chang, C.: Analysis of stimulus-induced brain dynamics during
+  naturalistic paradigms. {NeuroImage}  \textbf{216},  116461 (2020)
+
+\bibitem{SimoEtal16}
+Simony, E., Honey, C.J., Chen, J., Hasson, U.: Dynamic reconfiguration of the
+  default mode network during narrative comprehension. Nature Communications
+  \textbf{7}(12141),  1--13 (2016)
+
+\bibitem{SizeEtal18}
+Sizemore, A.E., Giusti, C., Kahn, A., Vettel, J.M., Betzel, R.F., Bassett,
+  D.S.: Cliques and cavities in the human connectome. Journal of Computational
+  Neuroscience  \textbf{44}(1),  115--145 (2018)
+
+\bibitem{SkagEtal96}
+Skaggs, W.E., Mc{N}aughton, B.L., Wilson, M.A., Barnes, C.A.: Theta phase
+  precession in hippocampal neuronal populations and the compression of
+  temporal sequences. Hippocampus  \textbf{6},  149--172 (1996)
+
+\bibitem{SmitEtal13d}
+Smith, E., Kellis, S., House, P., Greger, B.: Decoding stimulus identity from
+  multi-unit activity and local field potentials along the ventral auditory
+  stream in the awake primate: implications for cortical neural prostheses.
+  Journal of Neural Engineering  \textbf{10}(1),  16010 (2013)
+
+\bibitem{Spea04}
+Spearman, C.: General intelligence, objectively determined and measured.
+  Americal Journal of Psychology  \textbf{15},  201--292 (1904)
+
+\bibitem{SporBetz16}
+Sporns, O., Betzel, R.F.: Modular brain networks. Annual Review of Psychology
+  \textbf{67},  613--640 (2016)
+
+\bibitem{SporHone06}
+Sporns, O., Honey, C.J.: Small worlds inside big brains. Proceedings of the
+  National Academy of Sciences, {USA}  \textbf{103}(51),  19219--19220 (2006)
+
+\bibitem{SteyEtal04}
+Steyvers, M., Shiffrin, R.M., Nelson, D.L.: Word association spaces for
+  predicting semantic similarity effects in episodic memory. In: Healy, A.F.
+  (ed.) Cognitive Psychology and Its Applications: Festschrift in Honor of Lyle
+  Bourne, {Walter} {Kintsch}, and {Thomas} {Landauer}. {American} Psychological
+  Association, Washington, {DC} (2004)
+
+\bibitem{StonEtal18}
+Stone, Z., Zickler, T., Darrell, T.: Autotagging {Facebook}: social network
+  context improves photo annotation. {IEEE} {Xplore} p.
+  doi.org/10.1109/CVPRW.2008.4562956 (2018)
+
+\bibitem{StudEtal00}
+Studholme, C., Constable, R.T., Duncan, J.S.: Accurate alignment of functional
+  {EPI} data to anatomical {MRI} using a physics-based distortion model. {IEEE}
+  Transactions on Medical Imaging  \textbf{19}(11),  1115--1127 (2000)
+
+\bibitem{Tolm48}
+Tolman, E.C.: Cognitive maps in rats and men. Psychological Review
+  \textbf{55},  189--208 (1948)
+
+\bibitem{Torg58}
+Torgerson, W.S.: Theory and methods of scaling. Wiley, New York, {NY} (1958)
+
+\bibitem{TurnEtal13}
+Turner, B.M., Forstmann, B.U., Wagenmakers, E.J., Brown, S.D., Sederberg, P.B.,
+  Steyvers, M.: A {B}ayesian framework for simultaneously modeling neural and
+  behavioral data. {NeuroImage}  \textbf{72},  193--206 (2013)
+
+\bibitem{Wan90}
+Wan, E.A.: Neural network classification: a {Bayesian} interpretation. {IEEE}
+  Transactions on Neural Networks pp. 303--305 (1990)
+
+\bibitem{WangGuo19}
+Wang, Y., Guo, Y.: A hierarchical independent component anlysis model for
+  longitudinal neuroimaging studies. {NeuroImage}  \textbf{189}(1),  380--400
+  (2019)
+
+\bibitem{WestEtal98}
+Westerhuis, J.A., Kourti, T., MacGregor, J.F.: Analysis of multiblock and
+  hierarchical {PCA} and {PLS} models. Journal of Chemometrics  \textbf{12},
+  301--321 (1998)
+
+\bibitem{WietKiel19}
+Wieting, J., Kiela, D.: No training required: exploring random encoders for
+  sentence classification. {arXiv}  \textbf{1901.10444} (2019)
+
+\bibitem{WilpEtal90}
+Wilpon, J.G., Rabiner, L.R., Lee, C.H., Goldman, E.R.: Automatic recognition of
+  keywords in unconstrained speech using hidden {M}arkov models. {IEEE}
+  Transactions on Acoustics, Speech, and Signal Processing  \textbf{38}(11),
+  1870--1878 (1990)
+
+\bibitem{XieEtal21}
+Xie, T., Cheong, J.H., Manning, J.R., Brandt, A.M., Aronson, J.P., Jobst, B.C.,
+  Bujarski, K.A., Chang, L.J.: Minimal functional allignment of ventromedial
+  prefrontal cortex intracranial {EEG} signals during naturalistic viewing.
+  {bioRxiv}  \textbf{doi.org/10.1101/2021.05.10.443308} (2021)
+
+\bibitem{YacoEtal08}
+Yacoub, E., Harel, N., U{\u{g}}urbil, K.: High-field {fMRI} unveils orientation
+  columns in humans. Proceedings of the National Academy of Sciences, {USA}
+  \textbf{105}(30),  10607--10612 (2008)
+
+\bibitem{YassStar11}
+Yassa, M.A., Stark, C.E.L.: Pattern separation in the hippocampus. Trends in
+  Neurosciences  \textbf{34}(10),  515--525 (2011)
+
+\bibitem{YeoEtal11}
+Yeo, B.T.T., Krienen, F.M., Sepulcre, J., Sabuncu, M.R., Lashkari, D.,
+  Hollinshead, M., Roffman, J.L., Smoller, J.W., Zollei, L., Polimieni, J.R.,
+  Fischl, B., Liu, H., Buckner, R.L.: The organization of the human cerebral
+  cortex estimated by intrinsic functional connectivity. Journal of
+  Neurophysiology  \textbf{106}(3),  1125--1165 (2011)
+
+\bibitem{YeshEtal17}
+Yeshurun, Y., Swanson, S., Simony, E., Chen, J., Lazaridi, C., Honey, C.J.,
+  Hasson, U.: Same story, different story: the neural representation of
+  interpretive frameworks. Psychological Science  \textbf{28}(3),  307--319
+  (2017)
+
+\bibitem{Zanz19}
+Zanzotto, F.M.: Human-in-the-loop artificial intelligence. Journal of
+  Artificial Intelligence Research  \textbf{64},  243--252 (2019)
+
+\bibitem{ZengEtal14}
+Zeng, D., Liu, K., Lai, S., Zhou, G., Zhao, J.: Relation classification via
+  convolutional deep neural network. In: Proceedings of the International
+  Conference on Computational Linguistics. pp. 2335--2344 (2014)
+
+\bibitem{ZhanEtal18}
+Zhang, Q., Xiao, Z., Huang, C., Hu, S., Kulkarni, P., Martinez, E., Tong, A.P.,
+  Garg, A., Zhou, H., Chen, Z., Wang, J.: Local field potential decoding of the
+  onset and intensity of acute pain in rats. Scientific Reports
+  \textbf{8}(8299),  doi.org/10.1038/s41598--018--26527--w (2018)
+
+\bibitem{ZimaEtal18}
+Ziman, K., Heusser, A.C., Fitzpatrick, P.C., Field, C.E., Manning, J.R.: Is
+  automatic speech-to-text transcription ready for use in psychological
+  experiments? Behavior Research Methods  \textbf{50},  2597--2605 (2018)
+
+\end{thebibliography}

@@ -1,0 +1,285 @@
+\section{Evaluation}
+\label{sec:evaluation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/eval_n3_schedule_timeline.png}
+    \caption{Concurrent multi-LoRA training overlaps GRPO runs under the same base-model allocation. Timeline lanes show the schedule, and the lower panels summarize average GPU utilization, samples below 10\% utilization, and peak memory from the same runs. Vertical dashed lines mark completion time for the concurrent and sequential schedules.}
+    \label{fig:e2_gpu_utilization}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.2pt}
+\renewcommand{\arraystretch}{1.10}
+\caption{Concurrent-training schedule summary for three GRPO policies. Time saved and speedup compare each concurrent MinT row against the sequential row for the same model.}
+\label{tab:e2_training_utilization}
+\fittowidth{%
+\begin{tabular}{@{}M{0.14\textwidth}M{0.19\textwidth}M{0.16\textwidth}M{0.15\textwidth}M{0.19\textwidth}M{0.10\textwidth}M{0.13\textwidth}@{}}
+\toprule
+\apphead Model & Schedule & Workloads & Wall time & Time saved & Speedup & Peak memory \\
+\midrule
+\appgroup{7}{Qwen3-4B}
+Qwen3-4B & \appkey{Sequential} & 3 GRPO policies & 3081.2 s & -- & $1.00\times$ & 65.6 GiB \\
+Qwen3-4B & \appkey{Concurrent MinT} & 3 GRPO policies & 1736.1 s & 1345.1 s / 43.7\% & $1.77\times$ & 65.6 GiB \\
+\appgroup{7}{Qwen3-30B}
+Qwen3-30B & \appkey{Sequential} & 3 GRPO policies & 10130.0 s & -- & $1.00\times$ & 68.0 GiB \\
+Qwen3-30B & \appkey{Concurrent MinT} & 3 GRPO policies & 7008.4 s & 3121.6 s / 30.8\% & $1.45\times$ & 68.0 GiB \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+The experiments test the three scaling axes through the same LoRA lifecycle. Scale Down is measured by adapter-only handoff against merge-and-load paths and by concurrent training schedules that reuse one resident base allocation. Scale Up is measured by dense SFT, DPO, and GRPO runs, sparse-route MoE RL, Qwen3-235B-A22B GRPO, and a Kimi K2 1T countdown-task path. Scale Out is measured by separating addressable catalog size, CPU-cache size, same-batch adapter diversity, and cold-load cost; the million-scale claim is a catalog and routing claim, not a claim that one engine keeps every adapter resident or active.
+
+An adapter revision means a fixed exported adapter version selected by rollout, evaluation, serving, or rollback. The term names the behavior selected by a request, separate from the file transfer or load operation that may place that adapter near a sampler.
+
+The handoff and utilization measurements isolate the systems effect of making the adapter the training-serving artifact. The learning measurements confirm that the same lifecycle supports the public cookbook recipes and larger sparse-model deployments. The serving measurements show that a large policy catalog is an addressability scale, while CPU-cache residency, same-batch adapter diversity, and cold-load work are the online execution scales. This distinction is the evidence boundary for the abstract: MinT can manage a million-scale catalog while training and serving selected revisions through bounded resident working sets.
+
+SFT denotes supervised fine-tuning. DPO denotes pairwise preference optimization. GRPO denotes rollout-based reinforcement learning. The public MinT cookbook is the recipe layer around the framework: it packages task configurations, benchmark manifests, proxy screens, full confirmations, and maintained adapter recipes~\citep{mint_cookbook2026}. DAPO-AIME24 is the math-RL cookbook recipe evaluated on AIME 2024, chat-DPO is the pairwise-preference recipe, LawBench is the legal-reasoning recipe, and Fineval is a finance-domain supervised benchmark.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figures/eval_handoff_breakdown.png}
+    \caption{Adapter handoff avoids the merge-and-load stages that dominate the full-checkpoint path. Each stacked bar separates materialization or adapter loading from rollout under the probe protocol for the corresponding model.}
+    \label{fig:e1_handoff_breakdown}
+\end{figure}
+\subsection{Scale Down and Multi-Train Utilization}
+\label{sec:e12_pilots}
+
+Adapter handoff compares two ways to send a newly trained policy to the sampler. The merge path materializes a full checkpoint and then loads that checkpoint before rollout. The MinT path loads the exported adapter into a resident shared-base sampler. \Cref{fig:e1_handoff_breakdown} plots total step time as materialization or adapter loading plus rollout, and \cref{tab:e1_handoff_paths} records the file sizes, cold first-sample latency, and total versus warm generation rates used to interpret the bars. The total rate includes the first request in the probe sequence, while the warm rate excludes it. A merged checkpoint may achieve higher or lower token throughput than a LoRA-based adapter during rollout, so the end-to-end comparison involves a trade-off between the cost of shipping the artifact and the resulting sampling throughput. In these runs, loading the adapter saves enough materialization and loading time to dominate the rollout-speed differences.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.05}
+\caption{File and sampling metrics for the adapter-handoff comparison in \cref{fig:e1_handoff_breakdown}. Cold first sample is the first request wall time. The total sample speed includes that first request, while the warm sample speed excludes it.}
+\label{tab:e1_handoff_paths}
+\fittowidth{%
+\begin{tabular}{@{}M{0.11\textwidth}M{0.12\textwidth}M{0.16\textwidth}M{0.14\textwidth}M{0.17\textwidth}M{0.13\textwidth}M{0.15\textwidth}@{}}
+\toprule
+\apphead Model & Path & Checkpoint parameters & Checkpoint file size & Materialization or load & Cold first sample & \makecell{sample speed\\total/warm} \\
+\midrule
+\appgroup{7}{Qwen3-4B}
+Qwen3-4B & \appkey{Adapter} & rank-32 LoRA & 252 MiB & 0.036 s & 4.114 s & 15.568/15.567 tok/s \\
+Qwen3-4B & \appkey{Merge} & full model & 8.061 GB & 71.820 s & 55.704 s & 4.697/20.595 tok/s \\
+\appgroup{7}{Qwen3-30B}
+Qwen3-30B & \appkey{Adapter} & rank-16 LoRA & 1.692 GB & 46.455 s & 117.304 s & 1.874/5.700 tok/s \\
+Qwen3-30B & \appkey{Merge} & full model & 61.084 GB & 402.245 s & 156.074 s & 1.573/6.904 tok/s \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+Concurrent training measures schedule utilization under one resident base allocation. A sequential schedule can fit in memory while leaving the resident base idle between rollout, update, export, and evaluation phases. MinT keeps the same peak memory budget and lets other policies use those idle periods on resident trainers and samplers. The measured speedup comes from filling cross-policy gaps in the schedule, while each rollout and optimizer step still runs the same model computation for its selected policy. In the completed GRPO runs, concurrent execution finishes in 1736.1 s instead of 3081.2 s on Qwen3-4B and in 7008.4 s instead of 10130.0 s on Qwen3-30B, while peak memory remains unchanged within each model size. \Cref{fig:e2_gpu_utilization} shows the measured schedule timeline and matching GPU telemetry, and \cref{tab:e2_training_utilization} records the schedule summaries.
+
+The timing and utilization experiments isolate the systems effect of the adapter design. Learning quality is evaluated under the same adapter lifecycle in the next group of experiments.
+\FloatBarrier
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/eval_dense_curves.png}
+    \caption{Dense-model learning traces. Each panel keeps the native metric for its training paradigm instead of forcing SFT loss, DPO reward margin, and GRPO train accuracy onto one axis.}
+    \label{fig:e3_dense_curves}
+\end{figure}
+
+\subsection{Scale Up Across Training Paradigms and Model Scales}
+\label{sec:e3_curves}
+
+Dense-model experiments use Qwen3-4B for SFT and DPO, and Qwen3-8B base for GRPO. The SFT rows use FinEval and finance-sentiment benchmarks from the FinGPT evaluation suite~\citep{fineval2023,fingpt2023}. The DPO row uses the chat-DPO recipe's reward-margin trace. The GRPO row uses the Qwen3-8B-base DAPO-AIME24 trace on the 2024 American Invitational Mathematics Examination~\citep{maa_aime2024}. \Cref{fig:e3_dense_curves} shows the learning traces, while \cref{tab:e3_dense_results} separates curve-backed rows from held-out confirmation rows.
+
+Each paradigm exercises a different part of the same lifecycle. SFT tests whether a supervised dataset moves into the adapter, trains through the LoRA path, and produces held-out gains comparable to a full fine-tune; the five FinGPT-suite rows cover finance-domain accuracy and the broader FinEval task at the same time. DPO tests whether a preference-pair objective drives the same adapter through the chat-DPO recipe and increases the chosen-minus-rejected reward margin during optimization. GRPO tests whether a rollout-based RL recipe updates the adapter from on-policy AIME 2024 rollouts. Together, the rows show one adapter type and one export format carrying SFT loss, DPO reward margin, and GRPO train accuracy without any per-paradigm tooling change. \Cref{tab:e3_dense_results} reports the endpoint rows that quantify each of these checks.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.2pt}
+\renewcommand{\arraystretch}{1.10}
+\caption{Dense-model result rows. The table keeps the native metric for each objective and separates plotted traces from held-out confirmation scores. FPB, FiQA-SA, TFNS, and NWGI are finance-sentiment held-out sets from the FinGPT evaluation suite~\citep{fingpt2023}.}
+\label{tab:e3_dense_results}
+\fittowidth{%
+\begin{tabular}{@{}M{0.14\textwidth}M{0.25\textwidth}M{0.16\textwidth}M{0.17\textwidth}M{0.20\textwidth}@{}}
+\toprule
+\apphead Paradigm & Benchmark & Metric & Evidence & Result \\
+\midrule
+\appgroup{5}{SFT: finance suite}
+\appkey{SFT} & Fineval & accuracy & held-out score & 0.4226 $\rightarrow$ 0.7811 \\
+\appkey{SFT} & FPB & accuracy & held-out score & 0.6906 $\rightarrow$ 0.8804 \\
+\appkey{SFT} & FiQA-SA & accuracy & held-out score & 0.8255 $\rightarrow$ 0.8473 \\
+\appkey{SFT} & TFNS & accuracy & held-out score & 0.5959 $\rightarrow$ 0.9095 \\
+\appkey{SFT} & NWGI & accuracy & held-out score & 0.4954 $\rightarrow$ 0.5925 \\
+\appgroup{5}{Preference optimization}
+\appkey{DPO} & chat pairs & reward margin & trace endpoint & $-0.03 \rightarrow 30.88$ \\
+\appgroup{5}{Reinforcement learning}
+\appkey{GRPO} & AIME24 & train accuracy (EMA) & Qwen3-8B trace & $0.11 \rightarrow 0.47$; best raw 0.568 at step 76 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+The dense rows separate two kinds of evidence under the same adapter lifecycle. The five SFT rows from the FinGPT evaluation suite all confirm large held-out gains over the base Qwen3-4B score: roughly $+36$ points on FinEval, $+19$ on FPB, $+31$ on TFNS, and smaller but consistent moves on FiQA-SA and NWGI. The DPO row reports the reward-margin endpoint from the chat-DPO optimization trace. The GRPO row reports the Qwen3-8B-base DAPO-AIME24 training trace, whose EMA train accuracy rises from 0.11 to 0.47 and whose raw best point reaches 0.568 at step 76. The combined message is paradigm-agnostic: the same lifecycle carries supervised, preference-based, and rollout-based updates without any per-paradigm checkpoint surgery.
+
+MoE experiments add two conditions beyond the dense rows. First, expert routes must be replayed during training-time scoring so that tokens are scored under the MoE path that generated them. Second, large MoE models test whether the adapter/base split survives distributed placement across tensor-parallel and expert-parallel workers. The Qwen3-235B-A22B run uses the Hopper-class \texttt{mint-prod-aliyun} profile: a 32-GPU Megatron trainer with TP=4 and EP=8 (PP=1), paired with a 16-GPU TP=16 serving deployment. The Kimi K2 1.04T countdown-task run uses a 64-GPU H800 deployment with the same LoRA RL path on 32.6B active parameters. \Cref{fig:e3_moe_curves} shows the 30B and 235B AIME24 curves together with the Kimi K2 1T countdown-task RL curve~\citep{liu2025Build}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.98\textwidth]{figures/eval_moe_scale_curves.png}
+    \caption{MoE RL curves. The 30B/235B panels use AIME24 mean@1 with aligned y axes and smoothed overlays. The Kimi K2 panel gives the end-to-end LoRA RL reward curve for the 1T countdown-task run~\citep{liu2025Build}.}
+    \vspace{-10pt}
+    \label{fig:e3_moe_curves}
+\end{figure}
+
+The 30B-A3B and 235B-A22B panels share the same y axis to make the scale jump readable. The 30B-A3B AIME24 curve rises from a noisy near-zero start to a stable mid-band by the end of the logged window, while the 235B-A22B curve reaches 0.967 peak mean@1 -- close to saturation on AIME24 under the same LoRA RL path. The Kimi K2 panel switches to task reward instead of an AIME-style accuracy because the countdown task has a different correctness target, but the curve follows the same rollout-update-export-evaluate loop on a 1.04T-parameter base. Together, the three panels close the scale-up claim along the adapter lifecycle: the LoRA adapter remains the policy object across a 30B sparse base, a 235B-A22B Hopper deployment, and a trillion-parameter MoE, with no change to the training-serving handoff between them.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/lawbench_qwen3_4b_autoresearch.pdf}
+    \caption{LawBench AutoResearch trace from the cookbook utilities. Pale gray points are proxy-screened candidates that were not promoted, blue-outlined points are kept proxy candidates, the blue step line is the running best among kept candidates, violet points are full LawBench evaluations, and the black diamond is the full-manifest control. The labeled v11 proxy high was rejected after full-benchmark confirmation.}
+    \label{fig:e3_autoresearch_lawbench}
+\end{figure}
+
+
+The MoE route counters report how often token-level scoring attempts needed route-consistency handling. On Qwen3-30B, the run with R3 has a mean out-of-route scoring ratio of 0.0013\% across 87 logged steps, while the comparable no-R3 run averages 0.0097\% across 50 logged steps. On Qwen3-235B, the R3 run averages 0.0253\% across 88 logged steps. These counters are small because they are token-level rates, yet they identify the exact failure channel that R3 controls: a token sampled under one expert route should not be scored as if a different route had produced it. The Qwen3-235B curve reaches 0.967 peak mean@1 on AIME24.
+
+AutoResearch evaluates recipe candidates in two stages. Proxy LawBench tasks screen many data-manifest and recipe variants, and selected variants then receive full LawBench confirmation before being counted as improved recipes~\citep{lawbench2024}. FinGPT, DAPO-AIME, and chat-DPO supply confirmed SFT, GRPO, and DPO rows above. The cookbook provides AutoResearch utilities for coding agents to launch MinT runs, screen candidate recipes on proxy LawBench tasks, and promote selected candidates to full LawBench confirmation. In the LawBench run, the base Qwen3-4B full score is 0.4628. The v10 recipe is the earlier learning-rate-tuned line. The high-proxy v11 candidate remains discarded because its full LawBench score is 0.4858, below v10's 0.4889. The full-manifest control reruns the later data manifest without the promoted changes and reaches 0.4712. The maintained v23 weighted-aligned recipe extends the aligned-data line to a fairer exposure budget; it reaches 0.5554 on the proxy screen at step 100 and 0.5079 on the full benchmark~\citep{mint_cookbook2026}. \Cref{fig:e3_autoresearch_lawbench} plots the proxy-search trajectory and full-benchmark confirmation points.
+
+The proxy-versus-full divergence is the methodological signal the cookbook is built around. The v11 candidate set a new proxy high but its full LawBench score fell below v10's; this is the exact failure mode an unsupervised proxy can produce when its task distribution diverges from the full benchmark's. The full-manifest control at 0.4712 shows that the later data manifest alone does not produce the gain, which separates data effects from recipe effects in the same trace. The maintained v23 weighted-aligned line is the candidate that survives both stages, with a proxy reading of 0.5554 at step 100 and a full reading of 0.5079, well above the base 0.4628 and the v10/v11 cluster. Reading the running-best line together with the kept-candidate filter is how AutoResearch decides to record progress instead of celebrating a single high point, and it is the same lifecycle pattern the previous paradigms use: train an adapter, freeze it as a revision, evaluate that exact revision, then decide whether it enters the maintained recipe set.
+
+\FloatBarrier
+
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.2pt}
+\renewcommand{\arraystretch}{1.10}
+\caption{Policy-population serving bounds on one Qwen3-30B rank-1 serving actor with TP=4.}
+\label{tab:e4_serving_summary}
+\fittowidth{%
+\begin{tabular}{@{}M{0.20\textwidth}M{0.25\textwidth}M{0.25\textwidth}M{0.23\textwidth}@{}}
+\toprule
+\apphead Resource tier & Question & Measured bound & Takeaway \\
+\midrule
+\appgroup{4}{Control-plane addressability}
+\appkey{Addressable catalog}
+& How many policy revisions can requests select from?
+& Catalog sweep from 1k to 100k adapters
+& Catalog size stays a name-resolution scale; local cache state determines warm/cold latency. \\
+\addlinespace
+
+\appgroup{4}{Local adapter cache}
+\appkey{CPU adapter cache}
+& How many adapters can one actor keep resident?
+& 369 loaded adapters at a 512-adapter hotset; 550 loaded adapters under 2048-adapter weak-locality pressure
+& CPU memory holds hundreds of adapters; weak locality raises tail latency. \\
+\addlinespace
+
+\appkey{Adapters in one GPU batch}
+& How many adapters can decoding use?
+& 64 distinct adapters in the tested same-batch window
+& Batch execution has the smallest measured adapter-diversity window. \\
+\addlinespace
+
+\appgroup{4}{Cold-load path}
+\appkey{Cold loading}
+& What happens on cache misses?
+& Warm $N=64$ p95 21.35 s; cold-cache p95 199.81 s; $N=16$ cold-load staircase 1.375--23.267 s
+& Different missing adapters are loaded one at a time before decoding. \\
+\addlinespace
+
+\appkey{Adapter representation}
+& How costly is tensor fanout?
+& 37{,}248 tensors to 672 tensors; 1.05$\times$ byte change; 8.5--8.7$\times$ faster live load
+& Packing speeds the cache-miss load path by removing small-object fanout. \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Policy-Population Serving}
+\label{sec:e4_serving}
+
+Multi-LoRA serving becomes a policy-population problem when many exported adapter revisions are deployable at once. Training still exports a LoRA adapter instead of a full checkpoint, and serving still keeps the base model resident. A request names one policy revision; the serving actor either finds the adapter in the GPU batch, promotes it from the CPU cache, or loads it from shared storage after a cache miss. Only the policies selected by the current batch consume GPU-batch adapter slots.
+
+The serving experiments use Qwen3-30B rank-1 MoE LoRA adapters on one 4-GPU tensor-parallel serving actor, with prompt length 1024 and maximum output length 64. The probes cover the path from request name to generation: catalog expansion from 1k to 100k entries, repeated-hotset and unique-adapter traffic, warm and cold latency, the tested same-batch adapter window, CPU-cache growth, cold-load accounting, and packed tensor loading. Appendix~\cref{tab:app_fleet_model} extends these single-engine measurements into a $10^6$-entry addressable-catalog sizing sketch; the main measurements do not imply that $10^6$ adapters are simultaneously resident or active. \Cref{tab:e4_serving_summary} gives the main bounds.
+
+\paragraph{Adapter cache levels.}
+MinT treats each exported adapter revision as an addressable policy revision that can move through three cache levels. The durable catalog names policy revisions that can be requested; the CPU cache is local to one serving actor; the GPU batch is the smaller set attached to a decoding step. A cold load moves a policy revision from the durable catalog into the actor before decoding can begin.
+
+Large catalogs split fleet-level routing from engine-local memory. A million accumulated policy revisions is a catalog and routing problem; one engine keeps only a bounded local cache. The main experiments measure warm/cold behavior across independently run catalogs up to 100k adapters, while Appendix~\cref{tab:app_fleet_model} turns the measured single-engine limits into a $10^6$-adapter capacity model under a 2300-distinct-adapter active-wave assumption. Appendix~\cref{tab:app_memory_loader_accounting} gives the byte and memory accounting behind these cache levels: HBM remains dominated by the resident base model, while CPU memory and adapter object shape determine how many policies can be kept cached near one engine.
+
+\paragraph{Cached adapters and batch diversity.}
+Local adapter caches absorb locality before requests touch shared storage. Tenant variants, rollback points, personalization branches, and recent evaluation candidates often recur; broad rollout waves and experiment sweeps have much weaker locality. The service has to support both traffic shapes while keeping CPU cache size separate from same-batch execution.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \resizebox{\linewidth}{!}{\input{figures/changhai_hotset_ladder}}
+        \caption{Repeated-adapter traffic.}
+        \label{fig:e4_hotset_ladder}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \resizebox{\linewidth}{!}{\input{figures/changhai_true_unique_frontier}}
+        \caption{Unique-adapter traffic.}
+        \label{fig:e4_true_unique_frontier}
+    \end{subfigure}
+    \vspace{-10PT}
+    \caption{Cached-adapter scaling on one 4-GPU Qwen3-30B rank-1 serving actor. Bars use the left axis for loaded adapters; lines use the right axis for steady p95 latency. The left panel measures locality absorption under repeated-adapter traffic, reaching 369 loaded adapters at a 512-adapter working set. The right panel measures cache growth under weak locality, reaching 550 loaded adapters at a 2048-adapter unique target while p95 rises to 63.14 s.}
+    \vspace{-10PT}
+    \label{fig:e4_cache_ladders}
+\end{figure}
+
+\Cref{fig:e4_cache_ladders} measures these two regimes. Repeated-adapter traffic reaches 369 loaded adapters at a 512-adapter hotset with p95 37.13 s and no errors. Weak-locality traffic reaches 550 loaded adapters at a 2048-adapter unique target with p95 63.14 s and no errors, so it is cache-growth evidence under pressure rather than a clean warm-cache endpoint. Up to target 512 the two panels report essentially the same loaded count (127, 236, and 369), so locality matters only once the request stream exceeds the working set; beyond that, weak-locality p95 saturates rather than diverges, peaking at 66.92 s at target 1024 and settling at 63.14 s at target 2048 as the CPU cache plateaus near 550. Both loaded-adapter counts are larger than the tested same-batch window of 64 distinct adapters: one actor can cache more adapters than it can execute together in one GPU batch. Routing should preserve warm reuse, while batching still has to respect the smaller same-batch adapter limit. Appendix~\cref{tab:app_cache_ladders} gives the ordered ladder data, and Appendix~\cref{tab:app_business_traffic} shows stress probes where long outputs, weak locality, and high concurrency make simple warm-cache assumptions break down.
+
+\paragraph{Cold loading as service work.}
+Cold misses expose the cache-miss work inside a policy population. New adapters, rollback points, long-tail personalization branches, and evaluation snapshots keep producing cache misses. A cold miss fetches adapter tensors, builds loader objects, registers the adapter with the serving engine, and only then starts generation. MinT therefore treats cold loading as scheduled service work, with deduplication for repeated cache-miss requests to the same policy and bounded backpressure when too many distinct missing policies arrive together.
+
+\Cref{fig:e4_latency_catalog} shows why this is a separate capacity dimension. CPU-cached requests take the warm regime. Cache-miss requests take the cold regime. Increasing the independently run catalog from 1k to 100k adapters keeps the same warm/cold latency modes; Appendix~\cref{tab:app_path_pool_sweep} reports the full sweep, including one failed cold request in the 100k row. The right panel isolates the controlled cold-miss component: 16 different cache-miss policies form a load staircase from 1.375 s to 23.267 s, about 1.35--1.40 s per policy. Concurrent cache-miss requests for the same missing policy can share one load, while different missing policies remain separate load jobs. Appendix~\cref{tab:app_cold_load_control} decomposes this path into API queueing, shared loads, unique-policy loading, and retryable load rejection.
+
+\begin{figure}[H]
+    \centering
+    \resizebox{0.92\textwidth}{!}{\input{figures/changhai_latency_cold_load_panels}}
+    \vspace{-10PT}
+    \caption{Warm routing and bounded cold-load cost. Left: CPU-cached adapters take the warm latency path, while cache-miss policies take the cold path. Middle: warm measurements stay in the warm p95-latency regime and cold measurements stay in the cold p95-latency regime as independently run adapter catalogs grow to 100k entries. Right: 16 different cache-miss policies form a serialized load staircase from 1.375 s to 23.267 s, about 1.35--1.40 s per policy.}
+    \vspace{-10PT}
+    \label{fig:e4_latency_catalog}
+\end{figure}
+
+\paragraph{Cold-load representation.}
+The load staircase also explains why the adapter file format matters. A rank-1 MoE LoRA adapter is moderate in bytes, while the measured adapter file is fragmented into 37{,}248 tensor objects, mostly tiny expert tensors. In these probes, local-disk staging shortened the read path; it left tensor fanout, Python object creation, and loader-side registration work unchanged. MinT therefore packs MoE expert tensors into a serving representation with nearly unchanged declared bytes, reducing object fanout before the engine loads the policy.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4.0pt}
+\renewcommand{\arraystretch}{1.08}
+\caption{Packed MoE LoRA loading reduces cold-load overhead by removing tensor fanout. The byte-size change is small; the speedup comes from replacing many tiny tensor objects with a compact serving representation. The final three rows report the median duration of one live load call measured at each cache-miss burst size.}
+\label{tab:e4_packed_loader}
+\fittowidth{%
+\begin{tabular}{@{}M{0.32\textwidth}M{0.16\textwidth}M{0.16\textwidth}M{0.24\textwidth}@{}}
+\toprule
+\apphead Metric & Original & Packed & Effect \\
+\midrule
+\appgroup{4}{Adapter-file shape}
+\appkey{File size} & 110.75 MB & 105.58 MB & 1.05$\times$ smaller \\
+\appkey{Tensor objects} & 37{,}248 & 672 & 55.4$\times$ fewer \\
+\appgroup{4}{Cold-load slice}
+\appkey{Read tensors} & 0.3669 s & 0.0067 s & 54.8$\times$ faster \\
+\appkey{Build loader objects} & 0.7540 s & 0.0256 s & 29.5$\times$ faster \\
+\appgroup{4}{Live engine loading}
+\appkey{$N=4$ live load} & 1.363 s & 0.156 s & 8.7$\times$ faster \\
+\appkey{$N=8$ live load} & 1.361 s & 0.159 s & 8.6$\times$ faster \\
+\appkey{$N=16$ live load} & 1.388 s & 0.164 s & 8.5$\times$ faster \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\Cref{tab:e4_packed_loader} shows the effect. Packing changes file size only from 110.75 MB to 105.58 MB and reduces tensor objects from 37{,}248 to 672. The direct loader slice improves by 29.5--54.8$\times$, and live engine loading for $N=4$, $N=8$, and $N=16$ improves by 8.5--8.7$\times$, with packed live-load medians under 0.2 seconds. This number refers to the live engine-load slice after packing; end-to-end cold latency still includes routing, queueing, fetch, and generation. The measured speedup comes from object layout: the serving representation removes the small-object storm on cache misses while the declared tensor bytes stay nearly unchanged.
+
+\FloatBarrier
+Together, these measurements locate the serving work for policy populations. Catalog lookup and raw LoRA count are control-plane scales in the measured sweep; CPU-cache size, tested same-batch diversity, and unique cold-load cost are online execution scales. Routing and prewarming turn recurring traffic into CPU-cache hits. Batch construction respects the smaller same-batch adapter limit. Cache misses enter an explicit cold-load stage before sampling latency begins. Packing reduces the load staircase itself, making cache misses cheaper without changing the base-model deployment or the addressable policy revision. Appendix~\cref{app:serving} contains the full ladders, accounting tables, stress probes, and fleet-level sizing sketch behind this contract.
+\FloatBarrier

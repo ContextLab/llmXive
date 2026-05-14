@@ -1,0 +1,34 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,font=\sffamily]
+  \tikzstyle{task}=[draw=mindlabfg, thick, rounded corners=1.5pt, minimum height=0.65cm, align=center, font=\scriptsize\sffamily]
+  \tikzstyle{idle}=[draw=mindlabfg!35, dashed, rounded corners=1.5pt, minimum height=0.65cm, align=center, font=\scriptsize\sffamily, text=mindlabfg!70]
+  \tikzstyle{mint}=[task, fill=mindlabblue!14]
+  \tikzstyle{seq}=[task, fill=mindlabfg!8]
+  \tikzstyle{label}=[font=\scriptsize\sffamily, align=center]
+  \tikzstyle{arrow}=[->, thick, draw=mindlabfg]
+
+  \node[label, font=\scriptsize\sffamily\bfseries] at (5.1,3.55) {multi-policy training protocol};
+  \node[label, text=mindlabfg!75] at (5.1,3.25) {same GPU allocation; same SFT, DPO, and GRPO tasks; compare makespan and useful GPU use};
+
+  \node[label, anchor=east] at (0.15,2.25) {sequential};
+  \node[seq, minimum width=1.25cm] (s1) at (1.05,2.25) {SFT\\cycle};
+  \node[idle, minimum width=0.85cm] (si1) at (2.20,2.25) {idle};
+  \node[seq, minimum width=1.25cm] (s2) at (3.35,2.25) {DPO\\cycle};
+  \node[idle, minimum width=0.85cm] (si2) at (4.50,2.25) {idle};
+  \node[seq, minimum width=1.45cm] (s3) at (5.80,2.25) {GRPO\\cycle};
+  \node[idle, minimum width=1.05cm] (si3) at (7.10,2.25) {idle};
+
+  \node[label, anchor=east] at (0.15,1.00) {MinT};
+  \node[mint, minimum width=1.25cm] (m1) at (1.05,1.00) {SFT\\update};
+  \node[mint, minimum width=1.25cm] (m2) at (2.45,1.00) {DPO\\rollout};
+  \node[mint, minimum width=1.25cm] (m3) at (3.85,1.00) {GRPO\\rollout};
+  \node[mint, minimum width=1.25cm] (m4) at (5.25,1.00) {DPO\\update};
+  \node[mint, minimum width=1.25cm] (m5) at (6.65,1.00) {GRPO\\update};
+  \node[mint, minimum width=1.25cm] (m6) at (8.05,1.00) {export\\eval};
+
+  \foreach \src/\dst in {s1/si1,si1/s2,s2/si2,si2/s3,s3/si3,m1/m2,m2/m3,m3/m4,m4/m5,m5/m6} {
+    \draw[arrow] (\src.east) -- (\dst.west);
+  }
+
+  \draw[mindlabblue, thick] (0.45,0.35) rectangle (8.65,1.55);
+  \node[label, anchor=west, text=mindlabblue!75!black] at (0.55,0.08) {cycle includes rollout, update, export, and evaluation accounting};
+\end{tikzpicture}

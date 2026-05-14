@@ -1,0 +1,59 @@
+\section{Training}
+
+\subsection{Training Loss}
+The training objective of our image VAE is designed to be simple yet effective. Unlike traditional VAE frameworks that introduce distributional priors and adversarial paradigms, our training process focuses on high-fidelity reconstruction and semantic alignment of the latent space.
+
+The total training loss $\mathcal{L}_{total}$ is formulated as:
+\begin{equation}
+\mathcal{L}_{total} = \mathcal{L}_{recon} + \lambda_{lpips} \mathcal{L}_{lpips} + \lambda_{align} \mathcal{L}_{align},
+\end{equation}
+where $\mathcal{L}_{recon}$ is the pixel-level $L_1$ reconstruction loss, and $\mathcal{L}_{lpips}$ denotes the perceptual loss~\citep{lpips} weighted by $\lambda_{lpips}$. To improve the ``diffusability'' of the latent space, we incorporate a semantic alignment loss $\mathcal{L}_{align}$ which aligns latents to semantic counterparts extracted from pretrained encoders (detailed in Sec~\ref{sec:align}). This ensures that the latent space captures more generation-friendly features.
+
+Our empirical findings suggest that two common practices in VAE training (KL regularization and adversarial training) can be removed to achieve better performance and training stability.
+
+\paragraph{Removing KL Loss for Enhanced Semantic Alignment.} 
+We remove the Kullback-Leibler (KL) divergence loss as it inherently restricts latent capacity and compromises reconstruction fidelity. More importantly, we observe that the KL penalty acts as a competing constraint to our semantic alignment objective. Given that target semantic features are not necessarily Gaussian-distributed, forcing the model to satisfy both a normal prior and a semantic manifold leads to suboptimal alignment, which ultimately delays the convergence of the downstream DiT. By removing this constraint, we achieve a more flexible latent space that is better suited for generative tasks.
+
+\paragraph{Removing GAN Loss for Training Stability and Efficiency.} 
+While GAN loss~\citep{gan} are conventionally used to sharpen visual detail, we find them unnecessary when the training budget is sufficiently large. Given extensive data and iterations, the combination of $\mathcal{L}_{recon}$ and $\mathcal{L}_{lpips}$ is capable of producing high-quality and sharp reconstructions. Eliminating the discriminator not only simplifies the optimization landscape, but also improves training stability and accelerates the overall training process.
+
+In summary, by breaking the conventional reliance on KL loss and GAN loss, we demonstrate the feasibility and effectiveness of a simplified training objective, providing insights for future VAEs.
+
+\subsection{Semantic Alignment}\label{sec:align}
+Inspired by~\citet{vavae}, we introduce a semantic alignment loss to strike a delicate balance between low-level detail preservation and high-level semantics, thereby making the latent space more generation-friendly.
+
+\paragraph{Selection of Semantic Encoder.}
+Through extensive ablation studies comparing various pretrained vision encoders (including DINOv2~\citep{dinov2}, DINOv3~\citep{dinov3}, MAE~\citep{mae}, and PE-Spatial~\citep{bolya2025perception}), we find that DINOv2 consistently outperforms other candidates in providing generation-friendly semantic priors. Consequently, we select DINOv2-L features as our default semantic guidance.
+
+\paragraph{Selection of Aligned Layer.}
+We observe that the choice of encoder layer affects the alignment results. While conventional approaches often utilize the final layer, we find that middle layer of these encoders offer smoother spatial maps that are easier to align with, yielding more generation-friendly latent space. Furthermore, we find that naively combining features from different layers introduces unnecessary noise that corrupts the alignment signal. Consequently, we align the VAE latent with a single, optimally selected middle layer, rather than relying on the final output or multi-layer fusion.
+
+Specifically, given a target image, we first extract the semantic feature map $f \in \mathbb{R}^{h \times w \times c}$ using the pretrained semantic encoder, where $h$ and $w$ denote the spatial resolution and $c$ is the feature dimension. Then, we project the VAE latent $z$ into the same dimensionality through a learnable linear transformation, $z' = Wz$, where $W$ is a trainable projection matrix. Let $\mathcal{P} = \{(i,j) \mid 1 \le i \le h,\; 1 \le j \le w\}$ denote the set of spatial positions, where $|\mathcal{P}| = N = hw$. For each position $p \in \mathcal{P}$, we denote by $f_p \in \mathbb{R}^{c}$ and $z'_p \in \mathbb{R}^{c}$ the semantic feature and projected latent feature at position $p$, respectively.
+
+The alignment objective consists of two complementary components: (1) a Marginal Cosine Similarity Loss $\mathcal{L}_{mcos}$ with margin $m_{cos}$ which aligns the direction of VAE latents with target semantics, and (2) a Marginal Distance Matrix Similarity Loss $\mathcal{L}_{mdms}$ with margin $m_{dist}$, which preserves the relative spatial layout. The core alignment objectives are formulated as:
+
+\begin{align}
+\mathcal{L}_{mcos}(z', f)
+&= \frac{1}{N} \sum_{p \in \mathcal{P}} \mathrm{ReLU} \left( 1 - \cos(z'_p, f_p) - m_{cos}\right), \\
+\mathcal{L}_{mdms}(z', f)
+&= \frac{1}{N^2} \sum_{p \in \mathcal{P}} \sum_{q \in \mathcal{P}} \mathrm{ReLU} \left( \left| \cos(z'_p, z'_q) - \cos(f_p, f_q) \right| - m_{dist} \right), \\
+\mathcal{L}_{align}(z, f)
+&= \mathcal{L}_{mcos}(z', f) + \mathcal{L}_{mdms}(z', f),
+\end{align}
+
+where $\mathcal{P}$ denotes the set of spatial positions and $N=hw$ is the total number of elements.
+
+
+
+\subsection{Training Strategy}
+We employ a multi-stage training paradigm designed to progressively improve spatial resolution, refine textual rendering, and ensure robust semantic alignment. 
+
+
+\paragraph{Enhancing Resolution: From Low Resolution to High Resolution.} 
+To facilitate stable training, we adopt a curriculum-based resolution strategy, starting from low-resolution foundations and progressively scaling up to 2K. Throughout this progression, we incorporate a diverse spectrum of aspect ratios to enhance the model's geometric robustness, ensuring the VAE maintains structural integrity across various image compositions without distortion. This progressive upscaling allows the model to first learn basic structures and then capture finer detail and textures.
+
+\paragraph{Integrating Textual Rendering: From Non-text to Text.} 
+To master high-fidelity text reconstruction, we employ a multi-stage data infusion strategy. We start with general-domain images to accelerate initial convergence. Subsequently, we progressively incorporate real-world text-rich samples to address the challenges of complex character recognition. In the final phase, we introduce synthetic text data across varying difficulty levels to refine character precision. As general textures and character detail require different reconstruction focuses, we maintain a balanced ratio between these two types of data to ensure high quality for both.
+
+\paragraph{Calibrating Semantic Alignment: From Strict Alignment to Balanced Reconstruction.} 
+At the beginning of training, we apply strict semantic alignment using a strict margin ($m_{cos}$ and $m_{dist}$). We found that strong alignment at the early stage significantly helps the diffusability of the latent space. As the training progresses, we gradually loose the alignment margins. This allows the model to strike a better balance between maintaining semantic consistency and achieving high-quality pixel-level reconstruction.

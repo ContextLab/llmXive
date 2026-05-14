@@ -1,0 +1,744 @@
+@inproceedings{chung-etal-2024-selection,
+    title = "Selection-p: Self-Supervised Task-Agnostic Prompt Compression for Faithfulness and Transferability",
+    author = "Chung, Tsz Ting  and
+      Cui, Leyang  and
+      Liu, Lemao  and
+      Huang, Xinting  and
+      Shi, Shuming  and
+      Yeung, Dit-Yan",
+    editor = "Al-Onaizan, Yaser  and
+      Bansal, Mohit  and
+      Chen, Yun-Nung",
+    booktitle = "Findings of the Association for Computational Linguistics: EMNLP 2024",
+    month = nov,
+    year = "2024",
+    address = "Miami, Florida, USA",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.findings-emnlp.646/",
+    doi = "10.18653/v1/2024.findings-emnlp.646",
+    pages = "11057--11070",
+    abstract = "Large Language Models (LLMs) have demonstrated impressive capabilities in a wide range of natural language processing tasks when leveraging in-context learning. To mitigate the additional computational and financial costs associated with in-context learning, several prompt compression methods have been proposed to compress the in-context learning prompts. Despite their success, these methods face challenges with transferability due to model-specific compression, or rely on external training data, such as GPT-4. In this paper, we investigate the ability of LLMs to develop a unified compression method that discretizes uninformative tokens, utilizing a self-supervised pre-training technique. By introducing a small number of parameters during the continual pre-training, the proposed Selection-p produces a probability for each input token, indicating whether to preserve or discard it. Experiments show Selection-p achieves state-of-the-art performance across numerous classification tasks, achieving compression rates of up to 10 times while experiencing only a marginal 0.8{\%} decrease in performance. Moreover, it exhibits superior transferability to different models compared to prior work. Additionally, we further analyze how Selection-p helps maintain performance on in-context learning with long contexts."
+}
+
+@inproceedings{crosbie-shutova-2025-induction,
+    title = "Induction Heads as an Essential Mechanism for Pattern Matching in In-context Learning",
+    author = "Crosbie, Joy  and
+      Shutova, Ekaterina",
+    editor = "Chiruzzo, Luis  and
+      Ritter, Alan  and
+      Wang, Lu",
+    booktitle = "Findings of the Association for Computational Linguistics: NAACL 2025",
+    month = apr,
+    year = "2025",
+    address = "Albuquerque, New Mexico",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.findings-naacl.283/",
+    doi = "10.18653/v1/2025.findings-naacl.283",
+    pages = "5049--5111",
+    ISBN = "979-8-89176-195-7",
+    abstract = "Large language models (LLMs) have shown a remarkable ability to learn and perform complex tasks through in-context learning (ICL). However, a comprehensive understanding of its internal mechanisms is still lacking. This paper explores the role of induction heads in a few-shot ICL setting. We analyse two state-of-the-art models, Llama-3-8B and InternLM2-20B on abstract pattern recognition and NLP tasks. Our results show that even a minimal ablation of induction heads leads to ICL performance decreases of up to {\textasciitilde}32{\%} for abstract pattern recognition tasks, bringing the performance close to random. For NLP tasks, this ablation substantially decreases the model{'}s ability to benefit from examples, bringing few-shot ICL performance close to that of zero-shot prompts. We further use attention knockout to disable specific induction patterns, and present fine-grained evidence for the role that the induction mechanism plays in ICL."
+}
+
+@misc{olsson2022incontextlearninginductionheads,
+      title={In-context Learning and Induction Heads}, 
+      author={Catherine Olsson and Nelson Elhage and Neel Nanda and Nicholas Joseph and Nova DasSarma and Tom Henighan and Ben Mann and Amanda Askell and Yuntao Bai and Anna Chen and Tom Conerly and Dawn Drain and Deep Ganguli and Zac Hatfield-Dodds and Danny Hernandez and Scott Johnston and Andy Jones and Jackson Kernion and Liane Lovitt and Kamal Ndousse and Dario Amodei and Tom Brown and Jack Clark and Jared Kaplan and Sam McCandlish and Chris Olah},
+      year={2022},
+      eprint={2209.11895},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2209.11895}, 
+}
+
+@inproceedings{yu-etal-2025-stochastic,
+    title = "The Stochastic Parrot on {LLM}{'}s Shoulder: A Summative Assessment of Physical Concept Understanding",
+    author = "Yu, Mo  and
+      Liu, Lemao  and
+      Wu, Junjie  and
+      Chung, Tsz Ting  and
+      Zhang, Shunchi  and
+      Li, Jiangnan  and
+      Yeung, Dit-Yan  and
+      Zhou, Jie",
+    editor = "Chiruzzo, Luis  and
+      Ritter, Alan  and
+      Wang, Lu",
+    booktitle = "Proceedings of the 2025 Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers)",
+    month = apr,
+    year = "2025",
+    address = "Albuquerque, New Mexico",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.naacl-long.569/",
+    doi = "10.18653/v1/2025.naacl-long.569",
+    pages = "11416--11431",
+    ISBN = "979-8-89176-189-6",
+    abstract = "In a systematic way, we investigate a widely asked question: Do LLMs really understand what they say?, which relates to the more familiar term Stochastic Parrot. To this end, we propose a summative assessment over a carefully designed physical concept understanding task, P HYSI C O. Our task alleviates the memorization issue via the usage of grid-format inputs that abstractly describe physical phenomena. The grids represents varying levels of understanding, from the core phenomenon, application examples to analogies to other abstract patterns in the grid world. A comprehensive study on our task demonstrates: (1) state-of-the-art LLMs, including GPT-4o, o1 and Gemini 2.0 flash thinking, lag behind humans by {\ensuremath{\sim}}40{\%}; (2) the stochastic parrot phenomenon is present in LLMs, as they fail on our grid task but can describe and recognize the same concepts well in natural language; (3) our task challenges the LLMs due to intrinsic difficulties rather than the unfamiliar grid format, as in-context learning and fine-tuning on same formatted data added little to their performance."
+}
+
+@inproceedings{chung-etal-2025-divlogiceval,
+    title = "{D}iv{L}ogic{E}val: A Framework for Benchmarking Logical Reasoning Evaluation in Large Language Models",
+    author = "Chung, Tsz Ting  and
+      Liu, Lemao  and
+      Yu, Mo  and
+      Yeung, Dit-Yan",
+    editor = "Christodoulopoulos, Christos  and
+      Chakraborty, Tanmoy  and
+      Rose, Carolyn  and
+      Peng, Violet",
+    booktitle = "Findings of the Association for Computational Linguistics: EMNLP 2025",
+    month = nov,
+    year = "2025",
+    address = "Suzhou, China",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.findings-emnlp.47/",
+    doi = "10.18653/v1/2025.findings-emnlp.47",
+    pages = "901--915",
+    ISBN = "979-8-89176-335-7",
+    abstract = "Logic reasoning in natural language has been recognized as an important measure of human intelligence for Large Language Models (LLMs). Popular benchmarks may entangle multiple reasoning skills and thus provide unfaithful evaluations on the logic reasoning skill. Meanwhile, existing logic reasoning benchmarks are limited in language diversity and their distributions are deviated from the distribution of an ideal logic reasoning benchmark, which may lead to biased evaluation results. This paper thereby proposes a new classical logic benchmark DivLogicEval, consisting of natural sentences composed of diverse statements in a counterintuitive way. To ensure a more reliable evaluation, we also introduce a new evaluation metric that mitigates the influence of bias and randomness inherent in LLMs. Through experiments, we demonstrate the extent to which logical reasoning is required to answer the questions in DivLogicEval and compare the performance of different popular LLMs in conducting logical reasoning."
+}
+
+
+@misc{kokhlikyan2020captum,
+    archiveprefix = {arXiv},
+    author = {Narine Kokhlikyan and Vivek Miglani and Miguel Martin and Edward Wang and Bilal Alsallakh and Jonathan Reynolds and Alexander Melnikov and Natalia Kliushkina and Carlos Araya and Siqi Yan and Orion Reblitz-Richardson},
+    eprint = {2009.07896},
+    primaryclass = {cs.LG},
+    title = {Captum: A unified and generic model interpretability library for PyTorch},
+    year = {2020}
+}
+
+@article{hendrycksmath2021,
+    author = {Dan Hendrycks and Collin Burns and Saurav Kadavath and Akul Arora and Steven Basart and Eric Tang and Dawn Song and Jacob Steinhardt},
+    journal = {NeurIPS},
+    title = {Measuring Mathematical Problem Solving With the MATH Dataset},
+    year = {2021}
+}
+
+@article{cobbe2021gsm8k,
+    author = {Cobbe, Karl and Kosaraju, Vineet and Bavarian, Mohammad and Chen, Mark and Jun, Heewoo and Kaiser, Lukasz and Plappert, Matthias and Tworek, Jerry and Hilton, Jacob and Nakano, Reiichiro and Hesse, Christopher and Schulman, John},
+    journal = {ArXiv preprint},
+    title = {Training Verifiers to Solve Math Word Problems},
+    url = {https://arxiv.org/abs/2110.14168},
+    volume = {abs/2110.14168},
+    year = {2021}
+}
+
+@inproceedings{nlu,
+    booktitle = {Increasing Naturalness and Flexibility in Spoken Dialogue Interaction},
+    doi = {10.1007/978-981-15-9323-9_15},
+    edition = {1},
+    isbn = {9789811593222},
+    language = {English},
+    pages = {165--183},
+    publisher = {Springer},
+    series = {Lecture Notes in Electrical Engineering},
+    title = {Benchmarking Natural Language Understanding Services for Building Conversational Agents},
+    url = {https://iwsds2019.unikore.it/},
+    year = {2021}
+}
+
+@inproceedings{banking,
+    address = {Online},
+    author = {Casanueva, I{\~n}igo  and
+Tem{\v{c}}inas, Tadas  and
+Gerz, Daniela  and
+Henderson, Matthew  and
+Vuli{\'c}, Ivan},
+    booktitle = {Proceedings of the 2nd Workshop on Natural Language Processing for Conversational AI},
+    doi = {10.18653/v1/2020.nlp4convai-1.5},
+    editor = {Wen, Tsung-Hsien  and
+Celikyilmaz, Asli  and
+Yu, Zhou  and
+Papangelis, Alexandros  and
+Eric, Mihail  and
+Kumar, Anuj  and
+Casanueva, I{\~n}igo  and
+Shah, Rushin},
+    pages = {38--45},
+    publisher = {Association for Computational Linguistics},
+    title = {Efficient Intent Detection with Dual Sentence Encoders},
+    url = {https://aclanthology.org/2020.nlp4convai-1.5},
+    year = {2020}
+}
+
+@inproceedings{trec,
+ title={Toward semantics-based answer pinpointing},
+  author={Hovy, Eduard and Gerber, Laurie and Hermjakob, Ulf and Lin, Chin-Yew and Ravichandran, Deepak},
+  booktitle={Proceedings of the first international conference on Human language technology research},
+  year={2001}
+}
+
+@inproceedings{superglue,
+  title={Superglue: A stickier benchmark for general-purpose language understanding systems},
+  author={Wang, Alex and Pruksachatkun, Yada and Nangia, Nikita and Singh, Amanpreet and Michael, Julian and Hill, Felix and Levy, Omer and Bowman, Samuel},
+  journal={Advances in neural information processing systems},
+  volume={32},
+  year={2019}
+}
+
+@misc{llama3,
+    author = {MetaAI},
+    title = {Introducing Meta Llama 3: The most capable openly available LLM to date},
+    url = {https://ai.meta.com/blog/meta-llama-3/},
+    year = {2024}
+}
+
+@misc{qwen2025qwen25technicalreport,
+    author = {Qwen and : and An Yang and Baosong Yang and Beichen Zhang and Binyuan Hui and Bo Zheng and Bowen Yu and Chengyuan Li and Dayiheng Liu and Fei Huang and Haoran Wei and Huan Lin and Jian Yang and Jianhong Tu and Jianwei Zhang and Jianxin Yang and Jiaxi Yang and Jingren Zhou and Junyang Lin and Kai Dang and Keming Lu and Keqin Bao and Kexin Yang and Le Yu and Mei Li and Mingfeng Xue and Pei Zhang and Qin Zhu and Rui Men and Runji Lin and Tianhao Li and Tianyi Tang and Tingyu Xia and Xingzhang Ren and Xuancheng Ren and Yang Fan and Yang Su and Yichang Zhang and Yu Wan and Yuqiong Liu and Zeyu Cui and Zhenru Zhang and Zihan Qiu},
+    journal = {ArXiv preprint},
+    title = {Qwen2.5 Technical Report},
+    url = {https://arxiv.org/abs/2412.15115},
+    volume = {abs/2412.15115},
+    year = {2024}
+}
+
+@inproceedings{bertsch-etal-2025-context,
+  title={In-context learning with long-context models: An in-depth exploration},
+  author={Bertsch, Amanda and Ivgi, Maor and Xiao, Emily and Alon, Uri and Berant, Jonathan and Gormley, Matthew R and Neubig, Graham},
+  booktitle={Proceedings of the 2025 Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers)},
+  pages={12119--12149},
+  year={2025}
+}
+
+@book{Aho:72,
+    address = {Englewood Cliffs, NJ},
+    author = {Alfred V. Aho and Jeffrey D. Ullman},
+    publisher = {Prentice-Hall},
+    title = {The Theory of Parsing, Translation and Compiling},
+    volume = {1},
+    year = {1972}
+}
+
+@book{APA:83,
+    address = {Washington, DC},
+    author = {{American Psychological Association}},
+    publisher = {American Psychological Association},
+    title = {Publications Manual},
+    year = {1983}
+}
+
+@article{Chandra:81,
+    author = {Ashok K. Chandra and Dexter C. Kozen and Larry J. Stockmeyer},
+    doi = {10.1145/322234.322243},
+    journal = {Journal of the Association for Computing Machinery},
+    number = {1},
+    pages = {114--133},
+    title = {Alternation},
+    volume = {28},
+    year = {1981}
+}
+
+
+@article{rasooli-tetrault-2015,
+    author = {Mohammad Sadegh Rasooli and Joel R. Tetreault},
+    journal = {ArXiv preprint},
+    title = {Yara Parser: {A} Fast and Accurate Dependency Parser},
+    url = {https://arxiv.org/abs/1503.06733},
+    volume = {abs/1503.06733},
+    year = {2015}
+}
+
+@article{Ando2005,
+    acmid = {1194905},
+    author = {Ando, Rie Kubota and Zhang, Tong},
+    issn = {1532-4435},
+    issue_date = {12/1/2005},
+    journal = {Journal of Machine Learning Research},
+    numpages = {37},
+    pages = {1817--1853},
+    publisher = {JMLR.org},
+    title = {A Framework for Learning Predictive Structures from Multiple Tasks and Unlabeled Data},
+    volume = {6},
+    year = {2005}
+}
+
+@inproceedings{agarwal2024manyshot,
+  title={Many-shot in-context learning},
+  author={Agarwal, Rishabh and Singh, Avi and Zhang, Lei and Bohnet, Bernd and Rosias, Luis and Chan, Stephanie and Zhang, Biao and Anand, Ankesh and Abbas, Zaheer and Nova, Azade and others},
+  journal={Advances in Neural Information Processing Systems},
+  volume={37},
+  pages={76930--76966},
+  year={2024}
+}
+
+@misc{li2025testtimepreferenceoptimizationonthefly,
+    author = {Yafu Li and Xuyang Hu and Xiaoye Qu and Linjie Li and Yu Cheng},
+    journal = {ArXiv preprint},
+    title = {Test-Time Preference Optimization: On-the-Fly Alignment via Iterative Textual Feedback},
+    url = {https://arxiv.org/abs/2501.12895},
+    volume = {abs/2501.12895},
+    year = {2025}
+}
+
+@misc{dricl,
+    author = {Man Luo and Xin Xu and Zhuyun Dai and Panupong Pasupat and Mehran Kazemi and Chitta Baral and Vaiva Imbrasaite and Vincent Y Zhao},
+    journal = {ArXiv preprint},
+    title = {Dr.ICL: Demonstration-Retrieved In-context Learning},
+    url = {https://arxiv.org/abs/2305.14128},
+    volume = {abs/2305.14128},
+    year = {2023}
+}
+
+@inproceedings{liu-etal-2022-makes,
+    address = {Dublin, Ireland and Online},
+    author = {Liu, Jiachang  and
+Shen, Dinghan  and
+Zhang, Yizhe  and
+Dolan, Bill  and
+Carin, Lawrence  and
+Chen, Weizhu},
+    booktitle = {Proceedings of Deep Learning Inside Out (DeeLIO 2022): The 3rd Workshop on Knowledge Extraction and Integration for Deep Learning Architectures},
+    doi = {10.18653/v1/2022.deelio-1.10},
+    editor = {Agirre, Eneko  and
+Apidianaki, Marianna  and
+Vuli{\'c}, Ivan},
+    pages = {100--114},
+    publisher = {Association for Computational Linguistics},
+    title = {What Makes Good In-Context Examples for {GPT}-3?},
+    url = {https://aclanthology.org/2022.deelio-1.10},
+    year = {2022}
+}
+
+@inproceedings{wu-etal-2023-self,
+    address = {Toronto, Canada},
+    author = {Wu, Zhiyong  and
+Wang, Yaoxiang  and
+Ye, Jiacheng  and
+Kong, Lingpeng},
+    booktitle = {Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)},
+    doi = {10.18653/v1/2023.acl-long.79},
+    editor = {Rogers, Anna  and
+Boyd-Graber, Jordan  and
+Okazaki, Naoaki},
+    pages = {1423--1436},
+    publisher = {Association for Computational Linguistics},
+    title = {Self-Adaptive In-Context Learning: An Information Compression Perspective for In-Context Example Selection and Ordering},
+    url = {https://aclanthology.org/2023.acl-long.79},
+    year = {2023}
+}
+
+@misc{kapuriya2025exploringrolediversityexample,
+    author = {Janak Kapuriya and Manit Kaushik and Debasis Ganguly and Sumit Bhatia},
+    journal = {ArXiv preprint},
+    title = {Exploring the Role of Diversity in Example Selection for In-Context Learning},
+    url = {https://arxiv.org/abs/2505.01842},
+    volume = {abs/2505.01842},
+    year = {2025}
+}
+
+@article{pot,
+    author = {Wenhu Chen and Xueguang Ma and Xinyi Wang and William W. Cohen},
+    issn = {2835-8856},
+    journal = {Transactions on Machine Learning Research},
+    note = {},
+    title = {Program of Thoughts Prompting: Disentangling Computation from Reasoning for Numerical Reasoning Tasks},
+    url = {https://openreview.net/forum?id=YfZ4ZPt8zd},
+    year = {2023}
+}
+
+@article{tot,
+  title={Tree of thoughts: Deliberate problem solving with large language models},
+  author={Yao, Shunyu and Yu, Dian and Zhao, Jeffrey and Shafran, Izhak and Griffiths, Tom and Cao, Yuan and Narasimhan, Karthik},
+  journal={Advances in neural information processing systems},
+  volume={36},
+  pages={11809--11822},
+  year={2023}
+}
+
+@misc{guan2025rstar,
+    archiveprefix = {arXiv},
+    author = {Xinyu Guan and Li Lyna Zhang and Yifei Liu and Ning Shang and Youran Sun and Yi Zhu and Fan Yang and Mao Yang},
+    eprint = {2501.04519},
+    primaryclass = {cs.CL},
+    title = {rStar-Math: Small LLMs Can Master Math Reasoning with Self-Evolved Deep Thinking},
+    year = {2025}
+}
+
+@inproceedings{ding2024longrope,
+    author = {Yiran Ding and
+Li Lyna Zhang and
+Chengruidong Zhang and
+Yuanyuan Xu and
+Ning Shang and
+Jiahang Xu and
+Fan Yang and
+Mao Yang},
+    bibsource = {dblp computer science bibliography, https://dblp.org},
+    biburl = {https://dblp.org/rec/conf/icml/DingZZXSX0Y24.bib},
+    booktitle = {Forty-first International Conference on Machine Learning, {ICML} 2024,
+Vienna, Austria, July 21-27, 2024},
+    publisher = {OpenReview.net},
+    timestamp = {Mon, 21 Oct 2024 01:00:00 +0200},
+    title = {LongRoPE: Extending {LLM} Context Window Beyond 2 Million Tokens},
+    url = {https://openreview.net/forum?id=ONOtpXLqqw},
+    year = {2024}
+}
+
+@inproceedings{lminfinite,
+    address = {Mexico City, Mexico},
+    author = {Han, Chi  and
+Wang, Qifan  and
+Peng, Hao  and
+Xiong, Wenhan  and
+Chen, Yu  and
+Ji, Heng  and
+Wang, Sinong},
+    booktitle = {Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers)},
+    editor = {Duh, Kevin  and
+Gomez, Helena  and
+Bethard, Steven},
+    pages = {3991--4008},
+    publisher = {Association for Computational Linguistics},
+    title = {{LM}-Infinite: Zero-Shot Extreme Length Generalization for Large Language Models},
+    url = {https://aclanthology.org/2024.naacl-long.222},
+    year = {2024}
+}
+
+@inproceedings{peng2024yarn,
+    author = {Bowen Peng and
+Jeffrey Quesnelle and
+Honglu Fan and
+Enrico Shippole},
+    bibsource = {dblp computer science bibliography, https://dblp.org},
+    biburl = {https://dblp.org/rec/conf/iclr/PengQFS24.bib},
+    booktitle = {The Twelfth International Conference on Learning Representations,
+{ICLR} 2024, Vienna, Austria, May 7-11, 2024},
+    publisher = {OpenReview.net},
+    timestamp = {Wed, 07 Aug 2024 01:00:00 +0200},
+    title = {YaRN: Efficient Context Window Extension of Large Language Models},
+    url = {https://openreview.net/forum?id=wHBfxhZu1u},
+    year = {2024}
+}
+
+@article{struggle,
+    author = {Tianle Li and Ge Zhang and Quy Duc Do and Xiang Yue and Wenhu Chen},
+    journal = {ArXiv preprint},
+    title = {Long-context LLMs Struggle with Long In-context Learning},
+    url = {https://arxiv.org/abs/2404.02060},
+    volume = {abs/2404.02060},
+    year = {2024}
+}
+
+@misc{baek2025revisitingincontextlearninglong,
+    author = {Jinheon Baek and Sun Jae Lee and Prakhar Gupta and Geunseob Oh and Siddharth Dalmia and Prateek Kolhar},
+    journal = {ArXiv preprint},
+    title = {Revisiting In-Context Learning with Long Context Language Models},
+    url = {https://arxiv.org/abs/2412.16926},
+    volume = {abs/2412.16926},
+    year = {2024}
+}
+
+@misc{tpo,
+    author = {Yafu Li and Xuyang Hu and Xiaoye Qu and Linjie Li and Yu Cheng},
+    journal = {ArXiv preprint},
+    title = {Test-Time Preference Optimization: On-the-Fly Alignment via Iterative Textual Feedback},
+    url = {https://arxiv.org/abs/2501.12895},
+    volume = {abs/2501.12895},
+    year = {2025}
+}
+
+@inproceedings{kojima2022large,
+  title={Large language models are zero-shot reasoners},
+  author={Kojima, Takeshi and Gu, Shixiang Shane and Reid, Machel and Matsuo, Yutaka and Iwasawa, Yusuke},
+  journal={Advances in neural information processing systems},
+  volume={35},
+  pages={22199--22213},
+  year={2022}
+}
+
+@inproceedings{vonoswald2023transformerslearnincontextgradient,
+ title={Transformers learn in-context by gradient descent},
+  author={Von Oswald, Johannes and Niklasson, Eyvind and Randazzo, Ettore and Sacramento, Jo{\~a}o and Mordvintsev, Alexander and Zhmoginov, Andrey and Vladymyrov, Max},
+  booktitle={International Conference on Machine Learning},
+  pages={35151--35174},
+  year={2023},
+  organization={PMLR}
+}
+
+@inproceedings{gradientrevisit,
+  title={In-context learning and gradient descent revisited},
+  author={Deutch, Gilad and Magar, Nadav and Natan, Tomer and Dar, Guy},
+  booktitle={Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers)},
+  pages={1017--1028},
+  year={2024}
+}
+
+@inproceedings{min-etal-2022-rethinking,
+    address = {Abu Dhabi, United Arab Emirates},
+    author = {Min, Sewon  and
+Lyu, Xinxi  and
+Holtzman, Ari  and
+Artetxe, Mikel  and
+Lewis, Mike  and
+Hajishirzi, Hannaneh  and
+Zettlemoyer, Luke},
+    booktitle = {Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing},
+    doi = {10.18653/v1/2022.emnlp-main.759},
+    editor = {Goldberg, Yoav  and
+Kozareva, Zornitsa  and
+Zhang, Yue},
+    pages = {11048--11064},
+    publisher = {Association for Computational Linguistics},
+    title = {Rethinking the Role of Demonstrations: What Makes In-Context Learning Work?},
+    url = {https://aclanthology.org/2022.emnlp-main.759},
+    year = {2022}
+}
+
+@inproceedings{sorensen-etal-2022-information,
+    address = {Dublin, Ireland},
+    author = {Sorensen, Taylor  and
+Robinson, Joshua  and
+Rytting, Christopher  and
+Shaw, Alexander  and
+Rogers, Kyle  and
+Delorey, Alexia  and
+Khalil, Mahmoud  and
+Fulda, Nancy  and
+Wingate, David},
+    booktitle = {Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)},
+    doi = {10.18653/v1/2022.acl-long.60},
+    editor = {Muresan, Smaranda  and
+Nakov, Preslav  and
+Villavicencio, Aline},
+    pages = {819--862},
+    publisher = {Association for Computational Linguistics},
+    title = {An Information-theoretic Approach to Prompt Engineering Without Ground Truth Labels},
+    url = {https://aclanthology.org/2022.acl-long.60},
+    year = {2022}
+}
+
+@inproceedings{an-etal-2023-context,
+    address = {Toronto, Canada},
+    author = {An, Shengnan  and
+Lin, Zeqi  and
+Fu, Qiang  and
+Chen, Bei  and
+Zheng, Nanning  and
+Lou, Jian-Guang  and
+Zhang, Dongmei},
+    booktitle = {Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)},
+    doi = {10.18653/v1/2023.acl-long.618},
+    editor = {Rogers, Anna  and
+Boyd-Graber, Jordan  and
+Okazaki, Naoaki},
+    pages = {11027--11052},
+    publisher = {Association for Computational Linguistics},
+    title = {How Do In-Context Examples Affect Compositional Generalization?},
+    url = {https://aclanthology.org/2023.acl-long.618},
+    year = {2023}
+}
+
+@misc{mavromatis2023examplesannotateincontextlearning,
+    author = {Costas Mavromatis and Balasubramaniam Srinivasan and Zhengyuan Shen and Jiani Zhang and Huzefa Rangwala and Christos Faloutsos and George Karypis},
+    journal = {ArXiv preprint},
+    title = {Which Examples to Annotate for In-Context Learning? Towards Effective and Efficient Selection},
+    url = {https://arxiv.org/abs/2310.20046},
+    volume = {abs/2310.20046},
+    year = {2023}
+}
+
+@inproceedings{snell2025scaling,
+    author = {Charlie Victor Snell and Jaehoon Lee and Kelvin Xu and Aviral Kumar},
+    booktitle = {The Thirteenth International Conference on Learning Representations},
+    title = {Scaling {LLM} Test-Time Compute Optimally Can be More Effective than Scaling Parameters for Reasoning},
+    url = {https://openreview.net/forum?id=4FWAwZtd2n},
+    year = {2025}
+}
+
+@inproceedings{lightman2024bon,
+    author = {Hunter Lightman and
+Vineet Kosaraju and
+Yuri Burda and
+Harrison Edwards and
+Bowen Baker and
+Teddy Lee and
+Jan Leike and
+John Schulman and
+Ilya Sutskever and
+Karl Cobbe},
+    bibsource = {dblp computer science bibliography, https://dblp.org},
+    biburl = {https://dblp.org/rec/conf/iclr/LightmanKBEBLLS24.bib},
+    booktitle = {The Twelfth International Conference on Learning Representations,
+{ICLR} 2024, Vienna, Austria, May 7-11, 2024},
+    publisher = {OpenReview.net},
+    timestamp = {Wed, 07 Aug 2024 01:00:00 +0200},
+    title = {Let's Verify Step by Step},
+    url = {https://openreview.net/forum?id=v8L0pN6EOi},
+    year = {2024}
+}
+
+@inproceedings{lin2024the,
+    author = {Bill Yuchen Lin and
+Abhilasha Ravichander and
+Ximing Lu and
+Nouha Dziri and
+Melanie Sclar and
+Khyathi Raghavi Chandu and
+Chandra Bhagavatula and
+Yejin Choi},
+    bibsource = {dblp computer science bibliography, https://dblp.org},
+    biburl = {https://dblp.org/rec/conf/iclr/LinRLDSCB024.bib},
+    booktitle = {The Twelfth International Conference on Learning Representations,
+{ICLR} 2024, Vienna, Austria, May 7-11, 2024},
+    publisher = {OpenReview.net},
+    timestamp = {Wed, 07 Aug 2024 01:00:00 +0200},
+    title = {The Unlocking Spell on Base LLMs: Rethinking Alignment via In-Context
+Learning},
+    url = {https://openreview.net/forum?id=wxJ0eXwwda},
+    year = {2024}
+}
+
+@inproceedings{zhang2023automatic,
+    author = {Zhuosheng Zhang and
+Aston Zhang and
+Mu Li and
+Alex Smola},
+    bibsource = {dblp computer science bibliography, https://dblp.org},
+    biburl = {https://dblp.org/rec/conf/iclr/0001Z0S23.bib},
+    booktitle = {The Eleventh International Conference on Learning Representations,
+{ICLR} 2023, Kigali, Rwanda, May 1-5, 2023},
+    publisher = {OpenReview.net},
+    timestamp = {Fri, 30 Jun 2023 01:00:00 +0200},
+    title = {Automatic Chain of Thought Prompting in Large Language Models},
+    url = {https://openreview.net/pdf?id=5NTt8GFjUHkr},
+    year = {2023}
+}
+
+
+@article{wei2022chain,
+  title={Chain-of-thought prompting elicits reasoning in large language models},
+  author={Wei, Jason and Wang, Xuezhi and Schuurmans, Dale and Bosma, Maarten and Xia, Fei and Chi, Ed and Le, Quoc V and Zhou, Denny and others},
+  journal={Advances in neural information processing systems},
+  volume={35},
+  pages={24824--24837},
+  year={2022}
+}
+
+@misc{yu2025preludebenchmarkdesignedrequire,
+    author = {Mo Yu and Tsz Ting Chung and Chulun Zhou and Tong Li and Rui Lu and Jiangnan Li and Liyan Xu and Haoshu Lu and Ning Zhang and Jing Li and Jie Zhou},
+    journal = {ArXiv preprint},
+    title = {PRELUDE: A Benchmark Designed to Require Global Comprehension and Reasoning over Long Contexts},
+    url = {https://arxiv.org/abs/2508.09848},
+    volume = {abs/2508.09848},
+    year = {2025}
+}
+
+@misc{huang2025deepresearchagentssystematic,
+    author = {Yuxuan Huang and Yihang Chen and Haozheng Zhang and Kang Li and Huichi Zhou and Meng Fang and Linyi Yang and Xiaoguang Li and Lifeng Shang and Songcen Xu and Jianye Hao and Kun Shao and Jun Wang},
+    journal = {ArXiv preprint},
+    title = {Deep Research Agents: A Systematic Examination And Roadmap},
+    url = {https://arxiv.org/abs/2506.18096},
+    volume = {abs/2506.18096},
+    year = {2025}
+}
+
+@article{PCA,
+  title={Principal components analysis (PCA)},
+  author={Ma{\'c}kiewicz, Andrzej and Ratajczak, Waldemar},
+  journal={Computers \& Geosciences},
+  volume={19},
+  number={3},
+  pages={303--342},
+  year={1993},
+  publisher={Elsevier}
+}
+
+@article{mcinnes2018umap,
+    author = {McInnes, Leland and Healy, John and Melville, James},
+    journal = {ArXiv preprint},
+    title = {Umap: Uniform manifold approximation and projection for dimension reduction},
+    url = {https://arxiv.org/abs/1802.03426},
+    volume = {abs/1802.03426},
+    year = {2018}
+}
+
+@article{snell2024scaling,
+    author = {Snell, Charlie and Lee, Jaehoon and Xu, Kelvin and Kumar, Aviral},
+    journal = {ArXiv preprint},
+    title = {Scaling llm test-time compute optimally can be more effective than scaling model parameters},
+    url = {https://arxiv.org/abs/2408.03314},
+    volume = {abs/2408.03314},
+    year = {2024}
+}
+
+@book{zoneofproximity,
+  title={Encyclopedia of infant and early childhood development},
+  author={Benson, Janette B},
+  year={2020},
+  publisher={Elsevier}
+}
+
+@article{tsp,
+    author = {Croes, Georges A},
+    journal = {Operations research},
+    number = {6},
+    pages = {791--812},
+    publisher = {INFORMS},
+    title = {A method for solving traveling-salesman problems},
+    volume = {6},
+    year = {1958}
+}
+
+@misc{zhang2025qwen3embeddingadvancingtext,
+    author = {Yanzhao Zhang and Mingxin Li and Dingkun Long and Xin Zhang and Huan Lin and Baosong Yang and Pengjun Xie and An Yang and Dayiheng Liu and Junyang Lin and Fei Huang and Jingren Zhou},
+    journal = {ArXiv preprint},
+    title = {Qwen3 Embedding: Advancing Text Embedding and Reranking Through Foundation Models},
+    url = {https://arxiv.org/abs/2506.05176},
+    volume = {abs/2506.05176},
+    year = {2025}
+}
+
+@misc{deepseekai2025deepseekr1incentivizingreasoningcapability,
+  title={Deepseek-r1: Incentivizing reasoning capability in llms via reinforcement learning},
+  author={Guo, Daya and Yang, Dejian and Zhang, Haowei and Song, Junxiao and Zhang, Ruoyu and Xu, Runxin and Zhu, Qihao and Ma, Shirong and Wang, Peiyi and Bi, Xiao and others},
+  journal={arXiv preprint arXiv:2501.12948},
+  year={2025}
+}
+@misc{yang2025qwen3technicalreport,
+    author = {An Yang and Anfeng Li and Baosong Yang and Beichen Zhang and Binyuan Hui and Bo Zheng and Bowen Yu and Chang Gao and Chengen Huang and Chenxu Lv and Chujie Zheng and Dayiheng Liu and Fan Zhou and Fei Huang and Feng Hu and Hao Ge and Haoran Wei and Huan Lin and Jialong Tang and Jian Yang and Jianhong Tu and Jianwei Zhang and Jianxin Yang and Jiaxi Yang and Jing Zhou and Jingren Zhou and Junyang Lin and Kai Dang and Keqin Bao and Kexin Yang and Le Yu and Lianghao Deng and Mei Li and Mingfeng Xue and Mingze Li and Pei Zhang and Peng Wang and Qin Zhu and Rui Men and Ruize Gao and Shixuan Liu and Shuang Luo and Tianhao Li and Tianyi Tang and Wenbiao Yin and Xingzhang Ren and Xinyu Wang and Xinyu Zhang and Xuancheng Ren and Yang Fan and Yang Su and Yichang Zhang and Yinger Zhang and Yu Wan and Yuqiong Liu and Zekun Wang and Zeyu Cui and Zhenru Zhang and Zhipeng Zhou and Zihan Qiu},
+    journal = {ArXiv preprint},
+    title = {Qwen3 Technical Report},
+    url = {https://arxiv.org/abs/2505.09388},
+    volume = {abs/2505.09388},
+    year = {2025}
+}
+
+@misc{xu2025detectiveqaevaluatinglongcontextreasoning,
+    author = {Zhe Xu and Jiasheng Ye and Xiaoran Liu and Xiangyang Liu and Tianxiang Sun and Zhigeng Liu and Qipeng Guo and Linlin Li and Qun Liu and Xuanjing Huang and Xipeng Qiu},
+    journal = {ArXiv preprint},
+    title = {DetectiveQA: Evaluating Long-Context Reasoning on Detective Novels},
+    url = {https://arxiv.org/abs/2409.02465},
+    volume = {abs/2409.02465},
+    year = {2024}
+}
+
+@inproceedings{lewis2020retrieval,
+  title={Retrieval-augmented generation for knowledge-intensive nlp tasks},
+  author={Lewis, Patrick and Perez, Ethan and Piktus, Aleksandra and Petroni, Fabio and Karpukhin, Vladimir and Goyal, Naman and K{\"u}ttler, Heinrich and Lewis, Mike and Yih, Wen-tau and Rockt{\"a}schel, Tim and others},
+  journal={Advances in neural information processing systems},
+  volume={33},
+  pages={9459--9474},
+  year={2020}
+}
+
+@inproceedings{vllm,
+    author = {Woosuk Kwon and Zhuohan Li and Siyuan Zhuang and Ying Sheng and Lianmin Zheng and Cody Hao Yu and Joseph E. Gonzalez and Hao Zhang and Ion Stoica},
+    booktitle = {Proceedings of the ACM SIGOPS 29th Symposium on Operating Systems Principles},
+    title = {Efficient Memory Management for Large Language Model Serving with PagedAttention},
+    year = {2023}
+}
+
+@inproceedings{zhang2022automaticchainthoughtprompting,
+    author = {Zhuosheng Zhang and
+Aston Zhang and
+Mu Li and
+Alex Smola},
+    bibsource = {dblp computer science bibliography, https://dblp.org},
+    biburl = {https://dblp.org/rec/conf/iclr/0001Z0S23.bib},
+    booktitle = {The Eleventh International Conference on Learning Representations,
+{ICLR} 2023, Kigali, Rwanda, May 1-5, 2023},
+    publisher = {OpenReview.net},
+    timestamp = {Fri, 30 Jun 2023 01:00:00 +0200},
+    title = {Automatic Chain of Thought Prompting in Large Language Models},
+    url = {https://openreview.net/pdf?id=5NTt8GFjUHkr},
+    year = {2023}
+}

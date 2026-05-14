@@ -1,0 +1,60 @@
+\section{Introduction}
+\begin{table}[t]
+\caption{\textbf{Comparison between \bench\ and existing image editing benchmarks.} 
+\texttt{AVR} denotes Algorithm Visual Reasoning, \texttt{MIA} denotes Multi-Image Awareness, \texttt{WKR} denotes World Knowledge Reasoning, \texttt{DM} denotes Dynamic Manipulation, and \texttt{HP} denotes Human Preference evaluation.}
+\vspace{0.5em}
+\label{tab:compare_image_editing_bench}
+\centering
+\resizebox{ 0.95\linewidth}{!}{%
+\begin{tabular}{lcccccccc}
+\toprule
+\textbf{Benchmark} & \textbf{Size} & \textbf{Tasks} & \textbf{Lang.} & \textbf{AVR} & \textbf{MIA} & \textbf{WKR} & \textbf{DM}& \textbf{HP} \\
+\midrule
+
+Magicbrush~\cite{zhang2023magicbrush} & 1,053 & 5 & EN & \icono & \icono &\icono & \icono &  Low \\
+Emu Edit~\cite{cui2025emu3} & 3,055 & 7 & EN & \icono & \icono & \icono & \icono  & Low \\
+AnyEdit-Bench~\cite{yu2025anyedit} & 1,250 & 25 & EN & \icono & \icono & \icono & \icono & Low \\
+ImgEdit-Bench~\cite{ye2025imgedit} & 811 & 11 & EN & \icono & \icono & \icono & \icono & Mid \\
+GEdit-Bench~\cite{liu2025step1x} & 606 & 14 & EN/ZH & \icono & \icono & \icono & \icono & Mid \\
+ICE-Bench~\cite{pan2025ice} & 6,538 & 31 & EN & \icono & \icono & \icono & \icono & Low \\
+RISE-Bench\cite{zhao2025envisioning} & 360 & 4 & EN & \icono & \icono & \icohalf & \icono  & Mid \\
+UniREditBench~\cite{han2025unireditbench} & 2,700 & 13 & EN & \icono & \icono & \icono & \icohalf  & Mid \\
+WiseEdit~\cite{pan2025wiseedit} & 1,220 & 13 & EN/ZH & \icono & \icohalf  & \icoyes & \icono  & Mid \\
+\midrule
+\bench~(Ours) & 2,388 & 36 & EN/ZH & \icoyes & \icoyes & \icoyes & \icoyes  & High \\
+\bottomrule
+\end{tabular}%
+}
+% \vspace{-1.70em}
+\end{table}
+
+Recent image editing models~\cite{brooks2023instructpix2pix, chen2025opengpt,labs2025flux, wang2025scone,tong2026cof,zhu2026layermultilayerrepresentationfusion,zhao2024ultraedit,yu2025anyedit} have achieved remarkable progress, evolving from simple instruction-driven editing toward more advanced capabilities involving multimodal understanding, complex reasoning, and multi-image editing. 
+As frontier models continue to improve, accurately evaluating their editing quality becomes increasingly challenging.
+However, existing benchmarks~\cite{ye2025imgedit,liu2025step1x,pan2025ice} often exhibit a noticeable discrepancy between benchmark scores and human judgment, particularly for strong frontier models.
+This limitation mainly stems from insufficient task difficulty and coarse-grained evaluation protocols, making it difficult to reliably distinguish subtle capability differences among advanced models.
+Accurate evaluation is also crucial for reinforcement learning (RL) based image editing optimization.
+Recent works such as EditScore~\cite{luo2025editscore} and EditReward~\cite{wu2025editreward} train reward models to support FlowGRPO-based~\cite{liu2025flow} image editing optimization.
+However, existing reward model benchmarks often suffer from a distribution mismatch between evaluation samples and the edited images encountered during RL training, limiting their ability to faithfully assess reward model quality in realistic optimization settings.
+Together, these limitations hinder a deeper understanding of frontier image editing models and their corresponding reward models, highlighting the need for a more comprehensive benchmark for faithful image editing evaluation.
+
+
+
+To address these challenges, we introduce \textbf{{\bench}} and \textbf{{\rmbench}}, a unified evaluation suite for image editing models and reward models.
+As illustrated in Figure~\ref{fig:gallery}, {\bench} contains $2,388$ carefully annotated instances spanning six progressively challenging task categories.
+These tasks cover a diverse range of capabilities, including general editing, world perception, dynamic manipulation, visual reasoning, and multi-image understanding.
+Beyond broad task coverage, {\bench} further adopts a fine-grained and multi-dimensional evaluation framework.
+Each editing result is evaluated through chain-of-thought reasoning guided by well-defined scoring rubrics, enabling more reliable and interpretable assessment in complex editing scenarios.
+This design better aligns benchmark evaluation with human judgment while improving evaluation consistency and sensitivity for frontier models.
+In parallel, {\rmbench} contains $2,251$ preference pairs that simulate realistic decision-making scenarios encountered by reward models during RL optimization.
+Together, this unified benchmark suite enables systematic evaluation of both frontier image editing models and reward models.
+It further provides a realistic testbed for analyzing the effectiveness of reward-guided optimization in RL-based image editing.
+
+
+To validate the effectiveness and difficulty of {\bench} and {\rmbench}, we conduct extensive evaluations on a broad range of frontier models, including $29$ image editing models and $21$ reward models.
+For image editing, our evaluation covers state-of-the-art proprietary models, such as Nano-Banana Pro~\cite{nanobananapro}, Wan2.7-Image~\cite{wan}, and Seedream 4.5~\cite{seedream2025seedream}, as well as leading open-source models including Qwen-Image-Edit~\cite{wu2025qwen} and Joy-Image-Edit~\cite{joyaiimage2026}.
+The results reveal a substantial performance gap between closed-source and open-source models.
+The best proprietary model achieves an overall score of $3.99$, while the strongest open-source model, Qwen-Image-Edit~\cite{wu2025qwen}, reaches only $2.69$.
+Beyond overall performance, fine-grained analysis further reveals clear weaknesses in multi-image understanding, world knowledge awareness, and visual reasoning, even for frontier models.
+On the reward modeling side, native multimodal large language models~\cite{qwen3.5,qwen36_35b_a3b,zhang2025debiasing,wang2025monet,qwen3.6-27b,shi2025mavors} achieve stronger overall performance than existing open-source reward models, including models explicitly trained on preference data.
+This finding suggests that current reward models remain limited in evaluating visual consistency and perceptual quality under complex editing scenarios.
+Overall, our results reveal a fundamental limitation of current image editing systems: while existing models perform reasonably well on shallow perception-level editing tasks, they still struggle with deeper reasoning, world knowledge understanding, and complex multi-image editing.

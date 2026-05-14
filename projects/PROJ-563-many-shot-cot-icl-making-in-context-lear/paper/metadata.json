@@ -1,0 +1,48 @@
+{
+  "arxiv_id": "2605.13511",
+  "arxiv_url": "https://arxiv.org/abs/2605.13511",
+  "title": "Many-Shot CoT-ICL: Making In-Context Learning Truly Learn",
+  "authors": [
+    "Tsz Ting Chung",
+    "Lemao Liu",
+    "Mo Yu",
+    "Dit-Yan Yeung"
+  ],
+  "submitter": "github-actions[bot]",
+  "submitted_via": "llmXive dashboard, GitHub issue #141",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "example_paper.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "algorithmic.sty",
+    "algorithm.sty",
+    "example_paper.bib",
+    "example_paper.tex",
+    "fancyhdr.sty",
+    "figures",
+    "figures/qwen314.pdf",
+    "figures/qwen2.5_14b.pdf",
+    "figures/combined_plot.pdf",
+    "figures/similarity.pdf",
+    "figures/main.pdf",
+    "figures/similarity_non_reasoning.pdf",
+    "figures/standard_deviation.pdf",
+    "figures/llama3.1_7b.pdf",
+    "figures/selfgen_reasoning.pdf",
+    "figures/similarity_reasoning.pdf",
+    "figures/qwen2.5_7b.pdf",
+    "figures/selfgen_non_reasonng.pdf",
+    "icml2026.bst",
+    "icml2026.sty",
+    "section",
+    "section/factor.tex",
+    "section/curvature.tex",
+    "section/experiment_setup.tex",
+    "section/property.tex"
+  ]
+}

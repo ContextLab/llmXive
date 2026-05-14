@@ -1,0 +1,204 @@
+\documentclass{article} % For LaTeX2e
+\usepackage{colm2024_conference}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{wrapfig}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{natbib}
+\usepackage{makecell}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{multirow}
+\usepackage{verbatim}
+\usepackage{caption}
+\usepackage{longtable}
+\usepackage{supertabular}
+\usepackage{CJKutf8}
+\usepackage[utf8]{inputenc} % optional
+\usepackage[T1]{fontenc}
+\usepackage[french,vietnamese,mongolian,greek,english]{babel}
+\usepackage{pifont}
+\usepackage{tabularx}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{tablefootnote}
+% \usepackage{colortbl}
+\usepackage{xspace}
+\usepackage{textcomp}
+\usepackage{makecell}
+\usepackage{lscape} 
+\usepackage{siunitx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{svg}
+% 设置lstlisting环境的样式
+\lstset{
+  basicstyle=\ttfamily\small,
+  frame=single,
+  showstringspaces=false,
+  commentstyle=\color{gray},
+  keywordstyle=\color{blue}
+}
+
+\setlength{\columnsep}{2em}
+\setlength{\parindent}{0em}
+\setlength{\parskip}{0.7em}
+\definecolor{dt}{gray}{0.7}
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+\usepackage{pifont}       % \ding{xx}
+\usepackage{bbding}       % \Checkmark,\XSolid,... (需要和pifont宏包共同使用)
+\usepackage{fontawesome}
+
+\usepackage{scrextend}
+
+\usepackage{tgpagella}
+% \usepackage{times}
+\usepackage{latexsym}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\definecolor{mydarkblue}{rgb}{0,0.08,0.45}
+\definecolor{citecolor}{HTML}{0071BC}
+\usepackage{url}            % simple URL typesetting
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{changepage}
+\usepackage{xargs}          % Use more than one optional parameter in a new commands
+\usepackage{wrapfig,lipsum,booktabs}
+\usepackage{longtable}
+\usepackage{subcaption}
+% \usepackage[symbol]{footmisc}
+\usepackage{endnotes}
+% \renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\usepackage{pgfplots}
+\usetikzlibrary{pgfplots.groupplots}
+\pgfplotsset{compat=1.3}
+\usepackage{tikz}
+\usetikzlibrary{patterns}
+
+\usepackage[most]{tcolorbox}
+
+\usepackage{hyperref}
+\definecolor{darkblue}{rgb}{0, 0, 0.5}
+\hypersetup{colorlinks=true, citecolor=darkblue, linkcolor=darkblue, urlcolor=darkblue, bookmarks=true, bookmarksopen=false, bookmarksnumbered=true}
+
+\usepackage[capitalize,noabbrev]{cleveref}
+
+\crefname{section}{\S}{\S\S}
+\Crefname{section}{\S}{\S\S}
+\crefname{subsection}{\S\S}{\S\S}
+\Crefname{subsection}{\S\S}{\S\S}
+\crefformat{section}{\S#2#1#3}
+\crefformat{subsection}{\S\S#2#1#3}
+
+% \crefname{section}{Section}{\S\S}
+% \Crefname{section}{Section}{\S\S}
+\crefname{table}{Table}{Tables}
+\crefname{figure}{Figure}{Figures}
+\crefname{algorithm}{Algorithm}{}
+\crefname{equation}{eq.}{}
+\crefname{appendix}{Appendix}{}
+\crefformat{section}{Section #2#1#3}
+\usepackage{multicol}
+\usepackage{tcolorbox}
+\usepackage{titlesec}
+\titleformat*{\section}{\large\bfseries}
+\usepackage{array} % 导言区
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}} % 定义一个居中对齐的固定宽度列
+\usepackage{multirow}
+
+\usepackage{adjustbox}
+\definecolor{objblue}{RGB}{3,139,221}  
+\definecolor{attrred}{RGB}{255,67,67}    
+\definecolor{easygreen}{RGB}{0,156,75}  
+\definecolor{middleyellow}{RGB}{242,89,34}  
+\definecolor{hardred}{RGB}{216,56,58}
+% \usepackage[table]{xcolor}
+\usepackage{colortbl}
+\usepackage{array}
+% \usepackage{enumitem}
+\DeclareMathOperator{\softmax}{softmax}
+\DeclareMathOperator{\concat}{concat}
+\DeclareMathOperator{\layernorm}{LayerNorm}
+\usepackage[most]{tcolorbox}
+\definecolor{BoxBackground}{RGB}{240, 240, 240} % 浅灰色背景
+\definecolor{BoxFrame}{RGB}{0, 0, 0} % 黑色边框
+\definecolor{TitleBackground}{RGB}{0, 0, 0} % 标题背景颜色
+\definecolor{TitleText}{RGB}{255, 255, 255} % 标题文字颜色
+% 设置全局tcolorbox样式
+\tcbset{
+  academicbox/.style={
+    boxsep=5pt,
+    left=2pt,
+    right=2pt,
+    bottom=0.5pt,
+    boxrule=0.5pt,
+    colback=BoxBackground,
+    colframe=BoxFrame,
+    colbacktitle=TitleBackground,
+    coltitle=TitleText,
+    enhanced,
+    attach boxed title to top left={yshift=-0.1in,xshift=0.1in},
+    boxed title style={boxrule=0pt,colframe=white},
+    title={#1},
+  }
+}
+\newtcolorbox{AcademicBox}[1][]{academicbox=#1}
+\newcommand{\nchar}{\textbackslash n}
+\title{Qwen-Image-VAE-2.0 Technical Report}
+
+
+
+\author{
+\bf Qwen Team}
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+
+\begin{document}
+
+\maketitle
+\vspace{-3mm}
+
+\input{sec/abstract}
+
+% \newpage
+
+\input{sec/introduction}
+
+\input{sec/model}
+
+\input{sec/data}
+
+\input{sec/training}
+
+\input{sec/bench}
+
+\input{sec/experiment}
+
+\input{sec/conclusion}
+
+
+\section{Authors}
+
+\textbf{Contributors:} Zekai Zhang\textsuperscript{*}, Deqing Li\textsuperscript{*}, Kuan Cao\textsuperscript{*}, Yujia Wu\textsuperscript{*}, Chenfei Wu\textsuperscript{\textdagger}, Yu Wu, Liang Peng, Hao Meng, Jiahao Li, Jie Zhang, Kaiyuan Gao, Kun Yan, Lihan Jiang, Ningyuan Tang, Shengming Yin, Tianhe Wu, Xiao Xu, Xiaoyue Chen, Yan Shu, Yanran Zhang, Yilei Chen, Yixian Xu, Yuxiang Chen, Zhendong Wang, Zihao Liu, Zikai Zhou, Yiliang Gu, Yi Wang, Xiaoxiao Xu, Lin Qu
+
+\begingroup
+  \renewcommand\thefootnote{}
+  \footnotetext{\textsuperscript{*}Equal contribution. 
+  \quad \textsuperscript{$\dagger$}Corresponding Author.}
+  \addtocounter{footnote}{-1}
+\endgroup
+
+\clearpage
+\bibliography{colm2024_conference}
+\bibliographystyle{colm2024_conference}
+
+\end{document}

@@ -1,0 +1,22 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,font=\sffamily]
+  \tikzstyle{axis}=[thick, draw=mindlabfg]
+  \tikzstyle{bar}=[fill=mindlabblue!20, draw=mindlabfg, thick]
+  \tikzstyle{hotbar}=[fill=mindlabblue, draw=mindlabfg, thick]
+  \tikzstyle{coldbar}=[fill=mindlabfg!30, draw=mindlabfg, thick]
+  \tikzstyle{label}=[font=\scriptsize\sffamily, align=left]
+
+  \draw[axis] (0,0) -- (8.4,0);
+  \foreach \x/\txt in {0/0,2/50,4/100,6/150,8/200} {
+    \draw[mindlabfg!35] (\x,-0.05) -- (\x,2.25);
+    \node[font=\scriptsize\sffamily] at (\x,-0.35) {\txt};
+  }
+  \node[font=\scriptsize\sffamily] at (4.1,-0.72) {p95 latency (s), $N=64$};
+
+  \node[label, anchor=east] at (-0.15,1.45) {CPU-cached adapters};
+  \draw[hotbar] (0,1.18) rectangle (0.85,1.72);
+  \node[label, anchor=west] at (1.00,1.45) {21.35};
+
+  \node[label, anchor=east] at (-0.15,0.55) {cold first touch};
+  \draw[coldbar] (0,0.28) rectangle (7.99,0.82);
+  \node[label, anchor=west] at (8.12,0.55) {199.81};
+\end{tikzpicture}

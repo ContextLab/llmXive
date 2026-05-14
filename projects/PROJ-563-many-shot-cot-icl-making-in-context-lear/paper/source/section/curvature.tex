@@ -1,0 +1,130 @@
+\section{Curvilinear Demonstration Selection}
+\label{sec:CDS}
+
+Motivated by the curvature--performance correlation in Section~\ref{sec:curvature_corr}, we introduce \emph{Curvilinear Demonstration Selection} (CDS), a practical method for constructing an ordering of many-shot CoT demonstrations.
+CDS aims to produce a smooth trajectory in embedding space, avoiding abrupt transitions between successive demonstrations.
+
+\subsection{Experiment Settings}
+We evaluate CDS on three reasoning tasks spanning diverse domains, including geometry, number theory, and DetectiveQA.
+Our primary experiments use reasoning LLMs from the Qwen3 family (8B and 14B) across multiple demonstration budgets, with the motivation and experimental details provided in Appendix~\ref{sec:exp_setting}.
+
+
+\paragraph{Objective.}
+Given a set of $n$ demonstrations with projected embeddings $\{\mathbf{e}_i\}_{i=1}^n$, CDS seeks a permutation
+$O=[\mathbf{d}_{\pi(1)},\ldots,\mathbf{d}_{\pi(n)}]$
+that minimizes the total curvature
+\begin{equation}
+\Theta(O)=\sum_{t=2}^{n-1}\arccos\!\left(
+\frac{\mathbf{v}_t \cdot \mathbf{v}_{t+1}}{\|\mathbf{v}_t\|\;\|\mathbf{v}_{t+1}\|}
+\right)
+\label{eq:CDS_curvature}
+\end{equation}
+
+\begin{equation}
+    \mathbf{v}_t = \mathbf{e'}_{\pi(t)}-\mathbf{e'}_{\pi(t-1)}.
+\end{equation}
+
+\paragraph{TSP-based approximation.}
+Directly optimizing Eq.~\eqref{eq:CDS_curvature} is combinatorial for large $n$: exact minimization requires evaluating $n!$ permutations, which is infeasible for the longest prompts studied in this paper ($n\le128$).
+Moreover, optimizing angles alone can produce trajectories that are geometrically straight but make very large jumps across the embedding space.
+We therefore use a practical TSP-based heuristic with a combined transition cost that balances spatial proximity and local curvature:
+\vspace{-0.5mm}
+\begin{equation*}
+D_{\mathrm{CDS}} = D_{\mathrm{euclidean}} + D_{\mathrm{curvature}}
+\end{equation*}
+\vspace{-0.5mm}
+The Euclidean component keeps adjacent demonstrations in related local neighborhoods, while the curvature component discourages sharp conceptual turns.
+We build a complete graph under this combined cost and compute a short tour/path using a nearest-neighbor heuristic followed by 2-opt local search~\cite{tsp}.
+We then linearize the resulting tour to obtain the final demonstration order.
+Our theoretical claim only requires a sufficiently smooth pedagogical progression, not the global minimum of Eq.~\eqref{eq:CDS_curvature}; empirically, this approximation is effective and remains inexpensive, taking under one minute on a standard CPU for $n\le128$.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lllcccc}
+\toprule
+Task & Model & Method & \multicolumn{4}{c}{Number of demonstrations} \\ 
+\cmidrule(lr){4-7}
+ & & & 16 & 32 & 64 & 124 \\ \midrule
+number\_theory & gpt-5.2 & origin & 89.63 & 91.11 & 88.56 & 91.48 \\
+ &  & CDS & 89.26 & \textbf{92.59} & \textbf{92.04} & \textbf{91.85} \\
+ &  & CDS$_{bge}$ & 88.15 & \textbf{91.48} & \textbf{88.70} & 91.30 \\
+ & Qwen3 & origin & 86.67 & 87.96 & 86.30 & 90.93 \\
+ &  & CDS & 85.56 & 87.85 & \textbf{87.78} & 90.74 \\
+ &  & CDS$_{bge}$ & 85.37 & 87.78 & \textbf{87.22} & \textbf{91.30} \\ \midrule
+geometry & gpt-5.2 & origin & 75.99 & 74.74 & 75.37 & 75.78 \\
+ &  & CDS & \textbf{81.21} & \textbf{78.08}
+  & \textbf{80.79} & \textbf{75.99}\\
+ &  & CDS$_{bge}$ & \textbf{80.37} & \textbf{78.29} & \textbf{76.83} & 75.11 \\
+ & Qwen3 & origin & 66.18 & 65.76 & 65.14 & 73.07 \\
+ &  & CDS & 65.55 & \textbf{68.27} & \textbf{68.89} & \textbf{73.90} \\
+ &  & CDS$_{bge}$ & \textbf{66.60} & \textbf{67.85} & \textbf{70.36} & \textbf{74.32} \\ \midrule
+DetectiveQA & gpt-5.2 & origin & 80.52 & 82.47 & 83.77 & 85.71 \\
+ &  & CDS & 80.52 & \textbf{83.12} & \textbf{85.06} & \textbf{88.31} \\
+ &  & CDS$_{bge}$ & \textbf{81.17} & \textbf{85.71} & \textbf{86.36} & \textbf{88.31} \\
+ & Qwen3 & origin & 75.97 & 74.03 & 70.78 & 72.73 \\
+ &  & CDS & \textbf{76.62} & \textbf{75.32} & \textbf{73.38} & \textbf{75.32} \\
+ &  & CDS$_{bge}$ & 75.32 & \textbf{77.29} & \textbf{75.32} & \textbf{76.63} \\ \bottomrule
+\end{tabular}%
+}
+\caption{CDS robustness across tasks, embedding models, and target LLMs. CDS uses the original embedding model, while  CDS$_{bge}$ replaces it with bge-m3.}
+\label{tab:CDS_robustness}
+\vspace{-5mm}
+\end{table}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\paragraph{High-curvature control.}
+To isolate curvature from local clustering, we compare CDS with a high-curvature ordering constructed from the same demonstrations.
+Both use Euclidean proximity, but the high-curvature variant inverts the curvature objective:
+$$D_{\mathrm{high\ curv}} = D_{\mathrm{euclidean}} + \left(\max(D_{\mathrm{curvature}})-D_{\mathrm{curvature}}\right)$$
+Thus, it still groups semantically related demonstrations while forcing abrupt turns between consecutive examples.
+
+
+
+\paragraph{Result.} We evaluate CDS on three reasoning tasks: geometry proof generation, number theory problem solving, and DetectiveQA logical reasoning.
+We further test robustness by replacing the original embedding model with bge-m3 and by evaluating an additional closed-source model, gpt-5.2.
+Table~\ref{tab:CDS_robustness} shows that the gains persist across embedding models and target LLMs, especially on geometry and DetectiveQA; number\_theory shows smaller margins because baseline accuracies are already high, leaving less room for ordering to improve performance.
+The performance gains also depend on the curvature of the original ordering. Our ablation in Table~\ref{tab:high_curvature_ablation} against a high-curvature baseline strengthens our curvature claim.
+
+
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lllcccc}
+\toprule
+Task & Model & Method & \multicolumn{4}{c}{Number of demonstrations} \\
+\cmidrule(lr){4-7}
+ & & & 16 & 32 & 64 & 128 \\ \midrule
+number\_theory & gpt-5.2 & CDS & \textbf{88.15} & \textbf{91.48} & \textbf{88.70} & \textbf{91.30} \\
+ &  & high curv & 85.74 & 89.63 & 86.48 & 88.15 \\
+ & Qwen3-14B & CDS & \textbf{85.37} & \textbf{87.78} & \textbf{87.22} & \textbf{91.30} \\
+ &  & high curv & 79.26 & 84.44 & 84.26 & 90.37 \\ \midrule
+geometry & gpt-5.2 & CDS & \textbf{80.37} & \textbf{78.29} & \textbf{76.83} & \textbf{75.11} \\
+ &  & high curv & 72.65 & 73.90 & 76.33 & 74.53 \\
+ & Qwen3-14B & CDS & \textbf{66.60} & \textbf{67.85} & \textbf{70.36} & \textbf{74.32} \\
+ &  & high curv & 66.38 & 66.81 & 66.60 & 71.80 \\ \bottomrule
+\end{tabular}%
+}
+\caption{Controlled smoothness ablation with bge-m3 embeddings. The same demonstrations are used for both orderings; only the transition curvature objective is inverted.}
+\label{tab:high_curvature_ablation}
+\vspace{-6mm}
+\end{table}
+
+
+

@@ -1,0 +1,166 @@
+\section{Experiments}
+
+\begin{table}[t]
+\centering
+\small
+\caption{Comparison of different baselines against our Qwen-Image-VAE-2.0 models across various compression settings. Our models are highlighted in \colorbox{blue!5}{purple}. Underline means second best score.}
+\label{tab:main_bench}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccccccc}
+\toprule
+\multirow{2}{*}{\textbf{Baseline}} & \multirow{2}{*}{\textbf{Setting}} & \multicolumn{2}{c}{\textbf{Generation(w/o CFG)}} & \multicolumn{2}{c}{\textbf{Recon@Imagenet}} & \multicolumn{2}{c}{\textbf{Recon@FFHQ}} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8}
+& & IS $\uparrow$ & gFID $\downarrow$ & PSNR $\uparrow$ & SSIM $\uparrow$ & PSNR $\uparrow$ & SSIM $\uparrow$ \\
+\midrule
+\rowcolor{gray!8} \multicolumn{8}{l}{\textit{ViT-backone AutoEncoders}} \\
+VTP-Large~\citep{vtp} & f16c64 & 146.22 & 5.25 & 26.88 & 0.7718 & 16.52 & 0.3129 \\
+RAE-DINOv2-B~\citep{rae} & f16c768 & 139.80 & 6.64 & 19.24 & 0.5025 & -- & -- \\
+RAE-SigLIP2-B~\citep{rae} & f16c768 & 103.24 & 11.58 & 19.71 & 0.5279 & -- & -- \\
+\midrule
+\rowcolor{gray!8} \multicolumn{8}{l}{\textit{f8 Compression VAEs}} \\
+FLUX.1-dev~\citep{flux2024}       & f8c16    & 54.64  & 25.41 & 32.84 & 0.9155 & 38.14 & 0.9574 \\
+HunyuanVideo~\citep{hunyuanvideo}     & f8c16    & 63.57  & 21.29 & 33.21 & 0.9143 & 39.85 & 0.9607 \\
+Qwen-Image~\citep{qwenimage}       & f8c16    & 73.52  & 17.68 & 33.42 & 0.9159 & 38.75 & 0.9512 \\
+Wan2.1~\citep{wan2025wan}           & f8c16    & 78.60  & 16.25 & 31.29 & 0.8870 & 38.16 & 0.9456 \\
+Cosmos-0.1-CI8x8~\citep{cosmos}   & f8c16    & 52.89  & 26.02 & 32.33 & 0.9024 & 39.16 & 0.9546 \\
+\midrule
+\rowcolor{gray!8} \multicolumn{8}{l}{\textit{f16 Compression VAEs}} \\
+Cosmos-0.1-CI16x16~\citep{cosmos}   & f16c16 & 85.14  & 15.21 & 25.13 & 0.7015 & 30.91 & 0.8285 \\
+HunyuanVideo-1.5~\citep{hunyuanvideo1.5} & f16c32   & 69.59  & 19.08 & 31.18 & 0.8710 & 37.30 & 0.9336 \\
+HunyuanImage-3.0~\citep{hunyuanimage3.0} & f16c32   & 73.84  & 17.87 & 31.08 & 0.8655 & 36.85 & 0.9260 \\
+VAVAE~\citep{vavae} & f16c32 & \textbf{129.80} & \textbf{6.03} & 27.75 & 0.7986 & 32.84 & 0.8752 \\
+Wan2.2~\citep{wan2025wan}           & f16c48   & 79.55  & 15.65 & 31.30 & 0.8784 & 37.75 & 0.9386 \\
+Stepvideo-T2V~\citep{stepvideo}    & f16c64   & 45.18  & 33.53 & 31.54 & 0.8973 & 37.46 & 0.9451 \\
+FLUX.2-dev~\citep{flux2}       & f16c128  & 91.53  & 10.61 & 34.34 & 0.9358 & 40.36 & 0.9676 \\
+\rowcolor{blue!5} \textbf{Qwen-Image-VAE-2.0-f16c64} & f16c64 & \underline{102.76} & \underline{9.52} & 32.72 & 0.9086 & 39.14 & 0.9541 \\
+\rowcolor{blue!5} \textbf{Qwen-Image-VAE-2.0-f16c128} & f16c128 & 92.42 & 10.29 & \textbf{35.90} & \textbf{0.9519} & \textbf{43.10} & \textbf{0.9795} \\
+\midrule
+\rowcolor{gray!8} \multicolumn{8}{l}{\textit{f32 Compression VAEs}} \\
+DC-AE-sana~\citep{dcae}        & f32c32   & \underline{75.73}  & \underline{16.88} & 24.82 & 0.6897 & 31.35 & 0.8303 \\
+HunyuanImage-2.1~\citep{hunyuanimage2.1} & f32c64   & 47.96  & 33.32 & 28.67 & 0.8199 & 35.30 & 0.9110 \\
+LTX-Video~\citep{ltx}            & f32c128  & 33.48  & 44.94 & 29.57 & 0.8329 & 35.56 & 0.9051 \\
+LTX-2~\citep{ltx2}            & f32c128  & 42.57  & 38.19 & 26.06 & 0.7925 & 33.63 & 0.9058 \\
+\rowcolor{blue!5} \textbf{Qwen-Image-VAE-2.0-f32c128} & f32c128 & \textbf{81.23} & \textbf{15.05} & \underline{29.69} & \underline{0.8423} & \underline{35.91} & \underline{0.9177} \\
+\rowcolor{blue!5} \textbf{Qwen-Image-VAE-2.0-f32c192} & f32c192 & 72.31 & 18.33 & \textbf{31.13} & \textbf{0.8785} & \textbf{37.52} & \textbf{0.9381} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\subsection{Quantitative Results}
+\subsubsection{Performance of Reconstruction}
+We evaluate the reconstruction performance of Qwen-Image-VAE-2.0 on two standard benchmarks: ImageNet~\citep{deng2009imagenet} and FFHQ\citep{Karras2018ASG}. Specifically, we evaluate low-resolution (256p) general-domain performance on ImageNet and high-resolution (1K) performance on FFHQ, using the Peak Signal-to-Noise Ratio (PSNR) and the Structural Similarity Index Measure (SSIM) as our quality metrics. As demonstrated in Table~\ref{tab:main_bench}, Qwen-Image-VAE-2.0 achieves state-of-the-art reconstruction fidelity within its corresponding compression tiers ($f16$ and $f32$). Notably, our $f32c192$ VAE performs comparably to established $f8$ VAEs (e.g., Wan2.1), despite operating at a $4\times$ compression factor. This superior performance in reconstruction is largely attributable to our refined VAE architecture, expanded channel dimensions, and extensive training regimen. 
+
+
+\begin{table}[t]
+\centering
+% \small
+\tiny
+% \renewcommand{\arraystretch}{1.1}   % 增加 10% 行间距
+\caption{Comprehensive evaluation on OmniDoc-TokenBench (${\sim}$3K text-rich images, $256\!\times\!256$). Models are grouped by spatial compression factor and sorted by NED within each group. Our models are highlighted in \colorbox{blue!5}{purple}. }
+\label{tab:text_bench}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccccc}
+\toprule
+\textbf{Model} & \textbf{Setting} & \textbf{SSIM}\,$\uparrow$ & \textbf{PSNR}\,$\uparrow$ & \textbf{LPIPS}\,$\downarrow$ & \textbf{FID}\,$\downarrow$ & \textbf{NED}\,$\uparrow$ \\
+\midrule
+\rowcolor{gray!8} \multicolumn{7}{l}{\textit{ViT-backbone AutoEncoders}} \\
+RAE-DINOv2-B~\citep{rae}            & f16c768   & 0.3261 & 14.32 & 0.2290 & 18.21 & 0.0392 \\
+RAE-SigLIP2-B~\citep{rae}           & f16c768   & 0.3871 & 14.36 & 0.1972 & 11.49 & 0.0483 \\
+VTP-Large~\citep{vtp}               & f16c64   & \textbf{0.7185} & \textbf{18.11} & \textbf{0.1046} & \textbf{3.94} & \textbf{0.4170} \\
+\midrule
+\rowcolor{gray!8} \multicolumn{7}{l}{\textit{f8 Compression VAEs}} \\
+Wan2.1~\citep{wan2025wan}                  & f8c16     & 0.8282 & 20.54 & 0.0679 & 4.57  & 0.8021 \\
+Cosmos-0.1-CI8x8~\citep{cosmos}            & f8c16     & 0.9057 & 24.29 & 0.0464 & 2.89  & 0.9033 \\
+Qwen-Image~\citep{qwenimage}               & f8c16     & 0.8998 & 24.94 & 0.0519 & 4.48  & 0.9073 \\
+HunyuanVideo~\citep{hunyuanvideo}          & f8c16     & 0.9227 & 25.26 & 0.0434 & 2.03  & 0.9266 \\
+FLUX.1-dev~\citep{flux2024}                & f8c16     & \textbf{0.9364} & \textbf{26.24} & \textbf{0.0246} & \textbf{0.55}  & \textbf{0.9546} \\
+\midrule
+\rowcolor{gray!8} \multicolumn{7}{l}{\textit{f16 Compression VAEs}} \\
+Cosmos-0.1-CI16x16~\citep{cosmos}            & f16c16    & 0.5460 & 15.55 & 0.1349 & 7.78  & 0.1547 \\
+VAVAE~\citep{vavae}              & f16c32    & 0.6905 & 17.50 & 0.0974 & 4.45  & 0.3488 \\
+HunyuanVideo-1.5~\citep{hunyuanvideo1.5}          & f16c32    & 0.8422 & 21.49 & 0.0839 & 4.67  & 0.6938 \\
+HunyuanImage-3.0~\citep{hunyuanimage3.0}          & f16c32    & 0.8672 & 22.66 & 0.0650 & 3.49  & 0.7753 \\
+Wan2.2~\citep{wan2025wan}                    & f16c48    & 0.8577 & 21.67 & 0.0525 & 3.05  & 0.8310 \\
+Stepvideo-T2V~\citep{stepvideo}             & f16c64    & 0.8970 & 23.69 & 0.0650 & 6.02  & 0.8838 \\
+\rowcolor{blue!5} \textbf{Qwen-Image-VAE-2.0-f16c64}      & f16c64   & 0.9279 & 26.00 & 0.0382 & 1.94  & 0.9244 \\
+FLUX.2-dev~\citep{flux2}                & f16c128   & 0.9544 & 27.72 & 0.0216 & \textbf{0.73}  & 0.9535 \\
+\rowcolor{blue!5} \textbf{Qwen-Image-VAE-2.0-f16c128}     & f16c128  & \textbf{0.9706} & \textbf{30.45} & \textbf{0.0167} & 0.79 & \textbf{0.9617} \\
+\midrule
+\rowcolor{gray!8} \multicolumn{7}{l}{\textit{f32 Compression VAEs}} \\
+DC-AE-sana~\citep{dcae}                 & f32c32    & 0.5259 & 15.62 & 0.1441 & 7.26  & 0.0692 \\
+LTX-2~\citep{ltx2}                     & f32c128   & 0.7354 & 18.41 & 0.1192 & 9.94  & 0.3569 \\
+HunyuanImage-2.1~\citep{hunyuanimage2.1}          & f32c64    & 0.7805 & 19.85 & 0.0957 & 5.19  & 0.4895 \\
+LTX-Video~\citep{ltx}                     & f32c128   & 0.8055 & 20.92 & 0.1190 & 17.10 & 0.5651 \\
+\rowcolor{blue!5} \textbf{Qwen-Image-VAE-2.0-f32c128}     & f32c128  & 0.8442 & 22.13 & 0.0642 & 3.36  & 0.7065 \\
+\rowcolor{blue!5} \textbf{Qwen-Image-VAE-2.0-f32c192}     & f32c192  & \textbf{0.8908} & \textbf{23.84} & \textbf{0.0497} & \textbf{1.98} & \textbf{0.8555} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+
+\subsubsection{Performance of Text Rendering}
+\label{sec:text_rendering}
+
+To assess reconstruction fidelity in challenging text-rich scenarios, we evaluate all models on OmniDoc-TokenBench~(\S\ref{sec:omnidoc_tokenbench}), reporting both traditional pixel-based metrics and the proposed OCR-based NED metric. We compute NED on raw OCR outputs without text normalization, while minor spacing artifacts from OCR may inflate edit distance, the evaluation pipeline is applied consistently across all models ensuring fair comparison. Results are summarized in Table~\ref{tab:text_bench}, with qualitative comparisons in Figure~\ref{fig:text_recon_comparison}.
+
+\paragraph{Traditional Reconstruction Metrics.}
+Our high-compression VAEs ($f16$ and $f32$ settings) achieve state-of-the-art pixel-level reconstruction, outperforming all competing methods at the same compression ratios. Notably, Qwen-Image-VAE-2.0-f16c128 attains an SSIM of \textbf{0.9706} and PSNR of \textbf{30.45\,dB}, surpassing the best $f8$ baseline (FLUX.1-dev at 0.9364 / 26.24\,dB) despite $2\times$ higher spatial compression. Even our lighter f16c64 variant surpasses most $f8$ baselines (SSIM 0.9279 vs.\ HunyuanVideo's 0.9227), demonstrating strong efficiency at moderate channel budgets. Under extreme $f32$ compression where existing methods degrade catastrophically (SSIM as low as 0.5259), our f32c192 achieves \textbf{0.8908} SSIM with FID \textbf{1.98}---outperforming all $f32$ competitors by substantial margins.
+
+\paragraph{NED for Text Fidelity.}
+Traditional pixel metrics are inherently insensitive to character-level legibility. A single-character reconstruction error such as ``orange'' $\to$ ``orango'' incurs negligible PSNR loss ($<$0.5\,dB) yet reduces NED by \textbf{16.7\%}, exposing the semantic corruption that pixel metrics might miss. The NED metric directly measures text preservation by comparing recognized character sequences between original and reconstructed images.
+
+In the $f16$ VAEs, baseline performance varies dramatically: Cosmos-0.1-CI16x16 collapses to NED \textbf{0.1547} (${\sim}$85\% character loss), while others range 0.35--0.88, all below $f8$ state-of-the-art. Our Qwen-Image-VAE-2.0-f16c64 achieves \textbf{0.9244}, competitive with leading $f8$ methods. Most remarkably, Qwen-Image-VAE-2.0-f16c128 reaches \textbf{0.9617}, \emph{surpassing all evaluated $f8$ VAEs} including FLUX.1-dev (0.9546). To the best of our knowledge, this is the first $f16$ autoencoder to achieve text fidelity exceeding $f8$ VAEs.
+
+The $f32$ VAEs further validate our advantage. While competing models exhibit near-total text destruction (NED: 0.07--0.57), our Qwen-Image-VAE-2.0-f32c192 achieves \textbf{0.8555}, surpassing multiple $f16$ baselines. This cross-compression superiority stems directly from our comprehensive data engineering incorporating diverse text-rich documents and synthetic rendering pipelines.
+
+\paragraph{Correlation Analysis.}
+We observe an imperfect correlation between pixel metrics and text fidelity. In $f16$, Stepvideo-T2V achieves notably higher NED than HunyuanImage-3.0 (0.8838 vs.\ 0.7753) despite modest SSIM differences (0.8970 vs.\ 0.8672); in $f32$, LTX-Video outperforms HunyuanImage-2.1 in NED (0.5651 vs.\ 0.4895) despite worse FID (17.10 vs.\ 5.19). These discrepancies validate NED as a necessary complementary metric for text reconstruction evaluation.
+
+\subsubsection{Performance of Diffusability}
+To empirically validate the diffusability of our learned latent space, we evaluate downstream generative performance by training SiT~\citep{sit} on the ImageNet 256$\times$256 dataset. We strictly adhere to the codebase and default hyperparameter settings of~\citet{repa-e}, reporting generation quality at 80 epochs via the Inception Score (IS)~\citep{inception} and generative FID (gFID). Specifically, we employed the SiT-XL/2 architecture for the $f8$ compression setting, and the SiT-XL/1 architecture for the $f16$ and $f32$ settings. Since higher-dimensional latent space often require larger optimal Classifier-Free Guidance (CFG)~\citep{cfg} scales, and the evaluated VAEs possess varying dimensions, we report only the results without guidance to ensure a fair comparison. As shown in Table~\ref{tab:main_bench}, Qwen-Image-VAE-2.0 demonstrates superior latent space diffusability, consistently outperforming existing high-compression baselines in overall generation quality. Despite their large latent dimensions, our models facilitate rapid DiT convergence. This exceptional diffusability effectively resolves the traditional tripartite trade-off and is primarily driven by our improved semantic alignment strategy and staged alignment paradigm.
+
+\begin{figure*}[t]
+    \centering
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=1.0\textwidth]{pics/vae_figure_f16.pdf}
+        \caption{$f16$ Compression VAEs. Baselines exhibit character blurring and stroke merging, while ours \textcolor[RGB]{215,36,36}{$f16$ VAEs} preserves crisp boundaries.}
+        \label{fig:f16_comparison}
+    \end{subfigure}
+
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=1.0\textwidth]{pics/vae_figure_f32.pdf}
+        \caption{$f32$ Compression VAEs. Competing models reduce text to illegible smears; our \textcolor[RGB]{215,36,36}{$f32$ VAEs} retains distinguishable characters and word boundaries.}
+        \label{fig:f32_comparison}
+    \end{subfigure}
+    
+    \caption{Qualitative comparison of text reconstruction on Ours OmniDoc-TokenBench. For each compression ratio, we show: (Top) full image with patch crop regions indicated; (Middle) zoomed-in patch with word box annotations; (Bottom) zoomed-in word.}
+    \label{fig:text_recon_comparison}
+\end{figure*}
+
+\subsection{Qualitative Results}
+
+\subsubsection{Text Rendering}
+
+Figure~\ref{fig:text_recon_comparison} visualizes qualitative reconstruction results across different compression ratios. At $f16$ VAEs (Figure~\ref{fig:f16_comparison}), the degradation gap widens dramatically. Weaker baselines show severe character blurring, stroke merging, and inter-character ghosting---Cosmos-0.1-CI16x16~\citep{cosmos} exhibits near-complete text collapse. In contrast, our Qwen-Image-VAE-2.0-f16c128 preserves crisp character boundaries, accurate inter-character spacing, and fine stroke detail.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.90\linewidth]{pics/sample_images.pdf}
+    \caption{Selected image samples generated by SiT on ImageNet with Qwen-Image-VAE-2.0.}
+    \label{fig:sample_images}
+\end{figure}
+
+For $f32$ VAEs (Figure~\ref{fig:f32_comparison}), competing models reduce text to fragmented noise patterns where individual characters become unrecognizable. Our Qwen-Image-VAE-2.0-f32c192 uniquely retains clearly distinguishable character forms and recognizable word boundaries, consistent with its substantially higher NED scores and validating the effectiveness of our architecture under extreme compression constraints.
+
+
+
+\subsubsection{Diffusability}
+Figure~\ref{fig:sample_images} illustrates selected ImageNet samples generated by SiT-XL, serving as a visual validation of the latent space's semantic coherence and fine-grained detail. To demonstrate cross-scale consistency, samples are generated at $256\times256$ for $f16$ VAEs and $512\times512$ for $f32$ VAEs using a further-trained SiT-XL with classifier-free guidance, following our quantitative training protocol. Across $f16$ and $f32$ compression ratios, the generations maintain high visual fidelity without structural degradation.
+
+
+\subsubsection{Large-scale Text-to-Image Validation}
+The successful integration of Qwen-Image-VAE-2.0\footnote{The VAE integrated into Qwen-Image-2.0 is an intermediate variant derived from the methodological framework established in this work.} into the Qwen-Image-2.0~\citep{qwen-image-2.0} further validates the diffusability of our latent space at a foundation-model scale. Operating within this large-scale text-to-image pipeline, our compressed representations readily support complex open-vocabulary conditioning and intricate compositional constraints. The resulting generations consistently demonstrate Qwen-Image-2.0’s core capabilities through precise text rendering and refined photorealistic textures across diverse semantic contexts. This large-scale deployment demonstrates that our latent space preserves the structural stability and information fidelity required for demanding synthesis tasks, thereby confirming the scalability and robustness of our alignment paradigm in advanced generative systems.

@@ -1,0 +1,113 @@
+\section{Method}
+\label{sec:method}
+
+\subsection{AnyFlow Motivation}
+\label{sec:motivation}
+
+As summarized in \cref{tab:paradigm_comp}, most recent few-step video distillation methods are built on consistency models. Although effective under very small sampling budgets, their performance often degrades as the number of sampling steps increases (\cref{fig:teaser}). The underlying reason is that consistency-style sampling repeatedly performs endpoint projection and re-noising, which gradually drives the trajectory away from the target PF-ODE path during multi-step inference.
+
+\myPara{Motivation.} Our goal is to preserve the strong few-step efficiency of distilled video diffusion models while enabling quality to improve, rather than deteriorate, as more sampling steps are used. To this end, AnyFlow shifts the distillation target from fixed-point endpoint mapping to flow map transition learning, \ie $\mathbf{f}_\theta:(\mathbf{z}_t, t, r) \mapsto \mathbf{z}_r$. Instead of only predicting $\mathbf{z}_0$, the model learns transitions between arbitrary time pairs. This formulation naturally supports both small time gaps for stable local refinement and large time gaps for efficient long-range jumps, making it well suited for any-step generation.
+
+\myPara{Challenge.} Forward flow map training alone (\eg MeanFlow~\cite{geng2025mean}) is insufficient for strong test-time performance in video generation. As shown in \cref{fig:ablation_onpolicy} and \cref{tab:ablation_anyflow}, it still suffers from test-time errors, especially discretization error in few-step sampling and exposure bias in causal generation. This motivates an additional on-policy distillation stage to correct rollout mismatch. However, designing such a stage for flow map models is non-trivial. Unlike consistency models, which can naturally reach $\mathbf{z}_0$ at intermediate steps and therefore allow KL gradients to be computed directly at endpoint states, flow map models require a new simulation strategy that can accommodate transitions between arbitrary time pairs while remaining efficient for training.
+
+\input{figures/pipeline}
+
+
+\subsection{AnyFlow Pipeline}
+\label{sec:pipeline}
+
+\myPara{Overview.} As illustrated in \cref{fig:pipeline}, AnyFlow is trained in two complementary stages: forward flow map training (\cref{sec:flow_map}) and on-policy distillation (\cref{sec:on_policy}). In Stage 1, we fine-tune a pretrained video diffusion model on teacher-synthesized data to learn a stable transition operator $\mathbf{f}_\theta:(\mathbf{z}_t, t, r) \mapsto \mathbf{z}_r$, which provides a strong initialization for any-step generation. In Stage 2, starting from the converged Stage-1 checkpoint, we jointly optimize forward flow map training and DMD-based on-policy distillation. This stage uses flow map backward simulation to generate student rollouts and apply reverse-divergence supervision from a strong teacher, thereby reducing discretization error and exposure bias while preserving any-step capability.
+
+
+\subsubsection{Flow Map Training}
+\label{sec:flow_map}
+
+\noindent We employ the MeanFlow objective (\cref{eq:meanflow}) alongside the differential derivation equation (\cref{eq:center_difference}) as our primary training framework. Because the original MeanFlow architecture is optimized for pretraining, directly adapting it to post-training for video diffusion models requires several additional design choices for strong performance. To this end, we introduce several modifications: interpolated timestep conditioning, time sampling, guidance-fused training, and adaptive loss reweighting.
+
+
+\input{tables/anyflow_algorithm}
+
+\myPara{Interpolated Timestep Conditioning.} Converting a pretrained diffusion model into a flow map model requires introducing an additional timestep, $r$. A natural choice is to follow MeanFlow~\cite{geng2025mean} and use $\text{emb}(t) + \text{emb}'(t-r)$. Prior work such as TMD~\cite{nie2026transition} further applies a zero-initialized output projection to $\text{emb}'$ for a smooth start in post-training. However, we find this design unstable in our setting: it tends to produce timestep embeddings with much larger norms than the pretrained ones, leading to over-saturated generation results, as shown in \cref{fig:ablation_interpolated_time}.
+
+To address this issue, we instead use an interpolated timestep conditioning scheme:
+$$g \cdot \text{emb}(t) + (1-g) \cdot \text{emb}'(r),$$
+where $\text{emb}'$ is initialized from the pretrained $\text{emb}$ and $g$ is fixed to 0.25 in all experiments. At the beginning of training, this formulation reduces to the pretrained timestep embedding in the boundary case $t=r$. As verified in \cref{fig:ablation_interpolated_time}, interpolated timestep conditioning keeps the embedding norm well aligned with the pretrained model and suppresses over-saturated results observed in zero-init timestep conditioning.
+
+\myPara{Time Sampler.}
+Following MeanFlow~\cite{geng2025mean}, we first sample $t$ and $r$ from a uniform distribution and then reorder them as $t=\max(t,r)$ and $r=\min(t,r)$. We further introduce a reweighting function $w(t)$ based on the sampled timestep $t$ to balance the training objective across different noise levels. Different choices of $w(t)$ are discussed in the \cref{fig:ablation_time_sampler}.
+
+
+\myPara{Guidance-Fused Training.}
+We also incorporate classifier-free guidance (CFG) into flow map training following MeanFlow~\cite{geng2025mean}, which allows CFG to be omitted at test time for faster inference. Unlike MeanFlow, which fuses the CFG objective into the target velocity field $\mathbf{u}_{\text{tgt}}$, we fuse it into the prediction to better align with the guidance scale defined by the pretrained diffusion model:
+\begin{equation}
+    \mathbf{u} = \frac{1}{g}\left(\mathbf{u}_c - (1-g)\operatorname{sg}(\mathbf{u}_{\varnothing})\right),
+  \end{equation}
+where $\operatorname{sg}(\cdot)$ denotes the stop-gradient operation and $\mathbf{u}_{\varnothing}$ is the model prediction with null conditioning.
+
+\myPara{Adaptive Loss Reweighting.} To stabilize flow map training, we introduce an adaptive loss reweighting scheme. Unlike MeanFlow~\cite{geng2025mean}, which uses a weighting function $w = 1 / (\|\Delta\|_2^2 + c)$ for pre-training, where $\Delta$ denotes the regression loss and $c$ is a small constant, our approach is designed for post-training, where a reliable instantaneous velocity field has already been established at $t=r$. We use the loss at $t=r$ as a baseline to dynamically scale the loss for other time steps $t \neq r$. In each iteration, we sample 50\% of the batch from the boundary cases ($t=r$) and define the adaptive weight $w_{t,r}$ as:
+\begin{equation}
+  w_{t,r} =
+  \begin{cases} 1, & t = r \\ \displaystyle \frac{\mu_{t=r}}{\|\Delta\|_2^2 + c}, & t \neq r
+  \end{cases}
+\end{equation}
+where $\mu_{t=r} = \mathbb{E}_{t=r} [ \|\Delta\|_2^2 ]$ is the average regression loss over the boundary samples. This formulation aligns the loss magnitude at $t \neq r$ with the well-optimized field at $t=r$, thereby preserving the learned instantaneous velocity and preventing gradient instability.
+
+
+\myPara{Discussion.} The full algorithm of our improved forward flow map training is summarized in \cref{alg:flowmap}. As shown in \cref{tab:ablation_anyflow}, compared with standard flow matching, flow map training achieves comparable multi-step performance while delivering significantly better few-step performance. Compared with Consistency ODE-Init, it achieves stronger multi-step performance while maintaining comparable few-step quality. Overall, flow map training provides a strong initialization for the subsequent on-policy distillation stage.
+
+
+\input{figures/comp_simulation}
+\input{figures/ablation_anyflow_simulation}
+
+\subsubsection{On-Policy Flow Map Distillation}
+\label{sec:on_policy}
+
+\noindent Although forward flow map training provides a strong initialization for any-step generation, it still suffers from test-time errors, especially discretization error at low NFEs and exposure bias in causal generation, as shown in \cref{fig:ablation_onpolicy}. To correct rollout drift, we further introduce on-policy distillation with teacher guidance. Following prior work~\cite{huang2025selfforcing, zheng2025large}, we instantiate on-policy diffusion distillation with distribution matching distillation (DMD), which requires the student to perform a self-rollout (\ie backward simulation) to $\mathbf{z}_0$ before re-noising in order to compute the Kullback--Leibler (KL) gradient. Below, we describe our design of backward simulation for flow map
+models.
+
+\myPara{Limitations of Consistency Backward Simulation.}
+Existing backward simulation methods for DMD~\cite{huang2025selfforcing, zheng2025large} largely follow the logic of consistency models, as illustrated in \cref{fig:comp_simulation}(a). This design is convenient for on-policy distillation because the consistency scheduler can reach the $\mathbf{z}_0$ state at intermediate steps, making endpoint-based supervision straightforward. In practice, gradients are often truncated before the target gradient step to avoid the memory cost and instability of backpropagating through a long rollout chain. In inference time, the same consistency sampler is then reused.
+
+However, unlike ODE trajectories learned through flow-matching pretraining, consistency samplers require additional re-noising to obtain intermediate states during multi-step sampling. These re-noised states deviate from the base PF-ODE trajectory, which limits generalization beyond the simulation step used during simulation. Moreover, simulating arbitrary step counts with consistency backward simulation is computationally expensive because it requires rolling out the full trajectory.
+
+\myPara{Flow Map Backward Simulation.}
+Unlike consistency backward simulation, our design directly exploits the learned transition capability of flow map models. Since a flow map model is able to predict transitions between arbitrary time pairs, it can naturally shortcut long rollout trajectories instead of explicitly simulating every intermediate step, based on the composition property of flow maps:
+\begin{equation}
+  \mathbf{f}_{\theta}(\mathbf{z}_t,t,q) \approx \mathbf{f}_{\theta}\big(\mathbf{f}_{\theta}(\mathbf{z}_t,t,r),r,q\big), \quad t>r>q.
+\end{equation}
+
+Concretely, for a target sampling budget of $N$ steps, we first choose an intermediate timestep $t$ along the sampled trajectory and then set the next timestep $r$ such that $t-r = \frac{T}{N}$. As illustrated in \cref{fig:comp_simulation}, this decomposes a rollout trajectory from $T$ to $0$ into three segments: $T \to t$, $t \to r$, and $r \to 0$. The first and last segments, $T \to t$ and $r \to 0$, are handled by shortcut transitions of the learned flow map, while $t \to r$ is the target transition along the sampled trajectory. Once the KL gradient is computed at $z_0$, it is backpropagated through the whole chain. By varying $N$ during training, we can efficiently simulate different inference step budgets with the same computation cost.
+
+After on-policy distillation, we can simply use a standard Euler scheduler for sampling. Because flow map backward simulation trains transitions over different time intervals, the same model naturally supports different inference budgets at test time.
+
+
+\input{figures/downstream_pipeline}
+\input{figures/downstream_results}
+
+
+\myPara{Discussion.} The full algorithm of our on-policy distillation stage is shown in \cref{alg:onpolicy}. As shown in \cref{tab:ablation_anyflow}, Consistency ODE-Init combined with consistency backward simulation exhibits the weakest test-time scaling, especially at 32 NFEs. Replacing the forward training stage with flow map training narrows this gap, but noticeable degradation still remains under multi-step sampling. By further adopting our flow map backward simulation, both few-step and multi-step performance are improved through on-policy distillation. As shown in \cref{fig:ablation_backward_simulation}, flow map backward simulation produces a straighter trajectory, which leads to more consistent improvement as the sampling budget increases, whereas consistency-based simulation degrades at 32 NFEs.
+
+
+\subsection{AnyFlow Application}
+\myPara{AnyFlow for Bidirectional Video Diffusion.}
+For bidirectional video diffusion, we simply follow the established AnyFlow pipeline, as detailed in \cref{alg:flowmap} and \cref{alg:onpolicy}.
+
+
+\myPara{AnyFlow for Causal Video Diffusion.}
+For causal video diffusion, we adopt the FAR~\cite{gu2025long} training pipeline, which uses context compression with asymmetric patchify kernels to encode videos efficiently. Specifically, we keep three full-token chunks with the standard patchify kernel size of 2, while compressing the remaining chunks with a larger kernel size of 4. This design substantially reduces teacher-forcing training cost and KV-cache size during sampling.
+%
+To jointly support Image-to-Video (I2V) and Text-to-Video (T2V), we use a non-uniform chunk partition: the first chunk has size 1 for precise first-frame conditioning, and subsequent chunks use size 3 to balance motion modeling and throughput.
+%
+The training objective remains the same as in the bidirectional setting, and we additionally cache and reuse KV states during rollouts to improve simulation efficiency for causal video diffusion models.
+
+\myPara{Continued Training on Downstream Datasets.}
+A practical advantage of AnyFlow is that it preserves the pretrained model's instantaneous flow field, making the distilled model compatible with continued training on downstream datasets. As illustrated in \cref{fig:downstream_pipeline}, AnyFlow enables continued training from a pretrained checkpoint, unlike Self-Forcing, where further training of the distilled model is difficult.
+
+This property is especially useful in specialized domains whose motion patterns and visual statistics differ from those of the original training corpus. As shown in \cref{fig:downstream_result}, the base distilled model, AnyFlow-FAR-Wan2.1-1.3B, still struggles with identity preservation in robotics videos and trajectory accuracy in driving scenes. After continued training on downstream data, these errors are substantially reduced.
+
+
+\input{tables/t2v_comparison}
+
+\input{tables/i2v_comparison}
+
+\input{figures/qualitative_comparison}

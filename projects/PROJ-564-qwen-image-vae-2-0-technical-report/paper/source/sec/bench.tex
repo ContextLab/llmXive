@@ -1,0 +1,45 @@
+\section{OmniDoc-TokenBench}
+\label{sec:omnidoc_tokenbench}
+
+\subsection{Motivation}
+Standard reconstruction benchmarks such as ImageNet~\citep{deng2009imagenet} and FFHQ~\citep{Karras2018ASG} consist predominantly of natural photographs with negligible textual content, making them ill-suited for evaluating text-rich image reconstruction. Conventional pixel-level metrics (PSNR, SSIM) are inherently insensitive to text legibility, as minor stroke distortions may lead to a negligible decrease in conventional evaluation metrics yet render characters unrecognizable. While TokBench~\citep{Wu2025TokBenchEY} introduces OCR-based reconstruction evaluation, its data is drawn from scene text datasets where text instances are sparse and character sizes are insufficiently small, making it inadequate for benchmarking reconstruction capability in text-rich scenarios.
+
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{pics/OmniDoc-TokenBench-1.pdf}
+    \caption{OmniDoc-TokenBench, a curated collection of ${\sim}$3K text-rich images. }
+    \label{fig:vae_bench}
+\end{figure}
+
+To address these limitations, we propose \textbf{OmniDoc-TokenBench} (Figure~\ref{fig:vae_bench}), a curated benchmark of ${\sim}$3K text-rich document images spanning nine categories---\textit{book}, \textit{slides}, \textit{color textbook}, \textit{exam paper}, \textit{academic paper}, \textit{magazine}, \textit{financial report}, \textit{newspaper}, and \textit{note}---covering both alphabetic (English) and logographic (Chinese) text. We perform full-page OCR on both the original and reconstructed images and compute Normalized Edit Distance (\textbf{NED})~\citep{Liu2019ICDAR2R, Marzal1993ComputationON} between their OCR outputs, directly measuring page-level document readability without requiring word-level bounding box annotations. This annotation-free design also facilitates easy scaling to new document types.
+
+\subsection{Benchmark Construction}
+OmniDoc-TokenBench is derived from OmniDocBench~\citep{Ouyang2024OmniDocBenchBD}, a document parsing dataset offering fine-grained layout annotations and text-level ground truth across diverse sources. We construct the benchmark through a four-stage pipeline:
+
+\paragraph{Text block extraction and font normalization.}
+Specifically, we first crop a region from the top-left corner of each text block and then resize it to $256\!\times\!256$ pixels so that each character occupies approximately 
+$f_{\text{ref}}\!\times\!f_{\text{ref}}$ pixels. We set 
+$f_{\text{ref}}\!=\!16$ for Chinese and  $f_{\text{ref}}\!=\!10$ for English. These reference sizes are chosen empirically to provide a meaningful evaluation regime: the resulting inputs remain challenging for VAE reconstruction, especially in preserving fine stroke details, while standard OCR models still maintain high recognition accuracy.
+
+\paragraph{Content filtering.}
+We apply PP-OCRv5~\citep{cui2025paddleocr30technicalreport} to each sample, and retain only samples whose total count of recognized characters fall within $[200, 600]$ (Chinese) or $[300, 600]$ (English), ensuring sufficient textual density for reliable metric computation while excluding overly sparse or dense samples.
+
+\paragraph{Deduplication.}
+We compute character-level $n$-gram overlap ($n\!=\!3$ for Chinese, $n\!=\!5$ for English) between samples from the same source page and across the same document category. Pairs exceeding overlap thresholds of $0.2$ (intra-page) or $0.3$ (intra-category) are considered duplicates, among each overlapping group, only the sample with the highest character count is retained.
+
+\paragraph{Human inspection.}
+To ensure data quality, we manually prune samples that are blurred, visually redundant, or contain significant blank regions. The final benchmark maintains a roughly balanced distribution between Chinese and English text.
+
+\subsection{Evaluation Methodology}
+Beyond standard reconstruction metrics (PSNR~\citep{psnr}, SSIM~\citep{ssim}, LPIPS~\citep{lpips}, FID~\citep{fid}), we employ \textbf{NED} as the primary text-fidelity metric. A key design choice is using the OCR output of the \emph{original} image as reference rather than the ground-truth annotations. Since OCR models introduce systematic errors even on clean inputs (e.g., confusing visually similar characters such as ``rn'' vs.\ ``m''), comparing against annotations would falsely attribute such errors to the VAEs. By applying the same OCR model to both images, these biases largely cancel in the edit distance computation, isolating degradation caused solely by reconstruction.
+
+Concretely, for each image $I_i$ in the benchmark, we apply PP-OCRv5 independently to the original image and its VAE reconstruction, yielding text strings $s_{\mathrm{gt}}^{(i)}$ and $s_{\mathrm{recon}}^{(i)}$, respectively. The benchmark-level NED is defined as:
+
+\begin{equation}
+\mathrm{NED} = \frac{1}{N}\sum_{i=1}^{N}\left(1 - \frac{d_{\mathrm{edit}}\!\bigl(s_{\mathrm{gt}}^{(i)},\, s_{\mathrm{recon}}^{(i)}\bigr)}{\max\!\bigl(|s_{\mathrm{gt}}^{(i)}|,\, |s_{\mathrm{recon}}^{(i)}|\bigr)}\right),
+\label{eq:ocr_ned}
+\end{equation}
+
+where $d_{\mathrm{edit}}(\cdot,\cdot)$ denotes the Levenshtein distance, $N$ is the total number of benchmark images, and $|\cdot|$ denotes the string length. Each term measures character-level agreement for a single image, averaging over the benchmark yields a robust global estimate of text reconstruction fidelity.

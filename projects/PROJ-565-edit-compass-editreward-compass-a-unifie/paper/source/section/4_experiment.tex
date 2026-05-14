@@ -1,0 +1,187 @@
+\section{Experiments}
+\label{sec:experiments}
+\subsection{Experimental Setup}
+For the image editing evaluation, we benchmark a total of $29$ models, comprising $25$ open-source models and $4$ proprietary models, thereby covering a broad range of recent image editing paradigms.
+The open-source models span diverse architectural families. Diffusion-based methods include InstructPix2Pix~\cite{brooks2023instructpix2pix}, MagicBrush~\cite{zhang2023magicbrush}, AnyEdit~\cite{yu2025anyedit}, UltraEdit~\cite{zhao2024ultraedit}, and Flux-Kontext~\cite{labs2025flux}. 
+Unified multimodal models include  EMU3.5~\cite{cui2025emu3}, OneCAT~\cite{li2025onecat}, NextStep-V1~\cite{han2025nextstep}, BAGEL~\cite{deng2025emerging}, Qwen-Image-Edit~\cite{wu2025qwen}, Step1X-Edit-v1.2~\cite{liu2025step1x}, UniWorld-V1~\cite{lin2025uniworld},
+UniWorld-V2~\cite{li2025uniworld},
+DeepGen1.0~\cite{wang2026deepgen}, UniPic3~\cite{wei2026skywork}, UniReason~\cite{wang2026unireason}, and OmniGen2~\cite{wu2025omnigen2}.
+The proprietary models include Nano Banana Pro\cite{gemini3pro}, Nano Banana 2~\cite{google2026gemini31flashimagepreview}, Wan2.7-Image\cite{wan}, and Seedream4.5\cite{seedream2025seedream}, which are incorporated to provide a more comprehensive evaluation of state-of-the-art systems. 
+In addition, we evaluate three categories of reward models for image editing, covering open-source general-purpose multimodal models, image-editing-specific reward models trained on human preference data, and proprietary models. The open-source general-purpose multimodal models include Qwen2.5-VL~\cite{wang2024qwen2}, Qwen3-VL~\cite{bai2025qwen3}, native multimodal models such as Qwen3.5~\cite{qwen3.5} and Qwen3.6~\cite{qwen3.6-27b,qwen36_35b_a3b}, as well as Gemma3~\cite{Gemma3} and Gemma4~\cite{google2026gemma4}. 
+The image-editing-specific reward models include EditScore~\cite{luo2025editscore} and EditReward~\cite{wu2025editreward}. 
+For comparison, we also include proprietary models from the GPT-4.1~\cite{gpt4o20250325}, Gemini 3 Flash~\cite{google2026gemini31flashimagepreview}, and Gemini 3.1 Pro~\cite{google2026gemini31propreview}.  
+
+
+\subsection{Main Results}
+\textbf{Image Editing Model Results.}
+Tables~\ref{tab:Image Editing Bench Main Results_EN} and~\ref{tab:Image Editing Bench Main Results_CN} report the results on {\bench} under English and Chinese instructions, respectively. Overall, the benchmark reveals clear performance differences across models, task categories, and evaluation dimensions.
+Among open-source models, Qwen-Image-Edit~\cite{wu2025qwen} achieves the best overall performance under both English and Chinese instructions, likely benefiting from its integration of a 20B diffusion transformer with a 7B Qwen-VL model. Among closed-source models, Nano Banana Pro~\cite{nanobananapro} performs best and shows consistent advantages across task categories.
+The progressive task design of {\bench} further reveals where open-source models remain competitive and where they still lag behind. On relatively basic categories such as General and Dynamic Manipulation, open-source models including Qwen-Image-Edit~\cite{wu2025qwen} and Longboat-Image-Edit~\cite{team2025longcat} achieve performance comparable to closed-source systems such as Seedream 4.5~\cite{seedream2025seedream} and Wan2.7-Image~\cite{wan}. However, a substantial gap remains on more challenging categories, including World Knowledge Reasoning, Algorithmic Visual Reasoning, Multi-Image, and Complex Tasks. For example, on World Knowledge Reasoning, Nano Banana Pro achieves a score of $3.89$, while Qwen-Image-Edit obtains only $1.74$, indicating that current open-source models still struggle with knowledge-intensive and reasoning-intensive editing.
+Additional experimental results are provided in Appendix~\ref{supp:Evaluation Details}.
+
+
+\textbf{Reward Model Results.}
+As shown in Table~\ref{tab:RMBench Main Result}, {\rmbench} compares diverse reward-model candidates across Instruction Awareness, Visual Consistency, Visual Quality, and the overall average score. Among open-source models, we observe a clear scaling trend within the same model families, where larger models generally perform better across dimensions. Visual Consistency and Visual Quality remain more challenging than Instruction Awareness, suggesting that fine-grained visual preservation and perceptual quality assessment are still difficult for current models.
+Native multimodal models show strong potential, especially the Qwen3.5~\cite{qwen3.5} and Qwen3.6~\cite{qwen3.6-27b,qwen36_35b_a3b} series. Notably, Qwen3.5-9B outperforms Qwen3-VL-32B~\cite{bai2025qwen3} and achieves performance comparable to the much larger Gemma4-31B, indicating that native multimodal modeling can provide competitive reward-model capability even at smaller scales.
+For preference-trained reward models, the results show consistently strong performance across evaluation dimensions. Under the same Qwen2.5-VL backbone, EditReward outperforms EditScore overall. We further compare EditReward in pointwise and pairwise settings, where the pointwise variant achieves a slight advantage, suggesting better compatibility with our evaluation protocol.
+
+
+
+\input{table/overall_cn}
+
+
+
+
+
+
+
+\begin{table}[]
+\centering
+\caption{\textbf{Main results on {\rmbench}.} 
+$^\dagger$ indicates Qwen3.5-VL-7B as the baseline, \textsuperscript{\S} indicates Qwen3-VL-8B as the baseline, and $^\ddagger$ denotes the thinking-enabled version.}
+\label{tab:RMBench Main Result}
+\resizebox{0.75\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Method} & \textbf{Instruction Awareness} & \textbf{Visual Consistency} & \textbf{Visual Quality} & \textbf{AVG} \\
+\midrule
+\rowcolor{red4!20}
+\multicolumn{5}{c}{\textit{Open-source Multimodel Large Language Models}} \\
+Gemma 3 12B~\citep{Gemma3} & 0.4301 & 0.2871 & 0.2635 & 0.3799\\
+Gemma 3 27B~\citep{Gemma3} & 0.5909 & 0.3300 & 0.2905 & 0.4996\\
+Gemma 4 26B A4B~\citep{google2026gemma4} & 0.6947 & 0.3960 & 0.4392 & 0.5960 \\
+Gemma 4 31B ~\citep{google2026gemma4} & 0.7527 & 0.5165 & 0.4932 & 0.6709 \\
+Qwen2.5-VL-7B ~\citep{wang2024qwen2} & 0.4272 & 0.2165 & 0.3151 & 0.3621 \\
+Qwen3-VL-4B ~\citep{bai2025qwen3} & 0.5209 & 0.2413 &0.3378 & 0.4322 \\
+Qwen3-VL-8B ~\citep{bai2025qwen3} & 0.5646 & 0.2541 & 0.3446 & 0.4650 \\
+Qwen3-VL-30B A3B ~\citep{bai2025qwen3} & 0.5633 & 0.3086 & 0.3378 & 0.4787 \\
+Qwen3-VL-32B ~\citep{bai2025qwen3} & 0.6763 & 0.3960 & 0.3649 & 0.5790 \\
+
+Qwen3.5-2B ~\citep{qwen3.5} & 0.4162 & 0.3279 & 0.2500 & 0.3811\\
+Qwen3.5-2B$^\ddagger$ ~\cite{qwen3.5} & 0.4220 & 0.2804 & 0.4466 & 0.3848\\ % think
+
+Qwen3.5-9B ~\citep{qwen3.5} & 0.6682 & 0.5075 & 0.4635 & 0.6016\\
+Qwen3.5-9B$^\ddagger$ ~\cite{qwen3.5} & 0.7615 & 0.4860 & 0.4898 & 0.6681\\ % think
+
+Qwen3.5-27B ~\citep{qwen3.5} & 0.7322 & \color[HTML]{F88825}\textbf{0.5850} & 0.5381 & 0.6693\\
+Qwen3.5-27B$^\ddagger$ ~\cite{qwen3.5} & 0.7674 & 0.5637 & \color[HTML]{F88825}\textbf{0.5878} & 0.6998\\% think
+
+Qwen3.5-35B-A3B  ~\citep{qwen3.5} & 0.7279 & 0.5479 & 0.4205 & 0.6318\\
+Qwen3.5-35B-A3B$^\ddagger$ ~\cite{qwen3.5} &  \color[HTML]{F88825}\textbf{0.8074} & 0.5073 & 0.5608 & 0.7089\\% think
+
+Qwen3.6-27B ~\citep{qwen3.6-27b} & 0.7147 & 0.4966 & 0.4184 & 0.6328\\
+Qwen3.6-27B$^\ddagger$ ~\cite{qwen3.6-27b} & 0.7961 & 0.5656 & 0.5743 & \color[HTML]{F88825}\textbf{0.7183}\\ % think
+
+Qwen3.6-35B-A3B~\citep{qwen36_35b_a3b} & 0.6824 & 0.4558 & 0.4344 & 0.5995\\
+Qwen3.6-35B-A3B$^\ddagger$~\citep{qwen36_35b_a3b} &0.7921  & 0.5300 & 0.5608 & 0.7051\\% think
+
+
+\midrule
+
+\rowcolor{blue4!20}
+\multicolumn{5}{c}{\textit{Proprietary Models}} \\
+GPT-4.1~\cite{gpt41} & 0.7471 & 0.4845 & 0.5338 & 0.6611 \\
+Gemini 3 Flash ~\cite{gemini3pro}& 0.8042 & 0.5981 & 0.4865 & 0.7268 \\
+Gemini 3.1 Pro~\cite{google2026gemini31propreview} & 0.8324 & 0.6002 & 0.4459 & 0.7433\\
+
+\midrule
+
+\rowcolor[HTML]{F5FFFA}
+\multicolumn{5}{c}{\textit{Models Trained on Human Preference Pairs}} \\
+EditReward$^\dagger$(Point-wise)~\cite{wu2025editreward} & 0.5524 & - & 0.6369 & 0.5601\\
+EditReward$^\dagger$(Pair-wise)~\cite{wu2025editreward} & 0.5490 & - & 0.6301 & 0.5564\\
+EditScore$^\dagger$~\cite{luo2025editscore} & 0.5092 & 0.4160 & 0.5890 & 0.4912\\
+EditScore\textsuperscript{\S}~\cite{wu2025editreward} & 0.5736 & 0.5222 & 0.5616 & 0.5587 \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{-0.5em}
+\end{table}
+
+ 
+
+\begin{table*}[t]
+\centering
+\caption{\textbf{System prompt ablation and visual perception analysis.}
+(a) visual perception comparison on single-image and multi-image tasks.
+(b) compares different system prompts on {\rmbench}, where colored $\uparrow$ denotes the absolute gain over the corresponding EditScore prompt.}
+\label{tab:combined_results}
+
+\begin{minipage}{0.38\textwidth}
+\centering
+(b) Visual perception analysis\\[0.3em]
+\setlength{\tabcolsep}{4pt}
+\small
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+Model & Movement & Swap & CP & MIA \\
+\midrule
+FLUX2.Dev       & 2.98 & 1.95 & 1.04 & 1.80 \\
+Qwen-Image-Edit & 3.59 & 2.32 & 1.23 & 1.90 \\
+Bagel           & 2.39 & 1.64 & 1.03 & 1.13 \\
+EMU3.5          & 3.66 & 2.02 & 1.09 & 2.26 \\
+\midrule
+Seedream4.5     & 3.56 & 4.05 & 3.26 & 3.31 \\
+Nano-Banana-Pro & \textbf{4.03} & \textbf{4.22} & \textbf{3.65} & \textbf{3.60} \\
+\bottomrule
+\end{tabular}%
+}
+\end{minipage}
+\hfill
+\begin{minipage}{0.58\textwidth}
+\centering
+(a) System prompt ablation \\[0.3em]
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Method} & \textbf{Instruction Awareness} & \textbf{Visual Consistency} & \textbf{Visual Quality} & \textbf{AVG} \\
+\midrule
+\rowcolor{blue4!20}
+\multicolumn{5}{c}{\textit{System Prompts for EditScore}} \\
+Qwen3-VL-4B ~\citep{bai2025qwen3} & 0.418 & 0.1849 & 0.3287 & 0.3500 \\
+Qwen3-VL-8B ~\citep{bai2025qwen3} & 0.44 & 0.1198 & 0.2397 & 0.3415 \\
+Qwen3-VL-32B ~\citep{bai2025qwen3} & 0.6344 & 0.1952 & 0.2876 & 0.4912 \\
+\midrule
+
+\rowcolor{red4!20}
+\multicolumn{5}{c}{\textit{System Prompts for {\rmbench}}} \\
+Qwen3-VL-4B ~\citep{bai2025qwen3} & 0.525(\gain{0.107}) & 0.2483(\gain{0.0634}) & 0.3356(\gain{0.0069}) & 0.4367(\gain{0.0885}) \\
+Qwen3-VL-8B ~\citep{bai2025qwen3} & 0.5682(\gain{0.1282}) & 0.2583(\gain{0.1385}) & 0.3423(\gain{0.1026}) & 0.4684(\gain{0.1293}) \\
+Qwen3-VL-32B ~\citep{bai2025qwen3} & 0.6786(\gain{0.0442}) & 0.3944(\gain{0.1992}) & 0.363(\gain{0.0754}) & 0.5800(\gain{0.0888}) \\
+\bottomrule
+\end{tabular}%
+}
+\end{minipage}
+
+\vspace{-1em}
+\end{table*}
+
+
+
+
+
+\subsection{Analysis and Findings for {\bench}}
+
+\textbf{Human-Aligned Evaluation Protocol.}
+We evaluate the reliability of our evaluation protocol from both benchmark-level and model-level perspectives. At the benchmark level, we sample instances from ImgEdit-Bench~\cite{ye2025imgedit}, GEdit-Bench~\cite{liu2025step1x}, RISE-Bench~\cite{zhao2025envisioning}, and {\bench}. We generate edited results using OmniGen2 and ask human experts to provide preference rankings. As shown in Figure~\ref{User_Study}(b), {\bench} achieves stronger agreement with human preferences than existing benchmarks.
+At the model level, we randomly sample test instances, collect editing results from different models~\cite{wu2025qwen,flux-2-2025,nanobananapro,deng2025emerging}, and compute the Pearson correlation between human ratings and MLLM-based scores. The resulting correlation of Figure~\ref{User_Study}(a) demonstrates that our protocol provides a reliable automatic evaluation tool for image editing.
+
+
+
+\textbf{Visual Perception Ability.}
+Table~\ref{tab:combined_results}(a) reports the performance of representative models on visual perception tasks. Open-source models perform well on relatively basic tasks such as Object Movement, but their performance drops notably on more complex tasks, especially Object Swap and Complex Paint. This gap is particularly clear in Complex Paint, where models must interpret both textual instructions and in-image visual annotations. For multi-image perception, closed-source models show a clear advantage, indicating that cross-image understanding remains a major challenge for open-source models.
+
+\textbf{Algorithmic Visual Reasoning Ability.}
+Table~\ref{tab:Algorithm Visual Reasoning} provides a detailed comparison across Algorithmic Visual Reasoning sub-tasks. The results show that open-source models still struggle to perform visual reasoning and faithfully execute the derived edits, leading to poor performance in this category. Although closed-source models show some potential on certain sub-tasks, their overall performance remains limited, indicating that algorithmic visual reasoning is still a major challenge for current image editing models.
+
+\textbf{Cross-Lingual Performance.}
+Some models~\cite{li2025uniworld,labs2025flux} show clear cross-lingual imbalance, performing better under English instructions than Chinese ones. In contrast, many advanced unified models, including both open-source and closed-source systems, exhibit only marginal differences between the two languages. This suggests that robust cross-lingual image editing requires strong language-vision understanding and balanced multilingual training data.
+
+\subsection{Analysis and Findings for {\rmbench}}
+
+\textbf{Impact of System Prompts.}
+Table~\ref{tab:combined_results}(b) compares the system prompts used in {\rmbench} with those adopted by EditScore across different models. For a fair comparison, we evaluate them on the corresponding single-image subsets of {\rmbench}. Our prompts consistently improve performance across all evaluation dimensions, with the largest gain of $12.93$\% on Qwen3-VL-8B~\cite{bai2025qwen3}.
+
+\textbf{Effect of Thinking-Enabled Inference.}
+We further study the effect of thinking-enabled inference on reward model evaluation. As shown in Table~\ref{tab:RMBench Main Result}, enabling thinking consistently improves performance. Among medium-sized dense models, Qwen3.5-9B~\cite{qwen3.5} achieves the largest gain, improving by $9.83$ points over its non-thinking counterpart. Among sparse MoE models, Qwen3.6-35B-A3B~\citep{qwen36_35b_a3b} shows the greatest improvement, with a gain of $10.56$ points.
