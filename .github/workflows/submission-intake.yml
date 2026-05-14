@@ -38,10 +38,19 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
         run: python -m llmxive submissions process
+      - name: Regenerate web data
+        # Submission-intake creates new projects; the website's project lists
+        # are driven by web/data/projects.json. Without regenerating it,
+        # newly-created projects (e.g. papers filed by the HF daily-papers
+        # cron) won't appear in the paper-pipeline lane until the next
+        # full pipeline run. Other pipeline workflows already do this.
+        run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
       - name: Push file moves if any
+        # No [skip ci] — touching web/data/projects.json must trigger
+        # pages.yml so newly-filed papers actually appear on the site.
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git diff --cached --quiet || git commit -m "submission-intake: process submissions [skip ci]"
+          git diff --cached --quiet || git commit -m "submission-intake: process submissions"
           git push || true
