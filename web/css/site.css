@@ -1205,3 +1205,33 @@ a:hover { color: var(--accent-2); }
 [data-panel="activity"] .bar input[type="search"] {
   margin-left: auto; min-width: 220px;
 }
+
+/* Featured-artifact row inside cards — paper PDF + personality comment count.
+   Shown above .meta so the most-visible artifact (the PDF) is the natural
+   click target for a finished paper. Click bubbles to the card by default
+   (opens the dialog), but PDF/supplement links stop propagation so they
+   open the PDF directly in a new tab. */
+.card .featured {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin: 12px 0 14px;
+}
+.card .feat-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 500;
+  background: var(--bg-2); color: var(--ink-2);
+  border: 1px solid var(--line);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.card .feat-badge:hover {
+  background: var(--bg-3, var(--bg-2)); color: var(--ink);
+}
+.card .feat-badge.primary {
+  background: var(--accent, oklch(0.45 0.12 150));
+  color: white; border-color: transparent;
+}
+.card .feat-badge.primary:hover {
+  filter: brightness(1.08);
+}
+.card .feat-badge i { font-size: 11px; }

@@ -52,5 +52,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git diff --cached --quiet || git commit -m "submission-intake: process submissions"
-          git push || true
+          if git diff --cached --quiet; then echo "no changes"; exit 0; fi
+          git commit -m "submission-intake: process submissions"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && exit 0
+            echo "push attempt $i failed; retrying..." >&2
+            sleep $((5 * i))
+          done
+          exit 1
