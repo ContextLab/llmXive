@@ -893,7 +893,7 @@
       "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personality.md",
       "prompt_path": "agents/prompts/personality.md",
       "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personality.md",
-      "purpose": "Simulated public-figure personas (David Krakauer, Geoffrey West, Dan Rockmore, Socrates, Aristotle, Daniel Kahneman, Ada Lovelace, Marie Curie, Rosalind Franklin, John von Neumann). One personality per 30-minute tick, rotating through a pool of prompt files at agents/prompts/personalities/. Each tick produces ONE contribution (comment / contribute / propose_arxiv / abstain) attributed as \"<Name> (simulated)\" with kind=llm. Per spec 008.",
+      "purpose": "Simulated public-figure personas (spec 008) \u2014 one per 30-min tick, rotating over agents/prompts/personalities/. Action \u2208 comment / contribute / propose_arxiv / abstain, tagged \"<Name> (simulated)\".",
       "registry_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/registry.yaml",
       "tools": []
     }
@@ -904,7 +904,7 @@
     "human_contributors": 5,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1281,
+    "total_contributions": 1282,
     "total_contributors": 12
   },
   "contributors": [
@@ -925,7 +925,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 604,
+      "contribution_count": 605,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -1047,7 +1047,7 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-14T01:38:10.148171+00:00",
+  "generated_at": "2026-05-14T03:18:14.229584+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -44122,7 +44122,7 @@
       },
       "authors": [
         {
-          "contributions": 90,
+          "contributions": 91,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -44157,6 +44157,14 @@
       "id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 25.782505,
+          "ended_at": "2026-05-14T03:18:11.258276Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T03:17:45.475771Z"
+        },
         {
           "agent": "flesh_out",
           "duration_s": 31.76699,
@@ -44228,14 +44236,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-13T19:39:24.612350Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 32.410827,
-          "ended_at": "2026-05-13T18:55:24.902467Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T18:54:52.491640Z"
         }
       ],
       "phase_group": "idea",
@@ -45017,7 +45017,7 @@
         "paper_tasks": null,
         "plan": null,
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/reviews/research",
         "spec": null,
         "tasks": null
       },
@@ -45028,6 +45028,14 @@
           "name": "Jeremy R. Manning",
           "roles": [
             "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "ada-lovelace-simulated"
           ]
         }
       ],
@@ -45049,7 +45057,16 @@
       "field": "computer science",
       "id": "PROJ-559-neuro-symbolic-learning-networks-bridgin",
       "keywords": [],
-      "last_run_log": [],
+      "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 15.270944,
+          "ended_at": "2026-05-14T03:04:24.523780+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-14T03:04:09.252836+00:00"
+        }
+      ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
