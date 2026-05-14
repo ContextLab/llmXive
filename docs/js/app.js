@@ -543,6 +543,79 @@
     _openAboutModal("Agent registry", intro + '<div class="am-agent-list">' + rows + '</div>');
   }
 
+  // ── Personality Registry modal (spec 008 / US6 / FR-022 / FR-023) ──
+  //
+  // Mirrors openAgentRegistry's behaviour: same `.about-modal` shell, same
+  // `.am-agent-list` / `.am-agent-row` / `.am-prompt` / `.md-body` styling,
+  // same `fetchAndRenderMarkdownInto` markdown-with-Prism path. The
+  // "(simulated)" suffix is appended at display time; the bare
+  // `display_name` from `payload.personalities` is NEVER shown to a user
+  // without it (FR-010).
+  function _personalityBySlug(slug) {
+    return (payload.personalities || []).find(p => p.slug === slug) || null;
+  }
+
+  function _personalityDetailHtml(p) {
+    const displayWithSuffix = escapeHtml(p.display_name) + " (simulated)";
+    const sources = (p.sources || []).length
+      ? '<ul>' + p.sources.map(s => '<li>' + escapeHtml(s) + '</li>').join("") + '</ul>'
+      : '<p class="muted">—</p>';
+    return '' +
+      '<div class="am-section am-agent-meta">' +
+        '<p><strong>' + displayWithSuffix + '</strong> — ' + escapeHtml(p.summary || "") + '</p>' +
+        '<p class="muted am-hint">This is a SIMULATED AI persona shaped from the public-record writings of ' +
+          escapeHtml(p.display_name) + '. It is not the real person.</p>' +
+        '<div class="am-links">' +
+          (p.prompt_github_url ? '<a class="btn" href="' + escapeHtml(p.prompt_github_url) + '" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> View prompt on GitHub</a>' : '') +
+          '<button class="btn" data-personalities-back><i class="fa-solid fa-arrow-left"></i> All personalities</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="am-section"><h3>Grounded on</h3>' + sources + '</div>' +
+      '<div class="am-section"><h3>Prompt</h3><div class="am-prompt md-body"><div class="ad-art-loading">Loading prompt…</div></div></div>';
+  }
+
+  function openPersonalityDetail(slug) {
+    const p = _personalityBySlug(slug);
+    if (!p) return;
+    const title = "Personality · " + p.display_name + " (simulated)";
+    const body = _openAboutModal(title, _personalityDetailHtml(p));
+    body.querySelector("[data-personalities-back]")?.addEventListener("click", openPersonalityRegistry);
+    const promptEl = body.querySelector(".am-prompt");
+    const M = window.LlmxiveMarkdown;
+    if (p.prompt_raw_url && M) {
+      // Use the same `*Into` helper as the Agent Registry — Prism applies
+      // to fenced code blocks (Markdown syntax samples inside the
+      // grounding-card body for some personas).
+      M.fetchAndRenderMarkdownInto(promptEl, p.prompt_raw_url)
+        .catch(err => {
+          if (promptEl) {
+            promptEl.replaceChildren();
+            promptEl.insertAdjacentHTML("beforeend",
+              '<p class="muted">Could not load the prompt (' + escapeHtml(String(err.message || err)) + ').</p>');
+          }
+        });
+    } else if (promptEl) {
+      promptEl.replaceChildren();
+      promptEl.insertAdjacentHTML("beforeend", '<p class="muted">No prompt available.</p>');
+    }
+  }
+
+  function openPersonalityRegistry() {
+    const personalities = (payload.personalities || []).slice().sort((x, y) => x.slug.localeCompare(y.slug));
+    const intro = '<div class="am-section"><p>' + personalities.length +
+      ' simulated personalities take turns commenting on artifacts, contributing edits, and proposing new arXiv papers — one persona per 30-minute cron tick, in deterministic rotation. ' +
+      'Each persona&apos;s voice is shaped from the public-record writings of the real figure. ' +
+      'Every output is tagged <code>&lt;Name&gt; (simulated)</code> and disclaims its AI origin; the rotation pool lives in <code>agents/prompts/personalities/</code> — adding a new prompt file adds a new personality on the next tick.</p>' +
+      '<a class="btn" href="https://github.com/ContextLab/llmXive/tree/main/agents/prompts/personalities" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> View personalities on GitHub</a></div>';
+    const rows = personalities.map(p =>
+      '<button class="am-agent-row" data-personality="' + escapeHtml(p.slug) + '">' +
+        '<span class="ar-name">' + escapeHtml(p.display_name) + ' (simulated)</span>' +
+        '<span class="ar-purpose">' + escapeHtml(p.summary || "") + '</span>' +
+        '<span class="ar-go"><i class="fa-solid fa-chevron-right"></i></span>' +
+      '</button>').join("");
+    _openAboutModal("Personality registry", intro + '<div class="am-agent-list">' + rows + '</div>');
+  }
+
   function setupAboutModals() {
     // Pipeline-diagram circles → step modal.
     document.querySelectorAll(".pipeline .stage[data-step]").forEach(el => {
@@ -557,11 +630,21 @@
     document.querySelectorAll('[data-open-modal="agents"]').forEach(b => {
       b.addEventListener("click", openAgentRegistry);
     });
+    // "Personality registry" triggers (spec 008 / US6).
+    document.querySelectorAll('[data-open-modal="personalities"]').forEach(b => {
+      b.addEventListener("click", openPersonalityRegistry);
+    });
     // Delegated: any [data-agent] (an agent chip in a step modal, or a row in
     // the registry list) opens that agent's detail view.
     document.addEventListener("click", e => {
       const t = e.target.closest("[data-agent]");
       if (t && !t.hasAttribute("disabled")) openAgentDetail(t.dataset.agent);
+    });
+    // Delegated: any [data-personality] (a row in the Personality
+    // Registry modal) opens that personality's detail view.
+    document.addEventListener("click", e => {
+      const t = e.target.closest("[data-personality]");
+      if (t && !t.hasAttribute("disabled")) openPersonalityDetail(t.dataset.personality);
     });
   }
 

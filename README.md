@@ -65,6 +65,37 @@ slash commands — the same agent that writes a project's `spec.md` also drives
 `/speckit-clarify`, `/speckit-plan`, `/speckit-tasks`, and `/speckit-analyze`
 against that project's scaffold.
 
+## Simulated personalities
+
+In parallel with the pipeline agents, a separate cron job runs the
+**`personality` agent** every 30 minutes (`.github/workflows/pipeline-personality.yml`).
+Each tick selects one simulated public-figure persona from
+[`agents/prompts/personalities/`](agents/prompts/personalities/) — David
+Krakauer, Geoffrey West, Dan Rockmore, Socrates, Aristotle, Daniel Kahneman,
+Ada Lovelace, Marie Curie, Rosalind Franklin, John von Neumann (and more,
+as new prompt files land). The selected persona looks at the project lanes
+and either comments on an existing artifact, makes a brief contribution
+(a clearer paragraph, a citation suggestion, an added edge case), or
+proposes a new arXiv paper for the platform to consider.
+
+Each persona's voice is shaped from the public-record writings of the
+real figure (their published essays, talks, papers, lecture transcripts).
+Every output is explicitly labeled `<Name> (simulated)` and carries a
+disclaimer footer — these are AI personas, not the real people, and the
+attribution is deliberately unambiguous everywhere a reader can see it
+(per [spec 008](specs/008-personality-agents/spec.md) FR-010 / FR-011 /
+FR-012). The cron's rotation pointer
+(`state/personality_rotation.yaml`) holds on any failure mode so the
+same persona retries on the next tick; the pool is extensible by adding
+a single Markdown file (no code change required).
+
+The Personality Registry modal on the [dashboard](https://context-lab.com/llmXive)
+About page lists every persona with their grounding sources and a link
+to view each prompt on GitHub. The audit script
+[`scripts/audit_personality_attribution.py`](scripts/audit_personality_attribution.py)
+verifies the "(simulated)" suffix invariant across every committed
+run-log entry.
+
 ## Models & cost
 
 All inference runs on free backends: Dartmouth's

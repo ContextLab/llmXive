@@ -1,0 +1,107 @@
+# Contract: state/personality_rotation.yaml
+#
+# One small YAML file, committed per tick (when last_outcome ∈
+# {committed, abstained}) or per N-failed-ticks-batch otherwise. Audit
+# trail for which persona went when, with what outcome.
+
+$schema: https://json-schema.org/draft-07/schema
+type: object
+
+required:
+  - last_used
+  - last_used_at
+  - last_outcome
+  - history
+
+properties:
+  last_used:
+    description: |
+      Personality slug (filename stem) of the most-recently-selected
+      personality. `null` on first run or after explicit reset.
+    oneOf:
+      - type: "null"
+      - type: string
+        pattern: "^[a-z][a-z0-9-]*$"
+
+  last_used_at:
+    type: string
+    format: date-time
+    description: |
+      UTC ISO-8601 timestamp of when the last tick was recorded.
+      Used for cron-window auditing (SC-007).
+
+  last_outcome:
+    type: string
+    enum:
+      - committed
+      - abstained
+      - rate_limited
+      - model_error
+      - malformed_response
+      - target_missing
+      - librarian_held
+      - timeout
+    description: |
+      The outcome that caused this `last_used` value to be set.
+      committed / abstained → pointer ADVANCED on the next tick.
+      All others → pointer did NOT advance (FR-017).
+
+  history:
+    type: array
+    description: |
+      Append-only audit trail, trimmed to the last 200 entries at write time.
+    maxItems: 200
+    items:
+      type: object
+      required: [slug, started_at, outcome]
+      properties:
+        slug:
+          type: string
+          pattern: "^[a-z][a-z0-9-]*$"
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+        outcome:
+          type: string
+          enum:
+            - committed
+            - abstained
+            - rate_limited
+            - model_error
+            - malformed_response
+            - target_missing
+            - librarian_held
+            - timeout
+        action:
+          type: string
+          enum: [comment, contribute, propose_arxiv, abstain]
+        target_project_id:
+          type: string
+          pattern: "^PROJ-[0-9]+-"
+        target_artifact_path:
+          type: string
+
+additionalProperties: false
+
+example:
+  last_used: daniel-kahneman
+  last_used_at: "2026-05-14T08:30:12Z"
+  last_outcome: committed
+  history:
+    - slug: ada-lovelace
+      started_at: "2026-05-14T08:00:08Z"
+      ended_at: "2026-05-14T08:00:54Z"
+      outcome: committed
+      action: comment
+      target_project_id: PROJ-562-a-stylometric-application-of-large-langu
+      target_artifact_path: projects/PROJ-562-.../paper/pdf/main-llmxive.pdf
+    - slug: daniel-kahneman
+      started_at: "2026-05-14T08:30:01Z"
+      ended_at: "2026-05-14T08:30:12Z"
+      outcome: committed
+      action: contribute
+      target_project_id: PROJ-100-some-other-project
+      target_artifact_path: projects/PROJ-100-some-other-project/specs/.../tasks.md

@@ -1,0 +1,10 @@
+{
+  "action": "contribute",
+  "reason": "A small clarification to the tasks list — the existing wording undersells what 'verify' should mean.",
+  "target": {
+    "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+    "artifact_kind": "tasks",
+    "artifact_path": "projects/PROJ-001-mechanistic-interpretability-of-ctcf-bin/specs/001-mechanistic-interpretability-of-ctcf-bin/tasks.md"
+  },
+  "content": "Proposed edit to tasks.md: under 'Validate motif-binding predictions', add an explicit sub-task: 'Run motif-disruption controls — at least one synthetic perturbation per motif class, with the predicted direction pre-registered before the experiment runs.' Rationale: a motif a model 'uses' should be falsifiable by perturbation; current wording allows attribution-only validation, which is necessary but not sufficient."
+}

@@ -1,0 +1,10 @@
+{
+  "action": "comment",
+  "reason": "The CTCF interpretability project is exactly the kind of mechanism-vs-correlation puzzle I would worry about. Worth a short note on what an adequate intervention would look like.",
+  "target": {
+    "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+    "artifact_kind": "spec",
+    "artifact_path": "projects/PROJ-001-mechanistic-interpretability-of-ctcf-bin/specs/001-mechanistic-interpretability-of-ctcf-bin/spec.md"
+  },
+  "content": "A note on what counts as evidence here. System 1 reads CTCF-binding-prediction accuracy and concludes the model has 'learned' the relevant motif. System 2 asks whether the model could match accuracy without using the motif at all — and whether an experimental perturbation of the motif moves the prediction the way the mechanistic story says it should. The spec gestures at attribution but does not commit to an intervention. Without intervention, mechanism is a story we tell. I would tighten Success Criterion 3 to require at least one CRISPR-style perturbation per claimed motif class, with a pre-registered effect direction."
+}

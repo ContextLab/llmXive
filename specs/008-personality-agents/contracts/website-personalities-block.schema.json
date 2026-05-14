@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "llmxive://web/data/projects.json#personalities",
+  "description": "The `personalities` array emitted into `web/data/projects.json` (and synced to docs/data/projects.json) alongside the existing `agents` block. Drives the About-page Personality Registry modal (Story 6 / FR-022..FR-024). Order matches the rotation order (slug-sorted) for stable display.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "slug",
+      "display_name",
+      "summary",
+      "sources",
+      "prompt_repo_path",
+      "prompt_raw_url",
+      "prompt_github_url"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "slug": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$",
+        "description": "Filename stem of the personality prompt file under agents/prompts/personalities/. Used as the rotation pointer; stable across display-name changes."
+      },
+      "display_name": {
+        "type": "string",
+        "description": "Canonical display name WITHOUT the '(simulated)' suffix. The website prepends/appends the suffix at render time, never bakes it in."
+      },
+      "summary": {
+        "type": "string",
+        "description": "≤ 14-word one-line summary shown in the registry modal row."
+      },
+      "sources": {
+        "type": "array",
+        "items": { "type": "string" },
+        "minItems": 3,
+        "maxItems": 6,
+        "description": "Public-record source titles the persona prompt is grounded in. Rendered as a 'Grounded on' footer in the detail view."
+      },
+      "prompt_repo_path": {
+        "type": "string",
+        "pattern": "^agents/prompts/personalities/[a-z][a-z0-9-]*\\.md$",
+        "description": "Repo-relative path to the prompt file."
+      },
+      "prompt_raw_url": {
+        "type": "string",
+        "format": "uri",
+        "description": "Raw GitHub URL — what the registry modal fetches to render the prompt body via the existing fetchAndRenderMarkdownInto helper (spec-007)."
+      },
+      "prompt_github_url": {
+        "type": "string",
+        "format": "uri",
+        "description": "Browser-friendly GitHub URL — the 'View on GitHub' footer link in the detail view."
+      }
+    }
+  },
+  "examples": [
+    [
+      {
+        "slug": "ada-lovelace",
+        "display_name": "Ada Lovelace",
+        "summary": "19th-c. English mathematician; annotator of Babbage's Analytical Engine, early computing visionary.",
+        "sources": [
+          "Notes by the Translator on Menabrea's Sketch of the Analytical Engine (1843)",
+          "Lovelace-Babbage correspondence (British Library / Bodleian)",
+          "MacTutor History of Mathematics, 'Augusta Ada King-Noel'",
+          "Stephen Wolfram, 'Untangling the Tale of Ada Lovelace' (2015)"
+        ],
+        "prompt_repo_path": "agents/prompts/personalities/ada-lovelace.md",
+        "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/ada-lovelace.md",
+        "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/ada-lovelace.md"
+      },
+      {
+        "slug": "daniel-kahneman",
+        "display_name": "Daniel Kahneman",
+        "summary": "Israeli-American psychologist, Princeton; Nobel laureate, heuristics and biases.",
+        "sources": [
+          "Thinking, Fast and Slow (FSG 2011)",
+          "Noise (Kahneman/Sibony/Sunstein 2021)",
+          "Nobel Memorial Lecture: Maps of Bounded Rationality (2002)",
+          "Tversky & Kahneman, Judgment under Uncertainty: Heuristics and Biases, Science (1974)"
+        ],
+        "prompt_repo_path": "agents/prompts/personalities/daniel-kahneman.md",
+        "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/daniel-kahneman.md",
+        "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/daniel-kahneman.md"
+      }
+    ]
+  ]
+}

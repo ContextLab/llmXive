@@ -151,8 +151,21 @@ def _resolve_alias(name: str, kind: str, repo: Path) -> tuple[str, str]:
 
     Returns ``(canonical_name, canonical_kind)``. If no alias rule applies
     (or the file is absent), returns the inputs unchanged.
+
+    **Simulated-persona guard** (spec 008 / FR-011): a name ending in
+    ``" (simulated)"`` is NEVER mapped to its real-name canonical, even if
+    an alias-table entry would otherwise do so. This prevents
+    ``Daniel Kahneman (simulated)`` from being merged into the real
+    ``Daniel Kahneman`` contributor entry — the simulated-persona-vs-real-
+    person distinction must survive every contributor-list rebuild.
+    The string-suffix check is the class-wide invariant; per-pair exclusion
+    entries are unnecessary.
     """
     if not name:
+        return name, kind
+    # Spec 008 FR-011 guard — applied BEFORE any alias lookup so it is
+    # impossible to defeat via an accidental alias-table entry.
+    if name.strip().endswith(" (simulated)"):
         return name, kind
     lookup = _load_contributor_aliases(repo)
     entry = lookup.get(name.strip().lower())
@@ -1066,6 +1079,40 @@ def _paper_author_contributors(repo: Path, projects: list) -> list[dict[str, Any
     ]
 
 
+def _build_personalities_block(repo: Path) -> list[dict[str, Any]]:
+    """Emit the ``personalities`` array consumed by the website's About-page
+    Personality Registry modal (spec 008 / FR-024).
+
+    Walks ``agents/prompts/personalities/*.md``, parses each front-matter,
+    and returns one entry per well-formed file sorted by slug. The schema
+    is in ``specs/008-personality-agents/contracts/website-personalities-block.schema.json``.
+
+    Malformed files are skipped (same policy as the rotation pool —
+    Story 2 scenario 2 / FR-001). New persona files added to the
+    directory show up here on the next data-build with no code change
+    (FR-020 + Story 2 scenario 1 + SC-010).
+    """
+    from llmxive.agents import personality as _persona
+
+    pool_dir = repo / _persona.POOL_PATH
+    if not pool_dir.is_dir():
+        return []
+    result = _persona.load_pool(pool_dir)
+    out: list[dict[str, Any]] = []
+    for p in result.personalities:
+        prompt_repo_path = f"{_persona.POOL_PATH}/{p.slug}.md"
+        out.append({
+            "slug": p.slug,
+            "display_name": p.display_name,
+            "summary": p.summary,
+            "sources": list(p.sources),
+            "prompt_repo_path": prompt_repo_path,
+            "prompt_raw_url": f"{GITHUB_RAW_BASE}/{prompt_repo_path}",
+            "prompt_github_url": f"{GITHUB_BLOB_BASE}/{prompt_repo_path}",
+        })
+    return out
+
+
 def build_payload(repo: Path) -> dict[str, Any]:
     """Top-level builder: returns the dict to be serialized to projects.json."""
     # Clear the per-build registry-name cache (a long-lived process building
@@ -1123,6 +1170,7 @@ def build_payload(repo: Path) -> dict[str, Any]:
         "projects": [_project_to_entry(repo, p) for p in projects],
         "contributors": contributors,
         "agents": _build_agents_block(repo),
+        "personalities": _build_personalities_block(repo),
         "pipeline_steps": _build_pipeline_steps_block(repo, projects, registry_names),
     }
 

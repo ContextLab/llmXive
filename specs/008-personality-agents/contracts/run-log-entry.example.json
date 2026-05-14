@@ -1,0 +1,51 @@
+{
+  "_comment": "Example of a single tick's entry in state/run-log/2026-05/<workflow-run-id>.jsonl. The personality agent uses the same JSONL run-log schema as every other agent — these extra fields (personality_slug, display_name, action, model_kind=personality_simulator) live alongside the standard agent_name / model_name / outcome / duration_s columns. Three example entries below cover the canonical outcomes.",
+
+  "_example_1_committed_comment": {
+    "started_at": "2026-05-14T08:30:01.234567+00:00",
+    "ended_at": "2026-05-14T08:30:12.789012+00:00",
+    "duration_s": 11.554445,
+    "agent_name": "personality",
+    "model_name": "qwen-3.5-122b",
+    "model_kind": "personality_simulator",
+    "personality_slug": "daniel-kahneman",
+    "display_name": "Daniel Kahneman (simulated)",
+    "project_id": "PROJ-562-a-stylometric-application-of-large-langu",
+    "action": "comment",
+    "outcome": "committed",
+    "committed_paths": [
+      "projects/PROJ-562-a-stylometric-application-of-large-langu/paper/reviews/daniel-kahneman-simulated__05-14-2026__A.md"
+    ]
+  },
+
+  "_example_2_abstained": {
+    "started_at": "2026-05-14T09:00:01.000000+00:00",
+    "ended_at": "2026-05-14T09:00:08.456000+00:00",
+    "duration_s": 7.456,
+    "agent_name": "personality",
+    "model_name": "qwen-3.5-122b",
+    "model_kind": "personality_simulator",
+    "personality_slug": "rosalind-franklin",
+    "display_name": "Rosalind Franklin (simulated)",
+    "project_id": null,
+    "action": "abstain",
+    "outcome": "abstained",
+    "committed_paths": []
+  },
+
+  "_example_3_rate_limited": {
+    "started_at": "2026-05-14T09:30:01.000000+00:00",
+    "ended_at": "2026-05-14T09:30:02.123000+00:00",
+    "duration_s": 1.123,
+    "agent_name": "personality",
+    "model_name": "qwen-3.5-122b",
+    "model_kind": "personality_simulator",
+    "personality_slug": "rosalind-franklin",
+    "display_name": "Rosalind Franklin (simulated)",
+    "project_id": null,
+    "action": "comment",
+    "outcome": "rate_limited",
+    "committed_paths": [],
+    "_note": "personality_slug is unchanged from the previous tick (FR-017): this is a retry of Rosalind Franklin's slot after the previous tick failed. The rotation pointer in state/personality_rotation.yaml ALSO remains at the previous successful entry, NOT at rosalind-franklin."
+  }
+}

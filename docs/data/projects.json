@@ -878,6 +878,24 @@
       "purpose": "Triage human-submission GitHub issues from the website \u2014 route feedback to the right pipeline step, create a project, file a submitted paper, or acknowledge \u2014 then comment and close.",
       "registry_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/registry.yaml",
       "tools": []
+    },
+    {
+      "default_backend": "dartmouth",
+      "default_model": "qwen.qwen3.5-122b",
+      "inputs": [
+        "review"
+      ],
+      "name": "personality",
+      "outputs": [
+        "review",
+        "status_comment"
+      ],
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personality.md",
+      "prompt_path": "agents/prompts/personality.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personality.md",
+      "purpose": "Simulated public-figure personas (David Krakauer, Geoffrey West, Dan Rockmore, Socrates, Aristotle, Daniel Kahneman, Ada Lovelace, Marie Curie, Rosalind Franklin, John von Neumann). One personality per 30-minute tick, rotating through a pool of prompt files at agents/prompts/personalities/. Each tick produces ONE contribution (comment / contribute / propose_arxiv / abstain) attributed as \"<Name> (simulated)\" with kind=llm. Per spec 008.",
+      "registry_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/registry.yaml",
+      "tools": []
     }
   ],
   "aggregates": {
@@ -1029,7 +1047,157 @@
       "name": "Qwen2.5-1.5B-Instruct"
     }
   ],
-  "generated_at": "2026-05-13T19:41:24.586543+00:00",
+  "generated_at": "2026-05-14T01:38:10.148171+00:00",
+  "personalities": [
+    {
+      "display_name": "Ada Lovelace",
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/ada-lovelace.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/ada-lovelace.md",
+      "prompt_repo_path": "agents/prompts/personalities/ada-lovelace.md",
+      "slug": "ada-lovelace",
+      "sources": [
+        "Notes by the Translator on Menabrea's Sketch of the Analytical Engine (1843)",
+        "Lovelace-Babbage correspondence (British Library / Bodleian)",
+        "MacTutor History of Mathematics, 'Augusta Ada King-Noel'",
+        "Stephen Wolfram, 'Untangling the Tale of Ada Lovelace' (2015)"
+      ],
+      "summary": "19th-century English mathematician; annotator of Babbage's Analytical Engine, early computing visionary."
+    },
+    {
+      "display_name": "Aristotle",
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/aristotle.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/aristotle.md",
+      "prompt_repo_path": "agents/prompts/personalities/aristotle.md",
+      "slug": "aristotle",
+      "sources": [
+        "Nicomachean Ethics (Ross translation)",
+        "Metaphysics, Book I",
+        "Physics, Book II",
+        "Categories",
+        "Stanford Encyclopedia of Philosophy: Aristotle's Ethics"
+      ],
+      "summary": "Classical Greek philosopher; taxonomist of biology and ethics, first-principles thinker."
+    },
+    {
+      "display_name": "Dan Rockmore",
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/dan-rockmore.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/dan-rockmore.md",
+      "prompt_repo_path": "agents/prompts/personalities/dan-rockmore.md",
+      "slug": "dan-rockmore",
+      "sources": [
+        "Stalking the Riemann Hypothesis (Pantheon 2005)",
+        "Law as Data (Rockmore & Livermore eds., SFI Press)",
+        "Rockmore, 'Prove It!', NYRB (Jan 2022)",
+        "Rockmore, 'How Much of the World Is It Possible to Model?', New Yorker (Jan 2024)",
+        "The Math Life (documentary, co-producer)"
+      ],
+      "summary": "Dartmouth math/CS professor, SFI external faculty; computational humanities, popular math essayist."
+    },
+    {
+      "display_name": "Daniel Kahneman",
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/daniel-kahneman.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/daniel-kahneman.md",
+      "prompt_repo_path": "agents/prompts/personalities/daniel-kahneman.md",
+      "slug": "daniel-kahneman",
+      "sources": [
+        "Thinking, Fast and Slow (FSG 2011)",
+        "Noise (Kahneman, Sibony, Sunstein, 2021)",
+        "Nobel Memorial Lecture: Maps of Bounded Rationality (2002)",
+        "Tversky & Kahneman, Judgment under Uncertainty: Heuristics and Biases (Science, 1974)"
+      ],
+      "summary": "Israeli-American psychologist, Princeton; Nobel laureate, heuristics and biases."
+    },
+    {
+      "display_name": "David Krakauer",
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/david-krakauer.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/david-krakauer.md",
+      "prompt_repo_path": "agents/prompts/personalities/david-krakauer.md",
+      "slug": "david-krakauer",
+      "sources": [
+        "The Complex World: An Introduction to the Foundations of Complexity Science (SFI Press)",
+        "Worlds Hidden in Plain Sight (Krakauer ed., SFI Press, 2019)",
+        "The Complex Alternative (Krakauer & West eds., SFI Press)",
+        "Sean Carroll's Mindscape #242: 'David Krakauer on Complexity, Agency, and Information' (2023)",
+        "SFI Complexity Podcast, Transmission series"
+      ],
+      "summary": "SFI President, evolutionary theorist; complexity science, intelligence, information."
+    },
+    {
+      "display_name": "Geoffrey West",
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/geoffrey-west.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/geoffrey-west.md",
+      "prompt_repo_path": "agents/prompts/personalities/geoffrey-west.md",
+      "slug": "geoffrey-west",
+      "sources": [
+        "Scale: The Universal Laws of Life, Growth, and Death in Organisms, Cities, and Companies (Penguin 2017)",
+        "Sean Carroll's Mindscape #5: 'Geoffrey West on Networks, Scaling, and the Pace of Life' (2018)",
+        "TED Talk: 'The surprising math of cities and corporations' (2011)",
+        "Edge.org: 'Why Cities Keep Growing, Corporations and People Always Die' (2011)",
+        "West, Brown & Enquist, 'A General Model for the Origin of Allometric Scaling Laws in Biology', Science (1997)"
+      ],
+      "summary": "British theoretical physicist (ex-LANL, SFI); scaling laws for organisms, cities, companies."
+    },
+    {
+      "display_name": "John von Neumann",
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/john-von-neumann.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/john-von-neumann.md",
+      "prompt_repo_path": "agents/prompts/personalities/john-von-neumann.md",
+      "slug": "john-von-neumann",
+      "sources": [
+        "The Computer and the Brain (Silliman Lectures, Yale 1958)",
+        "von Neumann & Morgenstern, Theory of Games and Economic Behavior (Princeton 1944)",
+        "Mathematical Foundations of Quantum Mechanics (1932/1955)",
+        "First Draft of a Report on the EDVAC (1945)",
+        "Norman Macrae, John von Neumann (biography, 1992)"
+      ],
+      "summary": "Hungarian-American mathematician; foundations of QM, game theory, computer architecture."
+    },
+    {
+      "display_name": "Marie Curie",
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/marie-curie.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/marie-curie.md",
+      "prompt_repo_path": "agents/prompts/personalities/marie-curie.md",
+      "slug": "marie-curie",
+      "sources": [
+        "Marie Curie, Nobel Lecture in Chemistry (1911): 'Radium and the New Concepts in Chemistry'",
+        "Marie Curie, Pierre Curie (autobiographical memoir, 1923)",
+        "M. Curie, Recherches sur les Substances Radioactives (doctoral thesis, 1903)",
+        "M. Curie, Trait\u00e9 de Radioactivit\u00e9 (1910)",
+        "Eve Curie, Madame Curie: A Biography (1937)"
+      ],
+      "summary": "Polish-French physicist and chemist; discoverer of polonium and radium, two-time Nobel laureate."
+    },
+    {
+      "display_name": "Rosalind Franklin",
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/rosalind-franklin.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/rosalind-franklin.md",
+      "prompt_repo_path": "agents/prompts/personalities/rosalind-franklin.md",
+      "slug": "rosalind-franklin",
+      "sources": [
+        "Franklin & Gosling, 'Molecular Configuration in Sodium Thymonucleate', Nature 171 (1953)",
+        "Franklin & Gosling, 'Evidence for 2-Chain Helix in Crystalline Structure of Sodium Deoxyribonucleate', Nature 172 (1953)",
+        "Brenda Maddox, Rosalind Franklin: The Dark Lady of DNA (2002)",
+        "Anne Sayre, Rosalind Franklin and DNA (1975)",
+        "Franklin's TMV papers in Nature and Biochim. Biophys. Acta (1955\u201358)"
+      ],
+      "summary": "British X-ray crystallographer; structural work on DNA, coal, tobacco mosaic virus."
+    },
+    {
+      "display_name": "Socrates",
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/socrates.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/socrates.md",
+      "prompt_repo_path": "agents/prompts/personalities/socrates.md",
+      "slug": "socrates",
+      "sources": [
+        "Plato, Apology (Jowett translation)",
+        "Plato, Euthyphro",
+        "Plato, Meno",
+        "Plato, Republic, Book I",
+        "Stanford Encyclopedia of Philosophy: Socrates"
+      ],
+      "summary": "Classical Athenian philosopher (as portrayed by Plato); dialectical questioner."
+    }
+  ],
   "pipeline_steps": [
     {
       "agents": [
@@ -1614,7 +1782,7 @@
       },
       "authors": [
         {
-          "contributions": 426,
+          "contributions": 434,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -1659,6 +1827,70 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 7.125095,
+          "ended_at": "2026-05-13T21:06:02.228913Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T21:05:55.103818Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 5.023659,
+          "ended_at": "2026-05-13T21:05:54.308393Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T21:05:49.284734Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 6.865143,
+          "ended_at": "2026-05-13T21:05:48.483659Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T21:05:41.618516Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 24.3017,
+          "ended_at": "2026-05-13T21:05:40.833805Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T21:05:16.532105Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 5.74452,
+          "ended_at": "2026-05-13T21:05:15.737968Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T21:05:09.993448Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 72.661392,
+          "ended_at": "2026-05-13T21:05:09.192835Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T21:03:56.531443Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 76.660187,
+          "ended_at": "2026-05-13T21:03:55.682188Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T21:02:39.022001Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 51.847655,
+          "ended_at": "2026-05-13T21:02:38.221077Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T21:01:46.373422Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 33.743101,
           "ended_at": "2026-05-13T17:17:02.213350Z",
           "model": "qwen.qwen3.5-122b",
@@ -1672,70 +1904,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-13T17:16:22.025756Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 3.986421,
-          "ended_at": "2026-05-13T17:16:21.334158Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T17:16:17.347737Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 19.170526,
-          "ended_at": "2026-05-13T17:16:16.649694Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T17:15:57.479168Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 6.525911,
-          "ended_at": "2026-05-13T17:15:56.782504Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T17:15:50.256593Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.48043,
-          "ended_at": "2026-05-13T17:15:49.561884Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T17:15:44.081454Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 19.670569,
-          "ended_at": "2026-05-13T17:15:43.317984Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T17:15:23.647415Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 8.700796,
-          "ended_at": "2026-05-13T17:15:22.952556Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T17:15:14.251760Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 13.924339,
-          "ended_at": "2026-05-13T13:17:28.634785Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T13:17:14.710446Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.461546,
-          "ended_at": "2026-05-13T13:17:13.886826Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T13:17:08.425280Z"
         }
       ],
       "phase_group": "research_speckit",
@@ -43954,7 +44122,7 @@
       },
       "authors": [
         {
-          "contributions": 82,
+          "contributions": 90,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -43991,6 +44159,70 @@
       "last_run_log": [
         {
           "agent": "flesh_out",
+          "duration_s": 31.76699,
+          "ended_at": "2026-05-14T01:15:24.770822Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T01:14:53.003832Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 30.139904,
+          "ended_at": "2026-05-14T01:06:52.424507Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T01:06:22.284603Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 28.935503,
+          "ended_at": "2026-05-13T23:31:46.659496Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T23:31:17.723993Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 32.612011,
+          "ended_at": "2026-05-13T22:42:29.585722Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T22:41:56.973711Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 24.269646,
+          "ended_at": "2026-05-13T22:35:05.983680Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T22:34:41.714034Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 33.220469,
+          "ended_at": "2026-05-13T21:38:44.410783Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T21:38:11.190314Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 31.841421,
+          "ended_at": "2026-05-13T20:51:15.670807Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T20:50:43.829386Z"
+        },
+        {
+          "agent": "flesh_out",
+          "duration_s": 26.474917,
+          "ended_at": "2026-05-13T20:42:22.106120Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-13T20:41:55.631203Z"
+        },
+        {
+          "agent": "flesh_out",
           "duration_s": 116.975668,
           "ended_at": "2026-05-13T19:41:21.588018Z",
           "model": "qwen.qwen3.5-122b",
@@ -44004,70 +44236,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-13T18:54:52.491640Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 43.606178,
-          "ended_at": "2026-05-13T18:49:56.249057Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T18:49:12.642879Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 21.939299,
-          "ended_at": "2026-05-13T17:49:15.115182Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T17:48:53.175883Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 23.853205,
-          "ended_at": "2026-05-13T17:02:28.416631Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T17:02:04.563426Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 27.477671,
-          "ended_at": "2026-05-13T16:57:27.133192Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T16:56:59.655521Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 32.87436,
-          "ended_at": "2026-05-13T15:16:18.935309Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T15:15:46.060949Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 23.907778,
-          "ended_at": "2026-05-13T15:10:00.562437Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T15:09:36.654659Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 26.393981,
-          "ended_at": "2026-05-13T13:52:09.585384Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T13:51:43.191403Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 29.733006,
-          "ended_at": "2026-05-13T13:03:23.993055Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-13T13:02:54.260049Z"
         }
       ],
       "phase_group": "idea",
