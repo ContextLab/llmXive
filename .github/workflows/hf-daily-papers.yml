@@ -1,0 +1,60 @@
+name: HF Daily Papers
+
+# Daily @ 23:59 UTC: submit the top-5 most-upvoted Hugging Face daily-papers
+# (https://huggingface.co/papers/date/YYYY-MM-DD) as `human-submission` /
+# `new-paper` GitHub issues. The hourly `submission-intake.yml` workflow
+# then routes each one through the same code path the website's
+# "Submit Paper" dialog uses — `submission_intake` agent fetches the arXiv
+# source / LaTeX / authors, creates a `PROJ-NNN` project, and enters the
+# paper-review pipeline. The submitter is "github-actions[bot]", which is
+# excluded from the contributor leaderboard by `_is_bot_submitter` in
+# `src/llmxive/web_data.py` (the paper's *authors* still get credited).
+#
+# Security: workflow_dispatch inputs are untrusted — they're surfaced to
+# the shell via env: vars (never interpolated directly into run: steps)
+# and validated by Python's argparse before reaching `gh`.
+
+on:
+  schedule:
+    - cron: "59 23 * * *"   # 23:59 UTC daily
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "UTC date YYYY-MM-DD (defaults to today UTC)"
+        required: false
+        default: ""
+      limit:
+        description: "How many top papers to file (default 5)"
+        required: false
+        default: "5"
+
+permissions:
+  contents: read
+  issues: write     # file `human-submission` / `new-paper` issues
+
+concurrency:
+  group: hf-daily-papers
+  cancel-in-progress: false
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install package
+        run: pip install -e .
+      - name: Submit top-N HF daily papers
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_DATE: ${{ github.event.inputs.date }}
+          INPUT_LIMIT: ${{ github.event.inputs.limit }}
+        run: |
+          set -euo pipefail
+          # argparse validates these — empty values are simply absent.
+          args=()
+          if [ -n "${INPUT_DATE:-}" ]; then args+=(--date "$INPUT_DATE"); fi
+          if [ -n "${INPUT_LIMIT:-}" ]; then args+=(--limit "$INPUT_LIMIT"); else args+=(--limit 5); fi
+          python -m llmxive hf-papers submit-top "${args[@]}"

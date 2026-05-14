@@ -372,6 +372,26 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
     return 0 if created > 0 else 1
 
 
+def _cmd_hf_papers_submit_top(args: argparse.Namespace) -> int:
+    """Submit the top-N upvoted Hugging Face daily-papers arXiv entries as
+    `human-submission` / `new-paper` issues (functionally identical to the
+    website's Submit-Paper dialog).
+
+    Daily cron entry point (.github/workflows/hf-daily-papers.yml @ 23:59 UTC).
+    """
+    from llmxive.hf_daily_papers import cli_main as _hf_cli
+    argv = []
+    if args.date is not None:
+        argv += ["--date", args.date]
+    if args.limit is not None:
+        argv += ["--limit", str(args.limit)]
+    if args.repo:
+        argv += ["--repo", args.repo]
+    if args.dry_run:
+        argv.append("--dry-run")
+    return _hf_cli(argv)
+
+
 def _cmd_submissions_process(_args: argparse.Namespace) -> int:
     """Process open `human-submission` GitHub issues via the submission_intake agent (FR-021).
 
@@ -533,6 +553,20 @@ def build_parser() -> argparse.ArgumentParser:
     subs_subs = p_subs.add_subparsers(dest="submissions_cmd", required=True)
     p_subs_proc = subs_subs.add_parser("process", help="triage open human-submission GitHub issues")
     p_subs_proc.set_defaults(func=_cmd_submissions_process)
+
+    p_hf = subs.add_parser("hf-papers", help="Hugging Face daily-papers integration")
+    hf_subs = p_hf.add_subparsers(dest="hf_cmd", required=True)
+    p_hf_top = hf_subs.add_parser("submit-top",
+                                  help="submit top-N upvoted HF daily papers as new-paper issues")
+    p_hf_top.add_argument("--date", default=None,
+                          help="UTC date YYYY-MM-DD; defaults to today UTC")
+    p_hf_top.add_argument("--limit", type=int, default=5,
+                          help="how many top papers to file (default: 5)")
+    p_hf_top.add_argument("--repo", default="ContextLab/llmXive",
+                          help="GitHub repo (owner/name)")
+    p_hf_top.add_argument("--dry-run", action="store_true",
+                          help="print payloads instead of filing")
+    p_hf_top.set_defaults(func=_cmd_hf_papers_submit_top)
 
     return parser
 

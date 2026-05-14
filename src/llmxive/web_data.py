@@ -659,6 +659,29 @@ def _project_keywords(repo: Path, project_id: str) -> list[str]:
     return []
 
 
+# Submitter strings that name an automated bot identity rather than a real
+# contributor — these should not appear on the top-contributors leaderboard,
+# even though they remain visible on each project's submitter line.
+# (User request: HF-daily-papers cron must not pollute the contributor ranking.)
+_BOT_SUBMITTERS = frozenset({
+    "github-actions[bot]",
+    "github-actions",
+    "dependabot[bot]",
+    "renovate[bot]",
+})
+
+
+def _is_bot_submitter(name: str) -> bool:
+    """True if ``name`` names an automated bot identity (case-insensitive)."""
+    if not name:
+        return False
+    s = name.strip().lower().lstrip("@")
+    if s in _BOT_SUBMITTERS:
+        return True
+    # belt-and-suspenders: any `*[bot]` GH username
+    return s.endswith("[bot]")
+
+
 def _project_submitter(repo: Path, project_id: str) -> str | None:
     """Identify the submitter (GitHub username or model name) from idea front-matter."""
     pdir = _project_dir(repo, project_id)
@@ -1081,6 +1104,12 @@ def _submitter_contributors(repo: Path, projects: list) -> list[dict[str, Any]]:
         if not sub:
             continue
         if sub.startswith(("system:", "legacy:", "agent:")):
+            continue
+        # The HF-daily-papers cron submits paper issues as "github-actions[bot]"
+        # — by user request this bot identity must not appear in the
+        # contributor leaderboard. The paper's *authors* still get credited
+        # via `_paper_author_contributors`.
+        if _is_bot_submitter(sub):
             continue
         low = sub.lower()
         is_model = (

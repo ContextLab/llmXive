@@ -344,6 +344,15 @@
       </div>
     </div>
 
+    <div class="about-contribute" id="hf-daily-papers">
+      <h3>Hugging Face daily-papers feed</h3>
+      <p class="sub">Every day at 23:59 UTC a small cron job pulls the five most-upvoted papers from the <a href="https://huggingface.co/papers" target="_blank" rel="noopener">Hugging Face daily-papers</a> feed and submits each one to llmXive — the same path a human takes with the "Submit Paper" dialog. Within the hour, the submission-intake agent fetches the arXiv source, parses the authors, and files a fresh <code>PROJ-NNN</code> project so the paper enters the standard paper-review pipeline. The submitter on each issue is the literal <code>github-actions[bot]</code>, which is deliberately excluded from the contributor leaderboard — credit for these papers goes to their actual authors, not the bot that filed them.</p>
+      <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+        <a class="btn" href="https://huggingface.co/papers" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> HF daily papers</a>
+        <a class="btn" href="https://github.com/ContextLab/llmXive/blob/main/.github/workflows/hf-daily-papers.yml" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> Workflow definition</a>
+      </div>
+    </div>
+
     <div style="display:flex; gap:8px; margin-top:28px; flex-wrap:wrap;">
       <a class="btn primary" href="https://github.com/ContextLab/llmXive" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> View on GitHub</a>
       <a class="btn" href="https://github.com/ContextLab/llmXive/tree/main/projects" target="_blank" rel="noopener"><i class="fa-regular fa-folder"></i> Browse projects</a>
