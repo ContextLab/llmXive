@@ -563,6 +563,80 @@ def _last_run_log(repo: Path, project_id: str, *, limit: int = 10) -> list[dict[
     return out
 
 
+def _recent_activity(repo: Path, *, limit: int = 60) -> list[dict[str, Any]]:
+    """Aggregate the most recent agent runs across ALL projects.
+
+    Walks ``state/run-log/<YYYY-MM>/*.jsonl`` newest-first, accumulates run
+    entries (regardless of project), and returns the ``limit`` most-recent
+    ones for the website's Activity tab. Each entry carries the same
+    fields as :func:`_last_run_log` plus the ``project_id`` (since this
+    is cross-project) and — for the personality agent (spec 008) — the
+    ``personality_slug`` and ``display_name`` so the UI can render
+    "Daniel Kahneman (simulated)" correctly.
+    """
+    log_root = repo / "state" / "run-log"
+    if not log_root.is_dir():
+        return []
+    entries: list[dict[str, Any]] = []
+    # Walk months newest-first; stop once we have plenty of headroom
+    # over `limit` (we sort + truncate at the end).
+    months = sorted(
+        [d for d in log_root.iterdir() if d.is_dir() and not d.name.startswith(".")],
+        reverse=True,
+    )
+    for month_dir in months:
+        for jsonl in sorted(month_dir.glob("*.jsonl"), reverse=True):
+            try:
+                lines = jsonl.read_text(encoding="utf-8").splitlines()
+            except OSError:
+                continue
+            for line in lines:
+                if not line.strip():
+                    continue
+                try:
+                    e = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                entries.append(e)
+        # We over-collect 4×limit to give the sort room — if the latest
+        # month has only `limit//4` ticks, we still want to surface the
+        # tail from the prior month.
+        if len(entries) >= limit * 4:
+            break
+    entries.sort(key=lambda e: e.get("ended_at") or e.get("started_at") or "", reverse=True)
+    out: list[dict[str, Any]] = []
+    for e in entries[:limit]:
+        try:
+            t0 = datetime.fromisoformat(e["started_at"].replace("Z", "+00:00"))
+            t1 = datetime.fromisoformat(e["ended_at"].replace("Z", "+00:00"))
+            dur = (t1 - t0).total_seconds()
+        except Exception:
+            dur = float(e.get("duration_s") or 0.0)
+        row: dict[str, Any] = {
+            "agent": e.get("agent_name", ""),
+            "model": _normalize_model_name(e.get("model_name", "") or ""),
+            "project_id": e.get("project_id"),
+            "started_at": e.get("started_at", ""),
+            "ended_at": e.get("ended_at", ""),
+            "outcome": e.get("outcome", ""),
+            "duration_s": float(dur),
+        }
+        # Personality-agent extra fields (spec 008) so the UI can render
+        # "<Name> (simulated)" — flow them through verbatim.
+        if e.get("personality_slug"):
+            row["personality_slug"] = e["personality_slug"]
+        if e.get("display_name"):
+            row["display_name"] = e["display_name"]
+        if e.get("model_kind"):
+            row["model_kind"] = e["model_kind"]
+        # Surface a tiny action-specific hint (the persona's "action" field
+        # — comment / contribute / propose_arxiv / abstain) for the feed.
+        if e.get("action"):
+            row["action"] = e["action"]
+        out.append(row)
+    return out
+
+
 def _project_keywords(repo: Path, project_id: str) -> list[str]:
     """Heuristic: pull keywords/tags from the idea Markdown frontmatter."""
     pdir = _project_dir(repo, project_id)
@@ -1172,6 +1246,7 @@ def build_payload(repo: Path) -> dict[str, Any]:
         "agents": _build_agents_block(repo),
         "personalities": _build_personalities_block(repo),
         "pipeline_steps": _build_pipeline_steps_block(repo, projects, registry_names),
+        "recent_activity": _recent_activity(repo),
     }
 
 

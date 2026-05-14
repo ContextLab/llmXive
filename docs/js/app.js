@@ -105,17 +105,50 @@
       + '</article>';
   }
 
+  // Per-lane search state (one term per `data-search` input). Empty = no
+  // filter. setupSearch() wires the inputs; matchesSearch() decides which
+  // projects survive the filter for a given lane.
+  const searchState = {};
+
+  function matchesSearch(item, term) {
+    if (!term) return true;
+    const needle = term.trim().toLowerCase();
+    if (!needle) return true;
+    // Searchable haystack: title + description + field + keywords + author
+    // names (so "kahneman" matches a paper authored by Daniel Kahneman, and
+    // "biology" matches every biology project). Built once per card per
+    // keystroke; the catalog is small (≤ ~600 projects) so this is fine.
+    const parts = [
+      item.title,
+      item.description,
+      item.field,
+      ...(item.keywords || []),
+      ...((item.authors || []).map(a => a.name)),
+      item.submitter,
+      item.id,
+    ];
+    const hay = parts.filter(Boolean).join("  ").toLowerCase();
+    return hay.includes(needle);
+  }
+
   function renderCards(kind) {
     const el = document.getElementById(kind + "-cards");
     if (!el) return;
-    const items = (buckets && buckets[kind]) || [];
+    const allItems = (buckets && buckets[kind]) || [];
+    const term = searchState[kind] || "";
+    const items = allItems.filter(it => matchesSearch(it, term));
     if (!items.length) {
       el.replaceChildren();
       const empty = document.createElement("div");
       empty.style.cssText = "grid-column: 1/-1; text-align:center; padding:40px; color:var(--muted);";
+      // Distinguish "empty lane" from "search has no matches" — the user
+      // wants to know which one to act on.
+      const msg = term
+        ? `No matches for &ldquo;${escapeHtml(term)}&rdquo;.`
+        : "No projects in this stage yet.";
       empty.insertAdjacentHTML("beforeend",
         '<i class="fa-regular fa-folder-open" style="font-size:32px; opacity:0.5"></i>' +
-        '<p style="margin-top:12px;">No projects in this stage yet.</p>');
+        '<p style="margin-top:12px;">' + msg + '</p>');
       el.appendChild(empty);
       return;
     }
@@ -155,8 +188,13 @@
   }
 
   function renderBacklogLane(rootEl, lane, stages) {
+    // The Backlog tab has a single search input (`data-search="backlog"`)
+    // that filters BOTH the research and the paper kanban columns. Apply
+    // the same `matchesSearch` predicate per project before rendering.
+    const term = searchState["backlog"] || "";
     const html = stages.map(stage => {
-      const items = lane[stage] || [];
+      const stageItems = lane[stage] || [];
+      const items = stageItems.filter(p => matchesSearch(p, term));
       const label = D.STAGE_LABELS[stage] || stage;
       const issues = items.map(p => {
         const desc = (p.description || "").slice(0, 140) + ((p.description || "").length > 140 ? "…" : "");
@@ -202,28 +240,86 @@
     return "fa-regular fa-circle-question";
   }
 
+  // Current contributor-area filter: "all" → show everyone; otherwise the
+  // exact area string (e.g. "biology", "computer science"). Cleared by
+  // clicking the "All areas" chip; toggled by clicking any other chip.
+  let contributorAreaFilter = "all";
+
   function renderContributors() {
     // The data is already sorted (real contributors by count desc, the single
     // "unattributed" bucket last); keep that order. Rank only real contributors.
-    const list = (payload.contributors || []).slice();
-    list.forEach((c, i) => c.rank = i + 1);
+    const everyone = (payload.contributors || []).slice();
+    everyone.forEach((c, i) => c.rank = i + 1);
+
+    // 1. Render the filter chips ONCE per renderContributors() call. The
+    //    chip set is derived from the actual `areas` strings present in
+    //    payload.contributors — so it's always in sync with the data and
+    //    new fields show up automatically without an HTML edit (matches
+    //    the personality-pool extensibility property).
+    const bar = document.getElementById("contrib-filter-bar");
+    if (bar) {
+      // Collect every area, ranked by how many contributors touch it.
+      const areaCounts = new Map();
+      for (const c of everyone) {
+        if (c.kind === "unattributed") continue;
+        for (const a of (c.areas || [])) {
+          areaCounts.set(a, (areaCounts.get(a) || 0) + 1);
+        }
+      }
+      const orderedAreas = [...areaCounts.entries()]
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .map(([a]) => a);
+      // Remove any pre-existing chip buttons (label survives) and rebuild.
+      [...bar.querySelectorAll(".chip")].forEach(n => n.remove());
+      const chipsHtml = ['<button class="chip' + (contributorAreaFilter === "all" ? " active" : "") + '" data-area-filter="all">All areas</button>']
+        .concat(orderedAreas.map(a =>
+          '<button class="chip' + (contributorAreaFilter === a ? " active" : "") +
+          '" data-area-filter="' + escapeHtml(a) + '">' + escapeHtml(a) + '</button>'
+        )).join("");
+      bar.insertAdjacentHTML("beforeend", chipsHtml);
+      // Re-bind handlers every time so the closure captures the freshest
+      // renderContributors. Idempotent because we replaced the chip nodes.
+      bar.querySelectorAll(".chip[data-area-filter]").forEach(chip => {
+        chip.addEventListener("click", () => {
+          contributorAreaFilter = chip.dataset.areaFilter;
+          renderContributors();
+        });
+      });
+    }
+
+    // 2. Apply the filter. "all" → everyone; otherwise keep only
+    //    contributors whose `areas` include the selected area. Unattributed
+    //    bucket is always kept (it's the catch-all at the bottom).
+    const matches = c => contributorAreaFilter === "all"
+      || c.kind === "unattributed"
+      || (c.areas || []).includes(contributorAreaFilter);
+    const list = everyone.filter(matches);
     const ranked = list.filter(c => c.kind !== "unattributed");
+
+    // 3. Re-rank within the filter so the podium reflects "top-3 in this
+    //    area" rather than "top-3 overall, possibly absent here". The
+    //    original rank (across all areas) is preserved in `c.rank` for
+    //    the table column so users can see absolute standing too.
+    ranked.forEach((c, i) => c.filteredRank = i + 1);
 
     const podium = document.getElementById("podium");
     podium.replaceChildren();
     if (!ranked.length) {
+      const msg = contributorAreaFilter === "all"
+        ? "No contributors yet."
+        : `No contributors in &ldquo;${escapeHtml(contributorAreaFilter)}&rdquo;.`;
       podium.insertAdjacentHTML("beforeend",
-        '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--muted);">No contributors yet.</div>');
+        '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--muted);">' + msg + '</div>');
     } else {
       const top3 = ranked.slice(0, 3);
       const podiumOrder = [top3[1], top3[0], top3[2]];
       const html = podiumOrder.map((c) => {
         if (!c) return "";
-        const isFirst = c.rank === 1;
+        const isFirst = c.filteredRank === 1;
         const initials = c.name.split(/[-.]/).map(s => s[0]).join("").slice(0, 2).toUpperCase();
         return ''
           + '<div class="pod ' + (isFirst ? "first" : "") + '">'
-          + '<div class="rank">' + c.rank + '</div>'
+          + '<div class="rank">' + c.filteredRank + '</div>'
           + '<div class="avatar">' + escapeHtml(initials || "?") + '</div>'
           + '<div class="name">' + escapeHtml(c.name) + '</div>'
           + '<div class="type">' + escapeHtml(kindLabel(c.kind)) + '</div>'
@@ -244,6 +340,196 @@
       + '<div class="areas">' + (c.areas || []).map(a => '<span>' + escapeHtml(a) + '</span>').join("") + '</div>'
       + '</div>').join("");
     table.insertAdjacentHTML("beforeend", rowsHtml);
+  }
+
+  // ── Activity tab — cross-project recent-run feed ─────────────────────
+  //
+  // Data: payload.recent_activity (emitted by web_data.py _recent_activity).
+  // Filter chips: "all" / "personality" / "pipeline" / "reviews".
+  //   - personality → agent_name == "personality"
+  //   - pipeline    → agent_name is one of the pipeline drivers
+  //                   (brainstorm, flesh_out, specifier, clarifier, planner,
+  //                   tasker, implementer, plus paper-stage equivalents)
+  //   - reviews     → agent_name starts with "research_reviewer" or
+  //                   "paper_reviewer"
+  //   - all         → no agent filter
+  // Plus a free-text search over project_id / agent / display_name.
+  let activityFilter = "all";
+  let activitySearch = "";
+
+  const _ACTIVITY_PIPELINE_AGENTS = new Set([
+    "brainstorm", "flesh_out", "research_question_validator", "idea_selector",
+    "project_initializer", "librarian", "specifier", "clarifier", "planner",
+    "tasker", "implementer", "advancement",
+    "paper_initializer", "paper_specifier", "paper_clarifier",
+    "paper_planner", "paper_tasker", "paper_implementer",
+    "latex_build", "latex_fix", "reference_validator",
+    "submission_intake", "status_reporter", "repository_hygiene",
+  ]);
+
+  function _activityCategory(entry) {
+    const a = entry.agent || "";
+    if (a === "personality") return "personality";
+    if (a.startsWith("research_reviewer") || a.startsWith("paper_reviewer")) return "reviews";
+    if (_ACTIVITY_PIPELINE_AGENTS.has(a)) return "pipeline";
+    return "other";
+  }
+
+  function _relTime(iso) {
+    if (!iso) return "—";
+    try {
+      const dt = new Date(iso);
+      const ms = Date.now() - dt.getTime();
+      const s = Math.round(ms / 1000);
+      if (s < 60) return s + "s ago";
+      const m = Math.round(s / 60);
+      if (m < 60) return m + "m ago";
+      const h = Math.round(m / 60);
+      if (h < 48) return h + "h ago";
+      const d = Math.round(h / 24);
+      return d + "d ago";
+    } catch (e) { return "—"; }
+  }
+
+  function _outcomeBadge(outcome) {
+    // success/committed → ok; abstained → muted; failures → bad.
+    const bad = ["rate_limited", "model_error", "malformed_response",
+                 "target_missing", "librarian_held", "timeout", "failure", "failed"];
+    let cls = "ok";
+    if (bad.includes(outcome)) cls = "bad";
+    if (outcome === "abstained") cls = "muted";
+    return '<span class="outcome ' + cls + '">' + escapeHtml(outcome || "—") + '</span>';
+  }
+
+  function renderActivity() {
+    const root = document.getElementById("activity-list");
+    if (!root) return;
+    let rows = (payload.recent_activity || []).slice();
+    if (activityFilter !== "all") {
+      rows = rows.filter(r => _activityCategory(r) === activityFilter);
+    }
+    if (activitySearch) {
+      const needle = activitySearch.toLowerCase();
+      rows = rows.filter(r => {
+        const hay = [r.project_id, r.agent, r.display_name, r.personality_slug,
+                     r.action, r.outcome, r.model].filter(Boolean).join(" ").toLowerCase();
+        return hay.includes(needle);
+      });
+    }
+    root.replaceChildren();
+    if (!rows.length) {
+      root.insertAdjacentHTML("beforeend",
+        '<div class="activity-empty">No activity matching the current filter.</div>');
+      return;
+    }
+    const html = rows.map(r => {
+      // Display the persona's "(simulated)" display_name when present,
+      // else the agent name — same FR-010 invariant the contributor list
+      // honors.
+      const who = r.display_name || r.agent || "—";
+      const actor = '<span class="actor">' + escapeHtml(who) + '</span>';
+      const project = r.project_id
+        ? '<span class="project" data-pid="' + escapeHtml(r.project_id) + '">'
+            + escapeHtml(r.project_id) + '</span>'
+        : '<span class="project muted">(no project)</span>';
+      const actionTag = r.action
+        ? '<span class="atag">' + escapeHtml(r.action) + '</span>'
+        : '';
+      const dur = r.duration_s
+        ? '<span class="dur">' + (r.duration_s).toFixed(1) + 's</span>'
+        : '';
+      return '<div class="activity-row" data-cat="' + _activityCategory(r) + '">'
+        + '<span class="when" title="' + escapeHtml(r.ended_at || r.started_at || "") + '">'
+        + escapeHtml(_relTime(r.ended_at || r.started_at)) + '</span>'
+        + actor + actionTag + project + _outcomeBadge(r.outcome) + dur
+        + '</div>';
+    }).join("");
+    root.insertAdjacentHTML("beforeend", html);
+    // Clicking a project pill opens that project's modal.
+    root.querySelectorAll(".project[data-pid]").forEach(el => {
+      el.addEventListener("click", () => {
+        const pid = el.dataset.pid;
+        const proj = (payload.projects || []).find(p => p.id === pid);
+        if (proj) Dialog.open(proj);
+      });
+    });
+  }
+
+  function setupActivity() {
+    // Filter chips
+    document.querySelectorAll("[data-activity-filter]").forEach(chip => {
+      chip.addEventListener("click", () => {
+        activityFilter = chip.dataset.activityFilter;
+        document.querySelectorAll("[data-activity-filter]").forEach(c =>
+          c.classList.toggle("active", c.dataset.activityFilter === activityFilter));
+        renderActivity();
+      });
+    });
+    // Search input
+    const searchInput = document.querySelector("[data-activity-search]");
+    if (searchInput) {
+      let timer = null;
+      searchInput.addEventListener("input", () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          activitySearch = (searchInput.value || "").trim();
+          renderActivity();
+        }, 100);
+      });
+      searchInput.addEventListener("keydown", e => {
+        if (e.key === "Escape" && searchInput.value) {
+          searchInput.value = "";
+          activitySearch = "";
+          renderActivity();
+        }
+      });
+    }
+  }
+
+  function setupSearch() {
+    // Wire every `<input data-search="LANE">` in index.html to filter that
+    // lane's cards (or kanban columns for backlog) by the typed term.
+    // The `searchState` map and `matchesSearch` predicate above are the
+    // canonical filter — every render-lane call already honors them.
+    //
+    // Inputs (per index.html):
+    //   data-search="papers"     → renderCards("papers")
+    //   data-search="paper"      → renderCards("paper")
+    //   data-search="inProgress" → renderCards("inProgress")
+    //   data-search="backlog"    → renderBacklog()
+    //
+    // Debounce keystrokes lightly (100ms) so we don't re-render on every
+    // single character for users typing quickly. The render path is fast
+    // (≤ ~600 projects, plain DOM strings), but the debounce keeps the
+    // UI feeling smooth.
+    document.querySelectorAll("[data-search]").forEach(input => {
+      const lane = input.dataset.search;
+      if (!lane) return;
+      let timer = null;
+      input.addEventListener("input", () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          searchState[lane] = input.value || "";
+          if (lane === "backlog") {
+            renderBacklog();
+          } else {
+            // The other four (papers / paper / inProgress / plans / designs)
+            // each have their own `<div id="${lane}-cards">` rendered by
+            // renderCards.
+            renderCards(lane);
+          }
+        }, 100);
+      });
+      // Esc clears the input + re-renders.
+      input.addEventListener("keydown", e => {
+        if (e.key === "Escape" && input.value) {
+          input.value = "";
+          searchState[lane] = "";
+          if (lane === "backlog") renderBacklog();
+          else renderCards(lane);
+        }
+      });
+    });
   }
 
   function setupTabs() {
@@ -664,8 +950,11 @@
     ["papers", "paper", "inProgress", "plans", "designs"].forEach(renderCards);
     renderBacklog();
     renderContributors();
+    renderActivity();
 
     setupTabs();
+    setupSearch();
+    setupActivity();
     setupModals();
     setupAboutModals();
 
