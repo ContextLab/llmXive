@@ -1,0 +1,102 @@
+"""Tests for `scripts/compile_paper.py`.
+
+Covers the pure helpers (no LaTeX engine required):
+- `_has_pdf` distinguishes a valid PDF from a 0-byte / stub
+- `_entry_tex` picks the right entry-point .tex
+- `_clean_partial_outputs` removes the stub family
+
+The full compile path is covered by `tests/test_restyle_arxiv_paper.py`
+(existing) and end-to-end on real arXiv submissions by manual runs.
+"""
+
+from __future__ import annotations
+
+import importlib.util
+import sys
+from pathlib import Path
+
+import pytest
+
+REPO = Path(__file__).resolve().parents[2]
+SCRIPT = REPO / "scripts" / "compile_paper.py"
+
+
+@pytest.fixture(scope="module")
+def cp():
+    """Load the script as a module (it's not in src/ to keep import-time
+    side effects from leaking into the package)."""
+    spec = importlib.util.spec_from_file_location("compile_paper", SCRIPT)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["compile_paper"] = mod
+    assert spec.loader is not None
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _make_pdf(path: Path, *, body_size: int, trailer: bool = True) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    data = b"%PDF-1.7\n" + (b"x" * body_size)
+    if trailer:
+        data += b"\n%%EOF\n"
+    path.write_bytes(data)
+
+
+class TestHasPdf:
+    def test_real_multi_kb_pdf_counts(self, cp, tmp_path: Path) -> None:
+        _make_pdf(tmp_path / "paper" / "pdf" / "main-llmxive.pdf", body_size=20_000)
+        assert cp._has_pdf(tmp_path) is True
+
+    def test_tiny_pdf_with_trailer_rejected(self, cp, tmp_path: Path) -> None:
+        # lualatex sometimes writes ~2KB stubs WITH a %%EOF — we require
+        # both EOF and minimum size to consider it valid.
+        _make_pdf(tmp_path / "paper" / "pdf" / "main-llmxive.pdf", body_size=200)
+        assert cp._has_pdf(tmp_path) is False
+
+    def test_zero_byte_pdf_rejected(self, cp, tmp_path: Path) -> None:
+        p = tmp_path / "paper" / "pdf" / "main-llmxive.pdf"
+        p.parent.mkdir(parents=True)
+        p.write_bytes(b"")
+        assert cp._has_pdf(tmp_path) is False
+
+    def test_no_pdf_dir(self, cp, tmp_path: Path) -> None:
+        assert cp._has_pdf(tmp_path) is False
+
+
+class TestEntryTex:
+    def test_picks_from_metadata_toplevel_tex(self, cp, tmp_path: Path) -> None:
+        src = tmp_path / "paper" / "source"
+        src.mkdir(parents=True)
+        (src / "arxiv_anyflow.tex").write_text(r"\documentclass{article}", encoding="utf-8")
+        (src / "main.tex").write_text(r"\documentclass{article}", encoding="utf-8")
+        entry = cp._entry_tex(tmp_path, {"toplevel_tex": ["arxiv_anyflow.tex"]})
+        assert entry == "arxiv_anyflow.tex"
+
+    def test_falls_back_to_single_documentclass(self, cp, tmp_path: Path) -> None:
+        src = tmp_path / "paper" / "source"
+        src.mkdir(parents=True)
+        (src / "only.tex").write_text(r"\documentclass{article}", encoding="utf-8")
+        (src / "section.tex").write_text("no class here", encoding="utf-8")
+        assert cp._entry_tex(tmp_path, {}) == "only.tex"
+
+    def test_main_tex_preferred_with_multiple_candidates(self, cp, tmp_path: Path) -> None:
+        src = tmp_path / "paper" / "source"
+        src.mkdir(parents=True)
+        for name in ("anonymous.tex", "main.tex", "paper.tex"):
+            (src / name).write_text(r"\documentclass{article}", encoding="utf-8")
+        assert cp._entry_tex(tmp_path, {}) == "main.tex"
+
+    def test_no_source_returns_none(self, cp, tmp_path: Path) -> None:
+        assert cp._entry_tex(tmp_path, {}) is None
+
+
+class TestCleanPartialOutputs:
+    def test_removes_stub_family(self, cp, tmp_path: Path) -> None:
+        for suffix in (".pdf", ".log", ".aux", ".out", ".toc", ".bbl", ".blg"):
+            (tmp_path / f"main-llmxive{suffix}").write_text("stub", encoding="utf-8")
+        (tmp_path / "main-llmxive.tex").write_text("keep me", encoding="utf-8")  # not in family
+        (tmp_path / "other.pdf").write_text("keep me too", encoding="utf-8")
+        cp._clean_partial_outputs(tmp_path, "main-llmxive")
+        assert (tmp_path / "main-llmxive.tex").is_file()
+        assert (tmp_path / "other.pdf").is_file()
+        for suffix in (".pdf", ".log", ".aux", ".out", ".toc", ".bbl", ".blg"):
+            assert not (tmp_path / f"main-llmxive{suffix}").exists()

@@ -191,9 +191,13 @@
 \newcommand{\llmx@paperid}{}
 \newcommand{\llmx@paperstatus}{Preprint}
 \newcommand{\llmx@papercategory}{Research paper}
-\newcommand{\llmx@affiliation}{}
-\newcommand{\llmx@correspondence}{}
-\newcommand{\llmx@reviewscore}{}
+% Affiliation/correspondence/reviewscore default to a TeX-empty token so
+% the `\ifx \llmx@X \@empty` tests in the title block actually fire when
+% no value was set. `\newcommand{...}{}` would *not* match `\@empty` —
+% the macro token isn't `\@empty` even though its expansion is.
+\let\llmx@affiliation\@empty
+\let\llmx@correspondence\@empty
+\let\llmx@reviewscore\@empty
 
 \newcommand{\paperid}[1]{\renewcommand{\llmx@paperid}{#1}}
 \newcommand{\paperstatus}[1]{\renewcommand{\llmx@paperstatus}{#1}}

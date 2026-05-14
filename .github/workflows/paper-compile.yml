@@ -1,0 +1,92 @@
+name: Paper Compile
+
+# Compiles project papers to PDF in the llmXive house style. Runs:
+#   - every 30 minutes (in case a paper was added without triggering paths)
+#   - on push to any project's paper/source/ or to the llmxive.cls style
+#
+# Strategy (per scripts/compile_paper.py):
+#   1. Restyle the original arXiv source into a wrapper that loads llmxive.cls
+#   2. Compile with lualatex (3 passes + bibtex when applicable)
+#   3. On failure, fall back to fetching the canonical arXiv PDF so the
+#      paper modal always has SOMETHING to show.
+#
+# Per-paper failures never fail the workflow; the next tick retries them.
+# Security: workflow_dispatch inputs are untrusted; surfaced to the shell
+# via env: vars (never interpolated directly into run: steps) and validated
+# by Python's argparse before reaching any subprocess.
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - 'projects/**/paper/source/**'
+      - 'papers/.style/**'
+      - 'scripts/compile_paper.py'
+      - 'scripts/restyle_arxiv_paper.py'
+      - '.github/workflows/paper-compile.yml'
+  workflow_dispatch:
+    inputs:
+      project:
+        description: "Restrict to one PROJ-NNN-... dir (empty = --all)"
+        required: false
+        default: ""
+      max:
+        description: "Cap on --all (default: 20)"
+        required: false
+        default: "20"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: paper-compile
+  cancel-in-progress: false
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install TeX Live (lualatex + fontspec + standard collections)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            texlive-luatex texlive-fonts-recommended texlive-fonts-extra \
+            texlive-latex-recommended texlive-latex-extra texlive-science \
+            texlive-publishers texlive-bibtex-extra biber \
+            ghostscript
+          which lualatex && lualatex --version | head -1
+      - name: Install llmxive package
+        run: pip install -e .
+      - name: Compile papers
+        env:
+          INPUT_PROJECT: ${{ github.event.inputs.project }}
+          INPUT_MAX: ${{ github.event.inputs.max }}
+        run: |
+          set -euo pipefail
+          if [ -n "${INPUT_PROJECT:-}" ]; then
+            python3 scripts/compile_paper.py "projects/${INPUT_PROJECT}"
+          else
+            MAX="${INPUT_MAX:-20}"
+            python3 scripts/compile_paper.py --all --max "$MAX"
+          fi
+      - name: Regenerate web data (project list reflects new PDFs)
+        run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
+      - name: Commit + push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 'projects/*/paper/pdf/*.pdf' web/data/projects.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "paper-compile: produce/refresh paper PDFs"
+            git push
+          fi
