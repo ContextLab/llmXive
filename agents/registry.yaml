@@ -823,12 +823,9 @@ agents:
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: personality
-  purpose: Simulated public-figure personas (David Krakauer, Geoffrey West, Dan
-    Rockmore, Socrates, Aristotle, Daniel Kahneman, Ada Lovelace, Marie Curie,
-    Rosalind Franklin, John von Neumann). One personality per 30-minute tick,
-    rotating through a pool of prompt files at agents/prompts/personalities/.
-    Each tick produces ONE contribution (comment / contribute / propose_arxiv /
-    abstain) attributed as "<Name> (simulated)" with kind=llm. Per spec 008.
+  purpose: Simulated public-figure personas (spec 008) — one per 30-min tick,
+    rotating over agents/prompts/personalities/. Action ∈ comment / contribute /
+    propose_arxiv / abstain, tagged "<Name> (simulated)".
   inputs:
   - review
   outputs:
