@@ -904,7 +904,7 @@
     "human_contributors": 56,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1341,
+    "total_contributions": 1342,
     "total_contributors": 63
   },
   "contributors": [
@@ -926,7 +926,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 611,
+      "contribution_count": 612,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -1457,7 +1457,7 @@
       "name": "Zikai Zhou"
     }
   ],
-  "generated_at": "2026-05-14T11:03:45.673851+00:00",
+  "generated_at": "2026-05-14T11:36:07.060522+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -44446,25 +44446,26 @@
         "paper_tasks": null,
         "plan": null,
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-542-predicting-defect-formation-energies-in-/reviews/research",
         "spec": null,
         "tasks": null
       },
       "authors": [
+        {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out",
+            "marie-curie-simulated"
+          ]
+        },
         {
           "contributions": 1,
           "kind": "llm",
           "name": "google.gemma-3-27b-it",
           "roles": [
             "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
-          "roles": [
-            "flesh_out"
           ]
         }
       ],
@@ -44487,6 +44488,14 @@
       "id": "PROJ-542-predicting-defect-formation-energies-in-",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 55.302446,
+          "ended_at": "2026-05-14T11:16:37.840359+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-14T11:15:42.537913+00:00"
+        },
         {
           "agent": "flesh_out",
           "duration_s": 29.471912,
@@ -46667,6 +46676,19 @@
   ],
   "recent_activity": [
     {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Marie Curie (simulated)",
+      "duration_s": 55.302446,
+      "ended_at": "2026-05-14T11:16:37.840359+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "marie-curie",
+      "project_id": "PROJ-542-predicting-defect-formation-energies-in-",
+      "started_at": "2026-05-14T11:15:42.537913+00:00"
+    },
+    {
       "agent": "flesh_out",
       "duration_s": 66.529518,
       "ended_at": "2026-05-14T11:03:42.875539Z",
@@ -47224,15 +47246,6 @@
       "outcome": "success",
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "started_at": "2026-05-13T13:17:14.710446Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 5.461546,
-      "ended_at": "2026-05-13T13:17:13.886826Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-13T13:17:08.425280Z"
     }
   ],
   "schema_version": "2.0.0"
