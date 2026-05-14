@@ -59,11 +59,11 @@
 %% ── User-defined macros forwarded from original preamble ─────
 \providecommand{\bench}{Edit-Compass}
 \providecommand{\rmbench}{EditReward-Compass}
-\providecommand{\icono}{\textcolor{ashgrey}{\faTimesCircle}\xspace}
-\providecommand{\icoyes}{\textcolor{forestgreen}{\faCheckCircle}\xspace}
-\providecommand{\icohalf}{\textcolor{darkorange}{\ding{51}\kern-0.65em\ding{55}}}
+\providecommand{\icono}{\faTimesCircle\xspace}
+\providecommand{\icoyes}{\faCheckCircle\xspace}
+\providecommand{\icohalf}{\ding{51}\kern-0.65em\ding{55}}
 \providecommand{\icohalfno}{\ding{51}\kern-0.65em\ding{55}}
-\providecommand{\gain}[1]{\textcolor{green!50!black}{\small$\uparrow$#1}}
+\providecommand{\gain}[1]{\small$\uparrow$#1}
 \definecolor{blue1}{HTML}{196ab1}
 \definecolor{blue2}{HTML}{4886c1}
 \definecolor{blue3}{HTML}{5e9bd6}
@@ -111,9 +111,6 @@ Recent image editing models have achieved remarkable progress in instruction fol
 To address these challenges, we introduce \textbf{{\bench}} and \textbf{{\rmbench}}, a unified evaluation suite for image editing and reward modeling. {\bench} contains $2,388$ carefully annotated instances spanning six progressively challenging task categories, covering capabilities such as world knowledge reasoning, visual reasoning, and multi-image editing. Beyond broad task coverage, {\bench} adopts a fine-grained multidimensional evaluation framework based on structured reasoning and carefully designed scoring rubrics. In parallel, {\rmbench} contains $2,251$ preference pairs that simulate realistic reward modeling scenarios during RL optimization.
 We conduct extensive evaluations on $29$ frontier image editing models and $21$ reward models. The results reveal a substantial gap between proprietary and open-source systems, while also exposing persistent weaknesses in world knowledge understanding, visual reasoning, and multi-image editing. Moreover, native multimodal large language models outperform existing open-source reward models, including models explicitly trained on preference data. Overall, our benchmark suite provides a comprehensive and human-aligned framework for evaluating frontier image editing systems and reward models.
 \end{abstract}
-
-
-
 \section{Introduction}
 \begin{table}[t]
 \caption{\textbf{Comparison between \bench\ and existing image editing benchmarks.} 
@@ -364,7 +361,7 @@ In the first stage, three annotators independently review sampled outputs to con
     
     \caption{
     \textbf{Main results on {\bench} under English instructions.} The best results are marked in \textbf{bold} for
-    {\color[HTML]{F88825} open-} and {\color[HTML]{319B62} closed-} models, respectively.}
+    { open-} and { closed-} models, respectively.}
     \label{tab:Image Editing Bench Main Results_EN}
     \resizebox{\linewidth}{!}{
         \begin{tabular}{lc|ccc|ccc|ccc|ccc|ccc|ccc|c}
@@ -409,12 +406,12 @@ MagicBrush~\cite{zhang2023magicbrush} & \ding{55}
 
 FLUX.1 Kontext Dev~\cite{labs2025flux} & \ding{55}
 & 3.53 & 2.98 & 3.09 & 2.41 & 2.93 & 2.81 & 1.65 & 3.22 & 3.32 & 1.27
-& 3.98 & \color[HTML]{F88825}\textbf{4.78} & - & - & - & 2.41 & 2.32 & 2.63
+& 3.98 & \textbf{4.78} & - & - & - & 2.41 & 2.32 & 2.63
 & \cellcolor[HTML]{C8C8C8}1.93 \\
 
 FLUX.2 Dev~\cite{flux-2-2025} & $\checkmark$
-& 4.24 & 4.16 & \color[HTML]{F88825}\textbf{3.96} & 3.23 & \color[HTML]{F88825}\textbf{4.36} & \color[HTML]{F88825}\textbf{3.36} &  2.05 & 3.85 & \color[HTML]{F88825}\textbf{3.71}
-& 1.42 & 2.85 & 4.56 & 3.16 & 4.13 & \color[HTML]{F88825}\textbf{3.14} & 2.62 & \color[HTML]{F88825}\textbf{4.32} & \color[HTML]{F88825}\textbf{3.54}
+& 4.24 & 4.16 & \textbf{3.96} & 3.23 & \textbf{4.36} & \textbf{3.36} &  2.05 & 3.85 & \textbf{3.71}
+& 1.42 & 2.85 & 4.56 & 3.16 & 4.13 & \textbf{3.14} & 2.62 & \textbf{4.32} & \textbf{3.54}
 & \cellcolor[HTML]{C8C8C8} 2.61 \\
 \hline
 
@@ -492,7 +489,7 @@ DeepGen 1.0~\cite{wang2026deepgen} & \ding{55}
 & 3.85 & 2.45 & 2.94
 & 2.88 & 2.50 & 2.62
 & 2.30 & 2.68 & 3.13
-& \color[HTML]{F88825}\textbf{1.57} & \color[HTML]{F88825}\textbf{4.33} & 4.44
+& \textbf{1.57} & \textbf{4.33} & 4.44
 & - & - & -
 & 2.66 & 1.68 & 2.28
 & \cellcolor[HTML]{C8C8C8}1.91 \\
@@ -548,7 +545,7 @@ UniWorld-V2~\cite{li2025uniworld} & $\checkmark$
 Step1X-Edit-v1p2~\cite{liu2025step1x} & \ding{55}
 & 4.26 & 4.31 & 3.64
 & 3.16 & 4.15 & 3.12
-& 2.30 & \color[HTML]{F88825}\textbf{4.09} & 3.49
+& 2.30 & \textbf{4.09} & 3.49
 & 1.26 & 2.72 & 4.41
 & - & - & -
 & 2.94 & 3.33 & 2.81
@@ -556,7 +553,7 @@ Step1X-Edit-v1p2~\cite{liu2025step1x} & \ding{55}
 
 
 Longcat-Image-Edit~\cite{team2025longcat} & \ding{55}
-& 4.51 & \color[HTML]{F88825}\textbf{4.48} & 3.90
+& 4.51 & \textbf{4.48} & 3.90
 & 3.54 & 4.14 & 3.38
 & 1.98 & 3.94 & 3.49
 & 1.31 & 3.26 & 4.21
@@ -565,8 +562,8 @@ Longcat-Image-Edit~\cite{team2025longcat} & \ding{55}
 & \cellcolor[HTML]{C8C8C8}2.65 \\
 
 EMU3.5~\cite{cui2025emu3} & $\checkmark$
-& 4.45 & 4.00 & 3.68 & 3.78 & 3.79 & 3.23 & \color[HTML]{F88825}\textbf{2.60} & 3.55 & 3.33
-& 1.43 & 3.54 & 3.83 & \color[HTML]{F88825}\textbf{3.46} & 3.43 & 2.89 & 2.71 & 3.28 & 2.93
+& 4.45 & 4.00 & 3.68 & 3.78 & 3.79 & 3.23 & \textbf{2.60} & 3.55 & 3.33
+& 1.43 & 3.54 & 3.83 & \textbf{3.46} & 3.43 & 2.89 & 2.71 & 3.28 & 2.93
 & \cellcolor[HTML]{C8C8C8}2.66 \\
 
 
@@ -576,17 +573,17 @@ JoyAI-Image-Edit~\cite{joyaiimage2026} & \ding{55}
 & 2.35 & 3.87 & 3.46
 & 1.41 & 2.56 & 4.38
 & - & - & -
-& \color[HTML]{F88825}\textbf{3.00} & 3.41 & 2.87
+& \textbf{3.00} & 3.41 & 2.87
 & \cellcolor[HTML]{C8C8C8}2.68 \\
 
 Qwen-Image-Edit-2511~\cite{wu2025qwen} & $\checkmark$
-& \color[HTML]{F88825}\textbf{4.61} & 4.39 & 3.75
-& \color[HTML]{F88825}\textbf{3.81} & 3.93 & 3.16
+& \textbf{4.61} & 4.39 & 3.75
+& \textbf{3.81} & 3.93 & 3.16
 & 2.33 & 3.56 & 3.25
 & 1.26 & 2.53 & 4.09
-& 3.27 & \color[HTML]{F88825}\textbf{3.55} & 2.92
+& 3.27 & \textbf{3.55} & 2.92
 & 2.80 & 3.81 & 3.02
-& \cellcolor[HTML]{C8C8C8}\color[HTML]{F88825}\textbf{2.69} \\
+& \cellcolor[HTML]{C8C8C8}\textbf{2.69} \\
 \hline
 % \noalign{\vskip 3pt}
 
@@ -602,7 +599,7 @@ Seedream 4.5~\cite{seedream2025seedream} & $\checkmark$
 
 Wan2.7-image~\cite{wan} & $\checkmark$
 & 4.60 & 4.36 & 4.07
-& 4.40 & 4.11 & \color[HTML]{319B62}\textbf{3.92}
+& 4.40 & 4.11 & \textbf{3.92}
 & 3.65 & 4.16 & 4.01
 & 1.61 & 2.81 & 4.49
 & 4.25 & 4.23 & 3.41
@@ -610,22 +607,22 @@ Wan2.7-image~\cite{wan} & $\checkmark$
 & \cellcolor[HTML]{C8C8C8} 3.23  \\
 
 Nano Banana 2~\cite{google2026gemini31flashimagepreview}  & $\checkmark$
-& \color[HTML]{319B62}\textbf{4.79} & 4.54 &  \color[HTML]{319B62}\textbf{4.14}
+& \textbf{4.79} & 4.54 &  \textbf{4.14}
 & 4.50 & 4.33 & 3.71
 & 4.20 & 4.35 & 4.19
 & 2.77 & 4.03 & 4.63
-&  \color[HTML]{319B62}\textbf{4.50} &  \color[HTML]{319B62}\textbf{4.37} & 3.41
-& \color[HTML]{319B62}\textbf{4.37}  &  \color[HTML]{319B62}\textbf{4.46} & 3.50
+&  \textbf{4.50} &  \textbf{4.37} & 3.41
+& \textbf{4.37}  &  \textbf{4.46} & 3.50
 & \cellcolor[HTML]{C8C8C8} 3.74 \\
 
 Nano Banana Pro~\cite{gemini3pro} & $\checkmark$
-& 4.76 & \color[HTML]{319B62}\textbf{4.70} & 4.11
-&  \color[HTML]{319B62}\textbf{4.54} &  \color[HTML]{319B62}\textbf{4.58} & 3.79
-&  \color[HTML]{319B62}\textbf{4.33} &  \color[HTML]{319B62}\textbf{4.49} &  \color[HTML]{319B62}\textbf{4.28}
-&  \color[HTML]{319B62}\textbf{3.61} &  \color[HTML]{319B62}\textbf{4.25} &  \color[HTML]{319B62}\textbf{4.73}
-& 4.43 & 4.29 &  \color[HTML]{319B62}\textbf{3.44}
-&  4.28& 4.40 &  \color[HTML]{319B62}\textbf{3.53}
-& \cellcolor[HTML]{C8C8C8} \color[HTML]{319B62}\textbf{3.99} \\
+& 4.76 & \textbf{4.70} & 4.11
+&  \textbf{4.54} &  \textbf{4.58} & 3.79
+&  \textbf{4.33} &  \textbf{4.49} &  \textbf{4.28}
+&  \textbf{3.61} &  \textbf{4.25} &  \textbf{4.73}
+& 4.43 & 4.29 &  \textbf{3.44}
+&  4.28& 4.40 &  \textbf{3.53}
+& \cellcolor[HTML]{C8C8C8} \textbf{3.99} \\
  
             \bottomrule
         \end{tabular}}
@@ -666,7 +663,7 @@ For preference-trained reward models, the results show consistently strong perfo
     
     \caption{
     \textbf{Main results on {\bench} under Chinese instructions.} The best results are marked in \textbf{bold} for
-    {\color[HTML]{F88825} open-} and {\color[HTML]{319B62} closed-} models, respectively.}
+    { open-} and { closed-} models, respectively.}
     \label{tab:Image Editing Bench Main Results_CN}
     \resizebox{\linewidth}{!}{
         \begin{tabular}{lc|ccc|ccc|ccc|ccc|ccc|ccc|c}
@@ -711,12 +708,12 @@ InstructPix2Pix~\cite{brooks2023instructpix2pix} & \ding{55}
 
 FLUX.1 Kontext Dev~\cite{labs2025flux} & \ding{55}
 & 1.47 & 3.05 & 3.14 & 1.35 & 3.02 & 2.91 & 1.29 & 3.33 & 3.51
-& 1.01 & \color[HTML]{F88825}\textbf{4.43} & 4.85 & - & - & - & 1.16 & 2.93 & 2.67
+& 1.01 & \textbf{4.43} & 4.85 & - & - & - & 1.16 & 2.93 & 2.67
 & \cellcolor[HTML]{C8C8C8}1.18 \\
 
 FLUX.2 Dev~\cite{flux-2-2025} & $\checkmark$
-& 4.21 & 4.09 & \color[HTML]{F88825}\textbf{3.97} & 3.36 & 4.21 & \color[HTML]{F88825}\textbf{3.44} &  2.17  & 3.85  & \color[HTML]{F88825}\textbf{3.77}
-& 1.24 & 2.75 & 4.41 & 3.27 & \color[HTML]{F88825}\textbf{4.17} & \color[HTML]{F88825}\textbf{3.20} &  2.55  & \color[HTML]{F88825}\textbf{4.27} & \color[HTML]{F88825}\textbf{3.44}
+& 4.21 & 4.09 & \textbf{3.97} & 3.36 & 4.21 & \textbf{3.44} &  2.17  & 3.85  & \textbf{3.77}
+& 1.24 & 2.75 & 4.41 & 3.27 & \textbf{4.17} & \textbf{3.20} &  2.55  & \textbf{4.27} & \textbf{3.44}
 &  \cellcolor[HTML]{C8C8C8}2.60  \\
 \hline
 
@@ -787,7 +784,7 @@ DeepGen 1.0~\cite{wang2026deepgen} & \ding{55}
 & 3.71 & 1.96 & 2.76
 & 2.80 & 1.98 & 2.45
 & 2.16 & 2.31 & 2.85
-& \color[HTML]{F88825}\textbf{1.53} & 4.32  & \color[HTML]{F88825}\textbf{4.50}
+& \textbf{1.53} & 4.32  & \textbf{4.50}
 & - & - & -
 & 2.68 & 1.50 & 2.24
 & \cellcolor[HTML]{C8C8C8}1.70 \\
@@ -841,7 +838,7 @@ Unipic3~\cite{wei2026skywork} & $\checkmark$
 Step1X-Edit-v1p2~\cite{liu2025step1x} & \ding{55}
 & 4.20 & 4.35 & 3.66
 & 3.16 & 4.14 & 3.12
-& 2.14 & \color[HTML]{F88825}\textbf{3.93} & 3.47
+& 2.14 & \textbf{3.93} & 3.47
 & 1.22 & 2.60 & 4.38
 & - & - & -
 & 2.92 & 3.32 & 2.79
@@ -859,8 +856,8 @@ UniWorld-V2~\cite{li2025uniworld} & $\checkmark$
 
 
 EMU3.5~\cite{cui2025emu3} & $\checkmark$
-& 4.48 & 4.00 & 3.68 & 3.81 & 3.66 & 3.19 & \color[HTML]{F88825}\textbf{2.54} & 3.51 & 3.39
-& 1.42 & 3.59 & 3.94 & \color[HTML]{F88825}\textbf{3.39} & 3.36 & 2.84 & 2.71 & 3.31 & 2.89
+& 4.48 & 4.00 & 3.68 & 3.81 & 3.66 & 3.19 & \textbf{2.54} & 3.51 & 3.39
+& 1.42 & 3.59 & 3.94 & \textbf{3.39} & 3.36 & 2.84 & 2.71 & 3.31 & 2.89
 & \cellcolor[HTML]{C8C8C8}2.63 \\
 
 JoyAI-Image-Edit~\cite{joyaiimage2026} & \ding{55}
@@ -869,12 +866,12 @@ JoyAI-Image-Edit~\cite{joyaiimage2026} & \ding{55}
 & 2.26 & 3.89 & 3.46
 & 1.35 & 2.50 & 4.38
 & - & - & -
-& \color[HTML]{F88825}\textbf{3.02} & 3.31 & 2.90
+& \textbf{3.02} & 3.31 & 2.90
 & \cellcolor[HTML]{C8C8C8}2.63 \\
 
 Longcat-Image-Edit~\cite{team2025longcat} & \ding{55}
-& 4.53 & \color[HTML]{F88825}\textbf{4.47} & 3.85
-& 3.58 & \color[HTML]{F88825}\textbf{4.26} & 3.36
+& 4.53 & \textbf{4.47} & 3.85
+& 3.58 & \textbf{4.26} & 3.36
 & 2.11 & 3.88 & 3.53
 & 1.33 & 3.37 & 4.36
 & - & - & -
@@ -882,13 +879,13 @@ Longcat-Image-Edit~\cite{team2025longcat} & \ding{55}
 & \cellcolor[HTML]{C8C8C8}2.68 \\
 
 Qwen-Image-Edit-2511~\cite{wu2025qwen} & $\checkmark$
-& \color[HTML]{F88825}\textbf{4.61} & 4.44 & 3.75
-& \color[HTML]{F88825}\textbf{3.94} & 4.05 & 3.17
+& \textbf{4.61} & 4.44 & 3.75
+& \textbf{3.94} & 4.05 & 3.17
 & 2.38 & 3.54 & 3.36
 & 1.28 & 2.62 & 4.25
 & 3.26 & 3.47 & 2.84
 & 2.80 & 3.69 & 3.05
-& \cellcolor[HTML]{C8C8C8}{\color[HTML]{F88825}\textbf{ 2.73}} \\
+& \cellcolor[HTML]{C8C8C8}{\textbf{ 2.73}} \\
 
 
 \hline
@@ -900,12 +897,12 @@ Wan2.7-image~\cite{wan} & $\checkmark$
 & 3.62 & 3.91 & 4.06
 & 1.52 & 2.94 & 4.51
 & 4.25 & 4.25 & 3.29
-& 4.07 & 4.08 & \color[HTML]{319B62}\textbf{3.50}
+& 4.07 & 4.08 & \textbf{3.50}
 & \cellcolor[HTML]{C8C8C8}3.21 \\
 
 Seedream 4.5~\cite{seedream2025seedream} & $\checkmark$
 & 4.62 & 4.40 & 4.05
-& 4.39 & 4.05 & \color[HTML]{319B62}\textbf{3.84}
+& 4.39 & 4.05 & \textbf{3.84}
 & 3.65 & 4.12 & 4.02
 & 1.48 & 2.89 & 4.58
 & 4.29 & 4.24 & 3.39
@@ -914,22 +911,22 @@ Seedream 4.5~\cite{seedream2025seedream} & $\checkmark$
 
 
 Nano Banana 2~\cite{google2026gemini31flashimagepreview}  & $\checkmark$
-& 4.75 & 4.52 & \color[HTML]{319B62}\textbf{4.15}
-& \color[HTML]{319B62}\textbf{4.55} & 4.33 & 3.77
+& 4.75 & 4.52 & \textbf{4.15}
+& \textbf{4.55} & 4.33 & 3.77
 & 4.24 & 4.25 & 4.19
 & 2.77 & 3.96 & 4.65
-& 4.35 & 4.30 & \color[HTML]{319B62}\textbf{3.45}
-& \color[HTML]{319B62}\textbf{4.49} & \color[HTML]{319B62}\textbf{4.38} & 3.46
+& 4.35 & 4.30 & \textbf{3.45}
+& \textbf{4.49} & \textbf{4.38} & 3.46
 & \cellcolor[HTML]{C8C8C8} 3.71  \\
 
 Nano Banana Pro~\cite{gemini3pro} & $\checkmark$
-& \color[HTML]{319B62}\textbf{4.81} & \color[HTML]{319B62}\textbf{4.69} & 4.10
-& 4.49 & \color[HTML]{319B62}\textbf{4.55} & \color[HTML]{319B62}\textbf{3.84}
-& \color[HTML]{319B62}\textbf{4.36} & \color[HTML]{319B62}\textbf{4.47} & \color[HTML]{319B62}\textbf{4.20}
-& \color[HTML]{319B62}\textbf{3.49} & \color[HTML]{319B62}\textbf{4.19} & \color[HTML]{319B62}\textbf{4.72}
-& \color[HTML]{319B62}\textbf{4.41} & \color[HTML]{319B62}\textbf{4.35} & 3.43
+& \textbf{4.81} & \textbf{4.69} & 4.10
+& 4.49 & \textbf{4.55} & \textbf{3.84}
+& \textbf{4.36} & \textbf{4.47} & \textbf{4.20}
+& \textbf{3.49} & \textbf{4.19} & \textbf{4.72}
+& \textbf{4.41} & \textbf{4.35} & 3.43
 & 4.39 & 4.36 & 3.43
-& \cellcolor[HTML]{C8C8C8}\color[HTML]{319B62}\textbf{3.95} \\
+& \cellcolor[HTML]{C8C8C8}\textbf{3.95} \\
  
 
             \bottomrule
@@ -971,14 +968,14 @@ Qwen3.5-2B$^\ddagger$ ~\cite{qwen3.5} & 0.4220 & 0.2804 & 0.4466 & 0.3848\\ % th
 Qwen3.5-9B ~\citep{qwen3.5} & 0.6682 & 0.5075 & 0.4635 & 0.6016\\
 Qwen3.5-9B$^\ddagger$ ~\cite{qwen3.5} & 0.7615 & 0.4860 & 0.4898 & 0.6681\\ % think
 
-Qwen3.5-27B ~\citep{qwen3.5} & 0.7322 & \color[HTML]{F88825}\textbf{0.5850} & 0.5381 & 0.6693\\
-Qwen3.5-27B$^\ddagger$ ~\cite{qwen3.5} & 0.7674 & 0.5637 & \color[HTML]{F88825}\textbf{0.5878} & 0.6998\\% think
+Qwen3.5-27B ~\citep{qwen3.5} & 0.7322 & \textbf{0.5850} & 0.5381 & 0.6693\\
+Qwen3.5-27B$^\ddagger$ ~\cite{qwen3.5} & 0.7674 & 0.5637 & \textbf{0.5878} & 0.6998\\% think
 
 Qwen3.5-35B-A3B  ~\citep{qwen3.5} & 0.7279 & 0.5479 & 0.4205 & 0.6318\\
-Qwen3.5-35B-A3B$^\ddagger$ ~\cite{qwen3.5} &  \color[HTML]{F88825}\textbf{0.8074} & 0.5073 & 0.5608 & 0.7089\\% think
+Qwen3.5-35B-A3B$^\ddagger$ ~\cite{qwen3.5} &  \textbf{0.8074} & 0.5073 & 0.5608 & 0.7089\\% think
 
 Qwen3.6-27B ~\citep{qwen3.6-27b} & 0.7147 & 0.4966 & 0.4184 & 0.6328\\
-Qwen3.6-27B$^\ddagger$ ~\cite{qwen3.6-27b} & 0.7961 & 0.5656 & 0.5743 & \color[HTML]{F88825}\textbf{0.7183}\\ % think
+Qwen3.6-27B$^\ddagger$ ~\cite{qwen3.6-27b} & 0.7961 & 0.5656 & 0.5743 & \textbf{0.7183}\\ % think
 
 Qwen3.6-35B-A3B~\citep{qwen36_35b_a3b} & 0.6824 & 0.4558 & 0.4344 & 0.5995\\
 Qwen3.6-35B-A3B$^\ddagger$~\citep{qwen36_35b_a3b} &0.7921  & 0.5300 & 0.5608 & 0.7051\\% think
@@ -1672,7 +1669,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
     \caption{
     Evaluation results of image editing models on the General task category of {\bench}. 
     The best results are marked in \textbf{bold} for
-    {\color[HTML]{F88825} open-} and {\color[HTML]{319B62} closed-} models, respectively.}
+    { open-} and { closed-} models, respectively.}
     \label{supp:General task Results}
 
     \resizebox{\linewidth}{!}{%
@@ -1717,7 +1714,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8}2.96 \\
 
             FLUX.2 Dev~\cite{flux-2-2025}
-            & 4.11 & 3.61 & 4.18 &  \color[HTML]{F88825}\textbf{4.41} &  \color[HTML]{F88825}\textbf{3.94} & 4.41 & 3.82 & \color[HTML]{F88825}\textbf{4.24} & 4.00 & 3.93
+            & 4.11 & 3.61 & 4.18 &  \textbf{4.41} &  \textbf{3.94} & 4.41 & 3.82 & \textbf{4.24} & 4.00 & 3.93
             &  \cellcolor[HTML]{C8C8C8}4.04 \\
 
             \midrule
@@ -1788,27 +1785,27 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
 
 
             Step1X-Edit-v1p2~\cite{liu2025step1x}
-            & 4.07 & 3.99 & 3.89 & 4.16 & 3.77 & 4.07 & 2.87 & 4.16 & \color[HTML]{F88825}\textbf{4.59} & 4.17
+            & 4.07 & 3.99 & 3.89 & 4.16 & 3.77 & 4.07 & 2.87 & 4.16 & \textbf{4.59} & 4.17
             & \cellcolor[HTML]{C8C8C8}4.01 \\
             
             EMU3.5~\cite{cui2025emu3}
-            & 3.93 & 3.91 & 4.24 & 4.17 & 3.55 &  \color[HTML]{F88825}\textbf{4.59} & \color[HTML]{F88825}\textbf{4.24} & 3.86 & 3.99 & 3.76
+            & 3.93 & 3.91 & 4.24 & 4.17 & 3.55 &  \textbf{4.59} & \textbf{4.24} & 3.86 & 3.99 & 3.76
             & \cellcolor[HTML]{C8C8C8}4.01 \\
 
             
 
 
             JoyAI-Image-Edit~\cite{joyaiimage2026}
-            & 4.11 & 3.79 & 4.13 & 4.25 & 3.83 & 4.49 & 3.79 & 3.87 & \color[HTML]{F88825}\textbf{4.59} & \color[HTML]{F88825}\textbf{4.42}
+            & 4.11 & 3.79 & 4.13 & 4.25 & 3.83 & 4.49 & 3.79 & 3.87 & \textbf{4.59} & \textbf{4.42}
             & \cellcolor[HTML]{C8C8C8}4.16 \\
 
             Qwen-Image-Edit-2511~\cite{wu2025qwen}
-            & \color[HTML]{F88825}\textbf{4.42} & 3.87 & 4.29 & 4.22 & 3.80 & 4.50 & 3.98 & 4.01 & 4.49 & 4.41
+            & \textbf{4.42} & 3.87 & 4.29 & 4.22 & 3.80 & 4.50 & 3.98 & 4.01 & 4.49 & 4.41
             & \cellcolor[HTML]{C8C8C8}4.24 \\
 
             Longcat-Image-Edit~\cite{team2025longcat}
-            & 4.34 & \color[HTML]{F88825}\textbf{4.12} & \color[HTML]{F88825}\textbf{4.38} & 4.36 & 3.77 & 4.49 & 3.94 & 4.19 & 4.50 & 4.34
-            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{F88825}\textbf{4.26}} \\
+            & 4.34 & \textbf{4.12} & \textbf{4.38} & 4.36 & 3.77 & 4.49 & 3.94 & 4.19 & 4.50 & 4.34
+            & \cellcolor[HTML]{C8C8C8}{\textbf{4.26}} \\
             \midrule
 
             
@@ -1822,12 +1819,12 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8}4.29 \\
 
             Nano Banana 2~\cite{gemini3pro}
-            & 4.55 & 4.51 & 4.56 & 4.49 & \color[HTML]{319B62}\textbf{4.39} & \color[HTML]{319B62}\textbf{4.57} & 4.17 & \color[HTML]{319B62}\textbf{4.35} & 4.49 & 4.53
+            & 4.55 & 4.51 & 4.56 & 4.49 & \textbf{4.39} & \textbf{4.57} & 4.17 & \textbf{4.35} & 4.49 & 4.53
             & \cellcolor[HTML]{C8C8C8} 4.47 \\
 
             Nano Banana Pro~\cite{nanobananapro}
-            & \color[HTML]{319B62}\textbf{4.60} & \color[HTML]{319B62}\textbf{4.56} & \color[HTML]{319B62}\textbf{4.68} & \color[HTML]{319B62}\textbf{4.58} & 4.22 & 4.53 & \color[HTML]{319B62}\textbf{4.21} & 4.12 & \color[HTML]{319B62}\textbf{4.73} & \color[HTML]{319B62}\textbf{4.58}
-            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{319B62}\textbf{4.51}} \\
+            & \textbf{4.60} & \textbf{4.56} & \textbf{4.68} & \textbf{4.58} & 4.22 & 4.53 & \textbf{4.21} & 4.12 & \textbf{4.73} & \textbf{4.58}
+            & \cellcolor[HTML]{C8C8C8}{\textbf{4.51}} \\
 
  
 
@@ -1860,7 +1857,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8}1.42  \\
 
             FLUX.2 Dev~\cite{flux-2-2025}
-            & 4.03 & 3.35 & 4.15 & 4.37 & 3.74 & 4.32 & 3.84 & \color[HTML]{F88825}\textbf{4.11} & 3.97 & 3.97
+            & 4.03 & 3.35 & 4.15 & 4.37 & 3.74 & 4.32 & 3.84 & \textbf{4.11} & 3.97 & 3.97
             & \cellcolor[HTML]{C8C8C8}3.97  \\
 
             \midrule
@@ -1914,7 +1911,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8}3.63 \\
 
             EMU3.5~\cite{cui2025emu3}
-            & 3.94 & 3.91 & 4.05 & 4.31 & 3.62 & \color[HTML]{F88825}\textbf{4.55} & \color[HTML]{F88825}\textbf{4.40} & 3.92 & 4.12 & 3.75
+            & 3.94 & 3.91 & 4.05 & 4.31 & 3.62 & \textbf{4.55} & \textbf{4.40} & 3.92 & 4.12 & 3.75
             & \cellcolor[HTML]{C8C8C8}4.04 \\
 
             Unipic3~\cite{wei2026skywork}
@@ -1930,16 +1927,16 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8}4.01 \\
 
             JoyAI-Image-Edit~\cite{joyaiimage2026}
-            & 4.11 & 3.66 & 4.08 & 4.26 & \color[HTML]{F88825}\textbf{3.96} & 4.50 & 3.75 & 3.87 & \color[HTML]{F88825}\textbf{4.60} & 4.36
+            & 4.11 & 3.66 & 4.08 & 4.26 & \textbf{3.96} & 4.50 & 3.75 & 3.87 & \textbf{4.60} & 4.36
             & \cellcolor[HTML]{C8C8C8}4.15 \\
 
             Longcat-Image-Edit~\cite{team2025longcat}
-            & 4.34 & \color[HTML]{F88825}\textbf{4.34} & 4.29 & \color[HTML]{F88825}\textbf{4.41} &  3.93  & 4.41 & 3.64 & 3.97 &  4.56  & 4.37
+            & 4.34 & \textbf{4.34} & 4.29 & \textbf{4.41} &  3.93  & 4.41 & 3.64 & 3.97 &  4.56  & 4.37
             & \cellcolor[HTML]{C8C8C8}4.25 \\
 
             Qwen-Image-Edit-2511~\cite{wu2025qwen}
-            & \color[HTML]{F88825}\textbf{4.38} & 3.89 & \color[HTML]{F88825}\textbf{4.33} & 4.38 & 3.93 & 4.46 & 3.95 & 3.98 &  4.56  & \color[HTML]{F88825}\textbf{4.44}
-            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{F88825}\textbf{4.26}} \\
+            & \textbf{4.38} & 3.89 & \textbf{4.33} & 4.38 & 3.93 & 4.46 & 3.95 & 3.98 &  4.56  & \textbf{4.44}
+            & \cellcolor[HTML]{C8C8C8}{\textbf{4.26}} \\
 
 
             \midrule
@@ -1949,17 +1946,17 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8} 4.28  \\
 
             Seedream 4.5~\cite{seedream2025seedream}
-            & 4.27 & 4.27 & 4.52 & 4.31 & 3.88 & 4.57 & 3.73 & \color[HTML]{319B62}\textbf{4.33} & 4.48 & 4.49
+            & 4.27 & 4.27 & 4.52 & 4.31 & 3.88 & 4.57 & 3.73 & \textbf{4.33} & 4.48 & 4.49
             & \cellcolor[HTML]{C8C8C8}4.31 \\
 
             
             Nano Banana 2~\cite{gemini3pro}
-            & 4.58 & 4.36 & \color[HTML]{319B62}\textbf{4.57} & \color[HTML]{319B62}\textbf{4.59} & \color[HTML]{319B62}\textbf{4.40} & \color[HTML]{319B62}\textbf{4.59} & 4.12 & 4.12 & 4.42 & 4.50
+            & 4.58 & 4.36 & \textbf{4.57} & \textbf{4.59} & \textbf{4.40} & \textbf{4.59} & 4.12 & 4.12 & 4.42 & 4.50
             &  \cellcolor[HTML]{C8C8C8}4.43  \\
             
             Nano Banana Pro~\cite{nanobananapro}
-            & \color[HTML]{319B62}\textbf{4.59} & \color[HTML]{319B62}\textbf{4.54} & \color[HTML]{319B62}\textbf{4.57} & 4.58 & 4.28 & \color[HTML]{319B62}\textbf{4.59} & \color[HTML]{319B62}\textbf{4.33} & 4.29 & \color[HTML]{319B62}\textbf{4.74} & \color[HTML]{319B62}\textbf{4.63}
-            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{319B62}\textbf{4.54}} \\
+            & \textbf{4.59} & \textbf{4.54} & \textbf{4.57} & 4.58 & 4.28 & \textbf{4.59} & \textbf{4.33} & 4.29 & \textbf{4.74} & \textbf{4.63}
+            & \cellcolor[HTML]{C8C8C8}{\textbf{4.54}} \\
 
             
  
@@ -1976,7 +1973,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
     \caption{
     Evaluation results of image editing models on the Algorithm Visual Reasoning task category of {\bench}. 
     The best results are marked in \textbf{bold} for
-    {\color[HTML]{F88825} open-} and {\color[HTML]{319B62} closed-} models, respectively.}
+    { open-} and { closed-} models, respectively.}
 
     \label{tab:Algorithm Visual Reasoning}
 
@@ -2102,7 +2099,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
 
             DeepGen 1.0~\cite{wang2026deepgen}
             & 1.00 & 1.00 & 2.45 & 1.33 & 1.00 & 1.03 & 1.23 & 1.11 & 1.70 & 1.43
-            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{F88825}\textbf{1.33}} \\
+            & \cellcolor[HTML]{C8C8C8}{\textbf{1.33}} \\
 
             
 
@@ -2123,7 +2120,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             
             Nano Banana Pro~\cite{nanobananapro}
             & 2.20 & 1.91 & 4.86 & 2.91 & 2.75 & 4.49 & 4.34 & 2.37 & 3.68 & 3.73
-            &\cellcolor[HTML]{C8C8C8}{\color[HTML]{319B62}\textbf{3.35}} \\
+            &\cellcolor[HTML]{C8C8C8}{\textbf{3.35}} \\
 
             
  
@@ -2237,7 +2234,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
 
             DeepGen 1.0~\cite{wang2026deepgen}
             & 1.04 & 1.00 & 2.09 & 1.38 & 1.00 & 1.03 & 1.35 & 1.10 & 1.63 & 1.47
-            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{F88825}\textbf{1.31}} \\
+            & \cellcolor[HTML]{C8C8C8}{\textbf{1.31}} \\
 
             \midrule
 
@@ -2255,7 +2252,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
 
             Nano Banana Pro~\cite{nanobananapro}
             & 1.98 & 1.60 & 4.62 & 1.88 & 3.20 & 4.28 & 4.37 & 2.33 & 3.82 & 3.15
-            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{319B62}\textbf{3.16}} \\
+            & \cellcolor[HTML]{C8C8C8}{\textbf{3.16}} \\
 
   
 
@@ -2269,7 +2266,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
     
     \caption{Performance of image editing models on the Dynamic Manipulation and World Knowledge Reasoning task categories of {\bench}.
     The best results are marked in \textbf{bold} for
-    {\color[HTML]{F88825} open-} and {\color[HTML]{319B62} closed-} models, respectively.}
+    { open-} and { closed-} models, respectively.}
     \label{supp: Dynamic Manipulation Results}
     \label{tab:general}
 
@@ -2368,7 +2365,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8}1.41 \\
 
             DeepGen 1.0~\cite{wang2026deepgen}
-            & 1.88 & 1.68 & 1.51 & 1.65 & 2.56 & \cellcolor[HTML]{C8C8C8}1.80 & 1.77 & 1.61 & 1.34 & 1.18 & \color[HTML]{F88825}\textbf{1.28 }
+            & 1.88 & 1.68 & 1.51 & 1.65 & 2.56 & \cellcolor[HTML]{C8C8C8}1.80 & 1.77 & 1.61 & 1.34 & 1.18 & \textbf{1.28 }
             & \cellcolor[HTML]{C8C8C8}1.45 \\
 
             Bagel-Think~\cite{deng2025emerging}
@@ -2376,7 +2373,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8}1.47 \\
 
             Longcat-Image-Edit~\cite{team2025longcat}
-            & 3.34 & 1.45 & \color[HTML]{F88825}\textbf{3.22} & 3.36 & 4.18 & \cellcolor[HTML]{C8C8C8}3.02 & 1.76 & 2.19 & 1.18 & 1.21 & 1.09
+            & 3.34 & 1.45 & \textbf{3.22} & 3.36 & 4.18 & \cellcolor[HTML]{C8C8C8}3.02 & 1.76 & 2.19 & 1.18 & 1.21 & 1.09
             & \cellcolor[HTML]{C8C8C8}1.53 \\
 
             UniReason1.0~\cite{wang2026unireason}
@@ -2388,11 +2385,11 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8}1.59 \\
 
             Step1X-Edit-v1p2~\cite{liu2025step1x}
-            & 2.94 & 1.69 & 2.61 & 2.74 & 4.10 & \cellcolor[HTML]{C8C8C8}2.71 & 2.32 & 2.05 & \color[HTML]{F88825}\textbf{1.72} & 1.29 & 1.10
+            & 2.94 & 1.69 & 2.61 & 2.74 & 4.10 & \cellcolor[HTML]{C8C8C8}2.71 & 2.32 & 2.05 & \textbf{1.72} & 1.29 & 1.10
             & \cellcolor[HTML]{C8C8C8}1.73 \\
 
             Qwen-Image-Edit-2511~\cite{wu2025qwen}
-            & 3.59  & \color[HTML]{F88825}\textbf{2.32} & 3.05 & 3.24 & 3.93 & \cellcolor[HTML]{C8C8C8}3.16 & 2.29 & 2.28 & 1.32 & 1.22 & 1.26
+            & 3.59  & \textbf{2.32} & 3.05 & 3.24 & 3.93 & \cellcolor[HTML]{C8C8C8}3.16 & 2.29 & 2.28 & 1.32 & 1.22 & 1.26
             & \cellcolor[HTML]{C8C8C8}1.73 \\
 
 
@@ -2401,8 +2398,8 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8}1.75 \\
 
             EMU3.5~\cite{cui2025emu3}
-            & \color[HTML]{F88825}\textbf{3.66}  & 2.02 & 3.08 & \color[HTML]{F88825}\textbf{3.42} & \color[HTML]{F88825}\textbf{4.21} & \cellcolor[HTML]{C8C8C8}{\color[HTML]{F88825}\textbf{3.20}} & \color[HTML]{F88825}\textbf{2.60} & \color[HTML]{F88825}\textbf{2.36} & 1.35 & \color[HTML]{F88825}\textbf{1.55} & 1.10
-            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{F88825}\textbf{1.86}} \\
+            & \textbf{3.66}  & 2.02 & 3.08 & \textbf{3.42} & \textbf{4.21} & \cellcolor[HTML]{C8C8C8}{\textbf{3.20}} & \textbf{2.60} & \textbf{2.36} & 1.35 & \textbf{1.55} & 1.10
+            & \cellcolor[HTML]{C8C8C8}{\textbf{1.86}} \\
 
 
             
@@ -2418,12 +2415,12 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8} 3.14  \\
 
             Nano Banana 2~\cite{gemini3pro}
-            & \color[HTML]{319B62}\textbf{4.16} & 4.00 & \color[HTML]{319B62}\textbf{3.70} & 4.03 & 4.11 & \cellcolor[HTML]{C8C8C8}3.99 & 3.90 & \color[HTML]{319B62}\textbf{3.83} & \color[HTML]{319B62}\textbf{4.52} & 3.62 & 2.42
+            & \textbf{4.16} & 4.00 & \textbf{3.70} & 4.03 & 4.11 & \cellcolor[HTML]{C8C8C8}3.99 & 3.90 & \textbf{3.83} & \textbf{4.52} & 3.62 & 2.42
             & \cellcolor[HTML]{C8C8C8} 3.65  \\
 
             Nano Banana Pro~\cite{nanobananapro}
-            & 4.03 & \color[HTML]{319B62}\textbf{4.22} & 3.65 & \color[HTML]{319B62}\textbf{4.14} & \color[HTML]{319B62}\textbf{4.52} &  \cellcolor[HTML]{C8C8C8}\color[HTML]{319B62}\textbf{4.08} & \color[HTML]{319B62}\textbf{4.19} & 3.80 & 4.29 & \color[HTML]{319B62}\textbf{4.03} & \color[HTML]{319B62}\textbf{3.13}
-            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{319B62}\textbf{3.89}} \\
+            & 4.03 & \textbf{4.22} & 3.65 & \textbf{4.14} & \textbf{4.52} &  \cellcolor[HTML]{C8C8C8}\textbf{4.08} & \textbf{4.19} & 3.80 & 4.29 & \textbf{4.03} & \textbf{3.13}
+            & \cellcolor[HTML]{C8C8C8}{\textbf{3.89}} \\
 
             
 
@@ -2500,11 +2497,11 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8}1.27 \\
 
             DeepGen 1.0~\cite{wang2026deepgen}
-            & 1.69 & 1.58 & 1.10 & 1.37 & 2.35 & \cellcolor[HTML]{C8C8C8}1.56 & 1.46 & 1.44 & 1.28 & 1.09 & \color[HTML]{F88825}\textbf{1.19 }
+            & 1.69 & 1.58 & 1.10 & 1.37 & 2.35 & \cellcolor[HTML]{C8C8C8}1.56 & 1.46 & 1.44 & 1.28 & 1.09 & \textbf{1.19 }
             & \cellcolor[HTML]{C8C8C8}1.30 \\
 
             UniReason1.0~\cite{wang2026unireason}
-            & 1.94 & 1.76 & 1.89 & 1.91 & 2.36 & \cellcolor[HTML]{C8C8C8}1.94 & 1.59 & 1.88 & \color[HTML]{F88825}\textbf{1.58} & 1.05 & 1.00
+            & 1.94 & 1.76 & 1.89 & 1.91 & 2.36 & \cellcolor[HTML]{C8C8C8}1.94 & 1.59 & 1.88 & \textbf{1.58} & 1.05 & 1.00
             & \cellcolor[HTML]{C8C8C8}1.43 \\
 
             Bagel-Think~\cite{deng2025emerging}
@@ -2528,16 +2525,16 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8}1.60 \\
 
             JoyAI-Image-Edit~\cite{joyaiimage2026}
-            & 3.33 & 1.72 & 3.24 & \color[HTML]{F88825}\textbf{3.49} & 4.01 & \cellcolor[HTML]{C8C8C8}3.08 & 2.12 & 2.13 & 1.32 & 1.15 & 1.12
+            & 3.33 & 1.72 & 3.24 & \textbf{3.49} & 4.01 & \cellcolor[HTML]{C8C8C8}3.08 & 2.12 & 2.13 & 1.32 & 1.15 & 1.12
             & \cellcolor[HTML]{C8C8C8}1.62 \\
 
             Qwen-Image-Edit-2511~\cite{wu2025qwen}
-            & 3.43 & \color[HTML]{F88825}\textbf{2.72} & \color[HTML]{F88825}\textbf{3.28} & 3.30 & 4.23 & \cellcolor[HTML]{C8C8C8}{\color[HTML]{F88825}\textbf{3.32}} & 2.11 & \color[HTML]{F88825}\textbf{2.67} & 1.10 & \color[HTML]{F88825}\textbf{1.42} & 1.03
+            & 3.43 & \textbf{2.72} & \textbf{3.28} & 3.30 & 4.23 & \cellcolor[HTML]{C8C8C8}{\textbf{3.32}} & 2.11 & \textbf{2.67} & 1.10 & \textbf{1.42} & 1.03
             & \cellcolor[HTML]{C8C8C8}1.74 \\
 
             EMU3.5~\cite{cui2025emu3}
-            & \color[HTML]{F88825}\textbf{3.54} & 2.22 & 3.08 & 3.12 & \color[HTML]{F88825}\textbf{4.19} & \cellcolor[HTML]{C8C8C8}3.15 & \color[HTML]{F88825}\textbf{2.38} & 2.39 & 1.39 & 1.30 & 1.17
-            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{F88825}\textbf{1.79}} \\ 
+            & \textbf{3.54} & 2.22 & 3.08 & 3.12 & \textbf{4.19} & \cellcolor[HTML]{C8C8C8}3.15 & \textbf{2.38} & 2.39 & 1.39 & 1.30 & 1.17
+            & \cellcolor[HTML]{C8C8C8}{\textbf{1.79}} \\ 
 
             
 
@@ -2552,12 +2549,12 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8}3.06 \\
 
             Nano Banana 2~\cite{gemini3pro}
-            & \color[HTML]{319B62}\textbf{4.13} & 4.05 & 3.59 & 4.03 & 4.15 & \cellcolor[HTML]{C8C8C8}3.98 & 3.78 & \color[HTML]{319B62}\textbf{4.01} & 4.44 & \color[HTML]{319B62}\textbf{3.62} & 2.46
+            & \textbf{4.13} & 4.05 & 3.59 & 4.03 & 4.15 & \cellcolor[HTML]{C8C8C8}3.98 & 3.78 & \textbf{4.01} & 4.44 & \textbf{3.62} & 2.46
             & \cellcolor[HTML]{C8C8C8} 3.66  \\
 
             Nano Banana Pro~\cite{nanobananapro}
-            & 3.90 & \color[HTML]{319B62}\textbf{4.28} & \color[HTML]{319B62}\textbf{3.92} & \color[HTML]{319B62}\textbf{4.08} & \color[HTML]{319B62}\textbf{4.37} & \cellcolor[HTML]{C8C8C8}{\color[HTML]{319B62}\textbf{4.09}} & \color[HTML]{319B62}\textbf{4.07} & 3.92 & \color[HTML]{319B62}\textbf{4.56} & 3.60 & \color[HTML]{319B62}\textbf{3.15}
-            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{319B62}\textbf{3.84}} \\
+            & 3.90 & \textbf{4.28} & \textbf{3.92} & \textbf{4.08} & \textbf{4.37} & \cellcolor[HTML]{C8C8C8}{\textbf{4.09}} & \textbf{4.07} & 3.92 & \textbf{4.56} & 3.60 & \textbf{3.15}
+            & \cellcolor[HTML]{C8C8C8}{\textbf{3.84}} \\
 
             
 
@@ -2570,7 +2567,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
     \centering
      
     \caption{Performance of image editing models on the Multi-Image and Complex Task categories of {\bench}. The best results are marked in \textbf{bold} for
-    {\color[HTML]{F88825} open-} and {\color[HTML]{319B62} closed-} models, respectively.}
+    { open-} and { closed-} models, respectively.}
     \label{supp: Multi-Image and Complex results}
 
     \resizebox{\linewidth}{!}{%
@@ -2614,7 +2611,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8}1.90 \\
 
             FLUX.2 Dev~\cite{flux-2-2025}
-            & 1.80 & {\color[HTML]{F88825}\textbf{3.43}} & {\color[HTML]{F88825}\textbf{3.99}} & \cellcolor[HTML]{C8C8C8}{\color[HTML]{F88825}\textbf{2.93}}  & 3.73 & 1.08 & 1.00
+            & 1.80 & {\textbf{3.43}} & {\textbf{3.99}} & \cellcolor[HTML]{C8C8C8}{\textbf{2.93}}  & 3.73 & 1.08 & 1.00
             & \cellcolor[HTML]{C8C8C8}2.61 \\
 
             \midrule
@@ -2681,7 +2678,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8} 2.28 \\
 
             EMU3.5~\cite{cui2025emu3}
-            & \color[HTML]{F88825}\textbf{2.26} &  3.05  & 3.64 & \cellcolor[HTML]{C8C8C8}2.91 & 3.67 & 1.02 & 1.16
+            & \textbf{2.26} &  3.05  & 3.64 & \cellcolor[HTML]{C8C8C8}2.91 & 3.67 & 1.02 & 1.16
             & \cellcolor[HTML]{C8C8C8}2.37 \\
 
             
@@ -2696,7 +2693,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
 
             Longcat-Image-Edit~\cite{team2025longcat}
             & -- & -- & -- & --
-            & \color[HTML]{F88825}\textbf{3.92} & 1.12 & 1.19
+            & \textbf{3.92} & 1.12 & 1.19
             & \cellcolor[HTML]{C8C8C8}2.52 \\
 
             JoyAI-Image-Edit~\cite{joyaiimageedit}
@@ -2706,8 +2703,8 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
 
             Step1X-Edit-v1p2~\cite{liu2025step1x}
             & -- & -- & -- & --
-            & 3.43 & \color[HTML]{F88825}\textbf{2.21} & \color[HTML]{F88825}\textbf{1.99}
-            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{F88825}\textbf{2.76}} \\
+            & 3.43 & \textbf{2.21} & \textbf{1.99}
+            & \cellcolor[HTML]{C8C8C8}{\textbf{2.76}} \\
 
            
         
@@ -2722,12 +2719,12 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8}3.66 \\
 
             Nano Banana Pro~\cite{nanobananapro}
-            & 3.60 & 3.62 & 4.43 & \cellcolor[HTML]{C8C8C8}3.87 & {\color[HTML]{319B62}\textbf{4.40}} & 3.58 & 3.72
+            & 3.60 & 3.62 & 4.43 & \cellcolor[HTML]{C8C8C8}3.87 & {\textbf{4.40}} & 3.58 & 3.72
             & \cellcolor[HTML]{C8C8C8}4.02 \\
 
             Nano Banana 2~\cite{gemini3pro}
-            & {\color[HTML]{319B62}\textbf{3.71}} & {\color[HTML]{319B62}\textbf{3.76}} & {\color[HTML]{319B62}\textbf{4.60}} & \cellcolor[HTML]{C8C8C8}{\color[HTML]{319B62}\textbf{4.01}} & 4.32 & {\color[HTML]{319B62}\textbf{3.69}} & {\color[HTML]{319B62}\textbf{3.82}}
-            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{319B62}\textbf{4.04}} \\
+            & {\textbf{3.71}} & {\textbf{3.76}} & {\textbf{4.60}} & \cellcolor[HTML]{C8C8C8}{\textbf{4.01}} & 4.32 & {\textbf{3.69}} & {\textbf{3.82}}
+            & \cellcolor[HTML]{C8C8C8}{\textbf{4.04}} \\
 
             
 
@@ -2761,7 +2758,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8}1.13 \\
 
             FLUX.2 Dev~\cite{flux-2-2025}
-            & 2.15 & \color[HTML]{F88825}\textbf{3.92} & \color[HTML]{F88825}\textbf{4.00} & \cellcolor[HTML]{C8C8C8}{\color[HTML]{F88825}\textbf{3.21}} & 3.62 & 1.05 & 1.02
+            & 2.15 & \textbf{3.92} & \textbf{4.00} & \cellcolor[HTML]{C8C8C8}{\textbf{3.21}} & 3.62 & 1.05 & 1.02
             & \cellcolor[HTML]{C8C8C8}2.60 \\
 
             \midrule
@@ -2837,7 +2834,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             
             Longcat-Image-Edit~\cite{team2025longcat}
             & -- & -- & -- & --
-            & \color[HTML]{F88825}\textbf{4.01} & 1.17 & 1.29
+            & \textbf{4.01} & 1.17 & 1.29
             & \cellcolor[HTML]{C8C8C8}2.60 \\
 
             JoyAI-Image-Edit~\cite{joyaiimageedit}
@@ -2846,14 +2843,14 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             & \cellcolor[HTML]{C8C8C8}2.62 \\
 
             EMU3.5~\cite{cui2025emu3}
-            & \color[HTML]{F88825}\textbf{2.17} & 2.97 & 3.34 & \cellcolor[HTML]{C8C8C8}2.76 & 3.61 & 1.11 & 1.13
+            & \textbf{2.17} & 2.97 & 3.34 & \cellcolor[HTML]{C8C8C8}2.76 & 3.61 & 1.11 & 1.13
             & \cellcolor[HTML]{C8C8C8}2.63 \\
 
 
             Step1X-Edit-v1p2~\cite{liu2025step1x}
             & -- & -- & -- & --
-            & 3.47 & \color[HTML]{F88825}\textbf{2.02} & \color[HTML]{F88825}\textbf{1.71}
-            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{F88825}\textbf{2.66}} \\
+            & 3.47 & \textbf{2.02} & \textbf{1.71}
+            & \cellcolor[HTML]{C8C8C8}{\textbf{2.66}} \\
 
      
 
@@ -2861,21 +2858,21 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
             \midrule
 
             Wan2.7-image~\cite{nanobananapro}
-            &  \color[HTML]{319B62}\textbf{3.48} & 3.64 & 4.32 & \cellcolor[HTML]{C8C8C8}3.79 & 4.01 & 3.33 & 3.45
+            &  \textbf{3.48} & 3.64 & 4.32 & \cellcolor[HTML]{C8C8C8}3.79 & 4.01 & 3.33 & 3.45
             & \cellcolor[HTML]{C8C8C8} 3.70 \\
             
             Seedream 4.5~\cite{seedream2025seedream}
-            & 3.40 & 3.73 & 4.31 & \cellcolor[HTML]{C8C8C8}3.78 & \color[HTML]{319B62}\textbf{4.05} & 3.45 & 3.44
+            & 3.40 & 3.73 & 4.31 & \cellcolor[HTML]{C8C8C8}3.78 & \textbf{4.05} & 3.45 & 3.44
             & \cellcolor[HTML]{C8C8C8} 3.74 \\
 
             
             Nano Banana Pro~\cite{nanobananapro}
-            & 3.29 & 4.05 & 4.47 & \cellcolor[HTML]{C8C8C8}{\color[HTML]{319B62}\textbf{3.87}} & \color[HTML]{319B62}\textbf{4.34} & \color[HTML]{319B62}\textbf{3.78} & 3.80
+            & 3.29 & 4.05 & 4.47 & \cellcolor[HTML]{C8C8C8}{\textbf{3.87}} & \textbf{4.34} & \textbf{3.78} & 3.80
             & \cellcolor[HTML]{C8C8C8}4.06 \\
 
             Nano Banana 2~\cite{gemini3pro}
-            & 3.37 & 3.58 & \color[HTML]{319B62}\textbf{4.58} & \cellcolor[HTML]{C8C8C8}3.81 & 4.31 & 3.73 & \color[HTML]{319B62}\textbf{3.94}
-            & \cellcolor[HTML]{C8C8C8}{\color[HTML]{319B62}\textbf{4.07}} \\
+            & 3.37 & 3.58 & \textbf{4.58} & \cellcolor[HTML]{C8C8C8}3.81 & 4.31 & 3.73 & \textbf{3.94}
+            & \cellcolor[HTML]{C8C8C8}{\textbf{4.07}} \\
 
             
 

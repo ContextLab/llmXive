@@ -1235,3 +1235,118 @@ a:hover { color: var(--accent-2); }
   filter: brightness(1.08);
 }
 .card .feat-badge i { font-size: 11px; }
+
+/* Personality-comments block on cards — surfaces actual comment text (not
+   just a count) so users can read what a personality said about a project
+   at a glance. The most recent comment is shown in full; older ones are
+   hidden behind a "+N more" toggle that expands them inline. */
+.card .comments-block {
+  margin: 8px 0 14px;
+  padding: 10px 12px;
+  background: var(--bg-2);
+  border-left: 3px solid var(--accent, oklch(0.45 0.12 150));
+  border-radius: 4px;
+}
+.card .comments-block .comment + .comment {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.card .comments-block .comment-hidden {
+  display: none;
+}
+.card .comments-block .comment-hidden.comment-show {
+  display: block;
+}
+.card .comments-block .comment-head {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--ink-2);
+  margin-bottom: 4px;
+}
+.card .comments-block .comment-head i.fa-quote-left {
+  color: var(--accent, oklch(0.45 0.12 150));
+  opacity: 0.6;
+  font-size: 11px;
+}
+.card .comments-block .comment-name {
+  font-weight: 600; color: var(--ink);
+}
+.card .comments-block .comment-link {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 11px;
+  margin-left: 2px;
+}
+.card .comments-block .comment-link:hover { color: var(--accent); }
+.card .comments-block .comment-text {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink);
+  font-style: italic;
+}
+.card .comments-block .comments-more {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 2px 8px;
+  font-size: 11px;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.card .comments-block .comments-more:hover {
+  background: var(--bg-3, var(--bg-2));
+  color: var(--ink);
+}
+
+/* Contributors tab fixes:
+   1. The "Filter by area" chip bar can grow large (every research field
+      shows up). Cap its visible height + make it scrollable inside its
+      own box so it never overflows the rest of the layout.
+   2. Sortable table headers — clickable, with an arrow indicator showing
+      the active sort column + direction.
+   3. Pager — prev / next buttons + an info string. */
+#contrib-filter-bar {
+  flex-wrap: wrap;
+  max-height: 140px;
+  overflow-y: auto;
+  align-items: flex-start;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+#contrib-filter-bar .label {
+  flex: 0 0 auto;
+}
+#contrib-filter-bar .chip {
+  flex: 0 0 auto;
+}
+#contrib-table .tr.head .sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+}
+#contrib-table .tr.head .sortable:hover { color: var(--accent, oklch(0.45 0.12 150)); }
+#contrib-table .tr.head .sortable.active-sort { color: var(--accent, oklch(0.45 0.12 150)); }
+#contrib-table .tr.head .sort-ind {
+  font-size: 10px;
+  opacity: 0.75;
+}
+.pager {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  margin: 16px 0 4px;
+  font-size: 13px;
+}
+.pager .pager-info {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.pager .btn.small {
+  padding: 4px 12px;
+  font-size: 12px;
+}
+.pager .btn.small:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

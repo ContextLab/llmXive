@@ -52,8 +52,11 @@
     return '<i class="fa-regular fa-circle-question" title="contributor not attributed"></i>';
   }
 
-  // Per-project recent-activity index: project_id → { comments_n, last_personality }.
+  // Per-project recent-activity index: project_id → { comments: [{...}], all_simulators: [...] }.
   // Built once on boot from payload.recent_activity so card render is O(1).
+  // Each `comments` entry preserves display_name + excerpt + review_path + ended_at,
+  // sorted newest-first, so the card can show the most recent personality
+  // comment directly (not just a count).
   let activityByProject = null;
   function _buildActivityByProject() {
     if (activityByProject || !payload) return;
@@ -61,16 +64,24 @@
     for (const a of (payload.recent_activity || [])) {
       const pid = a.project_id;
       if (!pid) continue;
-      const e = activityByProject[pid] || { comments: 0, latest: null, simulators: [] };
-      // Personality "comment" entries are the ones the user wants surfaced.
+      const e = activityByProject[pid] || { comments: [], all_simulators: [] };
       if (a.action === "comment" && a.display_name) {
-        e.comments++;
-        if (!e.latest || (a.ended_at || "") > (e.latest.ended_at || "")) {
-          e.latest = a;
+        e.comments.push({
+          display_name: a.display_name,
+          slug: a.personality_slug || "",
+          excerpt: a.excerpt || "",
+          review_path: a.review_path || "",
+          ended_at: a.ended_at || "",
+        });
+        if (!e.all_simulators.includes(a.display_name)) {
+          e.all_simulators.push(a.display_name);
         }
-        if (!e.simulators.includes(a.display_name)) e.simulators.push(a.display_name);
       }
       activityByProject[pid] = e;
+    }
+    // Sort each project's comments newest-first.
+    for (const e of Object.values(activityByProject)) {
+      e.comments.sort((a, b) => (b.ended_at || "").localeCompare(a.ended_at || ""));
     }
   }
 
@@ -116,18 +127,11 @@
             + ' ' + escapeHtml(item.submitter) + '</span></div>'
           : "");
     // Featured-artifact strip: shows the paper PDF prominently when one
-    // exists, plus a personality-comment count badge. Both link into the
-    // artifact dialog when present so the click target is consistent.
+    // exists. PDF link uses event.stopPropagation so it opens the PDF
+    // directly in a new tab rather than the artifact dialog.
     const artifacts = item.artifact_links || {};
     const pdfPath = artifacts.paper_pdf;
     const supplementPath = artifacts.paper_supplement;
-    const activity = (activityByProject || {})[item.id];
-    const commentBadge = activity && activity.comments
-      ? '<span class="feat-badge" title="' + escapeHtml(activity.simulators.join(", ")) + '">'
-        + '<i class="fa-regular fa-comment"></i> ' + activity.comments
-        + ' personality ' + (activity.comments === 1 ? 'comment' : 'comments')
-        + '</span>'
-      : "";
     const pdfBadge = pdfPath
       ? '<a class="feat-badge primary" href="' + escapeHtml(pdfPath) + '" target="_blank" rel="noopener" '
         + 'onclick="event.stopPropagation();">'
@@ -140,15 +144,48 @@
         + '<i class="fa-regular fa-file-pdf"></i> supplement'
         + '</a>'
       : "";
-    const featuredRow = (pdfBadge || supplementBadge || commentBadge)
-      ? '<div class="featured">' + pdfBadge + supplementBadge + commentBadge + '</div>'
+    const featuredRow = (pdfBadge || supplementBadge)
+      ? '<div class="featured">' + pdfBadge + supplementBadge + '</div>'
       : "";
+
+    // Personality-comments block: actual excerpts (not just count) shown
+    // inline so users can see what was said. The most recent comment
+    // appears in full; older ones collapse behind a "+N more" toggle.
+    const activity = (activityByProject || {})[item.id];
+    let commentsBlock = "";
+    if (activity && activity.comments.length) {
+      const renderOne = (c, hidden) => {
+        const path = c.review_path
+          ? ' <a class="comment-link" href="' + escapeHtml(c.review_path) + '" target="_blank" rel="noopener" '
+            + 'onclick="event.stopPropagation();" title="open full review"><i class="fa-regular fa-arrow-up-right-from-square"></i></a>'
+          : "";
+        return '<div class="comment' + (hidden ? " comment-hidden" : "") + '">'
+          + '<div class="comment-head">'
+          + '<i class="fa-solid fa-quote-left"></i> '
+          + '<span class="comment-name">' + escapeHtml(c.display_name) + '</span>'
+          + path
+          + '</div>'
+          + '<div class="comment-text">' + escapeHtml(c.excerpt || "(no excerpt)") + '</div>'
+          + '</div>';
+      };
+      const head = renderOne(activity.comments[0], false);
+      const tail = activity.comments.slice(1).map(c => renderOne(c, true)).join("");
+      const moreBtn = activity.comments.length > 1
+        ? ' <button type="button" class="comments-more" '
+          + 'onclick="event.stopPropagation();">'
+          + '+' + (activity.comments.length - 1) + ' more'
+          + '</button>'
+        : "";
+      commentsBlock = '<div class="comments-block" data-count="' + activity.comments.length + '">'
+        + head + tail + moreBtn + '</div>';
+    }
     return ''
       + '<article class="card" tabindex="0" data-pid="' + escapeHtml(item.id) + '">'
       + '<div class="kicker"><span class="dot"></span>' + kicker + '<span class="stage-pill ' + escapeHtml(stage) + '" style="margin-left:auto">' + escapeHtml(stageLabel) + '</span></div>'
       + '<h3>' + escapeHtml(item.title) + '</h3>'
       + '<p class="desc">' + escapeHtml(desc) + '</p>'
       + featuredRow
+      + commentsBlock
       + '<div class="meta">'
       + '<div class="keys">' + keys + '</div>'
       + '<div class="right">' + points + '<span><i class="fa-regular fa-clock"></i> ' + escapeHtml(updated) + '</span></div>'
@@ -220,6 +257,21 @@
           if (tail) tail.hidden = !expanded;
           moreBtn.setAttribute("aria-expanded", String(!!expanded));
           moreBtn.textContent = expanded ? "show less" : `+${(tail ? tail.querySelectorAll(".submitter-tail").length : 0)} more`;
+          return;
+        }
+        // Same dance for "+N more" inside .comments-block — toggles
+        // the .comment-hidden siblings to reveal older personality comments.
+        const cmtMore = e.target.closest(".comments-more");
+        if (cmtMore && card.contains(cmtMore)) {
+          e.stopPropagation();
+          const block = cmtMore.closest(".comments-block");
+          if (!block) return;
+          const expanded = block.classList.toggle("expanded");
+          const hidden = block.querySelectorAll(".comment-hidden");
+          hidden.forEach(c => c.classList.toggle("comment-show", expanded));
+          cmtMore.textContent = expanded
+            ? "show less"
+            : `+${hidden.length} more`;
           return;
         }
         const pid = card.getAttribute("data-pid");
@@ -296,6 +348,38 @@
   // exact area string (e.g. "biology", "computer science"). Cleared by
   // clicking the "All areas" chip; toggled by clicking any other chip.
   let contributorAreaFilter = "all";
+
+  // Contributors-tab UI state — preserved across re-renders.
+  // `sortKey` ∈ rank / name / type / count / areas; `sortDir` ∈ asc / desc.
+  // `page` is 1-based; PAGE_SIZE is the user-requested 50/page cap.
+  let contribSortKey = "rank";
+  let contribSortDir = "asc";
+  let contribPage = 1;
+  const CONTRIB_PAGE_SIZE = 50;
+
+  function _contribCompare(a, b, key, dir) {
+    const sign = dir === "asc" ? 1 : -1;
+    let av, bv;
+    switch (key) {
+      case "rank":  av = a.rank;               bv = b.rank;               break;
+      case "name":  av = (a.name || "").toLowerCase(); bv = (b.name || "").toLowerCase(); break;
+      case "type":  av = a.kind || "";         bv = b.kind || "";         break;
+      case "count": av = a.contribution_count; bv = b.contribution_count; break;
+      case "areas": {
+        // Sort by primary (first) area string; empty areas sort last regardless of dir.
+        av = (a.areas && a.areas[0]) || "";
+        bv = (b.areas && b.areas[0]) || "";
+        if (av === "" && bv === "") return 0;
+        if (av === "") return 1;
+        if (bv === "") return -1;
+        break;
+      }
+      default:      av = a.rank;               bv = b.rank;
+    }
+    if (av < bv) return -1 * sign;
+    if (av > bv) return  1 * sign;
+    return 0;
+  }
 
   function renderContributors() {
     // The data is already sorted (real contributors by count desc, the single
@@ -382,8 +466,43 @@
     }
 
     const table = document.getElementById("contrib-table");
+    // Reflect current sort key/direction in the header indicators so the
+    // user can see what's active. Each .sortable header gets a class for
+    // styling and a unicode arrow in .sort-ind.
+    table.querySelectorAll(".tr.head .sortable").forEach(h => {
+      const key = h.getAttribute("data-sort");
+      const ind = h.querySelector(".sort-ind");
+      h.classList.toggle("active-sort", key === contribSortKey);
+      if (ind) {
+        ind.textContent = key === contribSortKey
+          ? (contribSortDir === "asc" ? " ▲" : " ▼")
+          : "";
+      }
+    });
+
+    // Sort + paginate. The "unattributed" bucket is always pinned to the
+    // very last page (or end of the only page) — it's a catch-all summary,
+    // not a real contributor to rank against.
+    const real = list.filter(c => c.kind !== "unattributed");
+    const unattr = list.filter(c => c.kind === "unattributed");
+    real.sort((a, b) => _contribCompare(a, b, contribSortKey, contribSortDir));
+
+    // Clamp the page to the new valid range — important after sort/filter
+    // changes that may shrink the list.
+    const totalPages = Math.max(1, Math.ceil(real.length / CONTRIB_PAGE_SIZE));
+    if (contribPage > totalPages) contribPage = totalPages;
+    if (contribPage < 1) contribPage = 1;
+
+    const start = (contribPage - 1) * CONTRIB_PAGE_SIZE;
+    const pageReal = real.slice(start, start + CONTRIB_PAGE_SIZE);
+
+    // The unattributed-bucket row appears only on the LAST page.
+    const pageRows = (contribPage === totalPages)
+      ? pageReal.concat(unattr)
+      : pageReal;
+
     [...table.querySelectorAll(".tr:not(.head)")].forEach(n => n.remove());
-    const rowsHtml = list.map(c => ''
+    const rowsHtml = pageRows.map(c => ''
       + '<div class="tr' + (c.kind === "unattributed" ? " unattributed" : "") + '">'
       + '<div>' + (c.kind === "unattributed" ? "—" : c.rank) + '</div>'
       + '<div>' + escapeHtml(c.kind === "unattributed" ? "Unattributed contributions" : c.name) + '</div>'
@@ -392,6 +511,64 @@
       + '<div class="areas">' + (c.areas || []).map(a => '<span>' + escapeHtml(a) + '</span>').join("") + '</div>'
       + '</div>').join("");
     table.insertAdjacentHTML("beforeend", rowsHtml);
+
+    // Pager: hidden when everything fits on one page. Info string is
+    // "1–50 of 132" style so the user knows where they are in the list.
+    const pager = document.getElementById("contrib-pager");
+    if (pager) {
+      const showPager = real.length > CONTRIB_PAGE_SIZE;
+      pager.hidden = !showPager;
+      if (showPager) {
+        const end = Math.min(start + CONTRIB_PAGE_SIZE, real.length);
+        const info = pager.querySelector("[data-page-info]");
+        if (info) {
+          info.textContent = `${start + 1}–${end} of ${real.length}`
+            + ` · page ${contribPage} / ${totalPages}`;
+        }
+        const prev = pager.querySelector("[data-page-prev]");
+        const next = pager.querySelector("[data-page-next]");
+        if (prev) prev.disabled = contribPage <= 1;
+        if (next) next.disabled = contribPage >= totalPages;
+      }
+    }
+  }
+
+  function setupContributorsControls() {
+    // Header click → sort by that column (toggle direction if already active).
+    // Bind once on boot; renderContributors is called many times but the
+    // listeners are attached to the header divs (which are NEVER replaced —
+    // only the data rows are recreated), so we don't re-bind.
+    const table = document.getElementById("contrib-table");
+    if (table) {
+      table.querySelectorAll(".tr.head .sortable").forEach(h => {
+        h.addEventListener("click", () => {
+          const key = h.getAttribute("data-sort");
+          if (key === contribSortKey) {
+            contribSortDir = (contribSortDir === "asc" ? "desc" : "asc");
+          } else {
+            contribSortKey = key;
+            // Default: count + rank go desc (most interesting first); text
+            // columns go asc (alphabetical).
+            contribSortDir = (key === "count") ? "desc" : "asc";
+          }
+          contribPage = 1;
+          renderContributors();
+        });
+      });
+    }
+    // Pager prev / next.
+    const pager = document.getElementById("contrib-pager");
+    if (pager) {
+      const prev = pager.querySelector("[data-page-prev]");
+      const next = pager.querySelector("[data-page-next]");
+      if (prev) prev.addEventListener("click", () => {
+        if (contribPage > 1) { contribPage--; renderContributors(); }
+      });
+      if (next) next.addEventListener("click", () => {
+        // The clamp inside renderContributors caps overshoots.
+        contribPage++; renderContributors();
+      });
+    }
   }
 
   // ── Activity tab — cross-project recent-run feed ─────────────────────
@@ -1007,6 +1184,7 @@
     setupTabs();
     setupSearch();
     setupActivity();
+    setupContributorsControls();
     setupModals();
     setupAboutModals();
 

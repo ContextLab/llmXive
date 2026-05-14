@@ -633,8 +633,58 @@ def _recent_activity(repo: Path, *, limit: int = 60) -> list[dict[str, Any]]:
         # — comment / contribute / propose_arxiv / abstain) for the feed.
         if e.get("action"):
             row["action"] = e["action"]
+        # For personality "comment" runs, surface a short excerpt of the
+        # actual comment text so project cards can show *what* was said
+        # rather than just a count. The committed_paths point at the
+        # review .md whose frontmatter `feedback` field is the comment.
+        if e.get("action") == "comment" and e.get("committed_paths"):
+            excerpt = _comment_excerpt_from_review(repo, e["committed_paths"])
+            if excerpt:
+                row["excerpt"] = excerpt
+                # The website displays the path so users can drill into the
+                # full review document; pick the first committed path.
+                for p in e["committed_paths"]:
+                    if p.endswith(".md"):
+                        row["review_path"] = p
+                        break
         out.append(row)
     return out
+
+
+def _comment_excerpt_from_review(repo: Path, committed_paths: list[str], *, max_chars: int = 240) -> str:
+    """Pull the `feedback` field from the first review .md frontmatter the
+    personality agent committed in this tick. Truncated to `max_chars` so
+    the website's card-strip stays compact (cards are designed for a glance).
+    Returns "" when no usable feedback can be found.
+    """
+    import yaml
+    for rel_path in committed_paths or []:
+        if not rel_path.endswith(".md"):
+            continue
+        full = repo / rel_path
+        if not full.is_file():
+            continue
+        try:
+            text = full.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        # frontmatter parsing — the YAML block between leading "---" markers.
+        if not text.startswith("---"):
+            continue
+        end = text.find("\n---", 4)
+        if end < 0:
+            continue
+        try:
+            front = yaml.safe_load(text[3:end]) or {}
+        except yaml.YAMLError:
+            continue
+        feedback = (front.get("feedback") or "").strip()
+        if not feedback:
+            continue
+        if len(feedback) > max_chars:
+            feedback = feedback[: max_chars - 1].rstrip() + "…"
+        return feedback
+    return ""
 
 
 def _project_keywords(repo: Path, project_id: str) -> list[str]:

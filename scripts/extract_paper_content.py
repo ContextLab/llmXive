@@ -733,6 +733,7 @@ def build_wrapper(
     forwarded_packages: list[str],
     forwarded_newcommands: list[str],
     body: str,
+    abstract: str | None = None,
 ) -> str:
     """Assemble the final wrapper .tex."""
     parts: list[str] = [_WRAPPER_HEADER]
@@ -758,9 +759,232 @@ def build_wrapper(
 
     parts.append("\n\\begin{document}")
     parts.append("\\maketitle")
+    # If we captured an abstract (either as an env or via \abstract{...}
+    # in the preamble), inject it explicitly here so it always lands on
+    # the title page regardless of where the original source placed it.
+    if abstract:
+        parts.append("\\begin{abstract}")
+        parts.append(abstract.strip())
+        parts.append("\\end{abstract}")
     parts.append(body.strip())
     parts.append("\\end{document}\n")
     return "\n".join(parts)
+
+
+# ───────────────────────────────────────────────────────────────────────
+# 8b. Title / author / body cleanup helpers
+# ───────────────────────────────────────────────────────────────────────
+
+# Leading "Chapter N: " (case-insensitive, optional period after N) is
+# common on book-chapter submissions. The website's project listing
+# strips it heuristically — the published PDF should match.
+_CHAPTER_PREFIX_RE = re.compile(
+    # "Chapter N: ", "Chapter N. ", "Chapter N — ", "Chapter N - "
+    # — all with optional whitespace, period after N, and one of
+    # the common separators (or just whitespace after a period).
+    r"^\s*Chapter\s+\d+\s*(?:[.:—-]\s+|\.\s+)\s*", re.IGNORECASE,
+)
+
+
+def _strip_chapter_prefix(title: str | None) -> str | None:
+    """Drop a leading 'Chapter N: ' prefix from a title, if present."""
+    if not title:
+        return title
+    return _CHAPTER_PREFIX_RE.sub("", title, count=1)
+
+
+def _build_icml_author_line(full_tex: str) -> str | None:
+    """Build a clean "Name¹, Name²" string from ICML's
+    `\\icmlauthor{Name}{aff_key}` + `\\icmlaffiliation{aff_key}{Aff text}`
+    declarations. Returns None when no ICML author list is present.
+
+    The wrapper preamble's `\\author{...}` field is rendered by the
+    llmxive class; we don't want raw \\icmlauthor macros leaking through
+    (they were rendering as "Tsz Ting Chung* for: tszpa Tsz Ting
+    Chungicml@vatime ..." with our no-op shims).
+    """
+    stripped = _strip_tex_comments(full_tex)
+    # Find every \icmlauthor{NAME}{KEY}
+    authors: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for m in re.finditer(r"\\icmlauthor\b", stripped):
+        name, after = _capture_braced_arg(stripped, m.end())
+        if name is None or not name.strip():
+            continue
+        key, _ = _capture_braced_arg(stripped, after)
+        # Multiple authors can share a key; (Name, key) pair de-duped
+        sig = (name.strip(), (key or "").strip())
+        if sig in seen:
+            continue
+        seen.add(sig)
+        authors.append((name.strip(), (key or "").strip()))
+    if not authors:
+        return None
+    # Find every \icmlaffiliation{KEY}{TEXT} so we can number affiliations.
+    aff_text: dict[str, str] = {}
+    for m in re.finditer(r"\\icmlaffiliation\b", stripped):
+        key, after = _capture_braced_arg(stripped, m.end())
+        if key is None:
+            continue
+        text, _ = _capture_braced_arg(stripped, after)
+        if text:
+            aff_text[key.strip()] = text.strip()
+    # Number unique affiliation keys in the order authors reference them.
+    aff_idx: dict[str, int] = {}
+    for _, k in authors:
+        if k and k not in aff_idx:
+            aff_idx[k] = len(aff_idx) + 1
+    # Compose the author line: "Name¹, Name² · ¹Aff1 · ²Aff2"
+    sups = "¹²³⁴⁵⁶⁷⁸⁹⁰"
+    def _sup(n: int) -> str:
+        return "".join(sups[int(c)] for c in str(n))
+    author_pieces = []
+    for name, k in authors:
+        suffix = _sup(aff_idx[k]) if k in aff_idx else ""
+        author_pieces.append(f"{name}{suffix}")
+    aff_lines = [f"{_sup(i)}{aff_text.get(k, k)}"
+                 for k, i in aff_idx.items() if (aff_text.get(k) or k)]
+    out = ", ".join(author_pieces)
+    if aff_lines:
+        out += " \\\\ \\small " + " · ".join(aff_lines)
+    return out
+
+
+# ───────────────────────────────────────────────────────────────────────
+# 8c. Body cleanup passes
+# ───────────────────────────────────────────────────────────────────────
+
+def _body_cleanup_passes(body: str) -> str:
+    """Run a sequence of cosmetic scrubs over the document body so the
+    rendered llmXive PDF doesn't show venue/template-specific artifacts.
+
+    1. Drop `\\keywords{...}` lines — not part of the llmxive style.
+    2. Convert `\\begin{wrapfigure}[opts]{pos}{width}...\\end{wrapfigure}`
+       to a plain `\\begin{figure}...\\end{figure}` — wrapfigure often
+       overflows the body width and breaks the layout.
+    3. Strip `\\textcolor{NAME}{TEXT}` calls down to plain `TEXT` so the
+       paper renders monochrome (the llmxive style is intentionally
+       restrained on color).
+    4. Strip standalone `\\color{NAME}` directives (these would carry
+       color past the immediate command and pollute downstream text).
+    5. Drop `\\IEEEpubid{...}` / `\\IEEEoverridecommandlockouts` /
+       `\\copyrightnotice{...}` — IEEE-specific layout commands.
+    """
+    # 1. Drop \keywords{...}
+    body = re.sub(
+        r"\\keywords\s*\{[^}]*\}",
+        "", body, flags=re.S,
+    )
+    # And the icml variant.
+    body = re.sub(r"\\icmlkeywords\s*\{[^}]*\}", "", body, flags=re.S)
+
+    # 2. wrapfigure → figure. We need brace-balanced argument capture
+    # because wrapfigure takes 2-3 brace args before its content.
+    body = _convert_wrapfigure(body)
+
+    # 3. \textcolor{X}{Y} → Y  (keep the text, drop the color)
+    body = _strip_textcolor(body)
+
+    # 4. \color{X} → (nothing) — bare color switches outside groups bleed.
+    body = re.sub(r"\\color\s*\{[^}]*\}", "", body)
+    body = re.sub(r"\\color\s*\[[^]]*\]\s*\{[^}]*\}", "", body)
+
+    # 5. IEEE-specific
+    body = re.sub(r"\\IEEEpubid\s*\{[^}]*\}", "", body)
+    body = re.sub(r"\\IEEEoverridecommandlockouts\b", "", body)
+    body = re.sub(r"\\copyrightnotice\s*\{[^}]*\}", "", body)
+
+    return body
+
+
+def _convert_wrapfigure(body: str) -> str:
+    """Replace every `\\begin{wrapfigure}[N]{R}{W} ... \\end{wrapfigure}`
+    with `\\begin{figure}[t] ... \\end{figure}` — preserving the inner
+    figure content. wrapfigure was overflowing the llmxive textwidth
+    on multi-column source layouts.
+    """
+    out: list[str] = []
+    pat = re.compile(r"\\begin\s*\{wrapfigure\}")
+    end_pat = re.compile(r"\\end\s*\{wrapfigure\}")
+    i = 0
+    n = len(body)
+    while i < n:
+        m = pat.search(body, i)
+        if not m:
+            out.append(body[i:])
+            break
+        out.append(body[i : m.start()])
+        idx = m.end()
+        # Skip the wrapfigure args. Each can be optional [...] or required {...}
+        # We allow up to 3 args.
+        for _ in range(3):
+            while idx < n and body[idx] in " \t\r\n":
+                idx += 1
+            if idx >= n:
+                break
+            if body[idx] == "[":
+                close = body.find("]", idx)
+                if close < 0:
+                    break
+                idx = close + 1
+            elif body[idx] == "{":
+                _, idx = _capture_braced_arg(body, idx)
+                if idx is None:
+                    idx = m.end()
+                    break
+            else:
+                break
+        # Now find the matching \end{wrapfigure}
+        em = end_pat.search(body, idx)
+        if not em:
+            # malformed — emit raw
+            out.append(body[m.start():])
+            break
+        inner = body[idx : em.start()]
+        out.append("\\begin{figure}[t]\n" + inner + "\n\\end{figure}")
+        i = em.end()
+    return "".join(out)
+
+
+def _strip_textcolor(body: str) -> str:
+    """Replace `\\textcolor{COLOR}{TEXT}` with just `TEXT`, preserving
+    brace-balanced content (color values are simple but content can
+    contain nested braces and math).
+    """
+    out: list[str] = []
+    i = 0
+    n = len(body)
+    while i < n:
+        if body[i] == "\\" and body.startswith("\\textcolor", i):
+            # Skip \textcolor + optional [model]
+            idx = i + len("\\textcolor")
+            while idx < n and body[idx] in " \t\r\n":
+                idx += 1
+            if idx < n and body[idx] == "[":
+                close = body.find("]", idx)
+                if close < 0:
+                    out.append(body[i])
+                    i += 1
+                    continue
+                idx = close + 1
+            # color name
+            color, idx = _capture_braced_arg(body, idx)
+            if color is None:
+                out.append(body[i])
+                i += 1
+                continue
+            # text
+            text, idx = _capture_braced_arg(body, idx)
+            if text is None:
+                # no second arg — eat the \textcolor + first arg
+                i = idx
+                continue
+            out.append(text)
+            i = idx
+            continue
+        out.append(body[i])
+        i += 1
+    return "".join(out)
 
 
 # ───────────────────────────────────────────────────────────────────────
@@ -796,19 +1020,46 @@ def extract(
         or _extract_macro(full_tex, "TitleHeading")   # IEEE
         or _extract_macro(full_tex, "paperTitle")
     )
-    # Author: standard \author{}, then venue aliases.
+    # Strip leading "Chapter N: " (case-insensitive) from titles so the
+    # PDF and the project listing match. Book-chapter submissions often
+    # carry this prefix in the source but the website's listing strips
+    # it heuristically — we should produce the same prefix-free form.
+    title = _strip_chapter_prefix(title)
+
+    # Author: standard \author{}, then venue aliases. For ICML's
+    # `\icmlauthorlist` we synthesize a clean "Name¹, Name², ..." string
+    # by combining \icmlauthor{Name}{affkey} entries with \icmlaffiliation.
     author = (
         _extract_macro(full_tex, "author")
-        or _extract_env(full_tex, "icmlauthorlist")   # ICML
-        or _extract_macro(full_tex, "icmlauthor")
+        or _build_icml_author_line(full_tex)
     )
-    abstract = _extract_env(body, "abstract")
+
+    # Abstract can be in the BODY (most papers) OR in the preamble if the
+    # source `\input{}`s an abstract file BEFORE `\begin{document}` —
+    # PROJ-567 (AnyFlow) does exactly that. PROJ-566 uses `\abstract{...}`
+    # (macro form, not environment) entirely in the preamble. Either way
+    # we capture from the full inlined source and inject explicitly into
+    # the wrapper body.
+    abstract = (
+        _extract_env(full_tex, "abstract")
+        or _extract_macro(full_tex, "abstract")
+    )
+    # Strip any `\keywords{...}` / `\icmlkeywords{...}` from the abstract —
+    # keywords aren't part of the llmxive style, and they sometimes live
+    # inside `\begin{abstract}...\end{abstract}` (e.g. PROJ-568).
+    if abstract:
+        abstract = re.sub(r"\\keywords\s*\{[^}]*\}", "", abstract, flags=re.S)
+        abstract = re.sub(r"\\icmlkeywords\s*\{[^}]*\}", "", abstract, flags=re.S).strip()
 
     # Body cleanup: drop title/author/affiliation/etc. (transplanted to
     # wrapper), then strip layout-warping commands (twocolumn, geometry,
-    # margin/spacing tweaks, font-shape redirects).
+    # margin/spacing tweaks, font-shape redirects), then run
+    # _body_cleanup_passes to scrub other rendering artifacts (keyword
+    # lines, color tags, wrapfigure → figure, raw \citep when natbib
+    # isn't available, etc.).
     body_clean = _strip_body_commands(body)
     body_clean = _strip_layout_directives(body_clean)
+    body_clean = _body_cleanup_passes(body_clean)
 
     # Read every bundled .cls / .sty file alongside the source — those
     # venue classes routinely `\RequirePackage` natbib / cleveref / etc.
@@ -838,9 +1089,15 @@ def extract(
     if cls_sources:
         body_macros = set(re.findall(r"\\([A-Za-z@]+)", body))
         already = set(seen_names_from_forwarded(fwd_cmds)) | _KNOWN_SHIMS.keys()
+        # Also blocklist venue-internal macros — these are already in
+        # _BODY_DROP_COMMANDS (so they're removed from the body) AND
+        # their original .sty definitions are too complex/tied-to-state
+        # to forward cleanly. e.g. ICML's `\icmlauthor` does `\ificmlshowauthors
+        # \mbox...` which depends on internal \ificmlshowauthors flag.
+        venue_internal = set(_BODY_DROP_COMMANDS)
         cls_cmds = _forwarded_newcommands_filtered(
             "\n".join(cls_sources),
-            keep=body_macros - already - _LATEX_KERNEL_NAMES,
+            keep=body_macros - already - _LATEX_KERNEL_NAMES - venue_internal,
         )
         fwd_cmds.extend(cls_cmds)
 
@@ -852,12 +1109,26 @@ def extract(
     fwd_colors = _forwarded_definecolor(full_tex + "\n".join(cls_sources))
     fwd_cmds.extend(fwd_colors)
 
+    # Strip \textcolor / \color inside the forwarded macro bodies too —
+    # otherwise the body's `\icono`, `\gain{...}` etc. emit color markup
+    # at expansion time, which leaks past the llmxive style intent.
+    fwd_cmds = [_strip_textcolor(re.sub(r"\\color\s*\{[^}]*\}", "", c)) for c in fwd_cmds]
+
+    # If the body itself still has a \begin{abstract}...\end{abstract},
+    # drop it — we'll inject the captured abstract explicitly in the
+    # wrapper preamble of <body> so it always shows on the title page.
+    body_clean = re.sub(
+        r"\\begin\s*\{abstract\}.*?\\end\s*\{abstract\}",
+        "", body_clean, flags=re.S,
+    )
+
     wrapper = build_wrapper(
         title=title, author=author,
         arxiv_id=arxiv_id, paper_status=paper_status,
         forwarded_packages=fwd_pkgs,
         forwarded_newcommands=fwd_cmds,
         body=body_clean,
+        abstract=abstract,
     )
     return {
         "ok": True,
