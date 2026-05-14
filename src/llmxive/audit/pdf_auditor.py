@@ -183,8 +183,27 @@ def audit(*, papers_dir: Path | str, repo_root: Path | str = ".", class_path: Pa
 
     manifest = new_manifest("pdf")
 
-    pdfs = sorted([p.resolve() for p in papers_dir.glob("*.pdf")]) + \
-        sorted([p.resolve() for p in papers_dir.glob("**/*.pdf")])
+    # Walk PDFs but exclude figure subdirectories — they're not papers,
+    # they're embedded figures. `figs/`, `figs-sanitized/`, and any
+    # `source/` subdir contain figure PDFs that the paper renders into.
+    _FIGURE_DIRS = {"figs", "figs-sanitized", "source", "fig", "figures"}
+
+    def _is_paper_pdf(p: Path) -> bool:
+        # Reject if any parent directory between papers_dir and p is a known
+        # figure-bucket name.
+        try:
+            rel = p.resolve().relative_to(papers_dir)
+        except ValueError:
+            return True
+        return not any(part in _FIGURE_DIRS for part in rel.parts[:-1])
+
+    pdfs = sorted([
+        p.resolve() for p in papers_dir.glob("*.pdf")
+        if _is_paper_pdf(p)
+    ]) + sorted([
+        p.resolve() for p in papers_dir.glob("**/*.pdf")
+        if _is_paper_pdf(p)
+    ])
     # dedupe (glob + ** can overlap)
     seen = set()
     pdfs = [p for p in pdfs if not (p in seen or seen.add(p))]
