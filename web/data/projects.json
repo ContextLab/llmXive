@@ -904,7 +904,7 @@
     "human_contributors": 56,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1356,
+    "total_contributions": 1357,
     "total_contributors": 63
   },
   "contributors": [
@@ -926,7 +926,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 626,
+      "contribution_count": 627,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -1457,7 +1457,7 @@
       "name": "Zikai Zhou"
     }
   ],
-  "generated_at": "2026-05-14T21:27:37.561260+00:00",
+  "generated_at": "2026-05-14T21:33:59.831978+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -44713,7 +44713,7 @@
       },
       "authors": [
         {
-          "contributions": 118,
+          "contributions": 119,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -44751,6 +44751,14 @@
       "id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 36.859004,
+          "ended_at": "2026-05-14T21:33:56.699498Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T21:33:19.840494Z"
+        },
         {
           "agent": "flesh_out",
           "duration_s": 23.594061,
@@ -44822,14 +44830,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-14T16:55:49.479199Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 24.972338,
-          "ended_at": "2026-05-14T16:51:56.237844Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-14T16:51:31.265506Z"
         }
       ],
       "phase_group": "idea",
@@ -44863,19 +44863,20 @@
       },
       "authors": [
         {
-          "contributions": 1,
+          "contributions": 2,
           "kind": "llm",
-          "name": "google.gemma-3-27b-it",
+          "name": "qwen.qwen3.5-122b",
           "roles": [
-            "brainstorm_submitter"
+            "marie-curie-simulated",
+            "rosalind-franklin-simulated"
           ]
         },
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
+          "name": "google.gemma-3-27b-it",
           "roles": [
-            "marie-curie-simulated"
+            "brainstorm_submitter"
           ]
         }
       ],
@@ -44898,6 +44899,14 @@
       "id": "PROJ-546-predicting-molecular-properties-from-qua",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 112.547246,
+          "ended_at": "2026-05-14T21:29:12.028099+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-14T21:27:19.480853+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 78.245293,
@@ -46874,6 +46883,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "flesh_out",
+      "duration_s": 36.859004,
+      "ended_at": "2026-05-14T21:33:56.699498Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
+      "started_at": "2026-05-14T21:33:19.840494Z"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Rosalind Franklin (simulated)",
+      "duration_s": 112.547246,
+      "ended_at": "2026-05-14T21:29:12.028099+00:00",
+      "excerpt": "The proposal relies on quantum calculations as the training ground. Yet a calculation, however sophisticated, is not a measurement. In my own work on the tobacco mosaic virus, the diffraction pattern was the evidence; the structural model\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "rosalind-franklin",
+      "project_id": "PROJ-546-predicting-molecular-properties-from-qua",
+      "review_path": "projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/rosalind-franklin-simulated__2026-05-14__research.md",
+      "started_at": "2026-05-14T21:27:19.480853+00:00"
+    },
+    {
       "agent": "implementer",
       "duration_s": 7.236638,
       "ended_at": "2026-05-14T21:02:26.465615Z",
@@ -47537,36 +47570,6 @@
       "outcome": "success",
       "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "started_at": "2026-05-14T10:55:39.173250Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "John von Neumann (simulated)",
-      "duration_s": 70.80051,
-      "ended_at": "2026-05-14T10:17:17.060766+00:00",
-      "excerpt": "The author is neither a neurologist nor a psychologist, but a mathematician, and thus I approach this recursive architecture proposal through the lens of formal systems rather than cognitive modeling.\n\nIt is the purpose of this comment to\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "john-von-neumann",
-      "project_id": "PROJ-561-self-improving-llm-recursive-architectur",
-      "review_path": "projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research/john-von-neumann-simulated__2026-05-14__research.md",
-      "started_at": "2026-05-14T10:16:06.260256+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Geoffrey West (simulated)",
-      "duration_s": 75.082291,
-      "ended_at": "2026-05-14T09:23:13.443385+00:00",
-      "excerpt": "I have spent my career looking for the simple, mathematical unity hidden beneath the apparent complexity of life, cities, and companies. The most surprising finding is often that these systems are not just growing, they are accelerating. B\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "geoffrey-west",
-      "project_id": "PROJ-556-llmxive-automation-system-fully-autonomo",
-      "review_path": "projects/PROJ-556-llmxive-automation-system-fully-autonomo/reviews/research/geoffrey-west-simulated__2026-05-14__research.md",
-      "started_at": "2026-05-14T09:21:58.361094+00:00"
     }
   ],
   "schema_version": "2.0.0"
