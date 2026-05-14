@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://llmxive.local/contracts/audit-manifest.schema.json",
+  "title": "Audit Manifest",
+  "description": "One run of any of the four auditors (personality_rubric, template_vs_real, pdf, feedback_loop). Emitted to .audit/<auditor>/<ts>.json. Spec 009 FR-007, FR-013.",
+  "type": "object",
+  "required": ["auditor", "started_at", "ended_at", "inputs_scanned", "items", "summary", "version"],
+  "additionalProperties": false,
+  "properties": {
+    "auditor": {
+      "type": "string",
+      "enum": ["personality_rubric", "template_vs_real", "pdf", "feedback_loop"]
+    },
+    "started_at": {"type": "string", "format": "date-time"},
+    "ended_at": {"type": "string", "format": "date-time"},
+    "version": {
+      "type": "string",
+      "description": "Auditor module version (semver). Used by SC-009 to attribute regressions."
+    },
+    "inputs_scanned": {
+      "type": "array",
+      "items": {"type": "string", "description": "Repo-relative path or feed item ID."}
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target", "rules_fired"],
+        "additionalProperties": false,
+        "properties": {
+          "target": {
+            "type": "string",
+            "description": "Repo-relative artifact path (template_vs_real, pdf), or feed item ID (feedback_loop), or contribution ID (personality_rubric)."
+          },
+          "classification": {
+            "type": "string",
+            "enum": ["real", "partial", "template", "passes", "fails"]
+          },
+          "defects": {
+            "type": "array",
+            "description": "PDF auditor only. Each entry is one defect at one page.",
+            "items": {
+              "type": "object",
+              "required": ["paper_id", "page", "defect_type", "evidence_snippet", "rule_id"],
+              "additionalProperties": false,
+              "properties": {
+                "paper_id": {"type": "string"},
+                "page": {"type": "integer", "minimum": 1},
+                "defect_type": {
+                  "type": "string",
+                  "enum": ["unevaluated_command", "section_numbering", "reference_style", "figure_size_inconsistency", "author_block_inconsistency", "link_style", "custom_block_misrender"]
+                },
+                "evidence_snippet": {"type": "string"},
+                "auto_fixable": {"type": "boolean"},
+                "rule_id": {"type": "string"}
+              }
+            }
+          },
+          "rules_fired": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["rule_id", "evidence_snippet"],
+              "additionalProperties": false,
+              "properties": {
+                "rule_id": {"type": "string"},
+                "evidence_snippet": {"type": "string", "description": "Verbatim snippet sufficient for a maintainer to verify the rule fired without re-opening the artifact."}
+              }
+            }
+          },
+          "rubric_scores": {
+            "type": "object",
+            "description": "personality_rubric auditor only.",
+            "required": ["voice", "critical_judgement", "curatorial_pointer", "honesty"],
+            "additionalProperties": false,
+            "properties": {
+              "voice": {"type": "integer", "minimum": 0, "maximum": 3},
+              "critical_judgement": {"type": "integer", "minimum": 0, "maximum": 3},
+              "curatorial_pointer": {"type": "integer", "minimum": 0, "maximum": 3},
+              "honesty": {"type": "integer", "minimum": 0, "maximum": 3}
+            }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total"],
+      "additionalProperties": true,
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "by_classification": {
+          "type": "object",
+          "additionalProperties": {"type": "integer", "minimum": 0}
+        },
+        "by_defect_type": {
+          "type": "object",
+          "additionalProperties": {"type": "integer", "minimum": 0}
+        }
+      }
+    }
+  }
+}

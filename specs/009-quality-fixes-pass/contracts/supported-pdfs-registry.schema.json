@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://llmxive.local/contracts/supported-pdfs-registry.schema.json",
+  "title": "Supported PDFs Registry",
+  "description": "papers/.supported.json — auto-maintained. Spec 009 FR-022 (Clarification Q2). Auto-include rule: every paper the auditor classifies zero-defects enters the registry; a paper that later fails breaks CI and is removed only by explicit maintainer action or by being fixed.",
+  "type": "object",
+  "required": ["auditor_version", "audited_at", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "auditor_version": {
+      "type": "string",
+      "description": "Semver of the PDF auditor that produced this registry."
+    },
+    "audited_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC of the audit run that produced this registry version."
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["paper_id", "last_passed_at"],
+        "additionalProperties": false,
+        "properties": {
+          "paper_id": {
+            "type": "string",
+            "description": "Canonical paper identifier (PROJ-XXX-... or arXiv-id form)."
+          },
+          "source_arxiv_id": {
+            "type": "string",
+            "description": "If the paper originated from arXiv, its ID (e.g. 2401.12345). Optional for internal-only papers."
+          },
+          "last_passed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "pdf_path": {
+            "type": "string",
+            "description": "Repo-relative path to the PDF that passed."
+          },
+          "source_path": {
+            "type": "string",
+            "description": "Repo-relative path to the source bundle the deterministic pipeline built from."
+          }
+        }
+      }
+    }
+  }
+}

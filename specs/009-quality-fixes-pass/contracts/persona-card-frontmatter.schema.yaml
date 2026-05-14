@@ -1,0 +1,74 @@
+# Persona Card Frontmatter Schema
+# Spec 009 FR-003: each persona card under agents/prompts/personalities/<slug>.md
+# MUST declare >=3 interest signals in its YAML frontmatter. Each signal MUST
+# carry at least one evidence source (Constitution Principle II: verified accuracy).
+#
+# Schema below uses YAML-flavoured JSON Schema (draft 2020-12 semantics).
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://llmxive.local/contracts/persona-card-frontmatter.schema.yaml"
+title: "Persona Card Frontmatter"
+type: object
+required:
+  - slug
+  - display_name
+  - voice
+  - interest_signals
+additionalProperties: true   # personas may carry extra fields (e.g. lifespan, primary_language)
+
+properties:
+  slug:
+    type: string
+    pattern: "^[a-z0-9-]+$"
+    description: "Filename slug; must match agents/prompts/personalities/<slug>.md."
+
+  display_name:
+    type: string
+    description: "Human-readable name. The platform tags contributions as '<display_name> (simulated)' per spec 008."
+
+  voice:
+    type: object
+    description: "Brief grounding card identifying register, vocabulary, mannerisms."
+    required: [register, primary_sources]
+    properties:
+      register:
+        type: string
+        description: "e.g. 'reserved formal', 'declarative aphoristic', 'inquisitive socratic'."
+      primary_sources:
+        type: array
+        minItems: 1
+        items:
+          type: string
+        description: "Public-record citations (URLs, books) used to derive this persona's voice. Constitution Principle II."
+
+  interest_signals:
+    type: array
+    minItems: 3
+    description: "Spec 009 FR-003: at least 3 documented interest signals."
+    items:
+      type: object
+      required: [id, label, kind, evidence_sources]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          pattern: "^[a-z0-9-]+(:[a-z0-9-]+)*$"
+          description: "Short identifier, optionally namespaced (e.g. 'field-theory', 'kahneman:system-1')."
+        label:
+          type: string
+          description: "Human-readable display label."
+        kind:
+          type: string
+          enum: [topic, method, prior_work, open_problem]
+        evidence_sources:
+          type: array
+          minItems: 1
+          items:
+            type: string
+          description: "URLs or citations grounding that this persona's real-world counterpart cared about this signal. Verifies Principle II — no hallucinated interests."
+
+  taste_directives:
+    type: array
+    description: "Optional. Free-form lines instructing the umbrella prompt how this persona expresses taste. Bounded by FR-002 (no manufactured praise)."
+    items:
+      type: string
