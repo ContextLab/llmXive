@@ -30,9 +30,17 @@ def _cmd_run(args: argparse.Namespace) -> int:
     Per FR-002, --project and --stage filter the selection. The
     scheduler picks projects in priority order; this loop runs up to
     --max-tasks steps before returning.
+
+    Stage-independent agents (spec 008: ``personality``) take a separate
+    branch that bypasses the scheduler entirely — they pick their own
+    target instead of working on a single project.
     """
     from llmxive.pipeline import graph, scheduler
     from llmxive.state import project as project_store
+
+    # Stage-independent agents (spec 008) — short-circuit the scheduler.
+    if args.agent in graph.STAGE_INDEPENDENT_AGENTS:
+        return _cmd_run_stage_independent(args)
 
     from llmxive.types import Stage as _Stage
     stage_filter: _Stage | None = None
@@ -84,6 +92,39 @@ def _cmd_run(args: argparse.Namespace) -> int:
             break
     print(f"[run] completed {completed} step(s)")
     return 0
+
+
+def _cmd_run_stage_independent(args: argparse.Namespace) -> int:
+    """Invoke a stage-independent agent (currently: ``personality``, spec 008).
+
+    The personality agent picks its OWN target each tick — it doesn't fit
+    the standard --project/--stage scheduler model. We invoke it directly,
+    once per call (``--max-tasks`` is honored for batching but normally
+    used with the default 1 from the cron).
+    """
+    from pathlib import Path
+    repo_root = Path.cwd()
+
+    if args.agent == "personality":
+        from llmxive.agents import personality as personality_agent
+
+        completed = 0
+        for _ in range(max(1, args.max_tasks)):
+            entry = personality_agent.tick(repo_root, force_slug=args.personality)
+            print(
+                f"[run/personality] slug={entry.get('personality_slug')!r} "
+                f"action={entry.get('action')!r} outcome={entry.get('outcome')!r} "
+                f"committed={len(entry.get('committed_paths', []))} "
+                f"duration={entry.get('duration_s'):.2f}s"
+            )
+            completed += 1
+            # --max-tasks > 1 only makes sense for batch/test use; the
+            # cron only ever runs with the default 1.
+        print(f"[run] completed {completed} personality tick(s)")
+        return 0
+
+    print(f"[run] unknown stage-independent agent: {args.agent!r}", file=sys.stderr)
+    return 2
 
 
 def _cmd_agents_run(args: argparse.Namespace) -> int:
@@ -446,6 +487,13 @@ def build_parser() -> argparse.ArgumentParser:
     p_run.add_argument("--max-tasks", type=int, default=5)
     p_run.add_argument("--project", default=None, help="restrict to this project id")
     p_run.add_argument("--stage", default=None, help="run only this stage")
+    # Stage-independent agents (spec 008: personality) — skip the scheduler.
+    p_run.add_argument("--agent", default=None,
+                       help="invoke a stage-independent agent (e.g. 'personality')"
+                            " — bypasses the stage scheduler")
+    p_run.add_argument("--personality", default=None,
+                       help="testing-only: force the personality rotation to a specific"
+                            " slug for this tick (does NOT update the rotation pointer)")
     p_run.set_defaults(func=_cmd_run)
 
     p_agents = subs.add_parser("agents", help="agent operations")

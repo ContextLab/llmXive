@@ -99,6 +99,16 @@ STAGE_TO_AGENT: dict[Stage, str] = {
 }
 
 
+# Agents that do NOT advance any single project's stage; they run on a
+# cron and act across the lanes (currently: just `personality`, spec 008).
+# Listed here so the CLI / scheduler explicitly know to skip them in the
+# stage-picker loop. Stage-independent agents are invoked directly by the
+# CLI's `_cmd_run` --agent <name> branch.
+STAGE_INDEPENDENT_AGENTS: set[str] = {
+    "personality",
+}
+
+
 # Stage transitions performed automatically by the pipeline graph after
 # each agent run — for non-LLM stages (e.g., the Implementer marks tasks
 # off and we transition to research_complete when all are done).

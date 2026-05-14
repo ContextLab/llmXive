@@ -1,0 +1,67 @@
+# Contract: YAML front-matter at the top of every
+#   agents/prompts/personalities/<slug>.md
+#
+# The body of the file (everything after the closing `---`) is the prose
+# persona-shaping content (R5 grounding card + voice instructions). This
+# schema covers ONLY the front-matter.
+
+$schema: https://json-schema.org/draft-07/schema
+type: object
+
+required:
+  - display_name
+  - summary
+  - sources
+
+properties:
+  display_name:
+    type: string
+    description: |
+      Canonical display name WITHOUT the "(simulated)" suffix.
+      The runtime appends " (simulated)" whenever the name is rendered to
+      a user-visible surface (review files, issue bodies, contributor list,
+      registry modal). Bake-in is forbidden — would double-suffix.
+    pattern: "^[^\\(]*$"   # disallow open-paren — guards against accidental " (simulated)" in the file
+    examples:
+      - "Daniel Kahneman"
+      - "Ada Lovelace"
+      - "John von Neumann"
+
+  summary:
+    type: string
+    description: |
+      One-line summary shown in the Personality Registry modal row.
+      Max 14 whitespace-separated tokens.
+    maxLength: 200
+
+  sources:
+    type: array
+    description: |
+      3 to 6 real public-record source titles the prompt is grounded in
+      (book titles, paper titles, lecture titles, podcast episodes).
+      Used as the "grounded on" footer in the registry detail view.
+    items:
+      type: string
+      minLength: 5
+    minItems: 3
+    maxItems: 6
+
+  version:
+    type: string
+    default: "1.0.0"
+    description: |
+      Semver-ish version of this prompt. Bumped on substantive prompt revisions.
+    pattern: "^\\d+\\.\\d+\\.\\d+$"
+
+additionalProperties: false
+
+# Example
+example:
+  display_name: "Daniel Kahneman"
+  summary: "Israeli-American psychologist, Princeton; Nobel laureate, heuristics and biases."
+  sources:
+    - "Thinking, Fast and Slow (FSG 2011)"
+    - "Noise (Kahneman/Sibony/Sunstein 2021)"
+    - "Nobel Memorial Lecture: Maps of Bounded Rationality (2002)"
+    - "Tversky & Kahneman, Judgment under Uncertainty: Heuristics and Biases, Science (1974)"
+  version: "1.0.0"

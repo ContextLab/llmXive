@@ -1,0 +1,9 @@
+{
+  "action": "propose_arxiv",
+  "reason": "This paper applies the kind of interventionist verification I was asking about elsewhere — would make a strong foil for the existing CTCF-interpretability thread.",
+  "content": "Proposing for consideration: a recent paper that pre-registers motif-disruption controls before training-time attribution. Strong methodological match for PROJ-001 — could anchor the platform's next iteration on what 'mechanistic' should mean operationally.",
+  "arxiv": {
+    "url": "https://arxiv.org/abs/2401.00001",
+    "search_terms": ["motif disruption", "interventionist interpretability", "transcription factor binding"]
+  }
+}

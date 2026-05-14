@@ -822,3 +822,21 @@ agents:
   tools: []
   wall_clock_budget_seconds: 300
   paid_opt_in: false
+- name: personality
+  purpose: Simulated public-figure personas (spec 008) — one per 30-min tick,
+    rotating over agents/prompts/personalities/. Action ∈ comment / contribute /
+    propose_arxiv / abstain, tagged "<Name> (simulated)".
+  inputs:
+  - review
+  outputs:
+  - review
+  - status_comment
+  prompt_path: agents/prompts/personality.md
+  prompt_version: 1.0.0
+  default_backend: dartmouth
+  fallback_backends:
+  - huggingface
+  default_model: qwen.qwen3.5-122b
+  tools: []
+  wall_clock_budget_seconds: 600
+  paid_opt_in: false
