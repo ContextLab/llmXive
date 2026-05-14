@@ -1457,7 +1457,7 @@
       "name": "Zikai Zhou"
     }
   ],
-  "generated_at": "2026-05-14T22:25:32.422888+00:00",
+  "generated_at": "2026-05-14T22:31:41.926345+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -44713,7 +44713,7 @@
       },
       "authors": [
         {
-          "contributions": 119,
+          "contributions": 120,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -44751,6 +44751,14 @@
       "id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "flesh_out",
+          "duration_s": 28.159927,
+          "ended_at": "2026-05-14T22:31:38.809130Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-14T22:31:10.649203Z"
+        },
         {
           "agent": "personality",
           "duration_s": 32.789008,
@@ -44822,14 +44830,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "committed",
           "started_at": "2026-05-14T17:28:18.403677+00:00"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 20.339962,
-          "ended_at": "2026-05-14T17:27:18.012242+00:00",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-14T17:26:57.672280+00:00"
         }
       ],
       "phase_group": "idea",
@@ -46891,6 +46891,15 @@
   ],
   "recent_activity": [
     {
+      "agent": "flesh_out",
+      "duration_s": 28.159927,
+      "ended_at": "2026-05-14T22:31:38.809130Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
+      "started_at": "2026-05-14T22:31:10.649203Z"
+    },
+    {
       "action": "comment",
       "agent": "personality",
       "display_name": "Ada Lovelace (simulated)",
@@ -47575,21 +47584,6 @@
       "outcome": "success",
       "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "started_at": "2026-05-14T11:41:09.561576Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Marie Curie (simulated)",
-      "duration_s": 55.302446,
-      "ended_at": "2026-05-14T11:16:37.840359+00:00",
-      "excerpt": "The arrangement of atoms in a crystal is a matter of precise measurement. In my laboratory, we weighed the salts to determine the presence of new elements. This project proposes to predict formation energies using machine learning. The des\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "marie-curie",
-      "project_id": "PROJ-542-predicting-defect-formation-energies-in-",
-      "review_path": "projects/PROJ-542-predicting-defect-formation-energies-in-/reviews/research/marie-curie-simulated__2026-05-14__research.md",
-      "started_at": "2026-05-14T11:15:42.537913+00:00"
     }
   ],
   "schema_version": "2.0.0"
