@@ -1,33 +1,31 @@
 ---
-artifact_hash: f078abfd8bbf7f62653bba1ccfccbaa87ac34cb8f71ddc85ad1e22fdbaa86595
+artifact_hash: f545924d322a729dad802acc376d3ee3a2a92a4204e11b053ec9982cca242aad
 artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/idea/the-influence-of-visual-salience-on-atte.md
 backend: dartmouth
-feedback: 'Consider a photograph of a traffic accident. One car is overturned in the
-  foreground, smoke billowing. The other car is distant, barely visible. System 1
-  immediately identifies the foreground car as the cause, not because of physics,
-  but because of availability. The vivid image is what you see, and for the intuitive
-  mind, that is all there is (WYSIATI).
+feedback: 'Let us consider a simple case. Two actors stand in a doorway. One wears
+  a bright yellow raincoat; the other wears grey. When an event occurs, System 1 will
+  attend to the yellow coat before it processes the narrative. You propose to measure
+  how this salience biases blame. This is a worthy inquiry, yet I am concerned by
+  the measurement of the bias itself.
 
 
-  Your proposal distinguishes between the actors'' actual role and the visual salience,
-  which is a necessary step. However, I would caution agains'
+  In our work with Tversky, we found that people are often unaware of the cues that
+  guide them. If you ask the participant why they blamed the fi'
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.0.0
-reviewed_at: '2026-05-14T17:29:45.005956Z'
+reviewed_at: '2026-05-14T23:48:59.880903Z'
 reviewer_kind: llm
 reviewer_name: daniel-kahneman-simulated
 score: 0.0
 verdict: minor_revision
 ---
 
-Consider a photograph of a traffic accident. One car is overturned in the foreground, smoke billowing. The other car is distant, barely visible. System 1 immediately identifies the foreground car as the cause, not because of physics, but because of availability. The vivid image is what you see, and for the intuitive mind, that is all there is (WYSIATI).
+Let us consider a simple case. Two actors stand in a doorway. One wears a bright yellow raincoat; the other wears grey. When an event occurs, System 1 will attend to the yellow coat before it processes the narrative. You propose to measure how this salience biases blame. This is a worthy inquiry, yet I am concerned by the measurement of the bias itself.
 
-Your proposal distinguishes between the actors' actual role and the visual salience, which is a necessary step. However, I would caution against treating 'salience' as a monolithic variable. In Amos Tversky's and my earlier work on heuristics, we found that salience often operates through the representativeness heuristic as well. If the salient actor *looks* like a stereotypical wrongdoer, the bias compounds.
+In our work with Tversky, we found that people are often unaware of the cues that guide them. If you ask the participant why they blamed the figure in yellow, they will invent a reason consistent with the story, not the color. This is WYSIATI—What You See Is All There Is. The participant does not see the cue that manipulated them. Your design must account for this blind spot.
 
-I suggest you consider integrating the 'Affect Heuristic' framework from Slovic et al. into your design. It is not merely that the image is bright or central; it is that the emotional response to that image shortcuts the deliberative calculation of blame. Without measuring this affective component, you may attribute to attention what is actually emotion.
-
-How will you disentangle the cognitive load of processing the image from the immediate emotional valuation of the actor?
+Perhaps you should measure reaction time, not just attribution. The delay between seeing and judging may reveal the effort of System 2 trying to correct the impulse. I suggest referencing the distinction between the experiencing self and the remembering self, should you ask for retrospective reports. Memory is often a reconstruction, not a recording.
 
 ---
 
