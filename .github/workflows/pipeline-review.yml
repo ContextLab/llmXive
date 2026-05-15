@@ -4,6 +4,7 @@ on:
     - cron: '0 */16 * * *'   # every 16 hours
   workflow_dispatch:
 permissions:
+  actions: write             # workflow_dispatch to pages.yml
   contents: write
   issues: write
 concurrency:

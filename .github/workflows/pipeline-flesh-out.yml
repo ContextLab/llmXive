@@ -4,6 +4,7 @@ on:
     - cron: '15 */2 * * *'   # every 2 hours, offset 15min
   workflow_dispatch:
 permissions:
+  actions: write             # workflow_dispatch to pages.yml
   contents: write
   issues: write
 concurrency:
