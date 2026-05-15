@@ -1,0 +1,1 @@
+{"event": "diff_pollution_purge", "ts": "2026-05-15T12:35:01Z", "deleted_paths": ["projects/PROJ-007-energy-systems/specs/001-energy-systems/spec.md"], "prior_stage": "planned", "new_stage": "flesh_out_complete", "reason": "polluted by unified-diff content; deleted, rolled back per spec 010 fix", "run_id": "94ebb5c6-41c1-4b77-acf6-79e88ecf5bf4"}

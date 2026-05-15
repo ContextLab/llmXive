@@ -129,9 +129,12 @@ class PlannerAgent(SlashCommandAgent):
 
         files = _split_multi_file(llm_response.text)
         written: list[str] = []
+        from llmxive.speckit._diff_guard import refuse_if_diff
         for relpath, content in files.items():
             target = feature_dir / relpath
             target.parent.mkdir(parents=True, exist_ok=True)
+            # Spec 010 fix: refuse diff-shaped content per file before write.
+            refuse_if_diff(content, artifact_kind=relpath)
             target.write_text(content + "\n", encoding="utf-8")
             # FR-009: refuse to commit template artifacts; unlink + raise
             if target.suffix == ".md":

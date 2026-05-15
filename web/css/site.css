@@ -1247,6 +1247,16 @@ a:hover { color: var(--accent-2); }
   border-left: 3px solid var(--accent, oklch(0.45 0.12 150));
   border-radius: 4px;
 }
+/* Spec-010 follow-up: when the user clicks "+N more", the block expands;
+   cap its height and let the user scroll through long comment threads
+   instead of pushing the card vertically. 320px ≈ 4-5 average comments
+   visible at once; vertical scrollbar reveals the rest. */
+.card .comments-block.expanded {
+  max-height: 320px;
+  overflow-y: auto;
+  /* Smooth scrolling so the user sees the just-revealed comments. */
+  scroll-behavior: smooth;
+}
 .card .comments-block .comment + .comment {
   margin-top: 8px;
   padding-top: 8px;

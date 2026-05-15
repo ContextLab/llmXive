@@ -1,7 +1,7 @@
 {
   "pdf_path": "docs/papers/PROJ-568-identifying-stimulus-driven-neural-activ/main-llmxive.pdf",
   "paper_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-  "audited_at": "2026-05-15T11:45:13Z",
+  "audited_at": "2026-05-15T11:53:55Z",
   "total_pages": 40,
   "pages": [
     {
@@ -201,26 +201,19 @@
     },
     {
       "page": 40,
-      "status": "fail",
-      "failures": [
-        {
-          "kind": "section_number_gap",
-          "evidence": "expected section 1, saw section 41",
-          "class": "unsupported_construct",
-          "recommendation": "check for stray \\setcounter or \\section* in source"
-        }
-      ]
+      "status": "pass",
+      "failures": []
     }
   ],
   "summary": {
-    "total_failures": 1,
+    "total_failures": 0,
     "failure_classes": {
       "source_fixable": 0,
-      "unsupported_construct": 1,
+      "unsupported_construct": 0,
       "source_missing": 0,
       "audit_tool_crash": 0
     },
-    "passed_pages": 39,
-    "failed_pages": 1
+    "passed_pages": 40,
+    "failed_pages": 0
   }
 }

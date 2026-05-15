@@ -115,6 +115,15 @@ class SpecifierAgent(SlashCommandAgent):
             feature_dir = repo / feature_dir
         feature_dir.mkdir(parents=True, exist_ok=True)
         spec_path = feature_dir / "spec.md"
+        # Spec 010 fix: refuse LLM responses that returned a diff. Without
+        # this guard, polluted files like:
+        #     --- a/spec.md
+        #     +++ b/spec.md
+        #     @@ -1,N +1,N @@
+        # got written verbatim. 8 production files were affected before this
+        # tightened.
+        from llmxive.speckit._diff_guard import refuse_if_diff
+        refuse_if_diff(llm_response.text, artifact_kind="spec.md")
         spec_path.write_text(llm_response.text.strip() + "\n", encoding="utf-8")
 
         # Spec 009 FR-009 + FR-010: real-only guard. If the emitter produced a
