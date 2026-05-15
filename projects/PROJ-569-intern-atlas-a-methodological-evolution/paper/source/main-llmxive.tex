@@ -301,7 +301,7 @@ This section evaluates whether Intern-Atlas captures meaningful method-evolution
 %这里为了编译美观 把下面的两段换了位置
 
 \paragraph{Evaluation of SGT-MCTS algorithm.} 
-\begin{wraptable}{r}{0.38\textwidth}
+\begin{table}[t]
 \centering
 \vspace{-1.5em}
 \caption{Lineage-search algorithm performance. `@$k$` denotes beam width or RW rollouts.}
@@ -318,7 +318,8 @@ RW@5 & 28.1 & 0.7 & 28.1 \\
 \bottomrule
 \end{tabular}
 \vspace{-1.0em}
-\end{wraptable}
+
+\end{table}
 Table~\ref{tab:lineage-search-results} compares SGT-MCTS with two graph-search baselines. Beam search expands all valid next-hop methods at each step and keeps the top-$k$ highest-scored partial chains. Random walk starts from the same seed method and repeatedly samples a valid next-hop method uniformly at random until the depth limit or a dead end. Compared with the strongest baseline, Beam@10, it improves NR by 39.9 points, ER by 55.8 points, and CAS by 39.9 points, indicating better recovery of the reference methods, transitions, and ordering in target evolution chains. These results support the effectiveness of SGT-MCTS for method-lineage reconstruction. Given the same graph and seed method, SGT-MCTS finds chains that are much closer to the expected evolution lineage of the method than the baselines.
 
 \paragraph{Analysis of graph construction quality.}
@@ -408,13 +409,13 @@ Table~\ref{tab:exp03-idea-quality} reports the idea-evaluation scores for ideas 
 
 \section{Conclusion}
 We have introduced \textsc{Intern-Atlas}, a typed methodology graph that promotes flat paper citations into a queryable causal network of methodological evolution. Built from $1{,}030{,}314$ papers spanning AI conferences, journals, and arXiv preprints, the graph carries $9{,}410{,}201$ semantically typed edges with verbatim bottleneck-to-mechanism evidence on every causal relation, and exposes three operators over the same substrate: SGT-MCTS lineage reconstruction, graph-grounded idea evaluation, and strategy-driven idea generation. Empirically, Intern-Atlas recovers expert-curated evolution chains more faithfully than beam-search and random-walk baselines, produces quality signals that monotonically stratify across publication tiers and align with independent expert review, and generates ideas preferred over external scholarly search and standard RAG baselines under label-blind human judgment. Just as the Protein Data Bank preceded AlphaFold and ImageNet preceded modern visual recognition, we see methodological evolution graphs as a foundational data layer for the emerging ecosystem of automated scientific discovery. We release the graph and pipeline as open infrastructure, and hope future work will build on this direction toward AI research agents that reason over the full causal lineage of human knowledge rather than isolated papers.
-\clearpage
+
 \bibliography{ref}
 \bibliographystyle{unsrt}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\clearpage
+
 \appendix
 
 \section*{Appendix Table of Contents}
@@ -426,7 +427,7 @@ We have introduced \textsc{Intern-Atlas}, a typed methodology graph that promote
 
 \vspace{1em}
 %==============================================================
-\clearpage
+
 \section{Graph Construction}
 \label{app:graph}
 

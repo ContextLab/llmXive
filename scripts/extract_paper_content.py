@@ -963,6 +963,18 @@ def _body_cleanup_passes(body: str) -> str:
     #    which crashed lualatex during hyperref bookmark generation).
     body = _wrap_section_math(body)
 
+    # 7. Drop manual page-break directives — let LaTeX flow text
+    #    naturally. PROJ-569 had `\clearpage` immediately before
+    #    `\bibliography{ref}`, leaving a near-empty page between the
+    #    Conclusion and References. The user's rule: references start
+    #    right after the text ends. The llmxive class doesn't need
+    #    manual breaks anywhere; if a future paper wants a page break
+    #    in a specific spot, it should be a layout decision the class
+    #    handles, not a body directive.
+    body = re.sub(r"\\clearpage\b", "", body)
+    body = re.sub(r"\\newpage\b", "", body)
+    body = re.sub(r"\\pagebreak(?:\s*\[[0-4]\])?\b", "", body)
+
     return body
 
 
@@ -1021,14 +1033,34 @@ def _wrap_section_math(body: str) -> str:
 
 
 def _convert_wrapfigure(body: str) -> str:
-    """Replace every `\\begin{wrapfigure}[N]{R}{W} ... \\end{wrapfigure}`
-    with `\\begin{figure}[t] ... \\end{figure}` — preserving the inner
-    figure content. wrapfigure was overflowing the llmxive textwidth
-    on multi-column source layouts.
+    """Replace every `\\begin{wrap{figure,table}}[N]{R}{W} ... \\end{wrap…}`
+    with the full-width equivalent — preserving the inner content.
+
+    The `wrapfig` package floats a figure/table inline with text wrapping
+    around it. With our llmxive class's wider single-column body, those
+    floats routinely overflow the textwidth and break paragraph flow on
+    the page after (PROJ-569's bottom-of-page-12 wraptable corrupted the
+    top of page 13). Converting to full-width `figure`/`table` floats
+    lets LaTeX place them on their own page break, restoring clean text
+    flow.
+
+    Conversion mapping:
+      \\begin{wrapfigure}[N]{R}{W} … \\end{wrapfigure}
+        → \\begin{figure}[t]        … \\end{figure}
+      \\begin{wraptable}[N]{R}{W}  … \\end{wraptable}
+        → \\begin{table}[t]         … \\end{table}
     """
+    for env_src, env_dst in (("wrapfigure", "figure"), ("wraptable", "table")):
+        body = _convert_wrapped_env(body, env_src, env_dst)
+    return body
+
+
+def _convert_wrapped_env(body: str, env_src: str, env_dst: str) -> str:
+    """Replace each `\\begin{env_src}[N]{R}{W} … \\end{env_src}` with
+    `\\begin{env_dst}[t] … \\end{env_dst}` (full-width float)."""
     out: list[str] = []
-    pat = re.compile(r"\\begin\s*\{wrapfigure\}")
-    end_pat = re.compile(r"\\end\s*\{wrapfigure\}")
+    pat = re.compile(r"\\begin\s*\{" + env_src + r"\}")
+    end_pat = re.compile(r"\\end\s*\{" + env_src + r"\}")
     i = 0
     n = len(body)
     while i < n:
@@ -1038,8 +1070,7 @@ def _convert_wrapfigure(body: str) -> str:
             break
         out.append(body[i : m.start()])
         idx = m.end()
-        # Skip the wrapfigure args. Each can be optional [...] or required {...}
-        # We allow up to 3 args.
+        # Skip up to 3 args. Each can be optional [...] or required {...}.
         for _ in range(3):
             while idx < n and body[idx] in " \t\r\n":
                 idx += 1
@@ -1057,14 +1088,12 @@ def _convert_wrapfigure(body: str) -> str:
                     break
             else:
                 break
-        # Now find the matching \end{wrapfigure}
         em = end_pat.search(body, idx)
         if not em:
-            # malformed — emit raw
             out.append(body[m.start():])
             break
         inner = body[idx : em.start()]
-        out.append("\\begin{figure}[t]\n" + inner + "\n\\end{figure}")
+        out.append(rf"\begin{{{env_dst}}}[t]" + "\n" + inner + "\n" + rf"\end{{{env_dst}}}")
         i = em.end()
     return "".join(out)
 
