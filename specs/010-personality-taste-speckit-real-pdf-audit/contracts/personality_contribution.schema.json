@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://llmxive.dev/schemas/010/personality_contribution.schema.json",
+  "title": "Personality contribution frontmatter",
+  "description": "YAML frontmatter at the top of a personality contribution markdown file. Validates FR-001/002/003.",
+  "type": "object",
+  "required": ["persona", "date", "project_id", "position", "interest_signal"],
+  "properties": {
+    "persona": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+-simulated$",
+      "description": "Persona slug, e.g. 'ada-lovelace-simulated'."
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO 8601 date the contribution was generated."
+    },
+    "project_id": {
+      "type": "string",
+      "pattern": "^PROJ-\\d{3,4}-",
+      "description": "Project identifier this contribution attaches to."
+    },
+    "position": {
+      "type": "string",
+      "enum": ["lean_toward", "lean_against", "suggest_revision", "abstain"],
+      "description": "Explicit position taken by the persona on this idea (FR-001)."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["low", "med", "high"],
+      "description": "Optional self-rated confidence."
+    },
+    "adjacent_work": {
+      "type": "array",
+      "description": "Adjacent-work pointers (FR-002). MUST be non-empty when position != 'abstain'.",
+      "items": {
+        "type": "object",
+        "required": ["kind", "pointer", "title"],
+        "properties": {
+          "kind": {"type": "string", "enum": ["arxiv", "doi", "url"]},
+          "pointer": {"type": "string", "minLength": 1},
+          "title": {"type": "string", "minLength": 1},
+          "verified_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Liveness check timestamp; written by the pipeline, not the persona."
+          }
+        }
+      }
+    },
+    "interest_signal": {
+      "type": "string",
+      "minLength": 1,
+      "description": "MUST exactly match one of the persona card's declared interest_signals (FR-003)."
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"position": {"not": {"const": "abstain"}}}},
+      "then": {
+        "required": ["adjacent_work"],
+        "properties": {"adjacent_work": {"minItems": 1}}
+      }
+    }
+  ]
+}

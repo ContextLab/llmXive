@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://llmxive.dev/schemas/010/pdf_audit_report.schema.json",
+  "title": "PDF audit report (per-PDF)",
+  "description": "Output of `llmxive pdf-pipeline audit <pdf>`. Validates FR-014/015/016/017/018/021.",
+  "type": "object",
+  "required": ["pdf_path", "paper_id", "audited_at", "total_pages", "pages", "summary"],
+  "properties": {
+    "pdf_path": {"type": "string"},
+    "paper_id": {"type": "string", "pattern": "^PROJ-\\d{3,4}-"},
+    "audited_at": {"type": "string", "format": "date-time"},
+    "total_pages": {"type": "integer", "minimum": 0},
+    "pages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["page", "status", "failures"],
+        "properties": {
+          "page": {"type": "integer", "minimum": 1},
+          "status": {"type": "string", "enum": ["pass", "fail"]},
+          "failures": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["kind", "evidence", "class"],
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "literal_command_text",
+                    "non_square_bracket_cite",
+                    "non_canonical_authorblock",
+                    "off_spec_figure_width",
+                    "section_number_gap",
+                    "audit_tool_crash"
+                  ]
+                },
+                "evidence": {"type": "string", "description": "Excerpt of the failing content (e.g., the literal command string)."},
+                "class": {
+                  "type": "string",
+                  "enum": ["source_fixable", "unsupported_construct", "source_missing", "audit_tool_crash"]
+                },
+                "recommendation": {"type": "string"},
+                "stack_trace_excerpt": {"type": "string", "description": "Present only when kind == 'audit_tool_crash'."}
+              }
+            }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_failures", "failure_classes", "passed_pages", "failed_pages"],
+      "properties": {
+        "total_failures": {"type": "integer", "minimum": 0},
+        "failure_classes": {
+          "type": "object",
+          "required": ["source_fixable", "unsupported_construct", "source_missing", "audit_tool_crash"],
+          "properties": {
+            "source_fixable": {"type": "integer", "minimum": 0},
+            "unsupported_construct": {"type": "integer", "minimum": 0},
+            "source_missing": {"type": "integer", "minimum": 0},
+            "audit_tool_crash": {"type": "integer", "minimum": 0}
+          }
+        },
+        "passed_pages": {"type": "integer", "minimum": 0},
+        "failed_pages": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}
