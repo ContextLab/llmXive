@@ -366,6 +366,18 @@
       "accessCount": 1,
       "lastAccessed": 1778819250278,
       "type": "file"
+    },
+    {
+      "path": "tests/unit/test_liveness_check.py",
+      "accessCount": 1,
+      "lastAccessed": 1778819322619,
+      "type": "file"
+    },
+    {
+      "path": "tests/real_call/test_personality_liveness_real.py",
+      "accessCount": 1,
+      "lastAccessed": 1778819329596,
+      "type": "file"
     }
   ],
   "userDirectives": []
