@@ -1,0 +1,59 @@
+{
+  "pdf_path": "docs/papers/PROJ-562-a-stylometric-application-of-large-langu/supplement-llmxive.pdf",
+  "paper_id": "PROJ-562-a-stylometric-application-of-large-langu",
+  "audited_at": "2026-05-15T11:44:56Z",
+  "total_pages": 8,
+  "pages": [
+    {
+      "page": 1,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 2,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 3,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 4,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 5,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 6,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 7,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 8,
+      "status": "pass",
+      "failures": []
+    }
+  ],
+  "summary": {
+    "total_failures": 0,
+    "failure_classes": {
+      "source_fixable": 0,
+      "unsupported_construct": 0,
+      "source_missing": 0,
+      "audit_tool_crash": 0
+    },
+    "passed_pages": 8,
+    "failed_pages": 0
+  }
+}

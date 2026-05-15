@@ -1,0 +1,200 @@
+{
+  "pdf_path": "docs/papers/PROJ-564-qwen-image-vae-2-0-technical-report/main-llmxive.pdf",
+  "paper_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+  "audited_at": "2026-05-15T11:45:05Z",
+  "total_pages": 22,
+  "pages": [
+    {
+      "page": 1,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 2,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 3,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Chen et al., 2024)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        }
+      ]
+    },
+    {
+      "page": 4,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 5,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 6,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Zhang et al., 2018)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        }
+      ]
+    },
+    {
+      "page": 7,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Isola et al.,\n2017)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        }
+      ]
+    },
+    {
+      "page": 8,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 9,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 10,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 11,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Labs,2024)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        },
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Labs,2025)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        },
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Team,2025)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        }
+      ]
+    },
+    {
+      "page": 12,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Labs,2024)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        },
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Labs,2025)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        },
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Team,2025)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        },
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Deng et al., 2009)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        },
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Karras et al., 2018)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        }
+      ]
+    },
+    {
+      "page": 13,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 14,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 15,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 16,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 17,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 18,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 19,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 20,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 21,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 22,
+      "status": "pass",
+      "failures": []
+    }
+  ],
+  "summary": {
+    "total_failures": 11,
+    "failure_classes": {
+      "source_fixable": 11,
+      "unsupported_construct": 0,
+      "source_missing": 0,
+      "audit_tool_crash": 0
+    },
+    "passed_pages": 17,
+    "failed_pages": 5
+  }
+}

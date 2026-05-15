@@ -242,6 +242,12 @@
       "type": "file"
     },
     {
+      "path": "src/llmxive/cli.py",
+      "accessCount": 5,
+      "lastAccessed": 1778845476862,
+      "type": "file"
+    },
+    {
       "path": "tests/phase2/test_query_extractor.py",
       "accessCount": 4,
       "lastAccessed": 1778589017309,
@@ -443,6 +449,24 @@
       "path": "src/llmxive/speckit/_real_only_guard.py",
       "accessCount": 1,
       "lastAccessed": 1778845029627,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/test_pdf_audit_report_schema.py",
+      "accessCount": 1,
+      "lastAccessed": 1778845370215,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/test_pdf_audit_text_checks.py",
+      "accessCount": 1,
+      "lastAccessed": 1778845384204,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/test_pdf_audit_classify_failure.py",
+      "accessCount": 1,
+      "lastAccessed": 1778845388720,
       "type": "file"
     }
   ],

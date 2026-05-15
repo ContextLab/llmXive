@@ -496,6 +496,103 @@ def _cmd_submissions_process(_args: argparse.Namespace) -> int:
     return 0  # a per-submission failure never fails the run (FR-021)
 
 
+# ---------------------------------------------------------------------------
+# Spec 010: speckit + pdf-pipeline subcommands
+# ---------------------------------------------------------------------------
+
+
+def _cmd_speckit_audit_artifacts(args: argparse.Namespace) -> int:
+    """`llmxive speckit audit-artifacts` (FR-007)."""
+    from pathlib import Path
+    import json
+
+    from llmxive.audit.speckit_prune import audit_artifacts
+
+    report = audit_artifacts(Path(args.repo_root))
+    if args.out:
+        out_path = Path(args.out)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(json.dumps(report, indent=2))
+        print(f"[speckit] audit report → {out_path}")
+    else:
+        print(json.dumps(report, indent=2))
+    summary = report["summary"]
+    print(
+        f"[speckit] audited {report['total_artifacts']} artifact(s): "
+        f"{summary['real']} real, {summary['template']} template",
+        file=sys.stderr,
+    )
+    return 0
+
+
+def _cmd_speckit_prune_templates(args: argparse.Namespace) -> int:
+    """`llmxive speckit prune-templates` (FR-008/FR-009)."""
+    from pathlib import Path
+    import json
+
+    from llmxive.audit.speckit_prune import prune_templates
+
+    report = prune_templates(Path(args.repo_root), apply=args.apply)
+    summary = report["summary"]
+    if args.apply:
+        n_deleted = len(report["deleted_paths"])
+        n_rolled = len(report["rolled_back_projects"])
+        print(f"[speckit] APPLIED: deleted {n_deleted} path(s); rolled back {n_rolled} project(s)")
+        for path in report["deleted_paths"]:
+            print(f"  - deleted: {path}")
+        for project_id, rollback in report["rolled_back_projects"].items():
+            if rollback["prior_stage"] != rollback["new_stage"]:
+                print(
+                    f"  - {project_id}: {rollback['prior_stage']} → {rollback['new_stage']}"
+                )
+    else:
+        print(
+            f"[speckit] DRY-RUN: would delete {summary['template']} template(s) "
+            f"across {summary['projects_to_roll_back']} project(s)"
+        )
+        for a in report["artifacts"]:
+            if a["classification"] == "TEMPLATE":
+                print(f"  - would delete: {a['path']}")
+                for dep in a["transitive_dependents"]:
+                    print(f"      dep: {dep}")
+        print("\n[speckit] re-run with --apply to actually delete + roll back")
+    return 0
+
+
+def _cmd_pdf_audit(args: argparse.Namespace) -> int:
+    """`llmxive pdf-pipeline audit <path>` (FR-014)."""
+    from datetime import datetime, timezone
+    from pathlib import Path
+
+    from llmxive.pipeline.pdf_pipeline.audit import audit_directory, audit_pdf
+
+    path = Path(args.path)
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    out_dir = Path(args.out_dir) / today
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    if path.is_file() and path.suffix == ".pdf":
+        report = audit_pdf(path, out_dir)
+        n_fail = report["summary"]["total_failures"]
+        print(
+            f"[pdf-audit] {path}: {report['total_pages']} pages, "
+            f"{report['summary']['passed_pages']} pass, "
+            f"{report['summary']['failed_pages']} fail "
+            f"({n_fail} failure(s))"
+        )
+        return 0 if n_fail == 0 else 1
+
+    agg = audit_directory(path, out_dir)
+    print(
+        f"[pdf-audit] {agg['total_pdfs']} PDF(s) audited; "
+        f"{agg['total_failures']} total failure(s)"
+    )
+    for cls, n in agg["failure_classes"].items():
+        if n > 0:
+            print(f"  {cls}: {n}")
+    return 0 if agg["total_failures"] == 0 else 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="llmxive")
     subs = parser.add_subparsers(dest="cmd", required=True)
@@ -567,6 +664,55 @@ def build_parser() -> argparse.ArgumentParser:
     p_hf_top.add_argument("--dry-run", action="store_true",
                           help="print payloads instead of filing")
     p_hf_top.set_defaults(func=_cmd_hf_papers_submit_top)
+
+    # Spec 010: speckit artifact audit + prune.
+    p_speckit = subs.add_parser(
+        "speckit", help="speckit artifact operations (audit, prune templates)"
+    )
+    speckit_subs = p_speckit.add_subparsers(dest="speckit_cmd", required=True)
+    p_speckit_audit = speckit_subs.add_parser(
+        "audit-artifacts",
+        help="classify every speckit .md as REAL or TEMPLATE; emit JSON report (FR-007)",
+    )
+    p_speckit_audit.add_argument(
+        "--out", default=None,
+        help="write the JSON report to this path; print to stdout otherwise",
+    )
+    p_speckit_audit.add_argument(
+        "--repo-root", default=".",
+        help="repo root to scan (default: current directory)",
+    )
+    p_speckit_audit.set_defaults(func=_cmd_speckit_audit_artifacts)
+    p_speckit_prune = speckit_subs.add_parser(
+        "prune-templates",
+        help="delete TEMPLATE artifacts + roll project stages back (FR-008/FR-009)",
+    )
+    p_speckit_prune.add_argument(
+        "--apply", action="store_true",
+        help="actually delete + roll back (default: dry-run, no filesystem changes)",
+    )
+    p_speckit_prune.add_argument(
+        "--repo-root", default=".",
+        help="repo root to scan (default: current directory)",
+    )
+    p_speckit_prune.set_defaults(func=_cmd_speckit_prune_templates)
+
+    # Spec 010: PDF audit.
+    p_pdf = subs.add_parser(
+        "pdf-pipeline", help="deterministic PDF compilation + audit operations"
+    )
+    pdf_subs = p_pdf.add_subparsers(dest="pdf_cmd", required=True)
+    p_pdf_audit = pdf_subs.add_parser(
+        "audit", help="audit every page of every PDF under <path>; emit per-PDF JSON reports (FR-014)",
+    )
+    p_pdf_audit.add_argument(
+        "path", help="directory of papers (PROJ-*/*.pdf) or a single PDF file"
+    )
+    p_pdf_audit.add_argument(
+        "--out-dir", default="state/audit/pdf",
+        help="where to write per-PDF JSON reports (default: state/audit/pdf/<date>/)",
+    )
+    p_pdf_audit.set_defaults(func=_cmd_pdf_audit)
 
     return parser
 

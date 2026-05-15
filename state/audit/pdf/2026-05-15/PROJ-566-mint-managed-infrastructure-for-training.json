@@ -1,0 +1,258 @@
+{
+  "pdf_path": "docs/papers/PROJ-566-mint-managed-infrastructure-for-training/main-llmxive.pdf",
+  "paper_id": "PROJ-566-mint-managed-infrastructure-for-training",
+  "audited_at": "2026-05-15T11:45:10Z",
+  "total_pages": 36,
+  "pages": [
+    {
+      "page": 1,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 2,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 3,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 4,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(MindLab,2026)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        }
+      ]
+    },
+    {
+      "page": 5,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 6,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 7,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 8,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 9,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 10,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 11,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 12,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 13,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 14,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 15,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 16,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 17,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 18,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(MathematicalAssociationofAmerica,\n2024)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        }
+      ]
+    },
+    {
+      "page": 19,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 20,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 21,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 22,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 23,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 24,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 25,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Yao,\n2025)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        },
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(SilverandSutton,2025)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        },
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(NovaSkyAI,2026)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        },
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(OpenTinkerAuthors,2026)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        }
+      ]
+    },
+    {
+      "page": 26,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Xi et al., 2026)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        },
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(SchulmanandThinkingMachinesLab,2025)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        }
+      ]
+    },
+    {
+      "page": 27,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 28,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 29,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 30,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 31,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 32,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 33,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 34,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 35,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 36,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "section_number_gap",
+          "evidence": "expected section 8, saw section 2025",
+          "class": "unsupported_construct",
+          "recommendation": "check for stray \\setcounter or \\section* in source"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_failures": 9,
+    "failure_classes": {
+      "source_fixable": 8,
+      "unsupported_construct": 1,
+      "source_missing": 0,
+      "audit_tool_crash": 0
+    },
+    "passed_pages": 31,
+    "failed_pages": 5
+  }
+}
