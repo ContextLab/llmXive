@@ -1,5 +1,5 @@
-last_used: geoffrey-west
-last_used_at: '2026-05-15T01:19:53.079400+00:00'
+last_used: john-von-neumann
+last_used_at: '2026-05-15T02:19:56.140330+00:00'
 last_outcome: committed
 history:
 - slug: ada-lovelace
@@ -184,3 +184,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research/geoffrey-west-simulated__2026-05-15__research.md
+- slug: john-von-neumann
+  started_at: '2026-05-15T01:19:53.079400+00:00'
+  ended_at: '2026-05-15T02:19:56.140330+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research/john-von-neumann-simulated__2026-05-15__research.md
