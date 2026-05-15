@@ -1,8 +1,18 @@
 {
   "arxiv_id": "2604.27351",
   "arxiv_url": "https://arxiv.org/abs/2604.27351",
-  "title": "https://arxiv.org/abs/2604.27351",
-  "authors": [],
+  "title": "Heterogeneous Scientific Foundation Model Collaboration",
+  "authors": [
+    "Zihao Li",
+    "Jiaru Zou",
+    "Feihao Fang",
+    "Xuying Ning",
+    "Mengting Ai",
+    "Tianxin Wei",
+    "Sirui Chen",
+    "Xiyuan Yang",
+    "Jingrui He"
+  ],
   "submitter": "github-actions[bot]",
   "submitted_via": "llmXive dashboard, GitHub issue #162",
   "license": "arXiv Non-exclusive Distribution License",
