@@ -1,7 +1,7 @@
 {
   "pdf_path": "docs/papers/PROJ-563-many-shot-cot-icl-making-in-context-lear/main-llmxive.pdf",
   "paper_id": "PROJ-563-many-shot-cot-icl-making-in-context-lear",
-  "audited_at": "2026-05-15T11:45:03Z",
+  "audited_at": "2026-05-15T11:53:44Z",
   "total_pages": 39,
   "pages": [
     {
@@ -249,7 +249,7 @@
         },
         {
           "kind": "section_number_gap",
-          "evidence": "expected section 12, saw section 16",
+          "evidence": "expected section 11, saw section 16",
           "class": "unsupported_construct",
           "recommendation": "check for stray \\setcounter or \\section* in source"
         },

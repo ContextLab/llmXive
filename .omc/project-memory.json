@@ -278,6 +278,18 @@
       "type": "file"
     },
     {
+      "path": "src/llmxive/pipeline/pdf_pipeline/audit.py",
+      "accessCount": 3,
+      "lastAccessed": 1778845979418,
+      "type": "file"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 3,
+      "lastAccessed": 1778846054410,
+      "type": "file"
+    },
+    {
       "path": "agents/registry.yaml",
       "accessCount": 2,
       "lastAccessed": 1778588200899,
@@ -395,12 +407,6 @@
       "path": "src/llmxive/audit/liveness.py",
       "accessCount": 1,
       "lastAccessed": 1778819155172,
-      "type": "file"
-    },
-    {
-      "path": "src/llmxive/pipeline/pdf_pipeline/audit.py",
-      "accessCount": 1,
-      "lastAccessed": 1778819246221,
       "type": "file"
     },
     {

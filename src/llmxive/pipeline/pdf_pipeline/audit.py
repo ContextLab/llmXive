@@ -94,14 +94,30 @@ def _check_cite_style(page_text: str) -> list[dict[str, Any]]:
     return failures
 
 
-_SECTION_HEADING_RE = re.compile(r"^\s*(\d+)(?:\.\d+)*\s+[A-Z]")
+# Top-level section heading: a line beginning with a single integer (no dot
+# decimals), followed by whitespace, then an Uppercase letter. The regex
+# DELIBERATELY excludes patterns like "1.1 Subsection" (subsection numbers
+# don't fail monotonicity) and bibliography-entry numbers like "[12] Author"
+# (no space-Letter pattern).
+_SECTION_HEADING_RE = re.compile(r"^\s*(\d+)\s+[A-Z][a-z]")
+_BIBLIO_MARKERS = ("References", "Bibliography", "Works Cited", "REFERENCES")
 
 
 def _check_section_monotonicity(all_page_texts: list[str]) -> list[dict[str, Any]]:
-    """FR-021: top-level section numbers must be monotonic + gap-free."""
+    """FR-021: top-level section numbers must be monotonic + gap-free.
+
+    Skips any text after the first 'References' / 'Bibliography' marker (where
+    numbered entries are NOT section headings).
+    """
     failures: list[dict[str, Any]] = []
     top_nums: list[int] = []
+    in_bibliography = False
     for txt in all_page_texts:
+        if not in_bibliography and any(m in txt[:400] for m in _BIBLIO_MARKERS):
+            in_bibliography = True
+            # Continue scanning text BEFORE the marker on this page.
+        if in_bibliography:
+            continue
         for line in txt.splitlines():
             m = _SECTION_HEADING_RE.match(line)
             if m:

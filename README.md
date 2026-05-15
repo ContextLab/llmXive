@@ -183,6 +183,46 @@ LLM calls need a Dartmouth Chat API key (`DARTMOUTH_CHAT_API_KEY`, or
 `python -m llmxive auth set`); without it the backends fall through to Hugging
 Face (`HF_TOKEN`) then local transformers.
 
+### Audit tools (spec 010)
+
+Three deterministic audit commands (no LLM calls):
+
+- **Personality contributions** carry YAML frontmatter with `position`
+  (`lean_toward` / `lean_against` / `suggest_revision` / `abstain`),
+  `adjacent_work[]` (each pointer verified live by HEAD request against arXiv
+  / DOI / URL — cached 7 days at `state/audit/liveness-cache.json`), and
+  `interest_signal` (exact match to the persona-card's declared signals).
+  The rubric at `src/llmxive/audit/personality_rubric.py` rejects any
+  contribution missing these three new axes; legacy contributions without
+  frontmatter fall back to the original 4-axis rule for backward compat.
+
+- **Speckit artifact audit** classifies every `.md` under `projects/**/specs/`
+  and `projects/**/.specify/` as REAL or TEMPLATE via
+  `_real_only_guard.is_real()`:
+
+  ```bash
+  python -m llmxive speckit audit-artifacts --out /tmp/audit.json
+  python -m llmxive speckit prune-templates --apply   # also rolls stages back
+  ```
+
+  Pruning transitively deletes downstream artifacts of a TEMPLATE, walks the
+  project's `history.jsonl` backwards to find the latest surviving real stage,
+  and logs the operation to `state/run-log/`.
+
+- **PDF audit** walks `docs/papers/PROJ-*/*.pdf`, extracts text via
+  `pdfplumber`, and runs deterministic checks for: literal LaTeX commands
+  rendered on page, non-square-bracket citation glyphs, non-canonical author
+  blocks, off-spec figure widths, and section-number gaps:
+
+  ```bash
+  python -m llmxive pdf-pipeline audit docs/papers/ --out-dir state/audit/pdf/
+  ```
+
+  Per-PDF JSON reports land under `state/audit/pdf/<date>/<paper-id>.json`.
+  The script is crash-tolerant: a PDF whose rendering raises is moved to
+  `state/audit/pdf/_quarantine/<date>/` with an `audit_tool_crash` entry,
+  and the remaining PDFs continue auditing.
+
 ## How to contribute
 
 Four ways in (all reachable from the [dashboard](https://context-lab.com/llmXive)'s
