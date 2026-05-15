@@ -1,0 +1,31 @@
+\begin{table}[h]
+\centering
+\small
+\caption{Per-system means on clean runs, averaged across the three domains.}
+\label{tab:pipeline-comparison-systems}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l l c c c c}
+\toprule
+Pipeline & System & On-time$\uparrow$ & Finishes$\uparrow$ & Auth.$\uparrow$ & Violates$\downarrow$ \\
+\midrule
+\multirow{7}{*}{Cascade}
+ & \novafull~+ \gptfull~+ \sonicfull~                      & 0.48 & 0.66 & 0.85 & 0.28 \\
+ & \inkfull~+ \haikufull~+ \sonicfull~               & 0.44 & 0.67 & 0.65 & 0.48 \\
+ & \whisperfull~+ \qwenfull~+ \voxtralfull~         & 0.76 & 0.75 & 0.60 & 0.42 \\
+ & \coherefull~+ \gemmaAfull~+ \voxtralfull~                  & 0.70 & 0.79 & 0.68 & 0.60 \\
+ & \novafull~+ \gptminifull~+ \aurafull~                  & 0.66 & 0.90 & 0.83 & 0.73 \\
+ & \scribefull~+ \geminiflashfull~+ \conversationalfull~                                      & 0.49 & 0.97 & 0.89 & 0.61 \\
+ & \parakeetfull~+ \gemmaBfull~+ \kokorofull~                & 0.33 & 0.97 & 0.87 & 0.61 \\
+\midrule
+\multirow{2}{*}{Hybrid}
+ & \ultravoxfull~                                         & 0.46 & 0.87 & 0.84 & 0.70 \\
+ & \geminiflashfull~+ \geminiflashttsfull~            & 0.01 & 0.90 & 0.92 & 0.56 \\
+\midrule
+\multirow{3}{*}{Speech-to-Speech}
+ & \gptrealtimefull~                                 & 0.80 & 0.99 & 0.93 & 0.69 \\
+ & \gptrealtimeminifull~                                & 0.80 & 0.97 & 0.83 & 0.88 \\
+ & \geminilivefull~                            & 0.89 & 0.95 & 0.88 & 0.78 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

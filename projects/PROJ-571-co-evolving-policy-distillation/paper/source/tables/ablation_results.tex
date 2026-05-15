@@ -1,0 +1,45 @@
+\begin{table}[t]
+\centering
+\caption{Ablation results on image and text reasoning benchmarks with Qwen3-VL-4B. I-OPD/T-OPD denotes distillation from the image/text branch (teacher); Text-Branch Only and Image-Branch Only denote removing the merge operation and using only the text or image branch for evaluation, respectively.}
+\label{tab:ablation_results}
+\scriptsize
+\setlength{\tabcolsep}{3.2pt}
+% \renewcommand{\arraystretch}{0.95}
+\begin{tabular}{l cccccccc cccccc c}
+\toprule
+\multirow{2}{*}{Method}
+& \multicolumn{8}{c}{\textit{Image Reasoning}}
+& \multicolumn{6}{c}{\textit{Text Reasoning}}
+& \multirow{2}{*}{All} \\
+\cmidrule(lr){2-9} \cmidrule(lr){10-15}
+& MMMU & M-P. & Vista & Vision & ZB$_s$ & WeM. & Verse & Avg.
+& A'25 & A'24 & H'25 & M500 & Min. & Avg.
+& \\
+\midrule
+\method
+& 66.94 & 55.10 & 75.75 & 57.88 & 24.40 & 59.81 & 58.88 & \cellcolor{blue!5}56.97
+& 49.58 & 60.42 & 30.83 & 94.50 & 58.46 & \cellcolor{blue!5}58.76
+& \cellcolor{blue!5}57.71 \\
+
+w/o I-OPD
+& 67.39 & 55.49 & 75.30 & 57.35 & 21.71 & 61.71 & 58.50 & \cellcolor{blue!5}56.78
+& 47.50 & 59.79 & 29.17 & 93.25 & 57.35 & \cellcolor{blue!5}57.41
+& \cellcolor{blue!5}57.04 \\
+
+w/o T-OPD
+& 66.00 & 54.78 & 75.00 & 57.66 & 22.01 & 61.33 & 58.59 & \cellcolor{blue!5}56.48
+& 49.38 & 57.71 & 28.33 & 94.10 & 59.38 & \cellcolor{blue!5}57.78
+& \cellcolor{blue!5}57.02 \\
+
+Text-Branch Only
+& 65.83 & 54.25 & 76.10 & 56.86 & 24.85 & 57.62 & 58.28 & \cellcolor{blue!5}56.26
+& 48.96 & 62.08 & 30.83 & 93.85 & 57.35 & \cellcolor{blue!5}58.61
+& \cellcolor{blue!5}57.24 \\
+
+Image-Branch Only
+& 65.39 & 54.82 & 76.15 & 56.99 & 24.40 & 60.29 & 59.39 & \cellcolor{blue!5}56.78
+& 49.38 & 59.58 & 25.00 & 94.10 & 57.81 & \cellcolor{blue!5}57.17
+& \cellcolor{blue!5}56.94 \\
+\bottomrule
+\end{tabular}
+\end{table}

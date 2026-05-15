@@ -1,0 +1,87 @@
+\definecolor{commentcolor}{RGB}{84, 137, 137}
+\definecolor{funccolor}{RGB}{201, 62, 116}
+\newcommand{\mycomment}[1]{\textcolor{commentcolor}{\# #1}}
+\newcommand{\func}[1]{\textcolor{funccolor}{\texttt{#1}}}
+
+\setlength{\algomargin}{0pt}
+\setlength{\AlCapHSkip}{0pt}
+\SetAlgoCaptionLayout{raggedright}
+
+\begin{figure}[!tb]
+    \begin{minipage}{0.49\textwidth}
+        \begin{algorithm}[H]
+            \caption{AnyFlow: Forward Flow Map Training}
+            \label{alg:flowmap}
+            \SetInd{0.3em}{0.8em}
+            \DontPrintSemicolon
+
+            \mycomment{$\text{fn}(\mathbf{z}, c, t, r)$: model to predict $\mathbf{u}$} \;
+            \mycomment{$\mathbf{x}$: training batch} \;
+            \mycomment{c: text embedding} \;
+            \mycomment{g: CFG scale} \;
+            \vspace{1em}
+
+            $t, r = \func{sample\_t\_r}() \quad\mycomment{\ t>r}$\;
+            $\mathbf{e} = \func{randn\_like}(\mathbf{x})$\;
+            \vspace{1em}
+            
+            $\mathbf{z} = (1 - t)*\mathbf{x} + t*\mathbf{e}$\;
+            $\mathbf{v} = \mathbf{e} - \mathbf{x}$\;
+            \vspace{1em}
+
+            \mycomment{Guidance-Fused Training}\;
+            $\mathbf{u}_c = \text{fn}(\mathbf{z}, c, t, r)$\;
+            $\mathbf{u}_{\varnothing} = \text{fn}(\mathbf{z}, \varnothing, t, r)$\;
+            $\mathbf{u} = \frac{1}{g}\left(\mathbf{u}_c - (1-g)*\func{stopgrad}(\mathbf{u}_{\varnothing})\right)$
+            \vspace{1em}
+
+            \mycomment{Differential Derivation Equation}\;
+            $\mathbf{z}^{+} = \mathbf{z} + \epsilon\mathbf{v}$\;
+            $\mathbf{z}^{-} = \mathbf{z} - \epsilon\mathbf{v}$\;
+
+            $\frac{d\mathbf{u}}{dt} = \frac{\text{fn}(\mathbf{z}^+, c, t+\epsilon, r)-\text{fn}(\mathbf{z}^-, c, t-\epsilon, r)}{2\epsilon g}$\;
+            $\mathbf{u}_{tgt} = \mathbf{v} - (t - r)\frac{d\mathbf{u}}{dt}$\;
+            \vspace{1em}
+            
+            $loss = \func{metric}(\mathbf{u} - \func{stopgrad}(\mathbf{u}_{tgt}))$\;
+        \end{algorithm}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.49\textwidth}
+        \begin{algorithm}[H]
+            \caption{AnyFlow: On-Policy Flow Map Distillation}
+            \label{alg:onpolicy}
+            \SetInd{0.3em}{0.8em}
+            \DontPrintSemicolon
+
+            \mycomment{$\text{fn}(\mathbf{z}, c, t, r)$: model to predict $\mathbf{u}$} \;
+            \mycomment{$\mathbf{x}$: training batch} \;
+            \mycomment{c: text embedding} \;
+            
+            \vspace{1em}
+
+            \While{true}{
+            \vspace{1em}
+            \mycomment{Sample Inference Step}\;
+        $s \sim \text{Uniform}(1, 2, \dots, T)$\;
+        \vspace{1em}
+        \mycomment{Sample Gradient Step}\;
+        $t \sim \text{Uniform}(1, 2, \dots, s)$\;
+        $r = t - T/s$
+    
+        \vspace{1em}
+        \mycomment{Sample Initial Noise}\;
+        $\mathbf{z}_T = \func{randn\_like}(\mathbf{x})$\;
+        \vspace{1em}
+        \mycomment{Flow Map Backward Simulation} \;
+        $\mathbf{z}_t = \text{fn}(\mathbf{z}_{T}, c, T, t)$ \mycomment{With Grad}\;  
+        
+        $\mathbf{z}_r = \text{fn}(\mathbf{z}_{t}, c, t, r)$ \mycomment{With Grad}\;
+        $\mathbf{z}_0 = \text{fn}(\mathbf{z}_{r}, c, r, 0)$ \mycomment{With Grad}\;
+        
+        \vspace{1em}
+        Update $\theta$ via distribution matching loss using $\mathbf{z}_0$ and renoise at [0, T] \;
+    }
+        \end{algorithm}
+    \end{minipage}
+\end{figure}

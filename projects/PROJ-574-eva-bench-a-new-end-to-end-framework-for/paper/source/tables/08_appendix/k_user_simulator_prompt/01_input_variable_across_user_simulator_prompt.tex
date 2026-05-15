@@ -1,0 +1,23 @@
+\begin{table}[h]
+\centering
+\caption{Input variables shared across all user simulator system prompts.}
+\label{tab:simulator-variables}
+\begin{tabular}{lp{9cm}}
+\toprule
+\textbf{Variable} & \textbf{Description} \\
+\midrule
+\texttt{\{user\_persona\}}           & The personality and communication style of the simulated user. \\
+\texttt{\{high\_level\_user\_goal\}} & The overarching task the user is trying to accomplish. \\
+\texttt{\{must\_have\_criteria\}}    & Non-negotiable requirements the user will not compromise on. \\
+\texttt{\{nice\_to\_have\_criteria\}}& Secondary preferences the user is willing to forgo if necessary. \\
+\texttt{\{negotiation\_behavior\}}   & Decision logic for evaluating options presented by the agent. \\
+\texttt{\{information\_required\}}   & Information available to the user, disclosed only when explicitly asked. \\
+\texttt{\{starting\_utterance\}}     & The exact opening phrase the simulator must use to begin the call. \\
+\texttt{\{resolution\_condition\}}   & The criteria that define a successful outcome. \\
+\texttt{\{failure\_condition\}}      & The criteria that define a failed outcome. \\
+\texttt{\{escalation\_behavior\}}    & Rules governing whether and how the user may request or accept a transfer to a live agent. \\
+\texttt{\{edge\_cases\}}             & Domain-specific edge case handling instructions. \\
+\texttt{\{current\_date\_time\}}     & The simulated current date and time, injected at runtime. \\
+\bottomrule
+\end{tabular}
+\end{table}

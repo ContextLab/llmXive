@@ -1,0 +1,45 @@
+\begin{table}[h]
+\centering
+\small
+\captionsetup{font=small}
+\renewcommand{\arraystretch}{1.5}
+\caption{Agent interruption sub-scores, each capped at $M=0.5$. 
+The minimum of the three is taken, ensuring that the weakest 
+dimension dominates --- a single poorly-recovered interruption cannot 
+be masked by favorable scores on the other dimensions. 
+$o_{\max} = 2{,}000$ ms defines the maximum tolerable overlap 
+duration beyond which $s_{\text{overlap}} = 0$; 
+$N_{\max} = 3$ defines the maximum number of distinct overlapping 
+segments beyond which $s_{\text{count}} = 0$.}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lp{2.6in}l}
+\toprule
+\textbf{Sub-score} & \textbf{Definition} & \textbf{Formula} \\
+\midrule
+Overlap & 
+Total simultaneous-speech duration $o$ (ms) across all user/agent 
+segment pairs, penalized up to a maximum tolerable overlap duration 
+$o_{\max}$, beyond which the agent is considered to have 
+unacceptably interrupted the user. & 
+$\displaystyle s_{\text{overlap}} = \max\!\left(0,\; M\!\left(1 - 
+\tfrac{o}{o_{\max}}\right)\right)$ \\[6pt]
+Count & 
+Number of distinct agent segments $n$ overlapping user speech 
+(each with ${>}1$ ms intersection), penalized as interruption 
+frequency increases toward the maximum tolerable segment count 
+$N_{\max}$. & 
+$\displaystyle s_{\text{count}} = \max\!\left(0,\; M\!\left(1 - 
+\tfrac{n-1}{N_{\max}-1}\right)\right),\; n \geq 1$ \\[6pt]
+Post-interrupt & 
+Silent gap from the end of the user's last segment to the start 
+of the agent's next settled response, measuring recovery quality 
+after an interruption. Scored via the latency curve 
+(Table~\ref{tab:tt-latency}). Omitted when no settled response 
+exists or the agent was still speaking at the user's last segment 
+end. & 
+$s_{\text{post}} = s_{\text{latency}}(\Delta t)$ \\
+\bottomrule
+\end{tabular}%
+}
+\label{tab:tt-agent-interrupt}
+\end{table}

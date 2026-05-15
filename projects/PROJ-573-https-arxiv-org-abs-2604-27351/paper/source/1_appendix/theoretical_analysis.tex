@@ -1,0 +1,559 @@
+\section{Theoretical Analysis}
+\label{app:theory}
+In this section, we conduct a detailed theoretical analysis of our \textit{Eywa} framework.
+We first unify the notation used across the main paper and the appendix, and collect a complete list of assumptions (Section~\ref{app:notation}). We then develop the theory along four complementary axes. Section~\ref{app:info} establishes an information-theoretic foundation that characterizes the \emph{language interface bottleneck}, providing a first-principles justification for the Domain Advantage assumption of the main paper. Building on this foundation, Section~\ref{app:expressivity} proves the expressivity and solvability guarantees of \textit{EywaAgent}, including the proof of Theorem~\ref{thm:eywaagent improvement}. Section~\ref{app:mas} generalizes the analysis to \textit{EywaMAS}, formalizing how the single-agent advantage propagates through communication graphs. Section~\ref{app:orchestra} develops the theory of \textit{EywaOrchestra} as adaptive orchestration over heterogeneous experts.
+Finally, Section ~\ref{app:efficiency} provides a token-complexity analysis that corroborates our empirical efficiency gains. Table~\ref{tab:theory_summary} at the end of this section provides a consolidated summary of all theoretical results and their dependencies.
+
+
+\subsection{Notation, Problem Setup, and Assumptions}
+\label{app:notation}
+\paragraph{Notations.}
+We collect, in Table~\ref{tab:notation}, the notation used throughout the main text and this appendix. 
+
+
+\begin{table}[h]
+\centering
+\caption{Summary of notation used in the main paper and this appendix.}
+\label{tab:notation}
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Symbol} & \textbf{Meaning} \\
+\midrule
+\addlinespace[2pt]
+\multicolumn{2}{@{}l@{}}{\textbf{\textit{Tasks and Data:}}} \\
+\addlinespace[2pt]
+$\mathcal{T}$ & Family of tasks with an underlying distribution. \\
+$\tau=(q,x,y^\star,\ell)$ & Task instance: instruction, input, target, loss. \\
+$\mathcal{Q},\mathcal{X},\mathcal{Y}$ & Instruction, input, and output spaces. \\
+$\ell:\mathcal{Y}\times\mathcal{Y}\to\mathbb{R}_{\ge 0}$ & Task-specific loss. \\
+$\mathcal{X}=\mathcal{X}_{\mathrm{lng}}\times \mathcal{X}_1\times\cdots\times\mathcal{X}_m$ & Input factorization into linguistic and modality-specific parts. \\
+$\pi_k:\mathcal{X}\to\mathcal{X}_k$ & Projection onto the $k$-th domain component, $x_k=\pi_k(x)$. \\
+$T_k:\mathcal{X}_k\to\mathcal{X}_{\mathrm{lng}}$ & Serialization map rendering $x_k$ into language tokens. \\
+\midrule
+\addlinespace[2pt]
+\multicolumn{2}{@{}l@{}}{\textbf{\textit{Agents and foundation models:}}} \\
+\addlinespace[2pt]
+$A_{\mathrm{LLM}}:\mathcal{S}\to\Delta(\mathcal{M})$ & LLM agent: policy over response space $\mathcal{M}$. \\
+$F_k:\mathcal{X}_k\times\mathcal{U}_k\to\mathcal{O}_k$ & Domain-specific foundation model for domain $k$. \\
+$\phi_k:\mathcal{S}\to\mathcal{U}_k$ & Query compiler (language state $\to$ FM configuration). \\
+$\psi_k:\mathcal{O}_k\to\mathcal{Z}_k$ & Response adapter (FM output $\to$ language-compatible context). \\
+$A_{\mathrm{eywa}}=(A_{\mathrm{LLM}},F,\phi,\psi,\mathcal{C})$ & EywaAgent. \\
+$\mathcal{C}:\mathcal{S}\to\{\texttt{invoke},\texttt{skip}\}$ & Control policy deciding whether to invoke the FM. \\
+\midrule
+\addlinespace[2pt]
+\multicolumn{2}{@{}l@{}}{\textbf{\textit{Multi-agent systems and orchestration:}}} \\
+\addlinespace[2pt]
+$\mathcal{M}_{\mathrm{MAS}}=(\mathcal{A},\mathcal{G})$ & Multi-agent system with agent set $\mathcal{A}$ and topology $\mathcal{G}$. \\
+$\mathcal{N}(i)$ & Neighbors of agent $i$ in the communication graph $\mathcal{G}$. \\
+$\mathcal{M}_{\mathrm{Eywa}}$ & EywaMAS: MAS whose agents may be LLM agents or EywaAgents. \\
+$\mathcal{O}_{\mathrm{orch}}=(\mathcal{C}_{\mathrm{cfg}},P)$ & EywaOrchestra: configuration space and conductor. \\
+$P:\mathcal{Q}\times\mathcal{X}\to\Delta(\mathcal{C}_{\mathrm{cfg}})$ & Conductor mapping tasks to system configurations. \\
+$\Pi$ & Finite topology pool. \\
+$\mathcal{M}_{\mathrm{LLM}},\mathcal{M}_{\mathrm{FM}}$ & Candidate LLM and FM pools. \\
+\midrule
+\addlinespace[2pt]
+\multicolumn{2}{@{}l@{}}{\textbf{\textit{Function classes and risk:}}} \\
+\addlinespace[2pt]
+$\mathcal{F}_{\mathrm{LLM}},\mathcal{F}_{\mathrm{Eywa}}$ & Function classes induced by LLM-only and EywaAgents. \\
+$\mathcal{F}_{\mathrm{LLM\text{-}MAS}},\mathcal{F}_{\mathrm{Eywa\text{-}MAS}}$ & Function classes induced by LLM-only MAS and EywaMAS. \\
+$\mathcal{F}_{\mathrm{Orch}}$ & Function class induced by EywaOrchestra. \\
+$\mathcal{R}(f)=\mathbb{E}_{\tau}[\ell(f(x),y^\star)]$ & Population risk. \\
+$\mathcal{R}_{\mathcal{F}}^\star=\inf_{f\in\mathcal{F}}\mathcal{R}(f)$ & Minimum population risk over class $\mathcal{F}$. \\
+$\hat{\mathcal{R}}_N(f)$ & Empirical risk over $N$ samples. \\
+\midrule
+\addlinespace[2pt]
+\multicolumn{2}{@{}l@{}}{\textbf{\textit{Information-theoretic quantities:}}} \\
+\addlinespace[2pt]
+$H(Y),\;H(Y\mid Z)$ & Entropy and conditional entropy. \\
+$I(Y;Z)$ & Mutual information between $Y$ and $Z$. \\
+$\mathbb{E}[Y\mid Z]$ & Conditional expectation. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+We first formalize the function classes that appear throughout this section. A function class is simply a set of input-output mappings. Once we specify what components a system may use and how they may interact, we obtain the collection of all functions $f:\mathcal{X}\to\mathcal{Y}$ that can be implemented by such a system. This plays a similar role as expressive families in neural networks: \textbf{a larger function class means the system can represent a broader range of behaviors}.
+
+\begin{definition}[Induced Function Classes]
+\label{def:function_classes}
+Given candidate LLM pool $\mathcal{M}_{\mathrm{LLM}}$, candidate FM pool $\mathcal{M}_{\mathrm{FM}}$, topology pool $\Pi$, and a family of admissible interface pairs $\{(\phi_k,\psi_k)\}$, we define:
+\begin{itemize}
+    \item $\mathcal{F}_{\mathrm{LLM}}=\{f:\mathcal{X}\to\mathcal{Y}\mid f(x)=A_{\mathrm{LLM}}(\mathrm{serialize}(x)),\; A_{\mathrm{LLM}}\in\mathcal{M}_{\mathrm{LLM}}\}$;
+    \item $\mathcal{F}_{\mathrm{Eywa}}=\{f:\mathcal{X}\to\mathcal{Y}\mid f \text{ is implemented by some } A_{\mathrm{eywa}}=(A_{\mathrm{LLM}},F,\phi,\psi,\mathcal{C})\}$;
+    \item $\mathcal{F}_{\mathrm{LLM\text{-}MAS}},\mathcal{F}_{\mathrm{Eywa\text{-}MAS}}$ are analogously defined at the system level over topologies $\mathcal{G}\in\Pi$;
+    \item $\mathcal{F}_{\mathrm{Orch}}=\{f:\mathcal{X}\to\mathcal{Y}\mid f(x)=F_{c}(q,x),\;c\sim P(\cdot\mid q,x)\text{ for some conductor }P\}$.
+\end{itemize}
+\end{definition}
+By construction, $\mathcal{F}_{\mathrm{LLM}}\subseteq\mathcal{F}_{\mathrm{Eywa}}\subseteq\mathcal{F}_{\mathrm{Eywa\text{-}MAS}}\subseteq\mathcal{F}_{\mathrm{Orch}}$. This is because we can (1) choose an EywaAgent whose control policy never invokes the FM. Then the EywaAgent reduces exactly to an LLM; (2) choose a topology consisting of a single agent node and no nontrivial communication. Then the multi-agent system reduces to the original EywaAgent; (3) choose a conductor P that places all its probability mass on one fixed configuration corresponding to the given EywaMAS system. Then EywaOrchestra reproduces exactly that fixed system.
+
+\clearpage
+
+
+
+\paragraph{Assumptions.}
+All subsequent theorems are derived under a common set of regularity and structural assumptions, which we collect here for clarity.
+
+
+\begin{assumption}[Task Factorization]
+\label{assumption:task_factorization}
+For scientific tasks, the input space factorizes as
+\begin{equation}
+    \mathcal{X} = \mathcal{X}_{\mathrm{lng}} \times \mathcal{X}_{1} \times \cdots \times \mathcal{X}_{m},
+\end{equation}
+where $\mathcal{X}_{\mathrm{lng}}$ denotes language-observable context and each $\mathcal{X}_k$ denotes a domain-specific input.
+we further assume that the task loss is compatible with this factorization: there exist component-wise losses $\ell_{\mathrm{lng}}$ and $\ell_k$ for $k=1,\dots,m$, together with a coordinate-wise nondecreasing aggregation function
+\begin{equation}
+\Gamma:\mathbb{R}_{\ge 0}^{m+1}\to\mathbb{R}_{\ge 0},
+\end{equation}
+such that
+\begin{equation}
+    \ell(\hat y,y^\star)
+    =
+    \Gamma\!\big(\ell_{\mathrm{lng}}(\hat y,y^\star), \ell_1(\hat y,y^\star), \dots, \ell_m(\hat y,y^\star)\big).
+\end{equation}
+Moreover, if two predictors are identical on all components except $k$, then a strict improvement in $\ell_k$ induces a strict improvement in the overall loss $\ell$.
+\end{assumption}
+
+\begin{assumption}[Domain Advantage of Foundation Models; extended statement of Assumption~\ref{assumption: domain advantage}]
+\label{assumption:domain_advantage_app}
+Let $\pi_k:\mathcal{X}\to\mathcal{X}_k$ denote the projection onto the $k$-th domain component with $x_k=\pi_k(x)$. For any task instance $\tau=(q,x,y^\star,\ell)\sim\mathcal{T}$ with an informative component $x_k$,
+\begin{equation}
+\mathbb{E}_{\tau\sim\mathcal{T}}[\ell_k(F_k(x_k),y^\star)]
+\;<\;
+\inf_{A_{\mathrm{LLM}}}\mathbb{E}_{\tau\sim\mathcal{T}}\big[\ell_k\big(A_{\mathrm{LLM}}(\mathrm{serialize}(x_k)),y^\star\big)\big].
+\end{equation}
+Moreover, there exists a non-empty task family $\mathcal{T}_1\subseteq\mathcal{T}$ such that (1) the $k$-th component is sufficient for the task on $\mathcal{T}_1$, and (2) the foundation model solves this component perfectly, while every language-only agent incurs strictly positive loss on the serialized input. Formally,
+\begin{equation}
+\mathbb{E}_{\tau\sim\mathcal{T}_1}[\ell_k(F_k(x_k),y^\star)] = 0,
+\qquad
+\inf_{A_{\mathrm{LLM}}}
+\mathbb{E}_{\tau\sim\mathcal{T}_1}
+\big[\ell_k\big(A_{\mathrm{LLM}}(\mathrm{serialize}(x_k)),y^\star\big)\big] > 0.
+\end{equation}
+\end{assumption}
+
+\begin{assumption}[Non-Degenerate Serialization]
+\label{assumption:nondeg_serialization}
+There exists at least one domain index $k\in\{1,\dots,m\}$ and a set $E\subseteq\mathcal{X}_k$ of positive measure such that the serialization map $T_k:\mathcal{X}_k\to\mathcal{X}_{\mathrm{lng}}$ is not sufficient for the target on $E$, i.e.,
+\begin{equation}
+\mathbb{E}[Y\mid X_k]\neq \mathbb{E}[Y\mid T_k(X_k)] \quad \text{on a subset of positive probability within }E,
+\end{equation}
+where $Y$ denotes the task-relevant target variable.
+\end{assumption}
+
+Assumption~\ref{assumption:nondeg_serialization} ensures that the serialization genuinely discards task-relevant information, which is the precise condition under which heterogeneity delivers strict gains. Assumption~\ref{assumption:domain_advantage_app} is implied by Assumption~\ref{assumption:nondeg_serialization} under a specific loss (Section~\ref{app:info}), but we state them separately to align with the main paper.
+
+\begin{assumption}[Performance-Preserving Interface]
+\label{assumption:faithful_interface}
+Fix a domain index $k$. For any admissible interface pair $(\phi_k,\psi_k)$ used in an EywaAgent, whenever the agent invokes the foundation model $F_k$, the interface does not degrade the performance of the foundation model and is better than the performance of a language-only Agent. Concretely,
+\[
+\mathbb{E}_{\tau\sim\mathcal{T}}\!\left[\ell\big(f_{\mathrm{Eywa}}(x),y^\star\big)\right]
+\;\le\;
+\mathbb{E}_{\tau\sim\mathcal{T}}\!\left[\ell\big(F_k(x_k),y^\star\big)\right].
+\]
+\end{assumption}
+
+Assumption~\ref{assumption:faithful_interface} formalizes the intuition that the FM--LLM ``Tsaheylu'' interface is faithful: a correctly configured call to $F_k$ recovers the Bayes-optimal conditional expectation given the domain-specific input.
+
+
+\subsection{Information-Theoretic Analysis of the Language Interface Bottleneck}
+\label{app:info}
+
+We begin with an information-theoretic characterization of why serializing a non-linguistic input $X_k$ into language tokens fundamentally limits the expressivity of language-only agents. All results in this subsection are derived for a single modality $k$; we drop the subscript for brevity and write $X:=X_k$, $T:=T_k$.
+
+\begin{lemma}[Data Processing Inequality for Serialization]
+\label{lem:dpi}
+Let $(X,Y)$ be jointly distributed random variables and let $T:\mathcal{X}\to\mathcal{X}_{\mathrm{lng}}$ be any measurable serializer. Then
+\begin{equation}
+I(Y;T(X))\;\le\;I(Y;X),
+\end{equation}
+with equality if and only if $I(Y;X\mid T(X))=0$.
+\end{lemma}
+\begin{proof}
+Since $Y\to X\to T(X)$ forms a Markov chain as $T(X)$ is computed from $X$, the classical data processing inequality yields $I(Y;T(X))\le I(Y;X)$, a.k.a., $Y \perp T(X) \mid X$. Equality holds if and only if conditioning on $T(X)$ yields the same information about $Y$ as conditioning on $X$.
+\end{proof}
+
+\begin{lemma}[Irreducible Bayes Risk Gap under Serialization]
+\label{lem:bayes_gap}
+Under squared loss $\ell(\hat y,y)=\|\hat y-y\|^2$ with $Y\in L^2$, define
+\begin{equation}
+\mathcal{R}_X^\star=\inf_{g:\mathcal{X}\to\mathcal{Y}}\mathbb{E}\big[\|Y-g(X)\|^2\big],
+\qquad
+\mathcal{R}_T^\star=\inf_{h:\mathcal{X}_{\mathrm{lng}}\to\mathcal{Y}}\mathbb{E}\big[\|Y-h(T(X))\|^2\big].
+\end{equation}
+Then
+\begin{equation}
+\label{eq:irreducible_bayes_risk}
+\mathcal{R}_T^\star - \mathcal{R}_X^\star
+\;=\;
+\mathbb{E}\!\left[\big\|\mathbb{E}[Y\mid X]-\mathbb{E}[Y\mid T(X)]\big\|^2\right]
+\;\ge\; 0,
+\end{equation}
+and $\mathcal{R}_T^\star > \mathcal{R}_X^\star$ whenever Assumption~\ref{assumption:nondeg_serialization} holds.
+\end{lemma}
+\begin{proof}
+Under squared loss, the Bayes predictors are $g^\star(X)=\mathbb{E}[Y\mid X]$ and $h^\star(T(X))=\mathbb{E}[Y\mid T(X)]$. Hence
+\begin{equation}
+\mathcal{R}_X^\star
+=
+\mathbb{E}\big[\|Y-\mathbb{E}[Y\mid X]\|^2\big],
+\qquad
+\mathcal{R}_T^\star
+=
+\mathbb{E}\big[\|Y-\mathbb{E}[Y\mid T(X)]\|^2\big].
+\end{equation}
+Split $Y-\mathbb{E}[Y\mid T(X)]$ as two parts. Then take squared norms and expectation,
+\begin{equation}
+Y-\mathbb{E}[Y\mid T(X)]
+=
+\big(Y-\mathbb{E}[Y\mid X]\big)
++
+\big(\mathbb{E}[Y\mid X]-\mathbb{E}[Y\mid T(X)]\big).
+\end{equation}
+\begin{equation}
+\mathcal{R}_T^\star=
+\mathcal{R}_X^\star
++
+\mathbb{E}\!\left[\big\|\mathbb{E}[Y\mid X]-\mathbb{E}[Y\mid T(X)]\big\|^2\right] 
++2\,\mathbb{E}\!\left[
+\left\langle
+Y-\mathbb{E}[Y\mid X],\,
+\mathbb{E}[Y\mid X]-\mathbb{E}[Y\mid T(X)]
+\right\rangle
+\right].
+\end{equation}
+Since $T(X)$ is a function of $X$, the term $\mathbb{E}[Y\mid X]-\mathbb{E}[Y\mid T(X)]$ is $\sigma(X)$-measurable. By the orthogonality property of conditional expectation, $Y-\mathbb{E}[Y\mid X]$ is orthogonal to every $\sigma(X)$-measurable square-integrable random variable, so the cross term vanishes. Here, $\sigma(Z)$ denotes the information generated by a random variable $Z$. Therefore,
+\begin{equation}
+\mathcal{R}_T^\star
+=
+\mathcal{R}_X^\star
++
+\mathbb{E}\!\left[\big\|\mathbb{E}[Y\mid X]-\mathbb{E}[Y\mid T(X)]\big\|^2\right].
+\end{equation}
+which is the claimed identity in Equation \ref{eq:irreducible_bayes_risk}. Strict inequality follows directly from Assumption~\ref{assumption:nondeg_serialization}, which guarantees that $\mathbb{E}[Y\mid X]\neq\mathbb{E}[Y\mid T(X)]$ on a set of positive probability.
+\end{proof}
+
+Lemmas~\ref{lem:dpi} and~\ref{lem:bayes_gap} establish that, under mild non-degeneracy, any language-only pipeline that filters $X$ through a textualization $T$ pays a strictly positive statistical price. This quantitative gap is the information-theoretic root cause of the Domain Advantage assumption (Assumption~\ref{assumption:domain_advantage_app}). The following proposition translates this observation from Bayes-optimal predictors to realized function classes.
+
+\begin{proposition}[Lower Bound on LLM-only Risk]
+\label{prop:llm_lower_bound}
+Under Assumption~\ref{assumption:nondeg_serialization}, for any language-only function class $\mathcal{F}_{\mathrm{LLM}}$ whose members factor through the serializer $T$,
+\begin{equation}
+\inf_{f\in\mathcal{F}_{\mathrm{LLM}}}\mathcal{R}(f)\;\ge\;\mathcal{R}_T^\star\;>\;\mathcal{R}_X^\star.
+\end{equation}
+\end{proposition}
+\begin{proof}
+Every $f\in\mathcal{F}_{\mathrm{LLM}}$ admits a factorization $f(x)=h(T(x))$ for some measurable $h$, by Definition~\ref{def:function_classes}. Consequently,
+\[
+\inf_{f\in\mathcal{F}_{\mathrm{LLM}}}\mathcal{R}(f)
+\;\ge\;
+\inf_{h}\mathbb{E}\big[\ell(h(T(X)),Y)\big]
+\;=\;
+\mathcal{R}_T^\star.
+\]
+The strict inequality $\mathcal{R}_T^\star>\mathcal{R}_X^\star$ is Lemma~\ref{lem:bayes_gap} under assumption~\ref{assumption:nondeg_serialization}.
+\end{proof}
+Proposition~\ref{prop:llm_lower_bound} is the central building block that allows us to prove strict improvements in later subsections. It rules out the possibility that a sufficiently clever language-only agent could ever recover the advantage of a direct-access foundation model.
+
+
+
+
+
+
+\subsection{Expressivity and Solvability of EywaAgent}
+\label{app:expressivity}
+
+We now prove Theorem~\ref{thm:eywaagent improvement} from the main paper, and establish two additional results: the EywaAgent containment $\mathcal{F}_{\mathrm{LLM}}\subseteq\mathcal{F}_{\mathrm{Eywa}}$ and the unboundedness of the expressivity gap.
+
+\begin{proposition}[EywaAgent Containment]
+\label{prop:containment}
+Under Definition~\ref{def:function_classes},
+\[
+\mathcal{F}_{\mathrm{LLM}}\;\subseteq\;\mathcal{F}_{\mathrm{Eywa}}.
+\]
+\end{proposition}
+\begin{proof}
+Fix any $f_{\mathrm{LLM}}\in\mathcal{F}_{\mathrm{LLM}}$ realized by an LLM agent $A_{\mathrm{LLM}}$. Consider the EywaAgent 
+\begin{equation}
+A_{\mathrm{eywa}}=(A_{\mathrm{LLM}},F,\phi,\psi,\mathcal{C}_{\mathrm{skip}})
+\end{equation}
+where $\mathcal{C}_{\mathrm{skip}}(s)\equiv\texttt{skip}$ for all $s\in\mathcal{S}$. By the semantics in Section~\ref{sec:eywaagent} of the main paper, under $\mathcal{C}_{\mathrm{skip}}$ the Eywa pipeline reduces to $z^{(t)}=A_{\mathrm{LLM}}(s^{(t)})$, which recovers the original LLM agent. Hence $f_{\mathrm{LLM}}$ can be realized by an EywaAgent, so $f_{\mathrm{LLM}}\in\mathcal{F}_{\mathrm{Eywa}}$.
+\end{proof}
+
+\begin{theorem}[Restatement of Theorem~\ref{thm:eywaagent improvement}: Improvement of EywaAgent over Language-only Agent]
+\label{thm:eywaagent_improvement_app}
+Let $\mathcal{F}_{\mathrm{LLM}}$ and $\mathcal{F}_{\mathrm{Eywa}}$ be the function classes induced by language-only agents and EywaAgents, respectively, as in Definition~\ref{def:function_classes}. Under Assumption~\ref{assumption:domain_advantage_app},
+\begin{enumerate}
+    \item \textbf{Strict Optimal Risk Improvement:}
+    \begin{equation}
+    \inf_{f\in\mathcal{F}_{\mathrm{Eywa}}}\mathbb{E}_{\tau\sim\mathcal{T}}[\ell(f(x),y^\star)]
+    \;<\;
+    \inf_{f\in\mathcal{F}_{\mathrm{LLM}}}\mathbb{E}_{\tau\sim\mathcal{T}}[\ell(f(x),y^\star)].
+    \end{equation}
+    \item \textbf{Expanded Solvable Task Space:} there exists a non-empty task family $\mathcal{T}_1\subset\mathcal{T}$ such that
+    \begin{equation}
+    \inf_{f\in\mathcal{F}_{\mathrm{Eywa}}}\mathbb{E}_{\tau\sim\mathcal{T}_1}[\ell(f(x),y^\star)] = 0,
+    \qquad
+    \inf_{f\in\mathcal{F}_{\mathrm{LLM}}}\mathbb{E}_{\tau\sim\mathcal{T}_1}[\ell(f(x),y^\star)] > 0.
+    \end{equation}
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+\textbf{Part 1 (Strict Optimal Risk Improvement).} By Proposition~\ref{prop:containment}, $\mathcal{F}_{\mathrm{LLM}}\subseteq\mathcal{F}_{\mathrm{Eywa}}$, so
+\begin{equation}
+\label{eq:inf_eywa_inf_llm}
+\inf_{f\in\mathcal{F}_{\mathrm{Eywa}}}\mathcal{R}(f)\;\le\;\inf_{f\in\mathcal{F}_{\mathrm{LLM}}}\mathcal{R}(f). 
+\end{equation}
+To prove strictness, consider the informative domain index $k$ from Assumption~\ref{assumption:nondeg_serialization}. By construction of EywaAgent, there exists an agent $f^\dagger\in\mathcal{F}_{\mathrm{Eywa}}$ that invokes the foundation model $F_k$ on the $k$-th component while leaving the remaining components unchanged relative to a language-only baseline. Therefore, its $k$-th component loss is no worse than that of $F_k$, whereas the non-$k$ components are unchanged.
+By Assumption~\ref{assumption:domain_advantage_app},
+\begin{equation}
+\mathbb{E}_{\tau\sim\mathcal{T}}[\ell_k(F_k(x_k),y^\star)]
+\;<\;
+\inf_{A_{\mathrm{LLM}}}\mathbb{E}_{\tau\sim\mathcal{T}}
+\big[\ell_k(A_{\mathrm{LLM}}(\mathrm{serialize}(x_k)),y^\star)\big].
+\end{equation}
+Hence $f^\dagger$ achieves strictly smaller loss on the $k$-th component than any language-only agent. Since all other components are unchanged, Assumption~\ref{assumption:task_factorization} implies that this strict improvement on component $k$ induces a strict improvement in the overall task loss. Thus
+\begin{equation}
+\mathcal{R}(f^\dagger)
+\;<\;
+\inf_{f\in\mathcal{F}_{\mathrm{LLM}}}\mathcal{R}(f)
+\Longrightarrow
+\inf_{f\in\mathcal{F}_{\mathrm{Eywa}}}\mathcal{R}(f)
+\;<\;
+\inf_{f\in\mathcal{F}_{\mathrm{LLM}}}\mathcal{R}(f).
+\end{equation}
+
+
+\textbf{Part 2 (Expanded Solvable Task Space).}
+According to Assumption \ref{assumption:domain_advantage_app}, consider a non-empty task family $\mathcal{T}_1\subseteq\mathcal{T}$ for which the task is fully determined by the $k$-th domain-specific component, and  the foundation model solves this component perfectly, i.e.,
+\begin{equation}
+\mathbb{E}_{\tau\sim\mathcal{T}_1}[\ell_k(F_k(x_k),y^\star)] = 0,
+\end{equation}
+Then, by the same construction as above, there exists an EywaAgent in $\mathcal{F}_{\mathrm{Eywa}}$ whose prediction is perfect on the only task-relevant component. This yields
+\begin{equation}
+\inf_{f\in\mathcal{F}_{\mathrm{Eywa}}}
+\mathbb{E}_{\tau\sim\mathcal{T}_1}[\ell(f(x),y^\star)] = 0.
+\end{equation}
+On the other hand, every language-only agent has strictly positive loss on the relevant component, hence
+\begin{equation}
+\inf_{f\in\mathcal{F}_{\mathrm{LLM}}}
+\mathbb{E}_{\tau\sim\mathcal{T}_1}[\ell(f(x),y^\star)] > 0.
+\end{equation}
+Therefore, the solvable task space of EywaAgent is strictly larger than that of language-only agents.
+\end{proof}
+
+
+
+\subsection{Multi-Agent Propagation: EywaMAS}
+\label{app:mas}
+
+We now lift the single-agent analysis to multi-agent systems. Let $\mathcal{M}_{\mathrm{LLM\text{-}MAS}}$ denote a MAS in which every agent is an LLM agent, and $\mathcal{M}_{\mathrm{Eywa}}$ an EywaMAS with at least one EywaAgent. We first show that any LLM-only MAS remains constrained by the information bottleneck of Section~\ref{app:info}.
+
+\begin{lemma}[Information Closure of LLM-only MAS]
+\label{lem:llm_mas_closure}
+Let $\mathcal{M}_{\mathrm{LLM\text{-}MAS}}=(\mathcal{A}_{\mathrm{LLM}},\mathcal{G})$ be any finite-horizon LLM-only MAS operating on input $X$ via the serialization $T(X)$. Let $\hat Y$ denote its final output. Then
+\begin{equation}
+I(Y;\hat Y)\;\le\;I(Y;T(X))\;\le\;I(Y; X).
+\end{equation}
+\end{lemma}
+\begin{proof}
+Since every agent in $\mathcal{A}_{\mathrm{LLM}}$ consumes and produces only language messages, the joint random variable of all messages exchanged over the entire interaction forms a (possibly very long) Markov chain emanating from $T(X)$: $Y\to X\to T(X)\to M_1\to M_2\to\cdots\to \hat Y$. The data processing inequality then gives $I(Y;\hat Y)\le I(Y;T(X))$. Since the same data processing was applied, $I(Y;T(X))\;\le\;I(Y; X)$.
+\end{proof}
+
+Lemma~\ref{lem:llm_mas_closure} formalizes the intuition that ``more LLM agents cannot create information that was discarded at serialization time''. We next argue that a single EywaAgent in EywaMAS, as long as its message can reach the final output node, propagates its recovered information through the entire system.
+
+\begin{theorem}[Communication-Enhanced Solvability of EywaMAS]
+\label{thm:eywamas_app}
+Let $\mathcal{M}_{\mathrm{Eywa}}=(\mathcal{A},\mathcal{G})$ be an EywaMAS and $\mathcal{M}_{\mathrm{LLM\text{-}MAS}}$ an LLM-only MAS with the same topology $\mathcal{G}$. Suppose that (i) there exists an EywaAgent $\mathcal{A}_k\in\mathcal{A}$ with access to $F_k$, and (ii) the topology $\mathcal{G}$ has finite diameter $D$ and the interaction horizon $T\ge D$, so that the message produced by $\mathcal{A}_k$ reaches the final output node within the interaction horizon. Under Assumptions~\ref{assumption:task_factorization},~\ref{assumption:domain_advantage_app},~\ref{assumption:nondeg_serialization}, and~\ref{assumption:faithful_interface}, there exists a non-empty task family $\mathcal{T}_1\subseteq\mathcal{T}$ such that
+\begin{equation}
+\inf_{f\in\mathcal{F}_{\mathrm{Eywa\text{-}MAS}}}\mathbb{E}_{\tau\sim\mathcal{T}_1}[\ell(f(x),y^\star)] = 0,
+\qquad
+\inf_{f\in\mathcal{F}_{\mathrm{LLM\text{-}MAS}}}\mathbb{E}_{\tau\sim\mathcal{T}_1}[\ell(f(x),y^\star)] > 0.
+\end{equation}
+\end{theorem}
+\begin{proof}
+\textbf{Zero-risk attainability by EywaMAS.} Let $\mathcal{T}_1$ be the task family from Assumption~\ref{assumption:domain_advantage_app} on which the $k$-th component is sufficient for the task and $F_k$ solves it perfectly: $\mathbb{E}_{\tau\sim\mathcal{T}_1}[\ell_k(F_k(x_k),y^\star)]=0$. Consider the EywaMAS in which $\mathcal{A}_k$ invokes $F_k$ on $x_k$ and forwards its adapted output $z_k=\psi_k(F_k(x_k,u_k))$ through the graph. By condition~(ii), $z_k$ is available to the final output node within the interaction horizon, which may simply copy it (a trivial operation in language). The resulting system-level function $f_{\mathrm{Eywa\text{-}MAS}}\in\mathcal{F}_{\mathrm{Eywa\text{-}MAS}}$ therefore satisfies $\ell_k(f_{\mathrm{Eywa\text{-}MAS}}(x),y^\star)=0$ on $\mathcal{T}_1$. Moreover, since the non-$k$ components can be handled exactly as in a language-only baseline (reachability only affects the task-relevant channel), Assumption~\ref{assumption:faithful_interface} ensures that the full Eywa system loss is no worse than the FM loss on $\mathcal{T}_1$, so
+\begin{equation}
+\inf_{f\in\mathcal{F}_{\mathrm{Eywa\text{-}MAS}}}\mathbb{E}_{\tau\sim\mathcal{T}_1}[\ell(f(x),y^\star)]
+\;\le\;
+\mathbb{E}_{\tau\sim\mathcal{T}_1}[\ell(F_k(x_k),y^\star)]=0,
+\end{equation}
+where the final equality uses Assumption~\ref{assumption:task_factorization} together with sufficiency of the $k$-th component on $\mathcal{T}_1$, which reduces $\ell$ to $\ell_k$ on this family.
+
+
+\textbf{Strict positivity for LLM-only MAS.} For any LLM-only MAS with the same topology, all messages and final outputs are functions of language-serialized inputs. By Lemma~\ref{lem:llm_mas_closure}, such a system cannot recover task-relevant information about $x_k$ that is lost during serialization. Hence, by Assumption~\ref{assumption:task_factorization} and ~\ref{assumption:domain_advantage_app}, strict positivity of the relevant component loss implies strict positivity of the overall task loss.
+\begin{equation}
+\inf_{f\in\mathcal{F}_{\mathrm{LLM\text{-}MAS}}}
+\mathbb{E}_{\tau\sim\mathcal{T}_1}
+[\ell_k(f(x),y^\star)] > 0
+\Longrightarrow
+\inf_{f\in\mathcal{F}_{\mathrm{LLM\text{-}MAS}}}
+\mathbb{E}_{\tau\sim\mathcal{T}_1}[\ell(f(x),y^\star)] > 0.
+\end{equation}
+\end{proof}
+
+
+
+\subsection{Adaptive Orchestration: EywaOrchestra}
+\label{app:orchestra}
+
+We now develop the theoretical foundation of \textit{EywaOrchestra}, which couples \emph{model adaptivity} (selecting LLM and FM backbones per task) with \emph{structural adaptivity} (selecting topologies from $\Pi$). Let $F_c$ denote the agent system instantiated by configuration $c$. For brevity, denote the conditional risk of configuration $c\in\mathcal{C}_{\mathrm{cfg}}$ at task input $(q,x)$ by
+\begin{equation}
+r(c;q,x):=\mathbb{E}\big[\ell(F_c(q,x),y^\star)\mid q,x\big].
+\end{equation}
+
+
+We show that,  whenever different task regions favor different configurations, \emph{any} adaptive conductor, even one limited to routing over a finite pool, dominates the best fixed multi-agent system.
+
+\begin{theorem}[Oracle Adaptivity Strictly Improves over Fixed Systems]
+\label{thm:orchestra_oracle}
+Let $\mathcal{C}_{\mathrm{cfg}}$ be a finite set of candidate configurations, and let
+\[
+r(c;q,x):=\mathbb{E}\big[\ell(F_c(q,x),y^\star)\mid q,x\big]
+\]
+denote the conditional risk of configuration $c$ at input $(q,x)$. Let $\tau=(q,x,y^\star,\ell)\sim\mathcal{T}$ denote the task distribution.
+
+Define the best fixed-configuration risk and the oracle adaptive risk as
+\begin{equation}
+\mathcal{R}_{\mathrm{fixed}}^\star
+=
+\min_{c\in\mathcal{C}_{\mathrm{cfg}}}
+\mathbb{E}_{\tau\sim\mathcal{T}}[\ell(F_c(q,x),y^\star)],
+\qquad
+\mathcal{R}_{\mathrm{oracle}}
+=
+\mathbb{E}_{\tau\sim\mathcal{T}}\!\left[\min_{c\in\mathcal{C}_{\mathrm{cfg}}}r(c;q,x)\right].
+\end{equation}
+Then $\mathcal{R}_{\mathrm{oracle}}\;\le\;\mathcal{R}_{\mathrm{fixed}}^\star$.
+Moreover, then the inequality is strict if for every fixed configuration $c\in\mathcal{C}_{\mathrm{cfg}}$,
+\begin{equation}
+\mathbb{P}\!\left(
+r(c;q,x) >
+\min_{c'\in\mathcal{C}_{\mathrm{cfg}}} r(c';q,x)
+\right)>0,
+\end{equation}
+In other words, the inequality is strict if no fixed configuration achieves optimality for all tasks.
+\end{theorem}
+
+\begin{proof}
+For any fixed configuration $c_0\in\mathcal{C}_{\mathrm{cfg}}$, we have pointwise risks which we can take expectation over
+\begin{equation}
+\min_{c\in\mathcal{C}_{\mathrm{cfg}}} r(c;q,x)
+\le
+r(c_0;q,x)
+\Longrightarrow
+\mathbb{E}_{\tau}\!\left[\min_c r(c;q,x)\right]
+\le
+\mathbb{E}_{\tau}[r(c_0;q,x)].
+\end{equation}
+Since this holds for every $c_0$, taking the minimum over $c_0$ yields
+\[
+\mathcal{R}_{\mathrm{oracle}}
+\le
+\min_{c_0\in\mathcal{C}_{\mathrm{cfg}}}
+\mathbb{E}_{\tau}[r(c_0;q,x)]
+=
+\mathcal{R}_{\mathrm{fixed}}^\star.
+\]
+
+For strictness, let $c^\star$ be a best fixed configuration achieving $\mathcal{R}_{\mathrm{fixed}}^\star$. By assumption,
+\[
+\mathbb{P}\!\left(
+r(c^\star;q,x) >
+\min_{c} r(c;q,x)
+\right)>0.
+\]
+Therefore, we have the strict inequality,
+\[
+\mathbb{E}_{\tau}\!\left[\min_c r(c;q,x)\right]
+<
+\mathbb{E}_{\tau}[r(c^\star;q,x)]
+=
+\mathcal{R}_{\mathrm{fixed}}^\star,
+\]
+\end{proof}
+
+
+\begin{table}[h]
+\centering
+\caption{Summary of theoretical results and the claims they justify.}
+\label{tab:theory_summary}
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}p{0.20\linewidth}p{0.78\linewidth}@{}}
+\toprule
+\textbf{Result} & \textbf{Key Statement} \\
+\midrule
+\multicolumn{2}{@{}l@{}}{\textit{Information-theoretic bottleneck (Section~\ref{app:info}).}} \\
+\addlinespace[2pt]
+Lemma~\ref{lem:dpi} & Serialization cannot increase information: $I(Y;T(X))\le I(Y;X)$. \\
+Lemma~\ref{lem:bayes_gap} & Strict Bayes-risk gap $\mathcal{R}_T^\star>\mathcal{R}_X^\star$ whenever the serializer discards task-relevant information. \\
+Proposition~\ref{prop:llm_lower_bound} & Every language-only function class is lower-bounded by the serialized Bayes risk $\mathcal{R}_T^\star$. \\
+\midrule
+\multicolumn{2}{@{}l@{}}{\textit{EywaAgent expressivity and solvability (Section~\ref{app:expressivity}).}} \\
+\addlinespace[2pt]
+Proposition~\ref{prop:containment} & $\mathcal{F}_{\mathrm{LLM}}\subseteq\mathcal{F}_{\mathrm{Eywa}}$: an EywaAgent can always fall back to an LLM agent. \\
+Theorem~\ref{thm:eywaagent_improvement_app} & EywaAgent strictly improves the optimal risk and expands the set of perfectly solvable tasks. \\
+\midrule
+\multicolumn{2}{@{}l@{}}{\textit{Multi-agent propagation (Section~\ref{app:mas}).}} \\
+\addlinespace[2pt]
+Lemma~\ref{lem:llm_mas_closure} & LLM-only MAS cannot exceed the mutual information retained by serialization. \\
+Theorem~\ref{thm:eywamas_app} & EywaMAS strictly solves tasks that no LLM-only MAS of the same topology can solve. \\
+\midrule
+\multicolumn{2}{@{}l@{}}{\textit{Adaptive orchestration (Section~\ref{app:orchestra}).}} \\
+\addlinespace[2pt]
+Theorem~\ref{thm:orchestra_oracle} & Oracle adaptive routing attains $\mathcal{R}_{\mathrm{oracle}}\le\mathcal{R}_{\mathrm{fixed}}^\star$, with strict inequality whenever no fixed configuration is uniformly optimal. \\
+\midrule
+\multicolumn{2}{@{}l@{}}{\textit{Efficiency (Section~\ref{app:efficiency}).}} \\
+\addlinespace[2pt]
+Proposition~\ref{prop:token_complexity} & EywaAgent language-token cost is $O(L_{\mathrm{call}}+L_\psi(o_k))$, independent of modality size, vs.\ $\Theta(L(x_k))$ for LLM-only agents. \\
+Proposition~\ref{prop:latency} & Wall-clock latency inherits the same asymptotic separation as the token complexity. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\subsection{Efficiency and Token Complexity}
+\label{app:efficiency}
+
+Beyond task performance, Eywa delivers strong efficiency gains, as evidenced by the $\sim$30\% token reduction reported in Section~\ref{sec:experiment}. We formalize this benefit by comparing the token complexities of language-only agents and EywaAgents when processing a structured input $x_k\in\mathcal{X}_k$.
+
+\begin{proposition}[Token Complexity]
+\label{prop:token_complexity}
+Let $L(x_k)$ denote the total number of language tokens an LLM-only agent spends on $x_k\in\mathcal{X}_k$, including both the serialization of $x_k$ in its prompt and any chain-of-thought reasoning required to analyze it. Let $L_{\mathrm{call}}$ denote the token length of a structured FM invocation produced by $\phi_k$, and $L_{\psi}(o_k)$ the token length of the adapted response $\psi_k(o_k)$. Then the language-token cost of processing $x_k$ satisfies
+\begin{align}
+\mathrm{TokenCost}_{\mathrm{LLM}}(x_k) &= \Theta(L(x_k)), \\
+\mathrm{TokenCost}_{\mathrm{Eywa}}(x_k) &= O(L_{\mathrm{call}}+L_{\psi}(o_k)).
+\end{align}
+In typical scientific modalities of interest (long time series, tables with many rows), $L(x_k)\gg L_{\mathrm{call}}+L_{\psi}(o_k)$, so the ratio $\mathrm{TokenCost}_{\mathrm{Eywa}}/\mathrm{TokenCost}_{\mathrm{LLM}}\to 0$ as the modality size grows.
+\end{proposition}
+\begin{proof}
+A language-only agent must both include $x_k$ in its prompt and perform any reasoning over it within the same language channel, so its combined prompt-plus-reasoning token count is $\Theta(L(x_k))$ by definition. An EywaAgent instead routes $x_k$ to the foundation model $F_k$ through a structured call of length $L_{\mathrm{call}}$. No reasoning tokens over $x_k$ are required on the language side. Summing these two contributions gives the stated bound. For time series or tables with $n$ entries, $L(x_k)=\Theta(n)$ at minimum from the serialization alone, while both $L_{\mathrm{call}}$ and $L_{\psi}(o_k)$ are typically constant or polylogarithmic in $n$.
+\end{proof}
+
+\begin{proposition}[Wall-Clock Latency]
+\label{prop:latency}
+Let the per-token latency of the LLM be $\alpha_{\mathrm{LLM}}$ and the FM call latency be $\alpha_{\mathrm{FM}}$ (independent of $L(x_k)$). Then
+\[
+\mathrm{Latency}_{\mathrm{LLM}}(x_k)\;=\;\Theta(\alpha_{\mathrm{LLM}}\cdot L(x_k)),
+\qquad
+\mathrm{Latency}_{\mathrm{Eywa}}(x_k)\;=\;O(\alpha_{\mathrm{LLM}}\cdot(L_{\mathrm{call}}+L_{\psi}(o_k))+\alpha_{\mathrm{FM}}).
+\]
+\end{proposition}
+\begin{proof}
+Both bounds follow from Proposition~\ref{prop:token_complexity} and the additive latency contribution of an FM call.
+\end{proof}
+
+In practice, the latency constant $\alpha_{\mathrm{FM}}$ in Proposition~\ref{prop:latency} is typically much smaller than the LLM processing cost $\alpha_{\mathrm{LLM}}\cdot L(x_k)$ for several reasons. First, the domain-specific foundation models are typically smaller than frontier LLMs in parameter count and are specialized to fixed-shape tensor inputs, which makes their inference both inherently lightweight and highly accelerator-friendly. Second, unlike LLM calls that are usually served through remote API endpoints, an FM invocation in Eywa is executed through a local MCP backend, avoiding network round-trip latency and API rate limits. Third, many FMs of interest admit further acceleration through batching, precomputed embeddings, or caching at the MCP layer. Consequently, $\alpha_{\mathrm{FM}}\le\alpha_{\mathrm{LLM}}\cdot L(x_k)$ whenever $x_k$ is non-trivial, and the Eywa latency in Proposition~\ref{prop:latency} is dominated by the (drastically reduced) LLM-side term $\alpha_{\mathrm{LLM}}\cdot(L_{\mathrm{call}}+L_{\psi}(o_k))$.
+
+
+
+\subsection{Summary of Theoretical Results}
+\label{app:summary}
+
+We close this section by consolidating the theoretical results developed above. Table~\ref{tab:theory_summary} lists every result together with a one-line summary of its key statement, so that the logical structure of the analysis can be read off at a glance. The results are organized along the same storyline as the main paper: from the information-theoretic characterization of the language interface bottleneck (Section~\ref{app:info}), to the single-agent and multi-agent expressivity guarantees of EywaAgent and EywaMAS (Sections~\ref{app:expressivity}--\ref{app:mas}), to the adaptivity result for EywaOrchestra (Section~\ref{app:orchestra}), and finally to the efficiency analysis that explains Eywa's empirical token and latency savings (Section~\ref{app:efficiency}).
+
+
+Read together, these results provide an end-to-end theoretical justification for the Eywa framework. The information-theoretic bottleneck (Lemmas~\ref{lem:dpi}--\ref{lem:bayes_gap} and Proposition~\ref{prop:llm_lower_bound}) identifies a first-principles reason why language-only agents are fundamentally limited on scientific inputs: the serialization step discards task-relevant information that no amount of downstream reasoning can recover. The expressivity analysis (Proposition~\ref{prop:containment} and Theorem~\ref{thm:eywaagent_improvement_app}) then shows that this bottleneck is closed at the single-agent level by EywaAgent, which contains the LLM-only class while achieving strictly smaller risk and strictly enlarging the set of perfectly solvable tasks. Lemma~\ref{lem:llm_mas_closure} and Theorem~\ref{thm:eywamas_app} lift this advantage from the single-agent to the multi-agent setting: under mild reachability, a single EywaAgent is sufficient to propagate the recovered information to the system output, while LLM-only MAS remain subject to the same serialization bottleneck. Theorem~\ref{thm:orchestra_oracle} further shows that once the configuration space is heterogeneous, task-adaptive orchestration provides an additional strict improvement over any fixed configuration. Finally, Propositions~\ref{prop:token_complexity} and~\ref{prop:latency} connect this theory to empirically observable efficiency: by offloading modality-specific computation to a foundation model, EywaAgent removes the $\Theta(L(x_k))$ scaling that language-only pipelines pay in tokens and latency, matching the $\sim$30\% token reduction reported in our experiments (Section~\ref{sec:experiment}).

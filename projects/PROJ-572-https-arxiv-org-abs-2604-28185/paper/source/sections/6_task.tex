@@ -1,0 +1,392 @@
+\section{Applications and Evolving Frontiers}
+\label{sec:applications}
+
+
+\begin{figure}[!t]
+  \centering
+  \resizebox{0.93\linewidth}{!}{\hbadness=10000\hfuzz=200pt%
+\begin{forest}
+for tree={
+  grow'=east,
+  forked edges,
+  draw=black!35,
+  rounded corners=2pt,
+  align=left,
+  font=\sffamily\small,
+  inner xsep=4pt,
+  inner ysep=3pt,
+  l sep=8pt,
+  s sep=6pt,
+  edge={thick, gray!60},
+  parent anchor=east,
+  child anchor=west,
+  anchor=west,
+  base=left,
+  edge path={
+    \noexpand\path [\forestoption{edge}]
+      (!u.parent anchor) -- +(4pt,0) |- (.child anchor)\forestoption{edge label};
+  },
+},
+root style/.style={
+  fill=gray!15,
+  draw=gray!60,
+  text=black,
+  font=\sffamily\bfseries\normalsize,
+  minimum width=3.3cm,
+  align=center,
+  inner xsep=6pt,
+  inner ysep=5pt,
+},
+level 1/.style={
+  font=\sffamily\bfseries\small,
+  minimum width=3.2cm,
+  align=center,
+  inner xsep=5pt,
+  inner ysep=4pt,
+},
+level 2/.style={
+  fill=white,
+  draw=black!25,
+  text=black,
+  line width=0.9pt,
+  font=\sffamily\bfseries\footnotesize,
+  minimum width=2.5cm,
+  align=center,
+  inner xsep=4pt,
+  inner ysep=3pt,
+},
+level 3/.style={
+  fill=white,
+  draw=black!25,
+  text=black,
+  font=\fontsize{6.2}{7.0}\selectfont,
+  line width=0.6pt,
+  edge={black!35},
+  align=left,
+  text width=8.2cm,
+  inner xsep=6pt,
+  inner ysep=6pt,
+  anchor=west,
+}
+    [Applications \\ (\Cref{sec:applications}), root style
+      [Fine-grained Controllability \\ (Structural Scaffolding),
+        level 1, fill=BlueGreen!15, draw=BlueGreen!70, edge={thick, BlueGreen!70}
+          [Spatial \& Relational, level 2
+              [{\textbf{Layout:} ReCon~\citep{ReCon}, CreatiLayout~\citep{CreatiLayout} \\
+              MIGLoRA~\citep{MIGLoRA}, MOSAIC~\citep{MOSAIC} \\
+              FROSS~\citep{FROSS}, HybridLayout~\citep{wu2025hybrid} \\
+              \textbf{Geometric Primitives:} ControlNet++~\citep{controlnet++}, \\
+              OmniRefiner~\citep{OmniRefiner}, RichControl~\citep{RichControl}}, level 3]
+          ]
+          [Disentangled Synthesis, level 2
+              [{\textbf{Concept-centric personalization:} \\
+              Chimera~\citep{Chimera}, DreamBooth~\citep{ruiz2023dreambooth} \\
+              \textbf{Style-content separation:} \\
+              StyleShot~\citep{StyleShot}, AIComposer~\citep{AIComposer} \\
+              OminiControl~\citep{OminiControl}, Easycontrol~\citep{Easycontrol} \\
+              \textbf{Multi-view/3D consistency:} \\
+              Mv-adapter~\citep{Mv-adapter}, FlexGen~\citep{FlexGen} \\
+              PRISM~\citep{PRISM}}, level 3]
+          ]
+          [Identity \& Character \\ Customization, level 2
+              [{\textbf{Optimization-based personalization:} \\
+              Textual Inversion~\citep{gal2022image}, DreamBooth~\citep{ruiz2023dreambooth} \\
+              LoRA~\citep{hu2022lora} \\
+              \textbf{Reusable identity injectors:} \\
+              E4T~\citep{gal2023encoder}, IP-Adapter~\citep{ye2023ip} \\
+              InstantID~\citep{wang2024instantid}, PuLID~\citep{guo2024pulid} \\
+              PhotoMaker~\citep{li2024photomaker} \\
+              \textbf{Character/full-body consistency:} \\
+              PortraitBooth~\citep{peng2024portraitbooth}, StoryMaker~\citep{zhou2024storymaker} \\
+              Visual Persona~\citep{nam2025visual}, InstantCharacter~\citep{InstantCharacter} \\
+              UniPortrait~\citep{UniPortrait}}, level 3]
+          ]
+      ]
+      [Constructionist Paradigms \\ (Domain-Specific Adaptation),
+        level 1, fill=Periwinkle!20, draw=Periwinkle!70, edge={thick, Periwinkle!70}
+          [Modular Workflows, level 2
+              [{\textbf{Multi-agent planning systems:} \\
+              PosterVerseAF~\citep{Liu2026PosterVerseAF}, PosterGenAP~\citep{Zhang2025PosterGenAP} \\
+              \textbf{Reward modeling \& distillation:} \\
+              PosterOmniGA~\citep{Chen2026PosterOmniGA}, POSTAAG~\citep{Chen2025POSTAAG} \\
+              PosterCraftRH~\citep{Chen2025PosterCraftRH} \\
+              \textbf{In-context domain alignment:} \\
+              ICCustomDI~\citep{Li2025ICCustomDI}}, level 3]
+          ]
+          [Semantic Typography, level 2
+              [{\textbf{Visual approximation to semantic precision:} \\
+              GlyphByT5v2AS~\citep{Liu2024GlyphByT5v2AS} \\
+              \textbf{Decoupled typographic control:} \\
+              ControlTextUC~\citep{Jiang2025ControlTextUC}, EasyTextCD~\citep{Lu2025EasyTextCD} \\
+              UniGlyphUS~\citep{Wang2025UniGlyphUS}, ReChar~\citep{Rechar} \\
+              \textbf{3D-aware semantic rendering:} \\
+              CharGenHA~\citep{Ma2024CharGenHA}, UMTextAU~\citep{Ma2026UMTextAU} \\
+              WordConWT~\citep{Shi2025WordConWT}, BeyondFT~\citep{Luo2025BeyondFT}}, level 3]
+          ]
+      ]
+      [Reasoning-Driven Editing \\ (State Transition Modeling),
+        level 1, fill=Melon!20, draw=Melon!70, edge={thick, Melon!70}
+          [Agentic Decomposition, level 2
+              [{\textbf{Multi-step logical planning:} \\
+              BeyondSE~\citep{Yeh2025BeyondSE}, MIRAMI~\citep{Zeng2025MIRAMI} \\
+              \textbf{Symbolic executable programs:} \\
+              ReasonEditTR~\citep{Yin2025ReasonEditTR}, LegoEditAG~\citep{Jia2025LegoEditAG} \\
+              ImageEA~\citep{Hu2025ImageEA}}, level 3]
+          ]
+          [Manifold Preservation, level 2
+              [{\textbf{Global-local invariance:} \\
+              IMAGHarmonyCI~\citep{Shen2025IMAGHarmonyCI}, \\ TBStarEditFI~\citep{Fang2025TBStarEditFI} \\
+              SpotEditEV~\citep{Ghazanfari2025SpotEditEV} \\
+              \textbf{Physically grounded layer decomposition:} \\
+              ControllableLI~\citep{Yang2026ControllableLI}}, level 3]
+          ]
+          [Deployment \& Efficiency, level 2
+              [{\textbf{Weight-free/In-context editing:} \\
+              InContextEE~\citep{Zhang2025InContextEE}, VisualAM~\citep{Mao2025VisualAM} \\
+              X2EditRA~\citep{Ma2025X2EditRA} \\
+              \textbf{Real-time production pipelines:} \\
+              Step1XEditAP~\citep{Liu2025Step1XEditAP}, ImplementationFF~\citep{Yao2025ImplementationFF}}, level 3]
+          ]
+      ]
+      [Embodied Domain \\ (Physical Interaction \\ \& Agent Learning),
+        level 1, fill=gray!12, draw=gray!75, edge={thick, gray!75}
+          [Data Generation \& Augmentation, level 2
+              [{\textbf{Embodied data foundations:} \\
+              Droid~\citep{khazatsky2024droid}, BridgeData V2~\citep{walke2023bridgedatav2} \\
+              Open X-Embodiment~\citep{openx2024rtx} \\
+              \textbf{Cross-morphology editing:} \\
+              Rovi-aug~\citep{chen2024roviaug}, Phantom~\citep{lepert2025phantom} \\
+              H2R~\citep{li2025h2r}, Masquerade~\citep{lepert2025masquerade} \\
+              RoboPaint~\citep{fan2026robopaint}, MITTY~\citep{song2025mitty} \\
+              \textbf{Trajectory diversification:} \\
+              IRASim~\citep{zhu2024irasim}, RoboMaster~\citep{fu2025robomaster} \\
+              RoboDreamer~\citep{zhou2024robodreamer}, DreMa~\citep{barcellona2024dreamtomanipulate}}, level 3]
+          ]
+          [Visual Prediction for \\ Embodied Interaction, level 2
+              [{\textbf{Future visual prediction for planning:} \\
+              IRASim~\citep{zhu2024irasim}, VPP~\citep{hu2024vpp} \\
+              U-VLA~\citep{li2025uva}, UWM~\citep{zhu2025uwm} \\
+              \textbf{Predict-then-act:} \\
+              CoT-VLA~\citep{zhao2025cotvla}, Seer~\citep{tian2024predictive} \\
+              UniPi~\citep{du2023unipi}, AVDC~\citep{ko2024actionlessvideos} \\
+              LVP~\citep{chen2025largevideoplanner}, RoboDreamer~\citep{zhou2024robodreamer} \\
+              \textbf{Act-first with visual prediction regularization:} \\
+              U-VLA~\citep{li2025uva}, UWM~\citep{zhu2025uwm} \\
+              VideoVLA~\citep{shen2025videovla}, VPP~\citep{hu2024vpp}}, level 3]
+          ]
+      ]
+    ]
+  \end{forest}
+  }
+  \caption{Taxonomy of Applications and Evolving Frontiers in Visual Intelligence. The four branches correspond to the four subsections of this section: conditional image generation, custom domain adaptation, conditional image editing, and embodied-domain generation.}
+  \label{fig:app_taxonomy}
+\end{figure}
+
+
+\Cref{fig:app_taxonomy} summarizes the application landscape discussed in this section. Rather than treating applications as a flat list of tasks, the figure organizes them by the type of constraint they impose on visual generation. \emph{Fine-grained controllability} corresponds to conditional image generation, where auxiliary conditions such as layouts, references, identities, and 3D cues reduce the ambiguity of text prompts. \emph{Constructionist paradigms} correspond to custom domain adaptation, where generation must obey domain-specific rules such as layout grammar, layered composition, typography, and design conventions. \emph{Reasoning-driven editing} corresponds to conditional image editing, where the model performs controlled state transitions while preserving unedited content. Finally, the \emph{embodied domain} covers settings where generation supports physical agents through data augmentation or future-state prediction. This organization makes explicit the common thread across the section: applications are increasingly defined by verifiable structure, memory, and interaction rather than by visual realism alone.
+
+
+The evolution of visual intelligence, viewed through our hierarchical taxonomy, reflects a broader shift from optimizing \textit{statistical plausibility} toward satisfying increasingly \textit{explicit constraints}. Early text-to-image synthesis centered on perceptual realism, focusing on reconstructing fine visual details from compressed latent representations. As perceptual fidelity becomes less of the primary bottleneck, recent work has increasingly prioritized controllability, requiring generation to remain faithful not only to natural image statistics but also to structured user intent. Under this view, the generative model is no longer treated solely as a probabilistic sampler, but as a controllable neural rendering system whose intermediate representations must remain open to intervention.
+
+This transition becomes more visible as visual generation moves beyond open-ended synthesis toward settings where spatial layout, temporal coherence, and semantic persistence must be maintained without drifting away from the pretrained image manifold. Following our taxonomy, we organize this progression into three increasingly constrained regimes: inference-time intervention for conditional synthesis, adaptation to domains governed by explicit design rules, and reasoning-driven modification of existing visual content. Together, these regimes reveal a common trend: visual generation is gradually evolving from implicit appearance modeling toward structured, programmable control.
+
+
+
+\subsection{Conditional Image Generation}
+\label{subsec:conditional_gen}
+
+Conditional image generation arises from the persistent under-specification of natural language, whose semantics are often insufficient to determine concrete visual outcomes. To reduce this ambiguity, recent methods augment textual prompts with auxiliary control signals from complementary modalities, ranging from spatial maps and reference images to non-visual signals such as brain activity~\citep{wang2024mindbridge}. Early concept personalization methods such as DreamBooth~\citep{ruiz2023dreambooth} grounded novel subjects through explicit weight adaptation, establishing a strong yet optimization-heavy baseline. Subsequent adapter-based methods, including StyleShot~\citep{StyleShot}, improved inference-time flexibility by injecting stylistic cues directly into decoupled cross-attention layers rather than relying only on text. As diffusion backbones scale toward Diffusion Transformers, unified pipelines such as OminiControl~\citep{OminiControl} further extend this trend by routing appearance-specific priors through separated normalization or attention pathways, improving the disentanglement between semantic content and visual presentation.
+
+
+Building on this line of control, identity customization focuses on preserving subject-specific appearance while maintaining text-driven editability. Optimization-based methods, including Textual Inversion~\citep{gal2022image} and LoRA~\citep{hu2022lora}, showed that personalized concepts can be incorporated effectively into pretrained generators, but their dependence on per-subject tuning often weakens compositional flexibility, editability, and deployment efficiency. This has motivated a gradual shift toward tuning-free or near tuning-free personalization. Representative frameworks such as IP-Adapter~\citep{ye2023ip}, PhotoVerse~\citep{chen2023photoverse}, and FastComposer~\citep{xiao2025fastcomposer} mitigate identity loss caused by compressed CLIP features by allocating dedicated cross-attention pathways to visual prompts and aligning multi-scale visual representations with text-conditioned generation. Few-shot methods such as PhotoMaker~\citep{li2024photomaker} further improve robustness by aggregating multiple references into a unified identity representation, balancing facial fidelity with semantic controllability. Related efforts that incorporate facial priors or orthogonal projection strategies~\citep{wang2024instantid, guo2024pulid, shi2024instantbooth, zhou2024storymaker, mou2025dreamo} reinforce persistent identity cues while reducing interference with the model's native prompt-following ability.
+
+
+
+Despite this progress, face-centric personalization transfers only partially to full-body humans and open-domain characters, where large pose changes, self-occlusion, and non-rigid deformation expose the limits of identity representations dominated by facial appearance. In these settings, preserving clothing patterns, body proportions, and cross-view consistency requires stronger spatial correspondence and broader supervision than portrait-focused generation typically provides. Visual Persona~\citep{nam2025visual} addresses this gap by leveraging Multi-modal Large Language Models to curate dense multi-pose supervision, improving coverage of holistic human structure beyond facial identity. CompleteMe~\citep{tsai2025completeme} further highlights the importance of reference-guided detail transfer in human image completion, especially for recovering fine-grained clothing patterns and accessories under partial observations. In parallel, InstantCharacter~\citep{InstantCharacter} introduces reference-aligned spatial attention to track fine-grained traits across diverse articulations. Together, these efforts move conditional generation from rigid subject preservation toward articulated character consistency at the whole-body level.
+
+
+
+Once subject consistency becomes more reliable, a related challenge emerges at the scene level: generation must preserve not only who appears in the image, but also where each semantic element should be placed. This has driven the development of structural control mechanisms that inject explicit geometric cues into the generative backbone. Frameworks such as \textit{ControlNet++}~\citep{controlnet++} improve geometric faithfulness through reward-based cycle consistency, while layout-aware methods such as ReCon~\citep{ReCon} rely on visual Chain-of-Thought reasoning to parse compositional instructions and bind semantic entities to designated regions via localized cross-attention masking. When these constraints must remain stable across viewpoints, multi-view frameworks~\citep{FlexGen, PRISM} incorporate 3D-aware priors to maintain epipolar consistency, which is especially important for downstream 3D reconstruction and interactive generation.
+
+
+As identity preservation and spatial control improve, the dominant failure mode shifts again in multi-entity compositions and long-horizon visual narratives, where independent control signals often interfere with one another and cause feature bleeding across subjects or frames. Recent methods address this challenge by introducing more explicit state management during generation. For example, UniPortrait~\citep{UniPortrait} routes identity tokens to region-specific masks to reduce cross-subject interference, while SpinMeRound~\citep{SpinMeRound} disentangles persistent appearance cues from geometric variation during localized manipulation. These developments extend conditional generation beyond static customization toward more persistent visual state modeling. At the same time, most existing methods still address individual forms of control in isolation, leaving open the broader challenge of unifying identity, structure, and temporal persistence within a more compositional control framework.
+
+
+
+\subsection{Custom Domain Adaptation}
+
+\label{subsec:custom_domain}
+
+
+
+A recurring challenge in domain adaptation is that the continuous visual priors learned by foundation diffusion models do not naturally align with the discrete structural rules imposed by many specialized applications. Although these models are highly effective at synthesizing naturalistic textures and broad semantic content, they often underrepresent explicit layout grammar, topological regularity, and coordinate-sensitive design constraints. As a result, domains that require precise spatial organization expose a persistent mismatch between generic visual realism and task-specific correctness.
+
+
+Layout-to-image generation addresses this mismatch by conditioning image generation on explicit spatial specifications such as bounding boxes or segmentation masks. GLIGEN~\citep{li2023gligen} introduces a layout-conditioned diffusion paradigm that combines textual descriptions with designated spatial regions via gated self-attention, enabling fine-grained control over entity position and attributes. InstanceDiffusion~\citep{wang2024instancediffusion} broadens the spatial interface to support diverse formats---points, scribbles, boxes, and masks---within a unified fusion architecture. MIGC~\citep{zhou2024migc} enhances multi-instance control by decomposing generation into per-entity subtasks and leveraging instance-specific attention to better regulate quantity, position, and attributes. CreatiLayout~\citep{CreatiLayout} strengthens region-entity alignment through a siamese multimodal mechanism that jointly encodes layout and visual features with a Diffusion Transformer. HybridLayout~\citep{wu2025hybrid} further questions the assumption that strong layout adherence for modern Diffusion Transformers requires millions of densely annotated regional prompts. Its key insight is to decompose layout control into two sequential stages: first grounding anonymous layouts so the model learns \emph{where} objects should appear, and then applying lightweight semantic refinement so the model learns \emph{what} each designated region should contain. By combining this hybrid supervision strategy with low-resolution regional tokens and a region-wise diffusion loss, the method achieves strong spatial fidelity with dramatically fewer semantic layout annotations while preserving better visual aesthetics. DreamRenderer~\citep{zhou2025dreamrenderer} achieves training-free multi-instance attribute control by selectively applying hard attribute binding at critical transformer layers. Collectively, these advances transform foundation diffusion models into controllable generative systems capable of precise, instance-level semantic and positional regulation under increasingly data-efficient supervision.
+
+Beyond explicit layout conditioning, an increasingly relevant direction is layered image generation, which represents an image as a set of compositional layers rather than a single flattened output. Compared with bounding boxes or segmentation masks alone, layered representations expose richer structural information, including foreground-background decomposition, occlusion ordering, transparency, and layer-wise editability. This makes them particularly suitable for domains where visual elements must remain independently controllable after synthesis, such as graphic design, advertising creatives, interface assets, and document-like media. Existing approaches generally follow two paradigms. Simultaneous generation methods generate multiple layers jointly within a unified model, improving global coherence and cross-layer consistency during synthesis, as seen in Text2Layer~\citep{zhang2023text2layer}, LayerDiff~\citep{huang2024layerdiff}, ART~\citep{pu2025art}, PrismLayer~\citep{chen2025prismlayers}, and Qwen-Image-Layered~\citep{yin2025qwenimagelayered}. In contrast, sequential generation methods decompose the process into progressive layer prediction or transparent-image reconstruction, which offers greater flexibility for iterative composition and editing, as explored by LayerDiffuse~\citep{zhang2024transparent}, COLE~\citep{jia2023cole}, OpenCOLE~\citep{inoue2024opencole}, and LayerD~\citep{suzuki2025layerd}. From the perspective of domain adaptation, layered generation can be viewed as a stronger structural abstraction than conventional layout control: it specifies not only where content should appear, but also how visual elements are separated, ordered, and recombined. As such, it extends controllable generation from spatial alignment toward editable compositional reasoning.
+
+Despite these spatial control capabilities, many specialized domains impose additional constraints beyond layout arrangement. In commercial media and poster generation, for instance, generation must jointly satisfy typography placement, visual balance, and compositional aesthetics. Recent frameworks such as PosterVerse~\citep{Liu2026PosterVerseAF} and PosterGen~\citep{Zhang2025PosterGenAP} address this by reformulating generation as a modular planning problem, using Large Language Models to translate design intent into explicit layout variables and refine them through iterative visual feedback. Going further, CreatiDesign~\citep{zhang2025creatidesign} unifies heterogeneous design conditions--reference images, layouts, and rendered text--within a single model through a multimodal attention mask mechanism, enabling fine-grained control over each sub-condition while maintaining overall compositional harmony.
+
+
+
+As these pipelines become more structured, a second line of work focuses on aligning generated outputs with domain-specific quality measures and content regimes. BizGen~\citep{peng2025bizgen}, for example, extends visual generation from sentence-level text rendering to article-level business content such as infographics and slides, combining scalable dense-layout data construction with layout-guided cross-attention for ultra-dense region-wise rendering. PosterOmni~\citep{Chen2026PosterOmniGA}, PosterCraft~\citep{Chen2025PosterCraftRH}, and POSTAAG~\citep{Chen2025POSTAAG} further combine task-aware distillation, reward modeling, and feedback-driven refinement to discourage failures such as text-background occlusion, hierarchy violations, or spatial imbalance. Rather than treating background synthesis and foreground arrangement as separate problems, these frameworks optimize them jointly so that visual content and layout evolve consistently. In contrast to these training-heavy solutions, ICCustom~\citep{Li2025ICCustomDI} shows that part of this domain alignment can also be induced at inference time through multimodal in-context learning, where interleaved visual and textual exemplars steer generation without requiring domain-specific parameter updates.
+
+
+Beyond scene-level composition, specialized domains also demand precise rendering of local symbolic content, where approximate visual resemblance is no longer sufficient. This requirement is especially evident in text generation, where the granularity of language tokenization does not align well with the stroke-level geometry needed for accurate glyph synthesis. As a result, standard diffusion pipelines often produce visually plausible yet semantically incorrect characters. Although dedicated text-rendering architectures such as GlyphByT5-v2~\citep{Liu2024GlyphByT5v2AS} have substantially improved typographic quality, more recent efforts increasingly emphasize localized and decoupled control over character structure.
+
+Segmentation-conditioned methods address this issue by injecting explicit typographical constraints into spatially bounded regions. ControlText~\citep{Jiang2025ControlTextUC} and ReChar~\citep{Rechar}, for example, modulate region-specific cross-attention so that glyph generation is anchored to designated masks and local structural priors~\citep{Lu2025EasyTextCD, PaCaNet}. In parallel, methods such as CharGen~\citep{Ma2024CharGenHA} and UMText~\citep{Ma2026UMTextAU} revisit the representation problem itself by replacing generic language tokenizers with character-aware encoders, thereby strengthening the alignment between symbolic input and visual realization. Together, these approaches shift the problem from coarse text-conditioned synthesis toward more faithful character-level rendering.
+
+Recent work further extends text rendering beyond planar overlays toward physically grounded generation in spatially structured environments. Frameworks such as WordCon~\citep{Shi2025WordConWT} and Beyond~\citep{Luo2025BeyondFT} introduce self-guidance mechanisms that extract intermediate geometric signals, including depth and surface normals, from the generative process and feed them back as structural conditions. This design enables text to inherit explicit 3D geometry and material-aware appearance, making it more consistent with scene lighting, viewpoint, and physical support surfaces. Overall, these developments show that domain adaptation is moving from broad stylistic transfer toward rule-aware generation under both global and local constraints. Yet much of this progress remains tied to narrowly defined domains, with limited support for more general, reusable control abstractions across tasks.
+
+
+
+
+\subsection{Conditional Image Editing}
+\label{subsec:conditional_editing}
+
+Conditional image editing reframes generative modeling from open-ended synthesis to a constrained state transition problem, where the desired output must satisfy editing instructions while preserving the source image wherever no change is required. This creates a persistent tension between \textit{plasticity}, namely the ability to modify targeted attributes, and \textit{stability}, namely the preservation of identity, structure, and context outside the edited region. Standard diffusion models often struggle with this balance because globally shared attention can entangle edited and unedited content, causing local instructions to propagate unexpectedly across the image. Recent work therefore places increasing emphasis on structured control, decomposition, and consistency preservation to regulate how edits are introduced into the latent trajectory.
+
+A prominent direction addresses complex and multi-step edits by decomposing high-level instructions into more explicit intermediate operations. Frameworks such as \textit{X-Planner}~\citep{Yeh2025BeyondSE} and \textit{MIRA}~\citep{Zeng2025MIRAMI} employ Multi-modal Large Language Models to parse abstract user intent into sequentially executable subgoals, making the editing process more transparent and controllable across multiple stages. Related methods, including \textit{ReasonEdit}~\citep{Yin2025ReasonEditTR} and \textit{LegoEdit}~\citep{Jia2025LegoEditAG}, further separate semantic reasoning from low-level rendering, thereby reducing ambiguity in how instructions are grounded into pixel-space transformations. At a more symbolic level, program-like editing formulations~\citep{Hu2025ImageEA} translate natural language into executable operations, allowing image transitions to be governed by explicit logical structure rather than by diffusion dynamics alone.
+
+While instruction decomposition improves semantic clarity, edit quality still depends critically on whether the original visual manifold can be preserved outside the target region. To reduce unwanted structural drift, recent methods introduce explicit consistency modules that regularize the denoising trajectory under spatial and quantitative constraints. \textit{IMAGHarmony}~\citep{Shen2025IMAGHarmonyCI} and \textit{TBStarEdit}~\citep{Fang2025TBStarEditFI}, for example, strengthen local-global consistency so that modifications remain concentrated around the intended edit scope. For scenarios requiring even finer control, physically grounded methods such as \textit{PhysicEdit}~\citep{PhysicEdit} and layered editing frameworks~\citep{Yang2026ControllableLI} decompose the image into semantically separable strata, enabling foreground manipulation while preserving the surrounding context more explicitly. The precision of such methods is increasingly examined by dedicated benchmarks~\citep{Ghazanfari2025SpotEditEV}, which evaluate not only whether the intended content is changed correctly, but also whether the remaining image stays stable.
+
+As editing systems move closer to interactive use, a different bottleneck emerges at deployment time: per-image optimization becomes increasingly difficult to reconcile with responsive applications. This has motivated recent work on weight-free or feed-forward editing paradigms that retain instruction following while reducing adaptation cost. Methods based on visual in-context learning~\citep{Zhang2025InContextEE} and task-aware functional representations~\citep{Mao2025VisualAM, Ma2025X2EditRA} show that robust editing behavior can be induced without expensive gradient updates. Complementary architectural efforts further streamline the inference path toward high-fidelity, near single-step editing~\citep{Liu2025Step1XEditAP, Yao2025ImplementationFF}. Together, these advances move conditional image editing from offline optimization toward more deployable visual manipulation. However, most existing methods still optimize individual aspects of editing, such as planning, preservation, or efficiency, separately, rather than treating editing as part of a unified control process that jointly reasons about intent, locality, and state consistency.
+
+
+\subsection{Embodied Domain}
+Embodied applications of visual generation and editing extend beyond static synthesis to settings where visual outputs interact with or support physical agents and environments. In these contexts, generative models serve as tools for augmenting data and for modeling visual state transitions under control, enabling downstream tasks in robotics, simulation, and agent learning~\citep{meietal2026videoroboticsurvey,li2025uva,zhu2025uwm}. 
+We categorize embodied applications into two primary modalities: 1) Visual Data Generation and Augmentation for Agents, and 2) Visual Prediction for Embodied Interaction.
+
+\begin{figure}[!htbp]
+\centering
+\begin{tikzpicture}[
+    font=\normalsize,
+    box/.style={
+        rounded corners=2mm,
+        draw=black!12,
+        fill=white,
+        inner sep=7pt
+    },
+    title/.style={
+        rounded corners=2mm,
+        draw=black!12,
+        fill=black!4,
+        inner sep=6pt,
+        font=\normalsize\bfseries,
+        align=center,
+        minimum width=9.5cm
+    },
+    headL/.style={
+        rounded corners=1.5mm,
+        fill=blue!15,
+        inner sep=5pt,
+        font=\normalsize\bfseries,
+        align=center,
+        text width=4.4cm
+    },
+    headR/.style={
+        rounded corners=1.5mm,
+        fill=teal!15,
+        inner sep=5pt,
+        font=\normalsize\bfseries,
+        align=center,
+        text width=4.4cm
+    },
+    item/.style={
+        rounded corners=1.2mm,
+        draw=black!10,
+        fill=white,
+        inner sep=5pt,
+        text width=4.2cm,
+        align=left,
+        font=\small
+    },
+    roleL/.style={
+        rounded corners=1.2mm,
+        draw=black!10,
+        fill=blue!8,
+        inner sep=5pt,
+        text width=4.2cm,
+        align=left,
+        font=\small
+    },
+    roleR/.style={
+        rounded corners=1.2mm,
+        draw=black!10,
+        fill=teal!8,
+        inner sep=5pt,
+        text width=4.2cm,
+        align=left,
+        font=\small
+    }
+]
+
+\node[title] (T) at (0,0) {Embodied Applications of Visual Generation};
+
+\node[headL] (LH) at (-2.6,-1.3) {Data Generation \& Augmentation};
+\node[headR] (RH) at ( 2.6,-1.3) {Prediction for Interaction};
+
+\node[item, anchor=north] (L1) at ($(LH.south)+(0,-0.3)$)
+{\textbf{Data construction}\\[-1pt]\footnotesize Datasets, simulation};
+
+\node[item, anchor=north] (L2) at ($(L1.south)+(0,-0.22)$)
+{\textbf{Transfer \& editing}\\[-1pt]\footnotesize Cross-embodiment adaptation};
+
+\node[item, anchor=north] (L3) at ($(L2.south)+(0,-0.22)$)
+{\textbf{Diversification}\\[-1pt]\footnotesize Expanded behaviors};
+
+\node[roleL, anchor=north] (L4) at ($(L3.south)+(0,-0.28)$)
+{\textbf{Role}\\[-1pt]\footnotesize Coverage \& generalization};
+
+\node[item, anchor=north] (R1) at ($(RH.south)+(0,-0.3)$)
+{\textbf{Predict-then-act}\\[-1pt]\footnotesize Future prediction};
+
+\node[item, anchor=north] (R2) at ($(R1.south)+(0,-0.22)$)
+{\textbf{Prediction-regularized}\\[-1pt]\footnotesize Auxiliary signal};
+
+\node[item, anchor=north] (R3) at ($(R2.south)+(0,-0.22)$)
+{\textbf{Hybrid}\\[-1pt]\footnotesize Joint modeling};
+
+\node[roleR, anchor=north] (R4) at ($(R3.south)+(0,-0.28)$)
+{\textbf{Role}\\[-1pt]\footnotesize Dynamics \& temporal structure};
+
+\draw[black!15, line width=0.5pt] (0,-1.1) -- (0,-4.3);
+
+\begin{scope}[on background layer]
+\node[box, fit=(LH)(L1)(L2)(L3)(L4)(RH)(R1)(R2)(R3)(R4)] {};
+\end{scope}
+
+\end{tikzpicture}
+\caption{Embodied applications of visual generation can be organized into two complementary roles. 
+The first uses generation and augmentation to expand embodied training data through construction, transfer, and diversification, thereby improving coverage and generalization. 
+The second uses visual prediction to support embodied interaction by modeling future observations, regularizing action learning, and capturing environment dynamics.}
+\label{fig:embodied_visual_generation}
+\end{figure}
+
+\subsubsection{Visual Data Generation and Augmentation for Agents}
+
+In many embodied systems, the limited availability of diverse interaction data inhibits both learning and generalization~\citep{khazatsky2024droid,openx2024rtx,walke2023bridgedatav2}. Visual generation can mitigate this by synthesizing additional data that preserves both visual realism and physically plausible state diversity~\citep{chen2024roviaug,lepert2025phantom,li2025h2r,lepert2025masquerade,fan2026robopaint,song2025mitty}. Representative uses include:
+
+\begin{itemize}
+    \item \textbf{Trajectory Diversification:} Given an initial state (e.g., an image depicting an object configuration or scene), generate multiple plausible future visual sequences that correspond to different action sequences or environmental perturbations~\citep{zhu2024irasim,fu2025robomaster,zhou2024robodreamer,barcellona2024dreamtomanipulate}. This expanded dataset enhances robustness during policy learning or control refinement~\citep{zhu2024irasim,zhou2024robodreamer}.
+    
+    \item \textbf{Cross-Morphology Editing:} Edit existing perception data to reflect alternative agent embodiments (e.g., replacing a human arm with a robotic manipulator or substituting object appearances) without collecting new real-world samples~\citep{chen2024roviaug,lepert2025phantom,li2025h2r,lepert2025masquerade,fan2026robopaint,song2025mitty}. Such editing supports transfer learning and evaluation under varied agent morphologies~\citep{chen2024roviaug,li2025h2r}.
+\end{itemize}
+
+These applications treat visual generation and editing as data augmentation mechanisms that enrich interaction datasets with minimal real-world collection cost, while preserving semantic and physical coherence.
+
+\subsubsection{Visual Prediction for Embodied Interaction}
+
+A prominent embodied application of visual generation is to support decision-making through predictive modeling of future observations under interaction~\citep{zhu2024irasim,hu2024vpp,li2025uva,zhu2025uwm}. In this setting, visual generation is used to anticipate how the environment may evolve from the current observation, providing informative context for downstream action prediction~\citep{zhu2024irasim,hu2024vpp}.
+
+A widely adopted approach first predicts multiple plausible future visual states given the current observation, and then infers executable actions for the agent based on these predicted futures~\citep{zhao2025cotvla,tian2024predictive,du2023unipi,ko2024actionlessvideos,chen2025largevideoplanner}. By explicitly modeling prospective environment evolution, this formulation enables the model to reason over alternative outcomes and long-term consequences before committing to actions~\citep{du2023unipi,chen2025largevideoplanner,zhou2024robodreamer}. Learning accurate visual dynamics is typically the more challenging component, while action inference is comparatively simpler once future states are available~\citep{zhu2024irasim,tian2024predictive,hu2024vpp}.
+
+An alternative formulation reverses this order: models first predict actions directly from current visual inputs, and subsequently generate future visual observations as an auxiliary objective~\citep{li2025uva,zhu2025uwm,liang2025videopolicy,shen2025videovla,hu2024vpp}. In this case, visual prediction does not serve as an explicit intermediate for planning, but instead provides additional supervision that encourages temporal consistency, physical plausibility, and structured representations aligned with environment dynamics~\citep{li2025uva,zhu2025uwm}.
+
+These two formulations reflect different design choices rather than fundamentally different objectives. Both couple visual generation with action reasoning, differing mainly in whether future visual prediction is treated as a primary decision-support signal or as auxiliary regularization~\citep{tian2024predictive,li2025uva,zhu2025uwm}. In practice, hybrid designs that interleave or jointly optimize visual prediction and action inference are also common~\citep{li2025uva,zhu2025uwm,liang2025videopolicy,shen2025videovla}.
+
+Overall, visual prediction in embodied interaction functions as a mechanism for encoding environment dynamics and temporal structure, enabling agents to make informed decisions in sequential, interactive settings rather than producing visually accurate frames in isolation~\citep{meietal2026videoroboticsurvey,hu2024vpp,li2025uva}.
+
+
+

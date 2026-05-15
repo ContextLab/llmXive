@@ -1,0 +1,52 @@
+\section*{Limitations}
+\label{sec:limitation}
+While \framework~is designed to provide a rigorous, extensible end-to-end evaluation framework of conversational voice agents, several limitations are important to acknowledge across the framework.
+
+\paragraph{Metrics}
+LLM-based judge models are known to exhibit stylistic biases and may systematically favor outputs that resemble their own training distribution. When the evaluated system and the judge model share the same model family, the risk of in-family preference artifacts is non-trivial and applies directly to specific evaluated systems: GPT-5.4 and GPT-5.4-mini are evaluated using GPT-5.2-based judges for \metricconcise~and \metricconversationprogression, and Claude Haiku 4.5 is evaluated using Claude Opus 4.6 for \metricfaithfulness. Scores for these systems should be interpreted with this potential bias in mind.
+LALM-based judges, in particular, remain an emerging evaluation paradigm and demonstrate lower reliability compared to text-only judge models under equivalent conditions. Furthermore, the current scoring scheme applies binary task completion judgments, awarding no partial credit to agents that satisfy all but one sub-goal in a multi-step task. This all-or-nothing formulation may suppress fine-grained discriminability between systems that differ primarily in robustness on terminal sub-goals.
+Finally, \framework~does not currently assess whether agents produce harmful outputs or inadvertently expose sensitive caller information such as personally identifiable information (PII) — a notable gap for evaluating production-readiness in high-stakes domains.
+
+\paragraph{Framework}
+A central assumption of \framework~is that bot-to-bot simulation with a validated user simulator constitutes a valid proxy for real human caller interactions. If the simulator systematically differs from real callers in ways that the behavioral fidelity validator does not detect — for example, in how it handles ambiguity, expresses frustration, or recovers from misunderstandings — evaluation scores may not transfer to production conditions, and systems could implicitly optimize for simulator-specific speech patterns rather than genuine robustness.
+PCM-to-$\mu$-law (Pulse-Code Modulation) audio conversion introduces quality degradation. Bot-to-bot audio interface timing may not fully represent production deployments. Inaccurate pipeline event timing (Voice Activity Detection events, etc.) from differing sources may also lead to imperfect response speed values and timestamps. Log reconciliation between various systems can also have inaccuracies due to imprecise timestamps. Full reproduction requires access to commercial model APIs.
+Generating $k=5$ validated trials per scenario across multiple system configurations carries non-trivial cost; at current API pricing, a full evaluation run across all 213 scenarios and 12 systems requires on the order of several hundred API calls per trial, and costs scale linearly with the number of systems and scenarios evaluated.
+Additionally, \framework~evaluates single-agent configurations in which the agent has direct access to a flat tool list for its domain — supervisor-worker patterns, multi-agent orchestration, and agentic frameworks involving planning or delegation are not currently within scope, limiting applicability to more complex real-world deployments.
+Finally, latency measurements (which manifest in turn-taking and response speed metrics) will vary depending on APIs, deployments, and hardware, potentially leading to variation in EVA-X results within the same system. All agent tools are simulated via a declarative mock executor rather than live API calls; while tool schemas are designed to reflect real-world APIs, mock execution cannot capture failure modes, latency variance, partial responses, or schema drift that arise in production integrations. And, real-world voice agent deployments often employ latency reduction strategies — such as speculative tool execution, response pre-fetching, or streaming-aware scheduling — that are absent in \framework's evaluation setup; reported latency metrics may therefore not reflect the lower bounds achievable in optimized production systems.
+
+
+\paragraph{Simulation}
+All scenarios are in English — no multilingual coverage. As our user simulator relies on a commercial system, its behavior may change across versions.
+The simulator is built on a high-quality STT-LLM-TTS pipeline (scribe-v2.2-realtime + GPT-5.1 + ElevenLabs v3 Conversational), which produces unusually clean, well-formed speech relative to real callers. This means the benchmark under-represents the natural disfluencies, hesitations, and emotional variation exhibited by real callers; systems may score higher than they would under genuine human caller conditions, and performance differences between systems may not fully reflect their relative robustness to real-world speech variation.
+The simulator does not systematically generate interruption behaviors — a common and consequential real-caller pattern — meaning \framework~under-stresses turn-taking robustness and does not differentiate systems that handle barge-in gracefully from those that do not.
+The simulator may also occasionally go off policy; while we employ validators to detect such cases, perfect adherence cannot be guaranteed, particularly on subjective validator metrics.
+
+
+\paragraph{Experiments}
+Our evaluation covers 12 systems across three architectural classes. While we observe cross-architecture differences, our sample size precludes inferential claims about model classes broadly.
+All frameworks (ElevenAgents, Pipecat, OpenAI Realtime, Gemini Live) use default turn detection settings; we deliberately avoided parameter tuning to preserve a fair baseline across frameworks. Similarly, agent system prompts were not optimized for performance — we constructed prompts to convey necessary guidelines and policies without correcting for model-specific errors. We note that targeted system parameter tuning and prompt engineering would likely yield higher scores than those reported here.
+While the framework allows for a wide range of background noises, accents, and behavioral personas, our experiments include only one accent (French) and one noise environment (coffee shop), each instantiated with a single specific voice (one female, one male); observed robustness differences between cascade and S2S systems under accent perturbation may partly reflect properties of that particular voice rather than accent variation broadly, and results may not generalize to other accents, speakers, or noise environments.
+Also, the adversarial scenarios are hand-designed around specific policy boundary conditions; coverage of difficult cases within each domain therefore reflects our design choices rather than a systematic sampling of the difficulty distribution, and systems optimized against known failure modes may score well without generalizing to unseen policy boundaries. 
+
+
+
+
+\section*{Ethics Statement}
+\label{sec:ethics}
+Our work focuses on responsible development and evaluation of voice agent systems.
+All evaluation scenarios in \framework~are fully synthetic — no real caller data, recordings, or personally identifiable information were used in dataset construction or evaluation. Scenario content was generated and manually reviewed to avoid reproducing proprietary materials, and no human subjects were involved in any part of the evaluation pipeline.
+Also, all simulation tools respect the copyright and privacy guidelines. Although \framework~enables large-scale evaluation of voice agents, we cannot guarantee that models evaluated through it will not generate harmful or biased output during evaluation runs. Researchers and practitioners are strongly encouraged to implement appropriate content filtering and bias detection before deploying evaluated systems in production environments.
+Additionally, we acknowledge that our current domain coverage is limited, and the simulation is conducted exclusively in English, which may inadvertently reinforce existing representational biases in audio AI systems. We encourage the community to expand \framework~with more diverse languages, accents, cultural contexts, and domains.
+Regarding the use of language models in manuscript preparation, we utilize LLM assistance solely to refine language for clarity and correctness. No substantive content, experimental claims, or analytical conclusions were generated by LLM tools.
+
+
+
+
+\section*{Reproducibility Statement}
+\label{sec:reproducibility}
+
+We are committed to full reproducibility of our evaluation framework and experimental results. All \framework~code, configuration files, evaluation scripts, scenario data, and documentation are publicly released as open-source under an anonymized repository included with the submission. The repository includes setup instructions, environment specifications, and scripts to reproduce all reported evaluations.
+We provide comprehensive implementation details including all model configurations (Appendix~\ref{app:models-configuration}), data distributions across domains (Appendix~\ref{app:data}), judge prompts (Appendix~\ref{app:prompts}), and metric definitions and thresholds (Appendix~\ref{app:metric-details}). All LLM-as-judge configurations are fully specified to enable result replication across research groups. We note that full reproduction of the reported scores requires access to commercial model APIs; results may vary across API versions and deployment configurations, as discussed in Section~\ref{sec:limitation}.
+
+\section*{Acknowledgment}
+We thank the following individuals for their careful data review and thoughtful contributions to \framework: Akshay Kalkunte, Jishnu Nair, and Aman Tiwari. We also thank our linguists for their data review and labeling, and help with creating judge datasets: Ryan Dux, Anne Heaton-Dunlap, Tiffany Do, Maria Kossenko, Keerthana Gopinathan, Nidhi Kumari, and Ranjani Iyer.

@@ -1,0 +1,1072 @@
+\section{Assessment for the Future: Stress Testing the Limits}
+\label{sec:stress_test}
+
+
+
+The five-level taxonomy introduced in \Cref{sec:evolution} claims that visual intelligence progresses from atomic generation (L1) through conditional generation (L2), in-context generation (L3), and agentic generation (L4) toward world-modeling generation (L5). But how far have current frontier models actually advanced along this trajectory? Standard benchmarks---FID, CLIP-Score, isolated prompt-following metrics---predominantly evaluate L1 and L2 capabilities: whether the generated image is realistic and whether it matches the text. They tell us little about whether models can solve spatial puzzles (L2 boundary), maintain identity across multi-turn edits (L3), self-correct through reasoning (L4), or simulate physical causality (L5).
+
+To probe these higher-level capabilities, we complement benchmark-based evaluation with a series of \emph{in-the-wild stress tests}: carefully designed tasks that target the boundary conditions of each level. Each dimension below is explicitly mapped to the level it primarily challenges, as summarized in \Cref{tab:stress_test_level_map}. This design ensures that the stress tests serve not merely as anecdotal failure cases, but as structured evidence for where the current frontier sits within our taxonomy.
+
+\subsection{Methodology: From Benchmarks to "In-the-Wild" Scenarios}
+
+\paragraph{Generator and outputs.}
+Each figure caption indicates the generator used (\textbf{Nano Banana} or \textbf{GPT-Image-2}). The two systems are evaluated under identical prompts and settings, enabling direct cross-system comparison without changing the task definitions.
+
+\paragraph{Paper figures as embedded probes.}
+Several explanatory figures in this work are themselves produced with frontier image-generation models under expert-authored descriptions. We do not treat these illustrations as formal benchmarks, because their prompts, selection process, and revision decisions are coupled to the authors' communicative goals. Nevertheless, they provide a complementary form of real-world case study: when a model is asked to generate a semantically correct roadmap figure, taxonomy diagram, system schematic, or scientifically constrained visual explanation from a dense expert specification, it must simultaneously follow domain semantics, visual grammar, layout constraints, and readability requirements. Success therefore offers evidence of generation capability beyond photorealism, while failure exposes the same issues studied in the stress tests below---missing relations, visually plausible but scientifically inaccurate structure, weak symbolic grounding, or unstable text rendering. For this reason, AI-assisted figures used in the paper should be read as \emph{embedded probes} of structured visual generation, with final correctness still requiring expert verification.
+
+
+\subsection{Dimension I: Spatial Structuring \& Layout Precision}
+
+\noindent\textit{Primary Level Tested: L2 (Conditional Generation) --- Can the model faithfully translate spatial constraints into precise geometric arrangements?}
+
+\paragraph{Core Ability: Can the model follow strict geometric constraints? (Count, Ratio, Position).}
+
+\subsubsection{Case Study I: The Jigsaw Puzzle Challenge (Geometric Rigidity vs. Generative Hallucination)}
+\label{subsubsec:jigsaw_case}
+
+To strictly evaluate the model's capability in \textit{Spatial Structuring} and \textit{Conservation of Content}, we designed the "Jigsaw Reconstruction" task. Unlike standard image generation where creativity is encouraged, this task requires the model to act as a rigid solver: it must reassemble visual fragments into a coherent whole based strictly on edge matching and texture continuity, without adding or removing visual information.
+
+\paragraph{Experimental Setup.}
+We employed a "Visual Reconstruction Specialist" system prompt (see Appendix for full prompt), instructing the model to strictly adhere to "Seamless Integrity" and "Strict Edge Matching."
+\begin{itemize}
+    \item \textbf{Input:} A fragmented view of hot air balloons (`puzzle\_input.jpg`), containing disjointed puzzle pieces with significant spatial gaps and randomized overlaps.
+    \item \textbf{Ground Truth:} A high-resolution photograph of multiple hot air balloons against a clear blue sky (`puzzle\_gt.jpg`).
+    \item \textbf{Challenge:} The model must recognize the discrete nature of the pieces and spatially rearrange them to restore the original topology.
+\end{itemize}
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\linewidth,height=3.2cm,keepaspectratio]{img/stress_test/spatial/puzzle_input.jpg}
+        \caption{Input: Scrambled Fragments}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\linewidth,height=3.2cm,keepaspectratio]{img/stress_test/spatial/puzzle_output.jpg}
+        \caption{Model Output}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\linewidth,height=3.2cm,keepaspectratio]{img/stress_test/spatial/puzzle_gt.jpg}
+        \caption{Ground Truth}
+    \end{subfigure}
+    \caption{\textbf{Failure Mode in Spatial Reconstruction.} While the model successfully recovers the \textit{semantic theme} (balloons in the sky), it fails the \textit{geometric test}. Instead of solving the puzzle logic (matching tabs and slots), it "hallucinates" a plausible-looking but structurally incoherent image, blending distinct pieces into amassed artifacts. Generated by Nano Banana.}
+    \label{fig:jigsaw_case}
+\end{figure}
+
+
+
+\paragraph{Analysis of Results.}
+As shown in \Cref{fig:jigsaw_case}, the result highlights a critical limitation in current foundation models:
+\begin{itemize}
+    \item \textbf{Semantic Success vs. Geometric Failure:} The model correctly identifies the semantic context (colorful balloons, blue sky). It attempts to group similar textures (blue pieces together, striped pieces together).
+    \item \textbf{The "Hallucination" Trap:} Instead of performing rigid transformations (rotation/translation) on the pixel fragments, the model utilizes its generative prior to "dream" a solution. It generates \textit{new} balloon-like textures to fill the gaps rather than stitching the existing edges.
+    \item \textbf{Lack of Object Permanence:} The input constraints explicitly forbade "hallucinating" content. However, the output shows significant artifacts where multiple pieces are fused into non-existent geometries, and original edge details (the "tabs" and "blanks" of puzzle pieces) are dissolved rather than utilized for alignment.
+\end{itemize}
+
+\paragraph{Insight.}
+This case study demonstrates that even with a strong "Agentic" prompt, current visual models operate primarily on \textbf{Probabilistic Correlation (Level 1/2)} rather than \textbf{Causal/Physical Logic (Level 5)}. They prioritize making the image \textit{look} like a completed puzzle (semantic consistency) over actually \textit{solving} the puzzle (spatial consistency). True spatial intelligence requires the ability to treat image patches as rigid bodies with permanent properties, a capability currently lacking in standard diffusion pipelines.
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth]{img/stress_test/spatial/tile_map.jpg}
+        \caption{Isometric tile map}
+        \label{fig:tile_map_case}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth]{img/stress_test/spatial/metro_map.jpg}
+        \caption{Metro-system map}
+        \label{fig:metro_map_case}
+    \end{subfigure}
+    \caption{\textbf{Spatial structuring under explicit layout constraints.}
+    Both examples are generated by \textbf{GPT-Image-2} from prompts with discrete spatial or topological requirements.
+    The outputs are visually polished and closely match the intended design styles: a professional isometric tactical map in \Cref{fig:tile_map_case} and a clean vector-style metro map in \Cref{fig:metro_map_case}.
+    However, both cases reveal subtle but important failures in constraint execution, including coordinate-level object shifts in the tile map and graph-topology violations in the metro map.}
+    \label{fig:structured_layout_cases}
+\end{figure}
+
+\subsubsection{Case Study II: The Metro Map Challenge (Topological Plausibility vs. Constraint Verification)}
+\label{subsubsec:metro_map_case}
+
+\paragraph{Prompt.}
+Create a professional metro-system map for a fictional city. It must contain four colored lines: Red, Blue, Green, and Yellow. There are exactly 18 station names. Three stations are transfer stations shared by exactly two lines, and one central station is shared by all four lines. The Red and Blue lines cross twice but share only one station; the Green line forms a loop; the Yellow line branches once after its third station. Use clean vector-map aesthetics, readable station labels, a legend, and no geographic background. The topology must be internally consistent.
+
+\paragraph{Result.}
+As shown in \Cref{fig:metro_map_case}, the generated map is visually polished and satisfies several high-level requirements. It correctly contains \textbf{18 stations} in total, the \textbf{Green Line forms a loop}, and there are \textbf{three transfer stations shared by exactly two lines}. Nevertheless, several key topological constraints are violated. Most notably, the prompt requires \textbf{one central station shared by all four lines}, but the generated central station (\textit{Grand Central}) is shared by only \textbf{three} lines---Red, Blue, and Yellow---while the Green Line does not pass through it. In addition, the constraint that the \textbf{Red and Blue lines should cross twice but share only one station} is not satisfied, since the generated map shows only \textbf{one} such crossing. Finally, the \textbf{Yellow Line branching rule} is also incorrect: the branch is not placed \emph{after its third station} as specified.
+
+\paragraph{Insight.}
+This case highlights a central limitation of current text-to-image systems in \emph{spatially structured generation}: they can often reproduce the \emph{visual grammar} of a structured diagram, but fail to enforce the underlying \emph{discrete relational constraints}. The model captures the appearance of a professional metro map---color-coded routes, readable station labels, loop-like geometry, transfer stations, and a legend---yet it does not faithfully preserve the graph-level topology required by the prompt. In other words, the output is visually plausible but not topologically valid.
+
+A particularly revealing aspect of this example is the contrast between \emph{generation} and \emph{post-hoc verification}. In this case, GPT-Image-2 spent \textbf{13m15s} ``thinking'' before generation, yet still produced a map that violates multiple explicit constraints. By contrast, when the generated image and the original prompt were provided jointly to GPT 5.5 with the simple query \textit{``What parts of the image do not match the prompt?''}, the model identified all major mismatches in only \textbf{9s}. This suggests that constructing a constraint-satisfying visual artifact is substantially harder than checking an already rendered artifact against symbolic requirements. More broadly, long deliberation during image generation does not necessarily translate into reliable constraint satisfaction.
+
+\subsubsection{Case Study III: The Isometric Tile Map Challenge (Coordinate Grounding vs. Visual Plausibility)}
+\label{subsubsec:isometric_tile_map_case}
+
+\paragraph{Prompt.}
+Generate a clean isometric game map made of exactly 8$\times$8 square tiles. Use a strict isometric angle and make every tile edge align perfectly. Place a river occupying tiles B2--B6, a stone bridge crossing the river at B4--D4, three houses at F2, F5, and G6, one marketplace at D7, and a 2-tile-high hill in the northwest corner. Add a small legend showing ``water,'' ``road,'' ``house,'' ``bridge,'' and ``hill.'' The result should look like a professional tactical board-game map, not a fantasy painting.
+
+\paragraph{Result.}
+As shown in \Cref{fig:tile_map_case}, the generated map is visually convincing and successfully captures the intended style of a professional isometric tactical board-game map. The overall grid structure is clean, the isometric viewpoint is mostly consistent, tile boundaries are well aligned, and the terrain assets are rendered with coherent lighting and texture. The legend is also correctly included, covering the requested categories: \textit{water}, \textit{road}, \textit{house}, \textit{bridge}, and \textit{hill}. Several high-level spatial constraints are also broadly satisfied: the river, bridge, northwest hill, and one of the houses are placed in a way that is largely consistent with the prompt.
+
+However, the result still fails on precise coordinate grounding. The houses specified at \textbf{F5} and \textbf{G6} are shifted to nearby but incorrect cells, approximately \textbf{F6} and \textbf{G7}. Similarly, the marketplace requested at \textbf{D7} is placed lower than expected, closer to \textbf{D8}. These errors are visually subtle because the map remains coherent and game-like, but they violate the rule-based placement constraints that define the task.
+
+\paragraph{Insight.}
+This case illustrates a recurring failure mode in spatially structured generation: the model can reproduce the \emph{visual grammar} of a tile-based map, but does not reliably execute the underlying \emph{coordinate program}. Isometric grids impose a discrete symbolic structure, where each object must be bound to a specific cell. Yet the model appears to treat coordinates such as \textit{F5} and \textit{G6} as soft layout cues rather than exact addresses. As a result, it produces a perceptually plausible map while committing off-by-one placement errors.
+
+More broadly, this suggests that current text-to-image models still lack a robust internal mechanism for translating symbolic spatial specifications into deterministic geometric layouts. Their strength lies in synthesizing coherent visual patterns, not in maintaining a verifiable grid state throughout generation. Similar to the metro-map case in \Cref{fig:metro_map_case}, the failure is not aesthetic but procedural: the image looks correct at a glance, yet the discrete spatial relations are not fully satisfied. This again reveals a gap between generation and verification. A multimodal reasoning model such as GPT 5.5 can readily identify these coordinate mismatches after seeing the image and prompt, while the image generator itself struggles to prevent them during generation.
+
+
+\begin{figure}[t]
+\centering
+\begin{subfigure}[b]{0.16\textwidth}
+\includegraphics[width=\linewidth]{img/stress_test/physics/orange_input.jpg}
+\caption{Input: Floating State}
+\vspace{-3mm}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.41\textwidth}
+\includegraphics[width=\linewidth]{img/stress_test/physics/orange_explainer.jpg}
+\caption{Analytical Explainer}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.41\textwidth}
+\includegraphics[width=\linewidth]{img/stress_test/physics/orange_sink.jpg}
+\caption{Counterfactual: Sinking}
+\end{subfigure}
+\caption{\textbf{Causal Transition in Fluid Dynamics.} The model successfully transitions from a surface-level state (a) to a submerged state (c) upon a counterfactual prompt. Note the addition of micro-bubbles and shifted refractive caustics, indicating an implicit understanding of fluid interaction. Generated by Nano Banana.}
+\label{fig:fluid_case}
+\end{figure}
+
+\subsection{Dimension II: Physical Reasoning \& Causal Fidelity}
+
+\noindent\textit{Primary Level Tested: L5 (World-Modeling Generation) --- Can the model predict what would physically happen under intervention, not merely what looks plausible?}
+
+\paragraph{Core Ability: Does the model understand "How the world works" (Gravity, Lighting, Crowd Dynamics)?}
+Pure physical reasoning, however, is not always evaluated in a purely textual form. Some of the most revealing cases arise when the model must \emph{read} a visually presented physics problem, \emph{solve} it, and then \emph{write the derivation back} onto the same image. Such tasks lie at the boundary between \textit{Physical Reasoning \& Causal Fidelity} and \textit{Visual-Textual Integration \& Logic}. In this section, we place our physics-exam case primarily under Dimension III, because the decisive challenge is not only whether the model can infer the correct physical law, but whether it can close the full OCR$\rightarrow$reasoning$\rightarrow$rendering loop without breaking the visual structure of the page.
+
+\subsubsection{Case Study I: Fluid Dynamics and Counterfactual Buoyancy}
+\label{subsubsec:fluid_dynamics_case}
+
+To probe the model's grasp of \textit{World-Modeling Generation}, we designed a two-stage stress test involving a floating object and a counterfactual physical intervention.
+
+\paragraph{Experimental Setup.}
+We utilized a high-resolution image of a citrus slice floating on a water surface as the anchor. The evaluation was split into two instructions:
+\begin{itemize}
+\item \textbf{Instruction A (Analytical Rendering):} "Create an illustrated explainer detailing the physics of the fluid dynamics caught in this image." This tests \textit{Visual-Textual Integration} (Dimension III) and the ability to map physical concepts (e.g., surface tension, Archimedes' principle) onto a visual substrate.
+\item \textbf{Instruction B (Counterfactual State Transition):} "What if the orange piece sinks down the water?" This requires the model to move beyond "Stochastic Plausibility" toward "Causal Simulation," predicting the resulting change in lighting, bubbles, and displacement.
+\end{itemize}
+
+
+
+\paragraph{Observed Behavior.}
+As shown in \Cref{fig:fluid_case}, the model demonstrates a sophisticated "VLM-first, renderer-second" pipeline. In the analytical explainer, it successfully generates vector-like annotations and labels that align with the spatial coordinates of the object. More critically, in the sinking scenario, the model does not merely lower the object's vertical position; it introduces \textbf{causal artifacts} such as trailing air bubbles and altered light refraction consistent with a submerged environment.
+
+\paragraph{Insight.}
+This case suggests that frontier models are beginning to bridge the gap between \textbf{L2 (Conditional Generation)} and \textbf{L5 (World-Modeling Generation)}. While the "Thinking Trace" often reveals a redundant search for consistency, the final output indicates that "Reasoning-conditioned document editing" is a viable path toward agentic visual systems that understand "how the world works".
+
+
+\subsubsection{Case Study II: Action-Conditioned Navigation and Predictive World Modeling}
+\label{subsubsec:driving_collision_case}
+
+We further evaluate the model's capacity for \textbf{predictive world modeling} within an embodied driving context. This requires the model to predict future visual states conditioned on specific agent actions or high-kinetic counterfactuals.
+
+\paragraph{Experimental Setup.}
+The model is presented with two navigation-based challenges:
+\begin{itemize}
+    \item \textbf{Scenario A (Intersection Turning):} From a first-person view at a signalized intersection, the model is asked if a turn is possible and to generate the resulting view. This tests the preservation of landmarks and dynamic actors (pedestrians) across a 3D coordinate shift.
+    \item \textbf{Scenario B (High-Speed Collision):} Given a highway scene, the model is prompted with a severe counterfactual: "What if I further speed up and crash into the car ahead?".
+\end{itemize}
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth,height=4cm,keepaspectratio]{img/stress_test/physics/driving_turn_in.jpg}
+        \caption{Scenario A: Initial Intersection State}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth,height=4cm,keepaspectratio]{img/stress_test/physics/driving_turn_out.jpg}
+        \caption{Predicted State: Perspective Shift}
+    \end{subfigure}
+    
+    \vspace{1em}
+    
+    \begin{subfigure}[b]{0.31\textwidth}
+        \includegraphics[width=\linewidth,height=4cm,keepaspectratio]{img/stress_test/physics/driving_highway_in.png}
+        \caption{Scenario B: Highway Anchor}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.31\textwidth}
+        \includegraphics[width=\linewidth,height=4cm,keepaspectratio]{img/stress_test/physics/driving_speed.jpg}
+        \caption{Predicted State: High Speed}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.31\textwidth}
+        \includegraphics[width=\linewidth,height=4cm,keepaspectratio]{img/stress_test/physics/driving_crash.jpg}
+        \caption{Counterfactual: Collision}
+    \end{subfigure}
+    \caption{\textbf{Action-Conditioned Causal Prediction.} The model successfully simulates visual markers of high-speed travel (motion blur) and the structural consequences of a physical crash, including metal deformation and fragmentation, indicating significant progress toward Level 5 World Simulation. Generated by Nano Banana.}
+    \label{fig:driving_causal_test}
+\end{figure}
+
+\paragraph{Insight.}
+While the model demonstrates high structural accuracy in the collision test, its failure to explicitly flag immediate safety constraints (e.g., the pedestrian currently in the crosswalk during Scenario A) highlights a critical gap between "Visual Prediction" and "Grounded Causal Reasoning". This reinforces the finding that current systems often prioritize semantic plausibility over robust causal competence.
+
+\subsubsection{Case Study III: Task-Oriented Action Grounding and Robotic Manipulation}
+\label{subsubsec:robot_grasp_case}
+
+To move from passive physical simulation toward proactive, goal-directed behavior, we evaluate the model's capacity for \textbf{Generative Action Grounding}. This task requires the model to translate a high-level functional intent (e.g., ``grasp the cup'') into a visually and physically coherent action plan.
+
+\paragraph{Experimental Setup.}
+The model is presented with a robot workspace featuring a robotic end-effector and a target object (a white cup) on a flat surface. We issue the prompt: \textit{``If I have a robot arm with gripper and I need to grasp the cup, how should the gripper grasp the cup on the table. Visualize it.''} The model's response is evaluated based on its ability to propose a gripper orientation that accounts for the object's geometry and the physics of contact.
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[b]{0.31\textwidth}
+        \includegraphics[width=\linewidth]{img/stress_test/physics/grasp_mug.png}
+        \caption{Input: Mug to grasp}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.31\textwidth}
+        \includegraphics[width=\linewidth]{img/stress_test/physics/grasp_gripper.png}
+        \caption{Input: Robot gripper}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.31\textwidth}
+        \includegraphics[width=\linewidth]{img/stress_test/physics/grasp.jpg}
+        \caption{Photorealistic Execution}
+    \end{subfigure}
+    \caption{\textbf{Generative Action Grounding for Robotic Manipulation.} (a-b) The input mug to grasp and the robot gripper. (c) The model successfully synthesizes a high-fidelity anthropomorphic grasp, demonstrating an implicit understanding of \textbf{Contact Manifold} dynamics and force-closure. Generated by Nano Banana.}
+    \label{fig:robot_grasp}
+\end{figure}
+
+\paragraph{Analysis of Physical Reasoning.}
+The results in \Cref{fig:robot_grasp} reveal that the model possesses an emergent ``World Model'' for manipulation. In the schematic examples (a-b), the model maintains \textbf{Object Permanence} and correctly identifies the cylindrical affordance of the cup. In the photorealistic rendering (c), the model avoids the common failure of interpenetrating the mesh; instead, it wraps the robotic fingers around the mug in a way that suggests an understanding of friction and surface normals.
+
+\paragraph{Insight.}
+This case study highlights that advanced VLMs can act as \textbf{Visual Policy Proposals}. While the model is not outputting raw joint torques, its ability to generate a visually valid future state—conditioned on a functional goal—marks a significant step toward \textit{Agentic Visual Intelligence}. It demonstrates that the model is not just a stochastic parrot of pixels, but a system capable of running a ``mental simulation'' of physical contact to guide its generative process.
+
+\subsubsection{Case Study IV: Spatiotemporal Trajectory Synthesis for Multi-Step Tasks}
+\label{subsubsec:trajectory_synthesis}
+
+To evaluate the model's capacity for long-horizon physical reasoning, we move beyond static pose estimation to \textbf{Spatiotemporal Trajectory Synthesis}. In this task, the model must visualize a multi-step sequence of actions that transition a scene from a "source" state to a "target" state, maintaining causal logic throughout the motion.
+
+\paragraph{Experimental Setup.}
+The model is provided with a workspace containing a green spoon and a wooden bowl (\texttt{spoon\_input.png}). We issue a trajectory-based prompt: \textit{``Generate the trajectory to put the green spoon into the wooden bowl as a sequence of images from the same camera.''} This requires the model to simulate a continuous path that respects the physical constraints of both the robotic end-effector and the environment.
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth]{img/stress_test/physics/robot_init.png}
+        \caption{Input: Initial State}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth]{img/stress_test/physics/robot_traj.jpg}
+        \caption{Output: Generated trajectory}
+    \end{subfigure}
+    \caption{\textbf{Sequential Trajectory Generation.} The model demonstrates an ability to synthesize a physically plausible path through time. It maintains strict \textbf{Identity Persistence} for the spoon and correctly predicts the spatial containment relationship required for the task. This illustrates a transition toward Level 5 intelligence, where visual generation serves as a proxy for physical planning. Generated by Nano Banana.}
+    \label{fig:spoon_trajectory}
+\end{figure}
+
+\paragraph{Analysis of Spatiotemporal Consistency.}
+The generated sequence in \Cref{fig:spoon_trajectory} reveals two critical competencies:
+\begin{enumerate}
+    \item \textbf{Kinematic Logic:} The robotic arm's movement follows a natural arc, indicating an implicit understanding of joint constraints and end-effector orientation.
+    \item \textbf{Containment Awareness:} In the final frame, the spoon is correctly occluded by the rim of the bowl, signifying that the model understands the 3D volume of the container and the physics of the ``inside'' relationship.
+\end{enumerate}
+However, there is an obvious failure in the first two frames of the generated trajectory, where the spoon orientation is wrong, indicating that more research is needed for visual detail consistencies. 
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \includegraphics[width=0.95\linewidth]{img/stress_test/physics/human2robot_1.jpg}
+        \caption{Original Human Sequence: Multi-Step Causal Tasks (e.g., Pouring Action in Frame 2)}
+    \end{subfigure}
+    
+    \vspace{1em}
+    
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \includegraphics[width=0.95\linewidth,keepaspectratio]{img/stress_test/physics/human2robot_2.jpg}
+        \caption{Edited Humanoid Sequence: Plausible Identity but Causal Action Failure (Missing Pouring Simulation)}
+    \end{subfigure}
+    
+    \caption{\textbf{Video Re-rendering and Causal Divergence.} The model achieves high controllable creativity (Level 2) by consistently rendering a single humanoid robot along the original spatiotemporal path. However, it fails to simulate the functional grounding of the task; the pouring action present in the source (a, Frame 2) disappears and has no causal consequence in the edited sequence (b), demonstrating a decoupling of visual fidelity and causal world simulation (Level 5). Generated by Nano Banana.}
+    \label{fig:video_rerendering_cases}
+\end{figure}
+
+\paragraph{Insight.}
+This case study highlights the emergence of \textbf{Visual Action Planning}. By successfully rendering a temporal sequence that adheres to Newtonian intuition, the model proves it can act as a simulator for high-level robotic tasks. However, a remaining challenge for ``Agentic Intelligence'' is ensuring these trajectories are not just visually plausible but also kinematically executable in real-world control systems.
+
+\subsubsection{Case Study V: Video Re-rendering with Functional Causal Failure}
+\label{subsubsec:video_re-rendering_case}
+
+To evaluate the limits of high-fidelity spatiotemporal consistency in video-to-video editing, we conducted a real-world multi-frame stress test requiring complex identity replacement: transforming a human performing a sequential kitchen task into a consistent humanoid robot while preserving the trajectory and functional intent.
+
+\paragraph{Experimental Setup.}
+The model is presented with a consecutive four-frame sequence from a kitchen camera (\texttt{human\_input.jpg}), featuring a human performing complex manipulation tasks around a stove and sink. We issue a task-conditioned visual editing prompt: \textit{``Replace the human in those sequential frames with a humanoid. The robot must be consistent along frames.''} The evaluation criteria are (a) identity persistence of the humanoid, and (b) preservation of the original functional action and its causal consequences.
+
+
+\paragraph{Observation and Analysis.}
+As depicted in \Cref{fig:video_rerendering_cases}, the model successfully replaces the human with a single, visually detailed, and physically plausible humanoid that maintains identity persistence across all frames. However, a significant divergence occurs regarding \textbf{Functional Causal Persistence}. In frame 2 of the source sequence (\Cref{fig:video_rerendering_cases}a, top right), the human is clearly pouring from a container into a pot. The model, while pathing the robot to the same location, fails to render the \textit{act of pouring} or simulate its consequences (e.g., fluid dynamics, maintained pose). The action is reduced to a semantic gesture of interaction, rather than a simulation.
+
+\paragraph{Insight.}
+This real-world example exposes the gap between ``Pixel-space Control'' and ``Physical Simulation''. The model excels at L2/L3 (Conditional and In-Context Generation) but remains far from L5 (World-Modeling Generation). It treats a sequential visual action as a chain of static texturally consistent states rather than a continuous event with logical consequences. The failure of the pouring action highlights that while visual generation is reaching high maturity, grounding these generations in robust physical and logical world models is a persistent bottleneck for agentic visual systems that must operate safely and functionally in dynamic environments.
+
+
+\subsubsection{Case Study VI: Irreversible State Transitions and Internal Material Consistency}
+\label{subsubsec:material_transformation_case}
+
+To push the limits of \textit{World-Modeling Generation}, we evaluate the model's ability to represent irreversible physical transformations—specifically \textbf{Material Removal} and \textbf{Subdivision}. These tasks require the model to predict the internal structure of an object that is hidden in the initial state, testing the depth of its volumetric world knowledge.
+
+\paragraph{Experimental Setup.}
+The model is provided with a whole zucchini and a rainbow carrot (\texttt{veg\_input.jpg}). We issued two goal-conditioned instructions: (1) \textit{``Generate the goal image of cutting a zucchini,''} and (2) \textit{``Generate the goal image of peeling a rainbow carrot.''} A successful simulation must preserve the object's identity while correctly rendering the internal flesh and resulting debris (slices/shavings).
+
+\begin{figure}[!htp]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\linewidth]{img/stress_test/physics/zucchini_input.jpg}
+        \caption{Initial State: Original Zucchini}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\linewidth]{img/stress_test/physics/zucchini_cut.jpg}
+        \caption{Goal State: Cut Zucchini}
+    \end{subfigure}
+    
+    \vspace{1em}
+    
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\linewidth]{img/stress_test/physics/carrot_input.jpg}
+        \caption{Initial State: Original Carrot}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\linewidth]{img/stress_test/physics/carrot_cut.jpg}
+        \caption{Goal State: Peeled Rainbow Carrot}
+    \end{subfigure}
+    \caption{\textbf{Irreversible Material Transformation.} The model demonstrates an advanced understanding of object interiority. In (b), it correctly renders the internal seeds and texture of the zucchini. In (d), it maintains the specific color gradient of the rainbow carrot in the resulting shavings, showcasing high \textbf{Causal Identity Persistence} across state changes. Generated by Nano Banana.}
+    \label{fig:transformation_cases}
+\end{figure}
+
+\paragraph{Analysis of Volumetric Reasoning.}
+The generated images in \Cref{fig:transformation_cases} reveal that the model treats the vegetables as 3D volumes rather than 2D sprites. The transition from (a) to (b) and (c) to (d) involves a significant change in geometry. The model accurately simulates the ``Internal Material Properties'': the zucchini slices have a logically consistent diameter and interior color, while the carrot shavings exhibit the correct thickness and curvature expected from a manual peeler.
+
+\paragraph{Insight.}
+This case study highlights the model's capacity for \textbf{Counterfactual State Synthesis}. By accurately imagining the "inside" of an object based on its "outside," the model moves toward Level 5 intelligence. However, the exact arrangement of the slices in (b) remains somewhat stochastic; a truly agentic model would need to ground these transformations in a rigid kinematic path (e.g., the specific movement of a knife), bridging the gap between visual plausibility and physical execution.
+
+
+\subsection{Dimension III: Visual-Textual Integration \& Logic}
+
+\noindent\textit{Primary Level Tested: L4 (Agentic Generation) --- Can the model read, reason, and write back onto the same visual substrate in a coherent closed-loop workflow?}
+
+\paragraph{Core Ability: The fusion of OCR (Reading), Reasoning (Solving), and Rendering (Writing).}
+
+\subsubsection{Case Study I: Solving a Physics Exam Directly on the Image}
+\label{subsubsec:physics_solver_case}
+
+To probe whether a frontier model can truly \emph{read, think, and write back} on the same visual substrate, we constructed a physics-tutoring case in which the input is a Chinese Gaokao-style electromagnetism problem and the output must be an \emph{annotated solution image} rather than plain text. The user prompt explicitly casts the model as a ``Visual Physics Solver \& Annotator'' and requires an end-to-end workflow: parse the question and diagram, identify the governing physical laws, derive the equations, perform the calculations, and overlay the step-by-step solution directly onto the image or an extended whitespace region. The output must preserve the original question, use legible high-contrast handwriting or clean typesetting, remain in Chinese, and present a tutor-like structure including \emph{Given}, \emph{Analysis}, \emph{Derivation}, and \emph{Result}. This transforms a seemingly standard physics problem into a much more demanding multimodal task.
+
+\paragraph{Experimental Setup.}
+The case revolves around a classic inclined-plane electromagnetic induction problem: a conducting rod and a U-shaped frame slide on a smooth slope, enter and leave a magnetic field at different moments, and are coupled through induced current, Ampere force, gravity, and friction. Unlike text-only physics QA, the model must jointly process three types of information:
+\begin{itemize}
+    \item \textbf{Dense document OCR:} The problem statement is embedded in a photographed or scanned exam page with Chinese text, inline formulas, and a geometric diagram.
+    \item \textbf{Diagram grounding:} Variables such as $CD$, $EF$, $L$, $s_0$, $s_1$, $\alpha$, and the direction of the magnetic field must be aligned with the figure rather than treated as independent text tokens.
+    \item \textbf{Layout-aware response generation:} The derivation must be inserted without obscuring the original question, and the rendered equations must remain readable and pedagogically structured.
+\end{itemize}
+The target output therefore is not merely a correct scalar answer. It is a visually integrated worked solution.
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \IfFileExists{img/stress_test/math/input.jpg}{%
+            \includegraphics[width=\linewidth,height=7.2cm,keepaspectratio]{img/stress_test/math/input.jpg}%
+        }{%
+            \fbox{\parbox[c][7.2cm][c]{0.92\linewidth}{\centering
+            \textbf{Input Image Placeholder}\\[0.5em]
+            Put the source image at\\
+            \texttt{img/stress\_test/math/input.jpg}}}%
+        }
+        \caption{Input: exam-style physics problem}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \IfFileExists{img/stress_test/math/output.jpg}{%
+            \includegraphics[width=\linewidth,height=7.2cm,keepaspectratio]{img/stress_test/math/output.jpg}%
+        }{%
+            \fbox{\parbox[c][7.2cm][c]{0.92\linewidth}{\centering
+            \textbf{Output Image Placeholder}\\[0.5em]
+            Put the solved image at\\
+            \texttt{img/stress\_test/math/physics\_exam\_output.png}}}%
+        }
+        \caption{Model output: solution rendered onto the image}
+    \end{subfigure}
+    \caption{\textbf{Physics problem solving as reasoning-conditioned document editing.} The model is asked not only to solve the problem, but to write the derivation back onto the original visual artifact without obscuring the source text or diagram. This case therefore jointly tests OCR, diagram grounding, symbolic reasoning, layout planning, and text rendering. Generated by Nano Banana.}
+    \label{fig:physics_solver_case}
+\end{figure}
+
+\paragraph{Observed Behavior.}
+As shown in \Cref{fig:physics_solver_case}, the generated result is striking because it does more than decorate the image with red formulas. It appears to reconstruct a plausible expert workflow: first deriving the rod's entry velocity from energy conservation, then computing the induced current and Ampere force during the constant-velocity stage in the magnetic field, and finally solving for the rod mass, kinetic-friction coefficient, and the frame's constant-velocity distance through a coupled kinematic and force-balance analysis. The final image also demonstrates strong document-level awareness. It preserves the original question and diagram, writes the derivation into unused white space, keeps the explanation language consistent with the Chinese prompt, and uses contrasting red annotations to separate solution content from source content. Importantly, the final numerical results are not merely stylistic artifacts; they are mutually consistent under a standard derivation, yielding $F_A=0.18\,\mathrm{N}$, $m\approx 0.0352\,\mathrm{kg}$, $\mu \approx 0.111$, and $s\approx 0.666\,\mathrm{m}$.
+
+\paragraph{What the Thinking Trace Reveals.}
+The accompanying reasoning trace reveals a much less smooth internal process than the polished output image suggests. Rather than following a compact symbolic plan, the model repeatedly revisits the same subproblems: it re-analyzes the rod-frame velocity relation, reconsiders whether the relevant friction should be treated as kinetic or static, and repeatedly rebuilds the force-balance equations around the transition points at which the rod exits the magnetic field and the frame edge $EF$ enters it. This repetitive self-correction is highly informative. It suggests that the model can eventually converge to a coherent solution, but it does not maintain a stable symbolic workspace in the way a dedicated theorem prover or physics engine would. Instead, it appears to perform a broad and somewhat redundant search over partially grounded hypotheses until a numerically self-consistent chain of reasoning emerges. In other words, the final image demonstrates \emph{productive reasoning}, but the trace indicates that the reasoning process remains fragile, expensive, and only partially structured.
+
+\paragraph{Why This Case Matters.}
+This case is substantially richer than a standard OCR benchmark, text-rendering benchmark, or multimodal math QA task. A model can have high OCR accuracy yet still fail to bind symbols to the correct entities in the figure. It can solve the physics problem in text yet fail to produce a legible annotated image. It can render beautiful formulas in red ink yet still hallucinate the derivation or place annotations in semantically inappropriate regions. The benchmark value of this case lies precisely in forcing these subskills to compose. It requires the model to treat the image not only as an object to perceive, but also as an external workspace that must be updated in a logically and spatially coherent way.
+
+\paragraph{Does This Capability Truly Require Image Generation?}
+This question is especially important because the task superficially looks like an image-generation benchmark, but its cognitive core is different. The hardest part of the task is not natural-image synthesis. It is the multimodal chain of \textbf{OCR $\rightarrow$ diagram grounding $\rightarrow$ symbolic reasoning $\rightarrow$ structured visual re-rendering}. Under this decomposition, the first three stages are much closer to VLM understanding and symbolic problem solving than to diffusion-style generation. A strong modular system---for example, a \emph{VLM parser}, a \emph{symbolic physics solver}, a \emph{layout planner}, and a \emph{text renderer}---could likely solve this task more reliably than a monolithic end-to-end image generator. From that perspective, the task does \emph{not} primarily measure whether a model can synthesize realistic pixels from scratch.
+
+At the same time, image generation or image editing is not irrelevant. Once the required output format is ``return only the solved image,'' the model must make document-level visual decisions that a plain VLM or text-only solver does not naturally solve: where to place the derivation, whether to extend the canvas, how to preserve the original diagram, how to draw auxiliary arrows or free-body diagrams, how to maintain contrast, and how to imitate a human tutor's annotation style. These are not classical text-to-image problems, but they are still genuine visual generation and editing problems. The key distinction is that the model is not generating an image \emph{for its own sake}; it is using visual generation as a \emph{structured output interface} for reasoning. We therefore argue that this ability is best described as \textbf{reasoning-conditioned document editing}, not standard image generation.
+
+\paragraph{A Likely Mechanism: VLM-First, Renderer-Second.}
+The most plausible account of the observed behavior is a \textbf{VLM-first, renderer-second} pipeline, whether implemented explicitly or implicitly within a unified multimodal foundation model. The system likely first solves the problem in a latent or textual reasoning space, and only then projects the solution back into the image through text rendering or controllable image editing. The final output supports this interpretation: the annotations behave more like a well-controlled document renderer than like unconstrained image synthesis. Meanwhile, the lengthy and repetitive thinking trace suggests that the upstream reasoning stage remains the true bottleneck. This asymmetry is revealing. It implies that recent models may already be surprisingly competent at \emph{presenting} a solution visually once a derivation has been found, while still being much weaker at maintaining a concise, robust, and fully grounded symbolic chain of thought.
+
+\paragraph{Insight.}
+This case exposes a capability frontier that standard visual-generation benchmarks largely ignore: the ability to use images as \emph{interactive reasoning canvases}. The task is not well captured by OCR accuracy, math QA accuracy, or text rendering fidelity in isolation. Instead, it tests whether a model can compose all three into a coherent end-to-end behavior. More broadly, it suggests that the next stage of visual intelligence may not be defined only by prettier or more photorealistic images, but by whether models can read a complex visual artifact, reason over it, and then write back into it in a structured, pedagogically useful manner. That is a meaningful step toward agentic visual systems. Yet the thinking trace also warns us that much of the apparent competence may currently arise from a loose coupling between VLM reasoning and a strong rendering layer, rather than from a truly unified, world-grounded model.
+
+\subsection{Dimension IV: Multi-Turn Editing --- Markovian Chaining and Silent Drift}
+
+\noindent\textit{Primary Level(s) Tested: L3 (In-Context Generation) as floor, L4 (Agentic Generation) as ceiling --- Mechanically, each round of multi-turn editing is a single forward pass over the cumulative input $\{I_0, p_1, I_1, \ldots, p_t\}$, the L3 method signature. What we probe, however, is whether the system also exhibits L4 capability: does it genuinely use the full edit history and selectively re-anchor on relevant past turns, or does it collapse to the Markovian shortcut $f(I_{t-1}, p_t)$ whose observable signature is silent, cumulative drift across rounds?}
+
+\paragraph{Core Ability: Beyond carrying multi-turn context across rounds (L3) and selecting which past turns to consult for the current edit (L4), resisting the silent drift that compounds even when every turn is locally faithful---drift is the observable surface of the Markovian shortcut, since with no early-turn anchor each round amplifies the previous round's reconstruction error.}
+
+\begingroup
+
+
+Multi-turn editing is the natural stress test that separates L3 from L4. Mechanically each round is a single forward pass over the growing input---the L3 method signature; the L4 capability we then probe is whether the model can (i)~remember the full edit history, (ii)~selectively retrieve the past turns that bear on the current instruction, and (iii)~hold cross-turn invariants stable as the chain grows. In practice, however, many systems implement multi-turn as a chain of single-turn calls $f(I_{t-1}, p_t)$, retaining only the last image and the current prompt---a Markovian shortcut whose observable signature is silent, cumulative drift: each individual turn looks locally acceptable, yet small per-turn error accumulates so that earlier-panel detail decays beyond recovery and the trajectory across turns no longer closes back to the original. We probe two complementary layers at which this drift surfaces: \emph{representational} drift inside the model that compounds because every panel is decoded from the previous round's lossy reconstruction (Case~I), and \emph{semantic} drift visible to the user---identity, size, and object persistence shifting silently across turns---which surfaces sharply when the model is asked to ``restore to original'' (Case~II). Together they reveal a failure mode that no single-turn benchmark can surface: each turn is correct in isolation, yet the trajectory across turns is not. Unless a caption states otherwise, outputs in this dimension are from \textbf{Nano Banana}.
+
+
+\subsubsection{Case Study I: Cumulative Visual Quality Degradation in Multi-Panel Sequential Editing}
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[b]{0.235\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=4cm,keepaspectratio]{img/stress_test/multi_turn/banana-turn0.jpg}
+        \caption{Turn 0}
+    \end{subfigure}\hfill
+    \begin{subfigure}[b]{0.235\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=4cm,keepaspectratio]{img/stress_test/multi_turn/banana-turn1.jpg}
+        \caption{Turn 1}
+    \end{subfigure}\hfill
+    \begin{subfigure}[b]{0.235\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=4cm,keepaspectratio]{img/stress_test/multi_turn/banana-turn2.jpg}
+        \caption{Turn 2}
+    \end{subfigure}\hfill
+    \begin{subfigure}[b]{0.235\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=4cm,keepaspectratio]{img/stress_test/multi_turn/banana-turn3.jpg}
+        \caption{Turn 3}
+    \end{subfigure}
+    \caption{\textbf{Cumulative quality degradation in sequential multi-panel editing (Nano Banana).} Each turn fills only one empty panel of a four-panel manga page (T0: top-left; T1: top-right; T2: bottom-left; T3: bottom-right), yet because the model must re-encode and re-render the full image every round, JPEG-like compression artifacts accumulate and earlier panels drift even when no instruction targets them---for instance, at T2 the top-left girl's facial expression has silently shifted from her T0 rendering. We recommend zooming in to inspect the cumulative image-quality degradation across turns. This pattern reveals a structural cost of single-forward in-context generation that long context alone cannot resolve.}
+    \label{fig:multi_turn_cumulative_degradation}
+\end{figure}
+
+\paragraph{Setup.}
+We stress the pixel-level fidelity axis of multi-turn editing, deliberately decoupled from semantic identity. The input is a blank four-panel manga page outline, and the four-turn sequence fills the panels one at a time: (T0) top-left panel---a short-haired girl with round glasses outside an antique shop, holding a brass key, ink-line greyscale; (T1) top-right panel---the same girl pushing the door open from behind, dust motes in the air; (T2) bottom-left panel---a close-up of her surprised face, her glasses reflecting a glowing object; (T3) bottom-right panel---the reveal of what she sees, a floating gear bird with faint glow. Crucially, at each of T1--T3 the instruction targets a single empty panel; the previously-drawn panels should remain pixel-identical. The full prompt set is recorded in \texttt{img/stress\_test/multi\_turn/prompts.md}.
+
+\paragraph{Observed Behavior.}
+Even though each turn names exactly one panel as the target, Nano Banana visibly re-renders the full page on every round, with three failure modes accumulating across turns. (i) \emph{Compression-like artifacts}: subtle JPEG-style noise appears in turn~1 and intensifies turn by turn, most visible in flat shaded regions and near sharp edges. (ii) \emph{Text and fine-detail drift}: lettering and small symbols established in earlier panels become blurred or shift in content by later turns, despite no instruction asking the model to touch them. (iii) \emph{Non-edited regions are not strictly stable}: turn-by-turn micro-shifts in line weight, shading density, and panel alignment accumulate---most visibly, the top-left girl's facial expression at T2 no longer matches her T0 rendering, even though T2 only targeted the bottom-left panel.
+
+\paragraph{Insight.}
+This case isolates a structural cost of L3 in-context generation. Because a four-panel layout cannot be edited as four independently rendered crops, every turn must run the entire image through the encoder, the backbone, and the decoder. Each round therefore incurs a VAE round-trip with non-zero quantization loss, and these losses accumulate monotonically across turns. Long context solves \emph{capacity} (the model knows what should not change) but does not solve \emph{pixel-level fidelity} (the encode/decode cycle still degrades it). This is a structural property of the architecture, not an engineering bug: current single-forward in-context systems cannot guarantee strict freezing of non-edited regions. Read through the Markovian lens, this is the \emph{pixel-level drift} signature of $f(I_{t-1}, p_t)$ chaining: with no agentic decision to re-anchor on $I_0$ at any point in the chain, every panel survives only as the lossy reconstruction of the previous round's lossy reconstruction, and quality drifts monotonically downward with depth. The implication is that production-grade multi-turn editing tools likely need an explicit non-edit mask plus a copy-paste fallback for unmodified regions---or, more generally, a controller that selects \emph{which} past turn to anchor each new edit on---rather than relying on the model's in-context capability alone to preserve untouched content.
+
+
+
+\subsubsection{Case Study II: Restore-to-Original --- Long-Range Recall under Cascading Drift}
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[b]{0.235\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=6cm,keepaspectratio]{img/stress_test/multi_turn/cat-turn0.jpg}
+        \caption{Turn 0}
+    \end{subfigure}\hfill
+    \begin{subfigure}[b]{0.235\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=6cm,keepaspectratio]{img/stress_test/multi_turn/cat-turn1.jpg}
+        \caption{Turn 1}
+    \end{subfigure}\hfill
+    \begin{subfigure}[b]{0.235\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=6cm,keepaspectratio]{img/stress_test/multi_turn/cat-turn2.jpg}
+        \caption{Turn 2}
+    \end{subfigure}\hfill
+    \begin{subfigure}[b]{0.235\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=6cm,keepaspectratio]{img/stress_test/multi_turn/cat-turn3.jpg}
+        \caption{Turn 3}
+    \end{subfigure}
+    \caption{\textbf{Sequential edits applied to a photograph of a cat (Nano Banana).} Each panel shows the model's output after the corresponding turn. Prompts---Turn 0: ``A cat standing next to a table.''; Turn 1: ``Make the cat 2x larger.''; Turn 2: ``Add a mouse beside the cat.''; Turn 3: ``Restore the cat to its original size.''}
+    \label{fig:multi_turn_cat_recall}
+\end{figure}
+
+\paragraph{Setup.}
+We probe semantic-level multi-turn drift with a four-turn sequence whose final turn explicitly triggers long-range recall. Starting from a photograph of a tabby cat standing next to a wooden coffee table ($I_0$), we issue: (T1) ``Make the cat 2x larger''; (T2) ``Add a mouse beside the cat''; (T3) ``Restore the cat to its original size.'' Each turn is conditioned on the previous turn's output. The decisive instruction is T3: ``original size'' refers unambiguously to $I_0$, but in a Markovian regime $f(I_2, p_3)$ the model has access only to $I_2$, where the cat has already drifted from both $I_0$ and $I_1$. Successful execution therefore requires the model to either retain the full image history or carry an explicit memory of $I_0$'s appearance.
+
+\paragraph{Observed Behavior.}
+Turns~0--1 succeed: the cat in $I_1$ is visibly larger than in $I_0$ while preserving identity, gaze, and pose, indicating that the model handles a single explicit edit cleanly. The first failure surfaces at T2. Although ``add a mouse'' is the only requested change, the cat is silently re-rendered---it shrinks back to roughly its $I_0$ size and its gaze tightens into a different expression---even though no instruction touched the cat at this turn. The second and more decisive failure surfaces at T3. The prompt asks the model to revert the cat to its $I_0$ size; instead, the cat is enlarged further to a size comparable to or larger than $I_1$, and the mouse introduced at T2 silently disappears. T3 therefore exhibits two simultaneous failures: a long-range recall failure (the model cannot reach back to $I_0$ for the reference size) and an object-persistence failure (the mouse is dropped despite no instruction to remove it).
+
+\paragraph{Insight.}
+T3's instruction ``restore to original'' makes long-range recall a hard requirement: it can only be satisfied by consulting $I_0$ via image history or an explicit textual memory of T0's state. The observed behavior---enlarging the cat in the wrong direction and silently dropping the mouse---is consistent with $f(I_2, p_3)$, conditioning on a single drifted frame and reinterpreting ``original'' against whatever appearance happens to be in $I_2$. T2's silent drift is the upstream cause: each unrequested change at turn $t$ shifts the reference frame against which turn $t{+}1$ must reason, so drift compounds and recall degrades together. Read alongside Case~I, this completes the picture of Markovian multi-turn editing: Case~I exposes \emph{representational} drift inside the model (pixel-level, model-internal), while Case~II exposes \emph{semantic} drift visible to the user (identity, size, object persistence). Both are surface symptoms of the same shortcut, and motivate the agentic, history-aware architectural directions discussed in \Cref{sec:frontier}.
+
+\endgroup
+
+
+\subsection{Dimension V: Human-Centric Heredity \& Aesthetic Editing}
+
+\noindent\textit{Primary Level(s) Tested: L2 (Conditional Generation) / L4 (Agentic Generation) / L5 (World-Modeling Generation) --- Can the model reason about human faces across heredity, cosmetic modification, and stylistic editing, translating subjective, biological, or cultural constraints into coherent visual outputs while preserving identity?}
+
+\paragraph{Core Ability: Reasoning about human faces---their genetic plausibility, surgically modifiable structure, and stylistic presentation---while decomposing vague aesthetic prompts into coordinated, identity-preserving edits.}
+
+
+\subsubsection{Case Study I: Predicting Children's Appearance}
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[b]{0.2275\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=8cm,keepaspectratio]{img/stress_test/children/children_before_mom.jpg}
+        \caption{Input: female}
+    \end{subfigure}\hfill
+    \begin{subfigure}[b]{0.23\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=8cm,keepaspectratio]{img/stress_test/children/children_before_dad.jpg}
+        \caption{Input: male}
+    \end{subfigure}\hfill
+    \begin{subfigure}[b]{0.23\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=8cm,keepaspectratio]{img/stress_test/children/children_after_attempt1.jpg}
+        \caption{Attempt 1}
+    \end{subfigure}\hfill
+    \begin{subfigure}[b]{0.225\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=8cm,keepaspectratio]{img/stress_test/children/children_after_attempt2.jpg}
+        \caption{Attempt 2}
+    \end{subfigure}
+    \caption{\textbf{Predicting Children's Appearance.} Attempt~1 (minimal prompt) yields a compositional shortcut; Attempt~2 (with an explicit blending cue) yields a genuine trait blend. Generated by Nano Banana.}
+    \label{fig:children}
+\end{figure}
+
+
+
+\paragraph{Setup and Objectives.}
+We test whether the model can synthesize a plausible child's face by blending the traits of two parents. The input is two portraits of unrelated adults---a white woman and an East Asian man---and we probe prompt sensitivity by issuing two variants. Attempt~1 uses the minimal prompt: ``Please predict what the child of these two people would look like and generate an image of the future child.'' Attempt~2 adds an explicit blending cue: ``\dots combining the facial features of both.''
+
+\paragraph{Observed Behavior.}
+The two prompts produce qualitatively different outputs (\Cref{fig:children}). Under Attempt~1, the model takes a \emph{compositional shortcut}: the generated face is essentially a copy of the mother's appearance, while the clothing, gesture, and background are lifted from the father's photograph. The image quality is high, but this is a superficial recombination of source regions rather than true hereditary blending. Under Attempt~2, the output exhibits a genuine blend---dark hair carrying a soft wave from the mother, a larger-than-baseline East Asian eye shape, a relatively high nose bridge, a sharper chin, and skin tone interpolating between the two parents---consistent with elementary genetic reasoning where dominant traits suppress recessive ones while morphology interpolates.
+
+\paragraph{Insight.}
+The model's prior over ``child given two parents'' \emph{does} contain the structure needed for real trait blending, and the Attempt~2 result is readily accepted as a possible child of this couple. However, whether this capability is invoked depends sensitively on prompt wording: without an explicit blending cue, the model falls back to a shallower strategy that mixes source regions rather than source features. The underlying skill exists, but surfacing it reliably still requires the user to spell out the intended reasoning---a gap in deep instruction understanding.
+
+
+
+\subsubsection{Case Study II: Plastic Surgery Simulation}
+
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[b]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=5cm,keepaspectratio]{img/stress_test/surgery/surgery_before.png}
+        \caption{Ex.~1 Input}
+    \end{subfigure}\hfill
+    \begin{subfigure}[b]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=5cm,keepaspectratio]{img/stress_test/surgery/surgery_after.jpg}
+        \caption{Ex.~1 Output}
+    \end{subfigure}\hfill
+    \begin{subfigure}[b]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=5cm,keepaspectratio]{img/stress_test/surgery/surgery_before_girl.png}
+        \caption{Ex.~2 Input}
+    \end{subfigure}\hfill
+    \begin{subfigure}[b]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=5cm,keepaspectratio]{img/stress_test/surgery/surgery_after_girl.jpg}
+        \caption{Ex.~2 Output}
+    \end{subfigure}
+    \caption{\textbf{Plastic Surgery Simulation.} Example~1 (vague ``make him handsome'' prompt) yields a coordinated multi-axis edit of the input portrait; Example~2 (``generate an analysis chart'' prompt) yields a full surgical-consultation document with annotated measurements, itemized procedures, and a clinical-style disclaimer. Generated by Nano Banana.}
+    \label{fig:plastic_surgery}
+\end{figure}
+
+
+\paragraph{Setup and Objectives.}
+The second case probes the model's ability to translate a vague aesthetic intent into concrete surgical output. We probe prompt sensitivity with two variants that differ in both the subject and the requested output modality. Example~1 (male subject) uses the prompt: ``Please analyze this person's facial structure and perform a plastic surgery that makes him more handsome''---an underspecified beautification request with no procedural detail. Example~2 (female subject) uses the prompt: ``Please analyze this woman's facial structure and generate a plastic surgery analysis chart''---a specification that explicitly requests an analysis document rather than a modified portrait. Together the two variants test whether the model can (i) decompose an underspecified goal into an implicit edit plan, and (ii) adapt its output modality to the prompt's intended format.
+
+\paragraph{Observed Behavior.}
+The two prompts trigger qualitatively different outputs (\Cref{fig:plastic_surgery}). In Example~1, the output is a single modified portrait in which the subject is changed along multiple coherent axes at once---advanced hairline, slimmer face with a more defined jawline, enlarged eye region, and smoothed skin---with identity preserved. In Example~2, the output is \emph{not} a single portrait but a complete surgical-consultation sheet: annotated measurement arrows on the main headshot labeling anatomical landmarks (mid philtrum, brow height, jawline contour, cheek profile, soft contours), side-view before/after thumbnails, and a numbered procedure plan listing specific terms used in clinical practice (Endoscopic Brow Lift, Mid-face Fillers, V-Line Jaw Contouring, Minimal Lip Filler). The chart even appends a disclaimer (``For Educational and Consultation Use Only---Not a Direct Simulation''), suggesting that the model has learned the surrounding conventions of such documents, not just the main visual.
+
+\paragraph{Insight.}
+The two examples together reveal two layers of capability. First, under a vague beautification prompt (Example~1), the model implicitly decomposes ``handsome'' into a coordinated set of edit dimensions (hair, contour, eyes, skin) and executes them harmoniously. Second, and more strikingly, the model \emph{adapts its output modality} to the prompt (Example~2): asked for an ``analysis chart,'' it produces a document that follows the layout, terminology, and even educational disclaimers of real clinical consultation sheets, rather than returning a modified portrait. This indicates a non-trivial depth of world knowledge in the plastic-surgery domain, well beyond the level required for surface-level beautification.
+
+
+
+\subsubsection{Case Study III: Hairstyle Generation}
+
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=6cm,keepaspectratio]{img/stress_test/hair/hair_before.jpg}
+        \caption{Input}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=6cm,keepaspectratio]{img/stress_test/hair/hair_after.jpg}
+        \caption{Model Output}
+    \end{subfigure}
+    \caption{\textbf{Hairstyle Generation.} The model correctly resolves a culturally specific Chinese styling term (``foil perm'') and composites the hairstyle onto the subject while preserving identity. Generated by Nano Banana.}
+    \label{fig:hair_case}
+\end{figure}
+
+
+\paragraph{Setup and Objectives.}
+We evaluate the model on a concrete, culturally grounded styling request. The input is a photograph of a bald male subject, and the prompt asks: ``Please generate an image of this person with a foil perm hairstyle.'' The foil perm is a styling term popular in contemporary East Asian contexts, characterized by short, tightly coiled curls produced with foil wrapping during setting. The case simultaneously probes whether the model carries sufficient \emph{culturally specific world knowledge} to recognize the target style from its local name, and whether it can composite that style onto an existing face without disturbing identity.
+
+\paragraph{Observed Behavior.}
+As shown in \Cref{fig:hair_case}, the output renders a hairstyle visually faithful to the foil perm as a category: short, tight, lofted curls rather than a generic wavy default. The hair integrates naturally with the original head shape, with plausible lighting and proportions and no visible ``pasted-on'' artifact at the hair--face boundary. Identity is well preserved: facial landmarks, expression, and clothing remain largely unchanged.
+
+\paragraph{Insight.}
+Two properties make this case noteworthy. First, the model correctly resolved a culturally specific term supplied in a non-English prompt---an outcome that relies on substantial region-specific styling knowledge absorbed during training. Second, the result demonstrates clean \emph{localized editing}: the hairstyle is changed while the rest of the portrait remains stable, which is the operational property that makes virtual try-on useful. Together these point to a practical sweet spot for current models: concrete, visually specified styling requests anchored by strong world knowledge and reliable identity preservation.
+
+\subsection{Dimension VI: Low-level Vision Tasks}
+
+\noindent\textit{Primary Level Tested: L1 (Atomic Generation) / L2 (Conditional Generation) --- Can the model perform pixel-level restoration and geometric estimation tasks that require precise signal recovery rather than semantic plausibility?}
+\subsubsection{Case Study I: Out-of-Distribution Depth Estimation}
+\paragraph{Setup and Objectives.} 
+In this case study, we test the model on a real-world image that it has never seen during training (an out-of-distribution test). The image contains a large number of objects in a complex setting. We have two main goals for this setup: first, to see if the model can successfully identify the different objects and their outlines; second, to find out if it can correctly estimate the depth of these objects, meaning how far away they are from the camera.
+
+\paragraph{Success in Object Recognition.} 
+When given this entirely new image, the model shows that it can follow instructions very well. It successfully finds the outlines of most objects in the foreground. This proves that the model has a strong ability to recognize and separate items from each other, even when placed in real-world situations that it is not used to. It clearly understands what the objects are in the picture.
+
+\paragraph{Failure in Depth Estimation.} 
+However, the model runs into major problems when it tries to estimate depth. As we can see in \Cref{fig:depth_estimation}, the model colors many different objects with the exact same shade. Because color represents depth here, the model is incorrectly guessing that all these objects are at the same distance from the camera, which is not true. On top of this error, the model completely misses the outlines of several people standing in the background. These mistakes reveal a clear weakness: while the model is very good at recognizing objects and following text commands, it still has a poor understanding of 3D space and the true physical relationships between objects in the real world.
+
+\subsubsection{Case Study II: Low-Level Visual Restoration Across Heterogeneous Degradations}
+
+\paragraph{Setup and Objectives.}
+To probe the model's capability in low-level vision, we evaluate it on a small but diverse set of restoration tasks covering both synthetic and real-image degradations. Specifically, we randomly select one degraded image from each of Set5~\citep{bevilacqua2012set5}, LOL~\citep{wei2018lol}, BSD68~\citep{martin2001bsd68}, Rain100H~\citep{yang2017rain100h}, and GoPro~\citep{nah2017gopro}, corresponding to super-resolution, low-light enhancement, denoising, deraining, and deblurring, respectively. In addition, we include one real-world image to examine out-of-distribution (OOD) generalization. Unlike higher-level multimodal tasks that primarily test semantic understanding or reasoning, these examples test whether the model can restore visual quality while preserving scene structure under a range of heterogeneous degradations.
+
+\paragraph{Overall Behavior.}
+Across these examples, the model shows a surprisingly unified restoration capability. It can follow task instructions and produce outputs that are substantially cleaner, sharper, and more visually pleasing than the degraded inputs. Super-resolution recovers crisper edges, low-light enhancement reveals scene content hidden in darkness, denoising removes strong corruption, deraining suppresses dominant streak artifacts, and deblurring reconstructs a much clearer scene from severely blurred input. At a coarse perceptual level, the outputs are often strong enough to be immediately useful, suggesting that the model has learned a robust prior over what a ``restored'' image should look like.
+
+\paragraph{Task-by-Task Observations.}
+In the super-resolution example, the model produces a sharper butterfly wing with clearer boundary structure and richer internal texture than the low-resolution input. In the low-light example, it dramatically lifts brightness and reveals room content that is barely visible in the original dark image. In the denoising example, heavy noise is removed while the global layout of the racing scene is preserved. In the deraining example, the dominant rain streaks are largely eliminated and the bear scene becomes much easier to read visually. In the deblurring example, the model transforms an extremely blurred street image into a recognizable urban scene with plausible object boundaries and textures. Taken together, these results indicate that the model can handle multiple restoration tasks within a single general-purpose image-editing framework, rather than relying on a separate specialized pipeline for each degradation type.
+
+\paragraph{A Key Limitation: Restoration by Detail Hallucination.}
+However, a closer comparison with the ground truth reveals that the model's outputs are not simply faithful reconstructions of the underlying clean images. The main issue is not over-smoothing; rather, the model frequently \emph{adds}, \emph{alters}, or \emph{reimagines} details, effectively producing a more detailed version of the scene rather than strictly recovering the original signal. This tendency is especially evident in the low-light enhancement case, where the model does not merely brighten the dark image but appears to rewrite textures, local structures, and illumination patterns according to a learned natural-image prior. Similar behavior can also be seen in super-resolution and deblurring: the outputs are often sharper and richer, but some of the recovered details are better interpreted as plausible inventions than as verifiable restorations of the true image content.
+
+\paragraph{What This Suggests About the Model.}
+This pattern suggests that the model is not performing low-level restoration as a classical inverse problem solver. Instead, it behaves more like a generative image corrector guided by degraded input and task instructions. In other words, it uses the corrupted image as a constraint, but much of the final quality appears to come from prior-driven image synthesis rather than strict signal recovery. This is a meaningful strength from the perspective of perceptual quality: many outputs look subjectively good and align well with user expectations of what the restored scene should resemble. But it is also a nontrivial limitation, because visually appealing restoration does not necessarily imply fidelity to the original scene details.
+
+\paragraph{Insight.}
+These examples suggest that the model already possesses a fairly general low-level editing capability across heterogeneous degradations, including enhancement, suppression of structured corruption, and perceptual detail recovery. Yet the mechanism behind this capability appears closer to \emph{prior-guided image rewriting} than to exact physical restoration. That is, the model is often very good at making a degraded image look clean, sharp, and natural, but less clearly optimized for reconstructing the precise underlying image that generated the degraded observation. This distinction is especially important in low-level vision, where perceptual success and reconstruction fidelity are not always the same thing.
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[t]{0.275\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/low_level/low_level_sr_in.png}
+        \caption{Input}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.275\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/low_level/low_level_sr_out.jpg}
+        \caption{Model Output}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.275\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/low_level/low_level_sr_gt.png}
+        \caption{Ground Truth}
+    \end{subfigure}
+    \caption{\textbf{Super-resolution $\times$2.} The model recovers sharper edges and richer texture from the low-resolution input, but some restored texture details appear to be plausibly synthesized rather than faithfully reconstructed from the original signal. Generated by Nano Banana.}
+\end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[t]{0.275\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/low_level/low_level_lowlight_in.jpg}
+        \caption{Input}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.275\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/low_level/low_level_lowlight_out.jpg}
+        \caption{Model Output}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.275\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/low_level/low_level_lowlight_gt.jpg}
+        \caption{Ground Truth}
+    \end{subfigure}
+    \caption{\textbf{Low-light Enhancement.} The model substantially brightens the dark input and reveals scene content, but the result also shows clear detail rewriting, suggesting prior-guided enhancement rather than strictly faithful recovery. Generated by Nano Banana.}
+\end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[t]{0.275\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/low_level/low_level_denoise_in.jpg}
+        \caption{Input}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.275\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/low_level/low_level_denoise_out.jpg}
+        \caption{Model Output}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.275\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/low_level/low_level_denoise_gt.png}
+        \caption{Ground Truth}
+    \end{subfigure}
+    \caption{\textbf{Denoising.} The model removes heavy noise and restores a visually clean image while preserving the global scene structure. Generated by Nano Banana.}
+\end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[t]{0.275\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/low_level/low_level_derain_in.jpg}
+        \caption{Input}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.275\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/low_level/low_level_derain_out.jpg}
+        \caption{Model Output}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.275\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/low_level/low_level_derain_gt.png}
+        \caption{Ground Truth}
+    \end{subfigure}
+    \caption{\textbf{Deraining.} The model effectively suppresses dominant rain streaks and improves perceptual clarity, but the restored textures are partly regenerated under a learned natural-image prior. Generated by Nano Banana.}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/low_level/low_level_deblur_in.jpg}
+        \caption{Input}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/low_level/low_level_deblur_out.jpg}
+        \caption{Model Output}
+    \end{subfigure}\hfill
+    \caption{\textbf{Deblurring.} The model converts a heavily blurred image into a much clearer scene with plausible structures and boundaries, indicating perceptual restoration that may rely on detail synthesis rather than exact inversion of blur. Generated by Nano Banana.}
+\end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=7.2cm,keepaspectratio]{img/stress_test/low_level/low_level_depth_in.jpg}
+        \caption{Input: Real-world image}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=7.2cm,keepaspectratio]{img/stress_test/low_level/low_level_depth_out.jpg}
+        \caption{Model output: grey depth estimation}
+    \end{subfigure}
+    \caption{\textbf{Depth Estimation.} While the model performs well in object recognition, it fails to provide accurate depth estimation. Many regions that should share the same depth are not generated with consistent shades. Generated by Nano Banana.}
+    \label{fig:depth_estimation}
+\end{figure}
+
+\subsection{Dimension VII: Cross-Disciplinary Real-World Applications}
+
+\noindent\textit{Primary Level Tested: L4 (Agentic Generation) / L5 (World-Modeling Generation) --- Can the model serve as a practical tool in professional workflows requiring world knowledge, logical consistency, and domain-specific accuracy?}
+
+To evaluate the model's practical utility beyond standard academic benchmarks, we explore its performance across a wide range of real-world scenarios. In this dimension, we test whether the model can serve as a tool in diverse professional fields. We categorize these real-life applications into three main areas: (1) \textbf{Design and Engineering}, including architectural drafting, UI/UX, product design, and fashion; (2) \textbf{Scientific and Medical Analysis}, covering tasks like X-ray interpretation, meteorology forecasting, and natural sciences; and (3) \textbf{Complex Reasoning and Society}, which involves legal and forensic scene reconstruction, coding, psychology, and educational content generation. By simulating these complex tasks, we aim to uncover the model's true potential and limitations when applied to actual human workflows.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{img/stress_test/real_world/real_world_city_design.jpg}
+    \caption{\textbf{Historical Urban Planning Design.} The model successfully generates a historically accurate layout of the Tang Dynasty Chang'an city, but struggles with rendering clear and logically unique Chinese text labels. Generated by Nano Banana.}
+    \label{fig:city_design}
+\end{figure}
+
+\subsubsection{Case Study I: Historical Urban Planning Design}
+
+\paragraph{Setup and Objectives.} 
+In this case study, we test the model's capability in professional architectural and urban design. We prompted the model to generate a top-down floor plan of an ancient Chinese city, specifically based on the Tang Dynasty capital, Chang'an. The instructions were highly detailed: it required a solid background, clear structural logic, specific historical zones (such as the outer city, imperial city, palace, and ward/market areas), and a complete road and defense system. Furthermore, the model was asked to label these functional areas clearly in Chinese.
+
+\paragraph{Success in Structural Accuracy.} 
+The model performed exceptionally well in following the overall design instructions. As shown in \Cref{fig:city_design}, the generated image perfectly matches the requested orthographic (top-down) view. More importantly, the spatial layout of the city walls and the grid-like ward system (Fang) are highly accurate and fit the historical background perfectly. The image successfully captures the complex planning logic and authentic feel of an ancient capital.
+
+\paragraph{Limitations in Text Rendering.} 
+Despite the excellent spatial and structural design, we observe clear limitations in the finer details. First, the generated Chinese characters are somewhat blurry, making them difficult to read. Second, there are logical errors in the text itself, such as using the exact same name for different city gates. This indicates that while the model has a strong grasp of visual layout and historical styles, it still struggles with generating sharp, precise text and maintaining logical consistency in small, detailed elements.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\linewidth]{img/stress_test/real_world/real_world_ui_design.jpg}
+    \caption{\textbf{Professional UI Dashboard Design.} The model successfully generates a highly realistic and visually appealing football manager interface with accurate world knowledge, though it exhibits minor logical flaws in fine-grained details. Generated by Nano Banana.}
+    \label{fig:ui_design}
+\end{figure}
+
+\subsubsection{Case Study II: Professional UI Dashboard Design}
+\paragraph{Setup and Objectives.} 
+In this second case study, we test the model's ability to create a complex user interface (UI). We prompted the model to design a professional football manager dashboard for the English club AFC Bournemouth. The detailed prompt required a modern, data-driven layout containing multiple specific panels, such as the next match, league table, squad status, injuries, club finances, and a tactical pitch. 
+\paragraph{Success in Visuals and World Knowledge.} 
+The model performs exceptionally well in overall design and utilizes world knowledge. The generated UI is beautiful, clean, and very easy to understand. It correctly includes real-world details from its training data, such as actual Bournemouth players (e.g., Semenyo, Kerkez) and club-specific elements. Notably, unlike the previous city planning task, the model successfully generates perfectly clear and readable English text with no blurring or spelling issues.
+\paragraph{Limitations in Fine-Grained Logic.} 
+Despite the excellent overall appearance, we observe several minor logical flaws in the small details. First, the tactical pitch incorrectly displays four goals instead of two. Second, in the league table, Bournemouth is ranked 13th but is visually placed near the very top of the list. Third, Semenyo, who is suspended due to yellow card accumulation, is incorrectly given a red card icon. Fourth, the player position is labeled as a generic ``DF'' (Defender), whereas real football UI typically uses specific roles like LB (Left Back) or RB (Right Back). Finally, the remaining transfer budget progress bar is poorly drawn. These small mistakes show that while the model excels at broad visual design and semantic knowledge, it can still struggle with the strict logical consistency of fine-grained elements.
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/code/input_easy.png}
+        \caption{Easy input: Fibonacci Number}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/code/easy_output.jpg}
+        \caption{GPT-Image-2 output}
+    \end{subfigure}
+
+    \vspace{1mm}
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/code/hard_input.png}
+        \caption{Hard input: Trapping Rain Water}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/code/hard_output.jpg}
+        \caption{GPT-Image-2 output}
+    \end{subfigure}
+    \caption{\textbf{Code generation as a read-solve-render workflow with GPT-Image-2.} Given a screenshot of a LeetCode problem interface and a target programming language, the model must read the problem, infer the correct algorithm, and generate a new LeetCode-style image containing the original problem on the left and executable solution code on the right. Both the easy Fibonacci case and the hard trapping-rain-water case are rendered with clear UI structure, readable code, and correct Python solutions.}
+    \label{fig:code_generation_case}
+\end{figure}
+
+\subsubsection{Case Study III: Coding Problem Solving as Visual UI Generation}
+
+\paragraph{Setup and Objectives.}
+We further test whether a frontier image generation model can support programming workflows rather than only visual design. The input is a screenshot of a LeetCode problem interface, and the prompt asks the model to read the problem, solve it, and output a \emph{single new image} that mimics a LeetCode UI. The generated image must contain two panels: the left panel reproduces the problem title, description, examples, and constraints, while the right panel renders complete solution code in a specified target language. This task combines OCR, algorithmic reasoning, code synthesis, and high-fidelity UI rendering in one closed-loop visual output.
+
+\paragraph{Evidence from Easy and Hard Problems.}
+As shown in \Cref{fig:code_generation_case}, GPT-Image-2 succeeds on both an easy dynamic-programming problem, \emph{Fibonacci Number}, and a harder two-pointer problem, \emph{Trapping Rain Water}. In the easy case, the model converts the blank C++ editor state into a Python LeetCode solution with the correct function signature and an iterative recurrence. In the hard case, it produces the standard linear-time two-pointer algorithm, maintaining left/right maxima and accumulating trapped water correctly. In both examples, the output also preserves the two-panel LeetCode layout, syntax highlighting, indentation, and readable high-resolution text.
+
+\paragraph{Insight.}
+This result suggests that GPT-Image-2 can already act as a practical \textbf{read-solve-render} interface for coding tasks: it does not merely redraw the input screenshot, but transforms visual problem understanding into executable symbolic content and then renders that content back into a professional UI. The capability is especially notable because success requires alignment across several layers: exact problem comprehension, algorithm selection, target-language formatting, and document-level visual composition. At the same time, this should be interpreted as a capability probe rather than a complete coding benchmark; broader coverage across languages, edge cases, hidden tests, and more adversarial screenshots will be needed to establish robustness.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.92\linewidth]{img/stress_test/math/math_2.jpg}
+    \caption{\textbf{Structured mathematical diagram generation with GPT-Image-2.} The prompt asks for a Euclidean proof diagram of the golden ratio in a regular pentagram, including a regular pentagon, all diagonals, a central similar pentagon, angle markings, side ticks, golden-section ratios, and algebraic identities involving $\phi$. The generated image organizes geometry, formulas, labels, and proof annotations into a readable educational diagram.}
+    \label{fig:math_structure_case}
+\end{figure}
+
+\subsubsection{Case Study IV: Mathematical Proof Diagram Generation}
+
+\paragraph{Setup and Objectives.}
+We next test GPT-Image-2 on a structured mathematical visualization task. Unlike ordinary illustration, the prompt requires the model to construct a Euclidean proof diagram for the golden ratio in a regular pentagram. The output must combine multiple constraints: a regular pentagon $ABCDE$ with $108^\circ$ interior angles, all five diagonals forming a pentagram, a smaller central regular pentagon similar to the outer one, explicit golden-ratio relations such as $\phi=(1+\sqrt{5})/2$, $\phi^2=\phi+1$, and $1/\phi=\phi-1$, and at least one pair of similar isosceles triangles marked by angle arcs or side ticks. The task therefore probes whether the model can synthesize geometry, mathematical notation, and proof-oriented visual layout into one coherent image.
+
+\paragraph{Observed Behavior.}
+As shown in \Cref{fig:math_structure_case}, GPT-Image-2 produces a highly structured proof-style diagram rather than a decorative pentagram. The outer pentagon and internal diagonals are visually organized, the central similar pentagon is clearly highlighted, and the diagram includes repeated $108^\circ$ angle annotations, color-coded segment labels, matching side ticks, and boxed algebraic identities. The lower portion further converts the geometric construction into a proof narrative, explicitly comparing similar isosceles triangles and deriving proportional relations among $AC$, $AB$, $BC$, and $\phi$. Text, formulas, and arrows remain largely legible, which is crucial for an educational mathematical diagram.
+
+\paragraph{Insight.}
+This case suggests that GPT-Image-2 has a strong capacity for \textbf{structure-aware diagram synthesis}: it can follow a dense symbolic prompt, arrange mathematical objects in a pedagogically meaningful layout, and render both geometric and algebraic information with high visual clarity. Compared with free-form image generation, success here requires tighter coupling between spatial construction and symbolic semantics. The remaining limitation is that visual plausibility should not be mistaken for certified geometric correctness: exact regularity, proportional lengths, and proof validity still require external verification. Nevertheless, the result is a strong example of a model moving beyond aesthetic rendering toward usable mathematical visual communication.
+
+
+\subsubsection{Case Study V: Multilingual Culinary Poster Design}
+
+\paragraph{Setup and Objectives.}
+In this case study, we evaluate whether GPT-Image-2 can generate a practical food-media design artifact that combines \textbf{culinary world knowledge}, \textbf{multilingual text rendering}, and \textbf{professional poster design}. The prompt asks for a premium food preparation poster for \emph{spicy crawfish}, featuring a beautiful hero dish, warm natural lighting, a cream background, and an elegant step-by-step recipe layout. The poster is also required to contain three functional sections---ingredients, cooking process, and serving suggestions---with headings and labels rendered in English, Chinese, Japanese, and Korean. This makes the task more complex than ordinary food photography, since the model must simultaneously produce an appetizing dish image, organize procedural recipe information, and maintain multilingual visual coherence.
+
+\paragraph{Observed Behavior.}
+As shown in \Cref{fig:food_poster_case}, GPT-Image-2 produces a visually polished poster that closely resembles a luxury restaurant advertisement or cookbook editorial page. The hero dish is highly appealing, with red crawfish, dried chilies, peppercorns, aromatics, glossy sauce, and warm lighting that together convey the sensory identity of spicy crawfish. The model also shows reasonable culinary knowledge: the ingredient list includes crawfish, dried chili, Sichuan peppercorns, garlic, ginger, green onion, doubanjiang, soy sauce, oyster sauce, beer, and water, while the cooking process follows a plausible workflow from cleaning and stir-frying to simmering and garnishing. The overall layout is clean and information-rich, with clear section division, numbered cooking steps, supporting food images, and decorative spice elements that reinforce the premium culinary theme.
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth]{img/stress_test/real_world/real_world_food_poster.jpg}
+        \caption{Multilingual culinary poster}
+        \label{fig:food_poster_case}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\linewidth]{img/stress_test/real_world/real_world_lime_drug_design.jpg}
+        \caption{Biomedical infographic}
+        \label{fig:lime_drug_design}
+    \end{subfigure}
+    \caption{\textbf{Cross-disciplinary poster and infographic generation with GPT-Image-2.}
+    Both examples are generated by \textbf{GPT-Image-2} from open-ended prompts requiring world knowledge, dense text rendering, and professional information design.
+    \Cref{fig:food_poster_case} shows a premium multilingual food preparation poster for spicy crawfish, combining culinary knowledge, English/Chinese/Japanese/Korean text rendering, and luxury restaurant-style recipe layout.
+    \Cref{fig:lime_drug_design} shows a biomedical infographic on LIME Drug Design, integrating scientific content organization, domain-aware visual elements, hierarchical information design, and long-form English text rendering.}
+    \label{fig:cross_domain_infographic_cases}
+\end{figure}
+
+\paragraph{Insight.}
+A particularly important observation is that the model can render multiple languages in the same visual document with largely correct meanings. The English, Chinese, Japanese, and Korean headings and labels are mostly recognizable and semantically aligned with the corresponding recipe sections, demonstrating strong multilingual document-level rendering ability. However, the quality is not uniform across text scales: while large headings and major labels are generally clear, smaller non-English text, especially Chinese, Japanese, and Korean body text, shows a certain degree of blurriness and reduced legibility. This suggests that GPT-Image-2 already supports impressive cross-lingual poster generation, but fine-grained multilingual typography remains more challenging when the text becomes dense and small.
+
+\subsubsection{Case Study VI: Biomedical Infographic Generation from Public Knowledge}
+
+\paragraph{Setup and Objectives.}
+In this case study, we test whether GPT-Image-2 can transform an open-ended domain-specific instruction into a professional scientific infographic. The prompt is intentionally brief: \emph{``Research LIME Drug Design and make a detailed infographic about it.''} Unlike tasks that provide explicit layout instructions, this prompt requires the model to determine what information should be included, how the content should be structured, and what visual form is appropriate for communicating a biomedical topic. The case therefore evaluates the model's \textbf{world knowledge}, \textbf{scientific information organization}, \textbf{infographic design ability}, and \textbf{text rendering quality}.
+
+\paragraph{Observed Behavior.}
+As shown in \Cref{fig:lime_drug_design}, GPT-Image-2 generates a polished multi-panel biomedical infographic rather than a generic scientific illustration. The output identifies and organizes multiple aspects of LIME Drug Design, including its definition, workflow, strengths, public evidence, broader significance, and caveats. The visual design is also highly structured: numbered modules, workflow arrows, molecular diagrams, protein-style illustrations, icons, and consistent color coding guide the viewer through the topic. The rendered English text is dense yet largely readable, with clear section headers, explanatory blocks, and scientific terminology arranged in a coherent hierarchy.
+
+\paragraph{Insight.}
+This case highlights GPT-Image-2's ability to function as a \textbf{knowledge-to-communication} model. Given only a short research-oriented prompt, it can select relevant conceptual components, impose an explanatory structure, and present the result as a visually coherent scientific communication artifact. The success of this example depends on more than image aesthetics: the model must combine topic understanding, information prioritization, visual hierarchy, scientific iconography, and long-form text rendering. This suggests that frontier text-to-image models are increasingly capable of supporting real-world infographic creation, especially when the task requires turning specialized knowledge into an accessible and professionally designed visual summary.
+
+
+\subsection{Dimension VIII: High-level Vision Tasks}
+
+\noindent\textit{Primary Level Tested: L2 (Conditional Generation) --- Can the model convert visual understanding into explicit, structured, and actionable predictions (bounding boxes, keypoints, masks, text)?}
+
+Beyond open-ended image generation, a practically useful multimodal model is also expected to support visual tasks whose outputs are explicit, structured, and directly actionable. These settings are particularly informative because success is no longer measured by perceptual plausibility alone, but by whether visual understanding can be converted into symbolic or geometric predictions with clear operational meaning. We therefore examine four representative tasks, namely optical character recognition, keypoint estimation, semantic segmentation, and object detection. Taken together, they span text decoding, articulated pose modeling, dense region parsing, and instance-level localization, thus offering a compact yet revealing view of how the model transitions from holistic perception to structured visual prediction.
+
+
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/high_level/ocr_input.png}
+        \caption{Input}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/high_level/ocr_output.jpg}
+        \caption{Model Output}
+    \end{subfigure}
+    \caption{\textbf{OCR.} The model recovers the dominant text regions and a substantial portion of the readable content, while character-level corruption and omissions remain visible for small or degraded text. Generated by Nano Banana.}
+    \label{fig:ocr_case}
+\end{figure}
+
+\subsubsection{Case Study I: Optical Character Recognition}
+
+\paragraph{Setup and Evaluation Focus.}
+We begin with OCR, a task that requires the model to convert visual text into explicit symbolic output. Compared with open-ended generation, the tolerance for local error is much lower here, since minor deviations in character identity, spacing, or line structure can directly reduce usability. The task therefore provides a clean test of whether the model can move beyond recognizing the presence of text and preserve content in a form that remains legible and operationally meaningful.
+
+\paragraph{Evidence of Global Competence.}
+As shown in \Cref{fig:ocr_case}, the model captures the dominant text layout well and recovers a substantial portion of the salient content. At the level of paragraphs, lines, and major textual regions, the output remains broadly aligned with the input, suggesting that the model has acquired a meaningful representation of document structure rather than merely reproducing a superficial visual pattern. This result indicates that high-level text perception is already within reach.
+
+\paragraph{Remaining Challenge in Precision.}
+The main limitation appears when recognition must be resolved at the level of individual characters. Small, low-contrast, or degraded text is more prone to omission or corruption, and some local regions exhibit visible drops in readability. The overall pattern suggests that the model is better at preserving the existence and arrangement of text than its exact symbolic content. This gap is informative: it shows that structured prediction can already emerge from the model's visual representations, while dependable fine-grained transcription remains substantially harder.
+
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/high_level/keypoint_input.png}
+        \caption{Input}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/high_level/keypoint_output.jpg}
+        \caption{Model Output}
+    \end{subfigure}
+    \caption{\textbf{Keypoint Estimation.} The model produces a plausible keypoint configuration that captures the overall pose structure, although errors remain around occluded joints and locally ambiguous body parts. Generated by Nano Banana.}
+    \label{fig:keypoint_case}
+\end{figure}
+
+\subsubsection{Case Study II: Keypoint Estimation}
+
+\paragraph{Setup and Evaluation Focus.}
+We next consider keypoint estimation, where the model must express body structure through a sparse yet semantically organized set of landmarks. Relative to OCR, the emphasis here shifts from symbolic decoding to geometric reasoning: success depends not only on recognizing the subject, but also on inferring how its parts are spatially related under pose variation, viewpoint change, and partial occlusion. This makes the task a natural probe of whether the model can impose structured spatial organization on top of raw appearance.
+
+\paragraph{Evidence of Global Competence.}
+The result in \Cref{fig:keypoint_case} shows that the model recovers the global pose configuration with considerable fidelity. Major joints are arranged in a manner consistent with the overall body layout, and the resulting skeleton preserves the dominant articulation pattern of the subject. This is a meaningful capability, as it suggests that the model can already move beyond holistic recognition and produce a structured geometric interpretation of the scene.
+
+\paragraph{Remaining Challenge in Precision.}
+The remaining errors are concentrated in the most delicate parts of the task, especially where limbs overlap, joints are partially hidden, or local evidence is inherently ambiguous. In such regions, predicted landmarks may drift toward nearby structures, reducing anatomical precision even when the global pose remains plausible. Much like the OCR case, the model appears stronger at recovering the correct structural form than at resolving every local detail with equal reliability, again pointing to a gap between high-level organization and fine-grained exactness.
+
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/high_level/segment_input.png}
+        \caption{Input}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/high_level/segment_output.jpg}
+        \caption{Model Output}
+    \end{subfigure}
+    \caption{\textbf{Segmentation.} The model separates major objects and semantic regions with broadly coherent masks, while boundary leakage and coarse delineation remain visible in cluttered areas. Generated by Nano Banana.}
+    \label{fig:segment_case}
+\end{figure}
+
+\subsubsection{Case Study III: Semantic Segmentation}
+
+
+\paragraph{Setup and Evaluation Focus.}
+We then turn to semantic segmentation, which requires dense prediction across the entire image. Unlike sparse outputs such as keypoints or boxes, segmentation asks the model to assign coherent semantic labels over extended regions while preserving object boundaries. This makes it a useful test of whether the model can sustain structured region-level reasoning rather than relying primarily on a few salient cues.
+
+\paragraph{Evidence of Global Competence.}
+As illustrated in \Cref{fig:segment_case}, the model separates the principal semantic regions in a largely coherent manner. Foreground objects and dominant background areas are generally partitioned correctly, and the resulting masks preserve the broad scene composition. This suggests that the model already supports dense scene parsing at a meaningful level of abstraction.
+
+\paragraph{Remaining Challenge in Precision.}
+The main weakness appears near object contours and in cluttered regions, where boundaries become coarse and masks may leak across adjacent structures. Fine-grained delineation is therefore less stable than large-scale region assignment. In other words, semantic coherence is already reasonably strong, whereas geometric fidelity remains the more fragile component.
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/high_level/detect_input.jpg}
+        \caption{Input}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/stress_test/high_level/detect_output.jpg}
+        \caption{Model Output}
+    \end{subfigure}
+    \caption{\textbf{Detection.} The model localizes people and salient objects with broadly plausible bounding boxes, but still shows duplicate predictions and ambiguous assignments in crowded regions. Generated by Nano Banana.}
+    \label{fig:detect_case}
+\end{figure}
+
+\subsubsection{Case Study IV: Object Detection}
+
+\paragraph{Setup and Evaluation Focus.}
+Finally, we examine object detection, where the model must identify distinct instances and localize them through explicit bounding boxes. Compared with segmentation, the task places less weight on pixel-level contours but introduces a different requirement: nearby objects must be separated into individually meaningful hypotheses with correct category assignments. It therefore offers a direct test of whether high-level scene understanding can be translated into instance-level structured prediction.
+
+\paragraph{Evidence of Global Competence.}
+The output in \Cref{fig:detect_case} shows that the model can identify many of the major entities in the scene and place boxes over the corresponding image regions. Human figures and salient objects are localized in a manner that is globally sensible, indicating that the model has a solid grasp of scene composition and object presence. This is already a nontrivial result, since the model must go beyond generic recognition and commit to explicit spatial decisions.
+
+\paragraph{Remaining Challenge in Precision.}
+The primary failure modes arise in crowded or visually entangled regions, where duplicate boxes, overlapping predictions, and ambiguous labels become more frequent. These errors suggest that the model is better at determining that an object should be present in a region than at resolving the exact extent and identity of each competing instance. Read together with the preceding cases, this result completes a consistent picture: across text, pose, region, and instance prediction, the model already exhibits credible structured visual understanding at the global level, yet its reliability still decreases when that understanding must be rendered with fine-grained, verifiable precision.
+
+\subsection{Summary: Mapping Stress Tests to the Visual Intelligence Taxonomy}
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Mapping stress test dimensions to the visual intelligence taxonomy (\Cref{sec:evolution}).} Each dimension is designed to probe the boundary conditions of one or more levels, revealing where current frontier models sit within the five-level progression. The key finding column summarizes the dominant failure mode or capability gap observed.}
+\label{tab:stress_test_level_map}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}c l l l@{}}
+\toprule[1pt]
+\textbf{Dimension} & \textbf{Stress Test Focus} & \textbf{Primary Level(s)} & \textbf{Key Finding} \\ \midrule
+I & Spatial Structuring \& Layout & L2 (Conditional Generation) & Semantic hallucination dominates over geometric reasoning \\ \midrule
+II & Physical Reasoning \& Causality & L5 (World-Modeling Generation) & Emerging causal artifacts (bubbles, deformation) but no true physics \\ \midrule
+III & Visual-Textual Integration & L4 (Agentic Generation) & VLM-first, renderer-second; fragile but productive reasoning \\ \midrule
+IV & Multi-Turn Editing & L3 / L4 & Locally OK per turn, but Markovian chaining surfaces as cumulative drift \\ \midrule
+V & Human-Centric Heredity \& Aesthetic Editing & L2 / L4 / L5 & Strong implicit human priors; room for deeper intent understanding \\ \midrule
+VI & Low-level Vision Tasks & L1 / L2 & Prior-guided rewriting, not faithful signal recovery \\ \midrule
+VII & Cross-Disciplinary Applications & L4 / L5 & Strong layout and world knowledge, but formal correctness remains task-dependent \\ \midrule
+VIII & High-level Vision Tasks & L2 (Conditional Generation) & Global competence in structured prediction; precision degrades locally \\
+\bottomrule[1pt]
+\end{tabular}%
+}
+\end{table}

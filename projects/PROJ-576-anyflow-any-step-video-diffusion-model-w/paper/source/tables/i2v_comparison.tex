@@ -1,0 +1,20 @@
+\begin{table*}[!tb]
+\centering
+\resizebox{\linewidth}{!}{\begin{tabular}{l c c c c c c}
+\toprule
+\textbf{Model} & \textbf{\#Params} & \textbf{Resolution} & \textbf{NFEs} & \multicolumn{3}{c}{\textbf{Evaluation Scores $\uparrow$}} \\
+\cmidrule(lr){5-7}
+& & & & \textbf{Quality} & \textbf{I2V} & \textbf{Total} \\
+\midrule
+CogVideoX-5B-I2V~\tablecite{yang2024cogvideox} & 5B & $480\times720$ & 50$\times2$ & 78.61 & 94.79 & 86.70 \\
+HunyuanVideo-I2V~\tablecite{kong2024hunyuanvideo} & 13B & $720\times1280$ & 50$\times2$ & 78.54 & 95.10  & 86.82 \\
+Step-Video-TI2V~\tablecite{huang2025step} & 30B & $540\times960$ & 50$\times2$ & 81.22 & 95.50 & 88.36 \\
+MAGI-1~\tablecite{teng2025magi} & 24B & $720\times1280$ & 32$\times 2$ & 82.44 & 96.12 & 89.28\\\midrule
+$^\dag$Wan2.1-I2V-14B~\tablecite{wan2025wan} & 14B & $480\times832$ & 50$\times 2$ & 80.30 & 95.12 & 87.71 \\
+$^\dag$FastVideo-CausalWan2.2-A14B-Preview~\tablecite{causalwan2025} & 14B & $480\times832$ & 8 & 78.82 & 94.81 & 86.82 \\
+\rowcolor{mitblue}$^\dag$AnyFlow-FAR-Wan2.1-14B & 14B & $480\times832$ & 4 & \textbf{80.39} & \textbf{95.35} & \textbf{87.87} \\
+\bottomrule
+\end{tabular}}
+\caption{\textbf{Image-to-Video Evaluation on VBench-I2V.} $\dag$ indicates that we re-evaluate model performance under the same setting.}
+\label{tab:i2v_comparison}
+\end{table*}

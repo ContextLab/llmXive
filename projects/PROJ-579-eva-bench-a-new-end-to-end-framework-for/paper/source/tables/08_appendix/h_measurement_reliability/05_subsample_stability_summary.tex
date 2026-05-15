@@ -1,0 +1,27 @@
+\begin{table}[h]
+\centering\small
+\caption{Subsample-stability summary across the 12 evaluated systems.
+\emph{Median 95\% CI width:} median across models of the empirical
+$p_{97.5}{-}p_{2.5}$ width of the model-level estimate at trial count $k$,
+in metric units. \emph{Agree $\le$0.02:} median across models of the
+fraction of $k{=}3$ subsamples that fall within $0.02$ of the $k{=}5$
+anchor. The $k{=}5$ column is omitted because it is identically zero by
+construction (single anchor draw).}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Metric} & \multicolumn{4}{c}{\textbf{Median 95\% CI width}} & \textbf{Agree $\le$0.02} \\
+\cmidrule(lr){2-5} \cmidrule(lr){6-6}
+ & $k{=}1$ & $k{=}2$ & $k{=}3$ & $k{=}4$ & at $k{=}3$ \\
+\midrule
+  EVA-A pass@1 & 0.085 & 0.053 & 0.034 & 0.020 & 97.6\% \\
+  EVA-X pass@1 & 0.052 & 0.032 & 0.021 & 0.013 & 99.6\% \\
+  Task Completion & 0.085 & 0.052 & 0.034 & 0.021 & 97.3\% \\
+  Faithfulness & 0.070 & 0.043 & 0.029 & 0.017 & 99.4\% \\
+  Speech Fidelity & 0.015 & 0.009 & 0.006 & 0.004 & 100.0\% \\
+  Conv. Progression & 0.077 & 0.046 & 0.030 & 0.019 & 99.1\% \\
+  Turn-Taking & 0.048 & 0.029 & 0.020 & 0.012 & 100.0\% \\
+  Conciseness & 0.020 & 0.012 & 0.008 & 0.005 & 100.0\% \\
+\bottomrule
+\end{tabular}
+\label{tab:trial_count_summary}
+\end{table}

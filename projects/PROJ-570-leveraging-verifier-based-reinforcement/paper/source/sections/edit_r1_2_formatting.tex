@@ -1,0 +1,549 @@
+\section{Related Works}
+\label{sec:realted}
+
+\subsection{Reward model for generative models}
+Driven by advances in Large Language Models (LLMs), many Reward Models (RMs) are now constructed directly upon them as shown in Tab.~\ref{tab:main}~\citep{ren2024byteedit,wu2025rewarddance,gong2025seedream,ma2025hpsv3}. 
+In terms of modeling architecture, two dominant approaches have emerged, including regression-based~\citep{liu2025improving, wang2025worldpm} and generative-based~\citep{wu2025rewarddance,gong2025onereward,hong2025think}. The regression-based methods add a regression head for scoring, while the generative methods leverage the model's own generative abilities for assessment and are generally considered more effective at harnessing the base model's power. 
+Regarding input format, methods are either pointwise~\citep{wu2025visualquality,wei2025skywork} or pairwise~\citep{wang2025unified, wu2025rewarddance}. Pointwise methods score a single response independently, while pairwise methods compare two responses to determine a preference. 
+A significant drawback of pairwise approaches is their inability to provide an absolute quality score for a single response, making them ill-suited for direct quality assessment or filtering.
+To enhance interpretability and accuracy, recent work has begun integrating Chain-of-Thought (CoT) reasoning and explicit principles~\citep{liu2025inference, wang2025unified}. For instance, DeepSeek-GRM~\citep{liu2025inference} utilizes principle-based CoT for generalist reward modeling. However, these methods are often designed for non-visual tasks. 
+% Concurrent to our work, EditScore~\citep{luo2025editscore} also employs a generative VLM for image editing rewards but operates as a \textbf{holistic scorer}, directly outputting a score without a structured verification process. 
+Our Edit-RRM including SFT-RRM and RL-RRM is uniquely positioned as a generative, pointwise verifier for image editing. It is the first to combine a principle-decomposition-based CoT process tailored for visual edits with undergoing a two-stage training pipeline, cleverly combining a rationale-based cold-start phase with subsequent reinforcement learning optimization.
+% In addition, to enhance performance and interpretability, recent work has begun integrating Chain-of-Thought (CoT) reasoning and explicit principles~\citep{liu2025inference, wang2025unified, wu2025rewarddance}. 
+% Building upon these advancements, our work is the first to introduce a generative, pointwise reward model for image editing. 
+% Moreover, we employ a CoT process that first decomposes the evaluation into predefined criteria and then aggregates the individual assessments. 
+% The model undergoes a two-stage training pipeline, cleverly combining a rationale-based cold-start phase with subsequent reinforcement learning optimization.
+
+
+
+\subsection{Reinforcement Learning in Image Editing}
+Recent advancements in Reinforcement Learning from Human Feedback (RLHF) algorithms have demonstrated remarkable efficacy in aligning models with human preferences in the domain of image editing. 
+DreamFuse~\citep{huang2025dreamfuse} adopts Direct Preference Optimization (DPO)~\citep{wallace2024diffusion} as their optimization method. 
+However, DPO's direct optimization on a preference dataset inherently restricts policy exploration, risking suboptimal convergence.
+While methods~\citep{gong2025onereward,ren2024byteedit} utilize REFL~\citep{xu2023imagereward} for preference alignment, REFL is often prone to severe reward hacking and requires the reward model to be differentiable.
+Inspired by the notable success of DeepSeek-R1~\citep{guo2025deepseek}, many recent works~\citep{xue2025dancegrpo, liu2025flow} are now exploring the application of GRPO within the domain of visual generation. 
+A key factor in DeepSeek-R1’s success was its reinforcement learning framework with verifiable rewards, which ensured robust training and mitigated the risk of reward hacking. Yet, defining such rewards for visual generation remains challenging. To address this, we extend the visual GRPO algorithm with a reasoning-based reward model for image editing, offering structural and principle-driven feedback.
+
+
+\section{Method}
+
+Proposed Edit-R1 introduces a framework centered around a \textbf{verifier-based Reasoning Reward Model (RRM)}. 
+The core idea is to train this RRM to act as a reliable verifier and then leverage it to optimize downstream editing models. 
+As detailed in Fig.~\ref{fig:mainfig_v2}, the training of our RRM is a two-stage process. 
+Stage 1 (Cold-start SFT) constructs a large-scale, editing-specific SFT dataset. This stage focuses on quality, using an external VLM as a "quality-control judge" to select the most plausible "think+score" CoT trajectories from a diverse pool.
+Stage 2 (GCPO) further refines the RRM using human preference pairs. For this, we introduce our novel Group Contrastive Preference Optimization (GCPO) algorithm, specifically designed to optimize a pointwise reasoning model with pairwise data. 
+Finally, we integrate this powerful, non-differentiable RRM with the standard GRPO algorithm to elevate the performance of downstream editing models across multiple dimensions.
+
+
+% Our method, Edit-R1, comprises a \emph{principle-driven, Reasoning} reward model (RRM) trained with two stages and a reinforcement learning algorithm that leverages this RM to optimize editing models. As detailed in Fig.~\ref{fig:mainfig_v2}, the training of RRM is a two-stage process. Stage 1 (Cold-start SFT) constructs a large-scale, editing-specific SFT set by decomposing each instruction into keep/follow/quality principles and selecting reliable “think+score” COTs via point-wise verification.
+% Stage 2 (GCPO) trains the RRM with human preference pairs using our novel Group Constative Preference Optimization algorithm and win/loss-ratio rewards to sharpen calibration and mitigate hallucinations, improving the accuracy of the proposed reward model.  Finally, we integrate this point-wise reward reasoning model with the GRPO algorithm to elevate the performance of diverse editing models across multiple dimensions.
+
+
+\subsection{Reward model}
+
+\subsubsection{Verifier-based Reasoning Reward Model with Cold-Start}
+\label{sec:cold_start_reward}
+
+The goal of the first stage is to build a high-quality supervised dataset to "cold-start" our RRM. We begin by curating 200K samples from the Imgedit benchmark~\citep{ye2025imgedit}, partitioned into "Random" and "Hard" subsets to ensure diversity and complexity. 
+i) Random Subset: The first 100K samples are randomly selected from the Imgedit benchmark to represent a general distribution of edits. 
+% ii) Hard Subset: The second 100K samples are specifically curated for higher complexity. To achieve this, we employ GPT-4o to filter the remaining data and select for more challenging edit instructions.
+ii) Hard Subset: The second 100K samples are specifically curated for higher complexity. To achieve this, we employ GPT-4o to filter the remaining data and select edit instructions that require multi-step visual modifications, fine-grained detail editing, implicit semantic understanding, or precise spatial control, while rejecting simple single-step edits.
+Each sample consists of a reference image $x_{\mathrm{ref}}$ and a corresponding edit instruction $q$.
+The process, illustrated in the top panel of Fig.~\ref{fig:mainfig_v2}, follows four steps:
+% We construct our initial dataset by curating 200K samples from the Imgedit benchmark~\citep{ye2025imgedit}. Each sample consists of a reference image $x_{\mathrm{ref}}$ and a corresponding edit instruction $q$. To create a dataset with varied difficulty, we partition it into two equal subsets:
+% i) Random Subset: The first 100K samples are randomly selected from the Imgedit benchmark to represent a general distribution of edits. ii) Hard Subset: The second 100K samples are specifically curated for higher complexity. To achieve this, we employ GPT-4o to filter the remaining data and select for more challenging edit instructions.
+% As illustrated in the top panel of Fig.~\ref{fig:r3l_pipeline_winloss}, the objective of this stage is to build a supervised dataset for training our reasoning-enabled reward model, following the steps detailed below.
+\vspace{-1.0em}
+\paragraph{Step 1: Decomposing Instructions into Principles.}
+For each reference image and its corresponding edit instruction, we employ the Seed-1.5-VL API to decompose the task into a concise set of verifiable principles using the system prompt in Appendix~\ref{sec:appendix_prompt}. These principles span three core aspects of image editing:
+(a) Keep: elements that should remain unchanged;
+(b) Follow: modifications required to align with the instruction;
+(c) Quality: maintenance of generic visual integrity and fidelity.
+This sample-wise decomposition effectively factorizes the editing task, structuring the model's reasoning process to distinguish between what to preserve and what to modify based on the specific input.
+Formally, we denote the principle set as $\mathcal{P}=\{p_k\}_{k=1}^{K}$ for each (reference image, instruction) pair.
+A concrete example of the decomposition is provided in Appendix~\ref{append:rrm}.
+\vspace{-1.0em}
+\paragraph{Step 2: Large-Scale Quadruple Generation.}
+For each reference image and corresponding edit instruction, a diverse set of edited candidates is generated using multiple image-editing models, such as Flux-Kontext~\citep{blackforestlabs_flux}, Bagel~\citep{deng2025emerging}, and SeedEdit3.0~\citep{wang2025seededit}. Each candidate $x_{\mathrm{ref}}$, together with the reference input image $x_{\mathrm{edit}}$, the instruction $q$, and the principle set $\mathcal{P}$, forms a \emph{quadruple} $(x_{\mathrm{edit}}, x_{\mathrm{ref}}, q, \mathcal{P})$. This process yields a total dataset of approximately 2 million quadruples.
+
+\vspace{-1.0em}
+\paragraph{Step 3: VLM Reasoning and Point-wise Scoring.}
+Each quadruple is processed by Vision-Language Models (VLM Pools) employing Chain-of-Thought (CoT) prompting. The VLM first performs a point-wise verification, assessing the edited image against each principle in $P$. Subsequently, it generates a final scalar score representing the overall quality of the edited image, using the system prompt in Appendix~\ref{sec:appendix_prompt_rrm}. This score is computed as a weighted aggregate of the principle-wise verification outcomes. For more calculation methods and details, please refer to the appendix.
+To enhance dataset diversity, we sample multiple thinking CoTs for each quadruple by varying system prompts, sampling temperatures, and VLM variants (e.g., Seed-1.5VL-1.5/Seed-1.6-VL), thereby producing multiple ``Think + Score" candidates.
+To be noticed, we will require the VLMs to generate the reasoning trace in a certain format, while verifying principles in JSON format and output the score under \texttt{<score>...</score>}, demo shown in Appendix~\ref{append:rrm}
+
+\paragraph{Step 4: External Verification and SFT Data Selection.}
+All ``Think + Score" candidates corresponding to the same quadruple are subjected to an external verification process. This is performed by SeedVLM-1.5, which functions as a \emph{point-wise verifier}. The verifier re-evaluates each principle in $P$ for every reasoning trace and calculates a verification accuracy via the system prompt in Appendix~\ref{sec:verification}. We then select the thinking CoT that achieves the highest accuracy. The resulting data, comprising the instruction, images, principles, CoT reasoning trace, and final score, constitute the initial Supervised Fine-Tuning (SFT) dataset for the reward model's cold start.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{resources/edit_r1/mainfig_v2.pdf}
+  \caption{
+  \textbf{The Training pipeline of Verifier-based Reasoning Reward Model (RRM).}
+  \textbf{Top (Cold-Start SFT):} Given an edit instruction and a source image, we generate large-scale quadruple data (instruction, source image, principles, edited image) and employ VLM pools to generate numerous reasoning traces and use another VLM to select the thinking COT with the highest accuracy to build SFT data and cold-start the Reasoning Reward Model (RRM).
+  \textbf{Bottom (GCPO):} For each human-labeled preference pair, the reward model generates $N$ thinking-score candidates per image. 
+  We compute a win/loss ratio reward by pairwise comparing every candidate in the preferred group against all candidates in the non-preferred group. 
+ The win ratio of a preferred candidate equals the fraction of comparisons where its score is \emph{higher} than the opposite group's scores;  The loss ratio of a non-preferred candidate equals the fraction where its score is \emph{lower} than the preferred group's scores. 
+The advantage is computed within each preferred or non-preferred group.
+  }
+  \label{fig:mainfig_v2}
+    \vspace{-12pt}
+    
+\end{figure*}
+
+\begin{figure*}[t!]
+    \centering
+    \includegraphics[width=0.95\textwidth]{resources/edit_r1/rm.pdf} 
+    \vspace{-1em}
+    \caption{
+        Training dynamics of RRMs. 
+        \textbf{a}, SFT Loss, showing model convergence and scalability. 
+        \textbf{b}, SFT evaluation accuracy for the RRMs, showing steady improvement. 
+        \textbf{c}, Weighted advantage during GCPO training. The weighted advantage is defined as $\frac{1}{G}\sum_{i=1}^{G}\frac{A_{i}}{L_{i}}$, with $L$ represents the length of reasoning tokens. The negative value indicates it learns to generate longer reasoning traces for correct judgments. 
+        \textbf{d}, Training reward during the GCPO phase, showing stable improvement and scalability.
+    }
+    \label{fig:rm_dynamics}
+\end{figure*}
+
+\subsubsection{Reasoning-Reinforced Reward Learning}
+\label{sec:r3l}
+
+Although the reward model possesses effective Chain-of-Thought (CoT) reasoning capabilities following the cold-start SFT phase, we observe that its judgments can be fallible. The model may exhibit hallucinations or struggle to accurately assess the magnitude of edits, such as incorrectly verifying a principle "move to the left of the figure" as successful, but the object has only slightly moved, as detailed in the Appendix. 
+
+To further align the model with human preferences, we introduce a reinforcement learning phase. 
+A key challenge here is that standard algorithms like GRPO rely on a reward, which is the score of samples for RRM, which is hard to obtain.
+% are designed to optimize a policy model, not a reward model that produces both a reasoning trace and a score without ground truth scoing.
+
+% To solve this, we propose \textit{Group Contrastive Preference Optimization (GCPO)}, a novel RL algorithm for the reward model. 
+% In this framework, the reward model $\mathbb{R}_\phi$ itself is the policy to be optimized, and its "actions" are the tokens of the reasoning trace and final score.
+
+% Although the reward model possesses effective Chain-of-Thought (CoT) reasoning capabilities following the cold-start SFT phase, we observe that its judgments can be fallible. The model may exhibit hallucinations or struggle to accurately assess the magnitude of edits, such as incorrectly verifying a principle "move to the left of the figure" as successful, but the object has only slightly moved.
+
+
+% To address these limitations, we introduce a Reasoning-Reinforced Reward Learning phase designed to further align the reward model with human preferences. 
+As illustrated in See Fig.~\ref{fig:mainfig_v2}, this phase employs an inter-reward, intra-advantage based GRPO algorithm, which we term Group Contrastive Preference Optimization (GCPO), to refine the reward model using human-annotated preference pairs. In this framework, the reward model $R_\phi$ itself serves as the policy being optimized, where $\phi$ are its parameters. The "actions" consist of the generated reasoning trace and the final score, which are produced conditioned on the input quadruple data.
+
+% \paragraph{Preference Data.}
+% % For this phase, we construct a preference dataset, $\mathcal{D}$, containing approximately $50{,}000$ pairs. 
+% For this phase, we construct a preference dataset, $\mathcal{D}$, through human annotation. 
+% Each sample in this dataset consists of a conditioning context $c=(x_{\mathrm{ref}}, q)$, a verifiable principle $\mathcal{P}$, and a human-labeled preference pair $(x^w, x^l)$. Here $x^w$ denotes the preferred edited image (winner) and $x^l$ is the non-preferred one (loser).
+\vspace{-.5em}
+\paragraph{Preference Data.}
+For this phase, we construct a preference dataset, $\mathcal{D}$, through human annotation. The annotation process was as follows: annotators were presented with a source image $x_{\mathrm{ref}}$, an editing instruction $q$, and a pair of edited images. They were asked to choose which image was better, or to label them as "same" if they were of comparable quality or if a clear preference could not be established. The primary criteria for judgment were instruction fidelity and overall image quality. This process yielded a dataset of approximately 10,000 preference pairs $(x^w, x^l)$ for each context $c=(x_{\mathrm{ref}}, q)$, where $x^w$ denotes the preferred (winner) image and $x^l$ the non-preferred (loser) one. The "same" pairs were excluded from the GCPO training.
+
+
+\paragraph{Win/Loss Ratio Rewards.}
+We employ pairwise \emph{win/loss ratio} rewards derived from cross-group preference comparisons. 
+For each preference pair $(x^w, x^l)$, the reward model $\mathbb{R}_\phi$ stochastically generates $N$ distinct reasoning traces and their corresponding scores $\{\tau_j^w\}_{j=1}^{N}$ and $\{\tau^l_j\}_{j=1}^{N}$ for each image:
+\begin{align}
+ \tau_j^w = \Phi\!\left(\mathbb{R}_\phi(x^w_j,c,\mathcal{P})\right), \quad \tau^l_j = \Phi\!\left(\mathbb{R}_\phi(x^l_j,c,\mathcal{P})\right),
+\end{align}
+where $\Phi(\cdot)$  is an operator that extracts the scalar score from the text output of $\mathbb{R}_\phi(\cdot,\cdot,\cdot)$ via rule-based parsing.
+
+The per-sample win/loss ratios are then defined based on exhaustive pairwise comparisons between the two sets of scores, ignoring ties. The \textbf{win ratio} for a preferred candidate $\tau_g^j$ is the fraction of non-preferred candidates it scores \emph{higher} than. Symmetrically, the \textbf{loss ratio} for a non-preferred candidate $\tau_b^j$ is the fraction of preferred candidates that score \emph{lower} than it:
+\begin{align}
+r^w_j &= \frac{1}{N}\sum_{k=1}^{N} \Ind{\tau^w_j > \tau^l_k},\quad r^l_j = \frac{1}{N}\sum_{k=1}^{N} \Ind{\tau^l_j < \tau^w_k},
+\end{align}
+where $N$ denotes the number of reasoning traces generated, $\Ind{\cdot}$ is the indicator function.
+
+\paragraph{Optimization with GCPO.}
+After computing the win/loss ratio rewards $\{r^w_j\}_{j=1}^{N}$ and $\{r^l_j\}_{j=1}^{N}$ from cross-group comparisons, the original pairing between samples is disregarded for the optimization step. Instead, advantages are computed independently \emph{within} each rollout group (preferred or non-preferred). Although the rewards originate from paired comparisons, the loss is calculated by partitioning the rollouts into two distinct sets. The advantages are computed as follows:
+\begin{align}
+& \bar{r}^w = \frac{1}{N}\sum_{j=1}^{N} r^w_j, \qquad
+\bar{r}^l = \frac{1}{N}\sum_{j=1}^{N} r^l_j, 
+\qquad \nonumber \\
+& A^w_j = r^w_j - \bar{r}^w, 
+\qquad
+A^l_j = r^l_j - \bar{r}^l.
+\end{align}
+Let $r_{t,j}^{w}(\phi)$ and $r_{t,j}^{l}(\phi)$ denote the per-token likelihood ratios for the $j$-th rollout and $t$-th token in the preferred and non-preferred groups, respectively. The objective function is the sum of the two groups' clipped surrogate losses, omitting the KL divergence term:
+\begin{figure*}[t]
+\vspace{-1.5em} % 向上移动一些，减少与上方文本的间距
+\begin{equation}
+\label{eq:gcpo_final}
+\begin{split}
+    \mathcal{L}_{\text{GCPO}}(\phi) = \mathbb{E}_{\dots\sim\mathcal{D}} \Bigg[ \frac{1}{2N} \sum_{j=1}^{N} \frac{1}{T} \sum_{t=0}^{T-1} \bigg( 
+    &\min\Big( r_{t, j}^{w}(\phi)A^w_j, \text{clip}\big(r_{t, j}^{w}(\phi), 1-\epsilon, 1+\epsilon\big)A^w_j \Big) \\
+    &+ \min\Big( r_{t,j}^{l}(\phi)A^l_j, \text{clip}\big(r_{t,j}^{l}(\phi), 1-\epsilon, 1+\epsilon\big)A^l_j \Big)
+    \bigg) \Bigg].
+\end{split}
+\end{equation}
+\vspace{-1.5em} % 向上移动一些，减少与下方文本的间距
+\end{figure*}
+
+
+% \paragraph{Optimization with GCPO.}
+% After computing the win/loss ratio rewards $\{r^w_j\}_{j=1}^{N}$ and $\{r^l_j\}_{j=1}^{N}$ from cross-group comparisons, the original pairing between samples is disregarded for the optimization step. Instead, advantages are computed independently \emph{within} each rollout group (preferred or non-preferred). Although the rewards originate from paired comparisons, the loss is calculated by partitioning the rollouts into two distinct sets. The advantages are computed as follows:
+% \begin{align}
+% & \bar{r}^w = \frac{1}{N}\sum_{j=1}^{N} r^w_j, \qquad
+% \bar{r}^l = \frac{1}{N}\sum_{j=1}^{N} r^w_j, 
+% \qquad \nonumber \\
+% & A^w_j = r^w_j - \bar{r}^w, 
+% \qquad
+% A^l_j = r^l_j - \bar{r}^l.
+% \end{align}
+% Let $r_{t,j}^{w}(\phi)$ and $r_{t,j}^{l}(\phi)$ denote the per-token likelihood ratios for the $j$-th rollout and $t$-th token in the preferred and non-preferred groups, respectively. The objective function is the sum of the two groups' clipped surrogate losses, omitting the KL divergence term:
+
+% \begin{align}
+% &\mathcal{L}_{\text{GCPO}}(\phi)
+% = \mathbb{E}_{(c,\mathcal{P},x^w,x^l)\sim\mathcal{D}}  \nonumber \\ \Bigg[
+% \frac{1}{2N} \Bigg(
+% & \sum_{j=1}^{N} \frac{1}{T}\sum_{t=0}^{T-1}
+% \min\Big( r_{t, j}^{w}(\phi)\,A^w_j, \nonumber \\ 
+% & \qquad \text{clip}\big(r_{t, j}^{w}(\phi),\,1-\epsilon,\,1+\epsilon\big)\,A^w_j \Big) \nonumber \\ 
+% &+ \sum_{j=1}^{N} \frac{1}{T}\sum_{t=0}^{T-1}
+% \min\Big( r_{t,j}^{l}(\phi)\,A^l_j, \nonumber \\ 
+% & \qquad \text{clip}\big(r_{t,j}^{l}(\phi),\,1-\epsilon,\,1+\epsilon\big)\,A^l_j \Big)
+% \Bigg)
+% \Bigg].
+% \label{eq:pairsgrpo_loss_winloss_group_simplified}
+% \end{align}
+
+\subsection{Reinforcement Learning for Image Editing}
+\label{sec:rl_for_editing}
+We employ the GRPO algorithm ~\citep{liu2025flow} and leverage our reasoning-reinforced reward model to provide fine-grained feedback to optimize the image editing model.
+% Given a reference image $x^{\text{ref}}$ and an editing instruction $q$, we define the conditioning context as $c = (x^{\text{ref}}, q)$. 
+The editing model acts as the policy $\pi_\theta(\cdot,c)$ for each sampling step. Following the Group Relative Policy Optimization (GRPO) paradigm, optimizing is as follows:
+For each conditioning context $c$ sampled from our dataset $\mathcal{D}$, the flow-based editing model $\pi_\theta(\cdot,c)$ generates a group of $G$ edited images $\{x_0^i\}_{i=1}^G$ along with their corresponding generation trajectories $\{(x_T^i, \dots, x_0^i)\}_{i=1}^G$, where $\{x_T^i\}_{i=1}^G$ is sampled from gaussian distribution.
+
+Our verifiable reward model, $\mathbb{R}_\phi(\cdot,\cdot,\cdot)$ verifies and evaluates each generated image $x_0^i$ based on the context $c$ and the corresponding principle $\mathcal{P}$. 
+Within each group, the advantage $A_i$ for the \textit{i}-th image is calculated by normalizing its reward against the mean and the standard deviation within a group:
+\vspace{-0.5em}
+\begin{equation}
+A_i = \frac{\tau_i - \text{mean}\left(\{\tau_i\}_{i=1}^G\right)}{\text{std}\left(\{ \tau_i\}_{i=1}^G\right) + \epsilon_{\text{std}}},\quad \tau_i = \Phi\!\left(\mathbb{R}_\phi(x_0^i, c, \mathcal{P})\right),
+\label{eq:advantage}
+\end{equation}
+where $\tau_i$ is the holistic reward score provided by our reasoning-based reward model for the \textit{i}-th sample, and $\epsilon_{\text{std}}$ is a small constant for numerical stability.
+The GRPO training objective is to maximize the expected advantage, incorporating a clipped objective function to prevent excessively large policy updates and a KL-divergence penalty term to regularize the policy $\pi_\theta(\cdot,c)$ and keep it from deviating too far from a reference policy $\pi_{\text{ref}}(\cdot,c)$. 
+
+This Edit-aware GRPO framework enables the editing model to directly optimize for human-perceived quality and instruction fidelity as captured by our verifiable reward model.
+% \vspace{-.5em}
+% \section{Experiments}
+
+
+
+% For image editing model evaluation, we adopt GEdit-Bench-EN~\citep{liu2025step1x}, a standardized benchmark with multi-dimensional automatic metrics. Following the original protocol, we report scores across three key aspects, each assessed by GPT-4.1: semantic consistency (SC), which measures how well the edited image aligns with the given instruction; perceptual quality (PQ), which captures the visual fidelity of the edited image; and overall score (O), computed as the geometric mean of SC and PQ. In addition, we report SC scores for different categories, as presented in Tab.~\ref{tab:model_evaluation}.
+
+% \paragraph{Implementation Details.}
+% Our reward model (\rrm{} in \editrone{}) is built on the open-source Qwen-VL-2.5~\citep{bai2025qwen2}, with both 3B and 7B parameter sizes.
+% In the cold-start SFT phase in Sec.~\ref{sec:cold_start_reward}, we constructed editing pairs using a mixture of models, including SeedEdit-3.0~\citep{wang2025seededit}, BAGEL~\citep{deng2025emerging}, and FLUX.Kontext~\citep{batifol2025flux}.
+% For the \gcpo{} phase in Sec.~\ref{sec:r3l}, we further collected 10k human-annotated preference pairs.
+
+
+% \subsection{Reward Model Performance}
+% Our proposed \editrone{} framework yields a state-of-the-art reward model for predicting human preferences. As shown in Tab.~\ref{tab:ablation_accuracy}, Our 7B Edit-RRM, trained via a two-stage pipeline combining Supervised Fine-Tuning (SFT) and GCPO, achieves an accuracy of 82.22\%, surpassing the strong Seed-1.5-VL baseline (79.28\%). This result highlights the effectiveness of our two-stage training strategy.
+
+% \paragraph{Data Composition.}
+% The foundation of our model's performance is a meticulously curated SFT dataset. Ablation studies in Tab.~\ref{tab:ablation_accuracy} reveal that both the ``Think" (reasoning generation) and ``Verify" (filtering) components are critical for creating the Chain-of-Thought (CoT) SFT data. Specifically, removing the ``Verify" step results in a significant accuracy degradation for the 7B model (from 75.37\% to 70.86\%), highlighting the importance of rigorous filtering. Meanwhile, the reasoning traces from the ``Think" step provide essential supervisory signals that enhance the model's evaluative capabilities. These findings demonstrate that ``Think" and ``Verify" are crucial for constructing high-quality SFT data and achieving superior reward modeling performance.
+
+% \begin{table*}[t] 
+%     \caption{
+%         Results on Seed-VL and Qwen-based RRMs. We report the accuracy (\%) on our evaluation benchmark, where “---” indicates unsupported configurations. Our Qwen-VL-2.5-7B model trained with Cold-Start and GCPO achieves the best accuracy, surpassing the closed-source reasoning APIs. Note that SFT(T), SFT(V), and SFT(T+V) denote SFT with Think, Verify, and Think+Verify configurations, respectively.
+%     }
+%     \vspace{-.4em}
+%     \label{tab:ablation_accuracy}
+%     \centering
+%     \small
+%     \begin{tabular}{l c c c c}
+%         \toprule
+%         API & Think & Verify & Think+Verify & \\
+%         \midrule
+%         Seed-1.5-VL~\citep{guo2025seed1}  & 72.23\% & --- & 79.28\% & \\
+%         Seed-1.6-VL~\citep{guo2025seed1}  & 71.18\% & 69.39\% & 77.22\% & \\
+%         \midrule
+%         Model & SFT(T) & SFT(V) & SFT(T+V) & SFT(T+V)+GCPO \\
+%         \midrule
+%         Qwen-VL-2.5-3B~\citep{bai2025qwen2}  & 64.12\% & 66.10\% & 69.27\% & 71.96\% \\
+%         Qwen-VL-2.5-7B~\citep{bai2025qwen2}  & 68.88\% & 70.86\% & 75.37\% & \textbf{82.22}\% \\
+%         \bottomrule
+%     \end{tabular}
+% \end{table*}
+
+% \begin{figure*}[t!]
+%     \centering
+%     \includegraphics[width=0.95\textwidth]{resources/edit_r1/rm.pdf} 
+%     \vspace{-1em}
+%     \caption{
+%         Training dynamics of RRMs. 
+%         \textbf{a}, SFT Loss, showing model convergence and scalability. 
+%         \textbf{b}, SFT evaluation accuracy for the RRMs, showing steady improvement. 
+%         \textbf{c}, Weighted advantage during GCPO training. The weighted advantage is defined as $\frac{1}{G}\sum_{i=1}^{G}\frac{A_{i}}{L_{i}}$, with $L$ represents the length of reasoning tokens. The negative value indicates it learns to generate longer reasoning traces for correct judgments. 
+%         \textbf{d}, Training reward during the GCPO phase, showing stable improvement and scalability.
+%     }
+%     \label{fig:rm_dynamics}
+% \end{figure*}
+
+% \paragraph{GCPO Training.} 
+% Following the SFT stage, we employ GCPO to further refine the reward model's reasoning capabilities. This reinforcement learning phase yields substantial accuracy improvements for both model scales. As detailed in Tab.\ref{tab:ablation_accuracy}, the 3B model's accuracy rises from 69.27\% to 71.96\%, while the 7B model improves from 75.37\% to 82.22\%, thereby outperforming the Seed-1.5-VL baseline. Analysis of the training dynamics (Fig.\ref{fig:rm_dynamics}c,d) reveals a qualitative shift: the 7B model learns to generate more elaborate reasoning for correct judgements. This indicates that GCPO enhances the model's intrinsic reasoning capabilities, rather than merely overfitting to reward scores. 
+
+
+% \paragraph{Model Parameter Scaling.}
+% Our analysis of model scaling, comparing 3B and 7B variants under identical training configurations, confirms the benefits of increased model capacity. The larger 7B model consistently outperforms its 3B counterpart across all experimental settings, For instance, after the SFT and SFT+GCPO stages, the 7B model achieves accuracies of 75.37\% and 82.22\% respectively, substantially higher than the 69.27\% and 71.96\% achieved by the 3B model. This performance gap, corroborated by the 7B model's lower training loss (Fig.~\ref{fig:rm_dynamics}a), highlights the effectiveness of model scaling in evaluating the edited images.
+
+
+% % \vspace{-.8em}
+% \begin{figure*}[t!]
+%     \centering
+%     \includegraphics[width=0.98\textwidth]{resources/edit_r1/edit.pdf} 
+%     \captionsetup{font=small}
+%     \vspace{-.8em}
+%     \caption{
+%     Training dynamics of editing model optimization with different RRMs. The first row shows the training reward, and the second row shows the evaluation reward.
+%     Here, SFT-RRM denotes a reward model trained without GCPO, while RL-RRM denotes its counterpart trained with GCPO.  First column: our SFT-RRM (7B) produces a reward signal that is as stable and effective as the Seed-1.5-VL. Second column: the SFT-RRM 7B exhibits stronger scalability, providing more reliable supervision and yielding better performance than the SFT-RRM 3B. Third and fourth columns: refining the RRM with GCPO results in consistently higher evaluation rewards, indicating that the RRM trained with GCPO acts as a stricter and more robust evaluator.
+%     }
+%     \label{fig:edit_dynamics}
+% \end{figure*}
+% % \vspace{-1cm}
+
+% \subsection{Image Editing Performance}
+% Fig.~\ref{fig:edit_dynamics} illustrates the reward curves of our different RRMs during RL optimization. Our SFT-RRM (7B) delivers reward signals that are as stable as those from the closed-source Seed-VL, while providing higher evaluation rewards. Increasing the mode size from 3B to 7B, the improvement to the editing model is larger, confirming the benefits of scaling. Furthermore, refining RRMs with GCPO leads to higher evaluation rewards than their SFT-only counterparts, showing that GCPO improves RRMs for becoming stricter and more effective evaluators.
+
+% \paragraph{Overall Performance.}
+% As shown in Tab.~\ref{tab:model_evaluation}, our framework demonstrates strong performance on both model families. Optimizing FLUX.Kontext with our RL-RRM (7B) boosts its Overall Score (O) from 5.77 to 6.24 and its Semantic Consistency (SC) score from 6.27 to 6.86. This result exceeds the performance under the RL using the closed-source Seed-1.5VL (O: 6.03, SC: 6.74), confirming that our RRM is a highly effective and competitive reward source for policy optimization. 
+% The training stability, illustrated in Fig.~\ref{fig:edit_dynamics}, further validates this, showing that our SFT-RRM (7B) provides a reward signal as stable and reliable as the SeedVLM-1.5.
+% In this paper, we mainly focus on the SC score instead of the Overall score since the scoring of image quality via the VLM isn't robust and reliable.  
+% Therefore, we report detailed, category-wise SC scores to provide a more robust measure of editing performance.
+% Meanwhile, we carried out experiments on the SOTA open resource, Qwen-Edit, whose overall score showed a modest improvement from 7.45 to 7.50. 
+% This is largely because the baseline model already performs exceptionally well on the GEdit-Bench-EN benchmark, achieving near-perfect results in most categories. However, the validity of Edit-R1 is highlighted in its ability to address the model's specific weaknesses. 
+% Notably, as shown in the final row of Tab.~\ref{tab:model_evaluation}, our framework yields a significant 15.21\% relative gain (from 4.01 to 4.62) in the challenging Motion Change category (column 4), demonstrating its effectiveness in enhancing performance even on highly optimized models. We also show the quantitative results in Fig.~\ref{sec:appendix_qualitative_qwenedit}.
+% Our in-depth analysis indicates that the underlying improvements primarily involve an enhanced range of motion and understanding relatively abstract concepts, such as age.
+
+% \paragraph{Scalability of Reward Models.} 
+% The quality of the editing model scales directly with the strength of the reward model. Comparing our 3B and 7B RRMs, the larger model consistently provides better guidance, particularly in aligning outputs with user instructions. For example, Tab.~\ref{tab:model_evaluation} shows that optimizing with SFT-RRM (7B) raises the SC score from 6.52 to 6.84, yielding stronger instruction adherence. This gain, together with improved perceptual quality, increases the final overall score from 5.63 to 6.20. The training curves in Fig.~\ref{fig:edit_dynamics}b further illustrate this trend that RRM 7B delivers more robust reward signals.
+
+
+% \paragraph{Impact of GCPO.} 
+% GCPO brings clear advantages when applying RRMs to downstream editing tasks. As shown in Tab.~\ref{tab:model_evaluation}, RRM with GCPO consistently outperforms its SFT counterpart, with the 3B case improving from an overall score of 5.63 to 6.10. Training curves in Fig.~\ref{fig:edit_dynamics} further reveal the mechanism. Although RL-RRMs provide lower training rewards, they yield higher evaluation rewards, indicating that GCPO transforms the reward model into a stricter and more reliable evaluator. This stricter supervision pushes editing models to adhere more closely to human preferences and achieve higher-quality outputs, confirming the necessity of GCPO for maximizing editing model performance.
+
+% \paragraph{Qualitative Analysis.} 
+% Beyond quantitative metrics, the qualitative improvements are equally compelling. As shown in the Appendix (Fig.~\ref{fig:qualitative_results}), models optimized with our framework exhibit markedly better instruction adherence and visual fidelity. In challenging edits such as Subject Replace, our method successfully follows the instruction, whereas the baseline fails. For localized edits such as Color Alter, our approach precisely modifies the target object without introducing global color shifts or artifacts. These qualitative results provide concrete evidence of the practical effectiveness of our framework in real-world editing scenarios.
+
+% \begin{table*}[t]
+% \centering
+% \caption{
+% Detailed performance comparison on the GEdit-Bench-EN (Full set). Higher scores are better. \textbf{Bold} scores highlight the best result within each model family. 
+% Columns 1–11 report SC scores for different editing categories (see Appendix for details).
+% }
+% \label{tab:model_evaluation}
+% \renewcommand{\arraystretch}{1.25} 
+% \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} *{11}{S[table-format=1.2]} S[table-format=1.2] S[table-format=1.2] S[table-format=1.2]}
+% \toprule
+% \multirow{2}{*}{\textbf{Model}} & \multicolumn{11}{c}{\textbf{Category SC}} & \multicolumn{3}{c}{\textbf{Overall}} \\
+% \cmidrule(lr){2-12} \cmidrule(lr){13-15}
+% & {1} & {2} & {3} & {4} & {5} & {6} & {7} & {8} & {9} & {10} & {11} & {SC $\uparrow$} & {PQ $\uparrow$} & {O $\uparrow$} \\
+% \midrule
+% % ---------- Group 1: Edited Models ----------
+% \multicolumn{15}{l}{\textbf{Edited Models}} \\
+% Step-Edit~\citep{liu2025step1x}       & 8.77 & 8.90 & 7.52 & 4.35 & 4.10 & 7.73 & 8.56 & 7.81 & 8.26 & 2.82 & 7.30 & 6.53 & 6.72 & 5.90 \\
+% UniPic2~\citep{wei2025skywork}        & 8.07 & 8.70 & 6.75 & 3.57 & 4.78 & 7.13 & 8.36 & 8.36 & 7.87 & 5.39 & 7.97 & 6.84 & 7.24 & 6.41 \\
+% Bagel~\citep{deng2025emerging}        & 8.54 & 8.32 & 7.42 & 4.97 & 5.07 & 7.71 & 8.75 & 8.03 & 8.22 & 7.14 & 6.62 & 7.32 & 7.02 & 6.65 \\
+% GPT-4o                               &      &      &      &      &      &      &      &      &      &      &      & 7.74 & 8.13 & 7.49 \\
+% \midrule
+% % ---------- Group 2: FLUX.Kontext Family ----------
+% \multicolumn{15}{l}{\textbf{FLUX.Kontext Family}~\citep{batifol2025flux}} \\
+% FLUX.Kontext  & 7.65 & 8.17 & 6.90 & 3.02 & 3.54 & 6.86 & 7.43 & 7.54 & 6.95 & 5.14 & 7.85 & 6.27 & 7.25 & 5.77 \\
+% \rowcolor{gray!10}
+% RL w. SeedVLM-1.5                    & 8.23 & 8.41 & 7.00 & \textbf{5.00} & 4.05 & 7.17 & 7.93 & 7.60 & 7.11 & 5.51 & 8.60 & 6.74 & 6.44 & 6.03 \\
+% \rowcolor{gray!10}
+% RL w. SFT-RRM (3B)                   & 7.48 & 8.25 & 6.65 & 3.20 & 4.01 & 7.25 & 7.77 & 7.15 & 7.61 & 5.70 & 7.90 & 6.52 & 6.26 & 5.63 \\
+% \rowcolor{gray!20}
+% RL w. RL-RRM (3B)                    & 8.13 & 7.65 & \textbf{7.33} & 3.63 & 3.70 & 7.25 & 7.78 & 7.65 & \textbf{7.68} & 6.03 & \textbf{7.93} & 6.67 & 7.09 & 6.10 \\
+% \rowcolor{gray!10}
+% RL w. SFT-RRM (7B)                   & \textbf{8.25} & 8.52 & 7.10 & 3.85 & 3.68 & 7.27 & \textbf{8.26} & 7.68 & 7.38 & 6.44 & 7.80 & 6.81 & \textbf{7.25} & 6.20 \\
+% \rowcolor{gray!20}
+% RL w. RL-RRM (7B)                    & 8.15 & \textbf{8.62} & 6.82 & 4.42 & \textbf{4.22} & \textbf{7.30} & 8.21 & \textbf{7.99} & 7.41 & \textbf{6.44}  & 7.82 & \textbf{6.86} & 7.20 & \textbf{6.24} \\
+% \midrule
+% % ---------- Group 3: Qwen-Edit Family ----------
+% \multicolumn{15}{l}{\textbf{Qwen-Edit Family}} \\
+% Qwen-Edit                            & \textbf{8.85} & 9.02 & \textbf{8.20} & 4.01 & 6.04 & 7.61 & \textbf{8.8} & 8.32 & 8.74 & 9.00 & 8.37 & 7.94 & \textbf{7.78} & 7.45 \\
+% \rowcolor{gray!20}
+% RL w. RL-RRM (7B)                & 8.75 & \textbf{9.05} & 8.10 & \textbf{4.62} & \textbf{6.17} & \textbf{7.76} & 8.72 & \textbf{8.43} & \textbf{8.79} & \textbf{8.69} & 8.32 & \textbf{7.99} & 7.76 & \textbf{7.50} \\
+% \bottomrule
+% \end{tabular*}
+% \end{table*}
+
+% \begin{figure*}[t!]
+%     \centering
+%     \includegraphics[width=0.95\textwidth]{resources/edit_r1/rm.pdf} 
+%     \vspace{-1em}
+%     \caption{
+%         Training dynamics of RRMs. 
+%         \textbf{a}, SFT Loss, showing model convergence and scalability. 
+%         \textbf{b}, SFT evaluation accuracy for the RRMs, showing steady improvement. 
+%         \textbf{c}, Weighted advantage during GCPO training. The weighted advantage is defined as $\frac{1}{G}\sum_{i=1}^{G}\frac{A_{i}}{L_{i}}$, with $L$ represents the length of reasoning tokens. The negative value indicates it learns to generate longer reasoning traces for correct judgments. 
+%         \textbf{d}, Training reward during the GCPO phase, showing stable improvement and scalability.
+%     }
+%     \label{fig:rm_dynamics}
+% \end{figure*}
+
+\begin{figure*}[t!]
+    \centering
+    \includegraphics[width=0.86\textwidth]{resources/edit_r1/edit.pdf} 
+    \captionsetup{font=small}
+    \vspace{-1.0em}
+    \caption{
+    Training dynamics of editing model optimization with different RRMs. The first row shows the training reward, and the second row shows the evaluation reward.
+    Here, SFT-RRM denotes a reward model trained without GCPO, while RL-RRM denotes its counterpart trained with GCPO.  First column: our SFT-RRM (7B) produces a reward signal that is as stable and effective as the Seed-1.5-VL. Second column: the SFT-RRM 7B exhibits stronger scalability, providing more reliable supervision and yielding better performance than the SFT-RRM 3B. Third and fourth columns: refining the RRM with GCPO results in consistently higher evaluation rewards, indicating that the RRM trained with GCPO acts as a stricter and more robust evaluator.
+    }
+    \label{fig:edit_dynamics}
+\end{figure*}
+\vspace{-0.8em}
+
+
+\section{Experiments}
+\subsection{Experimental setups}
+% \paragraph{Benchmark and Metrics.}
+
+% For reward model evaluation, we curate 5,000 samples from ImageEdit~\citep{ye2025imgedit} and generate multiple edits per input using SeedEdit-3.0~\citep{wang2025seededit}, BAGEL~\citep{deng2025emerging}, and FLUX.Kontext~\citep{batifol2025flux}. We manually annotate pairwise preferences; pairs marked as ``same'' are excluded. We report the accuracy of reward models in matching human judgments, and also evaluate on EditRewardBench~\citep{luo2025editscore}.
+
+% For image editing evaluation, we adopt GEdit-Bench-EN~\citep{liu2025step1x} and report semantic consistency (SC), perceptual quality (PQ), and overall score (O), following the original GPT-4.1-based protocol. Category-wise SC is shown in Tab.~\ref{tab:model_evaluation}.
+
+
+\paragraph{Benchmark and Metrics.}
+For reward model evaluation, we curated a high-quality and diverse set of 5,000 reference images and instructions from ImageEdit~\citep{ye2025imgedit}. 
+We then utilized various models, including SeedEdit-3.0~\citep{wang2025seededit}, BAGEL~\citep{deng2025emerging}, and FLUX.Kontext~\citep{batifol2025flux}, to produce several edited outputs for each input. Finally, these generated outputs were manually annotated using pairwise preference comparisons. 
+Annotators were also allowed to mark a pair as ``same'' when the two edits were of comparable quality or when no reliable preference could be established. These ambiguous pairs were excluded when evaluating verifier accuracy, yielding a cleaner pairwise benchmark.
+The accuracy of the reward model in predicting these human-annotated preferences is used as our evaluation metric. We also report performance on the public EditRewardBench~\citep{luo2025editscore} for a comprehensive comparison.
+For image editing model evaluation, we adopt GEdit-Bench-EN~\citep{liu2025step1x}, a standardized benchmark with multi-dimensional automatic metrics. Following the original protocol, we report scores across three key aspects, each assessed by GPT-4.1: semantic consistency (SC), which measures how well the edited image aligns with the given instruction; perceptual quality (PQ), which captures the visual fidelity of the edited image; and overall score (O), computed as the geometric mean of SC and PQ. In addition, we report SC scores for different categories, as presented in Tab.~\ref{tab:model_evaluation}.
+\vspace{-.8em}
+% \paragraph{Implementation Details.}
+
+% Our RRM is built on Qwen-VL-2.5~\citep{bai2025qwen2}. Cold-start SFT uses edits generated by SeedEdit3.0, BAGEL, and FLUX.Kontext~\citep{wang2025seededit,deng2025emerging,batifol2025flux}. GCPO uses 10k human preference pairs ($<1\%$ of the SFT-scale data), suggesting that its gains mainly come from better human alignment. For downstream optimization, we apply \editrone{} to FLUX.Kontext and Qwen-Image-Edit with Flow-GRPO~\citep{liu2025flow} ($G=24$, $\beta=0.04$). Training remains practical with packed inference.
+
+
+\paragraph{Implementation Details.}
+Our RRM is built on the open-source Qwen-VL-2.5~\citep{bai2025qwen2}.
+In the cold-start SFT phase in Sec.~\ref{sec:cold_start_reward}, we constructed editing pairs using a mixture of models, including SeedEdit3.0~\citep{wang2025seededit}, BAGEL~\citep{deng2025emerging}, and FLUX.Kontext~\citep{batifol2025flux}.
+% For the \gcpo{} phase in Sec.~\ref{sec:r3l}, we further collected 10k human-annotated preference pairs.
+For the \gcpo{} phase in Sec.~\ref{sec:r3l}, we further collected 10k human-annotated preference pairs, which is less than 1\% of the SFT-scale training data. Therefore, the gains from GCPO are mainly attributable to better human alignment rather than increased data volume.
+For editing model optimization, we apply our \editrone{} framework to two strong open-source models: FLUX.Kontext~\citep{batifol2025flux} and Qwen-Image-Edit~\citep{wu2025qwen}.
+The models are optimized using the \grpo{} strategy described in Sec.~\ref{sec:rl_for_editing}, with our trained \rrm{} serving as the reward signal.
+We adopt Flow-GRPO~\citep{liu2025flow} with a group size of $G=24$ and a KL penalty coefficient of $\beta=0.04$.
+Although GCPO requires rollouts from both preferred and non-preferred groups, the overall training cost remains manageable in practice due to the small rollout group size and efficient packed inference.
+\subsection{Reward Model Performance}
+Our proposed \editrone{} framework yields a state-of-the-art reward model for predicting human preferences. As shown in Tab.~\ref{tab:full_rm_results}, our 7B Edit-RRM, trained via our full two-stage pipeline, achieves a top accuracy of \textbf{82.2\%}. 
+% Tab.~\ref{tab:full_rm_results} shows that our 7B Edit-RRM achieves the best accuracy of 82.2\% on the internal benchmark.
+This result significantly surpasses strong closed-source APIs like Seed-1.5-VL (79.3\%) and demonstrates the effectiveness of our training strategy.
+\begin{table}[h] 
+    \centering
+    \caption{Accuracy on our internal benchmark. \textbf{T}, \textbf{V}, and \textbf{T+V} denote Think, Verify, and Think+Verify, respectively.}
+    \vspace{-.5em}
+    \label{tab:full_rm_results}
+    \renewcommand{\arraystretch}{1.2}
+    \setlength{\tabcolsep}{3pt} 
+    \small
+    \begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}l ccc c}
+        \toprule
+        \textbf{Model} & \textbf{T} & \textbf{V} & \textbf{T+V} & \textbf{GCPO} \\
+        \midrule
+        \multicolumn{5}{l}{\textit{Inference w. API Baselines}} \\
+        Seed-1.5-VL~\citep{guo2025seed1}  & 72.2\% & --- & 79.3\% & --- \\
+        Seed-1.6-VL~\citep{guo2025seed1}  & 71.2\% & 69.4\% & 77.2\% & --- \\
+        \midrule
+        \multicolumn{5}{l}{\textit{Our Method (SFT \& RL Stages)}} \\
+        Qwen-7B (VIESCORE) & \multicolumn{3}{c}{68.3\%} & --- \\
+        \midrule
+        Qwen-3B  & 64.1\% & 66.1\% & 69.3\% & 72.0\% \\
+        Qwen-7B  & 68.9\% & 70.9\% & 75.4\% & \textbf{82.2\%} \\
+        \bottomrule
+    \end{tabular*}
+\end{table}
+\vspace{-1.5em}
+\paragraph{Verifier vs. Scorer on Public Benchmarks.}
+% On the public EditRewardBench, our verifier-based RRM outperforms the holistic scorer baseline: 73.3\% vs. 65.9\% after SFT, and 78.2\% after GCPO (Tab.~\ref{tab:editscore_benchmark_comparison}). Since this benchmark is independent of our internal pipeline, the gain also indicates good generalization.
+On the public EditRewardBench, our verifier-based RRM consistently outperforms the holistic scorer baseline. As shown in Tab.~\ref{tab:editscore_benchmark_comparison}, our SFT-RRM already surpasses EditScore-7B (73.3\% vs. 65.9\%), and GCPO further improves the final RL-RRM to 78.2\%. Since EditRewardBench is independently constructed from our internal pipeline, this gain indicates that our improvement is not due to internal benchmark bias. 
+\vspace{-1.2em}
+\begin{table*}[t]
+% \small
+\centering
+\caption{
+Detailed performance comparison on the GEdit-Bench-EN (Full set). Higher scores are better. \textbf{Bold} scores highlight the best result within each model family. 
+Columns 1–11 report SC scores for different editing categories (see Appendix for details).
+%"O" stands for the Overall Score. 
+}
+\label{tab:model_evaluation}
+\renewcommand{\arraystretch}{1.25} 
+% \setlength{\tabcolsep}{4pt} 
+\resizebox{\textwidth}{!}{
+\begin{tabular}{l *{11}{S[table-format=1.2]} S[table-format=1.2] S[table-format=1.2] S[table-format=1.2]}
+\toprule
+\multirow{2}{*}{\textbf{Model}} & \multicolumn{11}{c}{\textbf{Category SC}} & \multicolumn{3}{c}{\textbf{Overall}} \\
+\cmidrule(lr){2-12} \cmidrule(lr){13-15}
+& {1} & {2} & {3} & {4} & {5} & {6} & {7} & {8} & {9} & {10} & {11} & {SC $\uparrow$} & {PQ $\uparrow$} & {O $\uparrow$} \\
+\midrule
+% ---------- Group 1: Edited Models ----------
+\multicolumn{15}{l}{\textbf{Edited Models}} \\
+Step-Edit~\citep{liu2025step1x}       & 8.77 & 8.90 & 7.52 & 4.35 & 4.10 & 7.73 & 8.56 & 7.81 & 8.26 & 2.82 & 7.30 & 6.53 & 6.72 & 5.90 \\
+UniPic2~\citep{wei2025skywork}        & 8.07 & 8.70 & 6.75 & 3.57 & 4.78 & 7.13 & 8.36 & 8.36 & 7.87 & 5.39 & 7.97 & 6.84 & 7.24 & 6.41 \\
+Bagel~\citep{deng2025emerging}        & 8.54 & 8.32 & 7.42 & 4.97 & 5.07 & 7.71 & 8.75 & 8.03 & 8.22 & 7.14 & 6.62 & 7.32 & 7.02 & 6.65 \\
+GPT-4o                               &      &      &      &      &      &      &      &      &      &      &      & 7.74 & 8.13 & 7.49 \\
+\midrule
+% ---------- Group 2: FLUX.Kontext Family ----------
+\multicolumn{15}{l}{\textbf{FLUX.Kontext Family}~\citep{batifol2025flux}} \\
+FLUX.Kontext  & 7.65 & 8.17 & 6.90 & 3.02 & 3.54 & 6.86 & 7.43 & 7.54 & 6.95 & 5.14 & 7.85 & 6.27 & 7.25 & 5.77 \\
+\rowcolor{gray!10}
+RL w. SeedVLM-1.5                    & 8.23 & 8.41 & 7.00 & \textbf{5.00} & 4.05 & 7.17 & 7.93 & 7.60 & 7.11 & 5.51 & 8.60 & 6.74 & 6.44 & 6.03 \\
+\rowcolor{gray!10}
+RL w. SFT-RRM (3B)                   & 7.48 & 8.25 & 6.65 & 3.20 & 4.01 & 7.25 & 7.77 & 7.15 & 7.61 & 5.70 & 7.90 & 6.52 & 6.26 & 5.63 \\
+\rowcolor{gray!20}
+RL w. RL-RRM (3B)                    & 8.13 & 7.65 & \textbf{7.33} & 3.63 & 3.70 & 7.25 & 7.78 & 7.65 & \textbf{7.68} & 6.03 & \textbf{7.93} & 6.67 & 7.09 & 6.10 \\
+\rowcolor{gray!10}
+RL w. SFT-RRM (7B)                   & \textbf{8.25} & 8.52 & 7.10 & 3.85 & 3.68 & 7.27 & \textbf{8.26} & 7.68 & 7.38 & 6.44 & 7.80 & 6.81 & \textbf{7.25} & 6.20 \\
+\rowcolor{gray!20}
+RL w. RL-RRM (7B)                    & 8.15 & \textbf{8.62} & 6.82 & 4.42 & \textbf{4.22} & \textbf{7.30} & 8.21 & \textbf{7.99} & 7.41 & \textbf{6.44}  & 7.82 & \textbf{6.86} & 7.20 & \textbf{6.24} \\
+\midrule
+% ---------- Group 3: Qwen-Edit Family ----------
+\multicolumn{15}{l}{\textbf{Qwen-Edit Family}~\cite{wu2025qwen}} \\
+Qwen-Edit                            & \textbf{8.85} & 9.02 & \textbf{8.20} & 4.01 & 6.04 & 7.61 & \textbf{8.80} & 8.32 & 8.74 & \textbf{9.00} & \textbf{8.37} & 7.94 & \textbf{7.78} & 7.45 \\
+\rowcolor{gray!20}
+RL w. RL-RRM (7B)                & 8.75 & \textbf{9.05} & 8.10 & \textbf{4.62} & \textbf{6.17} & \textbf{7.76} & 8.72 & \textbf{8.43} & \textbf{8.79} & 8.69 & 8.32 & \textbf{7.99} & 7.76 & \textbf{7.50} \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+\paragraph{Principled Data Curation and SFT.}
+% The foundation of our model's performance is a meticulously curated SFT dataset. Tab.~\ref{tab:full_rm_results} details the ablation studies on the components of our data generation process. For our Qwen-based models, the full SFT pipeline using both ``Think'' and ``Verify'' components (T+V) consistently yields the best performance before the GCPO stage. For instance, the 7B model's accuracy improves from 68.9\% (T only) to 75.4\% (T+V), highlighting the importance of rigorous filtering. As a baseline, we also trained with SFT data generated with prompts from VIESCORE~\cite{ku2024viescore}, achieved 68.3\% accuracy.
+The foundation of our model's performance is a carefully curated SFT dataset. Tab.~\ref{tab:full_rm_results} shows that the full SFT pipeline with both ``Think'' and ``Verify'' (T+V) consistently performs best before GCPO. For Qwen-7B, accuracy improves from 68.9\% with ``Think'' only to 75.4\% with ``Think+Verify'', highlighting the importance of principled decomposition and rigorous filtering. As a reference baseline, SFT data generated with VIESCORE prompts~\cite{ku2024viescore} achieves 68.3\%. These results support our claim that each component in the cold-start pipeline is important for reward-model supervision.
+\vspace{-.8em}
+\paragraph{Ablation on GCPO and Benchmarks.} 
+% We conducted an ablation study on the public EditScore-RM benchmark (Tab.~\ref{tab:editscore_benchmark_comparison}). The \gcpo{} stage provides a significant performance boost, improving accuracy from 73.3\% to 78.2\%. This demonstrates that \gcpo{} is critical for refining the model's alignment with human preferences. Notably, our final RRM (78.2\%) substantially outperforms the original EditScore-7B model, even with its inference scaling enhancement.
+We further analyze the impact of \gcpo{} on the public EditScore-RM benchmark (Tab.~\ref{tab:editscore_benchmark_comparison}). GCPO provides a clear performance boost, improving accuracy from 73.3\% to 78.2\%, which shows that it is critical for refining the model's alignment with human preferences. Notably, our final RRM also outperforms EditScore-7B with inference scaling. Since the GCPO stage uses only 10k human preference pairs---less than 1\% of the SFT-scale data, whose gain is mainly attributable to better human alignment.
+\paragraph{Impact of Principled Data Curation.}
+Our initial experiments (not shown in the main tables for brevity) confirmed that both the ``Think" (reasoning generation) and ``Verify" (external filtering) components are critical. Removing the ``Verify" step led to a significant accuracy degradation, highlighting the importance of rigorous data filtering. Meanwhile, the reasoning traces from the ``Think" step provide essential supervisory signals that enhance the model's evaluative capabilities.
+\vspace{-.6em}
+\subsection{Image Editing Performance}
+Fig.~\ref{fig:edit_dynamics} shows that our RRMs provide stable reward signals, while GCPO-refined RRMs yield higher evaluation rewards and act as stricter evaluators.
+\vspace{-.5em}
+\paragraph{Overall Performance.}
+As shown in Tab.~\ref{tab:model_evaluation}, our framework demonstrates strong performance on both model families. Optimizing FLUX.Kontext with our RL-RRM (7B) boosts its Overall Score (O) from 5.77 to 6.24 and its Semantic Consistency (SC) score from 6.27 to 6.86. This result exceeds others, confirming that our RRM is a highly effective and competitive reward source for policy optimization.
+Meanwhile, we carried out experiments on the SOTA open resource, Qwen-Edit, whose overall score showed a modest improvement from 7.45 to 7.50. This is largely because the baseline model can't generate revenue from Best-of-N~\cite{luo2025editscore}. However, the validity of Edit-R1 is highlighted in its ability to address the model's specific weaknesses. 
+Notably, as shown in the final row of Tab.~\ref{tab:model_evaluation}, our framework yields a significant 15.2\% relative gain (from 4.01 to 4.62) in the challenging Motion Change category, demonstrating its effectiveness in enhancing performance even on highly optimized models. These gains are also supported by human evaluation, where the user-study protocol and GSB results are provided in Appendix~\ref{sec:human_eval}. Additional qualitative examples are shown in Fig.~\ref{fig:qualitative_results} in the Appendix.
+% Notably, as shown in the final row of Tab.~\ref{tab:model_evaluation}, our framework yields a significant 15.2\% relative gain (from 4.01 to 4.62) in the challenging Motion Change category, demonstrating its effectiveness in enhancing performance even on highly optimized models.
+\paragraph{Impact of GCPO and Scalability.} 
+As shown in Tab.~\ref{tab:model_evaluation}, RRM with GCPO consistently outperforms its SFT counterpart. Training curves in Fig.~\ref{fig:edit_dynamics} further reveal the mechanism. Although RL-RRMs provide lower training rewards, they yield higher evaluation rewards, indicating that GCPO transforms the reward model into a stricter and more reliable evaluator. This stricter supervision pushes editing models to adhere more closely to human preferences and achieve higher-quality outputs.
+\begin{table}[t!]
+    \centering
+    \caption{Comparison of our RRM against the baseline on the EditReward benchmark. All results are for 7B models.}
+    \label{tab:editscore_benchmark_comparison}
+    \renewcommand{\arraystretch}{1.15}
+    \small
+    \begin{tabular}{lc}
+        \toprule
+        \textbf{Method} & \textbf{Accuracy (\%)} \\
+        \midrule
+        \multicolumn{2}{l}{\textit{Baseline Model}} \\
+        EditScore-7B & 65.9\% \\
+        \quad + \textit{inference scaling} & 72.7\% \\
+        \midrule
+        \multicolumn{2}{l}{\textit{Our Method}} \\
+        Our RRM (SFT only) & 73.3\% \\
+        Our RRM (SFT + GCPO) & \textbf{78.2\%} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+\vspace{-1.0em}
+\paragraph{Qualitative Analysis.} 
+Beyond quantitative metrics, the qualitative improvements are equally compelling. As shown in the Appendix (Fig.~\ref{fig:qualitative_results}), models optimized with our framework exhibit markedly better instruction adherence and visual fidelity. 
+In challenging edits such as Subject Replace, our method successfully follows the instruction, whereas the baseline fails. For localized edits such as Color Alter, our approach precisely modifies the target object without introducing global color shifts or artifacts. These qualitative results provide concrete evidence of the practical effectiveness of our framework.
+\vspace{-1.0em}
+

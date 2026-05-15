@@ -1,0 +1,41 @@
+\clearpage
+
+{\color{LARGBlue}{\textbf{\LARGE Appendix}}}
+
+\textbf{Roadmap.} 
+In this appendix, we provide a detailed overview of our methodology and experimental setup. 
+Appendix~\ref{app:theory} presents the full theoretical analysis of \textit{Eywa}, covering the language interface bottleneck, the expressivity and solvability guarantees of \textit{EywaAgent}, the generalization to \textit{EywaMAS}, the theory of \textit{EywaOrchestra} as adaptive orchestration, and a token-complexity analysis.
+Appendix~\ref{app:further_discussion} provides further discussions on additional related work, scope and limitations, and potential extensions of \textit{Eywa}.
+Appendix~\ref{sec:dataset_details} describes \textit{EywaBench} in detail, including domain coverage, modality composition, source datasets, construction pipeline, evaluation metrics, and a statistical analysis of the resulting benchmark.
+Finally, Appendix~\ref{app:experiment_details} reports additional experimental results, including more detailed LLM-backbone ablations, qualitative case studies, and per-domain utility-token trade-off analyses across all nine scientific sub-domains. Appendix~\ref{app:prompts} contains LLM prompt examples.
+The table of contents is provided below for quick navigation.
+
+\renewcommand\contentsname{\Large Table of Contents}
+
+\addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
+
+
+\tableofcontents
+\clearpage
+
+
+\input{1_appendix/theoretical_analysis}
+
+
+\clearpage
+
+\section{Further Discussions}
+\label{app:further_discussion}
+
+\input{1_appendix/further_discussion.tex}
+
+
+
+
+\section{EywaBench Details}
+\label{sec:dataset_details}
+
+\input{1_appendix/data_analysis.tex}
+
+\input{1_appendix/experiment_details}
+

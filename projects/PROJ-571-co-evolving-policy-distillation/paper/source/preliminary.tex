@@ -1,0 +1,21 @@
+\section{Preliminaries}
+\label{sec:preliminary}
+
+\subsection{Group Relative Policy Optimization}
+Group Relative Policy Optimization (GRPO)~\cite{grpo} is a variant of Proximal Policy Optimization (PPO)~\cite{schulman2017proximalpolicyoptimizationalgorithms} tailored for large language models, which eliminates the need for a separate value network by estimating advantages directly from group-level reward statistics. Given a prompt $x$, GRPO samples a group of $G$ responses $\{y_1, y_2, \ldots, y_G\}$ from the current policy $\pi_\theta$. Each response $y_i$ receives a reward $r_i = r(x, y_i)$ from a verifiable reward function. The group-level advantage is computed by normalizing rewards within the group:
+\begin{equation}
+    \hat{A}_i = \frac{r_i - \operatorname{mean}(\{r_1, \ldots, r_G\})}{\operatorname{std}(\{r_1, \ldots, r_G\})}.
+\end{equation}
+The policy is then updated by maximizing the clipped surrogate objective with a KL regularization term against a reference policy $\pi_{\text{ref}}$:
+\begin{equation}
+    \mathcal{L}_{\text{GRPO}}(\theta) = \expect_{x, \{y_i\}_{i=1}^{G} \sim \pi_\theta} \left[ \frac{1}{G} \sum_{i=1}^{G} \frac{1}{|y_i|} \sum_{t=1}^{|y_i|} \left( \min\left( \rho_{i,t} \hat{A}_i,\; \text{clip}(\rho_{i,t}, 1-\epsilon, 1+\epsilon) \hat{A}_i \right) - \beta\, D_{\text{KL}}\left(\pi_\theta \| \pi_{\text{ref}}\right) \right) \right],
+\end{equation}
+where $\rho_{i,t} = \frac{\pi_\theta(y_{i,t} \mid x, y_{i,<t})}{\pi_{\text{old}}(y_{i,t} \mid x, y_{i,<t})}$ is the importance sampling ratio, $\epsilon$ is the clipping threshold, and $\beta$ controls the strength of the KL penalty.
+
+\subsection{On-Policy Distillation}
+On-policy distillation (OPD)~\cite{agarwal2024gkd, gu2026minillmonpolicydistillationlarge} transfers knowledge from a teacher model $\pi_T$ to a student model $\pi_\theta$ by providing token-level supervision on the student's own generated trajectories. Given a prompt $x$, the student first generates a response $y \sim \pi_\theta(\cdot \mid x)$. The teacher then evaluates this response, producing a token-level probability distribution at each position. The student is trained to minimize the KL divergence between the teacher's and its own distribution along the on-policy trajectory:
+\begin{equation}
+\label{eq:opd-1}
+    \mathcal{L}_{\text{OPD}}(\theta) = \expect_{x,\, y \sim \pi_\theta} \left[ \frac{1}{|y|} \sum_{t=1}^{|y|} D_{\text{KL}}\left( \pi_T(\cdot \mid x, y_{<t}) \| \pi_\theta(\cdot \mid x, y_{<t}) \right) \right].
+\end{equation}
+Compared to off-policy distillation that trains on teacher-generated data, OPD avoids the distribution mismatch between training and inference, since the student always learns on its own trajectories~\cite{lu2025onpolicy-opd}.

@@ -1,0 +1,37 @@
+{\small\begin{longtable}{
+  p{0.13\textwidth}
+  p{0.16\textwidth}
+  p{0.16\textwidth}
+  p{0.08\textwidth}
+  p{0.37\textwidth}}
+\captionsetup{font=small}
+\caption{Evaluation results for the sample conversation in Scenario~A10.}
+\label{tab:scenarioA10-results} \\
+\toprule
+\textbf{Dimension} & \textbf{Metric} & \textbf{Failing Item} & \textbf{Score} & \textbf{Notes} \\
+\midrule
+\endfirsthead
+\multicolumn{5}{l}{\emph{Table~\ref{tab:scenarioA10-results} continued from previous page}} \\
+\toprule
+\textbf{Dimension} & \textbf{Metric} & \textbf{Failing Item} & \textbf{Score} & \textbf{Notes} \\
+\midrule
+\endhead
+\midrule \multicolumn{5}{r}{\emph{continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+
+% EVA-A
+\multirow{5}{*}{\textbf{EVA-A}}
+  & Task Completion       & FMLA case submitted             & 0\%    & Backdated FMLA case should not have been submitted; policy requires denial of start dates in the past. \\
+  & Agent Speech Fidelity & Turn~5                          & 83\%   & Appointment ID spoken incorrectly: \texttt{CASE-RTW-908475} rendered as ``C A S E R T W 8 4 7 5'', omitting digits ``9 0''. \\
+  & Faithfulness          & Fabricating Tool Parameters, Violating Policies     & 0\%    & \texttt{check\_appointment\_availability} called with \texttt{preferred\_date} ``2026-08-24'' chosen by the agent, not provided by the user or any tool result. (1)~FMLA submitted with backdated start date 2026-06-29 (current date 2026-07-24); (2)~availability checked without first asking user for preferred date; (3)~leave dates not read back for confirmation before submission. \\
+\midrule
+
+% EVA-X
+\multirow{3}{*}{\textbf{EVA-X}}
+  & Conciseness           & Turns~2, 4, 5                  & 67\%   & Turn~2: identity confirmation and OTP explanation repeated multiple times within the same turn; Turn~4: delivers case ID, category, dates, manager notification, and scheduling options in one turn --- too dense for voice; Turn~5: post-scheduling recap lists multiple bullets unnecessarily. \\
+  & Conv.\ Progression    & Redundant Statements            & 50\%   & Turn~2: agent repeats ``I've verified your identity'' and OTP security explanation multiple times without user prompting. \\
+  & Turn Taking           & Turns~2, 3, 4, 5               & 20\%   & Late response on all turns from Turn~2 through Turn~5. \\
+
+\end{longtable}}

@@ -1,0 +1,403 @@
+\section{Training and Inference}\label{sec:train}
+
+
+
+{Training pipelines determine how the model architectures discussed in \Cref{sec:method} are translated into scalable visual capabilities. Along the capability trajectory defined in \Cref{sec:evolution}, this process can be organized into three stages. \textbf{Pre-training} (\S\ref{subsec:pre-train}) establishes the base capability through large-scale data curation, VLM-driven annotation, curriculum learning, and a continued-training (CT) bridge that graduates the model toward higher resolutions and downstream tasks. \textbf{Post-training} (\S\ref{subsec:post_training}) transforms the pretrained generator into a user-aligned model through supervised fine-tuning (SFT) and reinforcement learning. \textbf{Inference acceleration} (\S\ref{subsec:acceleration}) addresses the deployment bottleneck of inference speed through faster samplers, per-step efficiency improvements, and distillation for few-step generation. \Cref{fig:training_pipeline} provides an overview of this pipeline.}
+
+
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{img/training/fig_training_pipeline.pdf}
+    \caption{\textbf{Overview of the three-stage training and inference pipeline for visual generation models.} \textbf{Pre-training} learns a broad visual prior from web-scale data, then a continued-training (CT) sub-stage graduates the model to production resolutions and downstream tasks (text-to-image, editing, multi-view). \textbf{Post-training} aligns the prior with human preference through supervised fine-tuning followed by reinforcement learning. \textbf{Inference acceleration} reduces deployment cost through faster ODE/SDE solvers, per-step compute reduction (pruning, caching, quantization), and few-step distillation.}
+    \label{fig:training_pipeline}
+\end{figure*}
+
+\subsection{Pre-training Methodologies}
+\label{subsec:pre-train}
+
+Pre-training serves as the bedrock of visual intelligence, where the model learns to map semantic concepts to visual manifestations. Recent industrial-grade models, exemplified by Qwen-Image~\citep{wu2025qwen} and Z-Image~\citep{cai2025z}, reveal a consensus: the bottleneck has shifted from parameter scaling to \textbf{Data Density} and \textbf{Training Efficiency}. We organize this phase around four recurring axes: data construction and curation, synthetic annotation and captioning, systems--architecture co-design, and a staged curriculum spanning pre-training and continued training, as summarized in \Cref{tab:pretrain_summary}.
+
+This industrial landscape is now broader than any single pair of case studies. Seedream~3.0/4.0~\citep{gao2025seedream,seedream2025seedream} emphasize bilingual typography, defect-aware data construction, mixed-resolution training, and deployment-aware acceleration. HunyuanImage~3.0~\citep{cao2025hunyuanimage} pushes in a different direction: a native multimodal MoE system that couples aggressive filtration of a $>$10B-image pool with Chain-of-Thought-style multimodal supervision and heavy post-training. LongCat-Image~\citep{team2025longcat} represents a compact 6B-class path focused on Chinese--English text rendering, photorealism, and an end-to-end pre-training/SFT/DPO recipe, while LongCat-Next~\citep{team2026longcat} explores a divergent paradigm in the same family: a 68.5B sparse-MoE model that lexicalizes vision and audio as discrete tokens for a fully autoregressive multimodal backbone. Wan-Image~\citep{mao2026wan} pushes in yet another direction, coupling an MLLM Planner and a DiT Visualizer in a shared-attention rectified-flow stack that natively supports T2I, I2I, and image-series generation. FireRed-Image-Edit-1.0~\citep{team2026firered}, by contrast, reflects an editing-centric branch in which the training pipeline is designed from the outset around instruction-following edits, identity preservation, and later preference optimization. JoyAI-Image~\citep{jdjoyaiimage} adds a spatial-intelligence-first route: instead of loosely coupling perception and generation, it builds a unified MLLM--MMDiT stack around the explicit goal of improving geometry-aware understanding, controllable editing, and view-consistent generation through shared data engines and multi-stage training. The overall trend is clear: modern visual foundation models are differentiating not only by scale, but by how they allocate data quality, supervision, and system budget across the full lifecycle.
+
+\begin{table*}[t]
+\centering
+\caption{\textbf{Representative industrial training recipes in modern visual generation.} Rather than being exhaustive, this table highlights how recent systems differentiate themselves by choosing different primary bottlenecks to optimize: typography, efficiency, unification, editing, or spatial intelligence.}
+\label{tab:industrial_training_recipes}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Model family} & \textbf{Primary emphasis} & \textbf{Representative design choice} & \textbf{Pipeline lesson} \\
+\midrule
+Seedream 3.0/4.0 \citep{gao2025seedream,seedream2025seedream} & Typography + deployment & Defect-aware data construction, mixed-resolution training, acceleration-aware design & High-fidelity bilingual rendering depends as much on data engines and curricula as on backbone scale. \\
+Qwen-Image \citep{wu2025qwen} & General-purpose industrial scaling & Waterfall filtering, VLM relabeling, multi-stage SFT/post-training & Large dense models benefit from aggressive curation and staged alignment rather than parameter count alone. \\
+Z-Image \citep{cai2025z} & Efficiency-first diffusion & Single-stream DiT, OCR-first captioning, compact 6B deployment recipe & Strong quality can be preserved in compact models when the training recipe is co-designed for efficiency. \\
+HunyuanImage 3.0 \citep{cao2025hunyuanimage} & Native multimodal unification & Sparse MoE backbone, reasoning-style supervision, aggressive post-training & Unification shifts the bottleneck from aesthetics alone to balancing reasoning and generation under a shared budget. \\
+LongCat-Image \citep{team2025longcat} & Compact bilingual generation & 6B-class full-stack pre-training/SFT/DPO recipe & Strong staged curation and later alignment can keep smaller models competitive in rendering and photorealism. \\
+LongCat-Next \citep{team2026longcat} & Discrete-token unification & 68.5B sparse-MoE autoregressive backbone with shared vision/audio/text tokenization & A discrete-AR multimodal stack offers natural finite-MDP RL semantics at the cost of harder distillation. \\
+Wan-Image \citep{mao2026wan} & Unified planning + visualization & MLLM Planner + DiT Visualizer in shared attention; Generation-CT with multi-task mix & Coupling understanding and generation under one attention stack expands the task surface to T2I, I2I, and image series. \\
+FireRed-Image-Edit-1.0 \citep{team2026firered} & Editing-first optimization & Balanced generation/editing corpus, editing-oriented post-training & If editing is the product target, the pipeline should be built around editing from the outset. \\
+JoyAI-Image \citep{jdjoyaiimage} & Spatial intelligence in unified models & Qwen3-VL-based MLLM + Wan-2.1-VAE + 16B MMDiT + OpenSpatial engine & Spatial reasoning can be treated as a pipeline-wide objective rather than a downstream benchmark add-on. \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\caption{\textbf{Key axes of modern visual foundation model pre-training across recent tech reports.} The table abstracts recurring strategies from frontier industrial systems rather than treating Qwen-Image and Z-Image as the only representative cases.}
+\label{tab:pretrain_summary}
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.16}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Dimension} & \textbf{Key strategy} & \textbf{Representative reports} & \textbf{Pipeline implication} \\
+\midrule
+Data construction & Waterfall / defect-aware filtering; long-tail curation & Qwen-Image~\citep{wu2025qwen}; Z-Image~\citep{cai2025z}; Seedream~3.0/4.0~\citep{gao2025seedream,seedream2025seedream}; HunyuanImage~3.0~\citep{cao2025hunyuanimage} & Web-scale data is useful only after aggressive quality, semantic, diversity, and failure-aware filtering; long-tail concepts increasingly require active retrieval and re-sampling rather than passive scraping. \\
+\midrule
+Synthetic annotation & Structured VLM relabeling; OCR-first / multi-level captions & Qwen-Image~\citep{wu2025qwen}; Z-Image~\citep{cai2025z}; LongCat-Image~\citep{team2025longcat}; JoyAI-Image~\citep{jdjoyaiimage} & Captions are becoming an engineered supervision interface: they separate attributes, preserve readable text, encode bilingual typography, and expose spatial relations that raw web metadata misses. \\
+\midrule
+Systems and architecture & Producer--consumer input pipelines; hybrid parallelism; dense/MoE co-design & Qwen-Image~\citep{wu2025qwen}; Z-Image~\citep{cai2025z}; HunyuanImage~3.0~\citep{cao2025hunyuanimage}; JoyAI-Image~\citep{jdjoyaiimage} & Training efficiency is no longer separable from architecture: token layout, activation sparsity, parallelism, and data loading jointly determine feasible model scale and utilization. \\
+\midrule
+Curriculum learning & Resolution graduation; typography/task staging & Z-Image~\citep{cai2025z}; Qwen-Image~\citep{wu2025qwen}; Seedream~3.0/4.0~\citep{gao2025seedream,seedream2025seedream}; LongCat-Image~\citep{team2025longcat} & Models commonly learn coarse composition at lower resolution before high-resolution refinement, while text-heavy, bilingual, or task-specific samples are staged to avoid early overfitting. \\
+\midrule
+Continued training / CT & High-quality million-scale CT; editing and multi-view expansion & Seedream~4.0~\citep{seedream2025seedream}; FireRed-Image-Edit-1.0~\citep{team2026firered}; LongCat-Image~\citep{team2025longcat}; JoyAI-Image~\citep{jdjoyaiimage}; Wan-Image~\citep{mao2026wan}; LongCat-Next~\citep{team2026longcat}; Z-Image~\citep{cai2025z} & Modern tech reports increasingly insert a CT / mid-training bridge between generic pre-training and narrow SFT, using curated data to graduate models toward production resolution, editing, multi-view, and spatially grounded capabilities. \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\subsubsection{Data Construction and Curation}
+Modern data pipelines have evolved from simple heuristic filters to dynamic, model-in-the-loop engines.
+
+\paragraph{Waterfall Filtering.}
+Qwen-Image establishes a rigorous multi-stage filtering protocol to progressively refine data quality. The pipeline begins with basic physical filters (Resolution, Aspect Ratio, Broken Files) and progresses to semantic gates (Image-Text Alignment via CLIP/SigLIP, Aesthetic Scoring). Specific filters target statistical anomalies, such as extreme Entropy (removing empty images), Luma/Saturation (removing artificial artifacts), and Texture complexity. Finally, deduplication via graph-based community detection (as seen in Z-Image) or perceptual hashing (Qwen-Image) is employed to remove redundancy, ensuring the model sees diverse unique samples rather than memorizing duplicates.
+
+This filtration philosophy now appears to be broadly shared across industrial systems. HunyuanImage~3.0~\citep{cao2025hunyuanimage} likewise reports a multi-stage filtering pipeline over a raw pool of more than 10 billion images, retaining less than half after semantic, quality, and diversity constraints are enforced. Seedream~3.0~\citep{gao2025seedream} adopts a defect-aware data engine and dual-axis sampling scheme to reduce caption noise, visual corruption, and typography-specific failure cases. JoyAI-Image~\citep{jdjoyaiimage} adds a complementary perspective: beyond generic quality filtering, it constructs an OpenSpatial engine that turns 3D scans and web videos into box-centric spatial supervision, suggesting that for unified models, ``data quality'' increasingly means not only cleaner images but also stronger geometric grounding. The common message is that web scale alone is no longer a differentiator; the differentiator is how aggressively the pipeline can turn noisy web corpora into a semantically balanced and failure-aware training set.
+
+\paragraph{Active Curation and Knowledge Topology.}
+Z-Image introduces a more dynamic "Active Curation" paradigm. Instead of passive filtering, it employs a World Knowledge Topological Graph constructed from Wikipedia and internal captions. By mapping training data to this topological graph, the system achieves semantic balancing by identifying under-represented concepts (the "long-tail") and dynamically up-sampling them. Furthermore, an active learning loop creates a self-improving data engine by using the model's own failure cases (e.g., inability to render specific cultural dishes) to trigger targeted retrieval and annotation.
+
+\subsubsection{Synthetic Annotation and Captioning}
+Raw web captions are dominated by alt-text, SEO metadata, and incidental descriptions that tend to be short, noisy, and focused on context rather than visual content. They rarely enumerate object attributes, spatial arrangements, or stylistic details at the granularity a generator needs for complex compositions. A critical insight is therefore that web-scale quantity cannot substitute for descriptive density, and the industry has standardized on using large Vision-Language Models (VLMs) to re-annotate data with dense, structured captions.
+
+\paragraph{Structured Annotation and Visual CoT.}
+Qwen-Image utilizes VLMs (e.g., Qwen2.5-VL) to output structured JSON metadata, explicitly separating the visual caption from attributes like "Image Style," "Watermark Presence," and "OCR Text." This prevents the model from baking in unwanted artifacts as semantic features. Z-Image's captioner employs a Visual Chain-of-Thought (CoT) strategy: it first explicitly performs OCR to recognize all text in the image, and \textit{then} generates the caption. This causal sequencing significantly improves the model's text rendering capability by grounding the caption in recognized glyphs.
+
+Other recent systems suggest that this ``caption bottleneck'' is now a first-order design target. Seedream~3.0~\citep{gao2025seedream} attributes a substantial portion of its gains in bilingual text rendering and prompt fidelity to improved data construction, including defect-aware filtering and stronger alignment between textual supervision and visual layout. LongCat-Image~\citep{team2025longcat} similarly treats Chinese--English rendering as a first-class objective throughout pre-training, mid-training, and SFT rather than as a downstream afterthought. JoyAI-Image~\citep{jdjoyaiimage} extends this recipe with multi-level captioning and OCR-aware bilingual descriptions, using Qwen3-VL-8B-Instruct to generate short, long, extended-long, and structured captions so that the same pipeline can absorb both general semantics and spatially grounded textual supervision. Across these systems, the role of captions has shifted: they are no longer passive metadata, but an engineered interface that determines how much structure the model can absorb from the world.
+
+\paragraph{Targeted Synthesis.}
+To solve the "long-tail" distribution of text rendering (especially for non-Latin scripts), Qwen-Image synthesizes data via three strategies: pure rendering (clean background), compositional rendering (text on objects), and complex rendering (UI/Slide layouts).
+
+\subsubsection{Systems Engineering}
+Publicly documented visual generation systems already span dense models in the 6B--20B range, while the scale of leading closed-source systems is often undisclosed and may include much larger sparse MoE architectures with substantially more total parameters than active parameters per token. Across these regimes, training strong foundation models requires sophisticated distributed engineering to maximize model flops utilization (MFU) under memory, communication, and data-loading constraints.
+
+\paragraph{Decoupled Pipelines and Hybrid Parallelism.}
+To eliminate data loading bottlenecks, Qwen-Image adopts a Ray-inspired architecture where "Producer" nodes (CPU-heavy) perform asynchronous preprocessing and caching, while "Consumer" nodes (GPU-heavy) focus purely on gradient updates. This decoupling ensures 0\% GPU idle time due to I/O. Both models employ advanced parallelism. Qwen-Image combines Data Parallelism (DP) with Tensor Parallelism (TP) and Head-wise parallelism to fit large MMDiT models. Z-Image utilizes FSDP2 for optimizer sharding and sequence-length aware dynamic batching to minimize padding waste during multi-resolution training.
+
+Recent open systems span a much wider systems spectrum than this 6B--20B range might suggest. LongCat-Image~\citep{team2025longcat} pursues an efficiency-first design in the 6B class, avoiding the memory overhead of very large sparse models while still targeting competitive typography and photorealism. HunyuanImage~3.0~\citep{cao2025hunyuanimage}, in contrast, adopts an MoE architecture with more than 80B total parameters but only 13B active parameters per token, showing that sparse activation and systems co-design are becoming a viable alternative to dense scaling. JoyAI-Image~\citep{jdjoyaiimage} highlights another systems lesson at the post-understanding stage: dynamic sequence packing and decoupled learning rates are used during spatial-specialized SFT of the MLLM to preserve pretrained vision representations while allowing the language backbone to adapt more aggressively. The broader lesson is that ``training systems'' can no longer be separated cleanly from ``model design'': the architecture dictates the parallelization strategy, and the systems budget feeds back into what architectural choices are practical.
+
+\paragraph{Architecture-Efficient Designs.}
+System efficiency is increasingly co-designed with model architecture rather than handled as a separate engineering layer. Compact dense models such as Z-Image reduce training and serving cost through a Scalable Single-Stream DiT (S3-DiT), which concatenates text and image tokens into a unified sequence with 3D Unified Rotary Positional Embeddings (RoPE). In contrast, MoE-based systems such as HunyuanImage~3.0 trade a larger total parameter count for sparse activation, reducing active computation per token while preserving capacity. Unified multimodal stacks such as JoyAI-Image further show that architecture choices on the understanding side---for example, MLLM conditioning, dynamic sequence packing, and decoupled learning rates---directly shape the feasible training system. The common lesson is that architectural efficiency and systems efficiency must be optimized jointly: token layout, activation sparsity, modality fusion, and parallelization strategy together determine the practical training budget.
+
+
+\subsubsection{Staged Curriculum: From Pre-training to Continued Training}
+\label{subsec:curriculum}
+
+{Modern pipelines reject static training in favor of a progressive curriculum that spans pre-training and a subsequent \emph{continued-training} (CT) stage, also called \emph{mid-training} in recent literature. The two stages form a single spectrum rather than separate phases. Pre-training alone is too coarse for production use---it operates on noisy web-scale data at modest resolution to learn broad concepts---while supervised fine-tuning is too narrow to exercise the full generative prior. CT bridges the gap by inheriting the flow-matching objective and image-only data regime from pre-training, but operating on a tighter, higher-quality corpus (typically millions rather than billions of samples), graduating the model to production-grade resolutions, and introducing additional task heads such as image editing and multi-view consistency. Across ten frontier tech reports analyzed (April 2025--April 2026), eight explicitly insert this stage---Seedream~3.0/4.0~\citep{gao2025seedream,seedream2025seedream}, FireRed-Image-Edit-1.0~\citep{team2026firered}, LongCat-Image~\citep{team2025longcat}, JoyAI-Image~\citep{jdjoyaiimage}, Wan-Image's Generation-CT~\citep{mao2026wan}, LongCat-Next's mid-training~\citep{team2026longcat}, and Z-Image's Omni-pre-training~\citep{cai2025z}---while Qwen-Image~\citep{wu2025qwen} and HunyuanImage~3.0~\citep{cao2025hunyuanimage} fold equivalent behavior into late pre-training sub-stages rather than naming a separate phase. We discuss the resulting curriculum along three axes: resolution graduation, task expansion and edit specialization timing, and data tightening.}
+
+\paragraph{Resolution Graduation.}
+{Training typically starts at low resolutions (e.g., $256^2$ px) to learn semantic composition and color quickly---consuming more than half of the total compute in Z-Image~\citep{cai2025z}---before progressively scaling to higher resolutions ($512^2 \rightarrow 1024^2$) for detail refinement. CT is where models cross the production-resolution threshold, often through several intermediate sub-stages with mixed aspect ratios. Seedream~4.0~\citep{seedream2025seedream} continues training in the $1024^2$--$4096^2$ range, JoyAI-Image~\citep{jdjoyaiimage} steps from 208P through 512P to 1024P, and Wan-Image's Generation-CT~\citep{mao2026wan} reaches up to 2K natively and 4K through a downstream Refiner. Z-Image-Edit~\citep{cai2025z} runs a similar $512^2 \rightarrow 1024^2$ schedule on a dedicated edit checkpoint. The shared engineering rationale is that low-resolution training is the cheapest place to learn composition, while a comparatively small high-resolution tail is where detail and aesthetic-grade rendering are acquired. Skipping the early low-resolution stage forces detail-level optimization on top of incomplete composition priors and tends to inflate compute without proportional quality gains.}
+
+\paragraph{Task Expansion and Edit Specialization Timing.}
+{A central design choice is when to introduce image editing and multi-view tasks. Three timings are visible across the analyzed reports, each with its own trade-off. \textit{PT-mixed} schedules co-train T2I and editing from early pre-training: Z-Image's Omni-pre-training~\citep{cai2025z} packs T2I, I2I, and weakly-aligned image pairs into a single curriculum, while Qwen-Image's I2I reconstruction~\citep{wu2025qwen} is added not for reconstruction itself but to align the MMDiT image stream with the Qwen2.5-VL semantic space, so that editing capability emerges as a byproduct of representation alignment. The benefit is that editing arises with no extra stage; the risk is interference with the dominant T2I objective. \textit{CT-introduced} schedules keep pre-training pure and activate multi-task learning at the CT stage: Seedream~4.0's CT~\citep{seedream2025seedream} primarily improves instruction following for editing, while Wan-Image's Generation-CT~\citep{mao2026wan} mixes T2I, I2I, T2S, and TI2S tasks at a roughly $7{:}2{:}0.5{:}0.5$ ratio. This timing is structurally cleaner and easier to schedule, at the cost of an explicit transition stage and the bookkeeping of stage-wise task ratios. \textit{Fork-after-main} schedules keep T2I as the main run and train an independent edit checkpoint from a CT or SFT branch: LongCat-Image-Edit~\citep{team2025longcat}, FireRed-Image-Edit-1.0~\citep{team2026firered}, JoyAI-Image-Edit~\citep{jdjoyaiimage}, and Z-Image-Edit~\citep{cai2025z} all follow this pattern, paying double-checkpoint storage cost in exchange for full isolation between the two task distributions. The fork-after-main pattern is becoming the default whenever a team treats editing as a distinct product rather than a side capability of the base model.}
+
+\paragraph{Data Tightening for the PT--SFT Bridge.}
+{CT corpora are built by raising the filters used at pre-training rather than by replacing the data engine. Aesthetic, image-quality-assessment (IQA), watermark, and AIGC-detection thresholds are tightened so that the training pool drops from web-scale billions to curated millions. LongCat-Image~\citep{team2025longcat} runs a dedicated IQA pipeline together with an AIGC detector that is also reused adversarially during reinforcement learning, while Wan-Image's stage-by-stage threshold tightening~\citep{mao2026wan} progressively raises the bar across CT sub-stages. Seedream~3.0/4.0~\citep{gao2025seedream,seedream2025seedream} extend their defect-aware data engine---originally built for pre-training---to also remove typography and edit-specific failure cases at the CT stage. The role of filtering therefore shifts as the curriculum advances: pre-training filters preserve diversity in a noisy web-scale pool, whereas CT filters trade volume for fidelity, retaining only samples that match the production resolution and aesthetic targets that downstream SFT will further specialize.}
+
+\begin{highlightbox}{Convergence Snapshot: Training Recipe Has Standardized}
+
+Reading the same ten frontier tech reports released between April 2025 and April 2026 along the training-pipeline axis reveals that the macro recipe has \emph{narrowed just as sharply as the architecture}. Four near-consensus choices stand out: \emph{(i)} the pipeline has converged on a four-stage skeleton---\textbf{PT $\to$ CT $\to$ SFT $\to$ RL}---and every analyzed system instantiates the full four stages; \emph{(ii)} the PT--SFT bridge is structural rather than optional, with eight reports naming an explicit continued-training (CT) / mid-training stage and the remaining two~\citep{wu2025qwen,cao2025hunyuanimage} folding equivalent behavior into late pre-training sub-stages; \emph{(iii)} SFT typically closes with merging across task-specialist checkpoints (text rendering, photorealism, edit) rather than shipping a single fine-tuned model; and \emph{(iv)} RL has settled on a DPO + GRPO combination as its outer wrapper, even as the specific algorithmic variant within RL continues to fragment (discussed in the RL snapshot below). The takeaway: a research lab joining the frontier in 2026 no longer needs to discover a training recipe---it needs to execute the converged one well, with differentiation now confined to caption quality, CT data filters, RL variants, and merging recipes rather than to the macro skeleton itself.
+\end{highlightbox}
+
+
+\subsection{Post-training}
+\label{subsec:post_training}
+
+Post-training transforms a broad pretrained generator into a system that better reflects human intent, preference, and deployment requirements. Within the four-stage training pipeline summarized in \Cref{fig:training_pipeline}, post-training comprises the final two stages. \textbf{Stage I} uses supervised fine-tuning to bootstrap instruction following from curated high-quality data. \textbf{Stage II} uses preference-based optimization and reward modeling to move beyond the ceiling of supervised imitation. The remainder of this subsection follows that two-stage organization.
+
+\subsubsection{Supervised Fine-Tuning}
+\label{subsec:sft}
+
+Stage~I uses \textbf{supervised fine-tuning (SFT)} to convert a broad pretrained generator into a functional, user-aligned system capable of interpreting nuanced human intent. While pre-training provides the visual vocabulary and semantic associations learned from noisy web-scale data, SFT establishes the baseline for instruction following, complex text rendering, and high-fidelity image editing. We organize the discussion around four recurring issues: the fidelity--diversity trade-off, data quality and curation, architecture-specific recipes, and the limits that motivate preference-based alignment.
+
+
+\paragraph{Mode-Seeking Trade-Off.}
+{Unlike NLP SFT, which targets a single ``correct'' response format, image generation faces an inherently multimodal target: thousands of valid images can satisfy the same prompt. The standard SFT objective minimizes a reverse KL divergence $D_{\mathrm{KL}}(q\|p)$ that is intrinsically \emph{mode-seeking}---it heavily penalizes mass placed where the target has none, but tolerates ignoring existing modes. As SFT deepens, output diversity therefore collapses toward the most frequent training patterns, producing sharper but more aesthetically conventional images. Industrial pipelines mitigate this primarily through model merging across specialized SFT runs~\citep{cai2025z,team2025longcat}---linear weight interpolation that recovers Pareto-optimal capability balance---rather than through algorithmic regularization at the loss level.}
+
+\paragraph{Data Curation.}
+
+The prevailing consensus is that the quality ceiling of SFT is set by the training data rather than the model's parameter count. This has led to the development of sophisticated data profiling and refinement engines.
+
+\subparagraph{VLM Relabeling.}
+Web-crawled datasets (e.g., LAION, DataComp) often contain captions that are uninformative, mismatched, or grammatically poor, limiting the model's ability to learn complex semantic bindings. To address this, industrial systems such as DALL-E~3 and Recap-DataComp-1B employ a ``recaptioning'' pipeline: a powerful VLM---often GPT-4V or a high-capacity open model like Qwen2.5-VL---generates dense, descriptive captions for every image. These enhanced captions provide the diffusion model with a much richer signal regarding object properties, spatial arrangements, and stylistic nuances, enabling the model to follow complex multi-attribute queries that would baffle a model trained on raw web data.
+
+\subparagraph{Multi-Stage Filtering and Curation.}
+Modern SFT pipelines, exemplified by Qwen-Image~\citep{wu2025qwen} and Z-Image~\citep{cai2025z}, typically adopt a three-phase data refinement strategy:
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+    \item \textbf{Phase 1 --- Alignment} ($>$100M samples): Large-scale filtered web data for general semantic mapping.
+    \item \textbf{Phase 2 --- Refinement} (10M--50M): VLM-relabeled data to improve instruction adherence and attribute binding.
+    \item \textbf{Phase 3 --- Specialization} (100K--1M): Expert-curated data targeting high-value capabilities, including professional typography (bilingual text rendering), identity preservation (same person across poses/outfits), and geometric reasoning (perspective, vanishing points, structural coherence).
+\end{itemize}
+The drastic reduction in volume from Phase~1 to Phase~3 reflects a key insight: \emph{a small amount of expert-quality data in the final stage has disproportionate impact} on the capabilities that users notice most. For instruction-based editing tasks, a similar data-centric principle applies: InstructPix2Pix~\citep{brooks2023instructpix2pix} bootstrapped editing capability from 450K synthetically generated triplets, while SEED-Data-Edit~\citep{ge2024seed} demonstrated that incorporating 52K expert-edited real photographs and 21K multi-turn sequences substantially improves identity preservation and sequential editing consistency (see \Cref{sec:applications} for a detailed discussion of editing methods).
+
+\paragraph{Architecture-Specific Recipes.}
+
+The choice of underlying architecture profoundly influences SFT methodology. While diffusion-based models remain the dominant paradigm, alternatives are emerging as strong contenders for specific tasks:
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+    \item \textbf{MMDiT (Qwen-Image):} A 20B-parameter Multi-Modal Diffusion Transformer with dual encoding---separate semantic (VLM) and reconstructive (VAE) paths---enabling a balance between visual fidelity preservation and semantic edit execution during SFT.
+    \item \textbf{S3-DiT (Z-Image):} A 6B-parameter Scalable Single-Stream DiT that concatenates text, semantic, and image VAE tokens into a unified sequence. Its broader pipeline pairs SFT with a separate Decoupled-DMD distillation stage that produces the 8-step Z-Image-Turbo variant (see \Cref{subsec:distillation}).
+    \item \textbf{Native Multimodal MoE (HunyuanImage~3.0~\citep{cao2025hunyuanimage}):} A scale-first alternative that unifies language modeling, image understanding, and image generation within a sparse MoE backbone. Its training pipeline combines progressive pre-training with multimodal reasoning traces, illustrating that SFT is no longer only about prompt following but also about preserving cross-modal competence under a shared parameter budget.
+    \item \textbf{Compact Bilingual DiT (LongCat-Image~\citep{team2025longcat}):} A 6B-class design that prioritizes Chinese--English rendering, photorealism, and full-stack practicality. The key lesson here is that a compact model paired with strong staged curation and later DPO can remain competitive without resorting to extreme parameter counts.
+    \item \textbf{Editing-First Diffusion Transformer (FireRed-Image-Edit-1.0~\citep{team2026firered}):} Instead of adapting a generic text-to-image backbone after the fact, FireRed treats editing as the primary objective. Its training corpus is aggressively filtered from a much larger pool into balanced generation/editing data, and later post-training is tailored to instruction following, identity preservation, and multi-condition editing fidelity.
+    \item \textbf{Spatial-Intelligence-First Unified Stack (JoyAI-Image~\citep{jdjoyaiimage}):} A unified framework that combines a spatially enhanced Qwen3-VL-8B-Instruct interface, Wan-2.1-VAE, and a 16B MMDiT. Its progressive recipe---first strengthening multimodal spatial understanding, then training high-fidelity generation with MLLM-derived priors, and finally optimizing precise instruction-based editing---shows how SFT can be used to explicitly propagate understanding-side gains into generation and editing.
+    \item \textbf{Masked Generative Transformers:} Models like EditMGT shift toward localized decoding---predicting masked tokens rather than performing full diffusion denoising---which inherently preserves non-relevant regions during editing, enabling faster SFT convergence on localized edit datasets.
+    \item \textbf{Reasoning- and Agent-Trajectory Models:} The most recent innovation supervises not only prompt-to-image pairs but also intermediate reasoning and action traces. ReasonGen-R1~\citep{zhang2025reasongen} uses rationale-annotated SFT data for deliberate image generation. GEMS~\citep{he2026gems} adds planner/decomposer/verifier/refiner trajectories together with memory and skill selection, while Gen-Searcher~\citep{feng2026gen} trains on search-intensive traces that teach the model when and how to retrieve external knowledge before rendering. In editing, JarvisArt~\citep{lin2025jarvisart} pairs CoT annotations with executable Lightroom operation records, showing that SFT can teach an agent not just what image to output, but how to plan and act inside a closed loop. Collectively, these recipes push training toward L4 (Agentic Generation) by supervising planning, retrieval, verification, and tool use as first-class targets.
+\end{itemize}
+
+Taken together, these examples show that SFT is increasingly architecture-dependent. The question is no longer simply how to fine-tune a generic generator, but what kind of generator one is fine-tuning in the first place: a dense DiT, a single-stream compact model, a sparse MoE, an editing-first system, or a reasoning-augmented autoregressive hybrid. Different backbones expose different bottlenecks, and consequently require different SFT recipes.
+
+\paragraph{Limits of SFT.}
+
+Despite the significant advancements described above, SFT alone is insufficient to reach the peak of human preference. As models undergo intensive SFT, they eventually reach a performance plateau where adding more labeled data fails to meaningfully improve visual quality or instruction adherence. Furthermore, SFT acts primarily as an ``imitator'' of the training distribution: it lacks the capacity to optimize for global, subjective objectives such as aesthetic appeal, emotional resonance, or the subtle quality trade-offs that distinguish ``good'' from ``excellent'' images. Two images may both follow the instruction correctly but differ in spatial coherence, lighting plausibility, or stylistic preference---distinctions that supervised labels cannot capture. This limitation motivates the transition from supervised learning to the preference-based optimization techniques discussed in the next subsection.
+
+
+\subsubsection{Reinforcement Learning}
+\label{subsubsec:pref_alignment}
+
+Beyond supervised imitation, the central question in diffusion alignment is not simply whether one should add an external reward, but how supervision should enter a generation process unfolded over many denoising steps. Should alignment optimize a terminal image-level score, backpropagate reward gradients through the denoising chain, or learn directly from pairwise preferences? Over the last two years, the field has progressively sharpened this question from generic reward maximization to process-aware credit assignment. \Cref{tab:posttrain_summary} summarizes the main paradigms discussed below.
+
+This issue is especially pronounced for \emph{unified understanding-and-generation models}. Once a model shares parameters across multimodal understanding and image synthesis, post-training must do more than improve aesthetics: it must rebalance instruction following, reasoning, and rendering quality under a shared parameter budget. HermesFlow~\citep{yang2025hermesflow}, UAE~\citep{yan2025uae}, MMaDA~\citep{yang2025mmada}, X-Omni~\citep{geng2025xomni}, and the instruction-following stage of BLIP3o-NEXT~\citep{chen2025blip3onext} all exemplify this shift from \emph{generative quality alignment} to \emph{capability balancing} in multimodal generators.
+
+\begin{table*}[t]
+\centering
+\caption{\textbf{Post-training alignment paradigms for visual generation.} The field has evolved from terminal-reward RL to direct preference optimization and finer-grained credit assignment, while reward models provide the supervisory interface consumed by these optimization schemes.}
+\label{tab:posttrain_summary}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.16}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.2cm}>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Alignment paradigm} & \textbf{Representative works} & \textbf{Core mechanism} \\
+\midrule
+Policy-gradient RL & DDPO, DPOK & Treats reverse denoising as an MDP and optimizes terminal reward with policy updates under distribution constraints \\
+Reward Backpropagation & AlignProp & Backpropagates reward gradients through the denoising trajectory, reducing policy-gradient variance but increasing memory cost \\
+Direct Preference Optimization & Diffusion-DPO, VideoDPO & Learns directly from preferred-versus-rejected outputs instead of first fitting an explicit reward model \\
+Group-Relative Preference Optimization & Flow-GRPO, UniGRPO, Gen-Searcher & Uses online group sampling and relative advantages to optimize preference-aligned outputs through exploration \\
+Dense Reward / Credit Assignment & Dense Reward View & Distributes supervisory signal across denoising steps instead of treating the full trajectory as a black-box terminal outcome \\
+Reward Modeling & HPSv3, MPS, VisionReward, VIEScore, EditReward & Supplies discriminative, generative, or task-specific supervisory signals for both generation and editing \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\paragraph{Common Formulation.}
+We refer readers to \Cref{sec:model_arch} for the mathematical formulations of diffusion and flow matching objectives. For post-training, the key abstraction is to view the reverse denoising process as a Markov Decision Process (MDP) $(\mathcal{S}, \mathcal{A}, P, R)$: the state $\vs_t$ includes the current noisy image $\vx_t$ and the conditioning prompt $\vc$, the action $\va_t$ is one denoising step, and the supervisory signal is often observed only after the final image $\vx_0$ is produced. A generic alignment objective can therefore be written as
+\begin{equation}
+    \max_{\pi_\theta} \mathbb{E}_{\vx \sim \pi_\theta} [r(\vc, \vx)] - \beta \mathbb{D}_{\text{KL}}(\pi_\theta || \pi_{\text{ref}}).
+\end{equation}
+This formulation makes the central bottleneck explicit: the supervision is usually terminal, but responsibility for image quality is distributed across a long denoising chain. The remaining question is therefore not only how to optimize the objective, but how to assign credit along the trajectory.
+
+\paragraph{RL-Based Alignment: DDPO, DPOK, and AlignProp.}
+DDPO~\citep{black2023training} was the first method to systematically cast reverse diffusion as a sequential decision problem and optimize the final reward directly, opening a post-training route for diffusion models analogous to RLHF in language models. Its main contribution is conceptual: once denoising is treated as a policy, any computable target---aesthetics, prompt alignment, compressibility, or task-specific utility---can in principle become a reward. However, DDPO also inherits the classical weaknesses of policy-gradient RL: expensive online sampling, high-variance updates, and coarse terminal supervision over a long chain of denoising steps.
+
+DPOK~\citep{fan2023dpok} retains this RL framing but focuses on making text-to-image fine-tuning more stable. Its key lesson is that alignment should be viewed as a constrained distribution shift rather than brute-force reward maximization: KL regularization and careful online updates are needed to raise the target reward without destroying base-model quality or diversity. AlignProp~\citep{prabhudesai2023alignprop} explores the opposite repair. Instead of tolerating noisy policy gradients, it backpropagates reward gradients directly through the denoising trajectory, making use of diffusion's differentiable structure. This substantially reduces variance but increases memory and implementation cost; the original arXiv manuscript was later withdrawn after the authors noted that its content had been absorbed by subsequent work. Together, these methods define the first phase of diffusion alignment: once reverse diffusion is recognized as a long-horizon process, the main challenge becomes how to inject external supervision into that process stably.
+
+\paragraph{Preference Optimization: Diffusion-DPO and GRPO.}
+A second phase shifts the problem from \emph{how to maximize a scalar reward} to \emph{how to learn from relative preferences}. This transition is especially natural in image generation, where human judgments are often more reliable as pairwise comparisons than as absolute scores. Diffusion-DPO~\citep{wallace2024diffusion} adapts direct preference optimization to diffusion models by replacing explicit reward maximization with a preference loss over winner-loser pairs $\mathcal{D} = \{(\vc, \vx_w, \vx_l)\}$:
+\begin{equation}
+    \mathcal{L}_{\text{DPO}} = - \mathbb{E}_{(\vx_w, \vx_l) \sim \mathcal{D}} \left[ \log \sigma \left( \beta \log \frac{\pi_\theta(\vx_w)}{\pi_{\text{ref}}(\vx_w)} - \beta \log \frac{\pi_\theta(\vx_l)}{\pi_{\text{ref}}(\vx_l)} \right) \right].
+\end{equation}
+The conceptual shift is important: alignment no longer depends on first fitting a separate reward model, but instead updates the generator directly to increase the relative likelihood of preferred outputs. Recent variants such as \textit{VideoDPO}~\citep{liu2025videodpo} extend this logic from single images to trajectory-level preferences. In unified settings, DPO-style post-training is increasingly used to rebalance understanding and generation rather than merely boost aesthetics. HermesFlow~\citep{yang2025hermesflow}, for instance, introduces Pair-DPO with homologous preference pairs plus self-play iterative optimization so that a shared model can improve both tasks together.
+
+GRPO should be understood as the online counterpart of this preference-based view rather than as a disconnected topic. Instead of optimizing fixed offline pairs, it samples a group of $G$ outputs $\{\vx_0^i\}_{i=1}^G$ for the same prompt $\vc$ and computes a relative advantage within the group:
+\begin{equation}
+\hat{A}^i = \frac{R(\vx^i_0, \vc) - \mathbb{E}[R]_{\text{group}}}{\text{std}(R)_{\text{group}}}.
+\end{equation}
+The policy is then updated via a clipped objective similar to PPO but without a value function:
+\begin{equation}
+\mathcal{J}_{\text{GRPO}}(\theta) = \mathbb{E}_{\{\vx^i\}} \left[ \frac{1}{G}\sum_{i=1}^{G} \left( \min \left( r^i(\theta) \hat{A}^i, \text{clip}(r^i(\theta), 1-\epsilon, 1+\epsilon)\hat{A}^i \right) - \beta \mathbb{D}_{\text{KL}} \right) \right].
+\end{equation}
+In this sense, DPO and GRPO are best regarded as two regimes within the same preference-alignment family: DPO is \emph{offline pairwise preference optimization}, whereas GRPO is \emph{online group-relative preference optimization}. For flow-based generators, however, GRPO requires stochastic exploration even though standard Flow Matching relies on deterministic ODE sampling. Methods such as Flow-GRPO~\citep{liu2025flow} and DanceGRPO~\citep{xue2025dancegrpo} therefore convert the ODE into a stochastic SDE that preserves the marginal distribution:
+\begin{equation}
+    \mathrm{d} \vx_t = \left[\vv_\theta(\vx_t) + \frac{\sigma_t^2}{2t}\left(\vx_t + (1-t)\vv_\theta(\vx_t)\right)\right] \mathrm{d} t + \sigma_t \mathrm{d} \vw.
+\end{equation}
+This enables online exploration while retaining computational efficiency through strategies such as denoising reduction (e.g., using $T \approx 10$ steps). The same group-relative logic is now being adapted to unified multimodal generators. UAE~\citep{yan2025uae} introduces Unified-GRPO for staged encoder-decoder co-optimization; MMaDA~\citep{yang2025mmada} applies UniGRPO to a unified diffusion backbone; X-Omni~\citep{geng2025xomni} uses reinforcement learning to reduce discrete-token artifacts in autoregressive image generation; and BLIP3o-NEXT~\citep{chen2025blip3onext} refines its AR-to-diffusion cascade with GRPO-based alignment. Agentic systems make this shift even more explicit: Gen-Searcher~\citep{feng2026gen} combines SFT with agentic RL and dual text/image rewards to train a search policy, while JarvisArt~\citep{lin2025jarvisart} introduces GRPO-R for multimodal photo retouching with reasoning traces, tool selection, and executable editing actions. Collectively, these works show that GRPO is evolving from a sampler-level optimization tool into a general recipe for online preference alignment in unified generators.
+
+\paragraph{GRPO Variants in Frontier Tech Reports.}
+{The same online preference-alignment framing has produced a rich zoo of GRPO variants in frontier industrial systems within a single year, each addressing a different bottleneck of running RL on flow-matching or autoregressive image generators. \textit{MixGRPO} and \textit{SRPO}~\citep{cao2025hunyuanimage}, used in HunyuanImage~3.0, trade per-step granularity for stability when applied to MoE backbones with sparse activation. \textit{MPO}~\citep{team2025longcat}, introduced in the LongCat family, eliminates the group-synchronization bottleneck that limits training throughput when GRPO is applied at large scale. \textit{DenseGRPO}~\citep{mao2026wan} densifies credit assignment along the denoising trajectory in Wan-Image, addressing the same terminal-reward limitation discussed below. \textit{DiffusionNFT}~\citep{team2026firered,jdjoyaiimage}, used in FireRed-Image-Edit and JoyAI-Image, drops the requirement for paired preferences and allows alignment from non-paired reward signals such as scalar quality scores. \textit{Flow-GRPO}~\citep{wu2025qwen,jdjoyaiimage} adapts the GRPO update rule to flow-matching's deterministic ODE structure---used by Qwen-Image and JoyAI-Image---and \textit{ReFMA}~\citep{mao2026wan} pushes this adaptation further by integrating reward modeling into the flow-matching loss itself. \textit{LongCat-Next}~\citep{team2026longcat} argues a more philosophical point: discrete autoregressive generation is a natural finite Markov decision process, so GRPO applied to discrete tokens is structurally cleaner than GRPO applied to continuous-time flows. The proliferation of variants reflects three live research axes---process-aware credit assignment, group synchronization under sparse activation, and supervision without paired preferences---rather than a settled algorithm.}
+
+\paragraph{Credit Assignment Beyond Terminal Rewards.}
+Even after moving from scalar rewards to relative preferences, a deeper issue remains: if the entire reverse diffusion chain is treated as a black box, the supervisory signal is still attached only to the final image. \textit{A Dense Reward View on Aligning Text-to-Image Diffusion with Preference}~\citep{yang2024dense} argues that this is too coarse. Early denoising steps largely determine global semantics and layout, whereas later steps refine local details; preference supervision should therefore be distributed along the trajectory rather than applied as a uniform whole-trajectory label. This perspective reframes diffusion alignment as a process-level credit-assignment problem rather than a simple choice between RL and DPO. In that sense, the main line from DDPO to recent work is not merely ``from RL to DPO,'' but a steady move toward supervision that is more aware of the time structure of denoising.
+
+\paragraph{Reward Models as Supervisory Interfaces.}
+The optimization schemes above differ in how they use supervision, but they all depend on a supervisory interface. Discriminative reward models such as HPSv3~\citep{ma2025hpsv3}, MPS~\citep{zhang2024learning}, and VisionReward~\citep{xu2024visionreward} predict holistic or decomposed scores for aesthetics, semantic fidelity, and safety. Generative or VLM-as-a-judge approaches such as VIEScore~\citep{ku2024viescore}, UniPic 2.0~\citep{wei2025skywork}, RewardDance~\citep{wu2025rewarddance}, and OneReward~\citep{gong2025onereward} instead derive supervision from reasoning traces or token probabilities of large multimodal models. Editing introduces an additional difficulty because the scorer must verify \emph{cross-image consistency}---whether the requested region changed correctly while the rest of the image was preserved. Specialized models such as EditReward~\citep{wu2025editreward}, EditScore~\citep{luo2025editscore}, and the reward decomposition used in JarvisArt~\citep{lin2025jarvisart} therefore evaluate instruction following, preservation, and executable tool correctness jointly.
+
+Despite this progress, current reward interfaces still struggle with explicit spatial grounding. Many rely on global feature matching or final-answer judgments, which can obscure which regions and which denoising steps are responsible for success or failure. This is precisely why denser credit assignment and process-aware supervision are becoming central themes in recent diffusion alignment research.
+
+\begin{highlightbox}{Where the Field Is Splitting: RL Algorithms Are Fragmenting Fast}
+
+RL has become a non-negotiable stage of frontier post-training, but the \emph{specific} algorithm has \emph{not} converged: in a single year (2025--2026), at least seven distinct GRPO variants have appeared, each solving a different facet of the ``how to do online RL stably on a flow-matching or AR image generator'' problem. \textbf{MixGRPO} and \textbf{SRPO} (HunyuanImage~3.0) trade granularity for stability; \textbf{MPO} (LongCat) tackles the group-synchronization bottleneck that hurts MoE training; \textbf{DenseGRPO} (Wan-Image) densifies credit assignment along the denoising trajectory; \textbf{DiffusionNFT} (FireRed / JoyAI) drops the requirement for paired preferences entirely; \textbf{Flow-GRPO} (Qwen / JoyAI) and \textbf{ReFMA} (Wan) adapt the GRPO update rule to flow-matching's ODE structure. The pattern is consistent: process-aware credit assignment, group synchronization, and pairing-free supervision are the three live axes, and the lab that nails their combination first will set the next-year baseline.
+\end{highlightbox}
+
+
+
+\subsection{Inference Acceleration}
+\label{subsec:acceleration}
+
+Once model quality has been established through pre-training and post-training, inference latency becomes the main deployment bottleneck. Real-time applications such as interactive editing, agentic visual generation (\Cref{subsec:agentic_visual_generation}), and embodied simulation (\Cref{subsec:level5}) all require generation speeds that standard multi-step diffusion cannot provide. We therefore organize acceleration into three complementary directions. First, \textbf{sampling acceleration} reduces the number of denoising steps through better ODE/SDE solvers. Second, \textbf{per-step efficiency} reduces the computational cost of each denoising evaluation through pruning and feature caching. Third, \textbf{distillation} learns new student generators that collapse many steps into a few learned shortcuts. \Cref{tab:acceleration_summary} provides an overview.
+
+This deployment-first focus is visible across recent industrial systems. Seedream~3.0~\citep{gao2025seedream} explicitly co-designs training and acceleration, coupling a stronger base model with faster inference schemes. LongCat-Image-Edit-Turbo~\citep{team2025longcat} pushes the open-source editing stack toward 8-step generation with roughly one order of magnitude speedup over its base editor. FireRed-Image-Edit~\citep{team2026firered} similarly emphasizes optimized inference and editing efficiency as first-class product constraints rather than downstream engineering details. JoyAI-Image~\citep{jdjoyaiimage}, while less centered on a standalone turbo variant, highlights a different deployment constraint: if spatial intelligence is a core product target, acceleration cannot be optimized independently from the understanding backbone that generates the conditioning signal. The broader message is that acceleration is no longer a secondary optimization layer; it is part of the model design target itself.
+
+\begin{table*}[t]
+\centering
+\caption{\textbf{Overview of sampling acceleration and efficiency techniques.} The first four rows address the NFE reduction problem (how many steps are needed); the bottom two rows address per-step cost reduction (how expensive each step is). Both are critical for deployment.}
+\label{tab:acceleration_summary}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}l l >{\raggedright\arraybackslash}p{7.3cm}@{}}
+\toprule
+\textbf{Strategy} & \textbf{Representative Approaches} & \textbf{Key Insight} \\
+\midrule
+ODE/SDE Solvers & DDIM, DPM-Solver, DPM-Solver++, Restart & Reduces NFEs via specialized numerical integrators that exploit trajectory structure \\
+Trajectory Distillation & Progressive Distill., Shortcut Models & Learns to collapse many steps into few by matching the teacher's ODE trajectory \\
+Consistency Models & CM, sCM, rCM & Maps any point on the trajectory directly to clean data via self-consistency constraint \\
+Distribution Matching & DMD/DMD2, ADD, SiD & Aligns student and teacher distributions via adversarial or variational objectives; on-policy exploration \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{Orthogonal efficiency techniques (see \S\ref{subsec:efficiency}):}} \\
+Pruning \& Compression & Diff-Pruning, LD-Pruner, LayerMerge & Removes structural redundancy using diffusion-aware importance metrics \\
+Inference Caching & DeepCache, ToCa, TaylorSeer, TAP & Bypasses redundant compute by reusing or predicting temporal features \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+\subsubsection{Sampling Acceleration}
+\label{subsec:sampling}
+
+\paragraph{Diffusion Dynamics.}
+Diffusion generative models operate by inverting a progressive noising process. In the discrete setting this forward chain is typically written as:
+\begin{equation}
+\label{eq:forward_process}
+q(\mathbf{x}_{1:T}\mid\mathbf{x}_0)=\prod_{t=1}^T q(\mathbf{x}_t\mid\mathbf{x}_{t-1}),\qquad
+q(\mathbf{x}_t\mid\mathbf{x}_{t-1})=\mathcal{N}\!\big(\mathbf{x}_t;\sqrt{\alpha_t}\mathbf{x}_{t-1},(1-\alpha_t)\mathbf{I}\big),
+\end{equation}
+and generation requires applying a learned denoiser $\epsilon_\theta(\mathbf{x},t)$ repeatedly. Viewing diffusion in continuous time leads to two related formulations that underpin most fast-sampling work: the score-driven stochastic differential equation (SDE):
+\begin{equation}
+\mathrm{d}\mathbf{x}=f(\mathbf{x},t)\,\mathrm{d}t + g(t)\,\mathrm{d}\mathbf{w}_t,
+\end{equation}
+and its deterministic probability-flow ODE \citep{songDDIM}:
+\begin{equation}
+\frac{\mathrm{d}\mathbf{x}}{\mathrm{d}t}=f(\mathbf{x},t)-\tfrac{1}{2}g(t)^2\,\nabla_{\mathbf{x}}\log p_t(\mathbf{x}).
+\label{eq:probflow}
+\end{equation}
+
+\paragraph{Numerical Solvers and Distillation.}
+Fast-sampling research reduces the number of function evaluations (NFEs) required to traverse these dynamics while preserving sample fidelity. One family of approaches designs specialized numerical integrators that exploit structure in (\ref{eq:probflow}): DDIM recasts discrete sampling as an ODE-like deterministic procedure \citep{songDDIM}, and later integrators (DPM-Solver and follow-ups) analytically integrate linear parts while approximating nonlinear components to achieve high-order convergence with very few steps \citep{lu2022dpm,lu2022dpm++,zheng2023dpmsolvervF,zhang2022fast}. Complementary work improves stochastic integrators (e.g., multistep Adams-style or variance-controlled SDE solvers) to reuse past evaluations and better manage injected noise \citep{xue2024sa,guo2024gaussian,xu2023restart}. Distillation-based methods (progressive distillation and successors) take a different route: they learn to ``collapse'' many denoising steps into a small number of learned super-steps, trading extra training for drastically reduced inference NFEs \citep{salimans2022progressive,meng2022on,yin2024improved}. In practice, solver improvements are attractive for being training-free and applicable to off-the-shelf models, while distillation yields very compact samplers when additional training is acceptable. Hybrid strategies (adaptive stepping, solver-aware distillation, and stochastic–deterministic schedules) seek to combine the robustness of stochastic samplers with the efficiency of tailored ODE integrators \citep{jolicoeur2021gotta,liu2022pseudo,karras2022elucidating}.
+
+\subsubsection{Per-Step Cost Reduction}
+\label{subsec:efficiency}
+
+{While \Cref{subsec:sampling} addresses \emph{how many steps} are needed, this subsection tackles the complementary question of \emph{how expensive each step is}. The two axes are orthogonal and multiplicatively compose: halving NFEs via distillation and halving per-step cost via pruning yields a $4\times$ speedup. We organize per-step acceleration into two pillars discussed below: structural pruning and compression, and inference-time feature caching.}
+
+\paragraph{Structural Pruning.}
+\label{subsubsec:pruning}
+
+\subparagraph{Diffusion-Aware Pruning.}
+Pruning and related compression methods target the per-step cost of the denoiser $\epsilon_\theta$, and hence multiply the wall-clock gains achieved by any timestep reduction. Unlike typical classification or generation models, diffusion denoisers must operate across many noise levels, so pruning criteria that are \emph{diffusion-aware} perform better: for example, Diff-Pruning estimates parameter importance by Taylor expansions aggregated over timesteps to account for temporal contributions to the diffusion loss \citep{fang2023structural}. For latent diffusion architectures, evaluating the effect of removing operators in the model's latent manifold (LD-Pruner) yields pruning decisions that better preserve perceptual quality \citep{castells2024ld}.
+
+\subparagraph{Structured Compression.}
+Practical structured strategies remove channels, blocks, or entire layers to produce hardware-efficient kernels, while algorithmic formulations such as TinyFusion, LayerMerge and LAPTOPDiff cast layer selection as a constrained optimization or one-shot additive pruning problem to meet latency, FLOP budgets with predictable impact \citep{fang2025tinyfusion, kim2024layermerge,zhang2024laptop}. Pruning is frequently combined with orthogonal techniques, e.g., post-training quantization, low-rank factorization, token and attention reduction, to further reduce memory and compute~\citep{10377259,shang2023post,kim2025ditto,bolya2023tomesd,kim2024tofu,yuan2024ditfastattn}. Important open challenges include timestep-conditional sparsity (parameters that are active only at certain noise levels), understanding how pruning perturbations affect solver stability at low NFEs, and jointly optimizing pruning and sampler schedules so that per-step compression and step reduction are co-designed rather than applied independently.
+
+\paragraph{Feature Caching.}
+\label{subsubsec:caching}
+
+\subparagraph{Spatial-Temporal Redundancy.}
+Feature caching at inference leverages temporal redundancy in the denoising sequence to avoid re-computing stable intermediate activations. Let \(\mathbf{x}_t\) denote the latent at diffusion timestep \(t\) and write a typical denoiser as a composition
+\begin{equation}
+\epsilon_{\theta}(\mathbf{x}_t,t) \;=\; \Psi_\theta\big(\Phi(\mathbf{x}_t,t)\big),
+\label{eq:denoiser-decomp}
+\end{equation}
+where \(\Phi(\cdot,t)\) extracts expensive intermediate features (e.g. transformer token embeddings or convolutional feature maps) and \(\Psi_\theta(\cdot)\) denotes the remaining, relatively cheaper head that maps features to the noise prediction. Caching-based acceleration targets \(\Phi\): if \(\Phi(\mathbf{x}_t,t)\) varies slowly across adjacent timesteps, one can reuse previously computed features \(\Phi(\mathbf{x}_{t-\Delta},t-\Delta)\) to form a surrogate \(\tilde{\Phi}(\mathbf{x}_t,t)\) and compute
+\[
+\tilde{\epsilon}_\theta(\mathbf{x}_t,t) \;=\; \Psi_\theta\big(\tilde{\Phi}(\mathbf{x}_t,t)\big),
+\]
+thereby saving the cost of re-evaluating \(\Phi\). Early reuse-based systems detect and exploit spatial–temporal redundancy: DeepCache and related designs cache convolutional feature maps and reuse them when visual content changes little between timesteps \citep{ma2024deepcache}. 
+However, DeepCache uses a hand-crafted cache scheduling strategy to control the intervals between consecutive full computation steps, which is often suboptimal. 
+DiP-GO and L2C learn layer-wise caching patterns in a differentiable manner, using lightweight predictors to determine which layers can be skipped \citep{zhu2024dip, ma2024learning}. Token-level caching methods (e.g., ToCa and DiTFastAttn) refine caching methods by operating at finer granularity, caching per-token activations and selectively recomputing only those tokens whose features exceed a change threshold \citep{chen2024delta-dit,liu2024timestep,zou2024accelerating, yuan2024ditfastattn}. 
+Formally, with a binary reuse mask \(m_{i,t}\in\{0,1\}\) for token (or spatial location) \(i\),
+\begin{equation}
+\tilde{\Phi}_i(\mathbf{x}_t,t) \;=\; m_{i,t}\,\Phi_i(\mathbf{x}_{t-\Delta},t-\Delta)\;+\;(1-m_{i,t})\,\Phi_i(\mathbf{x}_t,t),
+\end{equation}
+and only indices with \(m_{i,t}=0\) incur the full \(\Phi\)-compute.
+However, they use a fixed sparsity rate per layer. DiffSparse further improves on this by learning per-layer per-step sparsity patterns differentiably \citep{zhu2026diffsparse}.
+
+\subparagraph{Feature Forecasting.}
+Forecasting-based methods aim to go beyond retrieval: instead of directly reusing cached features, they predict the feature at a future timestep. TaylorSeer proposes a Taylor-like expansion to predict features in (continuous) time:
+\begin{equation}
+\Phi(\mathbf{x}_{t+\Delta},t+\Delta) \approx \Phi(\mathbf{x}_t,t) + \Delta\,\partial_t\Phi(\mathbf{x}_t,t) + \tfrac{1}{2}\Delta^2\partial_t^2\Phi(\mathbf{x}_t,t) + \mathcal{O}(\Delta^3).
+\label{eq:taylor}
+\end{equation}
+TaylorSeer estimates time-derivatives of features and uses low-order expansions for multi-step prediction.
+FreqCa decomposes features into low- and high-frequency components and applies frequency-aware interpolation (e.g. Hermite-style interpolation) for the high-frequency part. SpeCa adopts a draft-then-verify workflow where a fast predictor proposes \(\hat{\Phi}\) and a lightweight verifier decides whether to accept or recompute \citep{liuReusingForecastingAccelerating2025,liu2025freqca,liu2025speca}. TAP employs a probe-then-predict strategy to assign the optimal predictor to each token during the sampling process \citep{zhu2026tap}.
+In general a designed predictor \(P\) maps historical features to a future estimate
+\begin{equation}
+\hat{\Phi}(\mathbf{x}_{t+\Delta},t+\Delta) \;=\; P\big(\Phi(\mathbf{x}_{t},t), \Phi(\mathbf{x}_{t-\delta},t-\delta),\dots\big),
+\label{eq:predictor}
+\end{equation}
+and the expected error is controlled by a tolerance \(\varepsilon\):
+\[
+\big\|\Phi(\mathbf{x}_{t+\Delta},t+\Delta) - \hat{\Phi}(\mathbf{x}_{t+\Delta},t+\Delta)\big\| \le \varepsilon.
+\]
+
+Reusing and forecasting methods trade computation for approximation error. Pure reuse deteriorates when the timestep gaps widen or when \(\mathbf{x}_t\) moves through regions with rapid feature dynamics. Forecasting mitigates this degradation but relies on the assumption that changes between consecutive timesteps are relatively smooth; otherwise, it can produce substantial prediction errors.
+Draft-then-verify schemes mitigate risk by only accepting predictions under a confidence threshold, but the verifier itself adds overhead and may trigger full recomputation in edge cases \citep{liu2024timestep,chen2024delta-dit}. 
+Practical systems therefore combine token-level adaptivity (to limit wasted recomputation), multi-step predictors (to bridge larger gaps), and verification with conservative acceptance criteria to balance speed and fidelity.
+
+A remaining challenge is integrating caching with aggressive timestep reduction and pruning: predictors trained on dense schedules may fail under distilled samplers or pruned denoisers, and cache-induced approximation errors can interact with solver discretization errors in nontrivial ways. 
+
+\subsubsection{Distillation for Few-Step Generation}
+\label{subsec:distillation}
+
+While the ODE/SDE solvers discussed in \Cref{subsec:sampling} reduce NFEs without additional training, distillation takes a fundamentally different approach: it \emph{trains} a student model to reproduce the teacher's output quality in dramatically fewer steps. This makes distillation the dominant strategy for achieving single-digit or even single-step generation---a capability of intense industrial interest. We elevate distillation to a standalone subsection to reflect its growing importance and the diversity of recent approaches.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{img/training/fig_distillation_paradigms.pdf}
+    \caption{\textbf{Three families of distillation for diffusion / flow-matching models.} \textbf{(a) Trajectory Matching}: student learns to follow the teacher's per-step denoising trajectory at coarser granularity (e.g., 50-step teacher $\to$ 8-step student). Used in Hyper-SD, RayFlow, Wan-Image. \textbf{(b) Consistency}: any-step prediction maps directly to the same clean output, enforced by a self-consistency loss. Used in CM, sCM, rCM, LCM. \textbf{(c) Distribution Matching}: student's output distribution matches the teacher's via a fake/real score adversarial loop. Used in DMD, DMD2, ADD, MeanFlow.}
+    \label{fig:distillation_paradigms}
+\end{figure}
+
+\paragraph{Objective Formulation.}
+Diffusion models generate samples through iterative denoising, which poses computational challenges for real-time applications.
+Distillation accelerates diffusion or flow image generation by \emph{learning a student sampling pipeline} whose behavior matches that of a teacher under substantially lower inference cost.
+Let $f_{\theta}$ denote the teacher pipeline parameterized by pretrained weights $\theta$ and typically frozen during distillation, which maps a randomized noise latent $\mathbf{z}$ and condition $c$ to an image sample, and let $f_{\phi}$ be the student counterpart.
+A generic distillation objective minimizes a discrepancy between teacher and student behaviors,
+\begin{equation}
+\min_{\phi}\;\mathbb{E}_{\mathbf{z},c}\Big[d\big(f_{\phi}(\mathbf{z},c),\,f_{\theta}(\mathbf{z},c)\big)\Big],
+\label{eq:distill_generic}
+\end{equation}
+while enforcing a clear cost gap $\mathcal{C}(f_{\phi}) \ll \mathcal{C}(f_{\theta})$ at inference time.
+Here $d(\cdot,\cdot)$ may compare final samples, intermediate states, or distributions depending on the method, and $\mathcal{C}(\cdot)$ abstracts the end-to-end inference cost, including the number of neural function evaluations (NFEs), per-step compute and memory footprint, and overhead from auxiliary modules such as guidance and decoding.
+
+\paragraph{Matching Strategies.}
+Existing methods fall into three categories. \textit{Trajectory matching} approaches learn mappings along the probability flow ODE, including Progressive Distillation~\citep{salimans2022progressive}, flow maps parameterized by average velocity~\citep{geng2025mean}, and Shortcut Models~\citep{frans2024one}. \textit{Consistency models}~\citep{song2023consistency} map any point on the trajectory directly to clean data through the self-consistency constraint $f_\theta(x_t, t) = f_\theta(x_{t'}, t')$. The continuous-time extension sCM~\citep{lu2024simplifying} uses a tractable objective with Jacobian-vector products, while rCM~\citep{zheng2025rcm} incorporates score distillation as regularization to improve quality at scale. \textit{Distribution matching} methods align student and teacher distributions through adversarial training~\citep{sauer2024adversarial} or variational score distillation~\citep{yin2024one,yin2024improved}. For video generation, TMD~\citep{nie2026tmd} introduces a decoupled architecture with a main backbone and flow head to enable efficient few-step sampling. Key challenges include scaling JVP computation to 10B+ parameter models~\citep{zheng2025rcm}, error accumulation in consistency-based methods, and balancing quality with diversity in distribution matching approaches.
+
+\paragraph{Frontier System Recipes.}
+{Industrial systems realize the three matching strategies above through specific recipes that reflect their broader architectural choices. Seedream~3.0~\citep{gao2025seedream} adopts a trajectory-distillation route based on Hyper-SD and RayFlow, achieving a $4$--$8\times$ speedup over the multi-step teacher; Seedream~4.0~\citep{seedream2025seedream} compounds this with adversarial distillation post-training (ADP and ADM) plus 4/8-bit hybrid quantization and speculative decoding for a $>10\times$ FLOP reduction at 2K output. Z-Image's Decoupled DMD~\citep{cai2025z} sits in the distribution-matching family and produces the 8-step Z-Image-Turbo variant; the same paper's DMDR extension folds reinforcement learning directly into the distillation objective rather than treating alignment and acceleration as separate stages. HunyuanImage~3.0~\citep{cao2025hunyuanimage} uses MeanFlow distillation to bring its 80B MoE backbone down to 4--8 NFE, illustrating that distribution-style distillation extends to sparse architectures. Wan-Image~\citep{mao2026wan} combines trajectory-style and DMD-style objectives in a hybrid that achieves more than $8\times$ acceleration. The common thread is that distillation has become a co-trained primary objective rather than a post-hoc compression step: flow-matching is partly preferred over legacy diffusion because its rectified-flow ODE distills more cleanly into few-step students.}
+
+\begin{highlightbox}{Convergence Snapshot: Distillation Has Become Mandatory, Not Optional}
+
+For any production-grade visual generation system, distillation is no longer an optional acceleration afterthought---it is a \emph{required} stage of the training pipeline. Sub-second 2K generation has become the 2025--2026 deployment target reported by leading commercial systems, and \emph{six of the ten frontier tech reports surveyed} document an explicit distillation phase with detailed recipes: trajectory-style \textbf{Hyper-SD / RayFlow} (Seedream~3.0~\citep{gao2025seedream}, $4$--$8\times$); compound \textbf{ADP + ADM + quantization} (Seedream~4.0~\citep{seedream2025seedream}, $>10\times$); decoupled-DMD (Z-Image's~\citep{cai2025z} 8-step Turbo); MeanFlow (HunyuanImage~3.0~\citep{cao2025hunyuanimage}, NFE 4--8); trajectory + DMD hybrid (Wan-Image~\citep{mao2026wan}, $>8\times$); and the LongCat-Image~\citep{team2025longcat} pipeline. The remaining four reports either ship distilled checkpoints without disclosing the recipe or report acceleration in less detail, but none avoids it. The conceptual shift is just as important as the engineering one: distillation is no longer a post-hoc compression of a frozen teacher, it is a \emph{co-trained primary objective} that shapes architecture choices upstream (e.g., flow-matching is preferred partly because rectified-flow ODEs distill more cleanly). Researchers who treat distillation as ``something the deployment team handles later'' are now training models that the deployment team cannot ship.
+\end{highlightbox}

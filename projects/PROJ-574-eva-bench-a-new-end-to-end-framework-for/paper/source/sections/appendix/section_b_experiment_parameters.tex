@@ -1,0 +1,53 @@
+\newpage
+%% ============================================================
+\clearpage
+\section{Experiment Parameters}
+\label{app:models-configuration}
+
+Below are the turn detection and model configurations for all evaluated and judge models; the user simulator is detailed separately in Appendix \ref{app:user-sim}.
+
+\subsection{Self-Hosted Models}
+\label{appendix:self-hosted}
+
+All self-hosted models were served on NVIDIA H100 GPUs. Models served via vLLM used \texttt{vllm-openai v0.19.0}. Table~\ref{tab:self-hosted-models} lists the hardware and serving configurations.
+
+\textbf{\gemmaAfull} and \textbf{\gemmaBfull} were called with \texttt{temperature=1.0}, \texttt{top\_p=0.95}, \texttt{top\_k=64}, and \texttt{max\_tokens=12000}. Thinking mode was disabled via \texttt{enable\_thinking=false} and special tokens were preserved (\texttt{skip\_special\_tokens=false}).
+
+\textbf{\qwenfull} was called with \texttt{temperature=1.0}, \texttt{top\_p=0.95}, \texttt{top\_k=20}, \texttt{min\_p=0.0}, \texttt{presence\_penalty=1.5}, and \texttt{repetition\_penalty=1.0}. Thinking mode was likewise disabled via \texttt{enable\_thinking=false}.
+
+\input{tables/08_appendix/b_experiment_parameters/01_model_config}
+
+\subsection{API-Hosted Models}
+\label{appendix:api-models}
+
+For ElevenLabs, we used ElevenAgents with the following models: \scribefull, \geminiflashfull, and \conversationalfull. We used the default agent parameters, listed in Table~\ref{tab:elevenlabs-params}.
+
+\input{tables/08_appendix/b_experiment_parameters/02_el_params}
+
+Table~\ref{tab:api-models} lists all the other API-hosted models.
+
+\subsection{Turn Detection Configurations}
+
+We use the default turn detection configurations for each framework in our experiments. Each framework offers varying levels of configurability, making it difficult to standardize exact parameters and turn strategies across evaluations.
+
+\textbf{Pipecat.} The default start strategy uses VAD (voice activity detection) or transcription receipt to determine when the user begins speaking, and the stop strategy uses AI-powered turn detection via \texttt{LocalSmartTurnAnalyzerV3} to determine when the user finishes speaking.\footnote{\url{https://docs.pipecat.ai/api-reference/server/utilities/turn-management/user-turn-strategies\#base-parameters-2}}
+
+\textbf{OpenAI Realtime.} We use the default server VAD, which uses periods of silence to detect turn boundaries. Default values are used for \texttt{threshold}, \texttt{prefix\_padding\_ms}, and \texttt{silence\_duration}.\footnote{\url{https://developers.openai.com/api/docs/guides/realtime-vad}}
+
+\textbf{ElevenAgents.} The turn ``eagerness'' parameter is left at its default setting (\texttt{normal}).\footnote{\url{https://elevenlabs.io/docs/eleven-agents/customization/conversation-flow\#turn-eagerness}}
+
+\textbf{Gemini Live.} We use the default automatic VAD provided.\footnote{\url{https://docs.cloud.google.com/vertex-ai/generative-ai/docs/model-reference/multimodal-live}}
+
+\framework{} makes turn detection parameters and options configurable via the CLI, so practitioners can run experiments using the turn detection settings available to their chosen framework. The only exception is ElevenAgents, where users must register and configure their agents separately prior to evaluation.
+
+\input{tables/08_appendix/b_experiment_parameters/03_api_hosted_model_config}
+
+\subsection{Experiments Compute Resources}
+\label{app:compute-resources}
+
+Running \framework~experiments involves costs across three distinct components of the pipeline. First, the \textbf{user simulator} is powered by ElevenLabs' ElevenAgents (Appendix \ref{app:user-sim}), a fully hosted conversational AI system, incurring costs per interaction across all simulated dialogue turns.
+Second, the \textbf{agent under evaluation} introduces inference costs whenever the model is proprietary. Closed-source models are billed per token for LLM inference, and per second of audio for STT and per character for TTS when the agent operates as a full voice pipeline. Note that a conversation will on average last 4 to 5 minutes.
+Third, the \textbf{LLM-as-judge} component adds a separate layer of inference cost, as 8 of the evaluated metrics rely on model-based scoring computed per sample.
+We evaluated 213 scenarios over 5 trials on clean data and 90 scenarios over 3 trials per perturbation across 3 perturbation types, yielding $213 \times 5 + 90 \times 3 \times 3 = 1{,}875$ evaluation samples per model. Costs are further compounded by re-runs triggered when a simulation fails validation gates. Across four representative systems evaluated on all domains, $24.1\%$ of trials required regeneration (roughly half due to simulator error, the other half due to infrastructure failures or timeouts), effectively inflating the true number of simulations and judge calls to approximately $1{,}875 \times 1.241 \approx 2{,}327$ per system evaluated, on average.
+
+Researchers should therefore treat full \framework~runs as non-trivial compute investments, particularly when benchmarking multiple proprietary models simultaneously, and plan accordingly for parallelization and cost budgeting prior to large-scale experiments.

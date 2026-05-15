@@ -1,0 +1,27 @@
+% Requires: xcolor, colortbl, booktabs, array
+\definecolor{acc1}{HTML}{edeaf4}
+\definecolor{acc2}{HTML}{d9d2e6}
+\definecolor{acc3}{HTML}{bfb3d4}
+\definecolor{acc4}{HTML}{9d8dbb}
+\definecolor{acc5}{HTML}{7a679f}
+\definecolor{acc6}{HTML}{584981}
+%%%% Starting from Table 20 %%%%%%%%%
+
+\definecolor{acc7}{HTML}{3b3060}
+
+\begin{table}[h]
+\centering\small
+\captionsetup{font=small}
+\caption{Joint distribution of task completion and faithfulness across 12,780 clean trials from all evaluated systems. Cells show \% of total; shading scales with cell count (darker~=~more trials).}
+\begin{tabular}{l@{\hskip 8pt}>{\centering\arraybackslash}p{2.4cm}@{\hskip 8pt}>{\centering\arraybackslash}p{2.4cm}@{\hskip 8pt}>{\centering\arraybackslash}p{1.6cm}}
+\toprule
+ & \textbf{faithfulness = 1.0} & \textbf{faithfulness $<$ 1.0} & \textbf{Row total} \\
+\midrule
+\textbf{task\_completion = 0} & \cellcolor{acc2}\textcolor{black}{9.5\%} & \cellcolor{acc7}\textcolor{white}{38.3\%} & 47.9\% \\
+\textbf{task\_completion = 1} & \cellcolor{acc3}\textcolor{black}{14.5\%} & \cellcolor{acc7}\textcolor{white}{37.6\%} & 52.1\% \\
+\midrule
+\textbf{Column Total} & 24.0\% & 76.0\% & 12,780 \\
+\bottomrule
+\end{tabular}
+\label{tab:faithfulness-task-confusion}
+\end{table}

@@ -1,0 +1,21 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "neurips_2026.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "neurips2026.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "overrides.bib"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

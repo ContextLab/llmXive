@@ -1,0 +1,105 @@
+\section{Co-Evolving Policy Distillation}
+\label{sec:method}
+\begin{figure*}[t]
+  \centerline{\includegraphics[scale=0.36]{figs/copd-method.pdf}}
+  \vspace{-0.1cm}
+  \caption{An overview of our \method method.}
+  \vspace{-0.3cm}
+  \label{fig:method}
+\end{figure*} 
+We propose \textbf{\fullmethod (\method)}, a framework that supports multiple expert branches to co-evolve, enabling each branch to explore its own capability through RLVR and to absorb knowledge from the others through mutual on-policy distillation at appropriate intervals. We illustrate the framework with two branches. Given a base model $\pi_0$, \method initializes two parallel learning branches, $\pi_{\theta_j}$ and $\pi_{\theta_k}$, with $\theta_j^{(0)} = \theta_k^{(0)} = \theta_0$, associated with capability datasets $\mathcal{D}_j$ and $\mathcal{D}_k$, respectively. Training alternates between two phases. In the \textit{branch-specific RLVR} phase, each branch performs reinforcement learning on its own capability data, deepening branch-specific expertise. In the \textit{mutual OPD} phase, each branch generates on-policy rollouts and receives token-level supervision from the other branch, transferring newly acquired knowledge across capabilities. Through this alternating process, the branches maintain sufficient knowledge divergence to supply each other with informative supervision, while their behavioral distance remains close enough for that supervision to be effectively absorbed.
+% Through this alternating process, capability specialization and capability consolidation are no longer treated as two separate stages, but are coupled within a unified training procedure.
+
+
+
+
+\subsection{Branch-Specific RLVR}
+\label{sec:rlvr}
+During the RLVR phase, each branch $k$ independently performs GRPO on the data corresponding to capability $k$ in order to deepen branch-specific expertise. For a prompt $x \sim \mathcal{D}_k$, branch $k$ samples a group of rollouts $\{y_i^{(k)}\}_{i=1}^{G}$ from its current policy $\pi_{\theta_k}$, which are evaluated by the capability-specific verifiable reward function $r_k$. The RLVR objective for branch $k$ is defined as
+\begin{equation}
+\label{eq:rlvr}
+\mathcal{L}_{\mathrm{RLVR}}^{(k)}(\theta_k)
+=
+\mathbb{E}_{x \sim \mathcal{D}_k}
+\left[
+\frac{1}{G}\sum_{i=1}^{G}\frac{1}{|y_i|}
+\sum_{t=1}^{|y_i|}
+\min\!\left(
+\rho_{i,t}^{(k)} \hat{A}_i^{\mathrm{RL}},
+\;
+\mathrm{clip}\!\left(\rho_{i,t}^{(k)}, 1-\epsilon, 1+\epsilon\right)\hat{A}_i^{\mathrm{RL}}
+\right)
+\right],
+\end{equation}
+where $\hat{A}_i^{\mathrm{RL}}$ and $\rho_{i,t}^{(k)}$ follow the standard GRPO formulation. 
+This phase gradually drives the two branches toward differentiated capability frontiers, opening up a knowledge gap between them that the subsequent mutual distillation can exploit for cross-capability transfer.
+
+\subsection{Mutual OPD}
+\label{sec:opd}
+In the mutual distillation phase, each branch generates on-policy rollouts on the other branch's data and receives token-level supervision from that branch, transferring newly acquired capability-specific knowledge across branches. Because both branches start from the same base and are periodically aligned through distillation, their policies remain behaviorally close throughout training, so the supervision falls on states each branch is familiar with and can be effectively absorbed.
+
+
+Concretely, branch $k$ samples prompts from the other branch's dataset $x' \sim \mathcal{D}_j$ and generates rollouts from $\pi_{\theta_k}(\cdot \mid x')$. Branch $j$ then evaluates these rollouts at the token level. At each position $t$, the teacher signal is defined as:
+\begin{equation}
+\label{eq:delta}
+\delta_{i,t}^{(k \leftarrow j)}
+=
+\log \pi_{\theta_j}(y_{i,t}^{(k)} \mid x', y_{i,<t}^{(k)})
+-
+\log \pi_{\theta_k}(y_{i,t}^{(k)} \mid x', y_{i,<t}^{(k)}),
+\end{equation}
+and the token-level advantage for the cross-branch update is $\hat{A}_{i,t}^{(k)} = \beta_k \, \delta_{i,t}^{(k \leftarrow j)}$, where $\beta_k$ balancing the relative contribution of cross-branch distillation. 
+%The two batches are combined into a single parameter update for branch $k$, with $\beta_k$ balancing the relative contribution of cross-branch distillation against native GRPO. 
+Crucially, branch-specific RLVR does not pause during mutual OPD; instead, the two objectives are interleaved to update the model. 
+Since the same procedure applies symmetrically, both branches alternate between the role of teacher and student at every step, continuously exchanging newly acquired knowledge.
+
+\subsection{Alternating Training Procedure}
+
+\method organizes the two phases described above into $N$ alternating cycles. In each cycle $n = 1, \ldots, N$, all branches execute the following two phases in sequence, which we formulate as:
+
+\paragraph{Phase I: Branch-specific RLVR.}
+Each branch $k$ performs $S_{\mathrm{RL}}$ steps of GRPO on its own capability data, as described in Section~\ref{sec:rlvr}:
+\begin{equation}
+\theta_k^{(n,\mathrm{I})}
+=
+\texttt{RLVR}\!\left(\theta_k^{(n-1)};\, \mathcal{D}_k,\, r_k,\, S_{\mathrm{RL}}\right).
+\end{equation}
+
+\paragraph{Phase II: Mutual OPD.}
+Each branch $k$ then performs $S_{\mathrm{OPD}}$ steps of mutual distillation as described in Section~\ref{sec:opd}:
+\begin{equation}
+\theta_k^{(n)}
+=
+\texttt{OPD}\!\left(\theta_k^{(n,\mathrm{I})};\, \mathcal{D}_j,\, \pi_{\theta_j},\, \, S_{\mathrm{OPD}}\right).
+\end{equation}
+
+The hyperparameters $S_{\mathrm{RL}}$ and $S_{\mathrm{OPD}}$ determine the rhythm between the two phases. Larger $S_{\mathrm{RL}}$ allows branches to accumulate more differentiated capability-specific discoveries during Phase~I, providing richer signals for subsequent distillation. Larger $S_{\mathrm{OPD}}$ leads to more thorough knowledge transfer during Phase~II. Their balance determines the overall training dynamics of \method, which we analyze in the ablation experiments. Because all branches start from the same base model and remain tightly coupled through continuous mutual distillation, their parameters do not diverge drastically. We exploit this by applying simple parameter merging across branches to obtain the final unified model. Notably, even without merging, each individual branch already achieves performance comparable to domain-specific experts, as shown in our ablation study (Section~\ref{sec:analysis_exps}). The full procedure is summarized in Algorithm~\ref{alg:method}.
+
+While we have presented \method with two branches for clarity, the framework scales naturally to $K > 2$ branches. To avoid full pairwise distillation, we adopt a hub-and-spoke topology, where one branch serves as a shared hub and exchanges mutual OPD with each spoke branch. In our three-branch setting (Section~\ref{sec:main_exps}), the text reasoning branch acts as the hub, since the image and video branches are both vision-language models whose reasoning capabilities are largely grounded in the underlying LLM.
+
+\begin{algorithm}[t]
+\caption{\method: \fullmethod}
+\label{alg:method}
+\begin{algorithmic}[1]
+\Require Base model $\pi_{\theta_0}$, $K$ capability datasets $\{\mathcal{D}_k\}_{k=0}^{K-1}$, reward functions $\{r_k\}_{k=0}^{K-1}$, total cycles $N$, RLVR steps $S_{\mathrm{RL}}$, OPD steps $S_{\mathrm{OPD}}$
+\State Initialize $K$ branches: $\theta_k \gets \theta_0$ for all $k$
+\For{$n = 1, \dots, N$}
+    \State \textcolor{gray}{\textit{// Phase I: Branch-specific RLVR (all branches in parallel)}}
+    \For{branch $k = 0, \dots, K-1$ \textbf{in parallel}}
+        \State Optimize $\theta_k$ on $\mathcal{D}_k$ with GRPO (Eq.~\ref{eq:rlvr}) for $S_{\mathrm{RL}}$ steps
+    \EndFor
+    % \State Freeze teacher states: $\bar{\theta}_k \gets \theta_k$ for all $k$
+    \State \textcolor{gray}{\textit{// Phase II: Mutual OPD (all branches in parallel)}}
+    \For{branch $k = 0, \dots, K-1$ \textbf{in parallel}}
+        \For{$s = 1, \dots, S_{\mathrm{OPD}}$}
+            \State \textbf{Native:} generate rollouts on $\mathcal{D}_k$, update with GRPO using $r_k$
+            \State \textbf{Cross-branch:} for each $j \neq k$, generate rollouts on $\mathcal{D}_j$ from $\pi_{\theta_k}$; compute teacher signal $\delta^{(k \leftarrow j)}$ from $\pi_{{\theta}_j}$ (Eq.~\ref{eq:delta}); set $\hat{A}^{(k)} = \beta_k \, \delta^{(k \leftarrow j)}$
+            \State Combine native and cross-branch batches; update $\theta_k$
+        \EndFor
+    \EndFor
+\EndFor
+\State \textcolor{gray}{\textit{// Merge co-evolved branches into a unified model}}
+\State $\theta^* \gets \texttt{Merge}(\theta_0, \theta_1, \dots, \theta_{K-1})$
+\State \Return $\theta^*$
+\end{algorithmic}
+\end{algorithm}

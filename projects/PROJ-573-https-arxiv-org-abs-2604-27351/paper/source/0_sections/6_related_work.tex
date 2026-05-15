@@ -1,0 +1,27 @@
+\section{Related Work}
+
+In this section, we review the key related works on the topics that are closely related to this work. We put more related works and discussions in the Appendix \ref{ap:related_work} to keep the main text concise.
+
+\textbf{Scientific Large Language Models and Foundation Models.} 
+Scientific large language models have emerged as powerful tools for scientific knowledge understanding, quantitative reasoning, and domain-specific question answering~\citep{hu2025survey, zhang2024comprehensive}. 
+Existing scientific LLMs are developed through the following paradigms: general scientific pretraining on large-scale scientific corpora~\citep{taylor2022galactica,lewkowycz2022solving}; domain-specific adaptation to specialized disciplines (e.g., biomedicine~\citep{luo2022biogpt}, medicine~\citep{singhal2023large}, chemistry~\citep{zhang2024chemllm,yu2024llasmol}); and scientific agentic workflows that enhance multi-step reasoning and problem solving~\citep{zhang2024sciglm, boiko2023autonomous, ghafarollahi2025sciagents}. 
+However, these scientific LLMs remain language-centric, where scientific data are interpreted as descriptions or symbolic sequences, which is suboptimal for structured information \cite{jin2023time, sui2024table, sadeghi2024can}.
+Therefore, \textit{Eywa} takes a complementary direction by using LLMs as reasoning interfaces to coordinate domain-specific models that operate on native scientific representations.
+
+
+Alongside language models, domain-specific foundation models have rapidly advanced across scientific disciplines~\cite{DBLP:journals/nn/MenonMBPJKJ26,DBLP:journals/corr/abs-2108-07258}.
+Time series foundation models~\cite{DBLP:journals/tmlr/AnsariSTZMSSRPK24,DBLP:conf/icml/DasKSZ24, DBLP:conf/icml/WooLKXSS24,DBLP:journals/corr/abs-2310-08278} pretrained on large-scale temporal corpora can achieve competitive zero-shot forecasting without task-specific training~\cite{DBLP:journals/corr/abs-2504-04011}.
+For tabular data, TabPFN~\cite{DBLP:conf/iclr/Hollmann0EH23} and its successors~\cite{DBLP:journals/nature/HollmannMPKKHSH25,DBLP:journals/corr/abs-2511-08667} leverage in-context learning to solve prediction tasks and outperform tuned tree-based ensembles.
+The broader ecosystem of domain-specific foundation models further extends to even more specialized scientific representations. In materials science, universal machine-learned interatomic potentials such as GNoME~\cite{merchant2023scaling}, MACE-MP-0~\cite{batatia2025foundation}, and CHGNet~\cite{DBLP:journals/natmi/DengZJRHBC23} are trained on broad crystallographic databases and generalize across the periodic table.
+In weather and climate, GraphCast ~\cite{DBLP:journals/corr/abs-2212-12794}, Pangu-Weather~\cite{journals/nature/BiXZCG023}, Aurora~\cite{DBLP:journals/nature/BodnarBLSABGRWD25}, and GenCast~\cite{DBLP:journals/nature/PriceSAAEMESMBLW25} have matched or surpassed operational numerical weather prediction systems for medium-range forecasting~\cite{DBLP:journals/corr/abs-2312-03014}.
+In life sciences, AlphaFold~\cite{jumper2021highly} and the ESM family~\cite{lin2023evolutionary,hayes2025simulating} have transformed protein structure prediction and design through large-scale pretraining on evolutionary sequences.
+Despite their strong domain-specific capabilities, these models typically operate over domain-specific representations and do not expose native language interfaces, making their direct integration into language-centric agentic systems nontrivial. Bridging this interface gap is a central motivation of \textit{Eywa}.
+
+
+\textbf{Agentic Systems in Scientific Settings.}
+In scientific workflows, agentic systems have been applied to tasks such as hypothesis generation, literature synthesis, and experimental design, often under fixed agent topologies~\cite{wei2025ai,ghafarollahi2025sciagents,liu2025genomas}.
+More recently, end-to-end agentic systems have been explored for automating the AI research process itself~\cite{lu2026towards}.
+Another line of work augments agents with domain-specific tools by exposing complex simulators, solvers, or expert systems through external APIs when available~\cite{kim-etal-2025-mt,inoue2025drugagent}.
+However, such systems often rely on human experts to predefine the task-solving procedure and implement well-specified tools before agent execution \cite{DBLP:conf/naacl/YuanSCTSRLY25}.
+As a result, this solution is plausible for specific tasks with predefined workflows \cite{DBLP:journals/corr/abs-2510-04017}, but is difficult to generalize across scientific domains or support dynamic model collaboration.
+\textit{Eywa} addresses this gap by enabling on-the-fly scientific computation through active modality-native collaboration between LLMs and domain-specific foundation models.

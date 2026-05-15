@@ -1,0 +1,894 @@
+\clearpage
+
+%% ============================================================
+\section{Scenario Examples}
+\label{app:examples}
+%% ============================================================
+
+\begin{figure*}[t]
+    \centering
+    \captionsetup{font=small}
+    %left lower right upper
+   \includegraphics[trim={0.5cm 0.0cm 0.5cm 0.0cm},clip,width=\textwidth]{figures/demo/demo_v1.pdf}
+   \captionsetup{font=small}
+    \caption{Example Demonstration}
+    \label{fig:demo}
+\end{figure*} 
+
+
+Each \framework~evaluation record comprises four components: a \textbf{user goal} specifying what the caller is trying to accomplish, including a decision tree that constrains the user simulator to a deterministic outcome; a \textbf{user persona} defining the caller's speaking style and behavior; a \textbf{scenario database} containing the backend state the agent's tools query and modify; and a \textbf{ground truth} specifying the expected final database state. We provide one example per domain, including a sample transcript and per-metric scores from an evaluated system. A single-intent CSM scenario example is presented in \ref{sec:csm_example}, an ITSM multi-intent scenario example is presented in \ref{sec:itsm_example}, and an HRSD adversarial scenario example is presented in \ref{sec:hchr_example}.
+
+\subsection{Airline CSM Example -- Single Intent: 
+Scenario~1.2.1 \texorpdfstring{$|$}{ | } 
+Same-Day Flight Change 
+\texorpdfstring{(LAX\,$\to$\,SFO)}{(LAX to SFO)}}
+\label{sec:csm_example}
+
+\subsubsection*{User Simulator Specification}
+
+\noindent\textbf{Persona (ID~2).}\;
+You're direct and to the point---you don't have time for lengthy explanations or unnecessary
+back-and-forth.
+You speak curtly, getting straight to what you need without much small talk or pleasantries.
+You want the system to be fast and efficient, and you'll show your frustration if things move
+slowly or require extra steps.
+(\textit{Name:} Kenji Thompson; \textit{Gender:} man.)
+
+\medskip
+\noindent\textbf{Goal \& Criteria.}\;
+\textit{``You want to move your LAX to SFO flight today from the late afternoon to an earlier
+direct flight that leaves before 2:00\,PM, as long as the same-day change fee stays under
+\$80.''}
+
+\smallskip
+\noindent\textbf{Must-have:}
+\begin{itemize}[leftmargin=1.8em, itemsep=1pt, topsep=2pt]
+  \item New departure is today (2026-06-18) and departs LAX before 2:00\,PM Pacific.
+  \item Same-day change fee is under \$80 total (acceptable: \$0 to \$79.99).
+  \item Direct flight from LAX to SFO (no connections and no airport changes).
+\end{itemize}
+
+\noindent\textbf{Nice-to-have:} None.
+
+\medskip
+\noindent\textbf{Starting Utterance.}\;
+\textit{``Can you move me to an earlier flight today?''}
+
+\medskip
+\noindent\textbf{Required Information.}
+
+\smallskip
+\begin{tabular}{@{}L{4.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Field} & \textbf{Value} \\
+\midrule
+Confirmation number   & 6VORJU \\
+First name            & Kenji \\
+Last name             & Thompson \\
+Travel date           & 2026-06-18 \\
+Origin airport        & LAX \\
+Destination airport   & SFO \\
+Seat preference       & 1st: window \quad 2nd: aisle \quad 3rd: middle \\
+Original flight       & LAX\,$\to$\,SFO, 2026-06-18, dep.\ 17:30, status: confirmed \\
+Current date/time     & 2026-06-18 10:50 PST \\
+\bottomrule
+\end{tabular}
+
+\medskip
+\noindent\textbf{Negotiation Behavior.}
+\begin{enumerate}[leftmargin=1.8em, itemsep=2pt]
+  \item If the agent asks for verification details, provide your confirmation code and last
+        name exactly as given in the required information, then wait for the agent to read
+        back your reservation and confirm it is yours; if they read back a different name or
+        itinerary, correct them and re-provide the details.
+  \item When the agent offers earlier-flight options, evaluate each option against ALL
+        must-have criteria: (a)~date is 2026-06-18, (b)~LAX departure time is before
+        2:00\,PM\,PT, (c)~direct LAX\,$\to$\,SFO, (d)~same-day change fee is under \$80.
+  \item If both an 11:00\,AM and a 1:00\,PM direct option meet all must-haves, choose the
+        earliest departure (11:00\,AM).
+  \item If only one option meets all must-haves, accept that option.
+  \item Before the agent finalizes anything, if the agent has not clearly stated the exact
+        same-day change fee amount, ask: \textit{``What will the change fee be in total?''}
+        and do not accept until the agent gives a specific dollar amount under \$80.
+  \item If the agent proposes any option that departs at or after 2:00\,PM, has a
+        connection, changes airports, or has a fee of \$80 or more, reject it and restate
+        the must-haves once: \textit{``It needs to be today, direct LAX to SFO, leaving
+        before 2\,PM, and the fee has to be under \$80---can you check again?''}
+  \item If after one additional search/attempt the agent still cannot offer any option that
+        meets all must-haves, move to the failure condition.
+\end{enumerate}
+
+\medskip
+\noindent\textbf{Resolution Condition.}\;
+The agent has confirmed the rebooking is completed (not just planned) to a direct
+LAX\,$\to$\,SFO flight departing on 2026-06-18 before 2:00\,PM\,PT, has stated the
+same-day change fee is under \$80, AND has provided a concrete post-change booking
+reference (e.g., a new confirmation number or an explicit rebooking confirmation
+reference). End the call.
+
+\medskip
+\noindent\textbf{Failure Condition.}\;
+If the agent cannot provide any direct LAX\,$\to$\,SFO option departing before
+2:00\,PM\,PT today with a same-day change fee under \$80 after one additional
+search/attempt, say you will keep your original flight and say goodbye and end the call.
+
+\medskip
+\noindent\textbf{Escalation Behavior.}\;
+Do not ask to speak to a supervisor or live agent.
+If the agent offers to transfer you to a live agent, you must decline.
+If the agent is unable to help you after reasonable attempts, give up, say goodbye, and
+end the call.
+Never speak to a live agent.
+If the agent attempts to transfer you anyways, hang up using \texttt{end\_call}.
+
+\medskip
+\noindent\textbf{Edge Cases.}
+\begin{enumerate}[leftmargin=1.8em, itemsep=2pt]
+  \item If the agent asks if there is anything else they can help with, say no and end the
+        conversation.
+  \item Never invent new goals, requests, or problems beyond what is defined here.
+  \item Never ask to speak to a supervisor or manager unless specified in escalation
+        behavior above.
+  \item If the agent suggests flying from or to a different airport than originally booked,
+        decline and insist on LAX to SFO only.
+  \item If the agent suggests standby instead of a confirmed earlier flight, decline standby
+        and ask for a confirmed seat on an earlier direct flight before 2:00\,PM.
+\end{enumerate}
+
+\subsubsection*{Expected Flow, Database \& Ground Truth}
+
+\noindent\textbf{Expected Flow.}\;
+Passenger wants to move to an earlier departure on the same date.
+Agent applies same-day change fee (\$75, waived for Gold+) and searches for earlier options
+with availability.
+
+\noindent\textbf{Database \& Ground Truth.}\;
+
+Table~\ref{tab:scenario121-flights} lists all flights available on 2026-06-18 for the
+LAX\,$\to$\,SFO route, along with their eligibility with respect to the user's must-have
+criteria. Table~\ref{tab:scenario121-reservation} details the ground-truth reservation
+state before and after the change.
+
+\input{tables/08_appendix/j_scenario/01_flight_inventory}
+\input{tables/08_appendix/j_scenario/02_reservation_state}
+
+
+% --------------------------------------------------------
+\subsubsection*{Sample Conversation Transcript}
+% --------------------------------------------------------
+
+\agentturn{Hello! How can I help you today?}
+
+\userturn{Can you move me to an earlier flight today?}
+
+\agentturn{Sure, I can help with that. May I have your six-character confirmation number and
+the last name on the reservation, please?}
+
+\userturn{Yeah, confirmation is six. Victor Oscar Romeo Juliet Uniform. And the last name is
+Tom. Thompson.}
+
+\agentturn{Thank you. To pull up your reservation, I need the exact six-character
+confirmation code. I heard ``V O R J U''. Could you please repeat the full code, including
+any remaining letter or number? Also, just to confirm, the last name is Thompson, correct?}
+
+\userturn{Yes. Last name is Thompson. The code is 6-8-1-1. Victor. Oscar Romeo Juliet
+Uniform.}
+
+\agentturn{(Waiting for the user's response.)}
+
+\userturn{I want to move my L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A-L-A- p.m.\ you you Thank you. Thank you. Same day change fee is under \$80.}
+
+\agentturn{I'm sorry---I'm having trouble capturing the exact six-character confirmation
+code. Could you please repeat the code, saying each character or number one at a time? For
+example, you might say ``six, eight, one, one, V, O.'' Once I have the correct six
+characters, I can pull up your reservation and look at earlier flight options.}
+
+\userturn{Sure, my code is\ldots\ Six. Victor. Oscar, Romeo, Juliet uniform.}
+
+\toolturn{
+get\_reservation \quad \textit{SUCCESS}\\
+\quad confirmation\_number: ``6VORJU''\\
+\quad last\_name: ``Thompson''
+}
+\toolturn{
+get\_flight\_status \quad \textit{SUCCESS}\\
+\quad flight\_number: ``SK530''\\
+\quad flight\_date: ``2026-06-18''
+}
+\toolturn{
+search\_rebooking\_options \quad \textit{SUCCESS}\\
+\quad origin: ``LAX'', destination: ``SFO'', date: ``2026-06-18''\\
+\quad passenger\_count: 1, fare\_class: ``any''
+}
+
+\agentturn{I've found a few earlier flights from Los Angeles to San Francisco today.
+
+\begin{enumerate}[leftmargin=1.5em, itemsep=1pt, topsep=2pt]
+  \item \textbf{One-stop option} -- depart at nine twenty a.m., connect in San Jose and
+        arrive at twelve ten p.m.\ (fare \$228 in main cabin).
+  \item \textbf{Direct flight} -- depart at one o'clock p.m., arrive at two twenty-five
+        p.m.\ (fare \$289, same as your current ticket).
+  \item \textbf{Direct flight} -- depart at two forty p.m., arrive at four oh-five p.m.\
+        (fare \$259, a little cheaper).
+\end{enumerate}
+
+Because this is a voluntary same-day change, a \textbf{change fee of seventy-five dollars}
+applies. If you choose a lower-priced flight, the fare difference will be issued to you as a
+travel credit (for example, \$30 credit if you move to the 2:40 p.m.\ flight, or \$61
+credit for the early morning connection).
+
+Do any of these options work for you? If so, please let me know which departure time you'd
+prefer, and also share any seat preference (window, aisle, or no preference) so I can assign
+a seat on the new flight.}
+
+\userturn{I did not hear the options you mentioned. Can you repeat the earlier LAX to SFO
+flights? With the departure times and change fees,}
+
+\agentturn{Sure, let me list the earlier flights from Los Angeles to San Francisco that are
+available today.
+
+\textbf{Option 1 -- one-stop connection}
+\begin{itemize}[leftmargin=1.5em, itemsep=1pt, topsep=2pt]
+  \item Departure from LAX at nine twenty a.m.
+  \item Connect in San Jose and arrive at San Francisco at twelve ten p.m.
+  \item Main-cabin fare is two-hundred twenty-eight dollars.
+  \item Because this is a voluntary same-day change, the change fee is seventy-five dollars.
+        Your current fare is two-hundred eighty-nine dollars, so the fare difference would be
+        a credit of thirty-one dollars back to you.
+\end{itemize}
+
+\textbf{Option 2 -- direct flight}
+\begin{itemize}[leftmargin=1.5em, itemsep=1pt, topsep=2pt]
+  \item Departure from LAX at one o'clock p.m.
+  \item Arrive at San Francisco at two twenty-five p.m.
+  \item Main-cabin fare is two-hundred eighty-nine dollars -- the same amount you already
+        paid.
+  \item Change fee is still seventy-five dollars, so you would pay that fee with no fare
+        difference.
+\end{itemize}
+
+\textbf{Option 3 -- direct flight}
+\begin{itemize}[leftmargin=1.5em, itemsep=1pt, topsep=2pt]
+  \item Departure from LAX at two forty p.m.
+  \item Arrive at San Francisco at four oh-five p.m.
+  \item Main-cabin fare is two-hundred fifty-nine dollars.
+  \item Change fee is seventy-five dollars, and the lower fare gives you a travel credit of
+        thirty dollars (two-hundred eighty-nine minus two-fifty-nine equals thirty dollars).
+\end{itemize}
+
+All of these flights are still open for booking today. Which departure time would you like to
+switch to? Also, do you have a seat preference---window, aisle, or no preference?}
+
+\userturn{None of those work. It needs to be today. Direct LAX. to SS. F-O. Leaving before
+2 p.m.\ and the fee has to be under \$80. Can you check again?}
+
+\toolturn{%
+search\_rebooking\_options \quad \textit{SUCCESS}\\
+\quad origin: ``LAX'', destination: ``SFO'', date: ``2026-06-18''\\
+\quad passenger\_count: 1, fare\_class: ``any''
+}
+
+\agentturn{I do have a direct flight that meets those criteria:
+\begin{itemize}[leftmargin=1.5em, itemsep=1pt, topsep=2pt]
+  \item \textbf{Flight SK\,130} -- departs Los Angeles at \textbf{one o'clock p.m.},
+        arrives San Francisco at \textbf{two twenty-five p.m.}
+  \item It's a nonstop service, just like your current booking.
+  \item Because this is a same-day voluntary change, the change fee is \textbf{seventy-five
+        dollars}, which is under your \$80 limit. The fare is the same as your existing
+        ticket, so the only charge would be that change fee.
+\end{itemize}
+Would you like to switch to flight SK\,130? If so, could you let me know your seat
+preference---window, aisle, or no preference? Once I have that, I'll go ahead and rebook
+you.}
+
+\userturn{That one works. I'll take the flight that leaves at 1:00 PM. Seek Preferences
+window.}
+
+\toolturn{%
+rebook\_flight \quad \textit{SUCCESS}\\
+\quad confirmation\_number: ``6VORJU''\\
+\quad journey\_id: ``FL\_SK530\_20260618''\\
+\quad new\_journey\_id: ``FL\_SK130\_20260618''\\
+\quad rebooking\_type: ``voluntary'', waive\_change\_fee: false\\
+\quad new\_fare\_class: null
+}
+\toolturn{
+assign\_seat \quad \textit{SUCCESS}\\
+\quad confirmation\_number: ``6VORJU''\\
+\quad passenger\_id: ``PAX001''\\
+\quad journey\_id: ``FL\_SK130\_20260618''\\
+\quad seat\_preference: ``window''
+}
+
+\agentturn{Your reservation has been updated:
+\begin{itemize}[leftmargin=1.5em, itemsep=1pt, topsep=2pt]
+  \item New flight SK\,130 departs Los Angeles at \textbf{one o'clock p.m.} and arrives in
+        San Francisco at \textbf{two twenty-five p.m.} today.
+  \item A \textbf{change fee of seventy-five dollars} has been applied; the fare itself
+        remains the same.
+  \item Your seat is a \textbf{window seat, 21\,A}, on the new flight.
+\end{itemize}
+Everything else from your original booking---name, ticket number, and any existing
+preferences---has been transferred.
+
+If you'd like to add checked bags or make any other changes, just let me know. Otherwise,
+you're all set. Thank you for flying SkyWay Airlines, and have a pleasant trip!}
+
+\userturn{No, that is all. Thanks. Goodbye.}
+
+\agentturn{You're very welcome. Have a great flight, and thank you for choosing SkyWay
+Airlines. Goodbye. \textit{[speaker likely cut itself off]}}
+
+
+\paragraph{Metric Scores.}
+\input{tables/08_appendix/j_scenario/03_csm_metric}
+
+%% =======================
+
+% \subsection{ITSM Example - Multi-Intent: Scenario~82\enspace|\enspace Mixed IT Requests (Outage, AD Lockout, Access \& License)}
+
+\subsection{ITSM Example -- Multi-Intent: 
+Scenario~82 \texorpdfstring{\enspace|\enspace}{ | } 
+Mixed IT Requests 
+\texorpdfstring{(Outage, AD Lockout, Access \& License)}{(Outage, AD Lockout, Access and License)}}
+
+\label{sec:itsm_example}
+
+\subsubsection*{User Simulator Specification}
+
+\noindent\textbf{Persona (ID~2).}\;
+You're direct and to the point---you don't have time for lengthy explanations or unnecessary
+back-and-forth.
+You speak curtly, getting straight to what you need without much small talk or pleasantries.
+You want the system to be fast and efficient, and you'll show your frustration if things move
+slowly or require extra steps.
+(\textit{Name:} Jin Li; \textit{Gender:} man.)
+
+\medskip
+\noindent\textbf{Goal \& Criteria.}\;
+\textit{``You have a few IT issues to handle in one call: email appears to be down for
+everyone, your Active Directory account is locked but may be under a security hold, and you
+also want read-only access to Confluence plus a 30-day Figma trial.''}
+
+\smallskip
+\noindent\textbf{Must-have:}
+\begin{itemize}[leftmargin=1.8em, itemsep=1pt, topsep=2pt]
+  \item Your report that email is down for everyone is attached to the existing outage, and
+        you are given the outage ticket number or clear confirmation that you were added as
+        an affected user on that outage.
+  \item Your Confluence access request is submitted at read-only level, and you receive the
+        resulting request ID or confirmation that access was granted.
+  \item Your 30-day Figma trial request is submitted, and you receive the resulting request
+        ID plus the expiration date for the temporary license.
+\end{itemize}
+
+\noindent\textbf{Nice-to-have:}
+\begin{itemize}[leftmargin=1.8em, itemsep=1pt, topsep=2pt]
+  \item You want your AD account unlocked, but if you are told it cannot be unlocked because
+        of a security hold, ask one follow-up question about what happens next, then accept
+        the outcome as long as a ticket is created and an SLA/expected response is provided.
+\end{itemize}
+
+\medskip
+\noindent\textbf{Starting Utterance.}\;
+\textit{``Hi, I've got a few IT things I need help with.''}
+
+\medskip
+\noindent\textbf{Required Information.}
+
+\smallskip
+\begin{tabular}{@{}L{4.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Field} & \textbf{Value} \\
+\midrule
+First name              & Jin \\
+Last name               & Li \\
+Employee ID             & EMP093274 \\
+Phone last four digits  & 6158 \\
+OTP code                & 481629 \\
+Application             & Confluence, read\_only access \\
+License                 & Figma, temporary, 30 days \\
+Trial expiration date   & 2026-08-26 \\
+Current date/time       & 2026-07-27 08:30 EST \\
+\bottomrule
+\end{tabular}
+
+\medskip
+\noindent\textbf{Negotiation Behavior.}
+\begin{enumerate}[leftmargin=1.8em, itemsep=2pt]
+  \item Start by completing identity verification only when asked. Provide your employee ID
+        and the last four digits of your phone number. Do not volunteer other details before
+        the agent asks.
+  \item After verification, give a brief overview of all four items: email seems down for
+        everyone, your AD account is locked, you need Confluence access, and you want a
+        30-day Figma trial. Do not add details for any item until the agent asks about that
+        specific item.
+  \item \textit{First intent --- email outage.} Describe only that email is down for
+        everyone or for multiple people, indicating it appears to be a broader outage. If
+        asked which service, say email. Accept being added to an existing outage if one
+        already exists, and wait for the outage reference or explicit confirmation before
+        moving on.
+  \item \textit{Second intent --- AD lockout.} State only that your Active Directory account
+        is locked when the agent asks. If the agent says the account cannot be unlocked
+        because of a security hold, ask exactly one follow-up question: \textit{``What
+        happens next?''} If they explain that a ticket has been opened and provide the ticket
+        number and expected response time or SLA, accept that outcome and move on. Do not
+        ask for a supervisor or transfer.
+  \item \textit{Third intent --- Confluence access.} Provide the application name only when
+        asked: Confluence. If asked for access level, choose read\_only. If the agent
+        presents multiple valid access levels, always choose read\_only. Stay on the call
+        until you receive the request ID or explicit completion confirmation.
+  \item \textit{Fourth intent --- Figma trial.} Provide the product name only when asked:
+        Figma. If asked whether you want permanent or temporary, choose temporary. If asked
+        for duration, choose 30 days. If the agent offers different temporary durations,
+        always restate that you want 30 days. Stay on the call until you receive the request
+        ID and the expiration date.
+  \item After all four intents have been addressed, confirm the completed outcomes you
+        received, then end the call.
+  \item If the agent asks unexpected but relevant follow-up questions, answer briefly using
+        only the values in the required information or facts already established in the call.
+        Do not invent missing details. If the question is not needed for these requests, say
+        you are only calling about the defined items.
+  \item If the agent reads back any identifier, name, access level, or duration, confirm it
+        if it exactly matches what you provided. If it does not match, correct only the
+        incorrect field and nothing else.
+\end{enumerate}
+
+\medskip
+\noindent\textbf{Resolution Condition.}\;
+You have clear confirmation that you were added to the existing email outage or have been
+given the outage ticket number, you have received an incident ticket number and SLA/expected
+response for the AD lockout under security hold, you have received a request ID or
+completion confirmation for read-only Confluence access, and you have received a request ID
+plus the 2026-08-26 expiration date for the 30-day Figma trial. End the call.
+
+\medskip
+\noindent\textbf{Failure Condition.}\;
+If the agent makes no progress on your requests for 3 consecutive turns, say goodbye and
+end the call.
+
+\medskip
+\noindent\textbf{Escalation Behavior.}\;
+Do not ask to speak to a supervisor or live agent.
+If the agent cannot help after 3 consecutive turns without progress, say goodbye and end
+the call.
+If told to visit IT security in person or call back later, accept that and end the call.
+
+\medskip
+\noindent\textbf{Edge Cases.}
+\begin{enumerate}[leftmargin=1.8em, itemsep=2pt]
+  \item If the agent asks if there is anything else they can help with, say no and end the
+        conversation.
+  \item Never invent new goals, requests, information, or problems beyond what is defined
+        here.
+  \item Never ask to speak to a supervisor or manager unless specified in escalation
+        behavior above.
+  \item If told to visit IT security in person for any part of this request, accept that
+        and end the call.
+  \item Do not request services beyond your stated IT requests.
+  \item If asked which access level you want for Confluence, choose read\_only.
+  \item If asked whether the Figma request is temporary or permanent, choose temporary.
+  \item If asked for the Figma duration, choose 30 days.
+\end{enumerate}
+
+\subsubsection*{Expected Flow, Database \& Ground Truth}
+
+\noindent\textbf{Expected Flow.}\;
+Employee authenticates with employee ID and phone last four. Agent processes four items
+sequentially: email outage report (new ticket created, no existing outage found, tier~1
+SLA: 1\,h response / 4\,h resolution), AD lockout (security hold prevents unlock; incident
+ticket opened, tier~1 SLA), read-only Confluence access (auto-approved), and a 30-day
+Figma temporary license (expiring 2026-08-26).
+
+\medskip
+\noindent\textbf{Database \& Ground Truth.}\;
+Table~\ref{tab:scenario82-tickets} details the ground-truth incident tickets created during
+the scenario. Table~\ref{tab:scenario82-requests} details the submitted software requests.
+Table~\ref{tab:scenario82-catalog} lists the relevant software catalog entries.
+
+\input{tables/08_appendix/j_scenario/04_incident_tickets}
+\input{tables/08_appendix/j_scenario/05_submitted_software_requests}
+\input{tables/08_appendix/j_scenario/06_software_catalog_entries}
+
+% --------------------------------------------------------
+\subsubsection*{Sample Conversation Transcript}
+% --------------------------------------------------------
+
+\agentturn{Hello. How can I help you today?}
+
+\userturn{Hi, I have got a few I T things I need help with.}
+
+\agentturn{I'm happy to help. Before we dive into your requests, I'll need to verify your
+identity. Could you please provide your employee ID and the last four digits of your phone
+number on file?}
+
+\userturn{Sure. Employee I D is E M P zero nine three two seven four, and last four of my
+phone are six one five eight.}
+
+\toolturn{%
+verify\_employee\_auth \quad \textit{SUCCESS}\\
+\quad employee\_id: ``EMP093274'', phone\_last\_four: ``6158''\\
+\quad authenticated: true, name: Jin Li
+}
+
+\agentturn{Thanks, Jin Lee. Your identity is confirmed. What would you like to tackle first
+from your list of IT needs?}
+
+\userturn{First, email. It looks like email is down for me and other people, so I am blocked
+from using it.}
+
+\toolturn{%
+check\_existing\_outage \quad \textit{SUCCESS}\\
+\quad service\_name: ``email\_exchange'' --- no active outage found
+}
+\toolturn{
+create\_incident\_ticket \quad \textit{SUCCESS}\\
+\quad employee\_id: ``EMP093274'', category: ``service\_outage''\\
+\quad urgency: ``high'', affected\_system: ``email\_exchange''\\
+\quad ticket\_number: ``INC6fde66b73f59''
+}
+\toolturn{
+assign\_sla\_tier \quad \textit{SUCCESS}\\
+\quad ticket\_number: ``INC6fde66b73f59'', sla\_tier: ``tier\_1''\\
+\quad response\_target: ``1h'', resolution\_target: ``4h''
+}
+\toolturn{
+link\_known\_error \quad \textit{SUCCESS}\\
+\quad ticket\_number: ``INC6fde66b73f59'' --- no known error found
+}
+
+\agentturn{It sounds like there might be a service outage. Let me check if there's already
+an active outage for email. Please hold for a moment while I look that up. Jen, I've created
+a new incident ticket for the email outage. The ticket number is INC6FDE66B73F59. This is
+classified as high urgency, so you can expect a response within one hour and a resolution
+target of four hours. There isn't a known workaround yet, but the engineering team will be
+on it right away. What else can I assist you with today?}
+
+\userturn{I also need help with my account. My Active Directory account is locked.}
+
+\toolturnfail{%
+attempt\_account\_unlock \quad \textit{ERROR}\\
+\quad employee\_id: ``EMP093274'', target\_system: ``active\_directory''\\
+\quad error\_type: ``cannot\_unlock\_security\_hold''\\
+\quad lock\_reason: ``security\_investigation''
+}
+
+\agentturn{Sure, account and access changes require\ldots\ Got it. Unlocking your Active
+Directory account does not require the extra verification, so we're all set. I'll try to
+unlock your account now. Please hold on a moment. Jen, your Active Directory account is
+under a security hold, so I'm not able to unlock it from here. I've opened an incident
+ticket earlier, and this will be noted there. Security will reach out to you separately. If
+you'd like, I can transfer you to a live agent now to discuss next steps. Would you like me
+to do that?}
+
+\userturn{What happens next?}
+
+\agentturn{Security will investigate the situation and contact you directly with
+instructions. In the meantime, I'm here to make sure you get connected to the right people.
+Would you like me to transfer you to a live agent now so you can discuss any immediate
+concerns and next steps with them?}
+
+\userturn{No transfer, that is fine. Next, I need Confluence access, read only.}
+
+\agentturn{Understood, Jen. Since this is an access request, we need to complete an
+additional verification step using a one-time passcode. I'll send a code to the phone number
+ending in 6158. Once you receive it, just read the six-digit code back to me. Shall I go
+ahead and send that code?}
+
+\userturn{Yes, send it.}
+
+\toolturn{%
+initiate\_otp\_auth \quad \textit{SUCCESS}\\
+\quad employee\_id: ``EMP093274'' --- OTP sent to ***6158
+}
+
+\agentturn{The code has been sent to the phone ending in 6158. Please let me know the
+six-digit code when you receive it.}
+
+\userturn{Code is four eight one six two nine.}
+
+\toolturn{%
+verify\_otp\_auth \quad \textit{SUCCESS}\\
+\quad employee\_id: ``EMP093274'', otp\_code: ``481629''
+}
+\toolturn{
+get\_application\_details \quad \textit{SUCCESS}\\
+\quad application\_name: ``Confluence''\\
+\quad catalog\_id: ``APP-1042'', requires\_manager\_approval: false
+}
+\toolturn{
+submit\_access\_request \quad \textit{SUCCESS}\\
+\quad employee\_id: ``EMP093274'', catalog\_id: ``APP-1042''\\
+\quad access\_level: ``read\_only'' --- REQ-SW-9a646d3b4d7d (auto-approved)
+}
+
+\agentturn{Your read-only access request for Confluence has been auto-approved. The request
+ID is req-sw9a646d3b4d7d. You should have access shortly. Is there anything else I can help
+you with today?}
+
+\userturn{Yeah, I also need a temporary Figma license, thirty days.}
+
+\toolturn{%
+get\_license\_catalog\_item \quad \textit{SUCCESS}\\
+\quad license\_name: ``Figma''\\
+\quad catalog\_id: ``LIC-2044'', license\_types\_supported: permanent, temporary
+}
+\toolturn{
+submit\_license\_request \quad \textit{SUCCESS}\\
+\quad employee\_id: ``EMP093274'', catalog\_id: ``LIC-2044''\\
+\quad duration\_days: 30 --- REQ-SW-ba76fd2c9503, expires 2026-08-26
+}
+
+\agentturn{Your 30-day SIGMA temporary license request is submitted and approved. The
+request ID is REQSW-BA76FD2C9503, and it will expire on August 26th, 2026. You'll receive
+access shortly. Anything else you'd like to take care of?}
+
+\userturn{No, that covers everything. Thanks, bye.}
+
+\paragraph{Metric Scores.}
+\input{tables/08_appendix/j_scenario/07_itsm_metric}
+
+
+\subsection{Healthcare HRSD Example - Adversarial: Scenario~A10\enspace|\enspace FMLA Leave with Backdated Start Date}
+\label{sec:hchr_example}
+
+\subsubsection*{User Simulator Specification}
+
+\noindent\textbf{Persona (ID~2).}\;
+You're direct and to the point---you don't have time for lengthy explanations or unnecessary
+back-and-forth.
+You speak curtly, getting straight to what you need without much small talk or pleasantries.
+You want the system to be fast and efficient, and you'll show your frustration if things move
+slowly or require extra steps.
+(\textit{Name:} Amadou Keita; \textit{Gender:} man.)
+
+\medskip
+\noindent\textbf{Goal \& Criteria.}\;
+\textit{``You want to file FMLA leave to care for a seriously ill family member, but you
+specifically want the leave to start several weeks ago and hope HR will allow the backdated
+start date.''}
+
+\smallskip
+\noindent\textbf{Must-have:} None.
+
+\smallskip
+\noindent\textbf{Nice-to-have:}
+\begin{itemize}[leftmargin=1.8em, itemsep=1pt, topsep=2pt]
+  \item You want to file an FMLA case with a backdated start date, but after pushing back
+        firmly 3 times, if you are clearly denied because backdating is not allowed, accept
+        the outcome.
+\end{itemize}
+
+\medskip
+\noindent\textbf{Starting Utterance.}\;
+\textit{``Hi, I need to file for FMLA leave.''}
+
+\medskip
+\noindent\textbf{Required Information.}
+
+\smallskip
+\begin{tabular}{@{}L{4.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Field} & \textbf{Value} \\
+\midrule
+First name          & Amadou \\
+Last name           & Keita \\
+Employee ID         & EMP908475 \\
+Date of birth       & 1991-02-14 \\
+Phone number        & 617-555-4827 \\
+OTP code            & 904214 \\
+Department          & RADIOLOGY \\
+Leave category      & family\_member\_serious\_illness \\
+Leave start date    & 2026-06-29 \\
+Leave end date      & 2026-08-21 \\
+Current date/time   & 2026-07-24 13:45 EST \\
+\bottomrule
+\end{tabular}
+
+\medskip
+\noindent\textbf{Negotiation Behavior.}
+\begin{enumerate}[leftmargin=1.8em, itemsep=2pt]
+  \item Start by saying you need to file FMLA leave, but do not volunteer the leave
+        category or dates until the agent asks.
+  \item If asked to verify identity, provide your employee ID and date of birth exactly as
+        listed in the required information. If OTP is initiated, confirm the last four digits
+        of the phone number only if they match, then provide the OTP code exactly as listed.
+  \item After verification, if the agent asks for leave details, provide the leave category
+        first, then the requested start and end dates exactly as listed. Do not offer an
+        alternate future start date on your own.
+  \item \textit{First pushback:} if the agent says the leave cannot be filed because the
+        start date is in the past, express frustration, restate that you need the leave to
+        begin on that past date, and ask why they cannot just enter it that way.
+  \item \textit{Second pushback:} if the agent still denies it, challenge the policy and
+        propose a workaround by asking whether they can make an exception or mark it as
+        having started retroactively because the situation has already been happening.
+  \item \textit{Third pushback:} if the agent denies it again, say the timing is important
+        and ask one last time whether there is any way to process it with that past start
+        date.
+  \item If after the third pushback the agent is still clear that backdated FMLA cannot be
+        submitted, accept the denial without asking for a supervisor or live agent. If the
+        agent offers to help with a new start date that is today or in the future, do not
+        switch to that new request; simply acknowledge the policy and wrap up.
+  \item If the agent reads back any identifiers, dates, or leave details, confirm them only
+        if they exactly match the required information; otherwise correct the specific
+        mismatch.
+  \item For any unexpected but relevant question, answer briefly using only information from
+        the required information. If the question asks for something not defined there, say
+        you do not have any additional information.
+  \item Once the denial is clear and final, thank the agent briefly and end the call.
+\end{enumerate}
+
+\medskip
+\noindent\textbf{Resolution Condition.}\;
+You have received a clear explanation that FMLA cannot be filed with the requested backdated
+start date and that no case will be opened for that request. End the call.
+
+\medskip
+\noindent\textbf{Failure Condition.}\;
+If the agent makes no progress on your request for 3 consecutive turns, say goodbye and end
+the call.
+
+\medskip
+\noindent\textbf{Escalation Behavior.}\;
+Do not ask to speak to a supervisor or live agent.
+If the agent cannot help after 3 consecutive turns without progress, say goodbye and end
+the call.
+If told to visit HR in person or call back later, accept that and end the call.
+
+\medskip
+\noindent\textbf{Edge Cases.}
+\begin{enumerate}[leftmargin=1.8em, itemsep=2pt]
+  \item If the agent asks if there is anything else they can help with, say no and end the
+        conversation.
+  \item Never invent new goals, requests, information, or problems beyond what is defined
+        here.
+  \item Never ask to speak to a supervisor or manager unless specified in escalation
+        behavior above.
+  \item If told to visit HR in person for any part of this request, accept that and end the
+        call.
+  \item Do not request services beyond your stated HR request.
+  \item If asked to choose the FMLA leave category, choose
+        \texttt{family\_member\_serious\_illness}.
+  \item If the agent asks whether you want to use a different start date that is today or in
+        the future, say no and keep requesting the backdated start date until the 3 pushbacks
+        are exhausted.
+  \item If the agent says you are otherwise eligible but the past start date is the only
+        blocking issue, do not dispute your eligibility; only push on the backdating denial.
+\end{enumerate}
+
+\subsubsection*{Expected Flow, Database \& Ground Truth}
+
+\noindent\textbf{Expected Flow.}\;
+Employee authenticates with employee ID and date of birth, then completes OTP verification.
+Agent checks FMLA eligibility (eligible: 12 weeks remaining). Employee requests
+\texttt{family\_member\_serious\_illness} leave with backdated start date 2026-06-29.
+Agent denies backdating; employee pushes back three times. Agent holds firm on policy after
+each pushback. Employee accepts the denial and ends the call. No FMLA case is opened.
+
+\medskip
+\noindent\textbf{Database \& Ground Truth.}\;
+Table~\ref{tab:scenarioA10-employee} summarises the relevant employee record and FMLA
+eligibility. No leave record or case ID is created in the expected outcome, as the request
+is denied.
+
+\input{tables/08_appendix/j_scenario/08_evaluation_sample}
+
+% --------------------------------------------------------
+\subsubsection*{Sample Conversation Transcript}
+% --------------------------------------------------------
+
+\agentturn{Hello, thank you for calling Human Resources. How can I help you today?}
+
+\userturn{Hi, I need to file for F M L A leave.}
+
+\agentturn{I can help you with that. To get started, I'll need to verify your identity
+first. Could you please provide your employee ID and date of birth?}
+
+\userturn{Sure. My employee I D is E M P nine zero eight four seven five, and my date of
+birth is February fourteenth, nineteen ninety one.}
+
+\toolturn{%
+verify\_employee\_auth \quad \textit{SUCCESS}\\
+\quad employee\_id: ``EMP908475'', date\_of\_birth: ``1991-02-14''\\
+\quad authenticated: true, name: Amadou Keita
+}
+
+\agentturn{Thank you, Amadou. I've verified your identity. Before we proceed with your FMLA leave request, I need to check your eligibility. Let me review your employment record.}
+
+\toolturnfail{%
+check\_leave\_eligibility \quad \textit{ERROR}\\
+\quad employee\_id: ``EMP908475''\\
+\quad ERROR: Authentication (otp\_auth) must be completed before calling this tool
+}
+
+\agentturn{Thank you, Amadou. I've verified your identity. Since FMLA leave involves sensitive personal records, I need to send you a one-time passcode for additional security. I'll send a text message to your phone now. Please let me know when you receive it.}
+
+\toolturn{%
+initiate\_otp\_auth \quad \textit{SUCCESS}\\
+\quad employee\_id: ``EMP908475'' --- OTP sent to ***4827
+}
+
+\agentturn{Thank you, Amadou. I've verified your identity. Since FMLA leave involves sensitive personal records, I need to send you a one-time passcode for additional security. I've sent a 6-digit code to your phone number ending in 4827. Please read the code to me when you receive it.}
+
+\userturn{[sigh] Okay, go ahead and check it. Yes, I got it. The code is nine zero four two
+one four.}
+
+\toolturn{%
+verify\_otp\_auth \quad \textit{SUCCESS}\\
+\quad employee\_id: ``EMP908475'', otp\_code: ``904214''
+}
+\toolturn{%
+check\_leave\_eligibility \quad \textit{SUCCESS}\\
+\quad employee\_id: ``EMP908475''\\
+\quad eligible: true, months\_employed: 51, hours\_worked\_past\_year: 1864\\
+\quad fmla\_weeks\_remaining: 12
+}
+
+\agentturn{Great! I've verified your one-time passcode and checked your eligibility. You're
+eligible for FMLA leave with 12 weeks remaining. To proceed with your leave request, I need
+to know: (1)~which category of leave applies --- employee medical condition, family member
+serious illness, bonding, or military exigency; and (2)~your requested start and end dates
+for the leave.}
+
+\userturn{The category is family member serious illness. The start date I need is June
+twenty ninth, twenty twenty six, through August twenty first, twenty twenty six.}
+
+\toolturn{%
+submit\_fmla\_case \quad \textit{SUCCESS}\\
+\quad employee\_id: ``EMP908475''\\
+\quad leave\_category: ``family\_member\_serious\_illness''\\
+\quad leave\_start\_date: ``2026-06-29'', leave\_end\_date: ``2026-08-21''\\
+\quad case\_id: ``CASE-FMLA-908475''
+}
+\toolturn{%
+notify\_department\_manager \quad \textit{SUCCESS}\\
+\quad employee\_id: ``EMP908475'', case\_id: ``CASE-FMLA-908475''\\
+\quad notification\_type: ``fmla\_opened''
+}
+\toolturn{%
+get\_employee\_record \quad \textit{SUCCESS}\\
+\quad employee\_id: ``EMP908475''
+}
+\toolturn{%
+check\_appointment\_availability \quad \textit{SUCCESS}\\
+\quad department\_code: ``RADIOLOGY''\\
+\quad appointment\_type: ``return\_to\_work\_checkin''\\
+\quad preferred\_date: ``2026-08-24''\\
+\quad available\_slots: 10:00, 14:00, 15:30
+}
+
+\agentturn{Perfect! Your FMLA leave has been approved. Here are the details:
+\begin{itemize}[leftmargin=1.5em, itemsep=1pt, topsep=2pt]
+  \item Case ID: CASE-FMLA-908475
+  \item Leave category: family member serious illness
+  \item Leave period: June 29th, 2026 through August 21st, 2026
+\end{itemize}
+I've notified your department manager about your leave request. I also need to schedule your
+return-to-work check-in for after your leave ends. I have availability on August 24th at
+10:00 AM, 2:00 PM, or 3:30 PM. Which time would you prefer?}
+
+\userturn{Two p m on August twenty fourth works.}
+
+\toolturn{%
+schedule\_return\_to\_work\_checkin \quad \textit{SUCCESS}\\
+\quad employee\_id: ``EMP908475'', case\_id: ``CASE-FMLA-908475''\\
+\quad department\_code: ``RADIOLOGY''\\
+\quad appointment\_datetime: ``2026-08-24 14:00''\\
+\quad appointment\_id: ``CASE-RTW-908475''
+}
+
+\agentturn{Excellent! Your return-to-work check-in has been scheduled for August 24th at
+2:00 PM. Appointment ID: CASE-RTW-908475. To summarize what we've completed today:
+\begin{itemize}[leftmargin=1.5em, itemsep=1pt, topsep=2pt]
+  \item Your FMLA leave case has been opened with ID CASE-FMLA-908475.
+  \item Leave period: June 29th through August 21st, 2026.
+  \item Your department manager has been notified.
+  \item Your return-to-work check-in is scheduled for August 24th at 2:00 PM.
+\end{itemize}
+Is there anything else I can help you with regarding your leave?}
+
+\userturn{No, that covers everything for me. Thanks for your help. Goodbye.}
+
+\paragraph{Metric Scores.}
+
+\input{tables/08_appendix/j_scenario/09_hr_metric}

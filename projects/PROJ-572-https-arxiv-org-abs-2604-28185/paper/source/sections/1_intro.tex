@@ -1,0 +1,85 @@
+\section{Introduction}
+\label{sec:introduction}
+
+\blfootnote{Note: If you identify your own or other papers relevant to this roadmap that have not been discussed (we apologize for any such omissions due to the rapidly expanding literature), please feel free to contact us via email or raise an issue on \href{https://github.com/EvolvingLMMs-Lab/Awesome-New-Era-Visual-Gen}{GitHub}.}
+
+\vspace{0.6em}
+\begin{tcolorbox}[
+  colback=selfevolagent_light!20,
+  colframe=selfevolagent_light!80,
+  colbacktitle=selfevolagent_light!80,
+  coltitle=black,
+  title={\bfseries\fontfamily{ppl}\selectfont{Key Questions}},
+  boxrule=2pt,
+  arc=5pt,
+  drop shadow,
+  parbox=false,
+  before skip=5pt,
+  after skip=5pt,
+  left=5pt,
+  right=5pt,
+]
+\begin{itemize}[leftmargin=*]
+
+\item[\ding{182}] \textbf{Capability Taxonomy:}
+What does it mean for a visual generation model to become ``more intelligent,'' and how can we organize progress from atomic rendering to world-modeling generation?
+
+\item[\ding{183}] \textbf{Modeling Mechanisms:}
+How do diffusion, flow matching, autoregressive modeling, hybrid AR--diffusion systems, and unified multimodal architectures each change the trade-off between fidelity, controllability, reasoning, and efficiency?
+
+\item[\ding{184}] \textbf{Training and Data Engines:}
+Why are modern gains increasingly driven by data density, VLM-based relabeling, continued training, SFT, preference alignment, reward models, and acceleration rather than by parameter scaling alone?
+
+\item[\ding{185}] \textbf{Applications as Constraints:}
+How do applications such as personalization, layout control, typography, editing, domain adaptation, and embodied prediction reveal increasingly explicit requirements for structure, memory, and state consistency?
+
+\item[\ding{186}] \textbf{Evaluation and Stress Testing:}
+Why do current metrics overestimate progress, and how can in-the-wild stress tests expose failures in spatial logic, physical reasoning, identity preservation, text fidelity, and causal grounding?
+
+\item[\ding{187}] \textbf{Agentic and World-Modeling Frontiers:}
+What separates today’s strong renderers from closed-loop visual agents and playable world models, and how might visual chain-of-thought, tool use, verification, and world simulation define the next stage?
+
+
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{1em}
+\vspace{-0.4em}
+
+\paragraph{The Paradigm Shift: From Static Generation to World Simulation.}
+Visual generation has evolved from a narrowly defined text-to-image problem into a much broader interface for composing, editing, and increasingly \emph{simulating} visual worlds. Early milestones in generative modeling established the feasibility of mapping language or latent codes to photorealistic pixels, and latent diffusion systems such as Stable Diffusion~\citep{rombach2022stablediffusion} made high-quality synthesis scalable and widely accessible. Yet this classical framing largely treated image generation as a one-shot distribution-matching problem: given a prompt, sample an image that looks plausible. In the latest generation of foundation models, this perspective is no longer sufficient. Rectified-flow and flow-matching objectives~\citep{liu2022flow,lipman2023flowmatchinggenerativemodeling}, transformer-native generators such as MM-DiT~\citep{esser2024stablediffusion3}, and increasingly unified multimodal systems have transformed generation from passive rendering into a controllable process that can absorb reference images, preserve identity, reason over structure, and participate in downstream decision loops. The central question, therefore, is no longer only how to produce sharper pixels, but how to measure and improve the \emph{intelligence} of visual models: their ability to obey constraints, maintain long-range consistency, close the loop with feedback, and ultimately approximate causal dynamics. This shift motivates a new lens for the field, one that treats visual generation not merely as aesthetic synthesis, but as a stepping stone toward agentic visual intelligence and world simulation.
+
+\paragraph{The ``Nano Banana \& GPT-Image'' Era: New Capabilities and New Challenges.}
+Frontier systems exemplified by Nano Banana, GPT-Image, and strong open counterparts such as Qwen-Image and Z-Image~\citep{wu2025qwen,cai2025z} illustrate why this new lens is necessary. On the capability side, modern models exhibit far stronger long-prompt comprehension, typography, instruction following, high-resolution fidelity, reference-based editing, and fluid transitions between generation and manipulation. At the same time, unified understanding-and-generation frameworks such as X-Omni, BLIP3o-NEXT, and UAE indicate that visual models are beginning to operate over a shared multimodal space in which perception, reasoning, and rendering increasingly inform one another~\citep{geng2025xomni,chen2025blip3onext,yan2025uae}. Their training pipelines have also changed qualitatively: success now depends not only on scale, but on active data curation, VLM-driven relabeling, synthetic data distillation, and post-training alignment via DPO, GRPO, and learned reward models~\citep{liu2025flow}. However, these gains coexist with persistent blind spots. Models that excel at photorealism still fail on puzzle-like spatial reconstruction, multi-step state-transition editing, persistent character identity, physical reasoning, and embodied predictive tasks. In other words, current systems often achieve strong \emph{semantic plausibility} without robust \emph{causal competence}. This mismatch explains why conventional metrics such as FID, CLIP-based alignment, or isolated benchmark averages are increasingly insufficient: the field now needs richer task-specific evaluation and in-the-wild stress testing to reveal where present-day models remain confined to statistical correlation rather than genuine visual reasoning.
+
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{img/intro/fig_pub_trend.pdf}
+\caption{\textbf{Publication trend of the 411 post-2014 references analyzed.} Annual publication count (bars) and cumulative total (line) are computed from the updated bibliography after truncating entries before 2015. The curve reveals an exponential acceleration since 2022, with 2025 alone contributing 188 papers (45.7\%). This surge reflects the rapid maturation of visual generation research driven by diffusion transformers, unified multimodal models, and post-training alignment techniques.}
+\label{fig:pub_trend}
+\end{figure}
+
+
+\paragraph{Scope and Contributions.}
+This work focuses on the rapidly evolving landscape of modern visual generation and editing in the foundation-model era. Rather than cataloging works only by architecture family or application label, we organize the literature around the broader transition from \emph{atomic mapping} to \emph{agentic intelligence}. Our goal is to explain not only \emph{what} has improved, but also \emph{what kind of capability} is being improved as visual systems move from one-shot rendering toward controllable, persistent, interactive, and physically grounded generation. The main contributions of this roadmap are as follows:
+\begin{itemize}[leftmargin=*]
+\item We propose a capability-oriented five-level taxonomy of visual intelligence, spanning Atomic Generation, Conditional Generation, In-Context Generation, Agentic Generation, and World-Modeling Generation, to clarify what it means for a visual model to become ``more intelligent.''
+\item We synthesize the major technical drivers behind this evolution, including the transition from diffusion to flow matching, the rise of unified understanding-and-generation systems, the redesign of visual representations, and the importance of pre-training, post-training alignment, reward modeling, and efficiency engineering.
+\item We organize the expanding application space into a coherent progression from conditional generation and domain-specific adaptation to reasoning-driven editing and embodied interaction, highlighting how practical tasks increasingly demand structure, memory, state tracking, and closed-loop control.
+\item We complement benchmark-based review with a stress-testing perspective, using real-world case studies to show why high aesthetic quality does not imply mastery of spatial logic, physical consistency, or long-horizon visual reasoning.
+\end{itemize}
+Together, these perspectives aim to answer the motivating question of this roadmap: what design principles underlie the surprising capabilities of modern ``Nano Banana''- and ``GPT-Image''-style systems, and what still separates them from true playable world models?
+
+
+To ground the scope and timeliness of this work, we present two complementary analyses of the analyzed references. \Cref{fig:pub_trend} summarizes the post-2014 publication timeline, revealing an exponential acceleration since 2022 with 2025 alone contributing nearly half of the modern cited works. \Cref{fig:research_landscape} maps research categories by maturity and recency, highlighting the field's ongoing pivot from foundational modeling toward application-driven and alignment-oriented research.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{img/intro/fig_research_landscape.pdf}
+\caption{\textbf{Modern research landscape: topic maturity vs.\ recency.} Each bubble represents a research category whose mean publication year falls in the modern visual-generation period, positioned by its mean publication year ($x$-axis) and an adjusted 2025--2026 recency share ($y$-axis), with bubble size proportional to paper count. The recency score is smoothed toward the corpus-level average so that very small emerging topics are not artificially pinned to 1.0. Topics in the upper-right quadrant (e.g., image editing, unified multimodal models, world modeling, and agentic generation) are both recent and rapidly growing, while comparatively mature modern foundations such as diffusion \& flow models anchor the lower-left.}
+\label{fig:research_landscape}
+\end{figure}
+
+\paragraph{Roadmap of the Paper.}
+The remainder of this work is organized as follows. \Cref{sec:evolution} introduces our five-level taxonomy of visual intelligence. \Cref{sec:method} reviews model foundations, architectural components, and cross-cutting methodological trends, with particular emphasis on the diffusion-to-flow-matching transition and unified understanding-generation systems. \Cref{sec:train} covers pre-training, post-training, and inference acceleration. \Cref{sec:resource_and_infra} summarizes datasets, data-construction methodologies, benchmarks, and supporting infrastructure. \Cref{sec:applications} covers major application regimes and evolving frontiers, including controllable generation, domain adaptation, editing, and embodied settings. We then move beyond standard benchmarks to analyze real-world stress tests that expose failure modes in spatial structuring, physical reasoning, and identity consistency, before discussing future directions in \Cref{sec:frontier} and concluding in \Cref{sec:conclusion}.

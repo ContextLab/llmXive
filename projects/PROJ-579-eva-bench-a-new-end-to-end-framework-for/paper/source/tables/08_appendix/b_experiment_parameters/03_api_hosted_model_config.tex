@@ -1,0 +1,29 @@
+\begin{table}[h]
+    \centering
+    \captionsetup{font=small}
+    \caption{API-hosted model configurations. In this work, due to space constraints we occasionally use the following model abbreviations: \inkfull $\rightarrow$  \ink, \sonicfull  $\rightarrow$ \sonic, \aurafull $\rightarrow$ \aura, \ultravoxfull $\rightarrow$ \ultravox. Note that \ultravoxfull~is offered as a realtime model service in Pipecat.}
+    \label{tab:api-models}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{p{2.8cm} l l p{6.5cm} p{3cm}}
+    \toprule
+    \textbf{Model} & \textbf{Provider} & \textbf{Type} & \textbf{Model ID} & \textbf{Parameters} \\
+    \midrule
+    GPT-5.2              & OpenAI      & LLM & \texttt{gpt-5.2}                                      & reasoning: default \\
+    \gptfull              & OpenAI      & LLM & \texttt{gpt-5.4}                                      & reasoning: default \\
+    \gptminifull         & OpenAI      & LLM & \texttt{gpt-5.4-mini}                                 & reasoning: default \\
+    \gptrealtimefull     & OpenAI      & S2S & \texttt{gpt-realtime-1.5}                             & voice: Marin \\
+    \gptrealtimeminifull    & OpenAI      & S2S & \texttt{gpt-realtime-mini}                            & voice: Marin \\
+    \geminiflashfull       & Google      & LLM & \texttt{gemini-3-flash-preview}                              & reasoning: default \\
+    \geminilivefull& Google      & LALM & \texttt{gemini-3.1-flash-live-preview}                       & voice: Leda \\
+    \geminiflashttsfull & Google      & TTS & \texttt{gemini-3.1-flash-tts-preview}                        & voice: provider default \\
+    Claude Opus 4.6      & AWS Bedrock & LLM & \texttt{us.anthropic.claude-opus-4-6-v1}             & reasoning: default \\
+    \haikufull     & AWS Bedrock & LLM & \texttt{us.anthropic.claude-haiku-4-5-20251001-v1:0} & -- \\
+    \ultravoxfull             & Ultravox    & LALM & --                                                           & -- \\
+    \inkfull & Cartesia    & STT & \texttt{ink-whisper}                                                           & -- \\
+    \sonicfull     & Cartesia    & TTS & \texttt{sonic-3}                                                           & -- \\
+    \novafull      & Deepgram    & STT & \texttt{nova-3}                                                           & -- \\
+    \aurafull      & Deepgram    & TTS & \texttt{aura-2-helena-en}                                    & -- \\
+    \bottomrule
+    \end{tabular}%
+    }
+    \end{table}

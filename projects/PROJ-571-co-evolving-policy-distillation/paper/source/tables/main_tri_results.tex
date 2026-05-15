@@ -1,0 +1,41 @@
+\begin{table}[t]
+\centering
+\caption{Main results on image, text, and video reasoning benchmarks. Mixed RLVR runs for the combined step budget of all single-domain experts. Static OPD depends on independently trained experts and performs an additional distillation stage to consolidate them. \method uses the same total steps as static OPD. Best results are in \textbf{bold} and worst results (excluding the Base Model) are marked with $^\dagger$.}
+\label{tab:three_branch_results}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{l cccc c c c}
+\toprule
+\textbf{Benchmark} & Base & Image-Expert & Text-Expert & Video-Expert & Mixed RLVR & MOPD & \textbf{\method} \\
+\midrule
+\rowcolor{gray!10} \multicolumn{8}{l}{\textit{Image Reasoning}} \\
+\quad MMMU              & 65.06  & 65.28  & 65.72  & 66.17  & 66.11  & 66.61  & 67.78 \\
+\quad MMMU-Pro          & 53.03  & 53.89  & 53.05  & 53.08  & 54.06  & 54.64  & 55.12 \\
+\quad MathVista         & 73.20  & 75.10  & 73.90  & 74.85  & 75.55  & 74.75  & 76.80 \\
+\quad MathVision        & 55.07  & 55.69  & 55.82  & 55.30  & 56.00  & 56.99  & 57.57 \\
+\quad ZeroBench$_\text{sub}$ & 21.41  & 21.41  & 22.01  & 22.01  & 22.60  & 22.75  & 23.35 \\
+\quad WeMath            & 52.38  & 59.14  & 55.24  & 53.43  & 59.05  & 59.90  & 59.90 \\
+\quad MathVerse         & 57.82  & 59.84  & 58.41  & 58.16  & 59.82  & 58.93  & 59.34 \\
+\cmidrule(lr){1-8}
+\rowcolor{blue!5} \quad \textbf{Avg.} & 54.00  & 55.76  & 54.88  & 54.71$^\dagger$  & 56.17  & 56.37  & \textbf{57.12} \\
+\midrule
+\rowcolor{gray!10} \multicolumn{8}{l}{\textit{Text Reasoning}} \\
+\quad AIME 2025         & 46.88  & 47.50  & 48.33  & 47.29  & 45.62  & 46.04  & 49.38 \\
+\quad AIME 2024         & 58.96  & 55.83  & 60.21  & 56.46  & 54.17  & 60.83  & 60.42 \\
+\quad HMMT 2025         & 25.83  & 21.67  & 27.50  & 30.83  & 25.83  & 25.00  & 31.67 \\
+\quad MATH-500          & 92.80  & 93.90  & 93.65  & 93.45  & 92.95  & 93.85  & 94.35 \\
+\quad Minerva Math      & 54.41  & 58.64  & 59.74  & 56.16  & 58.36  & 58.27  & 57.35 \\
+\cmidrule(lr){1-8}
+\rowcolor{blue!5} \quad \textbf{Avg.} & 55.78  & 55.51  & 57.89  & 56.84  & 55.39$^\dagger$  & 56.80  & \textbf{58.63} \\
+\midrule
+\rowcolor{gray!10} \multicolumn{8}{l}{\textit{Video Reasoning}} \\
+\quad Video-Holmes       & 43.28  & 44.47  & 42.19  & 45.35  & 45.62  & 43.33  & 43.77 \\
+\quad MVBench           & 68.27  & 67.82  & 65.73  & 70.86  & 67.88  & 67.71  & 69.16 \\
+\quad MMVU(mc)          & 64.00  & 67.68  & 67.04  & 67.84  & 69.28  & 68.80  & 68.16 \\
+\quad VideoMathQA       & 49.33  & 53.10  & 47.19  & 50.95  & 55.71  & 53.43  & 55.76 \\
+\cmidrule(lr){1-8}
+\rowcolor{blue!5} \quad \textbf{Avg.} & 56.22  & 58.27  & 55.54$^\dagger$  & 58.75  & \textbf{59.62}  & 58.32  & 59.21 \\
+\midrule
+\rowcolor{blue!5} \textbf{Overall Avg.} & 55.11  & 56.31  & 55.98$^\dagger$  & 56.39  & 56.79  & 56.99  & \textbf{58.12} \\
+\bottomrule
+\end{tabular}
+\end{table}

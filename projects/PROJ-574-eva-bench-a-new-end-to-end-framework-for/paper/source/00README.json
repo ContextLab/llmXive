@@ -1,0 +1,29 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "latex/servicenow/servicenow.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "latex/citation.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "latex/servicenow/servicenow.bst"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "latex/servicenow/servicenow.sty"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "servicenow.bbl"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

@@ -1,0 +1,56 @@
+\section{Preliminary}
+
+\textbf{LLM Agent ("LLM").} An LLM agent \cite{DBLP:journals/fcsc/WangMFZYZCTCLZWW24, DBLP:journals/corr/abs-2503-21460} is a policy
+$A_{\mathrm{LLM}} : \mathcal{S} \to \Delta(\mathcal{M})$
+where $\mathcal{S}$ is an internal state space, $\mathcal{M}$ is a response space of messages, actions, or tool invocations, and $\Delta(\mathcal{M})$ denotes a distribution over outputs.
+We model the LLM agent as possessing strong general-purpose reasoning capabilities, while accessing non-linguistic inputs only indirectly through textualized representations.
+
+\textbf{Domain-Specific Foundation Model ("FM").} While large language models are often considered a class of foundation models, in this work we use the term \emph{domain-specific foundation models} to refer to models that are primarily designed for specialized domains and do not necessarily provide a native language interface. 
+An FM for domain $k$ is formulated as
+$F_k : \mathcal{X}_k \times \mathcal{U}_k \to \mathcal{O}_k$
+where $\mathcal{X}_k$ is the input, $\mathcal{U}_k$ is a space of structured user configuration arguments, and $\mathcal{O}_k$ is an output space.
+$F_k$ is not assumed to natively operate over open-ended language. Rather, it provides faithful capability for a specialized domain.
+
+
+\textbf{Multi-Agent Systems (MAS).}
+A multi-agent system is defined as a tuple $\mathcal{M} = (\mathcal{A}, \mathcal{G})$ where $\mathcal{A} = \{A_1, A_2, \dots, A_n\}$ is a set of agents, and $\mathcal{G}$ denotes the communication topology.
+Each agent $A_i$ is a policy $A_i : \mathcal{S}_i \to \Delta(\mathcal{M}_i)$
+where $\mathcal{S}_i$ is the local state space and $\mathcal{M}_i$ is the message space.
+Let $s_i^{(t)} \in \mathcal{S}_i$ denote the local state of agent $A_i$ at step $t$, and let $m_i^{(t)} \in \mathcal{M}_i$ denote the message produced by $A_i$ at step $t$; correspondingly, $m_{j,i}^{(t)}$ denotes the message sent from $A_j$ to $A_i$, and $m_{-i}^{(t)}$ collects all messages received by $A_i$ under topology $\mathcal{G}$. At each step, agent $A_i$ updates its state and produces a message:
+\begin{equation}
+    s_i^{(t)} = \mathrm{Update}_i\big(s_i^{(t-1)}, m_{-i}^{(t)}\big), 
+    \quad
+    m_i^{(t)} \sim A_i\big(s_i^{(t)}\big).
+\end{equation}
+The interaction proceeds iteratively until the system produces a final output $\hat{y}$ after a finite number of steps.
+
+
+
+
+\textbf{Problem Formulation.}
+Let $\mathcal{T}$ denote a family of tasks. Each task instance is represented by $\tau = (q, x, y^\star, \ell)$
+where $q \in \mathcal{Q}$ is a natural-language instruction or high-level objective, $x \in \mathcal{X}$ is the task input, $y^\star \in \mathcal{Y}$ is the desired output, and $\ell$ is a task-specific loss function.
+We make a reasonable assumption for scientific tasks that the input space factorizes as 
+\begin{equation}
+    \mathcal{X} = \mathcal{X}_{\mathrm{lng}} \times \mathcal{X}_{1} \times \cdots \times \mathcal{X}_{m},
+\end{equation}
+
+where $\mathcal{X}_{\mathrm{lng}}$ denotes language-observable context and each $\mathcal{X}_k$ denotes a domain-specific input.
+An agentic system $G$ produces an output $\hat{y}_G(\tau) = G(q, x)$ for task $\tau$. The objective is to minimize the expected task loss over the task distribution:
+\begin{equation}
+    \min_G \; \mathbb{E}_{\tau \sim \mathcal{T}} \left[ \ell\big(\hat{y}_G(\tau), y^\star \big) \right].
+\end{equation}
+
+
+\begin{assumption}\label{assumption: domain advantage}
+(Domain Advantage of Foundation Models).
+Let $\pi_k : \mathcal{X} \to \mathcal{X}_k$ denote the projection onto the domain-specific component, i.e., $x_k = \pi_k(x)$.
+For any task instance $\tau = (q, x, y^\star, \ell) \sim \mathcal{T}$ with $x_k = \pi_k(x)$ being informative, the foundation model $F_k$ achieves strictly better performance than any language-only model on the domain-specific component $x_k$, i.e.,
+\begin{equation}
+\mathbb{E}_{\tau = (q, x, y^\star, \ell) \sim \mathcal{T}} \left[ \ell_k(F_k(x_k), y^\star) \right]
+<
+\inf_{A_{\mathrm{LLM}}} 
+\mathbb{E}_{\tau = (q, x, y^\star, \ell) \sim \mathcal{T}} \left[ \ell_k(A_{\mathrm{LLM}}(\text{serialize}(x_k)), y^\star) \right],
+\end{equation}
+where $\text{serialize}(\cdot)$ maps domain inputs into language tokens, $\ell_k$ is the sub-task loss for domain $k$.
+\end{assumption}

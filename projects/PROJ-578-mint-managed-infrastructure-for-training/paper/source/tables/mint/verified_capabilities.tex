@@ -1,0 +1,46 @@
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{Single-run operational measurements from the MinT integration harness. Values are point estimates, not statistical distributions; see Section~\ref{sec:capabilities} for measurement provenance and what we do not measure.}
+\label{tab:mint_verified_capabilities}
+\fittowidth{%
+\begin{tabular}{p{3.4cm}p{3.4cm}p{5.8cm}p{1.4cm}}
+\toprule
+Capability Area & Target Profile & Measured Outcome & Status \\
+\midrule
+\multicolumn{4}{l}{\textit{Dense training and RL}} \\
+\addlinespace[1pt]
+SFT, dense & Qwen3-0.6B & 90.8\% loss reduction on representative fine-tuning run & \cmark \\
+SFT, dense & Qwen2.5-7B & Dense training path verified end to end & \cmark \\
+RL (importance sampling), dense & Qwen2.5-7B class & RL loop verified end to end & \cmark \\
+\addlinespace[2pt]
+\multicolumn{4}{l}{\textit{MoE training and RL}} \\
+\addlinespace[1pt]
+SFT, MoE & Qwen3-30B-A3B (TP4/EP1) & 94.9\% loss reduction & \cmark \\
+RL (importance sampling), MoE & Qwen3-30B-A3B & 87.5\% task accuracy & \cmark \\
+SFT, MoE / MLA & Moonlight-16B-A3B (TP1/EP4) & 93.8\% loss reduction & \cmark \\
+RL (importance sampling), MoE / MLA & Moonlight-16B-A3B & RL loop verified end to end & \cmark \\
+\addlinespace[2pt]
+\multicolumn{4}{l}{\textit{LoRA transfer and serving}} \\
+\addlinespace[1pt]
+LoRA hot-swap to vLLM & Qwen3-30B-A3B & \textasciitilde0.16\,s adapter extraction + \textasciitilde2.2\,s first sample & \cmark \\
+LoRA transfer, end to end & Moonlight-16B-A3B & \textasciitilde102\,s for initial cold load & \cmark \\
+Named sampling-session reuse & Qwen3 family & \textasciitilde60\,s cold start, \textasciitilde2\,s subsequent re-attach & \cmark \\
+\addlinespace[2pt]
+\multicolumn{4}{l}{\textit{Multi-tenant control plane}} \\
+\addlinespace[1pt]
+Multi-session actor sharing & Cross-model & Shared trainer and engine actors verified under concurrent tenants & \cmark \\
+Unified rank support (max-rank padding) & Cross-model & Mixed-rank LoRA loading verified on the same actor & \cmark \\
+LRU-based cross-actor eviction & ResourcePool & Cross-actor LRU with MIN\_ACTOR\_AGE protection verified & \cmark \\
+Stress tests (concurrent, eviction, rapid) & Platform-wide & 4/4 scenarios pass & \cmark \\
+\addlinespace[2pt]
+\multicolumn{4}{l}{\textit{Trillion-parameter class}} \\
+\addlinespace[1pt]
+Training path & Kimi-K2-Thinking (TP16/EP64/CP2) & End-to-end Megatron path validated; broader cluster validation ongoing & \cmark* \\
+Inference path & Kimi-K2-Thinking (TP32) & vLLM detached-actor path validated; broader cluster validation ongoing & \cmark* \\
+\bottomrule
+\end{tabular}%
+}
+\par\vspace{2pt}
+{\footnotesize\textit{\cmark}: verified in the current codebase; \textit{\cmark*}: pipeline validated end to end with broader cluster-scale validation still in progress.}
+\end{table}

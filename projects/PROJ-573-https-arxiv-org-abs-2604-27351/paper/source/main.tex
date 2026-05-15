@@ -1,0 +1,218 @@
+\documentclass[11pt,letterpaper, logo]{mystyle}
+
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage[numbers]{natbib}
+\usepackage{fontawesome5}
+\usepackage{amsmath}
+\usepackage{twemojis}
+\usepackage{bxcoloremoji}
+\usepackage[table]{xcolor}
+\usepackage{multirow}
+\usepackage{makecell}
+
+\usepackage{subcaption}
+\usepackage{wrapfig}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\captionsetup[subfigure]{justification=centering}
+
+\usepackage{booktabs,tabularx}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+
+
+% new commands
+\newcommand{\ours}{Eywa}
+\newcommand{\gaincell}[1]{\cellcolor{green!66!black!20}{\textbf{#1}}}
+
+% Agentic reasoning
+\newtcbox{\agentchip}{on line, arc=2pt, colback=blue!8, colframe=blue!25,
+  boxsep=0.7pt, left=2pt, right=2pt, top=0.2ex, bottom=0.2ex}
+
+\definecolor{AgentIndigo}{HTML}{3F51B5}
+\definecolor{AgentIndigoLight}{HTML}{E8EAF6}
+
+
+\tcbset{
+  agentdef/.style={
+    colback=AgentTealLight,
+    colframe=AgentTeal,
+    colbacktitle=AgentTeal!20!white,
+    coltitle=black,
+    boxrule=0.9pt, arc=2mm,
+    left=3mm, right=3mm, top=2mm, bottom=2mm,
+    fonttitle=\bfseries,
+    title=Definition of Agentic Reasoning
+  },
+  agentscope/.style={
+    colback=AgentIndigoLight,
+    colframe=AgentIndigo,
+    colbacktitle=AgentIndigo!20!white,
+    coltitle=AgentIndigo,
+    boxrule=0.9pt, arc=2mm,
+    left=3mm, right=3mm, top=2mm, bottom=2mm,
+    fonttitle=\bfseries,
+    title=Survey Scope
+  },
+  agentcontrib/.style={
+    colback=AgentAmberLight,
+    colframe=AgentAmber,
+    colbacktitle=AgentAmber!20!white,
+    coltitle=black,
+    boxrule=0.9pt, arc=2mm,
+    left=3mm, right=3mm, top=2mm, bottom=2mm,
+    fonttitle=\bfseries,
+    title=Contributions
+  },
+   agentstruct/.style={
+      colback=LARGBlue!12!white,
+      colframe=LARGBlue,
+      colbacktitle=LARGBlue!20!white,
+      coltitle=LARGBlue,
+    boxrule=0.9pt, arc=2mm,
+    left=3mm, right=3mm, top=2mm, bottom=2mm,
+    fonttitle=\bfseries,
+    title=Survey Structure
+  }
+}
+
+\newtcolorbox{takeawaybox}[1]{
+  colback=white!98!black,
+  colframe=white!86!black,
+  title={\textcolor{black}{#1}},
+  boxrule=0.8pt,
+  arc=2pt,
+  left=6pt,
+  right=6pt,
+  top=0pt,
+  bottom=0pt,
+  before skip=5pt,
+}
+
+% for math notations
+\newtcolorbox{definitionbox}{
+  colback=gray!10,
+  colframe=black!70,
+  boxrule=0.5pt,
+  arc=4pt,
+  left=6pt,
+  right=6pt,
+  top=6pt,
+  bottom=6pt
+}
+
+
+\graphicspath{ {./images/} }
+
+\setlist[itemize]{leftmargin=12pt}
+
+\runningtitle{Heterogeneous Scientific Foundation Model Collaboration}
+
+\title{
+\textbf{Heterogeneous Scientific Foundation Model Collaboration}\\
+\vspace{0.3em}
+}
+
+\date{\vspace{-3ex}}
+
+\begin{document}
+
+\author{
+    \normalfont 
+    \vspace{-3mm}
+    \begin{minipage}{0.85\linewidth}
+    \centering
+    \textbf{
+    Zihao Li, \quad Jiaru Zou, \quad Feihao Fang, \quad Xuying Ning, \quad
+    Mengting Ai, \quad Tianxin Wei, \quad Sirui Chen, \quad Xiyuan Yang, \quad
+    Jingrui He
+    }
+    \end{minipage}
+   \\
+   \vspace{6pt}
+
+   \raisebox{1.0ex}{\includegraphics[height=1.1ex]{arxiv/figs/illinois_logo.png}}\,University of Illinois Urbana-Champaign  \\
+
+   \faGithub~\textbf{Code}: \href{https://github.com/Violet24K/Eywa}{https://github.com/Violet24K/Eywa} 
+   \quad
+   {\href{https://www.zihao.website/eywa.github.io/}{ [\faLink~Project Page]}}
+   \vspace{-3mm}
+}
+
+
+
+\begin{abstract}
+
+\textbf{\large Abstract:} 
+Agentic large language model systems have demonstrated strong capabilities.
+However, their reliance on language as the universal interface fundamentally limits their applicability to many real-world problems, especially in scientific domains where 
+domain-specific foundation models have been developed to address specialized tasks beyond natural language. 
+In this work, we introduce \textit{Eywa}, a heterogeneous agentic framework designed to extend language-centric systems to a broader class of scientific foundation models. The key idea of Eywa is to augment domain-specific foundation models with a language-model-based reasoning interface, enabling language models to guide inference over non-linguistic data modalities. This design allows predictive foundation models, which are typically optimized for specialized data and tasks, to participate in higher-level reasoning and decision-making processes within agentic systems.
+Eywa can serve as a drop-in replacement for a single-agent pipeline (\textit{EywaAgent}) or be integrated into existing multi-agent systems by replacing traditional agents with specialized agents (\textit{EywaMAS}). We further investigate a planning-based orchestration framework in which a planner dynamically coordinates traditional agents and Eywa agents to solve complex tasks across heterogeneous data modalities (\textit{EywaOrchestra}).
+We evaluate Eywa across a diverse set of scientific domains spanning physical, life, and social sciences. 
+Experimental results demonstrate that Eywa improves performance on tasks involving structured and domain-specific data, while reducing reliance on language-based reasoning through effective collaboration with specialized foundation models.
+
+\vspace{2mm}
+${\coloremojicode{2709}}$ \textbf{Contact}: \href{mailto:zihaoli5@illinois.edu}{{\color{blue}zihaoli5@illinois.edu}}, \href{mailto:jingrui@illinois.edu}{{\color{blue}jingrui@illinois.edu}}
+
+\end{abstract}
+\maketitle
+
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\linewidth]{figures/hero_figure.pdf}
+    \vspace{-6mm}
+    \caption{
+    \textbf{\textit{Eywa} extends current agentic systems.}
+    \textbf{(Left)} Overall comparisons show that \textit{EywaAgent}, \textit{EywaMAS}, and \textit{EywaOrchestra} achieve higher utility with lower token consumption than language-only baselines.
+    \textbf{(Right)} Category-level results further show consistent gains in utility, token efficiency, and execution time across physical, life, and social science tasks.
+    }
+    \vspace{-3mm}
+    \label{fig:hero}
+\end{figure}
+
+\addtocontents{toc}
+{\protect\setcounter{tocdepth}{-1}}
+
+\input{0_sections/1_introduction}
+
+\input{0_sections/2_preliminary}
+
+\input{0_sections/3_eywaagent}
+
+\input{0_sections/4_eywamas_orchestra}
+
+\input{0_sections/5_experiment}
+
+\input{0_sections/6_related_work}
+
+\input{0_sections/7_conclusion}
+
+\clearpage
+
+\bibliographystyle{unsrtnat}
+\bibliography{reference}
+
+\appendix
+\input{1_appendix/appendix}
+
+\end{document}

@@ -1,0 +1,30 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,font=\sffamily]
+  \tikzstyle{box}=[draw=mindlabfg, thick, rounded corners=1.5pt, minimum height=0.72cm, align=center, font=\scriptsize\sffamily]
+  \tikzstyle{mergebox}=[box, fill=mindlabfg!10]
+  \tikzstyle{mintbox}=[box, fill=mindlabblue!14]
+  \tikzstyle{samplebox}=[box, fill=mindlabblue!28]
+  \tikzstyle{label}=[font=\scriptsize\sffamily, align=center]
+  \tikzstyle{arrow}=[->, thick, draw=mindlabfg]
+
+  \node[label, font=\scriptsize\sffamily\bfseries] at (5.2,3.3) {step-time comparison protocol};
+  \node[label, text=mindlabfg!75] at (5.2,3.0) {same task, rollout count, prompts, sampling settings, trainer budget, and serving hardware};
+
+  \node[label, anchor=east] at (0.2,2.25) {merge path};
+  \node[mergebox, minimum width=1.55cm] (m0) at (1.45,2.25) {new\\adapter};
+  \node[mergebox, minimum width=1.85cm] (m1) at (3.35,2.25) {merge into\\full weights};
+  \node[mergebox, minimum width=1.85cm] (m2) at (5.50,2.25) {load full\\checkpoint};
+  \node[samplebox, minimum width=1.85cm] (m3) at (7.65,2.25) {rollout\\sampling};
+
+  \node[label, anchor=east] at (0.2,1.05) {MinT path};
+  \node[mintbox, minimum width=1.55cm] (a0) at (1.45,1.05) {new\\adapter};
+  \node[mintbox, minimum width=1.85cm] (a1) at (3.35,1.05) {transfer\\adapter};
+  \node[mintbox, minimum width=1.85cm] (a2) at (5.50,1.05) {load into\\resident base};
+  \node[samplebox, minimum width=1.85cm] (a3) at (7.65,1.05) {rollout\\sampling};
+
+  \foreach \src/\dst in {m0/m1,m1/m2,m2/m3,a0/a1,a1/a2,a2/a3} {
+    \draw[arrow] (\src.east) -- (\dst.west);
+  }
+
+  \draw[mindlabfg!45, dashed] (0.35,0.35) rectangle (8.65,2.75);
+  \node[label, anchor=west, text=mindlabfg!75] at (0.55,0.02) {run once for Qwen3-4B and once for Qwen3-30B};
+\end{tikzpicture}

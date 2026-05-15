@@ -1,0 +1,71 @@
+\section{Experiments \& Empirical Analysis}
+\label{sec:experiments}
+
+\subsection{Experiment Setup}
+\label{sec: experiment-setup}
+
+We evaluate 12 systems in total: seven cascade, two hybrid, and three S2S. Configuration details are provided in Appendix~\ref{app:models-configuration}. Under the clean (unperturbed) condition, systems are evaluated on all 213 scenarios with $k = 5$  trials per scenario. We additionally evaluate under three perturbation conditions: French-accented user speech, coffee shop background noise, and both combined. To maintain feasibility across 12 systems and 3 conditions, perturbed evaluations use a randomly sampled subset of 90 scenarios (30 per domain) with $k = 3$ trials per scenario; the same subset is used across all systems. GPT-Realtime and Gemini Live models are evaluated using their native SDK \cite{google2024liveapi, openai2024realtimeapi}, \scribefull~+ \geminiflashfull~+ \conversationalfull~is evaluated using ElevenAgents \cite{elevenlabs2024agents}, and the remaining systems are evaluated using Pipecat \cite{pipecat2024}. All systems are evaluated using the respective framework's default turn detection configuration.
+
+
+\subsection{Evaluation Reliability}
+\label{sec: evaluation-reliability}
+
+\framework~scores reflect genuine differences in agent behavior rather than evaluation artifacts: judge stochasticity contributes minimally to observed variance, and score differences between systems exceed measurement noise. We substantiate this with two sets of analyses: human-judge agreement to establish judge validity, and variance decomposition to complement bootstrap confidence intervals (CIs) in characterizing and bounding relative measurement noise.
+
+\textbf{Human-Judge Agreement}
+We measure inter-annotator agreement (IAA) between the judge and/or human annotators using quadratic-weighted Cohen's $\kappa$. Our reference baseline is the IAA of two independent annotations from linguist labellers (IAA-L). For judge inter-annotator agreement (IAA-J), each human annotation is paired with the judge score and pooled, with 95\% bootstrap confidence intervals (10{,}000 resamples) computed at the conversation level. \textbf{The judge meets the practical human IAA ceiling on all four metrics}, with IAA-J $\kappa$ ranging from 0.777 to 0.845 across metrics. For every metric, Spearman's $\rho$ and $\kappa$ (both computed on the same judge–human ratings) differ by at most 0.008, supporting the absence of systematic calibration bias. Full scores, details, and confidence intervals shown in \autoref{tab:judge-agreement}. 
+
+\textbf{Variance Decomposition} Observed metric scores for a given model within a domain reflect variance from three sources: scenario difficulty, trial stochasticity (conversation trajectories), and LLM judge stochasticity. We characterize the contribution of each source on a subset of cascade and S2S models through complementary analyses, demonstrating that our main findings reflect genuine differences in model behaviour rather than measurement noise. Trial stochasticity was the dominant source of variance across all metrics and models, consistently exceeding scenario-level variance; judge stochasticity was minimal by comparison (permutation test, $p < 0.0001$ for all 16 model $\times$ metric combinations). For scenario variance, task completion and faithfulness showed the highest sensitivity, consistent with their observed dependence on intrinsic scenario difficulty and policy complexity. We also found that scenario difficulty rank is not shared uniformly across models but reflects model-specific response patterns (two-way random effects ICC, model $\times$ scenario interaction $p < 0.01$ and 4-18\% of total variance across evaluated domain $\times$ metric combinations). Full variance decomposition results are reported in Appendix~\ref{app:statistics}.
+
+\subsection{Main Findings}
+\label{sec:main-results}
+\begin{figure}[t]
+    \centering
+    \captionsetup{font=small}
+    \subfloat[\passatone]
+    {{\includegraphics[width=.45\textwidth, trim=0pt 5pt 0pt 21pt, clip]{figures/accuracy_experience_plot/v6_accuracy_vs_experience_pass_at_1.pdf} }}%
+    \qquad
+    \subfloat[\passpowerk]
+ {{\includegraphics[width=.45\textwidth, trim=0pt 5pt 0 21pt, clip]{figures/accuracy_experience_plot/v6_accuracy_vs_experience_pass_power_k.pdf} }}%
+    \captionsetup{font=small}
+    \caption{\textbf{Accuracy vs Experience overview}. Accuracy and Experience scores for \passatone~and \passpowerk~, mean $\pm$ 95\% CIs across domains. On the \passatone~plot, four systems are on the Pareto frontier, two S2S and two cascade: \geminilive, \gptrealtime, \scribe~+ \geminiflash~+ \conversational, and \nova~+ \gpt~+ \sonic~(left to right). On the \passpowerk~plot, only the two S2S systems are on the frontier (note axis range differences).}
+    \label{fig:accuracy-vs-experience}
+\end{figure}
+
+
+\input{figures/accuracy_experience_tables/v1}
+
+\input{figures/perturbations/turn_taking.tex}
+
+\textbf{Accuracy–Experience Frontier}
+
+No evaluated system clears 0.5 on both EVA-A \passatone\ and EVA-X \passatone\ jointly, and only \gptrealtime~(0.47, 0.57) clears 0.4 on both. This sparsity is reflected in the \passatone\ Pareto frontier (Figure~\ref{fig:accuracy-vs-experience}a), which contains four systems spanning two disjoint regions.
+
+Within EVA-X, the gap is almost entirely driven by \metricturntaking, where mean scores stratify cleanly by architecture (cascade: 0.28–0.58; S2S: 0.82–0.83) (Table~\ref{accuracy-experience-tables}). \metricconcise~and \metricconversationprogression~show no comparable separation. The two hybrid systems both fall within the cascade EVA-X range (0.000, 0.029), suggesting that hybrid systems may not inherit the latency advantages of fully speech-to-speech architectures, though more systems would be needed to confirm this.
+
+Among the evaluated cascade systems, we observe a consistent accuracy–experience trade-off, pointing to a potential underlying capability–latency tension. The three cascade systems that perform best on accuracy (\nova~+ \gpt~+ \sonic, \scribe~+ \geminiflash~+ \conversational, \parakeet~+ \gemmaB~+ \kokoro) struggle on experience, with mean latencies on tool-call turns above 5\,s. In contrast, the two cascade systems with better experience (\whisper~+ \qwen~+ \voxtral, \cohere~+ \gemmaA~+ \voxtral) achieve tool-call turn latencies below 2.7\,s but also lower accuracy. No cascade system exceeds 0.25 on both dimensions, with no overlapping CIs. Full latency breakdowns appear in Table~\ref{tab:appendix-turntaking-response-speed}.
+
+\textbf{Consistency Analysis}
+Across all 12 evaluated systems, peak performance (\passatk) substantially exceeds reliable performance (\passpowerk) on both axes: the median gap is 0.44 on EVA-A and 0.24 on EVA-X. Under the \passpowerk~interpretation (the probability of passing all five trials on a given scenario) even the strongest systems fall well below peak, suggesting that single-trial scores systematically overstate deployment-grade reliability.
+
+\textbf{Robustness Analysis.}
+We evaluate each system under three perturbation conditions -- accented speech, background noise, and both combined -- measuring performance degradation against a clean baseline across the 90 subsampled scenarios (see \autoref{sec: experiment-setup}) via paired sign-flip permutation tests ($n{=}90$, Holm--Bonferroni corrected). The two architectures diverge in their failure modes: cascade systems are most vulnerable on accuracy metrics, while S2S systems suffer most on experience metrics. Accented speech drives the largest accuracy failures: cascade task completion drops by a mean 10 points (worst system: 17 points), while no S2S model shows significant accuracy degradation (0/27 model-metric pairs). Background noise exposes S2S experience failures (EVA-X $\bar{\Delta}{=}{-}0.16$), though cascade accuracy also suffers under noise (task completion $\bar{\Delta}{=}{-}0.10$ vs.\ S2S $\bar{\Delta}{=}{-}0.04$). The combined condition reveals the full spread: cascade task completion drops a mean 19 points (worst systems: 31 points), while the S2S model mean remains within 5 points. 
+
+Within the cascade class, however, robustness varies considerably, with as low as 11\% and as high as 87\% of per-system metric-perturbation combinations showing significant degradation. The two most robust cascade systems degrade primarily on experience metrics, more closely resembling S2S systems than their cascade peers. Turn-taking is the most perturbation-sensitive metric overall, with 81\% of measurements across perturbations and systems showing significant degradation. See \autoref{fig:perturbation-transcription-pooled-turn-taking-final} and Appendix~\ref{app:perturbations} for full results.
+
+\subsection{Failure Mode Analysis}
+\label{sec:failure-modes}
+\framework's metrics enable detailed error analysis. We report four targeted analyses below, with additional analyses in Appendix~\ref{app:metrics-analysis}.
+
+
+
+\textbf{Named entity transcription as an accuracy bottleneck.}
+\framework's diagnostic metrics reveal a consistent association between \metrictranscription~and \metrictaskcompletion~across all three domains, pointing to transcription as a candidate bottleneck for cascade system performance. Across seven cascade systems, mean transcription accuracy on key entities is strongly correlated with mean task completion (Pearson $r =$ 0.93, $p =$ 0.002)  and the relationship holds within each domain ($r =$ 0.88–0.93, all $p <$ 0.01). Cascade systems with transcription accuracy below 70\% on key entities show task completion rates 39\% lower than systems above this threshold (0.37 vs 0.60), with a consistent drop in each domain (ITSM: $-41\%$, HR: $-41\%$, CSM: $-34\%$). See \autoref{fig:transcription_accuracy_task_completion} for the correlation plot and \autoref{fig:stt_transcription_accuracy} for \metrictranscription~scores.
+
+\textbf{Evaluated S2S systems show contrasting patterns relative to other systems}. The higher EVA-X scores for S2S systems reflect a clear turn-taking lead with on-time rate and conversation completion up +27.9 pp and +15.2 pp on average respectively, though the strongest cascade systems come within a few percentage points. The conversation completion gap is partly explained by many cascade systems completely failing to respond to short utterances and spelled content. S2S systems also show policy adherence issues, violating stated policy more often on average (+24.6 pp) and trailing the strongest cascade systems on this aspect. Confidence intervals, per-system breakdowns, and additional details are in Appendix~\ref{app:pipeline-comparison}.
+
+\textbf{Faithfulness failures are not predicted by task completion.}
+$72.2\%$ of conversations ($n=12,780$) with task completion = 1 exhibit at least one faithfulness deviation (faithfulness < 1.0), indicating that agents frequently make policy deviations or hallucinate details even when they call the correct tools. Conversely, $50.5\%$ of faithfulness deviations co-occur with task completion = 0, suggesting that some task failures are downstream of faithfulness violations. This decoupling motivates including faithfulness as an independent metric. See Appendix~\ref{app:faith_tc} for full confusion matrix.
+
+\textbf{Speech fidelity failures concentrate on alphanumeric entities.}
+Entity errors (letter substitutions, digit omissions, spurious insertions, and phonetic confusions between similar-sounding characters) are the dominant speech fidelity failure mode across all evaluated models. This motivates including speech fidelity as an audio-level metric: a caller who receives a misarticulated confirmation code cannot detect the error from context alone, and even 1\% per-turn fail rates represent a non-trivial error probability over multi-turn interactions. See Appendix~\ref{app:speech-fidelity} for examples of failures.

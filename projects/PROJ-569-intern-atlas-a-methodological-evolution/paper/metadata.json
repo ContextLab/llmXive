@@ -1,0 +1,52 @@
+{
+  "arxiv_id": "2604.28158",
+  "arxiv_url": "https://arxiv.org/abs/2604.28158",
+  "title": "Intern-Atlas: A Methodological Evolution Graph as Research Infrastructure for AI Scientists",
+  "authors": [
+    "Yujun Wu",
+    "Dongxu Zhang",
+    "Xinchen Li",
+    "Jinhang Xu",
+    "Yiling Duan",
+    "Yumou Liu",
+    "Jiabao Pan",
+    "Qiyuan Zhu",
+    "Xuanhe Zhou",
+    "Jingxuan Wei",
+    "Siyuan Li",
+    "Jintao Chen",
+    "Conghui He",
+    "Cheng Tan"
+  ],
+  "submitter": "github-actions[bot]",
+  "submitted_via": "llmXive dashboard, GitHub issue #166",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/orgs/OpenRaiser"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "paper.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "assets",
+    "assets/OpenDataLab_blue_no_words.pdf",
+    "assets/huggingface_logo.png",
+    "assets/shlab.png",
+    "assets/web_logo.pdf",
+    "assets/github_logo.pdf",
+    "figures",
+    "figures/exp03_winrate_bars.pdf",
+    "figures/Figure3.pdf",
+    "figures/exp02_overall_tier_scatter.pdf",
+    "figures/exp02_judgment_spearman_heatmap.pdf",
+    "figures/exp01_static_scores.pdf",
+    "intro.pdf",
+    "method.pdf",
+    "opendatalab.cls",
+    "paper.tex",
+    "ref.bib"
+  ]
+}

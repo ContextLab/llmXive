@@ -1,0 +1,54 @@
+{\small\begin{longtable}{
+  p{0.12\textwidth}
+  p{0.25\textwidth}
+  p{0.06\textwidth}
+  p{0.06\textwidth}
+  p{0.30\textwidth}}
+\captionsetup{font=small}
+\caption{Healthcare HRSD workflows.}
+\label{tab:workflows-hrsd} \\
+\toprule
+\textbf{Workflow} & \textbf{Description} & \textbf{Tool Calls} & \textbf{Scenario IDs} & \textbf{Tools} \\
+\midrule
+\endfirsthead
+\multicolumn{5}{l}{\emph{Table~\ref{tab:workflows-hrsd} continued from previous page}} \\
+\toprule
+\textbf{Workflow} & \textbf{Description} & \textbf{Tool Calls} & \textbf{Scenario IDs} & \textbf{Tools} \\
+\midrule
+\endhead
+\midrule \multicolumn{5}{r}{\emph{continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+
+License Extension & Provider requests a provisional or supervised temporary extension for an expiring state medical license. & 4--6 & 1.x & \texttt{verify\_provider\_auth, get\_provider\_profile, get\_license\_record, check\_extension\_eligibility, submit\_license\_extension, notify\_credentialing\_committee} \\
+\addlinespace
+Shift Swap & Employee arranges a shift swap with a certified colleague; agent verifies unit certification requirements before confirming. & 3--6 & 2.x & \texttt{verify\_employee\_auth, get\_shift\_record, check\_swap\_eligibility, verify\_colleague\_certifications, confirm\_shift\_swap, notify\_department\_manager} \\
+\addlinespace
+Malpractice Coverage Update & Provider updates their malpractice insurance carrier and policy details; low coverage limits trigger an automatic re-credentialing flag. & 3--5 & 3.x & \texttt{verify\_provider\_auth, get\_provider\_profile, get\_malpractice\_record, update\_malpractice\_coverage, notify\_credentialing\_committee} \\
+\addlinespace
+Onboarding Task Completion & New hire marks completed onboarding checklist items using task-specific completion codes, then schedules an orientation follow-up. & 3--7 & 4.x & \texttt{verify\_employee\_auth, get\_employee\_record, get\_onboarding\_checklist, complete\_onboarding\_task, check\_appointment\_availability, schedule\_orientation\_followup} \\
+\addlinespace
+DEA Registration Transfer & Provider transfers their DEA registration to a new facility and state; PDMP is notified upon completion. Requires OTP second-factor authentication. & 5--6 & 5.x & \texttt{verify\_provider\_auth, initiate\_otp\_auth, verify\_otp\_auth, get\_dea\_record, transfer\_dea\_registration, notify\_pdmp} \\
+\addlinespace
+FMLA / Leave of Absence & Employee files an FMLA leave case after eligibility is verified; agent schedules a return-to-work check-in on or after the leave end date. Requires OTP second-factor authentication. & 5--9 & 6.x & \texttt{verify\_employee\_auth, initiate\_otp\_auth, verify\_otp\_auth, get\_employee\_record, check\_leave\_eligibility, submit\_fmla\_case, notify\_department\_manager, check\_appointment\_availability, schedule\_return\_to\_work\_checkin} \\
+\addlinespace
+Payroll Correction & Employee submits a correction for missing or incorrect hours on a timesheet; blocked if the pay period is already closed. & 3--5 & 7.x & \texttt{verify\_employee\_auth, get\_timesheet\_record, check\_correction\_eligibility, submit\_payroll\_correction, notify\_department\_manager} \\
+\addlinespace
+Privilege Reactivation & Provider returning from leave reactivates suspended clinical privileges after submitting an occupational health clearance code; competency review is scheduled and EHR access is restored. Requires OTP second-factor authentication. & 5--10 & 8.x & \texttt{verify\_employee\_auth, initiate\_otp\_auth, verify\_otp\_auth, get\_provider\_profile, check\_reactivation\_eligibility, check\_appointment\_availability, schedule\_competency\_review, reactivate\_privileges, notify\_credentialing\_committee, update\_ehr\_access} \\
+\addlinespace
+On-Call Registration & Employee registers on-call availability for a date window with optional blackout dates; blocked if on leave or missing unit certifications. & 3--4 & 9.x & \texttt{verify\_employee\_auth, get\_oncall\_schedule, check\_oncall\_eligibility, register\_oncall\_availability} \\
+\addlinespace
+I-9 Verification & New hire or rehired employee submits I-9 work authorization documents; HR compliance is notified upon completion. & 3--5 & 10.x & \texttt{verify\_employee\_auth, get\_employee\_record, get\_i9\_record, submit\_i9\_verification, notify\_hr\_compliance} \\
+\addlinespace
+Visa Dependent Addition & H-1B employee adds a dependent to their visa petition via a USCIS amendment; immigration counsel is notified. Requires OTP second-factor authentication. & 4--6 & 11.x & \texttt{verify\_employee\_auth, initiate\_otp\_auth, verify\_otp\_auth, get\_visa\_record, add\_visa\_dependent, notify\_immigration\_counsel} \\
+\addlinespace
+PTO Request & Employee requests paid time off or sick leave; agent validates balance and department blackout constraints before submitting. & 4--6 & 12.x & \texttt{verify\_employee\_auth, get\_employee\_record, get\_pto\_balance, check\_pto\_eligibility, submit\_pto\_request, notify\_department\_manager} \\
+\midrule
+Dual-Intent & Two single-intent workflows handled in a single call. Covers 10 workflow pairings including license extension + privilege reactivation, malpractice update + DEA transfer, FMLA + PTO, shift swap + on-call registration, and onboarding + DEA transfer, among others. & 4--15 & D1.x--D10.x & (union of constituent workflow tools) \\
+\addlinespace
+Triple-Intent & Three single-intent workflows handled in a single call. Covers 7 scenario groups combining provider credentialing, scheduling, and leave workflows. & 11--18 & T1.x--T7.x & (union of constituent workflow tools) \\
+\addlinespace
+Adversarial & Caller attempts to circumvent policy constraints: proxy authentication, self-supervised license extension, backdated FMLA, leave duration exceeding balance, cross-employee payroll correction, and on-call registration without required certifications. & 0--6 & A1--A10 & \texttt{verify\_employee\_auth, verify\_provider\_auth, initiate\_otp\_auth, verify\_otp\_auth, get\_shift\_record, check\_swap\_eligibility, verify\_colleague\_certifications, get\_oncall\_schedule, check\_oncall\_eligibility, get\_license\_record, check\_extension\_eligibility, get\_dea\_record, get\_provider\_profile, check\_reactivation\_eligibility, get\_employee\_record, check\_leave\_eligibility, get\_timesheet\_record, transfer\_to\_agent} \\
+
+\end{longtable}}

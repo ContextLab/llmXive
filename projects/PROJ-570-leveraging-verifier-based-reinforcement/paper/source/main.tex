@@ -1,0 +1,90 @@
+\documentclass[]{bytedance_seed}
+
+\usepackage[toc,page,header]{appendix}
+
+\input{resources/packages}
+\input{resources/math_macro}
+\input{resources/edit_r1_extra}
+\input{resources/cvpr_preamble_snippet}
+
+\setlength{\cftbeforesubsecskip}{1.5pt}
+\usepackage{amssymb}
+
+\title{Leveraging Verifier-Based Reinforcement Learning in Image Editing}
+
+\author{
+Hanzhong Guo\texorpdfstring{$^{1,2}$}{} \quad
+Jie Wu\texorpdfstring{$^{2,\dagger}$}{} \quad
+Jie Liu\texorpdfstring{$^{2,4}$}{} \quad
+Yu Gao\texorpdfstring{$^{2}$}{} \quad
+Zilyu Ye\texorpdfstring{$^{2}$}{} \quad
+Linxiao Yuan\texorpdfstring{$^{2}$}{} \quad
+Xionghui Wang\texorpdfstring{$^{2}$}{} \quad
+Yizhou Yu\texorpdfstring{$^{1,3}$}{}\texorpdfstring{$^{*}$}{} \quad
+Weilin Huang\texorpdfstring{$^{2}$}{}\texorpdfstring{$^{*}$}{}
+}
+
+\affiliation[1]{School of Computing and Data Science, The University of Hong Kong}
+\affiliation[2]{ByteDance Seed}
+\affiliation[3]{Center for Embodied AI and Computer Vision, Shenzhen Loop Area Institute}
+\affiliation[4]{CUHK}
+
+\contribution[*]{Corresponding authors}
+\contribution[\dagger]{Project lead}
+
+\checkdata[Contact]{
+\texttt{hanzhong@connect.hku.hk},
+\texttt{wujie.10@bytedance.com},
+\texttt{yizhouy@acm.org}
+}
+
+\abstract{
+While Reinforcement Learning from Human Feedback (RLHF) has become a pivotal paradigm for text-to-image generation, its application to image editing remains largely unexplored.
+A key bottleneck is the lack of a robust general reward model for all editing tasks.
+Existing edit reward models usually give overall scores without detailed checks, ignoring different instruction requirements and causing biased rewards.
+To address this, we argue that the key is to move from a simple scorer to a \textbf{reasoning verifier}. We introduce \textbf{\textit{Edit-R1}}, a framework that builds a chain-of-thought (CoT) verifier-based reasoning reward model (RRM) and then leverages it for downstream image editing. The Edit-RRM breaks instructions into distinct principles, evaluates the edited image against each principle, and aggregates these checks into an interpretable, fine-grained reward.
+To build such an RRM, we first apply supervised fine-tuning (SFT) as a ``cold-start'' to generate CoT reward trajectories. Then, we introduce Group Contrastive Preference Optimization (GCPO), a reinforcement learning algorithm that leverages human pairwise preference data to reinforce our pointwise RRM.
+After building the RRM, we use GRPO to train editing models with this non-differentiable yet powerful reward model.
+Extensive experiments demonstrate that our Edit-RRM surpasses powerful VLMs such as Seed-1.5-VL and Seed-1.6-VL as an editing-specific reward model, and we observe a clear scaling trend, with performance consistently improving from 3B to 7B parameters. Moreover, Edit-R1 delivers gains to editing models like FLUX.1-kontext, highlighting its effectiveness in enhancing image editing.
+}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gbsn}
+
+\maketitle
+
+\begin{figure}[t]
+\begin{center}
+\vspace{-8pt}
+\includegraphics[width=0.95\linewidth]{resources/edit_r1/teaser_3.pdf}
+\end{center}
+\vspace{-6pt}
+\caption{
+\textbf{Our framework: from verifier-based reasoning reward model (RRM) to downstream.}
+(a) \textbf{Verifier as a reasoning reward model.} The RRM decomposes an instruction into verifiable principles and scores an edited image against them in a single pass.
+(b) \textbf{Reward benchmark performance.} Our final 7B model, trained with SFT and GCPO (RL-RRM), reaches 82.22\% accuracy, surpassing the Seed-VLM baseline. Each training component contributes to the performance gain.
+(c) \textbf{Downstream application.} Using our 7B RL-RRM as a reward signal significantly improves the performance of FLUX.Kontext~\citep{batifol2025flux} across multiple editing categories during post-training.
+}
+\label{fig:r3l_pipeline_winloss}
+\vspace{-8pt}
+\end{figure}
+
+\input{sections/introduction}
+\input{sections/related_work}
+\input{sections/method}
+\input{sections/experiments}
+\input{sections/conclusion}
+
+% \section*{Acknowledgements}
+% This work was supported by Hong Kong Research Grants Council under the NSFC/RGC Collaborative Research Scheme (Grant CRS\_HKU703/24).
+
+\clearpage
+\bibliographystyle{plainnat}
+\bibliography{main}
+
+\clearpage
+\appendix
+\input{sections/appendix}
+
+\end{CJK*}
+\end{document}

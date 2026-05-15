@@ -1,0 +1,26 @@
+%%%% Starting from Table 7 %%%%%%%%%
+
+\begin{table}[h]
+    \centering
+    \caption{ElevenLabs User Simulator Configuration}
+    \label{tab:elevenlabs-config}
+    \begin{tabular}{ll}
+    \toprule
+    \textbf{Parameter} & \textbf{Value} \\
+    \midrule
+    TTS model family                      & V3 Conversational \\
+    Expressive mode                       & Enabled (no tags selected) \\
+    Language                              & English \\
+    LLM                                   & GPT-5.1 \\
+    System prompt                         & \texttt{\{\{prompt\}\}} \\
+    Default personality                   & Disabled \\
+    First message                         & None \\
+    Interruptible                         & Disabled \\
+    Advanced $>$ Input audio              & $\mu$-law telephony, 8000 Hz \\
+    Advanced $>$ Eagerness                & Eager \\
+    Advanced $>$ Take turn after silence  & 15 s \\
+    Advanced $>$ Max conversation duration & 600 s \\
+    Tools $>$ System tools                & \texttt{End conversation} (enabled) \\
+    \bottomrule
+    \end{tabular}
+    \end{table}

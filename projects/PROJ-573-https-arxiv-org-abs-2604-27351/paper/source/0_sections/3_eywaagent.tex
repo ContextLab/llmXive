@@ -1,0 +1,110 @@
+\section{EywaAgent: Reasoning Foundation Model Agents}
+\label{sec:eywaagent}
+
+Our first step towards the Eywa agentic framework is to introduce \textit{EywaAgent}, a unified abstraction that augments a foundation model with a language-based reasoning interface. The key idea is similar to "Tsaheylu" in Avatar to create a strong bond between a language model that performs high-level planning and control and a domain-specific foundation model that provides specialized capabilities. 
+
+\subsection{FM-LLM ``Tsaheylu'' Bond}
+
+The objective of the FM--LLM ``Tsaheylu'' is to establish a robust and stable communication channel between a domain-specific foundation model $F_k : \mathcal{X}_k \times \mathcal{U}_k \to \mathcal{O}_k$ for domain $k$ and a language model $A_{\mathrm{LLM}} : \mathcal{S} \to \Delta(\mathcal{M})$. The Tsaheylu interface is designed to ensure that: (1) the LLM can correctly configure the control input $\mathcal{U}_k$ conditioned on the task state, (2) specialized computation is delegated to the foundation model, and (3) the resulting output $\mathcal{O}_k$ can be faithfully reintegrated into the language reasoning process.
+
+To this end, we formalize the FM--LLM Tsaheylu as a bidirectional communication interface between the language model and the specialist. For each domain $k$, we define an interface pair $(\phi_k, \psi_k)$ where
+
+\begin{itemize}
+    \item $\phi_k : \mathcal{S} \to \mathcal{U}_k$ is a \emph{query compiler} that translates the task state into a structured FM invocation.
+    \item $\psi_k : \mathcal{O}_k \to \mathcal{Z}_k$ is a \emph{response adapter} that converts the specialist output into a planner-consumable representation, where $\mathcal{Z}_k$ denotes a structured context space compatible with language reasoning.
+\end{itemize} 
+
+The resulting communication pipeline can be expressed as
+\[
+\text{input task} \,\, \tau 
+\xrightarrow{\text{task interpretation by} \,\, A_{LLM}} 
+s
+\xrightarrow{\phi_k} 
+u_k 
+\xrightarrow{F_k(\cdot)} 
+o_k 
+\xrightarrow{\psi_k} 
+z_k 
+\xrightarrow{\text{reasoning \& synthesis by} \,\, A_{LLM}} 
+\text{output response} \,\, \hat{y}
+\]
+which enables seamless integration of heterogeneous foundation models into the language-centric reasoning loop and forms the building block of our Eywa agentic framework.
+
+\begin{wrapfigure}{r}{0.50\textwidth}
+  \begin{center}
+  \vspace{-10pt}
+    \includegraphics[width=0.50\textwidth]{figures/eywaagent.pdf}
+  \end{center}
+  \vspace{-11pt}
+  \caption{Reasoning Foundation Model Agent (EywaAgent) leverages both generalized reasoning and specialized acting through FM-LLM "Tsaheylu" Bond.}
+  \label{fig:eywaagent}
+  \vspace{-11pt}
+\end{wrapfigure}
+
+\paragraph{Instantiation via Model Context Protocol.}
+We implement the Tsaheylu interface through the \emph{Model Context Protocol (MCP)}~\cite{mcp2024}, which provides a standardized mechanism for structured interaction between language agents and external computational resources.
+Within this framework, each foundation model $F_k$ is exposed as a \emph{remote service} with a well-defined schema over its input space $\mathcal{U}_k$ and output space $\mathcal{O}_k$. The query compiler $\phi_k$ is implemented as a structured tool call that specifies the target resource (e.g., dataset identifier or model endpoint), the invocation parameters (e.g., prediction horizon, conditioning variables), and any necessary execution constraints.
+
+Upon invocation, the MCP server executes the requested operation by (i) retrieving domain-specific data $x_k$ from storage, (ii) applying the foundation model $F_k$ with the provided configuration $u_k$, and (iii) returning structured outputs $o_k$ to the agent.
+The response adapter $\psi_k$ then transforms $o_k$ into a language-compatible representation $z_k$, which is appended to the subsequent reasoning.
+
+
+
+\subsection{EywaAgent for Generalized Reasoning and Specialized Acting}
+
+Building upon the FM--LLM Tsaheylu interface, we define \textit{EywaAgent} as a unified agent that combines language-based reasoning with domain-specific computation. Unlike conventional language agents that operate purely in the linguistic space, EywaAgent dynamically decides whether to invoke a foundation model based on task requirements. 
+In our setting, the term ``agent'' does not refer to a single standalone model. Instead, an \textit{EywaAgent} is a coupled FM-LLM agentic unit. 
+The two components are connected through the Tsaheylu interface and jointly define the agent's behavior.
+
+
+
+\begin{tcolorbox}[
+  agentscope,
+  float,
+  floatplacement=h,
+  title=\textbf{EywaAgent}
+]
+\begin{definition}[EywaAgent]
+An \textit{EywaAgent} is defined as a tuple
+\begin{equation}
+A_{\mathrm{eywa}} = (A_{\mathrm{LLM}}, F, \phi, \psi, \mathcal{C})
+\end{equation}
+where $A_{\mathrm{LLM}} : \mathcal{S} \to \Delta(\mathcal{M})$ is a language model operating over the agent state space $\mathcal{S}$, $F : \mathcal{X} \times \mathcal{U} \to \mathcal{O}$ is a domain-specific foundation model, and $(\phi, \psi)$ defines a bidirectional communication interface between the language space and the domain space, with $\phi : \mathcal{S} \to \mathcal{U}$ and $\psi : \mathcal{O} \to \mathcal{Z}$.
+The control policy $\mathcal{C} : \mathcal{S} \to \{\texttt{invoke}, \texttt{skip}\}$ determines whether and how the foundation model is invoked at each step. If not specified, $\mathcal{C}$ is induced by the language model through its reasoning over the current state.
+\end{definition}
+\end{tcolorbox}
+
+An illustration of EywaAgent is shown in Figure \ref{fig:eywaagent}. At each reasoning step $t$, given state $s^{(t)}$, the control policy produces a decision $ a^{(t)} \sim \mathcal{C}(s^{(t)}), \quad a^{(t)} \in \{ \texttt{invoke}, \texttt{skip} \}$.
+
+If $a^{(t)} = \texttt{skip}$, the agent reduces to a standard language-only reasoning step:
+\begin{equation}
+z^{(t)} = A_{\mathrm{LLM}}(s^{(t)}).
+\end{equation}
+If $a^{(t)} = \texttt{invoke}$, the agent executes the Tsaheylu pipeline:
+\begin{equation}
+u = \phi(s^{(t)}), \quad
+o = F(x, u), \quad
+z^{(t)} = \psi(o).
+\end{equation}
+The updated state is given by $s^{(t+1)} = s^{(t)} \cup \{z^{(t)}\}$. This adaptive mechanism enables EywaAgent to seamlessly switch between generalized reasoning and specialized acting.
+From this perspective, EywaAgent subsumes language-only agents as a special case (by choosing $\mathcal{C}$ to always skip), while strictly expanding the space of computable functions through access to domain-specific foundation models. Consequently, EywaAgent achieves both enhanced expressivity and improved task performance.
+In particular, we show that EywaAgent attains a strictly lower optimal expected task loss compared to language-only agents under the domain advantage assumption, thereby expanding the class of tasks that can be effectively solved.
+% Moreover, EywaAgent improves efficiency when handling domain-specific inputs. 
+Moreover, by delegating computation to the foundation model, \textit{Eywa} avoids explicit token-level reasoning over structured data and reduces token usage. Formally, we have the following theorem.
+
+
+\begin{theorem}\label{thm:eywaagent improvement}
+(Improvement of EywaAgent over Language-only Agent)
+Let $\mathcal{F}_{\mathrm{LLM}}$ and $\mathcal{F}_{\mathrm{Eywa}}$ denote the function classes induced by language-only agents and EywaAgent, respectively. Under Assumption \ref{assumption: domain advantage}, 
+we have the following strict risk improvement of EywaAgent:
+\begin{equation}
+\inf_{f \in \mathcal{F}_{\mathrm{Eywa}}} 
+\mathbb{E}_{\tau \sim \mathcal{T}}[\ell(f(x), y^\star)]
+\;<\;
+\inf_{f \in \mathcal{F}_{\mathrm{LLM}}} 
+\mathbb{E}_{\tau \sim \mathcal{T}}[\ell(f(x), y^\star)].
+\end{equation}
+\end{theorem}
+(Proof in Appendix \ref{app:expressivity}) 
+
+Theorem~\ref{thm:eywaagent improvement} shows that the Tsaheylu interface preserves language-only reasoning through the skip branch, while enabling native foundation-model computation through the invoke branch, yielding lower optimal risk under the domain advantage assumption.

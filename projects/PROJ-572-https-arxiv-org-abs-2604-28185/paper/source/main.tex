@@ -1,0 +1,219 @@
+\RequirePackage{fix-cm}
+\PassOptionsToPackage{table,dvipsnames}{xcolor}
+\PassOptionsToPackage{noabbrev,nameinlink,capitalize}{cleveref}
+\PassOptionsToPackage{section}{placeins}
+\documentclass[]{selfevolagent}
+\usepackage{microtype}
+\usepackage{amsfonts}
+\usepackage{xcolor}
+\definecolor{lavender}{RGB}{230,230,250}
+\definecolor{softlavender}{RGB}{238, 223, 255}
+\definecolor{selfevolagent}{RGB}{242,240,250}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+
+\usepackage{subcaption}
+\usepackage{makecell}
+\usepackage{algpseudocode}
+\usepackage[linesnumbered,lined,boxed,commentsnumbered,ruled,longend]{algorithm2e}
+\theoremstyle{plain}
+
+\newcommand{\vx}{\mathbf{x}}
+\newcommand{\vs}{\mathbf{s}}
+\newcommand{\va}{\mathbf{a}}
+\newcommand{\vc}{\mathbf{c}}
+\newcommand{\vv}{\mathbf{v}}
+\newcommand{\vw}{\mathbf{w}}
+
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\usepackage{enumitem}
+\usepackage{pifont}
+\usepackage[edges]{forest}
+\usetikzlibrary{arrows.meta}
+\usepackage{tikz}
+\usepackage[most]{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{url}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usetikzlibrary{
+  positioning,
+  calc,
+  shapes.symbols,
+  shapes.geometric,
+  shapes.misc,
+  backgrounds
+}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\makeatletter
+\@ifundefined{showhyphens}{}{%
+  \expandafter\let\csname showhyphens \endcsname\showhyphens
+}
+\makeatother
+
+\definecolor{selfevolagent_dark}{HTML}{37D2A6} 
+\definecolor{selfevolagent_light}{HTML}{9BE9D3}
+\definecolor{selfevolagent_lighter}{HTML}{CDF4E9}
+
+
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+
+\usepackage{svg}
+
+\usepackage{xltabular}
+\usepackage{caption}
+
+
+
+\newcommand{\ghlink}[1]{\faIcon{github}\,\href{#1}{GitHub}}
+\newcommand{\weblink}[1]{\faIcon{globe}\,\href{#1}{Website}}
+
+\newcommand{\kemingwu}[1]{}
+\newcommand{\kaichen}[1]{}
+\newcommand{\zuhao}[1]{}
+\newcommand{\xjqi}[1]{}
+\newcommand{\shizun}[1]{}
+\newcommand{\syx}[1]{}
+
+\newcommand{\cmark}{\textcolor{green}{\ding{52}}}
+\newcommand{\xmark}{\textcolor{red}{\ding{56}}}
+
+\definecolor{rootcolor}{RGB}{101, 45, 144}
+\definecolor{catcolor}{RGB}{255, 192, 0}
+\definecolor{subcatcolor}{RGB}{237, 125, 49}
+\definecolor{papercolor}{RGB}{68, 114, 196}
+\newcommand{\ThreeLaws}{{\scshape\color{selfevolagent_dark!120} Three Laws of Self-Evolving AI Agents}}
+
+\newenvironment{highlightbox}[1]{%
+  \begin{tcolorbox}[
+    colback=selfevolagent_lighter!30,
+    colframe=selfevolagent_light!90,
+    colbacktitle=selfevolagent_light!90,
+    coltitle=black,
+    title={\bfseries\fontfamily{ppl}\selectfont #1},
+    boxrule=1.5pt,
+    arc=4pt,
+    drop shadow,
+    parbox=false,
+    before skip=8pt,
+    after skip=8pt,
+    left=6pt,
+    right=6pt,
+  ]%
+}{%
+  \end{tcolorbox}%
+}
+
+\title{Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic World Modeling}
+
+\author{Keming Wu$^{1,12,\dagger\text{\faCube}}$}
+\author{Zuhao Yang$^{2,12,\dagger\text{\faCube}}$}
+\author{Kaichen Zhang$^{3,12,\dagger}$}
+\author{Shizun Wang$^{4,\dagger}$}
+\author{Haowei Zhu$^{1,\dagger}$}
+\author{Sicong Leng$^{2}$}
+\author{Zhongyu Yang$^{2}$}
+\author{Qijie Wang$^{1}$}
+\author{Sudong Wang$^{11}$}
+\author{Ziting Wang$^{6}$}
+\author{Zili Wang$^{6}$}
+\author{Hui Zhang$^{9}$}
+\author{Haonan Wang$^{4}$}
+\author{Hang Zhou$^{8}$}
+\author{Yifan Pu$^{1}$}
+\author{Xingxuan Li$^{7}$}
+\author{Fangneng Zhan$^{10}$}
+\author{Bo Li$^{2,12,}$}
+\author{Lidong Bing$^{7}$}
+\author{Yuxin Song$^{8,\ddagger}$}
+\author{Ziwei Liu$^{2,12,\ddagger}$}
+\author{Wenhu Chen$^{5,\ddagger}$}
+\author{Jingdong Wang$^{8,\ddagger}$}
+\author{Xinchao Wang$^{4,\ddagger}$}
+\author{Xiaojuan Qi$^{3,\ddagger}$}
+\author{Shijian Lu$^{2,\ddagger}$}
+\author{Bin Wang$^{1,\ddagger}$}
+
+\affiliation{
+\vspace{0.5em}
+\;\faCube \;Project Organizer.\;$^\dagger$Core Contributor.\; \;$^\ddagger$Senior Supervisor.
+
+\vspace{0.5em}
+
+\texttt{\textbf{Affiliations}: $^1$Tsinghua University, $^2$Nanyang Technological University, $^3$University of Hong Kong, $^4$National University of Singapore, $^5$University of Waterloo, $^6$StepFun, $^7$MiroMind, $^8$Baidu, $^9$Fudan University, $^{10}$Hong Kong University of Science and Technology, $^{11}$Hong Kong University of Science and Technology (Guangzhou), $^{12}$LMMs-Lab}}
+
+
+
+\abstract{
+
+Recent visual generation models have improved photorealism, typography, instruction following, and interactive editing, yet they raise a deeper question: what does it mean to become ``better''? Despite high fidelity and complex prompt following, systems still struggle with spatial reasoning, persistent state, long-horizon consistency, and causal understanding---excelling at appearance while falling short of structural, temporal, and causal coherence.
+We argue the field must move beyond appearance synthesis to \emph{intelligent visual generation}: plausible visuals grounded in structure, dynamics, domain knowledge, and causal relations. We formalize this as a progression from single-pass rendering to controllable composition, persistent coherence, closed-loop interaction, and causal world modeling.
+We introduce a five-level taxonomy---\emph{Atomic Generation}, \emph{Conditional Generation}, \emph{In-Context Generation}, \emph{Agentic Generation}, and \emph{World-Modeling Generation}---from passive renderers to interactive, agentic, world-aware generators, where each level nests prior capabilities and adds a qualitatively new competence. We analyze drivers of this shift---diffusion-to-flow matching, unified understanding-and-generation models, improved visual representations, supervised fine-tuning and preference-based post-training, reward modeling, large-scale data curation and synthetic data distillation, and sampling acceleration and distillation for real-time deployment---as collectively advancing a shared trajectory toward intelligent visual generation rather than isolated improvements.
+Evaluations often overestimate progress by privileging perceptual quality over structural, temporal, and causal weaknesses. We therefore pair benchmark review with in-the-wild stress tests and expert-constrained visual case studies that map failure modes to taxonomy levels to locate the frontier. Reframing generation as a path toward broader visual intelligence, this roadmap outlines a research agenda for controllable, interactive, physically grounded systems. We hope this roadmap provides the community with a capability-centered lens and practical insights for understanding, evaluating, and advancing the next generation of intelligent visual generation systems.
+
+}
+
+
+
+
+
+\date{\today}
+\metadata[\faEnvelope\ Main Author Contact ]{wukeming0608@gmail.com, yang0756@e.ntu.edu.sg, zhan0564@e.ntu.edu.sg, shizun.wang@u.nus.edu}
+\metadata[{\raisebox{-0.2ex}{\includegraphics[height=1em]{img/github-mark.png}}\ Project Page}]{\url{https://github.com/EvolvingLMMs-Lab/Evolving-Visual-Generation}} 
+
+\metadata[\faBullhorn\ Declaration]{This manuscript is a preprint and an evolving roadmap. Its analysis, taxonomy, references, and viewpoints may be corrected, updated, or revised in future versions as the field develops and new evidence or community feedback emerges.}
+
+\begin{document}
+
+\maketitle
+
+\clearpage
+\tableofcontents
+
+\clearpage
+\input{sections/1_intro}
+\input{sections/2_level}
+\input{sections/3_method}
+\input{sections/4_training}
+\input{sections/5_data}
+\input{sections/6_task}
+\input{sections/7_real_eval}
+\input{sections/8_direction}
+\input{sections/9_conclusion}
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\bibliographystyle{assets/plainnat}
+\bibliography{citation}
+\clearpage
+\end{document}

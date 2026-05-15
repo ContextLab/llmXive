@@ -1,0 +1,85 @@
+\begingroup\footnotesize
+\begin{longtable}{
+%>{\raggedright\arraybackslash}p{1.8cm}llrrrr}
+  >{\raggedright\arraybackslash}p{1.2cm}
+  >{\raggedright\arraybackslash}p{1.0cm}
+  >{\raggedright\arraybackslash}p{3.8cm}
+  >{\centering\arraybackslash}p{1.4cm}
+  >{\centering\arraybackslash}p{1.4cm}
+  >{\centering\arraybackslash}p{1.4cm}
+  >{\centering\arraybackslash}p{1.4cm}}
+\caption{Judge vs. trial variance per domain and model. Each cell value is the mean across records of the per-record standard deviation: \textit{Judge std dev} is the per-record SD across the 3 judge iterations (averaged over trials before averaging across records); \textit{Trial std dev} is the per-record SD across trials (after averaging across judge iterations), averaged across records. $p_\text{perm}$ is the one-sided sign-flip permutation test p-value (10,000 permutations, $H_1$: trial std dev $>$ judge std dev). $p_\text{sign}$ is the one-sided exact binomial sign test p-value ($H_1$: P(trial std dev $>$ judge std dev) $> 0.5$).}
+\label{tab:judge-trial} \\
+\toprule
+Metric & Domain & Model & Judge std dev & Trial std dev & $p_\text{perm}$ & $p_\text{sign}$ \\
+\midrule
+\endfirsthead
+\multicolumn{7}{l}{\emph{Table~\ref{tab:judge-trial} continued from previous page}} \\
+\toprule
+Metric & Domain & Model & Judge std dev & Trial std dev & $p_\text{perm}$ & $p_\text{sign}$ \\
+\midrule
+\endhead
+\midrule \multicolumn{7}{r}{\emph{continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+Conciseness & CSM & \geminilive & 0.0364 & 0.0681 & $< 0.0001$ & $< 0.0001$ \\
+ & CSM & \parakeet~+ \gemmaB~+ \kokoro & 0.0401 & 0.0489 & 0.004 & 0.003 \\
+ & CSM & \gptrealtime & 0.0345 & 0.0649 & $< 0.0001$ & $< 0.0001$ \\
+ & CSM & \ink~+ \haiku~+ \sonic & 0.0412 & 0.0665 & $< 0.0001$ & $< 0.0001$ \\
+ & ITSM & \geminilive & 0.0367 & 0.0684 & $< 0.0001$ & $< 0.0001$ \\
+ & ITSM & \parakeet~+ \gemmaB~+ \kokoro & 0.0349 & 0.0522 & $< 0.0001$ & $< 0.0001$ \\
+ & ITSM & \gptrealtime & 0.0311 & 0.0529 & $< 0.0001$ & $< 0.0001$ \\
+ & ITSM & \ink~+ \haiku~+ \sonic & 0.0370 & 0.0645 & $< 0.0001$ & $< 0.0001$ \\
+ & HR & \geminilive & 0.0386 & 0.0651 & $< 0.0001$ & $< 0.0001$ \\
+ & HR & \parakeet~+ \gemmaB~+ \kokoro & 0.0325 & 0.0547 & $< 0.0001$ & $< 0.0001$ \\
+ & HR & \gptrealtime & 0.0319 & 0.0473 & $< 0.0001$ & $< 0.0001$ \\
+ & HR & \ink~+ \haiku~+ \sonic & 0.0382 & 0.0648 & $< 0.0001$ & $< 0.0001$ \\
+\midrule
+Conversation progression & CSM & \geminilive & 0.0535 & 0.2259 & $< 0.0001$ & $< 0.0001$ \\
+ & CSM & \parakeet~+ \gemmaB~+ \kokoro & 0.0639 & 0.1417 & $< 0.0001$ & 0.008 \\
+ & CSM & \gptrealtime & 0.0655 & 0.2303 & $< 0.0001$ & $< 0.0001$ \\
+ & CSM & \ink~+ \haiku~+ \sonic & 0.0960 & 0.2048 & $< 0.0001$ & $< 0.0001$ \\
+ & ITSM & \geminilive & 0.0735 & 0.2184 & $< 0.0001$ & $< 0.0001$ \\
+ & ITSM & \parakeet~+ \gemmaB~+ \kokoro & 0.0631 & 0.1823 & $< 0.0001$ & $< 0.0001$ \\
+ & ITSM & \gptrealtime & 0.0726 & 0.2003 & $< 0.0001$ & $< 0.0001$ \\
+ & ITSM & \ink~+ \haiku~+ \sonic & 0.0901 & 0.2301 & $< 0.0001$ & $< 0.0001$ \\
+ & HR & \geminilive & 0.0840 & 0.2287 & $< 0.0001$ & $< 0.0001$ \\
+ & HR & \parakeet~+ \gemmaB~+ \kokoro & 0.0762 & 0.2257 & $< 0.0001$ & $< 0.0001$ \\
+ & HR & \gptrealtime & 0.0799 & 0.2056 & $< 0.0001$ & $< 0.0001$ \\
+ & HR & \ink~+ \haiku~+ \sonic & 0.0850 & 0.2206 & $< 0.0001$ & $< 0.0001$ \\
+\midrule
+Faithfulness & CSM & \geminilive & 0.0532 & 0.2519 & $< 0.0001$ & $< 0.0001$ \\
+ & CSM & \parakeet~+ \gemmaB~+ \kokoro & 0.0749 & 0.2621 & $< 0.0001$ & $< 0.001$ \\
+ & CSM & \gptrealtime & 0.0532 & 0.2145 & $< 0.0001$ & $< 0.0001$ \\
+ & CSM & \ink~+ \haiku~+ \sonic & 0.0666 & 0.2869 & $< 0.0001$ & $< 0.0001$ \\
+ & ITSM & \geminilive & 0.0303 & 0.1295 & $< 0.0001$ & 0.073 \\
+ & ITSM & \parakeet~+ \gemmaB~+ \kokoro & 0.0869 & 0.1853 & $< 0.0001$ & $< 0.0001$ \\
+ & ITSM & \gptrealtime & 0.0693 & 0.1782 & $< 0.0001$ & $< 0.0001$ \\
+ & ITSM & \ink~+ \haiku~+ \sonic & 0.0564 & 0.2767 & $< 0.0001$ & $< 0.0001$ \\
+ & HR & \geminilive & 0.0307 & 0.1001 & $< 0.0001$ & 0.745 \\
+ & HR & \parakeet~+ \gemmaB~+ \kokoro & 0.0763 & 0.2091 & $< 0.0001$ & $< 0.0001$ \\
+ & HR & \gptrealtime & 0.0426 & 0.1287 & $< 0.0001$ & 0.008 \\
+ & HR & \ink~+ \haiku~+ \sonic & 0.0548 & 0.2517 & $< 0.0001$ & $< 0.0001$ \\
+\midrule
+Speech fidelity & CSM & \geminilive & 0.0000 & 0.0000 & 0.500 & 1.000 \\
+ & CSM & \parakeet~+ \gemmaB~+ \kokoro & 0.0044 & 0.0425 & $< 0.0001$ & 0.899 \\
+ & CSM & \gptrealtime & 0.0027 & 0.0158 & 0.033 & 1.000 \\
+ & CSM & \ink~+ \haiku~+ \sonic & 0.0020 & 0.0148 & $< 0.0001$ & 0.984 \\
+ & ITSM & \geminilive & 0.0047 & 0.0314 & $< 0.0001$ & 1.000 \\
+ & ITSM & \parakeet~+ \gemmaB~+ \kokoro & 0.0074 & 0.0559 & $< 0.0001$ & $< 0.0001$ \\
+ & ITSM & \gptrealtime & 0.0020 & 0.0057 & 0.017 & 1.000 \\
+ & ITSM & \ink~+ \haiku~+ \sonic & 0.0051 & 0.0353 & $< 0.0001$ & $< 0.001$ \\
+ & HR & \geminilive & 0.0011 & 0.0044 & 0.032 & 1.000 \\
+ & HR & \parakeet~+ \gemmaB~+ \kokoro & 0.0060 & 0.0598 & $< 0.0001$ & $< 0.0001$ \\
+ & HR & \gptrealtime & 0.0013 & 0.0083 & $< 0.0001$ & 1.000 \\
+ & HR & \ink~+ \haiku~+ \sonic & 0.0020 & 0.0284 & $< 0.0001$ & 0.413 \\
+\midrule
+Transcription accuracy key entities & CSM & \parakeet~+ \gemmaB~+ \kokoro & 0.0148 & 0.1316 & $< 0.0001$ & $< 0.0001$ \\
+ & CSM & \ink~+ \haiku~+ \sonic & 0.0243 & 0.1685 & $< 0.0001$ & $< 0.0001$ \\
+ & ITSM & \parakeet~+ \gemmaB~+ \kokoro & 0.0278 & 0.1261 & $< 0.0001$ & $< 0.0001$ \\
+ & ITSM & \ink~+ \haiku~+ \sonic & 0.0204 & 0.1819 & $< 0.0001$ & $< 0.0001$ \\
+ & HR & \parakeet~+ \gemmaB~+ \kokoro & 0.0250 & 0.1521 & $< 0.0001$ & $< 0.0001$ \\
+ & HR & \ink~+ \haiku~+ \sonic & 0.0285 & 0.1875 & $< 0.0001$ & $< 0.0001$ \\
+\end{longtable}
+\endgroup

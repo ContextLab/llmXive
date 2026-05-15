@@ -1,0 +1,53 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,font=\footnotesize\sffamily]
+  \tikzstyle{title}=[font=\bfseries\small\sffamily, text=mindlabfg, align=center]
+  \tikzstyle{row}=[font=\bfseries\footnotesize\sffamily, text=mindlabfg, align=right]
+  \tikzstyle{block}=[draw=mindlabfg, thick, rounded corners=0.8mm, fill=white, align=center, inner sep=2pt, minimum width=0.84cm, minimum height=0.54cm]
+  \tikzstyle{trainblock}=[block, fill=mindlabblue!22]
+  \tikzstyle{adapter}=[draw=mindlabfg, thick, rounded corners=0.7mm, fill=white, align=center, inner sep=1.8pt, minimum width=0.58cm, minimum height=0.34cm]
+  \tikzstyle{trainadapter}=[adapter, fill=mindlabblue!22]
+  \tikzstyle{note}=[font=\scriptsize\sffamily, text=mindlabfg, align=center]
+  \tikzstyle{arrow}=[->, thick, draw=mindlabfg]
+
+  \path[use as bounding box] (-1.45,-4.34) rectangle (14.95,0.42);
+
+  \node[title] at (1.75,0.10) {Full fine-tuning};
+  \node[title] at (7.50,0.10) {LoRA merge};
+  \node[title] at (13.25,0.10) {MinT multi-LoRA};
+
+  \node[row, anchor=east] at (-0.12,-0.90) {Training\\worker};
+  \node[row, anchor=east] at (-0.12,-2.12) {Moved\\file};
+  \node[row, anchor=east] at (-0.12,-3.34) {Inference\\worker};
+
+  \foreach \x/\i in {0.65/1,1.75/2,2.85/n} {
+    \node[trainblock] (ftw\i) at (\x,-0.90) {$W_{\i}$};
+    \node[block] (ftc\i) at (\x,-2.12) {$W_{\i}$};
+    \node[block] (fts\i) at (\x,-3.34) {$W_{\i}$};
+    \draw[arrow] (ftw\i) -- (ftc\i);
+    \draw[arrow] (ftc\i) -- (fts\i);
+  }
+
+  \foreach \x/\i in {5.95/1,7.50/2,9.05/n} {
+    \node[block] (mb\i) at (\x-0.20,-0.90) {$W$};
+    \node[trainadapter] (ml\i) at (\x+0.50,-0.90) {$L_{\i}$};
+    \node[block] (mc\i) at (\x,-2.12) {$W'_{\i}$};
+    \node[block] (ms\i) at (\x,-3.34) {$W'_{\i}$};
+    \coordinate (join\i) at (\x+0.08,-1.18);
+    \draw[arrow] (join\i) -- (mc\i);
+    \draw[arrow] (mc\i) -- (ms\i);
+  }
+  \node[block] (mtw) at (12.26,-0.90) {$W$};
+  \foreach \x/\i in {12.96/1,13.66/2,14.36/n} {
+    \node[trainadapter] (mtl\i) at (\x,-0.90) {$L_{\i}$};
+    \node[adapter] (mal\i) at (\x,-2.12) {$L_{\i}$};
+    \draw[arrow] (mtl\i) -- (mal\i);
+  }
+
+  \node[block] (miw) at (12.26,-3.34) {$W$};
+  \foreach \x/\i in {12.96/1,13.66/2,14.36/n} {
+    \node[adapter] (msl\i) at (\x,-3.34) {$L_{\i}$};
+    \draw[arrow] (mal\i) -- (msl\i);
+  }
+
+  \node[note] (legend) at (6.75,-4.07) {\quad blue = trained parameters; $W$ = base model; $L_i$ = LoRA adapter; $W'_i$ = merged checkpoint};
+  \node[trainadapter, minimum width=0.46cm, minimum height=0.26cm, anchor=east] at (legend.west) {};
+\end{tikzpicture}

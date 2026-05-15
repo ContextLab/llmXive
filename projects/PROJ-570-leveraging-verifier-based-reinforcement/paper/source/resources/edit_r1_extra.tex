@@ -1,0 +1,30 @@
+% Packages and macros required by the Edit-R1 paper body (migrated from CVPR sources).
+\usepackage{siunitx}
+\usepackage{listings}
+\usepackage{colortbl}
+\usepackage{tabularx}
+\usepackage{makecell}
+\newcommand{\rlhf}{RLHF}
+\newcommand{\rrm}{RRM}
+\newcommand{\sft}{SFT}
+\newcommand{\gcpo}{GCPO}
+\newcommand{\grpo}{GRPO}
+\newcommand{\rthree}{R3L}
+\newcommand{\editrone}{Edit-R1}
+\newcommand{\Ind}[1]{\mathds{1}\!\left\{#1\right\}}
+
+% Compact listing style for long prompts (avoids the large CVPR \lstdefinestyle block).
+\lstdefinestyle{promptstyle}{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  frame=single,
+  frameround=tttt,
+  rulecolor=\color{black!60},
+  showstringspaces=false,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  numbersep=5pt,
+  tabsize=2,
+  captionpos=b,
+}

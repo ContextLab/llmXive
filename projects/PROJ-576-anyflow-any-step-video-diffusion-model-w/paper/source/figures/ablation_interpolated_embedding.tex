@@ -1,0 +1,18 @@
+\begin{figure}[!tb]
+    \centering
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/src/interpolated_embedding.pdf}
+        \caption{Comparison of embedding norms at different sample steps during training.}
+        \label{fig:interpolated_time_norm}
+    \end{subfigure}
+    
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/src/interpolated_visualization.pdf}
+        \caption{Visual comparison of zero-init timestep conditioning and interpolated timestep conditioning.}
+        \label{fig:interpolated_time_vis}
+    \end{subfigure}
+    \caption{\textbf{Ablation Study of Timestep Conditioning}. Compared with zero-init timestep conditioning, the proposed interpolated method achieves embedding norms more consistent with pretrained embeddings, preventing over-saturated visual results.}
+    \label{fig:ablation_interpolated_time}
+\end{figure}

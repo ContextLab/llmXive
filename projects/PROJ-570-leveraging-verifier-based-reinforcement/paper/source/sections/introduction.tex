@@ -1,0 +1,155 @@
+% \section{Introduction}
+% \label{sec:intro}
+
+% With the rapid progress of diffusion models, text-to-image (T2I) generation and image editing have advanced dramatically.
+% In T2I generation, Reinforcement Learning from Human Feedback (RLHF) has become a core step in post-training~\citep{gong2025seedream,gao2025seedream,wu2025qwen}. This is reflected in the rise of reward models such as ImageReward~\citep{xu2023imagereward}, HPS~\citep{ma2025hpsv3}, UnifiedReward~\citep{wang2025unified}, and RewardDance~\citep{wu2025rewarddance}, as well as optimization methods like DPO~\citep{wallace2024diffusion}, REFL~\citep{xu2023imagereward}, and GRPO~\citep{xue2025dancegrpo, liu2025flow}.
+% By contrast, image editing research remains centered on pretraining and supervised fine-tuning (SFT)~\citep{wang2025seededit,deng2025emerging,batifol2025flux}, with little exploration of RLHF. 
+
+% % \vspace{-.5em}
+% In this paper, we identify two key challenges for applying RLHF to image editing:
+% % \begin{itemize}[leftmargin=*] 
+%  % \item \textit{Reasoning-based Reward Model}: 
+%  (1) \textit{Reasoning-enhanced Reward Models (RRMs)}. Existing edit evaluators~\citep{gong2025onereward,wei2025skywork} typically rely on CLIP-based or general-purpose Vision Language Models (VLMs) architectures to directly output a single score. However, image editing requires a more nuanced evaluation than T2I generation, covering aspects such as preservation of unedited regions, fidelity to the editing instructions, and overall image quality. The straightforward scoring approach often fails to balance these aspects, resulting in bias or hallucinated feedback~\citep{gunjal2025rubrics}. There is a critical need for a thinking reward model that reasons across multiple dimensions and leverages test-time computation to improve fidelity.
+% (2) \textit{RLHF Algorithms Compatible with RRMs}. While RLHF algorithms such as REFL have been applied to editing models~\citep{gong2025onereward,ren2024byteedit}, they are fundamentally incompatible with our reasoning reward model. Since the RRM generates an explicit multi-step reasoning trace through discrete token sampling before producing a final score, the process is inherently non-differentiable, rendering REFL-style methods inapplicable. Thus, a key challenge is how to leverage such a powerful RRM to achieve stable improvements in downstream editing models.
+% % \end{itemize}
+
+
+% To address these challenges, we introduce Edit-R1, a framework that leverages an Edit-RRM to enhance image editing. Edit-R1 begins with cold-start training of a reasoning VLM through Supervised Fine-Tuning (SFT), then refines it with reinforcement learning, and finally applies the improved RRM to strengthen editing models.
+% Our approach is centered on the RRM that evaluates edits based on decomposed principles. Given an instruction and source image, the RRM first decomposes it into verifiable sub-principles, then evaluates the edited image against each principle and aggregates the results into a comprehensive reward. This provides a granular and interpretable feedback signal. The RRM is trained via a two-stage pipeline. (1) The initial ``cold-start" stage involves SFT on a diverse dataset of paired (instruction, source/edit image, CoT-scoring trajectory) examples. (2) To enhance the model's reasoning reliability, we then introduce the Group Contrastive Policy Optimization (GCPO), a novel method leveraging human preference data to construct distinct groups of superior and inferior reasoning trajectories. 
+% GCPO computes a cross-group reward and intra-group advantage: a cross-group reward for correctly distinguishing between the groups, and an intra-group advantage to capture finer-grained distinctions within them. 
+% This GCPO approach, which contrasts entire reasoning pathways, significantly improves the quality of the reward model's inference process and the accuracy of its scoring mechanism. The resulting RRM is then used to finetune the editing model with an Edit-centric GRPO algorithm. Guided by principle-based feedback, the RRM breaks down each instruction, evaluates the generated edit against the derived principles, and produces a holistic reward. This structured signal drives the model to better follow complex user instructions. Our contributions are summarized as follows:
+
+
+
+
+% \begin{itemize}[leftmargin=*]
+% \item \textbf{\textit{Reasoning-enhanced Reward Model.}} To our knowledge, we introduce the first Chain-of-Thought (CoT) enabled reward model for image editing. Its fidelity is achieved through a two-stage training process: a "cold-start" phase using SFT on detailed reasoning trajectories, followed by our novel \textit{Group Contrastive Policy Optimization (GCPO)} algorithm. This process significantly enhances both the quality of the RRM's reasoning capability and the accuracy of its final scores.
+
+% \item \textbf{\textit{Reinforcement Learning for Image Editing.}} We adopt a GRPO-based reinforcement learning algorithm for image editing and show that it effectively leverages the structured, principle-based feedback from our RRM to improve the model’s ability to follow complex instructions.
+
+% \item \textbf{\textit{Superior Performance and Scaling Trend.}} Our 7B Edit-RRM reward model surpasses the evaluative accuracy of powerful proprietary VLMs (e.g., Seed-1.5-VL/Seed-1.6-VL) and exhibits a clear scaling Trend from 3B to 7B. When applied Edit-RRM to open-source editors such as FLUX.1-kontext and Qwen-Image-Edit, our framework achieves substantial gains on challenging editing benchmarks.
+
+% \begin{table*}[t]
+% \centering
+% \resizebox{\textwidth}{!}{%
+% \begin{tabular}{l|c|c|c|ccc}
+% \toprule
+% \multirow{2}{*}{\textbf{Method}} & \multirow{2}{*}{\textbf{Task}}  & \multirow{2}{*}{\textbf{Modeling Paradigm}} & \multirow{2}{*}{\textbf{Point-wise}} & \multicolumn{3}{c}{\textbf{Reasoning Ability}} \\
+% & & & &  \textbf{Use principles} & \textbf{With thinks} & \textbf{learned via RL} \\
+% \midrule
+% ImageReward~\citep{xu2023imagereward}          & Visual: T2I         &  Regressive  & $\checkmark$ & $\times$     & $\times$      & $\times$ \\
+% VideoAlign~\citep{liu2025improving}           & Visual: T2I           &  Regressive  & $\checkmark$ & $\times$     & $\times$      & $\times$  \\
+% WorldPM~\citep{wang2025worldpm}               & Understanding  &  Regressive & $\checkmark$ & $\times$     & $\times$      & $\times$ \\
+% DeepSeek-GRM~\citep{liu2025inference}         & Understanding  &  Generative  & $\times$     & $\checkmark$ & $\checkmark$  & $\checkmark$     \\
+% Pairwise RM~\citep{xu2025unified}             & Understanding  &  Generative  & $\times$     & $\times$     & $\checkmark$  & $\checkmark$ \\
+% UnifiedReward~\citep{wang2025unified,wang2025pref} & Multimodal &  Generative  & $\times$     & $\checkmark$ & $\checkmark$  & $\checkmark$     \\
+% RewardDance  ~\citep{wu2025rewarddance}                                & Visual: T2I          &  Generative  & $\times$     & $\times$     & $\checkmark$  & $\times$\\
+% OneReward~\citep{gong2025onereward}           & Visual: Edit         &  Generative  & $\times$     & $\times$     & $\times$  & $\times$     \\
+% VisualQuality-R1~\citep{wu2025visualquality}         & Visual: T2I          &  Generative  & $\checkmark$ & $\times$     & $\checkmark$  & $\checkmark$     \\
+% Skywork-EditReward~\citep{wei2025skywork}      & Visual: Edit            &  Generative  & $\checkmark$ & $\times$     & $\checkmark$  & $\times$     \\
+% \textbf{Edit-RRM (Ours)}                      & \textbf{Visual: Edit   } &  \textbf{Generative} & $\checkmark$ & $\checkmark$ & $\checkmark$  & $\checkmark$    \\
+% \bottomrule
+% \end{tabular}%
+% }
+% \caption{Comparison of reward models, highlighting reasoning capabilities. We categorize methods by their foundational characteristics (Task, Modeling Paradigm, etc.) and their support for advanced \textbf{Reasoning Ability} components: explicit use of principles, Chain-of-Thought (``thinks''), and reinforcement learning. A checkmark ($\checkmark$) denotes support. \textbf{Edit-RRM (Ours)} is unique in integrating all three reasoning-enhancing features within a generative, point-wise framework for visual tasks.}
+% \label{tab:main}
+% \end{table*}
+
+% % \begin{table}[t]
+% % \centering
+% % \resizebox{\textwidth}{!}{%
+% % \begin{tabular}{l|c|c|c|ccc}
+% % \toprule
+% % \multirow{2}{*}{\textbf{Method}} & \multirow{2}{*}{\textbf{Task}}  & \multirow{2}{*}{\textbf{Modeling Paradigm}} & \multirow{2}{*}{\textbf{Point-wise}} & \multicolumn{3}{c}{\textbf{Reasoning Ability}} \\
+% % & & & &  \textbf{Use principles} & \textbf{With thinks} & \textbf{learned via RL} \\
+% % \midrule
+% % ImageReward~\citep{xu2023imagereward}          & Visual: T2I         &  Regressive  & $\checkmark$ & $\times$     & $\times$      & $\times$ \\
+% % %PickScore~\citep{kirstain2023pick}            & Visual         &  Regressive  & $\checkmark$ & $\times$     & $\times$      & $\times$  \\
+% % %HPSv2~\citep{wu2023human}                     & Visual         &  Regressive  & $\checkmark$ & $\times$     & $\times$      & $\times$  \\
+% % %VisionReward~\citep{xu2024visionreward}       & Visual         &  Regressive  & $\checkmark$ & $\times$     & $\times$      & $\times$  \\
+% % VideoAlign~\citep{liu2025improving}           & Visual: T2I           &  Regressive  & $\checkmark$ & $\times$     & $\times$      & $\times$  \\
+% % %HPSv3~\citep{ma2025hpsv3}                     & Visual         &  Regressive  & $\checkmark$ & $\times$     & $\times$      & $\times$  \\
+% % WorldPM~\citep{wang2025worldpm}               & Understanding  &  Regressive & $\checkmark$ & $\times$     & $\times$      & $\times$ \\
+% % DeepSeek-GRM~\citep{liu2025inference}         & Understanding  &  Generative  & $\times$     & $\checkmark$ & $\checkmark$  & $\checkmark$     \\
+% % Pairwise RM~\citep{xu2025unified}             & Understanding  &  Generative  & $\times$     & $\times$     & $\checkmark$  & $\checkmark$ \\
+% % UnifiedReward~\citep{wang2025unified,wang2025pref} & Multimodal &  Generative  & $\times$     & $\checkmark$ & $\checkmark$  & $\checkmark$     \\
+% % RewardDance  ~\citep{wu2025rewarddance}                                & Visual: T2I          &  Generative  & $\times$     & $\times$     & $\checkmark$  & $\times$\\
+% % OneReward~\citep{gong2025onereward}           & Visual: Edit         &  Generative  & $\times$     & $\times$     & $\times$  & $\times$     \\
+% % %Pref-GRPO~\citep{wang2025pref}                & Visual         &  Generative  & $\times$     & $\times$ & $\checkmark$  & $\times$     \\
+% % VisualQuality-R1~\citep{wu2025visualquality}         & Visual: T2I          &  Generative  & $\checkmark$ & $\times$     & $\checkmark$  & $\checkmark$     \\
+% % Skywork-EditReward~\citep{wei2025skywork}      & Visual: Edit            &  Generative  & $\checkmark$ & $\times$     & $\checkmark$  & $\times$     \\
+% % % PREF-GRPO~\citep{wang2025pref}         & Visual     & VLM  & Generative  &$\checkmark$     & $\checkmark$     & $\checkmark$  & $\times$     \\
+% % \textbf{Edit-RRM (Ours)}                      & \textbf{Visual: Edit   } &  \textbf{Generative} & $\checkmark$ & $\checkmark$ & $\checkmark$  & $\checkmark$    \\
+% % \bottomrule
+% % \end{tabular}%
+
+% % }
+% % \caption{Comparison of reward models, highlighting reasoning capabilities. We categorize methods by their foundational characteristics (Task, Modeling Paradigm, etc.) and their support for advanced \textbf{Reasoning Ability} components: explicit use of principles, Chain-of-Thought (``thinks''), and reinforcement learning. A checkmark ($\checkmark$) denotes support. \textbf{Edit-RRM (Ours)} is unique in integrating all three reasoning-enhancing features within a generative, point-wise framework for visual tasks.}
+% % \label{tab:main}
+% % \end{table}
+
+
+% \end{itemize}
+\vspace{-1.8em}
+\section{Introduction}
+\label{sec:intro}
+
+% With the rapid progress of diffusion models, text-to-image (T2I) generation and image editing have advanced dramatically. 
+Image editing has evolved from earlier task-specific systems for photo adjustment and exemplar-based stylization~\cite{yan2016automatic,zhu2017exemplar,ruiz2023dreambooth,ye2023ip,guo2024real} to modern diffusion-based editors. 
+With the rapid progress of diffusion and flow-based generative models, text-to-image (T2I) generation~\citep{ramesh2022hierarchical,saharia2022photorealistic,chang2023muse,balaji2022ediffi,rombach2022high,podell2023sdxl,esser2024scaling,betker2023improving,imagen2024imagen3,chen2023pixartalpha,chen2024pixartsigma,li2024hunyuandit,zheng2024cogview3,gong2025seedream,gao2025seedream,wu2025qwen,chen2025janus,han2025infinity}, image editing~\citep{brooks2023instructpix2pix,sheynin2024emu,ren2024byteedit,shi2024seededit,wang2025seededit,liu2025step1x,batifol2025flux,xiao2025omnigen}, and video generation~\citep{blattmann2023stable,bartal2024lumiere,brooks2024video,bao2024vidu,kong2024hunyuanvideo,moviegen2024movie,yang2025cogvideox,hacohen2025ltx,seawead2025seaweed,ma2025step,wan2025wan,gao2025seedance,seedance2025seedance,seedance2026seedance} have advanced dramatically.
+In T2I generation, Reinforcement Learning from Human Feedback (RLHF) has become a core post-training step~\citep{gong2025seedream,gao2025seedream,wu2025qwen}, driven by powerful reward models (RMs)~\citep{xu2023imagereward,ma2025hpsv3,wang2025unified} and optimization algorithms~\citep{wallace2024diffusion,xu2023imagereward,xue2025dancegrpo}. By contrast, the application of RLHF to image editing has remained limited, with research still centered on pretraining and supervised fine-tuning (SFT)~\citep{wang2025seededit,deng2025emerging,batifol2025flux}.
+
+A primary obstacle is the lack of a sufficiently robust reward model in editing. Image editing demands a more nuanced evaluation than T2I generation, assessing aspects like instruction fidelity, preservation of unedited regions, and overall quality. 
+Existing approaches typically treat the RM as a holistic scorer, using a general-purpose Vision Language Model (VLM) to output a single, direct score~\citep{gong2025onereward,wei2025skywork}. 
+This paradigm, also adopted by concurrent work like EditScore~\citep{luo2025editscore}, often fails to balance these complex aspects, leading to biased or hallucinated feedback~\citep{gunjal2025rubrics}. 
+The key to overcoming this limitation is to shift from a simple "scorer" to a \textbf{reasoning verifier}—a model that explicitly decomposes the editing instruction, verifies the output against each sub-task, and then aggregates the results.
+
+This paradigm shift presents two fundamental challenges.
+ (1) \textit{Building and training a reliable verifier.} The first challenge lies in creating a verifier that can follow a structured reasoning process and accurately align with human preferences. While Chain-of-Thought (CoT) offers a promising structure, the initial training data is often noisy. Furthermore, aligning the verifier's complex, pointwise reasoning output with simple pairwise human preference data (e.g., "image A is better than B") is an unsolved problem, as standard RLHF algorithms like DPO~\cite{rafailov2023direct} or GRPO~\cite{guo2025deepseek} are ill-suited for this task.
+ (2) \textit{RLHF Algorithms Compatible with RRMs}. While RLHF algorithms such as REFL have been applied to editing models~\citep{gong2025onereward,ren2024byteedit}, they are fundamentally incompatible with our reasoning reward model. Since the RRM generates an explicit multi-step reasoning trace through discrete token sampling before producing a final score, the process is inherently non-differentiable, rendering REFL-style methods inapplicable. Thus, a key challenge is how to leverage such a powerful RRM to achieve stable improvements in downstream editing models.
+
+
+To address these challenges, we introduce \textbf{Edit-R1}, a framework for building and leveraging a verifier-based Reasoning Reward Model (RRM) to enhance image editing. Our approach begins by constructing the RRM to function as a verifier, evaluating edits by decomposing instructions into principles and generating a CoT analysis. To ensure high-quality "cold-start" training, we employ a powerful external VLM as a "quality-control judge" to filter the SFT data for the most plausible reasoning trajectories.
+
+Subsequently, to align our pointwise RRM with pairwise human preference data, we introduce Group Contrastive Preference Optimization (GCPO), a novel reinforcement learning algorithm. 
+GCPO is specifically designed to refine the RRM's reasoning capabilities by contrasting groups of "winner" and "loser" reasoning trajectories generated by the RRM itself. Once trained, this powerful, non-differentiable RRM serves as the verifier in a GRPO-based~\citep{xue2025dancegrpo, liu2025flow} reinforcement learning loop to significantly improve downstream editing models. Our contributions are summarized as follows:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{A Verifier-based Reasoning Reward Model.} We propose a paradigm shift for image editing reward modeling, moving from a holistic scorer to a reasoning verifier. Our RRM, enabled by principle decomposition and CoT, provides more structured, interpretable, and reliable feedback.
+    
+    \item \textbf{A Novel RL Algorithm for RRM Training.} We introduce Group Contrastive Preference Optimization (GCPO), a new algorithm designed to optimize a pointwise, reasoning-based reward model using pairwise preference data. This method effectively refines the RRM's alignment with human judgments.
+    
+    \item \textbf{Superior Performance and Downstream Impact.} Our 7B RL-RRM significantly surpasses other RMs, including the concurrent EditScore~\citep{luo2025editscore}, on EditRewardBench~\citep{luo2025editscore}. When applied downstream, Edit-R1 delivers substantial gains to SOTA editors like FLUX.1-kontext and Qwen-Image-Edit, demonstrating the real-world effectiveness of our verifier-based RL framework.
+\end{itemize}
+
+\begin{table*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l|c|c|c|ccc}
+\toprule
+\multirow{2}{*}{\textbf{Method}} & \multirow{2}{*}{\textbf{Task}}  & \multirow{2}{*}{\textbf{Modeling Paradigm}} & \multirow{2}{*}{\textbf{Point-wise}} & \multicolumn{3}{c}{\textbf{Reasoning Ability}} \\
+& & & &  \textbf{As Verifier} & \textbf{With thinks} & \textbf{learned via RL} \\
+\midrule
+ImageReward~\citep{xu2023imagereward}          & Visual: T2I         &  Regressive  & $\checkmark$ & $\times$     & $\times$      & $\times$ \\
+%PickScore~\citep{kirstain2023pick}            & Visual         &  Regressive  & $\checkmark$ & $\times$     & $\times$      & $\times$  \\
+%HPSv2~\citep{wu2023human}                     & Visual         &  Regressive  & $\checkmark$ & $\times$     & $\times$      & $\times$  \\
+%VisionReward~\citep{xu2024visionreward}       & Visual         &  Regressive  & $\checkmark$ & $\times$     & $\times$      & $\times$  \\
+VideoAlign~\citep{liu2025improving}           & Visual: T2I           &  Regressive  & $\checkmark$ & $\times$     & $\times$      & $\times$  \\
+%HPSv3~\citep{ma2025hpsv3}                     & Visual         &  Regressive  & $\checkmark$ & $\times$     & $\times$      & $\times$  \\
+WorldPM~\citep{wang2025worldpm}               & Understanding  &  Regressive & $\checkmark$ & $\times$     & $\times$      & $\times$ \\
+DeepSeek-GRM~\citep{liu2025inference}         & Understanding  &  Generative  & $\times$     & $\checkmark$ & $\checkmark$  & $\checkmark$     \\
+Pairwise RM~\citep{xu2025unified}             & Understanding  &  Generative  & $\times$     & $\times$     & $\checkmark$  & $\checkmark$ \\
+UnifiedReward~\citep{wang2025unified,wang2025pref} & Multimodal &  Generative  & $\times$     & $\checkmark$ & $\checkmark$  & $\checkmark$     \\
+RewardDance  ~\citep{wu2025rewarddance}                                & Visual: T2I          &  Generative  & $\times$     & $\times$     & $\checkmark$  & $\times$\\
+OneReward~\citep{gong2025onereward}           & Visual: Edit         &  Generative  & $\times$     & $\times$     & $\times$  & $\times$     \\
+%Pref-GRPO~\citep{wang2025pref}                & Visual         &  Generative  & $\times$     & $\times$ & $\checkmark$  & $\times$     \\
+VisualQuality-R1~\citep{wu2025visualquality}         & Visual: T2I          &  Generative  & $\checkmark$ & $\times$     & $\checkmark$  & $\checkmark$     \\
+Skywork-EditReward~\citep{wei2025skywork}      & Visual: Edit            &  Generative  & $\checkmark$ & $\times$     & $\checkmark$  & $\times$     \\
+EditScore~\citep{luo2025editscore}         & Visual: Edit     & Generative  &$\checkmark$     & $\times$     & $\times$  & $\times$     \\
+\textbf{Edit-RRM (Ours)}                      & \textbf{Visual: Edit   } &  \textbf{Generative} & $\checkmark$ & $\checkmark$ & $\checkmark$  & $\checkmark$    \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Comparison of reward models, highlighting reasoning capabilities. We categorize methods by their foundational characteristics (Task, Modeling Paradigm, etc.) and their support for advanced \textbf{Reasoning Ability} components: explicit use of principles(``as verifier''), Chain-of-Thought (``thinks''), and reinforcement learning. A checkmark ($\checkmark$) denotes support. \textbf{Edit-RRM (Ours)} is unique in integrating all three reasoning-enhancing features within a generative, point-wise framework for visual tasks.}
+\label{tab:main}
+\end{table*}

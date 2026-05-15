@@ -1,0 +1,74 @@
+%% ============================================================
+\clearpage
+\section{Perturbation Analysis}
+\label{app:perturbations}
+%% ============================================================
+
+Beyond standard evaluation conditions, \framework~supports robustness testing through a structured perturbation system applied to the user simulator. Perturbations operate along three independent axes — behavior, accent, and audio degradation — and can be composed to simulate realistic deployment conditions that clean-audio benchmarks do not capture. All perturbations are applied exclusively to the user simulator; the agent under evaluation receives no special configuration, ensuring that robustness scores reflect genuine system sensitivity rather than evaluation artifacts.
+
+Below we describe the robustness testing options available in \framework~as well as additional results of the perturbation testing experiment described in the main body of the paper.
+
+\subsection{Behavioral Perturbations in \framework}
+The three behavioral personas described in Appendix~\ref{app:personas} — \textit{aggressive\_impatient}, \textit{elderly\_slow}, and \textit{forgetful\_disorganized} — constitute the behavioral perturbation axis. Each modifies both the simulator's conversational prompt and its voice to produce acoustically and behaviorally consistent speech. Behavioral perturbations stress-test the agent's ability to handle non-canonical caller patterns: interruptions and rapid speech, slow delivery with long silences, and disfluency-laden turns with mid-utterance corrections.
+
+\paragraph{Accent Perturbations.}
+\framework~supports four non-native English accent variants for the user simulator: French, Indian, Spanish, and Chinese. Each accent uses a dedicated voice to ensure phonetic authenticity. Accent perturbations are mutually exclusive with behavioral perturbations, as both require a specific voice id. Together, the four accents allow systematic evaluation of speech recognition robustness across a representative sample of global English speaker populations commonly encountered in enterprise deployments.
+
+\paragraph{Audio Degradation.}
+Two audio degradation mechanisms are supported and can be composed with any behavioral or accent perturbation. First, \textit{background noise} mixes an ambient audio track into the user simulator's speech at a configurable signal-to-noise ratio (default: 15~dB). Eight noise environments are included: airport gate, baby crying, background music, bad connection static, coffee shop, loud construction, NYC street, and road noise — spanning the range of acoustic environments in which enterprise voice agents are commonly exposed to. Second, \textit{connection degradation} applies a stack of VoIP artifacts — codec compression, simulated packet loss, and volume fluctuation — on top of any other active perturbation, reproducing the degradation characteristic of real telephony infrastructure.
+
+\subsection{User Personas}
+\label{app:personas}
+
+The \textbf{user persona} defines how the caller behaves during the conversation. By default, the simulated user is direct and efficient, with no disfluencies or unusual speech patterns. \framework~additionally defines three behavioral personas that can be applied as perturbations: \textit{aggressive\_impatient}, in which the caller speaks quickly, interrupts the agent, and expresses frustration when progress stalls; \textit{elderly\_slow}, in which the caller speaks very slowly with deliberate pauses and occasionally asks the agent to repeat themselves; and \textit{forgetful\_disorganized}, in which the caller is prone to disfluencies, loses their train of thought, and requires time to retrieve codes and identifiers mid-turn. Each behavioral persona modifies both the user simulator's prompt and its voice model, ensuring behavioral and acoustic consistency. Full persona prompts are provided below.
+
+\begin{tcolorbox}[promptbox, title={\small Default Persona}]
+  You're direct and to the point—you don't have time for lengthy explanations or unnecessary back-and-forth.
+  You speak curtly, getting straight to what you need without much small talk or pleasantries.
+  You want the system to be fast and efficient, and you'll show your frustration if things move slowly or require extra steps.
+\end{tcolorbox}
+
+\begin{tcolorbox}[promptbox, title={\small Elderly \& Slow}]
+  You are elderly and have difficulty understanding fast speech. You speak extremely slowly, with frequent deliberate pauses.
+  You occasionally ask the agent to repeat themselves slowly. You do not rush.
+  You frequently use ellipses (...) in your output to indicate pauses.
+  Ex. ("Ok yes... my confirmation code is... W... K... 2... E... X... B...")
+\end{tcolorbox}
+
+\begin{tcolorbox}[promptbox, title={\small Aggressive \& Impatient}]
+  You are impatient and easily frustrated when the agent does not resolve your requests immediately.
+  You speak very quickly and often interrupt the agent mid-sentence when they are talking for too long to make your frustration clear and ask them to hurry it up. Or you ask why they are taking so long if there is a long silence.
+  Express your frustration whenever progress is not being made and remember to interrupt often.
+  You frequently output words in all caps to indicate your frustration and add emphasis.
+\end{tcolorbox}
+
+\begin{tcolorbox}[promptbox, title={\small Forgetful \& Disorganized}]
+  You are forgetful and prone to disfluencies (um..., uh..., huh..., let me think..., hold on a second..., let me find that piece of information..., etc).
+  You frequently use ellipses (...) in your output to indicate pauses.
+  You often forget the information you need and have to search for it in the middle of your turn.
+  Simple things like your name and date of birth you remember easily, but for any specific codes and IDs you need a couple of seconds to find it.
+  You often lose your train of thought and need a moment to remember what you were saying.
+  You also make mistakes when you speak and have to repeat yourself (ex. "hmm yeah one second... let me find that... ok its A E 2 B oh wait sorry actually its A F 2 B")
+\end{tcolorbox}
+
+\subsection{Perturbation Experiment}
+
+\paragraph{Methods.} For each model, metric, and domain (or pooled across domains), we test whether each perturbation condition - accent, background noise, and the combination (accent + background noise) - alters performance as compared to the clean baseline. We analyze scenario-level mean deltas between a perturbation run and a paired baseline: within each scenario, performance is averaged across trials (3 trials per perturbation condition, 5 trials per clean baseline) and the paired difference is computed as $\delta = \bar{x}_{\text{perturbation}} - \bar{x}_{\text{baseline}}$, yielding one $\delta$ per scenario.
+
+We assess each perturbation with a paired sign-flip permutation test on scenario-level deltas. This approach makes no distributional assumptions and is appropriate for the bounded, ordinal nature of our metrics. Under the null hypothesis of no perturbation effect ($\mathbb{E}[\delta] = 0$), the sign of each paired difference is exchangeable; we independently flip the sign of each scenario delta with probability $0.5$ and recompute the mean across $10{,}000$ permutations to construct the null distribution. We report two-sided $p$-values, defined as the fraction of permutations whose absolute mean is at least as large as the observed $|\overline{\delta}|$. Each estimate is accompanied by a $95\%$ percentile bootstrap confidence interval on the mean delta, computed by resampling scenarios with replacement ($1{,}000$ bootstrap samples).
+
+To control for multiple comparisons across the three perturbation conditions within each model $\times$ metric $\times$ domain combination, raw $p$-values are Holm--Bonferroni corrected. Effects are considered significant when the corrected $p$-value is below $\alpha = 0.05$.
+
+\paragraph{Results.} Within the perturbation effect plots in this paper, models are always listed in the following order (left to right): \textbf{Cascade}: \coherefull~+ \gemmaAfull~+ \voxtralfull, \scribe~+ \geminiflashfull~+ \conversational, \inkfull~+ \haikufull~+ \sonicfull, \novafull~+ \gptfull~+ \sonicfull, \novafull~+ \gptminifull~+ \aurafull, \parakeetfull~+ \gemmaBfull~+ \kokorofull, \whisperfull~+ \qwenfull~+ \voxtralfull; \textbf{Hybrid}: \geminiflashfull~+ \geminiflashttsfull, \ultravoxfull; \textbf{S2S}: \geminilivefull, \gptrealtimefull, \gptrealtimeminifull.
+
+%%%%%% Result tables on perturbation analyses %%%%%%%%%%%%%
+\input{tables/08_appendix/g_perturbation_analysis/01_accent}
+\input{tables/08_appendix/g_perturbation_analysis/02_background}
+\input{tables/08_appendix/g_perturbation_analysis/03_accent_background}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{figures/perturbations/paper_eva_a_pass_perturbation_pooled}
+\input{figures/perturbations/paper_eva_x_pass_perturbation_pooled}
+\input{figures/perturbations/paper_task_completion_perturbation_pooled}
+\input{figures/perturbations/paper_transcription_perturbation_pooled}
+\input{figures/perturbations/paper_conversation_progression_perturbation_pooled}

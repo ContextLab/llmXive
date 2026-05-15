@@ -1,0 +1,149 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "main.bbl"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "main.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/cot_example.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/edit_r1/qualitative.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/edit_r1/qualitative_3.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/edit_r1/qualitative_4.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/edit_r1/qualitative_qwen.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/image_visualization.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/pipeline.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/reward_modeling_paradigm.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/reward_scaling_regressive-generative-comparison.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/rm.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/seedance_reward_statistics.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/seedream_reward_statistics.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/seedream_small-large_comparison.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/teaser.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/video_visualization.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/abstract.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/discussion.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/edit_r1_1_intro.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/edit_r1_2_formatting.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/edit_r1_3_finalcopy.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "seed.cls"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "seed/ByteSans-Bold.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "seed/ByteSans-Medium.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "seed/bytesans.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "seed/bytesansmedium.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "seed_template_v0.9.3/main.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "seed_template_v0.9.3/please_readme.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "seed_template_v0.9.3/sections/appendix.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "seed_template_v0.9.3/sections/approach.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "seed_template_v0.9.3/sections/experiments.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "seed_template_v0.9.3/sections/introduction.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "seed_template_v0.9.3/sections/relatedwork.tex"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

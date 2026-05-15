@@ -1,0 +1,18 @@
+\begin{table}[h]
+\centering
+\small
+\captionsetup{font=small}
+\caption{\framework~validation metrics. These metrics ensure the
+quality of the user simulator and the integrity of each conversation
+prior to evaluation.}
+\begin{tabular}{llll}
+\toprule
+\textbf{Metric} & \textbf{Type} & \textbf{Scale} & \textbf{Pass Thresholds} \\
+\midrule
+Conversation Finished    & Deterministic   & $\{0,1\}$           & 1.0 \\
+\metricbehavior & LLM-as-Judge    & $\{0,1\}$           & 1.0 \\
+User Speech Fidelity     & LALM-as-Judge   & $1$--$3 \to [0,1]$  & -- \\
+\bottomrule
+\end{tabular}
+\label{tab:validation_metrics}
+\end{table}

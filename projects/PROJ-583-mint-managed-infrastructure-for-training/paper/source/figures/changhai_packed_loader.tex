@@ -1,0 +1,18 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,font=\sffamily]
+  \tikzstyle{box}=[draw=mindlabfg, thick, rounded corners=1mm, align=center, inner sep=4pt, minimum width=2.55cm, minimum height=1.08cm]
+  \tikzstyle{label}=[font=\scriptsize\sffamily, align=center]
+  \tikzstyle{arrow}=[->, very thick, draw=mindlabfg]
+
+  \node[box, fill=mindlabfg!10] (orig) at (0,0)
+    {\textbf{Original}\\[-1pt]37{,}248 tensors\\[-1pt]1.36--1.39 s};
+  \node[box, fill=mindlabblue!18] (packed) at (3.85,0)
+    {\textbf{Packed}\\[-1pt]672 tensors\\[-1pt]0.156--0.164 s};
+
+  \draw[arrow] (orig.east) -- node[label, above] {pack tensors} (packed.west);
+  \node[label, draw=mindlabline, thick, rounded corners=0.8mm, fill=mindlabbluepale!55,
+        inner xsep=5pt, inner ysep=3pt] at (1.93,-0.96)
+    {8.5--8.7$\times$ faster live loading};
+
+  \node[label, text=mindlabfg!75] at (1.93,-1.43)
+    {same 30B rank-1 adapter family\\bytes change only 1.05$\times$};
+\end{tikzpicture}

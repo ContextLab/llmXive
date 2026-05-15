@@ -1,0 +1,46 @@
+{
+   "stamp" : true,
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "paper.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "cite.bst"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "custom.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "fancyhdr.sty"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "jingdong/JINGDONGLangZhengTi2-Bold.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "jingdong/JINGDONGLangZhengTi2-Bold.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "jingdong/JINGDONGLangZhengTi2-Regular.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "jingdong/JINGDONGLangZhengTi2-Regular.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "jingdong/JINGDONGLangZhengTi2.enc"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

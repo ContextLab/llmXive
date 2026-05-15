@@ -1,0 +1,33 @@
+\renewcommand{\arraystretch}{1.00}
+\begin{wraptable}{r}{0.45\linewidth}
+    \centering
+    \caption{Ablation results of \textit{EywaAgent} with different LLM backends. \textit{Eywa} benefits from more powerful LLMs to achieve better performance.}
+    % \vspace{-8pt}
+    \label{tab:model_ablation_compact}
+    \resizebox{0.45\textwidth}{!}{
+    \begin{tabular}{l|c|cccc}
+        \toprule
+        \textbf{Method} & \textbf{Metrics} & \textbf{Physical} & \textbf{Life} & \textbf{Social} & \textbf{Overall}\\
+        \midrule[-0.4ex]\midrule\addlinespace[-0.000ex]
+
+        \multirow{3}{*}{\makecell{gpt-4.1-nano}}
+        & Utility ($\uparrow$) & 0.6547 & 0.4010 & 0.6269 & 0.5680\\
+        & Time ($\downarrow$)  & 14.25 & 28.66 & 16.89 & 19.61\\
+        & Tokens ($\downarrow$) & 1314 & 927 & 1160 & 1139\\
+        [-0.4ex]\midrule\addlinespace[-0.000ex]
+
+        \multirow{3}{*}{\makecell{gpt-5-nano}}
+        & Utility ($\uparrow$) & 0.6914 & 0.5001 & 0.7488 & 0.6558\\
+        & Time ($\downarrow$)  & 28.04 & 22.33 & 18.71 & 22.78\\
+        & Tokens ($\downarrow$) & 3907 & 3134 & 2491 & 3137\\
+        [-0.4ex]\midrule\addlinespace[-0.000ex]
+
+        \multirow{3}{*}{\makecell{gpt-5-mini}}
+        & Utility ($\uparrow$) & 0.7191 & 0.5035 & 0.7444 & 0.6640\\
+        & Time ($\downarrow$)  & 23.18 & 30.70 & 18.51 & 23.63\\
+        & Tokens ($\downarrow$) & 2875 & 2617 & 1949 & 2444\\
+        [-0.4ex]\bottomrule
+    \end{tabular}
+    }
+    \vspace{-6pt}
+\end{wraptable}

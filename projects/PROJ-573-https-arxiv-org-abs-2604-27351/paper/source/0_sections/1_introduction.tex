@@ -1,0 +1,69 @@
+\section{Introduction}
+\label{sec:intro}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/eywa.pdf}
+    \caption{
+Analogy between the Avatar Pandora ecosystem and the Agentic AI ecosystem.
+In Pandora, specialized species are coordinated by Na'vi through \textit{Tsaheylu} (a neural bond for cross-species communication), collaborating under the global guidance of \textit{"All Mother"}.
+Inspired by this analogy, we propose \textit{Eywa}, a three-stage agentic framework: 
+(1) \textit{EywaAgent} builds an FM-LLM \textit{Tsaheylu} interface and augments domain-specific foundation models with language-based reasoning interfaces; 
+(2) \textit{EywaMAS} enables collaboration between \textit{EywaAgents} and LLM agents; and 
+(3) \textit{EywaOrchestra} dynamically orchestrates across heterogeneous experts.
+    }
+    \label{fig: main}
+\end{figure*}
+
+Recent advances in large language models (LLMs) have driven the emergence of agentic AI systems that spark paradigm shifts across numerous industries \cite{DBLP:journals/corr/abs-2303-08774, DBLP:journals/corr/abs-2503-19786, DBLP:journals/corr/abs-2407-21783, DBLP:journals/corr/abs-2601-12538, DBLP:journals/corr/abs-2512-16301, DBLP:journals/corr/abs-2511-20639}. 
+Large-scale natural language pretraining endows these systems with general capabilities in perception, planning, reasoning, and decision-making over complex scenarios \cite{DBLP:journals/corr/abs-2307-03109, DBLP:journals/tmlr/FengJLZTCLY24, DBLP:journals/corr/abs-2211-09110}.
+However, real-world problems are not limited to natural language. 
+In scientific tasks involving specialized data types such as symbolic representations (e.g., formulas, equations) and structured data (e.g., time series) \cite{DBLP:journals/corr/abs-2508-21148, DBLP:journals/jcisd/Weininger88, hersbach2020era5, DBLP:conf/icml/ShojaeeNMFDR25, DBLP:journals/nar/Consortium23}, relying on natural language as the universal interface can become a significant bottleneck. This mismatch between language-centric pretraining and specialized scientific downstream tasks poses a key challenge to the development of agentic systems in scientific domains \cite{DBLP:journals/corr/abs-2508-21148, DBLP:journals/corr/abs-2508-14111, DBLP:journals/corr/abs-2505-19897, rios2026ai}. 
+
+Meanwhile, this limitation has coincided with rapid progress in developing domain-specific foundation models that are optimized for specialized data and tasks \cite{DBLP:journals/nn/MenonMBPJKJ26, DBLP:journals/corr/abs-2312-03014, DBLP:journals/corr/abs-2307-13721, DBLP:journals/corr/abs-2504-04011, DBLP:journals/corr/abs-2108-07258, huang2024foundation}. These models, while not always equipped with language interfaces, are typically pretrained to capture domain-specific patterns and offer strong predictive capabilities within their respective domains \cite{DBLP:journals/corr/abs-2212-12794, DBLP:journals/corr/abs-2405-04285, hamann2024foundation, herzog2025olmoearth}. This creates an opportunity to extend language-centric systems by enabling these heterogeneous foundation models to participate directly in reasoning processes, motivating the following research question:
+
+\vspace{-3mm}
+\begin{center}{
+\centering\textit{\textbf{
+Can heterogeneous foundation models collaborate within agentic systems?
+}}
+}
+
+\end{center}
+\vspace{-3mm}
+
+This challenge can be viewed as a limitation of communication. Unlike existing agentic collaboration systems, which typically assume that all agents communicate through natural language \cite{DBLP:conf/ijcai/GuoCWCPCW024, DBLP:conf/iclr/HongZCZCWZWYLZR24, DBLP:conf/uist/ParkOCMLB23, DBLP:journals/corr/abs-2502-14321, DBLP:journals/corr/abs-2501-06322}, 
+many foundation models do not natively support language as an input or output modality. This discrepancy makes it challenging to directly incorporate such foundation models into agentic systems.
+
+\begin{figure}[t]
+\vspace{-3mm}
+\centering
+\begin{tcolorbox}[agentstruct,title=\textbf{Contributions}]
+Our contributions are summarized as follows:
+\begin{itemize}
+    % \item We identify a fundamental limitation of language-centric agentic systems and formalize it as a communication bottleneck between language agents and domain-specific foundation models.
+    \item We introduce \textit{Eywa}, a heterogeneous agentic framework that enables modality-native collaboration by augmenting foundation models with language-model-based reasoning interfaces.
+    \item We introduce three instantiations of the framework: \textit{EywaAgent} (single-agent integration), \textit{EywaMAS} (multi-agent extension), and \textit{EywaOrchestra} (planning-based orchestration).
+    \item We conduct extensive experiments across diverse scientific domains on our new benchmark \textit{EywaBench}, demonstrating improved performance by effectively integrating domain-specific foundation models into agentic systems.
+\end{itemize}
+\end{tcolorbox}
+\vspace{-3mm}
+\end{figure}
+
+To better illustrate this limitation and our motivation, in Figure \ref{fig: main}, we draw an analogy from the movie \textit{Avatar}\footnote{\url{https://en.wikipedia.org/wiki/Avatar_(2009_film)}}. On Pandora, many species (e.g., Mountain Banshee\footnote{\url{https://james-camerons-avatar.fandom.com/wiki/Mountain_Banshee}} and the Direhorse\footnote{\url{https://james-camerons-avatar.fandom.com/wiki/Direhorse}}) possess highly specialized capabilities. Domain-specific foundation models are analogous to these specialized Pandora species. 
+Yet such capabilities cannot be directly coordinated by Na'vi as they do not communicate through a shared symbolic language.
+Instead, the Na'vi establish connections through \textit{Tsaheylu}\footnote{\url{https://james-camerons-avatar.fandom.com/wiki/Tsaheylu}}, forming a direct neural interface that enables interaction even across fundamentally different biological systems.
+
+In this paper, we introduce \textit{Eywa}\footnote{\textit{Eywa}, a.k.a., "All Mother", represents a planetary-scale network that connects and coordinates diverse life forms. \url{https://james-camerons-avatar.fandom.com/wiki/Eywa}.}, a heterogeneous agentic framework designed to bridge language agents and domain-specific foundation models.
+Inspired by the concept of \textit{Tsaheylu}, we propose to augment a domain-specific foundation model with a language model to create an \textit{EywaAgent} (like a Na'vi warrior bonded with a Banshee). This design allows language agents to guide inference, planning, and decision-making of the foundation models over their specialized tasks.
+Building upon this primitive, we further extend Eywa to multi-agent settings. 
+We introduce \textit{EywaMAS}, where \textit{EywaAgents} can replace existing language agents in multi-agent systems. 
+Moreover, we propose \textit{EywaOrchestra}, a planning-based orchestration framework in which a central planner dynamically coordinates both language agents and EywaAgents to solve complex tasks. 
+Through this design, Eywa enables modality-native collaboration, allowing heterogeneous models to participate in a unified reasoning process without requiring full translation into natural language.
+
+We evaluate \textit{Eywa} across a diverse set of scientific domains spanning physical, life, and social sciences.
+As shown in Figure~\ref{fig:hero}, \textit{Eywa} consistently improves the utility-cost trade-off over language-only baselines. 
+Compared with the Single-LLM-Agent baseline, \textit{EywaAgent} improves utility by $\sim7\%$ across physical, life, and social science tasks, while reducing token usage by $\sim30\%$.
+It also reduces execution time by $\sim10\%$.
+Similarly, \textit{EywaMAS} improves utility while reducing token and time usage in multi-agent settings. Moreover, \textit{EywaOrchestra} dynamically orchestrates heterogeneous models and improves over single-agent and multi-agent baselines.
+These results suggest that modality-native collaboration with specialized foundation models improves scientific task solving while reducing the token and runtime overhead of language-only reasoning. 

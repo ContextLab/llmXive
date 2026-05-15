@@ -1,0 +1,20 @@
+\begin{table}[htbp]
+\centering
+\small
+\caption{MinT platform capabilities and the code-level mechanisms that implement them.}
+\label{tab:mint_platform_capabilities}
+\fittowidth{%
+\begin{tabular}{p{3.5cm}p{10.0cm}}
+\toprule
+Capability & Implementing mechanism \\
+\midrule
+Unified adaptation-to-serving surface & Training routes (\texttt{forward\_backward}, \texttt{optim\_step}, \texttt{train\_step}), sampler-creation routes, checkpoint publication paths, and Mint-specific extension routes share a single FastAPI surface and a single Ray-based control plane. Adapter state produced by a training actor is consumed by a serving actor without leaving the process tree. \\
+Checkpoint lifecycle management & Three typed categories (persistent on PFS, runtime for engine cache, ephemeral for in-session materialization) with type validation, owner-aware directory resolution, archive creation, and asynchronous mirroring. The path distinguishes model state from session state. \\
+Multi-tenant control plane & Detached \texttt{ResourcePool} actor with global GPU-inventory tracking; cross-actor LRU eviction with \texttt{MIN\_ACTOR\_AGE} protection; per-session queue supervision; in-flight accounting; protection flags for long-running trainers. Admission policy is shared across API workers rather than per-process. \\
+Async long-running operations & Future store with server-assigned request IDs; heavyweight routes enqueue work and return a future identifier, clients retrieve results through the future-retrieval path, and trace context survives the request/response split. \\
+Compatibility surfaces & OpenAI-compatible \texttt{/chat/completions}, Tinker-compatible decomposed flow for dense training, and Mint-specific extensions for operations that fall outside the Tinker contract (notably \texttt{/api/v1/train\_step}). \\
+Gateway-routed multi-cluster operation & \texttt{TINKER\_GATEWAY\_CONFIG\_JSON} binds base models to upstream cluster aliases on the router; training, sampling, checkpoint, and future-retrieval routes forward to the selected upstream while propagating \texttt{request\_id} and \texttt{trace\_id}. \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

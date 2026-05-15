@@ -1,0 +1,26 @@
+\section{Related Works}
+\label{sec:realted}
+
+\subsection{Reward model for generative models}
+Driven by advances in Large Language Models (LLMs), many Reward Models (RMs) are now constructed directly upon them as shown in Tab.~\ref{tab:main}~\citep{ren2024byteedit,wu2025rewarddance,gong2025seedream,ma2025hpsv3}. 
+In terms of modeling architecture, two dominant approaches have emerged, including regression-based~\citep{liu2025improving, wang2025worldpm} and generative-based~\citep{wu2025rewarddance,gong2025onereward,hong2025think}. The regression-based methods add a regression head for scoring, while the generative methods leverage the model's own generative abilities for assessment and are generally considered more effective at harnessing the base model's power. 
+Regarding input format, methods are either pointwise~\citep{wu2025visualquality,wei2025skywork} or pairwise~\citep{wang2025unified, wu2025rewarddance}. Pointwise methods score a single response independently, while pairwise methods compare two responses to determine a preference. 
+A significant drawback of pairwise approaches is their inability to provide an absolute quality score for a single response, making them ill-suited for direct quality assessment or filtering.
+To enhance interpretability and accuracy, recent work has begun integrating Chain-of-Thought (CoT) reasoning and explicit principles~\citep{liu2025inference, wang2025unified}. For instance, DeepSeek-GRM~\citep{liu2025inference} utilizes principle-based CoT for generalist reward modeling. However, these methods are often designed for non-visual tasks. 
+% Concurrent to our work, EditScore~\citep{luo2025editscore} also employs a generative VLM for image editing rewards but operates as a \textbf{holistic scorer}, directly outputting a score without a structured verification process. 
+Our Edit-RRM including SFT-RRM and RL-RRM is uniquely positioned as a generative, pointwise verifier for image editing. It is the first to combine a principle-decomposition-based CoT process tailored for visual edits with undergoing a two-stage training pipeline, cleverly combining a rationale-based cold-start phase with subsequent reinforcement learning optimization.
+% In addition, to enhance performance and interpretability, recent work has begun integrating Chain-of-Thought (CoT) reasoning and explicit principles~\citep{liu2025inference, wang2025unified, wu2025rewarddance}. 
+% Building upon these advancements, our work is the first to introduce a generative, pointwise reward model for image editing. 
+% Moreover, we employ a CoT process that first decomposes the evaluation into predefined criteria and then aggregates the individual assessments. 
+% The model undergoes a two-stage training pipeline, cleverly combining a rationale-based cold-start phase with subsequent reinforcement learning optimization.
+
+
+
+\subsection{Reinforcement Learning in Image Editing}
+Recent advancements in Reinforcement Learning from Human Feedback (RLHF) algorithms have demonstrated remarkable efficacy in aligning models with human preferences in the domain of image editing. 
+DreamFuse~\citep{huang2025dreamfuse} adopts Direct Preference Optimization (DPO)~\citep{wallace2024diffusion} as their optimization method. 
+However, DPO's direct optimization on a preference dataset inherently restricts policy exploration, risking suboptimal convergence.
+While methods~\citep{gong2025onereward,ren2024byteedit} utilize REFL~\citep{xu2023imagereward} for preference alignment, REFL is often prone to severe reward hacking and requires the reward model to be differentiable.
+Inspired by the notable success of DeepSeek-R1~\citep{guo2025deepseek}, many recent works~\citep{xue2025dancegrpo, liu2025flow} are now exploring the application of GRPO within the domain of visual generation. 
+A key factor in DeepSeek-R1’s success was its reinforcement learning framework with verifiable rewards, which ensured robust training and mitigated the risk of reward hacking. Yet, defining such rewards for visual generation remains challenging. To address this, we extend the visual GRPO algorithm with a reasoning-based reward model for image editing, offering structural and principle-driven feedback.
+

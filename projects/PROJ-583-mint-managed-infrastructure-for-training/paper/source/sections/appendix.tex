@@ -1,0 +1,207 @@
+\section{Author List}
+\label{app:author_list}
+
+Names are listed alphabetically.
+
+\paragraph{Core Contributors.}
+\begin{sloppypar}
+Andrew Chen, Cleon Cheng, Steven Chiang, Nolan Ho, Andrew Lei, Lucian Li, Kieran Liu, Irvine Lu, Pony Ma, Rio Yang, Di Zhang, Adrian Zhou.
+\end{sloppypar}
+
+\paragraph{Team.}
+\begin{sloppypar}
+Song Cao, Vic Cao, Kaijie Chen, Bunny Fan, Hera Feng, Huan Feng, Arthur Fu, Jun Gao, Hongquan Gu, Aaron Guan, Mutian Hong, Hailee Hou, Peixuan Hua, Charles Huang, Miles Jiang, Nora Jiang, Yuyi Jiang, Autumn Jin, Fancy Kong, Kyrie Lei, Alexy Li, Dawn Li, Ray Li, Theo Li, Jiayi Lin, Domini Liu, Heshan Liu, Kairus Liu, Logan Liu, Maeve Luo, Runism Lv, Pony Ma, Verity Niu, Anson Qiu, Vincent Wang, Maxwell Yao, Regis Ye, Wenlin Ye, Yanying Ye, Josh Ying, Danney Zeng, Salmon Zhan, Anya Zhang, Ruijia Zhang, Sueky Zhang, Ya Zhang, Wei Zhao, Ada Zhou, Sizer Zhou, Xinyue Zhu, Murphy Zhuang.
+\end{sloppypar}
+
+\section{Additional Serving Measurements}
+\label{app:serving}
+
+This appendix expands the serving-side measurements used in \cref{sec:e4_serving}. The tables use the same serving quantities as the main text: catalog size, CPU-cached adapters, adapters in one GPU batch, and the cold-load path that loads an adapter when a request selects an entry outside the actor's local cache. The order separates exploratory probes that rule out simple explanations, measurements that identify the serving limit, and follow-up probes that reduce or isolate that limit.
+
+Several rows intentionally leave the clean warm path. They create weak locality, cold churn, long online generations, or high concurrency so that the failure mode is visible rather than hidden inside average latency. We keep them in the appendix because they identify the control points that a MinT deployment must own: routing for warm reuse, prewarming for predictable waves, bounded cold loading for cache-miss traffic, and lower-fanout adapter representation for unavoidable misses. The shaded bands in the tables separate cache levels and probe families, so a reader can scan from the MinT service path to the measured limit without treating every row as the same kind of claim.
+
+\paragraph{Adapter memory and representation.}
+\Cref{tab:app_memory_loader_accounting} separates adapter bytes, tensor fanout, CPU cache footprint, and base-model HBM footprint. This accounting explains why the packed loader experiment matters. The measured adapter is moderate in byte size and fragmented into tens of thousands of small tensors, most of them no larger than 4 KB. Cold loading therefore pays object and registration overhead even when the total bytes are small.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\caption{Memory and representation accounting for the measured 30B MoE LoRA adapter files. The rows separate byte size from object fanout and cache pressure.}
+\label{tab:app_memory_loader_accounting}
+\fittowidth{%
+\begin{tabular}{@{}M{0.18\textwidth}M{0.24\textwidth}M{0.27\textwidth}M{0.23\textwidth}@{}}
+\toprule
+\apphead Tier / object & Item & Measurement & Serving implication \\
+\midrule
+\appgroup{4}{Adapter-file shape}
+Adapter file & Adapter bytes & 110.75 MB file; 105.5 MB declared tensor bytes & Bytes are moderate for a 30B rank-1 adapter. \\
+Adapter file & Tensor fanout & 37{,}248 tensors; 37{,}152 no larger than 4 KB & Object fanout dominates cold load work. \\
+\appgroup{4}{Resident execution footprint}
+CPU warm tier & CPU cache footprint & 586.8 MB/LoRA across 4 TP workers; 146.7 MB/worker & CPU cache is the per-engine cache limit. \\
+GPU batch tier & GPU memory & $N=64$ snapshots show about 272 GiB engine HBM footprint & Base deployment dominates HBM pressure. \\
+\appgroup{4}{Packed cold-load representation}
+Adapter-file format & Packed representation & 37{,}248 $\rightarrow$ 672 tensors; 110.75 $\rightarrow$ 105.58 MB & Packing removes fanout; bytes stay nearly unchanged. \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\paragraph{Adapter catalog size.}
+\Cref{tab:app_path_pool_sweep} varies the adapter catalog from 1k to 100k entries. The warm/cold split persists across the sweep and the measured tail appears when many distinct cold adapters enter cold loading. These rows support the main-text claim that MinT should keep catalog resolution in the control plane and manage cache state and cold loading in the serving plane.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.06}
+\caption{Adapter catalog sweep for $N=64$ serving. Warm and cold rows are split so the stable regime gap is visible at each catalog size.}
+\label{tab:app_path_pool_sweep}
+\fittowidth{%
+\begin{tabular}{@{}M{0.13\textwidth}M{0.13\textwidth}ccccM{0.27\textwidth}@{}}
+\toprule
+\apphead Catalog & Regime & Success & Drain & p95 & Distinct & Readout \\
+\midrule
+1k & \appkey{warm} & 64/64 & 21.16 s & 20.89 s & 51 & catalog lookup stays in the warm regime \\
+1k & \appkey{cold} & 64/64 & 193.23 s & 193.04 s & 56 & cold loading dominates \\
+\addlinespace
+10k & \appkey{warm} & 64/64 & 12.56 s & 12.16 s & 64 & larger catalog stays in the warm mode \\
+10k & \appkey{cold} & 64/64 & 190.99 s & 190.73 s & 56 & cold regime persists \\
+\addlinespace
+100k & \appkey{warm} & 64/64 & 20.35 s & 12.12 s & 63 & 100k-entry catalog remains addressable \\
+100k & \appkey{cold} & 63/64 & 190.08 s & 189.73 s & 56 & tail follows cold loading \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\paragraph{Cached working sets.}
+\Cref{tab:app_cache_ladders} gives the ordered data behind the warm-cache claim in \cref{fig:e4_cache_ladders}. The repeated-hotset rows model adapter locality after routing has found a useful engine placement. The unique-adapter rows remove this locality and measure how many distinct adapters can become cached near one engine before the run stops being a clean warm-path claim. These measurements define the CPU-side tier between the durable adapter catalog and the same-batch adapter window.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.4pt}
+\renewcommand{\arraystretch}{1.05}
+\caption{Cached-working-set ladder on one 4-GPU Qwen3-30B rank-1 serving actor. Shaded group rows separate routed locality from unique-adapter load pressure.}
+\label{tab:app_cache_ladders}
+\fittowidth{%
+\begin{tabular}{@{}M{0.20\textwidth}cccccM{0.22\textwidth}@{}}
+\toprule
+\apphead Regime & Target & Loaded & Steady p95 & Errors & Tier & Readout \\
+\midrule
+\appgroup{7}{Routed locality: repeated hotsets}
+Repeated hotsets & 128 & 127 & 5.52 s & 0/3200 & CPU warm & baseline warm tier \\
+Repeated hotsets & 192 & 183 & 10.59 s & 0/3200 & CPU warm & locality preserved \\
+Repeated hotsets & 256 & 236 & 20.74 s & 0/3200 & CPU warm & p95 rises with hotset \\
+Repeated hotsets & 384 & 317 & 30.12 s & 0/3200 & CPU warm & larger cached set \\
+Repeated hotsets & 512 & 369 & 37.13 s & 0/3200 & CPU warm & endpoint in figure \\
+\appgroup{7}{Unique-adapter calibration: clean active-window probes}
+Unique adapters & 16 & 16 & 1.22 s & 0 & GPU active & exact target \\
+Unique adapters & 32 & 32 & 1.34 s & 0 & GPU active & exact target \\
+Unique adapters & 64 & 64 & 1.41 s & 0 & GPU active & same-batch frontier \\
+\appgroup{7}{Unique-adapter ladder: pressure on local cache}
+Unique adapters & 128 & 127 & 5.70 s & 0 & CPU warm & loading begins \\
+Unique adapters & 192 & 183 & 10.57 s & 0 & CPU warm & mirrors hotset count \\
+Unique adapters & 256 & 236 & 17.79 s & 0 & CPU warm & cache growth \\
+Unique adapters & 384 & 317 & 38.37 s & 0 & CPU warm & tail appears \\
+Unique adapters & 512 & 369 & 45.36 s & 0 & CPU warm & warm cache still grows \\
+Unique adapters & 640 & 410 & 59.01 s & 0 & CPU warm & diminishing cache growth \\
+Unique adapters & 768 & 440 & 62.85 s & 0 & CPU warm & near plateau \\
+Unique adapters & 896 & 466 & 64.66 s & 0 & CPU warm & near plateau \\
+Unique adapters & 1024 & 486 & 66.92 s & 0 & CPU warm & mid-ladder endpoint \\
+\appgroup{7}{Unique-adapter high ladder: cache plateau}
+Unique adapters & 1280 & 513 & 60.91 s & 0 & CPU warm & plateau persists \\
+Unique adapters & 1536 & 525 & 60.95 s & 0 & CPU warm & slow cache growth \\
+Unique adapters & 1792 & 537 & 59.95 s & 0 & CPU warm & stable p95 band \\
+Unique adapters & 2048 & 550 & 63.14 s & 0 & CPU warm & largest measured target \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\paragraph{Mixed online-length stress traffic.}
+\Cref{tab:app_business_traffic} intentionally leaves the clean warm-path setting. These rows combine mixed output lengths, high concurrency, weak locality, prewarm changes, and different slot limits to show where simple routing choices stop being enough. The sticky-hash row is a negative probe: fixed hashing alone fails to provide cache-aware routing under this stress shape. The GPU-slots-64 row is a bounded probe; it verifies a slot-limit setting over two rounds, with long-run stability left outside this claim.
+
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.8pt}
+\renewcommand{\arraystretch}{1.05}
+\caption{Mixed online-length traffic on a 2048-adapter catalog. The GPU/CPU column gives the GPU-batch LoRA slot limit and the CPU-cache LoRA limit.}
+\label{tab:app_business_traffic}
+\fittowidth{%
+\begin{tabular}{@{}M{0.18\textwidth}cM{0.10\textwidth}cM{0.10\textwidth}ccccM{0.16\textwidth}@{}}
+\toprule
+\apphead Probe & C & GPU/CPU & Prewarm & Success & Err. & p50 & p95 & p99 & Interpretation \\
+\midrule
+\appgroup{10}{Single-route stress envelope}
+Single route & 8 & 32/1024 & 128 & 256/256 & 0.00\% & 28.79 & 66.23 & 70.47 & low-concurrency baseline \\
+Single route & 16 & 32/1024 & 128 & 499/512 & 2.54\% & 63.18 & 134.03 & 179.74 & tail begins to rise \\
+Single route & 32 & 32/1024 & 128 & 969/1024 & 5.37\% & 124.35 & 320.82 & 358.71 & queueing and churn visible \\
+Single route & 128 & 32/1024 & 0 & 4032/4096 & 1.56\% & 508.92 & 1028.08 & 1403.44 & high-concurrency stress \\
+Single route & 230 & 32/1024 & 0 & 7037/7360 & 4.39\% & 967.10 & 1469.37 & 1717.43 & no-prewarm reference \\
+Single route & 230 & 32/2048 & 164 & 6707/7360 & 8.87\% & 926.94 & 1441.86 & 1710.01 & slots alone leave tail high \\
+\appgroup{10}{Routing and slot probes}
+Sticky hash, 2 replicas & 230 & 32/2048 & 164 & 3737/7360 & 49.23\% & 925.62 & 1435.62 & 1746.58 & naive fixed hashing unstable \\
+GPU slots 64, 2 rounds & 230 & 64/2048 & 164 & 460/460 & 0.00\% & 848.98 & 1351.34 & 1690.24 & bounded slot-limit probe \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.08}
+\caption{Cold-load accounting and service protection.}
+\label{tab:app_cold_load_control}
+\fittowidth{%
+\begin{tabular}{@{}M{0.09\textwidth}M{0.22\textwidth}M{0.29\textwidth}M{0.19\textwidth}M{0.17\textwidth}@{}}
+\toprule
+\apphead ID & Probe & Measured result & Mechanism isolated & Design response \\
+\midrule
+\appkey{A1} & Same-server no-warm, $N=64$ & Unique-no-warm p95 125.35 s; load median 60.27 s; queue wait median 0.010 s & LoRA loading drives waiting before generation; API queueing is small. & Separate cold loading from sampling latency. \\
+\addlinespace
+\appkey{A2} & Same adapter vs unique adapters, $N=16$ & Same-adapter load median 1.56 s; unique adapters form 1.47, 2.84, 4.23, $\ldots$, 23.83 s staircase & Repeated cache-miss requests can share one load. & Reduce unique cold misses through routing and prewarming. \\
+\addlinespace
+\appkey{A3} & Structured add timing, $N=16$ & Engine time median 1.370 s; lock-wait median 10.890 s; total load p95 21.900 s & Exclusive writer/load path serializes unique loads. & Budget unique cold-load capacity per engine. \\
+\addlinespace
+\appkey{A4} & Bounded cold-load probe & Max in-flight 1 and queue depth 1: a 4-request cold burst loads 2 and rejects 2 & Cold pressure can be observable and retryable. & Prefer bounded backpressure over unbounded blocking. \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{-10pt}
+\end{table}
+
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.4pt}
+\renewcommand{\arraystretch}{1.08}
+\caption{Capacity-planning sketch from measured per-engine limits to a 1M-entry accumulated adapter catalog and a 2300-distinct-adapter active-wave stress envelope.}
+\label{tab:app_fleet_model}
+\fittowidth{%
+\begin{tabular}{@{}M{0.22\textwidth}M{0.25\textwidth}ccM{0.23\textwidth}@{}}
+\toprule
+\apphead Axis & Sizing rule & Engines & GPUs & System interpretation \\
+\midrule
+\appgroup{5}{Warm-path placement}
+Warm distinct concurrency & $\lceil 2300/64 \rceil$ & 36 & 144 & ideal placement by same-batch adapter diversity \\
+Warm headroom band & $36\times\{1.2,1.33,1.5\}$ & 44--54 & 176--216 & margin for skew, retries, and imperfect routing \\
+Warm throughput floor & 60 s SLO; 2.57 req/s/engine & 15 & 60 & throughput-only floor; ignores distinct placement \\
+\appgroup{5}{Cold-path isolation}
+Cold-load rate & 38.3 cold LoRA/s; 0.7/engine & 55 & 220 & rates the cold-load service with burst tail tracked separately \\
+Cold-burst isolation & 2300 cold uniques; $\le 32$/engine & 72 & 288 & isolates worst-case first touch through prewarm or backpressure \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\paragraph{Cold-load accounting.}
+\Cref{tab:app_cold_load_control} decomposes the cold path into API queueing, shared loads for repeated cache-miss requests, unique-adapter loading, and bounded backpressure. The probes show that the bottleneck is unique cold adapter loading into one engine. Requests wait before generation on LoRA loading; the measured API queue wait is small. Deduplicating identical missing adapters avoids repeated load work, while distinct cold adapters remain separate load jobs. This supports the main-text claim that cold loading is scheduled service work before ordinary sampling latency.
+
+\paragraph{Fleet-level sizing sketch.}
+\Cref{tab:app_fleet_model} uses measured single-engine limits as sizing inputs for a larger MinT deployment. This table is a $10^6$-adapter capacity model under a 2300-distinct-adapter active-wave assumption. The main serving experiments sweep adapter catalogs up to 100k entries. The extrapolation asks how many engines would be needed if a larger accumulated adapter catalog produced that active wave before routing or prewarming restored locality. The 60 s service-level objective is the warm-response target used for the throughput floor, and 2.57 req/s/engine is the observed warm-throughput input for that row. The cold-load rows size the separate case in which many selected adapters are cold at first touch.

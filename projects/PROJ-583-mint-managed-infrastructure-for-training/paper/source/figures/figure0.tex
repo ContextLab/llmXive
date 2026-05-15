@@ -1,0 +1,165 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,font=\sffamily]
+  \tikzstyle{panel}=[draw=mindlabfg, very thick, rounded corners=1.4mm, fill=white]
+  \tikzstyle{mintpanel}=[draw=mindlabfg, very thick, rounded corners=1.4mm, fill=mindlabblue!12]
+
+  \tikzstyle{box}=[
+    draw=mindlabfg,
+    thick,
+    rounded corners=0.9mm,
+    fill=white,
+    align=center,
+    inner sep=3pt
+  ]
+
+  \tikzstyle{softbox}=[
+    box,
+    fill=mindlabbluepale!45,
+    minimum width=2.34cm,
+    minimum height=0.62cm,
+    text width=2.10cm
+  ]
+
+  \tikzstyle{groupbox}=[
+    draw=mindlabfg,
+    thick,
+    rounded corners=0.9mm,
+    fill=mindlabbluepale!45,
+    align=center,
+    inner sep=3pt,
+    font=\scriptsize\sffamily
+  ]
+
+  \tikzstyle{adapter}=[
+    draw=mindlabfg,
+    thick,
+    rounded corners=0.8mm,
+    fill=mindlabblue!22,
+    minimum width=0.58cm,
+    minimum height=0.24cm,
+    inner sep=0.6pt,
+    font=\scriptsize\sffamily,
+    text=mindlabfg
+  ]
+
+  \tikzstyle{base}=[
+    draw=mindlabfg,
+    thick,
+    rounded corners=0.9mm,
+    fill=mindlabfg!8,
+    align=center,
+    inner sep=3pt,
+    text width=2.55cm
+  ]
+
+  \tikzstyle{title}=[
+    font=\bfseries\small\sffamily,
+    align=center,
+    text=mindlabfg
+  ]
+
+  \tikzstyle{bigtag}=[
+    font=\bfseries\large\sffamily,
+    align=center,
+    text=mindlabfg
+  ]
+
+  \tikzstyle{label}=[
+    font=\scriptsize\sffamily,
+    align=center,
+    text=mindlabfg,
+    fill=white,
+    inner sep=1pt
+  ]
+
+  \tikzstyle{plainlabel}=[
+    font=\scriptsize\sffamily,
+    align=center,
+    text=mindlabfg,
+    inner sep=1pt
+  ]
+
+  \tikzstyle{arrow}=[->, very thick, draw=mindlabfg]
+
+  \path[use as bounding box] (0.10,-1.02) rectangle (14.10,7.95);
+
+  % User intent
+  \node[panel, minimum width=12.85cm, minimum height=1.76cm] (user) at (7.10,7.00) {};
+  \node[title] at (7.10,7.65) {User Intent};
+
+  \foreach \x/\main/\sub in {
+    2.40/Base Model/{Qwen, DeepSeek},
+    5.53/Data + Reward/{tasks, tools, envs},
+    8.67/LoRA RL Recipe/{rank, modules, loss},
+    11.80/Evaluate + Serve/{scores, rollout, serve}
+  } {
+    \node[
+      box,
+      minimum width=2.82cm,
+      minimum height=0.62cm,
+      text width=2.50cm
+    ] at (\x,6.82)
+      {{\bfseries\footnotesize \main}\\[-1pt]
+       {\scriptsize\color{mindlabfg!62}\sub}};
+  }
+
+  % MinT
+  \node[mintpanel, minimum width=12.85cm, minimum height=1.42cm] (mint) at (7.10,5.06) {};
+  \node[bigtag] at (1.55,5.06) {MinT};
+
+  \foreach \x/\txt in {
+    3.82/API,
+    6.52/Queue,
+    9.22/Policy State,
+    11.92/Revisions
+  } {
+    \node[softbox] at (\x,5.06)
+      {{\footnotesize \txt}};
+  }
+
+  % Policy population
+  \node[panel, minimum width=12.85cm, minimum height=2.18cm] (population) at (7.10,2.91) {};
+  \node[title] at (7.10,3.73) {Policy Population over Shared Base Deployments};
+
+  \node[base, minimum width=2.95cm, minimum height=0.82cm] (bases) at (4.29,2.78)
+    {{\footnotesize Resident Base}\\[-1pt]
+     {\footnotesize Deployments}};
+
+  \node[plainlabel, font=\bfseries\large\sffamily] at (6.23,2.78) {$+$};
+
+  \node[adapter] at (7.29,2.96) {$r_1$};
+  \node[adapter] at (8.05,2.96) {$r_2$};
+  \node[adapter] at (8.81,2.96) {$r_3$};
+  \node[adapter] at (9.57,2.96) {$r_4$};
+  \node[adapter] at (10.33,2.96) {$r_5$};
+  \node[adapter] at (11.09,2.96) {$\cdots$};
+
+  \node[plainlabel] at (9.19,2.44) {train / evaluate / serve / rollback};
+
+  % Infrastructure
+  \node[panel, minimum width=12.85cm, minimum height=2.26cm] (infra) at (7.10,0.34) {};
+  \node[title] at (7.10,1.20) {Infrastructure Complexity Hidden Underneath};
+
+  \node[groupbox, minimum width=2.62cm, minimum height=1.10cm, text width=2.44cm] at (2.46,0.15)
+    {{\bfseries\scriptsize Scheduler}\\[-1pt]
+     {\scriptsize\color{mindlabfg!62}queue / admission}\\[-1pt]
+     {\scriptsize\color{mindlabfg!62}placement}};
+
+  \node[groupbox, minimum width=2.62cm, minimum height=1.10cm, text width=2.44cm] at (5.55,0.15)
+    {{\bfseries\scriptsize Fault Tolerance}\\[-1pt]
+     {\scriptsize\color{mindlabfg!62}records / op state}\\[-1pt]
+     {\scriptsize\color{mindlabfg!62}retries}};
+
+  \node[groupbox, minimum width=2.62cm, minimum height=1.10cm, text width=2.44cm] at (8.65,0.15)
+    {{\bfseries\scriptsize Adapter Lifecycle}\\[-1pt]
+     {\scriptsize\color{mindlabfg!62}restore / export}\\[-1pt]
+     {\scriptsize\color{mindlabfg!62}revision visibility}};
+
+  \node[groupbox, minimum width=2.62cm, minimum height=1.10cm, text width=2.44cm] at (11.74,0.15)
+    {{\bfseries\scriptsize Serving Residency}\\[-1pt]
+     {\scriptsize\color{mindlabfg!62}storage / cache}\\[-1pt]
+     {\scriptsize\color{mindlabfg!62}GPU slots}};
+
+  \draw[arrow] (user.south) -- (mint.north);
+  \draw[arrow] (mint.south) -- (population.north);
+  \draw[arrow] (population.south) -- (infra.north);
+\end{tikzpicture}

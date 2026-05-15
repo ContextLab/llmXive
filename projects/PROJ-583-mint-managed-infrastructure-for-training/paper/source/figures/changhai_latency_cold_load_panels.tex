@@ -1,0 +1,93 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,font=\sffamily]
+  \definecolor{mintauxteal}{HTML}{009E9A}
+  \definecolor{mintauxamber}{HTML}{D98B00}
+  \tikzstyle{axis}=[thick, draw=mindlabfg]
+  \tikzstyle{warmbar}=[fill=mindlabblue!42, draw=mindlabfg, thick]
+  \tikzstyle{coldbar}=[fill=mintauxamber!55, draw=mindlabfg, thick]
+  \tikzstyle{observed}=[draw=mindlabblue, line width=1.05pt]
+  \tikzstyle{refline}=[draw=mintauxamber, dashed, semithick]
+  \tikzstyle{label}=[font=\scriptsize\sffamily, align=center]
+
+  \path[use as bounding box] (-1.05,-0.95) rectangle (14.35,3.92);
+
+  % Panel A: warm versus cache-miss cold latency.
+  \begin{scope}[shift={(0,0)}]
+    \foreach \y/\lab in {0/0,0.75/50,1.50/100,2.25/150,3.00/200} {
+      \draw[mindlabfg!22] (0,\y) -- (2.90,\y);
+      \node[label, anchor=east] at (-0.10,\y) {\lab};
+    }
+    \draw[axis] (0,0) -- (2.90,0);
+    \draw[axis] (0,0) -- (0,3.16);
+    \node[label, rotate=90] at (-0.82,1.50) {p95 latency (s)};
+    \node[label] at (1.45,3.62) {\textbf{Warm vs. cold}};
+
+    \draw[warmbar] (0.62,0) rectangle (1.00,0.320);
+    \draw[coldbar] (1.90,0) rectangle (2.28,2.997);
+    \node[label] at (0.81,-0.33) {CPU\\cached};
+    \node[label] at (2.09,-0.33) {cache\\miss};
+    \node[label, anchor=south] at (0.81,0.42) {21.35};
+    \node[label, fill=white, inner sep=1pt] at (2.09,2.70) {199.81};
+  \end{scope}
+
+  % Panel B: adapter catalog scaling. Same y scale as Panel A.
+  \begin{scope}[shift={(4.25,0)}]
+    \foreach \y/\lab in {0/0,0.75/50,1.50/100,2.25/150,3.00/200} {
+      \draw[mindlabfg!22] (0,\y) -- (4.35,\y);
+      \node[label, anchor=east] at (-0.10,\y) {\lab};
+    }
+    \draw[axis] (0,0) -- (4.35,0);
+    \draw[axis] (0,0) -- (0,3.16);
+    \node[label, rotate=90] at (-0.82,1.50) {p95 latency (s)};
+    \node[label] at (2.18,3.62) {\textbf{Adapter catalog size}};
+    \draw[warmbar] (2.72,3.30) rectangle (2.90,3.44);
+    \node[label, anchor=west] at (2.78,3.37) {warm};
+    \draw[coldbar] (3.52,3.30) rectangle (3.70,3.44);
+    \node[label, anchor=west] at (3.78,3.37) {cold};
+
+    \foreach \x/\pool/\warmheight/\coldheight/\warmval/\coldval in {
+      0.80/1k/0.313/2.896/20.9/193.0,
+      2.18/10k/0.182/2.861/12.2/190.7,
+      3.56/100k/0.182/2.846/12.1/189.7
+    } {
+      \draw[warmbar] (\x-0.23,0) rectangle (\x-0.03,\warmheight);
+      \draw[coldbar] (\x+0.03,0) rectangle (\x+0.23,\coldheight);
+      \node[label] at (\x,-0.33) {\pool};
+    }
+    \node[label] at (2.18,-0.70) {adapter catalog size};
+  \end{scope}
+
+  % Panel C: cold-load staircase. Same x-axis baseline as Panels A/B.
+  \begin{scope}[shift={(9.95,0)}]
+    \foreach \y/\lab in {0/0,0.60/5,1.20/10,1.80/15,2.40/20,3.00/25} {
+      \draw[mindlabfg!22] (0,\y) -- (4.30,\y);
+      \node[label, anchor=east] at (-0.10,\y) {\lab};
+    }
+    \draw[axis] (0,0) -- (4.30,0);
+    \draw[axis] (0,0) -- (0,3.16);
+    \node[label, rotate=90] at (-0.78,1.50) {load time (s)};
+    \node[label] at (2.15,3.62) {\textbf{Cold staircase}};
+
+    \foreach \x/\lab in {0.30/1,1.05/4,2.05/8,3.05/12,4.05/16} {
+      \draw[mindlabfg!45] (\x,0) -- (\x,-0.08);
+      \node[label] at (\x,-0.33) {\lab};
+    }
+    \node[label] at (2.18,-0.70) {distinct adapters loaded};
+
+    \draw[refline] (0.30,0.163) -- (4.05,2.611);
+    \draw[observed]
+      (0.30,0.165) -- (0.55,0.326) -- (0.80,0.488) -- (1.05,0.649)
+      -- (1.30,0.812) -- (1.55,0.974) -- (1.80,1.226) -- (2.05,1.389)
+      -- (2.30,1.553) -- (2.55,1.717) -- (2.80,1.881) -- (3.05,2.045)
+      -- (3.30,2.298) -- (3.55,2.461) -- (3.80,2.628) -- (4.05,2.792);
+    \foreach \x/\y in {
+      0.30/0.165,0.55/0.326,0.80/0.488,1.05/0.649,
+      1.30/0.812,1.55/0.974,1.80/1.226,2.05/1.389,
+      2.30/1.553,2.55/1.717,2.80/1.881,3.05/2.045,
+      3.30/2.298,3.55/2.461,3.80/2.628,4.05/2.792
+    } {
+      \fill[mintauxteal] (\x,\y) circle (1.35pt);
+    }
+    \node[label, text=mintauxamber, fill=white, inner sep=1pt] at (2.85,2.45) {1.36 s/adapter};
+    \node[label, fill=white, inner sep=1pt] at (3.62,2.95) {23.27 s};
+  \end{scope}
+\end{tikzpicture}

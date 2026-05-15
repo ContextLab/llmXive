@@ -1,0 +1,29 @@
+\begin{table}[h]
+\centering
+\small
+\caption{Per-pipeline-type means with 95\% bootstrap intervals over
+systems-within-type, and the S2S$-$Cascade pairwise difference ($\Delta$)
+with its 95\% bootstrap interval. Computed on clean runs only. Higher is
+better for the first three facets; lower is better for
+\texttt{violating\_policies\_rate}. $n$ is the number of systems
+contributing to each row. Mean rows use the $[0, 1]$ metric scale; the
+$\Delta$ row is reported in percentage points
+($\Delta \times 100$), with its bootstrap interval obtained by
+independently resampling each group's per-system means.}
+\label{tab:pipeline-comparison-summary}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c c c c c}
+\toprule
+& & \multicolumn{4}{c}{Facet (mean [95\% interval])} \\
+\cmidrule(lr){3-6}
+Pipeline type & $n$ & On-time$\uparrow$ & Finishes$\uparrow$ & Auth.$\uparrow$ & Violates policy$\downarrow$ \\
+\midrule
+Cascade           & 7 & 0.55 \,[0.44, 0.66] & 0.82 \,[0.74, 0.93] & 0.77 \,[0.66, 0.86] & 0.53 \,[0.41, 0.65] \\
+Hybrid            & 2 & 0.23 \,[0.01, 0.46] & 0.89 \,[0.87, 0.90] & 0.88 \,[0.84, 0.92] & 0.63 \,[0.56, 0.70] \\
+Speech-to-Speech  & 3 & 0.83 \,[0.80, 0.89] & 0.97 \,[0.95, 0.99] & 0.88 \,[0.83, 0.93] & 0.78 \,[0.69, 0.88] \\
+\midrule
+$\Delta$ S2S$-$Cascade (pp) & --- & $+27.9$ \,$[+16.4, +39.6]$ & $+15.2$ \,$[+6.0, +24.5]$ & $+11.3$ \,$[+2.4, +20.9]$ & $+24.6$ \,$[+11.7, +38.4]$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

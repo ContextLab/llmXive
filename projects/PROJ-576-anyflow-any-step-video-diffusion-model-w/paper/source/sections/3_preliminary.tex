@@ -1,0 +1,67 @@
+\input{tables/paradigm_compare}
+\section{Preliminary}
+\label{sec:preliminary}
+
+\subsection{Flow Map Formulation}
+
+We first introduce the basic flow map formalism used in AnyFlow.
+Let $\mathbf{z}_t$ denote the latent state at continuous time $t\in[0,1]$ under the probability-flow ODE (PF-ODE):
+\begin{equation}
+  \frac{d\mathbf{z}_t}{dt} = \mathbf{v}(\mathbf{z}_t, t),
+\end{equation}
+where $\mathbf{v}$ is the velocity field.
+
+Define the exact flow map $\Phi_{r\leftarrow t}$ of this ODE as the operator that transports states from time $t$ to time $r$, \ie $\Phi_{r\leftarrow t}(\mathbf{z}_t)=\mathbf{z}_r$ for $1\ge t\ge r\ge 0$.
+It satisfies two standard properties: identity $\Phi_{t\leftarrow t}(\mathbf{z})=\mathbf{z}$ and composition $\Phi_{q\leftarrow r}\circ\Phi_{r\leftarrow t}=\Phi_{q\leftarrow t}$ for $t\ge r\ge q$.
+
+In practice, a neural flow map model learns an approximation
+\begin{equation}
+  \mathbf{f}_\theta(\mathbf{z}_t, t, r) \approx \mathbf{z}_r, \quad 1 \ge t > r \ge 0,
+\end{equation}
+with boundary condition $\mathbf{f}_\theta(\mathbf{z}_t,t,t)=\mathbf{z}_t$.
+Compared with endpoint-only mappings, this parameterization models transitions between arbitrary time pairs, which naturally supports variable step sizes and any-step inference.
+
+
+\input{tables/ablation_anyflow}
+
+
+\myPara{MeanFlow Objective.}
+MeanFlow~\cite{geng2025mean} is a representative algorithm for training flow map models. It parameterizes the averaged transport velocity on $[r,t]$ and approximates the transition as $\mathbf{f}_\theta(\mathbf{z}_t,t,r)=\mathbf{z}_t-(t-r)\,\mathbf{u}_\theta(\mathbf{z}_t,r,t)$. Following this formulation, we optimize $\mathbf{u}_\theta$ by:
+\begin{equation}
+  \label{eq:meanflow}
+  \mathcal{L}(\theta)
+  = \mathbb{E}\left[\left\|\mathbf{u}_\theta(\mathbf{z}_t, r, t)-\operatorname{sg}\!\left(\mathbf{u}_{\text{tgt}}\right)\right\|_2^2\right],
+\end{equation}
+where $\mathbf{u}_{\text{tgt}}=\mathbf{v}(\mathbf{z}_t,t) - (t-r)\,\frac{d\mathbf{u}_\theta(\mathbf{z}_t,r,t)}{dt}$.
+Here, $\operatorname{sg}(\cdot)$ denotes stop-gradient.
+
+\myPara{Differential Derivation
+Equation.} Computing the Jacobian-vector product (JVP) for the derivative term $\frac{d\mathbf{u}(\mathbf{z}_t, r, t)}{dt}$ is expensive and not fully compatible with Fully Sharded Data Parallel (FSDP). Transition Model~\cite{wang2025transition} proposes to approximate this derivative using the finite difference method:
+\begin{equation}
+    \label{eq:center_difference}
+  \frac{d}{dt}\mathbf{u}(\mathbf{z}_t, r, t) \approx \frac{\mathbf{u}(\mathbf{z}_{t+\Delta t}, r, t+\Delta t) - \mathbf{u}(\mathbf{z}_{t-\Delta t}, r, t-\Delta t)}{2\Delta t},
+\end{equation}
+This approximation requires only two forward passes per training step and is compatible with FSDP.
+
+\subsection{On-Policy Distillation}
+\label{sec:on_policy_distillation}
+On-policy distillation is designed to reduce train--test mismatch by training the student on its own rollout states while being guided by a strong teacher. In diffusion models, this paradigm is mainly instantiated as Distribution Matching Distillation (DMD). It typically consists of two key components: backward simulation and a distribution-matching objective.
+
+\myPara{Backward Simulation.}
+Given noise $\mathbf{z}$, the student first produces a sample through its inference trajectory,
+$\hat{\mathbf{z}}_0 = \mathbf{f}_\theta(\mathbf{z})$.
+This self-generated trajectory is then used to compute the distillation loss, which helps mitigate exposure bias and discretization error at test time.
+
+\myPara{Distribution Matching Objective.}
+We follow DMD-style reverse-KL training~\cite{yin2024one,yin2024improved}. First, DMD re-noises the self-rollout sample $\hat{\mathbf{z}}_0$ at $t\in[0,T]$ as $\mathbf{z}_t=(1-t)\hat{\mathbf{z}}_0+t\boldsymbol{\epsilon}$, where $\boldsymbol{\epsilon}\sim\mathcal{N}(\mathbf{0},\mathbf{I})$. It then estimates the DMD gradient as follows:
+\begin{align}
+  \label{eq:DMD_gradient}
+  \nabla_\theta \mathcal{L}_{\text{DMD}}
+  = -\mathbb{E}_{t,\mathbf{z}}\left[
+    \big(s_{\text{real}}(\mathbf{z}_t,t)-s_{\text{fake}}(\mathbf{z}_t,t)\big)
+    \frac{\partial \mathbf{f}_\theta(\mathbf{z})}{\partial \theta}
+  \right],
+\end{align}
+where $s_{\text{real}}$ and $s_{\text{fake}}$ are the real and fake score functions, respectively.
+
+\input{figures/ablation_onpolicy}

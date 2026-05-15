@@ -1,0 +1,25 @@
+\begin{table}[h]
+\centering
+\small
+\caption{Default mapping from log source to extracted variable. The upper block lists the per-turn text and audio fields; the lower block lists the entries that compose the linear \texttt{conversation\_trace}. Pipeline-specific overrides are listed in the text.\\[2pt]
+\textsuperscript{*}~Empty if the framework emits neither record.\quad
+\textsuperscript{\dag}~Falls back to \texttt{assistant\_speech} for S2S.\quad
+\textsuperscript{\ddag}~Uses \texttt{user\_speech} for audio-native pipelines (S2S/Hybrid).}
+\begin{tabular}{ll}
+\toprule
+\textbf{Variable} & \textbf{Source} \\
+\midrule
+\texttt{transcribed\_user\_turns[i]}        & \texttt{audit\_log} / user \\
+\texttt{intended\_user\_turns[i]}           & \texttt{elevenlabs} / \texttt{user\_speech} \\
+\texttt{intended\_assistant\_turns[i]}      & \texttt{framework\_logs} / \texttt{tts\_text}, \texttt{llm\_response}\textsuperscript{*} \\
+\texttt{transcribed\_assistant\_turns[i]}   & \texttt{elevenlabs} / \texttt{assistant\_speech} \\
+\texttt{audio\_timestamps\_\{role\}\_turns[i]} & \texttt{elevenlabs} / \texttt{audio\_start}, \texttt{audio\_end} \\
+\texttt{tool\_params}, \texttt{tool\_responses} & \texttt{audit\_log} / \texttt{tool\_call}, \texttt{tool\_response} \\
+\midrule
+\texttt{conversation\_trace} (assistant) & \texttt{audit\_log} / assistant, truncated to framework-log prefix\textsuperscript{\dag} \\
+\texttt{conversation\_trace} (user)      & \texttt{audit\_log} / user\textsuperscript{\ddag} \\
+\texttt{conversation\_trace} (tools)     & \texttt{audit\_log} / \texttt{tool\_call}, \texttt{tool\_response} \\
+\bottomrule
+\end{tabular}
+\label{tab:log-mapping}
+\end{table}

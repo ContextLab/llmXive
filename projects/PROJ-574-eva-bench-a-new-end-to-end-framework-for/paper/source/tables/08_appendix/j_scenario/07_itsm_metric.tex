@@ -1,0 +1,68 @@
+\begingroup\small
+\begin{longtable}{
+  p{0.13\textwidth}
+  p{0.16\textwidth}
+  p{0.16\textwidth}
+  p{0.08\textwidth}
+  p{0.35\textwidth}}
+\captionsetup{font=small}
+\caption[Evaluation results for the sample conversation in Scenario 82.]%
+{Evaluation results for the sample conversation in Scenario~82.}
+\label{tab:accuracy-metrics} \\
+\toprule
+\textbf{Dimension} & \textbf{Metric} & \textbf{Failing Item} & \textbf{Score} & \textbf{Notes} \\
+\midrule
+\endfirsthead
+\multicolumn{5}{l}{\emph{Table~\ref{tab:accuracy-metrics} continued from previous page}} \\
+\toprule
+\textbf{Dimension} & \textbf{Metric} & \textbf{Failing Item} & \textbf{Score} & \textbf{Notes} \\
+\midrule
+\endhead
+\midrule \multicolumn{5}{r}{\emph{continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+% EVA-A
+\multirow{4}{*}{\textbf{EVA-A}}
+  & Task Completion
+  & Missing incident ticket
+  & 0\%
+  & AD lockout incident ticket not created. \\
+  & Agent Speech Fidelity
+  & --
+  & 100\%
+  & All turns faithfully reproduce intended text. \\
+  & Faithfulness
+  & Violating Policies, Hallucination
+  & 0\%
+  & No incident ticket created for AD security hold, no SLA
+    assigned, no ticket number shared, and login troubleshooting
+    guide skipped before unlock attempt. Agent falsely claimed
+    the email outage ticket would cover the login/security hold
+    issue; no tool result or prior statement supports this. \\
+\midrule
+% EVA-X
+\multirow{3}{*}{\textbf{EVA-X}}
+  & Conciseness
+  & Turns~3, 4, 9
+  & 80\%
+  & Turn~3 over-reports ticket details and uses wrong name
+    (``Jen'' vs.\ Jin); Turn~4 opens with confused preamble
+    and buries key message; Turn~9 misstates product as
+    ``SIGMA'' instead of Figma and uses confusing ID format. \\
+  & Conv.\ Progression
+  & Unnecessary Tool Calls, Information Loss
+  & 50\%
+  & Turn~3: \texttt{create\_incident\_ticket} called without
+    confirming outage scope after
+    \texttt{check\_existing\_outage} returned no result;
+    user repeatedly addressed as ``Jen'' across
+    Turns~3, 4, 6 despite authentication confirming
+    name as Jin Li. \\
+  & Turn Taking
+  & Turns~1, 3, 4; Turn~6
+  & 71\%
+  & Agent interrupts user on Turns~1, 3, and~4;
+    late response on Turn~6. \\
+\end{longtable}
+\endgroup

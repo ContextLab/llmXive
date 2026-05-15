@@ -1,0 +1,471 @@
+\section{Experiment Details}
+\label{app:experiment_details}
+
+
+\subsection{More Detailed Ablations}
+\label{ap:more_ablation}
+
+\input{tables/model_ablation.tex}
+
+In this section, we provide a more comprehensive backbone ablation that extends the single-agent study in Table~\ref{tab:model_ablation_compact} to also cover \textit{EywaMAS} and \textit{EywaOrchestra}, and reports per-sub-domain results across all nine domains. The full results are shown in Table~\ref{tab:ablation_backend_llm}. We highlight three observations.
+ 
+\textbf{\textit{Eywa} is and consistently compatible and effective across LLM backbones.} Across all three backbones (gpt-4.1-nano, gpt-5-nano, and gpt-5-mini) and all three system settings (single-agent, multi-agent, and dynamic orchestration), \textit{Eywa} delivers strong utility on every sub-domain. For instance, with the relatively weak gpt-4.1-nano backbone, \textit{EywaAgent}, \textit{EywaMAS}, and \textit{EywaOrchestra} reach overall utilities of 0.5680, 0.6236, and 0.6210, respectively, all of which already surpass the single-agent gpt-5-nano baseline reported in Table~\ref{tab:main_comparison_eywabench}. A similar pattern holds when we move to gpt-5-nano, where the relative ranking among single-agent, multi-agent, and dynamic-orchestration variants is preserved. This stability suggests that the gains of \textit{Eywa} come primarily from cross-modality heterogeneity and structured FM--LLM collaboration, rather than from a particular language-model checkpoint.
+ 
+\textbf{\textit{Eywa} benefits from stronger LLM backbones.} As we scale the language model from gpt-4.1-nano to gpt-5-nano, all three settings improve substantially in overall utility: \textit{EywaAgent} improves from 0.5680 to 0.6558 ($+15.5\%$), \textit{EywaMAS} from 0.6236 to 0.6761 ($+8.4\%$), and \textit{EywaOrchestra} from 0.6210 to 0.6746 ($+8.6\%$). The per-domain breakdown shows consistent improvements across physical, life, and social science. This indicates that, although \textit{Eywa} already provides strong baseline performance through its FM--LLM coupling, the gains compound as the underlying language model becomes more capable: stronger LLMs produce more reliable planning, better routing, and more faithful integration of foundation-model outputs into the final answer.
+ 
+\textbf{Diminishing returns from gpt-5-nano to gpt-5-mini suggest a domain-specific bottleneck.} While moving from gpt-4.1-nano to gpt-5-nano yields large utility gains (e.g., $+15.5\%$ for \textit{EywaAgent}), further upgrading the backbone from gpt-5-nano to gpt-5-mini brings only marginal improvements ($0.6558 \rightarrow 0.6640$, i.e., $+1.25\%$ for \textit{EywaAgent}), and on several sub-domains the larger model is in fact slightly worse (e.g., Biology, Clinic, Economy, and Business). This pattern indicates that once the LLM is sufficiently capable of planning, communicating, and routing to the specialized foundation models, additional general-purpose LLM scaling yields diminishing returns. In other words, the remaining headroom in utility is no longer dominated by the LLM's general reasoning ability, but rather by \emph{domain-specific} capability. This observation provides a strong motivation for our \textit{Eywa} to extend agentic systems with domain-specific components.
+
+
+\subsection{Case Study}
+\label{ap:case_study}
+
+
+We provide representative case studies to qualitatively illustrate how different agentic configurations behave on \textit{EywaBench-V1}. In particular, we focus on how each system parses a text-defined task, handles structured non-linguistic inputs, invokes or fails to invoke specialized predictive capabilities, and realizes the final output under strict formatting constraints.
+
+Case Study A compares a language-only LLM agent with \textit{EywaAgent} on the same task over structured financial signals. As shown in Figure~\ref{fig: case_study_llmagent}, the language-only agent correctly understands the surface-level task interface: it identifies the required output schema, produces the correct number of future timestamps, and returns a dataframe-style response. However, because it only reasons over serialized values, its prediction collapses to a last-value persistence baseline. This illustrates a common failure mode: the LLM can follow instructions and satisfy formatting requirements, but this does not imply that it has performed the underlying domain-specific numerical computation.
+
+Figure~\ref{fig: case_study_eywaagent} shows the corresponding \textit{EywaAgent} behavior on the same task. Instead of treating the serialized sequence as a purely textual pattern, \textit{EywaAgent} uses the LLM to parse the task, configure the model call, and activate the Chronos foundation model through the \textit{Tsaheylu} interface. Chronos then serves as the core predictor, while the LLM verifies the returned forecast in context and formats it into the required dataframe-style response. This case highlights the intended division of labor in \textit{EywaAgent}: the language model provides task understanding and interface control, while the specialized foundation model performs the domain-specific computation.
+
+Case Study B further illustrates the role of \textit{EywaOrchestra}. Unlike \textit{EywaAgent}, which uses a fixed augmented-agent design, \textit{EywaOrchestra} first decides which configuration should be used for the given task. As shown in Figure~\ref{fig:case_study_eywaorchestra}, the planner identifies the input as a Miami house-price prediction problem, formulates it as structured tabular regression, and selects a lightweight single-agent \textit{Eywa} configuration with \texttt{gpt-5-nano} and TabPFN. This example shows that orchestration does not necessarily mean using a more complex multi-agent topology; rather, it means selecting an appropriate configuration for the task. When a specialized tabular foundation model is sufficient, \textit{EywaOrchestra} can avoid unnecessary multi-agent discussion and directly route the task to the most suitable expert.
+
+Overall, these case studies show three complementary points. First, language-only agents may be highly format-compliant while still relying on shallow heuristics for structured numerical tasks. Second, \textit{EywaAgent} makes specialized foundation models usable inside text-defined workflows by bridging natural-language instructions and model-specific inference interfaces. Third, \textit{EywaOrchestra} extends this idea by dynamically selecting the agent setting, foundation model, and execution plan according to the task modality and complexity. Together, these examples provide qualitative evidence for the central motivation of \textit{Eywa} that heterogeneous scientific reasoning requires both language-side task execution and domain-side specialized computation.
+
+
+
+\begin{figure}[h]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tcolorbox}[colback=gray!5!white, colframe=red!60, 
+title=Case Study A.1: How LLM Agent Fails a Domain-Specific Problem, boxrule=0.3mm, width=1.2\textwidth, arc=2mm, auto outer arc=true]
+\textbf{Core Task.} This case study presents a representative instance from \textit{EywaBench-V1}, centered on a domain-specific numerical prediction task over structured financial signals. The input consists of 50 normalized NASDAQ measurements indexed by consecutive, anonymized timestamps. Although the data are presented in a text-readable format, solving it requires recognizing numerical dynamics in a structured signal and extrapolating future values. To reduce the possibility that language models rely on memorized historical market trends, all timestamps are anonymized and re-indexed during preprocessing. The goal is to estimate the next 10 normalized NASDAQ values.
+
+\vspace{3mm}
+\textbf{Agents.}
+We compare a language-only LLM agent with \textit{EywaAgent}. The LLM agent performs the task solely through language-based reasoning with gpt-5-nano backbone. In contrast, \textit{EywaAgent} connects a Chronos time-series foundation model with gpt-5-nano through the \textit{Tsaheylu} interface.
+
+\vspace{3mm}
+\hrule 
+\vspace{3mm}
+\textbf{Prompt:} 
+\begin{quote}
+You are given a normalized univariate financial time series and are asked to forecast the next 10 values. The timestamps have been anonymized and re-indexed to avoid relying on memorized historical market trends.
+
+The input is a structured financial signal with two columns: \texttt{timestamp} and \texttt{value}. It contains 50 consecutive normalized NASDAQ observations with anonymized timestamps. Your task is to infer the values for the next 10 timestamps.
+Return the prediction as a pandas-dataframe-style string with exactly two columns: \texttt{timestamp,value}. Do not include explanations, comments, or intermediate reasoning.
+
+\textbf{Input time series:}
+
+\texttt{timestamp,value}\\
+\texttt{\ldots}\\
+
+\textbf{Forecast horizon:} 10 timestamps.
+
+\textbf{Required output format:} \texttt{\ldots}\\
+
+\end{quote}
+
+\hrule
+\vspace{3mm}
+
+\textbf{LLM Agent Response Trajectory:}
+
+\begin{enumerate}
+    \item \textbf{Task-interface parsing.}
+    The prompt is interpreted as a domain-specific numerical prediction task with a strict output interface. The input is presented as a dataframe-style sequence, and the answer must be returned in the same dataframe-style format. This creates two immediate constraints: the response should contain exactly 10 future timestamps and only the columns \texttt{timestamp} and \texttt{value}, without any additional explanation.
+
+    \item \textbf{Language-only inference.}
+    The agent then inspects the serialized numerical observations. Since it has no access to a specialized forecasting model, it can only infer future values from the surface pattern of the provided sequence. To avoid introducing unsupported oscillations or trends, it chooses a conservative continuation strategy.
+
+    \item \textbf{Persistence-style output generation.}
+    Following this strategy, the agent extends the timestamp index by 10 steps and assigns each future timestamp the last observed value. The resulting response is format-compliant, but the prediction itself reduces to a last-value persistence forecast rather than a domain-specific numerical prediction.
+\end{enumerate}
+
+\begin{quote}
+\small
+\texttt{timestamp,value}\\
+\textbf{\textit{(The agent keeps the last observed value as the prediction for all future timestamps)}}\\
+\texttt{\ldots}
+\end{quote}
+
+\textbf{Evaluation on LLM Agent Output:}
+The response receives a utility score of $0.605$. The agent correctly follows the required output schema and produces the correct number of future predictions. However, because the language-only agent has no specialized numerical forecasting capability, its final answer reduces to a last-value persistence baseline, limiting its predictive utility.
+
+
+\end{tcolorbox}}
+\caption{
+Case study of a language-only LLM agent on a representative \textit{EywaBench-V1} instance. Although the agent correctly parses the task interface and produces a format-compliant response with the required forecast horizon, its prediction collapses to a last-value persistence baseline. This illustrates the limitation of language-only reasoning on structured domain-specific numerical tasks and motivates the need for \textit{EywaAgent} to invoke specialized foundation models through the \textit{Tsaheylu} interface.
+}
+\label{fig: case_study_llmagent}
+\end{figure}
+
+
+
+
+
+
+\begin{figure}[h]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tcolorbox}[colback=gray!5!white, colframe=orange!60, 
+title=Case Study A.2: How EywaAgent Solves a Domain-Specific Problem with Specialized Foundation Model, boxrule=0.3mm, width=1.2\textwidth, arc=2mm, auto outer arc=true]
+\textbf{Core task and prompts are the same as previous A.1 case study.} 
+
+\vspace{3mm}
+\textbf{Agents.}
+We compare a language-only LLM agent with \textit{EywaAgent}. The LLM agent performs the task solely through language-based reasoning with gpt-5-nano backbone. In contrast, \textit{EywaAgent} connects a Chronos time-series foundation model with gpt-5-nano through the \textit{Tsaheylu} interface.
+
+\vspace{3mm}
+\hrule
+\vspace{3mm}
+
+\textbf{Why Not Directly Use the Foundation Model?}
+The Chronos foundation model is the main predictive component in this case, but it cannot independently execute the full text-defined task. It does not parse natural-language instructions, interpret the required dataframe-style output schema, decide which part of the prompt corresponds to the numerical input, or format the answer according to the user's textual constraints. Directly applying Chronos would require manually extracting the numerical sequence, specifying the forecast horizon, running model inference, and post-processing the prediction into the requested output format. After our extension, \textit{EywaAgent} automates this missing interface.
+
+\vspace{3mm}
+\hrule
+\vspace{3mm}
+
+\textbf{EywaAgent Response Trajectory.}
+\begin{enumerate}
+    \item \textbf{Task-interface parsing by the LLM.} 
+    The \texttt{gpt-5-nano} backbone first parses the user prompt and identifies that the task is not a general language reasoning problem, but a domain-specific numerical prediction problem over a structured financial signal. It extracts the input schema, the forecast horizon, and the required output format.
+
+    \item \textbf{Foundation-model activation through \textit{Tsaheylu}.}
+    Instead of extrapolating directly from the serialized values, \textit{EywaAgent} activates the connected Chronos foundation model through the \textit{Tsaheylu} interface. The interface converts the dataframe-style input into the numerical sequence format expected by Chronos, configures the forecast horizon, and delegates the core prediction step to the specialized foundation model.
+
+    \item \textbf{Specialized prediction by the foundation model:}
+    Chronos performs the main predictive computation over the structured numerical signal. Unlike the language-only agent, which falls back to a persistence-style heuristic, the foundation model uses its pretrained time-series inductive bias to generate a nontrivial forecast for the next 10 steps.
+
+    \begin{quote}
+    \small
+    \texttt{timestamp,value}\\
+    \textit{(Chronos-generated predictions are aligned with the next 10 timestamps)}\\
+    \texttt{\ldots}
+    \end{quote}
+
+    \item \textbf{Context-aware verification and output realization by the LLM.}
+    The Chronos predictions are returned to \textit{EywaAgent}, where the LLM performs a context-aware check beyond simple format validation. It verifies the forecast horizon, timestamp alignment, numerical scale, and consistency with the prompt constraints, making adjustments when needed. The final prediction is then formatted as the required pandas-dataframe-style response. Thus, Chronos serves as the core predictor, while the LLM handles task interpretation, model-call configuration, contextual verification, and final answer realization.
+\end{enumerate}
+
+
+\textbf{Evaluation on EywaAgent Output:}
+The response obtains a higher utility score of $0.701$ because it preserves the required output format while using a specialized foundation model for the core predictive computation, rather than relying on a language-level persistence heuristic.
+
+
+\end{tcolorbox}}
+\caption{
+Case study of \textit{EywaAgent} on the same \textit{EywaBench-V1} instance as Case Study A.1. Unlike the language-only agent, \textit{EywaAgent} enables the Chronos foundation model to serve as the core predictor while using the LLM to parse the text-defined task, configure the model call through the \textit{Tsaheylu} interface, verify the returned prediction in context, and realize the final dataframe-style response. The improved utility score shows the benefit of combining specialized foundation-model computation with language-side task execution.
+}
+\label{fig: case_study_eywaagent}
+\end{figure}
+
+
+
+
+
+
+
+\begin{figure}[h]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tcolorbox}[colback=gray!5!white, colframe=pink!90, 
+title=Case Study B.1: EywaOrchestra Example 1, boxrule=0.3mm, width=1.2\textwidth, arc=2mm, auto outer arc=true]
+
+\textbf{Core Task.}
+This case study presents a representative \textit{EywaBench-V1} instance on Miami house price. The input is a structured real-estate table containing property attributes. The target column contains masked entries, and the system is asked to predict these missing sale prices and return them as a numpy-array-style string.
+
+\vspace{3mm}
+
+\textbf{Prompt:} Please refer to Apendix \ref{app:prompts} for details.
+
+\vspace{3mm}
+\hrule
+\vspace{3mm}
+
+\textbf{Planner Orchestration Stage.}
+\begin{enumerate}
+    \item \textbf{Task diagnosis.}
+    The planner parses the text-defined task and identifies it as a Miami house-price prediction problem, formulated as a structured tabular regression task. It extracts the input modality, target column, masked query rows, output size, and required numpy-array-style response format.
+
+    \item \textbf{Configuration selection.}
+    Based on the detected tabular structure, the planner decides that a full multi-agent discussion is unnecessary. Instead, it selects a lightweight single-agent \textit{Eywa} configuration with \texttt{gpt-5-nano} as the language backbone and TabPFN as the specialized tabular foundation model:
+    \[
+    \{\texttt{eywa}: \texttt{true},\ 
+    \texttt{setting}: \texttt{single-agent},\ 
+    \texttt{model}: \texttt{gpt-5-nano},\ 
+    \texttt{foundation\_model}: \texttt{TabPFN}\}.
+    \]
+
+    \item \textbf{Execution plan.}
+    The planner decomposes the problem into three executable steps: extract observed training rows and masked query rows, invoke TabPFN to estimate the missing values, and format the resulting predictions as the required numpy array.
+\end{enumerate}
+
+
+\textbf{Execution Stage.}
+\begin{enumerate}
+    \item \textbf{Structured input extraction.}
+    The execution agent converts the serialized table into structured tabular data, separates rows with observed target values from rows with masked targets, and identifies the features used for prediction.
+
+    \item \textbf{Foundation-model inference.}
+    The selected tabular foundation model performs the core regression step. It predicts each missing value based on the corresponding row features.
+
+    \item \textbf{Context-aware verification.}
+    The LLM checks whether the returned predictions match the requested output size, whether the values are plausible under the scale of the observed column, and whether the prediction array respects the order of the masked rows.
+
+    \item \textbf{Final response realization.}
+    After verification, \textit{EywaOrchestra} returns only the predicted labels in the required numpy-array-style format, satisfying the text-defined output constraint while relying on the tabular foundation model for the core numerical computation.
+\end{enumerate}
+
+\begin{quote}
+\small
+\texttt{Output: [}\textit{tabular-model prediction for row 1}\texttt{, }
+\textit{tabular-model prediction for row 2}\texttt{, }
+\texttt{\ldots}\texttt{]}
+\end{quote}
+
+\textbf{Evaluation on EywaOrchestra Output:}
+The response receives a utility score of \(0.853\). \textit{EywaOrchestra} correctly identifies the task as Miami house-price prediction and selects a single-agent \textit{Eywa} configuration with \texttt{gpt-5-nano} and TabPFN. The resulting prediction preserves the required numpy-array-style output format while using TabPFN for the core tabular regression computation.
+
+
+\end{tcolorbox}}
+\caption{
+Case study of \textit{EywaOrchestra} on a representative \textit{EywaBench-V1} instance. The planner first diagnoses the task modality, selects a tabular predictive expert, and determines an execution topology. The execution stage then extracts structured inputs, invokes the selected foundation model for the core regression computation, and uses the LLM for contextual verification and final numpy-array-style response realization.
+}
+\label{fig:case_study_eywaorchestra}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Detailed Utility and Token Consumption}
+
+\begin{figure*}[t]
+  \centering
+  % Shared legend on top
+  \includegraphics[width=0.98\linewidth]{figures/tradeoff_plots/tradeoff_legend.pdf}\\[4pt]
+
+  \begin{subfigure}[t]{0.32\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tradeoff_plots/tradeoff_material.pdf}
+    \caption{Material}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.32\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tradeoff_plots/tradeoff_energy.pdf}
+    \caption{Energy}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.32\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tradeoff_plots/tradeoff_space.pdf}
+    \caption{Space}
+  \end{subfigure}\\[4pt]
+
+  \begin{subfigure}[t]{0.32\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tradeoff_plots/tradeoff_biology.pdf}
+    \caption{Biology}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.32\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tradeoff_plots/tradeoff_clinic.pdf}
+    \caption{Clinic}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.32\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tradeoff_plots/tradeoff_drug.pdf}
+    \caption{Drug}
+  \end{subfigure}\\[4pt]
+
+  \begin{subfigure}[t]{0.32\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tradeoff_plots/tradeoff_economy.pdf}
+    \caption{Economy}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.32\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tradeoff_plots/tradeoff_business.pdf}
+    \caption{Business}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.32\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tradeoff_plots/tradeoff_infrastructure.pdf}
+    \caption{Infrastructure}
+  \end{subfigure}
+
+\caption{Utility vs.\ token consumption across nine scientific domains on \textit{EywaBench}. In every panel, the \textcolor[HTML]{2E7D32}{\textbf{green arrow}} indicates the preferred direction of the trade-off, pointing toward higher utility with fewer tokens (i.e., the upper-left of each plot); methods closer to the arrow head are more desirable. The grey dashed line traces the \emph{Pareto frontier}, connecting methods that are not dominated by any other method along this trade-off. Across all nine domains, our methods (EywaAgent, EywaMAS, and EywaOrchestra) consistently sit on or close to the Pareto frontier, achieving the strongest utility while spending substantially fewer tokens than competing multi-agent baselines.}
+\label{fig:tradeoff_per_domain}
+\vspace{-3mm}
+\end{figure*}
+
+
+To complement the overall utility-vs.-token plot in Figure~\ref{fig:tradeoff_per_domain} of the main text, we present the per-sub-domain trade-off in Figure~\ref{fig:tradeoff_per_domain}, covering all nine sub-domains across physical, life, and social science. Each panel places competing methods in a 2D space defined by token consumption (x-axis) and utility (y-axis), with the upper-left corner being the most desirable. We highlight three observations.
+ 
+\textbf{All three \textit{Eywa} variants sit on or close to the Pareto frontier in every sub-domain.} Across all nine panels, \textit{EywaAgent}, \textit{EywaMAS}, and \textit{EywaOrchestra} are consistently among the points that define the Pareto frontier, while homogeneous and heterogeneous LLM-only multi-agent baselines (\textit{Refine}, \textit{Debate}, \textit{MoA}, \textit{X-MAS}) are typically dominated. For example, on Material, \textit{Debate}, \textit{MoA}, and \textit{X-MAS} all spend $14{,}000$--$25{,}000$ tokens while achieving lower utility than \textit{EywaMAS}; a similar pattern is seen on Energy, Biology, and Drug. This indicates that the \textit{Eywa} family does not trade tokens for utility. Instead, it pushes the Pareto frontier outward by routing computation to specialized foundation models rather than spending it on additional LLM exchanges.
+ 
+\textbf{\textit{EywaAgent} is the most token-efficient point on the frontier.} Across the nine sub-domains, \textit{EywaAgent} uses on average $3{,}137$ tokens per task, compared with $4{,}469$ for the single-agent gpt-5-nano baseline and $8{,}673$--$16{,}537$ for the various MAS baselines. As a result, \textit{EywaAgent} typically anchors the lower-left region of the frontier: it delivers utility comparable to or above LLM-only MAS baselines while consuming a small fraction of their tokens. This is consistent with our claim that, when the foundation model already encodes the necessary domain prior, an additional debate or refinement loop among LLMs is largely redundant.
+ 
+\textbf{\textit{EywaMAS} and \textit{EywaOrchestra} occupy complementary points on the frontier.} \textit{EywaMAS} pushes utility further by adding cross-modality multi-agent coordination, attaining the highest utility on most domains, at a moderate token cost that remains below all LLM-only MAS baselines. \textit{EywaOrchestra}, in contrast, dynamically selects the topology and the foundation model on a per-sample basis, which lets it reach utility close to or matching \textit{EywaMAS} while reducing average token consumption from $11{,}214$ to $8{,}335$ ($-26\%$). Moreover, \textit{EywaOrchestra} does not rely on expert configuration of the MAS. This positions \textit{EywaOrchestra} at the upper-left corner of the frontier, providing a favorable point in the trade-off when both quality and budget matter, and confirming that adaptive orchestration is an effective lever for navigating the utility-cost trade-off across heterogeneous scientific tasks.
+
+
+
+
+
+\section{Prompt Templates}
+\label{app:prompts}
+
+This section provides the prompt templates used in \textit{EywaBench-V1} and \textit{EywaOrchestra}. 
+% We separate the prompts into two categories. The first is a general task-execution prompt, which presents each benchmark instance to an agent. The second is an orchestration-planner prompt, which is used by \textit{EywaOrchestra} to select an execution configuration before solving the task. This separation decouples \emph{what problem should be solved} from \emph{how the problem should be routed and executed}.
+
+\paragraph{General task-execution prompt.}
+For all tasks in \textit{EywaBench-V1}, we adopt a unified task-execution template. The template specifies the task role, optional MCP-based model/tool context, structured input field, expected output size, and task-specific response format. This design provides a consistent interface across heterogeneous task modalities, while still allowing modality-specific information to be injected through specialized input tags and additional instructions. This prompt is illustrated in Prompt \ref{fig:prompt_template_general}.
+
+\paragraph{Planner prompt for \textit{EywaOrchestra}.}
+Unlike fixed agent baselines, \textit{EywaOrchestra} first invokes a planner to determine how a task should be executed. The planner receives a task description, domain, and task type, and returns a structured JSON configuration. This configuration specifies whether to use single-agent or multi-agent execution, whether to enable an \textit{Eywa}-augmented agent, which foundation model should be invoked when applicable, which multi-agent topology should be used, and how the participating agents should be instantiated.
+
+The planner prompt formulates orchestration as a constrained configuration-generation problem rather than a direct task-solving problem. The hard JSON constraint ensures that planner outputs can be parsed automatically and passed to the downstream execution engine without manual intervention. Meanwhile, the explicit fields for \texttt{setting}, \texttt{multi\_agent\_type}, \texttt{foundation\_model}, and \texttt{agents} make the orchestration decision transparent and auditable.
+
+% This design enables \textit{EywaOrchestra} to adapt across heterogeneous tasks. For language-centric reasoning problems, the planner can choose language-only execution or multi-agent collaboration. For structured prediction problems, the planner can route the task to an \textit{Eywa}-augmented agent equipped with an appropriate domain-specific foundation model. Thus, the planner prompt serves as the interface between high-level task diagnosis and executable heterogeneous-agent composition.
+
+
+\begin{figure}[h]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tcolorbox}[
+colback=gray!5!white,
+colframe=blue!70,
+title=Prompt Template B.1: General Prompt Structure,
+boxrule=0.3mm,
+width=1.2\textwidth,
+arc=2mm,
+auto outer arc=true
+]
+
+\textbf{General Prompt.} For all tasks in \textit{EywaBench-V1}, we adopt a unified prompt template that specifies the task role, optional tool/model context, structured input field, expected output size, and task-specific output format. This design allows different task types to share the same high-level prompting interface while still preserving modality-specific instructions through specialized input tags and output constraints.
+
+\begin{quote}
+You are an expert in \texttt{\{task\}}. 
+\texttt{\{mcp\_server\_description\}}. 
+\texttt{\{additional\_instructions\}}
+
+\medskip
+
+\texttt{<\{input\_tag\}>}
+
+\texttt{\{input\_data\}}
+
+\texttt{</\{input\_tag\}>}
+
+\medskip
+
+\texttt{<output\_size>}
+
+\texttt{\{output\_size\}}
+
+\texttt{</output\_size>}
+
+\medskip
+
+\texttt{\{output\_format\}}
+\end{quote}
+
+\textbf{Template fields.}
+The placeholder \texttt{\{task\}} specifies the task type.
+The field \texttt{\{mcp\_server\_description\}} provides the available model/tool context when an external foundation model is accessible through the MCP server. 
+The field \texttt{\{additional\_instructions\}} contains task-specific guidance, such as explaining masked targets in tabular prediction tasks. 
+The pair of tags \texttt{<\{input\_tag\}>} and \texttt{</\{input\_tag\}>} explicitly marks the input. 
+Finally, \texttt{\{output\_size\}} and \texttt{\{output\_format\}} define the expected output length and response schema.
+
+\end{tcolorbox}}
+\caption{
+General prompt template used in \textit{EywaBench-V1}. The template separates task identity, model/tool context, modality-specific input, output size, and response format, enabling a unified prompting interface across heterogeneous scientific tasks.
+}
+\label{fig:prompt_template_general}
+\end{figure}
+
+
+
+
+
+
+
+\begin{figure}[h]
+\centering
+\begin{tcolorbox}[
+colback=gray!5!white,
+colframe=blue!70,
+title=Prompt Template B.2: Planner Prompt for \textit{EywaOrchestra},
+boxrule=0.3mm,
+width=\textwidth,
+arc=2mm,
+auto outer arc=true
+]
+
+% \textbf{Planner Prompt Template.}
+
+\footnotesize
+\begin{verbatim}
+You are an orchestration planner for the Eywa Agentic System.
+
+Your job is to choose an execution configuration for a single task.
+
+Available LLM models and descriptions:
+- ......
+
+Available foundation models and descriptions:
+- ......
+
+Supported multi-agent topology pool:
+- ......
+
+Input task:
+- Task Description: {task_description}
+- Domain: {domain}
+- Task Type: {task_type}
+
+Hard constraints:
+- Output must be valid JSON only (no markdown, no code fence, no extra text).
+- ......
+- If "setting" is "single-agent":
+  - "model" must be a valid model string.
+  - "multi_agent_type" must be null.
+  - "foundation_model" should be in the available foundation models or null.
+  - "agents" must be an empty list [].
+- If "setting" is "multi-agent":
+  - "model" must be null.
+  - "multi_agent_type" must be in the topology pool.
+  - "foundation_model" should be in the available foundation models or null.
+  - "agents" must be a non-empty list of valid agent specs.
+
+Output format:
+{
+  "eywa": true or false,
+  "setting": "single-agent" or "multi-agent",
+  "model": <llm_model> or null,
+  "multi_agent_type": <multi_agent_topology> or null,
+  "foundation_model": <foundation_model> or null,
+  "agents": [<agent_spec_1>, <agent_spec_2>, ...] or []
+}
+\end{verbatim}
+
+\end{tcolorbox}
+\caption{
+Planner prompt template used by \textit{EywaOrchestra}. Given the task description, domain, and task type, the planner outputs a structured JSON configuration that specifies whether to use single-agent or multi-agent execution, whether to enable \textit{Eywa}, which foundation model to invoke, and how to instantiate the participating agents.
+}
+\label{fig:prompt_template_planner}
+\end{figure}

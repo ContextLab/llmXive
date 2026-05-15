@@ -1,0 +1,21 @@
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.20}
+\caption{Representative model-family support validated by the current MinT stack.}
+\label{tab:supported_model_families}
+\fittowidth{%
+\begin{tabular}{@{}M{0.16\textwidth}M{0.18\textwidth}M{0.28\textwidth}M{0.32\textwidth}@{}}
+\toprule
+\apphead Family & Model structure & Scale validated & MinT support path \\
+\midrule
+\appkey{Qwen3 series} & Dense and MoE variants & 0.6B/4B dense adapters; 30B-A3B and 235B-A22B MoE runs & Single-worker PEFT, Megatron MoE training, expert-route records, adapter export, and shared-base serving \citep{qwen3_2025,chiang2026routerreplay} \\
+\addlinespace[3pt]
+\appkey{Moonlight \& Kimi K2} & MLA MoE & Moonlight-16B-A3B bring-up; Kimi K2 1.04T countdown-task LoRA RL & MLA/MoE adapter placement, Megatron-Bridge conversion, vLLM serving, and trillion-parameter-class LoRA RL \citep{chiang2026routerreplay,liu2025Build,kimi_k2_2025} \\
+\addlinespace[3pt]
+\appkey{GLM-5 / GLM-5.1} & MLA, DSA, MTP, and MoE & Frontier agentic family with DSA/MTP training and serving bring-up & DSA/MTP training patches, DSA LoRA target mapping, vLLM custom-forward LoRA loading, bridge conversion, and IcePop rollout correction \citep{glm5_2026,stevenchiang2026supportglm5inmint,ling_every_step2025} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

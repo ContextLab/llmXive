@@ -1,0 +1,367 @@
+
+\documentclass[]{latex/servicenow/servicenow} % For LaTeX2e
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{latex/servicenow/math_commands}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{url}            % simple URL typesetting
+\usepackage{hyperref}       % hyperlinks
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{makecell}
+\usepackage{lmodern}
+
+
+
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THEOREMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+
+
+% Todonotes is useful during development; simply uncomment the next line
+%    and comment out the line below the next line to turn off comments
+\usepackage[textsize=tiny]{todonotes}
+
+% for prompts - boxes
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{breakable}
+% Define a reusable style once in the preamble
+\tcbset{
+  promptbox/.style={
+    breakable,
+    colback=gray!10,
+    colframe=gray!40,
+    boxrule=0.5pt,
+    arc=3pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    fontupper=\small\ttfamily
+  }
+}
+
+
+%%% Additional Symbols/ Definitions that are repeatedly used across the paper.
+\usepackage{pifont}
+\newcommand{\cmark}{\textcolor{green!50!black}{\ding{51}}}%
+\newcommand{\xmark}{\textcolor{red!50!black}{\ding{55}}}%
+\newcommand{\pmark}{\textcolor{orange}{$\sim$}}  % or use \ding{108} for a filled circle
+\newcommand{\passpowerk}{pass\textasciicircum{}k}
+\newcommand{\passatk}{pass@k}
+
+\newcommand{\passpowerfive}{pass\textasciicircum{}5}
+\newcommand{\passatfive}{pass@5}
+\newcommand{\passatone}{pass@1}
+\newcommand{\passat}[1]{\text{pass@}#1}
+
+
+\usepackage[table]{xcolor}   % for \rowcolor
+\usepackage{booktabs}        % for \toprule, \midrule, \bottomrule
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{array}
+
+
+\usepackage{colortbl}
+\tcbuselibrary{skins}
+\definecolor{evateal}{RGB}{29,158,117}
+\definecolor{evaviolet}{RGB}{127,119,221}
+\definecolor{evablue}{RGB}{55,138,221}   % light peach
+
+\definecolor{evateal}{RGB}{29,158,117}
+\definecolor{evaviolet}{RGB}{127,119,221}
+\definecolor{evablue}{RGB}{55,138,221}
+
+\newcommand{\heatcell}[2]{\cellcolor{#1}#2}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+ 
+% We define 5-step palettes for each column.
+% For a 0-1 value we pick a shade: <=0.2 white, 0.2-0.4 pale, …, >0.8 dark.
+% Colours are defined per semantic group so tables look distinct.
+ 
+% ── Experience palette (teal family) ─────────────────────────────────────────
+\definecolor{expA}{HTML}{e0f4f1}
+\definecolor{expB}{HTML}{a3d9cf}
+\definecolor{expC}{HTML}{5bbfaf}
+\definecolor{expD}{HTML}{2a9385}
+\definecolor{expE}{HTML}{0d6657}
+ 
+% ── Accuracy palette (amber/orange family) ────────────────────────────────────
+\definecolor{accA}{HTML}{fff3e0}
+\definecolor{accB}{HTML}{ffcc80}
+\definecolor{accC}{HTML}{ffa726}
+\definecolor{accD}{HTML}{e65100}
+\definecolor{accE}{HTML}{7f2c00}
+
+\definecolor{barfill}{HTML}{3a9e9e}
+\definecolor{bardraw}{HTML}{0f6b6b}
+\definecolor{barfill2}{HTML}{7b7bdd}
+\definecolor{bardraw2}{HTML}{3d3d99}
+ 
+% Generic helper: pick shade from a palette given a value 0-1
+% Args: palette-prefix, value
+% We implement 5 discrete bands: [0,.2),[.2,.4),[.4,.6),[.6,.8),[.8,1]
+\newcommand{\expshade}[1]{%
+  \ifdim#1pt<0.2pt expA%
+  \else\ifdim#1pt<0.4pt expB%
+  \else\ifdim#1pt<0.6pt expC%
+  \else\ifdim#1pt<0.8pt expD%
+  \else expE\fi\fi\fi\fi%
+}
+\newcommand{\accshade}[1]{%
+  \ifdim#1pt<0.2pt accA%
+  \else\ifdim#1pt<0.4pt accB%
+  \else\ifdim#1pt<0.6pt accC%
+  \else\ifdim#1pt<0.8pt accD%
+  \else accE\fi\fi\fi\fi%
+}
+ 
+% Convenience wrappers
+\newcommand{\EC}[1]{\cellcolor{\expshade{#1}}\textcolor{black}{#1}}
+\newcommand{\AC}[1]{\cellcolor{\accshade{#1}}\textcolor{black}{#1}}
+
+% In preamble:
+% \usepackage{tcolorbox}
+% \usepackage{ragged2e}
+
+\tcbset{
+  agentstyle/.style={
+    colback=blue!6,
+    colframe=blue!30,
+    boxrule=0.4pt,
+    arc=4pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    before upper={\textbf{\footnotesize Voice Agent}\\\small},
+    fontupper=\footnotesize
+  },
+  userstyle/.style={
+    colback=orange!8,
+    colframe=orange!35,
+    boxrule=0.4pt,
+    arc=4pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    before upper={\textbf{\footnotesize User Simulator}\\\small},
+    fontupper=\footnotesize
+  },
+  toolstyle/.style={
+    colback=green!5,
+    colframe=green!30,
+    boxrule=0.4pt,
+    arc=4pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    before upper={\textbf{\footnotesize Tool Calls}\\\small\ttfamily},
+    fontupper=\footnotesize\ttfamily
+  }
+}
+
+%%%% Spacing type %%%%%
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+
+\newcommand{\agentturn}[1]{%
+  \noindent\hfill
+  \begin{minipage}[t]{0.80\textwidth}
+    \begin{tcolorbox}[agentstyle]
+      #1
+    \end{tcolorbox}
+  \end{minipage}\par
+  \vspace{1pt}
+}
+
+\newcommand{\userturn}[1]{%
+  \noindent
+  \begin{minipage}[t]{0.80\textwidth}
+    \begin{tcolorbox}[userstyle]
+      #1
+    \end{tcolorbox}
+  \end{minipage}\par
+  \vspace{1pt}
+}
+
+\newcommand{\toolturn}[1]{%
+  \noindent\hfill
+  \begin{minipage}[t]{0.80\textwidth}
+    \begin{tcolorbox}[toolstyle]
+      #1
+    \end{tcolorbox}
+  \end{minipage}\par
+  \vspace{1pt}
+}
+
+\definecolor{crimson}{HTML}{DC143C}
+\newcommand{\toolturnfail}[1]{%
+  \noindent\hfill
+  \begin{minipage}[t]{0.80\textwidth}
+    \begin{tcolorbox}[toolstyle, colback=crimson!10, colframe=crimson]
+      #1
+    \end{tcolorbox}
+  \end{minipage}\par
+  \vspace{1pt}
+}
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote.
+
+%%%%% Common terminlogy
+\def\framework{EVA-Bench}
+\def\metricconcise{Conciseness}
+\def\metricfidelity{Speech Fidelity}
+\def\metricvalidend{Conversation Valid End}
+\def\metricconversationfinished{Conversational Correctly Finished}
+\def\metricbehavior{User Behavioral Fidelity}
+\def\metricfaithfulness{Faithfulness}
+\def\metrictaskcompletion{Task Completion}
+\def\metricconversationprogression{Conversation Progression}
+\def\metricturntaking{Turn-Taking}
+\def\metrictranscription{Transcription Accuracy (Key Entities)}
+\def\metricconversationcompletion{Conversation Completion}
+\def\metricuserspeechfidelity{User Speech Fidelity}
+
+\def\hr{HR}
+\def\itsm{ITSM}
+\def\itsm{CSM}
+
+
+\def\nova{Nova}
+\def\novafull{Nova-3}
+
+\def\sonic{Sonic}
+\def\sonicfull{Sonic 3}
+
+\def\ink{Ink}
+\def\inkfull{Ink-whisper}
+
+\def\whisper{Whisper}
+\def\whisperfull{Whisper-Large-v3}
+
+\def\voxtral{Voxtral}
+\def\voxtralfull{Voxtral-4B-TTS}
+
+\def\cohere{Cohere}
+\def\coherefull{Cohere-transcribe}
+
+\def\aura{Aura}
+\def\aurafull{Aura-2}
+
+\def\parakeet{Parakeet}
+\def\parakeetfull{Parakeet-1.1}
+
+\def\kokoro{Kokoro}
+\def\kokorofull{Kokoro}
+
+\def\scribe{Scribe}
+\def\scribefull{Scribe-v2.2-Realtime}
+
+\def\conversational{Conversational v3}
+\def\conversationalfull{TTS-Conversational-v3-Alpha}
+
+\def\ultravox{Ultravox}
+\def\ultravoxfull{Ultravox-Realtime}
+
+\def\geminiflashtts{Gemini-3.1-Flash}
+\def\geminiflashttsfull{Gemini-3.1-Flash-TTS}
+
+\def\geminiflash{Gemini-3-Flash}
+\def\geminiflashfull{Gemini-3-Flash}
+
+\def\gemmaA{Gemma-4-26B}
+\def\gemmaAfull{Gemma-4-26B}
+
+\def\gemmaB{Gemma-4-31B}
+\def\gemmaBfull{Gemma-4-31B}
+
+\def\haiku{Haiku-4.5}
+\def\haikufull{Haiku-4.5}
+
+\def\gpt{GPT-5.4}
+\def\gptfull{GPT-5.4}
+
+\def\gptmini{GPT-5.4-mini}
+\def\gptminifull{GPT-5.4-mini}
+
+\def\qwen{Qwen3.5-27B}
+\def\qwenfull{Qwen3.5-27B}
+
+\def\gptrealtime{GPT-Realtime-1.5}
+\def\gptrealtimefull{GPT-Realtime-1.5}
+
+\def\gptrealtimemini{GPT-Realtime-mini}
+\def\gptrealtimeminifull{GPT-Realtime-mini}
+
+\def\geminilive{Gemini-3.1-Flash-Live}
+\def\geminilivefull{Gemini-3.1-Flash-Live}
+
+
+
+%%%%%%% Main Paper %%%%%%%%%%%%%%%
+\title{\framework: A New End-to-end Framework for Evaluating Voice Agents}
+
+
+\author{Tara Bogavelli}
+\author{Gabrielle Gauthier Melançon}
+\author{Katrina Stankiewicz}
+\author{Oluwanifemi Bamgbose}
+\author{Fanny Riols} 
+\author{Hoang H. Nguyen}
+\author{Raghav Mehndiratta}
+\author{Lindsay Devon Brin}
+\author{Hari Subramani}
+\author{Joseph Marinier}
+\author{Anil Madamala}
+\author{Sridhar Krishna Nemala}
+\author{Srinivas Sunkara}
+
+
+\affiliation{ServiceNow}
+
+
+
+
+\abstract{
+Voice agents, artificial intelligence systems that conduct spoken conversations to complete tasks, are increasingly deployed across enterprise applications. However, no existing benchmark jointly addresses two core evaluation challenges: generating realistic simulated conversations, and measuring quality across the full scope of voice-specific failure modes. We present \textbf{\framework}, an end-to-end evaluation framework that addresses both. On the simulation side, \framework~orchestrates bot-to-bot audio conversations over dynamic multi-turn dialogues, with automatic simulation validation that detects user simulator error and appropriately regenerates conversations before scoring. On the measurement side, \framework~introduces two composite metrics: \textbf{EVA-A} (Accuracy), capturing task completion, faithfulness, and audio-level speech fidelity; and \textbf{EVA-X} (Experience), capturing conversation progression, spoken conciseness, and turn-taking timing. Both metrics apply to all major agent architectures, enabling direct cross-architecture comparison. \framework~includes 213 scenarios across three enterprise domains, a controlled perturbation suite for accent and noise robustness, and \passatone, \passatk, \passpowerk~measurements that distinguish peak from reliable capability. Across 12 systems spanning all three architectures, we find: (1) no system simultaneously exceeds 0.5 on both $\textbf{EVA-A}_{\textbf{pass@1}}$ and $\textbf{EVA-X}_{\textbf{pass@1}}$; (2) peak and reliable performance diverge substantially (median \passatk--\passpowerk~gap of 0.44 on EVA-A); and (3) accent and noise perturbations expose substantial robustness gaps, with effects varying across architectures, systems, and metrics (mean $\Delta$ up to 0.314). We release the full framework, evaluation suite, and benchmark data under an open-source license.}
+
+\website{\url{https://servicenow.github.io/eva}}
+\github{\url{https://github.com/ServiceNow/eva}}
+\huggingface{\url{https://huggingface.co/datasets/ServiceNow-AI/eva}}
+\correspondence{\email{tara.bogavelli@servicenow.com}}
+
+\begin{document}
+
+\maketitle
+\input{sections/01_intro}
+\input{sections/02_related_work}
+\input{sections/03_method}
+\input{sections/04_results}
+\input{sections/05_conclusion}
+\input{sections/07_limitation}
+
+\bibliography{latex/citation}
+\bibliographystyle{latex/servicenow/servicenow}
+\newpage
+\input{sections/08_appendix}
+
+\end{document}

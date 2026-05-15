@@ -1,0 +1,793 @@
+\section{Final Recipe and Implementation}
+\label{app:final_recipe_and_implem}
+\subsection{Final LongPT Recipe}
+\label{app:final_recipe}
+We summarize the final LongPT recipe used for the main results.
+The recipe is derived from the design choices studied in \cref{sec:curation,sec:mixing}: we use long-document VQA as the primary source of synthesizing data, naturally sample training sequences over the target length range of 32K--128K, and use an $8:2$ extraction-to-reasoning mixture. We list the full configuration of the final LongPT recipe in \cref{tab:final_recipe}.
+
+\begin{table}[h]
+    \centering
+    \small
+    \caption{\textbf{Final training recipe for \modelname}, which is selected from the ablation studies in \cref{sec:curation,sec:mixing}.}
+    \label{tab:final_recipe}
+    \setlength{\tabcolsep}{5pt}
+    \resizebox{0.9\textwidth}{!}{%
+    \begin{tabular}{lll}
+        \toprule
+        \multicolumn{3}{c}{\textbf{Long-Context Continued Pre-Training (LongPT)}} \\
+        \midrule
+        \textbf{Long Data}
+            & Data Synthesis & \extractsingle, \extractmulti, and \reasoningtask \\
+            \addlinespace
+            & Distribution & \emph{Pool-native}: natural sampling from the document pool \\
+            & & over the target length range $[32\mathrm{K},128\mathrm{K}]$ \\
+            \addlinespace
+& Mixture & 8:2 extraction-to-reasoning ratio. The three task ratio is \\
+            & & 40\%\extractsingle, 40\%\extractmulti, 20\%\reasoningtask \\
+        \addlinespace
+        \textbf{Short Data}
+            & Default & None (pure long-context data) \\
+            \addlinespace
+            & Alternative & $60\%$ long-context data, $40\%$ LLaVA-OneVision data \\
+            & & for better short-context preservation \\
+        \addlinespace
+        \textbf{Model} & Initialization & Qwen2.5-VL-7B-Instruct (original mRoPE base freq. $1\times10^6$) \\
+        & mRoPE for 128K & $4\times 10^6$ \\
+        & Maximum length & 131,072 (128K tokens) \\
+        \addlinespace
+        \textbf{Optim.}
+            & Token Budget & 5B tokens (2.9K H20 hours) \\
+            & Optimizer & AdamW (weight decay = 0.1, $\beta_1$ = 0.9, $\beta_2$ = 0.95) \\
+            & LR schedule & $1\times10^{-5}$ with 10\% warmup and cosine decay to $1\times10^{-6}$ \\
+            & Batch size & 4M tokens (32 sequences) \\
+            & Framework & VeOmni with FlashAttention \\
+            & Parallelism & Sequence parallelism size 2 and FSDP size 4 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\subsection{Training Implementation Details}
+\label{app:final_recipe:implementation_details}
+We conduct our LongPT experiments based on Qwen2.5-VL-7B~\citep{bai2025qwen2}, whose original context window is 32K, and extend it to 128K. 
+For RoPE base frequency, we follow Dynamic-NTK~\citep{dynamicntk} and set the mRoPE base frequency from the original value of $1\times 10^6$ to $4\times 10^6$ by default.
+We present the ablation study of the base frequency in \cref{app:complementary_experiment_results:mrope_base}.
+Then, we further apply the final training recipe to Qwen3-VL-8B~\citep{bai2025qwen3} to test whether the recipe transfers across backbone models in \cref{app:complementary_experiment_results:backbone}.
+We train both models with VeOmni~\citep{ma2025veomni}, a scalable framework for multimodal pre-training.
+The optimizer used is AdamW, using a peak learning rate of $1\times10^{-5}$, cosine decay to $1\times10^{-6}$, and $10\%$ linear warmup.
+Each LongPT run is trained for a fixed budget of $5B$ tokens, with a maximum sequence length of $131{,}072$ tokens (128K) and a global batch size of 4M tokens, which contains 32 sequences per update. 
+Throughout the paper, we use binary prefixes: $K=2^{10}$, $M=2^{20}$, and $B=2^{30}$.
+
+To speed up, we use FlashAttention~\citep{daoflashattention} for efficient attention computation in long-context data. In addition, Ulysses sequence parallelism size $2$ and FSDP size $4$ are used to fit the 128K training configuration on a single 8-GPU NVIDIA H20 node; in practice, we train with 8 H20 nodes (64 GPUs in total) to improve throughput.
+
+\section{Full Evaluation Details}
+\label{app:evaluation_details}
+We describe the details of our evaluation. Here, for tasks from MMLongBench~\citep{wang2025mmlongbench}, including long-document VQA and MM-NIAH tasks, we follow their evaluation and use their released code v1.1~\footnote{\url{https://github.com/EdinburghNLP/MMLongBench}}.
+Meanwhile, we use the VLMEvalKit~\citep{duan2024vlmevalkit} to evaluate LVLMs on other tasks, including VTCBench, long video benchmarks, and short-context benchmarks.
+
+
+\subsection{Long-Document VQA}
+\label{app:evaluation_details:longdoc}
+For the main long-document evaluation, we use the document category of MMLongBench~\citep{wang2025mmlongbench}, which contains MMLongBench-Doc~\citep{ma2024mmlongbenchdoc}, LongDocURL~\citep{deng2025longdocurl}, and SlideVQA~\citep{tanaka2023slidevqa}.
+All examples in this category are instantiated at five standardized context lengths: 8K, 16K, 32K, 64K, and 128K tokens.
+Unless otherwise specified, we evaluate each model at 64K and 128K context lengths.
+
+For grading, we follow the MMLongBench v1.1 evaluation protocol and report the official LLM-judged document QA score for each dataset.
+Specifically, this v1.1 protocol introduces LLM-based judging for the long-document VQA tasks, which handles different answer formats separately.
+For simple answer formats, such as string, integer, float answers, and ``not answerable,'' the judge assigns a binary score indicating whether the predicted answer matches the reference answer as shown in \cref{tab:binary_judge_prompt}.
+For list-style answers, the evaluator first extracts the predicted list and then computes an F1 score based on the overlap between the predicted list and the reference list. We show this prompt in \cref{tab:list_judge_prompt}.
+For each context length, the AVG. column is the macro average over the three datasets, and the overall AVG. is the macro average over the 64K and 128K results.
+
+\begin{table}[h]
+    \centering
+    \caption{Prompt for the binary answer judge in the long-document VQA category of MMLongBench. Gray highlighted spans denote placeholders filled at evaluation time.}
+    \label{tab:binary_judge_prompt}
+    \begin{tabular}{p{0.96\linewidth}}
+    \toprule
+    \begin{minipage}{0.96\linewidth}
+    \raggedright\ttfamily\footnotesize
+
+
+    Now your role is a grading teacher. Your task is to review and score student answers based on reference standard answers. You need to notice the following key points:\\[2pt]
+    - First, extract the final answer from the student's solution, then analyze and judge whether the answer is correct.\\
+    - Scoring should only refer to the final answer obtained by the student; there is no need to examine whether the intermediate problem-solving steps are correct.\\
+    - When analyzing and judging whether the answer is correct, you need to write down the scoring rationale, organize it into clear statements that follow the logical flow. The summary of the scoring rationale should be placed at the end, using the following format: "In summary, the student's answer deserves x points" (where x represents the student's specific score). \\
+    - Keep the whole process concise, within 150 words.\\
+    - Provide the score based on your analysis and display it in a code block in "JSON" format.\\
+    - An item is covered if it is strictly mentioned or unambiguously implied by a semantic equivalence. This includes numerical equivalence (e.g., 10\% and 0.1), synonyms (e.g., UK and United Kingdom), and plural/singular forms (e.g., "apple" and "apples"). However, do not accept loosely related concepts.\\[2pt]
+    Your output format is:\\
+    {[}Scoring Rationale{]}:\\
+    {[}Score{]}: x points\\
+    {[}JSON{]}:\\
+    \{"answer\_score": \textless integer\_value\textgreater\}\\[2pt]
+    \quad \\
+    Below is the grading rubric:\\
+    {[}Scores{]}: \\
+    The scoring scale consists of 2 levels in total, from highest to lowest: 1 point, 0 points (the minimum is 0 points; if a situation arises where points need to be deducted beyond 0, simply assign 0 points).\\
+    {[}Tier Details{]}: \\
+    1 point: Assign 1 point if the student's final answer matches the standard answer. If the question has multiple sub-questions, all sub-questions must be answered to assign 1 point.\\
+    0 points: Assign 0 points if the student's final answer does not match the standard answer.
+    \quad \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_1>} \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_2>} \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_3>} \\
+    \quad \\
+    \promptplaceholder{<test\_case\_1>} \\
+    \end{minipage} \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \caption{Prompt for the list-style answer judge in the long-document VQA category of MMLongBench.}
+    \label{tab:list_judge_prompt}
+    \begin{tabular}{p{0.96\linewidth}}
+    \toprule
+    \begin{minipage}{0.96\linewidth}
+    \raggedright\ttfamily\footnotesize
+    Now your role is a grading teacher. Your task is to review and score student answers for LIST-style questions, where the standard answer is a list of required items.\\
+    - First, extract the specific list of items from the \textless Student Answer\textgreater. Ignore conversational filler (e.g., "The answer is...").\\
+    - Then, compare the {[}Extracted List{]} against the \textless Standard Answer\textgreater\ (Ground Truth).\\[2pt]
+    Here are some extra key points:\\
+    - The standard answer is a JSON-like list of items with each item as one required element. Determine whether each item is covered by the student's answer list.\\
+    - An item is covered if it is strictly mentioned or unambiguously implied by a semantic equivalence. This includes numerical equivalence (e.g., 10\% and 0.1), synonyms (e.g., UK and United Kingdom), and plural/singular forms (e.g., "apple" and "apples"). However, do not accept loosely related concepts.\\
+    - You need to write down the extraction and comparing rationale, organize it into clear statements that follow the logical flow. The summary of the rationale should be placed at the end, using the following format: "In summary, the student's answer list has X items, covering Y items from the reference list."\\
+    - Keep the whole process concise, within 200 words.\\
+    - Provide the student's answer item count and covered item count in a code block in "JSON" format.\\[2pt]
+    Your output format is:\\
+    {[}Rationale{]}:\\
+    {[}JSON{]}:\\
+    \{\\
+    \hspace*{1em}"student\_answer\_count": \textless integer\_value\textgreater,\\
+    \hspace*{1em}"covered\_count": \textless integer\_value\textgreater\\
+    \}
+    \quad \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_1>} \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_2>} \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_3>} \\
+    \quad \\
+    \promptplaceholder{<test\_case\_1>} \\
+    \end{minipage} \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Details of Long-Document VQA Evaluation with the Final Recipe}
+\label{app:evaluation_details:final_recipe}
+In evaluating \modelname trained with the final recipe, we compare it with a wide range of open- and closed-source LVLMs.
+For open-source models, we evaluate Qwen2.5-VL (7B, 32B, 72B)~\citep{bai2025qwen2}, InternVL3 (8B, 14B, 38B)~\citep{zhu2025internvl3}, InternVL3.5 (8B, 14B, 38B)~\citep{wang2025internvl35}, Gemma3 (4B, 12B, 27B)~\citep{team2025gemma3}, and Gemma4 (E2B, E4B, 26B-A4B, 31B)~\citep{google2026gemma4}.
+For closed-source models, we include GPT-5.4~\citep{openai2026introducing_gpt5_4}, GPT-5.5~\citep{openai2026introducing_gpt5_5}, Gemini-2.5-Pro~\citep{google2025gemini2_5}, Gemini-3.1-Flash~\citep{gemini_3_1_pro_2026}, and Gemini-3.1-Pro~\citep{gemini_3_1_pro_2026} with a high reasoning budget.
+
+\subsection{Longer-Context Evaluation up to 512K}
+\label{app:evaluation_details:longer_context}
+To test whether the 128K recipe extrapolates to longer contexts, we further evaluate the same three long-document VQA datasets at 256K and 512K.
+The examples at 256K and 512K context lengths are obtained following MMLongBench~\citep{wang2025mmlongbench}: we alternately pad the left and right sides with randomly sampled negative documents until the required length is reached.
+No additional training or inference-time adaptation is applied to tested models when evaluating at these longer lengths.
+We use the same official LLM-judged score and macro-average computation as in the main long-document evaluation.
+
+\subsection{MM-NIAH: Evaluation on Webpage Haystacks}
+\label{app:evaluation_details:mm_niah}
+MM-NIAH~\citep{wang2024needle} is a multimodal needle-in-a-haystack benchmark that builds on the webpages from OBELICS~\citep{laurenccon2023obelics}.
+In particular, the benchmark contains three task families: retrieval, counting, and reasoning, each with two variants: text-needle and image-needle.
+In our evaluation, we use the standardized version provided by MMLongBench~\citep{wang2025mmlongbench}, where each example is instantiated at five context lengths: 8K, 16K, 32K, 64K, and 128K tokens.
+In our study, we report results at 64K and 128K context lengths as we extend the context window from 32K to 128K.
+For reporting, we first average the text and image variants within each task family.
+Then, the average (AVG.) score is the macro average over the three task-family scores.
+We use the metrics provided by MMLongBench~\citep{wang2025mmlongbench} for each task variant, including exact match, soft accuracy, and multiple-choice accuracy, depending on the specific subtask definition.
+
+\subsection{VTCBench: Evaluation on Long-Context Vision-Text Compression}
+\label{app:evaluation_details:vtcbench}
+VTCBench~\citep{zhao2025vtcbench} is another multimodal long-context benchmark that evaluates whether a model can preserve visual-text information under compressed visual context.
+We follow the VTCBench-Wild setting reported in the original paper and report all three task scores: Retrieval, Reasoning, and Memory.
+We follow the same grading rules as the original paper.
+Retrieval and Reasoning are measured by the official \texttt{containsAll} accuracy, which checks whether all ground-truth answers are contained in the model prediction.
+Memory is measured by the official LLM accuracy, where \texttt{gpt-4o-mini} judges answer correctness.
+The AVG. score follows the Overall column of VTCBench-Wild and is the sample-count weighted average over the three splits, with 800 retrieval examples, 800 reasoning examples, and 600 memory examples.
+
+\subsection{Long-Video Understanding Evaluation}
+\label{app:evaluation_details:video}
+For long-video understanding, we report the performance on Video-MME~\citep{fu2025video}, MLVU~\citep{zhou2025mlvu}, and LongVideoBench~\citep{wu2024longvideobench}.
+We evaluate these benchmarks using the 1fps variants and cap the maximum number of sampled frames per video at 768, with the total number of video tokens not exceeding 24,576.
+This configuration is fully aligned with Qwen2.5-VL technical report~\citep{bai2025qwen2}.
+For Video-MME and LongVideoBench, we report overall multiple-choice accuracy.
+For MLVU, we evaluate the multiple-choice subset and report its average accuracy.
+
+\subsection{Short-Context Evaluation}
+\label{app:evaluation_details:short_context}
+To monitor whether \modelname suffers degradation in general VLM ability, we evaluate short-context performance across three capabilities and six benchmarks.
+These include general VQA (MMBench-V1.1~\citep{liu2024mmbench} and RealWorldQA~\citep{grok15}), multimodal reasoning (MMMU~\citep{yue2024mmmu}, MMMU-Pro~\citep{yue2025mmmupro}, and MathVista~\citep{lu2023mathvista}), and text recognition (OCRBench~\citep{liu2024ocrbench}).
+
+For MMMU, we use \texttt{MMMU\_DEV\_VAL} in VLMEvalKit, which combines the official MMMU development and validation splits.
+For MMMU-Pro, we use \texttt{MMMU\_Pro\_10c}, the standard 10-choice variant.
+For MathVista, we use the testmini subset.
+We report the official score of each benchmark and compute the short-context AVG. as the macro average over the six benchmark scores.
+
+\section{Preliminary Details}
+\subsection{Document Pool Statistics}
+\label{app:document_pool_stats}
+We show the corpus scale, average page length, and language distribution of our document pool in \cref{tab:doc_pool_statistics}. 
+Meanwhile, the distribution of the document domain is shown in \cref{fig:doc_pool_domain_distribution}.
+
+\subsection{OCR Expert}
+We use an OCR expert model fine-tuned from Seed~2.0~\citep{seed2_0} to preprocess the rendered PDF pages.
+For each page image, the OCR expert parses layout-aware text blocks and assigns structural labels such as title, section heading, paragraph, table, figure caption, header, and footer.
+
+These parsed blocks serve two purposes in our pipeline:
+\begin{inparaenum}[(i)]
+\item the title and section labels provide lightweight document-structure signals for sampling semantically coherent page spans when generating long-document VQA data;
+\item the recognized text blocks provide the target text for constructing OCR transcription baselines.
+\end{inparaenum}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\linewidth]{figures/app_1_doc_pool_topic_distribution_cropped.pdf}
+    \caption{
+        The document domain distribution of the document pool used for data synthesis.
+    }
+    \label{fig:doc_pool_domain_distribution}
+\end{figure}
+
+\begin{table}[h]
+    \centering
+    \caption{Statistics of the document pool used for data synthesis.}
+    \label{tab:doc_pool_statistics}
+    \small
+    \setlength{\tabcolsep}{6pt}
+    \begin{tabular}{lll}
+    \toprule
+    \textbf{Category} & \textbf{Statistic} & \textbf{Value} \\
+    \midrule
+    \multirow{4}{*}{\textbf{Corpus Scale}} 
+        & Number of documents & 1,537,504 \\
+        & Page-count range & $[20, 200]$ \\
+        & Average Pages & 23.80 \\
+        & Total pages & 36,592,809 \\
+    \midrule
+    \multirow{3}{*}{\textbf{Lang.}}
+        & English documents & 1,479,370 (96.22\%) \\
+        & Chinese documents & 55,202 (3.59\%) \\
+        & Other languages & 2,932 (0.19\%) \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+\section{Long-Document VQA Training Data Details}
+\label{app:long_document_vqa_details}
+
+\subsection{Data Statistics for \emph{Pool-Native} Distribution (Default)}
+\label{app:long_document_vqa_details:data_stats}
+We summarize the statistics of the long-document VQA training data in \cref{tab:longvqa_uniform_data_stats}, with the corresponding token-length distribution shown in \cref{fig:longvqa_uniform_token_distribution}.
+This data corresponds to the \emph{pool-native} length distribution used by our final LongPT recipe, covering samples from 32 to 50 rendered PDF pages and approximately 32K--128K multimodal tokens.
+
+\begin{table}[h]
+    \centering
+    \setlength{\tabcolsep}{2.5pt}
+    \caption{Statistics of the long-context training data used in our data-design study.}
+    \label{tab:long_context_training_data_stats}
+    \small
+    \begin{subtable}{\linewidth}
+        \centering
+        \setlength{\tabcolsep}{2pt}
+        \caption{Long-document VQA data in the \emph{pool-native} Distribution (default).}
+        \label{tab:longvqa_uniform_data_stats}
+        \begin{tabular}{lcccccc}
+        \toprule
+        \textbf{Task} & \textbf{\# Samples} & \textbf{\# Pages} & \textbf{\# Tokens (K)} & \textbf{Total Tokens (B)} & \textbf{Page Range} & \textbf{Token Range (K)} \\
+        \midrule
+        \extractsingle & 59{,}055 & 38.4 & 85.3 & 5.04 & $[32, 50]$ & $[32.8, 126.8]$ \\
+        \extractmulti & 59{,}316 & 38.4 & 85.3 & 5.06 & $[32, 50]$ & $[32.8, 126.8]$ \\
+        \reasoningtask & 59{,}403 & 38.4 & 85.3 & 5.06 & $[32, 50]$ & $[32.8, 126.7]$ \\
+        \midrule
+        \textbf{Total} & \textbf{177{,}774} & 38.4 & 85.3 & \textbf{15.16} & $[32, 50]$ & $[32.8, 126.8]$ \\
+        \bottomrule
+        \end{tabular}
+    \end{subtable}
+
+    \begin{subtable}{\linewidth}
+        \centering
+        \setlength{\tabcolsep}{2pt}
+        \caption{Long-document VQA data in the \emph{long-biased} distribution.}
+        \label{tab:longvqa_non_even_data_stats}
+        \begin{tabular}{lcccccc}
+        \toprule
+        \textbf{Task} & \textbf{\# Samples} & \textbf{\# Pages} & \textbf{\# Tokens (K)} & \textbf{Total Tokens (B)} & \textbf{Page Range} & \textbf{Token Range (K)} \\
+        \midrule
+        \extractsingle & 59{,}736 & 66.8 & 114.3 & 6.83 & $[50, 100]$ & $[32, 125.3]$ \\
+        \extractmulti & 59{,}624 & 66.8 & 114.3 & 6.81 & $[50, 100]$ & $[32, 124.0]$ \\
+        \reasoningtask & 59{,}770 & 66.8 & 114.3 & 6.83 & $[50, 100]$ & $[32, 126.7]$ \\
+        \midrule
+        \textbf{Total} & \textbf{179{,}130} & 66.8 & 114.3 & \textbf{20.47} & $[50, 100]$ & $[9.2, 126.7]$ \\
+        \bottomrule
+        \end{tabular}
+    \end{subtable}
+
+    \begin{subtable}{\linewidth}
+        \centering
+        \setlength{\tabcolsep}{2.5pt}
+        \caption{OCR transcription data.}
+        \label{tab:ocr_data_stats}
+        \begin{tabular}{lcccccc}
+        \toprule
+        \textbf{Task} & \textbf{\# Samples} & \textbf{\# Pages} & \textbf{\# Tokens (K)} & \textbf{Total Tokens (B)} & \textbf{Page Range} & \textbf{Token Range (K)} \\
+        \midrule
+        \ocrfull & 97{,}336 & 39.6 & 96.4 & 9.38 & $[32, 50]$ & $[32.8, 122.9]$ \\
+        \ocrneedle & 140{,}655 & 42.9 & 85.4 & 12.01 & $[32, 50]$ & $[32.8, 122.9]$ \\
+        \midrule
+        \textbf{Total} & \textbf{237{,}991} & 41.6 & 89.9 & \textbf{21.39} & $[32, 50]$ & $[32.8, 122.9]$ \\
+        \bottomrule
+        \end{tabular}
+    \end{subtable}
+\end{table}
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}{0.95\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/2_distribution_panels_min32max49_combined.pdf}
+        \caption{Long-document VQA data in the \emph{pool-native} Distribution (default).}
+        \label{fig:longvqa_uniform_token_distribution}
+    \end{subfigure}
+    \vspace{0.6em}
+
+    \begin{subfigure}{0.95\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/4_distribution_panels_non_even_min50max100.pdf}
+        \caption{Long-document VQA data in the \emph{long-biased} distribution.}
+        \label{fig:longvqa_non_even_token_distribution}
+    \end{subfigure}
+    \vspace{0.6em}
+
+    \begin{subfigure}{0.95\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/3_distribution_panels_ocr_min32max49_combined.pdf}
+        \caption{OCR transcription data.}
+        \label{fig:ocr_token_distribution}
+    \end{subfigure}
+    \caption{Token-length distributions of the long-context training data used in our data-design study.}
+    \label{fig:long_context_training_data_token_distributions}
+\end{figure}
+
+\begin{table}[t]
+    \centering
+    \caption{Percentage of training samples with token length at least 100K for both \emph{pool-native} and \emph{long-biased} distribution.}
+    \label{tab:over_100k_ratio}
+    \small
+    \setlength{\tabcolsep}{8pt}
+    \begin{tabular}{lccc}
+    \toprule
+    \textbf{Distribution} & \textbf{\extractsingle} & \textbf{\extractmulti} & \textbf{\reasoningtask} \\
+    \midrule
+    pool-native & 23.6\% & 23.6\% & 23.5\% \\
+    long-biased & 83.9\% & 83.9\% & 83.9\% \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Data Statistics for \emph{Long-Biased} Distribution}
+\label{app:long_document_vqa_details:data_stats_long_only}
+We summarize the statistics of the \emph{long-biased} long-document VQA training data in \cref{tab:longvqa_non_even_data_stats}.
+The corresponding token-length distribution is shown in \cref{fig:longvqa_non_even_token_distribution}.
+
+Compared with the default \emph{pool-native} distribution, this data is sampled from longer documents with 50--100 rendered PDF pages and concentrates more training mass near the upper end of the target context window.
+As shown in \cref{tab:over_100k_ratio}, 83.9\% of the samples in the \emph{long-biased} distribution contain at least 100K tokens across all three VQA tasks.
+In contrast, only about 23.5\%--23.6\% of the samples in the \emph{pool-native} distribution exceed this threshold.
+
+\subsection{Prompt Template for QA Pair Generation}
+\label{app:long_document_vqa_details:prompt}
+For each source document, we first use OCR block labels to identify title and section boundaries, then sample a semantically coherent span of 8--15 consecutive pages.
+The sampled page images are sent to the teacher LVLM together with a prompt that asks it to synthesize one document-grounded QA pair.
+
+By default, we include two in-context exemplars sampled from a small manually curated exemplar pool.
+We instantiate the same core prompt with different task descriptions and page constraints for three data types: single-page extraction, multi-page extraction, and reasoning.
+
+More concretely, \cref{tab:qa_generation_prompt} shows the prompt template used in our data sourcing process, and \cref{tab:qa_generation_task_fields} summarizes the task description and extra restriction inserted for each task type.
+
+\clearpage
+\begin{table}[H]
+    \centering
+    \caption{The prompt template used for long-document QA pair generation. Gray highlighted spans denote placeholders filled dynamically for each sampled document span.}
+    \label{tab:qa_generation_prompt}
+    \begin{adjustbox}{max width=\textwidth, max totalheight=0.95\textheight}
+    \begin{tabular}{p{0.96\linewidth}}
+    \toprule
+    \begin{minipage}{0.96\linewidth}
+    \raggedright\ttfamily\footnotesize
+    {[}System{]}\\
+    You are an expert in synthesizing document question-answering dialogue. In this task, I will provide you the images of one or more sections from a document and you need to generate a question-answering pair based on the given sections.
+    You need to notice the following key points:\\[2pt]
+    \quad \\
+    {[}Task Definition \& Requirements{]}\\
+    The current document QA task is \promptplaceholder{task description}.\\[2pt]
+    \quad \\
+    {[}General Restrictions{]}\\
+    - Questions must be confidently answerable and document-dependent, relying solely on the provided visual content without external knowledge.\\
+    - If the question asks about missing information, the absence of such content must be definitively verifiable from the provided image.\\
+    - Scope Constraint: Frame questions specifically within the scope of the provided section/pages, strictly avoiding broad references like "across the document" or "the whole file."\\
+    - Page Indexing Rule: When writing the evidence description or the "evidence\_pages" field in JSON, strictly use the index provided in the prompt (e.g., use `10' for "Page 10"), regardless of the page number inside images.\\[2pt]
+    \promptplaceholder{extra\_restriction} \\
+    \quad \\
+    {[}Response Format{]}\\
+    Please generate the response in two parts: \\
+    \quad \\
+    Part 1: Evidence Description \\
+    Provide a detailed description first, citing specific text or visual elements (using the four evidence types defined below) to support your reasoning. You may use multiple paragraphs if necessary.\\
+    \quad \\
+    When describing evidence, explicitly categorize the text and visual elements into one of the following four types: \\
+    - Text: pure texts, such as paragraphs. \\
+    - Layout: text elements with special layout meaning (generalized text), such as titles, headers, footers, table names, and figure names. \\
+    - Figure: including charts and general images. \\
+    - Table: structured data in rows and columns. \\
+    \quad \\
+    Part 2: JSON Output \\
+    Provide the final question, answer, and metadata in a strict JSON format.\\[2pt]
+    \quad \\
+    Your answer must strictly fall into one of the following four categories. You must also indicate the type in the JSON output: \\
+    1. String: General text, names, short sentences, or short phrases found in the document. \\
+        - Example: "John Doe", "Financial Report", "The project was completed on time." \\
+   2. Integer: Whole numbers representing counts, years, page numbers, etc. \\
+   - Example: "42", "2023", "100". \\
+    3. Float: Numbers with decimal points, including currency, percentages, or scientific measurements. \\
+   - Example: "12.5", "\$45.20", "98.5\%". \\
+    4. List: A collection of multiple items, names, or values. \\
+   - Example: ["Apple", "Banana", "Orange"], ["Item A", "Item B"]. \\
+   \quad \\
+   Your output format is:\\
+    {[}Evidence Description{]}:\\
+    {[}JSON{]}:\\
+    \{"question": \textless question\textgreater, "answer": \textless answer\textgreater, "answer\_format": \textless answer\_format\textgreater, "evidence\_pages": [\textless page\_index\textgreater], "evidence\_sources": [\textless evidence\_sources\textgreater]\}\\[2pt]
+    \textless \textgreater\\[2pt]
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_1>} \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_2>} \\
+    \quad \\
+    {[}Current Case{]}\\
+    The following images represent pages \promptplaceholder{start\_page} to \promptplaceholder{end\_page} of the document. Generate the question-answering pair strictly based on the visual content below, ensuring the question scope is limited to phrases like "the Introduction section", "Pages 20, 21, and 25", or "Page 10." \\
+    \promptplaceholder{current\_case\_image\_sequence}
+    \end{minipage} \\
+    \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}
+\clearpage
+
+\begin{table}[H]
+    \centering
+    \caption{The task descriptions and extra restriction for the three long-document VQA tasks. We insert these parts into the prompt template to synthesize data.}
+    \label{tab:qa_generation_task_fields}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{L{2.3cm}L{5.6cm}L{6.4cm}}
+    \toprule
+    \textbf{Task} & \textbf{Task Description} & \textbf{Extra Restriction} \\
+    \midrule
+    \extractsingle
+    & information extraction. You need to generate questions that focus on extracting specific, explicit information directly from the provided document images. Your objective is to create questions that ask for precise facts, entities (such as names, dates, locations, or authors), numerical values, lists of items, or specific steps in a procedure. The answers must be visually present and directly retrievable from the text, tables, or layout elements.
+    & Single-Page Focus: Although multiple pages are provided for context, you must generate a question that is **strictly self-contained within a single page**. Select one specific page from the provided sequence and generate a question based solely on its content. The answer must be fully derivable from that single page without requiring cross-referencing or synthesizing information from other pages. \\
+    \addlinespace
+    \midrule
+    \extractmulti
+    & information extraction. You need to generate questions that focus on extracting specific, explicit information directly from the provided document images. Your objective is to create questions that ask for precise facts, entities (such as names, dates, locations, or authors), numerical values, lists of items, or specific steps in a procedure. The answers must be visually present and directly retrievable from the text, tables, or layout elements.
+    & Multi-Page Priority: When multiple pages are provided, **prioritize** generating questions that require synthesizing information across different pages (>= 2 pages). For example, link a table header from one page to a row on the next, or aggregate data points scattered across multiple pages. You can also come up with other formats of multi-page questions. **Only fall back to single-page questions if no meaningful cross-page connections exist.** \\
+    \addlinespace
+    \midrule
+    \reasoningtask
+    & quantitative reasoning. You need to generate questions that require performing calculation, comparison, or counting. Your objective is to create questions involving one of the following: 1. Calculate: Performing arithmetic operations on data found in the document. 2. Compare: Comparing values to identify trends, maximums, minimums, or relative sizes. 3. Count: Counting the frequency of specific items, keywords, or visual elements that satisfy a condition. The answer must require the aforementioned processing step rather than being directly visible as a single contiguous string.
+    & - Non-Trivial Synthesis: The question must require **aggregating multiple data points**. For example, ask ``What is the difference in revenue between Q1 and Q2?'' or ``Calculate the total sum of items listed in Table 3.'' The key is that the user must find at least two pieces of information and combine them to get the answer. \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Human Verification of QA Pairs}
+\label{app:long_document_vqa_details:verification}
+We randomly sample 100 generated QA pairs from the three task types and manually verify their answer correctness and evidence consistency.
+Among these inspected examples, 97 are fully correct: two contain incorrect answers, and one has an inaccurate evidence annotation.
+This suggests that the synthesis pipeline produces high-quality document-grounded supervision overall, while also indicating that the generated data may still contain a small amount of noise.
+
+\section{OCR Transcription Details}
+\label{app:ocr_transcription_details}
+In addition to VQA-based synthesis, we construct OCR transcription data as a contrasting family of long-context supervision.
+Each training example places rendered document pages as visual input and asks the model to generate the corresponding OCR text parsed from those pages.
+We consider two variants.
+Full-document OCR requires transcribing text elements from all pages of the document, creating dense image-text alignment across the full context.
+Needle-page OCR keeps the long visual context but only asks the model to transcribe text from a small subset of selected pages, making the task closer to retrieval over many distractor pages.
+
+\subsection{Data Statistics}
+\label{app:ocr_transcription_details:data_stats}
+We summarize the statistics of the OCR transcription data in \cref{tab:ocr_data_stats}.
+The corresponding token-length distribution is shown in \cref{fig:ocr_token_distribution}.
+
+\section{Short-Context Data Details}
+\label{app:short_context_data_details}
+We use short-context data in two sets of experiments.
+First, in the comparison between long-document VQA and OCR transcription data (\cref{sec:curation:data_method_compare}), we additionally apply supervised fine-tuning (SFT) with short-context instruction data after training the model on OCR transcription data.
+Second, in the short-data mixture experiment (\cref{sec:mixing:short}), we mix short-context data with long-context data to study how much short-context supervision should be included in LongPT.
+
+For both settings, we use publicly released short-context instruction data from LLaVA-OneVision~\citep{li2024llava}.
+We use the full short-context instruction data in the short-data mixture experiment, while only the SFT portion is used in the additional SFT stage after OCR transcription training.
+We download the single-image and multi-image subsets from the LLaVA-OneVision Hugging Face repositories\footnote{\url{https://huggingface.co/datasets/lmms-lab/LLaVA-OneVision-Data}}\footnote{\url{https://huggingface.co/datasets/lmms-lab/M4-Instruct-Data}}.
+
+
+\section{Complementary Experimental Results}
+\label{app:complementary_experiment_results}
+
+\subsection{Sequence-Length Distribution of the Training Data}
+\label{app:complementary_experiment_results:length_distribution}
+We provide the full dataset-level results for the sequence-length distribution ablation in \cref{tab:length_distribution}.
+
+\begin{table}[H]
+    \centering
+    \caption{We compare the \emph{pool-native} and \emph{long-biased} distributions under each of the three VQA-based training tasks. We abbreviate these three datasets as MMLB-D, LD-URL, and SLIDE, respectively.}
+    \label{tab:length_distribution}
+    \setlength{\tabcolsep}{4pt}
+    \resizebox{0.95\textwidth}{!}{%
+    \begin{tabular}{ll*{4}{C{1.2cm}}|*{4}{C{1.2cm}}|C{1.8cm}}
+    \toprule
+    & & \multicolumn{4}{c|}{\textbf{64K MMLongBench}} & \multicolumn{4}{c|}{\textbf{128K MMLongBench}} & \multirow{2}{*}{\textbf{AVG.}} \\
+     \cmidrule(lr){3-6} \cmidrule(lr){7-10}
+    \textbf{Training data} & \textbf{Length} & \multicolumn{1}{c}{\footnotesize MMLB-D} & \multicolumn{1}{c}{\footnotesize LD-URL} & \multicolumn{1}{c}{\footnotesize SLIDE} & \multicolumn{1}{c|}{\footnotesize AVG.} & \multicolumn{1}{c}{\footnotesize MMLB-D} & \multicolumn{1}{c}{\footnotesize LD-URL} & \multicolumn{1}{c}{\footnotesize SLIDE} & \multicolumn{1}{c|}{\footnotesize AVG.} & \\
+    \midrule
+    \multirow{2}{*}{\extractsingle} & pool-native & 33.85 & 59.73 & 77.00 & 56.86 & 30.89 & 55.69 & 77.00 & 54.53 & 55.69\,{\scriptsize\makebox[2em][l]{\posdiff{1.3}}} \\
+ & long-biased & 31.47 & 55.88 & 75.00 & 54.12 & 29.48 & 59.40 & 75.00 & 54.63 & 54.37\,{\scriptsize\makebox[2em][l]{}} \\
+    \midrule
+    \multirow{2}{*}{\extractmulti} & pool-native & 32.75 & 64.32 & 77.00 & 58.02 & 31.50 & 54.82 & 81.00 & 55.77 & 56.90\,{\scriptsize\makebox[2em][l]{\posdiff{0.1}}} \\
+     & long-biased & 36.29 & 56.75 & 80.00 & 57.68 & 30.72 & 55.79 & 81.00 & 55.84 & 56.76\,{\scriptsize\makebox[2em][l]{}} \\
+    \midrule
+    \multirow{2}{*}{\reasoningtask} & pool-native & 32.67 & 60.34 & 79.00 & 57.33 & 29.23 & 61.61 & 76.00 & 55.62 & 56.47\,{\scriptsize\makebox[2em][l]{\posdiff{1.7}}} \\
+     & long-biased & 32.00 & 55.79 & 79.00 & 55.60 & 28.74 & 58.22 & 75.00 & 53.98 & 54.79\,{\scriptsize\makebox[2em][l]{}} \\
+    \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\subsection{Short-Data Mixing for Long-Document VQA}
+\label{app:complementary_experiment_results:short_mix_long_vqa}
+We provide the full per-dataset long-document VQA results for the short-data mixing ablation in \cref{tab:short_mix_long_vqa}, complementing the AVG-only summary plotted in \cref{fig:short_mix_long_vqa_avg}.
+
+\begin{table}[H]
+    \centering
+    \caption{Short-context data test. We mix in $0\%$ to $80\%$ short-context data during LongPT under the fixed $5B$-token budget. The long-context data uses the 8:2 extraction-to-reasoning long-context mixture. \textbf{Short Data} means the proportion of short-context data. $0\%$ means only using long-context data.}
+    \label{tab:short_mix_long_vqa}
+    \setlength{\tabcolsep}{4pt}
+    \resizebox{0.85\textwidth}{!}{%
+    \begin{tabular}{l*{4}{C{1.2cm}}|*{4}{C{1.2cm}}|C{1.2cm}}
+    \toprule
+    \multirow{2}{*}{\makecell{\textbf{Short}\\\textbf{Data}}} & \multicolumn{4}{c|}{\textbf{64K MMLongBench}} & \multicolumn{4}{c|}{\textbf{128K MMLongBench}} & \multirow{2}{*}{\textbf{AVG.}} \\
+    \cmidrule(lr){2-5} \cmidrule(lr){6-9}
+    & \multicolumn{1}{c}{\footnotesize MMLB-D} & \multicolumn{1}{c}{\footnotesize LD-URL} & \multicolumn{1}{c}{\footnotesize SLIDE} & \multicolumn{1}{c|}{\footnotesize AVG.} & \multicolumn{1}{c}{\footnotesize MMLB-D} & \multicolumn{1}{c}{\footnotesize LD-URL} & \multicolumn{1}{c}{\footnotesize SLIDE} & \multicolumn{1}{c|}{\footnotesize AVG.} & \\
+    \midrule
+    0\% & 36.00 & 62.69 & 80.00 & \textbf{59.56} & 34.19 & 56.33 & 77.00 & 55.84 & \textbf{57.70} \\
+    20\% & 32.33 & 57.61 & 78.00 & 55.98 & 31.49 & 56.00 & 78.00 & 55.16 & 55.57 \\
+    40\% & 34.90 & 56.65 & 80.00 & 57.19 & 30.19 & 61.30 & 79.00 & \textbf{56.83} & 57.01 \\
+    60\% & 33.62 & 57.53 & 81.00 & 57.38 & 31.93 & 58.61 & 79.00 & 56.52 & 56.95 \\
+    80\% & 33.90 & 57.60 & 80.00 & 57.17 & 31.93 & 55.17 & 81.00 & 56.03 & 56.60 \\
+    \bottomrule
+\end{tabular}
+    }
+\end{table}
+
+\subsection{mRoPE Base Frequency}
+\label{app:complementary_experiment_results:mrope_base}
+Existing studies~\citep{xiong2024effective,blocntkaware,blocntkparts,pengyarn} have shown that increasing the RoPE~\citep{su2024roformer} frequency base during long-context continued pre-training or inference can improve long-context performance.
+Dynamic-NTK~\citep{dynamicntk} suggests scaling the frequency base by $t^{\frac{d}{d-2}}$, where $t$ denotes the context-window expansion factor and $d$ is the attention head dimension.
+
+However, LVLMs often use more structured positional encodings than plain 1-D RoPE.
+In our experiments, Qwen2.5-VL-7B adopts mRoPE~\citep{wang2024qwen2}, which decomposes rotary embeddings into temporal, height, and width components.
+As a result, visual position indices grow more slowly than a flattened 1-D sequence.
+It is therefore unclear whether the RoPE-scaling heuristic from Dynamic-NTK, originally developed for LLMs, directly applies to LVLMs with mRoPE.
+
+We conduct an ablation study over the mRoPE frequency base for LVLM long-context training.
+By default, we follow Dynamic-NTK and scale the frequency base of the trained model from $1\times 10^6$ to $4\times 10^6$ when extending the context window from 32K to 128K tokens.
+We also evaluate two alternative bases, $2\times 10^6$ and $8\times 10^6$, to examine whether decreasing or increasing the default $4\times 10^6$ base improves LongPT performance.
+
+The evaluation results on long-document VQA tasks are shown in \cref{tab:rope_base_vqa}.
+Overall, moderately increasing the mRoPE base improves or maintains long-context performance compared with using a smaller base.
+Across the evaluated tasks, $2\times 10^6$ and the Dynamic-NTK-scaled base $4\times 10^6$ achieve comparable overall performance, with $4\times 10^6$ slightly outperforming $2\times 10^6$ on \extractmulti and \reasoningtask.
+Further increasing the base to $8\times 10^6$ improves some individual metrics, but does not yield consistent gains across tasks and can degrade performance on \extractmulti and \reasoningtask.
+These results suggest that moderate mRoPE-base scaling is sufficient for extending LVLMs to longer contexts, while overly aggressive scaling is unnecessary.
+Based on this observation and to maintain consistency with the Dynamic-NTK heuristic, we set $4\times 10^6$ as the mRoPE base in our main experiments.
+
+\begin{table}[H]
+    \centering
+    \caption{Ablation on the mRoPE frequency base for 128K LongPT.
+    We grid search the mRoPE base in $\{2\times 10^6, 4\times 10^6, 8\times 10^6\}$, starting from the original base of $1\times 10^6$ used for the 32K context.
+    The Dynamic-NTK heuristic~\citep{dynamicntk} suggests $4\times 10^6$ as the default base when extending the context window from 32K to 128K.
+    Overall, $2\times 10^6$ and $4\times 10^6$ achieve comparable performance, while further increasing the base to $8\times 10^6$ does not yield consistent gains across tasks.
+    }
+    \label{tab:rope_base_vqa}
+    \setlength{\tabcolsep}{4pt}
+    \resizebox{0.95\textwidth}{!}{%
+    \begin{tabular}{ll*{4}{C{1.2cm}}|*{4}{C{1.2cm}}|C{1.2cm}}
+    \toprule
+    & & \multicolumn{4}{c|}{\textbf{64K MMLongBench}} & \multicolumn{4}{c|}{\textbf{128K MMLongBench}} & \multirow{2}{*}{\textbf{AVG.}} \\
+     \cmidrule(lr){3-6} \cmidrule(lr){7-10}
+    \textbf{Training data} & \textbf{Freq.} & \multicolumn{1}{c}{\footnotesize MMLB-D} & \multicolumn{1}{c}{\footnotesize LD-URL} & \multicolumn{1}{c}{\footnotesize SLIDE} & \multicolumn{1}{c|}{\footnotesize AVG.} & \multicolumn{1}{c}{\footnotesize MMLB-D} & \multicolumn{1}{c}{\footnotesize LD-URL} & \multicolumn{1}{c}{\footnotesize SLIDE} & \multicolumn{1}{c|}{\footnotesize AVG.} & \\
+    \midrule
+    \multirow{3}{*}{\extractsingle} & $2\times 10^6$ & \textbf{35.52} & 57.07 & 78.00 & \textbf{56.86} & 28.87 & \textbf{58.65} & 78.00 & 55.17 & \textbf{56.02} \\
+     & $4\times 10^6$ & 33.85 & \textbf{59.73} & 77.00 & 56.86 & \textbf{30.89} & 55.69 & 77.00 & 54.53 & 55.69 \\
+     & $8\times 10^6$ & 33.63 & 52.73 & \textbf{79.00} & 55.12 & 30.83 & 58.10 & \textbf{79.00} & \textbf{55.98} & 55.55 \\
+    \midrule
+    \multirow{3}{*}{\extractmulti} & $2\times 10^6$ & 31.86 & 63.01 & 76.00 & 56.95 & \textbf{31.60} & 52.31 & 79.00 & 54.30 & 55.63 \\
+     & $4\times 10^6$ & 32.75 & \textbf{64.32} & 77.00 & \textbf{58.02} & 31.50 & \textbf{54.82} & \textbf{81.00} & \textbf{55.77} & \textbf{56.90} \\
+     & $8\times 10^6$ & \textbf{33.36} & 58.91 & \textbf{79.00} & 57.09 & 29.25 & 54.00 & \textbf{81.00} & 54.75 & 55.92 \\
+    \midrule
+    \multirow{3}{*}{\reasoningtask} & $2\times 10^6$ & 33.04 & 57.20 & 77.00 & 55.75 & 33.44 & 58.66 & \textbf{77.00} & \textbf{56.36} & 56.05 \\
+     & $4\times 10^6$ & 32.67 & \textbf{60.34} & \textbf{79.00} & \textbf{57.33} & 29.23 & \textbf{61.61} & 76.00 & 55.62 & \textbf{56.47} \\
+     & $8\times 10^6$ & \textbf{34.33} & 57.86 & 73.00 & 55.07 & \textbf{34.26} & 54.61 & 72.00 & 53.62 & 54.34 \\
+    \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+
+
+\subsection{MM-NIAH Generalization}
+\label{app:complementary_experiment_results:generalization_niah}
+We provide the full 64K and 128K MM-NIAH results in \cref{tab:generalization_niah}, complementing the averaged main-text summary in \cref{fig:generalization_niah}.
+
+\begin{table}[H]
+\centering
+\caption{\textbf{MM-NIAH generalization.} Ret., Count, and Reas. average text and image needles.}
+\label{tab:generalization_niah}
+\scriptsize
+\captionsetup[subtable]{font=footnotesize,labelformat=parens,justification=centering,skip=1pt}
+
+\begin{subtable}{0.48\textwidth}
+    \centering
+    \caption{\textbf{64K MM-NIAH}}
+
+    \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccc@{}}
+    \toprule
+    \textbf{Model} & Ret. & Count & Reas. & AVG. \\
+    \midrule
+    \modelname & \textbf{74.83} & \textbf{27.67} & \textbf{67.33} & \textbf{56.61} \\
+    Qwen2.5-VL-7B & 50.00 & 6.00 & 27.50 & 27.83 \\
+    \midrule
+    InternVL3-8B & 67.67 & 14.33 & 59.33 & 47.11 \\
+    InternVL3.5-8B & 56.12 & 4.45 & 57.23 & 39.26 \\
+    Gemma3-4B & 43.25 & 4.33 & 31.50 & 26.36 \\
+    Gemma3-12B & 65.58 & 27.00 & 42.25 & 44.94 \\
+    \bottomrule
+    \end{tabular*}
+\end{subtable}
+\hfill
+\begin{subtable}{0.48\textwidth}
+    \centering
+    \caption{\textbf{128K MM-NIAH}}
+
+    \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccc@{}}
+    \toprule
+    \textbf{Model} & Ret. & Count & Reas. & AVG. \\
+    \midrule
+    \modelname & \textbf{57.83} & 8.67 & \textbf{60.33} & \textbf{42.28} \\
+    Qwen2.5-VL-7B & 11.33 & 16.33 & 8.83 & 12.17 \\
+    \midrule
+    InternVL3-8B & 52.33 & 7.33 & 50.00 & 36.56 \\
+    InternVL3.5-8B & 3.45 & 0.00 & 2.27 & 1.91 \\
+    Gemma3-4B & 29.83 & 1.83 & 28.75 & 20.14 \\
+    Gemma3-12B & 48.83 & \textbf{19.67} & 33.75 & 34.08 \\
+    \bottomrule
+    \end{tabular*}
+\end{subtable}
+\end{table}
+
+\subsection{VTCBench Generalization}
+\label{app:complementary_experiment_results:generalization_vtc}
+We provide the full VTCBench-Wild results in \cref{tab:generalization_vtc}. We report retrieval, reasoning, memory, and the sample-count weighted overall score following VTCBench-Wild.
+
+\begin{table}[H]
+    \centering
+    \caption{VTCBench generalization. We report retrieval, reasoning, memory, and the sample-count weighted overall score following VTCBench-Wild.}
+    \label{tab:generalization_vtc}
+    \scriptsize
+    \begin{tabular*}{0.7\linewidth}{@{\extracolsep{\fill}}lcccc@{}}
+    \toprule
+    \textbf{Model} & Ret. & Reas. & Mem. & AVG. \\
+    \midrule
+    \modelname & \textbf{91.75} & \textbf{22.88} & \textbf{40.50} & \textbf{52.73} \\
+    Qwen2.5-VL-7B & 91.63 & 15.63 & 33.83 & 48.23 \\
+    \midrule
+    Qwen3-VL-8B & 89.00 & 11.50 & 33.67 & 45.73 \\
+    InternVL3.5-8B & 51.38 & 7.63 & 17.33 & 26.18 \\
+    InternVL3.5-38B & 45.81 & 8.75 & 22.33 & 25.93 \\
+    Gemma3-27B & 49.38 & 3.75 & 17.33 & 24.05 \\
+    \bottomrule
+    \end{tabular*}
+\end{table}
+
+\subsection{Long-Video Generalization}
+\label{app:complementary_experiment_results:generalization_video}
+We provide the numeric long-video generalization results in \cref{tab:generalization_video}, complementing the main-text summary in \cref{fig:generalization_video}.
+
+\begin{table}[H]
+\centering
+\caption{\textbf{Long-video generalization.} We report aggregate scores on Video-MME, MLVU, and LongVideoBench.}
+\label{tab:generalization_video}
+\scriptsize
+\begin{tabular*}{0.7\linewidth}{@{\extracolsep{\fill}}lccc@{}}
+\toprule
+\textbf{Model} & Video-MME & MLVU & LongVideoBench \\
+\midrule
+Qwen2.5-VL-7B & 65.1 & 70.2 & 60.43 \\
+\modelname & \textbf{67.78} & \textbf{73.55} & \textbf{62.08} \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Long-document VQA transfer across backbone models. We apply LongPT variants to Qwen3-VL-8B and report results on LongDocURL and SlideVQA. Since Qwen3-VL is already a 256K-context model trained with large-scale long-context pre-training, SFT, and RL, we focus on these two held-out document benchmarks.}
+    \label{tab:qwen3_backbone_generalization}
+    \setlength{\tabcolsep}{4pt}
+    \resizebox{0.9\textwidth}{!}{%
+    \begin{tabular}{l*{3}{C{1.2cm}}|*{3}{C{1.2cm}}|C{1.4cm}}
+    \toprule
+    & \multicolumn{3}{c|}{\textbf{64K MMLongBench}} & \multicolumn{3}{c|}{\textbf{128K MMLongBench}} & \multirow{2}{*}{\textbf{AVG.}} \\
+    \cmidrule(lr){2-4} \cmidrule(lr){5-7}
+    \textbf{Model} & \multicolumn{1}{c}{\footnotesize LD-URL} & \multicolumn{1}{c}{\footnotesize SLIDE} & \multicolumn{1}{c|}{\footnotesize AVG.} & \multicolumn{1}{c}{\footnotesize LD-URL} & \multicolumn{1}{c}{\footnotesize SLIDE} & \multicolumn{1}{c|}{\footnotesize AVG.} & \\
+    \midrule
+    Qwen3-VL-8B & 56.36 & 74.00 & 65.18 & 60.11 & 72.00 & 66.05 & 65.62\,{\scriptsize\makebox[2em][l]{}} \\
+    + \modelname Recipe & 62.22 & 73.00 & 67.61 & 62.81 & 72.00 & 67.41 & 67.51\,{\scriptsize\makebox[2em][l]{\posdiff{1.9}}} \\
+    \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\subsection{Generalization across Backbones}
+\label{app:complementary_experiment_results:backbone}
+
+We further apply our LongPT recipe to Qwen3-VL-8B~\citep{bai2025qwen3} to test whether the training recipe transfers beyond Qwen2.5-VL. 
+However, the Qwen3-VL series already includes 256K-context models trained with 100B tokens in long-context continued pre-training, and Qwen3-VL has undergone additional SFT and RL optimization for long-document tasks~\citep{bai2025qwen3}. 
+Therefore, this experiment is not intended as a strict study on context window extension. 
+Instead, we use it as a diagnostic to examine whether the observed behavior transfers across backbones. 
+We report the performance on long-document VQA tasks and MM-NIAH in \cref{tab:qwen3_backbone_generalization,tab:qwen3_backbone_mmniah}, respectively.
+
+The results show that the final \modelname recipe remains effective even on this stronger long-context backbone.
+On long-document VQA, \modelname improves the average score from 65.62 to 67.51.
+The gains are more pronounced on MM-NIAH, where the average score increases from 50.03 to 61.75, with consistent improvements across retrieval, counting, and reasoning at both context lengths.
+Together with the diagnostic nature of this experiment, these results suggest that the proposed training recipe is not specific to Qwen2.5-VL-7B, but may also improve the long-context behavior of a newer backbone that already incorporates native long-context training.
+
+\begin{table}[t]
+    \centering
+    \caption{MM-NIAH transfer across backbone models. We report Retrieval, Counting, Reasoning, and average scores at 64K and 128K context lengths. Our recipe achieves better overall MM-NIAH score on Qwen3-VL-8B.}
+    \label{tab:qwen3_backbone_mmniah}
+    \setlength{\tabcolsep}{3.5pt}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{l*{4}{C{1.05cm}}|*{4}{C{1.05cm}}|C{1.25cm}}
+    \toprule
+    & \multicolumn{4}{c|}{\textbf{64K MM-NIAH}} & \multicolumn{4}{c|}{\textbf{128K MM-NIAH}} & \multirow{2}{*}{\textbf{AVG.}} \\
+    \cmidrule(lr){2-5} \cmidrule(lr){6-9}
+    \textbf{Model} & \multicolumn{1}{c}{\footnotesize Ret.} & \multicolumn{1}{c}{\footnotesize Count} & \multicolumn{1}{c}{\footnotesize Reas.} & \multicolumn{1}{c|}{\footnotesize AVG.} & \multicolumn{1}{c}{\footnotesize Ret.} & \multicolumn{1}{c}{\footnotesize Count} & \multicolumn{1}{c}{\footnotesize Reas.} & \multicolumn{1}{c|}{\footnotesize AVG.} & \\
+    \midrule
+    Qwen3-VL-8B & 77.83 & 25.33 & 62.33 & 55.17 & 61.67 & 17.00 & 56.00 & 44.89 & 50.03\,{\scriptsize\makebox[2em][l]{}} \\
+    + \modelname Recipe & \textbf{83.00} & \textbf{45.67} & \textbf{70.83} & \textbf{66.50} & \textbf{74.17} & \textbf{35.00} & \textbf{61.83} & \textbf{57.00} & \textbf{61.75}\,{\scriptsize\makebox[2em][l]{\posdiff{11.7}}} \\
+    \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\section{Limitations}
+\label{app:limitations}
+For the training scale, our systematic study is primarily conducted on 7B/8B-scale LVLMs. 
+This choice enables controlled comparisons across data recipes, context lengths, and training budgets, but it also leaves open how the observed trends scale to substantially larger models.
+Extending the same study to 30B or 70B-scale LVLMs, or to even longer context windows, like 512K or 1M, would require significantly higher computational cost, since long-context continued pre-training is expensive both in model size and sequence length.
+Although our transfer experiment on Qwen3-VL-8B provides initial evidence that the proposed recipe is not tied to a single backbone, a more comprehensive scaling study across larger model families remains an important direction for future work.
+
+For evaluation, our long-document VQA experiments rely on model-based judging to assess answer correctness.
+Compared with lexical-overlap metrics, such judges can better handle semantically equivalent answers and free-form generation, but they also introduce additional API cost.
+This cost becomes substantial when evaluating many checkpoints, context lengths, and model variants, which limits the frequency and scale of evaluation during long-context training.
+Developing more efficient, reliable, and low-cost evaluation protocols for multimodal long-context models is, therefore, an important direction for future research.
+
+\section{Broader Impact}
+\label{app:broader_impact}
+Reliable long-context capability is important for deploying LVLMs in real-world scenarios that require understanding and reasoning over large multimodal inputs, such as long documents, webpages, videos, and agentic workflows.
+This work studies how to build such capability through long-context continued pre-training, with a particular focus on constructing effective multimodal long-context data under a modest training budget.
+Our findings suggest that carefully designed long-document VQA data can provide useful supervision for evidence retrieval and reasoning over long visual-textual contexts, and can transfer beyond documents to broader multimodal long-context tasks.
+We hope these results can help the community develop more data-efficient training recipes for LVLMs, reducing the need for excessive token budgets while improving models' ability to use long multimodal context.

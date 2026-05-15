@@ -1,0 +1,117 @@
+%% ============================================================
+\clearpage
+\section{Measurement Reliability: Variance Decomposition and Trial Count Justification}
+\label{app:statistics}
+%% ============================================================
+
+\subsection{Variance decomposition}
+
+Per-model metric scores reflect variance from scenario difficulty, trial stochasticity, and LLM judge stochasticity. We characterized the contributions of each on a subset of $N=4$ model configurations (2~cascade, 2~speech-to-speech) using 5~trials per scenario and 3~judge iterations per trial, across all 213 scenarios and 3~task domains. Three per-metric analyses were conducted: mixed effects variance decomposition (REML), two-way random effects ICC including the model $\times$ scenario interaction, and a permutation-based comparison of judge and trial standard deviations. Full results are reported below.
+
+\paragraph{Mixed effects modelling.} We conducted variance decomposition using linear mixed effects modeling (REML), fitted separately within each model, with domain as a fixed effect and scenario and trial as nested random effects. For judge-graded metrics, judge iterations were included as an additional nested random effect; for deterministic metrics, trial is the lowest modeled level. In both cases, variance at the lowest level of the hierarchy is absorbed into the residual, as it cannot be separately identified without repeated observations at that level.
+
+Trial was consistently the largest source of variance across all models, contributing 40-80\% of total observed variance for judge-graded metrics and 53-100\% for deterministic metrics. Trial variance exceeded scenario variance on all 9 metrics (33/34 model-metric combinations); across metrics, cross-model ranges of trial and scenario components did not overlap with the exception of a single-model, 1.5 point overlap for faithfulness (see \autoref{tab:LMM} for full decomposition). 
+
+Scenario-level intraclass correlation (ICC), estimated as the proportion of total variance attributable to scenario identity, ranged from near zero to 47\% across metrics and models; \metrictaskcompletion~(ICC 33--47\% across models) and \metricfaithfulness~(ICC 21-42\%) showed consistently the highest scenario contributions. This is consistent with our observations that \metrictaskcompletion~and \metricfaithfulness~are inherently sensitive to intrinsic scenario difficulty, based in part on varying complexity of invoked policies.
+
+%\input{figures/stats/tab_LMM}
+\input{tables/08_appendix/h_measurement_reliability/01_tab_LMM}
+
+\paragraph{Scenario variance and model $\times$ scenario interaction.} To complement the full variance decomposition and assess whether models rank scenarios consistently, we computed two ICC models: a one-way ANOVA on model-centered scores, and a two-way random effects model including the model $\times$ scenario interaction term. The analysis covered eight metrics - authentication success, \metricconcise, \metricconversationcompletion, \metricconversationprogression, \metrictaskcompletion, \metrictranscription~(cascade-only), and \metricturntaking~- across the three task domains (CSM, ITSM, HR), yielding 22 domain $\times$ metric combinations. For each, we decomposed score variance into four components: scenario, model, model $\times$ scenario interaction, and residual trial-to-trial noise; variance components were estimated from a balanced two-way ANOVA. Significance was assessed via F-tests using the interaction mean square as the denominator (Cornfield-Tukey rule for random effects), and ICC$_\text{scenario}$ was reported as $\sigma^2_\text{scenario} / \sigma^2_\text{total}$. 
+
+Per-metric scenario-level intraclass correlation (ICC$_{\text{scenario}}$, computed via one-way ANOVA after centering scores by model) ranged from approximately $0$ on metrics that saturate across most scenarios (\metricfidelity, \metricvalidend, \metricturntaking)~up to $0.31$ on \metrictaskcompletion~(see \autoref{tab:icc-pooled}). \metricfaithfulness~ranged $0.17$--$0.25$ across domains, \metricconcise~$0.12$--$0.13$, and \metricconversationprogression~$0.07$--$0.13$ . 
+
+The model $\times$ scenario interaction was significant in all 22 domain $\times$ metric combinations ($p < 0.01$ in every case; $p < 0.001$ for 19 of 22; see \autoref{tab:icc-interaction}), accounting for 4–18\% of total score variance (median 11\%). This indicates that scenario difficulty is ranked differently across models; some scenarios are disproportionately harder for one model than another. Consistent with this finding, ICC$_\text{scenario}$ was low across the board (median 0.08, range 0.00–0.27), confirming that scenario identity alone explains a small fraction of overall score variance after accounting for model and interaction effects.
+
+These analyses support the finding from the full variance decomposition that scenario is not the dominant source of variance, and is a property of the benchmark rather than a confound: it reflects the range of task difficulty that the benchmark spans. Additionally, this also demonstrates that a substantial proportion of each model's apparent scenario variance reflects model-specific scenario interactions rather than shared scenario difficulty.
+
+\input{tables/08_appendix/h_measurement_reliability/02_tab_icc-pooled}
+\input{tables/08_appendix/h_measurement_reliability/03_tab_icc-interaction}
+
+\paragraph{Judge stochasticity.} We assessed whether trial standard deviation systematically exceeds judge standard deviation using a sign-flip permutation test on the mean delta (trial SD - judge SD delta per scenario, within or averaged across models; one-sided, $H_1$: mean delta > 0; 10,000 permutations). As a complementary check on directional consistency, we applied an exact binomial sign test to the count of scenarios where the delta exceeded zero (one-sided, $H_1$: $P(delta > 0) > 0.5$). 
+
+Trial variance dominated judge variance across all 16 model $\times$ metric combinations (sign-flip permutation test, one-sided, $p < 0.0001$ in every case; see \autoref{tab:judge-trial}, with per-model mean deltas between trial and judge standard deviations ranging from 0.01–0.05 for agent's \metricfidelity~and 0.02–0.03 for \metricconcise, to 0.12–0.15 for \metricconversationprogression~and 0.11–0.21 for \metricfaithfulness. The binomial sign test confirmed that trial SD exceeded judge SD in the majority of scenarios for 13 of 16 model $\times$ metric combinations ($p < 0.05$). For 3 models, the significant mean deltas for agent \metricfidelity, which had negligible variance for both judge and trial, were driven by a minority of high-variance scenarios or a p-value just above the threshold.
+
+\input{tables/08_appendix/h_measurement_reliability/04_tab_judge-trial}
+%\input{figures/stats/tab_judge-trial}
+% \input{figures/stats/outdated_tab_wilcoxon_trial_vs_judge}
+
+\subsection{Justification of trial count}
+\label{app:trial_count}
+
+\paragraph{Motivation.}
+EVA-Bench averages over multiple trials per scenario to reduce
+simulator and agent stochasticity. Clean evaluations use $k{=}5$
+trials per scenario, while perturbation experiments use $k{=}3$ to
+fit a larger cell count within compute budget. We quantify the cost of
+this reduction by measuring how rapidly each model-level metric
+estimate stabilizes as a function of trial count.
+
+\paragraph{Method.}
+For each (model, metric) pair and each $k \in \{1,2,3,4\}$ we draw
+$N{=}2000$ Monte Carlo subsamples. In each draw, we independently
+sample, for every scenario, a uniformly random $k$-trial subset of the
+five available trials, average within scenario, then average across
+scenarios. The result is a single model-level estimate
+$\hat{\theta}_k$ per draw. At $k{=}5$ exactly one draw exists --
+the {\em anchor} $\hat{\theta}_5$, equal to the full
+mean-of-scenario-means.
+
+We sample subsets {\em independently per scenario} rather than
+aligning trial indices across scenarios, because trial indices are not
+meaningful across scenarios.
+
+For each $k$ we report the {\bf 95\% interval width}
+        $w_k = p_{97.5}(\hat{\theta}_k) - p_{2.5}(\hat{\theta}_k)$,
+        in metric units.
+
+These quantities reflect resampling of {\em existing} trial
+outcomes -- they capture how much our reported estimate would have
+moved if we had used fewer of the trials we ran. The pooled bootstrap CIs in the main results (Sec.~\ref{sec:main-results}) capture the complementary cross-scenario uncertainty.
+
+\paragraph{Results.}
+Figure~\ref{fig:trial_count_ci} plots the median 95\% CI width at
+each $k$, one panel per metric, one line per model. Every line decays
+approximately as $k^{-1/2}$ -- the textbook scaling for sample-mean
+variance -- with two regimes:
+
+\begin{itemize}\itemsep0pt
+  \item {\em Per-turn metrics} (\metricfidelity, \metricconcise,
+        \metricturntaking) are already stable at $k{=}1$, with CI width
+        below $0.02$ across all models. Adding trials yields little
+        further reduction.
+  \item {\em Conversation-level and pass metrics} (EVA-A pass@1, EVA-X pass@1, Task
+        Completion, Faithfulness, Conversation Progression) are noisier: CI
+        width is $0.05$--$0.09$ at $k{=}1$, shrinking to roughly
+        $0.02$--$0.03$ at $k{=}3$.
+\end{itemize}
+
+Table~\ref{tab:trial_count_summary} summarises. At $k{=}3$, the
+median 95\% CI width is at most 0.034 for any metric, and
+at least 97.3\% of $k{=}3$ subsamples land within
+$0.02$ of the $k{=}5$ anchor on every metric.
+
+\paragraph{Justifying the trial counts.}
+Cross-model gaps on the headline pass-style metrics span $0.1$--$0.6$
+across the 12 evaluated systems. At $k{=}3$, trial-count uncertainty
+is $\sim\!0.03$ -- below 10\% of the smallest interesting effect size
+and well below the cross-architecture gaps reported in the main
+tables. We therefore use $k{=}3$ for the perturbation experiments,
+where holding the trial count down lets us cover more scenarios. We
+retain $k{=}5$ for the clean evaluation, where the same point
+estimates are reused across scatter plots and Pareto frontiers and
+the marginal CI shrinkage from $k{=}4$ to $k{=}5$ ($\sim\!0.02$
+absolute, by construction terminating at zero) is worth the cost.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figures/trial_count/trial_count_grid_ci_width.pdf}
+\caption{Model-level 95\% empirical CI width as a function of trial
+count $k$, one panel per metric. Each line is one of the 12 evaluated
+systems. Width is computed as $p_{97.5}-p_{2.5}$ over $N{=}2000$
+Monte Carlo subsamples per $(model, metric, k)$. The $k{=}5$ point
+is identically zero (single-anchor draw).}
+\label{fig:trial_count_ci}
+\end{figure}
+
+\input{tables/08_appendix/h_measurement_reliability/05_subsample_stability_summary}

@@ -1,0 +1,40 @@
+%%%% Starting from Table 34 %%%%%%%%%
+% Required packages:
+%   \usepackage{booktabs}
+%   \usepackage[table]{xcolor}
+%   \usepackage{graphicx}  % for \resizebox
+
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\captionsetup{font=small}
+\caption{Perturbation effect under \textbf{Accent}: pooled mean $\Delta$ (perturbed $-$ clean) per model and metric. Cells are shaded by magnitude (red = degradation, green = improvement). Significance from sign-flip permutation tests with Holm--Bonferroni correction within each (model, metric) family of three conditions: $^{*}p<0.05$, $^{**}p<0.01$, $^{***}p<0.001$.}
+\label{tab:perturb-accent}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllll}
+\toprule
+Model & EVA-A & EVA-X & TaskComp & Faith & SpeechFidelity & ConvProg & TurnTake & Concise \\
+\midrule
+\multicolumn{9}{l}{\textit{Cascade}} \\
+\coherefull~+ \gemmaAfull~+ \voxtralfull & \cellcolor{red!31!white}$-0.090^{**}$ & \cellcolor{red!25!white}$-0.073^{*}$ & \cellcolor{red!60!white}$-0.176^{***}$ & \cellcolor{green!36!white}$+0.106^{**}$ & \cellcolor{green!2!white}$+0.006$ & \cellcolor{green!7!white}$+0.020$ & \cellcolor{red!56!white}$-0.165^{***}$ & \cellcolor{red!5!white}$-0.015^{*}$ \\
+\scribe~+ \geminiflashfull~+ \conversational & \cellcolor{red!20!white}$-0.058$ & $+0.001$ & $-0.001$ & \cellcolor{red!8!white}$-0.024$ & \cellcolor{red!4!white}$-0.012$ & $-0.000$ & \cellcolor{green!2!white}$+0.006$ & \cellcolor{green!2!white}$+0.006$ \\
+\inkfull~+ \haikufull~+ \sonicfull & \cellcolor{red!35!white}$-0.103^{***}$ & \cellcolor{red!5!white}$-0.013$ & \cellcolor{red!37!white}$-0.109^{***}$ & \cellcolor{green!12!white}$+0.035$ & \cellcolor{red!3!white}$-0.009$ & \cellcolor{red!9!white}$-0.027$ & \cellcolor{red!42!white}$-0.124^{***}$ & \cellcolor{red!11!white}$-0.031^{**}$ \\
+\novafull~+ \gptfull~+ \sonicfull & \cellcolor{red!46!white}$-0.135^{***}$ & \cellcolor{red!2!white}$-0.004$ & \cellcolor{red!49!white}$-0.144^{***}$ & \cellcolor{red!2!white}$-0.007$ & \cellcolor{red!1!white}$-0.003$ & \cellcolor{green!6!white}$+0.019$ & \cellcolor{red!55!white}$-0.160^{***}$ & \cellcolor{green!1!white}$+0.003$ \\
+\novafull~+ \gptminifull~+ \aurafull & \cellcolor{red!18!white}$-0.054^{*}$ & \cellcolor{red!16!white}$-0.046^{*}$ & \cellcolor{red!41!white}$-0.121^{***}$ & \cellcolor{green!21!white}$+0.060^{*}$ & \cellcolor{red!6!white}$-0.016^{*}$ & \cellcolor{red!10!white}$-0.029$ & \cellcolor{red!56!white}$-0.164^{***}$ & \cellcolor{red!6!white}$-0.018^{*}$ \\
+\parakeetfull~+ \gemmaBfull~+ \kokorofull & \cellcolor{red!14!white}$-0.040$ & \cellcolor{green!4!white}$+0.011$ & \cellcolor{red!11!white}$-0.033$ & \cellcolor{green!10!white}$+0.030$ & \cellcolor{green!1!white}$+0.003$ & \cellcolor{red!19!white}$-0.055$ & \cellcolor{green!41!white}$+0.121^{***}$ & \cellcolor{red!1!white}$-0.003$ \\
+\whisperfull~+ \qwenfull~+ \voxtralfull & \cellcolor{red!25!white}$-0.074^{**}$ & \cellcolor{red!55!white}$-0.161^{***}$ & \cellcolor{red!44!white}$-0.128^{***}$ & \cellcolor{green!29!white}$+0.085^{*}$ & \cellcolor{green!5!white}$+0.015$ & \cellcolor{red!9!white}$-0.027$ & \cellcolor{red!56!white}$-0.165^{***}$ & \cellcolor{red!2!white}$-0.004$ \\
+\midrule
+\multicolumn{9}{l}{\textit{Hybrid}} \\
+\ultravoxfull & \cellcolor{green!3!white}$+0.008$ & \cellcolor{red!3!white}$-0.008$ & \cellcolor{red!7!white}$-0.019$ & \cellcolor{green!8!white}$+0.023$ & \cellcolor{green!1!white}$+0.004$ & \cellcolor{green!33!white}$+0.097^{**}$ & \cellcolor{red!5!white}$-0.015$ & \cellcolor{red!1!white}$-0.002$ \\
+\geminiflashfull~+ \geminiflashttsfull & \cellcolor{red!39!white}$-0.116^{**}$ & $+0.000$ & \cellcolor{red!52!white}$-0.152^{**}$ & \cellcolor{red!47!white}$-0.139^{***}$ & \cellcolor{green!3!white}$+0.008$ & \cellcolor{red!51!white}$-0.150^{***}$ & \cellcolor{green!33!white}$+0.096^{***}$ & \cellcolor{red!5!white}$-0.014$ \\
+\midrule
+\multicolumn{9}{l}{\textit{S2S}} \\
+\geminilivefull & \cellcolor{red!5!white}$-0.014$ & \cellcolor{green!11!white}$+0.033$ & \cellcolor{red!3!white}$-0.007$ & \cellcolor{red!8!white}$-0.023$ & \cellcolor{green!2!white}$+0.005$ & \cellcolor{red!10!white}$-0.028$ & \cellcolor{green!10!white}$+0.028$ & $-0.001$ \\
+\gptrealtimefull & \cellcolor{green!7!white}$+0.021$ & \cellcolor{green!11!white}$+0.033$ & \cellcolor{green!14!white}$+0.041$ & \cellcolor{green!5!white}$+0.013$ & \cellcolor{red!1!white}$-0.002$ & \cellcolor{green!10!white}$+0.030$ & \cellcolor{green!5!white}$+0.014$ & $-0.000$ \\
+\gptrealtimeminifull & \cellcolor{green!5!white}$+0.016$ & \cellcolor{green!12!white}$+0.035$ & \cellcolor{red!13!white}$-0.039$ & \cellcolor{green!7!white}$+0.019$ & \cellcolor{green!6!white}$+0.018$ & \cellcolor{red!9!white}$-0.027$ & \cellcolor{green!9!white}$+0.025$ & \cellcolor{green!1!white}$+0.004$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

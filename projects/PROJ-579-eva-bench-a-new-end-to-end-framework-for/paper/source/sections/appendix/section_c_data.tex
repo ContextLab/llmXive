@@ -1,0 +1,57 @@
+\clearpage
+%% ============================================================
+\section{Data}
+\label{app:data}
+%% ============================================================
+
+We created three datasets on different enterprise domains, each selected to target a distinct axis of difficulty for voice agents. All three require accurate transcription of structured named entities over voice (e.g., confirmation codes and employee identifiers), but differ in their primary challenge. \textbf{Airline Customer Service Management (CSM)} tests temporal reasoning and complex policy adherence in high-stakes flight rebooking scenarios. \textbf{Healthcare Human Resources Service Delivery (HRSD)} stresses entity density, requiring callers to communicate multiple registration and license numbers across clinical and administrative HR workflows. \textbf{Enterprise Information Technology Service Management (ITSM)} introduces branching conversational flows (e.g., incident resolution attempts must fail before ticket escalation is permitted) and tiered authentication reflecting the access sensitivity of different workflows. Dataset statistics are summarized in Table~\ref{tab:datasets}.
+
+Within each domain, scenarios span three dimensions: \textbf{Single-Intent} (one workflow per call), \textbf{Multi-Intent} (one to four concurrent workflows, testing compositional task completion without context loss), and \textbf{Adversarial} (hard policy constraints under social pressure, e.g., refusing compensation to an ineligible caller).
+
+Section \ref{app:data-workflows} introduces the workflows for the three data domains, and more details on each are provided in Appendix \ref{app:workflows}, with scenario examples (one for each domain, and a single-intent, a multi-intent, and an adversarial example) in Appendix \ref{app:examples}. Section \ref{app:data-generation} describes the data generation pipeline.
+
+\subsection{Workflows}
+\label{app:data-workflows}
+
+The \textbf{Airline CSM} domain covers 50 scenarios across seven workflow categories backed by 15 tools. It is high-stakes and time-pressured, with heavy dependence on accurate transcription of named entities such as confirmation codes, flight numbers, and passenger names.
+
+The \textbf{Healthcare HRSD} domain covers 83 scenarios across 12 single-intent workflows backed by 47 tools, extended with dual-intent, triple-intent, and adversarial variants. It has the highest per-workflow complexity in \framework, averaging 8.7 expected tool calls per scenario. Its defining challenge is the density of named entities communicated over voice --- NPI numbers, DEA registration numbers, state license numbers, and OTP codes --- where a single transcription error can cascade into authentication or policy failures.
+
+The \textbf{Enterprise ITSM} domain covers 80 scenarios across 21 workflows backed by 59 tools, spanning single- to quadruple-intent and adversarial variants. Its defining characteristic is a branching flow structure, where incident workflows gate escalation on failed resolution attempts. Authentication is tiered across three levels --- standard, OTP-elevated, and manager-level --- reflecting the sensitivity of different workflows.
+
+\input{tables/08_appendix/c_data/01_domain_summary}
+
+
+%% ============================================================
+\subsection{Data Generation Pipeline}
+\label{app:data-generation}
+%% ============================================================
+
+\subsubsection*{Synthetic Data Generation with SyGra}
+
+Scenarios are generated using SyGra \cite{pradhan2025sygra}, a graph-based synthetic data generation pipeline. Each scenario requires three jointly consistent components: a user goal (including a decision tree that constrains the user simulator to a deterministic outcome), a scenario database (the backend state the agent's tools query and modify), and an expected final database state (the ground truth against which task completion is evaluated). Joint generation is essential: the expected final state must be consistent with both the user goal and the initial database. Independent generation would introduce silent inconsistencies; for example, a flight number referenced in the user goal that does not exist in the scenario database would corrupt the evaluation signal.
+
+Generation proceeds in the following stages:
+\begin{enumerate}
+    \item \textbf{Policy specification.} Domain policies and workflow constraints are defined and reviewed prior to generation.
+    \item \textbf{Joint generation.} SyGra generates user goals, initial databases, and expected final states jointly from a workflow graph, using GPT-5.2 as the generative backbone.
+    \item \textbf{Multi-intent composition.} Multi-intent scenarios 
+    are constructed by combining single-intent records into 
+    coherent multi-workflow user goals, with expected final states 
+    merged accordingly.
+    \item \textbf{Adversarial scenario design.} Adversarial scenarios 
+    are hand-designed around specific policy boundary conditions, 
+    then verified against tool executor behavior to confirm that the 
+    policy violation is achievable but detectable by a correctly 
+    behaving agent.
+\end{enumerate}
+
+\subsubsection*{Human Review}
+
+Following generation, all scenarios went through multiple rounds of manual review. Reviewers verified that: (1) policies were applied consistently across scenarios within a domain; (2) user goals were specific enough to admit exactly one correct resolution; (3) expected final states were internally consistent with both the user goal and the initial database; and (4) adversarial scenarios were correctly specified, with a clearly identifiable policy violation. Records identified as ambiguous or inconsistent were corrected or discarded.
+
+\subsubsection*{Frontier Model Stress Testing}
+
+As a final validation step, we ran three frontier models — OpenAI/Gpt-5.4, Google/Gemini 3.1 Pro, and Anthropic/Claude Opus 4.6 — on a text-only version of each scenario, bypassing the audio pipeline and providing conversation transcripts directly. For every scenario on which any model scored zero on task completion, we manually investigated whether the failure reflected genuine model error or a dataset issue: an ambiguous policy, an under-specified user goal, a bug in the tool executor, or an inconsistency between the initial and expected database states. Records with identified dataset issues were corrected or removed. All selected samples had a task completion of 1 on at least one of the frontier models. 
+
+This process provides high confidence that task completion failures in the full audio evaluation reflect real agent errors rather than evaluation artifacts.

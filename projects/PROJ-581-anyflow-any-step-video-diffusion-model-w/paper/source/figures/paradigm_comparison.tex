@@ -1,0 +1,7 @@
+\begin{figure}[!tb]
+  \centering
+  \includegraphics[width=\linewidth]{figures/src/paradigm_comparison.pdf}
+  \caption{\textbf{Comparison of Distillation Paradigms.} (a) Consistency distillation learns a fixed-point mapping from $\mathbf{z}_t$ to $\mathbf{z}_0$. Its backward simulation requires re-noising intermediate states, which causes trajectory drift under multi-step sampling. (b) Flow map distillation learns transitions from $\mathbf{z}_t$ to $\mathbf{z}_r$. Its backward simulation decomposes Euler sampling trajectories into shortcut segments and enables efficient simulation of transitions across different step sizes.
+  }
+  \label{fig:paradigm_comp}
+\end{figure}

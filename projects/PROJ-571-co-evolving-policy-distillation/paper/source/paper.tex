@@ -1,0 +1,89 @@
+\documentclass[]{jingdong}
+\usepackage[toc,page,header]{appendix}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+% \usepackage{minitoc}
+\usepackage{xspace}
+\input{common}
+%\newcommand{\theHalgorithm}{\arabic{algorithm}}
+\usepackage{cleveref}
+\usepackage{colortbl}
+\newcommand{\worst}[1]{\cellcolor{red!8}{#1}}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\usepackage{subcaption}
+\newtheorem{remark}[theorem]{Remark}
+\usepackage[textsize=tiny]{todonotes}
+\usepackage{fontawesome}
+\newcommand{\method}{\textsc{CoPD}\xspace}
+\newcommand{\fullmethod}{Co-Evolving Policy Distillation\xspace}
+\newcommand{\fjingdong}
+{\textsuperscript{\textcolor{green!60!black}{\fontsize{6pt}{6pt}\selectfont O}}}
+\newcommand{\fnju}{\textsuperscript{\fontsize{6pt}{6pt}\selectfont \faGraduationCap}}    
+
+\title{Co-Evolving Policy Distillation}
+{\small
+
+\author[1,2,*]{Naibin Gu}
+\author[1,2,*]{Chenxu Yang}
+\author[3,*]{Qingyi Si}
+\author[1,2]{Chuanyu Qin}
+\author[1,2]{Dingyu Yao}
+\authorbreak
+\author[1,2,\dagger]{Peng Fu}
+\author[1,2]{Zheng Lin}
+\author[1]{Weiping Wang}
+\author[3]{Nan Duan}
+\author[3]{Jiaqi Wang}
+
+\affiliation[1]{Institute of Information Engineering, CAS}
+\affiliation[2]{School of Cyber Security, UCAS}
+\affiliation[3]{JD.COM}
+
+\contribution[*]{Equal contribution.}
+\contribution[\dagger]{Corresponding author.}
+}
+
+\input{abstract}
+
+% \date{\today}
+\correspondence{\email{gunaibin@iie.ac.cn}; \email{fupeng@iie.ac.cn}; \email{siqingyi.phoebus@jd.com}}
+% \checkdata[Code]{\url{}}
+
+\begin{document}
+\maketitle
+
+\begin{figure*}[!ht]
+\centering
+\includegraphics[width=0.99\textwidth]{figs/copd-motivation.pdf}
+\vspace{-0.15cm}
+\caption{
+CoPD addresses the limitations of mixed-data RLVR (a) and static OPD (b) by letting two branches co-evolve as teachers and students across domains (c), achieving the best overall performance.
+}
+\label{fig:teaser}
+\end{figure*}
+
+\input{intro}
+\input{motivation-new}
+\input{method}
+\input{eval}
+\input{related}
+\input{conclusion}
+% \input{acknowledge}
+% \input{limitations}
+\clearpage
+\bibliographystyle{unsrtnat}
+% \bibliographystyle{plainnat}
+\bibliography{cite}
+
+% \clearpage
+% \beginappendix
+\input{appendix}
+\end{document}

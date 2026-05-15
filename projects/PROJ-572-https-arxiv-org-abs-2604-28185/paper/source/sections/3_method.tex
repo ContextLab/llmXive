@@ -1,0 +1,401 @@
+\section{Model, Architecture, and Method}\label{sec:method}
+
+This section answers three questions about how a frontier visual generation system is built. \Cref{sec:model_arch} asks how generation is mathematically modeled, tracing the historical progression from GANs through diffusion, flow matching, autoregressive, and hybrid AR$+$diffusion paradigms as a sequence of moves where each generation removes a key bottleneck of the previous one. \Cref{sec:arch_components} asks what components make up a system and how they cooperate, decomposing every modern model into an encoder/tokenizer, a backbone, a condition module, and a multimodal fusion module---a decomposition that increasingly turns generation and editing into two data flows through the same architecture. \Cref{sec:closed_source_frontier} asks what can be inferred when the strongest systems disclose only behavior rather than architecture: it turns the convergence and bifurcation observed in open reports into a future-facing discussion of closed-source agent loops, stronger upstream VLMs, and the system-level gaps that open models still need to close. The reader can treat this section as an entry point into the internals of today's frontier open- and closed-source systems, anchored to the L1--L5 capability levels of \Cref{sec:evolution}.
+
+\subsection{Foundational Generative Paradigms}
+\label{sec:model_arch}
+
+
+The history of generative modeling for images can be read as a sequence of paradigms, each one defined by the limitation of the previous generation it sets out to remove. \emph{Generative adversarial networks} (GANs)~\citep{goodfellow2014generativeadversarialnetworks} first demonstrated that a neural network could turn random noise directly into perceptually convincing images, but their adversarial training was notoriously unstable, prone to mode collapse, and difficult to scale beyond curated single-domain datasets. \emph{Diffusion models}~\citep{ho2020denoising,song2021scorebasedgenerativemodelingstochastic} answered exactly that limitation: by replacing the adversarial game with iterative denoising under a tractable likelihood objective, they made training stable and easy to scale to web-scale data; once paired with cross-attention conditioning as in LDM~\citep{rombach2022stablediffusion}, the same recipe also became amenable to text conditioning---at the cost of hundreds of sequential network evaluations per sample. \emph{Flow matching} and rectified flow~\citep{liu2022flow,lipman2023flowmatchinggenerativemodeling} then attacked precisely that sampling bottleneck by learning a straight-line transport between noise and data, which is simulation-free to train and integrable in only a handful of steps. In parallel, the rise of large language models motivated an \emph{autoregressive} reading of vision: LlamaGen~\citep{sun2024autoregressive} and VAR~\citep{tian2024visual} discretize images into tokens and predict them next-token or next-scale, while Chameleon~\citep{chameleon2024} and Emu3~\citep{wang2024emu3} push the same protocol to a fully unified multimodal token stream---trading some per-pixel fidelity for a single architecture that natively reasons across text and image. A prominent frontier direction is now \emph{hybridization}~\citep{chen2025blip3onext,cao2025hunyuanimage}: an autoregressive model decides \emph{what} to generate at the level of plan tokens, while a diffusion or flow model decides \emph{how} to render the corresponding pixels, combining AR's instruction-following with diffusion's per-pixel fidelity. \Cref{fig:paradigm_overview} summarizes the five paradigms side by side, allowing the reader to compare their core mechanisms before we examine each in detail.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{img/method/fig_model_timeline.pdf}
+    \caption{\textbf{Timeline of representative image generation models by generative paradigm.} Nodes are positioned by first public release month when available and grouped into GAN, diffusion / flow-matching, autoregressive, and hybrid categories. Hybrid nodes use both autoregressive and diffusion / flow colours to emphasize that recent frontier systems increasingly combine semantic planning with high-fidelity rendering.}
+    \label{fig:model_timeline}
+\end{figure*}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{img/method/fig_modeling_paradigms.jpg}
+    \caption{\textbf{Five generative-modeling paradigms at a glance.} \textbf{(1) GAN}: a generator $G$ maps noise $z$ to a fake image while a discriminator $D$ separates real from fake under an adversarial loss. \textbf{(2) Diffusion Model (DM)}: a forward chain $x_0 \to x_T$ adds noise; a learned reverse chain denoises along a curved sampling trajectory. \textbf{(3) Flow Matching (FM)}: noise is transported to data along a straight-line ODE trajectory, simulation-free to train and integrable in few steps. \textbf{(4) Autoregressive (AR)}: an image is discretized into tokens predicted next-token (raster) or next-scale (coarse-to-fine pyramid). \textbf{(5) Hybrid (AR + Diffusion)}: an AR planner emits plan tokens that condition a diffusion renderer producing the final image.}
+    \label{fig:paradigm_overview}
+\end{figure*}
+\subsubsection{GAN}
+
+
+\paragraph{Overview.}
+Generative Adversarial Networks (GANs)~\citep{goodfellow2014generativeadversarialnetworks} synthesize images by training a generator $G$ and a discriminator $D$ in a minimax game; while no longer the frontier paradigm, they remain industrially relevant for one-step inference and fine-grained latent control.
+
+\paragraph{Mathematical Formulation.}
+The original GAN objective is the minimax problem
+\begin{align}
+\min_G \max_D \; V(D,G)
+&= \mathbb{E}_{x \sim p_{\text{data}}}[\log D(x)]
+   + \mathbb{E}_{z \sim p_z}[\log(1 - D(G(z)))] ,
+\label{eq:gan}
+\end{align}
+which reaches equilibrium when $p_G = p_{\text{data}}$. In practice, the generator update is replaced by the non-saturating loss $\min_G \mathbb{E}_{z}[-\log D(G(z))]$ to avoid vanishing gradients early in training, and the WGAN family~\citep{arjovsky2017wassersteingan} swaps the Jensen--Shannon divergence for the Earth-Mover distance under a Lipschitz constraint to further stabilize the dynamics.
+
+\paragraph{Representative Work.}
+Subsequent research advanced GANs along four directions, each addressing a distinct limitation of the original minimax recipe. \emph{Training stability} is improved by Wasserstein and Lipschitz-controlled objectives (WGAN-GP~\citep{gulrajani2017improvedtrainingwassersteingans}, LSGAN~\citep{mao2017squaresgenerativeadversarialnetworks}, SN-GAN~\citep{miyato2018spectralnormalizationgenerativeadversarial}). \emph{Architectural scaling} progresses from convolutional DCGAN~\citep{radford2016unsupervisedrepresentationlearningdeep} through ProGAN~\citep{salimans2022progressive} and BigGAN~\citep{brock2019largescalegantraining} to the style-based StyleGAN family~\citep{karras2019stylebasedgeneratorarchitecturegenerative}, which introduced disentangled fine-grained control. \emph{Conditional control} extends GANs to label-, text-, or image-driven generation (Conditional/InfoGAN~\citep{chen2016infoganinterpretablerepresentationlearning}, CycleGAN~\citep{zhu2020unpairedimagetoimagetranslationusing}, Pix2Pix~\citep{isola2017image}). \emph{Fast inference} keeps GANs industrially relevant in the diffusion era through transformer-scale designs (GigaGAN~\citep{kang2023gigagan}), modernized adversarial objectives such as R3GAN~\citep{huang2025r3gan}, or by fusing adversarial losses with diffusion training to produce one-step samplers.
+
+\paragraph{Summary.}
+GANs have receded from the prompt-following frontier but remain the recipe of choice when one-shot synthesis speed and fine-grained latent control matter more than the broader instruction fidelity that diffusion-based systems now lead.
+
+\subsubsection{Diffusion and Flow Matching}
+
+\paragraph{Mathematical Formulation.}
+Both diffusion models and flow matching belong to the broader family of continuous-time generative models. They share a unifying principle: learning a deterministic or stochastic transformation between a simple tractable distribution $p_0$ (e.g., Gaussian noise) and the complex data distribution $p_1$.
+
+Diffusion models originally framed this as reversing a gradual noising process. A forward process corrupts data $x_1$ into noise $x_0$ over time, and the model learns a denoising network $\epsilon_\theta(x_t, t)$ to reverse it:
+\begin{equation}
+\min_\theta \mathbb{E}_{x_1, \epsilon, t} \left[ \| \epsilon - \epsilon_\theta(x_t, t) \|^2 \right].
+\end{equation}
+Crucially, as established by score-based SDEs~\citep{song2021scorebasedgenerativemodelingstochastic}, this reverse process can be described by a \emph{Probability Flow ODE}. This revealed that diffusion models are implicitly learning a vector field that defines the trajectory from noise to data.
+
+Flow Matching (FM) and Rectified Flow directly generalize this ODE perspective. Instead of relying on a predefined forward noising process, FM constructs a vector field that transports samples along explicit, often straighter, probability paths. Given $x_0 \sim p_0$ and $x_1 \sim p_1$, a simple linear interpolation is defined as:
+\begin{equation}
+x_t = (1 - t)\, x_0 + t\, x_1, \qquad t \sim \mathcal{U}[0,1].
+\end{equation}
+The target velocity along this path is straightforwardly $v_{\text{target}}(x_t, t) = x_1 - x_0$. The model directly learns this velocity field $v_\theta(x_t,t)$ via a simulation-free regression objective:
+\begin{equation}
+\mathcal{L}_{\text{FM}}(\theta) = \mathbb{E}_{x_0, x_1, t} \left[ \bigl\| v_\theta(x_t, t) - (x_1 - x_0) \bigr\|^2 \right].
+\end{equation}
+During inference, both paradigms generate data by solving their respective ordinary differential equations starting from $x_0 \sim p_0$.
+
+\paragraph{Representative Work.}
+DDPM~\citep{ho2020denoising} re-established likelihood-based image generation by learning a denoiser that inverts a fixed forward noising process, but its strong sample quality came with a major practical drawback: high-fidelity synthesis required hundreds to thousands of reverse steps. DDIM~\citep{songDDIM} showed that this sampling cost is separable from the training objective. By constructing a non-Markovian deterministic reverse trajectory, it retained DDPM training while reducing inference cost by an order of magnitude, making explicit that sampler design is an independent axis of innovation.
+
+Score-based SDE models~\citep{song2021scorebasedgenerativemodelingstochastic} pushed this insight further by recasting diffusion as a continuous-time stochastic process with an equivalent probability-flow ODE. This continuous-time view unified discrete diffusion, ODE solvers, and likelihood computation under a single framework, turning sampling into a numerical integration problem with an explicit accuracy--compute trade-off. Rectified Flow~\citep{liu2022flow} and Flow Matching~\citep{lipman2023flowmatchinggenerativemodeling} then shifted the focus from solving increasingly curved reverse trajectories to learning straighter transport paths directly. In particular, Flow Matching removed the need for expensive ODE simulation during training and made ODE-based generators practical at modern scale.
+
+Modern systems increasingly pair these objectives with transformer backbones. SD3~\citep{esser2024stablediffusion3} shows that rectified-flow objectives compose naturally with the transformer scaling recipe, yielding strong prompt fidelity and typography when combined with MM-DiT (the modality-aware DiT variant; we discuss its architecture in \Cref{sec:arch_backbone}). Diff2Flow~\citep{schusterbauer2025diff2flowtrainingflowmatching} further narrows the gap between diffusion and flow by converting pretrained diffusion checkpoints into flow-matching generators through schedule alignment. Taken together, the field has evolved from discrete denoising chains to a broader family of continuous transport models whose main practical question is no longer whether diffusion or flow is better in principle, but how to co-design objective, sampler, and backbone for low-NFE high-fidelity generation.
+
+
+
+\subsubsection{Autoregressive Models}
+
+\paragraph{Mathematical Formulation.}
+Autoregressive (AR) generative models produce sequences by predicting each token conditioned on all previously generated tokens. Given a sequence $x_{1:T} = (x_1, \ldots, x_T)$, an AR model factorizes the joint distribution as
+\begin{equation}
+p_\theta(x_{1:T}) = \prod_{t=1}^T p_\theta(x_t \mid x_{<t}),
+\end{equation}
+where $x_{<t} = (x_1, \ldots, x_{t-1})$ and $\theta$ denotes model parameters. In practice, this factorization is commonly implemented using a decoder-only Transformer trained to maximize the log-likelihood of observed sequences. During inference, generation proceeds sequentially by sampling from $p_\theta(x_t \mid x_{<t})$ until a termination condition, such as an end-of-sequence token, is reached.
+
+\paragraph{Representative Work.}
+Recent progress in autoregressive visual generation is better illustrated by image and multimodal systems than by text-only language models. LlamaGen~\citep{sun2024autoregressive} shows that a vanilla decoder-only transformer trained with next-token prediction on discrete image tokens can match diffusion baselines when paired with an effective tokenizer, sufficient scale, and strong data. VAR~\citep{tian2024visual} makes the AR recipe more efficient by replacing raster-scan prediction with next-scale prediction in a coarse-to-fine hierarchy, reducing the effective sequence length and becoming the first AR model to surpass DiT in both FID and generation speed.
+
+A second wave extends the same next-token objective from pure image synthesis to unified multimodal modeling. Chameleon~\citep{chameleon2024} and Emu3~\citep{wang2024emu3} treat images and text as a single mixed-modal token stream, showing that early-fusion autoregression can support both understanding and generation without a dedicated diffusion decoder. Janus-Pro~\citep{chen2025janusprounifiedmultimodalunderstanding}, BAGEL~\citep{deng2025bagelemerging}, and OmniMamba~\citep{zou2025omnimamba} scale this idea further through better training data, larger unified token streams, and more efficient sequence backbones. The resulting picture is that AR models are most compelling when the goal is not only image synthesis, but also sharing a common token protocol with language and multimodal reasoning. We discuss the architectural mechanisms that enable this multimodal unification---token-stream design, encoder decoupling, and fusion strategies---in \Cref{sec:arch_fusion}.
+
+\subsubsection{Hybrid AR + Diffusion/Flow Models}
+\label{sec:hybrid_ar_diff}
+
+\paragraph{Formulation.}
+Hybrid systems explicitly separate semantic planning from visual rendering. A common factorization introduces an intermediate plan $z$:
+\begin{equation}
+p_{\theta}(x \mid c) = \int p_{\phi}(z \mid c)\, p_{\psi}(x \mid z, c)\, dz,
+\end{equation}
+where an autoregressive model predicts the plan $z$---for example, a mixed-modal token sequence, semantic layout, or continuous latent prefix---and a diffusion or flow model renders high-fidelity visual details conditioned on that plan. The motivation is pragmatic: AR models naturally support causal reasoning, long-context instruction following, and tight integration with language, while diffusion/flow models remain stronger at spatially coherent, high-fidelity synthesis.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figs/paradigm_landscape.pdf}
+    \caption{Paradigm landscape of representative visual generation architectures. Methods are positioned by their generative mechanism: diffusion/flow matching (\textit{left}), autoregressive (\textit{right}), and adversarial (\textit{bottom}). The central overlap hosts hybrid architectures that combine diffusion and autoregressive components. $\bigstar$ denotes unified models that jointly support visual understanding and generation.}
+    \label{fig:paradigm_landscape}
+\end{figure*}
+
+
+
+
+\paragraph{Representative Work.}
+Transfusion~\citep{zhou2024transfusion} is a canonical early-fusion design: it interleaves discrete text tokens and continuous image latents within one transformer, using cross-entropy for text and diffusion loss for image patches. MonoFormer~\citep{zhao2024monoformer} pushes the shared-backbone idea further by using a pretrained LLM-style transformer for both AR text generation and latent diffusion image generation, switching only the attention mask and prediction head: causal attention with an AR head for text, and bidirectional attention with a diffusion head for noised VAE latents.
+Show-o~\citep{xie2024showo} reaches a similar goal through attention-mask switching, unifying AR text generation and discrete diffusion image generation in one backbone; Show-o2~\citep{xie2025showo2} updates the image branch to flow matching in a 3D causal VAE space. JanusFlow~\citep{ma2024janusflow} combines an AR LLM with rectified flow through decoupled visual encoders and representation alignment, while BLIP3o-NEXT~\citep{chen2025blip3onext} adopts an explicit cascade in which an AR stage plans semantics and a diffusion stage renders pixels from AR hidden states. MAR~\citep{li2024mar} and NextStep-1~\citep{team2025nextstep1} make the coupling even tighter by retaining an AR backbone but replacing the categorical token head with token-wise diffusion over continuous latents.
+
+Across these methods, the shared conclusion is not that AR should replace diffusion, or vice versa, but that the two families solve different subproblems. Hybridization is therefore a central design pattern, not a niche exception---and the same ``AR plans, diffusion renders'' division reappears at the system level, prefiguring the L4 agentic-generation regime of \Cref{sec:evolution} and the closed-source agent loop discussed in \Cref{sec:closed_source_frontier}.
+
+
+\begin{table*}[!htp]
+\centering
+\caption{\textbf{Component-level morphology of representative visual generation architectures.} A \cmark{} marks a defining design choice; \xmark{} indicates the component is not used. The table is intentionally schematic: a checkmark denotes the \emph{primary} component of each method, not the only possible configuration. AR = Autoregressive; Rect.\ Flow = Rectified Flow. This table presents methods through a \emph{modeling-paradigm} lens (objective $+$ backbone $+$ representation $+$ conditioning); the complementary \Cref{tab:unified_methods} re-examines a partly overlapping set of methods through a \emph{multimodal-fusion} lens, so paper overlap reflects two views of the same systems rather than redundancy.}
+\label{tab:arch_morphology}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.20}
+\resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}l l ccc cccc ccccc@{}}
+        \toprule[1pt]
+        \multirow{2}{*}[-8ex]{\textbf{Method}} & \multirow{2}{*}[-8ex]{\textbf{Objective}} &
+        \multicolumn{3}{c}{\textbf{Backbone}} &
+        \multicolumn{4}{c}{\textbf{Representation}} &
+        \multicolumn{5}{c}{\textbf{Conditioning}} \\
+        \cmidrule(lr){3-5} \cmidrule(lr){6-9} \cmidrule(lr){10-14}
+        & &
+        \rotatebox{70}{Conv/U-Net} & \rotatebox{70}{Transformer} & \rotatebox{70}{SSM} &
+        \rotatebox{70}{Pixel} & \rotatebox{70}{VAE latent} & \rotatebox{70}{SSL/RAE latent} & \rotatebox{70}{Discrete VQ} &
+        \rotatebox{70}{Cross-attn} & \rotatebox{70}{AdaLN / Embed.} & \rotatebox{70}{Dual-stream} & \rotatebox{70}{Unified token} & \rotatebox{70}{AR$\rightarrow$Diff} \\
+        \midrule
+        LDM~\citep{rombach2022stablediffusion}           & Diffusion    & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark \\
+        DiT~\citep{peebles2023scalable}                   & Diffusion    & \xmark & \cmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark \\
+        SD3 / MM-DiT~\citep{esser2024stablediffusion3}             & Rect.\ Flow  & \xmark & \cmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark & \xmark \\
+        RAE-DiT~\citep{zheng2025rae}                      & Diffusion    & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark \\
+        SVG~\citep{shi2025svg}                            & Diffusion    & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark \\
+        JiT~\citep{li2025back}                            & Diffusion    & \xmark & \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark \\
+        R3GAN~\citep{huang2025r3gan}                      & Adversarial  & \xmark & \cmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+        LlamaGen~\citep{sun2024autoregressive}            & AR           & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+        VAR~\citep{tian2024visual}                        & AR           & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+        Janus-Pro~\citep{chen2025janusprounifiedmultimodalunderstanding} & AR & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+        Bridge~\citep{wang2025bridge}                     & AR           & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+        OmniMamba~\citep{zou2025omnimamba}                & AR           & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+        Transfusion~\citep{zhou2024transfusion}           & Hybrid       & \xmark & \cmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+        Monoformer~\citep{zhao2024monoformer} & Hybrid & \xmark & \cmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\
+        
+        BLIP3o-NEXT~\citep{chen2025blip3onext}            & Hybrid       & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \cmark & \xmark & \cmark & \cmark \\
+        \bottomrule[1pt]
+    \end{tabular}%
+}
+\end{table*}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/method/fig_unified_architecture.jpg}
+    \caption{\textbf{The unified architecture for visual generation and editing.} A modern visual generation / editing pipeline contains an encoder / tokenizer, condition routing, a generative backbone, and an output decoder arranged left-to-right. \textbf{(1) Encoder / Tokenizer} accepts heterogeneous inputs (text prompt, optional reference image, optional source image, optional structural conditions such as depth / edge / layout) via VAE, VQ, SigLIP, or CLIP. \textbf{(2) Condition Module} routes the encoded condition into the backbone through AdaLN modulation, cross-attention, or in-context concatenation. \textbf{(3) Backbone} (DiT, MM-DiT, or AR-transformer) does the heavy compute. \textbf{(4) Decoder} (VAE / VQ / pixel) produces the final image. The decoder is shown as the output endpoint, but its design is tied to the representation choice; the four axes analyzed below are representation, backbone, condition routing, and multimodal fusion. The same pipeline supports both \emph{T2I} (text $\to$ generated image, blue path) and \emph{editing} (text $+$ source image $\to$ edited image, red path)---only the inputs entering the encoder and condition module differ.}
+    \label{fig:unified_arch}
+\end{figure*}
+\subsection{Architecture Components}
+\label{sec:arch_components}
+
+
+
+Beyond cataloging components, this subsection delivers a single message: \emph{generation and editing have collapsed into the same architecture}. As recently as 2024, image editing was almost always a separate paper with its own backbone fork; within roughly a year, the clear majority of frontier open- and closed-source systems present T2I and editing as two data flows through one model, where the task is determined entirely by what enters the encoder and condition module rather than by a different network (\Cref{fig:unified_arch}). Three camps achieve this unification differently. The \emph{DiT camp}~\citep{seedream2025seedream,wu2025qwen,cai2025z,jdjoyaiimage,team2025longcat,mao2026wan} injects reference images as VAE-latent tokens disambiguated by 3D-RoPE and a different timestep, then trusts MM-DiT to absorb both flows. The \emph{AR camp}~\citep{cao2025hunyuanimage,team2026longcat} treats every image as a token sequence so that T2I and editing become different contexts to the same next-token predictor. The \emph{hybrid camp}~\citep{chen2025blip3onext} factorizes into an MLLM planner and a DiT visualizer that share an attention backbone. Each camp resolves a different open trade-off: DiT systems inherit a mature distillation toolchain that dominates the few-step inference frontier, while discrete-AR systems argue that their finite-MDP structure makes reinforcement learning more natural. The active question in this corner of the field is no longer \emph{whether} to unify, but \emph{which mechanism} delivers the better Pareto frontier.
+
+\begin{highlightbox}{Community Message: Edit Unification in One Year}
+
+A year ago Seedream~3.0~\citep{gao2025seedream} (early 2025) treated image editing as a separate paper from text-to-image; today, by Wan-Image~\citep{mao2026wan} and LongCat-Next~\citep{team2026longcat} (spring 2026), \emph{60\% of recent frontier reports ship a fully unified architecture}\footnote{The cohort consists of ten public 2025--2026 image-generation tech reports we read side by side: Seedream~3.0~\citep{gao2025seedream}, Seedream~4.0~\citep{seedream2025seedream}, HunyuanImage~3.0~\citep{cao2025hunyuanimage}, Qwen-Image~\citep{wu2025qwen}, Z-Image~\citep{cai2025z}, LongCat-Image~\citep{team2025longcat}, FireRed-Image-Edit-1.0~\citep{team2026firered}, JoyAI-Image~\citep{jdjoyaiimage}, LongCat-Next~\citep{team2026longcat}, and Wan-Image~\citep{mao2026wan}.} where T2I, I2I, and instruction-based editing share the same backbone. The debate has shifted from \emph{whether} to unify to \emph{which mechanism} unifies best: a DiT-style triplet (VAE + RoPE + timestep injection of the reference) versus an AR-style ``image-as-token, task decided by context'' framing, with hybrid bets like Wan-Image splitting the difference. The largest open trade-off is \textbf{distillation-friendliness vs.\ RL-friendliness}: AR-style unification is easier to RL but harder to compress to few steps; DiT-style unification is the reverse. This single trade-off shapes which design will dominate the 2026 cohort, and is currently the most consequential unsolved question in image-generation architecture.
+\end{highlightbox}
+
+
+The four axes below are largely orthogonal (\Cref{tab:arch_morphology}): the same backbone can sit on top of VAE latents or discrete tokens, and the same condition module serves both diffusion and autoregressive backbones, which is what most new methods exploit by innovating on one or two axes while inheriting established designs on the others. The output decoder is still part of the pipeline, but because its VAE / VQ / pixel choice is tied to representation, we discuss it under encoder/tokenizer rather than as a standalone axis.
+
+\begin{enumerate}[leftmargin=*,itemsep=2pt]
+    \item \textbf{Encoder / Tokenizer} (\S\ref{sec:arch_encoder}): the entry point of the pipeline. It maps raw pixels into a compact representation space---continuous latents or discrete tokens---where generation becomes computationally tractable.
+    \item \textbf{Backbone network} (\S\ref{sec:arch_backbone}): the central compute unit that operates in the encoded space, parameterizing the denoising step (diffusion), velocity prediction (flow matching), next-token generation (autoregressive), or a staged combination of these primitives (hybrid models).
+    \item \textbf{Condition module} (\S\ref{sec:arch_condition}): translates external control signals (text prompts, spatial maps, reference images) into features that steer the backbone's output toward user intent.
+    \item \textbf{Multimodal fusion module} (\S\ref{sec:arch_fusion}): determines \emph{where} and \emph{how} information from different modalities interacts within the backbone, from simple cross-attention injection to fully unified token streams.
+\end{enumerate}
+
+
+
+
+
+
+\subsubsection{Encoder, Tokenizer, and Representation Space}
+\label{sec:arch_encoder}
+
+Generating images directly in pixel space is computationally prohibitive: a $512 \times 512$ RGB image has $786{,}432$ dimensions. The encoder (or tokenizer) is the \emph{entry point} of the generation pipeline---it maps raw pixels into a compact representation space where the backbone can operate efficiently. The encoder thus controls a fundamental trade-off: aggressive compression speeds up generation but may lose fine-grained visual details; conservative compression preserves fidelity but limits scalability. The choice of representation is therefore not merely a preprocessing detail: it determines which objectives are natural (reconstruction, next-token prediction, or noise/velocity prediction), how efficiently the backbone scales, and whether understanding and generation can share a common token protocol.
+
+\paragraph{Continuous Latents: VAE and Beyond.}
+The dominant approach for diffusion-based models is the \emph{variational autoencoder} (VAE). LDM~\citep{rombach2022stablediffusion} trains a KL-regularized autoencoder that compresses images by $8\times$ spatially, achieving a near-optimal balance between complexity reduction and perceptual fidelity. Generation then occurs entirely in this latent space, reducing the backbone's computational burden by $64\times$.
+
+A recent trend moves beyond trainable encoders toward \emph{representation-first} designs that leverage frozen pretrained models. RAE~\citep{zheng2025rae} replaces the VAE encoder with frozen discriminative features (e.g., DINOv2, SigLIP) and trains only a lightweight decoder, finding that DiT models converge substantially faster on these semantically rich latents. SVG~\citep{shi2025svg} pushes this further by removing the VAE entirely, performing diffusion directly on frozen DINOv2 features with a residual branch for pixel recovery. REPA~\citep{yu2024representation} takes a complementary approach: rather than replacing the encoder, it adds an auxiliary alignment loss during training that pulls noisy intermediate denoiser states toward clean-image representations from a pretrained encoder, improving training efficiency and generation quality without any architectural change.
+
+\paragraph{Discrete Tokens: VQ for Autoregressive and Unified Models.}
+Autoregressive generation requires a discrete vocabulary. Vector-quantized (VQ) tokenizers map image patches to codebook entries, enabling standard next-token prediction. The codebook quality directly limits generation fidelity: VAR~\citep{tian2024visual} requires a multi-scale VQ-VAE producing hierarchical token maps at multiple resolutions so the backbone can perform its next-scale prediction.
+
+An active frontier is \emph{multimodal tokenization}---designing token spaces that serve both vision and language. TokenFlow~\citep{qu2024tokenflow} uses a dual-codebook design to decouple semantic and pixel-level information while preserving alignment between them. ``Vision as a Dialect''~\citep{han2025vision} introduces TA-Tok, whose codebook is projected from an LLM vocabulary so that image and text tokens share a discrete semantic space. Bridge~\citep{wang2025bridge} proposes a semantic-to-pixel discrete representation: a short semantic-token prefix followed by a longer pixel-token suffix, guiding the model to plan semantics before filling details. Janus-Pro~\citep{chen2025janusprounifiedmultimodalunderstanding} resolves the same invariance-versus-variance tension through separate visual encoders---SigLIP for understanding and VQ tokens for generation---behind a shared AR backbone. UAE~\citep{yan2025uae} pushes the bottleneck further by treating text as the shared interface between image understanding and image generation. Industrial-scale autoregressive systems push tokenization further still with \emph{residual VQ} (RVQ), which interleaves multiple codebook lookups per patch to recover fidelity that a single codebook would lose: LongCat-Next's dNaViT tokenizer~\citep{team2026longcat} stacks eight residual codebooks of size $16{,}384$ at $28\times$ spatial compression and dispenses with a VAE entirely, supplying both image and (separately quantized) audio tokens directly to the AR backbone.
+
+\paragraph{Can We Skip the Tokenizer Entirely?}
+JiT~\citep{li2025back} challenges the encoder paradigm by feeding raw pixel patches directly to a transformer. While this sacrifices latent-space efficiency, it eliminates reconstruction artifacts entirely---an appealing property when pixel-level fidelity matters (e.g., medical imaging or document generation).
+
+\paragraph{Representation Trend.}
+Viewed together, recent representation designs trace a clear progression: VAE latents minimize compute for diffusion, discrete codebooks enable AR scaling and multimodal token sharing, SSL-aligned latents inject stronger semantics into diffusion backbones, and tokenizer-free pixel representations eliminate reconstruction artifacts altogether. Representation choice has therefore become a co-evolving part of the model design rather than a fixed front-end. In practice, the VAE itself remains unsettled at the frontier: FLUX-VAE~\citep{labs2025flux1kontextflowmatching}, the Wan-2.1 VAE adopted by Qwen-Image~\citep{wu2025qwen} (single-encoder dual-decoder, decoder fine-tuned for text-rich domains), self-trained 4-channel RGBA designs (Wan-Image~\citep{mao2026wan}, with $16\times$ compression and 48 latent channels), and VAE-free RVQ tokenizers (LongCat-Next) all coexist across 2026 reports, indicating that compression ratio, latent dimension, and reconstruction-fidelity trade-offs still carry unresolved choices.
+
+
+\subsubsection{Backbone Networks}
+\label{sec:arch_backbone}
+
+Given the encoded representation---whether continuous latents from a VAE or discrete tokens from a VQ codebook---the backbone is the central compute unit that performs the actual generation: denoising (diffusion), velocity prediction (flow matching), or next-token generation (autoregressive). The choice of backbone determines the model's \emph{inductive bias} (local vs.\ global reasoning), \emph{scaling behavior} (how quality improves with compute), and \emph{inference speed}. The field has evolved through three generations, each unlocking new capabilities.
+
+\paragraph{From U-Net to Transformer: The Scaling Transition.}
+Early diffusion models adopted the convolutional U-Net architecture, whose hierarchical feature pyramids naturally match multi-resolution image statistics. LDM (Stable Diffusion)~\citep{rombach2022stablediffusion} made this practical at scale by performing diffusion in a compressed latent space rather than pixel space, with text conditioning injected via cross-attention layers. However, U-Nets lack the predictable compute--quality scaling later observed in transformer backbones.
+
+DiT~\citep{peebles2023scalable} addressed this by replacing the U-Net entirely with a plain vision transformer operating on patchified latents. The key finding was \emph{monotonic FID improvement with increasing FLOPs}, establishing that transformer-based diffusion follows predictable scaling laws analogous to those in language modeling. Conditioning is provided through \emph{adaptive layer normalization} (AdaLN), which regresses scale and shift parameters from a timestep-class embedding---lighter than cross-attention and sufficient for class-conditional generation.
+
+SD3~\citep{esser2024stablediffusion3} extended this with the \emph{MM-DiT} (Modality-aware DiT) architecture, which maintains separate weight streams for text and image tokens while enabling bidirectional information exchange via joint attention. This dual-stream design substantially improved text comprehension and typography fidelity, establishing the architectural template adopted by subsequent industrial systems such as the FLUX family~\citep{labs2025flux1kontextflowmatching}. Two recent variants probe the limits of the dual-stream choice. Z-Image~\citep{cai2025z} is a notable counter-move: its S3-DiT (Single-Stream DiT) collapses MM-DiT's dual streams back into a single attention path, arguing that a stronger upstream VLM and tighter data curation make modality-specific weights redundant---an explicit test of whether the MM-DiT gain is structural or compensatory. A complementary backbone-internal hybrid keeps MM-DiT layers in the lower stack and switches to single-stream DiT in the upper stack once cross-modal binding has been established (FLUX.1-dev style, adopted by LongCat-Image~\citep{team2025longcat} with a 10:20 ratio of MM-DiT to single-stream blocks).
+
+\paragraph{Autoregressive Backbones: Unifying Language and Vision.}
+A parallel line of work reframes image generation as a sequence prediction problem, enabling direct reuse of language model architectures. LlamaGen~\citep{sun2024autoregressive} demonstrated that a standard decoder-only transformer with next-token prediction on discrete image tokens can match diffusion baselines given sufficient scale, validating visual scaling laws for the autoregressive paradigm. VAR~\citep{tian2024visual} introduced a more efficient generation order: instead of raster-scan token prediction, it performs \emph{next-scale prediction} in a coarse-to-fine hierarchy, reducing effective sequence length from $\mathcal{O}(n^2)$ to $\mathcal{O}(n\log n)$---the canonical AR backbone alternative to raster-scan, with the FID and speed comparison against DiT discussed earlier in \Cref{sec:model_arch}.
+
+\paragraph{Emerging Architectures.}
+Beyond transformers, several alternative backbones have emerged. OmniMamba~\citep{zou2025omnimamba} builds on the Mamba-2 state-space model, reporting up to $119.2\times$ speedup and $63\%$ GPU-memory reduction relative to Transformer-based counterparts on long-sequence generation---particularly relevant for high-resolution generation where sequence lengths explode, a regime that becomes the binding constraint at L3 in-context generation in \Cref{sec:evolution}. At the other extreme, JiT~\citep{li2025back} demonstrates that pixel-space transformers operating \emph{without any tokenizer} can achieve competitive quality when switching from noise prediction to direct $x$-prediction, trading latent-space efficiency for elimination of reconstruction artifacts. Hybrid model families are also gaining traction, but their main novelty lies in how they factorize planning and rendering rather than in a wholly new backbone primitive; we therefore discuss them at the paradigm level in \Cref{sec:hybrid_ar_diff}.
+
+\paragraph{Sparse-Expert Backbones.}
+A second axis along which 2026 frontier systems split is parameter sparsity. HunyuanImage~3.0~\citep{cao2025hunyuanimage} routes through a 64-expert, top-8 mixture-of-experts with 80B total / 13B active parameters, and LongCat-Next~\citep{team2026longcat} applies the same sparse-expert recipe to a discrete-AR backbone with 68.5B total / A3B active parameters. The bet is capacity without proportional inference cost; the cost is router stability and a heavier training pipeline. Sparse-expert vision backbones remain rare relative to dense designs---Qwen-Image~\citep{wu2025qwen}, Z-Image~\citep{cai2025z}, Seedream~\citep{seedream2025seedream}, and LongCat-Image~\citep{team2025longcat} all stay dense---indicating that the MoE-versus-dense trade-off is not yet settled at the frontier, and that the MoE bet is currently concentrated in systems that already commit to AR-style backbones where sparse routing composes naturally with token-level prediction.
+
+
+\subsubsection{Condition Module}
+\label{sec:arch_condition}
+
+
+A generative model without conditioning produces random samples from the learned distribution. The condition module is what makes generation \emph{controllable}: it translates external signals---text prompts, spatial or visual conditions, reference images, or class labels---into features that steer the backbone's output toward user intent. To achieve this systematically without disrupting the underlying modeling objective, modern architectures decouple this process into two fundamental stages: \emph{Condition Feature Extraction} (how to encode the external signal) and \emph{Feature Injection} (how to fuse it into the backbone).
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{img/method/fig_condition_routes.pdf}
+    \caption{\textbf{Three condition injection routes in modern transformer-based generators.} \textbf{(a) AdaLN modulation}: condition $c$ predicts scale and shift parameters of LayerNorm via a small MLP (used in DiT). \textbf{(b) Cross-attention}: condition $c$ flows into the K/V of an additional cross-attention layer (used in Stable Diffusion's U-Net, IP-Adapter). \textbf{(c) In-context concatenation}: condition tokens are prepended to image tokens in the same sequence and processed by self-attention (used in MM-DiT, OmniGen, Bridge). }
+    \label{fig:condition_routes}
+\end{figure}
+
+\paragraph{Condition Feature Extraction.}
+The first step is transforming raw conditional inputs into a latent representation compatible with the generative backbone. Depending on the complexity and modality of the condition, three dominant extraction paradigms have emerged:
+\begin{itemize}
+    \item \textbf{Adapter on Copied Backbone:} For spatially dense conditions (e.g., depth maps, edge maps, or poses), preserving exact spatial alignment is critical. Methods like ControlNet~\citep{zhang2023controlnet} and SCEdit~\citep{jiang2024scedit} freeze the pretrained backbone and attach a trainable, initialized-to-zero copy to extract spatial features. ControlNet++~\citep{controlnet++} further refines this by incorporating a discriminative reward model to enforce cycle consistency between input conditions and generated outputs, ensuring higher fidelity in spatial extraction.
+    CoLoGen~\citep{song2026cologen} frames unified conditional generation as a representation-conflict problem, separating concept-level semantics from localization-level spatial control instead of forcing all conditions through a single shared adapter.
+    \item \textbf{Frozen Vision Foundation Models (VFMs):} When the condition is a reference image requiring semantic or identity preservation, models typically leverage frozen pretrained VFMs (e.g., CLIP, SigLIP, or VAEs). 
+    Lumina-mGPT~\citep{liu2024luminamgpt} relies on a VQ-VAE-style image tokenizer to convert images into discrete tokens, enabling a decoder-only mGPT to autoregressively model interleaved text--image sequences.
+    Explanatory Instructions~\citep{shen2024explanatory} builds on a token-based AR VLM with an image tokenizer/de-tokenizer, using linguistic transformations between tokenized input-output images to unify diverse vision tasks.
+    IP-Adapter~\citep{ye2023ip} extracts global CLIP image embeddings, while recent unified frameworks (OmniGen~\citep{wu2025omnigen2}, Qwen-Image~\citep{wu2025qwen}, Z-Image~\citep{cai2025z}) extract VAE latents and SigLIP patch features in parallel to represent visual prompts. The two streams are complementary: VLM-derived semantic features carry instruction intent (\emph{what} to draw), while VAE-derived pixel features preserve fine-grained appearance (\emph{how} it should look)---a division of labor that the Qwen-Image report identifies as the source of its TI2I gains.
+    \item \textbf{Adapter on Vision-Language Models (VLMs):} As editing tasks become more complex, simple visual or textual extraction is insufficient. Recent methods employ powerful VLMs to perform reasoning before conditioning. Systems like Step-1X-Edit~\citep{liu2025step1xedit}, Query-Kontext~\citep{song2025query} and Qwen-Image-Edit~\citep{wu2025qwen} use VLMs to parse complex instructions and extract reasoning-aware conditional features. Similarly, Bridge~\citep{wang2025bridge} introduces semantic planning tokens generated prior to rendering, guiding the backbone with high-level semantic intent.
+\end{itemize}
+
+\paragraph{Feature Injection Mechanisms.}
+Once the conditional features are extracted, they must be routed into the backbone. The choice of injection mechanism dictates the trade-off between expressiveness, computational cost, and modularity:
+\begin{itemize}
+    \item \textbf{Feature-wise Addition:} The most direct approach for spatially aligned features is to add the extracted condition directly to the intermediate feature maps. ControlNet and SCEdit utilize this mechanism, bypassing complex attention calculations while ensuring strict spatial constraint propagation.
+    \item \textbf{Cross-Attention:} Popularized by LDM~\citep{rombach2022stablediffusion}, this projects conditioning embeddings into key-value pairs that attend to the backbone's queries. While IP-Adapter and InstantID~\citep{wang2024instantid} use separate cross-attention layers, SD3~\citep{esser2024stablediffusion3} employs dual-stream joint attention, allowing the image and text branches to attend to each other bidirectionally, which substantially improves typography and prompt adherence.
+    \item \textbf{In-Context Self-Attention:} In unified autoregressive and DiT-based models, conditioning is treated as a token-level protocol. Extracted condition tokens are prepended or interleaved with generation tokens and processed jointly via shared self-attention. This is the core mechanism in OmniGen, Qwen-Image, and Z-Image. OmniMamba~\citep{zou2025omnimamba} enhances this with decoupled modality vocabularies and task-specific LoRA adapters. MMaDA~\citep{yang2025mmada} shows that the same token-level protocol can also be realized in a unified diffusion backbone, where modality-agnostic tokens are denoised jointly rather than decoded causally.
+\end{itemize}
+
+\paragraph{Reference-Image Injection in Unified Models.}
+When the same model serves both T2I and editing, the source image must be routed into the backbone in a way that does not collide with the noised target. Five mechanisms have emerged across recent frontier reports, and they are stackable rather than mutually exclusive. \emph{(i)} \textbf{VAE-latent token concat}: source latents are concatenated with noised target latents along the sequence dimension (Seedream~4.0~\citep{seedream2025seedream}, Qwen-Image, JoyAI-Image~\citep{jdjoyaiimage}, FireRed~\citep{team2026firered}). \emph{(ii)} \textbf{VLM/MLLM dual-stream}: the source additionally passes through a VLM (Qwen2.5-VL, SigLIP~2) whose semantic features supplement the text condition (Qwen-Image, Z-Image-Edit~\citep{cai2025z}). \emph{(iii)} \textbf{3D-RoPE temporal-axis separation}: reference and target tokens share spatial $(x,y)$ RoPE coordinates but differ on a temporal axis, letting attention disambiguate them (Z-Image-Edit, FireRed, Wan-Image~\citep{mao2026wan}). \emph{(iv)} \textbf{Different timestep conditioning}: the clean reference uses $t{=}0$ while the noisy target uses a normal timestep, exposing the cleanliness gap to the denoiser. \emph{(v)} \textbf{Context-as-prefix}: in pure-AR systems (HunyuanImage~3.0~\citep{cao2025hunyuanimage}, LongCat-Next~\citep{team2026longcat}), the source-image tokens simply precede target tokens as context, with no special routing. The mechanisms are routinely combined: FireRed pairs (i) with (iii), and Wan-Image stacks (i), (iii), and (iv).
+
+\paragraph{Global Modulation and Inference-Time Mechanisms.}
+Beyond spatial and token-level injection, models rely on specialized mechanisms to handle global context and inference-time signal amplification:
+\begin{itemize}
+    \item \textbf{Adaptive Layer Normalization (AdaLN):} Introduced in DiT~\citep{peebles2023scalable}, AdaLN handles global conditions such as timesteps, class labels, and pooled text embeddings. It regresses scale and shift parameters from the condition to modulate feature statistics, providing a lightweight alternative to attention-based injection. SD3~\citep{esser2024stablediffusion3} combines AdaLN for timestep and class conditioning with attention-based injection for text, achieving both efficiency and expressiveness.
+    \item \textbf{Classifier-Free Guidance (CFG):} CFG~\citep{ho2022classifier} is an \emph{inference-time} strategy rather than an architectural module. By jointly training conditional and unconditional branches, the model linearly extrapolates score estimates during sampling to amplify the conditioning signal. Increasing the guidance scale improves prompt adherence at the cost of reduced diversity. CFG remains the primary tool for controlling the fidelity-diversity trade-off across virtually all modern generation pipelines.
+\end{itemize}
+
+\paragraph{Inference-Time Prompt Rewriting.} Beyond architectural injection mechanisms, frontier systems increasingly augment the text condition itself before it ever reaches the encoder. The Prompt Engineering (PE) module---typically a small fine-tuned VLM such as Qwen3-VL-2B in Wan-Image, Seed1.5-VL in Seedream~3.0/4.0~\citep{gao2025seedream,seedream2025seedream}, or a Gemini-class router---rewrites a user's short query into a long detailed prompt aligned with the training distribution, performs task routing (T2I vs.\ editing vs.\ multi-reference), and optionally injects a chain-of-thought reasoning trace; Wan-Image's dual-mode design, for instance, uses a non-CoT 2B model for short prompts and a CoT 30B-A3B model for complex requests. PE is therefore not an architectural component of the generation backbone; it is an \emph{inference-time conditioning preprocessor} that ensures the gen model receives prompts of the form it was trained on. This explains why high-quality short-prompt performance often correlates more with PE module quality than with backbone capacity---a non-trivial industrial observation.
+
+\subsubsection{Multimodal Fusion Module}
+\label{sec:arch_fusion}
+
+
+As visual generation systems increasingly integrate language understanding and image synthesis within a single model, a critical architectural question emerges: \emph{at what stage should information from different modalities begin to interact?} The fusion module answers this question. Following the taxonomy introduced by Transfusion~\citep{zhou2024transfusion}, we distinguish between \emph{late fusion} (modalities processed independently until a final combination stage) and \emph{early fusion} (modalities interacting within the backbone's internal layers). The trend is decisively toward early fusion, but the degree of parameter sharing varies widely---from fully shared transformers to architectures that maintain separated processing streams while still enabling early-stage cross-modal interaction.
+
+\Cref{tab:unified_methods} summarizes representative unified architectures along this fusion axis. We intentionally keep alignment-only methods out of this summary: once the question shifts from \emph{where modalities meet} to \emph{how a unified model is post-trained to balance understanding and generation}, the emphasis moves from architecture to alignment, which is discussed in \Cref{subsec:post_training}.
+
+\begin{table*}[t]
+\centering
+\caption{\textbf{Representative unified understanding-and-generation architectures.} \emph{Fusion strategy} indicates where modalities first interact; \emph{visual repr.} denotes the generation-side representation; \emph{gen.\ mechanism} specifies how images are synthesized. Alignment-only methods are discussed separately in \Cref{subsec:post_training}. This table is the multimodal-fusion-lens companion to the modeling-paradigm-lens \Cref{tab:arch_morphology}; the two views overlap on shared papers by design.}
+\label{tab:unified_methods}
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}l c l l l l@{}}
+\toprule
+\textbf{Method} & \textbf{Year} & \textbf{Fusion Strategy} & \textbf{Visual Repr.} & \textbf{Gen.\ Mechanism} & \textbf{Key Innovation} \\
+\midrule
+Chameleon~\citep{chameleon2024}            & 2024 & Unified token stream     & Discrete VQ              & AR next-token         & Early-fusion mixed-modal training recipe \\
+Transfusion~\citep{zhou2024transfusion}    & 2024 & Unified token stream     & Continuous latent        & AR + Diffusion        & Hybrid loss: CE (text) + diffusion (image) \\
+Show-o~\citep{xie2024showo}                & 2024 & Unified token stream     & Discrete VQ              & AR + Discrete diff.   & Attention-mask switching per modality \\
+Emu3~\citep{wang2024emu3}                  & 2024 & Unified token stream     & Discrete VQ              & AR next-token         & Pure next-token prediction for mixed-modal data \\
+JanusFlow~\citep{ma2024janusflow}          & 2024 & Decoupled encoder        & Continuous latent        & AR + Rect.\ Flow      & LLM backbone harmonized with rectified flow \\
+Bridge~\citep{wang2025bridge}              & 2025 & Separated-stream early fusion & Discrete semantic+pixel & AR next-token   & Mixture-of-Transformers with semantic-to-pixel planning \\
+Janus-Pro~\citep{chen2025janusprounifiedmultimodalunderstanding} & 2025 & Decoupled encoder & VQ (gen) + SigLIP (und)  & AR next-token  & Separate visual pathways with a shared AR backbone \\
+BAGEL~\citep{deng2025bagelemerging}        & 2025 & Unified token stream     & Interleaved multimodal   & AR decoder-only       & Trillion-token scale for unified reasoning and generation \\
+Show-o2~\citep{xie2025showo2}              & 2025 & Hybrid heads             & 3D causal VAE            & AR + Flow matching    & Flow-matching image head in shared causal backbone \\
+BLIP3o-NEXT~\citep{chen2025blip3onext}     & 2025 & AR$\rightarrow$Diff cascade & Discrete$\rightarrow$cont.  & AR$\rightarrow$Diffusion & AR semantic planning followed by diffusion rendering \\
+OmniMamba~\citep{zou2025omnimamba}         & 2025 & Unified token stream     & Discrete VQ              & AR (SSM backbone)     & Linear-time state-space backbone for long contexts \\
+MMaDA~\citep{yang2025mmada}                & 2025 & Unified diffusion        & Modality-agnostic        & Diffusion (all mod.)  & Diffusion-native multimodal unification \\
+UAE~\citep{yan2025uae}                     & 2025 & Encoder-decoder          & Text as bottleneck       & AR enc.$\rightarrow$dec. & Text bottleneck linking understanding and generation \\
+HunyuanImage~3.0~\citep{cao2025hunyuanimage} & 2026 & Unified token stream     & Continuous latent (32-ch) & AR + Flow head        & Industrial-scale Transfusion: 80B/13B-active MoE \\
+Wan-Image~\citep{mao2026wan}               & 2026 & MLLM planner + DiT visualizer & VAE (4-ch RGBA)     & AR$\rightarrow$Flow      & Bidirectional attention extends across an image series \\
+JoyAI-Image~\citep{jdjoyaiimage}           & 2026 & Decoupled MLLM brain + MMDiT & VLM hidden + VAE     & AR-conditioned diffusion & 8B MLLM conditions a 16B MMDiT via hidden states \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
+
+\paragraph{Late Fusion: Modular but Limited.}
+The simplest approach treats text as an \emph{external condition} injected into a vision-only backbone. LDM~\citep{rombach2022stablediffusion} exemplifies this: frozen CLIP text embeddings are projected into cross-attention layers, creating a one-directional flow from text to image. This design is modular---the text encoder and image generator can be developed independently---but the lack of bidirectional interaction limits the model's ability to handle complex prompts that require joint text-image reasoning. MetaQueries~\citep{pan2025metaqueries} is a more modern bridge of the same flavor: it preserves a strong multimodal understanding model and transfers its latent state to a diffusion decoder through learnable queries, improving generation without yet making the backbone truly unified.
+
+\paragraph{Early Fusion with Separated Streams.}
+A growing family of models achieves early fusion while maintaining modality-specific processing pathways. SD3~\citep{esser2024stablediffusion3} exemplifies this via its MM-DiT architecture: text and image tokens pass through modality-specific projection weights but share self-attention within each transformer block, enabling bidirectional cross-modal interaction at every layer. This dual-stream design substantially improves text comprehension and typography fidelity.
+
+Recent unified models extend this principle through specialized mechanisms. \emph{Mixture-of-Transformers} (MoT), as used in Bridge~\citep{wang2025bridge}, assigns modality-specific expert parameters within a shared backbone, enabling early interaction through shared attention while preserving per-modality specialization in the feed-forward layers. Janus-Pro~\citep{chen2025janusprounifiedmultimodalunderstanding} takes a different approach to the same principle: it employs separate visual encoders---SigLIP for understanding, VQ for generation---while routing both through a shared AR backbone, resolving the \emph{invariance-variance tension} that arises because understanding benefits from view-invariant embeddings while generation requires view-variant spatial detail. UAE~\citep{yan2025uae} reaches a similar goal through an encoder-decoder view, using text as a shared bottleneck that lets the model translate between understanding and generation rather than forcing both into a single visual representation.
+
+\paragraph{Early Fusion with Fully Shared Parameters.}
+The most integrated approach routes all modality tokens through a single shared backbone with minimal modality-specific branching. Chameleon~\citep{chameleon2024}, Emu3~\citep{wang2024emu3}, and BAGEL~\citep{deng2025bagelemerging} all follow this recipe with decoder-only transformers, differing mainly in scale, tokenizer design, and data recipe. OmniMamba~\citep{zou2025omnimamba} pursues the same level of sharing with a linear-time SSM backbone, trading the transformer's quadratic attention cost for linear scaling on long multimodal contexts. MMaDA~\citep{yang2025mmada} shows that this principle is not exclusive to AR models: a unified diffusion backbone can also denoise modality-agnostic token streams in a fully shared manner.
+
+\paragraph{Hybrid Fusion: Combining Paradigms.}
+Many recent systems combine autoregressive and diffusion components in complementary roles, using the AR stage for semantic planning and the diffusion/flow stage for high-fidelity rendering. Transfusion~\citep{zhou2024transfusion} mixes discrete text tokens and continuous image latents in a single sequence, applying causal attention to text and bidirectional attention to image patches with a hybrid cross-entropy / diffusion loss---a defining example of multi-modality early fusion. Show-o and Show-o2 keep a single shared backbone but swap the image-generation head from discrete diffusion to flow matching as the latent representation evolves. JanusFlow and BLIP3o-NEXT instead make the division of labor explicit: the AR component reasons over multimodal context, while the flow or diffusion component renders the final image. HunyuanImage~3.0~\citep{cao2025hunyuanimage} pushes the Transfusion recipe to industrial scale, pairing an 80B/13B-active MoE AR backbone with a flow-matching image head, and is the largest open-weight instantiation of the AR-plus-flow design point to date.
+
+
+\begin{highlightbox}{Convergence Snapshot: Architecture Across Frontier Tech Reports}
+
+Reading ten frontier tech reports released between April 2025 and April 2026 side-by-side reveals that the architectural search space has \emph{narrowed sharply}. Four near-consensus choices stand out: \emph{(i)} Qwen-VL family is the de-facto bilingual text encoder (used in 6 of 10 reports), displacing T5 / CLIP for non-trivial Chinese rendering and long-prompt comprehension; \emph{(ii)} MM-DiT or its hybrid variants is the dominant backbone, with U-Net effectively retired at the frontier; \emph{(iii)} flow matching with rectified-flow targets has displaced the $\epsilon$- and $v$-prediction objectives common in earlier diffusion training, for both training stability and few-step distillability; and \emph{(iv)} jointly training T2I + I2I + edit on a single architecture is now default---pure T2I-only systems are rare, as detailed in the Edit Unification snapshot earlier in \Cref{sec:method}. The takeaway: the next year of progress is unlikely to come from yet another backbone redesign, but from data, captions, and post-training, as discussed in \Cref{sec:train,sec:resource_and_infra}.
+\end{highlightbox}
+
+A complementary frontier extends bidirectional attention not across modalities but across multiple generated images. Wan-Image~\citep{mao2026wan} treats an entire image series (T2S, TI2S) as a single attention context, so each output image attends to the others and inherits their identity, lighting, and style; this produces cross-image consistency that no per-image single-pass system can match, and reframes ``edit'' as one element of a broader \emph{compositional visual creation} task closer to L3 narrative consistency in \Cref{sec:evolution}.
+
+\paragraph{From Architectural Unification to Alignment.}
+Fusion design determines where modalities meet, but it does not guarantee that understanding and generation improve each other symmetrically. That problem is increasingly handled in post-training rather than in the architecture itself. We therefore discuss alignment-focused methods such as HermesFlow, UAE's Unified-GRPO stage, MMaDA's UniGRPO, and X-Omni's RL refinement in \Cref{subsec:post_training} rather than treating them as separate generative paradigms here.
+
+
+\begin{highlightbox}{Where the Field Is Splitting: Architecture Trade-offs}
+
+Convergence is not uniform---several axes are still actively contested across frontier reports. \emph{(i)} \textbf{Diffusion vs.\ Autoregressive vs.\ Hybrid:} Wan-Image~\citep{mao2026wan} is an explicit hybrid bet (AR planner + flow renderer); HunyuanImage~3.0~\citep{cao2025hunyuanimage} is AR-native with a flow head, and LongCat-Next~\citep{team2026longcat} is pure discrete AR; Z-Image~\citep{cai2025z}, Qwen-Image~\citep{wu2025qwen}, Seedream~\citep{seedream2025seedream}, and LongCat-Image~\citep{team2025longcat} stay diffusion-native; and Lumina-mGPT and Janus-Pro~\citep{chen2025janusprounifiedmultimodalunderstanding} occupy a separate AR-only branch. \emph{(ii)} \textbf{MoE vs.\ Dense:} HunyuanImage~3.0 (80B / 13B active) and LongCat-Next (68.5B / A3B) wager on sparse experts, whereas Qwen-Image, Z-Image, and Seedream stay dense. A complementary convergence is parameter-count moderation: Z-Image (6.15B) and LongCat-Image (6B) both argue---and benchmark---that careful data curation and stronger upstream encoders close the quality gap to 20B+ dense systems, shifting the scaling bet from parameters to data and curriculum. \emph{(iii)} \textbf{VAE choice has not converged at all}: FLUX-VAE~\citep{labs2025flux1kontextflowmatching}, Wan-VAE, self-trained VAEs, and even VAE-free designs all coexist. These splits matter because they expose the real \emph{trade-off frontier}---distillation-friendliness, RL-friendliness, throughput, and edit fidelity each pull in different directions, and no single combination dominates yet.
+\end{highlightbox}
+
+
+\subsection{The Closed-Source Frontier: A Speculative Reading}
+\label{sec:closed_source_frontier}
+
+The frontier of visual generation is no longer set entirely by the open-source models discussed above. Closed-source systems---most visibly Google's Nano Banana\footnote{\url{https://gemini.google/overview/image-generation/}} and OpenAI's GPT-Image-2\footnote{\url{https://openai.com/index/introducing-chatgpt-images-2-0/}}---deliver a noticeably tighter user experience on multi-turn editing, long-form prompts, and structured-content rendering, yet publish almost nothing about how they are built.
+
+This subsection makes four falsifiable conjectures about how the closed-source stack departs from the open-source recipe, then grounds them in user-visible failure modes that the open community currently does not match. Mapped onto the L1--L5 taxonomy of \Cref{sec:evolution}, these conjectures imply that today's open-vs-closed gap is concentrated in the system architecture around the renderer rather than in the renderer itself: the closed systems most plausibly realize \emph{L4 agentic generation} (multi-call control flow), whereas the strongest open-source systems discussed here expose a single forward pass and are therefore L3-bounded \emph{by construction}.
+
+\paragraph{(i) Text-encoding path: a frontier-grade VLM upstream of the renderer.}
+Closed systems handle long compositional instructions, multi-turn references to previously generated images, and casual chatty rephrasing in a way that is hard to explain with a frozen T5\footnote{T5: a transformer text-encoder family widely used as the upstream text encoder by Stable Diffusion 1--3 and many subsequent open-source T2I systems.} or even a small VLM. We conjecture the text condition is produced by---or routed through---a frontier-grade VLM (a Gemini-class or GPT-4o-class model) that can plan and rephrase before emitting the prompt actually consumed by the renderer. This is the same Prompt-Engineering-module idea documented in open systems such as Wan-Image~\citep{mao2026wan} (Qwen3-VL-2B) and Seedream~\citep{seedream2025seedream} (Seed1.5-VL), pushed to a much stronger upstream model.
+
+\paragraph{(ii) Visual-encoding path: a dual-path encoder for fidelity and semantics.}
+Multi-turn and multi-image edits in closed systems preserve fine pixel-level detail---texture, hair, micro-typography---across many rounds while still executing context-aware modifications. A purely semantic encoder (CLIP / SigLIP-style) would lossily summarize the source and force the renderer to re-hallucinate fine detail on every round, whereas a purely VAE-style encoder would lack the semantic priors needed to localize edit intent. The behavior is most consistent with a dual-path encoder pairing a VAE-style branch for pixel-addressable fidelity with a semantic branch (SigLIP-style or representation-aligned) for edit-intent localization---the \emph{DiT-camp} unification recipe of \Cref{sec:arch_components}.
+
+
+\paragraph{(iii) Generation-time understanding: from preprocessing to control signal.}
+Beyond input encoders, closed systems suggest a qualitative shift in how understanding interacts with generation at runtime. GPT-Image-2's behavior on code-centric rendering/editing and structured mathematical figures (\Cref{fig:code_generation_case,fig:math_structure_case}) implies the renderer must preserve symbolic dependencies, respect layout-level constraints, and revise local visual elements according to their semantic and functional roles---understanding is no longer an upstream preprocessing step but a generation-time control signal that participates as a persistent constraint during multi-step synthesis and editing. This contrasts with the open-source paradigm, where semantic understanding is typically supplied by frozen encoders, prompt-engineering modules, or representation alignment, rather than as a runtime constraint inside the rendering loop.
+
+\paragraph{(iv) System level: an external agent loop, not a single forward pass.}
+Above the renderer itself, behaviors such as silent self-correction of broken outputs, partial regeneration when only a region needs updating, and tool-like calls (e.g.,~aligning text rendering to a known font, or grounding a chemical structure in a search result) are most easily explained if the public API hides an agent loop with a planner, a verifier, a refiner, and a small toolbox, rather than a single forward pass through a monolithic model (\Cref{fig:closed_source_agent}).
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/method/fig_closed_source_agent.jpg}
+    \caption{\textbf{Speculative agent-loop architecture for closed-source frontier image generation.} The diagram visualizes conjecture (iv): a frontier VLM ingests the user instruction (and any reference image) and emits a planned prompt; a renderer (likely diffusion) generates a candidate image; a verifier checks the candidate against the plan and either accepts it or routes it back to a refiner that can call a small toolbox (e.g., text-rendering, font alignment, search grounding) before re-rendering. \emph{This figure is tentative and will be revised} as more evidence becomes available; treat it as a hypothesis-shaped sketch rather than a confirmed pipeline.}
+    \label{fig:closed_source_agent}
+\end{figure*}
+
+\paragraph{Open vs.\ closed gap, by failure mode.}
+Four failure modes recur when stress-testing open-source models against Nano Banana and GPT-Image-2; each maps onto one or more of (i)--(iv).
+
+\paragraph{Multi-turn edit drift.}
+Open systems show steeper identity, lighting, and composition drift after three or more rounds, whereas the closed systems' degradation curve is markedly flatter (see \Cref{sec:stress_test}, Dimension IV, for multi-turn editing case studies). The gap is consistent with both \emph{(ii)}---a high-fidelity VAE keeps the source pixel-addressable across turns---and \emph{(iv)}---a verifier in the agent loop catches and re-renders failed turns silently before the user ever sees them.
+
+\paragraph{Joint long-form, multi-condition adherence.}
+Requests such as ``keep the dress, change the background to a snowy mountain at sunset, add three skiers in the lower-left, render the sign in Chinese'' are a second axis where open models more often drop one constraint silently. The gap is consistent with \emph{(i)}---an upstream VLM resolves and re-emits the constraint set in a renderer-friendly form---and \emph{(iv)}---a verifier checks each constraint in the loop and triggers re-rendering on miss.
+
+\paragraph{Domain-knowledge generation.}
+Chemical structures, electrical schematics, multi-step diagrams, and dense bilingual long text are a third axis where closed systems pull ahead. The gap is consistent with \emph{(i)}---world-knowledge retrieval and planning before rendering---\emph{(iii)}---understanding holding symbolic constraints during the renderer step---and \emph{(iv)}---tool-like grounding calls (font alignment, search) inside the agent loop.
+
+\paragraph{Reasoning-augmented requests.}
+Tasks that require the model to think before drawing (e.g., ``solve this geometry problem on the image'', see \Cref{subsubsec:physics_solver_case}) are the fourth axis. The gap is essentially \emph{(iii)} + \emph{(iv)}: understanding actively rewriting pixels inside an L4 closed loop, conceptually impossible to match with a single L3 forward pass.
+
+Crucially, none of (i)--(iv) requires architectural innovation that the open-source community lacks; each is a system-engineering bet rather than a fundamentally new model. The open question for the next year is therefore less about narrowing a per-pixel quality gap, and more about reproducing the \emph{system architecture} around the renderer.
+
+\begin{highlightbox}{Community Message: Closed-Source Frontier $\approx$ Production L4 Agentic Generation}
+
+Mapped onto the L1--L5 taxonomy of \Cref{sec:evolution}, the inferred Nano-Banana / GPT-Image-2 stack is precisely \emph{L4 agentic generation realized in production}: a planner / verifier / refiner controller decides multiple forward passes around the renderer (\Cref{tab:5levels}). Open-source systems that currently expose a single forward pass to the user are L3-bounded \emph{by construction}---no amount of renderer improvement, data scaling, or RL on the renderer alone can promote them across the L3$\to$L4 boundary. The community's most consequential next move is therefore not another half-point of FID, but the open-source reproduction of the agent loop \emph{around} the renderer.
+\end{highlightbox}
+

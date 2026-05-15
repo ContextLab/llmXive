@@ -1,0 +1,87 @@
+\begin{table}[!t]
+    \centering
+    \renewcommand{\arraystretch}{1.16}
+    \caption{Overall performance comparison across scientific domains on \textit{EywaBench}. We compare all methods on three dimensions, including utility $(\uparrow)$, inference time $(\downarrow)$, and token consumption $(\downarrow)$. Best results are highlighted in bold and second-best results are underlined. Our proposed methods, EywaAgent, EywaMAS, and EywaOrchestra, achieve strong overall performance while maintaining competitive efficiency.}
+    \vspace{-8pt}
+    \label{tab:ablation_backend_llm}
+    \small
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{l|c|ccc|ccc|ccc|c}
+        \toprule
+        \multirow{2}{*}{\textbf{Method}} &
+        \multirow{2}{*}{\textbf{Metrics}} &
+        \multicolumn{3}{c}{\textbf{Physical Science}} &
+        \multicolumn{3}{c}{\textbf{Life Science}} &
+        \multicolumn{3}{c}{\textbf{Social Science}}
+        \\
+        \cmidrule(lr){3-5}\cmidrule(lr){6-8}\cmidrule(lr){9-11}\cmidrule(lr){12-12}
+        & & Material & Energy & Space & Biology & Clinic & Drug & Economy & Business & Infrastructure & Overall\\
+        \midrule[-0.4ex]\midrule\addlinespace[-0.000ex]
+        \multicolumn{12}{c}{
+            \rule{0pt}{1.1em}
+            \textbf{\textit{Single-Agent Setting}}
+            \rule[-0.3em]{0pt}{1.1em}
+        } \\
+        [-0.4ex]\midrule\addlinespace[-0.000ex]
+
+        & Utility ($\uparrow$)   & 0.5491 & 0.7980 & 0.5848 & 0.3429 & 0.4010 & 0.4592 & 0.7416 & 0.5560 & 0.5762 & 0.5680\\
+        \textbf{EywaAgent (gpt-4.1-nano)}
+        & Time ($\downarrow$)  & 9.47 & 20.88 & 10.85 & 31.11 & 23.37 & 31.51 & 23.66 & 13.88 & 12.98 & 19.61\\
+        & Tokens ($\downarrow$) & 1654 & 1149 & 1047 & 1337 & 606 & 839 & 1181 & 1036 & 1237 & 1139\\
+        [-0.4ex]\midrule\addlinespace[-0.000ex]
+
+        & Utility ($\uparrow$)   & 0.5871 & 0.8390 & 0.6123 & 0.3718 & 0.5085 & 0.6199 & \textbf{0.8048} & \underline{0.7371} & 0.7060 & 0.6558\\
+        \textbf{EywaAgent (gpt-5-nano)}
+        & Time ($\downarrow$)  & 34.88 & 24.42 & 23.12 & 30.84 & 20.32 & 15.84 & 19.71 & 20.98 & 15.99 & 22.78\\
+        & Tokens ($\downarrow$) & 5040 & 3167 & 3329 & 4858 & 2333 & 2210 & 2791 & 2444 & 2248 & 3137\\
+        [-0.4ex]\midrule\addlinespace[-0.000ex]
+
+        & Utility ($\uparrow$)   & 0.6272 & 0.8615 & 0.6286 & 0.3670 & 0.4990 & 0.6444 & 0.7790 & 0.7193 & 0.7320 & 0.6640\\
+        \textbf{EywaAgent (gpt-5-mini)}
+        & Time ($\downarrow$)  & 21.81 & 20.70 & 29.52 & 45.34 & 16.86 & 29.91 & 18.97 & 21.08 & 16.05 & 23.63\\
+        & Tokens ($\downarrow$) & 3666 & 2316 & 2541 & 3589 & 1734 & 2527 & 2033 & 1669 & 2092 & 2444\\
+        
+        
+        \addlinespace[-0.4ex] \midrule \addlinespace[-0.000ex]
+        \multicolumn{12}{c}{
+            \rule{0pt}{1.1em}
+            \textbf{\textit{Multi-Agent Setting}}
+            \rule[-0.3em]{0pt}{1.1em}
+        } \\
+        [-0.4ex]\midrule\addlinespace[-0.000ex]
+
+        & Utility ($\uparrow$)   & 0.6161 & 0.8305 & 0.6602 & 0.3545 & 0.4468 & 0.5062 & 0.7729 & 0.6404 & 0.6759 & 0.6236\\
+        \textbf{EywaMAS (gpt-4.1-nano)}
+        & Time ($\downarrow$)  & 31.16 & 39.72 & 27.96 & 42.28 & 36.96 & 31.72 & 38.16 & 63.88 & 39.24 & 39.40\\
+        & Tokens ($\downarrow$) & 6592 & 4782 & 3832 & 5284 & 2392 & 3049 & 4328 & 3764 & 4969 & 4421\\
+        [-0.4ex]\midrule\addlinespace[-0.000ex]
+
+        & Utility ($\uparrow$)   & \textbf{0.6381} & \textbf{0.8742} & \underline{0.6899} & \textbf{0.3798} & \underline{0.5086} & \underline{0.6248} & \underline{0.7959} & 0.7284 & \textbf{0.7406} & \textbf{0.6761}\\
+        \textbf{EywaMAS (gpt-5-nano)}
+        & Time ($\downarrow$)  & 77.25 & 75.96 & 72.51 & 111.92 & 59.97 & 59.23 & 68.40 & 58.11 & 46.49 & 72.11\\
+        & Tokens ($\downarrow$) & 14529 & 11709 & 11787 & 16502 & 9407 & 8078 & 11044 & 9470 & 8912 & 11214\\
+        
+        \addlinespace[-0.4ex] \midrule \addlinespace[-0.000ex]
+        \multicolumn{12}{c}{
+            \rule{0pt}{1.1em}
+            \textbf{\textit{Dynamic Orchestration}}
+            \rule[-0.3em]{0pt}{1.1em}
+        } \\
+        [-0.4ex]\midrule\addlinespace[-0.000ex]
+
+        & Utility ($\uparrow$)   & 0.6146 & 0.8259 & 0.5498 & 0.3355 & 0.4567 & 0.6153 & 0.7442 & 0.6725 & 0.6519 & 0.6210\\
+        \textbf{EywaOrchestra (gpt-4.1-nano)}
+        & Time ($\downarrow$)  & 35.14 & 23.13 & 24.32 & 32.51 & 20.30 & 17.83 & 21.77 & 15.93 & 18.00 & 23.05\\
+        & Tokens ($\downarrow$) & 8272 & 5808 & 5846 & 8517 & 4847 & 4912 & 6088 & 4627 & 5317 & 6017\\
+        [-0.4ex]\midrule\addlinespace[-0.000ex]
+
+        & Utility ($\uparrow$)   & \underline{0.6249} & \underline{0.8711} & \textbf{0.7187} & 0.3682 & \textbf{0.5159} & \textbf{0.6319} & 0.7830 & \textbf{0.7388} & \underline{0.7298} & \underline{0.6746}\\
+        \textbf{EywaOrchestra (gpt-5-nano)}
+        & Time ($\downarrow$)  & 61.78 & 39.92 & 75.47 & 67.88 & 45.38 & 45.94 & 49.13 & 34.18 & 28.80 & 48.16\\
+        & Tokens ($\downarrow$) & 11535 & 7723 & 10810 & 11315 & 7050 & 6495 & 7117 & 7264 & 6892 & 8335\\
+        [-0.4ex]\bottomrule\addlinespace[-0.000ex]
+
+    \end{tabular}
+    }
+    \vspace{-4pt}
+\end{table}

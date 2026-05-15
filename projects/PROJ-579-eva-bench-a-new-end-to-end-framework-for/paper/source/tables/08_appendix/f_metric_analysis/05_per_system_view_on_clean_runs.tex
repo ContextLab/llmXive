@@ -1,0 +1,37 @@
+\begin{table}[h]
+\centering
+\small
+\caption{Per-system view on clean runs (1{,}065 conversations per system).
+\emph{Conv.\ fail rate} = $1 - \texttt{conversation\_correctly\_finished}$
+(any failure type, conversation-pooled). \emph{Timeouts} = number of those
+failures that ended with the agent going silent. The three right-most
+columns are the share of \emph{this system's} timeouts whose preceding
+user turn matched each pattern. Systems are ordered within each pipeline
+class by timeout count (descending).}
+\label{tab:pipeline-comparison-failure-modes-bysystem}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l l r r r r r}
+\toprule
+Pipeline & System & Conv.\ fail rate & Timeouts & Short turn & Short $\wedge$ confirm & Spelled content \\
+\midrule
+\multirow{7}{*}{Cascade}
+ & \inkfull~+ \haikufull~+ \sonicfull~               & 36.5\% & 395 & 63\% & 43\% & 17\% \\
+ & \novafull~+ \gptfull~+ \sonicfull~                      & 35.8\% & 381 & 68\% & 39\% & 12\% \\
+ & \whisperfull~+ \qwenfull~+ \voxtralfull~         & 28.2\% & 300 & 62\% & 52\% & 14\% \\
+ & \coherefull~+ \gemmaAfull~+ \voxtralfull~                  & 22.6\% & 241 & 56\% & 37\% & 21\% \\
+ & \novafull~+ \gptminifull~+ \aurafull~                  & 10.7\% & 117 & 52\% & 20\% & 24\% \\
+ & \scribefull~+ \geminiflashfull~+ \conversationalfull~                                      &  2.6\% &  28 &  0\% &  0\% & 68\% \\
+ & \parakeetfull~+ \gemmaBfull~+ \kokorofull~                &  2.5\% &  27 & 19\% & 19\% & 48\% \\
+\midrule
+\multirow{2}{*}{Hybrid}
+ & \ultravoxfull~                                         & 14.0\% & 149 &  6\% &  1\% & 63\% \\
+ & \geminiflashfull~+ \geminiflashttsfull~            & 10.5\% & 112 & 30\% & 14\% & 46\% \\
+\midrule
+\multirow{3}{*}{S2S}
+ & \geminilivefull~                            &  4.5\% &  52 &  2\% &  0\% & 58\% \\
+ & \gptrealtimeminifull~                                &  2.9\% &  32 &  0\% &  0\% & 66\% \\
+ & \gptrealtimefull~                                 &  1.4\% &  15 &  0\% &  0\% & 73\% \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

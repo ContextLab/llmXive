@@ -1,0 +1,61 @@
+\begingroup\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{2cm}lrrrr}
+\caption{Per-model variance decomposition from REML linear mixed-effects fits with domain as a fixed effect and scenario and trial as nested random effects. For judge-graded metrics, judge iterations are an additional nested random effect, captured here in the \textit{Judge (\%)} column (the residual at the lowest level of the hierarchy). For deterministic metrics, trial is the lowest modeled level, so the \textit{Trial (\%)} column already absorbs the lowest-level variance and \textit{Judge (\%)} is left blank. All component columns give the proportion of total variance attributable to each component (\% of $\sigma^2_\text{total}$). Judge-graded metrics appear first, followed by deterministic metrics.}
+\label{tab:LMM} \\
+\toprule
+Metric & Model & Scenario (\%) & Trial (\%) & Judge (\%) & $\sigma^2_\text{total}$ \\
+\midrule
+\endfirsthead
+\multicolumn{6}{l}{\emph{Table~\ref{tab:LMM} continued from previous page}} \\
+\toprule
+Metric & Model & Scenario (\%) & Trial (\%) & Judge (\%) & $\sigma^2_\text{total}$ \\
+\midrule
+\endhead
+\midrule \multicolumn{6}{r}{\emph{continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+Conciseness & \geminilive & 22.6 & 47.1 & 30.4 & 0.0114 \\
+ & \gptrealtime & 26.4 & 42.0 & 31.6 & 0.0081 \\
+ & \ink~+ \haiku~+ \sonic & 7.8 & 56.7 & 35.6 & 0.0090 \\
+ & \parakeet~+ \gemmaB~+ \kokoro & 20.0 & 42.5 & 37.5 & 0.0076 \\
+\midrule
+Conversation progression & \geminilive & 20.9 & 56.0 & 23.2 & 0.1186 \\
+ & \gptrealtime & 19.0 & 54.4 & 26.6 & 0.1034 \\
+ & \ink~+ \haiku~+ \sonic & 4.0 & 59.1 & 36.8 & 0.0991 \\
+ & \parakeet~+ \gemmaB~+ \kokoro & 15.9 & 56.9 & 27.1 & 0.0923 \\
+\midrule
+Faithfulness & \geminilive & 36.4 & 49.1 & 14.5 & 0.0942 \\
+ & \gptrealtime & 41.9 & 40.4 & 17.7 & 0.1159 \\
+ & \ink~+ \haiku~+ \sonic & 20.9 & 65.1 & 14.0 & 0.1616 \\
+ & \parakeet~+ \gemmaB~+ \kokoro & 33.2 & 46.3 & 20.6 & 0.1458 \\
+\midrule
+Speech fidelity & \geminilive & 4.6 & 80.4 & 15.0 & 0.0032 \\
+ & \gptrealtime & 0.0 & 71.6 & 28.4 & 0.0022 \\
+ & \ink~+ \haiku~+ \sonic & 3.4 & 79.0 & 17.6 & 0.0028 \\
+ & \parakeet~+ \gemmaB~+ \kokoro & 21.1 & 69.4 & 9.5 & 0.0109 \\
+\midrule
+Transcription accuracy key entities & \ink~+ \haiku~+ \sonic & 26.1 & 68.4 & 5.5 & 0.0679 \\
+ & \parakeet~+ \gemmaB~+ \kokoro & 19.7 & 72.0 & 8.2 & 0.0393 \\
+\midrule
+Authentication success & \geminilive & 30.3 & 69.7 & -- & 0.1031 \\
+ & \gptrealtime & 12.1 & 87.9 & -- & 0.0515 \\
+ & \ink~+ \haiku~+ \sonic & 26.2 & 73.8 & -- & 0.2141 \\
+ & \parakeet~+ \gemmaB~+ \kokoro & 24.8 & 75.2 & -- & 0.1090 \\
+\midrule
+Conversation completion & \geminilive & 0.0 & 100.0 & -- & 0.0431 \\
+ & \gptrealtime & 2.1 & 97.9 & -- & 0.0139 \\
+ & \ink~+ \haiku~+ \sonic & 14.9 & 85.1 & -- & 0.2025 \\
+ & \parakeet~+ \gemmaB~+ \kokoro & 1.1 & 98.9 & -- & 0.0247 \\
+\midrule
+Task completion & \geminilive & 41.7 & 58.3 & -- & 0.2490 \\
+ & \gptrealtime & 42.4 & 57.6 & -- & 0.1629 \\
+ & \ink~+ \haiku~+ \sonic & 33.2 & 66.8 & -- & 0.2307 \\
+ & \parakeet~+ \gemmaB~+ \kokoro & 47.3 & 52.7 & -- & 0.2333 \\
+\midrule
+Turn taking & \geminilive & 7.1 & 92.9 & -- & 0.0508 \\
+ & \gptrealtime & 15.0 & 85.0 & -- & 0.0277 \\
+ & \ink~+ \haiku~+ \sonic & 18.5 & 81.5 & -- & 0.0646 \\
+ & \parakeet~+ \gemmaB~+ \kokoro & 21.6 & 78.4 & -- & 0.0267 \\
+\end{longtable}
+\endgroup

@@ -1,0 +1,36 @@
+{\small\begin{longtable}{
+  p{0.12\textwidth}
+  p{0.20\textwidth}
+  p{0.06\textwidth}
+  p{0.10\textwidth}
+  p{0.35\textwidth}}
+\captionsetup{font=small}
+\caption{Airline CSM workflows.}
+\label{tab:workflows-csm} \\
+\toprule
+\textbf{Workflow} & \textbf{Description} & \textbf{Tool Calls} & \textbf{Scenario IDs} & \textbf{Tools} \\
+\midrule
+\endfirsthead
+\multicolumn{5}{l}{\emph{Table~\ref{tab:workflows-csm} continued from previous page}} \\
+\toprule
+\textbf{Workflow} & \textbf{Description} & \textbf{Tool Calls} & \textbf{Scenario IDs} & \textbf{Tools} \\
+\midrule
+\endhead
+\midrule \multicolumn{5}{r}{\emph{continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+Voluntary Change & Caller initiates a flight change subject to fare difference and change fees. & 3 & 1.1.x, 1.2.x, 1.3.x & \texttt{get\_reservation, search\_rebooking\_options, rebook\_flight} \\
+\addlinespace
+IRROPS Rebooking & Airline-initiated disruption entitles the caller to free rebooking on an alternative flight. & 3--6 & 2.1.x, 2.2.x, 2.3.x, 2.4.x & \texttt{get\_reservation, get\_disruption\_info, search\_rebooking\_options, rebook\_flight, issue\_meal\_voucher} \\
+\addlinespace
+Missed Connection & Caller missed a connecting flight due to a late inbound leg; all affected segments are rebooked. & 2--3 & 3.1.x, 3.3.x & \texttt{get\_reservation, search\_rebooking\_options, rebook\_flight, add\_to\_standby} \\
+\addlinespace
+Same-Day Change \& Standby & Caller requests a same-day flight change or standby placement subject to time-sensitive policy constraints. & 2--3 & 4.1.x, 4.2.x & \texttt{get\_reservation, search\_rebooking\_options, rebook\_flight, add\_to\_standby} \\
+\addlinespace
+Cancellation \& Refund & Caller cancels a booking; agent determines eligibility for a cash refund or travel credit based on fare type and cancellation policy. & 1--4 & 5.1.x, 5.2.x & \texttt{get\_reservation, get\_disruption\_info, cancel\_reservation, process\_refund, issue\_travel\_credit, issue\_meal\_voucher} \\
+\addlinespace
+Escalation \& Availability Constraints & Agent exhausts available rebooking or compensation options and must escalate to a supervisor or communicate policy limits to the caller. & 3--6 & 6.1.x, 6.3.x & \texttt{get\_reservation, get\_disruption\_info, search\_rebooking\_options, rebook\_flight, issue\_meal\_voucher, issue\_hotel\_voucher, transfer\_to\_agent} \\
+\addlinespace
+Adversarial Compensation Claim & Caller attempts to claim meal or hotel vouchers for a disruption that does not meet eligibility threshold under policy. & 1--4 & 7.1.x, 7.2.x, 7.3.x, 7.4.x & \texttt{get\_reservation, get\_flight\_status, get\_disruption\_info} \\
+\end{longtable}}

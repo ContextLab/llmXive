@@ -1,0 +1,43 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,font=\sffamily]
+  \definecolor{mintauxamber}{HTML}{D98B00}
+  \tikzstyle{axis}=[thick, draw=mindlabfg]
+  \tikzstyle{bar}=[fill=mindlabblue!42, draw=mindlabfg, thick]
+  \tikzstyle{latency}=[draw=mintauxamber, line width=1.2pt]
+  \tikzstyle{label}=[font=\scriptsize\sffamily, align=center]
+
+  \foreach \y/\lval/\rval in {0/0/0,1/100/10,2/200/20,3/300/30,4/400/40,5/500/50,6/600/60,7/700/70} {
+    \draw[mindlabfg!22] (0,\y) -- (7.7,\y);
+    \node[label, anchor=east] at (-0.10,\y) {\lval};
+    \node[label, anchor=west] at (7.82,\y) {\rval};
+  }
+  \draw[axis] (0,0) -- (0,7.25);
+  \draw[axis] (0,0) -- (7.7,0);
+  \draw[axis] (7.7,0) -- (7.7,7.25);
+  \node[label, rotate=90] at (-0.78,3.6) {loaded adapters};
+  \node[label, rotate=90] at (8.48,3.6) {steady p95 (s)};
+
+  \foreach \x/\hot/\loaded/\lat in {
+    0.75/128/1.27/0.552,
+    2.00/192/1.83/1.059,
+    3.25/256/2.36/2.074,
+    4.50/384/3.17/3.012,
+    5.75/512/3.69/3.713
+  } {
+    \draw[bar] (\x-0.22,0) rectangle (\x+0.22,\loaded);
+    \node[label] at (\x,-0.35) {\hot};
+  }
+
+  \draw[latency]
+    (0.75,0.552) -- (2.00,1.059) -- (3.25,2.074) --
+    (4.50,3.012) -- (5.75,3.713);
+  \foreach \x/\y in {0.75/0.552,2.00/1.059,3.25/2.074,4.50/3.012,5.75/3.713} {
+    \fill[mintauxamber] (\x,\y) circle (1.9pt);
+  }
+
+  \node[label] at (3.85,-0.72) {requested hotset size};
+  \draw[bar] (1.55,7.62) rectangle (1.85,7.86);
+  \node[label, anchor=west] at (1.98,7.74) {loaded adapters};
+  \draw[latency] (4.05,7.74) -- (4.55,7.74);
+  \fill[mintauxamber] (4.30,7.74) circle (1.9pt);
+  \node[label, anchor=west] at (4.68,7.74) {steady p95};
+\end{tikzpicture}

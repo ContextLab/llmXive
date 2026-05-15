@@ -1,0 +1,33 @@
+\begin{table}[t]
+\centering
+\caption{Main results on image and text reasoning benchmarks. Mixed RLVR runs for the combined step budget of both single-domain experts. Static OPD depends on independently trained experts and performs an additional distillation stage to consolidate them. \method uses the same total steps as static OPD. Best results are in \textbf{bold} and worst results (excluding the Base Model) are marked with $^\dagger$.}
+\label{tab:two_branch_results}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{l ccc c cc c}
+\toprule
+\textbf{Benchmark} & Base & Image-Expert & Text-Expert & Mixed RLVR & \shortstack{OPD$_{V\to T}$} & \shortstack{OPD$_{T\to V}$} & \textbf{\method} \\
+\midrule
+\rowcolor{gray!10} \multicolumn{8}{l}{\textit{Image Reasoning}} \\
+\quad MMMU          & 65.06  & 65.28  & 65.72  & 66.39  & 65.94  & 67.50  & 66.94 \\
+\quad MMMU-Pro      & 53.03  & 53.89  & 53.05  & 54.28  & 54.09  & 54.71  & 55.10 \\
+\quad MathVista     & 73.20  & 75.10  & 73.90  & 75.10  & 74.20  & 76.05  & 75.75 \\
+\quad MathVision    & 55.07  & 55.69  & 55.82  & 56.96  & 55.82  & 56.53  & 57.88 \\
+\quad ZeroBench$_\text{sub}$     & 21.41  & 21.41  & 22.01  & 21.86  & 21.41  & 21.71  & 24.40 \\
+\quad WeMath        & 52.38  & 59.14  & 55.24  & 57.43  & 60.95  & 58.86  & 59.81 \\
+\quad MathVerse     & 57.82  & 59.84  & 58.41  & 57.81  & 59.50  & 59.71  & 58.88 \\
+\cmidrule(lr){1-8}
+\rowcolor{blue!5} \quad \textbf{Avg.} & 54.00  & 55.76  & 54.88$^\dagger$  & 55.69  & 55.99  & 56.44  & \textbf{56.97} \\
+\midrule
+\rowcolor{gray!10} \multicolumn{8}{l}{\textit{Text Reasoning}} \\
+\quad AIME 2025     & 46.88  & 47.50  & 48.33  & 44.58  & 43.54  & 45.42  & 49.58 \\
+\quad AIME 2024     & 58.96  & 55.83  & 60.21  & 57.92  & 59.79  & 58.33  & 60.42 \\
+\quad HMMT 2025     & 25.83  & 21.67  & 27.50  & 24.17  & 25.83  & 26.67  & 30.83 \\
+\quad MATH-500      & 92.80  & 93.90  & 93.65  & 93.55  & 93.45  & 93.40  & 94.50 \\
+\quad Minerva Math  & 54.41  & 58.64  & 59.74  & 57.17  & 58.55  & 56.62  & 58.46 \\
+\cmidrule(lr){1-8}
+\rowcolor{blue!5} \quad \textbf{Avg.} & 55.78  & 55.51  & 57.89  & 55.48$^\dagger$  & 56.23  & 56.09  & \textbf{58.76} \\
+\midrule
+\rowcolor{blue!5} \textbf{Overall Avg.} & 54.74  & 55.65  & 56.13  & 55.60$^\dagger$  & 56.09  & 56.29  & \textbf{57.71} \\
+\bottomrule
+\end{tabular}
+\end{table}
