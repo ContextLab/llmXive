@@ -2793,7 +2793,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-15T19:05:38.674074+00:00",
+  "generated_at": "2026-05-15T19:14:56.672037+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -48675,7 +48675,7 @@
         "data": null,
         "idea": "projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/idea/anyflow-any-step-video-diffusion-model-w.md",
         "paper_figures": null,
-        "paper_pdf": "projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/paper/pdf/main-llmxive.pdf",
+        "paper_pdf": "projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/paper/pdf/2605.13724.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -48754,9 +48754,9 @@
       },
       "created_at": "2026-05-14T04:19:57.469269+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/paper/pdf/main-llmxive.pdf",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/paper/pdf/main-llmxive.pdf",
-        "repo_path": "projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/paper/pdf/main-llmxive.pdf",
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/paper/pdf/2605.13724.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/paper/pdf/2605.13724.pdf",
+        "repo_path": "projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/paper/pdf/2605.13724.pdf",
         "type": "pdf"
       },
       "current_stage": "paper_review",
