@@ -804,6 +804,43 @@ def _handle_new_paper(issue, number, body, author, *, repo: Path, gh: GhFn) -> I
         if _issue_number_for_project(repo, pdir.name) == number:
             return IntakeResult(status="skipped", target=pdir.name)
 
+    # Dedup by arXiv ID: a single paper can be filed multiple times (e.g. the
+    # HF-daily-papers cron picks up the same paper on consecutive days if it
+    # remained popular). Without this check we end up with PROJ-566, PROJ-578,
+    # PROJ-583 all pointing at the same MinT paper. Scan existing
+    # paper/metadata.json::arxiv_id; if a project already owns this arXiv ID,
+    # comment on the duplicate issue and return skipped.
+    incoming_arxiv = None
+    if url:
+        _m = re.search(r"arxiv\.org/(?:abs|pdf|html|e-print)/([0-9]{4}\.[0-9]{4,6})", url)
+        if _m:
+            incoming_arxiv = _m.group(1)
+    if incoming_arxiv:
+        for pdir in (repo / "projects").glob("PROJ-*"):
+            meta_path = pdir / "paper" / "metadata.json"
+            if not meta_path.is_file():
+                continue
+            try:
+                meta = json.loads(meta_path.read_text(encoding="utf-8", errors="replace"))
+            except (json.JSONDecodeError, OSError):
+                continue
+            if isinstance(meta, dict) and meta.get("arxiv_id") == incoming_arxiv:
+                # Found a duplicate — leave a breadcrumb on the issue and skip.
+                try:
+                    gh("issue", "comment", str(number), "--body",
+                       f"This paper (arXiv:{incoming_arxiv}) is already tracked by "
+                       f"[{pdir.name}](../tree/main/projects/{pdir.name}). "
+                       f"Closing as a duplicate.")
+                    gh("issue", "close", str(number),
+                       "--comment", "duplicate of arXiv:" + incoming_arxiv,
+                       "--reason", "not planned")
+                except Exception:
+                    # If gh comms fail, still return skipped — the dedup
+                    # decision is the user-visible action.
+                    pass
+                return IntakeResult(status="skipped", target=pdir.name,
+                                    error=f"duplicate of arXiv:{incoming_arxiv} at {pdir.name}")
+
     # Create-or-link a project. For a submitted paper we create a brainstormed
     # project that records the source; a maintainer / the pipeline can promote
     # it. (Reusing the same minimal-project path as feedback create-project —

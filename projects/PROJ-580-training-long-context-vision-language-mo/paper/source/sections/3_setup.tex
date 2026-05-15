@@ -1,7 +1,0 @@
-\section{Experimental Setup}
-\label{sec:setup}
-We conduct our LongPT experiments using Qwen2.5-VL-7B~\citep{bai2025qwen2}, extending its original 32K context window to 128K.
-Following the Dynamic-NTK heuristic~\citep{dynamicntk}, we scale the mRoPE base frequency from its original value of $1\times10^6$ to $4\times10^6$ with detailed ablations provided in \cref{app:complementary_experiment_results:mrope_base}.
-Each LongPT run is trained with a fixed budget of 5B tokens, a maximum sequence length of 131,072 tokens, and a global batch size of 4M tokens.
-Throughout the paper, we use binary prefixes: $K=2^{10}$, $M=2^{20}$, and $B=2^{30}$.
-We provide the full implementation details in \cref{app:final_recipe:implementation_details} and the full evaluation details in \cref{app:evaluation_details}.

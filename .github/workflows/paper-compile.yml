@@ -78,31 +78,53 @@ jobs:
             MAX="${INPUT_MAX:-20}"
             python3 scripts/compile_paper.py --all --max "$MAX"
           fi
-      - name: Regenerate web data (project list reflects new PDFs)
-        run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
-
       - name: Commit + push
         id: commit
-        # Concurrent cron workflows commit to main while this is compiling
-        # (paper compile takes ~5min; other crons run every 30m–1h). A
-        # naive `git push` races and fails ~half the time. Pull --rebase
-        # before each push attempt; retry up to 5 times.
+        # Concurrent cron workflows write web/data/projects.json on every
+        # tick (each one regens it). A naive pull-after-commit conflicts on
+        # that file ~always when another tick raced ahead. Strategy:
+        #   1. PDFs land in projects/<pid>/paper/pdf/ (no-conflict files —
+        #      only this cron writes those particular PDFs this minute).
+        #   2. Fetch + merge main FIRST so we have the latest world.
+        #   3. AFTER the pull, regenerate projects.json from the merged
+        #      state — guarantees we never commit a stale projects.json.
+        #   4. Commit + push. On push race, repeat from step 2.
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add 'projects/*/paper/pdf/*.pdf' web/data/projects.json 2>/dev/null || true
-          if git diff --cached --quiet; then
-            echo "no changes"
+          # Quick check: did the compile step produce any new PDFs?
+          if [ -z "$(git status --porcelain 'projects/*/paper/pdf/*.pdf' 2>/dev/null)" ]; then
+            echo "no PDF changes"
             echo "pushed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          git commit -m "paper-compile: produce/refresh paper PDFs"
           for i in 1 2 3 4 5; do
-            if git pull --rebase origin main && git push; then
+            # Pull latest main BEFORE regenerating projects.json. Use stash
+            # so any uncommitted PDFs survive the pull.
+            git stash push --include-untracked --keep-index -m "compile-pdfs" 2>/dev/null || true
+            if ! git pull --rebase --autostash origin main; then
+              echo "pull/rebase failed on attempt $i; aborting + retrying"
+              git rebase --abort 2>/dev/null || true
+              git stash pop 2>/dev/null || true
+              sleep $((5 * i))
+              continue
+            fi
+            git stash pop 2>/dev/null || true
+            # Regenerate projects.json AFTER the pull so it reflects merged state.
+            python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
+            git add 'projects/*/paper/pdf/*.pdf' web/data/projects.json 2>/dev/null || true
+            if git diff --cached --quiet; then
+              echo "no changes after rebase (someone else compiled these)"
+              echo "pushed=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            git commit -m "paper-compile: produce/refresh paper PDFs"
+            if git push; then
               echo "pushed=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            echo "push attempt $i failed; retrying after backoff..."
+            echo "push attempt $i failed (race?); resetting commit + retrying"
+            git reset --soft HEAD~1
             sleep $((5 * i))
           done
           echo "push failed after 5 attempts" >&2
