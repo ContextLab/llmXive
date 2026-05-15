@@ -73,8 +73,8 @@ class SubmissionResult:
 # HF daily-papers fetch
 # ────────────────────────────────────────────────────────────────────────────
 
-def _fetch_daily_json(date: str, *, timeout: float = 30.0) -> list[dict[str, Any]]:
-    """Hit the public HF daily-papers endpoint for a given YYYY-MM-DD.
+def _fetch_daily_json_one(date: str, *, timeout: float = 30.0) -> list[dict[str, Any]]:
+    """Hit the public HF daily-papers endpoint for a given YYYY-MM-DD (one attempt).
 
     Returns the raw JSON list. Raises urllib.error.HTTPError on non-2xx.
     """
@@ -86,6 +86,47 @@ def _fetch_daily_json(date: str, *, timeout: float = 30.0) -> list[dict[str, Any
     if not isinstance(data, list):
         raise ValueError(f"unexpected HF daily-papers payload shape: {type(data).__name__}")
     return data
+
+
+def _fetch_daily_json(date: str, *, timeout: float = 30.0,
+                      fallback_days: int = 1) -> tuple[str, list[dict[str, Any]]]:
+    """Hit HF daily-papers for `date`; on 400 (date bucket not yet populated)
+    fall back to the previous UTC day up to `fallback_days` times.
+
+    Returns (effective_date, payload). Raises urllib.error.HTTPError on
+    persistent failure after the fallback chain.
+
+    Rationale: GitHub Actions cron jobs scheduled at ~23:59 UTC routinely
+    fire 5-30 minutes late. Once we cross midnight UTC, `_today_utc()` returns
+    the *new* day whose HF bucket isn't published yet, and the endpoint
+    returns HTTP 400. We must retry against the previous day so the cron
+    isn't a roulette wheel keyed on Actions queue depth.
+    """
+    from datetime import datetime, timedelta
+
+    try:
+        ts = datetime.strptime(date, "%Y-%m-%d")
+    except ValueError:
+        # Date didn't parse — try a single fetch and let urlopen raise.
+        return date, _fetch_daily_json_one(date, timeout=timeout)
+
+    attempts: list[str] = [date]
+    for i in range(1, fallback_days + 1):
+        attempts.append((ts - timedelta(days=i)).strftime("%Y-%m-%d"))
+
+    last_err: urllib.error.HTTPError | None = None
+    for d in attempts:
+        try:
+            return d, _fetch_daily_json_one(d, timeout=timeout)
+        except urllib.error.HTTPError as exc:
+            if exc.code in (400, 404):
+                # Date bucket not yet populated — try the previous day.
+                last_err = exc
+                continue
+            raise
+    # All attempts failed with 400/404 — re-raise the last one.
+    assert last_err is not None
+    raise last_err
 
 
 def _parse_paper(entry: dict[str, Any]) -> Paper | None:
@@ -105,19 +146,33 @@ def _parse_paper(entry: dict[str, Any]) -> Paper | None:
     return Paper(arxiv_id=arxiv_id, title=title, summary=summary, upvotes=upvotes)
 
 
-def fetch_top_papers(date: str, *, limit: int = 5, raw_json: list[dict[str, Any]] | None = None) -> list[Paper]:
-    """Return the top-N HF daily papers for ``date`` (YYYY-MM-DD), sorted by
-    upvotes desc. ``raw_json`` lets tests inject without monkey-patching
-    urllib.
+def fetch_top_papers(
+    date: str,
+    *,
+    limit: int = 5,
+    raw_json: list[dict[str, Any]] | None = None,
+) -> tuple[str, list[Paper]]:
+    """Return (effective_date, top-N HF daily papers) sorted by upvotes desc.
+
+    The effective_date may differ from the requested `date` when the HF
+    endpoint returns 400/404 for `date` (bucket not yet populated) and the
+    fallback chain in `_fetch_daily_json` succeeds against an earlier day.
+
+    ``raw_json`` lets tests inject without monkey-patching urllib. When
+    raw_json is supplied, the effective_date equals the requested date.
     """
-    data = raw_json if raw_json is not None else _fetch_daily_json(date)
+    if raw_json is not None:
+        effective = date
+        data = raw_json
+    else:
+        effective, data = _fetch_daily_json(date)
     parsed: list[Paper] = []
     for entry in data:
         p = _parse_paper(entry)
         if p is not None:
             parsed.append(p)
     parsed.sort(key=lambda p: (-p.upvotes, p.arxiv_id))
-    return parsed[: max(0, int(limit))]
+    return effective, parsed[: max(0, int(limit))]
 
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -231,7 +286,14 @@ def submit_top_papers(
     when ``dry_run``). Idempotent across same-day retries: an arXiv URL
     already present in any open or closed `new-paper` issue is skipped.
     """
-    papers = fetch_top_papers(date, limit=limit, raw_json=raw_json)
+    effective_date, papers = fetch_top_papers(date, limit=limit, raw_json=raw_json)
+    if effective_date != date:
+        print(
+            f"[hf-daily-papers] HF bucket for {date} not yet populated; "
+            f"falling back to {effective_date}",
+            file=sys.stderr,
+        )
+    date = effective_date  # record the date that actually returned data
     filed: list[dict[str, Any]] = []
     skipped: list[dict[str, Any]] = []
     seen: set[str] = set() if dry_run else _list_recent_paper_issue_urls(repo)
@@ -268,9 +330,22 @@ def submit_top_papers(
 
 
 def _today_utc() -> str:
-    """YYYY-MM-DD in UTC — the HF daily-papers feed is UTC-bucketed."""
-    from datetime import datetime, timezone
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    """Default date for the HF daily-papers fetch — YESTERDAY in UTC.
+
+    HF's daily-papers feed is bucketed by *publication* day (UTC). A bucket
+    is populated when HF's editorial pipeline finishes that day's roundup.
+    Empirically that happens in the late afternoon UTC; running before that
+    against today's date returns HTTP 400.
+
+    We default to (today_utc - 1 day) so the cron is robust against
+    schedule drift (Actions can fire 5-30 minutes late past midnight UTC)
+    AND against HF publishing slowly. The fallback in `_fetch_daily_json`
+    will walk further back if even yesterday's bucket is unpopulated.
+
+    Tests / manual runs can still pass an explicit `--date YYYY-MM-DD`.
+    """
+    from datetime import datetime, timedelta, timezone
+    return (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
 
 
 def cli_main(argv: Sequence[str] | None = None) -> int:
