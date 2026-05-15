@@ -304,8 +304,6 @@ This section evaluates whether Intern-Atlas captures meaningful method-evolution
 \begin{table}[t]
 \centering
 \vspace{-1.5em}
-\caption{Lineage-search algorithm performance. `@$k$` denotes beam width or RW rollouts.}
-\label{tab:lineage-search-results}
 \begin{tabular}{lcccc}
 \toprule
 \textbf{Method} & \textbf{NR} & \textbf{ER} & \textbf{CAS} \\
@@ -319,6 +317,8 @@ RW@5 & 28.1 & 0.7 & 28.1 \\
 \end{tabular}
 \vspace{-1.0em}
 
+\caption{Lineage-search algorithm performance. `@$k$` denotes beam width or RW rollouts.}
+\label{tab:lineage-search-results}
 \end{table}
 Table~\ref{tab:lineage-search-results} compares SGT-MCTS with two graph-search baselines. Beam search expands all valid next-hop methods at each step and keeps the top-$k$ highest-scored partial chains. Random walk starts from the same seed method and repeatedly samples a valid next-hop method uniformly at random until the depth limit or a dead end. Compared with the strongest baseline, Beam@10, it improves NR by 39.9 points, ER by 55.8 points, and CAS by 39.9 points, indicating better recovery of the reference methods, transitions, and ordering in target evolution chains. These results support the effectiveness of SGT-MCTS for method-lineage reconstruction. Given the same graph and seed method, SGT-MCTS finds chains that are much closer to the expected evolution lineage of the method than the baselines.
 
@@ -336,8 +336,6 @@ We use the Strata Dataset to examine whether Intern-Atlas scores follow the broa
 
 \begin{table}[t]
 \centering
-\caption{Mean idea evaluation scores across publication strata. Scores are computed from extracted ideas. The overall score and all five dimensions decrease from top-tier conference papers to rejected submissions, with the largest gaps appearing in Significance and Validity.}
-\label{tab:idea-eval-strata-transposed}
 \begin{tabularx}{\linewidth}{l *{6}{>{\centering\arraybackslash}X}}
 \toprule
 & \textbf{Novelty} & \textbf{Feasibility} & \textbf{Significance} & \textbf{Validity} & \textbf{Clarity} & \textbf{Overall} \\
@@ -348,6 +346,8 @@ Workshop papers & 5.01 & 6.38 & 5.77 & 6.16 & 6.17 & 6.85 \\
 Rejected submissions & 4.56 & 5.50 & 4.91 & 5.27 & 5.54 & 5.84 \\
 \bottomrule
 \end{tabularx}
+\caption{Mean idea evaluation scores across publication strata. Scores are computed from extracted ideas. The overall score and all five dimensions decrease from top-tier conference papers to rejected submissions, with the largest gaps appearing in Significance and Validity.}
+\label{tab:idea-eval-strata-transposed}
 \end{table}
 
 \begin{figure*}[t]
@@ -384,8 +384,6 @@ For alignment with human expert review, we sample 100 idea profiles from the Str
 
 \begin{table}[t]
 \centering
-\caption{Idea-quality scores for generated proposals under different knowledge sources.}
-\label{tab:exp03-idea-quality}
 % 使用 tabularx，设置宽度为 \linewidth
 % l 是第一列（左对齐），后面 6 列是自动平分宽度并居中的 X 列
 \begin{tabularx}{\linewidth}{l *{6}{>{\centering\arraybackslash}X}}
@@ -399,6 +397,8 @@ BM25 RAG & 5.39 & 7.30 & 5.39 & 4.66 & 7.70 & 6.15 \\
 \rowcolor{lightblue} Intern-Atlas & \textbf{6.37} & 7.21 & \textbf{6.30} & \textbf{6.26} & 7.67 & \textbf{7.20} \\
 \bottomrule
 \end{tabularx}
+\caption{Idea-quality scores for generated proposals under different knowledge sources.}
+\label{tab:exp03-idea-quality}
 \end{table}
 
 \paragraph{Experimental details.}
@@ -482,11 +482,6 @@ field is typed by $\mathcal{D}$.
 
 \begin{table}[h]
 \centering
-\caption{The 14-axis bottleneck dimension taxonomy $\mathcal{D}$. Each axis names a fundamental cost or quality of
-methodological design; axes type the bottleneck and impact fields of $\rho(e)$ and feed the
-feasibility/significance signals of the idea evaluator. Definitions are reproduced verbatim in the Phase-2
-extraction prompt.}
-\label{tab:dim-taxonomy}
 \begin{tabularx}{\linewidth}{l X}
 \toprule
 Dimension & Operational definition \\
@@ -507,6 +502,11 @@ hyperparameter sensitivity & outcome variance w.r.t.\ hyperparameter choice \\
 training complexity & engineering difficulty of the training recipe \\
 \bottomrule
 \end{tabularx}
+\caption{The 14-axis bottleneck dimension taxonomy $\mathcal{D}$. Each axis names a fundamental cost or quality of
+methodological design; axes type the bottleneck and impact fields of $\rho(e)$ and feed the
+feasibility/significance signals of the idea evaluator. Definitions are reproduced verbatim in the Phase-2
+extraction prompt.}
+\label{tab:dim-taxonomy}
 \end{table}
 
 \paragraph{Edge vocabulary \texorpdfstring{$\mathcal{T}$}{T}.}
@@ -515,10 +515,6 @@ Edges $\mathcal{E}\subseteq(\mathcal{V}_P\cup\mathcal{V}_S)^2$ carry a type from
 
 \begin{table}[h]
 \centering
-\caption{The seven causal edge types of $\mathcal{T}$. Definitions are reproduced verbatim in the Phase-1
-extraction prompt; the first four form the strong-causal subset $\mathcal{T}_{\text{strong}}$ on which SGT-MCTS
-performs lineage traversal.}
-\label{tab:edge-types}
 \begin{tabularx}{\linewidth}{l X}
 \toprule
 Edge type & Operational definition (Phase-1 prompt glossary) \\
@@ -533,6 +529,10 @@ core formulation \\
 \texttt{background} & cites as context, motivation, or non-methodological background \\
 \bottomrule
 \end{tabularx}
+\caption{The seven causal edge types of $\mathcal{T}$. Definitions are reproduced verbatim in the Phase-1
+extraction prompt; the first four form the strong-causal subset $\mathcal{T}_{\text{strong}}$ on which SGT-MCTS
+performs lineage traversal.}
+\label{tab:edge-types}
 \end{table}
 
 \paragraph{Strong-causal subgraph \texorpdfstring{$G_{\text{strong}}$}{G_strong}.}
@@ -549,11 +549,6 @@ source both from hand-curated seed annotations, yielding $\mathcal{T}_M=\{\textt
 
 \begin{table}[h]
 \centering
-\caption{Deterministic projection from paper-level causal edges $\mathcal{T}$ to method-level relations
-$\mathcal{T}_M$. \texttt{compares} and \texttt{background} are excluded as non-methodological, and
-\texttt{uses\_component} is reversed in direction so that the cited method is encoded as a component of the citing
-one.}
-\label{tab:projection}
 \begin{tabularx}{\linewidth}{l X}
 \toprule
 Causal type in $\mathcal{T}$ & Method-level type in $\mathcal{T}_M$ \\
@@ -564,6 +559,11 @@ Causal type in $\mathcal{T}$ & Method-level type in $\mathcal{T}_M$ \\
 \texttt{compares}, \texttt{background} & excluded (non-methodological) \\
 \bottomrule
 \end{tabularx}
+\caption{Deterministic projection from paper-level causal edges $\mathcal{T}$ to method-level relations
+$\mathcal{T}_M$. \texttt{compares} and \texttt{background} are excluded as non-methodological, and
+\texttt{uses\_component} is reversed in direction so that the cited method is encoded as a component of the citing
+one.}
+\label{tab:projection}
 \end{table}
 
 \paragraph{Alias registry \texorpdfstring{$\mathcal{A}$}{A}.}
@@ -787,11 +787,6 @@ linearly to $-2.0$ at $>1000$ (saturated).
 
 \begin{table}[h]
 \centering
-\caption{Four empirical cross-dimensional priors comprising $\Omega_{\text{cross}}$. Each row triggers an additive
-adjustment to the overall score $s^\ast$ when its conjunctive condition over the post-red-flag scores
-$\mathbf{s}'$ holds, encoding patterns where one dimension's score becomes more or less informative in
-conjunction with another.}
-\label{tab:cross-dim}
 \begin{tabularx}{\linewidth}{l X c}
 \toprule
 Prior & Trigger & Adjustment \\
@@ -803,6 +798,11 @@ Significance amplification & $s'_S\ge 6$ & $+0.4$ \\
 Balanced coherence & $\max(\mathbf{s}')-\min(\mathbf{s}')\le 2\ \land\ \min(\mathbf{s}')\ge 5$ & $+0.3$ \\
 \bottomrule
 \end{tabularx}
+\caption{Four empirical cross-dimensional priors comprising $\Omega_{\text{cross}}$. Each row triggers an additive
+adjustment to the overall score $s^\ast$ when its conjunctive condition over the post-red-flag scores
+$\mathbf{s}'$ holds, encoding patterns where one dimension's score becomes more or less informative in
+conjunction with another.}
+\label{tab:cross-dim}
 \end{table}
 
 
@@ -956,8 +956,6 @@ convolutional masked autoencoder and global response normalization.
 \begin{table}[h]
 \centering
 \small
-\caption{Qualitative comparison of lineage-search results for a ConvNeXt-V2-centered ConvNet lineage.}
-\label{tab:case-study-resnet-lineage}
 \begin{tabularx}{\linewidth}{l X}
 \toprule
 \textbf{Method} & \textbf{Retrieved lineage} \\
@@ -982,6 +980,8 @@ $\rightarrow$ \emph{Decoupled Weight Decay} $\rightarrow$
 \emph{ConvNeXt} $\rightarrow$ \emph{ConvNeXt V2} \\
 \bottomrule
 \end{tabularx}
+\caption{Qualitative comparison of lineage-search results for a ConvNeXt-V2-centered ConvNet lineage.}
+\label{tab:case-study-resnet-lineage}
 \end{table}
 
 SGT-MCTS recovers the complete reference subsequence in the correct order. The extra \emph{Caffe} node provides implementation context before \emph{VGG},

@@ -38,9 +38,12 @@
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
+\providecommand{\blfootnote}[1]{\footnote{#1}}
+\providecommand{\corresponding}{}
 \providecommand{\correspondingauthor}[1]{}
 \providecommand{\eg}{e.g.,\xspace}
 \providecommand{\email}[1]{\href{mailto:#1}{#1}}
+\providecommand{\equalcontribution}{}
 \providecommand{\etal}{et al.\xspace}
 \providecommand{\etc}{etc.\xspace}
 \providecommand{\iclrfinalcopy}{}
@@ -113,8 +116,6 @@ We conduct extensive evaluations on $29$ frontier image editing models and $21$ 
 \end{abstract}
 \section{Introduction}
 \begin{table}[t]
-\caption{\textbf{Comparison between \bench\ and existing image editing benchmarks.} 
-\texttt{AVR} denotes Algorithm Visual Reasoning, \texttt{MIA} denotes Multi-Image Awareness, \texttt{WKR} denotes World Knowledge Reasoning, \texttt{DM} denotes Dynamic Manipulation, and \texttt{HP} denotes Human Preference evaluation.}
 \vspace{0.5em}
 \label{tab:compare_image_editing_bench}
 \centering
@@ -139,6 +140,8 @@ WiseEdit~\cite{pan2025wiseedit} & 1,220 & 13 & EN/ZH & \icono & \icohalf  & \ico
 \end{tabular}%
 }
 % \vspace{-1.70em}
+\caption{\textbf{Comparison between \bench\ and existing image editing benchmarks.} 
+\texttt{AVR} denotes Algorithm Visual Reasoning, \texttt{MIA} denotes Multi-Image Awareness, \texttt{WKR} denotes World Knowledge Reasoning, \texttt{DM} denotes Dynamic Manipulation, and \texttt{HP} denotes Human Preference evaluation.}
 \end{table}
 
 Recent image editing models~\cite{brooks2023instructpix2pix, chen2025opengpt,labs2025flux, wang2025scone,tong2026cof,zhu2026layermultilayerrepresentationfusion,zhao2024ultraedit,yu2025anyedit} have achieved remarkable progress, evolving from simple instruction-driven editing toward more advanced capabilities involving multimodal understanding, complex reasoning, and multi-image editing. 
@@ -206,9 +209,6 @@ Overall, our results reveal a fundamental limitation of current image editing sy
 % \end{table}
 
 \begin{table}[t]
- 
-\caption{\textbf{Comparison between \rmbench\ and existing image editing reward benchmarks.}
-\texttt{AVR} denotes Algorithm Visual Reasoning, \texttt{DM} denotes Dynamic Manipulation, \texttt{WKR} denotes World Knowledge Reasoning, and \texttt{CP} denotes Complex Paint.}
 \vspace{0.5em}
 \label{tab:compare_image_editing_reward_bench}
 \centering
@@ -228,6 +228,8 @@ MMBench2~\cite{hu2025multimodal} & 1,000 & - & Cross-model   & \icono & \icono &
 \end{tabular}%
 }
 
+\caption{\textbf{Comparison between \rmbench\ and existing image editing reward benchmarks.}
+\texttt{AVR} denotes Algorithm Visual Reasoning, \texttt{DM} denotes Dynamic Manipulation, \texttt{WKR} denotes World Knowledge Reasoning, and \texttt{CP} denotes Complex Paint.}
 \end{table}
 
 Existing image editing benchmarks face two major limitations: limited task coverage and insufficient evaluation reliability. As shown in Table~\ref{tab:compare_image_editing_bench}, early benchmarks~\cite{zhang2023magicbrush,sheynin2024emu,yu2025anyedit,pan2025ice} mainly focus on narrow editing tasks and rely on automated metrics such as CLIP-I and DINO-I. However, these metrics often fail to capture fine-grained editing quality, especially for tasks involving world knowledge, visual consistency, and complex instruction following.
@@ -358,11 +360,6 @@ In the first stage, three annotators independently review sampled outputs to con
 
 \begin{table*}[t]
     \centering
-    
-    \caption{
-    \textbf{Main results on {\bench} under English instructions.} The best results are marked in \textbf{bold} for
-    { open-} and { closed-} models, respectively.}
-    \label{tab:Image Editing Bench Main Results_EN}
     \resizebox{\linewidth}{!}{
         \begin{tabular}{lc|ccc|ccc|ccc|ccc|ccc|ccc|c}
             \toprule
@@ -626,6 +623,10 @@ Nano Banana Pro~\cite{gemini3pro} & $\checkmark$
  
             \bottomrule
         \end{tabular}}
+\caption{
+    \textbf{Main results on {\bench} under English instructions.} The best results are marked in \textbf{bold} for
+    { open-} and { closed-} models, respectively.}
+\label{tab:Image Editing Bench Main Results_EN}
 \end{table*}
 
 
@@ -660,11 +661,6 @@ For preference-trained reward models, the results show consistently strong perfo
 
 \begin{table*}[t]
     \centering
-    
-    \caption{
-    \textbf{Main results on {\bench} under Chinese instructions.} The best results are marked in \textbf{bold} for
-    { open-} and { closed-} models, respectively.}
-    \label{tab:Image Editing Bench Main Results_CN}
     \resizebox{\linewidth}{!}{
         \begin{tabular}{lc|ccc|ccc|ccc|ccc|ccc|ccc|c}
             \toprule
@@ -932,6 +928,10 @@ Nano Banana Pro~\cite{gemini3pro} & $\checkmark$
             \bottomrule
         \end{tabular}}
    
+\caption{
+    \textbf{Main results on {\bench} under Chinese instructions.} The best results are marked in \textbf{bold} for
+    { open-} and { closed-} models, respectively.}
+\label{tab:Image Editing Bench Main Results_CN}
 \end{table*}
 
 
@@ -942,9 +942,6 @@ Nano Banana Pro~\cite{gemini3pro} & $\checkmark$
 
 \begin{table}[]
 \centering
-\caption{\textbf{Main results on {\rmbench}.} 
-$^\dagger$ indicates Qwen3.5-VL-7B as the baseline, \textsuperscript{\S} indicates Qwen3-VL-8B as the baseline, and $^\ddagger$ denotes the thinking-enabled version.}
-\label{tab:RMBench Main Result}
 \resizebox{0.75\textwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
@@ -1001,17 +998,15 @@ EditScore\textsuperscript{\S}~\cite{wu2025editreward} & 0.5736 & 0.5222 & 0.5616
 \end{tabular}%
 }
 \vspace{-0.5em}
+\caption{\textbf{Main results on {\rmbench}.} 
+$^\dagger$ indicates Qwen3.5-VL-7B as the baseline, \textsuperscript{\S} indicates Qwen3-VL-8B as the baseline, and $^\ddagger$ denotes the thinking-enabled version.}
+\label{tab:RMBench Main Result}
 \end{table}
 
  
 
 \begin{table*}[t]
 \centering
-\caption{\textbf{System prompt ablation and visual perception analysis.}
-(a) visual perception comparison on single-image and multi-image tasks.
-(b) compares different system prompts on {\rmbench}, where colored $\uparrow$ denotes the absolute gain over the corresponding EditScore prompt.}
-\label{tab:combined_results}
-
 \begin{minipage}{0.38\textwidth}
 \centering
 (b) Visual perception analysis\\[0.3em]
@@ -1060,6 +1055,10 @@ Qwen3-VL-32B ~\citep{bai2025qwen3} & 0.6786(\gain{0.0442}) & 0.3944(\gain{0.1992
 \end{minipage}
 
 \vspace{-1em}
+\caption{\textbf{System prompt ablation and visual perception analysis.}
+(a) visual perception comparison on single-image and multi-image tasks.
+(b) compares different system prompts on {\rmbench}, where colored $\uparrow$ denotes the absolute gain over the corresponding EditScore prompt.}
+\label{tab:combined_results}
 \end{table*}
 
 
@@ -1103,7 +1102,7 @@ We sincerely thank Zhuoran Zhang, Qixun Wang, Yuqi Tang, Tengfei Liu, Haotian Wa
 
 \bibliography{neurips_2026}
 
-\newpage
+
 
 \appendix
 
@@ -1485,8 +1484,6 @@ We introduce  Global Word Path Recovery, a more challenging variant of the stand
 \label{supp: EditReward-Compass Data Construction}
 \begin{table}[t]
 \centering
-\caption{Reward Model Benchmark Sampling Configuration.}
-\label{tab:reward_model_benchmark_sampling_config}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{l l c c c c c}
 \toprule
@@ -1501,6 +1498,8 @@ Uniworld-V2~\cite{li2025uniworld}     & Same Model & 16 & 0.7 & 15 & 23,648 & \i
 \bottomrule
 \end{tabular}
 }
+\caption{Reward Model Benchmark Sampling Configuration.}
+\label{tab:reward_model_benchmark_sampling_config}
 \end{table}
 
 We construct the raw data of {\rmbench} using a stratified sampling strategy. For tasks that require world-knowledge reasoning and algorithmic visual reasoning, current open-source image editing models often produce relatively weak outputs, making it difficult to form reliable and informative preference pairs from a single model. Therefore, we sample candidate edited images from a diverse pool of image editing models, including Bagel~\cite{deng2025emerging}, EMU3.5~\cite{cui2025emu3}, Flux2-dev~\cite{flux-2-2025}, LongCat-Image-Edit~\cite{team2025longcat}, NextStep-1-HF~\cite{han2025nextstep}, OmniGen2~\cite{wu2025omnigen2}, Qwen-Image-Edit~\cite{wu2025qwen}, Uniworld-V1~\cite{lin2025uniworld}, Nano Banana Pro~\cite{nanobananapro}, and Nano Banana 2~\cite{google2026gemini31propreview}. Human experts then manually inspect and filter these candidates to construct valid preference pairs with clear quality differences.
@@ -1665,13 +1664,6 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
 
 \begin{table*}[t]
     \centering
-    
-    \caption{
-    Evaluation results of image editing models on the General task category of {\bench}. 
-    The best results are marked in \textbf{bold} for
-    { open-} and { closed-} models, respectively.}
-    \label{supp:General task Results}
-
     \resizebox{\linewidth}{!}{%
         \begin{tabular}{l|cccccccccc|c}
             
@@ -1966,17 +1958,14 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
         \end{tabular}%
     }
     \vspace{-1.0em}
+\caption{
+    Evaluation results of image editing models on the General task category of {\bench}. 
+    The best results are marked in \textbf{bold} for
+    { open-} and { closed-} models, respectively.}
+\label{supp:General task Results}
 \end{table*}
 \begin{table*}[t]
     \centering
-    
-    \caption{
-    Evaluation results of image editing models on the Algorithm Visual Reasoning task category of {\bench}. 
-    The best results are marked in \textbf{bold} for
-    { open-} and { closed-} models, respectively.}
-
-    \label{tab:Algorithm Visual Reasoning}
-
     \resizebox{\linewidth}{!}{%
         \begin{tabular}{l|cccccccccc|c}
             
@@ -2260,14 +2249,14 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
         \end{tabular}%
     }
     \vspace{-1.0em}
+\caption{
+    Evaluation results of image editing models on the Algorithm Visual Reasoning task category of {\bench}. 
+    The best results are marked in \textbf{bold} for
+    { open-} and { closed-} models, respectively.}
+\label{tab:Algorithm Visual Reasoning}
 \end{table*}
 \begin{table*}[t]
     \centering
-    
-    \caption{Performance of image editing models on the Dynamic Manipulation and World Knowledge Reasoning task categories of {\bench}.
-    The best results are marked in \textbf{bold} for
-    { open-} and { closed-} models, respectively.}
-    \label{supp: Dynamic Manipulation Results}
     \label{tab:general}
 
     \resizebox{\linewidth}{!}{%
@@ -2562,14 +2551,13 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
         \end{tabular}%
     }
     \vspace{-1.0em}
+\caption{Performance of image editing models on the Dynamic Manipulation and World Knowledge Reasoning task categories of {\bench}.
+    The best results are marked in \textbf{bold} for
+    { open-} and { closed-} models, respectively.}
+\label{supp: Dynamic Manipulation Results}
 \end{table*}
 \begin{table*}[t]
     \centering
-     
-    \caption{Performance of image editing models on the Multi-Image and Complex Task categories of {\bench}. The best results are marked in \textbf{bold} for
-    { open-} and { closed-} models, respectively.}
-    \label{supp: Multi-Image and Complex results}
-
     \resizebox{\linewidth}{!}{%
         \begin{tabular}{l|cccc|cccc}
             \toprule
@@ -2882,9 +2870,12 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
         \end{tabular}%
     }
     \vspace{-1.0em}
+\caption{Performance of image editing models on the Multi-Image and Complex Task categories of {\bench}. The best results are marked in \textbf{bold} for
+    { open-} and { closed-} models, respectively.}
+\label{supp: Multi-Image and Complex results}
 \end{table*}
 
-\clearpage
+
 
 \begin{figure}[t]
   \centering
@@ -3149,7 +3140,7 @@ Second, we sample instances from ImgEdit-Bench, GEdit-Bench, RISE-Bench, and {\b
   \vspace{-1em}
 \end{figure}
 
-\clearpage
+
 
 \begin{promptbox}[label={System Prompts: IF_Complex_Instruction}]{Instruction Following System Prompts for Complex Instruction Tasks}
 % \label{}
@@ -3302,7 +3293,7 @@ Please strictly use the following JSON structure to provide granular feedback fo
 \end{promptbox}
 
 
-\clearpage
+
 
 \begin{promptbox}[label={System Prompts: IF_Complex Paint}]{Instruction Following System Prompts for Complex Paint Tasks}
 \label{}
@@ -3397,7 +3388,7 @@ You must interpret user intentions based on various types of markings, such as b
 \end{promptbox}
 
 
-\clearpage
+
 
 \begin{promptbox}[label={System Prompts: IF_Multi-Image}]{Instruction Following System Prompts for Mutli-Image Tasks}
 
@@ -3501,7 +3492,7 @@ Your goal is to evaluate, on a strict 1--5 scale, the AI model's ability to prec
 
 \end{promptbox}
 
-\clearpage
+
 
 
 \begin{promptbox}[label={System Prompts: IF_other tasks}]{Instruction Following System Prompts for other tasks}
@@ -3614,7 +3605,7 @@ Please strictly follow this JSON structure for the output:
 
 \end{promptbox}
 
-\clearpage
+
 
 \begin{promptbox}[label={System Prompts: WA}]{System Prompts for World Knowledge Awareness}
 
@@ -3755,7 +3746,7 @@ You must structure your response strictly as follows.
 
 
 
-\clearpage
+
 
 \begin{promptbox}[label={System Prompts: URC_Complex_paint}]{Unedited Region Consistency System Prompts for the Complex Paint Task}
 
@@ -3861,7 +3852,7 @@ Your core task is to compare three images along with a provided text description
 \end{promptbox}
 
 
-\clearpage
+
 
 \begin{promptbox}[label={System Prompts: URC_Other_Tasks}]{Unedited Region Consistency System Prompts for Other Tasks}
 
@@ -4005,7 +3996,7 @@ Please return the result in strict JSON format:
 
 \end{promptbox}
 
-\clearpage
+
 
 \begin{promptbox}[label={System Prompts: IC_Multi-Image}]{Identity Consistency System Prompts for Multi-Image Task}
 
@@ -4113,7 +4104,7 @@ Perform a comparison between the Source Image and the Edited Image:
 
 \end{promptbox}
 
-\clearpage
+
 
 \begin{promptbox}[label={System Prompts: IC_Other_Tasks}]{Identity Consistency System Prompts for Other Tasks}
 
@@ -4216,7 +4207,7 @@ Please output strictly according to the following JSON format.
 \end{promptbox}
 
 
-\clearpage
+
 
 \begin{promptbox}[label={System Prompts: Visual Quality}]{Image Quality Assessment Expert}
 

@@ -26,7 +26,6 @@
 \usepackage{float}
 \usepackage{placeins}
 \usepackage{hyphenat}
-\usepackage{setspace}
 \usepackage{parskip}
 \usepackage{lipsum}
 \usepackage{etoolbox}
@@ -37,7 +36,6 @@
 \usepackage[most]{tcolorbox}
 \usepackage[capitalize,noabbrev,nameinlink]{cleveref}
 \usepackage[numbers, sort&compress]{natbib}
-\usepackage[round,authoryear]{natbib}
 
 %% ── Shim layer (venue macros made into no-ops) ────────────────
 \makeatletter
@@ -49,9 +47,12 @@
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
+\providecommand{\blfootnote}[1]{\footnote{#1}}
+\providecommand{\corresponding}{}
 \providecommand{\correspondingauthor}[1]{}
 \providecommand{\eg}{e.g.,\xspace}
 \providecommand{\email}[1]{\href{mailto:#1}{#1}}
+\providecommand{\equalcontribution}{}
 \providecommand{\etal}{et al.\xspace}
 \providecommand{\etc}{etc.\xspace}
 \providecommand{\iclrfinalcopy}{}
@@ -110,10 +111,10 @@ Based on these findings, we introduce \modelname, obtained by long-context conti
 It further generalizes to webpage-based multimodal needle retrieval, long-context vision-text compression, and long-video understanding without task-specific supervision.
 Overall, our study establishes a practical LongPT recipe and an empirical foundation for advancing long-context vision-language models.
 \end{abstract}
-%不需要目录就注释掉 注意目录不要和第一页放在一块 要有\newpage
-%\newpage
+%不需要目录就注释掉 注意目录不要和第一页放在一块 要有
+%
 %\tableofcontents
-%\newpage
+%
 
 % !TEX root = ../paper.tex
 
@@ -269,8 +270,6 @@ To favor OCR-based LongPT, we further apply a 5B-token SFT stage to the OCR-trai
 
 \begin{table*}[t]
     \centering
-    \caption{We compare long-document VQA data with OCR transcription data under the same setting. The models are evaluated on the document category of MMLongBench~\citep{wang2025mmlongbench} at 64K and 128K, which contains three datasets: MMLongBench-Doc~\citep{ma2024mmlongbenchdoc}, LongDocURL~\citep{deng2025longdocurl}, and SlideVQA~\citep{tanaka2023slidevqa}. We abbreviate them as MMLB-D, LD-URL, and SLIDE, respectively. \textbf{SFT} means an extra 5B-token SFT stage.}
-    \label{tab:vqa_effectiveness}
     \setlength{\tabcolsep}{4pt}
     \resizebox{0.9\textwidth}{!}{%
     \begin{tabular}{l*{4}{C{1.2cm}}|*{4}{C{1.2cm}}|C{1.8cm}}
@@ -293,6 +292,8 @@ To favor OCR-based LongPT, we further apply a 5B-token SFT stage to the OCR-trai
     \end{tabular}
     }
 
+\caption{We compare long-document VQA data with OCR transcription data under the same setting. The models are evaluated on the document category of MMLongBench~\citep{wang2025mmlongbench} at 64K and 128K, which contains three datasets: MMLongBench-Doc~\citep{ma2024mmlongbenchdoc}, LongDocURL~\citep{deng2025longdocurl}, and SlideVQA~\citep{tanaka2023slidevqa}. We abbreviate them as MMLB-D, LD-URL, and SLIDE, respectively. \textbf{SFT} means an extra 5B-token SFT stage.}
+\label{tab:vqa_effectiveness}
 \end{table*}
 
 \noindent\textbf{Long-document VQA provides stronger supervision.}
@@ -318,8 +319,6 @@ We provide an additional ablation on the RoPE base frequency in \cref{app:comple
 
 \begin{table*}[t]
     \centering
-    \caption{Long-context data mixture test. We grid search the mix of information extraction vs.\ reasoning tasks from $0:10$ to $10:0$ under the fixed 5B-token budget. \textbf{Ratio} represents the extraction-to-reasoning ratio.}
-    \label{tab:extract_reason_ratio}
     \setlength{\tabcolsep}{4pt}
     \resizebox{0.85\textwidth}{!}{%
     \begin{tabular}{l*{4}{C{1.2cm}}|*{4}{C{1.2cm}}|C{1.2cm}}
@@ -337,6 +336,8 @@ We provide an additional ablation on the RoPE base frequency in \cref{app:comple
     \bottomrule
     \end{tabular}
     }
+\caption{Long-context data mixture test. We grid search the mix of information extraction vs.\ reasoning tasks from $0:10$ to $10:0$ under the fixed 5B-token budget. \textbf{Ratio} represents the extraction-to-reasoning ratio.}
+\label{tab:extract_reason_ratio}
 \end{table*}
 
 \subsection{Training Sequence-Length Distribution}
@@ -375,9 +376,6 @@ Based on this observation, we adopt the \emph{pool-native} distribution for all 
 
 \begin{table*}[t]
     \centering
-    \caption{\textbf{Short-context performance under different short-data mixing ratios.}
-    We report the average over six short-context benchmarks together with per-benchmark scores. \textbf{Short Data} means the proportion of short-context data. $0\%$ means only using long-context data.}
-    \label{tab:short_mix_short_performance}
     \setlength{\tabcolsep}{4pt}
     \resizebox{0.85\textwidth}{!}{%
     \begin{tabular}{l||*{2}{C{1.2cm}}|*{3}{C{1.2cm}}|C{1.2cm}|C{1.2cm}}
@@ -396,6 +394,9 @@ Based on this observation, we adopt the \emph{pool-native} distribution for all 
     \bottomrule
     \end{tabular}
     }
+\caption{\textbf{Short-context performance under different short-data mixing ratios.}
+    We report the average over six short-context benchmarks together with per-benchmark scores. \textbf{Short Data} means the proportion of short-context data. $0\%$ means only using long-context data.}
+\label{tab:short_mix_short_performance}
 \end{table*}
 
 \subsection{Multi-Task Long-Context Data Mixture}
@@ -449,9 +450,6 @@ The 40\% setting can be viewed as a balanced alternative when stronger short-con
 
 \begin{table*}[t]
     \centering
-    \caption{\textbf{Final long-document VQA results.} We compare \modelname, trained with the final LongPT recipe, against representative open-source and closed-source LVLMs at 64K and 128K.
-    }
-    \label{tab:final_longdoc_results}
     \setlength{\tabcolsep}{4pt}
     \resizebox{0.9\textwidth}{!}{%
     \begin{tabular}{l*{4}{C{1.2cm}}|*{4}{C{1.2cm}}|C{1.2cm}}
@@ -494,6 +492,9 @@ The 40\% setting can be viewed as a balanced alternative when stronger short-con
 \end{tabular}
     }
 \vspace{-4pt}
+\caption{\textbf{Final long-document VQA results.} We compare \modelname, trained with the final LongPT recipe, against representative open-source and closed-source LVLMs at 64K and 128K.
+    }
+\label{tab:final_longdoc_results}
 \end{table*}
 
 \begin{figure}[t]
@@ -536,10 +537,6 @@ This results in a significant overall advantage over the original Qwen2.5-VL-7B 
 
 \begin{table*}[t]
 \centering
-\caption{We evaluate the final 128K \modelname at 256K and 512K without additional training or adaptation.
-MMLongBench-Doc (MMLB-D), LongDocURL (LD-URL), and SlideVQA (SLIDE) are reported in order. Some baselines fail on 512K SlideVQA due to the large number of images.
-}
-\label{tab:generalization_longer_context}
 \setlength{\tabcolsep}{4pt}
 \resizebox{0.95\textwidth}{!}{%
 \scriptsize
@@ -556,6 +553,10 @@ Gemma3-12B & \textbf{31.63} & 47.47 & 63.00 & 47.37 & 24.18 & 46.37 & 0.00 & 23.
 \bottomrule
 \end{tabular}
 }
+\caption{We evaluate the final 128K \modelname at 256K and 512K without additional training or adaptation.
+MMLongBench-Doc (MMLB-D), LongDocURL (LD-URL), and SlideVQA (SLIDE) are reported in order. Some baselines fail on 512K SlideVQA due to the large number of images.
+}
+\label{tab:generalization_longer_context}
 \end{table*}
 
 Having shown that the final recipe improves long-document VQA performance and extrapolates to longer contexts, we next examine whether the learned long-context capability transfers to other multimodal tasks.
@@ -589,14 +590,14 @@ In this work, we presented a systematic study of long-context continued pre-trai
 Our experiments show that long-document VQA is a strong and practical training task, as it provides diverse retrieval and reasoning supervision signals, preserves short-context capability, and supports context extension from 32K to 128K under a modest token budget.
 Instantiated as \modelname, our recipe improves long-document VQA performance and generalizes beyond the training context window to 256K and 512K context lengths, as well as broader multimodal long-context tasks, such as long-video understanding.
 We hope our study provides a practical foundation for building future LVLMs with reliable long-context capability.
-\clearpage
 
-\clearpage
+
+
 
 \bibliographystyle{unsrtnat}
 \bibliography{reference}
 
-\clearpage
+
 \beginappendix
 \crefname{appendix}{Appendix}{Appendices}
 \Crefname{appendix}{Appendix}{Appendices}
@@ -613,8 +614,6 @@ The recipe is derived from the design choices studied in \cref{sec:curation,sec:
 \begin{table}[h]
     \centering
     \small
-    \caption{\textbf{Final training recipe for \modelname}, which is selected from the ablation studies in \cref{sec:curation,sec:mixing}.}
-    \label{tab:final_recipe}
     \setlength{\tabcolsep}{5pt}
     \resizebox{0.9\textwidth}{!}{%
     \begin{tabular}{lll}
@@ -650,6 +649,8 @@ The recipe is derived from the design choices studied in \cref{sec:curation,sec:
         \bottomrule
     \end{tabular}
     }
+\caption{\textbf{Final training recipe for \modelname}, which is selected from the ablation studies in \cref{sec:curation,sec:mixing}.}
+\label{tab:final_recipe}
 \end{table}
 
 \subsection{Training Implementation Details}
@@ -685,8 +686,6 @@ For each context length, the AVG. column is the macro average over the three dat
 
 \begin{table}[h]
     \centering
-    \caption{Prompt for the binary answer judge in the long-document VQA category of MMLongBench. Gray highlighted spans denote placeholders filled at evaluation time.}
-    \label{tab:binary_judge_prompt}
     \begin{tabular}{p{0.96\linewidth}}
     \toprule
     \begin{minipage}{0.96\linewidth}
@@ -724,12 +723,12 @@ For each context length, the AVG. column is the macro average over the three dat
     \end{minipage} \\
     \bottomrule
     \end{tabular}
+\caption{Prompt for the binary answer judge in the long-document VQA category of MMLongBench. Gray highlighted spans denote placeholders filled at evaluation time.}
+\label{tab:binary_judge_prompt}
 \end{table}
 
 \begin{table}[h]
     \centering
-    \caption{Prompt for the list-style answer judge in the long-document VQA category of MMLongBench.}
-    \label{tab:list_judge_prompt}
     \begin{tabular}{p{0.96\linewidth}}
     \toprule
     \begin{minipage}{0.96\linewidth}
@@ -762,6 +761,8 @@ For each context length, the AVG. column is the macro average over the three dat
     \end{minipage} \\
     \bottomrule
     \end{tabular}
+\caption{Prompt for the list-style answer judge in the long-document VQA category of MMLongBench.}
+\label{tab:list_judge_prompt}
 \end{table}
 
 \subsection{Details of Long-Document VQA Evaluation with the Final Recipe}
@@ -841,8 +842,6 @@ These parsed blocks serve two purposes in our pipeline:
 
 \begin{table}[h]
     \centering
-    \caption{Statistics of the document pool used for data synthesis.}
-    \label{tab:doc_pool_statistics}
     \small
     \setlength{\tabcolsep}{6pt}
     \begin{tabular}{lll}
@@ -861,6 +860,8 @@ These parsed blocks serve two purposes in our pipeline:
         & Other languages & 2,932 (0.19\%) \\
     \bottomrule
     \end{tabular}
+\caption{Statistics of the document pool used for data synthesis.}
+\label{tab:doc_pool_statistics}
 \end{table}
 
 \section{Long-Document VQA Training Data Details}
@@ -874,8 +875,6 @@ This data corresponds to the \emph{pool-native} length distribution used by our 
 \begin{table}[h]
     \centering
     \setlength{\tabcolsep}{2.5pt}
-    \caption{Statistics of the long-context training data used in our data-design study.}
-    \label{tab:long_context_training_data_stats}
     \small
     \begin{subtable}{\linewidth}
         \centering
@@ -929,6 +928,8 @@ This data corresponds to the \emph{pool-native} length distribution used by our 
         \bottomrule
         \end{tabular}
     \end{subtable}
+\caption{Statistics of the long-context training data used in our data-design study.}
+\label{tab:long_context_training_data_stats}
 \end{table}
 
 \begin{figure}[t]
@@ -961,8 +962,6 @@ This data corresponds to the \emph{pool-native} length distribution used by our 
 
 \begin{table}[t]
     \centering
-    \caption{Percentage of training samples with token length at least 100K for both \emph{pool-native} and \emph{long-biased} distribution.}
-    \label{tab:over_100k_ratio}
     \small
     \setlength{\tabcolsep}{8pt}
     \begin{tabular}{lccc}
@@ -973,6 +972,8 @@ This data corresponds to the \emph{pool-native} length distribution used by our 
     long-biased & 83.9\% & 83.9\% & 83.9\% \\
     \bottomrule
     \end{tabular}
+\caption{Percentage of training samples with token length at least 100K for both \emph{pool-native} and \emph{long-biased} distribution.}
+\label{tab:over_100k_ratio}
 \end{table}
 
 \subsection{Data Statistics for \emph{Long-Biased} Distribution}
@@ -994,11 +995,9 @@ We instantiate the same core prompt with different task descriptions and page co
 
 More concretely, \cref{tab:qa_generation_prompt} shows the prompt template used in our data sourcing process, and \cref{tab:qa_generation_task_fields} summarizes the task description and extra restriction inserted for each task type.
 
-\clearpage
+
 \begin{table}[H]
     \centering
-    \caption{The prompt template used for long-document QA pair generation. Gray highlighted spans denote placeholders filled dynamically for each sampled document span.}
-    \label{tab:qa_generation_prompt}
     \begin{adjustbox}{max width=\textwidth, max totalheight=0.95\textheight}
     \begin{tabular}{p{0.96\linewidth}}
     \toprule
@@ -1060,13 +1059,13 @@ More concretely, \cref{tab:qa_generation_prompt} shows the prompt template used 
     \bottomrule
     \end{tabular}
     \end{adjustbox}
+\caption{The prompt template used for long-document QA pair generation. Gray highlighted spans denote placeholders filled dynamically for each sampled document span.}
+\label{tab:qa_generation_prompt}
 \end{table}
-\clearpage
+
 
 \begin{table}[H]
     \centering
-    \caption{The task descriptions and extra restriction for the three long-document VQA tasks. We insert these parts into the prompt template to synthesize data.}
-    \label{tab:qa_generation_task_fields}
     \small
     \setlength{\tabcolsep}{4pt}
     \begin{tabular}{L{2.3cm}L{5.6cm}L{6.4cm}}
@@ -1088,6 +1087,8 @@ More concretely, \cref{tab:qa_generation_prompt} shows the prompt template used 
     & - Non-Trivial Synthesis: The question must require **aggregating multiple data points**. For example, ask ``What is the difference in revenue between Q1 and Q2?'' or ``Calculate the total sum of items listed in Table 3.'' The key is that the user must find at least two pieces of information and combine them to get the answer. \\
     \bottomrule
     \end{tabular}
+\caption{The task descriptions and extra restriction for the three long-document VQA tasks. We insert these parts into the prompt template to synthesize data.}
+\label{tab:qa_generation_task_fields}
 \end{table}
 
 \subsection{Human Verification of QA Pairs}
@@ -1129,8 +1130,6 @@ We provide the full dataset-level results for the sequence-length distribution a
 
 \begin{table}[H]
     \centering
-    \caption{We compare the \emph{pool-native} and \emph{long-biased} distributions under each of the three VQA-based training tasks. We abbreviate these three datasets as MMLB-D, LD-URL, and SLIDE, respectively.}
-    \label{tab:length_distribution}
     \setlength{\tabcolsep}{4pt}
     \resizebox{0.95\textwidth}{!}{%
     \begin{tabular}{ll*{4}{C{1.2cm}}|*{4}{C{1.2cm}}|C{1.8cm}}
@@ -1150,6 +1149,8 @@ We provide the full dataset-level results for the sequence-length distribution a
     \bottomrule
     \end{tabular}
     }
+\caption{We compare the \emph{pool-native} and \emph{long-biased} distributions under each of the three VQA-based training tasks. We abbreviate these three datasets as MMLB-D, LD-URL, and SLIDE, respectively.}
+\label{tab:length_distribution}
 \end{table}
 
 \subsection{Short-Data Mixing for Long-Document VQA}
@@ -1158,8 +1159,6 @@ We provide the full per-dataset long-document VQA results for the short-data mix
 
 \begin{table}[H]
     \centering
-    \caption{Short-context data test. We mix in $0\%$ to $80\%$ short-context data during LongPT under the fixed $5B$-token budget. The long-context data uses the 8:2 extraction-to-reasoning long-context mixture. \textbf{Short Data} means the proportion of short-context data. $0\%$ means only using long-context data.}
-    \label{tab:short_mix_long_vqa}
     \setlength{\tabcolsep}{4pt}
     \resizebox{0.85\textwidth}{!}{%
     \begin{tabular}{l*{4}{C{1.2cm}}|*{4}{C{1.2cm}}|C{1.2cm}}
@@ -1176,6 +1175,8 @@ We provide the full per-dataset long-document VQA results for the short-data mix
     \bottomrule
 \end{tabular}
     }
+\caption{Short-context data test. We mix in $0\%$ to $80\%$ short-context data during LongPT under the fixed $5B$-token budget. The long-context data uses the 8:2 extraction-to-reasoning long-context mixture. \textbf{Short Data} means the proportion of short-context data. $0\%$ means only using long-context data.}
+\label{tab:short_mix_long_vqa}
 \end{table}
 
 \subsection{mRoPE Base Frequency}
@@ -1201,12 +1202,6 @@ Based on this observation and to maintain consistency with the Dynamic-NTK heuri
 
 \begin{table}[H]
     \centering
-    \caption{Ablation on the mRoPE frequency base for 128K LongPT.
-    We grid search the mRoPE base in $\{2\times 10^6, 4\times 10^6, 8\times 10^6\}$, starting from the original base of $1\times 10^6$ used for the 32K context.
-    The Dynamic-NTK heuristic~\citep{dynamicntk} suggests $4\times 10^6$ as the default base when extending the context window from 32K to 128K.
-    Overall, $2\times 10^6$ and $4\times 10^6$ achieve comparable performance, while further increasing the base to $8\times 10^6$ does not yield consistent gains across tasks.
-    }
-    \label{tab:rope_base_vqa}
     \setlength{\tabcolsep}{4pt}
     \resizebox{0.95\textwidth}{!}{%
     \begin{tabular}{ll*{4}{C{1.2cm}}|*{4}{C{1.2cm}}|C{1.2cm}}
@@ -1229,6 +1224,12 @@ Based on this observation and to maintain consistency with the Dynamic-NTK heuri
     \bottomrule
     \end{tabular}
     }
+\caption{Ablation on the mRoPE frequency base for 128K LongPT.
+    We grid search the mRoPE base in $\{2\times 10^6, 4\times 10^6, 8\times 10^6\}$, starting from the original base of $1\times 10^6$ used for the 32K context.
+    The Dynamic-NTK heuristic~\citep{dynamicntk} suggests $4\times 10^6$ as the default base when extending the context window from 32K to 128K.
+    Overall, $2\times 10^6$ and $4\times 10^6$ achieve comparable performance, while further increasing the base to $8\times 10^6$ does not yield consistent gains across tasks.
+    }
+\label{tab:rope_base_vqa}
 \end{table}
 
 
@@ -1239,8 +1240,6 @@ We provide the full 64K and 128K MM-NIAH results in \cref{tab:generalization_nia
 
 \begin{table}[H]
 \centering
-\caption{\textbf{MM-NIAH generalization.} Ret., Count, and Reas. average text and image needles.}
-\label{tab:generalization_niah}
 \scriptsize
 \captionsetup[subtable]{font=footnotesize,labelformat=parens,justification=centering,skip=1pt}
 
@@ -1281,6 +1280,8 @@ We provide the full 64K and 128K MM-NIAH results in \cref{tab:generalization_nia
     \bottomrule
     \end{tabular*}
 \end{subtable}
+\caption{\textbf{MM-NIAH generalization.} Ret., Count, and Reas. average text and image needles.}
+\label{tab:generalization_niah}
 \end{table}
 
 \subsection{VTCBench Generalization}
@@ -1289,8 +1290,6 @@ We provide the full VTCBench-Wild results in \cref{tab:generalization_vtc}. We r
 
 \begin{table}[H]
     \centering
-    \caption{VTCBench generalization. We report retrieval, reasoning, memory, and the sample-count weighted overall score following VTCBench-Wild.}
-    \label{tab:generalization_vtc}
     \scriptsize
     \begin{tabular*}{0.7\linewidth}{@{\extracolsep{\fill}}lcccc@{}}
     \toprule
@@ -1305,6 +1304,8 @@ We provide the full VTCBench-Wild results in \cref{tab:generalization_vtc}. We r
     Gemma3-27B & 49.38 & 3.75 & 17.33 & 24.05 \\
     \bottomrule
     \end{tabular*}
+\caption{VTCBench generalization. We report retrieval, reasoning, memory, and the sample-count weighted overall score following VTCBench-Wild.}
+\label{tab:generalization_vtc}
 \end{table}
 
 \subsection{Long-Video Generalization}
@@ -1313,8 +1314,6 @@ We provide the numeric long-video generalization results in \cref{tab:generaliza
 
 \begin{table}[H]
 \centering
-\caption{\textbf{Long-video generalization.} We report aggregate scores on Video-MME, MLVU, and LongVideoBench.}
-\label{tab:generalization_video}
 \scriptsize
 \begin{tabular*}{0.7\linewidth}{@{\extracolsep{\fill}}lccc@{}}
 \toprule
@@ -1324,12 +1323,12 @@ Qwen2.5-VL-7B & 65.1 & 70.2 & 60.43 \\
 \modelname & \textbf{67.78} & \textbf{73.55} & \textbf{62.08} \\
 \bottomrule
 \end{tabular*}
+\caption{\textbf{Long-video generalization.} We report aggregate scores on Video-MME, MLVU, and LongVideoBench.}
+\label{tab:generalization_video}
 \end{table}
 
 \begin{table}[H]
     \centering
-    \caption{Long-document VQA transfer across backbone models. We apply LongPT variants to Qwen3-VL-8B and report results on LongDocURL and SlideVQA. Since Qwen3-VL is already a 256K-context model trained with large-scale long-context pre-training, SFT, and RL, we focus on these two held-out document benchmarks.}
-    \label{tab:qwen3_backbone_generalization}
     \setlength{\tabcolsep}{4pt}
     \resizebox{0.9\textwidth}{!}{%
     \begin{tabular}{l*{3}{C{1.2cm}}|*{3}{C{1.2cm}}|C{1.4cm}}
@@ -1343,6 +1342,8 @@ Qwen2.5-VL-7B & 65.1 & 70.2 & 60.43 \\
     \bottomrule
     \end{tabular}
     }
+\caption{Long-document VQA transfer across backbone models. We apply LongPT variants to Qwen3-VL-8B and report results on LongDocURL and SlideVQA. Since Qwen3-VL is already a 256K-context model trained with large-scale long-context pre-training, SFT, and RL, we focus on these two held-out document benchmarks.}
+\label{tab:qwen3_backbone_generalization}
 \end{table}
 
 \subsection{Generalization across Backbones}
@@ -1361,8 +1362,6 @@ Together with the diagnostic nature of this experiment, these results suggest th
 
 \begin{table}[t]
     \centering
-    \caption{MM-NIAH transfer across backbone models. We report Retrieval, Counting, Reasoning, and average scores at 64K and 128K context lengths. Our recipe achieves better overall MM-NIAH score on Qwen3-VL-8B.}
-    \label{tab:qwen3_backbone_mmniah}
     \setlength{\tabcolsep}{3.5pt}
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{l*{4}{C{1.05cm}}|*{4}{C{1.05cm}}|C{1.25cm}}
@@ -1376,6 +1375,8 @@ Together with the diagnostic nature of this experiment, these results suggest th
     \bottomrule
     \end{tabular}
     }
+\caption{MM-NIAH transfer across backbone models. We report Retrieval, Counting, Reasoning, and average scores at 64K and 128K context lengths. Our recipe achieves better overall MM-NIAH score on Qwen3-VL-8B.}
+\label{tab:qwen3_backbone_mmniah}
 \end{table}
 
 \section{Limitations}

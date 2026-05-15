@@ -30,9 +30,12 @@
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
+\providecommand{\blfootnote}[1]{\footnote{#1}}
+\providecommand{\corresponding}{}
 \providecommand{\correspondingauthor}[1]{}
 \providecommand{\eg}{e.g.,\xspace}
 \providecommand{\email}[1]{\href{mailto:#1}{#1}}
+\providecommand{\equalcontribution}{}
 \providecommand{\etal}{et al.\xspace}
 \providecommand{\etc}{etc.\xspace}
 \providecommand{\iclrfinalcopy}{}
@@ -132,8 +135,6 @@ To bridge the gap between the theoretical desiderata and the empirical curation,
 
 \begin{table}[ht]
 \centering
-\caption{Experimental Conditions. Breakdown by feature composition and representation strategy.}
-\label{tab:conditions}
 \begin{tabular}{lccc}
 \hline
 \textbf{Condition} & \textbf{Structured} & \textbf{Unstructured} & \textbf{Target-Aware (TAR)} \\ \hline
@@ -142,6 +143,8 @@ Unimodal Unstructured & $\times$     & $\checkmark$ & $\times$ \\
 Joint Frozen          & $\checkmark$ & $\checkmark$ & $\times$ \\
 Joint TAR             & $\checkmark$ & $\checkmark$ & $\checkmark$ \\ \hline
 \end{tabular}
+\caption{Experimental Conditions. Breakdown by feature composition and representation strategy.}
+\label{tab:conditions}
 \end{table}
 
 Our approach intentionally entangles task properties with algorithmic solutions in order to isolate datasets that align with our criteria and that current models struggle with.  Embeddings are extracted using \textit{e5-v2-small} \cite{wang_text_2024} for texts and \textit{DINO-v3-small} \cite{simeoni_dinov3_2025} for images, selected for their high performance-to-parameter efficiency \cite{muennighoff_mteb_2023}. To implement our proposed TAR condition, we finetune the last 3 layers on the prediction target using LoRA \cite{hu_lora_2021}. Crucially, this adaptation is performed as a specialized preprocessing step without the structured features and shared across learners. Representations are down-projected with PCA \cite{mackiewicz_principal_1993} to a dimension of 30, to ensure computational efficiency. We employ 5 diverse tabular learners: GBDTs (LightGBM \cite{ke_lightgbm_2017} and CatBoost \cite{prokhorenkova_catboost_2018}), the MLP-based TabM \cite{gorishniy_tabm_2025}, and the TFMs TabPFNv2 \cite{hollmann_accurate_2025} and TabPFN-2.5 \cite{grinsztajn_tabpfn-25_2026}. For each candidate dataset, we evaluate every model in each condition over 5 random seeds, subsampling up to 10,000 examples per run for cost-effectiveness. Our metric is AUC for classification tasks and $R^2$ for regression tasks. 
@@ -178,10 +181,6 @@ With the results in hand, we apply our curation pipeline and find out that appro
 
 \begin{table}[ht]
 \centering
-\caption{The PetFinder Analysis. S=Structured, I=Image, T=Text. For all models, performing Joint Modeling and Target-Aware Representations for both modalities maximizes AUC (shown in \%).}
-
-
-\label{tab:petfinder}
 \setlength{\tabcolsep}{4pt}
 \small
 \begin{tabular}{l cc ccc ccc}
@@ -197,6 +196,8 @@ TabPFNv2   & 80.7 & 73.5 & 83.2 & 79.3 & 83.9 & 84.5 & 86.3 & \textbf{87.1} \\
 TabPFN-2.5 & 81.1 & 76.0 & 83.7 & 81.0 & 84.9 & 85.3 & 87.3 & \textbf{88.0} \\
 \bottomrule
 \end{tabular}
+\caption{The PetFinder Analysis. S=Structured, I=Image, T=Text. For all models, performing Joint Modeling and Target-Aware Representations for both modalities maximizes AUC (shown in \%).}
+\label{tab:petfinder}
 \end{table}
 
 
@@ -315,7 +316,7 @@ Funded by the European Union. Views and opinions expressed are however those of 
 
 
 
-\clearpage
+
 \appendix
 
 \section{Curation Pipeline}
@@ -370,8 +371,6 @@ In this section we present MulTaBench datasets. Table~\ref{tab:multabench_datase
 
 \begin{table*}
 \centering
-\caption{All 40 MulTaBench Datasets Properties. \textit{Task}: Classification (CLS) or Regression (REG). \textit{Classes}: number of target classes (for CLS). \textit{N}: total examples. \textit{Struct.}: numerical + categorical features. \textit{Text}: free-text features. \textit{Img.}: image features.}
-\label{tab:multabench_datasets}
 \footnotesize
 \begin{tabular}{llrrrrr}
 \toprule
@@ -424,6 +423,8 @@ Video Games Sales         & REG &  -- & 16,598  &  3  &  2 & 0 \\
 Zomato Restaurants        & REG &  -- & 41,665  &  8  &  7 & 0 \\
 \bottomrule
 \end{tabular}
+\caption{All 40 MulTaBench Datasets Properties. \textit{Task}: Classification (CLS) or Regression (REG). \textit{Classes}: number of target classes (for CLS). \textit{N}: total examples. \textit{Struct.}: numerical + categorical features. \textit{Text}: free-text features. \textit{Img.}: image features.}
+\label{tab:multabench_datasets}
 \end{table*}
 
 
@@ -618,8 +619,6 @@ The 4 source benchmarks share a substantial number of datasets, either by direct
 
 \begin{table}[ht]
 \centering
-\caption{Duplicate datasets across benchmarks. \checkmark\ indicates presence.}
-\label{tab:text_deduplication}
 \small
 \begin{tabular}{lcccc}
 \toprule
@@ -642,6 +641,8 @@ Spotify Genres         &              & $\checkmark$ &              & $\checkmar
 Beer Ratings           &              &              & $\checkmark$ & $\checkmark$ \\
 \bottomrule
 \end{tabular}
+\caption{Duplicate datasets across benchmarks. \checkmark\ indicates presence.}
+\label{tab:text_deduplication}
 \end{table}
 
 \subsection{Empirical Results for Curation Conditions}
@@ -663,8 +664,6 @@ Table~\ref{tab:text_curation_rates} reports acceptance rates per source benchmar
 
 \begin{table}[ht]
 \centering
-\caption{Text-tabular curation acceptance rates by source benchmark.}
-\label{tab:text_curation_rates}
 \small
 \begin{tabular}{lrrr}
 \toprule
@@ -678,6 +677,8 @@ TextTabBench      & 13 &  7 & 54\% \\
 \textbf{Total (deduplicated)} & \textbf{56} & \textbf{23} & \textbf{41\%} \\
 \bottomrule
 \end{tabular}
+\caption{Text-tabular curation acceptance rates by source benchmark.}
+\label{tab:text_curation_rates}
 \end{table}
 
 
@@ -800,8 +801,6 @@ The results for \textit{PetFinder} are presented in Table~\ref{tab:petfinder} of
 
 \begin{table}[ht]
 \centering
-\caption{Amazon Packages Analysis. S=Structured, I=Image, T=Text. Mean $R^2$ (\%) per model and condition. For all models, TAR over both modalities dominates.}
-\label{tab:amazon_packages}
 \setlength{\tabcolsep}{4pt}
 \small
 \begin{tabular}{l cc ccc ccc}
@@ -817,6 +816,8 @@ TabPFNv2   & 46.6 & 20.2 & 49.3 & 23.9 & 54.9 & 59.8 & 56.2 & \textbf{61.3} \\
 TabPFN-2.5 & 47.5 & 21.1 & 50.2 & 24.9 & 56.2 & 60.7 & 57.2 & \textbf{61.5} \\
 \bottomrule
 \end{tabular}
+\caption{Amazon Packages Analysis. S=Structured, I=Image, T=Text. Mean $R^2$ (\%) per model and condition. For all models, TAR over both modalities dominates.}
+\label{tab:amazon_packages}
 \end{table}
 
 
@@ -853,8 +854,6 @@ TAR beats Frozen in the large majority of runs across all models and both modali
 
 \begin{table}[ht]
 \centering
-\caption{Per-model TAR win rate on MulTaBench. End-to-end models excluded from columns where they lack a separate TAR condition.}
-\label{tab:win_rate}
 \small
 \begin{tabular}{lccc}
 \toprule
@@ -874,6 +873,8 @@ ConTextTab & $73.0 \pm 8.7$ & --- & \textbf{$73.0 \pm 8.7$} \\
 TabICLv2 & $55.0 \pm 9.8$ & $75.0 \pm 8.5$ & \textbf{$65.0 \pm 9.2$} \\
 \bottomrule
 \end{tabular}
+\caption{Per-model TAR win rate on MulTaBench. End-to-end models excluded from columns where they lack a separate TAR condition.}
+\label{tab:win_rate}
 \end{table}
 
 
@@ -896,8 +897,6 @@ TabICLv2 & $55.0 \pm 9.8$ & $75.0 \pm 8.5$ & \textbf{$65.0 \pm 9.2$} \\
 
 \begin{table*}[ht]
 \centering
-\caption{MulTaBench Image-Tabular Per-dataset Results. Averaged over 12 learners and 5 seeds, with both Frozen and TAR conditions, sorted by Gain. AUROC for classification, $R^2$ for regression.}
-\label{tab:app_results_image}
 \small
 \begin{tabular}{llccc}
 \toprule
@@ -927,12 +926,12 @@ CS:GO Skins & 0.871 & 0.870 & $-$0.001 \\
 \textit{Mean} & 0.682 & 0.703 & $+$0.022 \\
 \bottomrule
 \end{tabular}
+\caption{MulTaBench Image-Tabular Per-dataset Results. Averaged over 12 learners and 5 seeds, with both Frozen and TAR conditions, sorted by Gain. AUROC for classification, $R^2$ for regression.}
+\label{tab:app_results_image}
 \end{table*}
 
 \begin{table*}[ht]
 \centering
-\caption{MulTaBench Text-Tabular Per-dataset Results. Averaged over 10 learners and 5 seeds, with both Frozen and TAR conditions, sorted by Gain. AUROC for classification, $R^2$ for regression.}
-\label{tab:app_results_text}
 \small
 \begin{tabular}{llccc}
 \toprule
@@ -962,6 +961,8 @@ Fake Job Postings & 0.916 & 0.918 & $+$0.002 \\
 \textit{Mean} & 0.774 & 0.792 & $+$0.018 \\
 \bottomrule
 \end{tabular}
+\caption{MulTaBench Text-Tabular Per-dataset Results. Averaged over 10 learners and 5 seeds, with both Frozen and TAR conditions, sorted by Gain. AUROC for classification, $R^2$ for regression.}
+\label{tab:app_results_text}
 \end{table*}
 
 \subsection{Missing Baselines}
@@ -982,8 +983,6 @@ All reported gains should therefore be interpreted as conservative lower bounds 
 
 \begin{table*}[ht]
 \centering
-\caption{Computation costs runs. Median Runtime in seconds and Median Peak GPU memory in GB. Partition by tabular learners, modality and encoder size.}
-\label{tab:compute_costs}
 \setlength{\tabcolsep}{4pt}\small
 \begin{tabular}{l rr rr rr rr}
 \toprule
@@ -1010,6 +1009,8 @@ TabPFNv2 & 253 & 2,430 & 1.1 & 18.6 & 1,368 & 11,569 & 2.9 & 39.6 \\
 TabPFN-2.5 & 242 & 2,396 & 1.1 & 18.6 & 1,347 & 11,556 & 2.9 & 39.6 \\
 \bottomrule
 \end{tabular}
+\caption{Computation costs runs. Median Runtime in seconds and Median Peak GPU memory in GB. Partition by tabular learners, modality and encoder size.}
+\label{tab:compute_costs}
 \end{table*}
 
 \begin{figure}[ht]
@@ -1140,8 +1141,8 @@ Each of the 4 datasets in Figure~\ref{fig:attention_main} is accompanied by 3 ad
 
 
 
-\newpage
-\clearpage
+
+
 \section*{NeurIPS Paper Checklist}
 
 

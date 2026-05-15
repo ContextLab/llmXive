@@ -44,9 +44,12 @@
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
+\providecommand{\blfootnote}[1]{\footnote{#1}}
+\providecommand{\corresponding}{}
 \providecommand{\correspondingauthor}[1]{}
 \providecommand{\eg}{e.g.,\xspace}
 \providecommand{\email}[1]{\href{mailto:#1}{#1}}
+\providecommand{\equalcontribution}{}
 \providecommand{\etal}{et al.\xspace}
 \providecommand{\etc}{etc.\xspace}
 \providecommand{\iclrfinalcopy}{}
@@ -514,7 +517,6 @@ Domain coverage can be expanded by applying the same construction pipeline to ne
 \begin{table}[!t]
     \centering
     \renewcommand{\arraystretch}{1.25}
-    \caption{Overall performance comparison across scientific domains on \textit{EywaBench}. We compare all methods on three dimensions, including utility $(\uparrow)$, inference time $(\downarrow)$, and token consumption $(\downarrow)$. Best results are highlighted in bold and second-best results are underlined. Our proposed methods, EywaAgent, EywaMAS, and EywaOrchestra, achieve strong overall performance while maintaining competitive efficiency.}
     % \vspace{-8pt}
     \label{tab:main_comparison_eywabench}
     \small
@@ -622,6 +624,7 @@ Domain coverage can be expanded by applying the same construction pipeline to ne
     \end{tabular}
     }
     % \vspace{-4pt}
+\caption{Overall performance comparison across scientific domains on \textit{EywaBench}. We compare all methods on three dimensions, including utility $(\uparrow)$, inference time $(\downarrow)$, and token consumption $(\downarrow)$. Best results are highlighted in bold and second-best results are underlined. Our proposed methods, EywaAgent, EywaMAS, and EywaOrchestra, achieve strong overall performance while maintaining competitive efficiency.}
 \end{table}
 
 
@@ -704,9 +707,8 @@ Compared with the corresponding single-agent baseline, \textit{EywaAgent} increa
 
 
 \renewcommand{\arraystretch}{1.00}
-\begin{wraptable}{r}{0.45\linewidth}
-    \centering
-    \caption{Ablation results of \textit{EywaAgent} with different LLM backends. \textit{Eywa} benefits from more powerful LLMs to achieve better performance.}
+\begin{table}[t]
+\centering
     % \vspace{-8pt}
     \label{tab:model_ablation_compact}
     \resizebox{0.45\textwidth}{!}{
@@ -735,7 +737,9 @@ Compared with the corresponding single-agent baseline, \textit{EywaAgent} increa
     \end{tabular}
     }
     \vspace{-6pt}
-\end{wraptable}
+
+\caption{Ablation results of \textit{EywaAgent} with different LLM backends. \textit{Eywa} benefits from more powerful LLMs to achieve better performance.}
+\end{table}
 
 
 
@@ -794,13 +798,13 @@ Experiments across physical, life, and social science tasks show that \textit{Ey
 % Overall, our findings suggest that integrating domain-specific foundation models as first-class participants is a practical path toward more capable and efficient scientific agentic systems.
 
 
-\clearpage
+
 
 \bibliographystyle{unsrtnat}
 \bibliography{reference}
 
 \appendix
-\clearpage
+
 
 {{\textbf{\LARGE Appendix}}}
 
@@ -818,7 +822,7 @@ The table of contents is provided below for quick navigation.
 
 
 \tableofcontents
-\clearpage
+
 
 
 \section{Theoretical Analysis}
@@ -836,8 +840,6 @@ We collect, in Table~\ref{tab:notation}, the notation used throughout the main t
 
 \begin{table}[h]
 \centering
-\caption{Summary of notation used in the main paper and this appendix.}
-\label{tab:notation}
 \small
 \renewcommand{\arraystretch}{1.15}
 \begin{tabular}{@{}ll@{}}
@@ -894,6 +896,8 @@ $I(Y;Z)$ & Mutual information between $Y$ and $Z$. \\
 $\mathbb{E}[Y\mid Z]$ & Conditional expectation. \\
 \bottomrule
 \end{tabular}
+\caption{Summary of notation used in the main paper and this appendix.}
+\label{tab:notation}
 \end{table}
 
 We first formalize the function classes that appear throughout this section. A function class is simply a set of input-output mappings. Once we specify what components a system may use and how they may interact, we obtain the collection of all functions $f:\mathcal{X}\to\mathcal{Y}$ that can be implemented by such a system. This plays a similar role as expressive families in neural networks: \textbf{a larger function class means the system can represent a broader range of behaviors}.
@@ -910,7 +914,7 @@ Given candidate LLM pool $\mathcal{M}_{\mathrm{LLM}}$, candidate FM pool $\mathc
 \end{definition}
 By construction, $\mathcal{F}_{\mathrm{LLM}}\subseteq\mathcal{F}_{\mathrm{Eywa}}\subseteq\mathcal{F}_{\mathrm{Eywa\text{-}MAS}}\subseteq\mathcal{F}_{\mathrm{Orch}}$. This is because we can (1) choose an EywaAgent whose control policy never invokes the FM. Then the EywaAgent reduces exactly to an LLM; (2) choose a topology consisting of a single agent node and no nontrivial communication. Then the multi-agent system reduces to the original EywaAgent; (3) choose a conductor P that places all its probability mass on one fixed configuration corresponding to the given EywaMAS system. Then EywaOrchestra reproduces exactly that fixed system.
 
-\clearpage
+
 
 
 
@@ -1300,8 +1304,6 @@ Therefore, we have the strict inequality,
 
 \begin{table}[h]
 \centering
-\caption{Summary of theoretical results and the claims they justify.}
-\label{tab:theory_summary}
 \small
 \renewcommand{\arraystretch}{1.2}
 \begin{tabular}{@{}p{0.20\linewidth}p{0.78\linewidth}@{}}
@@ -1334,6 +1336,8 @@ Proposition~\ref{prop:token_complexity} & EywaAgent language-token cost is $O(L_
 Proposition~\ref{prop:latency} & Wall-clock latency inherits the same asymptotic separation as the token complexity. \\
 \bottomrule
 \end{tabular}
+\caption{Summary of theoretical results and the claims they justify.}
+\label{tab:theory_summary}
 \end{table}
 
 
@@ -1382,7 +1386,7 @@ We close this section by consolidating the theoretical results developed above. 
 Read together, these results provide an end-to-end theoretical justification for the Eywa framework. The information-theoretic bottleneck (Lemmas~\ref{lem:dpi}--\ref{lem:bayes_gap} and Proposition~\ref{prop:llm_lower_bound}) identifies a first-principles reason why language-only agents are fundamentally limited on scientific inputs: the serialization step discards task-relevant information that no amount of downstream reasoning can recover. The expressivity analysis (Proposition~\ref{prop:containment} and Theorem~\ref{thm:eywaagent_improvement_app}) then shows that this bottleneck is closed at the single-agent level by EywaAgent, which contains the LLM-only class while achieving strictly smaller risk and strictly enlarging the set of perfectly solvable tasks. Lemma~\ref{lem:llm_mas_closure} and Theorem~\ref{thm:eywamas_app} lift this advantage from the single-agent to the multi-agent setting: under mild reachability, a single EywaAgent is sufficient to propagate the recovered information to the system output, while LLM-only MAS remain subject to the same serialization bottleneck. Theorem~\ref{thm:orchestra_oracle} further shows that once the configuration space is heterogeneous, task-adaptive orchestration provides an additional strict improvement over any fixed configuration. Finally, Propositions~\ref{prop:token_complexity} and~\ref{prop:latency} connect this theory to empirically observable efficiency: by offloading modality-specific computation to a foundation model, EywaAgent removes the $\Theta(L(x_k))$ scaling that language-only pipelines pay in tokens and latency, matching the $\sim$30\% token reduction reported in our experiments (Section~\ref{sec:experiment}).
 
 
-\clearpage
+
 
 \section{Further Discussions}
 \label{app:further_discussion}
@@ -1518,8 +1522,6 @@ In this work, we sample 200 task instances from the four benchmark sources to fo
 
 \begin{table}[h]
     \centering
-    \caption{Data schema of \textit{EywaBench}. The benchmark is stored as a dictionary-encoded Parquet file with 200 task instances and six fields.}
-    \label{tab:eywabench_schema}
     \resizebox{0.9\linewidth}{!}{
     \begin{tabular}{lll}
         \toprule
@@ -1534,6 +1536,8 @@ In this work, we sample 200 task instances from the four benchmark sources to fo
         \bottomrule
     \end{tabular}
     }
+\caption{Data schema of \textit{EywaBench}. The benchmark is stored as a dictionary-encoded Parquet file with 200 task instances and six fields.}
+\label{tab:eywabench_schema}
 \end{table}
 
 
@@ -1568,10 +1572,6 @@ every one of the nine sub-domains carries a non-trivial mix of all three modalit
 % ----------------- Detailed sub-domain table ------------------------
 \begin{table}[h]
 \centering
-\caption{Detailed composition of \textit{EywaBench-V1} by parent domain, sub-domain, modality, and source dataset. 
-For each sub-domain, we report the total number of samples, the number of natural-language, time-series, and tabular samples, and the number of distinct source datasets. 
-The total number of unique source datasets is $67$, which is smaller than the sum of per-sub-domain source counts because each source dataset may contribute multiple samples.}
-\label{tab:eywa_subdomain}
 \resizebox{0.85\linewidth}{!}{%
 \begin{tabular}{llccccc}
 \toprule
@@ -1595,6 +1595,10 @@ The total number of unique source datasets is $67$, which is smaller than the su
 \multicolumn{2}{l}{\textbf{Total}} & $\mathbf{200}$ & $\mathbf{78}$ & $\mathbf{82}$ & $\mathbf{40}$ & $\mathbf{67}$ \\
 \bottomrule
 \end{tabular}}
+\caption{Detailed composition of \textit{EywaBench-V1} by parent domain, sub-domain, modality, and source dataset. 
+For each sub-domain, we report the total number of samples, the number of natural-language, time-series, and tabular samples, and the number of distinct source datasets. 
+The total number of unique source datasets is $67$, which is smaller than the sum of per-sub-domain source counts because each source dataset may contribute multiple samples.}
+\label{tab:eywa_subdomain}
 \end{table}
 
 
@@ -1654,7 +1658,6 @@ implemented via \texttt{sklearn.metrics.accuracy\_score}. For regression tasks t
 \begin{table}[!t]
     \centering
     \renewcommand{\arraystretch}{1.16}
-    \caption{Overall performance comparison across scientific domains on \textit{EywaBench}. We compare all methods on three dimensions, including utility $(\uparrow)$, inference time $(\downarrow)$, and token consumption $(\downarrow)$. Best results are highlighted in bold and second-best results are underlined. Our proposed methods, EywaAgent, EywaMAS, and EywaOrchestra, achieve strong overall performance while maintaining competitive efficiency.}
     \vspace{-8pt}
     \label{tab:ablation_backend_llm}
     \small
@@ -1737,6 +1740,7 @@ implemented via \texttt{sklearn.metrics.accuracy\_score}. For regression tasks t
     \end{tabular}
     }
     \vspace{-4pt}
+\caption{Overall performance comparison across scientific domains on \textit{EywaBench}. We compare all methods on three dimensions, including utility $(\uparrow)$, inference time $(\downarrow)$, and token consumption $(\downarrow)$. Best results are highlighted in bold and second-best results are underlined. Our proposed methods, EywaAgent, EywaMAS, and EywaOrchestra, achieve strong overall performance while maintaining competitive efficiency.}
 \end{table}
 
 In this section, we provide a more comprehensive backbone ablation that extends the single-agent study in Table~\ref{tab:model_ablation_compact} to also cover \textit{EywaMAS} and \textit{EywaOrchestra}, and reports per-sub-domain results across all nine domains. The full results are shown in Table~\ref{tab:ablation_backend_llm}. We highlight three observations.
