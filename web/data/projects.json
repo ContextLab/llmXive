@@ -901,11 +901,11 @@
   "aggregates": {
     "active_projects": 584,
     "ai_contributors": 7,
-    "human_contributors": 187,
+    "human_contributors": 223,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1502,
-    "total_contributors": 194
+    "total_contributions": 1538,
+    "total_contributors": 230
   },
   "contributors": [
     {
@@ -1090,6 +1090,22 @@
     },
     {
       "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Bin Wang"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Bo Li"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -1258,11 +1274,27 @@
     },
     {
       "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Fangneng Zhan"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Fanny Riols"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Feihao Fang"
     },
     {
       "areas": [
@@ -1322,6 +1354,14 @@
     },
     {
       "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Hang Zhou"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -1343,6 +1383,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Haodong Duan"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Haonan Wang"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Haowei Zhu"
     },
     {
       "areas": [
@@ -1394,6 +1450,14 @@
     },
     {
       "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Hui Zhang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -1434,6 +1498,14 @@
     },
     {
       "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jiaru Zou"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -1471,6 +1543,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jie Zhang"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jingdong Wang"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jingrui He"
     },
     {
       "areas": [
@@ -1522,6 +1610,14 @@
     },
     {
       "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Kaichen Zhang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -1559,6 +1655,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Katrina Stankiewicz"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Keming Wu"
     },
     {
       "areas": [
@@ -1615,6 +1719,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Liang Peng"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Lidong Bing"
     },
     {
       "areas": [
@@ -1687,6 +1799,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Maxwell Yao"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Mengting Ai"
     },
     {
       "areas": [
@@ -1826,6 +1946,14 @@
     },
     {
       "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qijie Wang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -1930,6 +2058,22 @@
     },
     {
       "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shijian Lu"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shizun Wang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -1946,6 +2090,14 @@
     },
     {
       "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Sicong Leng"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -1959,6 +2111,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Sijin Wu"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Sirui Chen"
     },
     {
       "areas": [
@@ -2010,6 +2170,14 @@
     },
     {
       "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Sudong Wang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2039,6 +2207,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Tianhe Wu"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Tianxin Wei"
     },
     {
       "areas": [
@@ -2114,6 +2290,14 @@
     },
     {
       "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Wenhu Chen"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2135,6 +2319,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xiao Xu"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiaojuan Qi"
     },
     {
       "areas": [
@@ -2162,11 +2354,27 @@
     },
     {
       "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xinchao Wang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Xinchen Li"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xingxuan Li"
     },
     {
       "areas": [
@@ -2194,6 +2402,14 @@
     },
     {
       "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiyuan Yang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2215,6 +2431,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xuehai Bai"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xuying Ning"
     },
     {
       "areas": [
@@ -2287,6 +2511,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yifan Dai"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yifan Pu"
     },
     {
       "areas": [
@@ -2434,6 +2666,14 @@
     },
     {
       "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuxin Song"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2482,6 +2722,22 @@
     },
     {
       "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhongyu Yang"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zihao Li"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2498,14 +2754,46 @@
     },
     {
       "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zili Wang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Zilyu Ye"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ziting Wang"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ziwei Liu"
+    },
+    {
+      "areas": [
+        "other"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-15T15:59:20.489941+00:00",
+  "generated_at": "2026-05-15T16:04:03.490737+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -48543,7 +48831,7 @@
         "data": null,
         "idea": "projects/PROJ-569-intern-atlas-a-methodological-evolution/idea/intern-atlas-a-methodological-evolution.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-569-intern-atlas-a-methodological-evolution/paper/pdf/2604.28158.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -48678,10 +48966,10 @@
       },
       "created_at": "2026-05-15T15:14:06.173837+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-569-intern-atlas-a-methodological-evolution/idea/intern-atlas-a-methodological-evolution.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-569-intern-atlas-a-methodological-evolution/idea/intern-atlas-a-methodological-evolution.md",
-        "repo_path": "projects/PROJ-569-intern-atlas-a-methodological-evolution/idea/intern-atlas-a-methodological-evolution.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-569-intern-atlas-a-methodological-evolution/paper/pdf/2604.28158.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-569-intern-atlas-a-methodological-evolution/paper/pdf/2604.28158.pdf",
+        "repo_path": "projects/PROJ-569-intern-atlas-a-methodological-evolution/paper/pdf/2604.28158.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Existing research infrastructure is fundamentally document-centric, providing citation links between papers but lacking explicit representations of methodological evolution. In particular, it does not capture the structured relationships that explain how and why research methods emerge, adapt, and build upon one\u2026",
@@ -48705,7 +48993,7 @@
         "data": null,
         "idea": "projects/PROJ-570-leveraging-verifier-based-reinforcement/idea/leveraging-verifier-based-reinforcement.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-570-leveraging-verifier-based-reinforcement/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-570-leveraging-verifier-based-reinforcement/paper/source/main.tex",
         "paper_spec": null,
@@ -48800,10 +49088,10 @@
       },
       "created_at": "2026-05-15T15:14:08.852973+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-570-leveraging-verifier-based-reinforcement/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-570-leveraging-verifier-based-reinforcement/paper/source/main.tex",
-        "repo_path": "projects/PROJ-570-leveraging-verifier-based-reinforcement/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-570-leveraging-verifier-based-reinforcement/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-570-leveraging-verifier-based-reinforcement/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-570-leveraging-verifier-based-reinforcement/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "While Reinforcement Learning from Human Feedback (RLHF) has become a pivotal paradigm for text-to-image generation, its application to image editing remains largely unexplored. A key bottleneck is the lack of a robust general reward model for all editing tasks. Existing edit reward models usually give overall scores\u2026",
@@ -48827,7 +49115,7 @@
         "data": null,
         "idea": "projects/PROJ-571-co-evolving-policy-distillation/idea/co-evolving-policy-distillation.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-571-co-evolving-policy-distillation/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -48930,10 +49218,10 @@
       },
       "created_at": "2026-05-15T15:14:34.745826+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-571-co-evolving-policy-distillation/idea/co-evolving-policy-distillation.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-571-co-evolving-policy-distillation/idea/co-evolving-policy-distillation.md",
-        "repo_path": "projects/PROJ-571-co-evolving-policy-distillation/idea/co-evolving-policy-distillation.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-571-co-evolving-policy-distillation/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-571-co-evolving-policy-distillation/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-571-co-evolving-policy-distillation/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "RLVR and OPD have become standard paradigms for post-training. We provide a unified analysis of these two paradigms in consolidating multiple expert capabilities into a single model, identifying capability loss in different ways: mixed RLVR suffers from inter-capability divergence cost, while the pipeline of first\u2026",
@@ -48957,7 +49245,7 @@
         "data": null,
         "idea": "projects/PROJ-572-https-arxiv-org-abs-2604-28185/idea/https-arxiv-org-abs-2604-28185.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-572-https-arxiv-org-abs-2604-28185/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-572-https-arxiv-org-abs-2604-28185/paper/source/main.tex",
         "paper_spec": null,
@@ -48970,7 +49258,224 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Keming Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zuhao Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kaichen Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shizun Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haowei Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sicong Leng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhongyu Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qijie Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sudong Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ziting Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zili Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hui Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haonan Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hang Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yifan Pu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xingxuan Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Fangneng Zhan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bo Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lidong Bing",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuxin Song",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ziwei Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wenhu Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jingdong Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xinchao Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiaojuan Qi",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shijian Lu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bin Wang",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -48979,10 +49484,10 @@
       },
       "created_at": "2026-05-15T15:14:54.560027+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-572-https-arxiv-org-abs-2604-28185/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-572-https-arxiv-org-abs-2604-28185/paper/source/main.tex",
-        "repo_path": "projects/PROJ-572-https-arxiv-org-abs-2604-28185/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-572-https-arxiv-org-abs-2604-28185/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-572-https-arxiv-org-abs-2604-28185/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-572-https-arxiv-org-abs-2604-28185/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Recent visual generation models have made major progress in photorealism, typography, instruction following, and interactive editing, yet they still struggle with spatial reasoning, persistent state, long-horizon consistency, and causal understanding. We argue that the field should move beyond appearance synthesis\u2026",
@@ -49006,7 +49511,7 @@
         "data": null,
         "idea": "projects/PROJ-573-https-arxiv-org-abs-2604-27351/idea/https-arxiv-org-abs-2604-27351.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-573-https-arxiv-org-abs-2604-27351/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-573-https-arxiv-org-abs-2604-27351/paper/source/main.tex",
         "paper_spec": null,
@@ -49019,7 +49524,80 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zihao Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiaru Zou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Feihao Fang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xuying Ning",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mengting Ai",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tianxin Wei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sirui Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiyuan Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jingrui He",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -49028,10 +49606,10 @@
       },
       "created_at": "2026-05-15T15:15:20.395209+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-573-https-arxiv-org-abs-2604-27351/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-573-https-arxiv-org-abs-2604-27351/paper/source/main.tex",
-        "repo_path": "projects/PROJ-573-https-arxiv-org-abs-2604-27351/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-573-https-arxiv-org-abs-2604-27351/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-573-https-arxiv-org-abs-2604-27351/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-573-https-arxiv-org-abs-2604-27351/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Agentic large language model systems have demonstrated strong capabilities. However, their reliance on language as the universal interface fundamentally limits their applicability to many real-world problems, especially in scientific domains where domain-specific foundation models have been developed to address\u2026",
@@ -49055,7 +49633,7 @@
         "data": null,
         "idea": "projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/idea/eva-bench-a-new-end-to-end-framework-for.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -49182,10 +49760,10 @@
       },
       "created_at": "2026-05-15T15:15:25.850438+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/idea/eva-bench-a-new-end-to-end-framework-for.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/idea/eva-bench-a-new-end-to-end-framework-for.md",
-        "repo_path": "projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/idea/eva-bench-a-new-end-to-end-framework-for.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Voice agents, artificial intelligence systems that conduct spoken conversations to complete tasks, are increasingly deployed across enterprise applications. However, no existing benchmark jointly addresses two core evaluation challenges: generating realistic simulated conversations, and measuring quality across the\u2026",
@@ -49209,7 +49787,7 @@
         "data": null,
         "idea": "projects/PROJ-575-training-long-context-vision-language-mo/idea/training-long-context-vision-language-mo.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-575-training-long-context-vision-language-mo/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -49328,10 +49906,10 @@
       },
       "created_at": "2026-05-15T15:15:28.662024+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-575-training-long-context-vision-language-mo/idea/training-long-context-vision-language-mo.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-575-training-long-context-vision-language-mo/idea/training-long-context-vision-language-mo.md",
-        "repo_path": "projects/PROJ-575-training-long-context-vision-language-mo/idea/training-long-context-vision-language-mo.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-575-training-long-context-vision-language-mo/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-575-training-long-context-vision-language-mo/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-575-training-long-context-vision-language-mo/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Long-context modeling is becoming a core capability of modern large vision-language models (LVLMs), enabling sustained context management across long-document understanding, video analysis, and multi-turn tool use in agentic workflows. Yet practical training recipes remain insufficiently explored, particularly for\u2026",
@@ -49355,7 +49933,7 @@
         "data": null,
         "idea": "projects/PROJ-577-multabench-benchmarking-multimodal-tabul/idea/multabench-benchmarking-multimodal-tabul.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-577-multabench-benchmarking-multimodal-tabul/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -49466,10 +50044,10 @@
       },
       "created_at": "2026-05-15T15:15:39.980228+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-577-multabench-benchmarking-multimodal-tabul/idea/multabench-benchmarking-multimodal-tabul.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-577-multabench-benchmarking-multimodal-tabul/idea/multabench-benchmarking-multimodal-tabul.md",
-        "repo_path": "projects/PROJ-577-multabench-benchmarking-multimodal-tabul/idea/multabench-benchmarking-multimodal-tabul.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-577-multabench-benchmarking-multimodal-tabul/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-577-multabench-benchmarking-multimodal-tabul/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-577-multabench-benchmarking-multimodal-tabul/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Tabular Foundation Models have recently established the state of the art in supervised tabular learning, by leveraging pretraining to learn generalizable representations of numerical and categorical structured data. However, they lack native support for unstructured modalities such as text and image, and rely on\u2026",
