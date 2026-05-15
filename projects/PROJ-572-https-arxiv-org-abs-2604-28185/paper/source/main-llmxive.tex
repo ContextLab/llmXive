@@ -32,7 +32,6 @@
 \usepackage{tabularx}
 \usepackage{placeins}
 \usepackage{hyphenat}
-\usepackage{setspace}
 \usepackage{parskip}
 \usepackage{lipsum}
 \usepackage{etoolbox}
@@ -51,9 +50,12 @@
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
+\providecommand{\blfootnote}[1]{\footnote{#1}}
+\providecommand{\corresponding}{}
 \providecommand{\correspondingauthor}[1]{}
 \providecommand{\eg}{e.g.,\xspace}
 \providecommand{\email}[1]{\href{mailto:#1}{#1}}
+\providecommand{\equalcontribution}{}
 \providecommand{\etal}{et al.\xspace}
 \providecommand{\etc}{etc.\xspace}
 \providecommand{\iclrfinalcopy}{}
@@ -116,10 +118,9 @@ We argue the field must move beyond appearance synthesis to \emph{intelligent vi
 We introduce a five-level taxonomy---\emph{Atomic Generation}, \emph{Conditional Generation}, \emph{In-Context Generation}, \emph{Agentic Generation}, and \emph{World-Modeling Generation}---from passive renderers to interactive, agentic, world-aware generators, where each level nests prior capabilities and adds a qualitatively new competence. We analyze drivers of this shift---diffusion-to-flow matching, unified understanding-and-generation models, improved visual representations, supervised fine-tuning and preference-based post-training, reward modeling, large-scale data curation and synthetic data distillation, and sampling acceleration and distillation for real-time deployment---as collectively advancing a shared trajectory toward intelligent visual generation rather than isolated improvements.
 Evaluations often overestimate progress by privileging perceptual quality over structural, temporal, and causal weaknesses. We therefore pair benchmark review with in-the-wild stress tests and expert-constrained visual case studies that map failure modes to taxonomy levels to locate the frontier. Reframing generation as a path toward broader visual intelligence, this roadmap outlines a research agenda for controllable, interactive, physically grounded systems. We hope this roadmap provides the community with a capability-centered lens and practical insights for understanding, evaluating, and advancing the next generation of intelligent visual generation systems.
 \end{abstract}
-\clearpage
 \tableofcontents
 
-\clearpage
+
 \section{Introduction}
 \label{sec:introduction}
 
@@ -369,8 +370,6 @@ Most current visual L4 systems sit on the workflow end; full agentic systems---w
 
 \begin{table}[!htp]
 \centering
-\caption{\textbf{Comparative taxonomy of visual intelligence.} Our five-level framework organizes progress in visual generation as a nested expansion of capability, drawing parallels to OpenAI's general AI roadmap. Each level subsumes its predecessors while introducing a qualitatively new competence, a distinct set of representative methods, and a defining challenge that separates statistical plausibility from genuine visual intelligence. The \textit{One-Line Definition} column captures the operational signature of each level---most importantly, that L3 remains a single forward pass over rich context, while L4 is the regime where multiple forward passes are stitched by an external control flow.}
-\label{tab:5levels}
 \resizebox{\textwidth}{!}{%
     \begin{tabular}{@{}c l l l l l l@{}}
         \toprule[1pt]
@@ -383,6 +382,8 @@ Most current visual L4 systems sit on the workflow end; full agentic systems---w
         \bottomrule[1pt]
     \end{tabular}%
     }
+\caption{\textbf{Comparative taxonomy of visual intelligence.} Our five-level framework organizes progress in visual generation as a nested expansion of capability, drawing parallels to OpenAI's general AI roadmap. Each level subsumes its predecessors while introducing a qualitatively new competence, a distinct set of representative methods, and a defining challenge that separates statistical plausibility from genuine visual intelligence. The \textit{One-Line Definition} column captures the operational signature of each level---most importantly, that L3 remains a single forward pass over rich context, while L4 is the regime where multiple forward passes are stitched by an external control flow.}
+\label{tab:5levels}
 \end{table}
 
 
@@ -517,8 +518,6 @@ Across these methods, the shared conclusion is not that AR should replace diffus
 
 \begin{table*}[!htp]
 \centering
-\caption{\textbf{Component-level morphology of representative visual generation architectures.} A \cmark{} marks a defining design choice; \xmark{} indicates the component is not used. The table is intentionally schematic: a checkmark denotes the \emph{primary} component of each method, not the only possible configuration. AR = Autoregressive; Rect.\ Flow = Rectified Flow. This table presents methods through a \emph{modeling-paradigm} lens (objective $+$ backbone $+$ representation $+$ conditioning); the complementary \Cref{tab:unified_methods} re-examines a partly overlapping set of methods through a \emph{multimodal-fusion} lens, so paper overlap reflects two views of the same systems rather than redundancy.}
-\label{tab:arch_morphology}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.20}
@@ -554,6 +553,8 @@ Across these methods, the shared conclusion is not that AR should replace diffus
         \bottomrule[1pt]
     \end{tabular}%
 }
+\caption{\textbf{Component-level morphology of representative visual generation architectures.} A \cmark{} marks a defining design choice; \xmark{} indicates the component is not used. The table is intentionally schematic: a checkmark denotes the \emph{primary} component of each method, not the only possible configuration. AR = Autoregressive; Rect.\ Flow = Rectified Flow. This table presents methods through a \emph{modeling-paradigm} lens (objective $+$ backbone $+$ representation $+$ conditioning); the complementary \Cref{tab:unified_methods} re-examines a partly overlapping set of methods through a \emph{multimodal-fusion} lens, so paper overlap reflects two views of the same systems rather than redundancy.}
+\label{tab:arch_morphology}
 \end{table*}
 
 \begin{figure*}[!htbp]
@@ -688,8 +689,6 @@ As visual generation systems increasingly integrate language understanding and i
 
 \begin{table*}[t]
 \centering
-\caption{\textbf{Representative unified understanding-and-generation architectures.} \emph{Fusion strategy} indicates where modalities first interact; \emph{visual repr.} denotes the generation-side representation; \emph{gen.\ mechanism} specifies how images are synthesized. Alignment-only methods are discussed separately in \Cref{subsec:post_training}. This table is the multimodal-fusion-lens companion to the modeling-paradigm-lens \Cref{tab:arch_morphology}; the two views overlap on shared papers by design.}
-\label{tab:unified_methods}
 \scriptsize
 \setlength{\tabcolsep}{3.5pt}
 \renewcommand{\arraystretch}{1.15}
@@ -717,6 +716,8 @@ JoyAI-Image~\citep{jdjoyaiimage}           & 2026 & Decoupled MLLM brain + MMDiT
 \bottomrule
 \end{tabular}%
 }
+\caption{\textbf{Representative unified understanding-and-generation architectures.} \emph{Fusion strategy} indicates where modalities first interact; \emph{visual repr.} denotes the generation-side representation; \emph{gen.\ mechanism} specifies how images are synthesized. Alignment-only methods are discussed separately in \Cref{subsec:post_training}. This table is the multimodal-fusion-lens companion to the modeling-paradigm-lens \Cref{tab:arch_morphology}; the two views overlap on shared papers by design.}
+\label{tab:unified_methods}
 \end{table*}
 
 \paragraph{Late Fusion: Modular but Limited.}
@@ -825,8 +826,6 @@ This industrial landscape is now broader than any single pair of case studies. S
 
 \begin{table*}[t]
 \centering
-\caption{\textbf{Representative industrial training recipes in modern visual generation.} Rather than being exhaustive, this table highlights how recent systems differentiate themselves by choosing different primary bottlenecks to optimize: typography, efficiency, unification, editing, or spatial intelligence.}
-\label{tab:industrial_training_recipes}
 \footnotesize
 \setlength{\tabcolsep}{3.5pt}
 \renewcommand{\arraystretch}{1.12}
@@ -845,12 +844,12 @@ FireRed-Image-Edit-1.0 \citep{team2026firered} & Editing-first optimization & Ba
 JoyAI-Image \citep{jdjoyaiimage} & Spatial intelligence in unified models & Qwen3-VL-based MLLM + Wan-2.1-VAE + 16B MMDiT + OpenSpatial engine & Spatial reasoning can be treated as a pipeline-wide objective rather than a downstream benchmark add-on. \\
 \bottomrule
 \end{tabularx}
+\caption{\textbf{Representative industrial training recipes in modern visual generation.} Rather than being exhaustive, this table highlights how recent systems differentiate themselves by choosing different primary bottlenecks to optimize: typography, efficiency, unification, editing, or spatial intelligence.}
+\label{tab:industrial_training_recipes}
 \end{table*}
 
 \begin{table*}[t]
 \centering
-\caption{\textbf{Key axes of modern visual foundation model pre-training across recent tech reports.} The table abstracts recurring strategies from frontier industrial systems rather than treating Qwen-Image and Z-Image as the only representative cases.}
-\label{tab:pretrain_summary}
 \scriptsize
 \setlength{\tabcolsep}{3.5pt}
 \renewcommand{\arraystretch}{1.16}
@@ -869,6 +868,8 @@ Curriculum learning & Resolution graduation; typography/task staging & Z-Image~\
 Continued training / CT & High-quality million-scale CT; editing and multi-view expansion & Seedream~4.0~\citep{seedream2025seedream}; FireRed-Image-Edit-1.0~\citep{team2026firered}; LongCat-Image~\citep{team2025longcat}; JoyAI-Image~\citep{jdjoyaiimage}; Wan-Image~\citep{mao2026wan}; LongCat-Next~\citep{team2026longcat}; Z-Image~\citep{cai2025z} & Modern tech reports increasingly insert a CT / mid-training bridge between generic pre-training and narrow SFT, using curated data to graduate models toward production resolution, editing, multi-view, and spatially grounded capabilities. \\
 \bottomrule
 \end{tabularx}
+\caption{\textbf{Key axes of modern visual foundation model pre-training across recent tech reports.} The table abstracts recurring strategies from frontier industrial systems rather than treating Qwen-Image and Z-Image as the only representative cases.}
+\label{tab:pretrain_summary}
 \end{table*}
 
 \subsubsection{Data Construction and Curation}
@@ -985,8 +986,6 @@ This issue is especially pronounced for \emph{unified understanding-and-generati
 
 \begin{table*}[t]
 \centering
-\caption{\textbf{Post-training alignment paradigms for visual generation.} The field has evolved from terminal-reward RL to direct preference optimization and finer-grained credit assignment, while reward models provide the supervisory interface consumed by these optimization schemes.}
-\label{tab:posttrain_summary}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.16}
@@ -1002,6 +1001,8 @@ Dense Reward / Credit Assignment & Dense Reward View & Distributes supervisory s
 Reward Modeling & HPSv3, MPS, VisionReward, VIEScore, EditReward & Supplies discriminative, generative, or task-specific supervisory signals for both generation and editing \\
 \bottomrule
 \end{tabularx}
+\caption{\textbf{Post-training alignment paradigms for visual generation.} The field has evolved from terminal-reward RL to direct preference optimization and finer-grained credit assignment, while reward models provide the supervisory interface consumed by these optimization schemes.}
+\label{tab:posttrain_summary}
 \end{table*}
 
 \paragraph{Common Formulation.}
@@ -1064,8 +1065,6 @@ This deployment-first focus is visible across recent industrial systems. Seedrea
 
 \begin{table*}[t]
 \centering
-\caption{\textbf{Overview of sampling acceleration and efficiency techniques.} The first four rows address the NFE reduction problem (how many steps are needed); the bottom two rows address per-step cost reduction (how expensive each step is). Both are critical for deployment.}
-\label{tab:acceleration_summary}
 \scriptsize
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.2}
@@ -1083,6 +1082,8 @@ Pruning \& Compression & Diff-Pruning, LD-Pruner, LayerMerge & Removes structura
 Inference Caching & DeepCache, ToCa, TaylorSeer, TAP & Bypasses redundant compute by reusing or predicting temporal features \\
 \bottomrule
 \end{tabular}
+\caption{\textbf{Overview of sampling acceleration and efficiency techniques.} The first four rows address the NFE reduction problem (how many steps are needed); the bottom two rows address per-step cost reduction (how expensive each step is). Both are critical for deployment.}
+\label{tab:acceleration_summary}
 \end{table*}
 
 
@@ -3102,8 +3103,6 @@ The primary failure modes arise in crowded or visually entangled regions, where 
 
 \begin{table}[t]
 \centering
-\caption{\textbf{Mapping stress test dimensions to the visual intelligence taxonomy (\Cref{sec:evolution}).} Each dimension is designed to probe the boundary conditions of one or more levels, revealing where current frontier models sit within the five-level progression. The key finding column summarizes the dominant failure mode or capability gap observed.}
-\label{tab:stress_test_level_map}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.15}
@@ -3122,6 +3121,8 @@ VIII & High-level Vision Tasks & L2 (Conditional Generation) & Global competence
 \bottomrule[1pt]
 \end{tabular}%
 }
+\caption{\textbf{Mapping stress test dimensions to the visual intelligence taxonomy (\Cref{sec:evolution}).} Each dimension is designed to probe the boundary conditions of one or more levels, revealing where current frontier models sit within the five-level progression. The key finding column summarizes the dominant failure mode or capability gap observed.}
+\label{tab:stress_test_level_map}
 \end{table}
 \section{Positions and Frontiers}
 \label{sec:frontier}
@@ -3263,8 +3264,7 @@ This positioning also defines the next agenda. Visual generation will need stron
 
 
 
-\newpage
+
 \bibliographystyle{assets/plainnat}
 \bibliography{citation}
-\clearpage
 \end{document}

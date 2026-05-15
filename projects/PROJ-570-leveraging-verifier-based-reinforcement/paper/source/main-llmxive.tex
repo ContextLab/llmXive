@@ -28,7 +28,6 @@
 \usepackage{enumitem}
 \usepackage{placeins}
 \usepackage{hyphenat}
-\usepackage{setspace}
 \usepackage{parskip}
 \usepackage{lipsum}
 \usepackage{etoolbox}
@@ -39,7 +38,6 @@
 \usepackage[most]{tcolorbox}
 \usepackage[noabbrev,nameinlink]{cleveref}
 \usepackage[numbers, sort&compress]{natbib}
-\usepackage[round,authoryear]{natbib}
 
 %% ── Shim layer (venue macros made into no-ops) ────────────────
 \makeatletter
@@ -51,9 +49,12 @@
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
+\providecommand{\blfootnote}[1]{\footnote{#1}}
+\providecommand{\corresponding}{}
 \providecommand{\correspondingauthor}[1]{}
 \providecommand{\eg}{e.g.,\xspace}
 \providecommand{\email}[1]{\href{mailto:#1}{#1}}
+\providecommand{\equalcontribution}{}
 \providecommand{\etal}{et al.\xspace}
 \providecommand{\etc}{etc.\xspace}
 \providecommand{\iclrfinalcopy}{}
@@ -708,7 +709,6 @@ Our proposed \editrone{} framework yields a state-of-the-art reward model for pr
 This result significantly surpasses strong closed-source APIs like Seed-1.5-VL (79.3\%) and demonstrates the effectiveness of our training strategy.
 \begin{table}[h] 
     \centering
-    \caption{Accuracy on our internal benchmark. \textbf{T}, \textbf{V}, and \textbf{T+V} denote Think, Verify, and Think+Verify, respectively.}
     % \vspace{-.5em}
     \label{tab:full_rm_results}
     \renewcommand{\arraystretch}{1.2}
@@ -729,6 +729,7 @@ This result significantly surpasses strong closed-source APIs like Seed-1.5-VL (
         Qwen-7B  & 68.9\% & 70.9\% & 75.4\% & \textbf{82.2\%} \\
         \bottomrule
     \end{tabular*}
+\caption{Accuracy on our internal benchmark. \textbf{T}, \textbf{V}, and \textbf{T+V} denote Think, Verify, and Think+Verify, respectively.}
 \end{table}
 % \vspace{-1.5em}
 \paragraph{Verifier vs. Scorer on Public Benchmarks.}
@@ -738,12 +739,6 @@ On the public EditRewardBench, our verifier-based RRM consistently outperforms t
 \begin{table*}[t]
 % \small
 \centering
-\caption{
-Detailed performance comparison on the GEdit-Bench-EN (Full set). Higher scores are better. \textbf{Bold} scores highlight the best result within each model family. 
-Columns 1–11 report SC scores for different editing categories (see Appendix for details).
-%"O" stands for the Overall Score. 
-}
-\label{tab:model_evaluation}
 \renewcommand{\arraystretch}{1.25} 
 % \setlength{\tabcolsep}{4pt} 
 \resizebox{\textwidth}{!}{
@@ -782,6 +777,12 @@ RL w. RL-RRM (7B)                & 8.75 & \textbf{9.05} & 8.10 & \textbf{4.62} &
 \bottomrule
 \end{tabular}
 }
+\caption{
+Detailed performance comparison on the GEdit-Bench-EN (Full set). Higher scores are better. \textbf{Bold} scores highlight the best result within each model family. 
+Columns 1–11 report SC scores for different editing categories (see Appendix for details).
+%"O" stands for the Overall Score. 
+}
+\label{tab:model_evaluation}
 \end{table*}
 \paragraph{Principled Data Curation and SFT.}
 % The foundation of our model's performance is a meticulously curated SFT dataset. Tab.~\ref{tab:full_rm_results} details the ablation studies on the components of our data generation process. For our Qwen-based models, the full SFT pipeline using both ``Think'' and ``Verify'' components (T+V) consistently yields the best performance before the GCPO stage. For instance, the 7B model's accuracy improves from 68.9\% (T only) to 75.4\% (T+V), highlighting the importance of rigorous filtering. As a baseline, we also trained with SFT data generated with prompts from VIESCORE~\cite{ku2024viescore}, achieved 68.3\% accuracy.
@@ -806,8 +807,6 @@ Notably, as shown in the final row of Tab.~\ref{tab:model_evaluation}, our frame
 As shown in Tab.~\ref{tab:model_evaluation}, RRM with GCPO consistently outperforms its SFT counterpart. Training curves in Fig.~\ref{fig:edit_dynamics} further reveal the mechanism. Although RL-RRMs provide lower training rewards, they yield higher evaluation rewards, indicating that GCPO transforms the reward model into a stricter and more reliable evaluator. This stricter supervision pushes editing models to adhere more closely to human preferences and achieve higher-quality outputs.
 \begin{table}[t!]
     \centering
-    \caption{Comparison of our RRM against the baseline on the EditReward benchmark. All results are for 7B models.}
-    \label{tab:editscore_benchmark_comparison}
     \renewcommand{\arraystretch}{1.15}
     \small
     \begin{tabular}{lc}
@@ -823,6 +822,8 @@ As shown in Tab.~\ref{tab:model_evaluation}, RRM with GCPO consistently outperfo
         Our RRM (SFT + GCPO) & \textbf{78.2\%} \\
         \bottomrule
     \end{tabular}
+\caption{Comparison of our RRM against the baseline on the EditReward benchmark. All results are for 7B models.}
+\label{tab:editscore_benchmark_comparison}
 \end{table}
 % \vspace{-1.0em}
 \paragraph{Qualitative Analysis.} 
@@ -843,11 +844,11 @@ We introduce Edit-R1, a novel framework designed to enhance image editing throug
 % \section*{Acknowledgements}
 % This work was supported by Hong Kong Research Grants Council under the NSFC/RGC Collaborative Research Scheme (Grant CRS\_HKU703/24).
 
-\clearpage
+
 \bibliographystyle{plainnat}
 \bibliography{main}
 
-\clearpage
+
 \appendix
 \section{System prompt}
 \subsection{System Prompt for Decomposing Principles}
@@ -1231,7 +1232,7 @@ The length and order of the 'gold' array must match the input list of evaluation
 
 
 
-% \clearpage
+% 
 % \section{Inference result of RRM}
 % \label{append:rrm}
 
@@ -1389,8 +1390,6 @@ To validate that the automatic GPT-based metrics are aligned with human percepti
 \begin{table}[h]
   \centering
   \small
-  \caption{Human evaluation using the GSB protocol. Higher is better.}
-  \label{tab:gsb_single_model}
   \begin{tabular}{lc}
     \toprule
     Model & GSB Score \\
@@ -1398,6 +1397,8 @@ To validate that the automatic GPT-based metrics are aligned with human percepti
     FLUX.Kontext w. RL-RRM (7B) & +23.2 \\
     \bottomrule
   \end{tabular}
+\caption{Human evaluation using the GSB protocol. Higher is better.}
+\label{tab:gsb_single_model}
 \end{table}
 
 
@@ -1439,7 +1440,7 @@ Qualitative results for FLUX.Kontext are shown in Fig.~\ref{fig:qualitative_resu
     \label{fig:more_qualitative_results3}
 \end{figure*}
 
-% \clearpage
+% 
 \section{Qualitative Results for Qwen-Edit}
 \label{sec:appendix_qualitative_qwenedit}
 Qualitative results for Qwen-Edit are shown in Fig.~\ref{fig:qualitative_resultsqwen}.
@@ -1455,7 +1456,7 @@ Qualitative results for Qwen-Edit are shown in Fig.~\ref{fig:qualitative_results
     \label{fig:qualitative_resultsqwen}
 \end{figure*}
 
-\clearpage
+
 \begin{figure*}[t!]
     \centering
     \includegraphics[width=0.7\textwidth]{resources/edit_r1/demo.pdf} 
@@ -1468,7 +1469,7 @@ Qualitative results for Qwen-Edit are shown in Fig.~\ref{fig:qualitative_results
 
 
 
-\clearpage
+
 \section{Qualitative Analysis of RRM Judgments}
 \label{sec:appendix_qualitative_rrm_judgement}
 

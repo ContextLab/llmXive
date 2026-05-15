@@ -27,7 +27,6 @@
 \usepackage{tikz}
 \usepackage{placeins}
 \usepackage{hyphenat}
-\usepackage{setspace}
 \usepackage{parskip}
 \usepackage{etoolbox}
 \usepackage{graphicx}
@@ -49,9 +48,12 @@
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
+\providecommand{\blfootnote}[1]{\footnote{#1}}
+\providecommand{\corresponding}{}
 \providecommand{\correspondingauthor}[1]{}
 \providecommand{\eg}{e.g.,\xspace}
 \providecommand{\email}[1]{\href{mailto:#1}{#1}}
+\providecommand{\equalcontribution}{}
 \providecommand{\etal}{et al.\xspace}
 \providecommand{\etc}{etc.\xspace}
 \providecommand{\iclrfinalcopy}{}
@@ -109,7 +111,7 @@ MinT scales this adapter-revision path along three axes. \textbf{Scale Up} exten
 
 Post-training has evolved from a simple one-pass stage in LLM production into a widely used infrastructure workload. As LLMs move toward trillion-scale parameter counts, real-world deployment, and lifelong learning from experience~\citep{yao_second_half_2025,silver_sutton_experience_2025}, frontier model developers increasingly emphasize the complexity of building reliable frameworks for training modern agentic LLM capabilities~\citep{deepseek_v4_release_2026,deepseekv4_2026,glm5_2026,kimi_k25_2026,minimax_m27_2026,qwen35_2026,openai_gpt55_2026,anthropic_opus45_2025}. These workloads introduce a range of infrastructure challenges, including hardware resource management, distributed-computing scheduling, and version control for model artifacts. Traditional infrastructures rely on copying or serving a full fine-tuned checkpoint for each model variant are increasingly difficult to scale under the modern demands of continuous training, deployment and agentic reinforcement learning.
 
-% \clearpage
+% 
 
 \begin{figure}[H]
     \centering
@@ -954,8 +956,6 @@ Dynamic sparse attention has a separate mismatch channel. In GLM-5 and GLM-5.1, 
 \scriptsize
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.20}
-\caption{Representative model-family support validated by the current MinT stack.}
-\label{tab:supported_model_families}
 \fittowidth{%
 \begin{tabular}{@{}M{0.16\textwidth}M{0.18\textwidth}M{0.28\textwidth}M{0.32\textwidth}@{}}
 \toprule
@@ -969,6 +969,8 @@ Dynamic sparse attention has a separate mismatch channel. In GLM-5 and GLM-5.1, 
 \bottomrule
 \end{tabular}%
 }
+\caption{Representative model-family support validated by the current MinT stack.}
+\label{tab:supported_model_families}
 \end{table}
 
 
@@ -994,8 +996,6 @@ Scale-out begins when exported adapters stop being a small set of training files
 \scriptsize
 \setlength{\tabcolsep}{3.2pt}
 \renewcommand{\arraystretch}{1.10}
-\caption{Three cache tiers separate addressability from local residency and same-batch execution. A policy revision can occupy any subset of these tiers at a given moment; the scales, lifetimes, and control surfaces differ.}
-\label{tab:scale_out_cache_tiers}
 \fittowidth{%
 \begin{tabular}{@{}M{0.16\textwidth}M{0.15\textwidth}M{0.15\textwidth}M{0.22\textwidth}M{0.26\textwidth}@{}}
 \toprule
@@ -1009,6 +1009,8 @@ Scale-out begins when exported adapters stop being a small set of training files
 \bottomrule
 \end{tabular}%
 }
+\caption{Three cache tiers separate addressability from local residency and same-batch execution. A policy revision can occupy any subset of these tiers at a given moment; the scales, lifetimes, and control surfaces differ.}
+\label{tab:scale_out_cache_tiers}
 \end{table}
 
 \paragraph{Catalog size is the request-name scale.}
@@ -1041,8 +1043,6 @@ MoE LoRA makes the cold path visible because a moderate-size adapter can expand 
 \scriptsize
 \setlength{\tabcolsep}{3.2pt}
 \renewcommand{\arraystretch}{1.10}
-\caption{Concurrent-training schedule summary for three GRPO policies. Time saved and speedup compare each concurrent MinT row against the sequential row for the same model.}
-\label{tab:e2_training_utilization}
 \fittowidth{%
 \begin{tabular}{@{}M{0.14\textwidth}M{0.19\textwidth}M{0.16\textwidth}M{0.15\textwidth}M{0.19\textwidth}M{0.10\textwidth}M{0.13\textwidth}@{}}
 \toprule
@@ -1057,6 +1057,8 @@ Qwen3-30B & \appkey{Concurrent MinT} & 3 GRPO policies & 7008.4 s & 3121.6 s / 3
 \bottomrule
 \end{tabular}%
 }
+\caption{Concurrent-training schedule summary for three GRPO policies. Time saved and speedup compare each concurrent MinT row against the sequential row for the same model.}
+\label{tab:e2_training_utilization}
 \end{table}
 
 The experiments test the three scaling axes through the same LoRA lifecycle. Scale Down is measured by adapter-only handoff against merge-and-load paths and by concurrent training schedules that reuse one resident base allocation. Scale Up is measured by dense SFT, DPO, and GRPO runs, sparse-route MoE RL, Qwen3-235B-A22B GRPO, and a Kimi K2 1T countdown-task path. Scale Out is measured by separating addressable catalog size, CPU-cache size, same-batch adapter diversity, and cold-load cost; the million-scale claim is a catalog and routing claim, not a claim that one engine keeps every adapter resident or active.
@@ -1083,8 +1085,6 @@ Adapter handoff compares two ways to send a newly trained policy to the sampler.
 \scriptsize
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.05}
-\caption{File and sampling metrics for the adapter-handoff comparison in \cref{fig:e1_handoff_breakdown}. Cold first sample is the first request wall time. The total sample speed includes that first request, while the warm sample speed excludes it.}
-\label{tab:e1_handoff_paths}
 \fittowidth{%
 \begin{tabular}{@{}M{0.11\textwidth}M{0.12\textwidth}M{0.16\textwidth}M{0.14\textwidth}M{0.17\textwidth}M{0.13\textwidth}M{0.15\textwidth}@{}}
 \toprule
@@ -1099,6 +1099,8 @@ Qwen3-30B & \appkey{Merge} & full model & 61.084 GB & 402.245 s & 156.074 s & 1.
 \bottomrule
 \end{tabular}%
 }
+\caption{File and sampling metrics for the adapter-handoff comparison in \cref{fig:e1_handoff_breakdown}. Cold first sample is the first request wall time. The total sample speed includes that first request, while the warm sample speed excludes it.}
+\label{tab:e1_handoff_paths}
 \end{table}
 
 Concurrent training measures schedule utilization under one resident base allocation. A sequential schedule can fit in memory while leaving the resident base idle between rollout, update, export, and evaluation phases. MinT keeps the same peak memory budget and lets other policies use those idle periods on resident trainers and samplers. The measured speedup comes from filling cross-policy gaps in the schedule, while each rollout and optimizer step still runs the same model computation for its selected policy. In the completed GRPO runs, concurrent execution finishes in 1736.1 s instead of 3081.2 s on Qwen3-4B and in 7008.4 s instead of 10130.0 s on Qwen3-30B, while peak memory remains unchanged within each model size. \Cref{fig:e2_gpu_utilization} shows the measured schedule timeline and matching GPU telemetry, and \cref{tab:e2_training_utilization} records the schedule summaries.
@@ -1125,8 +1127,6 @@ Each paradigm exercises a different part of the same lifecycle. SFT tests whethe
 \scriptsize
 \setlength{\tabcolsep}{3.2pt}
 \renewcommand{\arraystretch}{1.10}
-\caption{Dense-model result rows. The table keeps the native metric for each objective and separates plotted traces from held-out confirmation scores. FPB, FiQA-SA, TFNS, and NWGI are finance-sentiment held-out sets from the FinGPT evaluation suite~\citep{fingpt2023}.}
-\label{tab:e3_dense_results}
 \fittowidth{%
 \begin{tabular}{@{}M{0.14\textwidth}M{0.25\textwidth}M{0.16\textwidth}M{0.17\textwidth}M{0.20\textwidth}@{}}
 \toprule
@@ -1145,6 +1145,8 @@ Each paradigm exercises a different part of the same lifecycle. SFT tests whethe
 \bottomrule
 \end{tabular}%
 }
+\caption{Dense-model result rows. The table keeps the native metric for each objective and separates plotted traces from held-out confirmation scores. FPB, FiQA-SA, TFNS, and NWGI are finance-sentiment held-out sets from the FinGPT evaluation suite~\citep{fingpt2023}.}
+\label{tab:e3_dense_results}
 \end{table}
 
 The dense rows separate two kinds of evidence under the same adapter lifecycle. The five SFT rows from the FinGPT evaluation suite all confirm large held-out gains over the base Qwen3-4B score: roughly $+36$ points on FinEval, $+19$ on FPB, $+31$ on TFNS, and smaller but consistent moves on FiQA-SA and NWGI. The DPO row reports the reward-margin endpoint from the chat-DPO optimization trace. The GRPO row reports the Qwen3-8B-base DAPO-AIME24 training trace, whose EMA train accuracy rises from 0.11 to 0.47 and whose raw best point reaches 0.568 at step 76. The combined message is paradigm-agnostic: the same lifecycle carries supervised, preference-based, and rollout-based updates without any per-paradigm checkpoint surgery.
@@ -1182,8 +1184,6 @@ The proxy-versus-full divergence is the methodological signal the cookbook is bu
 \scriptsize
 \setlength{\tabcolsep}{3.2pt}
 \renewcommand{\arraystretch}{1.10}
-\caption{Policy-population serving bounds on one Qwen3-30B rank-1 serving actor with TP=4.}
-\label{tab:e4_serving_summary}
 \fittowidth{%
 \begin{tabular}{@{}M{0.20\textwidth}M{0.25\textwidth}M{0.25\textwidth}M{0.23\textwidth}@{}}
 \toprule
@@ -1223,6 +1223,8 @@ The proxy-versus-full divergence is the methodological signal the cookbook is bu
 \bottomrule
 \end{tabular}%
 }
+\caption{Policy-population serving bounds on one Qwen3-30B rank-1 serving actor with TP=4.}
+\label{tab:e4_serving_summary}
 \end{table}
 
 \subsection{Policy-Population Serving}
@@ -1465,8 +1467,6 @@ The load staircase also explains why the adapter file format matters. A rank-1 M
 \scriptsize
 \setlength{\tabcolsep}{4.0pt}
 \renewcommand{\arraystretch}{1.08}
-\caption{Packed MoE LoRA loading reduces cold-load overhead by removing tensor fanout. The byte-size change is small; the speedup comes from replacing many tiny tensor objects with a compact serving representation. The final three rows report the median duration of one live load call measured at each cache-miss burst size.}
-\label{tab:e4_packed_loader}
 \fittowidth{%
 \begin{tabular}{@{}M{0.32\textwidth}M{0.16\textwidth}M{0.16\textwidth}M{0.24\textwidth}@{}}
 \toprule
@@ -1485,6 +1485,8 @@ The load staircase also explains why the adapter file format matters. A rank-1 M
 \bottomrule
 \end{tabular}%
 }
+\caption{Packed MoE LoRA loading reduces cold-load overhead by removing tensor fanout. The byte-size change is small; the speedup comes from replacing many tiny tensor objects with a compact serving representation. The final three rows report the median duration of one live load call measured at each cache-miss burst size.}
+\label{tab:e4_packed_loader}
 \end{table}
 
 \Cref{tab:e4_packed_loader} shows the effect. Packing changes file size only from 110.75 MB to 105.58 MB and reduces tensor objects from 37{,}248 to 672. The direct loader slice improves by 29.5--54.8$\times$, and live engine loading for $N=4$, $N=8$, and $N=16$ improves by 8.5--8.7$\times$, with packed live-load medians under 0.2 seconds. This number refers to the live engine-load slice after packing; end-to-end cold latency still includes routing, queueing, fetch, and generation. The measured speedup comes from object layout: the serving representation removes the small-object storm on cache misses while the declared tensor bytes stay nearly unchanged.
@@ -1530,7 +1532,7 @@ Together, these results show that multi-tenant LoRA training services can be mad
 \bibliographystyle{plainnat}
 \bibliography{paper}
 
-\newpage
+
 \begin{appendices}
 \section{Author List}
 \label{app:author_list}
@@ -1562,8 +1564,6 @@ Several rows intentionally leave the clean warm path. They create weak locality,
 \scriptsize
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.08}
-\caption{Memory and representation accounting for the measured 30B MoE LoRA adapter files. The rows separate byte size from object fanout and cache pressure.}
-\label{tab:app_memory_loader_accounting}
 \fittowidth{%
 \begin{tabular}{@{}M{0.18\textwidth}M{0.24\textwidth}M{0.27\textwidth}M{0.23\textwidth}@{}}
 \toprule
@@ -1580,6 +1580,8 @@ Adapter-file format & Packed representation & 37{,}248 $\rightarrow$ 672 tensors
 \bottomrule
 \end{tabular}%
 }
+\caption{Memory and representation accounting for the measured 30B MoE LoRA adapter files. The rows separate byte size from object fanout and cache pressure.}
+\label{tab:app_memory_loader_accounting}
 \end{table}
 
 \paragraph{Adapter catalog size.}
@@ -1590,8 +1592,6 @@ Adapter-file format & Packed representation & 37{,}248 $\rightarrow$ 672 tensors
 \scriptsize
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.06}
-\caption{Adapter catalog sweep for $N=64$ serving. Warm and cold rows are split so the stable regime gap is visible at each catalog size.}
-\label{tab:app_path_pool_sweep}
 \fittowidth{%
 \begin{tabular}{@{}M{0.13\textwidth}M{0.13\textwidth}ccccM{0.27\textwidth}@{}}
 \toprule
@@ -1608,6 +1608,8 @@ Adapter-file format & Packed representation & 37{,}248 $\rightarrow$ 672 tensors
 \bottomrule
 \end{tabular}%
 }
+\caption{Adapter catalog sweep for $N=64$ serving. Warm and cold rows are split so the stable regime gap is visible at each catalog size.}
+\label{tab:app_path_pool_sweep}
 \end{table}
 
 \paragraph{Cached working sets.}
@@ -1618,8 +1620,6 @@ Adapter-file format & Packed representation & 37{,}248 $\rightarrow$ 672 tensors
 \scriptsize
 \setlength{\tabcolsep}{3.4pt}
 \renewcommand{\arraystretch}{1.05}
-\caption{Cached-working-set ladder on one 4-GPU Qwen3-30B rank-1 serving actor. Shaded group rows separate routed locality from unique-adapter load pressure.}
-\label{tab:app_cache_ladders}
 \fittowidth{%
 \begin{tabular}{@{}M{0.20\textwidth}cccccM{0.22\textwidth}@{}}
 \toprule
@@ -1653,6 +1653,8 @@ Unique adapters & 2048 & 550 & 63.14 s & 0 & CPU warm & largest measured target 
 \bottomrule
 \end{tabular}%
 }
+\caption{Cached-working-set ladder on one 4-GPU Qwen3-30B rank-1 serving actor. Shaded group rows separate routed locality from unique-adapter load pressure.}
+\label{tab:app_cache_ladders}
 \end{table}
 
 \paragraph{Mixed online-length stress traffic.}
@@ -1663,8 +1665,6 @@ Unique adapters & 2048 & 550 & 63.14 s & 0 & CPU warm & largest measured target 
 \scriptsize
 \setlength{\tabcolsep}{2.8pt}
 \renewcommand{\arraystretch}{1.05}
-\caption{Mixed online-length traffic on a 2048-adapter catalog. The GPU/CPU column gives the GPU-batch LoRA slot limit and the CPU-cache LoRA limit.}
-\label{tab:app_business_traffic}
 \fittowidth{%
 \begin{tabular}{@{}M{0.18\textwidth}cM{0.10\textwidth}cM{0.10\textwidth}ccccM{0.16\textwidth}@{}}
 \toprule
@@ -1683,6 +1683,8 @@ GPU slots 64, 2 rounds & 230 & 64/2048 & 164 & 460/460 & 0.00\% & 848.98 & 1351.
 \bottomrule
 \end{tabular}%
 }
+\caption{Mixed online-length traffic on a 2048-adapter catalog. The GPU/CPU column gives the GPU-batch LoRA slot limit and the CPU-cache LoRA limit.}
+\label{tab:app_business_traffic}
 \end{table}
 
 \begin{table}[t]
@@ -1690,8 +1692,6 @@ GPU slots 64, 2 rounds & 230 & 64/2048 & 164 & 460/460 & 0.00\% & 848.98 & 1351.
 \scriptsize
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.08}
-\caption{Cold-load accounting and service protection.}
-\label{tab:app_cold_load_control}
 \fittowidth{%
 \begin{tabular}{@{}M{0.09\textwidth}M{0.22\textwidth}M{0.29\textwidth}M{0.19\textwidth}M{0.17\textwidth}@{}}
 \toprule
@@ -1708,6 +1708,8 @@ GPU slots 64, 2 rounds & 230 & 64/2048 & 164 & 460/460 & 0.00\% & 848.98 & 1351.
 \end{tabular}%
 }
 \vspace{-10pt}
+\caption{Cold-load accounting and service protection.}
+\label{tab:app_cold_load_control}
 \end{table}
 
 \begin{table}[H]
@@ -1715,8 +1717,6 @@ GPU slots 64, 2 rounds & 230 & 64/2048 & 164 & 460/460 & 0.00\% & 848.98 & 1351.
 \scriptsize
 \setlength{\tabcolsep}{3.4pt}
 \renewcommand{\arraystretch}{1.08}
-\caption{Capacity-planning sketch from measured per-engine limits to a 1M-entry accumulated adapter catalog and a 2300-distinct-adapter active-wave stress envelope.}
-\label{tab:app_fleet_model}
 \fittowidth{%
 \begin{tabular}{@{}M{0.22\textwidth}M{0.25\textwidth}ccM{0.23\textwidth}@{}}
 \toprule
@@ -1732,6 +1732,8 @@ Cold-burst isolation & 2300 cold uniques; $\le 32$/engine & 72 & 288 & isolates 
 \bottomrule
 \end{tabular}%
 }
+\caption{Capacity-planning sketch from measured per-engine limits to a 1M-entry accumulated adapter catalog and a 2300-distinct-adapter active-wave stress envelope.}
+\label{tab:app_fleet_model}
 \end{table}
 
 \paragraph{Cold-load accounting.}

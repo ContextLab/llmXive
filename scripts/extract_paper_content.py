@@ -975,7 +975,137 @@ def _body_cleanup_passes(body: str) -> str:
     body = re.sub(r"\\newpage\b", "", body)
     body = re.sub(r"\\pagebreak(?:\s*\[[0-4]\])?\b", "", body)
 
+    # 8. Move every table's \caption (and any immediately-following
+    #    \label) from the top to the bottom of the table block, so all
+    #    captions sit BELOW their content — matching the llmxive style
+    #    convention used for figures.
+    body = _move_table_captions_below(body)
+
     return body
+
+
+def _move_table_captions_below(body: str) -> str:
+    """For every `\\begin{table}…\\end{table}` block, move any `\\caption{…}`
+    (and an immediately-following `\\label{…}`) from above the tabular
+    content to BELOW it. Figure captions are conventionally below;
+    table captions are conventionally above. The user prefers table
+    captions below too (consistency with figures).
+
+    Scope: only `table` and `table*` environments. We do NOT touch
+    figures (already-below convention) or wraptable (the previous
+    cleanup pass already converted those to `table` floats, so they're
+    picked up here too).
+
+    Robustness:
+      - Brace-balanced capture of the caption argument (so a `}` inside
+        the caption text doesn't truncate).
+      - Skip if the table has NO `\\caption` (e.g. it's a placeholder).
+      - Skip if the `\\caption` already appears AFTER the `\\centering`
+        or after `\\hline`/`\\toprule`/`\\bottomrule` — heuristic that
+        it's already at the bottom.
+    """
+    cap_re = re.compile(r"\\caption\s*\{", re.IGNORECASE)
+    lab_re = re.compile(r"^\s*\\label\s*\{[^}]*\}", re.IGNORECASE)
+    out: list[str] = []
+    for env in ("table\\*?",):
+        # We rebuild `body` per env; only `table` for now (figure already
+        # below by convention). The list is here so adding more later
+        # is a one-line change.
+        pass
+    pat = re.compile(r"\\begin\s*\{(table\*?)\}", re.IGNORECASE)
+    end_re_cache: dict[str, re.Pattern] = {}
+    i = 0
+    n = len(body)
+    while i < n:
+        m = pat.search(body, i)
+        if not m:
+            out.append(body[i:])
+            break
+        # Skip table blocks whose `\begin{table}` line is itself inside a
+        # LaTeX comment (`%` before the macro on the same line). PROJ-569
+        # had an entire `\begin{table}...\end{table}` block commented out
+        # line-by-line; without this guard the caption-mover would lift
+        # the caption out of its `%`-prefixed siblings and emit it as
+        # uncommented prose, breaking the next un-commented \caption{}.
+        line_start = body.rfind("\n", 0, m.start()) + 1
+        line_prefix = body[line_start:m.start()]
+        if "%" in line_prefix and not line_prefix.rstrip().endswith("\\"):
+            out.append(body[i:m.end()])
+            i = m.end()
+            continue
+        out.append(body[i:m.start()])
+        env_name = m.group(1)
+        end_re = end_re_cache.setdefault(
+            env_name, re.compile(r"\\end\s*\{" + re.escape(env_name) + r"\}", re.IGNORECASE),
+        )
+        em = end_re.search(body, m.end())
+        if not em:
+            out.append(body[m.start():])
+            break
+        block_open = body[m.start():m.end()]
+        # Skip optional [pos] arg directly after \begin{table}
+        idx = m.end()
+        bracket_m = re.match(r"\s*\[[^\]]*\]", body[idx:em.start()])
+        opts = ""
+        if bracket_m:
+            opts = bracket_m.group(0)
+            idx += bracket_m.end()
+        inner = body[idx:em.start()]
+        block_close = body[em.start():em.end()]
+        i = em.end()
+
+        # Find a \caption in the inner.
+        cap_m = cap_re.search(inner)
+        if not cap_m:
+            out.append(block_open + opts + inner + block_close)
+            continue
+        # Brace-balanced capture of the caption body.
+        cap_arg_start = cap_m.end()
+        depth = 1
+        j = cap_arg_start
+        while j < len(inner) and depth > 0:
+            c = inner[j]
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    break
+            j += 1
+        if depth != 0:
+            # malformed — leave block alone
+            out.append(block_open + opts + inner + block_close)
+            continue
+        caption_full = inner[cap_m.start():j + 1]
+        rest_after_cap = inner[j + 1:]
+        # Capture an immediately-following \label{...} on the next line.
+        label_full = ""
+        lab_m = lab_re.match(rest_after_cap)
+        if lab_m:
+            label_full = lab_m.group(0).strip()
+            rest_after_cap = rest_after_cap[lab_m.end():]
+        # The pre-caption portion of inner (everything before \caption).
+        pre_caption = inner[:cap_m.start()].rstrip()
+        # Heuristic: skip if caption already appears AFTER the tabular
+        # rules (some papers do put it correctly below; don't double-flip).
+        tab_end_re = re.compile(r"\\(?:end\s*\{tabular\*?\}|bottomrule|hline)", re.IGNORECASE)
+        if tab_end_re.search(pre_caption):
+            # caption is already after the tabular rules — leave it.
+            out.append(block_open + opts + inner + block_close)
+            continue
+        # Reassemble: pre-caption content (centering, tabular, etc.) on top;
+        # caption + label + any trailing content at the bottom.
+        new_inner = (
+            pre_caption
+            + "\n"
+            + rest_after_cap.lstrip("\n")
+            + ("\n" if rest_after_cap and not rest_after_cap.endswith("\n") else "")
+            + caption_full
+            + (("\n" + label_full) if label_full else "")
+            + "\n"
+        )
+        out.append(block_open + opts + new_inner + block_close)
+    return "".join(out)
 
 
 def _wrap_section_math(body: str) -> str:

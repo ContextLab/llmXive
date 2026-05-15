@@ -29,7 +29,6 @@
 \usepackage{tikz}
 \usepackage{colortbl}
 \usepackage{pgfplots}
-\usepackage{tcolorbox}
 
 %% ── Shim layer (venue macros made into no-ops) ────────────────
 \makeatletter
@@ -41,9 +40,12 @@
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
+\providecommand{\blfootnote}[1]{\footnote{#1}}
+\providecommand{\corresponding}{}
 \providecommand{\correspondingauthor}[1]{}
 \providecommand{\eg}{e.g.,\xspace}
 \providecommand{\email}[1]{\href{mailto:#1}{#1}}
+\providecommand{\equalcontribution}{}
 \providecommand{\etal}{et al.\xspace}
 \providecommand{\etc}{etc.\xspace}
 \providecommand{\iclrfinalcopy}{}
@@ -695,7 +697,6 @@ Our contributions are listed below:
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.4}
 \captionsetup{font=small}
-\caption{\textbf{Feature comparison of contemporary voice agent evaluation frameworks.} \pmark~denotes partial support, and {---} for the simulator validation means it doesn't apply because of missing simulator. \framework~is the only framework combining live multi-turn simulation across both speech-to-speech (S2S) and cascade architectures with a realistic audio environment, automated simulator validation, comprehensive metrics exposing a wide range of voice agent failures, and pass\^{}k measurement via multi-trial consistency measurement.}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}p{1.4in}p{1.5in}p{1.0in}cccccc@{}}
 \toprule
@@ -743,6 +744,7 @@ $\tau$\textbf{-Voice} \cite{ray2026tauvoicebenchmarkingfullduplexvoice}
 \end{tabular}%
 }
 \label{tab:framework_comparison}
+\caption{\textbf{Feature comparison of contemporary voice agent evaluation frameworks.} \pmark~denotes partial support, and {---} for the simulator validation means it doesn't apply because of missing simulator. \framework~is the only framework combining live multi-turn simulation across both speech-to-speech (S2S) and cascade architectures with a realistic audio environment, automated simulator validation, comprehensive metrics exposing a wide range of voice agent failures, and pass\^{}k measurement via multi-trial consistency measurement.}
 \end{table}
 \section{Related Work}
 
@@ -906,8 +908,6 @@ We measure inter-annotator agreement (IAA) between the judge and/or human annota
 \begin{table}[h]
 \centering\small
 \captionsetup{font=small}
-\caption{\textbf{Accuracy and Experience metrics} for all evaluated systems under clean-audio conditions, pooled equal-weighted across the three EVA domains. Each cell shows the pooled point estimate $\pm$ the percentile bootstrap CI half-width ($\alpha = 0.05$). The three pass-rate columns share a single shading scale so they can be visually compared; each submetric column is scaled independently. Darker = higher point estimate.}
-\label{accuracy-experience-tables}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}}
 \toprule
@@ -958,6 +958,8 @@ We measure inter-annotator agreement (IAA) between the judge and/or human annota
 \bottomrule
 \end{tabular}%
 }
+\caption{\textbf{Accuracy and Experience metrics} for all evaluated systems under clean-audio conditions, pooled equal-weighted across the three EVA domains. Each cell shows the pooled point estimate $\pm$ the percentile bootstrap CI half-width ($\alpha = 0.05$). The three pass-rate columns share a single shading scale so they can be visually compared; each submetric column is scaled independently. Darker = higher point estimate.}
+\label{accuracy-experience-tables}
 \end{table}
 
 
@@ -1071,7 +1073,7 @@ We thank the following individuals for their careful data review and thoughtful 
 
 \bibliography{latex/citation}
 \bibliographystyle{latex/servicenow/servicenow}
-\newpage
+
 \appendix
 \label{sec:appendix}
 
@@ -1112,9 +1114,9 @@ We thank the following individuals for their careful data review and thoughtful 
 
 \end{description}
 
-\newpage
+
 %% ============================================================
-\clearpage
+
 \section{Experiment Parameters}
 \label{app:models-configuration}
 
@@ -1133,8 +1135,6 @@ All self-hosted models were served on NVIDIA H100 GPUs. Models served via vLLM u
 \begin{table}[h]
 \centering
 \captionsetup{font=small}
-\caption{Self-hosted model configurations.}
-\label{tab:self-hosted-models}
 \resizebox{\linewidth}{!}{%
 \begin{tabular}{lllllllll}
 \toprule
@@ -1151,6 +1151,8 @@ All self-hosted models were served on NVIDIA H100 GPUs. Models served via vLLM u
 \bottomrule
 \end{tabular}
 }
+\caption{Self-hosted model configurations.}
+\label{tab:self-hosted-models}
 \end{table}
 
 \subsection{API-Hosted Models}
@@ -1161,8 +1163,6 @@ For ElevenLabs, we used ElevenAgents with the following models: \scribefull, \ge
 \begin{table}[h]
       \centering
       \captionsetup{font=small}
-      \caption{ElevenLabs ElevenAgents parameters.}
-      \label{tab:elevenlabs-params}
       \resizebox{\linewidth}{!}{%
       \begin{tabular}{lll p{10cm}}
       \toprule
@@ -1196,7 +1196,10 @@ For ElevenLabs, we used ElevenAgents with the following models: \scribefull, \ge
       \bottomrule
       \end{tabular}
       }
-      \end{table}
+      
+\caption{ElevenLabs ElevenAgents parameters.}
+\label{tab:elevenlabs-params}
+\end{table}
 
 Table~\ref{tab:api-models} lists all the other API-hosted models.
 
@@ -1217,8 +1220,6 @@ We use the default turn detection configurations for each framework in our exper
 \begin{table}[h]
     \centering
     \captionsetup{font=small}
-    \caption{API-hosted model configurations. In this work, due to space constraints we occasionally use the following model abbreviations: \inkfull $\rightarrow$  \ink, \sonicfull  $\rightarrow$ \sonic, \aurafull $\rightarrow$ \aura, \ultravoxfull $\rightarrow$ \ultravox. Note that \ultravoxfull~is offered as a realtime model service in Pipecat.}
-    \label{tab:api-models}
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{p{2.8cm} l l p{6.5cm} p{3cm}}
     \toprule
@@ -1242,7 +1243,10 @@ We use the default turn detection configurations for each framework in our exper
     \bottomrule
     \end{tabular}%
     }
-    \end{table}
+    
+\caption{API-hosted model configurations. In this work, due to space constraints we occasionally use the following model abbreviations: \inkfull $\rightarrow$  \ink, \sonicfull  $\rightarrow$ \sonic, \aurafull $\rightarrow$ \aura, \ultravoxfull $\rightarrow$ \ultravox. Note that \ultravoxfull~is offered as a realtime model service in Pipecat.}
+\label{tab:api-models}
+\end{table}
 
 \subsection{Experiments Compute Resources}
 \label{app:compute-resources}
@@ -1254,7 +1258,7 @@ We evaluated 213 scenarios over 5 trials on clean data and 90 scenarios over 3 t
 
 Researchers should therefore treat full \framework~runs as non-trivial compute investments, particularly when benchmarking multiple proprietary models simultaneously, and plan accordingly for parallelization and cost budgeting prior to large-scale experiments.
 
-\clearpage
+
 %% ============================================================
 \section{Data}
 \label{app:data}
@@ -1281,10 +1285,6 @@ The \textbf{Enterprise ITSM} domain covers 80 scenarios across 21 workflows back
 \centering
 \small
 \captionsetup{font=small}
-\caption{Comparison of \framework~data domains. 
-Multi-intent scenarios present one to four concurrent workflows within 
-a single call. Auth tiers refers to distinct levels of caller 
-authentication required across flows.}
 \begin{tabular}{lccc}
 \toprule
 & \textbf{Airline CSM} & \textbf{Healthcare HRSD} 
@@ -1299,6 +1299,10 @@ Auth tiers             & 1     & 2     & 3    \\
 \bottomrule
 \end{tabular}
 \label{tab:datasets}
+\caption{Comparison of \framework~data domains. 
+Multi-intent scenarios present one to four concurrent workflows within 
+a single call. Auth tiers refers to distinct levels of caller 
+authentication required across flows.}
 \end{table}
 
 
@@ -1335,7 +1339,7 @@ Following generation, all scenarios went through multiple rounds of manual revie
 As a final validation step, we ran three frontier models — OpenAI/Gpt-5.4, Google/Gemini 3.1 Pro, and Anthropic/Claude Opus 4.6 — on a text-only version of each scenario, bypassing the audio pipeline and providing conversation transcripts directly. For every scenario on which any model scored zero on task completion, we manually investigated whether the failure reflected genuine model error or a dataset issue: an ambiguous policy, an under-specified user goal, a bug in the tool executor, or an inconsistency between the initial and expected database states. Records with identified dataset issues were corrected or removed. All selected samples had a task completion of 1 on at least one of the frontier models. 
 
 This process provides high confidence that task completion failures in the full audio evaluation reflect real agent errors rather than evaluation artifacts.
-\clearpage
+
 \section{User Simulator Details}
 \label{app:user-sim}
 We use ElevenLabs ElevenAgents \cite{elevenlabs2024agents} as the user simulator with the following cascade system: \texttt{Scribe v2.2 Realtime + GPT-5.1 + Eleven V3 Conversational}. We select these models for their high transcription accuracy, \metricbehavior, user realism for GPT-5.1 \cite{zhou2026mind}, and for their naturalness and realism for Eleven v3 Conversational. ElevenLabs also provides a large voice library, enabling testing of a wide variety of user accents, languages, speaking styles, etc.
@@ -1346,8 +1350,6 @@ We created four ElevenLabs agents for the user simulator, covering two accents (
 
 \begin{table}[h]
     \centering
-    \caption{ElevenLabs User Simulator Configuration}
-    \label{tab:elevenlabs-config}
     \begin{tabular}{ll}
     \toprule
     \textbf{Parameter} & \textbf{Value} \\
@@ -1367,12 +1369,13 @@ We created four ElevenLabs agents for the user simulator, covering two accents (
     Tools $>$ System tools                & \texttt{End conversation} (enabled) \\
     \bottomrule
     \end{tabular}
-    \end{table}
+    
+\caption{ElevenLabs User Simulator Configuration}
+\label{tab:elevenlabs-config}
+\end{table}
 
 \begin{table}[h]
 \centering
-\caption{ElevenLabs Voice Name per Agent}
-\label{tab:elevenlabs-voices}
 \begin{tabular}{lll}
 \toprule
 \textbf{Accent} & \textbf{Gender} & \textbf{Voice Name} \\
@@ -1383,6 +1386,8 @@ French  & Female & Mariva Viva Muse - Warm and Energetic \\
 French  & Male   & Jamie - French Accent \& Charismatic \\
 \bottomrule
 \end{tabular}
+\caption{ElevenLabs Voice Name per Agent}
+\label{tab:elevenlabs-voices}
 \end{table}
 
 When enabling the "End Conversation" system tool, the name must be \texttt{end\_call}, and the description to provide is shown below. This allows the simulator to hang up programmatically.
@@ -1413,9 +1418,6 @@ The simulator is prompted in ~\framework~with a specific user goal and is instru
 \centering
 \small
 \captionsetup{font=small}
-\caption{\framework~validation metrics. These metrics ensure the
-quality of the user simulator and the integrity of each conversation
-prior to evaluation.}
 \begin{tabular}{llll}
 \toprule
 \textbf{Metric} & \textbf{Type} & \textbf{Scale} & \textbf{Pass Thresholds} \\
@@ -1426,6 +1428,9 @@ User Speech Fidelity     & LALM-as-Judge   & $1$--$3 \to [0,1]$  & -- \\
 \bottomrule
 \end{tabular}
 \label{tab:validation_metrics}
+\caption{\framework~validation metrics. These metrics ensure the
+quality of the user simulator and the integrity of each conversation
+prior to evaluation.}
 \end{table}
 
 \subsection{User Simulation Validation}
@@ -1479,8 +1484,6 @@ Because this prompt is closely derived from the agent speech fidelity judge, we 
 \centering
 \small
 \captionsetup{font=small}
-\caption{Distribution of corruption types among trials flagged by the \metricbehavior~judge. Percentages sum to more than 100\% because a single trial may exhibit multiple corruption types.}
-\label{tab:ubf-breakdown}
 \begin{tabular}{lrr}
 \toprule
 \textbf{Corruption Type} & \textbf{Cases} & \textbf{\% of Flagged} \\
@@ -1492,10 +1495,12 @@ Extra modifications     &   9 &  1.3\% \\
 Duplicate modifications &   0 &    0\% \\
 \bottomrule
 \end{tabular}
+\caption{Distribution of corruption types among trials flagged by the \metricbehavior~judge. Percentages sum to more than 100\% because a single trial may exhibit multiple corruption types.}
+\label{tab:ubf-breakdown}
 \end{table}
 %% ============================================================
 
-\clearpage
+
 \section{Metric Details}
 \label{app:metric-details}
 %%%% Starting from Table 11 %%%%%%%%%
@@ -1503,11 +1508,6 @@ Duplicate modifications &   0 &    0\% \\
 \centering
 \small
 \captionsetup{font=small}
-\caption{\framework~metrics organized by category. All EVA-A and EVA-X 
-scores are normalized to $[0,1]$ prior to aggregation. Thresholds are 
-used for \passatk~and \passpowerk~computation: a run is considered 
-successful if all EVA-A and EVA-X metrics meet their respective 
-thresholds simultaneously.}
 \begin{tabular}{lllll}
 \toprule
 \textbf{Category} & \textbf{Metric} & \textbf{Type} & 
@@ -1533,6 +1533,11 @@ thresholds simultaneously.}
 \bottomrule
 \end{tabular}
 \label{tab:metrics}
+\caption{\framework~metrics organized by category. All EVA-A and EVA-X 
+scores are normalized to $[0,1]$ prior to aggregation. Thresholds are 
+used for \passatk~and \passpowerk~computation: a run is considered 
+successful if all EVA-A and EVA-X metrics meet their respective 
+thresholds simultaneously.}
 \end{table}
 %% ============================================================
 
@@ -1556,10 +1561,6 @@ The available streams are concatenated and sorted by timestamp into a single tim
 \begin{table}[h]
 \centering
 \small
-\caption{Default mapping from log source to extracted variable. The upper block lists the per-turn text and audio fields; the lower block lists the entries that compose the linear \texttt{conversation\_trace}. Pipeline-specific overrides are listed in the text.\\[2pt]
-\textsuperscript{*}~Empty if the framework emits neither record.\quad
-\textsuperscript{\dag}~Falls back to \texttt{assistant\_speech} for S2S.\quad
-\textsuperscript{\ddag}~Uses \texttt{user\_speech} for audio-native pipelines (S2S/Hybrid).}
 \begin{tabular}{ll}
 \toprule
 \textbf{Variable} & \textbf{Source} \\
@@ -1577,6 +1578,10 @@ The available streams are concatenated and sorted by timestamp into a single tim
 \bottomrule
 \end{tabular}
 \label{tab:log-mapping}
+\caption{Default mapping from log source to extracted variable. The upper block lists the per-turn text and audio fields; the lower block lists the entries that compose the linear \texttt{conversation\_trace}. Pipeline-specific overrides are listed in the text.\\[2pt]
+\textsuperscript{*}~Empty if the framework emits neither record.\quad
+\textsuperscript{\dag}~Falls back to \texttt{assistant\_speech} for S2S.\quad
+\textsuperscript{\ddag}~Uses \texttt{user\_speech} for audio-native pipelines (S2S/Hybrid).}
 \end{table}
 
 Pipeline type modifies this default in two principled ways, reflecting which signals are trustworthy for each architecture. These differences impact the metrics definition, as discussed in \ref{app:arch-eval}.
@@ -1677,10 +1682,6 @@ nearly identical performance at substantially lower inference cost.
 \centering
 \small
 \captionsetup{font=small}
-\caption{Judge validation datasets and results per candidate model. Size = number 
-of annotated examples. Dist.\ = class distribution. Acc.\ = judge accuracy against 
-adjudicated human labels. F1 = macro F1-score. \textbf{Bold} indicates the 
-selected judge model for each metric.}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{l c cc cc cc cc}
 \toprule
@@ -1718,6 +1719,10 @@ Speech Fidelity
 \end{tabular}%
 }
 \label{tab:judge-validation}
+\caption{Judge validation datasets and results per candidate model. Size = number 
+of annotated examples. Dist.\ = class distribution. Acc.\ = judge accuracy against 
+adjudicated human labels. F1 = macro F1-score. \textbf{Bold} indicates the 
+selected judge model for each metric.}
 \end{table}
 
 \paragraph{Test set validation and human agreement.}
@@ -1759,8 +1764,6 @@ human experts annotating the same data.
   \label{app:judge-agrement}
   \centering
   \captionsetup{font=small}
-  \caption{Human--judge agreement ($\kappa$, Spearman $\rho$) for the primary judge (L\_J) versus the human linguist inter-annotator baseline (L\_L). Quadratic-weighted $\kappa$ is used for the 1--3 ordinal metrics; unweighted $\kappa$ for the binary Agent Speech Fidelity metric. 95\% CIs from 10{,}000 record-level bootstrap resamples. To verify that the pooled pairing design does not distort agreement estimates, we computed $\kappa$ using a single randomly selected annotator per record (10{,}000 iterations combining labeler randomization with record-level bootstrap); results fell within 0.007 of the pooled estimates across all metrics. L\_J $\kappa$ ranges from 0.777 to 0.845 across the 4 metrics; Spearman $\rho$ agrees with $\kappa$ within 0.008 for every metric, indicating no systematic calibration bias. Note that IAA-L is a practical rather than strict ceiling: when two human annotators disagree and the judge agrees with one, IAA-J is inflated relative to IAA-L. Nonetheless, similar IAA-J and IAA-L values indicate that the judge is at least as consistent as the human annotators.}
-  \label{tab:judge-agreement}
   \smallskip                                            
   \resizebox{\textwidth}{!}{
   \begin{tabular}{lcccccccc}
@@ -1774,14 +1777,14 @@ human experts annotating the same data.
   \bottomrule
   \end{tabular}
   }
-  \end{table}
+  
+\caption{Human--judge agreement ($\kappa$, Spearman $\rho$) for the primary judge (L\_J) versus the human linguist inter-annotator baseline (L\_L). Quadratic-weighted $\kappa$ is used for the 1--3 ordinal metrics; unweighted $\kappa$ for the binary Agent Speech Fidelity metric. 95\% CIs from 10{,}000 record-level bootstrap resamples. To verify that the pooled pairing design does not distort agreement estimates, we computed $\kappa$ using a single randomly selected annotator per record (10{,}000 iterations combining labeler randomization with record-level bootstrap); results fell within 0.007 of the pooled estimates across all metrics. L\_J $\kappa$ ranges from 0.777 to 0.845 across the 4 metrics; Spearman $\rho$ agrees with $\kappa$ within 0.008 for every metric, indicating no systematic calibration bias. Note that IAA-L is a practical rather than strict ceiling: when two human annotators disagree and the judge agrees with one, IAA-J is inflated relative to IAA-L. Nonetheless, similar IAA-J and IAA-L values indicate that the judge is at least as consistent as the human annotators.}
+\label{tab:judge-agreement}
+\end{table}
 
 \begin{table}[t]
 \centering
 \captionsetup{font=small}
-\caption{Judge model identifiers and inference parameters used during
-evaluation. Parameters not listed were left at provider defaults.}
-\label{tab:judge-model-params}
 \smallskip
 \begin{tabular}{llll}
 \toprule
@@ -1809,6 +1812,9 @@ Gemini 3 Flash
   & \texttt{minimal} \\
 \bottomrule
 \end{tabular}
+\caption{Judge model identifiers and inference parameters used during
+evaluation. Parameters not listed were left at provider defaults.}
+\label{tab:judge-model-params}
 \end{table}
 
 \subsection{Accuracy Metrics}
@@ -2007,10 +2013,6 @@ Rather than aggregating flat scalars across all turns, each turn is first classi
 \centering
 \small
 \captionsetup{font=small}
-\caption{Per-turn scoring regime. Each turn is routed to a 
-semantically appropriate scoring function conditioned on the 
-interrupt condition, rather than contributing to a single 
-aggregated scalar.}
 \begin{tabular}{ll}
 \toprule
 \textbf{Turn Condition} & \textbf{Score Function} \\
@@ -2022,6 +2024,10 @@ Uninterrupted                 & $s_{\text{latency}}$ \\
 \bottomrule
 \end{tabular}
 \label{tab:tt-regime}
+\caption{Per-turn scoring regime. Each turn is routed to a 
+semantically appropriate scoring function conditioned on the 
+interrupt condition, rather than contributing to a single 
+aggregated scalar.}
 \end{table}
 \paragraph{Uninterrupted Turns}
 For uninterrupted turns, \metricturntaking~score is computed from the agent's response latency $\ell$ (ms), defined as the elapsed time between the end of the user's utterance and the onset of the agent's response. This latency is mapped to a score in $[0,1]$ via a piecewise-linear curve encoding four regions as detailed below: 
@@ -2052,7 +2058,6 @@ slow but not yet conversation-ending. Score ramps linearly from $1$ to $0$.
 \centering
 \small
 \captionsetup{font=small}
-\caption{Latency curve breakpoints by turn type, with descriptions. Tool-call turns receive a more lenient upper threshold ($\ell_{\text{sweet-high}}$ and $\ell_{\text{hard-late}}$) to account for inherent tool execution latency; lower breakpoints are unchanged since early-response behavior is unaffected by tool calls.}
 \begin{tabular}{lrrp{2.4in}}
 \toprule
 \textbf{Breakpoint} & \textbf{Standard Turn} & \textbf{Tool-Call Turn} & \textbf{Description} \\
@@ -2068,6 +2073,7 @@ Response is considered excessively delayed; score drops to $0$ at or beyond this
 \bottomrule
 \end{tabular}
 \label{tab:tt-latency}
+\caption{Latency curve breakpoints by turn type, with descriptions. Tool-call turns receive a more lenient upper threshold ($\ell_{\text{sweet-high}}$ and $\ell_{\text{hard-late}}$) to account for inherent tool execution latency; lower breakpoints are unchanged since early-response behavior is unaffected by tool calls.}
 \end{table}
 
 The breakpoints defining these regions are detailed in Table~\ref{tab:tt-latency}, which presents both standard and  tool-call-aware variants discussed in Section~\ref{app:tool-aware-turn-taking}. 
@@ -2085,14 +2091,6 @@ When the agent interrupts the user, the score is governed by three sub-dimension
 \small
 \captionsetup{font=small}
 \renewcommand{\arraystretch}{1.5}
-\caption{Agent interruption sub-scores, each capped at $M=0.5$. 
-The minimum of the three is taken, ensuring that the weakest 
-dimension dominates --- a single poorly-recovered interruption cannot 
-be masked by favorable scores on the other dimensions. 
-$o_{\max} = 2{,}000$ ms defines the maximum tolerable overlap 
-duration beyond which $s_{\text{overlap}} = 0$; 
-$N_{\max} = 3$ defines the maximum number of distinct overlapping 
-segments beyond which $s_{\text{count}} = 0$.}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lp{2.6in}l}
 \toprule
@@ -2124,6 +2122,14 @@ $s_{\text{post}} = s_{\text{latency}}(\Delta t)$ \\
 \end{tabular}%
 }
 \label{tab:tt-agent-interrupt}
+\caption{Agent interruption sub-scores, each capped at $M=0.5$. 
+The minimum of the three is taken, ensuring that the weakest 
+dimension dominates --- a single poorly-recovered interruption cannot 
+be masked by favorable scores on the other dimensions. 
+$o_{\max} = 2{,}000$ ms defines the maximum tolerable overlap 
+duration beyond which $s_{\text{overlap}} = 0$; 
+$N_{\max} = 3$ defines the maximum number of distinct overlapping 
+segments beyond which $s_{\text{count}} = 0$.}
 \end{table}
 
 
@@ -2180,7 +2186,7 @@ therefore produce the same binary partition of systems---the precise
 value does not determine which systems pass or fail given the current
 landscape.
 
-\paragraph{EVA-X model rankings remain mostly stable across $\tau_{\text{tt}}$.}
+\paragraph{EVA-X model rankings remain mostly stable across \texorpdfstring{$\tau_{\text{tt}}$}{_tt}.}
 We sweep $\tau_{\text{tt}} \in \{0.50, 0.55, \dots, 0.95\}$ and recompute
 EVA-X pass@1 at each value (Fig.~\ref{fig:threshold_sensitivity}). System rankings are
 preserved across the entire range: Spearman $\rho = 0.968$ between rankings at
@@ -2198,9 +2204,6 @@ $\tau_{\text{tt}} = 0.50$).
 
 \begin{table}[h]
 \centering\small
-\caption{Pearson correlation between per-system EVA-X pass@1 vectors at
-$\tau_{\text{tt}} = 0.8$ and other candidate thresholds ($n = 12$ systems).}
-\label{tab:turntaking-pearson}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lcccccccccc}
 \toprule
@@ -2214,6 +2217,9 @@ Pearson $r$ vs.\ $\tau_{\text{tt}} = 0.80$
 \bottomrule
 \end{tabular}%
 }
+\caption{Pearson correlation between per-system EVA-X pass@1 vectors at
+$\tau_{\text{tt}} = 0.8$ and other candidate thresholds ($n = 12$ systems).}
+\label{tab:turntaking-pearson}
 \end{table}
 
 
@@ -2225,7 +2231,7 @@ Pearson $r$ vs.\ $\tau_{\text{tt}} = 0.80$
     \label{fig:threshold_sensitivity}
 \end{figure*}
 
-\paragraph{Why $\boldsymbol{0.8}$?}
+\paragraph{Why \texorpdfstring{$\boldsymbol{0.8}$}{0.8}?}
 The sensitivity sweep confirms that neither plateau nor cliff appears at any
 candidate threshold. More importantly, the $0.23$-point gap between the highest
 non-S2S system and the lowest S2S system means that any
@@ -2249,7 +2255,7 @@ as model latencies improve. The defense above is therefore a statement about the
 Diagnostic metrics include: \textit{Authentication Success Rate} (deterministic), \textit{Response Latency} in seconds decomposed into turns with and without tool calls or not (deterministic), speakability — whether agent text is voice-friendly prior to synthesis (LLM-as-Judge), STT word error rate computed via \texttt{jiwer} (deterministic), tool call validity — the fraction of tool calls with correctly formatted parameters (deterministic), and transcription accuracy for key entities — STT accuracy specifically on named entities such as names, dates, and alphanumeric codes (LLM-as-Judge). Together these metrics allow practitioners to distinguish, for example, between a task completion failure caused by an STT transcription error on a confirmation code versus one caused by incorrect LLM reasoning.
 
 %% ============================================================
-\clearpage
+
 \section{Metrics Analysis}
 \label{app:metrics-analysis}
 %% ============================================================
@@ -2301,7 +2307,6 @@ Transcription accuracy on entities is not sufficient on its own to predict task 
 \begin{table}[h]
 \centering\small
 \captionsetup{font=small}
-\caption{Joint distribution of task completion and faithfulness across 12,780 clean trials from all evaluated systems. Cells show \% of total; shading scales with cell count (darker~=~more trials).}
 \begin{tabular}{l@{\hskip 8pt}>{\centering\arraybackslash}p{2.4cm}@{\hskip 8pt}>{\centering\arraybackslash}p{2.4cm}@{\hskip 8pt}>{\centering\arraybackslash}p{1.6cm}}
 \toprule
  & \textbf{faithfulness = 1.0} & \textbf{faithfulness $<$ 1.0} & \textbf{Row total} \\
@@ -2313,6 +2318,7 @@ Transcription accuracy on entities is not sufficient on its own to predict task 
 \bottomrule
 \end{tabular}
 \label{tab:faithfulness-task-confusion}
+\caption{Joint distribution of task completion and faithfulness across 12,780 clean trials from all evaluated systems. Cells show \% of total; shading scales with cell count (darker~=~more trials).}
 \end{table}
 
 
@@ -2355,16 +2361,6 @@ Given the small number of systems per pipeline type, the analysis is descriptive
 \begin{table}[h]
 \centering
 \small
-\caption{Per-pipeline-type means with 95\% bootstrap intervals over
-systems-within-type, and the S2S$-$Cascade pairwise difference ($\Delta$)
-with its 95\% bootstrap interval. Computed on clean runs only. Higher is
-better for the first three facets; lower is better for
-\texttt{violating\_policies\_rate}. $n$ is the number of systems
-contributing to each row. Mean rows use the $[0, 1]$ metric scale; the
-$\Delta$ row is reported in percentage points
-($\Delta \times 100$), with its bootstrap interval obtained by
-independently resampling each group's per-system means.}
-\label{tab:pipeline-comparison-summary}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{l c c c c c}
 \toprule
@@ -2380,6 +2376,16 @@ $\Delta$ S2S$-$Cascade (pp) & --- & $+27.9$ \,$[+16.4, +39.6]$ & $+15.2$ \,$[+6.
 \bottomrule
 \end{tabular}%
 }
+\caption{Per-pipeline-type means with 95\% bootstrap intervals over
+systems-within-type, and the S2S$-$Cascade pairwise difference ($\Delta$)
+with its 95\% bootstrap interval. Computed on clean runs only. Higher is
+better for the first three facets; lower is better for
+\texttt{violating\_policies\_rate}. $n$ is the number of systems
+contributing to each row. Mean rows use the $[0, 1]$ metric scale; the
+$\Delta$ row is reported in percentage points
+($\Delta \times 100$), with its bootstrap interval obtained by
+independently resampling each group's per-system means.}
+\label{tab:pipeline-comparison-summary}
 \end{table}
 
 Table~\ref{tab:pipeline-comparison-summary} reports the per-pipeline-type means with their 95\% bootstrap intervals, and the S2S$-$Cascade pairwise difference (in percentage points) with its bootstrap interval as a bottom row; Fig.~\ref{fig:arch-comparison} visualizes the means with per-system points overlaid. The S2S systems sit at the top of all facets, including the policy-violation facet (where lower is better). However, there are some differences at the system level, as shown in Table~\ref{tab:pipeline-comparison-systems}, and the per-facet patterns below describe both where S2S systems excel or trail, and where individual cascades narrow or close the gap.
@@ -2395,8 +2401,6 @@ Table~\ref{tab:pipeline-comparison-summary} reports the per-pipeline-type means 
 \begin{table}[h]
 \centering
 \small
-\caption{Per-system means on clean runs, averaged across the three domains.}
-\label{tab:pipeline-comparison-systems}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{l l c c c c}
 \toprule
@@ -2422,6 +2426,8 @@ Pipeline & System & On-time$\uparrow$ & Finishes$\uparrow$ & Auth.$\uparrow$ & V
 \bottomrule
 \end{tabular}
 }
+\caption{Per-system means on clean runs, averaged across the three domains.}
+\label{tab:pipeline-comparison-systems}
 \end{table}
 
 
@@ -2435,8 +2441,6 @@ S2S systems are essentially unchanged: they finish $95$--$99\%$ of clean convers
 \begin{table}[h]
 \centering
 \small
-\caption{Per-system authentication success on clean runs, raw vs.\ conditional on conversation completion. \emph{Auth (raw)} is computed over all $1{,}050$ clean conversations; \emph{Auth $|$ finished} is computed only on conversations where \texttt{conversation\_correctly\_finished} $= 1$. \emph{$\Delta$ (pp)} is their difference. Systems with low finish rates move the most.}
-\label{tab:pipeline-comparison-auth-conditional}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{l l c c c c}
 \toprule
@@ -2462,6 +2466,8 @@ Pipeline & System & Finish rate & Auth (raw) & Auth $|$ finished & $\Delta$ (pp)
 \bottomrule
 \end{tabular}%
 }
+\caption{Per-system authentication success on clean runs, raw vs.\ conditional on conversation completion. \emph{Auth (raw)} is computed over all $1{,}050$ clean conversations; \emph{Auth $|$ finished} is computed only on conversations where \texttt{conversation\_correctly\_finished} $= 1$. \emph{$\Delta$ (pp)} is their difference. Systems with low finish rates move the most.}
+\label{tab:pipeline-comparison-auth-conditional}
 \end{table}
 
 \subsubsection{Inactivity-timeout failures}
@@ -2480,14 +2486,6 @@ Table~\ref{tab:pipeline-comparison-failure-modes-bysystem} breaks the timeouts d
 \begin{table}[h]
 \centering
 \small
-\caption{Per-system view on clean runs (1{,}065 conversations per system).
-\emph{Conv.\ fail rate} = $1 - \texttt{conversation\_correctly\_finished}$
-(any failure type, conversation-pooled). \emph{Timeouts} = number of those
-failures that ended with the agent going silent. The three right-most
-columns are the share of \emph{this system's} timeouts whose preceding
-user turn matched each pattern. Systems are ordered within each pipeline
-class by timeout count (descending).}
-\label{tab:pipeline-comparison-failure-modes-bysystem}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{l l r r r r r}
 \toprule
@@ -2513,6 +2511,14 @@ Pipeline & System & Conv.\ fail rate & Timeouts & Short turn & Short $\wedge$ co
 \bottomrule
 \end{tabular}%
 }
+\caption{Per-system view on clean runs (1{,}065 conversations per system).
+\emph{Conv.\ fail rate} = $1 - \texttt{conversation\_correctly\_finished}$
+(any failure type, conversation-pooled). \emph{Timeouts} = number of those
+failures that ended with the agent going silent. The three right-most
+columns are the share of \emph{this system's} timeouts whose preceding
+user turn matched each pattern. Systems are ordered within each pipeline
+class by timeout count (descending).}
+\label{tab:pipeline-comparison-failure-modes-bysystem}
 \end{table}
 
 
@@ -2560,7 +2566,6 @@ A character is replaced by one that sounds similar when spoken aloud.
 
 \begin{table}[h]
 \centering\small
-\caption{Per-system turn-taking and response-speed detail under clean-audio conditions, pooled equal-weighted across the three domains. Each cell shows the pooled point estimate $\pm$ the percentile bootstrap CI half-width ($\alpha = 0.05$). Turn-taking rates are in $[0, 1]$; response speed is mean per-turn latency in seconds. Cells are shaded per column with darker = better (lower for latency and error-rate columns; higher otherwise).}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}}
 \toprule
@@ -2586,6 +2591,7 @@ A character is replaced by one that sounds similar when spoken aloud.
 \end{tabular}%
 }
 \label{tab:appendix-turntaking-response-speed}
+\caption{Per-system turn-taking and response-speed detail under clean-audio conditions, pooled equal-weighted across the three domains. Each cell shows the pooled point estimate $\pm$ the percentile bootstrap CI half-width ($\alpha = 0.05$). Turn-taking rates are in $[0, 1]$; response speed is mean per-turn latency in seconds. Cells are shaded per column with darker = better (lower for latency and error-rate columns; higher otherwise).}
 \end{table}
 
 \subsection{Cross Domain Variability}
@@ -2627,7 +2633,6 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 
 \begin{table}[h]
 \centering\small
-\caption{CSM domain accuracy metrics for all evaluated systems under clean-audio conditions. Each cell shows the point estimate $\pm$ the percentile bootstrap CI half-width ($\alpha = 0.05$). The three pass-rate columns share a single shading scale (so \passatone~vs.\ \passatk~vs.\ \passpowerk~are visually comparable); each submetric column is scaled independently. Darker = higher point estimate.}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}}
 \toprule
@@ -2653,6 +2658,7 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 \end{tabular}%
 }
 \label{tab:accuracy-metrics-CSM}
+\caption{CSM domain accuracy metrics for all evaluated systems under clean-audio conditions. Each cell shows the point estimate $\pm$ the percentile bootstrap CI half-width ($\alpha = 0.05$). The three pass-rate columns share a single shading scale (so \passatone~vs.\ \passatk~vs.\ \passpowerk~are visually comparable); each submetric column is scaled independently. Darker = higher point estimate.}
 \end{table}
 
 % Auto-generated by analysis/eva-bench-stats/run_paper.py
@@ -2674,7 +2680,6 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 
 \begin{table}[h]
 \centering\small
-\caption{HR domain accuracy for all evaluated systems under clean-audio conditions. Each cell shows the point estimate $\pm$ the percentile bootstrap CI half-width ($\alpha = 0.05$). The three pass-rate columns share a single shading scale (so \passatone~vs.\ \passatk~vs.\ \passpowerk~are visually comparable); each submetric column is scaled independently. Darker = higher point estimate.}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}}
 \toprule
@@ -2700,6 +2705,7 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 \end{tabular}%
 }
 \label{tab:accuracy-metrics-medical_hr}
+\caption{HR domain accuracy for all evaluated systems under clean-audio conditions. Each cell shows the point estimate $\pm$ the percentile bootstrap CI half-width ($\alpha = 0.05$). The three pass-rate columns share a single shading scale (so \passatone~vs.\ \passatk~vs.\ \passpowerk~are visually comparable); each submetric column is scaled independently. Darker = higher point estimate.}
 \end{table}
 
 % Requires: xcolor, colortbl, booktabs, multirow, array
@@ -2720,7 +2726,6 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 
 \begin{table}[h]
 \centering\small
-\caption{ITSM domain accuracy metrics for all evaluated systems under clean-audio conditions. Each cell shows the point estimate $\pm$ the percentile bootstrap CI half-width ($\alpha = 0.05$). The three pass-rate columns share a single shading scale (so \passatone~vs.\ \passatk~vs.\ \passpowerk~are visually comparable); each submetric column is scaled independently. Darker = higher point estimate.}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}}
 \toprule
@@ -2747,6 +2752,7 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 }
 %\vspace{6pt}
 \label{tab:accuracy-metrics-itsm}
+\caption{ITSM domain accuracy metrics for all evaluated systems under clean-audio conditions. Each cell shows the point estimate $\pm$ the percentile bootstrap CI half-width ($\alpha = 0.05$). The three pass-rate columns share a single shading scale (so \passatone~vs.\ \passatk~vs.\ \passpowerk~are visually comparable); each submetric column is scaled independently. Darker = higher point estimate.}
 \end{table}
 
 % Auto-generated by analysis/eva-bench-stats/run_paper.py
@@ -2754,7 +2760,6 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 
 \begin{table}[h]
 \centering\small
-\caption{Cross-domain variability of accuracy metrics: each cell is the sample standard deviation (ddof=1) of the per-domain point estimates across the three EVA domains (CSM, ITSM, HR). Larger values indicate the system's performance depends more strongly on domain.}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}}
 \toprule
@@ -2780,6 +2785,7 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 \end{tabular}%
 }
 \label{tab:accuracy-metrics-stddev}
+\caption{Cross-domain variability of accuracy metrics: each cell is the sample standard deviation (ddof=1) of the per-domain point estimates across the three EVA domains (CSM, ITSM, HR). Larger values indicate the system's performance depends more strongly on domain.}
 \end{table}
 
 %%%%%%%%% Experience across domains %%%%%%%%%%%%%%%%%
@@ -2801,7 +2807,6 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 
 \begin{table}[h]
 \centering\small
-\caption{Experience metrics for all evaluated systems under clean-audio conditions, restricted to the CSM domain. Each cell shows the point estimate $\pm$ the percentile bootstrap CI half-width ($\alpha = 0.05$). The three pass-rate columns share a single shading scale (so \passatone~vs.\ \passatk~vs.\ \passpowerk~are visually comparable); each submetric column is scaled independently. Darker = higher point estimate.}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}}
 \toprule
@@ -2827,6 +2832,7 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 \end{tabular}%
 }
 \label{tab:experience-metrics-CSM}
+\caption{Experience metrics for all evaluated systems under clean-audio conditions, restricted to the CSM domain. Each cell shows the point estimate $\pm$ the percentile bootstrap CI half-width ($\alpha = 0.05$). The three pass-rate columns share a single shading scale (so \passatone~vs.\ \passatk~vs.\ \passpowerk~are visually comparable); each submetric column is scaled independently. Darker = higher point estimate.}
 \end{table}
 %%%%%%%%%%%%%%
 % Auto-generated by analysis/eva-bench-stats/run_paper.py
@@ -2848,7 +2854,6 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 
 \begin{table}[h]
 \centering\small
-\caption{Experience metrics for all evaluated systems under clean-audio conditions, restricted to the HR domain. Each cell shows the point estimate $\pm$ the percentile bootstrap CI half-width ($\alpha = 0.05$). The three pass-rate columns share a single shading scale (so \passatone~vs.\ \passatk~vs.\ \passpowerk~are visually comparable); each submetric column is scaled independently. Darker = higher point estimate.}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}}
 \toprule
@@ -2874,6 +2879,7 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 \end{tabular}%
 }
 \label{tab:experience-metrics-medical_hr}
+\caption{Experience metrics for all evaluated systems under clean-audio conditions, restricted to the HR domain. Each cell shows the point estimate $\pm$ the percentile bootstrap CI half-width ($\alpha = 0.05$). The three pass-rate columns share a single shading scale (so \passatone~vs.\ \passatk~vs.\ \passpowerk~are visually comparable); each submetric column is scaled independently. Darker = higher point estimate.}
 \end{table}
 % Requires: xcolor, colortbl, booktabs, multirow, array
 \definecolor{acc1}{HTML}{edeaf4}
@@ -2893,8 +2899,6 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 
 \begin{table}[h]
 \centering\small
-\caption{Experience metrics for all evaluated systems under clean-audio conditions, restricted to the ITSM domain. Each cell shows the point estimate $\pm$ the percentile bootstrap CI half-width ($\alpha = 0.05$). The three pass-rate columns share a single shading scale (so \passatone~vs.\ \passatk~vs.\ \passpowerk~are visually comparable); each submetric column is scaled independently. Darker = higher point estimate.}
-\label{tab:experience-metrics-itsm}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}}
 \toprule
@@ -2919,13 +2923,14 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 \bottomrule
 \end{tabular}%
 }
+\caption{Experience metrics for all evaluated systems under clean-audio conditions, restricted to the ITSM domain. Each cell shows the point estimate $\pm$ the percentile bootstrap CI half-width ($\alpha = 0.05$). The three pass-rate columns share a single shading scale (so \passatone~vs.\ \passatk~vs.\ \passpowerk~are visually comparable); each submetric column is scaled independently. Darker = higher point estimate.}
+\label{tab:experience-metrics-itsm}
 \end{table}
 % Auto-generated by analysis/eva-bench-stats/run_paper.py
 % Requires: booktabs, multirow, array
 
 \begin{table}[h]
 \centering\small
-\caption{Cross-domain variability of experience metrics: each cell is the sample standard deviation (ddof=1) of the per-domain point estimates across the three EVA domains (CSM, ITSM, HR). Larger values indicate the system's performance depends more strongly on domain.}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}}
 \toprule
@@ -2952,9 +2957,10 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 }
 %\vspace{6pt}
 \label{tab:experience-metrics-stddev}
+\caption{Cross-domain variability of experience metrics: each cell is the sample standard deviation (ddof=1) of the per-domain point estimates across the three EVA domains (CSM, ITSM, HR). Larger values indicate the system's performance depends more strongly on domain.}
 \end{table}
 %% ============================================================
-\clearpage
+
 \section{Perturbation Analysis}
 \label{app:perturbations}
 %% ============================================================
@@ -3029,8 +3035,6 @@ To control for multiple comparisons across the three perturbation conditions wit
 \footnotesize
 \setlength{\tabcolsep}{3pt}
 \captionsetup{font=small}
-\caption{Perturbation effect under \textbf{Accent}: pooled mean $\Delta$ (perturbed $-$ clean) per model and metric. Cells are shaded by magnitude (red = degradation, green = improvement). Significance from sign-flip permutation tests with Holm--Bonferroni correction within each (model, metric) family of three conditions: $^{*}p<0.05$, $^{**}p<0.01$, $^{***}p<0.001$.}
-\label{tab:perturb-accent}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lllllllll}
 \toprule
@@ -3056,14 +3060,14 @@ Model & EVA-A & EVA-X & TaskComp & Faith & SpeechFidelity & ConvProg & TurnTake 
 \bottomrule
 \end{tabular}%
 }
+\caption{Perturbation effect under \textbf{Accent}: pooled mean $\Delta$ (perturbed $-$ clean) per model and metric. Cells are shaded by magnitude (red = degradation, green = improvement). Significance from sign-flip permutation tests with Holm--Bonferroni correction within each (model, metric) family of three conditions: $^{*}p<0.05$, $^{**}p<0.01$, $^{***}p<0.001$.}
+\label{tab:perturb-accent}
 \end{table*}
 \begin{table*}[t]
 \centering
 \footnotesize
 \setlength{\tabcolsep}{3pt}
 \captionsetup{font=small}
-\caption{Perturbation effect under \textbf{Background Noise}: pooled mean $\Delta$ (perturbed $-$ clean) per model and metric. Cells are shaded by magnitude (red = degradation, green = improvement). Significance from sign-flip permutation tests with Holm--Bonferroni correction within each (model, metric) family of three conditions: $^{*}p<0.05$, $^{**}p<0.01$, $^{***}p<0.001$.}
-\label{tab:perturb-background_noise}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lllllllll}
 %\begin{tabular}{lrrrrrrrr}
@@ -3090,14 +3094,14 @@ Model & EVA-A & EVA-X & TaskComp & Faith & SpeechFidelity & ConvProg & TurnTake 
 \bottomrule
 \end{tabular}%
 }
+\caption{Perturbation effect under \textbf{Background Noise}: pooled mean $\Delta$ (perturbed $-$ clean) per model and metric. Cells are shaded by magnitude (red = degradation, green = improvement). Significance from sign-flip permutation tests with Holm--Bonferroni correction within each (model, metric) family of three conditions: $^{*}p<0.05$, $^{**}p<0.01$, $^{***}p<0.001$.}
+\label{tab:perturb-background_noise}
 \end{table*}
 \begin{table*}[t]
 \centering
 \footnotesize
 \setlength{\tabcolsep}{3pt}
 \captionsetup{font=small}
-\caption{Perturbation effect under \textbf{Accent + Background Noise}: pooled mean $\Delta$ (perturbed $-$ clean) per model and metric. Cells are shaded by magnitude (red = degradation, green = improvement). Significance from sign-flip permutation tests with Holm--Bonferroni correction within each (model, metric) family of three conditions: $^{*}p<0.05$, $^{**}p<0.01$, $^{***}p<0.001$.}
-\label{tab:perturb-both}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lllllllll}
 \toprule
@@ -3123,6 +3127,8 @@ Model & EVA-A & EVA-X & TaskComp & Faith & SpeechFidelity & ConvProg & TurnTake 
 \bottomrule
 \end{tabular}%
 }
+\caption{Perturbation effect under \textbf{Accent + Background Noise}: pooled mean $\Delta$ (perturbed $-$ clean) per model and metric. Cells are shaded by magnitude (red = degradation, green = improvement). Significance from sign-flip permutation tests with Holm--Bonferroni correction within each (model, metric) family of three conditions: $^{*}p<0.05$, $^{**}p<0.01$, $^{***}p<0.001$.}
+\label{tab:perturb-both}
 \end{table*}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -3192,7 +3198,7 @@ Model & EVA-A & EVA-X & TaskComp & Faith & SpeechFidelity & ConvProg & TurnTake 
 \end{figure}
 
 %% ============================================================
-\clearpage
+
 \section{Measurement Reliability: Variance Decomposition and Trial Count Justification}
 \label{app:statistics}
 %% ============================================================
@@ -3271,7 +3277,7 @@ Turn taking & \geminilive & 7.1 & 92.9 & -- & 0.0508 \\
 \end{longtable}
 \endgroup
 
-\paragraph{Scenario variance and model $\times$ scenario interaction.} To complement the full variance decomposition and assess whether models rank scenarios consistently, we computed two ICC models: a one-way ANOVA on model-centered scores, and a two-way random effects model including the model $\times$ scenario interaction term. The analysis covered eight metrics - authentication success, \metricconcise, \metricconversationcompletion, \metricconversationprogression, \metrictaskcompletion, \metrictranscription~(cascade-only), and \metricturntaking~- across the three task domains (CSM, ITSM, HR), yielding 22 domain $\times$ metric combinations. For each, we decomposed score variance into four components: scenario, model, model $\times$ scenario interaction, and residual trial-to-trial noise; variance components were estimated from a balanced two-way ANOVA. Significance was assessed via F-tests using the interaction mean square as the denominator (Cornfield-Tukey rule for random effects), and ICC$_\text{scenario}$ was reported as $\sigma^2_\text{scenario} / \sigma^2_\text{total}$. 
+\paragraph{Scenario variance and model \texorpdfstring{$\times$}{...} scenario interaction.} To complement the full variance decomposition and assess whether models rank scenarios consistently, we computed two ICC models: a one-way ANOVA on model-centered scores, and a two-way random effects model including the model $\times$ scenario interaction term. The analysis covered eight metrics - authentication success, \metricconcise, \metricconversationcompletion, \metricconversationprogression, \metrictaskcompletion, \metrictranscription~(cascade-only), and \metricturntaking~- across the three task domains (CSM, ITSM, HR), yielding 22 domain $\times$ metric combinations. For each, we decomposed score variance into four components: scenario, model, model $\times$ scenario interaction, and residual trial-to-trial noise; variance components were estimated from a balanced two-way ANOVA. Significance was assessed via F-tests using the interaction mean square as the denominator (Cornfield-Tukey rule for random effects), and ICC$_\text{scenario}$ was reported as $\sigma^2_\text{scenario} / \sigma^2_\text{total}$. 
 
 Per-metric scenario-level intraclass correlation (ICC$_{\text{scenario}}$, computed via one-way ANOVA after centering scores by model) ranged from approximately $0$ on metrics that saturate across most scenarios (\metricfidelity, \metricvalidend, \metricturntaking)~up to $0.31$ on \metrictaskcompletion~(see \autoref{tab:icc-pooled}). \metricfaithfulness~ranged $0.17$--$0.25$ across domains, \metricconcise~$0.12$--$0.13$, and \metricconversationprogression~$0.07$--$0.13$ . 
 
@@ -3556,13 +3562,6 @@ is identically zero (single-anchor draw).}
 
 \begin{table}[h]
 \centering\small
-\caption{Subsample-stability summary across the 12 evaluated systems.
-\emph{Median 95\% CI width:} median across models of the empirical
-$p_{97.5}{-}p_{2.5}$ width of the model-level estimate at trial count $k$,
-in metric units. \emph{Agree $\le$0.02:} median across models of the
-fraction of $k{=}3$ subsamples that fall within $0.02$ of the $k{=}5$
-anchor. The $k{=}5$ column is omitted because it is identically zero by
-construction (single anchor draw).}
 \begin{tabular}{lccccc}
 \toprule
 \textbf{Metric} & \multicolumn{4}{c}{\textbf{Median 95\% CI width}} & \textbf{Agree $\le$0.02} \\
@@ -3580,9 +3579,16 @@ construction (single anchor draw).}
 \bottomrule
 \end{tabular}
 \label{tab:trial_count_summary}
+\caption{Subsample-stability summary across the 12 evaluated systems.
+\emph{Median 95\% CI width:} median across models of the empirical
+$p_{97.5}{-}p_{2.5}$ width of the model-level estimate at trial count $k$,
+in metric units. \emph{Agree $\le$0.02:} median across models of the
+fraction of $k{=}3$ subsamples that fall within $0.02$ of the $k{=}5$
+anchor. The $k{=}5$ column is omitted because it is identically zero by
+construction (single anchor draw).}
 \end{table}
 
-\clearpage
+
 %% ============================================================
 \section{Data Workflows}
 \label{app:workflows}
@@ -3764,7 +3770,7 @@ Adversarial & Caller attempts to bypass mandatory steps: skip troubleshooting, m
 
 \end{longtable}}
 
-\clearpage
+
 
 %% ============================================================
 \section{Scenario Examples}
@@ -3785,9 +3791,9 @@ Adversarial & Caller attempts to bypass mandatory steps: skip troubleshooting, m
 Each \framework~evaluation record comprises four components: a \textbf{user goal} specifying what the caller is trying to accomplish, including a decision tree that constrains the user simulator to a deterministic outcome; a \textbf{user persona} defining the caller's speaking style and behavior; a \textbf{scenario database} containing the backend state the agent's tools query and modify; and a \textbf{ground truth} specifying the expected final database state. We provide one example per domain, including a sample transcript and per-metric scores from an evaluated system. A single-intent CSM scenario example is presented in \ref{sec:csm_example}, an ITSM multi-intent scenario example is presented in \ref{sec:itsm_example}, and an HRSD adversarial scenario example is presented in \ref{sec:hchr_example}.
 
 \subsection{Airline CSM Example -- Single Intent: 
-Scenario~1.2.1 \texorpdfstring{$|$}{ | } 
+Scenario~1.2.1 \texorpdfstring{\texorpdfstring{$|$}{|}}{ | } 
 Same-Day Flight Change 
-\texorpdfstring{(LAX\,$\to$\,SFO)}{(LAX to SFO)}}
+\texorpdfstring{(LAX\,\texorpdfstring{$\to$}{...}\,SFO)}{(LAX to SFO)}}
 \label{sec:csm_example}
 
 \subsubsection*{User Simulator Specification}
@@ -3918,13 +3924,6 @@ state before and after the change.
 \begin{table}[ht]
 \centering
 \captionsetup{font=small}
-\caption{Ground-truth flight inventory and journey details for Scenario~1.2.1
-(LAX\,$\to$\,SFO, 2026-06-18).
-MC~=~Main Cabin; BE~=~Basic Economy; PE~=~Premium Economy; BUS~=~Business.
-Seat counts show available seats per cabin.
-$\dagger$~SK090+SK410 shown per segment; combined fares: BE~\$228, MC~\$358, PE~\$728.
-\checkmark~=~eligible rebooking target; $\times$~=~ineligible (reason given).}
-\label{tab:scenario121-flights}
 \renewcommand{\arraystretch}{1.3}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}llllllcccccccccccccl@{}}
@@ -4003,6 +4002,13 @@ SK410 & SJC$\to$SFO & E175 & 12B &
 \bottomrule
 \end{tabular}%
 }
+\caption{Ground-truth flight inventory and journey details for Scenario~1.2.1
+(LAX\,$\to$\,SFO, 2026-06-18).
+MC~=~Main Cabin; BE~=~Basic Economy; PE~=~Premium Economy; BUS~=~Business.
+Seat counts show available seats per cabin.
+$\dagger$~SK090+SK410 shown per segment; combined fares: BE~\$228, MC~\$358, PE~\$728.
+\checkmark~=~eligible rebooking target; $\times$~=~ineligible (reason given).}
+\label{tab:scenario121-flights}
 \end{table}
 {\small\begin{longtable}{
   p{0.30\textwidth}
@@ -5116,7 +5122,7 @@ Is there anything else I can help you with regarding your leave?}
 
 \end{longtable}}
 %% ============================================================
-\clearpage
+
 \section{User Simulator Prompts}
 \label{app:simulator-prompts}
 %% ============================================================
@@ -5125,8 +5131,6 @@ Is there anything else I can help you with regarding your leave?}
 
 \begin{table}[h]
 \centering
-\caption{Input variables shared across all user simulator system prompts.}
-\label{tab:simulator-variables}
 \begin{tabular}{lp{9cm}}
 \toprule
 \textbf{Variable} & \textbf{Description} \\
@@ -5145,6 +5149,8 @@ Is there anything else I can help you with regarding your leave?}
 \texttt{\{current\_date\_time\}}     & The simulated current date and time, injected at runtime. \\
 \bottomrule
 \end{tabular}
+\caption{Input variables shared across all user simulator system prompts.}
+\label{tab:simulator-variables}
 \end{table}
 
 % -------------------------------------------------------
@@ -5553,7 +5559,7 @@ If the agent mishears you and gets any information wrong, repeat it even slower 
 IMPORTANT: Before ending the conversation, confirm with the agent that there are no outstanding actions. The end\_call tool should only be called in a turn that is a brief goodbye --- never in the same turn where you are providing the agent with data, an identifier, a request to transfer to a live agent, an approval to proceed, or any kind of additional information.
 \end{tcolorbox}
 %% ============================================================
-\clearpage
+
 \section{Agent Prompts}
 \label{app:agent_prompts}
 %% ============================================================
@@ -5568,8 +5574,6 @@ Table~\ref{tab:prompt-variables} describes each variable.
 \begin{table}[h]
 \centering
 \small
-\caption{Template input variables shared across all three agent system prompts.}
-\label{tab:prompt-variables}
 \begin{tabular}{lp{9.5cm}}
 \toprule
 \textbf{Variable} & \textbf{Description} \\
@@ -5579,6 +5583,8 @@ Table~\ref{tab:prompt-variables} describes each variable.
 \texttt{\{agent\_instructions\}} & Domain-specific policies and task instructions that govern what the agent is and is not permitted to do in a given use case. \\
 \bottomrule
 \end{tabular}
+\caption{Template input variables shared across all three agent system prompts.}
+\label{tab:prompt-variables}
 \end{table}
 
 
@@ -7231,7 +7237,7 @@ Country of birth must be recorded as a two-letter ISO country code.
 After a dependent is added to the petition, notify immigration counsel.
 \end{tcolorbox}
 %% ============================================================
-\clearpage
+
 \section{Judge Prompts}
 \label{app:prompts}
 %% ============================================================
@@ -8400,7 +8406,7 @@ follow-up actions, user objections — show the agent was internally operating o
       \}\}\newline
       ]
 \end{tcolorbox}
-\clearpage
+
 \section{Third-Party Dependency Licenses}
 \label{app:license}
 \framework~depends on the following third-party software packages. 
@@ -8411,7 +8417,6 @@ Full license texts are available in the anonymized repository's
 \centering
 \small
 \captionsetup{font=small}
-\caption{Third-party dependencies and their licenses.}
 \begin{tabular}{ll}
 \toprule
 \textbf{License} & \textbf{Packages} \\
@@ -8452,5 +8457,6 @@ MIT / MPL-2.0    & \texttt{tqdm} \\
 \bottomrule
 \end{tabular}
 \label{tab:third-party}
+\caption{Third-party dependencies and their licenses.}
 \end{table}
 \end{document}

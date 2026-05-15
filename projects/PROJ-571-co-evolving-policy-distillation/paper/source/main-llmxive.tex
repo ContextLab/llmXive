@@ -29,7 +29,6 @@
 \usepackage{listings}
 \usepackage{natbib}
 \usepackage{multicol}
-\usepackage{setspace}
 \usepackage{mathtools}
 \usepackage{cleveref}
 \usepackage{multirow}
@@ -43,9 +42,6 @@
 \usepackage{ulem}
 \usepackage{bm}
 \usepackage[most]{tcolorbox}
-\usepackage[numbers, sort&compress]{natbib}
-\usepackage[noabbrev,nameinlink]{cleveref}
-\usepackage[round,authoryear]{natbib}
 
 %% ── Shim layer (venue macros made into no-ops) ────────────────
 \makeatletter
@@ -57,9 +53,12 @@
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
+\providecommand{\blfootnote}[1]{\footnote{#1}}
+\providecommand{\corresponding}{}
 \providecommand{\correspondingauthor}[1]{}
 \providecommand{\eg}{e.g.,\xspace}
 \providecommand{\email}[1]{\href{mailto:#1}{#1}}
+\providecommand{\equalcontribution}{}
 \providecommand{\etal}{et al.\xspace}
 \providecommand{\etc}{etc.\xspace}
 \providecommand{\iclrfinalcopy}{}
@@ -282,13 +281,13 @@ where $\mathrm{Top}_k(\cdot)$ denotes the set of $k$ tokens with the highest pre
 
 We verify the hypothesis through two complementary experiments, summarized in Figure~\ref{fig:pilot}. The first establishes that $\eta(\mathcal{O}_k)$ does rise with $\mathcal{O}_k$ within the regime where teacher and student differ; the second establishes that the static pipeline systematically operates at a low value of $\mathcal{O}_k$.
 
-\paragraph{Experiment 1: $\eta$ rises with teacher--student overlap.} 
+\paragraph{Experiment 1: \texorpdfstring{$\eta$}{...} rises with teacher--student overlap.} 
 We fix a teacher (an image-domain expert obtained by RLVR on $D_{\text{img}}$) and construct a series of students with varying $\mathcal{O}_k$ to the teacher by training the base checkpoint for a short period with different sampling temperatures. For each student, we run OPD on $D_{\text{img}}$ with identical training configurations and a fixed budget, and report the WeMath score before and after distillation, with $k = 10$ in $\mathcal{O}_k$.
 
 As shown in Figure~\ref{fig:pilot}(a) and (b), the post-OPD gain increases monotonically with $\mathcal{O}_k$ across the sampled overlap range, exhibiting a strong linear correlation of $r = 0.89$ and $R^2 = 0.79$. This directly supports the behavioral consistency hypothesis: even with the teacher fixed, more behaviorally aligned students absorb the OPD signal more effectively, that is, $\eta$ in Eq.~\eqref{eq:utility-static} grows with $\mathcal{O}_k$. We do not observe the predicted decline at $\mathcal{O}_k \to 1$ in Figure~\ref{fig:pilot}(b), as temperature variation cannot drive the student all the way to teacher-identical behavior, but the boundary condition is straightforward: when teacher and student become indistinguishable, $D_{\mathrm{KL}}(\pi_T \| \pi_\theta) \to 0$ in Eq.~\eqref{eq:opd} and OPD gain necessarily collapses to zero. This boundary has its own design implication: simply running OPD continuously is not enough, since teacher and student would converge in behavior and the supervisory signal would lose informativeness. An effective paradigm must therefore actively maintain a non-trivial behavioral gap between teacher and student, in addition to keeping the gap from growing too wide.
 
 
-\paragraph{Experiment 2: standard RLVR drives behavioral overlap into the low-$\eta$ regime.}
+\paragraph{Experiment 2: standard RLVR drives behavioral overlap into the low-\texorpdfstring{$\eta$}{...} regime.}
 We then ask whether the static pipeline keeps OPD within the high-$\eta$ regime. We train two independent experts via RLVR, one on text-reasoning data $D_{\text{txt}}$ and one on image-reasoning data $D_{\text{img}}$, both initialized from a shared base $\pi_0$, and at fixed intervals measure each expert's top-$k$ overlap and symmetric KL with $\pi_0$ along on-policy rollouts. Treating $\pi_0$ as a proxy for the eventual student in two-stage distillation, these quantities track how teacher--student behavioral distance evolves during independent RLVR.
 
 
@@ -431,8 +430,6 @@ RLVR combines all data into a single pool and trains one model via RLVR. Static 
 \label{sec:main_exps}
 \begin{table}[t]
 \centering
-\caption{Main results on image and text reasoning benchmarks. Mixed RLVR runs for the combined step budget of both single-domain experts. Static OPD depends on independently trained experts and performs an additional distillation stage to consolidate them. \method uses the same total steps as static OPD. Best results are in \textbf{bold} and worst results (excluding the Base Model) are marked with $^\dagger$.}
-\label{tab:two_branch_results}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{l ccc c cc c}
 \toprule
@@ -461,6 +458,8 @@ RLVR combines all data into a single pool and trains one model via RLVR. Static 
 \rowcolor{blue!5} \textbf{Overall Avg.} & 54.74  & 55.65  & 56.13  & 55.60$^\dagger$  & 56.09  & 56.29  & \textbf{57.71} \\
 \bottomrule
 \end{tabular}
+\caption{Main results on image and text reasoning benchmarks. Mixed RLVR runs for the combined step budget of both single-domain experts. Static OPD depends on independently trained experts and performs an additional distillation stage to consolidate them. \method uses the same total steps as static OPD. Best results are in \textbf{bold} and worst results (excluding the Base Model) are marked with $^\dagger$.}
+\label{tab:two_branch_results}
 \end{table}
 \fakeparagraph{Co-Evolution on Text and Image Reasoning}
 Table~\ref{tab:two_branch_results} presents the main results on text and image reasoning, where \method achieves the best overall performance among all baselines. Mixed RLVR weakens text reasoning compared to the Text-Expert, confirming the capability divergence cost analyzed in \S\ref{sec:motivation}: jointly optimizing heterogeneous data incurs cross-domain interference that erodes individual capabilities. Static OPD avoids this interference by training experts separately. In the V$\to$T direction, both image and text reasoning improve over Mixed RLVR, partially resolving the cross-domain divergence. However, text reasoning still falls well short of the Text-Expert. Similarly, in the T$\to$V direction, although image reasoning benefits from the text expert's guidance, the Text-Expert's strong text capability (57.89) is only partially transferred, dropping to 56.09 in the distilled model. In both cases, a substantial portion of the teacher's knowledge fails to reach the student through post-hoc distillation. This is consistent with the analysis in Section~\ref{sec:motivation}: when experts have drifted far from the student, their thinking patterns diverge substantially, making the distillation signal difficult to absorb. In contrast, \method improves both image reasoning and text reasoning simultaneously, surpassing the specific experts on both sides. 
@@ -468,8 +467,6 @@ Table~\ref{tab:two_branch_results} presents the main results on text and image r
 \fakeparagraph{Scaling to Co-Evolution on Text, Image, and Video Reasoning} Table~\ref{tab:three_branch_results} extends CoPD from the dual-branch setting to a three-branch setting, where text, image, and video reasoning capabilities are jointly optimized and consolidated. The results follow the same trend as Table~\ref{tab:two_branch_results}: CoPD achieves the best overall performance and improves over MOPD across major capability groups, showing that its effectiveness generalizes beyond pairwise capability transfer. Notably, MOPD underperforms the Video-Expert on video reasoning (58.32 vs.\ 58.75), confirming that static multi-teacher distillation struggles to absorb all experts' knowledge as the number of capability branches grows. Mixed RLVR achieves the highest video average among baselines, likely because video reasoning benefits from diverse data, but this comes at the cost of text reasoning (55.39), again exhibiting the capability divergence pattern observed in the two-branch setting. \method avoids this trade-off by co-evolving all three branches, consolidating their capabilities without sacrificing any individual domain.
 \begin{table}[t]
 \centering
-\caption{Main results on image, text, and video reasoning benchmarks. Mixed RLVR runs for the combined step budget of all single-domain experts. Static OPD depends on independently trained experts and performs an additional distillation stage to consolidate them. \method uses the same total steps as static OPD. Best results are in \textbf{bold} and worst results (excluding the Base Model) are marked with $^\dagger$.}
-\label{tab:three_branch_results}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{l cccc c c c}
 \toprule
@@ -506,6 +503,8 @@ Table~\ref{tab:two_branch_results} presents the main results on text and image r
 \rowcolor{blue!5} \textbf{Overall Avg.} & 55.11  & 56.31  & 55.98$^\dagger$  & 56.39  & 56.79  & 56.99  & \textbf{58.12} \\
 \bottomrule
 \end{tabular}
+\caption{Main results on image, text, and video reasoning benchmarks. Mixed RLVR runs for the combined step budget of all single-domain experts. Static OPD depends on independently trained experts and performs an additional distillation stage to consolidate them. \method uses the same total steps as static OPD. Best results are in \textbf{bold} and worst results (excluding the Base Model) are marked with $^\dagger$.}
+\label{tab:three_branch_results}
 \end{table}
 \subsection{Analysis}
 \label{sec:analysis_exps}
@@ -513,8 +512,6 @@ Table~\ref{tab:two_branch_results} presents the main results on text and image r
 \fakeparagraph{Ablation Study} Table~\ref{tab:ablation_results} studies the contribution of each component in \method. Removing I-OPD causes text reasoning to drop from 58.76 to 57.41, while removing T-OPD causes image reasoning to drop from 56.97 to 56.48. In both cases, the overall performance degrades, confirming that mutual OPD in both directions is necessary: each branch's learning benefits from receiving the other's distillation signal. We also ablate the merge operation. When only the text branch is retained, text reasoning remains strong (58.61) but image reasoning drops to 56.26. Conversely, when only the image branch is retained, image reasoning holds at 56.78 but text reasoning falls to 57.17. Notably, even without merging, each single branch already surpasses both static OPD variants in Table~\ref{tab:two_branch_results} on overall performance (57.24 and 56.94 vs.\ 56.09 and 56.29), showing that co-evolution alone produces branches with well-rounded capabilities. Merging further consolidates their complementary strengths, yielding the best overall result.
 \begin{table}[t]
 \centering
-\caption{Ablation results on image and text reasoning benchmarks with Qwen3-VL-4B. I-OPD/T-OPD denotes distillation from the image/text branch (teacher); Text-Branch Only and Image-Branch Only denote removing the merge operation and using only the text or image branch for evaluation, respectively.}
-\label{tab:ablation_results}
 \scriptsize
 \setlength{\tabcolsep}{3.2pt}
 % \renewcommand{\arraystretch}{0.95}
@@ -555,6 +552,8 @@ Image-Branch Only
 & \cellcolor{blue!5}56.94 \\
 \bottomrule
 \end{tabular}
+\caption{Ablation results on image and text reasoning benchmarks with Qwen3-VL-4B. I-OPD/T-OPD denotes distillation from the image/text branch (teacher); Text-Branch Only and Image-Branch Only denote removing the merge operation and using only the text or image branch for evaluation, respectively.}
+\label{tab:ablation_results}
 \end{table}
 
 \fakeparagraph{Behavioral Pattern Consistency During Training}
@@ -591,14 +590,14 @@ This paper is the third installment of our \textit{Self-Taught RLVR} research se
 
 % % [llmxive-extract] missing input: limitations
 
-\clearpage
+
 \bibliographystyle{unsrtnat}
 % \bibliographystyle{plainnat}
 \bibliography{cite}
 
-% \clearpage
+% 
 % \beginappendix
-\newpage
+
 \beginappendix
 \section{Preliminaries}
 \label{sec:preliminary}
