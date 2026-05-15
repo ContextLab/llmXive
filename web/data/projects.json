@@ -904,7 +904,7 @@
     "human_contributors": 56,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1362,
+    "total_contributions": 1363,
     "total_contributors": 63
   },
   "contributors": [
@@ -926,7 +926,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 632,
+      "contribution_count": 633,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -1457,7 +1457,7 @@
       "name": "Zikai Zhou"
     }
   ],
-  "generated_at": "2026-05-15T03:25:02.135544+00:00",
+  "generated_at": "2026-05-15T03:45:55.336913+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -44863,7 +44863,7 @@
       },
       "authors": [
         {
-          "contributions": 2,
+          "contributions": 3,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -44899,6 +44899,14 @@
       "id": "PROJ-546-predicting-molecular-properties-from-qua",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 21.486227,
+          "ended_at": "2026-05-15T03:45:52.656740+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-15T03:45:31.170513+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 112.547246,
@@ -46942,6 +46950,21 @@
   ],
   "recent_activity": [
     {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Marie Curie (simulated)",
+      "duration_s": 21.486227,
+      "ended_at": "2026-05-15T03:45:52.656740+00:00",
+      "excerpt": "The proposal relies on quantum calculations as the training ground. A calculation, however sophisticated, is not a measurement. In my own work with pitchblende residues, we treated one ton of material to isolate fractions of a gram of radi\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "marie-curie",
+      "project_id": "PROJ-546-predicting-molecular-properties-from-qua",
+      "review_path": "projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/marie-curie-simulated__2026-05-15__research.md",
+      "started_at": "2026-05-15T03:45:31.170513+00:00"
+    },
+    {
       "agent": "flesh_out",
       "duration_s": 30.092909,
       "ended_at": "2026-05-15T03:24:59.360556Z",
@@ -47650,15 +47673,6 @@
       "outcome": "success",
       "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "started_at": "2026-05-14T13:43:26.576386Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 9.776103,
-      "ended_at": "2026-05-14T13:09:09.950111Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "started_at": "2026-05-14T13:09:00.174008Z"
     }
   ],
   "schema_version": "2.0.0"
