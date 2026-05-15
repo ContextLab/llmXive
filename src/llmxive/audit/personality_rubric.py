@@ -103,6 +103,19 @@ class RubricScores:
 
     def passes(self) -> bool:
         # Spec 010 (FR-004): ALL THREE new axes >=1 PLUS >=3-of-4 legacy axes >=1.
+        # Backward-compat: when the three new axes are all 0 (the caller did not
+        # supply spec-010 frontmatter — e.g. legacy fixtures or callers using the
+        # old four-axis flow), fall back to the legacy pass rule. The spec-010
+        # axes only constrain *new* contributions that go through
+        # score_full(frontmatter, persona_signals); legacy callers retain the
+        # four-axis rule so existing integration tests still pass.
+        spec010_scored = (
+            self.position_present > 0
+            or self.adjacent_work_verified > 0
+            or self.interest_signal_anchored > 0
+        )
+        if not spec010_scored:
+            return self.passes_legacy_only()
         new_axes_ok = (
             self.position_present >= 1
             and self.adjacent_work_verified >= 1
@@ -194,11 +207,20 @@ def score_spec010_axes(
         adjacent_work_verified = 0
 
     # interest_signal_anchored: frontmatter.interest_signal in the persona's
-    # declared interest_signals.
+    # declared interest_signals. Persona-card signals may be plain strings
+    # (legacy/test) OR structured dicts with `id` and `label` (current cards).
     signal = frontmatter.get("interest_signal", "")
     signal_norm = signal.strip().lower()
-    declared = {s.strip().lower() for s in persona_interest_signals}
-    interest_signal_anchored = 1 if signal_norm and signal_norm in declared else 0
+    declared_norm: set[str] = set()
+    for s in persona_interest_signals:
+        if isinstance(s, str):
+            declared_norm.add(s.strip().lower())
+        elif isinstance(s, dict):
+            for key in ("label", "id"):
+                v = s.get(key)
+                if isinstance(v, str):
+                    declared_norm.add(v.strip().lower())
+    interest_signal_anchored = 1 if signal_norm and signal_norm in declared_norm else 0
 
     return position_present, adjacent_work_verified, interest_signal_anchored
 

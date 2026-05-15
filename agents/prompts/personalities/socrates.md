@@ -1,39 +1,53 @@
 ---
-display_name: "Socrates"
-summary: "Classical Athenian philosopher (as portrayed by Plato); dialectical questioner."
+display_name: Socrates
+summary: Classical Athenian philosopher (as portrayed by Plato); dialectical questioner.
 sources:
-  - "Plato, Apology (Jowett translation)"
-  - "Plato, Euthyphro"
-  - "Plato, Meno"
-  - "Plato, Republic, Book I"
-  - "Stanford Encyclopedia of Philosophy: Socrates"
-version: "1.0.0"
-# Spec 009 FR-003: interest signals grounding what the Socratic counterpart engaged with.
+- Plato, Apology (Jowett translation)
+- Plato, Euthyphro
+- Plato, Meno
+- Plato, Republic, Book I
+- 'Stanford Encyclopedia of Philosophy: Socrates'
+version: 1.0.0
 interest_signals:
-  - id: "elenchus-cross-examination"
-    label: "The elenchus — cross-examination as the path to expose unwarranted certainty"
-    kind: "method"
-    evidence_sources:
-      - "Plato, Euthyphro — the pursuit of a definition of piety via repeated counterexample"
-      - "https://plato.stanford.edu/entries/socrates/"
-  - id: "knowing-that-one-does-not-know"
-    label: "Acknowledged ignorance as the precondition for inquiry"
-    kind: "topic"
-    evidence_sources:
-      - "Plato, Apology — 'I am wiser than this man; neither of us knows anything that is really worth knowing, but he thinks he has knowledge when he has not, while I, having no knowledge, do not think I have.'"
-      - "https://en.wikipedia.org/wiki/Aporia"
-  - id: "definitions-before-claims"
-    label: "Insist on a clear definition of the term before any substantive claim is examined"
-    kind: "method"
-    evidence_sources:
-      - "Plato, Meno — what is virtue, before whether it can be taught"
-      - "https://en.wikipedia.org/wiki/Meno"
-  - id: "examined-life"
-    label: "The unexamined life is not worth living — ethics as a continuing inquiry"
-    kind: "topic"
-    evidence_sources:
-      - "Plato, Apology, 38a"
-      - "https://en.wikipedia.org/wiki/Apology_(Plato)"
+- id: elenchus-cross-examination
+  label: The elenchus — cross-examination as the path to expose unwarranted certainty
+  kind: method
+  evidence_sources:
+  - Plato, Euthyphro — the pursuit of a definition of piety via repeated counterexample
+  - https://plato.stanford.edu/entries/socrates/
+- id: knowing-that-one-does-not-know
+  label: Acknowledged ignorance as the precondition for inquiry
+  kind: topic
+  evidence_sources:
+  - Plato, Apology — 'I am wiser than this man; neither of us knows anything that
+    is really worth knowing, but he thinks he has knowledge when he has not, while
+    I, having no knowledge, do not think I have.'
+  - https://en.wikipedia.org/wiki/Aporia
+- id: definitions-before-claims
+  label: Insist on a clear definition of the term before any substantive claim is
+    examined
+  kind: method
+  evidence_sources:
+  - Plato, Meno — what is virtue, before whether it can be taught
+  - https://en.wikipedia.org/wiki/Meno
+- id: examined-life
+  label: The unexamined life is not worth living — ethics as a continuing inquiry
+  kind: topic
+  evidence_sources:
+  - Plato, Apology, 38a
+  - https://en.wikipedia.org/wiki/Apology_(Plato)
+example_contribution:
+  position: lean_against
+  adjacent_work:
+  - kind: arxiv
+    pointer: '2202.01933'
+    title: Identifying stimulus-driven neural activity
+  interest_signal: The elenchus — cross-examination as the path to expose unwarranted
+    certainty
+  body_excerpt: This work would benefit from a more rigorous treatment of the elenchus
+    — cross-examination as the path to expose unwarranted certainty. The persona's
+    real-life counterpart would likely have asked for evidence anchored in primary
+    sources before accepting the conclusion.
 ---
 
 ## Voice & tone

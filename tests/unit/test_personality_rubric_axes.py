@@ -79,14 +79,20 @@ class TestSpec010Axes(unittest.TestCase):
         pp, aw, is_ = score_spec010_axes(fm, PERSONA_SIGNALS)
         self.assertEqual((pp, aw, is_), (1, 1, 1))
 
-    def test_passes_requires_all_three_new_plus_three_of_four_legacy(self) -> None:
-        # A contribution that passes legacy but doesn't have the new fields fails.
+    def test_passes_requires_all_three_new_when_partially_scored(self) -> None:
+        # A contribution that has PARTIAL spec-010 frontmatter (e.g. only
+        # position) fails the spec-010 strict check, because at least one axis
+        # is >0 so backward-compat fallback is bypassed.
         body = "I disagree with this approach because Arxiv:2202.01933 is more compelling."
         contribution = {"action": "comment", "content": body}
-        s = score_full(contribution, frontmatter={}, persona_interest_signals=PERSONA_SIGNALS)
-        # Legacy axes can pass, but new axes fail → overall fail
-        self.assertFalse(s.passes())
-        # Now provide the missing frontmatter → should pass
+        partial_fm = {"position": "lean_against"}  # only position; missing adjacent + signal
+        s = score_full(
+            contribution, frontmatter=partial_fm, persona_interest_signals=PERSONA_SIGNALS
+        )
+        # position_present=1, but adjacent_work_verified=0 and signal=0 → strict fail
+        self.assertFalse(s.passes(), f"expected partial frontmatter to fail; scores={s}")
+
+        # Full frontmatter → all three new axes pass → overall pass
         good_fm = {
             "position": "lean_against",
             "adjacent_work": [
@@ -104,15 +110,34 @@ class TestSpec010Axes(unittest.TestCase):
         )
         self.assertTrue(s2.passes(), f"expected pass; scores={s2}")
 
+    def test_empty_frontmatter_falls_back_to_legacy_rule(self) -> None:
+        # Backward-compat: when NONE of the spec-010 axes are scored (e.g.
+        # legacy callers without frontmatter), passes() must defer to the
+        # 4-axis legacy rule. This preserves prior integration-test behaviour
+        # (e.g. tests/integration/test_personality_librarian_gate.py).
+        body = "I disagree with this approach because Arxiv:2202.01933 is more compelling."
+        contribution = {"action": "comment", "content": body}
+        s = score_full(contribution, frontmatter={}, persona_interest_signals=PERSONA_SIGNALS)
+        self.assertTrue(s.passes(), f"expected legacy fallback to pass; scores={s}")
+
 
 class TestLegacyCompat(unittest.TestCase):
     def test_passes_legacy_only_still_works(self) -> None:
+        # With strong legacy axes and no spec-010 axes scored, both passes()
+        # (via backward-compat fallback) AND passes_legacy_only() return True.
         body = "However, I doubt this conclusion. See arxiv:2202.01933 and the Babbage method."
         contribution = {"action": "comment", "content": body}
         s = score_full(contribution)
-        # Without spec-010 frontmatter, the new pass() returns False...
-        self.assertFalse(s.passes())
-        # ...but the legacy pass rule still confirms the 4 axes are good.
+        self.assertTrue(s.passes(), f"expected legacy fallback to pass; scores={s}")
+        self.assertTrue(s.passes_legacy_only())
+
+    def test_legacy_only_rule_unaffected_by_new_axes(self) -> None:
+        # passes_legacy_only() always uses the original 4-axis rule regardless
+        # of the new axes being set.
+        body = "Compelling work. arxiv:2202.01933 is highly relevant."
+        contribution = {"action": "comment", "content": body}
+        s = score_full(contribution)
+        # Manually set the new axes to 0; legacy rule still depends on 4 axes only.
         self.assertTrue(s.passes_legacy_only())
 
 

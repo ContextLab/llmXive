@@ -206,6 +206,12 @@
   },
   "hotPaths": [
     {
+      "path": "src/llmxive/agents/personality.py",
+      "accessCount": 7,
+      "lastAccessed": 1778819943316,
+      "type": "file"
+    },
+    {
       "path": "notes/2026-05-07-spec-005-librarian-diagnostic.md",
       "accessCount": 6,
       "lastAccessed": 1778589483649,
@@ -215,6 +221,12 @@
       "path": "specs/010-personality-taste-speckit-real-pdf-audit/tasks.md",
       "accessCount": 6,
       "lastAccessed": 1778819050870,
+      "type": "file"
+    },
+    {
+      "path": "src/llmxive/audit/personality_rubric.py",
+      "accessCount": 6,
+      "lastAccessed": 1778844828134,
       "type": "file"
     },
     {
@@ -230,15 +242,15 @@
       "type": "file"
     },
     {
-      "path": "specs/005-librarian-agent/spec.md",
-      "accessCount": 3,
-      "lastAccessed": 1778588249641,
+      "path": "tests/unit/test_personality_rubric_axes.py",
+      "accessCount": 4,
+      "lastAccessed": 1778844885482,
       "type": "file"
     },
     {
-      "path": "src/llmxive/audit/personality_rubric.py",
+      "path": "specs/005-librarian-agent/spec.md",
       "accessCount": 3,
-      "lastAccessed": 1778819400658,
+      "lastAccessed": 1778588249641,
       "type": "file"
     },
     {
@@ -293,6 +305,12 @@
       "path": "src/llmxive/audit/__init__.py",
       "accessCount": 2,
       "lastAccessed": 1778819276171,
+      "type": "file"
+    },
+    {
+      "path": "agents/prompts/personality.md",
+      "accessCount": 2,
+      "lastAccessed": 1778819572564,
       "type": "file"
     },
     {
@@ -392,12 +410,6 @@
       "type": "file"
     },
     {
-      "path": "tests/unit/test_personality_rubric_axes.py",
-      "accessCount": 1,
-      "lastAccessed": 1778819440799,
-      "type": "file"
-    },
-    {
       "path": "src/llmxive/agents/position_diversity.py",
       "accessCount": 1,
       "lastAccessed": 1778819498278,
@@ -407,6 +419,12 @@
       "path": "tests/unit/test_personality_rotation_diversity.py",
       "accessCount": 1,
       "lastAccessed": 1778819509801,
+      "type": "file"
+    },
+    {
+      "path": "tests/integration/test_personality_librarian_gate.py",
+      "accessCount": 1,
+      "lastAccessed": 1778819911739,
       "type": "file"
     }
   ],

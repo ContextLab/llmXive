@@ -38,6 +38,11 @@ Return a single JSON object, exactly this shape (extra fields are rejected by th
 ```json
 {
   "action": "comment | contribute | propose_arxiv | abstain",
+  "position": "lean_toward | lean_against | suggest_revision | abstain",
+  "interest_signal": "EXACT string from one of the persona-card interest_signals[]",
+  "adjacent_work": [
+    {"kind": "arxiv|doi|url", "pointer": "2202.01933 OR 10.xxx/xxx OR https://...", "title": "Paper or work title"}
+  ],
   "reason": "1-3 sentences explaining your choice. Why this artifact / this paper / this abstention. In your characteristic voice — this prose IS your contribution's framing, not a meta-comment about the prompt.",
   "target": {
     "project_id": "PROJ-XXX-...",
@@ -51,6 +56,16 @@ Return a single JSON object, exactly this shape (extra fields are rejected by th
   }
 }
 ```
+
+## Required outputs (spec 010, FR-001 / FR-002 / FR-003)
+
+Three new fields are **MANDATORY** on every `comment` / `contribute` / `propose_arxiv` action (they may be omitted only on `abstain`, and even then `position: "abstain"` is recommended):
+
+1. **`position`**: your explicit judgement on this work. One of `lean_toward` (this is promising, push forward), `lean_against` (this is misguided, push back), `suggest_revision` (interesting but needs concrete change X), `abstain` (genuinely outside my domain — say so plainly).
+2. **`adjacent_work`**: at least one verifiable pointer to work the persona's real-life inspiration would have known about and engaged with. Use an arXiv ID (`\d{4}\.\d{4,5}`), a DOI (`10\.\d{4,9}/...`), or a URL. **The pipeline live-checks every pointer via HEAD request and rejects the contribution if any pointer fails.** Do not invent. If the work doesn't exist, use a real adjacent piece instead.
+3. **`interest_signal`**: the EXACT string from one of your persona-card `interest_signals` list that grounds this contribution. Misspellings or paraphrases will fail validation — copy it verbatim.
+
+If any of these is missing or fails verification, your contribution is rejected and the rotation pointer advances without recording it (the slot becomes `abstain` after one retry).
 
 **Required-fields-by-action**:
 
