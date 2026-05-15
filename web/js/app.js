@@ -585,6 +585,12 @@
   // Plus a free-text search over project_id / agent / display_name.
   let activityFilter = "all";
   let activitySearch = "";
+  let activityStage = "";          // "" = all; otherwise current_stage string
+  let activityContributor = "";    // "" = all; otherwise agent or display_name
+  let activityStatus = "";         // "" = all; otherwise outcome string
+  let activitySort = "desc";       // "desc" = newest first; "asc" = oldest first
+  let activityPage = 1;
+  const ACTIVITY_PER_PAGE = 50;
 
   const _ACTIVITY_PIPELINE_AGENTS = new Set([
     "brainstorm", "flesh_out", "research_question_validator", "idea_selector",
@@ -630,28 +636,100 @@
     return '<span class="outcome ' + cls + '">' + escapeHtml(outcome || "—") + '</span>';
   }
 
-  function renderActivity() {
-    const root = document.getElementById("activity-list");
-    if (!root) return;
+  function _activityContributorKey(r) {
+    // Personalities get their display_name (e.g. "Daniel Kahneman (simulated)");
+    // generic agents fall back to the agent name.
+    return r.display_name || r.agent || "";
+  }
+
+  function _filteredActivity() {
     let rows = (payload.recent_activity || []).slice();
     if (activityFilter !== "all") {
       rows = rows.filter(r => _activityCategory(r) === activityFilter);
+    }
+    if (activityStage) {
+      rows = rows.filter(r => (r.project_stage || "") === activityStage);
+    }
+    if (activityContributor) {
+      rows = rows.filter(r => _activityContributorKey(r) === activityContributor);
+    }
+    if (activityStatus) {
+      rows = rows.filter(r => (r.outcome || "") === activityStatus);
     }
     if (activitySearch) {
       const needle = activitySearch.toLowerCase();
       rows = rows.filter(r => {
         const hay = [r.project_id, r.agent, r.display_name, r.personality_slug,
-                     r.action, r.outcome, r.model].filter(Boolean).join(" ").toLowerCase();
+                     r.action, r.outcome, r.model, r.project_stage]
+          .filter(Boolean).join(" ").toLowerCase();
         return hay.includes(needle);
       });
     }
+    rows.sort((a, b) => {
+      const ta = a.ended_at || a.started_at || "";
+      const tb = b.ended_at || b.started_at || "";
+      return activitySort === "asc" ? ta.localeCompare(tb) : tb.localeCompare(ta);
+    });
+    return rows;
+  }
+
+  function _populateActivityDropdowns() {
+    // Build option lists from the full activity payload (not the filtered
+    // view) so users can reach every value. Preserve selections.
+    const all = payload.recent_activity || [];
+    const stages = Array.from(new Set(all.map(r => r.project_stage || "").filter(Boolean))).sort();
+    const contributors = Array.from(new Set(all.map(_activityContributorKey).filter(Boolean))).sort();
+    const statuses = Array.from(new Set(all.map(r => r.outcome || "").filter(Boolean))).sort();
+
+    function fill(sel, label, items, current) {
+      if (!sel) return;
+      // Rebuild via DOM to keep escaping safe (no innerHTML).
+      sel.replaceChildren();
+      const blank = document.createElement("option");
+      blank.value = ""; blank.textContent = label;
+      sel.appendChild(blank);
+      for (const v of items) {
+        const opt = document.createElement("option");
+        opt.value = v; opt.textContent = v;
+        if (v === current) opt.selected = true;
+        sel.appendChild(opt);
+      }
+    }
+    fill(document.querySelector("[data-activity-stage]"), "All stages", stages, activityStage);
+    fill(document.querySelector("[data-activity-contributor]"), "All contributors", contributors, activityContributor);
+    fill(document.querySelector("[data-activity-status]"), "All statuses", statuses, activityStatus);
+  }
+
+  function renderActivity() {
+    const root = document.getElementById("activity-list");
+    if (!root) return;
+    _populateActivityDropdowns();
+
+    const rows = _filteredActivity();
+    const total = rows.length;
+    const totalPages = Math.max(1, Math.ceil(total / ACTIVITY_PER_PAGE));
+    if (activityPage > totalPages) activityPage = totalPages;
+    if (activityPage < 1) activityPage = 1;
+    const start = (activityPage - 1) * ACTIVITY_PER_PAGE;
+    const slice = rows.slice(start, start + ACTIVITY_PER_PAGE);
+
+    const countEl = document.getElementById("activity-count");
+    if (countEl) {
+      const lo = total === 0 ? 0 : start + 1;
+      const hi = Math.min(start + ACTIVITY_PER_PAGE, total);
+      countEl.textContent = total === 0 ? "0 results"
+        : (total + " result" + (total === 1 ? "" : "s")
+            + " · showing " + lo + "–" + hi);
+    }
+
     root.replaceChildren();
-    if (!rows.length) {
+    if (!slice.length) {
       root.insertAdjacentHTML("beforeend",
-        '<div class="activity-empty">No activity matching the current filter.</div>');
+        '<div class="activity-empty">No activity matching the current filters.</div>');
+      _renderActivityPager(0, 1);
       return;
     }
-    const html = rows.map(r => {
+    const html = slice.map(r => {
       // Display the persona's "(simulated)" display_name when present,
       // else the agent name — same FR-010 invariant the contributor list
       // honors.
@@ -682,15 +760,90 @@
         if (proj) Dialog.open(proj);
       });
     });
+    _renderActivityPager(total, totalPages);
+  }
+
+  function _renderActivityPager(total, totalPages) {
+    const root = document.getElementById("activity-pager");
+    if (!root) return;
+    root.replaceChildren();
+    if (total <= ACTIVITY_PER_PAGE) return;
+
+    const mkBtn = (label, page, opts = {}) => {
+      const b = document.createElement("button");
+      b.className = "chip" + (opts.active ? " active" : "");
+      if (opts.disabled) b.disabled = true;
+      b.textContent = label;
+      b.addEventListener("click", () => {
+        activityPage = page;
+        renderActivity();
+        const panel = document.querySelector("[data-panel='activity']");
+        if (panel) panel.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      return b;
+    };
+
+    root.appendChild(mkBtn("← Prev", Math.max(1, activityPage - 1),
+      { disabled: activityPage === 1 }));
+
+    // Window: show current ± 2, with first/last anchors and ellipses.
+    const window_ = new Set([1, totalPages, activityPage,
+      activityPage - 1, activityPage - 2,
+      activityPage + 1, activityPage + 2]);
+    const pages = Array.from(window_).filter(p => p >= 1 && p <= totalPages).sort((a, b) => a - b);
+    let last = 0;
+    for (const p of pages) {
+      if (p - last > 1) {
+        const sep = document.createElement("span");
+        sep.className = "pager-ellipsis";
+        sep.textContent = "…";
+        root.appendChild(sep);
+      }
+      root.appendChild(mkBtn(String(p), p, { active: p === activityPage }));
+      last = p;
+    }
+
+    root.appendChild(mkBtn("Next →", Math.min(totalPages, activityPage + 1),
+      { disabled: activityPage === totalPages }));
   }
 
   function setupActivity() {
-    // Filter chips
+    // Action chips (legacy filter)
     document.querySelectorAll("[data-activity-filter]").forEach(chip => {
       chip.addEventListener("click", () => {
         activityFilter = chip.dataset.activityFilter;
         document.querySelectorAll("[data-activity-filter]").forEach(c =>
           c.classList.toggle("active", c.dataset.activityFilter === activityFilter));
+        activityPage = 1;
+        renderActivity();
+      });
+    });
+    // Stage / Contributor / Status selects
+    const stageSel = document.querySelector("[data-activity-stage]");
+    if (stageSel) stageSel.addEventListener("change", () => {
+      activityStage = stageSel.value;
+      activityPage = 1;
+      renderActivity();
+    });
+    const contribSel = document.querySelector("[data-activity-contributor]");
+    if (contribSel) contribSel.addEventListener("change", () => {
+      activityContributor = contribSel.value;
+      activityPage = 1;
+      renderActivity();
+    });
+    const statusSel = document.querySelector("[data-activity-status]");
+    if (statusSel) statusSel.addEventListener("change", () => {
+      activityStatus = statusSel.value;
+      activityPage = 1;
+      renderActivity();
+    });
+    // Sort chips
+    document.querySelectorAll("[data-activity-sort]").forEach(chip => {
+      chip.addEventListener("click", () => {
+        activitySort = chip.dataset.activitySort;
+        document.querySelectorAll("[data-activity-sort]").forEach(c =>
+          c.classList.toggle("active", c.dataset.activitySort === activitySort));
+        activityPage = 1;
         renderActivity();
       });
     });
@@ -702,6 +855,7 @@
         clearTimeout(timer);
         timer = setTimeout(() => {
           activitySearch = (searchInput.value || "").trim();
+          activityPage = 1;
           renderActivity();
         }, 100);
       });
@@ -709,6 +863,7 @@
         if (e.key === "Escape" && searchInput.value) {
           searchInput.value = "";
           activitySearch = "";
+          activityPage = 1;
           renderActivity();
         }
       });

@@ -229,16 +229,41 @@
         <p>The most recent agent runs across every project. Pipeline ticks, reviews, paper submissions, and simulated-personality contributions land here as they happen.</p>
       </div>
     </div>
-    <div class="bar">
-      <span class="label">Filter</span>
-      <button class="chip active" data-activity-filter="all">All</button>
-      <button class="chip" data-activity-filter="personality">Personalities</button>
-      <button class="chip" data-activity-filter="pipeline">Pipeline</button>
-      <button class="chip" data-activity-filter="reviews">Reviews</button>
-      <input type="search" data-activity-search="" placeholder="Search by project, agent, persona…" />
+    <div class="bar bar-stacked">
+      <div class="bar-row">
+        <span class="label">Action</span>
+        <button class="chip active" data-activity-filter="all">All</button>
+        <button class="chip" data-activity-filter="personality">Personalities</button>
+        <button class="chip" data-activity-filter="pipeline">Pipeline</button>
+        <button class="chip" data-activity-filter="reviews">Reviews</button>
+      </div>
+      <div class="bar-row">
+        <span class="label">Stage</span>
+        <select data-activity-stage>
+          <option value="">All stages</option>
+        </select>
+        <span class="label">Contributor</span>
+        <select data-activity-contributor>
+          <option value="">All contributors</option>
+        </select>
+        <span class="label">Status</span>
+        <select data-activity-status>
+          <option value="">All statuses</option>
+        </select>
+        <span class="label">Sort</span>
+        <button class="chip active" data-activity-sort="desc" title="Newest first">↓ Newest</button>
+        <button class="chip" data-activity-sort="asc" title="Oldest first">↑ Oldest</button>
+      </div>
+      <div class="bar-row">
+        <input type="search" data-activity-search="" placeholder="Search by project, agent, persona…" />
+        <span class="activity-count" id="activity-count">—</span>
+      </div>
     </div>
     <div class="activity-list" id="activity-list">
       <!-- rows rendered by app.js renderActivity() -->
+    </div>
+    <div class="activity-pager" id="activity-pager">
+      <!-- pagination buttons rendered by app.js -->
     </div>
   </section>
 

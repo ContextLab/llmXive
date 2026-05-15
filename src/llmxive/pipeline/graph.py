@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 from uuid import uuid4
 
 from llmxive.agents.advancement import evaluate as advancement_evaluate
@@ -379,13 +379,21 @@ def run_one_step(
             raise RuntimeError(
                 f"invalid transition {project.current_stage.value} -> {next_stage.value}"
             )
-        project = project.model_copy(
-            update={
-                "current_stage": next_stage,
-                "updated_at": datetime.now(timezone.utc),
-                "last_run_id": run_id,
-            }
-        )
+        update_fields: dict[str, Any] = {
+            "current_stage": next_stage,
+            "updated_at": datetime.now(timezone.utc),
+            "last_run_id": run_id,
+        }
+        # The Project schema requires human_escalation_reason when stage
+        # is human_input_needed; supply one when the transition target
+        # is the human-input stage (typically from flesh-out scope-reject).
+        if next_stage == Stage.HUMAN_INPUT_NEEDED and not project.human_escalation_reason:
+            update_fields["human_escalation_reason"] = (
+                "flesh-out judged idea out of GitHub-Actions-feasible scope; "
+                "idea archived under projects/<id>/idea/.archive/. Replace with "
+                "a tighter brainstorm or terminate."
+            )
+        project = project.model_copy(update=update_fields)
         # Issue-lifecycle hook: close the linked GitHub issue when the
         # project transitions to POSTED. Best-effort — failures here do
         # not abort the pipeline.
@@ -406,14 +414,34 @@ def _decide_next_stage(
     if _human_input_marker(project_dir):
         return Stage.HUMAN_INPUT_NEEDED
 
-    # Scope-rejection from flesh-out: roll back to brainstormed so
-    # the brainstorm agent can propose a tighter, GHA-feasible idea
-    # on the next cycle. The marker file is consumed (deleted) so
-    # we don't loop indefinitely.
+    # Scope-rejection from flesh-out: the brainstorm agent does NOT
+    # currently re-propose a different idea for an existing project (it
+    # only seeds new projects), so rolling back to BRAINSTORMED creates
+    # an infinite loop where flesh-out keeps re-rejecting the same body.
+    # Instead, archive the rejected idea file and escalate the project to
+    # HUMAN_INPUT_NEEDED — a human (or a future brainstorm-replace agent)
+    # can then either propose a new idea body or terminate the project.
+    # The marker is kept (not deleted) so the human-input UI can see why.
     scope_marker = project_dir / ".specify" / "memory" / "scope_rejected.yaml"
     if scope_marker.exists():
-        scope_marker.unlink()
-        return Stage.BRAINSTORMED
+        # Archive the rejected idea so the human-input handler (or a
+        # follow-up brainstorm-replace pass) sees clearly which idea was
+        # rejected without it remaining in idea/<slug>.md.
+        idea_dir = project_dir / "idea"
+        if idea_dir.is_dir():
+            archive_dir = idea_dir / ".archive"
+            archive_dir.mkdir(parents=True, exist_ok=True)
+            ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+            for md in sorted(idea_dir.glob("*.md")):
+                # Don't archive diagnostic side-files; just the canonical
+                # idea body. We move only non-diagnostic .md files.
+                if md.name in {
+                    "research_question_validation.md",
+                }:
+                    continue
+                target = archive_dir / f"{ts}-{md.name}"
+                md.rename(target)
+        return Stage.HUMAN_INPUT_NEEDED
 
     # Research-question-validator routing (spec 003 / D10):
     #   validator_revise   → roll back to FLESH_OUT_IN_PROGRESS so flesh_out
