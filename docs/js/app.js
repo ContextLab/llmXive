@@ -126,66 +126,18 @@
             + kindIcon(kindOf(item.submitter))
             + ' ' + escapeHtml(item.submitter) + '</span></div>'
           : "");
-    // Featured-artifact strip: shows the paper PDF prominently when one
-    // exists. PDF link uses event.stopPropagation so it opens the PDF
-    // directly in a new tab rather than the artifact dialog.
-    const artifacts = item.artifact_links || {};
-    const pdfPath = artifacts.paper_pdf;
-    const supplementPath = artifacts.paper_supplement;
-    const pdfBadge = pdfPath
-      ? '<a class="feat-badge primary" href="' + escapeHtml(pdfPath) + '" target="_blank" rel="noopener" '
-        + 'onclick="event.stopPropagation();">'
-        + '<i class="fa-regular fa-file-pdf"></i> PDF'
-        + '</a>'
-      : "";
-    const supplementBadge = supplementPath
-      ? '<a class="feat-badge" href="' + escapeHtml(supplementPath) + '" target="_blank" rel="noopener" '
-        + 'onclick="event.stopPropagation();">'
-        + '<i class="fa-regular fa-file-pdf"></i> supplement'
-        + '</a>'
-      : "";
-    const featuredRow = (pdfBadge || supplementBadge)
-      ? '<div class="featured">' + pdfBadge + supplementBadge + '</div>'
-      : "";
-
-    // Personality-comments block: actual excerpts (not just count) shown
-    // inline so users can see what was said. The most recent comment
-    // appears in full; older ones collapse behind a "+N more" toggle.
-    const activity = (activityByProject || {})[item.id];
-    let commentsBlock = "";
-    if (activity && activity.comments.length) {
-      const renderOne = (c, hidden) => {
-        const path = c.review_path
-          ? ' <a class="comment-link" href="' + escapeHtml(c.review_path) + '" target="_blank" rel="noopener" '
-            + 'onclick="event.stopPropagation();" title="open full review"><i class="fa-regular fa-arrow-up-right-from-square"></i></a>'
-          : "";
-        return '<div class="comment' + (hidden ? " comment-hidden" : "") + '">'
-          + '<div class="comment-head">'
-          + '<i class="fa-solid fa-quote-left"></i> '
-          + '<span class="comment-name">' + escapeHtml(c.display_name) + '</span>'
-          + path
-          + '</div>'
-          + '<div class="comment-text">' + escapeHtml(c.excerpt || "(no excerpt)") + '</div>'
-          + '</div>';
-      };
-      const head = renderOne(activity.comments[0], false);
-      const tail = activity.comments.slice(1).map(c => renderOne(c, true)).join("");
-      const moreBtn = activity.comments.length > 1
-        ? ' <button type="button" class="comments-more" '
-          + 'onclick="event.stopPropagation();">'
-          + '+' + (activity.comments.length - 1) + ' more'
-          + '</button>'
-        : "";
-      commentsBlock = '<div class="comments-block" data-count="' + activity.comments.length + '">'
-        + head + tail + moreBtn + '</div>';
-    }
+    // NOTE (spec 010 follow-up): the card used to show a `featuredRow`
+    // (PDF + supplement badges) and a `commentsBlock` (personality review
+    // excerpts) inline. The user's directive: cards stay clean previews;
+    // PDFs + comments live in the modal that opens on click. The modal's
+    // left-pane artifact embed (dialog.js _renderArtifactPane) already
+    // renders the paper PDF when present, and a new "Personality reviews"
+    // section in _renderListColumn shows the comment excerpts.
     return ''
       + '<article class="card" tabindex="0" data-pid="' + escapeHtml(item.id) + '">'
       + '<div class="kicker"><span class="dot"></span>' + kicker + '<span class="stage-pill ' + escapeHtml(stage) + '" style="margin-left:auto">' + escapeHtml(stageLabel) + '</span></div>'
       + '<h3>' + escapeHtml(item.title) + '</h3>'
       + '<p class="desc">' + escapeHtml(desc) + '</p>'
-      + featuredRow
-      + commentsBlock
       + '<div class="meta">'
       + '<div class="keys">' + keys + '</div>'
       + '<div class="right">' + points + '<span><i class="fa-regular fa-clock"></i> ' + escapeHtml(updated) + '</span></div>'
@@ -259,24 +211,19 @@
           moreBtn.textContent = expanded ? "show less" : `+${(tail ? tail.querySelectorAll(".submitter-tail").length : 0)} more`;
           return;
         }
-        // Same dance for "+N more" inside .comments-block — toggles
-        // the .comment-hidden siblings to reveal older personality comments.
-        const cmtMore = e.target.closest(".comments-more");
-        if (cmtMore && card.contains(cmtMore)) {
-          e.stopPropagation();
-          const block = cmtMore.closest(".comments-block");
-          if (!block) return;
-          const expanded = block.classList.toggle("expanded");
-          const hidden = block.querySelectorAll(".comment-hidden");
-          hidden.forEach(c => c.classList.toggle("comment-show", expanded));
-          cmtMore.textContent = expanded
-            ? "show less"
-            : `+${hidden.length} more`;
-          return;
-        }
+        // (Spec-010 follow-up: the inline `.comments-block` and its
+        // `+N more` toggle moved from the card into the modal's right
+        // pane — see dialog.js _renderListColumn. The on-card click
+        // handlers that toggled `.expanded` here are no longer needed.)
         const pid = card.getAttribute("data-pid");
         const proj = (payload.projects || []).find(p => p.id === pid);
-        if (proj) Dialog.open(proj);
+        if (proj) {
+          // Spec-010 follow-up: pass the project's personality-review
+          // comments into the modal (they used to render inline on the
+          // card; the user moved them into the modal).
+          const _act = (activityByProject || {})[proj.id];
+          Dialog.open(proj, { comments: (_act && _act.comments) || [] });
+        }
       });
       card.addEventListener("keydown", e => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); card.click(); }
@@ -322,7 +269,13 @@
       iss.addEventListener("click", () => {
         const pid = iss.getAttribute("data-pid");
         const proj = (payload.projects || []).find(p => p.id === pid);
-        if (proj) Dialog.open(proj);
+        if (proj) {
+          // Spec-010 follow-up: pass the project's personality-review
+          // comments into the modal (they used to render inline on the
+          // card; the user moved them into the modal).
+          const _act = (activityByProject || {})[proj.id];
+          Dialog.open(proj, { comments: (_act && _act.comments) || [] });
+        }
       });
     });
   }
@@ -757,7 +710,13 @@
       el.addEventListener("click", () => {
         const pid = el.dataset.pid;
         const proj = (payload.projects || []).find(p => p.id === pid);
-        if (proj) Dialog.open(proj);
+        if (proj) {
+          // Spec-010 follow-up: pass the project's personality-review
+          // comments into the modal (they used to render inline on the
+          // card; the user moved them into the modal).
+          const _act = (activityByProject || {})[proj.id];
+          Dialog.open(proj, { comments: (_act && _act.comments) || [] });
+        }
       });
     });
     _renderActivityPager(total, totalPages);
