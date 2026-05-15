@@ -202,7 +202,32 @@
     }).join("");
   }
 
-  function _renderListColumn(project) {
+  // Spec-010 follow-up: render the per-project personality-review excerpts
+  // that used to live inline on the card. Each `comments` entry has
+  // `display_name`, `excerpt`, `review_path`, `ended_at` (see
+  // _buildActivityByProject in app.js for the canonical shape).
+  function _personalityReviewsHTML(comments) {
+    if (!comments || !comments.length) {
+      return '<div style="color:var(--muted); font-size:11px;">No personality reviews yet.</div>';
+    }
+    return comments.map(c => {
+      const link = c.review_path
+        ? ' <a class="comment-link" href="' + escapeHtml(c.review_path) +
+          '" target="_blank" rel="noopener" title="open full review">' +
+          '<i class="fa-regular fa-arrow-up-right-from-square"></i></a>'
+        : "";
+      return '<div class="comment">' +
+        '<div class="comment-head">' +
+        '<i class="fa-solid fa-quote-left"></i> ' +
+        '<span class="comment-name">' + escapeHtml(c.display_name || "") + '</span>' +
+        link +
+        '</div>' +
+        '<div class="comment-text">' + escapeHtml(c.excerpt || "(no excerpt)") + '</div>' +
+        '</div>';
+    }).join("");
+  }
+
+  function _renderListColumn(project, comments) {
     const links = project.artifact_links || {};
     const artifacts = ARTIFACT_ROWS
       .map(([key, icon, label]) => _artifactRow(label, icon, links[key]))
@@ -210,6 +235,8 @@
     return '' +
       '<h4>Artifacts</h4>' +
       (artifacts || '<div style="color:var(--muted); font-size:11px;">No artifacts produced yet.</div>') +
+      '<h4>Personality reviews</h4>' +
+      _personalityReviewsHTML(comments) +
       '<h4>Authors</h4>' +
       _authorsHTML(project.authors) +
       '<h4>Citations</h4>' +
@@ -346,7 +373,7 @@
       '</div></div>');
   }
 
-  function open(project) {
+  function open(project, opts) {
     const bd = _ensureMount();
     _currentProject = project;
     const ca = _resolveArtifact(project);
@@ -358,11 +385,15 @@
     if (fbPanel) {
       fbPanel.hidden = true;
       const fbText = bd.querySelector(".ad-fb-text"); if (fbText) fbText.value = "";
-      const fbMsg = bd.querySelector(".ad-fb-msg"); if (fbMsg) { fbMsg.innerHTML = ""; fbMsg.className = "ad-fb-msg"; }
+      const fbMsg = bd.querySelector(".ad-fb-msg"); if (fbMsg) { fbMsg.textContent = ""; fbMsg.className = "ad-fb-msg"; }
     }
     const list = bd.querySelector(".ad-list");
     list.replaceChildren();
-    list.insertAdjacentHTML("beforeend", _renderListColumn(project));
+    // Spec-010 follow-up: caller passes the per-project personality-review
+    // comments derived from payload.recent_activity. dialog.js itself does
+    // not own the payload, so the comments arrive via opts.comments.
+    const comments = (opts && opts.comments) || [];
+    list.insertAdjacentHTML("beforeend", _renderListColumn(project, comments));
 
     _renderArtifactPane(bd.querySelector(".ad-pdf"), project);
 

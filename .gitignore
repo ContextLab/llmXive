@@ -285,3 +285,7 @@ projects/*/paper/source/figs/**/*.orig.pdf
 projects/*/paper/source/figs/**/*.sanitized.pdf
 projects/*/paper/source/figs/.sanitized/
 .audit/
+
+# Spec 010 audit screenshots — not tracked (regenerated on demand)
+state/audit/pdf/*/screenshots/
+

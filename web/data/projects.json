@@ -2009,7 +2009,7 @@
       "name": "Zilyu Ye"
     }
   ],
-  "generated_at": "2026-05-15T15:16:03.284850+00:00",
+  "generated_at": "2026-05-15T15:35:30.045222+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -46796,7 +46796,7 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2510.21958 Paper authors (from arXiv): Harrison F. Stropkay, Jiayi Chen, Mohammad J. Latifi, Daniel N. Rockmore, Jeremy R. Manning Submitted by: jeremymanning (Intake from human-submission issue #126.)",
+      "description": "We show that large language models (LLMs) can be used to distinguish the writings of different authors. Specifically, an individual GPT-2 model, trained from scratch on the works of one author, will predict held-out text from that author more accurately than held-out text from other authors. We suggest that, in this\u2026",
       "field": "computer science",
       "id": "PROJ-562-a-stylometric-application-of-large-langu",
       "keywords": [],
@@ -46886,7 +46886,7 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13511 Paper authors (from arXiv): Tsz Ting Chung, Lemao Liu, Mo Yu, Dit-Yan Yeung Submitted by: github-actions[bot] (Intake from human-submission issue #141.)",
+      "description": "In-context learning (ICL) adapts large language models (LLMs) to new tasks by conditioning on demonstrations in the prompt without parameter updates. With long-context models, many-shot ICL can use dozens to hundreds of examples and achieve performance comparable to fine-tuning, yet current understanding of its\u2026",
       "field": "linguistics",
       "id": "PROJ-563-many-shot-cot-icl-making-in-context-lear",
       "keywords": [],
@@ -47184,7 +47184,7 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13565 Paper authors (from arXiv): Zekai Zhang, Deqing Li, Kuan Cao, Yujia Wu, Chenfei Wu, Yu Wu, Liang Peng, Hao Meng, Jiahao Li, Jie Zhang, Kaiyuan Gao, Kun Yan, Lihan Jiang, Ningyuan Tang, Shengming Yin, Tianhe\u2026",
+      "description": "We present Qwen-Image-VAE-2.0, a suite of high-compression Variational Autoencoders (VAEs) that achieve significant advances in both reconstruction fidelity and diffusability. To address the reconstruction bottlenecks of high compression, we adopt an improved architecture featuring Global Skip Connections (GSC) and\u2026",
       "field": "computer science",
       "id": "PROJ-564-qwen-image-vae-2-0-technical-report",
       "keywords": [],
@@ -47322,7 +47322,7 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13062 Paper authors (from arXiv): Xuehai Bai, Yang Shi, Yi-Fan Zhang, Xuanyu Zhu, Yuran Wang, Yifan Dai, Xinyu Liu, Yiyan Ji, Xiaoling Gu, Yuanxing Zhang Submitted by: github-actions[bot] (Intake from\u2026",
+      "description": "Recent image editing models have achieved remarkable progress in instruction following, multimodal understanding, and complex visual editing. However, existing benchmarks often fail to faithfully reflect human judgment, especially for strong frontier models, due to limited task difficulty and coarse-grained evaluation\u2026",
       "field": "computer science",
       "id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
       "keywords": [],
@@ -47371,7 +47371,7 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13779 Paper authors (from arXiv): Mind Lab, :, Song Cao, Vic Cao, Andrew Chen, Kaijie Chen, Cleon Cheng, Steven Chiang, Kaixuan Fan, Hera Feng, Huan Feng, Arthur Fu, Jun Gao, Hongquan Gu, Aaron Guan, Nolan Ho,\u2026",
+      "description": "We present MindLab Toolkit (MinT), a managed infrastructure system for Low-Rank Adaptation (LoRA) post-training and online serving. MinT targets a setting where many trained policies are produced over a small number of expensive base-model deployments. Instead of materializing each policy as a merged full checkpoint,\u2026",
       "field": "computer science",
       "id": "PROJ-566-mint-managed-infrastructure-for-training",
       "keywords": [],
@@ -47485,7 +47485,7 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13724 Paper authors (from arXiv): Yuchao Gu, Guian Fang, Yuxin Jiang, Weijia Mao, Song Han, Han Cai, Mike Zheng Shou Submitted by: github-actions[bot] (Intake from human-submission issue #137.)",
+      "description": "Few-step video generation has been significantly advanced by consistency distillation. However, the performance of consistency-distilled models often degrades as more sampling steps are allocated at test time, limiting their effectiveness for any-step video diffusion. This limitation arises because consistency\u2026",
       "field": "computer science",
       "id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
       "keywords": [],
@@ -47552,7 +47552,7 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2202.01933 Paper authors (from arXiv): Jeremy R. Manning Submitted by: jeremymanning (Intake from human-submission issue #133.)",
+      "description": "Identifying stimulus-driven neural activity patterns is critical for studying the neural basis of cognition. This can be particularly challenging in intracranial datasets, where electrode locations typically vary across patients. This chapter first presents an overview of the major challenges to identifying\u2026",
       "field": "biology",
       "id": "PROJ-568-identifying-stimulus-driven-neural-activ",
       "keywords": [],
@@ -47731,7 +47731,7 @@
         "type": "markdown"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2604.28158 Paper authors (from arXiv): Yujun Wu, Dongxu Zhang, Xinchen Li, Jinhang Xu, Yiling Duan, Yumou Liu, Jiabao Pan, Qiyuan Zhu, Xuanhe Zhou, Jingxuan Wei, Siyuan Li, Jintao Chen, Conghui He, Cheng Tan Submitted\u2026",
+      "description": "Existing research infrastructure is fundamentally document-centric, providing citation links between papers but lacking explicit representations of methodological evolution. In particular, it does not capture the structured relationships that explain how and why research methods emerge, adapt, and build upon one\u2026",
       "field": "computer science",
       "id": "PROJ-569-intern-atlas-a-methodological-evolution",
       "keywords": [],
@@ -47861,7 +47861,7 @@
         "type": "latex"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2604.27505 Paper authors (from arXiv): Hanzhong Guo, Jie Wu, Jie Liu, Yu Gao, Zilyu Ye, Linxiao Yuan, Xionghui Wang, Yizhou Yu, Weilin Huang Submitted by: github-actions[bot] (Intake from human-submission issue #165.)",
+      "description": "While Reinforcement Learning from Human Feedback (RLHF) has become a pivotal paradigm for text-to-image generation, its application to image editing remains largely unexplored. A key bottleneck is the lack of a robust general reward model for all editing tasks. Existing edit reward models usually give overall scores\u2026",
       "field": "computer science",
       "id": "PROJ-570-leveraging-verifier-based-reinforcement",
       "keywords": [],
@@ -47999,7 +47999,7 @@
         "type": "markdown"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2604.27083 Paper authors (from arXiv): Naibin Gu, Chenxu Yang, Qingyi Si, Chuanyu Qin, Dingyu Yao, Peng Fu, Zheng Lin, Weiping Wang, Nan Duan, Jiaqi Wang Submitted by: github-actions[bot] (Intake from human-submission\u2026",
+      "description": "RLVR and OPD have become standard paradigms for post-training. We provide a unified analysis of these two paradigms in consolidating multiple expert capabilities into a single model, identifying capability loss in different ways: mixed RLVR suffers from inter-capability divergence cost, while the pipeline of first\u2026",
       "field": "computer science",
       "id": "PROJ-571-co-evolving-policy-distillation",
       "keywords": [],
@@ -48057,7 +48057,7 @@
         "type": "latex"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2604.28185 Submitted by: github-actions[bot] (Intake from human-submission issue #163.)",
+      "description": "Recent visual generation models have made major progress in photorealism, typography, instruction following, and interactive editing, yet they still struggle with spatial reasoning, persistent state, long-horizon consistency, and causal understanding. We argue that the field should move beyond appearance synthesis\u2026",
       "field": "other",
       "id": "PROJ-572-https-arxiv-org-abs-2604-28185",
       "keywords": [],
@@ -48115,7 +48115,7 @@
         "type": "latex"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2604.27351 Submitted by: github-actions[bot] (Intake from human-submission issue #162.)",
+      "description": "Agentic large language model systems have demonstrated strong capabilities. However, their reliance on language as the universal interface fundamentally limits their applicability to many real-world problems, especially in scientific domains where domain-specific foundation models have been developed to address\u2026",
       "field": "other",
       "id": "PROJ-573-https-arxiv-org-abs-2604-27351",
       "keywords": [],
@@ -48277,7 +48277,7 @@
         "type": "markdown"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13841 Paper authors (from arXiv): Tara Bogavelli, Gabrielle Gauthier Melan\u00e7on, Katrina Stankiewicz, Oluwanifemi Bamgbose, Fanny Riols, Hoang H. Nguyen, Raghav Mehndiratta, Lindsay Devon Brin, Joseph Marinier, Hari\u2026",
+      "description": "Voice agents, artificial intelligence systems that conduct spoken conversations to complete tasks, are increasingly deployed across enterprise applications. However, no existing benchmark jointly addresses two core evaluation challenges: generating realistic simulated conversations, and measuring quality across the\u2026",
       "field": "computer science",
       "id": "PROJ-574-eva-bench-a-new-end-to-end-framework-for",
       "keywords": [],
@@ -48431,7 +48431,7 @@
         "type": "markdown"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13831 Paper authors (from arXiv): Zhaowei Wang, Lishu Luo, Haodong Duan, Weiwei Liu, Sijin Wu, Ji Luo, Shen Yan, Shuai Peng, Sihang Yuan, Chaoyi Huang, Yi Lin, Yangqiu Song Submitted by: github-actions[bot] (Intake\u2026",
+      "description": "Long-context modeling is becoming a core capability of modern large vision-language models (LVLMs), enabling sustained context management across long-document understanding, video analysis, and multi-turn tool use in agentic workflows. Yet practical training recipes remain insufficiently explored, particularly for\u2026",
       "field": "computer science",
       "id": "PROJ-575-training-long-context-vision-language-mo",
       "keywords": [],
@@ -48545,7 +48545,7 @@
         "type": "markdown"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13724 Paper authors (from arXiv): Yuchao Gu, Guian Fang, Yuxin Jiang, Weijia Mao, Song Han, Han Cai, Mike Zheng Shou Submitted by: github-actions[bot] (Intake from human-submission issue #158.)",
+      "description": "Few-step video generation has been significantly advanced by consistency distillation. However, the performance of consistency-distilled models often degrades as more sampling steps are allocated at test time, limiting their effectiveness for any-step video diffusion. This limitation arises because consistency\u2026",
       "field": "computer science",
       "id": "PROJ-576-anyflow-any-step-video-diffusion-model-w",
       "keywords": [],
@@ -48691,7 +48691,7 @@
         "type": "markdown"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.10616 Paper authors (from arXiv): Alan Arazi, Eilam Shapira, Shoham Grunblat, Mor Ventura, Elad Hoffer, Gioia Blayer, David Holzm\u00fcller, Lennart Purucker, Ga\u00ebl Varoquaux, Frank Hutter, Roi Reichart Submitted by:\u2026",
+      "description": "Tabular Foundation Models have recently established the state of the art in supervised tabular learning, by leveraging pretraining to learn generalizable representations of numerical and categorical structured data. However, they lack native support for unstructured modalities such as text and image, and rely on\u2026",
       "field": "computer science",
       "id": "PROJ-577-multabench-benchmarking-multimodal-tabul",
       "keywords": [],
@@ -48740,7 +48740,7 @@
         "type": "markdown"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13779 Paper authors (from arXiv): Mind Lab, :, Song Cao, Vic Cao, Andrew Chen, Kaijie Chen, Cleon Cheng, Steven Chiang, Kaixuan Fan, Hera Feng, Huan Feng, Arthur Fu, Jun Gao, Hongquan Gu, Aaron Guan, Nolan Ho,\u2026",
+      "description": "We present MindLab Toolkit (MinT), a managed infrastructure system for Low-Rank Adaptation (LoRA) post-training and online serving. MinT targets a setting where many trained policies are produced over a small number of expensive base-model deployments. Instead of materializing each policy as a merged full checkpoint,\u2026",
       "field": "computer science",
       "id": "PROJ-578-mint-managed-infrastructure-for-training",
       "keywords": [],
@@ -48902,7 +48902,7 @@
         "type": "markdown"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13841 Paper authors (from arXiv): Tara Bogavelli, Gabrielle Gauthier Melan\u00e7on, Katrina Stankiewicz, Oluwanifemi Bamgbose, Fanny Riols, Hoang H. Nguyen, Raghav Mehndiratta, Lindsay Devon Brin, Joseph Marinier, Hari\u2026",
+      "description": "Voice agents, artificial intelligence systems that conduct spoken conversations to complete tasks, are increasingly deployed across enterprise applications. However, no existing benchmark jointly addresses two core evaluation challenges: generating realistic simulated conversations, and measuring quality across the\u2026",
       "field": "computer science",
       "id": "PROJ-579-eva-bench-a-new-end-to-end-framework-for",
       "keywords": [],
@@ -49056,7 +49056,7 @@
         "type": "markdown"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13831 Paper authors (from arXiv): Zhaowei Wang, Lishu Luo, Haodong Duan, Weiwei Liu, Sijin Wu, Ji Luo, Shen Yan, Shuai Peng, Sihang Yuan, Chaoyi Huang, Yi Lin, Yangqiu Song Submitted by: github-actions[bot] (Intake\u2026",
+      "description": "Long-context modeling is becoming a core capability of modern large vision-language models (LVLMs), enabling sustained context management across long-document understanding, video analysis, and multi-turn tool use in agentic workflows. Yet practical training recipes remain insufficiently explored, particularly for\u2026",
       "field": "computer science",
       "id": "PROJ-580-training-long-context-vision-language-mo",
       "keywords": [],
@@ -49170,7 +49170,7 @@
         "type": "markdown"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13724 Paper authors (from arXiv): Yuchao Gu, Guian Fang, Yuxin Jiang, Weijia Mao, Song Han, Han Cai, Mike Zheng Shou Submitted by: github-actions[bot] (Intake from human-submission issue #153.)",
+      "description": "Few-step video generation has been significantly advanced by consistency distillation. However, the performance of consistency-distilled models often degrades as more sampling steps are allocated at test time, limiting their effectiveness for any-step video diffusion. This limitation arises because consistency\u2026",
       "field": "computer science",
       "id": "PROJ-581-anyflow-any-step-video-diffusion-model-w",
       "keywords": [],
@@ -49316,7 +49316,7 @@
         "type": "markdown"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.10616 Paper authors (from arXiv): Alan Arazi, Eilam Shapira, Shoham Grunblat, Mor Ventura, Elad Hoffer, Gioia Blayer, David Holzm\u00fcller, Lennart Purucker, Ga\u00ebl Varoquaux, Frank Hutter, Roi Reichart Submitted by:\u2026",
+      "description": "Tabular Foundation Models have recently established the state of the art in supervised tabular learning, by leveraging pretraining to learn generalizable representations of numerical and categorical structured data. However, they lack native support for unstructured modalities such as text and image, and rely on\u2026",
       "field": "computer science",
       "id": "PROJ-582-multabench-benchmarking-multimodal-tabul",
       "keywords": [],
@@ -49365,7 +49365,7 @@
         "type": "markdown"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13779 Paper authors (from arXiv): Mind Lab, :, Song Cao, Vic Cao, Andrew Chen, Kaijie Chen, Cleon Cheng, Steven Chiang, Kaixuan Fan, Hera Feng, Huan Feng, Arthur Fu, Jun Gao, Hongquan Gu, Aaron Guan, Nolan Ho,\u2026",
+      "description": "We present MindLab Toolkit (MinT), a managed infrastructure system for Low-Rank Adaptation (LoRA) post-training and online serving. MinT targets a setting where many trained policies are produced over a small number of expensive base-model deployments. Instead of materializing each policy as a merged full checkpoint,\u2026",
       "field": "computer science",
       "id": "PROJ-583-mint-managed-infrastructure-for-training",
       "keywords": [],
