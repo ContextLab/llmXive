@@ -901,11 +901,11 @@
   "aggregates": {
     "active_projects": 591,
     "ai_contributors": 7,
-    "human_contributors": 125,
+    "human_contributors": 187,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1490,
-    "total_contributors": 132
+    "total_contributions": 1676,
+    "total_contributors": 194
   },
   "contributors": [
     {
@@ -1004,7 +1004,135 @@
       ],
       "contribution_count": 3,
       "kind": "human",
+      "name": "Aaron Guan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Ada Zhou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Alexy Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Andrew Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Andrew Lei"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Anson Qiu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Anya Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Arthur Fu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Carrie Ye"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Changhai Zhou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Charles Huang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Cleon Cheng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Danney Zeng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Di Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Fancy Kong"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
       "name": "Guian Fang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Hailee Hou"
     },
     {
       "areas": [
@@ -1020,7 +1148,207 @@
       ],
       "contribution_count": 3,
       "kind": "human",
+      "name": "Hera Feng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Hongquan Gu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Huan Feng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Irvine Lu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Jiayi Lin"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Josh Ying"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Jun Gao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Kaijie Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Kairus Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Kaixuan Fan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Kieran Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Kyrie Lei"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Logan Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Lucian Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Maeve Luo"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Maxwell Yao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
       "name": "Mike Zheng Shou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Miles Jiang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Mind Lab"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Murphy Zhuang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Mutian Hong"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Nolan Ho"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Nora Jiang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Peixuan Hua"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Pony Ma"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Qiuyu Jin"
     },
     {
       "areas": [
@@ -1038,7 +1366,111 @@
       ],
       "contribution_count": 3,
       "kind": "human",
+      "name": "Ray Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Regis Ye"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Rio Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Ruijia Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Runze Lv"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Song Cao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
       "name": "Song Han"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Steven Chiang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Sueky Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Theo Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Verity Niu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Vic Cao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Vincent Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Wei Zhao"
     },
     {
       "areas": [
@@ -1054,6 +1486,38 @@
       ],
       "contribution_count": 3,
       "kind": "human",
+      "name": "Wenlin Ye"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Xiang Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Xinyue Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Ya Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
       "name": "Yuchao Gu"
     },
     {
@@ -1062,7 +1526,39 @@
       ],
       "contribution_count": 3,
       "kind": "human",
+      "name": "Yuhan Zhan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Yuhua Zhou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
       "name": "Yuxin Jiang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Yuyi Jiang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Zhihui Li"
     },
     {
       "areas": [
@@ -2009,7 +2505,7 @@
       "name": "Zilyu Ye"
     }
   ],
-  "generated_at": "2026-05-15T15:35:30.045222+00:00",
+  "generated_at": "2026-05-15T15:48:37.582627+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -46834,14 +47330,6 @@
         {
           "contributions": 1,
           "kind": "human",
-          "name": "github-actions[bot]",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "human",
           "name": "Tsz Ting Chung",
           "roles": [
             "paper_author"
@@ -46921,14 +47409,6 @@
         "tasks": null
       },
       "authors": [
-        {
-          "contributions": 1,
-          "kind": "human",
-          "name": "github-actions[bot]",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
         {
           "contributions": 1,
           "kind": "human",
@@ -47222,14 +47702,6 @@
         {
           "contributions": 1,
           "kind": "human",
-          "name": "github-actions[bot]",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "human",
           "name": "Xuehai Bai",
           "roles": [
             "paper_author"
@@ -47356,7 +47828,504 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mind Lab",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Song Cao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Vic Cao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Andrew Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kaijie Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Cleon Cheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Steven Chiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kaixuan Fan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hera Feng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Huan Feng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Arthur Fu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jun Gao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hongquan Gu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Aaron Guan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Nolan Ho",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mutian Hong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hailee Hou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Peixuan Hua",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Charles Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Miles Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Nora Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuyi Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qiuyu Jin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Fancy Kong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Andrew Lei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kyrie Lei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Alexy Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lucian Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ray Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Theo Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhihui Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiayi Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kairus Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kieran Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Logan Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiang Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Irvine Lu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Maeve Luo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Runze Lv",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Pony Ma",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Verity Niu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Anson Qiu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Vincent Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Rio Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Maxwell Yao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Carrie Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Regis Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wenlin Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Josh Ying",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Danney Zeng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuhan Zhan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Anya Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Di Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ruijia Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sueky Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ya Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wei Zhao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ada Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Changhai Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuhua Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xinyue Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Murphy Zhuang",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -47406,14 +48375,6 @@
         "tasks": null
       },
       "authors": [
-        {
-          "contributions": 1,
-          "kind": "human",
-          "name": "github-actions[bot]",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
         {
           "contributions": 1,
           "kind": "human",
@@ -47599,14 +48560,6 @@
         {
           "contributions": 1,
           "kind": "human",
-          "name": "github-actions[bot]",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "human",
           "name": "Yujun Wu",
           "roles": [
             "paper_author"
@@ -47769,14 +48722,6 @@
         {
           "contributions": 1,
           "kind": "human",
-          "name": "github-actions[bot]",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "human",
           "name": "Hanzhong Guo",
           "roles": [
             "paper_author"
@@ -47896,14 +48841,6 @@
         "tasks": null
       },
       "authors": [
-        {
-          "contributions": 1,
-          "kind": "human",
-          "name": "github-actions[bot]",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
         {
           "contributions": 1,
           "kind": "human",
@@ -48033,16 +48970,7 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [
-        {
-          "contributions": 1,
-          "kind": "human",
-          "name": "github-actions[bot]",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        }
-      ],
+      "authors": [],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -48091,16 +49019,7 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [
-        {
-          "contributions": 1,
-          "kind": "human",
-          "name": "github-actions[bot]",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        }
-      ],
+      "authors": [],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -48150,14 +49069,6 @@
         "tasks": null
       },
       "authors": [
-        {
-          "contributions": 1,
-          "kind": "human",
-          "name": "github-actions[bot]",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
         {
           "contributions": 1,
           "kind": "human",
@@ -48315,14 +49226,6 @@
         {
           "contributions": 1,
           "kind": "human",
-          "name": "github-actions[bot]",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "human",
           "name": "Zhaowei Wang",
           "roles": [
             "paper_author"
@@ -48469,14 +49372,6 @@
         {
           "contributions": 1,
           "kind": "human",
-          "name": "github-actions[bot]",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "human",
           "name": "Yuchao Gu",
           "roles": [
             "paper_author"
@@ -48580,14 +49475,6 @@
         "tasks": null
       },
       "authors": [
-        {
-          "contributions": 1,
-          "kind": "human",
-          "name": "github-actions[bot]",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
         {
           "contributions": 1,
           "kind": "human",
@@ -48725,7 +49612,504 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mind Lab",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Song Cao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Vic Cao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Andrew Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kaijie Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Cleon Cheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Steven Chiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kaixuan Fan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hera Feng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Huan Feng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Arthur Fu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jun Gao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hongquan Gu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Aaron Guan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Nolan Ho",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mutian Hong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hailee Hou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Peixuan Hua",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Charles Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Miles Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Nora Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuyi Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qiuyu Jin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Fancy Kong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Andrew Lei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kyrie Lei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Alexy Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lucian Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ray Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Theo Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhihui Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiayi Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kairus Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kieran Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Logan Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiang Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Irvine Lu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Maeve Luo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Runze Lv",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Pony Ma",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Verity Niu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Anson Qiu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Vincent Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Rio Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Maxwell Yao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Carrie Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Regis Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wenlin Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Josh Ying",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Danney Zeng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuhan Zhan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Anya Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Di Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ruijia Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sueky Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ya Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wei Zhao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ada Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Changhai Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuhua Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xinyue Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Murphy Zhuang",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -48775,14 +50159,6 @@
         "tasks": null
       },
       "authors": [
-        {
-          "contributions": 1,
-          "kind": "human",
-          "name": "github-actions[bot]",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
         {
           "contributions": 1,
           "kind": "human",
@@ -48940,14 +50316,6 @@
         {
           "contributions": 1,
           "kind": "human",
-          "name": "github-actions[bot]",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "human",
           "name": "Zhaowei Wang",
           "roles": [
             "paper_author"
@@ -49094,14 +50462,6 @@
         {
           "contributions": 1,
           "kind": "human",
-          "name": "github-actions[bot]",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "human",
           "name": "Yuchao Gu",
           "roles": [
             "paper_author"
@@ -49205,14 +50565,6 @@
         "tasks": null
       },
       "authors": [
-        {
-          "contributions": 1,
-          "kind": "human",
-          "name": "github-actions[bot]",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
         {
           "contributions": 1,
           "kind": "human",
@@ -49350,7 +50702,504 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mind Lab",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Song Cao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Vic Cao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Andrew Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kaijie Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Cleon Cheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Steven Chiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kaixuan Fan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hera Feng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Huan Feng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Arthur Fu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jun Gao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hongquan Gu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Aaron Guan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Nolan Ho",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mutian Hong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hailee Hou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Peixuan Hua",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Charles Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Miles Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Nora Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuyi Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qiuyu Jin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Fancy Kong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Andrew Lei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kyrie Lei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Alexy Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lucian Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ray Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Theo Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhihui Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiayi Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kairus Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kieran Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Logan Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiang Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Irvine Lu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Maeve Luo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Runze Lv",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Pony Ma",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Verity Niu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Anson Qiu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Vincent Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Rio Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Maxwell Yao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Carrie Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Regis Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wenlin Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Josh Ying",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Danney Zeng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuhan Zhan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Anya Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Di Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ruijia Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sueky Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ya Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wei Zhao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ada Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Changhai Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuhua Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xinyue Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Murphy Zhuang",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,

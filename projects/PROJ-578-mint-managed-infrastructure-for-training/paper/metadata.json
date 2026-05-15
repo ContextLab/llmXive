@@ -4,7 +4,6 @@
   "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs",
   "authors": [
     "Mind Lab",
-    ":",
     "Song Cao",
     "Vic Cao",
     "Andrew Chen",
