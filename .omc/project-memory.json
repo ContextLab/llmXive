@@ -236,6 +236,18 @@
       "type": "file"
     },
     {
+      "path": "src/llmxive/audit/personality_rubric.py",
+      "accessCount": 3,
+      "lastAccessed": 1778819400658,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/test_personality_contribution_schema.py",
+      "accessCount": 3,
+      "lastAccessed": 1778819457997,
+      "type": "file"
+    },
+    {
       "path": "agents/registry.yaml",
       "accessCount": 2,
       "lastAccessed": 1778588200899,
@@ -377,6 +389,24 @@
       "path": "tests/real_call/test_personality_liveness_real.py",
       "accessCount": 1,
       "lastAccessed": 1778819329596,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/test_personality_rubric_axes.py",
+      "accessCount": 1,
+      "lastAccessed": 1778819440799,
+      "type": "file"
+    },
+    {
+      "path": "src/llmxive/agents/position_diversity.py",
+      "accessCount": 1,
+      "lastAccessed": 1778819498278,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/test_personality_rotation_diversity.py",
+      "accessCount": 1,
+      "lastAccessed": 1778819509801,
       "type": "file"
     }
   ],
