@@ -196,13 +196,43 @@ def _extract_macro(tex: str, macro: str) -> str | None:
     inside a `% Note ...` block doesn't mask a later real `\\title{...}`.
     Empty-argument matches are skipped — they almost always mean the
     `\\macro{}` token appeared in a comment about how to use the macro.
+
+    Skips an optional `[...]` arg between the macro and the braced arg
+    (the `authblk` style `\\author[1,2]{Name}` puts the affiliation key
+    in brackets before the name; without this skip, PROJ-575 and similar
+    multi-author papers parse no authors at all).
     """
     stripped = _strip_tex_comments(tex)
     for m in re.finditer(r"\\" + macro + r"\b", stripped):
-        arg, _ = _capture_braced_arg(stripped, m.end())
+        cursor = m.end()
+        # Skip optional [..] arg before the mandatory {..}
+        bracket_m = re.match(r"\s*\[[^\]]*\]", stripped[cursor:])
+        if bracket_m:
+            cursor += bracket_m.end()
+        arg, _ = _capture_braced_arg(stripped, cursor)
         if arg and arg.strip():
             return arg
     return None
+
+
+def _extract_all_macros(tex: str, macro: str) -> list[str]:
+    """Every brace-balanced argument to `\\macro{...}` (in source order).
+
+    Used for the authblk-style shape where each author is its own
+    `\\author[K]{Name}` call. Single-`\\author{All \\and Authors}` papers
+    produce a single-element list. Empty args are skipped.
+    """
+    stripped = _strip_tex_comments(tex)
+    out: list[str] = []
+    for m in re.finditer(r"\\" + macro + r"\b", stripped):
+        cursor = m.end()
+        bracket_m = re.match(r"\s*\[[^\]]*\]", stripped[cursor:])
+        if bracket_m:
+            cursor += bracket_m.end()
+        arg, _ = _capture_braced_arg(stripped, cursor)
+        if arg and arg.strip():
+            out.append(arg.strip())
+    return out
 
 
 def _extract_env(tex: str, env: str) -> str | None:
@@ -1026,13 +1056,43 @@ def extract(
     # it heuristically — we should produce the same prefix-free form.
     title = _strip_chapter_prefix(title)
 
-    # Author: standard \author{}, then venue aliases. For ICML's
-    # `\icmlauthorlist` we synthesize a clean "Name¹, Name², ..." string
-    # by combining \icmlauthor{Name}{affkey} entries with \icmlaffiliation.
-    author = (
-        _extract_macro(full_tex, "author")
-        or _build_icml_author_line(full_tex)
-    )
+    # Author: standard \author{} OR repeated authblk-style \author[K]{Name}
+    # (which we collect all of and \\and-join), then venue aliases. For
+    # ICML's `\icmlauthorlist` we synthesize a clean "Name¹, Name², ..."
+    # string by combining \icmlauthor{Name}{affkey} entries with
+    # \icmlaffiliation.
+    all_authors = _extract_all_macros(full_tex, "author")
+    if len(all_authors) > 1:
+        # authblk shape — many \author{}s, one per author.
+        author = " \\and ".join(all_authors)
+    elif len(all_authors) == 1:
+        # Classic single-\author{All \and Authors} shape.
+        author = all_authors[0]
+    else:
+        author = _build_icml_author_line(full_tex)
+
+    # Messy-author fallback: when the extracted author string contains
+    # markup that won't render cleanly under the llmxive class (figures,
+    # links, minipages, font commands), prefer the canonical
+    # `paper/metadata.json::authors` list parsed at intake from the arXiv
+    # API. This catches PROJ-573 (Eywa) and similar papers whose authors
+    # are inside a `\begin{minipage}{...}` with `\includegraphics{logo.png}`
+    # and `\href{}{}` markup.
+    if author and re.search(
+        r"\\includegraphics|\\begin\{minipage\}|\\href\s*\{|\\faGithub|\\faLink|\\textbf",
+        author,
+    ):
+        meta_path = source_dir.parent / "metadata.json"
+        if meta_path.is_file():
+            try:
+                meta = json.loads(meta_path.read_text(encoding="utf-8", errors="replace"))
+                json_authors = meta.get("authors") if isinstance(meta, dict) else None
+                if isinstance(json_authors, list) and json_authors:
+                    cleaned = [str(a).strip() for a in json_authors if str(a).strip()]
+                    if cleaned:
+                        author = " \\and ".join(cleaned)
+            except (json.JSONDecodeError, OSError):
+                pass
 
     # Abstract can be in the BODY (most papers) OR in the preamble if the
     # source `\input{}`s an abstract file BEFORE `\begin{document}` —

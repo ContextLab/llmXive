@@ -98,7 +98,17 @@ _BEGIN_DOC_RE = re.compile(r"\\begin\{document\}")
 _END_DOC_RE = re.compile(r"\\end\{document\}")
 
 _TITLE_RE = re.compile(r"\\title\s*\{(.+?)\}\s*(?:\n|$)", re.DOTALL)
-_AUTHOR_RE = re.compile(r"\\author\s*\{(.+?)\}\s*(?:\n|$)", re.DOTALL)
+# Author handling: papers come in two shapes —
+#   (a) single `\author{All Authors With \and Separators}` (classic LaTeX)
+#   (b) repeated `\author[1,2]{One Name}` lines (the `authblk` style, used
+#       by PROJ-575 and many recent arXiv papers).
+# We capture BOTH with a single regex that allows an optional `[...]`
+# affiliation-key arg before the `{name}` block, and use re.findall to
+# collect every match (re.search returned only the first, which dropped
+# all authors except the first in the authblk shape).
+_AUTHOR_RE = re.compile(
+    r"\\author\s*(?:\[[^\]]*\])?\s*\{(.+?)\}\s*(?:\n|$)", re.DOTALL,
+)
 _DATE_RE = re.compile(r"\\date\s*\{(.+?)\}\s*(?:\n|$)", re.DOTALL)
 
 # A custom \maketitle redefinition — strip from the preamble (the class
@@ -324,14 +334,23 @@ def _strip_command_redefs(preamble: str) -> tuple[str, list[str]]:
 
 
 def _extract_metadata(preamble: str) -> dict[str, str]:
-    """Pull \\title{}, \\author{}, \\date{} out of the preamble."""
+    """Pull \\title{}, \\author{}, \\date{} out of the preamble.
+
+    For `\\author`: collect EVERY occurrence (handles the authblk style
+    `\\author[1,2]{Name}` repeated per author). Joined with `\\and` so
+    the class-level `\\authorblock` macro can split them downstream.
+    """
     out = {}
     m = _TITLE_RE.search(preamble)
     if m:
         out["title"] = m.group(1).strip()
-    m = _AUTHOR_RE.search(preamble)
-    if m:
-        out["author"] = m.group(1).strip()
+    authors = [a.strip() for a in _AUTHOR_RE.findall(preamble) if a.strip()]
+    if authors:
+        # If the paper used the single-author shape (one \author{X \and Y}),
+        # there's one match containing the full block (already \\and-joined).
+        # If it used authblk repeated (one match per author), join with \\and
+        # so the downstream class can iterate them.
+        out["author"] = " \\and ".join(authors)
     m = _DATE_RE.search(preamble)
     if m:
         out["date"] = m.group(1).strip()
