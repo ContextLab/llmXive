@@ -29,57 +29,57 @@
 \contentsline {subsection}{\numberline {4.3}Evaluating Graph-Grounded Idea Generator}{14}{subsection.4.3}%
 \contentsline {paragraph}{Experimental details.}{14}{paragraph*.22}%
 \contentsline {paragraph}{Evaluation Results.}{14}{paragraph*.23}%
-\contentsline {section}{\numberline {5}Conclusion}{14}{section.5}%
+\contentsline {section}{\numberline {5}Conclusion}{15}{section.5}%
 \ttl@starttoc {appendix@1}
-\contentsline {section}{\numberline {A}Graph Construction}{21}{appendix.A}%
-\contentsline {subsection}{\numberline {A.1}Schema}{21}{subsection.A.1}%
-\contentsline {paragraph}{Node types.}{21}{paragraph*.24}%
-\contentsline {paragraph}{Bottleneck dimension taxonomy $\symcal {D}$.}{21}{paragraph*.25}%
-\contentsline {paragraph}{Edge vocabulary $\symcal {T}$.}{21}{paragraph*.27}%
-\contentsline {paragraph}{Strong-causal subgraph $G_{\text {strong}}$.}{21}{paragraph*.29}%
-\contentsline {paragraph}{Method-level DAG $G_M$.}{21}{paragraph*.30}%
+\contentsline {section}{\numberline {A}Graph Construction}{19}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}Schema}{19}{subsection.A.1}%
+\contentsline {paragraph}{Node types.}{19}{paragraph*.24}%
+\contentsline {paragraph}{Bottleneck dimension taxonomy $\symcal {D}$.}{20}{paragraph*.25}%
+\contentsline {paragraph}{Edge vocabulary $\symcal {T}$.}{20}{paragraph*.27}%
+\contentsline {paragraph}{Strong-causal subgraph $G_{\text {strong}}$.}{20}{paragraph*.29}%
+\contentsline {paragraph}{Method-level DAG $G_M$.}{20}{paragraph*.30}%
 \contentsline {paragraph}{Alias registry $\symcal {A}$.}{21}{paragraph*.32}%
-\contentsline {subsection}{\numberline {A.2}Corpus, PDF Pipeline, and Reference Resolution}{22}{subsection.A.2}%
-\contentsline {paragraph}{Collection window and venues.}{22}{paragraph*.33}%
-\contentsline {paragraph}{PDF parsing pipeline.}{22}{paragraph*.34}%
-\contentsline {paragraph}{Method entity curation.}{23}{paragraph*.35}%
-\contentsline {subsection}{\numberline {A.3}Two-Phase Extraction Protocol}{23}{subsection.A.3}%
-\contentsline {paragraph}{Phase 1 (classification).}{23}{paragraph*.36}%
-\contentsline {paragraph}{Phase 2 (record completion).}{24}{paragraph*.37}%
-\contentsline {section}{\numberline {B}Lineage Reconstruction (SGT-MCTS)}{24}{appendix.B}%
-\contentsline {paragraph}{Hyperparameters.}{24}{paragraph*.38}%
-\contentsline {paragraph}{Temporal coherence.}{24}{paragraph*.39}%
-\contentsline {paragraph}{Algorithm.}{24}{paragraph*.40}%
-\contentsline {paragraph}{Branch discovery.}{25}{paragraph*.41}%
-\contentsline {section}{\numberline {C}Idea Evaluation}{25}{appendix.C}%
-\contentsline {subsection}{\numberline {C.1}Common Retrieval Routine}{25}{subsection.C.1}%
-\contentsline {paragraph}{Context retrieval.}{25}{paragraph*.42}%
-\contentsline {subsection}{\numberline {C.2}Duplicate-Risk Detection}{25}{subsection.C.2}%
-\contentsline {subsection}{\numberline {C.3}Per-Dimension Signal Specifications}{26}{subsection.C.3}%
-\contentsline {paragraph}{Bases and weights.}{26}{paragraph*.43}%
-\contentsline {paragraph}{Per-dimension signals.}{26}{paragraph*.44}%
-\contentsline {subsection}{\numberline {C.4}Cross-Dimensional Regularizer $\mitOmega _{\text {cross}}$}{26}{subsection.C.4}%
-\contentsline {subsection}{\numberline {C.5}Graceful Fallback and Optional Adjudication}{26}{subsection.C.5}%
-\contentsline {paragraph}{Graceful fallback.}{26}{paragraph*.46}%
-\contentsline {paragraph}{Adjudicator (optional).}{26}{paragraph*.47}%
-\contentsline {section}{\numberline {D}Evaluation Setup and Benchmarks}{27}{appendix.D}%
-\contentsline {subsection}{\numberline {D.1}Method-evaluation Benchmark and Metrics}{27}{subsection.D.1}%
-\contentsline {paragraph}{Purpose and selection.}{27}{paragraph*.48}%
-\contentsline {paragraph}{Construction.}{27}{paragraph*.49}%
-\contentsline {paragraph}{Evaluation protocols.}{27}{paragraph*.50}%
-\contentsline {subsection}{\numberline {D.2}Lineage-Search Baselines}{28}{subsection.D.2}%
-\contentsline {subsection}{\numberline {D.3}Dataset and Baselines Details for Evaluating Idea Evaluator}{28}{subsection.D.3}%
-\contentsline {paragraph}{The Strata Dataset.}{28}{paragraph*.51}%
-\contentsline {paragraph}{Human-Rated Subset.}{29}{paragraph*.52}%
-\contentsline {paragraph}{Idea Extraction Protocol.}{29}{paragraph*.53}%
-\contentsline {paragraph}{Pure LLM-as-Judge Baseline.}{29}{paragraph*.54}%
-\contentsline {subsection}{\numberline {D.4}Experimental Details for Evaluating Idea Generation}{29}{subsection.D.4}%
-\contentsline {paragraph}{Query Construction and Distribution.}{29}{paragraph*.55}%
-\contentsline {paragraph}{Human Expert Win-Rate Evaluation.}{30}{paragraph*.56}%
-\contentsline {section}{\numberline {E}Case Studies}{30}{appendix.E}%
-\contentsline {subsection}{\numberline {E.1}Case Study on Lineage Search}{30}{subsection.E.1}%
-\contentsline {section}{\numberline {F}Limitations and Broader Impact}{31}{appendix.F}%
-\contentsline {paragraph}{Extraction.}{31}{paragraph*.58}%
-\contentsline {paragraph}{Algorithmic.}{31}{paragraph*.59}%
-\contentsline {paragraph}{Broader impact.}{31}{paragraph*.60}%
+\contentsline {subsection}{\numberline {A.2}Corpus, PDF Pipeline, and Reference Resolution}{21}{subsection.A.2}%
+\contentsline {paragraph}{Collection window and venues.}{21}{paragraph*.33}%
+\contentsline {paragraph}{PDF parsing pipeline.}{21}{paragraph*.34}%
+\contentsline {paragraph}{Method entity curation.}{22}{paragraph*.35}%
+\contentsline {subsection}{\numberline {A.3}Two-Phase Extraction Protocol}{22}{subsection.A.3}%
+\contentsline {paragraph}{Phase 1 (classification).}{22}{paragraph*.36}%
+\contentsline {paragraph}{Phase 2 (record completion).}{22}{paragraph*.37}%
+\contentsline {section}{\numberline {B}Lineage Reconstruction (SGT-MCTS)}{23}{appendix.B}%
+\contentsline {paragraph}{Hyperparameters.}{23}{paragraph*.38}%
+\contentsline {paragraph}{Temporal coherence.}{23}{paragraph*.39}%
+\contentsline {paragraph}{Algorithm.}{23}{paragraph*.40}%
+\contentsline {paragraph}{Branch discovery.}{23}{paragraph*.41}%
+\contentsline {section}{\numberline {C}Idea Evaluation}{23}{appendix.C}%
+\contentsline {subsection}{\numberline {C.1}Common Retrieval Routine}{24}{subsection.C.1}%
+\contentsline {paragraph}{Context retrieval.}{24}{paragraph*.42}%
+\contentsline {subsection}{\numberline {C.2}Duplicate-Risk Detection}{24}{subsection.C.2}%
+\contentsline {subsection}{\numberline {C.3}Per-Dimension Signal Specifications}{24}{subsection.C.3}%
+\contentsline {paragraph}{Bases and weights.}{24}{paragraph*.43}%
+\contentsline {paragraph}{Per-dimension signals.}{24}{paragraph*.44}%
+\contentsline {subsection}{\numberline {C.4}Cross-Dimensional Regularizer $\mitOmega _{\text {cross}}$}{25}{subsection.C.4}%
+\contentsline {subsection}{\numberline {C.5}Graceful Fallback and Optional Adjudication}{25}{subsection.C.5}%
+\contentsline {paragraph}{Graceful fallback.}{25}{paragraph*.46}%
+\contentsline {paragraph}{Adjudicator (optional).}{25}{paragraph*.47}%
+\contentsline {section}{\numberline {D}Evaluation Setup and Benchmarks}{26}{appendix.D}%
+\contentsline {subsection}{\numberline {D.1}Method-evaluation Benchmark and Metrics}{26}{subsection.D.1}%
+\contentsline {paragraph}{Purpose and selection.}{26}{paragraph*.48}%
+\contentsline {paragraph}{Construction.}{26}{paragraph*.49}%
+\contentsline {paragraph}{Evaluation protocols.}{26}{paragraph*.50}%
+\contentsline {subsection}{\numberline {D.2}Lineage-Search Baselines}{26}{subsection.D.2}%
+\contentsline {subsection}{\numberline {D.3}Dataset and Baselines Details for Evaluating Idea Evaluator}{27}{subsection.D.3}%
+\contentsline {paragraph}{The Strata Dataset.}{27}{paragraph*.51}%
+\contentsline {paragraph}{Human-Rated Subset.}{27}{paragraph*.52}%
+\contentsline {paragraph}{Idea Extraction Protocol.}{27}{paragraph*.53}%
+\contentsline {paragraph}{Pure LLM-as-Judge Baseline.}{28}{paragraph*.54}%
+\contentsline {subsection}{\numberline {D.4}Experimental Details for Evaluating Idea Generation}{28}{subsection.D.4}%
+\contentsline {paragraph}{Query Construction and Distribution.}{28}{paragraph*.55}%
+\contentsline {paragraph}{Human Expert Win-Rate Evaluation.}{28}{paragraph*.56}%
+\contentsline {section}{\numberline {E}Case Studies}{29}{appendix.E}%
+\contentsline {subsection}{\numberline {E.1}Case Study on Lineage Search}{29}{subsection.E.1}%
+\contentsline {section}{\numberline {F}Limitations and Broader Impact}{29}{appendix.F}%
+\contentsline {paragraph}{Extraction.}{29}{paragraph*.58}%
+\contentsline {paragraph}{Algorithmic.}{30}{paragraph*.59}%
+\contentsline {paragraph}{Broader impact.}{30}{paragraph*.60}%
 \contentsfinish 
