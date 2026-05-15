@@ -904,7 +904,7 @@
     "human_contributors": 56,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1364,
+    "total_contributions": 1365,
     "total_contributors": 63
   },
   "contributors": [
@@ -926,7 +926,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 635,
+      "contribution_count": 636,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -1457,7 +1457,7 @@
       "name": "Zikai Zhou"
     }
   ],
-  "generated_at": "2026-05-15T06:16:29.204641+00:00",
+  "generated_at": "2026-05-15T06:41:54.286676+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -44947,7 +44947,7 @@
         "paper_tasks": null,
         "plan": null,
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/reviews/research",
         "spec": null,
         "tasks": null
       },
@@ -44958,6 +44958,14 @@
           "name": "google.gemma-3-27b-it",
           "roles": [
             "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "socrates-simulated"
           ]
         }
       ],
@@ -44979,7 +44987,16 @@
       "field": "psychology",
       "id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
       "keywords": [],
-      "last_run_log": [],
+      "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 65.170337,
+          "ended_at": "2026-05-15T06:41:51.557868+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-15T06:40:46.387531+00:00"
+        }
+      ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
@@ -46947,6 +46964,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Socrates (simulated)",
+      "duration_s": 65.170337,
+      "ended_at": "2026-05-15T06:41:51.557868+00:00",
+      "excerpt": "My friend, you speak of 'perceived agency' as a lever to pull for better adherence. But tell me, what is this agency you seek to mimic? Is it the feeling of command, or the capacity for true choice? You propose to manipulate the user's per\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "socrates",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "brainstormed",
+      "review_path": "projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/reviews/research/socrates-simulated__2026-05-15__research.md",
+      "started_at": "2026-05-15T06:40:46.387531+00:00"
+    },
     {
       "agent": "implementer",
       "duration_s": 21.342948,
@@ -52187,16 +52220,6 @@
       "project_id": "PROJ-448-quantifying-composition-dependent-grain-",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-08T16:42:35.364703Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 123.784269,
-      "ended_at": "2026-05-08T16:42:34.714823Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-447-the-impact-of-simulated-social-validatio",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-08T16:40:30.930554Z"
     }
   ],
   "schema_version": "2.0.0"
