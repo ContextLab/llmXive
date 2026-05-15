@@ -40,3 +40,7 @@ from . import personality_rubric  # noqa: E402,F401
 from . import template_vs_real  # noqa: E402,F401
 from . import pdf_auditor  # noqa: E402,F401
 from . import feedback_loop  # noqa: E402,F401
+
+# Spec 010 re-exports (single-source-of-truth shortcuts for callers).
+from .liveness import check_pointer  # noqa: E402,F401
+from .speckit_prune import audit_artifacts, prune_templates  # noqa: E402,F401

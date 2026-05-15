@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://llmxive.dev/schemas/010/speckit_artifact_audit.schema.json",
+  "title": "Speckit artifact audit report",
+  "description": "Output of `llmxive speckit audit-artifacts`. Validates FR-007.",
+  "type": "object",
+  "required": ["audited_at", "total_artifacts", "artifacts", "summary"],
+  "properties": {
+    "audited_at": {"type": "string", "format": "date-time"},
+    "total_artifacts": {"type": "integer", "minimum": 0},
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "classification", "project_id", "stage", "transitive_dependents"],
+        "properties": {
+          "path": {"type": "string", "description": "Repo-relative path to the .md artifact."},
+          "classification": {"type": "string", "enum": ["REAL", "TEMPLATE"]},
+          "reason": {"type": "string", "description": "Empty for REAL; failure reason for TEMPLATE (e.g., 'literal_template_phrases>=3; bracketed_placeholders=5')."},
+          "project_id": {"type": "string", "pattern": "^PROJ-\\d{3,4}-"},
+          "stage": {"type": "string", "description": "Pipeline stage that produced this artifact (e.g., 'specified', 'planned', 'tasked')."},
+          "transitive_dependents": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Paths to downstream artifacts whose generation depended on this one. Empty for REAL; deleted alongside if classification == TEMPLATE."
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["real", "template", "templates_with_dependents", "projects_to_roll_back"],
+      "properties": {
+        "real": {"type": "integer", "minimum": 0},
+        "template": {"type": "integer", "minimum": 0},
+        "templates_with_dependents": {"type": "integer", "minimum": 0},
+        "projects_to_roll_back": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

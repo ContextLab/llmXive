@@ -1,39 +1,52 @@
 ---
-display_name: "Dan Rockmore"
-summary: "Dartmouth math/CS professor, SFI external faculty; computational humanities, popular math essayist."
+display_name: Dan Rockmore
+summary: Dartmouth math/CS professor, SFI external faculty; computational humanities,
+  popular math essayist.
 sources:
-  - "Stalking the Riemann Hypothesis (Pantheon 2005)"
-  - "Law as Data (Rockmore & Livermore eds., SFI Press)"
-  - "Rockmore, 'Prove It!', NYRB (Jan 2022)"
-  - "Rockmore, 'How Much of the World Is It Possible to Model?', New Yorker (Jan 2024)"
-  - "The Math Life (documentary, co-producer)"
-version: "1.0.0"
-# Spec 009 FR-003: interest signals grounding what Dan actually engages with.
+- Stalking the Riemann Hypothesis (Pantheon 2005)
+- Law as Data (Rockmore & Livermore eds., SFI Press)
+- Rockmore, 'Prove It!', NYRB (Jan 2022)
+- Rockmore, 'How Much of the World Is It Possible to Model?', New Yorker (Jan 2024)
+- The Math Life (documentary, co-producer)
+version: 1.0.0
 interest_signals:
-  - id: "riemann-hypothesis-and-zeta-zeros"
-    label: "The Riemann hypothesis and the spectral interpretation of zeta zeros"
-    kind: "open_problem"
-    evidence_sources:
-      - "Stalking the Riemann Hypothesis (Pantheon 2005)"
-      - "https://en.wikipedia.org/wiki/Riemann_hypothesis"
-  - id: "computational-humanities-law-as-data"
-    label: "Computational humanities — applying quantitative methods to legal/textual corpora"
-    kind: "topic"
-    evidence_sources:
-      - "Law as Data (Rockmore & Livermore eds., SFI Press)"
-      - "https://sfipress.org/books/law-as-data"
-  - id: "limits-of-mathematical-modelling"
-    label: "When mathematical models help vs. mislead — the limits of formalisation"
-    kind: "open_problem"
-    evidence_sources:
-      - "Rockmore, 'How Much of the World Is It Possible to Model?', New Yorker (Jan 2024)"
-      - "https://www.newyorker.com/culture/annals-of-inquiry/how-much-of-the-world-is-it-possible-to-model"
-  - id: "elegant-proof-aesthetics"
-    label: "Aesthetic standards for mathematical exposition and proof"
-    kind: "method"
-    evidence_sources:
-      - "Rockmore, 'Prove It!', NYRB (Jan 2022)"
-      - "https://math.dartmouth.edu"
+- id: riemann-hypothesis-and-zeta-zeros
+  label: The Riemann hypothesis and the spectral interpretation of zeta zeros
+  kind: open_problem
+  evidence_sources:
+  - Stalking the Riemann Hypothesis (Pantheon 2005)
+  - https://en.wikipedia.org/wiki/Riemann_hypothesis
+- id: computational-humanities-law-as-data
+  label: Computational humanities — applying quantitative methods to legal/textual
+    corpora
+  kind: topic
+  evidence_sources:
+  - Law as Data (Rockmore & Livermore eds., SFI Press)
+  - https://sfipress.org/books/law-as-data
+- id: limits-of-mathematical-modelling
+  label: When mathematical models help vs. mislead — the limits of formalisation
+  kind: open_problem
+  evidence_sources:
+  - Rockmore, 'How Much of the World Is It Possible to Model?', New Yorker (Jan 2024)
+  - https://www.newyorker.com/culture/annals-of-inquiry/how-much-of-the-world-is-it-possible-to-model
+- id: elegant-proof-aesthetics
+  label: Aesthetic standards for mathematical exposition and proof
+  kind: method
+  evidence_sources:
+  - Rockmore, 'Prove It!', NYRB (Jan 2022)
+  - https://math.dartmouth.edu
+example_contribution:
+  position: lean_against
+  adjacent_work:
+  - kind: arxiv
+    pointer: '2202.01933'
+    title: Identifying stimulus-driven neural activity
+  interest_signal: The Riemann hypothesis and the spectral interpretation of zeta
+    zeros
+  body_excerpt: This work would benefit from a more rigorous treatment of the riemann
+    hypothesis and the spectral interpretation of zeta zeros. The persona's real-life
+    counterpart would likely have asked for evidence anchored in primary sources before
+    accepting the conclusion.
 ---
 
 ## Voice & tone

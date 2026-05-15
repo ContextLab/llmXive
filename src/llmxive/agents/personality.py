@@ -166,7 +166,7 @@ class RotationState:
 
 @dataclasses.dataclass
 class Action:
-    """Structured LLM output for one tick (data-model.md E4)."""
+    """Structured LLM output for one tick (data-model.md E4 + spec 010)."""
 
     action: str  # one of VALID_ACTIONS
     reason: str
@@ -176,6 +176,11 @@ class Action:
     content: str | None = None
     arxiv_url: str | None = None
     arxiv_search_terms: list[str] | None = None
+    # Spec 010 fields (FR-001 / FR-002 / FR-003). Optional during legacy parsing
+    # but required at the rubric-check step for non-abstain actions.
+    position: str | None = None
+    adjacent_work: list[dict[str, str]] | None = None
+    interest_signal: str | None = None
 
 
 @dataclasses.dataclass
@@ -639,6 +644,30 @@ def parse_action(raw_response: str) -> Action:
             raise ParseError(reason="arxiv.search_terms must be a list")
     # abstain has no further required fields.
 
+    # Spec 010: parse the three new fields (position, adjacent_work,
+    # interest_signal). They are optional at the JSON-parse level; the
+    # rubric check enforces presence + liveness for non-abstain actions.
+    position = data.get("position")
+    if position is not None and not isinstance(position, str):
+        raise ParseError(reason=f"position must be a string, got {type(position).__name__}")
+    interest_signal = data.get("interest_signal")
+    if interest_signal is not None and not isinstance(interest_signal, str):
+        raise ParseError(
+            reason=f"interest_signal must be a string, got {type(interest_signal).__name__}"
+        )
+    adjacent_work = data.get("adjacent_work")
+    if adjacent_work is not None:
+        if not isinstance(adjacent_work, list):
+            raise ParseError(
+                reason=f"adjacent_work must be a list, got {type(adjacent_work).__name__}"
+            )
+        for i, entry in enumerate(adjacent_work):
+            if not isinstance(entry, dict):
+                raise ParseError(reason=f"adjacent_work[{i}] must be a dict")
+            for k in ("kind", "pointer"):
+                if not entry.get(k):
+                    raise ParseError(reason=f"adjacent_work[{i}].{k} required")
+
     return Action(
         action=action_val,
         reason=reason,
@@ -648,6 +677,9 @@ def parse_action(raw_response: str) -> Action:
         content=content,
         arxiv_url=(arxiv.get("url") or "").strip() or None,
         arxiv_search_terms=list(arxiv.get("search_terms") or []) or None,
+        position=position,
+        adjacent_work=adjacent_work,
+        interest_signal=interest_signal,
     )
 
 

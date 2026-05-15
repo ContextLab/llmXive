@@ -206,9 +206,33 @@
   },
   "hotPaths": [
     {
+      "path": "src/llmxive/audit/speckit_prune.py",
+      "accessCount": 12,
+      "lastAccessed": 1778845312910,
+      "type": "file"
+    },
+    {
+      "path": "src/llmxive/agents/personality.py",
+      "accessCount": 7,
+      "lastAccessed": 1778819943316,
+      "type": "file"
+    },
+    {
       "path": "notes/2026-05-07-spec-005-librarian-diagnostic.md",
       "accessCount": 6,
       "lastAccessed": 1778589483649,
+      "type": "file"
+    },
+    {
+      "path": "specs/010-personality-taste-speckit-real-pdf-audit/tasks.md",
+      "accessCount": 6,
+      "lastAccessed": 1778819050870,
+      "type": "file"
+    },
+    {
+      "path": "src/llmxive/audit/personality_rubric.py",
+      "accessCount": 6,
+      "lastAccessed": 1778844828134,
       "type": "file"
     },
     {
@@ -218,15 +242,51 @@
       "type": "file"
     },
     {
+      "path": "src/llmxive/cli.py",
+      "accessCount": 5,
+      "lastAccessed": 1778845476862,
+      "type": "file"
+    },
+    {
       "path": "tests/phase2/test_query_extractor.py",
       "accessCount": 4,
       "lastAccessed": 1778589017309,
       "type": "file"
     },
     {
+      "path": "tests/unit/test_personality_rubric_axes.py",
+      "accessCount": 4,
+      "lastAccessed": 1778844885482,
+      "type": "file"
+    },
+    {
       "path": "specs/005-librarian-agent/spec.md",
       "accessCount": 3,
       "lastAccessed": 1778588249641,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/test_personality_contribution_schema.py",
+      "accessCount": 3,
+      "lastAccessed": 1778819457997,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/test_speckit_prune.py",
+      "accessCount": 3,
+      "lastAccessed": 1778845076623,
+      "type": "file"
+    },
+    {
+      "path": "src/llmxive/pipeline/pdf_pipeline/audit.py",
+      "accessCount": 3,
+      "lastAccessed": 1778845979418,
+      "type": "file"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 3,
+      "lastAccessed": 1778846054410,
       "type": "file"
     },
     {
@@ -254,6 +314,36 @@
       "type": "file"
     },
     {
+      "path": "specs/010-personality-taste-speckit-real-pdf-audit/plan.md",
+      "accessCount": 2,
+      "lastAccessed": 1778818596306,
+      "type": "file"
+    },
+    {
+      "path": "CLAUDE.md",
+      "accessCount": 2,
+      "lastAccessed": 1778818773996,
+      "type": "file"
+    },
+    {
+      "path": "pyproject.toml",
+      "accessCount": 2,
+      "lastAccessed": 1778819132179,
+      "type": "file"
+    },
+    {
+      "path": "src/llmxive/audit/__init__.py",
+      "accessCount": 2,
+      "lastAccessed": 1778819276171,
+      "type": "file"
+    },
+    {
+      "path": "agents/prompts/personality.md",
+      "accessCount": 2,
+      "lastAccessed": 1778819572564,
+      "type": "file"
+    },
+    {
       "path": "specs/005-librarian-agent/revalidation-results.yaml",
       "accessCount": 1,
       "lastAccessed": 1778588345776,
@@ -263,6 +353,126 @@
       "path": "tests/conftest.py",
       "accessCount": 1,
       "lastAccessed": 1778593113416,
+      "type": "file"
+    },
+    {
+      "path": "specs/010-personality-taste-speckit-real-pdf-audit/research.md",
+      "accessCount": 1,
+      "lastAccessed": 1778818658528,
+      "type": "file"
+    },
+    {
+      "path": "specs/010-personality-taste-speckit-real-pdf-audit/data-model.md",
+      "accessCount": 1,
+      "lastAccessed": 1778818699974,
+      "type": "file"
+    },
+    {
+      "path": "specs/010-personality-taste-speckit-real-pdf-audit/quickstart.md",
+      "accessCount": 1,
+      "lastAccessed": 1778818727160,
+      "type": "file"
+    },
+    {
+      "path": "specs/010-personality-taste-speckit-real-pdf-audit/contracts/personality_contribution.schema.json",
+      "accessCount": 1,
+      "lastAccessed": 1778818741190,
+      "type": "file"
+    },
+    {
+      "path": "specs/010-personality-taste-speckit-real-pdf-audit/contracts/speckit_artifact_audit.schema.json",
+      "accessCount": 1,
+      "lastAccessed": 1778818749267,
+      "type": "file"
+    },
+    {
+      "path": "specs/010-personality-taste-speckit-real-pdf-audit/contracts/pdf_audit_report.schema.json",
+      "accessCount": 1,
+      "lastAccessed": 1778818758612,
+      "type": "file"
+    },
+    {
+      "path": ".specify/templates/tasks-template.md",
+      "accessCount": 1,
+      "lastAccessed": 1778818791103,
+      "type": "file"
+    },
+    {
+      "path": "specs/010-personality-taste-speckit-real-pdf-audit/analyze.md",
+      "accessCount": 1,
+      "lastAccessed": 1778819085082,
+      "type": "file"
+    },
+    {
+      "path": "src/llmxive/audit/liveness.py",
+      "accessCount": 1,
+      "lastAccessed": 1778819155172,
+      "type": "file"
+    },
+    {
+      "path": "src/llmxive/pipeline/pdf_pipeline/classify_failure.py",
+      "accessCount": 1,
+      "lastAccessed": 1778819250278,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/test_liveness_check.py",
+      "accessCount": 1,
+      "lastAccessed": 1778819322619,
+      "type": "file"
+    },
+    {
+      "path": "tests/real_call/test_personality_liveness_real.py",
+      "accessCount": 1,
+      "lastAccessed": 1778819329596,
+      "type": "file"
+    },
+    {
+      "path": "src/llmxive/agents/position_diversity.py",
+      "accessCount": 1,
+      "lastAccessed": 1778819498278,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/test_personality_rotation_diversity.py",
+      "accessCount": 1,
+      "lastAccessed": 1778819509801,
+      "type": "file"
+    },
+    {
+      "path": "tests/integration/test_personality_librarian_gate.py",
+      "accessCount": 1,
+      "lastAccessed": 1778819911739,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/test_speckit_audit_schema.py",
+      "accessCount": 1,
+      "lastAccessed": 1778844975848,
+      "type": "file"
+    },
+    {
+      "path": "src/llmxive/speckit/_real_only_guard.py",
+      "accessCount": 1,
+      "lastAccessed": 1778845029627,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/test_pdf_audit_report_schema.py",
+      "accessCount": 1,
+      "lastAccessed": 1778845370215,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/test_pdf_audit_text_checks.py",
+      "accessCount": 1,
+      "lastAccessed": 1778845384204,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/test_pdf_audit_classify_failure.py",
+      "accessCount": 1,
+      "lastAccessed": 1778845388720,
       "type": "file"
     }
   ],

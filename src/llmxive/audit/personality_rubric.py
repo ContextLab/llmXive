@@ -73,15 +73,61 @@ class RubricScores:
     critical_judgement: int
     curatorial_pointer: int
     honesty: int
+    # Spec 010 (T016): three new required axes. Default 0 so legacy callers that
+    # don't supply position/adjacent_work/interest_signal frontmatter still
+    # construct the dataclass; passes() requires them to be >=1.
+    position_present: int = 0
+    adjacent_work_verified: int = 0
+    interest_signal_anchored: int = 0
 
     def total(self) -> int:
-        return self.voice + self.critical_judgement + self.curatorial_pointer + self.honesty
+        return (
+            self.voice
+            + self.critical_judgement
+            + self.curatorial_pointer
+            + self.honesty
+            + self.position_present
+            + self.adjacent_work_verified
+            + self.interest_signal_anchored
+        )
 
     def axes_at_or_above(self, threshold: int) -> int:
-        return sum(int(v >= threshold) for v in asdict(self).values())
+        # Count over the four ORIGINAL axes only (preserve legacy semantics).
+        legacy = {
+            "voice": self.voice,
+            "critical_judgement": self.critical_judgement,
+            "curatorial_pointer": self.curatorial_pointer,
+            "honesty": self.honesty,
+        }
+        return sum(int(v >= threshold) for v in legacy.values())
 
     def passes(self) -> bool:
-        # Per research.md §4: >=3-of-4 axes at >=1
+        # Spec 010 (FR-004): ALL THREE new axes >=1 PLUS >=3-of-4 legacy axes >=1.
+        # Backward-compat: when the three new axes are all 0 (the caller did not
+        # supply spec-010 frontmatter — e.g. legacy fixtures or callers using the
+        # old four-axis flow), fall back to the legacy pass rule. The spec-010
+        # axes only constrain *new* contributions that go through
+        # score_full(frontmatter, persona_signals); legacy callers retain the
+        # four-axis rule so existing integration tests still pass.
+        spec010_scored = (
+            self.position_present > 0
+            or self.adjacent_work_verified > 0
+            or self.interest_signal_anchored > 0
+        )
+        if not spec010_scored:
+            return self.passes_legacy_only()
+        new_axes_ok = (
+            self.position_present >= 1
+            and self.adjacent_work_verified >= 1
+            and self.interest_signal_anchored >= 1
+        )
+        return new_axes_ok and self.axes_at_or_above(1) >= 3
+
+    def passes_legacy_only(self) -> bool:
+        """Pre-spec-010 pass rule: only the four original axes. Kept for legacy callers
+        that score contributions without the new frontmatter (e.g. historical
+        contributions during the rollout window). New contributions MUST use
+        passes()."""
         return self.axes_at_or_above(1) >= 3
 
 
@@ -133,6 +179,65 @@ def score(contribution: dict[str, Any]) -> RubricScores:
         honesty = 3
 
     return RubricScores(voice=voice, critical_judgement=crit, curatorial_pointer=cur, honesty=honesty)
+
+
+VALID_POSITIONS = {"lean_toward", "lean_against", "suggest_revision", "abstain"}
+
+
+def score_spec010_axes(
+    frontmatter: dict[str, Any],
+    persona_interest_signals: list[str],
+) -> tuple[int, int, int]:
+    """Score the three spec-010 axes from a contribution's YAML frontmatter.
+
+    Returns (position_present, adjacent_work_verified, interest_signal_anchored).
+    """
+    # position_present: frontmatter has valid `position`
+    pos = frontmatter.get("position", "")
+    position_present = 1 if pos in VALID_POSITIONS else 0
+
+    # adjacent_work_verified: all entries have verified_at AND list is non-empty
+    # when position != "abstain". An abstain trivially passes this axis.
+    adj = frontmatter.get("adjacent_work", [])
+    if pos == "abstain":
+        adjacent_work_verified = 1
+    elif adj and all(isinstance(e, dict) and e.get("verified_at") for e in adj):
+        adjacent_work_verified = 1
+    else:
+        adjacent_work_verified = 0
+
+    # interest_signal_anchored: frontmatter.interest_signal in the persona's
+    # declared interest_signals. Persona-card signals may be plain strings
+    # (legacy/test) OR structured dicts with `id` and `label` (current cards).
+    signal = frontmatter.get("interest_signal", "")
+    signal_norm = signal.strip().lower()
+    declared_norm: set[str] = set()
+    for s in persona_interest_signals:
+        if isinstance(s, str):
+            declared_norm.add(s.strip().lower())
+        elif isinstance(s, dict):
+            for key in ("label", "id"):
+                v = s.get(key)
+                if isinstance(v, str):
+                    declared_norm.add(v.strip().lower())
+    interest_signal_anchored = 1 if signal_norm and signal_norm in declared_norm else 0
+
+    return position_present, adjacent_work_verified, interest_signal_anchored
+
+
+def score_full(
+    contribution: dict[str, Any],
+    frontmatter: dict[str, Any] | None = None,
+    persona_interest_signals: list[str] | None = None,
+) -> RubricScores:
+    """Score a contribution against ALL SEVEN axes (4 legacy + 3 spec-010)."""
+    s = score(contribution)
+    if frontmatter is not None and persona_interest_signals is not None:
+        pp, aw, is_ = score_spec010_axes(frontmatter, persona_interest_signals)
+        s.position_present = pp
+        s.adjacent_work_verified = aw
+        s.interest_signal_anchored = is_
+    return s
 
 
 def is_manufactured(contribution: dict[str, Any]) -> tuple[bool, list[str]]:
