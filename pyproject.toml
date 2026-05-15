@@ -44,6 +44,10 @@ dependencies = [
   "pdfplumber>=0.11",
   "markdown-it-py>=3",
   "python-ulid>=2",
+  # Spec 010 (PDF audit pixel-level checks): page rasterization for figure-width
+  # measurement. Requires system `poppler` (poppler-utils on Linux, brew install
+  # poppler on macOS).
+  "pdf2image>=1.17",
 ]
 
 [project.optional-dependencies]
