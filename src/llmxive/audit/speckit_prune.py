@@ -41,9 +41,17 @@ def _now_iso() -> str:
 
 
 def _project_id_from_path(p: Path) -> str | None:
-    """Extract PROJ-NNN-... from a path like projects/PROJ-001-foo/specs/001-bar/spec.md."""
+    """Extract PROJ-NNN-... from any path that includes a PROJ-* segment.
+
+    Strips trailing file-suffix tokens (e.g. `.history.jsonl`, `.yaml`) when the
+    PROJ-id appears as a filename rather than a directory.
+    """
     for part in p.parts:
         if part.startswith("PROJ-"):
+            # Strip any trailing dotted suffix(es): "PROJ-001-foo.history.jsonl"
+            # → "PROJ-001-foo"; but keep dashes (the slug uses them).
+            if "." in part:
+                return part.split(".", 1)[0]
             return part
     return None
 
@@ -106,6 +114,15 @@ def audit_artifacts(repo_root: Path) -> dict[str, Any]:
     if projects_dir.is_dir():
         md_paths.extend(projects_dir.glob("**/specs/**/*.md"))
         md_paths.extend(projects_dir.glob("**/.specify/**/*.md"))
+
+    # Skip reference template directories — these are by design templates that
+    # the auditor uses as comparison references; they MUST NOT be deleted by
+    # the prune. Anything under `.specify/templates/` is reference material.
+    def _is_reference_template(p: Path) -> bool:
+        parts = p.parts
+        return ".specify" in parts and "templates" in parts
+
+    md_paths = [p for p in md_paths if not _is_reference_template(p)]
 
     seen: set[Path] = set()
     for p in sorted(md_paths):
@@ -193,14 +210,20 @@ def _walk_back_to_real_stage(history_path: Path, repo_root: Path) -> str:
         if not artifacts_for_stage:
             continue
         all_real = True
+        any_found = False
         for fname in artifacts_for_stage[0]:
             for candidate in project_dir.glob(f"specs/**/{fname}"):
+                any_found = True
                 if not is_real(candidate, repo_root=repo_root):
                     all_real = False
                     break
             if not all_real:
                 break
-        if all_real:
+        # A stage 'survives' only if AT LEAST ONE expected artifact exists AND
+        # every existing artifact for that stage classifies REAL. A stage whose
+        # artifacts have all been deleted by the prune is treated as no-longer
+        # surviving — walk further back.
+        if any_found and all_real:
             return stage
     return "flesh_out_complete"
 
@@ -222,24 +245,55 @@ def prune_templates(repo_root: Path, *, apply: bool) -> dict[str, Any]:
         if a["classification"] == "TEMPLATE":
             templates_by_project.setdefault(a["project_id"], []).append(a)
 
+    # Build the set of REAL artifact paths (so we don't transitively delete
+    # them even if they happen to be downstream of a TEMPLATE).
+    real_paths: set[str] = {
+        a["path"] for a in report["artifacts"] if a["classification"] == "REAL"
+    }
+
     for project_id, templates in templates_by_project.items():
         deleted_for_project: list[str] = []
         for a in templates:
+            # Always delete the template itself; for transitive dependents,
+            # only delete those that are NOT classified REAL (downstream of
+            # a template that has been independently regenerated as real is
+            # rare but possible — we must not blow such cases away).
             for path_str in [a["path"], *a["transitive_dependents"]]:
+                if path_str != a["path"] and path_str in real_paths:
+                    continue
                 full = repo_root / path_str
                 if full.exists():
                     full.unlink()
                     deleted_for_project.append(path_str)
                     report["deleted_paths"].append(path_str)
 
-        # Rollback project stage to latest-surviving-real stage.
-        history_path = repo_root / "state" / "projects" / f"{project_id}.history.jsonl"
-        new_stage = _walk_back_to_real_stage(history_path, repo_root)
+        # Decide whether to roll back: only when a deleted artifact is part of
+        # the STAGE_ARTIFACTS set AND that stage is at-or-before the current
+        # project stage. Deletions of `.specify/memory/*.md` markers are NOT
+        # stage-defining and MUST NOT trigger a rollback (they'd otherwise blow
+        # away project state for files the rollback can't recover from).
         proj_yaml = repo_root / "state" / "projects" / f"{project_id}.yaml"
         prior_stage = ""
+        doc = {}
         if proj_yaml.exists():
             doc = yaml.safe_load(proj_yaml.read_text()) or {}
             prior_stage = doc.get("current_stage", "")
+
+        stage_defining_artifact_names = {
+            fname for _stage, fnames in STAGE_ARTIFACTS for fname in fnames
+        }
+        deleted_stage_defining = [
+            p for p in deleted_for_project if Path(p).name in stage_defining_artifact_names
+        ]
+
+        history_path = repo_root / "state" / "projects" / f"{project_id}.history.jsonl"
+        if not deleted_stage_defining:
+            # No stage-defining artifact deleted → preserve current_stage.
+            new_stage = prior_stage or "flesh_out_complete"
+        else:
+            new_stage = _walk_back_to_real_stage(history_path, repo_root)
+
+        if proj_yaml.exists() and new_stage != prior_stage:
             doc["current_stage"] = new_stage
             doc["updated_at"] = _now_iso()
             proj_yaml.write_text(yaml.safe_dump(doc, sort_keys=True))

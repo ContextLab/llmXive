@@ -206,6 +206,12 @@
   },
   "hotPaths": [
     {
+      "path": "src/llmxive/audit/speckit_prune.py",
+      "accessCount": 12,
+      "lastAccessed": 1778845312910,
+      "type": "file"
+    },
+    {
       "path": "src/llmxive/agents/personality.py",
       "accessCount": 7,
       "lastAccessed": 1778819943316,
@@ -257,6 +263,12 @@
       "path": "tests/unit/test_personality_contribution_schema.py",
       "accessCount": 3,
       "lastAccessed": 1778819457997,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/test_speckit_prune.py",
+      "accessCount": 3,
+      "lastAccessed": 1778845076623,
       "type": "file"
     },
     {
@@ -380,12 +392,6 @@
       "type": "file"
     },
     {
-      "path": "src/llmxive/audit/speckit_prune.py",
-      "accessCount": 1,
-      "lastAccessed": 1778819197167,
-      "type": "file"
-    },
-    {
       "path": "src/llmxive/pipeline/pdf_pipeline/audit.py",
       "accessCount": 1,
       "lastAccessed": 1778819246221,
@@ -425,6 +431,18 @@
       "path": "tests/integration/test_personality_librarian_gate.py",
       "accessCount": 1,
       "lastAccessed": 1778819911739,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/test_speckit_audit_schema.py",
+      "accessCount": 1,
+      "lastAccessed": 1778844975848,
+      "type": "file"
+    },
+    {
+      "path": "src/llmxive/speckit/_real_only_guard.py",
+      "accessCount": 1,
+      "lastAccessed": 1778845029627,
       "type": "file"
     }
   ],
