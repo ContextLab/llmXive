@@ -563,7 +563,7 @@ def _last_run_log(repo: Path, project_id: str, *, limit: int = 10) -> list[dict[
     return out
 
 
-def _recent_activity(repo: Path, *, limit: int = 60) -> list[dict[str, Any]]:
+def _recent_activity(repo: Path, *, limit: int = 500) -> list[dict[str, Any]]:
     """Aggregate the most recent agent runs across ALL projects.
 
     Walks ``state/run-log/<YYYY-MM>/*.jsonl`` newest-first, accumulates run
@@ -604,6 +604,25 @@ def _recent_activity(repo: Path, *, limit: int = 60) -> list[dict[str, Any]]:
         if len(entries) >= limit * 4:
             break
     entries.sort(key=lambda e: e.get("ended_at") or e.get("started_at") or "", reverse=True)
+
+    # Build a project_id -> current_stage map for stage filtering on the
+    # activity page. We tag each row with the project's *current* stage
+    # (not the stage at the time of the run) because the UI's "filter by
+    # stage" query is "what stage is the project in now?", which is what
+    # users care about when scanning the activity feed.
+    proj_state_dir = repo / "state" / "projects"
+    project_stage: dict[str, str] = {}
+    if proj_state_dir.is_dir():
+        for proj_yaml in proj_state_dir.glob("*.yaml"):
+            try:
+                ydata = yaml.safe_load(proj_yaml.read_text(encoding="utf-8"))
+                pid = ydata.get("id")
+                stage = ydata.get("current_stage")
+                if pid and stage:
+                    project_stage[pid] = stage
+            except Exception:
+                continue
+
     out: list[dict[str, Any]] = []
     for e in entries[:limit]:
         try:
@@ -620,6 +639,9 @@ def _recent_activity(repo: Path, *, limit: int = 60) -> list[dict[str, Any]]:
             "ended_at": e.get("ended_at", ""),
             "outcome": e.get("outcome", ""),
             "duration_s": float(dur),
+            # Tag with project's current stage (looked up at payload-build
+            # time) so the activity UI can filter by stage.
+            "project_stage": project_stage.get(e.get("project_id", ""), ""),
         }
         # Personality-agent extra fields (spec 008) so the UI can render
         # "<Name> (simulated)" — flow them through verbatim.
