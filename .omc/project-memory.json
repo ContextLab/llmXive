@@ -212,6 +212,12 @@
       "type": "file"
     },
     {
+      "path": "src/llmxive/hf_daily_papers.py",
+      "accessCount": 10,
+      "lastAccessed": 1778852271916,
+      "type": "file"
+    },
+    {
       "path": "src/llmxive/agents/personality.py",
       "accessCount": 7,
       "lastAccessed": 1778819943316,
@@ -257,6 +263,12 @@
       "path": "tests/unit/test_personality_rubric_axes.py",
       "accessCount": 4,
       "lastAccessed": 1778844885482,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/test_hf_daily_papers.py",
+      "accessCount": 4,
+      "lastAccessed": 1778857293016,
       "type": "file"
     },
     {

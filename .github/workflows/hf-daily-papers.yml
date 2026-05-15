@@ -1,6 +1,6 @@
 name: HF Daily Papers
 
-# Daily @ 23:59 UTC: submit the top-5 most-upvoted Hugging Face daily-papers
+# Daily @ 08:00 UTC: submit the top-5 most-upvoted Hugging Face daily-papers
 # (https://huggingface.co/papers/date/YYYY-MM-DD) as `human-submission` /
 # `new-paper` GitHub issues. The hourly `submission-intake.yml` workflow
 # then routes each one through the same code path the website's
@@ -10,13 +10,19 @@ name: HF Daily Papers
 # excluded from the contributor leaderboard by `_is_bot_submitter` in
 # `src/llmxive/web_data.py` (the paper's *authors* still get credited).
 #
+# Timing: the implementation defaults to (today_utc - 1 day) because HF's
+# daily-papers buckets are populated in the late afternoon UTC by HF's
+# editorial pipeline. Running at 08:00 UTC fetches yesterday's bucket,
+# which is guaranteed-published by then. The fallback chain in
+# _fetch_daily_json walks further back if even that bucket is empty.
+#
 # Security: workflow_dispatch inputs are untrusted — they're surfaced to
 # the shell via env: vars (never interpolated directly into run: steps)
 # and validated by Python's argparse before reaching `gh`.
 
 on:
   schedule:
-    - cron: "59 23 * * *"   # 23:59 UTC daily
+    - cron: "0 8 * * *"   # 08:00 UTC daily
   workflow_dispatch:
     inputs:
       date:
