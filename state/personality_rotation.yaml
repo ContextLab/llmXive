@@ -1,5 +1,5 @@
-last_used: dan-rockmore
-last_used_at: '2026-05-15T10:18:07.180159+00:00'
+last_used: daniel-kahneman
+last_used_at: '2026-05-15T11:18:45.862135+00:00'
 last_outcome: committed
 history:
 - slug: ada-lovelace
@@ -233,3 +233,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-550-exploring-the-convergence-of-iterated-fu/reviews/research/dan-rockmore-simulated__2026-05-15__research.md
+- slug: daniel-kahneman
+  started_at: '2026-05-15T10:18:07.180159+00:00'
+  ended_at: '2026-05-15T11:18:45.862135+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/reviews/research/daniel-kahneman-simulated__2026-05-15__research.md
