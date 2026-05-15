@@ -29,11 +29,12 @@ jobs:
         run: python -m llmxive run --max-tasks 24 --stage paper_complete
       - run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
       - name: Commit + push
+        id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add state/ projects/ web/data/ || true
-          if git diff --cached --quiet; then echo "no changes"; else
+          if git diff --cached --quiet; then echo "no changes"; echo "pushed=false" >> "$GITHUB_OUTPUT"; else
 
             git commit -m "pipeline(review): 16h tick"
 
@@ -46,5 +47,16 @@ jobs:
               sleep $((5 * i))
 
             done
+            echo "pushed=true" >> $GITHUB_OUTPUT
 
           fi
+
+      - name: Trigger Pages deploy
+        # GitHub suppresses workflow triggers from GITHUB_TOKEN pushes (to
+        # prevent infinite cron loops); workflow_dispatch invoked from another
+        # workflow DOES fire regardless. Without this, pages.yml never
+        # redeploys after a cron tick even though we touched web/data/.
+        if: steps.commit.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run pages.yml --ref main

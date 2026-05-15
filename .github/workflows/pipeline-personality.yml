@@ -57,6 +57,7 @@ jobs:
         run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
 
       - name: Commit state + run-log + web data
+        id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -67,6 +68,7 @@ jobs:
           git add web/data/ || true
           if git diff --cached --quiet; then
             echo "no changes"
+            echo "pushed=false" >> $GITHUB_OUTPUT
           else
             git commit -m "pipeline(personality): 30m tick"
 
@@ -79,4 +81,15 @@ jobs:
               sleep $((5 * i))
 
             done
+            echo "pushed=true" >> $GITHUB_OUTPUT
           fi
+
+      - name: Trigger Pages deploy
+        # GitHub deliberately suppresses workflow triggers for pushes made with
+        # GITHUB_TOKEN (to prevent infinite cron loops), so pages.yml's `push`
+        # trigger never fires for our bot commits. workflow_dispatch invoked
+        # from another workflow DOES fire regardless of token provenance.
+        if: steps.commit.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run pages.yml --ref main

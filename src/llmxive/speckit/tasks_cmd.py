@@ -152,17 +152,16 @@ class TaskerAgent(SlashCommandAgent):
                 lines = lines[:-1]
             text = "\n".join(lines).strip()
         # Stronger validation: tasks.md must:
-        #   1. NOT be a unified diff (`@@ -...` markers indicate the LLM
-        #      returned a patch instead of the full file)
+        #   1. NOT be a unified or context diff (spec 010 fix — the old
+        #      guard caught `@@`-prefixed leads but missed `--- a/<path>`
+        #      headers; 8 production files got polluted before this was
+        #      tightened). Single source of truth: _diff_guard.refuse_if_diff.
         #   2. contain at least 5 task checkboxes (a real research project
         #      needs setup + multiple phases + polish; <5 is a stub)
         #   3. each checkbox line MUST start with `- [ ] T` followed by
         #      digits (T001, T012, etc.) per the format contract
-        if text.lstrip().startswith("@@") or "\n@@ -" in text or "\n@@ +" in text:
-            raise RuntimeError(
-                "Tasker returned a unified diff instead of full tasks.md "
-                f"(first 200 chars: {text[:200]!r}). Re-running on next cycle."
-            )
+        from llmxive.speckit._diff_guard import refuse_if_diff
+        refuse_if_diff(text, artifact_kind="tasks.md")
         import re as _re
         task_id_lines = _re.findall(r"^- \[[ Xx]\] T\d+\b", text, _re.MULTILINE)
         if len(task_id_lines) < 5:
@@ -275,6 +274,18 @@ class TaskerAgent(SlashCommandAgent):
                             f"no markdown headers. Skipping."
                         )
                         continue
+                # Spec 010 fix: the original escalate branch wrote `patch`
+                # to disk verbatim; if the LLM returned a diff here, it
+                # would pollute the canonical file. Reuse the same
+                # _diff_guard used by the main path.
+                from llmxive.speckit._diff_guard import looks_like_diff
+                is_diff, reason = looks_like_diff(patch)
+                if is_diff:
+                    print(
+                        f"[tasker] refusing Mode-B {f} patch: "
+                        f"looks like a diff ({reason}). Skipping."
+                    )
+                    continue
                 if f == "spec.md":
                     spec_path.write_text(patch, encoding="utf-8")
                 elif f == "plan.md":
