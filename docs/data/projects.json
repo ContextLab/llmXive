@@ -2793,7 +2793,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-15T18:03:32.539551+00:00",
+  "generated_at": "2026-05-15T18:34:13.450292+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -48857,7 +48857,7 @@
         "data": null,
         "idea": "projects/PROJ-569-intern-atlas-a-methodological-evolution/idea/intern-atlas-a-methodological-evolution.md",
         "paper_figures": null,
-        "paper_pdf": "projects/PROJ-569-intern-atlas-a-methodological-evolution/paper/pdf/2604.28158.pdf",
+        "paper_pdf": "projects/PROJ-569-intern-atlas-a-methodological-evolution/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -48992,9 +48992,9 @@
       },
       "created_at": "2026-05-15T15:14:06.173837+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-569-intern-atlas-a-methodological-evolution/paper/pdf/2604.28158.pdf",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-569-intern-atlas-a-methodological-evolution/paper/pdf/2604.28158.pdf",
-        "repo_path": "projects/PROJ-569-intern-atlas-a-methodological-evolution/paper/pdf/2604.28158.pdf",
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-569-intern-atlas-a-methodological-evolution/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-569-intern-atlas-a-methodological-evolution/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-569-intern-atlas-a-methodological-evolution/paper/pdf/main-llmxive.pdf",
         "type": "pdf"
       },
       "current_stage": "paper_review",
