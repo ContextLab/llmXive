@@ -138,9 +138,34 @@
   // Render a Markdown string to sanitized HTML. Always passes through
   // `_sanitize()` — see the sanitize comments above — before returning, so
   // callers can safely insert the result via insertAdjacentHTML.
+  // Strip a leading YAML frontmatter block `---\n...\n---` if present.
+  // The project idea files (projects/PROJ-*/idea/*.md) and most authored
+  // markdown begin with a YAML frontmatter block that the modal's left
+  // pane should NOT render as body content (it leaks the project's
+  // metadata as a stream of "field:" / "submitter:" / "paper_authors:"
+  // lines, which is what the user reported on PROJ-583's MinT card).
+  // Strips ONLY when the file begins with `---` on its own line, has a
+  // matching closing `---` on its own line, and the closing fence is
+  // within the first ~10 KiB (avoids accidentally swallowing horizontal
+  // rules in long-form content).
+  function _stripFrontmatter(md) {
+    if (!md || !md.startsWith("---")) return md;
+    // The opening fence must be its own line: `---\n`. `md.charAt(3)` is
+    // either '\n' (own-line fence) or '-'/whitespace (a wider HR).
+    if (md.charAt(3) !== "\n") return md;
+    // Find the closing fence — a line that is EXACTLY `---`. Restrict the
+    // search to the first 10 KiB so a runaway document never spends time
+    // here.
+    const head = md.slice(4, 10 * 1024);
+    const m = head.match(/(^|\n)---(\n|$)/);
+    if (!m) return md;
+    const endIdx = 4 + m.index + m[0].length;
+    return md.slice(endIdx).replace(/^\n+/, "");
+  }
+
   function renderMarkdown(rawMd) {
     if (rawMd == null) return "";
-    const md = String(rawMd).replace(/\r\n/g, "\n");
+    const md = _stripFrontmatter(String(rawMd).replace(/\r\n/g, "\n"));
     const renderer = window.snarkdown;
     if (typeof renderer !== "function") {
       // Fallback: no renderer loaded — escape and preserve line breaks.
