@@ -4,6 +4,7 @@ on:
     - cron: '20 */4 * * *'   # every 4 hours, offset 20min
   workflow_dispatch:
 permissions:
+  actions: write             # workflow_dispatch to pages.yml
   contents: write
   issues: write
 concurrency:

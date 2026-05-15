@@ -38,6 +38,7 @@ on:
         default: "20"
 
 permissions:
+  actions: write             # workflow_dispatch to pages.yml
   contents: write
 
 concurrency:

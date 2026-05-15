@@ -14,6 +14,7 @@ on:
   workflow_dispatch: {}       # for the one-time manual exercise + ad-hoc runs
 
 permissions:
+  actions: write             # workflow_dispatch to pages.yml
   contents: write             # commit staged-PDF moves / inbox cleanup
   issues: write               # comment on + close human-submission issues
 
