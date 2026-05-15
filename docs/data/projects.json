@@ -904,7 +904,7 @@
     "human_contributors": 223,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1539,
+    "total_contributions": 1540,
     "total_contributors": 230
   },
   "contributors": [
@@ -926,7 +926,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 643,
+      "contribution_count": 644,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -2793,7 +2793,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-15T16:51:32.024952+00:00",
+  "generated_at": "2026-05-15T17:07:16.666397+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -4080,7 +4080,7 @@
       },
       "authors": [
         {
-          "contributions": 7,
+          "contributions": 8,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -4089,6 +4089,7 @@
             "marie-curie-simulated",
             "planner",
             "project_initializer",
+            "rosalind-franklin-simulated",
             "specifier",
             "tasker"
           ]
@@ -4115,6 +4116,14 @@
         "chemistry"
       ],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 152.921038,
+          "ended_at": "2026-05-15T17:07:13.904543+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-15T17:04:40.983505+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 168.718464,
@@ -50078,6 +50087,22 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Rosalind Franklin (simulated)",
+      "duration_s": 152.921038,
+      "ended_at": "2026-05-15T17:07:13.904543+00:00",
+      "excerpt": "The spec frames solvent effects as a quantitative relationship between polarity and radical-pair lifetime. This is a reasonable hypothesis, but the experimental design section does not specify what structural baseline will be measured befo\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "rosalind-franklin",
+      "project_id": "PROJ-004-solvent-effects-on-photo-fries-rearrange",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/reviews/research/rosalind-franklin-simulated__2026-05-15__research.md",
+      "started_at": "2026-05-15T17:04:40.983505+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "Marie Curie (simulated)",
       "duration_s": 168.718464,
       "ended_at": "2026-05-15T16:15:07.877588+00:00",
@@ -55369,16 +55394,6 @@
       "project_id": "PROJ-457-predicting-plant-root-architecture-from-",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-08T20:30:34.263941Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 42.501956,
-      "ended_at": "2026-05-08T19:39:51.673563Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-456-decoding-affective-state-from-resting-st",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-08T19:39:09.171607Z"
     }
   ],
   "schema_version": "2.0.0"
