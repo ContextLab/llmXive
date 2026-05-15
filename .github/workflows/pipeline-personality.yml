@@ -47,7 +47,16 @@ jobs:
       - name: Run one personality tick
         run: python -m llmxive run --agent personality --max-tasks 1
 
-      - name: Commit state + run-log
+      - name: Regenerate web data
+        # Every other pipeline does this; personality was the only outlier,
+        # so contributions never reached the activity page (web/js/app.js
+        # reads recent_activity from projects.json, which is rebuilt from
+        # state/run-log/**/*.jsonl by web_data.py _recent_activity).
+        # Committing web/data/ also satisfies the pages.yml path filter
+        # (web/**) so Pages redeploys after every cron tick.
+        run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
+
+      - name: Commit state + run-log + web data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -55,6 +64,7 @@ jobs:
           git add state/run-log || true
           git add projects || true
           git add state/personality-submissions || true
+          git add web/data/ || true
           if git diff --cached --quiet; then
             echo "no changes"
           else
