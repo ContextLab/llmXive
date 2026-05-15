@@ -16,9 +16,20 @@
   "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
   "code": "https://github.com/ContextLab/llm-stylometry",
   "data": [],
-  "toplevel_tex": ["main.tex", "supplement.tex"],
-  "source_files": ["main.tex", "supplement.tex", "main.bbl", "custom.bib", "00README.json", "figs/"],
+  "toplevel_tex": [
+    "main.tex",
+    "supplement.tex"
+  ],
+  "source_files": [
+    "main.tex",
+    "supplement.tex",
+    "main.bbl",
+    "custom.bib",
+    "00README.json",
+    "figs/"
+  ],
   "original_pdf_engine": "pdflatex",
   "llmxive_restyle": "main-llmxive.tex (xelatex + papers/.style/llmxive.cls)",
-  "notes": "Re-styled excerpt only; full paper available at arXiv. Submitter is one of the authors; redistribution of the source is permitted under the arXiv non-exclusive license. The llmXive-restyled version is a derivative for the llmXive archive."
+  "notes": "Re-styled excerpt only; full paper available at arXiv. Submitter is one of the authors; redistribution of the source is permitted under the arXiv non-exclusive license. The llmXive-restyled version is a derivative for the llmXive archive.",
+  "abstract": "We show that large language models (LLMs) can be used to distinguish the writings of different authors. Specifically, an individual GPT-2 model, trained from scratch on the works of one author, will predict held-out text from that author more accurately than held-out text from other authors. We suggest that, in this way, a model trained on one author's works embodies the unique writing style of that author. We first demonstrate our approach on books written by eight different (known) authors. We also use this approach to confirm R. P. Thompson's authorship of the well-studied 15th book of the Oz series, originally attributed to F. L. Baum."
 }

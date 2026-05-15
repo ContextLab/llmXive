@@ -330,7 +330,9 @@ _ARXIV_CATEGORY_TO_FIELD: dict[str, str] = {
 }
 
 
-def _arxiv_metadata(url: str) -> tuple[list[str], str | None, str | None]:
+def _arxiv_metadata(
+    url: str,
+) -> tuple[list[str], str | None, str | None, str | None]:
     """Best-effort arXiv metadata fetch for a paper-submission URL.
 
     The user's rule: credit on a submitted paper goes to its *authors* (parsed
@@ -339,15 +341,17 @@ def _arxiv_metadata(url: str) -> tuple[list[str], str | None, str | None]:
     other URLs / uploaded PDFs the paper-pipeline's existing tooling handles
     author parsing later.
 
-    Returns `(authors, title, field)` — empty / None when not applicable or on
-    any failure (a missing/failed lookup never blocks intake). `field` is
-    derived from the primary arXiv category via `_ARXIV_CATEGORY_TO_FIELD`.
+    Returns `(authors, title, field, abstract)` — empty / None when not
+    applicable or on any failure (a missing/failed lookup never blocks intake).
+    `field` is derived from the primary arXiv category via
+    `_ARXIV_CATEGORY_TO_FIELD`. `abstract` is the paper's summary from arXiv
+    (whitespace-normalized; arXiv embeds line breaks the API doesn't strip).
     """
     if not url:
-        return [], None, None
+        return [], None, None, None
     m = re.search(r"arxiv\.org/(?:abs|pdf|html)/([0-9]{4}\.[0-9]{4,6})", url)
     if not m:
-        return [], None, None
+        return [], None, None, None
     arxiv_id = m.group(1)
     try:
         import urllib.request
@@ -360,13 +364,17 @@ def _arxiv_metadata(url: str) -> tuple[list[str], str | None, str | None]:
         root = ET.fromstring(xml)
         entry = root.find("a:entry", ns)
         if entry is None:
-            return [], None, None
+            return [], None, None, None
         authors = [
             (a.findtext("a:name", default="", namespaces=ns) or "").strip()
             for a in entry.findall("a:author", ns)
         ]
         authors = [a for a in authors if a]
         title = (entry.findtext("a:title", default="", namespaces=ns) or "").strip()
+        # arXiv embeds hard line breaks inside the summary; the card UI wants
+        # a single paragraph of prose. Collapse whitespace.
+        raw_summary = (entry.findtext("a:summary", default="", namespaces=ns) or "").strip()
+        abstract = re.sub(r"\s+", " ", raw_summary) if raw_summary else None
         # Map the primary arXiv category to a project field — exact-match first
         # (e.g. cs.CL → linguistics), then top-level (cs → computer science).
         primary = entry.find("ar:primary_category", ns)
@@ -374,14 +382,14 @@ def _arxiv_metadata(url: str) -> tuple[list[str], str | None, str | None]:
         if primary is not None:
             cat = (primary.get("term") or "").strip().lower()
             field = _ARXIV_CATEGORY_TO_FIELD.get(cat) or _ARXIV_CATEGORY_TO_FIELD.get(cat.split(".")[0])
-        return authors, (title or None), field
+        return authors, (title or None), field, abstract
     except Exception:
-        return [], None, None
+        return [], None, None, None
 
 
 # Backwards-compatible shim — older test imports + callers expect a 2-tuple.
 def _arxiv_authors(url: str) -> tuple[list[str], str | None]:
-    authors, title, _ = _arxiv_metadata(url)
+    authors, title, _, _ = _arxiv_metadata(url)
     return authors, title
 
 
@@ -813,7 +821,9 @@ def _handle_new_paper(issue, number, body, author, *, repo: Path, gh: GhFn) -> I
     # Best-effort paper-author + title + field parsing from arXiv (cheap public
     # API, no auth). For non-arXiv URLs / uploaded PDFs the paper-pipeline's
     # tooling parses authors later — a missing lookup never blocks intake.
-    paper_authors, fetched_title, fetched_field = (_arxiv_metadata(url) if url else ([], None, None))
+    paper_authors, fetched_title, fetched_field, fetched_abstract = (
+        _arxiv_metadata(url) if url else ([], None, None, None)
+    )
     if paper_authors:
         content_lines.append("Paper authors (from arXiv): " + ", ".join(paper_authors))
     title = (fetched_title or title_seed or "Submitted paper").strip()
@@ -848,6 +858,9 @@ def _handle_new_paper(issue, number, body, author, *, repo: Path, gh: GhFn) -> I
                 "arxiv_id": arxiv_id,
                 "arxiv_url": f"https://arxiv.org/abs/{arxiv_id}",
                 "title": title, "authors": paper_authors, "submitter": submitter,
+                # The paper's actual abstract, surfaced on the dashboard card
+                # via _project_description in web_data.py. Whitespace-normalized.
+                "abstract": fetched_abstract,
                 "submitted_via": f"llmXive dashboard, GitHub issue #{number}",
                 "license": "arXiv Non-exclusive Distribution License",
                 "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",

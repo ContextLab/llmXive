@@ -779,8 +779,31 @@ def _project_submitter(repo: Path, project_id: str) -> str | None:
 
 
 def _project_description(repo: Path, project_id: str, *, max_chars: int = 320) -> str:
-    """Card-level description excerpt extracted from the idea Markdown body."""
+    """Card-level description excerpt.
+
+    For paper-stage projects, prefer the actual paper abstract (parsed at
+    intake time from the arXiv API and stored in
+    `projects/<id>/paper/metadata.json::abstract`). This gives the card a
+    real preview instead of the boilerplate "A paper was submitted via the
+    website..." text that lives in the idea body.
+
+    Falls back to the idea-body excerpt for research projects (and for paper
+    projects whose abstract is missing from metadata, e.g. legacy intakes
+    that ran before the abstract field landed).
+    """
     pdir = _project_dir(repo, project_id)
+    # Prefer the paper abstract when available.
+    paper_meta = pdir / "paper" / "metadata.json"
+    if paper_meta.is_file():
+        try:
+            meta = json.loads(paper_meta.read_text(encoding="utf-8", errors="replace"))
+        except (json.JSONDecodeError, OSError):
+            meta = {}
+        abstract = (meta.get("abstract") or "").strip() if isinstance(meta, dict) else ""
+        if abstract:
+            if len(abstract) > max_chars:
+                abstract = abstract[:max_chars].rsplit(" ", 1)[0] + "…"
+            return abstract
     idea = next(iter(pdir.glob("idea/*.md")), None)
     if idea is None or not idea.exists():
         return ""
