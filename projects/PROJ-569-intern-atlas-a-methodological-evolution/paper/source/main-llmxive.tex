@@ -29,13 +29,11 @@
 \usepackage{amsfonts}
 \usepackage{placeins}
 \usepackage{hyphenat}
-\usepackage{setspace}
 \usepackage{parskip}
 \usepackage{lipsum}
 \usepackage{etoolbox}
 \usepackage{bm}
 \usepackage[noabbrev,nameinlink]{cleveref}
-\usepackage[square, numbers]{natbib}
 
 %% ── Shim layer (venue macros made into no-ops) ────────────────
 \makeatletter
@@ -47,9 +45,12 @@
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
+\providecommand{\blfootnote}[1]{\footnote{#1}}
+\providecommand{\corresponding}{}
 \providecommand{\correspondingauthor}[1]{}
 \providecommand{\eg}{e.g.,\xspace}
 \providecommand{\email}[1]{\href{mailto:#1}{#1}}
+\providecommand{\equalcontribution}{}
 \providecommand{\etal}{et al.\xspace}
 \providecommand{\etc}{etc.\xspace}
 \providecommand{\iclrfinalcopy}{}
@@ -69,7 +70,6 @@
 \providecommand{\github}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{assets/github_logo.pdf}}\xspace}
 \providecommand{\web}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{assets/web_logo.pdf}}\xspace}
 \providecommand{\huggingface}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{assets/huggingface_logo.png}}\xspace}
-\providecommand{\blfootnote}{\xdef\@thefnmark{}\@footnotetext}
 \definecolor{lightblue}{rgb}{0.93,0.95,1.0}
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -444,7 +444,7 @@ so that historical lineages remain reachable during SGT-MCTS.
 The publication-year map $\tau:\mathcal{V}_P\cup\mathcal{V}_S\to\mathbb{Z}$ is populated from DOI / OpenAlex
 metadata; missing entries are treated as a neutral default by the temporal-coherence function in Appendix~\ref{app:mcts}.
 
-\paragraph{Bottleneck dimension taxonomy $\mathcal{D}$.}
+\paragraph{Bottleneck dimension taxonomy \texorpdfstring{$\mathcal{D}$}{D}.}
 The 14 axes in Table~\ref{tab:dim-taxonomy} were bootstrapped by clustering 500 randomly sampled bottleneck quotes
 from a pilot run on NeurIPS-2024 full texts and consolidated by the authors into a minimal spanning set. Their
 operational definitions are reproduced verbatim in the Phase-2 extraction prompt and are used wherever a record
@@ -508,7 +508,7 @@ training complexity & engineering difficulty of the training recipe \\
 \end{tabularx}
 \end{table}
 
-\paragraph{Edge vocabulary $\mathcal{T}$.}
+\paragraph{Edge vocabulary \texorpdfstring{$\mathcal{T}$}{T}.}
 Edges $\mathcal{E}\subseteq(\mathcal{V}_P\cup\mathcal{V}_S)^2$ carry a type from a nine-class causal vocabulary
 (Table~\ref{tab:edge-types}), whose glossary is reproduced verbatim in the Phase-1 extraction prompt.
 
@@ -534,12 +534,12 @@ core formulation \\
 \end{tabularx}
 \end{table}
 
-\paragraph{Strong-causal subgraph $G_{\text{strong}}$.}
+\paragraph{Strong-causal subgraph \texorpdfstring{$G_{\text{strong}}$}{G_strong}.}
 $\mathcal{T}_{\text{strong}}=\{\texttt{extends},\texttt{improves},\texttt{replaces},\texttt{adapts}\}$ induces $G_{\text{strong}}=(\mathcal{V}_P\cup\mathcal{V}_S,\mathcal{E}_{\text{strong}},\tau,
 \rho)$. Excluding \texttt{uses\_component} separates methodological evolution (inheriting the parent mechanism) from compositional reuse (borrowing only a module). Component reuse is preserved inside the
 method-level DAG $G_M$ for evaluation and generation but does not drive lineage traversal.
 
-\paragraph{Method-level DAG $G_M$.}
+\paragraph{Method-level DAG \texorpdfstring{$G_M$}{G_M}.}
 $G_M=(\mathcal{V}_M,\mathcal{E}_M)$ is derived from $\mathcal{E}$ by the deterministic projection in
 Table~\ref{tab:projection}. Two further relations, \texttt{optimizes} and \texttt{inspired\_by}, are not produced
 by citation-anchored extraction: \texttt{optimizes} typically surfaces in release-note or blog text lacking a
@@ -565,7 +565,7 @@ Causal type in $\mathcal{T}$ & Method-level type in $\mathcal{T}_M$ \\
 \end{tabularx}
 \end{table}
 
-\paragraph{Alias registry $\mathcal{A}$.}
+\paragraph{Alias registry \texorpdfstring{$\mathcal{A}$}{A}.}
 $\mathcal{A}:\mathcal{V}_M\to 2^{\Sigma^\ast}$ maps each canonical method to a set of surface forms. Lookup is
 substring-based with case/punctuation normalization, word-boundary enforcement (preventing ``GPT'' matching inside
 ``lgpto''), longest-match priority (``GPT-4 Turbo'' over ``GPT-4'' over ``GPT''), version-suffix consolidation
@@ -781,7 +781,7 @@ linearly to $-2.0$ at $>1000$ (saturated).
 
 \emph{Clarity.} Method recognition rate; specificity peak at $|M_d|\in\{2,3\}$ decaying for $|M_d|\ge 6$; structural completeness across \{problem, approach, target\}; length adequacy on $20$--$200$ words.
 
-\subsection{Cross-Dimensional Regularizer $\Omega_{\text{cross}}$}
+\subsection{Cross-Dimensional Regularizer \texorpdfstring{$\Omega_{\text{cross}}$}{_cross}}
 \label{app:cross-dim}
 
 \begin{table}[h]
@@ -914,7 +914,7 @@ To provide a rigorous, unbiased assessment of idea quality and compute the win r
 % The two cases below are drawn from the released graph and are illustrative rather than cherry-picked; full
 % records are in the release artifact.
 
-% \paragraph{Case 1: an extracted record $\rho(e)$.}
+% \paragraph{Case 1: an extracted record \texorpdfstring{$\rho(e)$}{(e)}.}
 % Edge \textsc{LoRA}$\to$\textsc{QLoRA}.
 % \emph{Bottleneck}: ``full-precision LoRA still requires storing the frozen base-model weights in 16-bit, which
 % dominates memory for base models above 7B parameters'' (severity moderate, dimension memory efficiency); verbatim

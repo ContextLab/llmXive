@@ -342,7 +342,24 @@ _KNOWN_SHIMS: dict[str, str] = {
     "aistatsfinalcopy":    r"\providecommand{\aistatsfinalcopy}{}",
     # acknowledgments environments
     "acknowledgments":     r"\providecommand{\acknowledgments}{\section*{Acknowledgments}}",
+    # \blfootnote — "blank footnote" (no number) used for equal-contribution
+    # or corresponding-author footnotes on the title page. The canonical
+    # definition rewrites \@thefnmark to nothing; without a shim, the
+    # body's \blfootnote{*Equal contribution.} bombs with `Use of \@
+    # doesn't match its definition` (PROJ-569 — InternAtlas paper used
+    # this for its equal-contribution authors).
+    # Render as a regular footnote (loses the no-number distinction but
+    # keeps the content visible — which is what the user wants).
+    "blfootnote":          r"\providecommand{\blfootnote}[1]{\footnote{#1}}",
+    # Misc author/affiliation shims that papers from major labs ship
+    # custom-defined and then rely on through the body.
+    "equalcontribution":   r"\providecommand{\equalcontribution}{}",
+    "corresponding":       r"\providecommand{\corresponding}{}",
+    "footnotemark":        r"",  # placeholder: do NOT shim — it's a real LaTeX builtin
 }
+# Remove the placeholder we use to comment a NOT-shim — keeping the dict
+# clean is more important than a one-line comment.
+_KNOWN_SHIMS.pop("footnotemark", None)
 
 
 # Macros where `\providecommand` is NOT enough — these are already
@@ -404,7 +421,15 @@ _SAFE_FORWARD_PACKAGES = {
     "adjustbox", "calc",
     "appendix",
     "xspace",
-    "hyphenat", "setspace", "parskip",
+    "hyphenat", "parskip",
+    # NOTE: `setspace` is intentionally NOT forwarded — the llmxive class
+    # provides \singlespacing / \onehalfspacing / \doublespacing as no-op
+    # stubs (`\providecommand` in llmxive.cls:197-209), and the class
+    # owns the spacing decision. Loading setspace later collides with
+    # `! LaTeX Error: Command \singlespacing already defined.` (PROJ-569
+    # was the canary). If a future paper genuinely needs setspace, the
+    # answer is to scope the spacing locally in the body, not to forward
+    # the package.
     "etoolbox",
     "multicol",
     "changepage",
@@ -434,19 +459,25 @@ def _forwarded_packages(*sources: str) -> list[str]:
     the body of every bundled `.cls` file we can find. Bundled classes
     routinely `\\RequirePackage{natbib}` etc., so without scanning them
     the body's `\\citep` calls would die as undefined.
+
+    Dedup is **by package name only** — first occurrence wins (preamble
+    is scanned before bundled classes). LaTeX considers loading the same
+    package twice with different option sets an `! Option clash` fatal
+    error (PROJ-569 had `\\usepackage[numbers]{natbib}` followed by
+    `\\usepackage[square, numbers]{natbib}` from a bundled cls; both
+    options would pass the prior `(name, opts)` dedup as distinct keys).
     """
     out: list[str] = []
-    seen: set[tuple[str, str]] = set()
+    seen: set[str] = set()
     for src in sources:
         for m in _USEPACKAGE_RE.finditer(src):
             opts, names = (m.group(1) or "").strip(), m.group(2)
             for name in (n.strip() for n in names.split(",")):
                 if not name or name not in _SAFE_FORWARD_PACKAGES:
                     continue
-                key = (name, opts)
-                if key in seen:
+                if name in seen:
                     continue
-                seen.add(key)
+                seen.add(name)
                 if opts:
                     out.append(rf"\usepackage[{opts}]{{{name}}}")
                 else:
@@ -924,7 +955,69 @@ def _body_cleanup_passes(body: str) -> str:
     body = re.sub(r"\\IEEEoverridecommandlockouts\b", "", body)
     body = re.sub(r"\\copyrightnotice\s*\{[^}]*\}", "", body)
 
+    # 6. Wrap inline math in section headings with \texorpdfstring so
+    #    hyperref doesn't try to PDF-encode the math and fail with
+    #    `Improper alphabetic constant` / `Token not allowed in PDF
+    #    string (Unicode)` (PROJ-569 / InternAtlas had
+    #    `\subsection{Cross-Modal Regularizer $\Omega_{\text{cross}}$}`
+    #    which crashed lualatex during hyperref bookmark generation).
+    body = _wrap_section_math(body)
+
     return body
+
+
+def _wrap_section_math(body: str) -> str:
+    """For every `\\section{...}`/`\\subsection{...}`/etc. containing `$...$`,
+    wrap each inline math run with `\\texorpdfstring{$<math>$}{<math>}`
+    so hyperref's PDF-string conversion uses the math source verbatim
+    instead of trying to typeset it (which fails in unicode-math).
+    """
+    section_re = re.compile(
+        r"(\\(?:section|subsection|subsubsection|paragraph|subparagraph)\*?)\s*\{",
+    )
+    out: list[str] = []
+    i = 0
+    while i < len(body):
+        m = section_re.search(body, i)
+        if not m:
+            out.append(body[i:])
+            break
+        out.append(body[i:m.start()])
+        macro = m.group(1)
+        out.append(macro + "{")
+        # Walk brace-balanced argument
+        depth = 1
+        j = m.end()
+        title_start = j
+        while j < len(body) and depth > 0:
+            c = body[j]
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    break
+            j += 1
+        title = body[title_start:j]
+        # Wrap inline math in the title — the FIRST arg of \texorpdfstring
+        # keeps the math (typeset in the visible heading); the SECOND arg
+        # must be a plain-text fallback used in the PDF bookmark string.
+        # Strip TeX backslashes from the second arg so it's safe for
+        # hyperref's PDF-string conversion (which couldn't handle
+        # `\Omega_{\text{cross}}` as a literal token).
+        def _wrap_math(m: re.Match) -> str:
+            inner = m.group(1)
+            # Plain-text fallback: drop backslashes (so \Omega → Omega),
+            # drop braces, collapse whitespace.
+            plain = re.sub(r"\\[a-zA-Z@]+\*?", "", inner)
+            plain = re.sub(r"[{}]", "", plain)
+            plain = re.sub(r"\s+", " ", plain).strip() or "..."
+            return r"\texorpdfstring{$" + inner + r"$}{" + plain + r"}"
+        wrapped = re.sub(r"\$([^$]+)\$", _wrap_math, title)
+        out.append(wrapped)
+        out.append("}")
+        i = j + 1
+    return "".join(out)
 
 
 def _convert_wrapfigure(body: str) -> str:

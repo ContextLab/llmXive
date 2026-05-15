@@ -1,0 +1,85 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
+\contentsline {section}{\numberline {2}Related Work}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Scientific Knowledge Graphs}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Evaluating Research Ideas}{4}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}LLM-based Scientific Ideation}{5}{subsection.2.3}%
+\contentsline {section}{\numberline {3}Method}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Overview}{5}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Methodological Graph Construction}{6}{subsection.3.2}%
+\contentsline {paragraph}{Step 1: entity resolution.}{6}{paragraph*.3}%
+\contentsline {paragraph}{Step 2: edge typing.}{7}{paragraph*.4}%
+\contentsline {paragraph}{Step 3: evidence extraction.}{7}{paragraph*.5}%
+\contentsline {subsection}{\numberline {3.3}Operators over the Methodological Graph}{7}{subsection.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.1}Lineage Reconstruction with SGT-MCTS}{7}{subsubsection.3.3.1}%
+\contentsline {subsubsection}{\numberline {3.3.2}Graph-Grounded Idea Evaluation}{8}{subsubsection.3.3.2}%
+\contentsline {paragraph}{Per-dimension scoring.}{8}{paragraph*.6}%
+\contentsline {paragraph}{Cross-dimensional aggregation.}{9}{paragraph*.7}%
+\contentsline {subsubsection}{\numberline {3.3.3}Strategy-Driven Idea Generation}{9}{subsubsection.3.3.3}%
+\contentsline {paragraph}{Structural gap patterns.}{9}{paragraph*.8}%
+\contentsline {paragraph}{Strategy-conditioned proposal.}{9}{paragraph*.9}%
+\contentsline {section}{\numberline {4}Experiment}{10}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Evaluating Graph Construction and Lineage Reconstruction}{10}{subsection.4.1}%
+\contentsline {paragraph}{Method-evolution Benchmark and Metrics.}{11}{paragraph*.11}%
+\contentsline {paragraph}{Evaluation of SGT-MCTS algorithm.}{11}{paragraph*.13}%
+\contentsline {paragraph}{Analysis of graph construction quality.}{12}{paragraph*.15}%
+\contentsline {subsection}{\numberline {4.2}Evaluating Graph-Grounded Idea Evaluator}{12}{subsection.4.2}%
+\contentsline {paragraph}{Experimental details.}{12}{paragraph*.16}%
+\contentsline {paragraph}{Validation across publication strata.}{12}{paragraph*.17}%
+\contentsline {paragraph}{Human evaluation.}{13}{paragraph*.20}%
+\contentsline {subsection}{\numberline {4.3}Evaluating Graph-Grounded Idea Generator}{14}{subsection.4.3}%
+\contentsline {paragraph}{Experimental details.}{14}{paragraph*.22}%
+\contentsline {paragraph}{Evaluation Results.}{14}{paragraph*.23}%
+\contentsline {section}{\numberline {5}Conclusion}{14}{section.5}%
+\ttl@starttoc {appendix@1}
+\contentsline {section}{\numberline {A}Graph Construction}{21}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}Schema}{21}{subsection.A.1}%
+\contentsline {paragraph}{Node types.}{21}{paragraph*.24}%
+\contentsline {paragraph}{Bottleneck dimension taxonomy $\symcal {D}$.}{21}{paragraph*.25}%
+\contentsline {paragraph}{Edge vocabulary $\symcal {T}$.}{21}{paragraph*.27}%
+\contentsline {paragraph}{Strong-causal subgraph $G_{\text {strong}}$.}{21}{paragraph*.29}%
+\contentsline {paragraph}{Method-level DAG $G_M$.}{21}{paragraph*.30}%
+\contentsline {paragraph}{Alias registry $\symcal {A}$.}{21}{paragraph*.32}%
+\contentsline {subsection}{\numberline {A.2}Corpus, PDF Pipeline, and Reference Resolution}{22}{subsection.A.2}%
+\contentsline {paragraph}{Collection window and venues.}{22}{paragraph*.33}%
+\contentsline {paragraph}{PDF parsing pipeline.}{22}{paragraph*.34}%
+\contentsline {paragraph}{Method entity curation.}{23}{paragraph*.35}%
+\contentsline {subsection}{\numberline {A.3}Two-Phase Extraction Protocol}{23}{subsection.A.3}%
+\contentsline {paragraph}{Phase 1 (classification).}{23}{paragraph*.36}%
+\contentsline {paragraph}{Phase 2 (record completion).}{24}{paragraph*.37}%
+\contentsline {section}{\numberline {B}Lineage Reconstruction (SGT-MCTS)}{24}{appendix.B}%
+\contentsline {paragraph}{Hyperparameters.}{24}{paragraph*.38}%
+\contentsline {paragraph}{Temporal coherence.}{24}{paragraph*.39}%
+\contentsline {paragraph}{Algorithm.}{24}{paragraph*.40}%
+\contentsline {paragraph}{Branch discovery.}{25}{paragraph*.41}%
+\contentsline {section}{\numberline {C}Idea Evaluation}{25}{appendix.C}%
+\contentsline {subsection}{\numberline {C.1}Common Retrieval Routine}{25}{subsection.C.1}%
+\contentsline {paragraph}{Context retrieval.}{25}{paragraph*.42}%
+\contentsline {subsection}{\numberline {C.2}Duplicate-Risk Detection}{25}{subsection.C.2}%
+\contentsline {subsection}{\numberline {C.3}Per-Dimension Signal Specifications}{26}{subsection.C.3}%
+\contentsline {paragraph}{Bases and weights.}{26}{paragraph*.43}%
+\contentsline {paragraph}{Per-dimension signals.}{26}{paragraph*.44}%
+\contentsline {subsection}{\numberline {C.4}Cross-Dimensional Regularizer $\mitOmega _{\text {cross}}$}{26}{subsection.C.4}%
+\contentsline {subsection}{\numberline {C.5}Graceful Fallback and Optional Adjudication}{26}{subsection.C.5}%
+\contentsline {paragraph}{Graceful fallback.}{26}{paragraph*.46}%
+\contentsline {paragraph}{Adjudicator (optional).}{26}{paragraph*.47}%
+\contentsline {section}{\numberline {D}Evaluation Setup and Benchmarks}{27}{appendix.D}%
+\contentsline {subsection}{\numberline {D.1}Method-evaluation Benchmark and Metrics}{27}{subsection.D.1}%
+\contentsline {paragraph}{Purpose and selection.}{27}{paragraph*.48}%
+\contentsline {paragraph}{Construction.}{27}{paragraph*.49}%
+\contentsline {paragraph}{Evaluation protocols.}{27}{paragraph*.50}%
+\contentsline {subsection}{\numberline {D.2}Lineage-Search Baselines}{28}{subsection.D.2}%
+\contentsline {subsection}{\numberline {D.3}Dataset and Baselines Details for Evaluating Idea Evaluator}{28}{subsection.D.3}%
+\contentsline {paragraph}{The Strata Dataset.}{28}{paragraph*.51}%
+\contentsline {paragraph}{Human-Rated Subset.}{29}{paragraph*.52}%
+\contentsline {paragraph}{Idea Extraction Protocol.}{29}{paragraph*.53}%
+\contentsline {paragraph}{Pure LLM-as-Judge Baseline.}{29}{paragraph*.54}%
+\contentsline {subsection}{\numberline {D.4}Experimental Details for Evaluating Idea Generation}{29}{subsection.D.4}%
+\contentsline {paragraph}{Query Construction and Distribution.}{29}{paragraph*.55}%
+\contentsline {paragraph}{Human Expert Win-Rate Evaluation.}{30}{paragraph*.56}%
+\contentsline {section}{\numberline {E}Case Studies}{30}{appendix.E}%
+\contentsline {subsection}{\numberline {E.1}Case Study on Lineage Search}{30}{subsection.E.1}%
+\contentsline {section}{\numberline {F}Limitations and Broader Impact}{31}{appendix.F}%
+\contentsline {paragraph}{Extraction.}{31}{paragraph*.58}%
+\contentsline {paragraph}{Algorithmic.}{31}{paragraph*.59}%
+\contentsline {paragraph}{Broader impact.}{31}{paragraph*.60}%
+\contentsfinish 
