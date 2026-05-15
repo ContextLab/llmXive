@@ -66,11 +66,23 @@ def _pdf_dir(project: Path) -> Path:
 
 
 def _has_pdf(project: Path) -> bool:
-    """True iff at least one valid .pdf (with EOF trailer) exists under
+    """True iff at least one valid MAIN .pdf (with EOF trailer) exists under
     paper/pdf/. A 2KB error stub written by a failing lualatex run does
     NOT count — we want to re-attempt compile/fallback for those.
+
+    Excludes supplement-llmxive.pdf and similar non-main PDFs from this
+    check. A paper with only a supplement on disk must still recompile
+    its main paper PDF — without this exclusion, PROJ-562's supplement
+    was masking the missing main PDF and the compile-all loop skipped
+    it as 'already-present'.
     """
     for p in (project / "paper" / "pdf").glob("*.pdf"):
+        # Skip non-main artifacts. The main PDF is named either
+        # `main-llmxive.pdf` (canonical) or `<arxiv-id>.pdf` (fallback).
+        # Anything else (supplement-llmxive.pdf, etc.) is auxiliary and
+        # doesn't satisfy the "this project has a compiled paper" check.
+        if p.name.startswith("supplement"):
+            continue
         try:
             data = p.read_bytes()
         except Exception:
