@@ -869,8 +869,15 @@ def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
     pdir = _project_dir(repo, project_id)
 
     # 1. Idea submitter
+    #    Skip bot submitters (github-actions[bot] etc.) — the user's rule:
+    #    bots that act on behalf of the platform never count as authors. The
+    #    paper's actual authors come from `paper_authors:` (block 1b below).
     submitter = _project_submitter(repo, project_id)
-    if submitter and not submitter.startswith(("system:", "legacy:", "agent:")):
+    if (
+        submitter
+        and not submitter.startswith(("system:", "legacy:", "agent:"))
+        and not _is_bot_submitter(submitter)
+    ):
         kind = "llm" if (
             "/" in submitter
             or any(p in submitter.lower() for p in ("qwen", "gemma", "claude", "tinyllama", "gpt", "mistral", "llama"))
@@ -880,9 +887,21 @@ def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
 
     # 1b. Paper authors (parsed from the paper itself by `submission_intake`)
     #     — the user's rule: credit on a submitted paper goes to its *authors*,
-    #     separately from whoever submitted it. The `paper_authors:` list lives
-    #     in the idea front-matter and gets surfaced here as kind="human"
-    #     contributors with a `paper_author` role.
+    #     separately from whoever submitted it. We prefer
+    #     `paper/metadata.json::authors` (the canonical arXiv-parsed list) and
+    #     fall back to the idea front-matter `paper_authors:` for projects whose
+    #     intake predates the metadata.json shape.
+    paper_meta = pdir / "paper" / "metadata.json"
+    metadata_authors: list[str] = []
+    if paper_meta.is_file():
+        try:
+            meta = json.loads(paper_meta.read_text(encoding="utf-8", errors="replace"))
+            if isinstance(meta, dict) and isinstance(meta.get("authors"), list):
+                metadata_authors = [str(a).strip() for a in meta["authors"]]
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    frontmatter_authors: list[str] = []
     idea = next(iter(pdir.glob("idea/*.md")), None) if pdir.exists() else None
     if idea is not None and idea.exists():
         text = idea.read_text(encoding="utf-8", errors="replace")
@@ -891,10 +910,25 @@ def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
                 fm = yaml.safe_load(text[3:text.index("---", 3)]) or {}
             except (ValueError, yaml.YAMLError):
                 fm = {}
-            for author in (fm.get("paper_authors") or []):
-                name = str(author).strip()
-                if name:
-                    add(name, "human", "paper_author")
+            frontmatter_authors = [str(a).strip() for a in (fm.get("paper_authors") or [])]
+
+    # Filter junk entries — colons, commas, periods, semicolons sometimes leak
+    # from arXiv parses where a label like "Mind Lab :" gets split into "Mind
+    # Lab" + ":". Also skip bots and empty strings.
+    _JUNK_AUTHORS = {":", ",", ".", ";", "-", "—", "–"}
+    raw_authors = metadata_authors or frontmatter_authors
+    seen_norm: set[str] = set()
+    for author in raw_authors:
+        name = (author or "").strip().strip(":,.;-—–").strip()
+        if not name or name in _JUNK_AUTHORS:
+            continue
+        if _is_bot_submitter(name):
+            continue
+        norm = name.lower()
+        if norm in seen_norm:
+            continue
+        seen_norm.add(norm)
+        add(name, "human", "paper_author")
 
     # 2. Run-log: every successful agent invocation contributes its model
     runlog_root = repo / "state" / "run-log"
@@ -1243,33 +1277,57 @@ def _paper_author_contributors(repo: Path, projects: list) -> list[dict[str, Any
     the paper's authors not just the submitter" rule). Surfaced in the
     top-level contributors list as kind="human".
     """
+    # Junk-author filter (arXiv label-parse glitches sometimes emit `:`,
+    # `,`, or other lone punctuation as an "author"). Applied per-entry.
+    _JUNK_AUTHORS = {":", ",", ".", ";", "-", "—", "–"}
+
     rows: dict[tuple[str, str], dict[str, Any]] = {}
     for p in projects:
-        idea_dir = repo / "projects" / p.id / "idea"
-        if not idea_dir.is_dir():
-            continue
-        for md in idea_dir.glob("*.md"):
-            text = md.read_text(encoding="utf-8", errors="replace")
-            if not text.startswith("---"):
-                continue
+        proj_dir = repo / "projects" / p.id
+        # Prefer paper/metadata.json (canonical arXiv-parsed list) when present;
+        # fall back to idea/*.md frontmatter for legacy intakes.
+        raw_authors: list[str] = []
+        meta_path = proj_dir / "paper" / "metadata.json"
+        if meta_path.is_file():
             try:
-                fm = yaml.safe_load(text[3:text.index("---", 3)]) or {}
-            except (ValueError, yaml.YAMLError):
+                meta = json.loads(meta_path.read_text(encoding="utf-8", errors="replace"))
+                if isinstance(meta, dict) and isinstance(meta.get("authors"), list):
+                    raw_authors = [str(a) for a in meta["authors"]]
+            except (json.JSONDecodeError, OSError):
+                pass
+        if not raw_authors:
+            idea_dir = proj_dir / "idea"
+            if not idea_dir.is_dir():
                 continue
-            for author in (fm.get("paper_authors") or []):
-                name = str(author).strip()
-                if not name:
+            for md in idea_dir.glob("*.md"):
+                text = md.read_text(encoding="utf-8", errors="replace")
+                if not text.startswith("---"):
                     continue
-                # Merge GH-username submitter ↔ paper-author display name.
-                canon, kind = _resolve_alias(name, "human", repo)
-                key = (canon, kind)
-                row = rows.setdefault(
-                    key, {"name": canon, "kind": kind, "contribution_count": 0, "areas": set()}
-                )
-                row["contribution_count"] += 1
-                field = (p.field or "").strip().lower()
-                if field and field != "general":
-                    row["areas"].add(field)
+                try:
+                    fm = yaml.safe_load(text[3:text.index("---", 3)]) or {}
+                except (ValueError, yaml.YAMLError):
+                    continue
+                raw_authors.extend(str(a) for a in (fm.get("paper_authors") or []))
+        seen_for_project: set[str] = set()
+        for author in raw_authors:
+            name = (author or "").strip().strip(":,.;-—–").strip()
+            if not name or name in _JUNK_AUTHORS:
+                continue
+            if _is_bot_submitter(name):
+                continue
+            if name.lower() in seen_for_project:
+                continue
+            seen_for_project.add(name.lower())
+            # Merge GH-username submitter ↔ paper-author display name.
+            canon, kind = _resolve_alias(name, "human", repo)
+            key = (canon, kind)
+            row = rows.setdefault(
+                key, {"name": canon, "kind": kind, "contribution_count": 0, "areas": set()}
+            )
+            row["contribution_count"] += 1
+            field = (p.field or "").strip().lower()
+            if field and field != "general":
+                row["areas"].add(field)
     return [
         {"name": r["name"], "kind": r["kind"],
          "contribution_count": r["contribution_count"], "areas": sorted(r["areas"])}
