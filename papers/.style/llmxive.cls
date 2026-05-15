@@ -394,6 +394,15 @@
 \titlespacing*{\paragraph}    {0pt}{8pt}{0pt}
 
 %% ---- captions ----------------------------------------------------------
+%% Caption spacing notes:
+%%  - `aboveskip` (default 10pt) controls the gap between the float content
+%%    (figure body / tabular rules) and the caption *below* it.
+%%  - `belowskip` (default 0pt) controls the gap between the caption and
+%%    the following text/float.
+%% The defaults give the caption-immediately-after-bottomrule look that
+%% PROJ-569 page 11 showed (cramped). Widen both modestly. Per-environment
+%% overrides below (table* / figure*) keep the spacing consistent across
+%% single- and double-column floats.
 \captionsetup{
   font={small,color=llmxInk2},
   labelfont={color=llmxGreen},
@@ -402,7 +411,21 @@
   format=plain,
   justification=raggedright,
   singlelinecheck=false,
+  aboveskip=14pt,
+  belowskip=8pt,
 }
+%% When two floats share a page (e.g. a table directly above a figure on
+%% page 11 of PROJ-569), `floatsep` is the vertical gap between them. The
+%% default (12pt plus 2pt minus 2pt) is fine for ordinary documents but
+%% the llmxive class's slightly tighter leading makes adjacent floats
+%% look squashed. Bump it.
+\setlength{\floatsep}{18pt plus 2pt minus 2pt}
+%% `textfloatsep` is the gap between a top/bottom-placed float and the
+%% adjacent body text. Widen modestly so a top-placed table doesn't push
+%% against the previous paragraph.
+\setlength{\textfloatsep}{18pt plus 2pt minus 2pt}
+%% `intextsep` is the space above & below an in-text float ([h]/[H]).
+\setlength{\intextsep}{14pt plus 2pt minus 2pt}
 \renewcommand{\thefigure}{\arabic{figure}}
 \renewcommand{\thetable}{\arabic{table}}
 \DeclareCaptionLabelFormat{llmxlabel}{%
