@@ -50,24 +50,57 @@ jobs:
         id: commit
         # No [skip ci] — touching web/data/projects.json must trigger
         # pages.yml so newly-filed papers actually appear on the site.
+        #
+        # Race-resilient pattern (mirrors paper-compile.yml): a failed
+        # `git pull --rebase` leaves the worktree mid-rebase, breaking the
+        # next iteration. We must `git rebase --abort` between tries, and
+        # we regenerate `web/data/projects.json` AFTER each successful
+        # pull so the JSON reflects merged state (eliminates the most
+        # common conflict source).
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Quick check: did intake produce any changes at all?
           git add -A
           if git diff --cached --quiet; then
             echo "no changes"
             echo "pushed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          git commit -m "submission-intake: process submissions"
+          # Reset the cached add — we'll commit-after-rebase per attempt.
+          git reset
           for i in 1 2 3 4 5; do
-            if git pull --rebase origin main && git push; then
+            # Pull latest main BEFORE committing. Stash so our intake-
+            # produced files (state/*, projects/*, inbox moves, json)
+            # survive the pull cleanly.
+            git stash push --include-untracked -m "intake-work" 2>/dev/null || true
+            if ! git pull --rebase --autostash origin main; then
+              echo "pull/rebase failed on attempt $i; aborting + retrying"
+              git rebase --abort 2>/dev/null || true
+              git stash pop 2>/dev/null || true
+              sleep $((5 * i))
+              continue
+            fi
+            git stash pop 2>/dev/null || true
+            # Regenerate web data AFTER the pull so it reflects merged
+            # state (eliminates the projects.json conflict source).
+            python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
+            git add -A
+            if git diff --cached --quiet; then
+              echo "no changes after rebase (someone else processed these)"
+              echo "pushed=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            git commit -m "submission-intake: process submissions"
+            if git push; then
               echo "pushed=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            echo "push attempt $i failed; retrying..." >&2
+            echo "push attempt $i failed (race?); resetting commit + retrying"
+            git reset --soft HEAD~1
             sleep $((5 * i))
           done
+          echo "push failed after 5 attempts" >&2
           echo "pushed=false" >> "$GITHUB_OUTPUT"
           exit 1
 

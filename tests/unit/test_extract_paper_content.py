@@ -240,6 +240,69 @@ class TestForwardedNewcommands:
         assert r"\title" in names
         assert r"\titlelist" not in names
 
+    def test_at_internal_macros_captured(self, ex) -> None:
+        # `@`-internal macros (e.g. \@noticestring, \@onedot) must round-
+        # trip into the forwarded list — `build_wrapper` will then wrap
+        # the whole block in \makeatletter so they parse correctly.
+        # Without capture, `\@noticestring` from PROJ-578 / `\@onedot`
+        # from PROJ-580 silently disappeared, breaking citations and
+        # text spacing.
+        src = (
+            r"\def\@onedot{\ifx\@let@token.\else.\null\fi\xspace}" + "\n"
+            r"\renewcommand{\@noticestring}{notice body}"
+        )
+        out = ex._forwarded_newcommands(src)
+        names = [
+            line.split("{")[1].split("}")[0]
+            for line in out if r"\providecommand" in line
+        ]
+        assert r"\@onedot" in names
+        assert r"\@noticestring" in names
+
+
+# ──────────────────────────────────────────────────────────────────────
+# build_wrapper: must wrap forwarded macros in \makeatletter / \makeatother
+# so `\@xxx` macros (CVPR \onedot, NeurIPS \@noticestring, etc.) parse
+# correctly. Without this guard `\providecommand{\@noticestring}{...}`
+# was interpreted as defining `\@` and leaking "noticestring" as raw
+# text into the preamble — which then got typeset at \begin{document}
+# above the title block (see PROJ-578 "oticestring", PROJ-580 "nedot.").
+# ──────────────────────────────────────────────────────────────────────
+
+class TestBuildWrapperMakeAtLetterGuard:
+    def test_forwarded_block_wrapped_in_makeatletter(self, ex) -> None:
+        out = ex.build_wrapper(
+            title="Test", author="A", arxiv_id="2605.99999",
+            forwarded_packages=[],
+            forwarded_newcommands=[
+                r"\providecommand{\@noticestring}{notice body}",
+                r"\providecommand{\@onedot}{\xspace}",
+            ],
+            body="body content",
+        )
+        # The forwarded-macros block must be sandwiched between
+        # \makeatletter and \makeatother.
+        head = out.split("User-defined macros forwarded", 1)[1]
+        block = head.split("\\begin{document}", 1)[0]
+        assert r"\makeatletter" in block
+        assert r"\makeatother" in block
+        # And the @-macros must be inside that block (\makeatletter
+        # appears BEFORE the macro line).
+        at_idx = block.index(r"\makeatletter")
+        note_idx = block.index(r"\@noticestring")
+        other_idx = block.index(r"\makeatother")
+        assert at_idx < note_idx < other_idx
+
+    def test_no_forwarded_block_when_empty(self, ex) -> None:
+        # No macros → don't emit an empty makeatletter pair (purely
+        # cosmetic, but verifies we don't accidentally always wrap).
+        out = ex.build_wrapper(
+            title="Test", author="A", arxiv_id="2605.99999",
+            forwarded_packages=[], forwarded_newcommands=[],
+            body="body content",
+        )
+        assert "User-defined macros forwarded" not in out
+
 
 # ──────────────────────────────────────────────────────────────────────
 # Forwarded packages: dedupe, safe-list filter

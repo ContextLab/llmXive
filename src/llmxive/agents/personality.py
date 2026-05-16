@@ -1180,7 +1180,34 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
         _maybe_advance_pointer(repo_root, state, persona, outcome, ended, None, [])
         return entry
 
-    # ── 5b. Rubric gate (spec 009 FR-004, Clarification Q3) ──
+    # ── 5b. Early target-existence check (FR-017 + cost guard) ──
+    # If the comment/contribute target artifact doesn't exist, skip the
+    # rubric (which would otherwise eat an LLM call rating content that
+    # will be discarded anyway) AND skip dispatch so the pointer holds
+    # with the correct `target_missing` outcome rather than a coerced
+    # `abstained` (which would advance the rotation pointer per
+    # ADVANCING_OUTCOMES). Without this guard, the rubric reclassifies
+    # bad-target ticks as abstain and rotation advances on a missed
+    # target — wrong on both counts.
+    if action_obj.action in (ACTION_COMMENT, ACTION_CONTRIBUTE):
+        artifact_rel = action_obj.target_artifact_path or ""
+        if artifact_rel and not (repo_root / artifact_rel).exists():
+            outcome = OUTCOME_TARGET_MISSING
+            ended = _dt.datetime.now(_dt.timezone.utc)
+            entry = _build_log_entry(
+                started, ended, slug=persona.slug, display_name=display,
+                action=action_obj.action, outcome=outcome,
+                project_id=action_obj.target_project_id,
+                committed_paths=[],
+                note=f"target artifact not found: {artifact_rel}",
+            )
+            _write_run_log_entry(repo_root, entry)
+            if not force_slug:
+                _maybe_advance_pointer(repo_root, state, persona, outcome, ended,
+                                        action_obj.action, [])
+            return entry
+
+    # ── 5c. Rubric gate (spec 009 FR-004, Clarification Q3) ──
     # If the action is a comment/contribute and the rubric flags it as below
     # threshold, retry ONCE with a hint. On the second failure: persist the
     # rejected body to .audit/rejected-contributions.jsonl, convert to abstain,

@@ -265,6 +265,11 @@ class ArxivClient:
         self._min_interval = min_interval_seconds
         self._last_call_at: float = 0.0
         self._lock = threading.Lock()
+        # Circuit-breaker: once we get a sustained 429, stop calling
+        # arXiv until this monotonic timestamp. Prevents a single
+        # rate-limited run from blocking the entire workflow timeout
+        # (was: 105s per query * many queries → 25-min job cancellation).
+        self._disabled_until: float = 0.0
 
     def _wait_for_slot(self) -> None:
         with self._lock:
@@ -277,20 +282,34 @@ class ArxivClient:
     def search(self, query: str, *, max_results: int = 10) -> list[Candidate]:
         """Keyword search on arXiv. Returns Candidate records.
 
-        On rate limit (HTTP 429), backs off exponentially up to 3 attempts
-        (15s, 30s, 60s) before falling back to the direct-XML path. Both
-        paths surface a final 429 by returning [] but logging via stderr
-        so callers can distinguish "no hits" from "rate-limited" via the
-        log output.
+        Rate-limit handling has two layers:
+          1. Per-call: on 429, back off once (15s) and retry. A second
+             429 trips the circuit breaker and returns [].
+          2. Circuit breaker: while `_disabled_until > now`, return []
+             immediately without making a request. The breaker auto-
+             clears 60s after the most recent 429. This prevents the
+             pathological case of many sequential queries each waiting
+             105s on backoffs and blowing past the GH Actions 25-min
+             job timeout.
         """
         if not query.strip():
+            return []
+        # Circuit-breaker check: short-circuit on sustained 429s.
+        if time.monotonic() < self._disabled_until:
+            import sys as _sys
+            print(
+                f"[arxiv] circuit-breaker active; skipping query={query[:50]!r}",
+                file=_sys.stderr,
+            )
             return []
         try:
             import arxiv  # type: ignore[import-not-found]
         except ImportError:
             return self._search_via_xml(query, max_results=max_results)
 
-        for attempt in range(3):
+        # Two attempts only (was 3). With circuit breaker, a 2nd 429
+        # disables arXiv for 60s so subsequent queries are instant-empty.
+        for attempt in range(2):
             self._wait_for_slot()
             try:
                 client = arxiv.Client(page_size=max_results, num_retries=2)
@@ -321,14 +340,20 @@ class ArxivClient:
                         file=_sys.stderr,
                     )
                     return []
-                # 429 — back off (15s, 30s, 60s) before retry.
-                backoff = 15 * (2**attempt)
-                import sys as _sys
-                print(
-                    f"[arxiv] 429 rate-limited on query={query[:50]!r}; backing off {backoff}s (attempt {attempt + 1}/3)",
-                    file=_sys.stderr,
-                )
-                time.sleep(backoff)
+                # 429 — back off briefly, then either retry or trip
+                # the circuit breaker. Was: 15s/30s/60s exponential
+                # over 3 attempts (105s/query worst case). Now: 15s
+                # on first 429; second 429 trips breaker WITHOUT a
+                # second sleep (the breaker itself provides the cool-
+                # off, no need to waste another 15s in this call).
+                if attempt + 1 < 2:
+                    backoff = 15
+                    import sys as _sys
+                    print(
+                        f"[arxiv] 429 rate-limited on query={query[:50]!r}; backing off {backoff}s (attempt {attempt + 1}/2)",
+                        file=_sys.stderr,
+                    )
+                    time.sleep(backoff)
             except Exception as exc:
                 import sys as _sys
                 print(
@@ -337,10 +362,13 @@ class ArxivClient:
                 )
                 return []
 
-        # All retries exhausted with 429s.
+        # Both attempts hit 429 — trip the breaker for 60s so this
+        # workflow run doesn't keep wasting time on arXiv.
+        self._disabled_until = time.monotonic() + 60.0
         import sys as _sys
         print(
-            f"[arxiv] all retries exhausted on query={query[:50]!r}; returning empty",
+            f"[arxiv] 2 consecutive 429s on query={query[:50]!r}; "
+            f"disabling arXiv calls for 60s",
             file=_sys.stderr,
         )
         return []

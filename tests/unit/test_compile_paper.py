@@ -89,6 +89,39 @@ class TestEntryTex:
         assert cp._entry_tex(tmp_path, {}) is None
 
 
+class TestInstallPrecompiledBbl:
+    """When the source has a `.bbl` but no `.bib`, we must copy the
+    `.bbl` into pdf_dir, renamed to match the wrapper stem, so lualatex
+    can find it. Without this, natbib emits `[?]` for every citation
+    (PROJ-576 symptom: the SANA-WM Intro was full of `[? ? ? ?]`)."""
+
+    def test_copies_main_bbl_renamed_to_wrapper_stem(self, cp, tmp_path: Path) -> None:
+        src = tmp_path / "source"
+        pdf_dir = tmp_path / "pdf"
+        src.mkdir()
+        (src / "main.bbl").write_text(r"\bibitem{key}A. Author.", encoding="utf-8")
+        dst = cp._install_precompiled_bbl(src, pdf_dir, "main-llmxive")
+        assert dst is not None
+        assert dst.name == "main-llmxive.bbl"
+        assert dst.exists()
+        assert r"\bibitem{key}" in dst.read_text(encoding="utf-8")
+
+    def test_returns_none_when_no_bbl(self, cp, tmp_path: Path) -> None:
+        src = tmp_path / "source"
+        pdf_dir = tmp_path / "pdf"
+        src.mkdir()
+        assert cp._install_precompiled_bbl(src, pdf_dir, "main-llmxive") is None
+
+    def test_prefers_main_bbl_when_multiple_exist(self, cp, tmp_path: Path) -> None:
+        src = tmp_path / "source"
+        pdf_dir = tmp_path / "pdf"
+        src.mkdir()
+        (src / "other.bbl").write_text("other-bib", encoding="utf-8")
+        (src / "main.bbl").write_text("main-bib", encoding="utf-8")
+        dst = cp._install_precompiled_bbl(src, pdf_dir, "main-llmxive")
+        assert dst is not None and dst.read_text(encoding="utf-8") == "main-bib"
+
+
 class TestCleanPartialOutputs:
     def test_removes_stub_family(self, cp, tmp_path: Path) -> None:
         for suffix in (".pdf", ".log", ".aux", ".out", ".toc", ".bbl", ".blg"):
