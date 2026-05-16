@@ -355,6 +355,17 @@ _KNOWN_SHIMS: dict[str, str] = {
     # custom-defined and then rely on through the body.
     "equalcontribution":   r"\providecommand{\equalcontribution}{}",
     "corresponding":       r"\providecommand{\corresponding}{}",
+    # `\animategraphics[<opts>]{<fps>}{<basename>}{<first>}{<last>}` from
+    # the animate package — papers shipping click-to-play video figures
+    # (PROJ-567 AnyFlow teaser) embed this. We don't load animate (it's
+    # heavy and rarely needed for static PDFs), so render the FIRST
+    # frame as a static image instead. The trailing-`}` swallow keeps
+    # animate's optional [poster=...] arguments from confusing parsers.
+    "animategraphics":     r"\providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}",
+    # `\tablecite` — some authors define a table-only citation style
+    # (e.g. shorter or unsuperscripted). Render as a normal \cite so
+    # the bibliography reference still resolves.
+    "tablecite":           r"\providecommand{\tablecite}[1]{\cite{#1}}",
     "footnotemark":        r"",  # placeholder: do NOT shim — it's a real LaTeX builtin
 }
 # Remove the placeholder we use to comment a NOT-shim — keeping the dict
@@ -406,13 +417,19 @@ _SAFE_FORWARD_PACKAGES = {
     "enumitem",
     "pifont", "wasysym",
     "url",
-    "cite",
+    # `cite` removed — clashes with natbib that llmxive.cls auto-loads.
+    # See the NOTE block below for details (PROJ-567 AnyFlow failure).
     "ulem", "soul",
     "lipsum",
     "verbatim", "fancyvrb", "listings",
     "siunitx",
     "tikz", "pgfplots",
     "rotating",
+    # NOTE: `cite` is INTENTIONALLY excluded. The llmxive class auto-loads
+    # `natbib` at endinput (see papers/.style/llmxive.cls); `cite` clashes
+    # with natbib, causing the body's `\cite{...}` to runaway-parse as
+    # `\cite[NOTE]{...}`. Symptom: PROJ-567 (AnyFlow) compile-failed with
+    # "Paragraph ended before \@citex was complete" on every cite.
     "tcolorbox",
     "cleveref",
     "float",                   # \begin{figure}[H]
@@ -785,6 +802,13 @@ _WRAPPER_HEADER = r"""%% =======================================================
 """
 
 
+def _break_repeated_plus(s: str) -> str:
+    """Insert `{}` between every consecutive pair of `+` characters so
+    Fraunces's contextual layout doesn't fuse them into a double-plus
+    glyph. Idempotent and safe on strings that don't contain `++`."""
+    return re.sub(r"\+(?=\+)", "+{}", s)
+
+
 def build_wrapper(
     *,
     title: str | None,
@@ -826,7 +850,14 @@ def build_wrapper(
 
     parts.append("\n%% ── llmXive paper metadata ──────────────────────────────────")
     if title:
-        parts.append(rf"\title{{{title.strip()}}}")
+        # Break Fraunces contextual `++` substitution by inserting an
+        # empty brace group between consecutive plus characters. PROJ-580
+        # ("Causal Forcing++") rendered as a double-strikethrough glyph
+        # otherwise. The `+{}+` form is invisible to text extraction
+        # (pdftotext still yields "Causal Forcing++") but blocks the
+        # font's pair-substitution from firing.
+        safe_title = _break_repeated_plus(title.strip())
+        parts.append(rf"\title{{{safe_title}}}")
     if author:
         parts.append(rf"\author{{{author.strip()}}}")
     parts.append(rf"\paperid{{arXiv:{arxiv_id}}}")
