@@ -441,6 +441,26 @@ def _cmd_submissions_process(_args: argparse.Namespace) -> int:
             # Non-fatal: maybe insufficient perms to create labels but issues still listable.
             print(f"warn: could not ensure label {name!r}: {err.strip()}", file=sys.stderr)
 
+    # ── self-heal stale paper metadata (FR-021 robustness) ──
+    # When the arXiv API is rate-limited at intake time, the paper card
+    # gets the literal URL as its title and a null abstract. The next
+    # hourly tick re-fetches and patches the metadata + state YAML so
+    # the dashboard self-recovers without manual intervention.
+    try:
+        from llmxive.agents.submission_intake import heal_paper_metadata
+        heal_summary = heal_paper_metadata(repo)
+        if heal_summary["healed"]:
+            print(f"[submissions] healed {len(heal_summary['healed'])} stale paper "
+                  f"metadata entries:")
+            for h in heal_summary["healed"]:
+                print(f"  - {h['project']}: {h['old_title'][:60]} → {h['new_title'][:60]}")
+        if heal_summary["failed"]:
+            for f in heal_summary["failed"]:
+                print(f"[submissions] heal failed for {f['project']}: {f['reason']}",
+                      file=sys.stderr)
+    except Exception as exc:  # noqa: BLE001 — heal is best-effort
+        print(f"[submissions] heal pass failed (non-fatal): {exc!r}", file=sys.stderr)
+
     # ── list open human-submission issues (paginated) ──
     rc, out, err = _gh("api", "--paginate",
                        f"repos/{REPO}/issues?state=open&labels=human-submission&per_page=100")

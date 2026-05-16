@@ -393,6 +393,114 @@ def _arxiv_authors(url: str) -> tuple[list[str], str | None]:
     return authors, title
 
 
+# Pattern used to detect projects whose title is literally an arXiv URL
+# (the intake fallback when the arXiv API was rate-limited at submission
+# time — see line ~866's `title = fetched_title or title_seed`).
+_ARXIV_URL_TITLE_RE = re.compile(
+    r"^\s*https?://(?:www\.)?arxiv\.org/(?:abs|pdf|html)/[0-9]{4}\.[0-9]{4,6}\s*$",
+    re.IGNORECASE,
+)
+
+
+def heal_paper_metadata(repo_root: Path) -> dict[str, Any]:
+    """Heal paper-submission metadata that was incompletely populated at
+    intake time (typically because the arXiv API was rate-limited).
+
+    Two failure modes we fix:
+      1. `paper/metadata.json::title` is an arXiv URL string — the intake
+         fell back to the issue title (which the website auto-fills from
+         the URL when no human title was provided).
+      2. `paper/metadata.json::abstract` is null/missing while
+         `arxiv_id` is present — same root cause, the API call dropped.
+
+    For each affected project:
+      - Re-fetch arXiv metadata (title, authors, field, abstract).
+      - Update `paper/metadata.json` (preserve all other fields).
+      - Update `state/projects/<id>.yaml::title` (and `field` if empty).
+
+    Symptom seen in the wild (PROJ-578/579/580/581 on 2026-05-16): paper
+    cards showed `https://arxiv.org/abs/2605.14906` as the title and the
+    GitHub-issue boilerplate body as the description. After heal: real
+    paper title + the actual abstract.
+
+    Returns a summary dict for logging.
+    """
+    repo_root = Path(repo_root)
+    summary: dict[str, Any] = {"scanned": 0, "healed": [], "skipped": [], "failed": []}
+    projects_dir = repo_root / "projects"
+    if not projects_dir.is_dir():
+        return summary
+    for pdir in sorted(projects_dir.iterdir()):
+        if not pdir.is_dir() or not pdir.name.startswith("PROJ-"):
+            continue
+        meta_path = pdir / "paper" / "metadata.json"
+        if not meta_path.is_file():
+            continue
+        summary["scanned"] += 1
+        try:
+            meta = json.loads(meta_path.read_text(encoding="utf-8", errors="replace"))
+        except (json.JSONDecodeError, OSError) as exc:
+            summary["failed"].append({"project": pdir.name, "reason": f"unreadable: {exc}"})
+            continue
+        if not isinstance(meta, dict):
+            continue
+        arxiv_id = (meta.get("arxiv_id") or "").strip()
+        if not arxiv_id:
+            # Nothing to fetch against — can't heal.
+            continue
+        title = (meta.get("title") or "").strip()
+        abstract = (meta.get("abstract") or "").strip() if meta.get("abstract") else ""
+        title_is_url = bool(_ARXIV_URL_TITLE_RE.match(title))
+        needs_heal = title_is_url or not abstract or not meta.get("authors")
+        if not needs_heal:
+            continue
+        # Re-fetch from arXiv (this is the same call the intake makes;
+        # if arXiv is rate-limited again, this skip-then-retry-next-tick
+        # is exactly what we want).
+        url = meta.get("arxiv_url") or f"https://arxiv.org/abs/{arxiv_id}"
+        authors, fetched_title, fetched_field, fetched_abstract = _arxiv_metadata(url)
+        if not fetched_title and not fetched_abstract:
+            summary["skipped"].append({"project": pdir.name,
+                                       "reason": "arxiv fetch returned empty"})
+            continue
+        # Snapshot pre-update truths for the report — `meta` is mutated in place.
+        had_authors_before = bool(meta.get("authors"))
+        had_abstract_before = bool(abstract)
+        # Update metadata.json in place (preserve unrelated fields).
+        if fetched_title:
+            meta["title"] = fetched_title
+        if authors and not had_authors_before:
+            meta["authors"] = authors
+        if fetched_abstract and not had_abstract_before:
+            meta["abstract"] = fetched_abstract
+        meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
+        # Update state YAML title (and field if empty).
+        try:
+            project = project_store.load(pdir.name, repo_root=repo_root)
+            updates: dict[str, Any] = {}
+            if fetched_title and project.title != fetched_title:
+                updates["title"] = fetched_title[:200]
+            if (fetched_field and fetched_field in VALID_FIELDS
+                    and (project.field in (None, "", "other"))):
+                updates["field"] = fetched_field
+            if updates:
+                updates["updated_at"] = datetime.now(UTC)
+                project = project.model_copy(update=updates)
+                project_store.save(project, repo_root=repo_root)
+        except Exception as exc:  # noqa: BLE001 — defensive
+            summary["failed"].append({"project": pdir.name,
+                                       "reason": f"state update failed: {exc}"})
+            continue
+        summary["healed"].append({
+            "project": pdir.name,
+            "old_title": title,
+            "new_title": fetched_title or title,
+            "abstract_filled": bool(fetched_abstract and not had_abstract_before),
+            "authors_filled": bool(authors and not had_authors_before),
+        })
+    return summary
+
+
 # Sentinels that mean "no real submitter named" — fall back to the GitHub issue
 # author. Matches the legacy llmXive automation-system's text and our own form.
 _NO_SUBMITTER_SENTINELS = (

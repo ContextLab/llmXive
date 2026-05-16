@@ -901,11 +901,11 @@
   "aggregates": {
     "active_projects": 589,
     "ai_contributors": 7,
-    "human_contributors": 231,
+    "human_contributors": 291,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1574,
-    "total_contributors": 238
+    "total_contributions": 1636,
+    "total_contributors": 298
   },
   "contributors": [
     {
@@ -1021,6 +1021,22 @@
       "areas": [
         "computer science"
       ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Yangqiu Song"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Zhaowei Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Aaron Guan"
@@ -1099,6 +1115,22 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Baixuan Xu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Bangjie Xu"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -1112,6 +1144,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Bo Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Bokai Yan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Bowen Zhou"
     },
     {
       "areas": [
@@ -1167,7 +1215,31 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Chenxi Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Chenxu Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chi Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chongxuan Li"
     },
     {
       "areas": [
@@ -1327,6 +1399,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Futing Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Gabrielle Gauthier Melan\u00e7on"
     },
     {
@@ -1335,7 +1415,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Ganqu Cui"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Ga\u00ebl Varoquaux"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ginny Wong"
     },
     {
       "areas": [
@@ -1399,6 +1495,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Haodi Lei"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Haodong Duan"
     },
     {
@@ -1408,6 +1512,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Haonan Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Haoran Zhang"
     },
     {
       "areas": [
@@ -1424,6 +1536,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Haoyi Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Haoyue Feng"
     },
     {
       "areas": [
@@ -1479,6 +1599,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Hongzhou Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Huan Feng"
     },
     {
@@ -1512,6 +1640,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jiabao Pan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jiacheng Chen"
     },
     {
       "areas": [
@@ -1631,6 +1767,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Jinyang Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Joseph Marinier"
     },
     {
@@ -1648,6 +1792,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jun Gao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jun Xiao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jun Zhu"
     },
     {
       "areas": [
@@ -1680,6 +1840,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Kairus Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Kaiwen Zheng"
     },
     {
       "areas": [
@@ -1879,6 +2047,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Min Zhao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Mind Lab"
     },
     {
@@ -1943,6 +2119,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Ning Ding"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Ningyuan Tang"
     },
     {
@@ -1991,7 +2175,31 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Peng Ye"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Pony Ma"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qi Gu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qianjia Cheng"
     },
     {
       "areas": [
@@ -2095,6 +2303,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Runzhe Zhan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Shen Yan"
     },
     {
@@ -2139,6 +2355,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shunkai Zhang"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -2160,6 +2384,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Sijin Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Simon See"
     },
     {
       "areas": [
@@ -2259,6 +2491,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Tianshi Zheng"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -2272,6 +2512,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Tong He"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Tong Zhu"
     },
     {
       "areas": [
@@ -2335,6 +2583,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Weiming Lu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Weiping Wang"
     },
     {
@@ -2352,6 +2608,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Wenhu Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Wenjun Pan"
     },
     {
       "areas": [
@@ -2379,6 +2643,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiao Yang"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -2400,6 +2672,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xiaoxiao Xu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiaoye Qu"
     },
     {
       "areas": [
@@ -2439,7 +2719,31 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Xinlin Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xinmiao Han"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Xinyu Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xinyuan Li"
     },
     {
       "areas": [
@@ -2456,6 +2760,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xionghui Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiyu Ren"
     },
     {
       "areas": [
@@ -2491,6 +2803,22 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xunliang Cai"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xuyang Hu"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -2511,6 +2839,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yafu Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yan Shu"
     },
     {
@@ -2520,14 +2856,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yang Shi"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Yangqiu Song"
     },
     {
       "areas": [
@@ -2607,6 +2935,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yiming Du"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yixian Xu"
     },
     {
@@ -2631,7 +2967,39 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yizhuo Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yongliang Shen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yu Cheng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yu Gao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yu Qiao"
     },
     {
       "areas": [
@@ -2656,6 +3024,38 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yuchao Gu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuchen Fan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yucheng Su"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yueting Zhuang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yufeng Zhao"
     },
     {
       "areas": [
@@ -2696,6 +3096,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yumou Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yun Luo"
     },
     {
       "areas": [
@@ -2751,7 +3159,7 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Zekai Zhang"
+      "name": "Zejin Lin"
     },
     {
       "areas": [
@@ -2759,7 +3167,7 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Zhaowei Wang"
+      "name": "Zekai Zhang"
     },
     {
       "areas": [
@@ -2783,7 +3191,47 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Zhengnan Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhengxi Lu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Zhihui Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhilin Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhiyuan Yao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhongwei Xie"
     },
     {
       "areas": [
@@ -2792,6 +3240,38 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zhongyu Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhouchen Lin"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhuowen Han"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zi-Han Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zihan Zhou"
     },
     {
       "areas": [
@@ -2858,7 +3338,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-16T21:17:19.909307+00:00",
+  "generated_at": "2026-05-16T21:51:29.496625+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -3017,29 +3497,29 @@
       "description": "A one-paragraph idea seed \u2014 a research question and a hint of how it might be tackled. Generated by the brainstorm agent (or submitted by a human).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
-          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-581-https-arxiv-org-abs-2605-13301",
           "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-          "title": "https://arxiv.org/abs/2605.13301"
+          "title": "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-580-https-arxiv-org-abs-2605-15141",
           "project_id": "PROJ-580-https-arxiv-org-abs-2605-15141",
-          "title": "https://arxiv.org/abs/2605.15141"
+          "title": "Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation for Real-Time Interactive Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-579-https-arxiv-org-abs-2605-15155",
           "project_id": "PROJ-579-https-arxiv-org-abs-2605-15155",
-          "title": "https://arxiv.org/abs/2605.15155"
+          "title": "Self-Distilled Agentic Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906",
           "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-          "title": "https://arxiv.org/abs/2605.14906"
+          "title": "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         }
       ],
       "inputs": [
@@ -3061,29 +3541,29 @@
       "description": "The raw seed is expanded into a structured idea grounded in primary literature: motivation, prior work, the precise question, a sketch of an approach, and what success would look like. A research-question validator then audits it for phenomenon-vs-method confusion, circularity, and triviality.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
-          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-581-https-arxiv-org-abs-2605-13301",
           "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-          "title": "https://arxiv.org/abs/2605.13301"
+          "title": "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-580-https-arxiv-org-abs-2605-15141",
           "project_id": "PROJ-580-https-arxiv-org-abs-2605-15141",
-          "title": "https://arxiv.org/abs/2605.15141"
+          "title": "Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation for Real-Time Interactive Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-579-https-arxiv-org-abs-2605-15155",
           "project_id": "PROJ-579-https-arxiv-org-abs-2605-15155",
-          "title": "https://arxiv.org/abs/2605.15155"
+          "title": "Self-Distilled Agentic Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906",
           "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-          "title": "https://arxiv.org/abs/2605.14906"
+          "title": "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         }
       ],
       "inputs": [
@@ -3105,29 +3585,29 @@
       "description": "The project gets its own Spec Kit scaffold and a `spec.md` \u2014 user stories, functional requirements, success criteria \u2014 written by the specifier agent (the agentic equivalent of `/speckit-specify`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
-          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-581-https-arxiv-org-abs-2605-13301",
           "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-          "title": "https://arxiv.org/abs/2605.13301"
+          "title": "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-580-https-arxiv-org-abs-2605-15141",
           "project_id": "PROJ-580-https-arxiv-org-abs-2605-15141",
-          "title": "https://arxiv.org/abs/2605.15141"
+          "title": "Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation for Real-Time Interactive Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-579-https-arxiv-org-abs-2605-15155",
           "project_id": "PROJ-579-https-arxiv-org-abs-2605-15155",
-          "title": "https://arxiv.org/abs/2605.15155"
+          "title": "Self-Distilled Agentic Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906",
           "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-          "title": "https://arxiv.org/abs/2605.14906"
+          "title": "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         }
       ],
       "inputs": [
@@ -3149,29 +3629,29 @@
       "description": "Open questions and ambiguities in the spec are surfaced and resolved (the agentic `/speckit-clarify`). Each clarification is recorded back into `spec.md`.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
-          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-581-https-arxiv-org-abs-2605-13301",
           "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-          "title": "https://arxiv.org/abs/2605.13301"
+          "title": "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-580-https-arxiv-org-abs-2605-15141",
           "project_id": "PROJ-580-https-arxiv-org-abs-2605-15141",
-          "title": "https://arxiv.org/abs/2605.15141"
+          "title": "Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation for Real-Time Interactive Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-579-https-arxiv-org-abs-2605-15155",
           "project_id": "PROJ-579-https-arxiv-org-abs-2605-15155",
-          "title": "https://arxiv.org/abs/2605.15155"
+          "title": "Self-Distilled Agentic Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906",
           "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-          "title": "https://arxiv.org/abs/2605.14906"
+          "title": "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         }
       ],
       "inputs": [
@@ -3192,29 +3672,29 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
-          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-581-https-arxiv-org-abs-2605-13301",
           "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-          "title": "https://arxiv.org/abs/2605.13301"
+          "title": "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-580-https-arxiv-org-abs-2605-15141",
           "project_id": "PROJ-580-https-arxiv-org-abs-2605-15141",
-          "title": "https://arxiv.org/abs/2605.15141"
+          "title": "Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation for Real-Time Interactive Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-579-https-arxiv-org-abs-2605-15155",
           "project_id": "PROJ-579-https-arxiv-org-abs-2605-15155",
-          "title": "https://arxiv.org/abs/2605.15155"
+          "title": "Self-Distilled Agentic Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906",
           "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-          "title": "https://arxiv.org/abs/2605.14906"
+          "title": "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         }
       ],
       "inputs": [
@@ -3235,29 +3715,29 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
-          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-581-https-arxiv-org-abs-2605-13301",
           "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-          "title": "https://arxiv.org/abs/2605.13301"
+          "title": "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-580-https-arxiv-org-abs-2605-15141",
           "project_id": "PROJ-580-https-arxiv-org-abs-2605-15141",
-          "title": "https://arxiv.org/abs/2605.15141"
+          "title": "Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation for Real-Time Interactive Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-579-https-arxiv-org-abs-2605-15155",
           "project_id": "PROJ-579-https-arxiv-org-abs-2605-15155",
-          "title": "https://arxiv.org/abs/2605.15155"
+          "title": "Self-Distilled Agentic Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906",
           "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-          "title": "https://arxiv.org/abs/2605.14906"
+          "title": "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         }
       ],
       "inputs": [
@@ -3281,29 +3761,29 @@
       "description": "The implementer agent executes the task list \u2014 writing code, running real tests, collecting data \u2014 ticking tasks off until the plan is complete. The librarian agent verifies citations along the way.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
-          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-581-https-arxiv-org-abs-2605-13301",
           "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-          "title": "https://arxiv.org/abs/2605.13301"
+          "title": "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-580-https-arxiv-org-abs-2605-15141",
           "project_id": "PROJ-580-https-arxiv-org-abs-2605-15141",
-          "title": "https://arxiv.org/abs/2605.15141"
+          "title": "Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation for Real-Time Interactive Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-579-https-arxiv-org-abs-2605-15155",
           "project_id": "PROJ-579-https-arxiv-org-abs-2605-15155",
-          "title": "https://arxiv.org/abs/2605.15155"
+          "title": "Self-Distilled Agentic Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906",
           "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-          "title": "https://arxiv.org/abs/2605.14906"
+          "title": "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         }
       ],
       "inputs": [
@@ -3333,29 +3813,29 @@
       "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist. Human reviews count double.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
-          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-581-https-arxiv-org-abs-2605-13301",
           "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-          "title": "https://arxiv.org/abs/2605.13301"
+          "title": "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-580-https-arxiv-org-abs-2605-15141",
           "project_id": "PROJ-580-https-arxiv-org-abs-2605-15141",
-          "title": "https://arxiv.org/abs/2605.15141"
+          "title": "Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation for Real-Time Interactive Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-579-https-arxiv-org-abs-2605-15155",
           "project_id": "PROJ-579-https-arxiv-org-abs-2605-15155",
-          "title": "https://arxiv.org/abs/2605.15155"
+          "title": "Self-Distilled Agentic Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906",
           "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-          "title": "https://arxiv.org/abs/2605.14906"
+          "title": "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         }
       ],
       "inputs": [
@@ -3377,29 +3857,29 @@
       "description": "A research-accepted project gets a second Spec Kit scaffold \u2014 for the paper that reports the work.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
-          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-581-https-arxiv-org-abs-2605-13301",
           "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-          "title": "https://arxiv.org/abs/2605.13301"
+          "title": "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-580-https-arxiv-org-abs-2605-15141",
           "project_id": "PROJ-580-https-arxiv-org-abs-2605-15141",
-          "title": "https://arxiv.org/abs/2605.15141"
+          "title": "Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation for Real-Time Interactive Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-579-https-arxiv-org-abs-2605-15155",
           "project_id": "PROJ-579-https-arxiv-org-abs-2605-15155",
-          "title": "https://arxiv.org/abs/2605.15155"
+          "title": "Self-Distilled Agentic Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906",
           "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-          "title": "https://arxiv.org/abs/2605.14906"
+          "title": "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         }
       ],
       "inputs": [
@@ -3420,29 +3900,29 @@
       "description": "The paper's specification: which sections, which figures, which claims, what evidence each rests on.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
-          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-581-https-arxiv-org-abs-2605-13301",
           "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-          "title": "https://arxiv.org/abs/2605.13301"
+          "title": "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-580-https-arxiv-org-abs-2605-15141",
           "project_id": "PROJ-580-https-arxiv-org-abs-2605-15141",
-          "title": "https://arxiv.org/abs/2605.15141"
+          "title": "Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation for Real-Time Interactive Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-579-https-arxiv-org-abs-2605-15155",
           "project_id": "PROJ-579-https-arxiv-org-abs-2605-15155",
-          "title": "https://arxiv.org/abs/2605.15155"
+          "title": "Self-Distilled Agentic Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906",
           "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-          "title": "https://arxiv.org/abs/2605.14906"
+          "title": "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         }
       ],
       "inputs": [
@@ -3464,29 +3944,29 @@
       "description": "The paper plan and contracts (clarify + plan for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
-          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-581-https-arxiv-org-abs-2605-13301",
           "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-          "title": "https://arxiv.org/abs/2605.13301"
+          "title": "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-580-https-arxiv-org-abs-2605-15141",
           "project_id": "PROJ-580-https-arxiv-org-abs-2605-15141",
-          "title": "https://arxiv.org/abs/2605.15141"
+          "title": "Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation for Real-Time Interactive Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-579-https-arxiv-org-abs-2605-15155",
           "project_id": "PROJ-579-https-arxiv-org-abs-2605-15155",
-          "title": "https://arxiv.org/abs/2605.15155"
+          "title": "Self-Distilled Agentic Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906",
           "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-          "title": "https://arxiv.org/abs/2605.14906"
+          "title": "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         }
       ],
       "inputs": [
@@ -3507,29 +3987,29 @@
       "description": "Writing, figure-generation, and statistics sub-tasks (tasks + analyze for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
-          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-581-https-arxiv-org-abs-2605-13301",
           "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-          "title": "https://arxiv.org/abs/2605.13301"
+          "title": "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-580-https-arxiv-org-abs-2605-15141",
           "project_id": "PROJ-580-https-arxiv-org-abs-2605-15141",
-          "title": "https://arxiv.org/abs/2605.15141"
+          "title": "Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation for Real-Time Interactive Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-579-https-arxiv-org-abs-2605-15155",
           "project_id": "PROJ-579-https-arxiv-org-abs-2605-15155",
-          "title": "https://arxiv.org/abs/2605.15155"
+          "title": "Self-Distilled Agentic Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906",
           "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-          "title": "https://arxiv.org/abs/2605.14906"
+          "title": "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         }
       ],
       "inputs": [
@@ -3558,29 +4038,29 @@
       "description": "The paper-writing, figure-generation, and statistics agents draft the LaTeX, generate figures from the data, and run the analyses; LaTeX is built and citations are verified.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
-          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-581-https-arxiv-org-abs-2605-13301",
           "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-          "title": "https://arxiv.org/abs/2605.13301"
+          "title": "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-580-https-arxiv-org-abs-2605-15141",
           "project_id": "PROJ-580-https-arxiv-org-abs-2605-15141",
-          "title": "https://arxiv.org/abs/2605.15141"
+          "title": "Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation for Real-Time Interactive Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-579-https-arxiv-org-abs-2605-15155",
           "project_id": "PROJ-579-https-arxiv-org-abs-2605-15155",
-          "title": "https://arxiv.org/abs/2605.15155"
+          "title": "Self-Distilled Agentic Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906",
           "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-          "title": "https://arxiv.org/abs/2605.14906"
+          "title": "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         }
       ],
       "inputs": [
@@ -3604,29 +4084,29 @@
       "description": "The draft compiles cleanly, all citations are verified, and the proofreader is satisfied \u2014 ready for paper review.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
-          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-581-https-arxiv-org-abs-2605-13301",
           "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-          "title": "https://arxiv.org/abs/2605.13301"
+          "title": "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-580-https-arxiv-org-abs-2605-15141",
           "project_id": "PROJ-580-https-arxiv-org-abs-2605-15141",
-          "title": "https://arxiv.org/abs/2605.15141"
+          "title": "Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation for Real-Time Interactive Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-579-https-arxiv-org-abs-2605-15155",
           "project_id": "PROJ-579-https-arxiv-org-abs-2605-15155",
-          "title": "https://arxiv.org/abs/2605.15155"
+          "title": "Self-Distilled Agentic Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906",
           "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-          "title": "https://arxiv.org/abs/2605.14906"
+          "title": "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         }
       ],
       "inputs": [
@@ -3659,29 +4139,29 @@
       "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
-          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-581-https-arxiv-org-abs-2605-13301",
           "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-          "title": "https://arxiv.org/abs/2605.13301"
+          "title": "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-580-https-arxiv-org-abs-2605-15141",
           "project_id": "PROJ-580-https-arxiv-org-abs-2605-15141",
-          "title": "https://arxiv.org/abs/2605.15141"
+          "title": "Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation for Real-Time Interactive Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-579-https-arxiv-org-abs-2605-15155",
           "project_id": "PROJ-579-https-arxiv-org-abs-2605-15155",
-          "title": "https://arxiv.org/abs/2605.15155"
+          "title": "Self-Distilled Agentic Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906",
           "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-          "title": "https://arxiv.org/abs/2605.14906"
+          "title": "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ",
+          "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+          "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings"
         }
       ],
       "inputs": [
@@ -50800,7 +51280,120 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiyu Ren",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhaowei Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yiming Du",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhongwei Xie",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chi Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xinlin Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haoyue Feng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wenjun Pan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tianshi Zheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Baixuan Xu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhengnan Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yangqiu Song",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ginny Wong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Simon See",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -50815,8 +51408,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.14906 Submitted by: github-actions[bot] (Intake from human-submission issue #181.)",
-      "field": "other",
+      "description": "Memory is essential for large vision-language models (LVLMs) to handle long, multimodal interactions, with two method directions providing this capability: long-context LVLMs and memory-augmented agents. However, no existing benchmark conducts a systematic comparison of the two on questions that genuinely require\u2026",
+      "field": "computer science",
       "id": "PROJ-578-https-arxiv-org-abs-2605-14906",
       "keywords": [],
       "last_run_log": [],
@@ -50826,8 +51419,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.14906",
-      "updated_at": "2026-05-16T08:36:35.947112+00:00"
+      "title": "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models",
+      "updated_at": "2026-05-16T21:50:32.878116+00:00"
     },
     {
       "artifact_links": {
@@ -50849,7 +51442,96 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhengxi Lu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhiyuan Yao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhuowen Han",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zi-Han Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jinyang Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qi Gu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xunliang Cai",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Weiming Lu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jun Xiao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yueting Zhuang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yongliang Shen",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -50864,8 +51546,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.15155 Submitted by: github-actions[bot] (Intake from human-submission issue #180.)",
-      "field": "other",
+      "description": "Reinforcement learning (RL) has emerged as a central paradigm for post-training LLM agents, yet its trajectory-level reward signal provides only coarse supervision for long-horizon interaction. On-Policy Self-Distillation (OPSD) complements RL by introducing dense token-level guidance from a teacher branch augmented\u2026",
+      "field": "computer science",
       "id": "PROJ-579-https-arxiv-org-abs-2605-15155",
       "keywords": [],
       "last_run_log": [],
@@ -50875,8 +51557,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.15155",
-      "updated_at": "2026-05-16T08:36:38.202728+00:00"
+      "title": "Self-Distilled Agentic Reinforcement Learning",
+      "updated_at": "2026-05-16T21:50:33.224121+00:00"
     },
     {
       "artifact_links": {
@@ -50898,7 +51580,80 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Min Zhao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hongzhou Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kaiwen Zheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zihan Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bokai Yan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xinyuan Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiao Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chongxuan Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jun Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -50913,8 +51668,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.15141 Submitted by: github-actions[bot] (Intake from human-submission issue #179.)",
-      "field": "other",
+      "description": "Real-time interactive video generation requires low-latency, streaming, and controllable rollout. Existing autoregressive (AR) diffusion distillation methods have achieved strong results in the chunk-wise 4-step regime by distilling bidirectional base models into few-step AR students, but they remain limited by coarse\u2026",
+      "field": "computer science",
       "id": "PROJ-580-https-arxiv-org-abs-2605-15141",
       "keywords": [],
       "last_run_log": [],
@@ -50924,8 +51679,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.15141",
-      "updated_at": "2026-05-16T08:36:55.285578+00:00"
+      "title": "Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation for Real-Time Interactive Video Generation",
+      "updated_at": "2026-05-16T21:50:33.482959+00:00"
     },
     {
       "artifact_links": {
@@ -50947,7 +51702,232 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yafu Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Runzhe Zhan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haoran Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shunkai Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yizhuo Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhilin Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiacheng Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Futing Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xuyang Hu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuchen Fan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bangjie Xu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yucheng Su",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xinmiao Han",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chenxi Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haodi Lei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yufeng Zhao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zejin Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qianjia Cheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tong Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiaoye Qu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ganqu Cui",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Peng Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yun Luo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhouchen Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yu Qiao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bowen Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ning Ding",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yu Cheng",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -50962,8 +51942,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.13301 Submitted by: github-actions[bot] (Intake from human-submission issue #178.)",
-      "field": "other",
+      "description": "Recent progress in reasoning models has substantially advanced long-horizon mathematical and scientific problem solving, with several systems now reaching gold-medal-level performance on International Mathematical Olympiad (IMO) and International Physics Olympiad (IPhO) problems. In this paper, we introduce a simple\u2026",
+      "field": "computer science",
       "id": "PROJ-581-https-arxiv-org-abs-2605-13301",
       "keywords": [],
       "last_run_log": [],
@@ -50973,8 +51953,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.13301",
-      "updated_at": "2026-05-16T08:36:57.236804+00:00"
+      "title": "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling",
+      "updated_at": "2026-05-16T21:50:33.802916+00:00"
     }
   ],
   "recent_activity": [
