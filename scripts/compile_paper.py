@@ -119,11 +119,29 @@ def _entry_tex(project: Path, metadata: dict[str, Any]) -> str | None:
 
 
 def _restyle_if_needed(project: Path, metadata: dict[str, Any], entry: str) -> Path | None:
-    """Run restyle_arxiv_paper.py to produce main-llmxive.tex if missing."""
+    """Run restyle_arxiv_paper.py to produce main-llmxive.tex if missing
+    OR stale.
+
+    Staleness rule: if the wrapper exists but the extract script
+    (`scripts/extract_paper_content.py`) is newer, regenerate. This
+    protects against the silent regression that bit PROJ-571: a fix to
+    the wrapper-generator landed but old wrappers kept compiling with
+    the unfixed bug intact (we patched `\\@onedot` handling, but the
+    pre-existing `\\providecommand{...}` line in the wrapper was still
+    leaking 'nedot.' above the title).
+    """
     src = project / "paper" / "source"
     wrapper = src / "main-llmxive.tex"
     if wrapper.is_file():
-        return wrapper
+        try:
+            wrapper_mtime = wrapper.stat().st_mtime
+            script_mtime = RESTYLE_SCRIPT.stat().st_mtime
+            if wrapper_mtime >= script_mtime:
+                return wrapper
+            print(f"[compile] wrapper stale (script newer) — regenerating "
+                  f"{wrapper.relative_to(REPO)}", file=sys.stderr)
+        except OSError:
+            return wrapper  # mtime read failed → just reuse
     arxiv_id = (metadata.get("arxiv_id") or "").strip()
     if not arxiv_id:
         # Synthesize one from the project id so the metadata block isn't empty
