@@ -23,7 +23,6 @@
 \usepackage{amsfonts}
 \usepackage{bm}
 \usepackage{enumitem}
-\usepackage{cite}
 \usepackage[ruled]{algorithm2e}
 \usepackage{cleveref}
 \usepackage[most]{tcolorbox}
@@ -40,6 +39,7 @@
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
 \providecommand{\aistatsfinalcopy}{}
+\providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
@@ -58,6 +58,7 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\tablecite}[1]{\cite{#1}}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -65,6 +66,7 @@
 \makeatother
 
 %% ── User-defined macros forwarded from original preamble ─────
+\makeatletter
 \providecommand{\red}[1]{{#1}}
 \providecommand{\pic}[1]{\textbf{[PIC: #1]}}
 \providecommand{\han}[1]{[Han: #1]}
@@ -110,7 +112,6 @@
 \providecommand{\mycomment}[1]{\# #1}
 \providecommand{\func}[1]{\texttt{#1}}
 \providecommand{\arraystretch}{1.55}
-\providecommand{\tablecite}[1]{[\citenum{#1}]}
 \providecommand{\modelname}{AnyFlow\xspace}
 \definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
 \definecolor{iccvblue}{rgb}{0.21,0.49,0.74}
@@ -120,6 +121,7 @@
 \definecolor{commentcolor}{RGB}{84, 137, 137}
 \definecolor{funccolor}{RGB}{201, 62, 116}
 \definecolor{nvidiagreen}{HTML}{3D6631}
+\makeatother
 
 %% ── llmXive paper metadata ──────────────────────────────────
 \title{AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation}

@@ -293,6 +293,16 @@ class TestBuildWrapperMakeAtLetterGuard:
         other_idx = block.index(r"\makeatother")
         assert at_idx < note_idx < other_idx
 
+    def test_title_double_plus_broken_with_empty_group(self, ex) -> None:
+        # PROJ-580 (Causal Forcing++) rendered "Causal Forcing—," in the
+        # display font because Fraunces fuses `+ +` via contextual
+        # alternates. Inserting `{}` between consecutive `+` characters
+        # blocks the fusion. Text extraction (pdftotext) is unaffected.
+        assert ex._break_repeated_plus("Causal Forcing++") == "Causal Forcing+{}+"
+        assert ex._break_repeated_plus("C+++") == "C+{}+{}+"
+        assert ex._break_repeated_plus("No plus") == "No plus"
+        assert ex._break_repeated_plus("a+b") == "a+b"  # single + unaffected
+
     def test_no_forwarded_block_when_empty(self, ex) -> None:
         # No macros → don't emit an empty makeatletter pair (purely
         # cosmetic, but verifies we don't accidentally always wrap).

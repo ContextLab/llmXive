@@ -150,8 +150,15 @@
     % `\itshape` of the display family falls back to a slanted upright (no
     % real italic shape is declared) and the ligature substitution applies
     % to that slanted upright too.
+    %
+    % `-calt` (contextual alternates) and `-rclt` (required contextual
+    % alternates) disable Fraunces's `++` → fancy-double-plus glyph
+    % substitution (and similar `+ +` / `_ _` substitutions). PROJ-580
+    % (Causal Forcing++) had its title rendered with a connected
+    % strikethrough glyph instead of two plain `+` characters because of
+    % this substitution.
     \newfontfamily\llmxdisplay{Fraunces}[
-      RawFeature = {+axis={wght=400,opsz=144};-liga;-clig;-dlig;-rlig},
+      RawFeature = {+axis={wght=400,opsz=144};-liga;-clig;-dlig;-rlig;-calt;-rclt},
       Ligatures = {NoCommon,NoRequired},
       Numbers=Lining]%
   }{\newcommand{\llmxdisplay}{}}
