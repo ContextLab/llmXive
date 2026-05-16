@@ -2858,7 +2858,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-16T08:37:01.031605+00:00",
+  "generated_at": "2026-05-16T09:04:10.145149+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -50288,7 +50288,88 @@
       "field": "computer science",
       "id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
       "keywords": [],
-      "last_run_log": [],
+      "last_run_log": [
+        {
+          "agent": "paper_reviewer_jargon_police",
+          "duration_s": 0.000181,
+          "ended_at": "2026-05-16T09:04:07.455678Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T09:04:07.455497Z"
+        },
+        {
+          "agent": "paper_reviewer_figure_critic",
+          "duration_s": 0.000183,
+          "ended_at": "2026-05-16T09:04:07.411121Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T09:04:07.410938Z"
+        },
+        {
+          "agent": "paper_reviewer_text_formatting",
+          "duration_s": 0.000183,
+          "ended_at": "2026-05-16T09:04:07.366542Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T09:04:07.366359Z"
+        },
+        {
+          "agent": "paper_reviewer_data_quality_paper",
+          "duration_s": 0.00018,
+          "ended_at": "2026-05-16T09:04:07.322066Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T09:04:07.321886Z"
+        },
+        {
+          "agent": "paper_reviewer_code_quality_paper",
+          "duration_s": 0.000185,
+          "ended_at": "2026-05-16T09:04:07.277862Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T09:04:07.277677Z"
+        },
+        {
+          "agent": "paper_reviewer_statistical_analysis",
+          "duration_s": 0.000215,
+          "ended_at": "2026-05-16T09:04:07.233388Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T09:04:07.233173Z"
+        },
+        {
+          "agent": "paper_reviewer_scientific_evidence",
+          "duration_s": 0.000185,
+          "ended_at": "2026-05-16T09:04:07.188957Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T09:04:07.188772Z"
+        },
+        {
+          "agent": "paper_reviewer_safety_ethics",
+          "duration_s": 0.000216,
+          "ended_at": "2026-05-16T09:04:07.144461Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T09:04:07.144245Z"
+        },
+        {
+          "agent": "paper_reviewer_overreach",
+          "duration_s": 0.000185,
+          "ended_at": "2026-05-16T09:04:07.099967Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T09:04:07.099782Z"
+        },
+        {
+          "agent": "paper_reviewer_claim_accuracy",
+          "duration_s": 0.000187,
+          "ended_at": "2026-05-16T09:04:07.055240Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T09:04:07.055053Z"
+        }
+      ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
@@ -50634,6 +50715,136 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 0.000181,
+      "ended_at": "2026-05-16T09:04:07.455678Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T09:04:07.455497Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 0.000183,
+      "ended_at": "2026-05-16T09:04:07.411121Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T09:04:07.410938Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 0.000183,
+      "ended_at": "2026-05-16T09:04:07.366542Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T09:04:07.366359Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 0.00018,
+      "ended_at": "2026-05-16T09:04:07.322066Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T09:04:07.321886Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 0.000185,
+      "ended_at": "2026-05-16T09:04:07.277862Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T09:04:07.277677Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 0.000215,
+      "ended_at": "2026-05-16T09:04:07.233388Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T09:04:07.233173Z"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 0.000185,
+      "ended_at": "2026-05-16T09:04:07.188957Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T09:04:07.188772Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 0.000216,
+      "ended_at": "2026-05-16T09:04:07.144461Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T09:04:07.144245Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 0.000185,
+      "ended_at": "2026-05-16T09:04:07.099967Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T09:04:07.099782Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 0.000187,
+      "ended_at": "2026-05-16T09:04:07.055240Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T09:04:07.055053Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 0.000187,
+      "ended_at": "2026-05-16T09:04:07.010860Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T09:04:07.010673Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 0.000197,
+      "ended_at": "2026-05-16T09:04:06.965710Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T09:04:06.965513Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 0.000361,
+      "ended_at": "2026-05-16T09:04:06.907386Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T09:04:06.907025Z"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -55898,136 +56109,6 @@
       "project_id": "PROJ-490-the-effect-of-simulated-social-compariso",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-09T12:31:02.305354Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 40.474941,
-      "ended_at": "2026-05-09T11:28:08.930379Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T11:27:28.455438Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 94.786218,
-      "ended_at": "2026-05-09T11:27:27.692567Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-488-evaluating-the-impact-of-code-generation",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T11:25:52.906349Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 85.823538,
-      "ended_at": "2026-05-09T11:25:52.097292Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-487-the-impact-of-social-media-doomscrolling",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T11:24:26.273754Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 34.343571,
-      "ended_at": "2026-05-09T10:31:09.063590Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-486-investigating-the-impact-of-network-topo",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T10:30:34.720019Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 77.898055,
-      "ended_at": "2026-05-09T10:30:34.051464Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-485-predicting-alloy-phase-diagrams-from-com",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T10:29:16.153409Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 28.849456,
-      "ended_at": "2026-05-09T09:40:59.769177Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-484-the-impact-of-visual-attention-on-recall",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T09:40:30.919721Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 37.567218,
-      "ended_at": "2026-05-09T09:40:30.278000Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-483-evaluating-the-robustness-of-common-stat",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T09:39:52.710782Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 36.586891,
-      "ended_at": "2026-05-09T09:39:51.981601Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-482-assessing-the-sensitivity-of-common-stat",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T09:39:15.394710Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 7.681871,
-      "ended_at": "2026-05-09T09:02:18.827202Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T09:02:11.145331Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 7.054369,
-      "ended_at": "2026-05-09T09:02:10.457731Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T09:02:03.403362Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 13.327511,
-      "ended_at": "2026-05-09T09:02:02.723209Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T09:01:49.395698Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 42.181752,
-      "ended_at": "2026-05-09T09:01:48.714268Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T09:01:06.532516Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 54.258717,
-      "ended_at": "2026-05-09T09:01:05.848735Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T09:00:11.590018Z"
     }
   ],
   "schema_version": "2.0.0"
