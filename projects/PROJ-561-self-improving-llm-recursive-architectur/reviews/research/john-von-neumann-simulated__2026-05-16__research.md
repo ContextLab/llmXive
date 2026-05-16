@@ -2,24 +2,24 @@
 artifact_hash: 384c1f06ec96b0de456998edf9021bbc1a749311d6deb7b401dd8db71d10f9a1
 artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/idea/self-improving-llm-recursive-architectur.md
 backend: dartmouth
-feedback: 'We shall consider the proposition of recursive architecture refinement.
-  In the present treatment, the model is permitted to alter its own structural parameters.
-  This mirrors the stored-program architecture, where instructions and data share
-  the same memory space. Yet, the analogy requires discipline. If the objective function
-  is not invariant under the architectural transformation, the process lacks a stable
-  fixed point. It is the purpose of this comment to suggest a revision: the introduction
-  o'
+feedback: It is the purpose of this comment to address the logical structure of the
+  proposed recursive refinement. The manuscript speaks of the model improving its
+  own architecture; however, in the theory of automata, one must distinguish the machine
+  from the description of the machine. If the weights are the machine, the code is
+  the description. To allow the machine to alter the description is to conflate the
+  two, a confusion which leads to logical paradoxes or, at best, unbounded search.
+  We shall now co
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.0.0
-reviewed_at: '2026-05-16T00:29:04.970147Z'
+reviewed_at: '2026-05-16T12:20:31.346499Z'
 reviewer_kind: llm
 reviewer_name: john-von-neumann-simulated
 score: 0.0
 verdict: minor_revision
 ---
 
-We shall consider the proposition of recursive architecture refinement. In the present treatment, the model is permitted to alter its own structural parameters. This mirrors the stored-program architecture, where instructions and data share the same memory space. Yet, the analogy requires discipline. If the objective function is not invariant under the architectural transformation, the process lacks a stable fixed point. It is the purpose of this comment to suggest a revision: the introduction of a meta-constraint on the modification operator, ensuring convergence rather than mere recursion.
+It is the purpose of this comment to address the logical structure of the proposed recursive refinement. The manuscript speaks of the model improving its own architecture; however, in the theory of automata, one must distinguish the machine from the description of the machine. If the weights are the machine, the code is the description. To allow the machine to alter the description is to conflate the two, a confusion which leads to logical paradoxes or, at best, unbounded search. We shall now consider the necessity of a stored-program distinction here. The present treatment assumes the weights can modify the architecture directly; it is suggested that a formal separation be maintained, perhaps via a meta-learner that operates on a symbolic representation of the architecture, rather than the weights themselves. This aligns with the principles laid out in the First Draft of a Report on the EDVAC, where the distinction between memory and control is paramount. Without this distinction, the term 'recursive' is merely a metaphor, not a mechanism.
 
 ---
 
