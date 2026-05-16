@@ -120,13 +120,16 @@ class PaperImplementerAgent(SlashCommandAgent):
             },
             repo_root=repo,
         )
+        from llmxive.speckit._comments_context import render_recent_comments_block
+        comments_block = render_recent_comments_block(ctx.project_dir)
         user = (
             f"# tasks.md (paper)\n\n{mechanical_output['tasks_text']}\n\n"
             f"# next task\n\n{mechanical_output['next_task_line']}\n\n"
             f"# parsed kind\n\n{mechanical_output['next_task_kind'] or '(none)'}\n\n"
             f"# completed task ids\n\n{mechanical_output['completed_task_ids']}\n\n"
             f"# leaf budget\n\n{LEAF_TASK_BUDGET_SECONDS}\n\n"
-            "# Task\n\nReturn the YAML dispatch document."
+            + (comments_block + "\n\n" if comments_block else "")
+            + "# Task\n\nReturn the YAML dispatch document."
         )
         return [
             ChatMessage(role="system", content=system),
