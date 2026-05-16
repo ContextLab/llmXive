@@ -1,0 +1,498 @@
+\begin{mdframed}[style=mdpurplebox,frametitle={USAMO 2026 Problem 3}]
+Let $ABC$ be an acute scalene triangle with no angle equal to $60^\circ$. Let $\omega$ be the circumcircle of $ABC$. Let $\Delta_B$ be the equilateral triangle with three vertices on $\omega$, one of which is $B$. Let $\ell_B$ be the line through the two vertices of $\Delta_B$ other than $B$. Let $\Delta_C$ and $\ell_C$ be defined analogously. Let $Y$ be the intersection of $AC$ and $\ell_B$, and let $Z$ be the intersection of $AB$ and $\ell_C$.
+
+Let $N$ be the midpoint of minor arc $BC$ on $\omega$. Let $\mathcal{R}$ be the triangle formed by $\ell_B$, $\ell_C$, and the tangent to $\omega$ through $N$. Prove that the circumcircle of $AYZ$ and the incircle of $\mathcal{R}$ are tangent.
+\end{mdframed}
+\solutionheading{Solution}
+\begin{remark*}
+  7/7.
+\end{remark*}
+We are given an acute scalene triangle \(ABC\) with no angle equal to \(60^\circ\). Its circumcircle is \(\omega\). For vertex \(B\) we construct the equilateral triangle \(\Delta_B\) inscribed in \(\omega\) (one vertex is \(B\)); let \(\ell_B\) be the line through the two other vertices. Similarly, \(\Delta_C\) and \(\ell_C\). Define\par
+\[
+Y = AC \cap \ell_B,\qquad Z = AB \cap \ell_C.
+\]
+Let \(N\) be the midpoint of the minor arc \(BC\) (the arc not containing \(A\)). Let \(\mathcal{R}\) be the triangle bounded by \(\ell_B\), \(\ell_C\) and the tangent to \(\omega\) at \(N\). We must prove that the circumcircle of \(\triangle AYZ\) and the incircle of \(\triangle\mathcal{R}\) are tangent.\par
+\smallskip
+\solutionheading{1. Complex numbers on the unit circle}
+Place the circumcircle \(\omega\) as the unit circle in the complex plane. Denote the points by\par
+\[
+A = a,\quad B = b,\quad C = c,\qquad |a|=|b|=|c|=1.
+\]
+The triangle is acute, scalene and none of its angles is \(60^\circ\).\par
+\textbf{Lemma 1 (Line through two points on the unit circle).} For distinct \(u,v\) on the unit circle, the line \(uv\) is given by\par
+\[
+z + uv\,\bar{z} = u+v.
+\]
+\emph{Proof.} A point \(z\) is collinear with \(u\) and \(v\) iff \(\frac{z-u}{v-u}\) is real. Taking conjugates and using \(\bar u = 1/u\), \(\bar v = 1/v\) gives the stated equation. \(\square\)\par
+\smallskip
+\solutionheading{2. Equations of the relevant lines}
+Let \(\zeta = e^{2\pi i/3}\). The equilateral triangle \(\Delta_B\) inscribed in \(\omega\) with vertex \(B\) has the other two vertices \(B\zeta\) and \(B\zeta^2\). The side opposite \(B\) is \(\ell_B\), the line through \(B\zeta\) and \(B\zeta^2\). Applying Lemma 1 with \(u = b\zeta\), \(v = b\zeta^2\) yields \(uv = b^2\) and \(u+v = b(\zeta+\zeta^2) = -b\). Hence\par
+\[
+\ell_B:\; z + b^2\bar{z} = -b. \quad\text{(1)}
+\]
+Analogously,\par
+\[
+\ell_C:\; z + c^2\bar{z} = -c. \quad\text{(2)}
+\]
+The point \(N\) is the midpoint of the minor arc \(BC\) (not containing \(A\)). On the unit circle the midpoint of an arc has the property that its square equals the product of the endpoints:\par
+\[
+N^2 = bc. \quad\text{(3)}
+\]
+The tangent to \(\omega\) at \(N\) is given by\par
+\[
+z + N^2\bar{z} = 2N.
+\]
+Using (3) we obtain\par
+\[
+\text{tangent at }N:\; z + bc\,\bar{z} = 2N. \quad\text{(4)}
+\]
+\smallskip
+\solutionheading{3. Intersection points \(Y\) and \(Z\)}
+The line \(AC\) has equation (by Lemma 1)\par
+\[
+AC:\; z + ac\,\bar{z} = a + c. \quad\text{(5)}
+\]
+Intersect \(AC\) with \(\ell_B\). Subtract (5) from (1):\par
+\[
+(b^2 - ac)\,\bar{z} = -b - (a+c) = -(a+b+c).
+\]
+Set\par
+\[
+S = a+b+c,\qquad D_1 = ac - b^2.
+\]
+Then \(\bar{z} = S/D_1\). Substitute into (1) to find the coordinate \(y\):\par
+\[
+y = -b - b^2\bar{y} = -b - \frac{b^2 S}{D_1} = -\frac{b D_1 + b^2 S}{D_1}.
+\]
+Compute the numerator:\par
+\[
+b D_1 + b^2 S = b(ac - b^2) + b^2(a+b+c) = abc - b^3 + ab^2 + b^3 + b^2c = b(ac + ab + bc) = b T,
+\]
+where\par
+\[
+T = ab + bc + ca.
+\]
+Thus\par
+\[
+y = -\frac{b T}{D_1},\qquad \bar{y} = \frac{S}{D_1}. \quad\text{(6)}
+\]
+By symmetry, intersecting \(AB\) (equation \(z + ab\,\bar{z} = a+b\)) with \(\ell_C\) gives\par
+\[
+z = -\frac{c T}{D_2},\qquad \bar{z} = \frac{S}{D_2},\qquad D_2 = ab - c^2. \quad\text{(7)}
+\]
+\smallskip
+\solutionheading{4. A convenient rotation}
+The configuration is invariant under rotations of the circle. We choose the rotation so that \(N = 1\). Then (3) yields \(bc = 1\), hence \(c = \bar{b}\). Write\par
+\[
+b = e^{i\alpha},\qquad c = e^{-i\alpha},
+\]
+where \(\alpha = \angle A\) (by the inscribed angle theorem, the central angle subtended by \(BC\) is \(2\alpha\)). Since the triangle is acute, \(\alpha \in (0^\circ,90^\circ)\) and, by hypothesis, \(\alpha \neq 60^\circ\). Let\par
+\[
+k = \cos\alpha.
+\]
+The remaining vertex is \(A = a = e^{i\theta}\). Because \(N = 1\) lies on the minor arc \(BC\) not containing \(A\), the argument \(\theta\) satisfies \(\theta \in (\alpha,\, 2\pi-\alpha)\) (or its symmetric equivalent).\par
+Now compute the quantities that appear in (6), (7) in this coordinate system:\par
+\[
+\begin{aligned}
+S &= a + b + c = a + e^{i\alpha} + e^{-i\alpha} = a + 2k, \\[2mm]
+T &= ab + bc + ca = a e^{i\alpha} + 1 + a e^{-i\alpha} = 1 + 2k a, \\[2mm]
+Q &= b^2 + bc + c^2 = e^{i2\alpha} + 1 + e^{-i2\alpha} = 2\cos 2\alpha + 1 = 4k^2 - 1, \\[2mm]
+D_1 &= ac - b^2 = a e^{-i\alpha} - e^{i2\alpha}, \\[2mm]
+D_2 &= ab - c^2 = a e^{i\alpha} - e^{-i2\alpha}, \\[2mm]
+\Delta &= D_1 D_2 = (a e^{-i\alpha} - e^{i2\alpha})(a e^{i\alpha} - e^{-i2\alpha}) = a^2 - 2a\cos 3\alpha + 1.
+\end{aligned}
+\]
+\smallskip
+\solutionheading{5. A key algebraic identity}
+\textbf{Lemma 2.} With the above notation,\par
+\[
+(a + 2k)^2 = Q\,T + \Delta. \quad\text{(8)}
+\]
+\emph{Proof.} Expand \(Q\,T + \Delta\):\par
+\[
+\begin{aligned}
+Q\,T &= (4k^2-1)(1+2k a) = (4k^2-1) + 2k(4k^2-1)a, \\[2mm]
+\Delta &= a^2 - 2a\cos 3\alpha + 1.
+\end{aligned}
+\]
+Recall \(\cos 3\alpha = 4k^3 - 3k\). Then\par
+\[
+\begin{aligned}
+Q\,T + \Delta &= a^2 + \bigl[2k(4k^2-1) - 2\cos 3\alpha\bigr] a + \bigl[(4k^2-1)+1\bigr] \\
+&= a^2 + \bigl[8k^3 - 2k - (8k^3 - 6k)\bigr] a + 4k^2 \\
+&= a^2 + 4k a + 4k^2 = (a+2k)^2. \quad\square
+\end{aligned}
+\]
+\smallskip
+\solutionheading{6. The circumcenter \(O\) of \(\triangle AYZ\)}
+We claim that the point\par
+\[
+O = -\frac{a Q T}{\Delta} \quad\text{(9)}
+\]
+is the circumcenter of \(\triangle AYZ\). Let us verify that it is equidistant from \(A\), \(Y\) and \(Z\).\par
+\solutionheading{Distance to \(A\)}
+\[
+O - a = -\frac{a Q T}{\Delta} - a = -a\left( \frac{Q T}{\Delta} + 1\right) = -\frac{a (Q T + \Delta)}{\Delta}.
+\]
+By Lemma 2, \(Q T + \Delta = (a+2k)^2\), so\par
+\[
+O - a = -\frac{a (a+2k)^2}{\Delta}. \quad\text{(10)}
+\]
+Hence\par
+\[
+|O - a| = \frac{|a+2k|^2}{|\Delta|}. \quad\text{(11)}
+\]
+\solutionheading{Distance to \(Y\)}
+Using (6), \(\bar{y} = S/D_1\) and \(y = -b T/D_1\). Compute\par
+\[
+O - y = -\frac{a Q T}{\Delta} + \frac{b T}{D_1} = T\left( -\frac{a Q}{\Delta} + \frac{b}{D_1}\right).
+\]
+Since \(\Delta = D_1 D_2\),\par
+\[
+-\frac{a Q}{\Delta} + \frac{b}{D_1} = \frac{-a Q}{D_1 D_2} + \frac{b D_2}{D_1 D_2} = \frac{-a Q + b D_2}{\Delta}.
+\]
+Thus\par
+\[
+O - y = T\,\frac{-a Q + b D_2}{\Delta}. \quad\text{(12)}
+\]
+Now compute \(b D_2 - a Q\):\par
+\[
+\begin{aligned}
+b D_2 &= e^{i\alpha}(a e^{i\alpha} - e^{-i2\alpha}) = a e^{i2\alpha} - e^{-i\alpha}, \\
+a Q &= a(e^{i2\alpha} + 1 + e^{-i2\alpha}) = a e^{i2\alpha} + a + a e^{-i2\alpha}, \\
+\therefore\; b D_2 - a Q &= - e^{-i\alpha} - a - a e^{-i2\alpha}.
+\end{aligned}
+\]
+On the other hand,\par
+\[
+- e^{-i\alpha} T = -e^{-i\alpha}(1+2k a) = -e^{-i\alpha} - 2k a e^{-i\alpha} = -e^{-i\alpha} - a(e^{i\alpha}+e^{-i\alpha})e^{-i\alpha} = -e^{-i\alpha} - a(1 + e^{-i2\alpha}) = -e^{-i\alpha} - a - a e^{-i2\alpha}.
+\]
+Therefore\par
+\[
+b D_2 - a Q = - e^{-i\alpha} T,
+\]
+and consequently\par
+\[
+|b D_2 - a Q| = |T|.
+\]
+From (12) we obtain\par
+\[
+|O - y| = \frac{|T|^2}{|\Delta|}. \quad\text{(13)}
+\]
+\solutionheading{Distance to \(Z\)}
+A completely symmetric computation (interchanging \(b\) with \(c\), \(D_1\) with \(D_2\)) gives\par
+\[
+|O - z| = \frac{|T|^2}{|\Delta|}. \quad\text{(14)}
+\]
+\solutionheading{Equality of the distances}
+Now note that\par
+\[
+|T|^2 = (1+2k a)(1+2k \bar a) = 1 + 2k(a+\bar a) + 4k^2 = 1 + 2k t + 4k^2, \qquad t = a+\bar a = 2\cos\theta.
+\]
+But also\par
+\[
+|a+2k|^2 = (a+2k)(\bar a+2k) = 1 + 2k(a+\bar a) + 4k^2 = |T|^2.
+\]
+Thus\par
+\[
+|O - a| = \frac{|a+2k|^2}{|\Delta|},\qquad
+|O - y| = \frac{|T|^2}{|\Delta|} = \frac{|a+2k|^2}{|\Delta|},\qquad
+|O - z| = \frac{|a+2k|^2}{|\Delta|}.
+\]
+Hence \(O\) is indeed the circumcenter of \(\triangle AYZ\), and the circumradius is\par
+\[
+R = \frac{|a+2k|^2}{|\Delta|}. \quad\text{(15)}
+\]
+\smallskip
+\solutionheading{7. Cartesian description of triangle \(\mathcal{R}\)}
+Now we work in the rotated coordinate system where \(N=1\), \(b=e^{i\alpha}\), \(c=e^{-i\alpha}\). Write a complex number \(z = x + iy\).\par
+\solutionheading{Equation of \(\ell_B\)}
+From (1): \(z + b^2\bar{z} = -b\). Substituting \(b = \cos\alpha + i\sin\alpha\), \(b^2 = \cos2\alpha + i\sin2\alpha\), we separate real and imaginary parts:\par
+\[
+\begin{cases}
+x(1+\cos2\alpha) + y\sin2\alpha = -\cos\alpha, \\[2mm]
+x\sin2\alpha + y(1-\cos2\alpha) = -\sin\alpha.
+\end{cases}
+\]
+Using the identities\par
+\[
+1+\cos2\alpha = 2\cos^2\alpha,\quad \sin2\alpha = 2\sin\alpha\cos\alpha,\quad 1-\cos2\alpha = 2\sin^2\alpha,
+\]
+and dividing the first equation by \(2\cos\alpha\) (since \(\cos\alpha>0\)) and the second by \(2\sin\alpha\) (since \(\sin\alpha>0\)), both reduce to\par
+\[
+x\cos\alpha + y\sin\alpha = -\frac12. \quad\text{(16)}
+\]
+\solutionheading{Equation of \(\ell_C\)}
+Similarly, for \(\ell_C\) given by \(z + c^2\bar{z} = -c\) with \(c = \cos\alpha - i\sin\alpha\), \(c^2 = \cos2\alpha - i\sin2\alpha\). Separating real and imaginary parts yields\par
+\[
+\begin{cases}
+x(1+\cos2\alpha) - y\sin2\alpha = -\cos\alpha, \\[2mm]
+- x\sin2\alpha + y(1-\cos2\alpha) = \sin\alpha.
+\end{cases}
+\]
+Again, dividing appropriately we obtain\par
+\[
+x\cos\alpha - y\sin\alpha = -\frac12. \quad\text{(17)}
+\]
+\solutionheading{Equation of the tangent at \(N=1\)}
+Since \(N=1\) lies on the unit circle, its tangent is the line \(z + \bar{z} = 2\), i.e.,\par
+\[
+x = 1. \quad\text{(18)}
+\]
+Thus \(\mathcal{R}\) is the triangle bounded by the three lines (16), (17) and (18).\par
+\smallskip
+\solutionheading{8. Vertices and interior of \(\mathcal{R}\)}
+The three vertices are the pairwise intersections of the lines.\par
+\compactbullet{\(P = \ell_B \cap \ell_C\): solving (16) and (17) gives}
+\[
+2x\cos\alpha = -1 \;\Longrightarrow\; x = -\frac{1}{2\cos\alpha},\qquad y = 0.
+\]
+\compactbullet{\(Q' = \ell_C \cap \text{tangent }x=1\): plug \(x=1\) into (17):}
+\[
+\cos\alpha - y\sin\alpha = -\frac12 \;\Longrightarrow\; y = \frac{\cos\alpha + \frac12}{\sin\alpha}.
+\]
+\compactbullet{\(R' = \ell_B \cap \text{tangent }x=1\): plug \(x=1\) into (16):}
+\[
+\cos\alpha + y\sin\alpha = -\frac12 \;\Longrightarrow\; y = -\frac{\cos\alpha + \frac12}{\sin\alpha}.
+\]
+Hence the triangle \(\mathcal{R}\) has vertices\par
+\[
+P\left(-\frac{1}{2\cos\alpha},0\right),\quad
+Q'\left(1,\frac{\cos\alpha+\frac12}{\sin\alpha}\right),\quad
+R'\left(1,-\frac{\cos\alpha+\frac12}{\sin\alpha}\right).
+\]
+To determine which side of each line constitutes the interior, we test the vertex opposite that line.\par
+\compactbullet{For line \(\ell_B\), the opposite vertex is \(Q'\). Compute the left-hand side of (16) at \(Q'\):}
+\[
+x\cos\alpha + y\sin\alpha = 1\cdot\cos\alpha + \left(\frac{\cos\alpha+\frac12}{\sin\alpha}\right)\sin\alpha = \cos\alpha + \cos\alpha + \frac12 = 2\cos\alpha + \frac12 > -\frac12.
+\]
+Therefore the interior of \(\mathcal{R}\) satisfies\par
+\[
+x\cos\alpha + y\sin\alpha > -\frac12. \quad\text{(19a)}
+\]
+\compactbullet{For line \(\ell_C\), opposite vertex is \(R'\). At \(R'\):}
+\[
+x\cos\alpha - y\sin\alpha = 1\cdot\cos\alpha - \left(-\frac{\cos\alpha+\frac12}{\sin\alpha}\right)\sin\alpha = \cos\alpha + \cos\alpha + \frac12 = 2\cos\alpha + \frac12 > -\frac12,
+\]
+so the interior satisfies\par
+\[
+x\cos\alpha - y\sin\alpha > -\frac12. \quad\text{(19b)}
+\]
+\compactbullet{For the tangent \(x=1\), opposite vertex is \(P\) with \(x_P = -\frac{1}{2\cos\alpha} < 1\), thus the interior satisfies}
+\[
+x < 1. \quad\text{(19c)}
+\]
+Therefore \(\mathcal{R} = \bigl\{(x,y) : x\cos\alpha + y\sin\alpha > -\frac12,\; x\cos\alpha - y\sin\alpha > -\frac12,\; x < 1 \bigr\}\).\par
+\smallskip
+\solutionheading{9. Incenter \(I\) and inradius \(r\) of \(\mathcal{R}\)}
+The triangle is symmetric with respect to the \(x\)-axis (the lines \(\ell_B\) and \(\ell_C\) are symmetric, the tangent is vertical). Hence the incenter lies on the \(x\)-axis: \(I = (p,0)\).\par
+For a point \((x,0)\) inside \(\mathcal{R}\) (so satisfying the inequalities), the distances to the three lines are:\par
+\compactbullet{To \(\ell_B\): the line is \(x\cos\alpha + y\sin\alpha + \frac12 = 0\); distance \(= \dfrac{x\cos\alpha + \frac12}{\sqrt{\cos^2\alpha+\sin^2\alpha}} = x\cos\alpha + \frac12\) (since the interior gives \(x\cos\alpha + \frac12 > 0\)).}
+\compactbullet{To \(\ell_C\): similarly, distance \(= x\cos\alpha + \frac12\) (because \(x\cos\alpha - 0 + \frac12 = x\cos\alpha + \frac12 > 0\)).}
+\compactbullet{To the tangent \(x=1\): distance \(= 1 - x\) (since \(x<1\)).}
+Setting these equal gives\par
+\[
+x\cos\alpha + \frac12 = 1 - x \quad\Longrightarrow\quad x(\cos\alpha + 1) = \frac12 \quad\Longrightarrow\quad x = \frac{1}{2(1+\cos\alpha)}.
+\]
+Thus the incenter is\par
+\[
+I = \left( \frac{1}{2(1+\cos\alpha)},\, 0 \right) = (p,\,0), \qquad p = \frac{1}{2(1+k)}. \quad\text{(20)}
+\]
+The common distance is the inradius:\par
+\[
+r = 1 - p = 1 - \frac{1}{2(1+k)} = \frac{2(1+k)-1}{2(1+k)} = \frac{1+2k}{2(1+k)}. \quad\text{(21)}
+\]
+\smallskip
+\solutionheading{10. Distance \(OI\)}
+We have the circumcenter\par
+\[
+O = -\frac{a Q T}{\Delta},
+\]
+and the incenter\par
+\[
+I = p = \frac{1}{2(1+\cos\alpha)} = \frac{1}{D_0},
+\]
+where we denote\par
+\[
+D_0 = 2(1+\cos\alpha) = 2(1+k).
+\]
+Then\par
+\[
+O - I = -\frac{a Q T}{\Delta} - p = -\frac{a Q T + p \Delta}{\Delta}.
+\]
+Set \(U = a Q T + p \Delta\); then \(OI = |U|/|\Delta|\).\par
+Now substitute the expressions for \(a Q T\), \(p\) and \(\Delta\). Write\par
+\[
+a Q T = a(4k^2-1)(1+2k a) = (4k^2-1)a + 2k(4k^2-1)a^2.
+\]
+Also \(p = 1/D_0\) and \(\Delta = a^2 - 2a\cos3\alpha + 1\).\par
+Thus\par
+\[
+U = \bigl[2k(4k^2-1) + p\bigr] a^2 + \bigl[(4k^2-1) - 2p\cos3\alpha\bigr] a + p. \quad\text{(22)}
+\]
+Compute the coefficients with denominator \(D_0 = 2(1+k)\).\par
+\compactbullet{\textbf{Coefficient of }\(a^2\):\textbf{}}
+\[
+  A_2 = 2k(4k^2-1) + \frac{1}{D_0}.
+  \]
+Write as a single fraction:\par
+\[
+  A_2 = \frac{(2k(4k^2-1)) D_0 + 1}{D_0}.
+  \]
+Compute \((2k(4k^2-1)) D_0 = (8k^3-2k) \cdot 2(1+k) = 16k^4 + 16k^3 - 4k^2 - 4k.\) Adding 1 gives\par
+\[
+  16k^4 + 16k^3 - 4k^2 - 4k + 1.
+  \]
+Notice that\par
+\[
+  X = 4k^2 + 2k - 1,
+  \]
+then\par
+\[
+  X^2 = (4k^2+2k-1)^2 = 16k^4 + 16k^3 - 4k^2 - 4k + 1.
+  \]
+Hence\par
+\[
+  A_2 = \frac{X^2}{D_0}. \quad\text{(23)}
+  \]
+\compactbullet{\textbf{Coefficient of }\(a\):\textbf{}}
+\[
+  A_1 = (4k^2-1) - 2p\cos3\alpha = (4k^2-1) - \frac{2\cos3\alpha}{D_0}.
+  \]
+Write as\par
+\[
+  A_1 = \frac{(4k^2-1)D_0 - 2\cos3\alpha}{D_0}.
+  \]
+Compute \((4k^2-1)D_0 = (4k^2-1)\cdot 2(1+k) = 8k^3 + 8k^2 - 2k - 2.\) And \(2\cos3\alpha = 2(4k^3-3k) = 8k^3 - 6k.\) Subtract:\par
+\[
+  (8k^3+8k^2-2k-2) - (8k^3-6k) = 8k^2 + 4k - 2 = 2(4k^2+2k-1) = 2X.
+  \]
+Therefore\par
+\[
+  A_1 = \frac{2X}{D_0}. \quad\text{(24)}
+  \]
+\compactbullet{\textbf{Constant term:} \(p = \dfrac{1}{D_0}\).}
+Substituting (23) and (24) into (22) yields\par
+\[
+U = \frac{X^2}{D_0} a^2 + \frac{2X}{D_0} a + \frac{1}{D_0} = \frac{(X a + 1)^2}{D_0}. \quad\text{(25)}
+\]
+Consequently,\par
+\[
+OI = \frac{|U|}{|\Delta|} = \frac{|X a + 1|^2}{D_0\, |\Delta|}. \quad\text{(26)}
+\]
+\smallskip
+\solutionheading{11. Relating \(OI\) to \(R\) and \(r\)}
+Recall the circumradius of \(\triangle AYZ\):\par
+\[
+R = \frac{|a+2k|^2}{|\Delta|}. \quad\text{(27)}
+\]
+The inradius of \(\mathcal{R}\) is\par
+\[
+r = \frac{1+2k}{D_0}. \quad\text{(28)}
+\]
+Now compute\par
+\[
+\frac{|X a + 1|^2}{D_0} = |a+2k|^2 + L,
+\]
+where\par
+\[
+L = \frac{|X a + 1|^2}{D_0} - |a+2k|^2.
+\]
+From (26),\par
+\[
+OI = \frac{|a+2k|^2 + L}{|\Delta|} = R + \frac{L}{|\Delta|}. \quad\text{(29)}
+\]
+Thus if we can show \(L = \pm r\,|\Delta|\), we will have \(OI = R \pm r\), which implies tangency.\par
+Let \(t = a + \bar a = 2\cos\theta\). Then\par
+\[
+|X a + 1|^2 = (X a + 1)(X \bar a + 1) = X^2 + X t + 1.
+\]
+Also\par
+\[
+|a+2k|^2 = (a+2k)(\bar a+2k) = 1 + 2k t + 4k^2.
+\]
+Hence\par
+\[
+L = \frac{X^2 + X t + 1}{D_0} - (1 + 2k t + 4k^2).
+\]
+Multiply by \(D_0\):\par
+\[
+D_0 L = X^2 + X t + 1 - D_0(1 + 2k t + 4k^2).
+\]
+Now \(D_0(1 + 2k t + 4k^2) = 2(1+k) + 4k(1+k) t + 8k^2(1+k).\)\par
+Thus\par
+\[
+D_0 L = \underbrace{X^2 + 1 - 2(1+k) - 8k^2(1+k)}_{\text{constant}} + \underbrace{(X - 4k(1+k))}_{\text{coefficient of }t} t.
+\]
+Compute the coefficient of \(t\):\par
+\[
+X - 4k(1+k) = (4k^2+2k-1) - (4k^2+4k) = -2k-1 = -(2k+1).
+\]
+For the constant term, substitute \(X^2 = 16k^4+16k^3-4k^2-4k+1\):\par
+\[
+\begin{aligned}
+X^2 + 1 - 2(1+k) - 8k^2(1+k)
+&= (16k^4+16k^3-4k^2-4k+1) + 1 - 2 - 2k - 8k^2 - 8k^3 \\
+&= 16k^4 + (16k^3-8k^3) + (-4k^2-8k^2) + (-4k-2k) + (1+1-2) \\
+&= 16k^4 + 8k^3 - 12k^2 - 6k.
+\end{aligned}
+\]
+Factor this expression:\par
+\[
+16k^4 + 8k^3 - 12k^2 - 6k = 2k(8k^3+4k^2-6k-3).
+\]
+Now note that \(8k^3+4k^2-6k-3 = (4k^2-3)(2k+1)\), because\par
+\[
+(4k^2-3)(2k+1) = 8k^3+4k^2-6k-3.
+\]
+Thus\par
+\[
+\text{constant} = 2k (4k^2-3)(2k+1).
+\]
+But \(4k^2-3 = \frac{\cos3\alpha}{k}\) (since \(\cos3\alpha = 4k^3-3k = k(4k^2-3)\)). Hence\par
+\[
+\text{constant} = 2k \cdot \frac{\cos3\alpha}{k} \cdot (2k+1) = 2(2k+1)\cos3\alpha.
+\]
+Therefore\par
+\[
+D_0 L = 2(2k+1)\cos3\alpha + (-(2k+1)) t = (2k+1)(2\cos3\alpha - t). \quad\text{(30)}
+\]
+Now recall that \(r = (2k+1)/D_0\). So\par
+\[
+(2k+1) = r D_0.
+\]
+Substitute into (30):\par
+\[
+D_0 L = r D_0 (2\cos3\alpha - t) \quad\Longrightarrow\quad L = r (2\cos3\alpha - t). \quad\text{(31)}
+\]
+\solutionheading{Connection with \(\Delta\)}
+Compute \(\Delta\) in terms of \(t\):\par
+\[
+\Delta = a^2 - 2a\cos3\alpha + 1 = a(a + \bar a - 2\cos3\alpha) = a(t - 2\cos3\alpha).
+\]
+Since \(|a|=1\), we have\par
+\[
+|\Delta| = |t - 2\cos3\alpha| = |2\cos3\alpha - t|.
+\]
+Hence\par
+\[
+2\cos3\alpha - t = \varepsilon\, |\Delta|,
+\]
+where \(\varepsilon = \pm 1\) depending on the sign of \(t - 2\cos3\alpha\).\par
+Consequently,\par
+\[
+L = \varepsilon\, r\, |\Delta|. \quad\text{(32)}
+\]
+\solutionheading{Final step}
+Insert (32) into (29):\par
+\[
+OI = R + \frac{\varepsilon\, r\, |\Delta|}{|\Delta|} = R + \varepsilon r = R \pm r.
+\]
+Thus the distance between the centers \(O\) and \(I\) equals either the sum or the absolute difference of the radii \(R\) and \(r\). Therefore the circumcircle of \(\triangle AYZ\) and the incircle of \(\triangle\mathcal{R}\) are tangent. \(\square\)\par
+\smallskip
+\solutionheading{12. Remarks on non-vanishing denominators}
+\compactbullet{\(D_1 = 0\) would imply \(ac = b^2\). In our rotated frame, this gives \(a = e^{i3\alpha}\), which forces \(AB = BC\) (since then \(|a-b| = |e^{i3\alpha}-e^{i\alpha}| = 2\sin\alpha\) and \(|b-c| = |e^{i\alpha}-e^{-i\alpha}| = 2\sin\alpha\)), contradicting the scalene hypothesis. Hence \(D_1 \neq 0\); similarly \(D_2 \neq 0\), so \(\Delta \neq 0\).}
+\compactbullet{\(a+2k = 0\) would give \(a = -2k\) real; with \(|a|=1\) we get \(2k=1\) i.e. \(\cos\alpha = 1/2\), \(\alpha = 60^\circ\), which is excluded. Thus \(a+2k \neq 0\), ensuring \(R > 0\).}
+\compactbullet{\(\cos\alpha > 0\) because \(\alpha\) is acute.}
+All algebraic manipulations are therefore justified, and the proof is complete.\par
+\par

@@ -1,0 +1,513 @@
+\begin{thebibliography}{100}
+
+\bibitem{world_models}
+David Ha and J{\"u}rgen Schmidhuber.
+\newblock World models.
+\newblock {\em arXiv preprint arXiv:1803.10122}, 2(3):440, 2018.
+
+\bibitem{genie3}
+Jack Parker-Holder and Shlomi Fruchter.
+\newblock Genie 3: A new frontier for world models.
+\newblock \url{https://deepmind.google/en/blog/genie-3-a-new-frontier-for-world-models/}, 2025.
+\newblock Google DeepMind blog post, August 2025.
+
+\bibitem{gaia1}
+Anthony Hu, Lloyd Russell, Hudson Yeo, Zak Murez, George Fedoseev, Alex Kendall, Jamie Shotton, and Gianluca Corrado.
+\newblock Gaia-1: A generative world model for autonomous driving.
+\newblock {\em arXiv preprint arXiv:2309.17080}, 2023.
+
+\bibitem{dreamdojo}
+Shenyuan Gao, William Liang, Kaiyuan Zheng, Ayaan Malik, Seonghyeon Ye, Sihyun Yu, Wei-Cheng Tseng, Yuzhu Dong, Kaichun Mo, Chen-Hsuan Lin, et~al.
+\newblock Dreamdojo: A generalist robot world model from large-scale human videos.
+\newblock {\em arXiv preprint arXiv:2602.06949}, 2026.
+
+\bibitem{aether}
+Haoyi Zhu, Yifan Wang, Jianjun Zhou, Wenzheng Chang, Yang Zhou, Zizun Li, Junyi Chen, Chunhua Shen, Jiangmiao Pang, and Tong He.
+\newblock Aether: Geometric-aware unified world modeling.
+\newblock In {\em Proceedings of the IEEE/CVF International Conference on Computer Vision}, pages 8535--8546, 2025.
+
+\bibitem{hy_worldplay}
+Wenqiang Sun, Haiyu Zhang, Haoyuan Wang, Junta Wu, Zehan Wang, Zhenwei Wang, Yunhong Wang, Jun Zhang, Tengfei Wang, and Chunchao Guo.
+\newblock Worldplay: Towards long-term geometric consistency for real-time interactive world modeling.
+\newblock {\em arXiv preprint arXiv:2512.14614}, 2025.
+
+\bibitem{lingbot_world}
+Robbyant Team, Zelin Gao, Qiuyu Wang, Yanhong Zeng, Jiapeng Zhu, Ka~Leong Cheng, Yixuan Li, Hanlin Wang, Yinghao Xu, Shuailei Ma, et~al.
+\newblock Advancing open-source world models.
+\newblock {\em arXiv preprint arXiv:2601.20540}, 2026.
+
+\bibitem{infinite_world}
+Ruiqi Wu, Xuanhua He, Meng Cheng, Tianyu Yang, Yong Zhang, Zhuoliang Kang, Xunliang Cai, Xiaoming Wei, Chunle Guo, Chongyi Li, et~al.
+\newblock Infinite-world: Scaling interactive world models to 1000-frame horizons via pose-free hierarchical memory.
+\newblock {\em arXiv preprint arXiv:2602.02393}, 2026.
+
+\bibitem{matrixgame3}
+Zile Wang, Zexiang Liu, Jaixing Li, Kaichen Huang, Baixin Xu, Fei Kang, Mengyin An, Peiyu Wang, Biao Jiang, Yichen Wei, et~al.
+\newblock Matrix-game 3.0: Real-time and streaming interactive world model with long-horizon memory.
+\newblock {\em arXiv preprint arXiv:2604.08995}, 2026.
+
+\bibitem{ltx2}
+Yoav HaCohen, Benny Brazowski, Nisan Chiprut, Yaki Bitterman, Andrew Kvochko, Avishai Berkowitz, Daniel Shalem, Daphna Lifschitz, Dudu Moshe, Eitan Porat, et~al.
+\newblock Ltx-2: Efficient joint audio-visual foundation model.
+\newblock {\em arXiv preprint arXiv:2601.03233}, 2026.
+
+\bibitem{gated_deltanet}
+Songlin Yang, Jan Kautz, and Ali Hatamizadeh.
+\newblock Gated delta networks: Improving mamba2 with delta rule.
+\newblock {\em arXiv preprint arXiv:2412.06464}, 2024.
+
+\bibitem{ucpe}
+Cheng Zhang, Boying Li, Meng Wei, Yan-Pei Cao, Camilo~Cruz Gambardella, Dinh Phung, and Jianfei Cai.
+\newblock Unified camera positional encoding for controlled video generation.
+\newblock {\em arXiv preprint arXiv:2512.07237}, 2025.
+
+\bibitem{vipe}
+Jiahui Huang, Qunjie Zhou, Hesam Rabeti, Aleksandr Korovko, Huan Ling, Xuanchi Ren, Tianchang Shen, Jun Gao, Dmitry Slepichev, Chen-Hsuan Lin, et~al.
+\newblock Vipe: Video pose engine for 3d geometric perception.
+\newblock {\em arXiv preprint arXiv:2508.10934}, 2025.
+
+\bibitem{pi3x}
+Yifan Wang, Jianjun Zhou, Haoyi Zhu, Wenzheng Chang, Yang Zhou, Zizun Li, Junyi Chen, Jiangmiao Pang, Chunhua Shen, and Tong He.
+\newblock {$\pi^3$}: Permutation-equivariant visual geometry learning.
+\newblock {\em arXiv preprint arXiv:2507.13347}, 2025.
+
+\bibitem{moge2}
+Ruicheng Wang, Sicheng Xu, Yue Dong, Yu~Deng, Jianfeng Xiang, Zelong Lv, Guangzhong Sun, Xin Tong, and Jiaolong Yang.
+\newblock Moge-2: Accurate monocular geometry with metric scale and sharp details.
+\newblock {\em arXiv preprint arXiv:2507.02546}, 2025.
+
+\bibitem{google2025nanobananapro}
+{Google Blog}.
+\newblock Introducing {Nano Banana Pro}.
+\newblock \url{https://blog.google/innovation-and-ai/products/nano-banana-pro/}, 2025.
+
+\bibitem{stable_video_diffusion}
+Andreas Blattmann, Tim Dockhorn, Sumith Kulal, Daniel Mendelevitch, Maciej Kilian, Dominik Lorenz, Yam Levi, Zion English, Vikram Voleti, Adam Letts, et~al.
+\newblock Stable video diffusion: Scaling latent video diffusion models to large datasets.
+\newblock {\em arXiv preprint arXiv:2311.15127}, 2023.
+
+\bibitem{sora}
+{OpenAI}.
+\newblock Video generation models as world simulators.
+\newblock \url{https://openai.com/index/video-generation-models-as-world-simulators/}, 2024.
+\newblock Technical report, February 2024.
+
+\bibitem{cogvideox}
+Zhuoyi Yang, Jiayan Teng, Wendi Zheng, Ming Ding, Shiyu Huang, Jiazheng Xu, Yuanming Yang, Wenyi Hong, Xiaohan Zhang, Guanyu Feng, et~al.
+\newblock Cogvideox: Text-to-video diffusion models with an expert transformer.
+\newblock {\em arXiv preprint arXiv:2408.06072}, 2024.
+
+\bibitem{wan}
+Team Wan, Ang Wang, Baole Ai, Bin Wen, Chaojie Mao, Chen-Wei Xie, Di~Chen, Feiwu Yu, Haiming Zhao, Jianxiao Yang, et~al.
+\newblock Wan: Open and advanced large-scale video generative models.
+\newblock {\em arXiv preprint arXiv:2503.20314}, 2025.
+
+\bibitem{hunyuanvideo}
+Weijie Kong, Qi~Tian, Zijian Zhang, Rox Min, Zuozhuo Dai, Jin Zhou, Jiangfeng Xiong, Xin Li, Bo~Wu, Jianwei Zhang, et~al.
+\newblock Hunyuanvideo: A systematic framework for large video generative models.
+\newblock {\em arXiv preprint arXiv:2412.03603}, 2024.
+
+\bibitem{moviegen}
+Adam Polyak, Amit Zohar, Andrew Brown, Andros Tjandra, Animesh Sinha, Ann Lee, Apoorv Vyas, Bowen Shi, Chih-Yao Ma, Ching-Yao Chuang, et~al.
+\newblock Movie gen: A cast of media foundation models.
+\newblock {\em arXiv preprint arXiv:2410.13720}, 2024.
+
+\bibitem{cosmos}
+Niket Agarwal, Arslan Ali, Maciej Bala, Yogesh Balaji, Erik Barker, Tiffany Cai, Prithvijit Chattopadhyay, Yongxin Chen, Yin Cui, Yifan Ding, et~al.
+\newblock Cosmos world foundation model platform for physical ai.
+\newblock {\em arXiv preprint arXiv:2501.03575}, 2025.
+
+\bibitem{ltx_video}
+Yoav HaCohen, Nisan Chiprut, Benny Brazowski, Daniel Shalem, Dudu Moshe, Eitan Richardson, Eran Levin, Guy Shiran, Nir Zabari, Ori Gordon, et~al.
+\newblock Ltx-video: Realtime video latent diffusion.
+\newblock {\em arXiv preprint arXiv:2501.00103}, 2024.
+
+\bibitem{chen2025sana}
+Junsong Chen, Yuyang Zhao, Jincheng Yu, Ruihang Chu, Junyu Chen, Shuai Yang, Xianbang Wang, Yicheng Pan, Daquan Zhou, Huan Ling, et~al.
+\newblock Sana-video: Efficient video generation with block linear diffusion transformer.
+\newblock {\em arXiv preprint arXiv:2509.24695}, 2025.
+
+\bibitem{skyreels_v2}
+Guibin Chen, Dixuan Lin, Jiangping Yang, Chunze Lin, Junchen Zhu, Mingyuan Fan, Hao Zhang, Sheng Chen, Zheng Chen, Chengcheng Ma, et~al.
+\newblock Skyreels-v2: Infinite-length film generative model.
+\newblock {\em arXiv preprint arXiv:2504.13074}, 2025.
+
+\bibitem{magi}
+Hansi Teng, Hongyu Jia, Lei Sun, Lingzhi Li, Maolin Li, Mingqiu Tang, Shuai Han, Tianning Zhang, WQ~Zhang, Weifeng Luo, et~al.
+\newblock Magi-1: Autoregressive video generation at scale.
+\newblock {\em arXiv preprint arXiv:2505.13211}, 2025.
+
+\bibitem{huang2024selfforcing}
+Xun Huang, Zhengqi Li, Guande He, Mingyuan Zhou, and Eli Shechtman.
+\newblock Self forcing: Bridging the train-test gap in autoregressive video diffusion.
+\newblock {\em arXiv preprint arXiv:2506.08009}, 2025.
+
+\bibitem{longlive}
+Shuai Yang, Wei Huang, Ruihang Chu, Yicheng Xiao, Yuyang Zhao, Xianbang Wang, Muyang Li, Enze Xie, Yingcong Chen, Yao Lu, et~al.
+\newblock Longlive: Real-time interactive long video generation.
+\newblock {\em arXiv preprint arXiv:2509.22622}, 2025.
+
+\bibitem{dreamerv3}
+Danijar Hafner, Jurgis Pasukonis, Jimmy Ba, and Timothy Lillicrap.
+\newblock Mastering diverse domains through world models.
+\newblock {\em arXiv preprint arXiv:2301.04104}, 2023.
+
+\bibitem{i_jepa}
+Mahmoud Assran, Quentin Duval, Ishan Misra, Piotr Bojanowski, Pascal Vincent, Michael Rabbat, Yann LeCun, and Nicolas Ballas.
+\newblock Self-supervised learning from images with a joint-embedding predictive architecture.
+\newblock In {\em Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 15619--15629, 2023.
+
+\bibitem{v_jepa}
+Adrien Bardes, Quentin Garrido, Jean Ponce, Xinlei Chen, Michael Rabbat, Yann LeCun, Mahmoud Assran, and Nicolas Ballas.
+\newblock Revisiting feature prediction for learning visual representations from video, 2024.
+
+\bibitem{v_jepa2}
+Mido Assran, Adrien Bardes, David Fan, Quentin Garrido, Russell Howes, Matthew Muckley, Ammar Rizvi, Claire Roberts, Koustuv Sinha, Artem Zholus, et~al.
+\newblock V-jepa 2: Self-supervised video models enable understanding, prediction and planning.
+\newblock {\em arXiv preprint arXiv:2506.09985}, 2025.
+
+\bibitem{genie}
+Jake Bruce, Michael~D Dennis, Ashley Edwards, Jack Parker-Holder, Yuge Shi, Edward Hughes, Matthew Lai, Aditi Mavalankar, Richie Steigerwald, Chris Apps, et~al.
+\newblock Genie: Generative interactive environments.
+\newblock In {\em Forty-first International Conference on Machine Learning}, 2024.
+
+\bibitem{genie2}
+{Google DeepMind}.
+\newblock Genie 2: A large-scale foundation world model.
+\newblock \url{https://deepmind.google/blog/genie-2-a-large-scale-foundation-world-model/}, 2024.
+\newblock Blog post.
+
+\bibitem{gamengen}
+Dani Valevski, Yaniv Leviathan, Moab Arar, and Shlomi Fruchter.
+\newblock Diffusion models are real-time game engines.
+\newblock {\em arXiv preprint arXiv:2408.14837}, 2024.
+
+\bibitem{oasis}
+Decart and Etched.
+\newblock Oasis: A universe in a transformer.
+\newblock \url{https://oasis-model.github.io/}, 2024.
+\newblock Technical report.
+
+\bibitem{gamegen}
+Haoxuan Che, Xuanhua He, Quande Liu, Cheng Jin, and Hao Chen.
+\newblock Gamegen-x: Interactive open-world game video generation.
+\newblock {\em arXiv preprint arXiv:2411.00769}, 2024.
+
+\bibitem{matrixgame}
+Yifan Zhang, Chunli Peng, Boyang Wang, Puyi Wang, Qingcheng Zhu, Fei Kang, Biao Jiang, Zedong Gao, Eric Li, Yang Liu, et~al.
+\newblock Matrix-game: Interactive world foundation model.
+\newblock {\em arXiv preprint arXiv:2506.18701}, 2025.
+
+\bibitem{relic}
+Yicong Hong, Yiqun Mei, Chongjian Ge, Yiran Xu, Yang Zhou, Sai Bi, Yannick Hold-Geoffroy, Mike Roberts, Matthew Fisher, Eli Shechtman, et~al.
+\newblock Relic: Interactive video world model with long-horizon memory.
+\newblock {\em arXiv preprint arXiv:2512.04040}, 2025.
+
+\bibitem{live_world}
+Junchao Huang, Ziyang Ye, Xinting Hu, Tianyu He, Guiyu Zhang, Shaoshuai Shi, Jiang Bian, and Li~Jiang.
+\newblock Live: Long-horizon interactive video world modeling.
+\newblock {\em arXiv preprint arXiv:2602.03747}, 2026.
+
+\bibitem{astra}
+Yixuan Zhu, Jiaqi Feng, Wenzhao Zheng, Yuan Gao, Xin Tao, Pengfei Wan, Jie Zhou, and Jiwen Lu.
+\newblock Astra: General interactive world model with autoregressive denoising.
+\newblock {\em arXiv preprint arXiv:2512.08931}, 2025.
+
+\bibitem{magicworld}
+Guangyuan Li, Siming Zheng, Shuolin Xu, Jinwei Chen, Bo~Li, Xiaobin Hu, Lei Zhao, and Peng-Tao Jiang.
+\newblock Magicworld: Interactive geometry-driven video world exploration.
+\newblock {\em arXiv preprint arXiv:2511.18886}, 2025.
+
+\bibitem{yume}
+Xiaofeng Mao, Zhen Li, Chuanhao Li, Xiaojie Xu, Kaining Ying, Tong He, Jiangmiao Pang, Yu~Qiao, and Kaipeng Zhang.
+\newblock Yume-1.5: A text-controlled interactive world generation model.
+\newblock {\em arXiv preprint arXiv:2512.22096}, 2025.
+
+\bibitem{dreamzero}
+Seonghyeon Ye, Yunhao Ge, Kaiyuan Zheng, Shenyuan Gao, Sihyun Yu, George Kurian, Suneel Indupuru, You~Liang Tan, Chuning Zhu, Jiannan Xiang, et~al.
+\newblock World action models are zero-shot policies.
+\newblock {\em arXiv preprint arXiv:2602.15922}, 2026.
+
+\bibitem{unisim}
+Sherry Yang, Yilun Du, Kamyar Ghasemipour, Jonathan Tompson, Leslie Kaelbling, Dale Schuurmans, and Pieter Abbeel.
+\newblock Learning interactive real-world simulators.
+\newblock {\em arXiv preprint arXiv:2310.06114}, 2023.
+
+\bibitem{worldcam}
+Jisu Nam, Yicong Hong, Chun-Hao~Paul Huang, Feng Liu, JoungBin Lee, Jiyoung Kim, Siyoon Jin, Yunsung Lee, Jaeyoon Jung, Suhwan Choi, et~al.
+\newblock Worldcam: Interactive autoregressive 3d gaming worlds with camera pose as a unifying geometric representation.
+\newblock {\em arXiv preprint arXiv:2603.16871}, 2026.
+
+\bibitem{ucm}
+Tianxing Xu, Zixuan Wang, Guangyuan Wang, Li~Hu, Zhongyi Zhang, Peng Zhang, Bang Zhang, and Song-Hai Zhang.
+\newblock Ucm: Unifying camera control and memory with time-aware positional encoding warping for world models.
+\newblock {\em arXiv preprint arXiv:2602.22960}, 2026.
+
+\bibitem{captain_safari}
+Yu-Cheng Chou, Xingrui Wang, Yitong Li, Jiahao Wang, Hanting Liu, Cihang Xie, Alan Yuille, and Junfei Xiao.
+\newblock Captain safari: A world engine with pose-aligned 3d memory, 2026.
+
+\bibitem{deepverse}
+Junyi Chen, Haoyi Zhu, Xianglong He, Yifan Wang, Jianjun Zhou, Wenzheng Chang, Yang Zhou, Zizun Li, Zhoujie Fu, Jiangmiao Pang, et~al.
+\newblock Deepverse: 4d autoregressive video generation as a world model.
+\newblock {\em arXiv preprint arXiv:2506.01103}, 2025.
+
+\bibitem{drivedreamer}
+Xiaofeng Wang, Zheng Zhu, Guan Huang, Xinze Chen, Jiagang Zhu, and Jiwen Lu.
+\newblock Drivedreamer: towards real-world-driven world models for autonomous driving.
+\newblock {\em arXiv preprint arXiv:2309.09777}, 2023.
+
+\bibitem{driveworld}
+Chen Min, Dawei Zhao, Liang Xiao, Jian Zhao, Xinli Xu, Zheng Zhu, Lei Jin, Jianshu Li, Yulan Guo, Junliang Xing, et~al.
+\newblock Driveworld: 4d pre-trained scene understanding via world models for autonomous driving.
+\newblock In {\em Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 15522--15533, 2024.
+
+\bibitem{mosaicmem}
+Wei Yu, Runjia Qian, Yumeng Li, Liquan Wang, Songheng Yin, Dennis Anthony, Yang Ye, Yidi Li, Weiwei Wan, Animesh Garg, et~al.
+\newblock Mosaicmem: Hybrid spatial memory for controllable video world models.
+\newblock {\em arXiv preprint arXiv:2603.17117}, 2026.
+
+\bibitem{memorize_when_needed}
+Yanjun Guo, Zhengqiang Zhang, Pengfei Wang, Xinyue Liang, Zhiyuan Ma, and Lei Zhang.
+\newblock Memorize when needed: Decoupled memory control for spatially consistent long-horizon video generation, 2026.
+
+\bibitem{vggt_world}
+Xiangyu Sun, Shijie Wang, Fengyi Zhang, Lin Liu, Caiyan Jia, Ziying Song, Zi~Huang, and Yadan Luo.
+\newblock Vggt-world: Transforming vggt into an autoregressive geometry world model.
+\newblock {\em arXiv preprint arXiv:2603.12655}, 2026.
+
+\bibitem{versecrafter}
+Sixiao Zheng, Minghao Yin, Wenbo Hu, Xiaoyu Li, Ying Shan, and Yanwei Fu.
+\newblock Versecrafter: Dynamic realistic video world model with 4d geometric control.
+\newblock {\em arXiv preprint arXiv:2601.05138}, 2026.
+
+\bibitem{hy_world2}
+Team HY-World, Chenjie Cao, Xuhui Zuo, Zhenwei Wang, Yisu Zhang, Junta Wu, Zhenyang Liu, Yuning Gong, Yang Liu, Bo~Yuan, et~al.
+\newblock Hy-world 2.0: A multi-modal world model for reconstructing, generating, and simulating 3d worlds.
+\newblock {\em arXiv preprint arXiv:2604.14268}, 2026.
+
+\bibitem{inspatio_world}
+InSpatio Team, Donghui Shen, Guofeng Zhang, Haomin Liu, Haoyu Ji, Hujun Bao, Hongjia Zhai, Jialin Liu, Jing Guo, Nan Wang, et~al.
+\newblock Inspatio-world: A real-time 4d world simulator via spatiotemporal autoregressive modeling.
+\newblock {\em arXiv preprint arXiv:2604.07209}, 2026.
+
+\bibitem{cameractrl}
+Hao He, Yinghao Xu, Yuwei Guo, Gordon Wetzstein, Bo~Dai, Hongsheng Li, and Ceyuan Yang.
+\newblock Cameractrl: Enabling camera control for text-to-video generation.
+\newblock {\em arXiv preprint arXiv:2404.02101}, 2024.
+
+\bibitem{motionctrl}
+Zhouxia Wang, Ziyang Yuan, Xintao Wang, Yaowei Li, Tianshui Chen, Menghan Xia, Ping Luo, and Ying Shan.
+\newblock Motionctrl: A unified and flexible motion controller for video generation.
+\newblock In {\em ACM SIGGRAPH 2024 Conference Papers}, pages 1--11, 2024.
+
+\bibitem{camco}
+Dejia Xu, Weili Nie, Chao Liu, Sifei Liu, Jan Kautz, Zhangyang Wang, and Arash Vahdat.
+\newblock Camco: Camera-controllable 3d-consistent image-to-video generation.
+\newblock {\em arXiv preprint arXiv:2406.02509}, 2024.
+
+\bibitem{viewcrafter}
+Wangbo Yu, Jinbo Xing, Li~Yuan, Wenbo Hu, Xiaoyu Li, Zhipeng Huang, Xiangjun Gao, Tien-Tsin Wong, Ying Shan, and Yonghong Tian.
+\newblock Viewcrafter: Taming video diffusion models for high-fidelity novel view synthesis.
+\newblock {\em arXiv preprint arXiv:2409.02048}, 2024.
+
+\bibitem{seva}
+Jensen Zhou, Hang Gao, Vikram Voleti, Aaryaman Vasishta, Chun-Han Yao, Mark Boss, Philip Torr, Christian Rupprecht, and Varun Jampani.
+\newblock Stable virtual camera: Generative view synthesis with diffusion models.
+\newblock In {\em Proceedings of the IEEE/CVF International Conference on Computer Vision}, pages 12405--12414, 2025.
+
+\bibitem{plucker_lfn}
+Vincent Sitzmann, Semon Rezchikov, Bill Freeman, Josh Tenenbaum, and Fredo Durand.
+\newblock Light field networks: Neural scene representations with single-evaluation rendering.
+\newblock {\em Advances in Neural Information Processing Systems}, 34:19313--19325, 2021.
+
+\bibitem{li2025cameras}
+Ruilong Li, Brent Yi, Junchen Liu, Hang Gao, Yi~Ma, and Angjoo Kanazawa.
+\newblock Cameras as relative positional encoding.
+\newblock {\em arXiv preprint arXiv:2507.10496}, 2025.
+
+\bibitem{vggt}
+Jianyuan Wang, Minghao Chen, Nikita Karaev, Andrea Vedaldi, Christian Rupprecht, and David Novotny.
+\newblock Vggt: Visual geometry grounded transformer.
+\newblock In {\em Proceedings of the Computer Vision and Pattern Recognition Conference}, pages 5294--5306, 2025.
+
+\bibitem{wint3r}
+Zizun Li, Jianjun Zhou, Yifan Wang, Haoyu Guo, Wenzheng Chang, Yang Zhou, Haoyi Zhu, Junyi Chen, Chunhua Shen, and Tong He.
+\newblock Wint3r: Window-based streaming reconstruction with camera token pool.
+\newblock {\em arXiv preprint arXiv:2509.05296}, 2025.
+
+\bibitem{flash_attention2}
+Tri Dao.
+\newblock Flashattention-2: Faster attention with better parallelism and work partitioning.
+\newblock {\em arXiv preprint arXiv:2307.08691}, 2023.
+
+\bibitem{linear_attention}
+Angelos Katharopoulos, Apoorv Vyas, Nikolaos Pappas, and Fran{\c{c}}ois Fleuret.
+\newblock Transformers are rnns: Fast autoregressive transformers with linear attention.
+\newblock In {\em International conference on machine learning}, pages 5156--5165. PMLR, 2020.
+
+\bibitem{performer}
+Krzysztof Choromanski, Valerii Likhosherstov, David Dohan, Xingyou Song, Andreea Gane, Tamas Sarlos, Peter Hawkins, Jared Davis, Afroz Mohiuddin, Lukasz Kaiser, et~al.
+\newblock Rethinking attention with performers.
+\newblock {\em arXiv preprint arXiv:2009.14794}, 2020.
+
+\bibitem{gla}
+Songlin Yang, Bailin Wang, Yikang Shen, Rameswar Panda, and Yoon Kim.
+\newblock Gated linear attention transformers with hardware-efficient training.
+\newblock {\em arXiv preprint arXiv:2312.06635}, 2023.
+
+\bibitem{rwkv}
+Bo~Peng, Eric Alcaide, Quentin Anthony, Alon Albalak, Samuel Arcadinho, Stella Biderman, Huanqi Cao, Xin Cheng, Michael Chung, Leon Derczynski, et~al.
+\newblock Rwkv: Reinventing rnns for the transformer era.
+\newblock In {\em Findings of the association for computational linguistics: EMNLP 2023}, pages 14048--14077, 2023.
+
+\bibitem{retnet}
+Yutao Sun, Li~Dong, Shaohan Huang, Shuming Ma, Yuqing Xia, Jilong Xue, Jianyong Wang, and Furu Wei.
+\newblock Retentive network: A successor to transformer for large language models.
+\newblock {\em arXiv preprint arXiv:2307.08621}, 2023.
+
+\bibitem{hyena}
+Michael Poli, Stefano Massaroli, Eric Nguyen, Daniel~Y Fu, Tri Dao, Stephen Baccus, Yoshua Bengio, Stefano Ermon, and Christopher R{\'e}.
+\newblock Hyena hierarchy: Towards larger convolutional language models.
+\newblock In {\em International Conference on Machine Learning}, pages 28043--28078. PMLR, 2023.
+
+\bibitem{mamba}
+Albert Gu and Tri Dao.
+\newblock Mamba: Linear-time sequence modeling with selective state spaces.
+\newblock {\em arXiv preprint arXiv:2312.00752}, 2023.
+
+\bibitem{mamba2}
+Tri Dao and Albert Gu.
+\newblock Transformers are ssms: Generalized models and efficient algorithms through structured state space duality.
+\newblock {\em arXiv preprint arXiv:2405.21060}, 2024.
+
+\bibitem{ttt_layers}
+Yu~Sun, Xinhao Li, Karan Dalal, Jiarui Xu, Arjun Vikram, Genghan Zhang, Yann Dubois, Xinlei Chen, Xiaolong Wang, Sanmi Koyejo, et~al.
+\newblock Learning to (learn at test time): Rnns with expressive hidden states.
+\newblock {\em arXiv preprint arXiv:2407.04620}, 2024.
+
+\bibitem{qwen3}
+An~Yang, Anfeng Li, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo~Zheng, Bowen Yu, Chang Gao, Chengen Huang, Chenxu Lv, et~al.
+\newblock Qwen3 technical report.
+\newblock {\em arXiv preprint arXiv:2505.09388}, 2025.
+
+\bibitem{qwen3_next}
+{Qwen Team}.
+\newblock Qwen3-next: Hybrid attention with gated deltanet.
+\newblock \url{https://huggingface.co/collections/Qwen/qwen3-next}, 2025.
+\newblock Model collections.
+
+\bibitem{kimi_linear}
+Kimi Team, Yu~Zhang, Zongyu Lin, Xingcheng Yao, Jiaxi Hu, Fanqing Meng, Chengyin Liu, Xin Men, Songlin Yang, Zhiyuan Li, et~al.
+\newblock Kimi linear: An expressive, efficient attention architecture.
+\newblock {\em arXiv preprint arXiv:2510.26692}, 2025.
+
+\bibitem{kimi_k2}
+Kimi Team, Yifan Bai, Yiping Bao, Y~Charles, Cheng Chen, Guanduo Chen, Haiting Chen, Huarong Chen, Jiahao Chen, Ningxin Chen, et~al.
+\newblock Kimi k2: Open agentic intelligence.
+\newblock {\em arXiv preprint arXiv:2507.20534}, 2025.
+
+\bibitem{sana}
+Enze Xie, Junsong Chen, Junyu Chen, Han Cai, Haotian Tang, Yujun Lin, Zhekai Zhang, Muyang Li, Ligeng Zhu, Yao Lu, et~al.
+\newblock Sana: Efficient high-resolution image synthesis with linear diffusion transformers.
+\newblock {\em arXiv preprint arXiv:2410.10629}, 2024.
+
+\bibitem{dc_ae}
+Junyu Chen, Han Cai, Junsong Chen, Enze Xie, Shang Yang, Haotian Tang, Muyang Li, Yao Lu, and Song Han.
+\newblock Deep compression autoencoder for efficient high-resolution diffusion models.
+\newblock {\em arXiv preprint arXiv:2410.10733}, 2024.
+
+\bibitem{dc-video-gen}
+Junyu Chen, Wenkun He, Yuchao Gu, Yuyang Zhao, Jincheng Yu, Junsong Chen, Dongyun Zou, Yujun Lin, Zhekai Zhang, Muyang Li, Haocheng Xi, Ligeng Zhu, Enze Xie, Song Han, and Han Cai.
+\newblock Dc-videogen: Efficient video generation with deep compression video autoencoder, 2025.
+
+\bibitem{realestate10k}
+Tinghui Zhou, Richard Tucker, John Flynn, Graham Fyffe, and Noah Snavely.
+\newblock Stereo magnification: Learning view synthesis using multiplane images.
+\newblock {\em arXiv preprint arXiv:1805.09817}, 2018.
+
+\bibitem{dl3dv}
+Lu~Ling, Yichen Sheng, Zhi Tu, Wentian Zhao, Cheng Xin, Kun Wan, Lantao Yu, Qianyu Guo, Zixun Yu, Yawen Lu, et~al.
+\newblock Dl3dv-10k: A large-scale scene dataset for deep learning-based 3d vision.
+\newblock In {\em Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 22160--22169, 2024.
+
+\bibitem{spatialvid}
+Jiahao Wang, Yufeng Yuan, Rujie Zheng, Youtian Lin, Jian Gao, Lin-Zhuo Chen, Yajie Bao, Yi~Zhang, Chang Zeng, Yanxi Zhou, et~al.
+\newblock Spatialvid: A large-scale video dataset with spatial annotations.
+\newblock {\em arXiv preprint arXiv:2509.09676}, 2025.
+
+\bibitem{miradata}
+Xuan Ju, Yiming Gao, Zhaoyang Zhang, Ziyang Yuan, Xintao Wang, Ailing Zeng, Yu~Xiong, Qiang Xu, and Ying Shan.
+\newblock Miradata: A large-scale video dataset with long durations and structured captions.
+\newblock {\em Advances in Neural Information Processing Systems}, 37:48955--48970, 2024.
+
+\bibitem{omniworld}
+Yang Zhou, Yifan Wang, Jianjun Zhou, Wenzheng Chang, Haoyu Guo, Zizun Li, Kaijing Ma, Xinyue Li, Yating Wang, Haoyi Zhu, et~al.
+\newblock Omniworld: A multi-domain and multi-modal dataset for 4d world modeling.
+\newblock {\em arXiv preprint arXiv:2509.12201}, 2025.
+
+\bibitem{sekai}
+Zhen Li, Chuanhao Li, Xiaofeng Mao, Shaoheng Lin, Ming Li, Shitian Zhao, Zhaopan Xu, Xinyue Li, Yukang Feng, Jianwen Sun, et~al.
+\newblock Sekai: A video dataset towards world exploration.
+\newblock {\em arXiv preprint arXiv:2506.15675}, 2025.
+
+\bibitem{transnetv2}
+Tom{\'a}s Soucek and Jakub Lokoc.
+\newblock Transnet v2: An effective deep network architecture for fast shot transition detection.
+\newblock In {\em Proceedings of the 32nd ACM International Conference on Multimedia}, pages 11218--11221, 2024.
+
+\bibitem{dover}
+Haoning Wu, Erli Zhang, Liang Liao, Chaofeng Chen, Jingwen Hou, Annan Wang, Wenxiu Sun, Qiong Yan, and Weisi Lin.
+\newblock Exploring video quality assessment on user generated contents from aesthetic and technical perspectives.
+\newblock In {\em Proceedings of the IEEE/CVF international conference on computer vision}, pages 20144--20154, 2023.
+
+\bibitem{unimatch}
+Haofei Xu, Jing Zhang, Jianfei Cai, Hamid Rezatofighi, Fisher Yu, Dacheng Tao, and Andreas Geiger.
+\newblock Unifying flow, stereo and depth estimation.
+\newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence}, 45(11):13941--13958, 2023.
+
+\bibitem{fcgs}
+Yihang Chen, Qianyi Wu, Mengyao Li, Weiyao Lin, Mehrtash Harandi, and Jianfei Cai.
+\newblock Fast feedforward 3d gaussian splatting compression.
+\newblock {\em arXiv preprint arXiv:2410.08017}, 2024.
+
+\bibitem{difix3d}
+Jay~Zhangjie Wu, Yuxuan Zhang, Haithem Turki, Xuanchi Ren, Jun Gao, Mike~Zheng Shou, Sanja Fidler, Zan Gojcic, and Huan Ling.
+\newblock Difix3d+: Improving 3d reconstructions with single-step diffusion models.
+\newblock In {\em Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 26024--26035, 2025.
+
+\bibitem{vbench}
+Ziqi Huang, Yinan He, Jiashuo Yu, Fan Zhang, Chenyang Si, Yuming Jiang, Yuanhan Zhang, Tianxing Wu, Qingyang Jin, Nattapol Chanpaisit, et~al.
+\newblock Vbench: Comprehensive benchmark suite for video generative models.
+\newblock In {\em Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 21807--21818, 2024.
+
+\bibitem{lpips}
+Richard Zhang, Phillip Isola, Alexei~A Efros, Eli Shechtman, and Oliver Wang.
+\newblock The unreasonable effectiveness of deep features as a perceptual metric.
+\newblock In {\em Proceedings of the IEEE conference on computer vision and pattern recognition}, pages 586--595, 2018.
+
+\bibitem{unterthiner2018towards}
+Thomas Unterthiner, Sjoerd van Steenkiste, Karol Kurach, Raphael Marinier, Marcin Michalski, and Sylvain Gelly.
+\newblock Towards accurate generative models of video: A new metric \& challenges.
+\newblock {\em arXiv preprint arXiv:1812.01717}, 2018.
+
+\bibitem{umeyama}
+Shinji Umeyama.
+\newblock Least-squares estimation of transformation parameters between two point patterns.
+\newblock {\em IEEE Transactions on pattern analysis and machine intelligence}, 13(4):376--380, 2002.
+
+\bibitem{dit}
+William Peebles and Saining Xie.
+\newblock Scalable diffusion models with transformers.
+\newblock In {\em Proceedings of the IEEE/CVF international conference on computer vision}, pages 4195--4205, 2023.
+
+\bibitem{flow_matching}
+Yaron Lipman, Ricky~TQ Chen, Heli Ben-Hamu, Maximilian Nickel, and Matt Le.
+\newblock Flow matching for generative modeling.
+\newblock {\em arXiv preprint arXiv:2210.02747}, 2022.
+
+\bibitem{qwen3_5}
+{Qwen Team}.
+\newblock {Qwen3.5}: Towards native multimodal agents, February 2026.
+
+\end{thebibliography}

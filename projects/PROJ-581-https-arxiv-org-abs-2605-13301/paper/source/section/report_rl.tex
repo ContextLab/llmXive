@@ -1,0 +1,193 @@
+\section{Boosting Reasoning Capability with RL}
+\label{sec:rl}
+
+Once the model has acquired a stronger long-form reasoning pattern,
+reinforcement learning provides the scalable feedback mechanism for turning this
+pattern into stronger expert behavior. We split this stage into two levels.
+\textbf{Coarse RL} converts the SFT reasoning pattern into stronger
+answer-seeking behavior under reliable, mostly verifiable reward signals,
+improving search, coverage, and direct solving performance on hard tasks.
+\textbf{Refined RL} then specializes the policy toward complete, auditable proof
+construction, using more fine-grained feedback to encourage proof rigor and
+self-refinement.
+% \haoran{\textbf{Refined RL} then targets the quality of the reasoning process itself, using more fine-grained feedback to encourage proof rigor and self-refinement.}
+The shared
+RL launch configuration and stage-specific hyperparameters are summarized in
+\cref{app:rl-training-details}.
+
+\subsection{RL Data Curation}
+
+RL training uses a separate prompt pool from SFT, curated to support both
+answer-verifiable optimization and proof-quality refinement. The physics subset
+is derived from olympiad-level physics data associated with P1
+\citep{chen2025p1}. The mathematical subset follows the same source families as
+our SFT data, including AoPS, online competition training books, Evan Chen's
+olympiad materials, and the Shuzhimi Forum. We refer readers to
+\S\ref{sec:sft-data-curation} for source attribution. We additionally include
+OPC\footnote{OPC dataset card:
+\href{https://huggingface.co/datasets/INSAIT-Institute/OPC}{link}.}, a
+human-evaluated corpus of advanced mathematical proofs \citep{dekoninck2025opc},
+to increase coverage of proof-oriented prompts.
+
+We split the resulting RL pool into a verifiable set and a non-verifiable set.
+The verifiable set contains prompts whose final answers or structured outputs
+can be checked reliably, while the non-verifiable set includes proof-oriented
+or open-ended reasoning prompts that require softer judgment, e.g., generative reward. 
+% \haoran{softer judgment? One more concise sentence of explanation would help here}. 
+Before training,
+we first deduplicate and decontaminate the prompt pool. We then apply rejection
+sampling to remove examples that are already too easy or too hard for the
+current policy, and further filter noisy prompts that are poorly formatted or otherwise unreliable. The final RL pool
+contains 8,967 verifiable prompts and 16,287 non-verifiable prompts.
+
+
+\subsection{Coarse RL}
+\label{sec:coarse-rl}
+
+Coarse RL trains the SFT model on the 8,967 verifiable prompts described above.
+We formulate this stage as reinforcement learning with verifiable rewards
+(RLVR; \citealt{lambert2024tulu,r1}), using Group Sequence Policy Optimization
+(GSPO; \citealt{zheng2025gspo}). GSPO is better aligned with outcome-reward
+training than token-level GRPO because both reward assignment and policy
+clipping operate at the complete-response level. For each prompt
+$q \in \mathcal{D}_{\mathrm{ver}}$ (the verifiable prompt set), the rollout policy
+$\pi_{\theta_{\mathrm{old}}}$ samples a group of $K$ candidate solutions
+$\mathcal{G}_q=\{o_i\}_{i=1}^K$. The verifier converts each final answer into a
+binary outcome reward $r(q,o)=1$ if the extracted final answer is verified as
+correct, and $r(q,o)=0$ otherwise.
+The group-relative advantage is computed from the within-prompt reward baseline.
+We use the unnormalized form without group standard-deviation normalization,
+$\widehat{A}_i=r(q,o_i)-\mu_{\mathcal{G}_q}$, where
+$\mu_{\mathcal{G}_q}=\frac{1}{K}\sum_{j=1}^{K}r(q,o_j)$.
+The key GSPO quantity is the length-normalized sequence-level importance ratio
+$s_i(\theta)=\exp\{\frac{1}{|o_i|}\sum_{t=1}^{|o_i|}\log
+\frac{\pi_{\theta}(o_{i,t}\mid q,o_{i,<t})}
+{\pi_{\theta_{\mathrm{old}}}(o_{i,t}\mid q,o_{i,<t})}\}$. The policy is
+updated with the clipped sequence-level surrogate
+\begin{equation}
+\mathcal{J}_{\mathrm{GSPO}}(\theta)=
+\mathbb{E}_{q,\{o_i\}}
+\left[
+\frac{1}{K}\sum_{i=1}^{K}
+\min\left(
+s_i(\theta)\widehat{A}_i,
+\operatorname{clip}(s_i(\theta),1-\epsilon,1+\epsilon)\widehat{A}_i
+\right)
+\right].
+\label{eq:coarse-gspo-objective}
+\end{equation}
+% Compared with token-level clipping, this objective treats each generated
+% solution as the unit of correction, matching the binary verifier reward above.
+These definitions are also the interface used by the experience replay variants in the subsequent subsection: 
+replayed trajectories can reuse the same reward, advantage, and sequence-ratio
+notation while changing the source policy in the denominator of $s_i(\theta)$.
+Following the routing-replay motivation in GSPO \citep{zheng2025gspo}, we freeze
+the MoE router during RL so replayed trajectories are evaluated under stable
+expert-routing decisions, which reduces replay-induced instability.
+
+The reward system is intentionally layered to keep high-precision automatic
+checks before more expensive model-based judgments. We first extract the final
+answer and apply canonicalized text matching. Unresolved cases are then checked by Math-Verify\footnote{Math-Verify
+repository: \href{https://github.com/huggingface/Math-Verify}{link}.}, a
+rule-based mathematical-expression evaluation pipeline for LLM outputs. Samples
+that still fail these rule-based checks are sent to
+gpt-oss-120b\footnote{gpt-oss-120b model card:
+\href{https://huggingface.co/openai/gpt-oss-120b}{link}.} \citep{openai2025gptoss}
+for generative verification. This ordering makes the reward conservative by
+default, while still recovering correct solutions whose final answers are
+equivalent but difficult to normalize with rule-based parsers alone.
+
+\subsection{Refined RL}
+
+After coarse RL has established strong search behavior, refined RL shifts the
+optimization target from answer correctness to proof quality. The central issue
+is that many olympiad solutions can reach a correct final answer while still
+containing hidden gaps, unjustified transformations, or incomplete case
+analysis. Refined RL therefore uses a stronger process-level reward and adds two
+memory mechanisms: self-refinement, which turns recent failures into repair
+tasks, and experience replay, which preserves rare successful proofs long
+enough for the policy to learn from them.
+
+\paragraph{Generative proof reward.}
+We use DeepSeekMath-V2 as a generative reward model for refined RL
+\citep{deepseekmathv2}, except for physics prompts. 
+For every rollout from both the verifiable and
+non-verifiable subsets, the reward model reads the problem and the complete
+solution or proof, then outputs a binary score $r_{\mathrm{proof}}(q,o)\in
+\{0,1\}$. 
+Unlike the coarse verifier in \S\ref{sec:coarse-rl}, this score is not restricted to
+checking whether the final answer matches a reference answer. 
+It evaluates
+whether the full reasoning path is mathematically valid, sufficiently rigorous,
+and complete. This makes the reward more aligned with the final goal of
+olympiad reasoning, but also more expensive and more vulnerable to judge
+artifacts. We therefore apply anti-hack preprocessing before sending a response
+to the reward model: malformed generations with leaked chat-template tokens,
+unbalanced thinking delimiters, or severe repetition are replaced by a safe
+fallback answer. This prevents the policy from receiving reward by exploiting
+formatting or verifier-input pathologies rather than by improving the proof. The
+reward-model serving configuration is summarized in
+\cref{app:inference-serving-details}.
+
+\paragraph{Self-refinement.}
+Self-refinement exposes the policy to the same repair pattern that we use at
+test time: propose a solution, inspect it, locate gaps, and produce a corrected
+proof. After each rollout, responses are grouped by query. If a query group has
+average proof reward below a threshold $\tau_{\mathrm{ref}}=0.5$, failed
+responses from that group are converted into refinement prompts. Each prompt
+contains the original problem, the previous incorrect solution, and an
+instruction to critique the argument, fix proof 
+% \runzhe{the corrections were not restricted just to math and physical queries} 
+errors, fill
+missing justifications, and output a complete final solution. These prompts are
+stored in a self-refinement buffer and mixed into subsequent batches with target
+ratio $\eta_{\mathrm{ref}}=0.2$. Normal samples displaced by refinement queries
+are returned to a buffer, so refinement does not silently discard fresh
+training data. We also do not recursively enqueue failed refinement attempts,
+which avoids spending repeated updates on examples that remain outside the
+current policy's learnable region.
+
+\paragraph{Experience replay.}
+% The second memory mechanism is experience replay.
+On difficult proof problems,
+the policy may occasionally discover a valid solution trajectory even though it
+usually fails on the same query. Immediately discarding such a trajectory wastes
+a high-value training signal. Following ExGRPO
+\citep{exgrpo}, we keep a replay buffer $\mathcal{E}$ keyed by query, but our
+implementation is simpler: it uses the same GSPO-style update and does not apply
+the policy-shaping transform introduced in ExGRPO. After each rollout, a query
+is admitted to the replay buffer only when it is hard but solvable, operationalized as
+$0<n_+(q)<2$, where $n_+(q)$ is the number of successful trajectories in the
+current group. In answer-only RLVR, such a unique success can be a lucky hit: a
+trajectory may end with the correct final answer while still containing brittle
+or invalid reasoning\citep{exgrpo}. 
+In our refined RL setting, however, success is assigned by the
+DeepSeekMath-V2 proof reward, which inspects the full solution rather than only
+the final answer. This does not eliminate reward-model noise, but it makes a
+rare successful rollout substantially more likely to encode a reusable proof
+pattern and therefore a safer replay target. Stored trajectories are
+deduplicated, and a query is retired once fresh on-policy rollouts solve it
+often enough, with threshold $n_+(q)\ge 4$.
+
+Replay is mixed with fresh proof-reward training rather than run as a separate
+mode. A replay rollout injects one stored successful trajectory for the selected
+query, and the replay ratio is controlled by $\rho=0.25$ over the non-refinement
+portion of the batch. When multiple successful trajectories are stored for a
+query, we select the lowest-entropy one, $o^*=\arg\min_{o\in\mathcal{E}(q)}
+H(o;\pi_\theta)$, using rollout-side top-$k$ log probabilities as an efficient
+entropy estimate, following the trajectory-selection principle in ExGRPO
+\citep{exgrpo}. The resulting refined objective is
+\begin{equation}
+\mathcal{J}_{\mathrm{refined}}(\theta)=
+(1-\rho)\,\mathbb{E}_{\mathcal{B}_{\mathrm{fresh}}}
+\left[\mathcal{J}_{\mathrm{GSPO}}(q,\mathcal{G}_q;\theta,\pi_{\theta_{\mathrm{old}}})\right]
++\rho\,\mathbb{E}_{\mathcal{B}_{\mathrm{exp}}}
+\left[\mathcal{J}_{\mathrm{GSPO}}(q^*,\{o^*\}\cup\mathcal{G}_{q^*};\theta,\pi_{\theta_{\mathrm{src}}})\right],
+\label{eq:refined-replay-objective}
+\end{equation}
+where $\pi_{\theta_{\mathrm{src}}}=\pi_{\theta_{\mathrm{past}}}$ for the replayed
+trajectory and $\pi_{\theta_{\mathrm{src}}}=\pi_{\theta_{\mathrm{old}}}$ for fresh
+rollouts. This replay design is targeted rather than exhaustive: it stores rare
+valid proofs, prefers the most stable stored trajectory, replays it at a
+controlled ratio, and removes it once the current policy can reliably reproduce
+the behavior on-policy.

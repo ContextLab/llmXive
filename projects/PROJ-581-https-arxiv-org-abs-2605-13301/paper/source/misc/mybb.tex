@@ -1,0 +1,93 @@
+\definecolor{mintblue}{RGB}{210,235,250}
+\definecolor{mintframe}{RGB}{120,180,220} 
+\definecolor{minttitle}{RGB}{100,150,200} 
+\definecolor{minttext}{RGB}{50,80,120}    
+
+\definecolor{runzhemilk}{RGB}{255,235,245} 
+\definecolor{roseframe}{RGB}{230,120,150}  
+\definecolor{runzhecotton}{RGB}{255,170,200}    
+
+\newtcolorbox{promptbox}[1]{
+  enhanced,
+  breakable,
+  colback= runzhemilk!30!white,   
+  colframe=roseframe,                
+  colbacktitle= runzhecotton!66!white, 
+  coltitle=white!33,
+  title=\textbf{#1},
+  fonttitle=\bfseries,
+  sharp corners=south, 
+  borderline={0.8pt}{0pt}{roseframe},
+  boxrule=0.8pt,
+  arc=6pt, 
+  left=6pt, right=6pt, top=6pt, bottom=6pt,
+  before skip=10pt, after skip=10pt,
+  drop shadow=black!12,      
+}
+
+
+\newtcolorbox{casebox}[1]{
+enhanced,
+breakable,
+colback=mintblue!40!white,
+colframe=mintframe,
+colbacktitle=minttitle!70!white,
+coltitle=white,
+title=\textbf{#1},
+fonttitle=\bfseries,
+sharp corners=south, 
+borderline={0.8pt}{0pt}{minttitle},
+boxrule=0.8pt,
+arc=6pt, 
+left=6pt, right=6pt, top=6pt, bottom=6pt,
+before skip=10pt, after skip=10pt,
+drop shadow=black!15, 
+}
+
+\newtcolorbox{takeawaysbox}{
+enhanced,
+breakable,
+colback=mintblue!40!white,
+colframe=mintframe,
+colbacktitle=minttitle!70!white,
+coltitle=white,
+title=\textbf{Key Takeaways},
+fonttitle=\bfseries,
+sharp corners=south, 
+borderline={0.8pt}{0pt}{minttitle},
+boxrule=0.8pt,
+arc=6pt, 
+left=6pt, right=6pt, top=6pt, bottom=6pt,
+before skip=10pt, after skip=10pt,
+drop shadow=black!15, 
+}
+
+\newcommand{\TrajDetail}[2]{
+  \begin{center}
+    \tcbox[
+    colback=green!5!white, 
+    colframe=green!39!gray!35, 
+    coltext=black!85,
+    boxrule=0.8pt,
+    left=3pt,right=3pt,top=3pt,bottom=3pt,
+    rounded corners, 
+  ]{
+    \textsc{Reward}: \underline{1.0}\quad
+    \textsc{Entropy}: \underline{#1}\quad
+    \textsc{CoT Validity (Judged by Qwen3-32B)}: \underline{#2}
+  }
+  \end{center}
+}
+
+
+\makeatletter
+\newcommand{\DrawLine}{%
+  \begin{tikzpicture}
+  \path[use as bounding box] (0,0) -- (\linewidth,0);
+  \draw[color=minttitle!70!white,dashed,dash phase=1.5pt]
+        (0-\kvtcb@leftlower-\kvtcb@boxsep,0)--
+        (\linewidth+\kvtcb@rightlower+\kvtcb@boxsep,0);
+  \end{tikzpicture}%
+  }
+\makeatother
+

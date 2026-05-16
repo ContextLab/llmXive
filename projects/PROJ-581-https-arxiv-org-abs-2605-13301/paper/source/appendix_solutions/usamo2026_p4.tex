@@ -1,0 +1,253 @@
+\begin{mdframed}[style=mdpurplebox,frametitle={USAMO 2026 Problem 4}]
+A positive integer $n$ is called \emph{solitary} if, for any nonnegative integers $a$ and $b$ such that $a + b = n$, either $a$ or $b$ contains the digit ``1''. Determine, with proof, the number of solitary integers less than $10^{2026}$.
+\end{mdframed}
+\solutionheading{Solution}
+\begin{remark*}
+  7/7.
+\end{remark*}
+\solutionheading{1. Equivalent formulation}
+Let\par
+\[
+S = \{ x \in \mathbb{N}_0 \mid \text{the decimal representation of } x \text{ contains no digit } 1\}.
+\]
+(Note that \(0\in S\) because its representation "0" has no digit \(1\).)\par
+If \(n = a+b\) with \(a,b\in S\), then the pair \((a,b)\) shows that \(n\) is \textbf{not} solitary (both \(a\) and \(b\) lack a digit \(1\)). Conversely, if for every representation \(n = a+b\) at least one of \(a,b\) contains a digit \(1\), then certainly no representation with both in \(S\) exists. Hence\par
+\[
+n \text{ is solitary } \Longleftrightarrow \; n \notin S+S,
+\qquad\text{where } S+S = \{ x+y \mid x,y\in S\}.
+\]
+We need to count the \textbf{positive} integers \(n < 10^{2026}\) that are not in \(S+S\).\par
+Set\par
+\[
+N = 2026.
+\]
+We will first count how many numbers \(0 \le n < 10^N\) belong to \(S+S\); then subtract to get the number of positive solitary integers.\par
+\solutionheading{2. Digit-wise analysis and carries}
+Every integer \(m\) with \(0 \le m < 10^N\) can be written uniquely as\par
+\[
+m = \sum_{i=0}^{N-1} d_i 10^i,
+\]
+where each digit \(d_i\) is in \(\{0,1,\dots,9\}\). To have a uniform treatment, we pad the representation with leading zeros so that every such \(m\) uses exactly \(N\) digits.\par
+If \(a,b\in S\), then each of their digits belongs to\par
+\[
+D = \{0,2,3,4,5,6,7,8,9\}\qquad(\text{all digits except }1).
+\]
+Write \(a = \sum a_i 10^i\), \(b = \sum b_i 10^i\) with \(a_i,b_i\in D\). The addition \(a+b = n\) proceeds digit by digit with carries \(c_0,c_1,\dots,c_N\):\par
+\[
+a_i + b_i + c_i = n_i + 10\,c_{i+1},\qquad c_0 = 0,
+\]
+where each \(c_i\) is either \(0\) or \(1\) (since the maximum sum is \(9+9+1 = 19\)). Because \(n < 10^N\), the final carry must be \(c_N = 0\).\par
+\solutionheading{3. Possible sums of two digits from \(D\)}
+Define\par
+\[
+\Sigma = \{ a_i+b_i \mid a_i,b_i \in D \}.
+\]
+Since the only digit missing from \(D\) is \(1\), the sums that can be obtained are\par
+\[
+\Sigma = \{0\} \cup \{2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18\}.
+\]
+(Indeed, \(1\) cannot be expressed as a sum of two digits from \(D\); all other integers from \(0\) to \(18\) can.)\par
+\solutionheading{4. Transition sets \(T(s,d)\)}
+For a fixed carryin \(s \in \{0,1\}\) and a target digit \(d \in \{0,\dots,9\}\), let\par
+\[
+T(s,d) = \bigl\{ t \in \{0,1\} \;\big|\; \exists a_i,b_i\in D \text{ with } a_i+b_i+s = d+10t \bigr\}.
+\]
+Using \(\Sigma\), we can compute \(T(s,d)\).\par
+\solutionheading{Case \(s = 0\)}
+Here the total sum before splitting is simply \(s_0\) with \(s_0 \in \Sigma\).\par
+\compactbullet{If \(s_0 \le 9\), we may take \(t = 0\) and the digit is \(s_0\).}
+\compactbullet{If \(s_0 \ge 10\), we may take \(t = 1\) and the digit is \(s_0-10\).}
+Thus:\par
+\[
+\begin{array}{c|l}
+d & T(0,d) \\ \hline
+0 & \{0,1\} \quad (\text{totals }0\text{ and }10) \\
+1 & \{1\} \quad (\text{total }11) \\
+2 & \{0,1\} \quad (\text{totals }2\text{ and }12) \\
+3 & \{0,1\} \quad (\text{totals }3\text{ and }13) \\
+4 & \{0,1\} \quad (\text{totals }4\text{ and }14) \\
+5 & \{0,1\} \quad (\text{totals }5\text{ and }15) \\
+6 & \{0,1\} \quad (\text{totals }6\text{ and }16) \\
+7 & \{0,1\} \quad (\text{totals }7\text{ and }17) \\
+8 & \{0,1\} \quad (\text{totals }8\text{ and }18) \\
+9 & \{0\} \quad (\text{total }9) \\
+\end{array}
+\]
+In words:\par
+\compactbullet{\(d = 9\) gives only \(t = 0\).}
+\compactbullet{\(d = 1\) gives only \(t = 1\).}
+\compactbullet{The other eight digits (\(0,2,3,4,5,6,7,8\)) allow both \(t = 0\) and \(t = 1\).}
+\solutionheading{Case \(s = 1\)}
+Now the total sum is \(s_0 + 1\) with \(s_0 \in \Sigma\). Hence the attainable totals are\par
+\[
+\Sigma + 1 = \{1\} \cup \{3,4,5,\dots,19\},
+\]
+i.e., all integers from \(1\) to \(19\) except \(2\).\par
+Proceeding analogously:\par
+\[
+\begin{array}{c|l}
+d & T(1,d) \\ \hline
+0 & \{1\} \quad (\text{total }19) \\
+1 & \{0,1\} \quad (\text{totals }1\text{ and }11) \\
+2 & \{1\} \quad (\text{total }12) \\
+3 & \{0,1\} \quad (\text{totals }3\text{ and }13) \\
+4 & \{0,1\} \quad (\text{totals }4\text{ and }14) \\
+5 & \{0,1\} \quad (\text{totals }5\text{ and }15) \\
+6 & \{0,1\} \quad (\text{totals }6\text{ and }16) \\
+7 & \{0,1\} \quad (\text{totals }7\text{ and }17) \\
+8 & \{0,1\} \quad (\text{totals }8\text{ and }18) \\
+9 & \{0,1\} \quad (\text{totals }9\text{ and }19) \\
+\end{array}
+\]
+Thus:\par
+\compactbullet{\(d = 0\) and \(d = 2\) give only \(t = 1\).}
+\compactbullet{The other eight digits (\(1,3,4,5,6,7,8,9\)) allow both \(t = 0\) and \(t = 1\).}
+\solutionheading{5. State of the possible carries}
+For a given \(n\) with digits \(n_0,n_1,\dots,n_{N-1}\) (least significant first), consider all sequences of carries \(c_0,c_1,\dots,c_N\) that can arise from some choices of \(a_i,b_i\in D\). Define\par
+\[
+R_i = \{\, c_i \mid \text{there exist } a_j,b_j\in D\ (j<i)\ \text{such that the carry after processing digits }0,\dots,i-1\text{ is }c_i\,\}.
+\]
+By definition, \(R_0 = \{0\}\). For \(i \ge 0\),\par
+\[
+R_{i+1} = \bigcup_{s \in R_i} T(s, n_i). \quad\text{(1)}
+\]
+Each \(T(s,d)\) is a subset of \(\{0,1\}\), and a simple check shows it is never empty. Hence every \(R_i\) is a non-empty subset of \(\{0,1\}\). Consequently, \(R_i\) can only be one of three types:\par
+\compactbullet{\(A_i\): \(R_i = \{0\}\) (only zero carry possible),}
+\compactbullet{\(B_i\): \(R_i = \{1\}\) (only one carry possible),}
+\compactbullet{\(C_i\): \(R_i = \{0,1\}\) (both carries possible).}
+Let\par
+\[
+\begin{aligned}
+A_i &= \#\{\, n \in [0,10^i) \mid R_i = \{0\} \,\}, \\
+B_i &= \#\{\, n \in [0,10^i) \mid R_i = \{1\} \,\}, \\
+C_i &= \#\{\, n \in [0,10^i) \mid R_i = \{0,1\} \,\}.
+\end{aligned}
+\]
+\solutionheading{6. Transition counts}
+We now determine, given the current state \(R_i\), for which next digits \(d = n_i\) we obtain each possible next state \(R_{i+1}\).\par
+\compactbullet{\textbf{If }\(R_i = \{0\}\)\textbf{: then }\(R_{i+1} = T(0,d)\). From the table for \(s=0\):}
+\compactbullet{\(d = 9\) gives \(\{0\}\);}
+\compactbullet{\(d = 1\) gives \(\{1\}\);}
+\compactbullet{the other eight digits (\(0,2,3,4,5,6,7,8\)) give \(\{0,1\}\).}
+Hence:\par
+\compactbullet{1 digit yields state \(\{0\}\),}
+\compactbullet{1 digit yields state \(\{1\}\),}
+\compactbullet{8 digits yield state \(\{0,1\}\).}
+\compactbullet{\textbf{If }\(R_i = \{1\}\)\textbf{: }\(R_{i+1} = T(1,d)\). From the table for \(s=1\):}
+\compactbullet{\(d = 0\) and \(d = 2\) give \(\{1\}\);}
+\compactbullet{the other eight digits (\(1,3,4,5,6,7,8,9\)) give \(\{0,1\}\).}
+Hence:\par
+\compactbullet{2 digits yield state \(\{1\}\),}
+\compactbullet{8 digits yield state \(\{0,1\}\).}
+\compactbullet{\textbf{If }\(R_i = \{0,1\}\)\textbf{: }\(R_{i+1} = T(0,d) \cup T(1,d)\). Checking each digit individually shows that this union is always \(\{0,1\}\). Indeed:}
+\compactbullet{\(d=0\): \(T(0,0)=\{0,1\}\), \(T(1,0)=\{1\}\) $\to$ union = \(\{0,1\}\);}
+\compactbullet{\(d=1\): \(T(0,1)=\{1\}\), \(T(1,1)=\{0,1\}\) $\to$ union = \(\{0,1\}\);}
+\compactbullet{\(d=2\): \(T(0,2)=\{0,1\}\), \(T(1,2)=\{1\}\) $\to$ union = \(\{0,1\}\);}
+\compactbullet{\(d=3,\dots,8\): both sets contain \(0\) and \(1\);}
+\compactbullet{\(d=9\): \(T(0,9)=\{0\}\), \(T(1,9)=\{0,1\}\) $\to$ union = \(\{0,1\}\).}
+Therefore, \textbf{all 10 digits} keep the state as \(\{0,1\}\).\par
+Summarising the transitions in a matrix:\par
+\[
+\begin{array}{c|ccc}
+\text{from}\backslash\text{to} & \{0\} & \{1\} & \{0,1\} \\ \hline
+\{0\} & 1 & 1 & 8 \\
+\{1\} & 0 & 2 & 8 \\
+\{0,1\} & 0 & 0 & 10
+\end{array}
+\]
+\solutionheading{7. Recurrence relations}
+A number with \(i+1\) digits (i.e., an integer in \([0,10^{i+1})\)) is obtained by taking a number \(m\) in \([0,10^i)\) (which yields a certain state) and appending a new most significant digit \(d\) (which becomes \(n_i\)). The number of ways to reach each state for length \(i+1\) is therefore:\par
+\[
+\begin{aligned}
+A_{i+1} &= 1\cdot A_i + 0\cdot B_i + 0\cdot C_i = A_i, \\[4pt]
+B_{i+1} &= 1\cdot A_i + 2\cdot B_i + 0\cdot C_i = A_i + 2B_i, \\[4pt]
+C_{i+1} &= 8\cdot A_i + 8\cdot B_i + 10\cdot C_i.
+\end{aligned}
+\quad\text{(2)}
+\]
+Initial conditions: For \(i = 0\) we have processed no digits. The only possible "number" is \(0\), and the only possible carry is \(c_0 = 0\). Hence\par
+\[
+A_0 = 1,\qquad B_0 = 0,\qquad C_0 = 0.
+\]
+\solutionheading{8. Solving the recurrences}
+\solutionheading{8.1. \(A_i\)}
+From \(A_{i+1} = A_i\) and \(A_0 = 1\), we immediately obtain\par
+\[
+\boxed{A_i = 1 \quad\text{for all } i\ge 0}.
+\]
+\solutionheading{8.2. \(B_i\)}
+Substituting \(A_i = 1\) into the recurrence for \(B_i\):\par
+\[
+B_{i+1} = 1 + 2B_i,\qquad B_0 = 0.
+\]
+We claim\par
+\[
+\boxed{B_i = 2^i - 1 \quad\text{for all } i\ge 0}.
+\]
+\emph{Proof by induction.}\par
+\compactbullet{\(i = 0\): \(2^0 - 1 = 0\), true.}
+\compactbullet{Assume \(B_i = 2^i - 1\). Then}
+\[
+B_{i+1} = 1 + 2(2^i - 1) = 1 + 2^{i+1} - 2 = 2^{i+1} - 1,
+\]
+which completes the induction.\par
+\solutionheading{8.3. \(C_i\)}
+Now substitute \(A_i = 1\) and \(B_i = 2^i - 1\) into the recurrence for \(C_{i+1}\):\par
+\[
+\begin{aligned}
+C_{i+1} &= 8\cdot 1 + 8\cdot (2^i - 1) + 10\,C_i \\
+&= 8 + 8\cdot 2^i - 8 + 10\,C_i \\
+&= 8\cdot 2^i + 10\,C_i.
+\end{aligned}
+\]
+With \(C_0 = 0\). We claim\par
+\[
+\boxed{C_i = 10^i - 2^i \quad\text{for all } i\ge 0}.
+\]
+\emph{Proof by induction.}\par
+\compactbullet{\(i = 0\): \(10^0 - 2^0 = 1 - 1 = 0\), true.}
+\compactbullet{Assume \(C_i = 10^i - 2^i\). Then}
+\[
+\begin{aligned}
+C_{i+1} &= 8\cdot 2^i + 10(10^i - 2^i) \\
+&= 8\cdot 2^i + 10^{i+1} - 10\cdot 2^i \\
+&= 10^{i+1} - 2\cdot 2^i \\
+&= 10^{i+1} - 2^{i+1},
+\end{aligned}
+\]
+which establishes the claim.\par
+\solutionheading{9. Representable numbers}
+After processing all \(N\) digits, a number \(n \in [0,10^N)\) can be written as \(a+b\) with \(a,b\in S\) \textbf{iff} there exists a carry sequence with \(c_N = 0\). In terms of the sets, this is equivalent to \(0 \in R_N\).\par
+The possible values of \(R_N\) are \(\{0\}\), \(\{1\}\), or \(\{0,1\}\). Among these, \(0 \in R_N\) exactly when \(R_N = \{0\}\) or \(R_N = \{0,1\}\). Therefore\par
+\[
+|S+S \cap [0,10^N)| = A_N + C_N.
+\]
+Plugging in the formulas:\par
+\[
+|S+S \cap [0,10^N)| = 1 + (10^N - 2^N) = 10^N - 2^N + 1.
+\]
+This count includes \(n = 0\) (since \(0 = 0+0\) and \(0 \in S\)).\par
+\solutionheading{10. Positive solitary numbers}
+We are interested in \textbf{positive} integers \(n < 10^N\) that are solitary, i.e., \(n > 0\) and \(n \notin S+S\).\par
+Total positive integers less than \(10^N\) are\par
+\[
+10^N - 1.
+\]
+The number of positive integers that belong to \(S+S\) (hence are \textbf{not} solitary) is\par
+\[
+|(S+S) \setminus \{0\}| = (10^N - 2^N + 1) - 1 = 10^N - 2^N.
+\]
+Thus the number of positive solitary integers is\par
+\[
+(10^N - 1) - (10^N - 2^N) = 2^N - 1.
+\]
+\solutionheading{11. Final answer}
+For \(N = 2026\), we obtain\par
+\[
+\boxed{2^{2026} - 1}.
+\]
+\solutionheading{12. Small-case verification (optional)}
+\compactbullet{\(N = 1\): numbers \(1,\dots,9\). The formula gives \(2^1 - 1 = 1\) solitary number. Indeed, \(n = 1\) is solitary because every pair \((a,b)\) with \(a+b=1\) has either \(a=0,b=1\) or \(a=1,b=0\); in both cases the number \(1\) contains a digit \(1\). All other \(n\) (e.g., \(2\)) have a representation with both numbers lacking digit \(1\) (e.g., \(2 = 2 + 0\)), so they are not solitary.}
+\compactbullet{\(N = 2\): numbers \(1,\dots,99\). The formula gives \(2^2 - 1 = 3\) solitary numbers. One can check that they are \(1, 19, 21\). This matches the known pattern.}
+The solution is complete.\par
+\par

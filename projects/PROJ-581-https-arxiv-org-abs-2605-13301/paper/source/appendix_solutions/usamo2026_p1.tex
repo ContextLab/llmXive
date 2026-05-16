@@ -1,0 +1,211 @@
+\begin{mdframed}[style=mdpurplebox,frametitle={USAMO 2026 Problem 1}]
+Let $n$ be an integer greater than $1$. For which real numbers $x$ is
+\[
+\lfloor nx \rfloor - \sum_{k=1}^{n} \frac{\lfloor kx \rfloor}{k}
+\]
+maximal, and what is the maximal value that this expression can take?
+
+\emph{Note}: $\lfloor z \rfloor$ denotes the greatest integer less than or equal to $z$.
+\end{mdframed}
+\solutionheading{Solution}
+\begin{remark*}
+  7/7.
+\end{remark*}
+\textbf{Step 1. Reduction to the fractional part.} Let \(n>1\) be an integer. For any real \(x\), write \(x = \lfloor x\rfloor + \{x\} = m + \theta\), where \(m\in\mathbb Z\) and \(\theta\in[0,1)\). For each \(k\ge 1\),\par
+\[
+\lfloor kx \rfloor = \lfloor km + k\theta \rfloor = km + \lfloor k\theta \rfloor,
+\]
+because \(km\) is an integer. Hence the expression becomes\par
+\[
+E(x) = \lfloor nx \rfloor - \sum_{k=1}^{n}\frac{\lfloor kx\rfloor}{k}
+= \bigl( nm + \lfloor n\theta\rfloor \bigr) - \sum_{k=1}^{n}\frac{km + \lfloor k\theta\rfloor}{k}
+= \lfloor n\theta\rfloor - \sum_{k=1}^{n}\frac{\lfloor k\theta\rfloor}{k}.
+\]
+Thus \(E(x)\) depends only on \(\theta\); we define\par
+\[
+F(\theta) = \lfloor n\theta\rfloor - \sum_{k=1}^{n}\frac{\lfloor k\theta\rfloor}{k},\qquad \theta\in[0,1).
+\]
+\textbf{Step 2. Value on the interval }\(\bigl[1-\frac1n,\,1\bigr)\).\textbf{ Assume }\(\theta\in\left[1-\frac1n,\,1\right)\). Then \(\theta\ge \frac{n-1}{n}\) and \(\theta<1\), so for every \(k=1,\dots,n\),\par
+\[
+k\theta \ge k\cdot\frac{n-1}{n}=k-\frac{k}{n}\ge k-1,
+\]
+and \(k\theta < k\). Consequently \(\lfloor k\theta\rfloor = k-1\) for all \(k\). In particular \(\lfloor n\theta\rfloor = n-1\). Therefore\par
+\[
+F(\theta) = (n-1) - \sum_{k=1}^{n}\frac{k-1}{k}.
+\]
+Now\par
+\[
+\sum_{k=1}^{n}\frac{k-1}{k} = \sum_{k=1}^{n}\left(1-\frac1k\right) = n - H_n,
+\]
+where \(H_n = 1 + \frac12 + \cdots + \frac1n\) (the \(n\)-th harmonic number). Hence\par
+\[
+F(\theta) = (n-1) - (n-H_n) = H_n - 1.
+\]
+So on the whole interval \([1-\frac1n,1)\) the expression is constant and equals \(H_n-1\).\par
+\textbf{Step 3. Upper bound: first decomposition.} To prove that \(H_n-1\) is the maximum, we show \(F(\theta)\le H_n-1\) for all \(\theta\in[0,1)\). Let \(\theta\) be arbitrary and write\par
+\[
+N = \lfloor n\theta\rfloor \in \{0,1,\dots,n-1\}, \qquad \beta = n\theta - N \in [0,1).
+\]
+Set \(t = \beta/n \in [0,1/n)\). Then\par
+\[
+\theta = \frac{N}{n} + t.
+\]
+For \(k=1,\dots,n\),\par
+\[
+k\theta = \frac{kN}{n} + kt.
+\]
+Write the division of \(kN\) by \(n\):\par
+\[
+\frac{kN}{n} = \left\lfloor\frac{kN}{n}\right\rfloor + \frac{r_k}{n},
+\]
+where \(r_k\) is the remainder, i.e. \(r_k = kN \bmod n\) with \(0\le r_k < n\). Then\par
+\[
+k\theta = \underbrace{\left\lfloor\frac{kN}{n}\right\rfloor}_{\text{integer}} + \underbrace{\left(\frac{r_k}{n} + kt\right)}_{\text{in }[0,2)}.
+\]
+Define\par
+\[
+\delta_k = \begin{cases}
+1 & \text{if } \frac{r_k}{n} + kt \ge 1,\\
+0 & \text{otherwise}.
+\end{cases}
+\]
+Then\par
+\[
+\lfloor k\theta\rfloor = \left\lfloor\frac{kN}{n}\right\rfloor + \delta_k.
+\]
+Substituting into \(F(\theta)\) gives\par
+\[
+\begin{aligned}
+F(\theta) &= N - \sum_{k=1}^{n}\frac{\left\lfloor\frac{kN}{n}\right\rfloor + \delta_k}{k} \\
+&= \underbrace{N - \sum_{k=1}^{n}\frac{\left\lfloor\frac{kN}{n}\right\rfloor}{k}}_{A(N)} \;-\; \sum_{k=1}^{n}\frac{\delta_k}{k}.
+\end{aligned}
+\]
+Since each \(\delta_k/k \ge 0\), we obtain the important inequality\par
+\[
+F(\theta) \le A(N),\qquad\text{where}\qquad A(N) = N - \sum_{k=1}^{n}\frac{\left\lfloor\frac{kN}{n}\right\rfloor}{k}. \quad\text{(1)}
+\]
+Thus it suffices to prove \(A(N) \le H_n - 1\) for all \(N = 0,1,\dots,n-1\).\par
+\textbf{Step 4. Simplifying }\(A(N)\).\textbf{ Using }\(\left\lfloor\frac{kN}{n}\right\rfloor = \frac{kN - r_k}{n}\), we compute\par
+\[
+\begin{aligned}
+A(N) &= N - \sum_{k=1}^{n}\frac{kN - r_k}{n k} \\
+&= N - \sum_{k=1}^{n}\left(\frac{N}{n} - \frac{r_k}{n k}\right) \\
+&= N - \left(\frac{N}{n}\sum_{k=1}^{n}1\right) + \frac1n\sum_{k=1}^{n}\frac{r_k}{k} \\
+&= N - N + \frac1n\sum_{k=1}^{n}\frac{r_k}{k} = \frac1n\sum_{k=1}^{n}\frac{r_k}{k}. \quad\text{(2)}
+\end{aligned}
+\]
+\textbf{Step 5. Introducing the greatest common divisor.} Let \(d = \gcd(N,n)\). Write\par
+\[
+n = d\,n_1,\qquad N = d\,N_1,
+\]
+with \(\gcd(N_1,n_1)=1\).\par
+Because \(r_k\) is the remainder of \(kN\) modulo \(n\), we have \(r_k = d\cdot s_k\), where\par
+\[
+s_k = (k N_1) \bmod n_1,\quad 0\le s_k < n_1.
+\]
+Moreover, as \(k\) runs from \(1\) to \(n\), the values \(s_k\) take each integer from \(0\) to \(n_1-1\) exactly \(d\) times (this follows from the fact that \(k\mapsto kN_1\pmod{n_1}\) is a bijection over each block of length \(n_1\)). Therefore\par
+\[
+\frac1n\sum_{k=1}^{n}\frac{r_k}{k} = \frac1n\sum_{k=1}^{n}\frac{d\,s_k}{k} = \frac{d}{n}\sum_{k=1}^{n}\frac{s_k}{k} = \frac{1}{n_1}\sum_{k=1}^{n}\frac{s_k}{k}. \quad\text{(3)}
+\]
+Now decompose \(k\) as \(k = i n_1 + j\) with \(i=0,1,\dots,d-1\) and \(j=1,2,\dots,n_1\). Then \(s_k = s_j\) because \(s_{i n_1 + j} = ((i n_1 + j)N_1)\bmod n_1 = (j N_1)\bmod n_1 = s_j\). Hence\par
+\[
+\sum_{k=1}^{n}\frac{s_k}{k} = \sum_{j=1}^{n_1} s_j \sum_{i=0}^{d-1}\frac{1}{i n_1 + j}.
+\]
+Define the weights\par
+\[
+w_j = \sum_{i=0}^{d-1}\frac{1}{i n_1 + j},\qquad j=1,\dots,n_1.
+\]
+Observe that \(w_j\) is strictly decreasing in \(j\) (since larger \(j\) makes denominators larger). Then\par
+\[
+A(N) = \frac{1}{n_1}\sum_{j=1}^{n_1} s_j w_j. \quad\text{(4)}
+\]
+\textbf{Step 6. Applying the rearrangement inequality.} The set \(\{s_1,\dots,s_{n_1}\}\) is a permutation of \(\{0,1,\dots,n_1-1\}\) (this is true for the indices \(j=1,\dots,n_1\), because \(j N_1 \bmod n_1\) runs through all residues exactly once). The weights \(w_j\) are decreasing. By the rearrangement inequality, the sum \(\sum s_j w_j\) is maximized when the \(s_j\) are also arranged in decreasing order. The decreasing order of the numbers \(0,1,\dots,n_1-1\) is \(s_1=n_1-1\), \(s_2=n_1-2\), ..., \(s_{n_1}=0\). Hence for any permutation we have\par
+\[
+\sum_{j=1}^{n_1} s_j w_j \le \sum_{j=1}^{n_1} (n_1 - j) w_j. \quad\text{(5)}
+\]
+Consequently,\par
+\[
+A(N) \le \frac{1}{n_1}\sum_{j=1}^{n_1} (n_1 - j) w_j. \quad\text{(6)}
+\]
+\textbf{Step 7. Relating to the harmonic number.} Compute the right-hand side:\par
+\[
+\sum_{j=1}^{n_1} (n_1 - j) w_j = \sum_{j=1}^{n_1} (n_1 - j)\sum_{i=0}^{d-1}\frac{1}{i n_1 + j} = \sum_{i=0}^{d-1}\sum_{j=1}^{n_1}\frac{n_1 - j}{i n_1 + j} =: S.
+\]
+Now the harmonic number \(H_n\) can be written as\par
+\[
+H_n = \sum_{i=0}^{d-1}\sum_{j=1}^{n_1}\frac{1}{i n_1 + j}.
+\]
+Thus\par
+\[
+n_1 H_n = \sum_{i=0}^{d-1}\sum_{j=1}^{n_1}\frac{n_1}{i n_1 + j}.
+\]
+Consider the difference\par
+\[
+n_1 H_n - n_1 - S = \sum_{i=0}^{d-1}\sum_{j=1}^{n_1}\left(\frac{n_1}{i n_1 + j} - \frac{n_1 - j}{i n_1 + j}\right) - n_1 = \sum_{i=0}^{d-1}\sum_{j=1}^{n_1}\frac{j}{i n_1 + j} - n_1.
+\]
+Define\par
+\[
+T = \sum_{i=0}^{d-1}\sum_{j=1}^{n_1}\frac{j}{i n_1 + j}. \quad\text{(7)}
+\]
+Then \(S \le n_1 H_n - n_1\) is equivalent to \(T \ge n_1\).\par
+\textbf{Step 8. Proof that }\(T \ge n_1\).\textbf{ Rewrite each term:}\par
+\[
+\frac{j}{i n_1 + j} = 1 - \frac{i n_1}{i n_1 + j}.
+\]
+Hence\par
+\[
+\begin{aligned}
+T &= \sum_{i=0}^{d-1}\sum_{j=1}^{n_1} \left(1 - \frac{i n_1}{i n_1 + j}\right) \\
+&= \sum_{i=0}^{d-1}\sum_{j=1}^{n_1} 1 \;-\; \sum_{i=0}^{d-1}\sum_{j=1}^{n_1} \frac{i n_1}{i n_1 + j} \\
+&= d n_1 \;-\; n_1 \sum_{i=0}^{d-1} i \sum_{j=1}^{n_1}\frac{1}{i n_1 + j}.
+\end{aligned}
+\]
+Let\par
+\[
+Q = \sum_{i=0}^{d-1} i \sum_{j=1}^{n_1}\frac{1}{i n_1 + j}.
+\]
+The term with \(i=0\) is \(0\). For \(i \ge 1\), note that \(i n_1 + j > i n_1\) for all \(j\ge 1\), so\par
+\[
+\sum_{j=1}^{n_1}\frac{1}{i n_1 + j} < \sum_{j=1}^{n_1}\frac{1}{i n_1} = \frac{n_1}{i n_1} = \frac1i.
+\]
+Multiplying by \(i\) (positive) gives\par
+\[
+i \sum_{j=1}^{n_1}\frac{1}{i n_1 + j} < 1.
+\]
+Summing these inequalities for \(i = 1,2,\dots,d-1\) yields\par
+\[
+Q < \sum_{i=1}^{d-1} 1 = d-1. \quad\text{(8)}
+\]
+If \(d = 1\), then \(Q = 0\) (the sum over \(i\) is empty). Then\par
+\[
+T = d n_1 - n_1 Q = n_1 \qquad (\text{since } d=1).
+\]
+If \(d \ge 2\), we have \(Q < d-1\), hence\par
+\[
+T = d n_1 - n_1 Q > d n_1 - n_1 (d-1) = n_1.
+\]
+Thus in all cases \(T \ge n_1\), with equality exactly when \(d = 1\).\par
+\textbf{Step 9. Final bound for }\(A(N)\).\textbf{ From the equivalence established in Step 7, }\(T \ge n_1\) implies \(S \le n_1 H_n - n_1\). Using (6) we obtain\par
+\[
+A(N) \le \frac{1}{n_1} S \le \frac{1}{n_1}(n_1 H_n - n_1) = H_n - 1.
+\]
+Hence \(A(N) \le H_n - 1\) for every \(N\).\par
+\textbf{Step 10. Equality conditions.} We have the chain\par
+\[
+F(\theta) \le A(N) \le H_n - 1.
+\]
+To have \(F(\theta) = H_n - 1\), both inequalities must be equalities.\par
+\compactbullet{\textbf{Equality in }\(F(\theta) \le A(N)\)\textbf{ requires }\(\sum_{k=1}^{n} \delta_k/k = 0\), i.e., \(\delta_k = 0\) for all \(k\). This means \(\frac{r_k}{n} + kt < 1\) for every \(k\).}
+\compactbullet{\textbf{Equality in }\(A(N) \le H_n - 1\)\textbf{ requires that the upper bound we derived be attained. From the derivation, this happens exactly when }\(d = 1\) (i.e., \(\gcd(N,n)=1\)) and the rearrangement inequality (5) is sharp. Since \(w_j\) is strictly decreasing, the maximum of \(\sum s_j w_j\) is achieved when the \(s_j\) are also decreasing. For \(d = 1\), the set \(\{s_1,\dots,s_n\}\) (since \(n_1=n\)) is a permutation of \(\{0,1,\dots,n-1\}\). The decreasing order corresponds to \(s_j = n - j\) for \(j=1,\dots,n\) (with \(s_n = 0\)). This is equivalent to \((j N) \bmod n = n - j\) for all \(j=1,\dots,n\). This congruence simplifies to \(j N \equiv -j \pmod{n}\), i.e., \(N \equiv -1 \pmod{n}\). Because \(0 \le N \le n-1\), this forces \(N = n-1\).}
+Now check that for \(N = n-1\) the condition \(\delta_k = 0\) indeed holds. Write \(N = n-1\), then \(d = \gcd(n-1,n)=1\). For \(k=1,\dots,n\), \(r_k = (k(n-1)) \bmod n = n - k\) (for \(k<n\)) and \(r_n = 0\). Then\par
+\[
+\frac{r_k}{n} + kt = \frac{n - k}{n} + k t \quad (\text{or } 0 + n t \text{ for } k=n).
+\]
+Since \(t < 1/n\), we have \(\frac{n - k}{n} + k t < \frac{n - k}{n} + k \cdot \frac{1}{n} = 1,\) and for \(k=n\), \(n t < 1\). Hence \(\delta_k = 0\) for all \(k\). Therefore \(F(\theta) = A(N) = H_n - 1\).\par
+Conversely, if \(\theta \in \left[1 - \frac1n,\, 1\right)\), then \(N = n-1\) and \(t = \theta - (n-1)/n \in [0,1/n)\). As just verified, this yields \(F(\theta) = H_n - 1\).\par
+Thus the maximum value \(H_n - 1\) is attained precisely when the fractional part of \(x\) lies in the interval \([1 - 1/n,\, 1)\).\par
+\textbf{Step 11. Conclusion.} The maximal value of the expression is \(H_n - 1\), where \(H_n = 1 + \frac12 + \cdots + \frac1n\), and this maximum occurs exactly for those real numbers \(x\) whose fractional part belongs to \([1 - 1/n,\, 1)\).\par
+\[
+\boxed{H_n - 1,\quad \text{where } H_n = 1 + \frac{1}{2} + \cdots + \frac{1}{n},\ \text{and the maximum is attained iff } \{x\} \in \left[1 - \frac{1}{n},\, 1\right)}
+\]
+\par

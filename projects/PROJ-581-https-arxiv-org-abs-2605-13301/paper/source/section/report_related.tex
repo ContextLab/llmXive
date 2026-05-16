@@ -1,0 +1,46 @@
+\section{Related Work}
+
+\paragraph{Post-training for Large Reasoning Models.}
+Post-training has become the main mechanism for turning strong pretrained
+language models into reliable reasoning systems. Early self-improvement work
+showed that models can bootstrap rationales from their own successful attempts
+\citep{zelikman2022star}, while open post-training recipes combine instruction
+tuning, preference optimization, and reinforcement learning to improve general
+assistant behavior \citep{lambert2024tulu}. For mathematical and long-CoT
+reasoning, DeepSeekMath introduced large-scale mathematical pretraining together
+with GRPO \citep{shao2024deepseekmath}, Qwen2.5-Math emphasized math-specific
+self-improvement and tool-augmented data construction
+\citep{yang2024qwen25math}, DeepSeek-R1 demonstrated that large-scale RL can
+induce long reasoning traces and self-correction behaviors \citep{r1}, and Kimi
+k1.5 highlighted long-context RL, curriculum design, and sampling-based
+inference \citep{kimi2025k15}. Recent work further studies how to stabilize and
+reuse learning signal: off-policy guidance and experience replay improve sample
+reuse for reasoning policies \citep{yan2025learning,exgrpo}, entropy analyses
+explain exploration, entropy collapse, and selective entropy regularization in
+RLVR \citep{cui2025entropy,jiang2025rethinkingentropy}, and GSPO optimizes at
+the sequence level for MoE reasoning models \citep{zheng2025gspo}. Contemporary
+technical reports such as MiniMax-M2.5, Kimi-K2.5, and GLM-5 also show the
+growing importance of agentic post-training, efficient reasoning, long-context
+execution, and tool-oriented RL \citep{minimax2026m25,moonshot2026kimi25,zai2026glm5}.
+
+\paragraph{Toward Olympiad-Level Reasoning.}
+Olympiad reasoning pushes beyond benchmark math accuracy because solutions must
+be complete, rigorous, and robust to hidden gaps. One line of work addresses this
+challenge with specialized symbolic or neuro-symbolic systems: AlphaGeometry
+solves geometry problems by combining a neural language model with symbolic
+deduction \citep{trinh2024alphageometry}, and AlphaProof/AlphaGeometry 2 reached
+silver-medal-level IMO performance through formal reasoning and search
+\citep{deepmind2024alphaproof}. More recent frontier systems have moved toward
+broader natural-language reasoning and test-time search, including Gemini Deep
+Think's gold-medal-level IMO result \citep{deepmind2025geminiimo}. In parallel,
+model-agnostic verification-and-refinement pipelines show that repeated
+generation, critique, repair, and acceptance decisions can substantially improve
+proof quality without relying on a single-pass answer \citep{huang2025winning},
+and DeepSeekMath-V2 studies self-verifiable mathematical reasoning as a training
+and inference target \citep{deepseekmathv2}. Nemotron-Cascade 2 provides another
+recent example of a compact MoE reasoning model approaching frontier mathematical
+and olympiad performance through cascade RL and multi-domain on-policy
+distillation \citep{yang2026nemotroncascade2}. Our contribution is a simple and
+unified recipe that enables a 30B-A3B model to develop rigorous proof behavior
+through post-training and reach olympiad-level performance with
+self-verification, refinement, and test-time scaling.

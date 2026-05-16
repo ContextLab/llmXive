@@ -1,0 +1,883 @@
+
+\documentclass{article} % For LaTeX2e
+\usepackage[preprint]{colm2026_conference}
+\usepackage{booktabs}
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\usepackage{graphicx}  % 提供 \resizebox 命令
+\newcommand{\methodname}{\textsc{SDAR}\xspace}
+ \usepackage{amsthm}
+\newtheorem{proposition}{Proposition} 
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{xcolor}  % 提供颜色支持，用于定义 onpolicy 颜色
+\usepackage{colortbl}
+\usepackage{xspace}
+\usepackage{soul}       % 提供 \hl 和 \sethlcolor
+\newcolumntype{C}{>{\centering\arraybackslash}p{0.038\textwidth}}
+\definecolor{topcolor}{RGB}{252, 236, 196}
+\definecolor{secondcolor}{RGB}{223, 235, 253}
+\usepackage[most,skins,theorems]{tcolorbox}
+\definecolor{darkgreen}{RGB}{0,128,0}
+\newcommand{\mycomment}[1]{\textcolor{darkgreen}{\textit{// #1}}}
+\newcommand{\posval}[1]{{\textcolor{darkgreen}{#1}}}
+\newcommand{\negval}[1]{{\textcolor{red}{#1}}}
+\newtcolorbox{templatebox}[1]{
+  enhanced,
+  unbreakable,
+  colback=white,
+  colframe=black!65,
+  colbacktitle=black!80,
+  coltitle=white,
+  boxrule=0.9pt,
+  arc=2pt,
+  left=6pt,
+  right=6pt,
+  top=6pt,
+  bottom=6pt,
+  title={#1},
+  fonttitle=\bfseries,
+  sharp corners,
+  boxed title style={sharp corners, boxrule=0pt}
+}
+% NOTE: including geometry package
+% The geometery package modifies some page properties when used. This can dramatically change the page margins, leading to severe template violation, and potential desk rejection. If the package is required, it can be used with the "pass" flag to skip the default page modifications, as in the following line:
+% \usepackage[pass]{geometry}
+
+\usepackage{lineno}
+
+\definecolor{darkblue}{rgb}{0, 0, 0.5}
+\hypersetup{colorlinks=true, citecolor=darkblue, linkcolor=darkblue, urlcolor=darkblue}
+\AddToShipoutPictureBG{%
+  \ifnum\value{page}=1
+    \AtPageUpperLeft{%
+      % 修改点：height=0.8cm (原1.3cm)，让第一页的猫头变小
+      \put(\LenToUnit{3.8cm},\LenToUnit{-2cm}){%
+        \includegraphics[height=0.8cm]{figures/longcat-logo-full.pdf}%
+      }%
+    }%
+  \fi
+}
+
+\title{Self-Distilled Agentic Reinforcement Learning}
+
+% Authors must not appear in the submitted version. This should be be taken care of automatically as long as you are using the "submission" option for the colm2026_conference package. But it's on the authors to verify. Non-anonymous submissions will be rejected without review.
+
+\author{
+\textbf{Zhengxi Lu}$^{1,2}$\thanks{Work done during internship at Meituan.},~ \textbf{Zhiyuan Yao}$^{1,2}$, 
+% \textbf{Author 1}$^{1}$\footnotemark[2]~~,   
+% \textbf{Author 1}$^{2}$\thanks{Corresponding author and project leader}~~, 
+\textbf{Zhuowen Han}$^{2}$, \textbf{Zi-Han Wang}$^{2,3}$, \textbf{Jinyang Wu}$^{3}$\\
+\textbf{Qi Gu}$^{2}$\thanks{Corresponding author},~
+\textbf{Xunliang Cai}$^{2}$,
+\textbf{Weiming Lu}$^{1}$, 
+\textbf{Jun Xiao}$^{1}$,
+\textbf{Yueting Zhuang}$^{1}$,
+ \textbf{Yongliang Shen}$^{1}$\footnotemark[2]\\[3pt]
+  $^1$Zhejiang University \qquad$^2$Meituan \qquad$^3$Tsinghua University\\
+  \texttt{\small \{zhengxilu, syl\}@zju.edu.cn\qquad guqi03@meituan.com} \\
+  \begin{tabular}{@{}ll@{}}
+  \end{tabular}}
+\usepackage{graphicx}  % \includegraphics
+\usepackage{wrapfig}   % wrapfigure 环绕图
+\usepackage{caption}   % \captionsetup
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+  \addtolength{\topmargin}{0.3in}
+  \addtolength{\headsep}{-0.3in}
+\begin{document}
+
+\ifcolmsubmission
+\linenumbers
+\fi
+
+\maketitle
+\vspace{-15pt}
+
+\begin{abstract}
+% Reinforcement learning (RL) has become the dominant paradigm for post-training LLM-agents, yet its sequence-level reward signal leaves a critical credit assignment gap: only a small subset of tokens truly determines task success, while the vast majority receive undifferentiated supervision. On-Policy Self-Distillation (OPSD) offers a natural complement by injecting dense, token-level teacher guidance from privileged context, but transferring it to multi-turn settings proves problematic: compounding trajectory drift destabilizes training, and partial reverse distillation (where self-teacher is even weaker) turns the auxiliary signal into active noise. We introduce \textbf{SDAR} (\textbf{S}elf-\textbf{D}istilled \textbf{A}gentic \textbf{R}einforcement Learning), which resolves this tension through a simple principle: let each token decide the intensity of its own supervision. \methodname{} introduces agent skills as privileged context, treats distillation as a separate auxiliary objective, and modulates its strength via a sigmoid gate derived from the detached token-level signals. Our design adaptively suppresses tokens with negative distillation signals while amplifying those where the teacher provides genuine correction. Extensive experiments across the Qwen2.5 and Qwen3 families on ALFWorld, WebShop, and Search-QA demonstrate that \methodname{} achieves substantial improvements over GRPO (+9.4\% on ALFWorld, +7.0\% on Search-QA, +10.2\% on WebShop-Acc) and naive GRPO+OPSD, and consistently outperforms hybrid RL–OPSD baselines across all model scales.
+Reinforcement learning (RL) has emerged as a central paradigm for post-training LLM agents, yet its trajectory-level reward signal provides only coarse supervision for long-horizon interaction. 
+On-Policy Self-Distillation (OPSD) complements RL by introducing dense token-level guidance from a teacher branch augmented with privileged context. 
+However, transferring OPSD to multi-turn agents proves problematic: compounding multi-turn instability destabilizes supervision, while skill-conditioned privileged guidance requires asymmetric treatment for negative teacher rejections may arise from imperfect skills retrieval or utilization.
+We introduce \textbf{SDAR} (\textbf{S}elf-\textbf{D}istilled \textbf{A}gentic \textbf{R}einforcement Learning), which treats OPSD as a gated auxiliary objective while keeping RL as the primary optimization backbone. 
+\methodname{} maps detached token-level signals into a sigmoid gate, strengthening distillation on teacher-endorsed positive-gap tokens and softly attenuating negative teacher rejections. 
+Across the Qwen2.5 and Qwen3 families on ALFWorld, WebShop, and Search-QA, \methodname{} substantially improves over GRPO (+9.4\% on ALFWorld, +7.0\% on Search-QA, +10.2\% on WebShop-Acc), avoids the instability of naive GRPO+OPSD, and consistently outperforms hybrid RL--OPSD baselines across model scales. Code available: \url{https://github.com/ZJU-REAL/SDAR}.
+
+% Furthermore, SDART degrades gracefully with retrieval quality, confirming that the benefit stems from adaptive gating rather than retrieval fidelity.
+
+\end{abstract}
+
+% \begin{table*}[h]
+% \centering
+% \small
+% \setlength{\tabcolsep}{5pt}
+% \renewcommand{\arraystretch}{1.25}
+% \begin{tabular}{l p{0.46\textwidth} c c c}
+% \toprule
+% Method & Objective & Modify Advantage? & Auxiliary Loss? & Token-Adaptive? \\
+% \midrule
+
+% GRPO
+% &
+% $\displaystyle
+% \mathcal L_{\text{GRPO}}
+% =
+% -\mathbb E\!\left[
+% \frac{1}{T}\sum_{t=1}^{T}
+% \min\!\big(
+% \rho_t A,\;
+% \operatorname{clip}(\rho_t,1-\epsilon,1+\epsilon)A
+% \big)
+% \right]
+% $
+% & \cmark & \xmark & \xmark
+% \\
+
+% RLSD
+% &
+% $\displaystyle
+% \mathcal L_{\text{RLSD}}
+% =
+% -\mathbb E\!\left[
+% \frac{1}{T}\sum_{t=1}^{T}
+% \min\!\big(
+% \rho_t \hat A_t,\;
+% \operatorname{clip}(\rho_t,1-\epsilon,1+\epsilon)\hat A_t
+% \big)
+% \right],\;
+% \hat A_t=A\cdot \operatorname{clip}(w_t,1-\epsilon_w,1+\epsilon_w)
+% $
+% & \cmark & \xmark & \cmark
+% \\
+
+% Skill-SD
+% &
+% $\displaystyle
+% \mathcal L_{\text{Skill-SD}}
+% =
+% \mathcal L_{\text{GRPO}}
+% +
+% \lambda_{\text{sdl}}
+% \,
+% \mathbb E\!\left[
+% \frac{1}{T}\sum_{t=1}^{T}
+% \rho_t^{\text{imp}}
+% \,k_3\!\left(
+% \log \pi_\theta(y_t\mid s_t)-\log \pi_T(y_t\mid s_t^+)
+% \right)
+% \right]
+% $
+% & \xmark & \cmark & \cmark
+% \\
+
+% GRPO+OPSD
+% &
+% $\displaystyle
+% \mathcal L_{\text{GRPO+OPSD}}
+% =
+% \mathcal L_{\text{GRPO}}
+% +
+% \lambda_{\text{opsd}}
+% \,
+% \mathbb E\!\left[
+% \frac{1}{T}\sum_{t=1}^{T}
+% D\!\left(
+% \pi_T(\cdot\mid s_t^+)\,\|\,\pi_\theta(\cdot\mid s_t)
+% \right)
+% \right]
+% $
+% & \xmark & \cmark & \cmark
+% \\
+
+% Ours
+% &
+% $\displaystyle
+% \mathcal L_{\text{Ours}}
+% =
+% \mathcal L_{\text{policy}}
+% +
+% \lambda_{\text{cgtd}}
+% \,
+% \mathbb E\!\left[
+% \frac{1}{T}\sum_{t=1}^{T}
+% g_t
+% \Big(
+% \log \pi_T(y_t\mid s_t^+)-\log \pi_\theta(y_t\mid s_t)
+% \Big)
+% \right],
+% \quad
+% g_t=
+% \sigma\!\left(
+% \beta\,\operatorname{sg}\!\big[
+% \log \pi_T(y_t\mid s_t^+)-\log \pi_\theta(y_t\mid s_t)
+% \big]
+% \right)
+% $
+% & \xmark & \cmark & \cmark
+% \\
+
+% \bottomrule
+% \end{tabular}
+% \caption{Comparison of the objectives of GRPO, RLSD, Skill-SD, GRPO+OPSD, and our method. Here $\rho_t=\pi_\theta(y_t\mid s_t)/\pi_{\theta_{\text{old}}}(y_t\mid s_t)$ and $A$ denotes the sequence-level advantage.}
+% \label{tab:method_compare}
+% \end{table*}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.97\columnwidth]{figures/sdar_teaser.pdf}
+\caption{(a) Comparison between GRPO+OPSD and \methodname{}; (b) Overall Performance.}
+\label{fig:teaser}
+\end{figure}
+\section{Introduction}
+
+% Agentic post-training has emerged as one of the most formidable challenges for Large Language Models (LLM)~\citep{guo2025ds-r1,team2025kimi,yang2025qwen3,comanici2025gemini,team2026longcat-2601}. Unlike static, single-turn reasoning, multi-turn agents must navigate extended horizons, continuously adapting to newly observed states and their own generated histories~\citep{shen2023hugginggpt,shi2025toollearning,jimenez2023swebench}. This dynamic nature renders supervision notoriously sparse and structurally heterogeneous: task-level success is often veiled until the very end of a trajectory, while only a critical subset of tokens truly dictates the agent's fate (see Figure~\ref{fig:gaps_analysis}, Right).
+
+% To conquer this, two paradigms naturally emerge as complementary forces: Reinforcement Learning (RL)~\citep{shao2024deepseekmath,dong2025arpo,feng2025gigpo} provides reliable, task-level optimization grounded in environment or verifier feedback, while On-Policy Distillation (OPD)~\citep{ye2026opcd,yang2026g-opd,coreteam2026mimov2,glm5team2026glm5} and On-Policy Self-Distillation (OPSD)~\citep{zhao2026opsd,he2026sdzero,zhang2026embarrassinglysd} inject dense, token-level supervision, elegantly alleviating the credit assignment bottleneck left by sequence-level RL objectives. Yet, OPSD does not transfer cleanly to multi-turn settings. We attribute this to two observations: \textbf{[1] Multi-turn OPSD Instability} and \textbf{[2] Partial Reverse Distillation}.
+
+Agentic post-training has become a central challenge for Large Language Models (LLMs)~\citep{guo2025ds-r1,team2025kimi,yang2025qwen3,comanici2025gemini,team2026longcat-2601}. 
+Unlike static single-turn reasoning, multi-turn agents interact with environments over extended horizons, where each action changes future observations and each generated response becomes part of the context for subsequent decisions~\citep{shen2023hugginggpt,shi2025toollearning,jimenez2023swebench}.
+
+Two paradigms naturally emerge as complementary forces:
+Reinforcement Learning (RL)~\citep{shao2024deepseekmath,dong2025arpo,feng2025gigpo} provides task-level optimization grounded in environment or verifier feedback, whereas On-Policy Distillation (OPD)~\citep{ye2026opcd,yang2026g-opd,coreteam2026mimov2,glm5team2026glm5} and On-Policy Self-Distillation (OPSD)~\citep{zhao2026opsd,he2026sdzero,zhang2026embarrassinglysd} provide dense token-level guidance from a teacher branch. 
+Yet, OPSD does not transfer cleanly to multi-turn agent training. 
+We attribute this to two observations: \textbf{[1] Multi-turn OPSD Instability} and \textbf{[2] Asymmetric Trust in Privileged Guidance}.
+
+\paragraph{[Observation-1] Multi-turn OPSD Instability} Once the student agent inevitably drifts
+
+\vspace{-0.4\baselineskip}
+\begin{wrapfigure}{r}{0.60\linewidth}
+\vspace{-1\baselineskip}
+\centering
+\includegraphics[width=\linewidth]{figures/pre_study.pdf}
+\captionsetup{font=small, skip=6pt}
+\caption{\textbf{Left}: Multi-turn OPSD Instability, with performance and KL reported. \textbf{Right}: RLSD-Style Instability, with KL loss.}
+\label{fig:instability}
+\vspace{-1.2\baselineskip}
+\end{wrapfigure}
+from the teacher-supported trajectory, the once-helpful token-level supervision becomes increasingly unreliable. This compounding error leads to surging per-turn KL divergence and catastrophic degradation in task performance, as shown in Figure~\ref{fig:instability} (Left).
+TCOD~\citep{wang2026tcod} attempts to address this through curriculum learning, but relies on rigid temporal schedules or trajectory-depth thresholds.
+
+ % 
+%
+
+
+% \paragraph{[Observation-2] Partial Reverse Distillation.}
+% \textit{Weak-to-strong reverse distillation}~\citep{li2026rethinkingopd} occurs when the teacher is weaker than the student on specific tasks or tokens. In our preliminary study on Qwen2.5-3B-Instruct (Figure~\ref{fig:gaps_analysis}), such \textit{weak-to-strong tokens} exceed 50\% of the total count. On these tokens the teacher-student gap becomes negative, and the resulting distillation gradient effectively induces a reverse optimization that pushes the student \emph{away} from the teacher (Figure~\ref{fig:teaser}). We attribute this partial reverse distillation to the fact that OPSD's privileged context (skills, in our case) is inherently less stable than the knowledge gap exploited by standard OPD between two models, for three reasons:
+% \textbf{(1)~Skill Quality.} Distillation is beneficial only when the retrieved skills are relevant to the current task and convey knowledge beyond what the student has already acquired, which depends heavily on retrieval quality. \textbf{(2)~Skill Utilization.} Even when high-quality skills are available, the teacher may fail to produce a positive distillation signal if its underlying policy lacks sufficient exploration experience to effectively ground and leverage the privileged context~\citep{chen2019learningcheating}. \textbf{(3)~Multi-turn Drift.} The teacher-student gap tends to widen along the trajectory (Figure~\ref{fig:gaps_analysis}, Middle): once the teacher is weaker at initialization, the accumulated harm compounds over successive turns~\citep{ross2011dagger}.
+
+\paragraph{[Observation-2] Asymmetric Trust in Privileged Guidance.}
+In OPSD, the teacher branch is not an independently stronger model, but the same policy augmented with privileged training-only context, such as retrieved skills. 
+This makes its token-level guidance inherently asymmetric. 
+For a student-sampled token $y_t$, if the privileged teacher assigns a higher probability than the student, the retrieved skill provides an endorsement signal: it supports an on-policy behavior that the student can already generate but has not fully internalized. 
+Such positive guidance is particularly suitable for distillation.
+
+In contrast, if the privileged teacher assigns a lower probability to the sampled token, the signal should be interpreted more cautiously. 
+A negative gap may indicate that the token should indeed be suppressed, but in skill-conditioned OPSD it may also arise from the instability of privileged context: 
+\textbf{(1)~Skill Quality.} Retrieved skills may be irrelevant, incomplete, or redundant. 
+\textbf{(2)~Skill Utilization.} The teacher may fail to ground even relevant skills into reliable token-level preferences~\citep{chen2019learningcheating}. 
+\textbf{(3)~Multi-turn Drift.} As trajectories unfold, the teacher-student gap tends to widen across turns (Figure~\ref{fig:gaps_analysis}, Middle), amplifying early mismatches over successive decisions~\citep{ross2011dagger}. 
+Our preliminary study on Qwen2.5-3B-Instruct shows that negative-gap tokens exceed 50\% of all tokens (Figure~\ref{fig:gaps_analysis}), making this issue pervasive. 
+This motivates an asymmetric treatment of privileged guidance: trust positive teacher endorsements more strongly, while applying negative teacher rejections more conservatively.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/gaps_analysis.pdf}
+\caption{\textbf{Teacher-Student Gap Analysis.} \textbf{Left}: Token count distribution partitioned by Teacher-Student gap value. \textbf{Middle}: Average teacher-student gap indexed by multi-turn step. \textbf{Right}: Average teacher-student gap indexed by relative position within a single turn.}
+\label{fig:gaps_analysis}
+\end{figure}
+
+A stark realization emerges: for multi-turn agents, RL could reign as the primary optimization backbone, while OPSD is relegated to a carefully controlled auxiliary role.
+
+% \paragraph{[Observation-3] RLSD-Style Instability}
+But how should this auxiliary role be controlled? RLSD~\citep{yang2026rlsd} directly uses self-divergence to re-weight token-level RL advantages, but can substantially amplify updates 
+especially early in training when teacher-student mismatch is large (see Figure~\ref{fig:instability}, Right). 
+
+
+We take a different path: the OPSD loss is treated as a direct, auxiliary optimization objective, leaving the verifier-driven RL policy loss untouched and thereby strictly preserving the semantics and unbiasedness of the RL advantage. To overcome instability of multi-turn OPSD and privileged guidance, distillation is not performed uniformly on every token. Instead, tokens are selectively distilled via an adaptive, smooth gating mechanism rather than a hand-crafted, rigid schedule (such as Skill-SD~\citep{wang2026skillsd} and HDPO~\citep{ding2026hdpo}). Inspired by TIP~\citep{xu2026tip}, we use token-level signals (such as student entropy or teacher-student divergence) to control the gate's activation. The core philosophy is simple: \emph{let each token decide the intensity of its own supervision.}
+% If the teacher is substantially more confident than the student on a generated token, that token carries a critical corrective signal and demands strong distillation. Conversely, if the gap is negligible or negative, forceful distillation is not just unnecessary—it injects active noise. 
+% This design elegantly resolves the multi-turn distillation dilemma, offering three profound advantages. First, it strictly preserves the semantics of the original RL advantage, rendering it perfectly orthogonal to recent advancements in biased group-relative advantage estimation. Second, the confidence gate is mathematically smooth and bounded, eliminating the risk of arbitrarily large distillation gradients and ensuring rock-solid optimization stability. Finally, unlike traditional full-vocabulary distribution matching, our auxiliary loss acts only on student-sampled tokens. Consequently, privileged teacher information gracefully modulates the update magnitude without ever forcing a rigid, privileged gradient direction upon the student.
+This yields a dynamic, self-paced curriculum operating at the finest possible granularity: the individual token level.
+
+We validated our method across the Qwen2.5 and Qwen3 model families on three diverse benchmarks for llm-based agents: ALFWorld~\citep{shridhar2020alfworld}, WebShop~\citep{yao2022webshop}, and Search-QA~\citep{jin2025searchr1}. \methodname{} achieves substantial improvements over GRPO ($+9.4\%$ on ALFWorld, $+7.0\%$ on Search-QA, and $+10.2\%$ on WebShop-Acc for 7B), entirely avoids the catastrophic instability of na\"ive GRPO+OPSD, and consistently outperforms RL--OPSD hybrid methods such as Skill-SD and RLSD across all three model scales (Qwen3-1.7B included). Furthermore, robustness analysis shows that \methodname{} degrades gracefully with retrieval quality: even random retrieval outperforms the GRPO baseline, as our gating design filters out noise from low-quality skills and distills beneficial signals only. 
+% While prior works like TCOD attempt to stabilize OPD through curriculum learning, they rely on rigid temporal schedules or trajectory depths, completely ignoring the nuanced, token-by-token reality of the generation process. 
+% This glaring gap motivates a compelling question: can we design a distillation mechanism whose strength is dynamically dictated by the rich token-level information, rather than by a hand-crafted, rigid schedule?
+
+
+
+% We answer this question affirmatively with a novel gap-gated on-policy distillation objective. By leaving the verifier-driven RL policy loss untouched, we introduce a surgical, token-level auxiliary loss. The core philosophy is elegantly simple: let the teacher-student confidence gap decide the intensity of the supervision. If the teacher is substantially more confident than the student on a generated token, that token carries a critical corrective signal and demands strong distillation. Conversely, if the gap is negligible or negative, forceful distillation is not just unnecessary—it injects active noise. This paradigm shift yields a dynamic, self-paced curriculum that operates at the finest possible granularity: the sample and token level.
+
+
+
+\section{Method}
+
+\subsection{Problem Setup}
+
+We consider a multi-turn agent that interacts with an environment over a finite horizon.
+Given an initial prompt or task description $x$, at turn $k$ the agent receives an observation $o_k$,
+generates a response $a_k$, and the environment returns the next observation $o_{k+1}$.
+Each response $a_k$ may contain both intermediate reasoning tokens and executable action tokens.
+For notational simplicity, we flatten all valid response tokens in one trajectory into a single token sequence
+\[
+y = (y_1,\dots,y_T) \sim \pi_{\theta}(\cdot \mid x),
+\]
+where $\pi_{\theta}$ denotes the student policy and $T$ is the total number of valid response tokens.
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/sdart_method.pdf}
+\caption{\textbf{Illustrations of \methodname{} framework,} which trains multi-turn agents using token-level OPSD loss and verifier-driven RL loss.} 
+\label{fig:method}
+\end{figure}
+At token position $t$, we denote the self-student context by
+\[
+s_t = (x, y_{<t}),
+\]
+and the self-teacher context by
+\[
+s_t^{+} = (x, c^{+}, y_{<t}),
+\]
+where $c^{+}$ denotes privileged training-only context available only to the teacher branch,
+such as reference answers, skills (ours), or other auxiliary information not accessible at test time.
+\paragraph{Skills Retrieval} We retrieve task-relevant \emph{skills}---compact, structured demonstrations that encode domain-specific knowledge such as sub-goal decompositions or action templates. 
+We implement four retrieval strategies of varying quality to evaluate the robustness of our framework to the fidelity of the retrieved context: \textbf{(1) UCB Retrieval}, \textbf{(2) Keyword Matching (KM)}, \textbf{(3) Full Retrieval}, and \textbf{(4) Random Retrieval}.
+
+Skill retrieval is cast as a multi-armed bandit problem over the skill library $\mathcal{E} = \{e_1, \dots, e_M\}$. For each incoming task, \textbf{UCB Retrieval} selects the single highest-scoring skill file according to the Upper Confidence Bound (UCB) criterion:
+%
+\begin{equation}
+    \mathrm{score}(e) \;=\; \bar{r}(e) \;+\; c\,\sqrt{\frac{\ln N_{\mathrm{ucb}}}{n(e)}},
+\end{equation}
+%
+where $\bar{r}(e)$ is the running mean reward obtained when skill $e$ was previously supplied as context, $N_{\mathrm{ucb}}$ is the total number of retrieval queries issued for the same task type, $n(e)$ is the number of times $e$ has been selected, and $c$ controls the exploration--exploitation trade-off.
+\textbf{Keyword Matching} bypasses the bandit formulation and instead identifies the task
+  scenario by matching keywords in the task description against predefined category labels,
+  directly retrieving the skill file associated with the matched category.
+% The UCB term encourages under-explored skills to be tried while gradually concentrating selections on high-reward ones. Both $\bar{r}(e)$ and $n(e)$ are updated online after each training episode at negligible cost, making the retrieval overhead minimal compared to policy optimization.
+
+\subsection{Optimization Goals}
+\label{sec:opsd}
+Our method is designed as an auxiliary objective on top of a standard policy optimization GRPO loss. The overall training objective is
+\[
+\mathcal{L}(\theta)
+=
+\mathcal{L}_{\text{GRPO}}(\theta)
++
+\lambda_{\text{\methodname}} \cdot \mathcal{L}_{\text{\methodname}}(\theta),
+\]
+where $\mathcal{L}_{\text{GRPO}}$ is the original policy loss and
+$\mathcal{L}_{\text{\methodname}}$ is our on-policy self-distillation objective.
+
+Let $m_t \in \{0,1\}$ be the response mask indicating whether token $t$ is valid.
+We define masked token averaging as
+\[
+\operatorname{Agg}(z_{1:T})
+=
+\frac{\sum_{t=1}^{T} m_t z_t}{\sum_{t=1}^{T} m_t}.
+\]
+
+% \subsection{Policy Optimization and the Limitation of Naive GRPO+OPSD}
+
+\paragraph{RL Optimization} For each input $x$, GRPO samples a group of responses
+\[
+\{y^{(i)}\}_{i=1}^{G} \sim \pi_{\theta}(\cdot \mid x),
+\]
+and computes a sequence-level advantage $A^{(i)}$ from environment rewards.
+Using a reference policy $\pi_{\mathrm{ref}}$, the GRPO objective can be written as
+\begin{align}
+\mathcal{L}_{\text{GRPO}}(\theta)
+&=
+-\frac{1}{G}\sum_{i=1}^{G}
+\operatorname{Agg}\!\left(
+\min\!\Big(
+r_{t}^{(i)} A^{(i)},\,
+\operatorname{clip}(r_{t}^{(i)},1-\epsilon,1+\epsilon)A^{(i)}
+\Big)
+\right)
+\notag\\
+&\quad
++\,\beta \cdot
+\frac{1}{G}\sum_{i=1}^{G}
+\operatorname{Agg}\!\left(
+D_{\mathrm{KL}}\!\big(
+\pi_{\theta}(\cdot \mid s_t^{(i)})
+\,\|\,
+\pi_{\mathrm{ref}}(\cdot \mid s_t^{(i)})
+\big)
+\right),
+\end{align}
+where $r_t^{(i)}=\pi_{\theta}(y_t^{(i)} \mid s_t^{(i)}) / \pi_{\theta_{\mathrm{old}}}(y_t^{(i)} \mid s_t^{(i)})$ is the importance sampling ratio.
+
+% The key property of GRPO is that the environment reward determines the \emph{direction} of policy improvement through the sequence-level advantage.
+% However, in multi-turn agent training, this signal is sparse and coarse: all valid tokens in one sampled response share the same sequence-level advantage.
+
+% A natural idea is therefore to combine GRPO with on-policy self-distillation (OPSD), so that a privileged teacher branch can provide token-level dense supervision.
+% A naive combination takes the form
+% \[
+% \mathcal{L}_{\text{naive}}
+% =
+% \mathcal{L}_{\text{policy}}
+% +
+% \lambda_{\text{opsd}} \mathcal{L}_{\text{OPSD}},
+% \]
+% where $\mathcal{L}_{\text{OPSD}}$ is a token-level teacher-student matching objective.
+
+% However, directly combining GRPO with a uniform OPSD loss suffers from two problems in the multi-turn setting.
+% First, token importance is highly non-uniform: some tokens carry strong corrective signal while many others are weakly informative.
+% Second, teacher-student discrepancy is often largest at early training stages or late trajectory steps; if this discrepancy is injected too aggressively into optimization, the auxiliary gradient may dominate the policy update and cause unstable training.
+% These issues motivate a more selective and bounded way to incorporate teacher guidance.
+
+\paragraph{OPSD Optimization}
+
+At a fixed token position $t$, the teacher and student induce conditional token distributions $\pi_T(\cdot \mid s_t^{+})$ and $\pi_{\theta}(\cdot \mid s_t)$, respectively. The per-token reverse KL divergence is defined as:
+$$
+D_{\mathrm{RKL}}^{(t)} = D_{\mathrm{KL}}\!\left( \pi_{\theta}(\cdot \mid s_t) \;\middle\|\; \pi_T(\cdot \mid s_t^{+}) \right) = \sum_{v \in \mathcal{V}} \pi_{\theta}(v \mid s_t) \log \frac{\pi_{\theta}(v \mid s_t)}{\pi_T(v \mid s_t^{+})}.
+$$
+To efficiently derive an \emph{importance signal} without computing the expensive full-vocabulary summation, we take a single-sample estimate on the student-sampled token $y_t \sim \pi_{\theta}(\cdot \mid s_t)$. The negation of this estimate directly yields the Teacher-Student log-probability gap $\Delta_t$:
+$$
+\Delta_t = -\widehat{D}_{\mathrm{RKL}}^{(t)} = \log \pi_T(y_t \mid s_t^{+}) - \log \pi_{\theta}(y_t \mid s_t).
+$$
+% This shows that the log-probability gap is naturally aligned with reverse-KL-style on-policy supervision.
+% Nevertheless, we do \emph{not} directly use this raw gap as an optimization coefficient, because large discrepancies are common in early training and can induce unstable updates.
+
+% \subsection{Token-Level Gating}
+% \label{sec:token_gating}
+% The key idea is to separate \emph{where} the privileged teacher provides useful correction
+% from \emph{how} the student is actually optimized.
+% We introduce a token-level gate $g_t\in[0,1]$ that modulates the distillation signal,
+% and apply it to a sampled-token surrogate so that different gating strategies
+% share the same optimization form.
+% Let
+% \[
+% \Delta_t
+% \;=\;
+% \operatorname{sg}\!\Bigl(
+%   \log\pi_{\theta}^{+}(y_t\mid s_t^{+})
+%   \;-\;
+%   \log\pi_{\theta}(y_t\mid s_t)
+% \Bigr)
+% \]
+% denote the \emph{detached} Teacher-Student log-probability gap on the student-sampled token,
+% and
+% \[
+% h_t = -\sum_{v\in\mathcal{V}} \pi_{\theta}(v\mid s_t)\,\log\pi_{\theta}(v\mid s_t)
+% \]
+% denote the student entropy at position~$t$.
+% We compose each raw importance score with the logistic sigmoid~$\sigma$
+% so that every gate is smooth, differentiable,
+% and naturally bounded in~$(0,1)$;
+% the sharpness parameter $\beta>0$ controls how sharply the gate
+% transitions between suppression and full activation.
+% We instantiate three complementary strategies:
+% \begin{enumerate}
+%   \item \emph{Entropy gating}: $g_t = \sigma(\beta\,h_t)$,
+%     targeting high-entropy positions where the student is most uncertain.
+%   \item \emph{Gap gating}: $g_t = \sigma(\beta\,\Delta_t)$,
+%      assigning larger weights to teacher-endorsed tokens with positive gaps and attenuating teacher-rejected tokens with negative gaps.
+%   \item \emph{Soft-OR gating}: $g_t = \sigma\!\bigl(\beta\bigl[1 - (1-h_t)(1-\Delta_t)\bigr]\bigr)$,
+%     activating whenever \emph{either} signal is large and strongest when both coincide.
+% \end{enumerate}
+% In all cases the gate is detached via $\operatorname{sg}(\cdot)$,
+% so gradients flow exclusively through the student log-probability.
+% The token-level loss is
+% \[
+% \ell_t^{\,\methodname}
+% \;=\;
+% g_t \cdot
+% \bigl(
+%   \log\pi_{\theta}^{+}(y_t\mid s_t^{+})
+%   -
+%   \log\pi_{\theta}(y_t\mid s_t)
+% \bigr),
+% \qquad
+% \mathcal{L}_{\methodname}
+% \;=\;
+% \operatorname{Agg}\!\bigl(\ell_t^{\,\methodname}\bigr).
+% \]
+% We also provide Theoretical Analysis of our design in Appendix~\ref{appendix:proof}.
+
+\subsection{Token-Level Gating}
+\label{sec:token_gating}
+
+The key idea is to convert privileged teacher guidance into a token-level trust weight, 
+while keeping the verifier-driven RL objective unchanged. 
+We introduce a token-level gate $g_t\in[0,1]$ that modulates the OPSD signal on each student-sampled token,
+and apply it to a sampled-token surrogate so that different gating strategies share the same optimization.
+
+Let
+\[
+\Delta_t
+\;=\;
+\operatorname{sg}\!\Bigl(
+  \log\pi_{\theta}^{+}(y_t\mid s_t^{+})
+  \;-\;
+  \log\pi_{\theta}(y_t\mid s_t)
+\Bigr)
+\]
+denote the \emph{detached} Teacher-Student log-probability gap on the student-sampled token, and
+\[
+h_t = -\sum_{v\in\mathcal{V}} \pi_{\theta}(v\mid s_t)\,\log\pi_{\theta}(v\mid s_t)
+\]
+denote the student entropy at position~$t$.
+We compose each raw score with the logistic sigmoid~$\sigma$
+so that every gate is smooth, differentiable, and naturally bounded in~$(0,1)$.
+The sharpness parameter $\beta>0$ controls the transition between conservative attenuation and strong activation.
+
+We instantiate three complementary gating strategies:
+\begin{enumerate}
+  \item \emph{Entropy gating}: $g_t = \sigma(\beta\,h_t)$,
+    targeting high-entropy positions where the student is most uncertain.
+  \item \emph{Gap gating}: $g_t = \sigma(\beta\,\Delta_t)$,
+    assigning larger weights to positive-gap tokens endorsed by the privileged teacher while attenuating negative-gap tokens.
+  \item \emph{Soft-OR gating}: $g_t = \sigma\!\bigl(\beta\bigl[1 - (1-h_t)(1-\Delta_t)\bigr]\bigr)$,
+    combining student uncertainty and teacher-student gap as an alternative gating strategy.
+\end{enumerate}
+
+In all cases, the gate is detached via $\operatorname{sg}(\cdot)$,
+so gradients flow exclusively through the student log-probability.
+The token-level loss is
+\[
+\ell_t^{\,\methodname}
+\;=\;
+g_t \cdot
+\bigl(
+  \log\pi_{\theta}^{+}(y_t\mid s_t^{+})
+  -
+  \log\pi_{\theta}(y_t\mid s_t)
+\bigr),
+\qquad
+\mathcal{L}_{\methodname}
+\;=\;
+\operatorname{Agg}\!\bigl(\ell_t^{\,\methodname}\bigr).
+\]
+With gap gating, the sigmoid gate implements asymmetric token-level modulation: positive-gap tokens receive stronger auxiliary distillation, while negative-gap tokens are softly attenuated.
+We also provide theoretical analysis of our design in Appendix~\ref{appendix:proof}.
+
+
+\input{tables/experiment}
+
+\section{Experiment}
+\paragraph{Benchmarks}
+
+We evaluate our methods on ALFWorld~\citep{shridhar2020alfworld}, Search-based QA~\citep{jin2025searchr1}, and Webshop~\citep{yao2022webshop}. \textit{ALFWorld} is a text-based game aligned with the ALFRED embodied AI benchmark, including 3,827 task instances across six categories of common household activities: Pick and Place (Pick), Look at Obj in Light (Look), Pick Clean then Place in Recep (Clean), Pick Heat then Place in Recep (Heat), Pick Cool then Place in Recep (Cool), and Pick Two Obj and Place (Pick2). \textit{Search-based QA} contains several widely-used search-augmented QA benchmarks, including single-hop QA datasets (NQ~\citep{kwiatkowski2019nq}, TriviaQA~\citep{joshi2017triviaqa}, and PopQA~\citep{mallen2023popqa}) and multi-hop QA datasets (HotpotQA~\citep{yang2018hotpotqa}, 2Wiki~\citep{ho20202wiki}, MuSiQue~\citep{trivedi2022musique}, and Bamboogle~\citep{press2023bamboogle}).
+\textit{WebShop} is a complex, web-based interactive environment designed to test the LLM agents in realistic online shopping scenarios. Agents navigate a realistic web interface to find and purchase products matching user specifications. We select 128 fixed tasks in validation set, which aligns with \citet{feng2025gigpo}.
+
+\paragraph{Implementation Details.}
+We train the Qwen2.5-Instruct and Qwen3-Instruct series using \methodname{} for at 150 steps on 8 H800 GPUs.
+For ALFWorld, we adopt the training data split from GiGPO~\citep{feng2025gigpo}, 
+with each batch sampling 16 tasks and 8 rollouts per prompt, 
+and a maximum prompt length of 2,048 tokens.
+For Search-QA, we follow the experimental setup of Search-R1~\citep{jin2025searchr1}, 
+using E5~\citep{wang2022e5} as the retriever.
+The training data are drawn from NQ and HotpotQA, making these two benchmarks in-domain, 
+while the remaining datasets serve as out-of-domain evaluation.
+Each batch samples 128 tasks with a maximum prompt length of 4,096 tokens. For Webshop, 1000 tasks are selected for training, with each batch sampling 16 tasks and 8 rollouts per prompt, and a maximum prompt length of 4,096 tokens. 
+We set the \texttt{SkillBank} from SkillRL~\citep{xia2026skillrl} for all three environments. We set $\lambda_{\methodname}=0.01$ and $\beta=5.0$ in our experiments.
+
+\paragraph{Baselines}
+We compare \methodname{} against three categories of methods on three base models.
+  \textbf{(1) Training-free methods.}
+  \textit{Skill-Prompt} retrieves task-relevant skills from the \texttt{SkillBank} via keyword
+  matching (KM) and prepends them to the input prompt at inference time.
+  \textbf{(2) Post-training methods,} such as GRPO~\citep{shao2024deepseekmath}, OPSD~\citep{zhao2026opsd} and Skill-GRPO. \textit{Skill-GRPO} augments GRPO by retrieving skills via KM and injecting them into the
+  training prompt;
+  at test time it can run with (\textit{Skill-GRPO*}) or without retrieved skills.
+  \textbf{(3) Hybrid methods}, that combine RL with privileged knowledge distillation, such as GRPO+OPSD, and Skill-SD~\citep{wang2026skillsd}, RLSD~\citep{yang2026rlsd}.  
+  \textit{GRPO+OPSD} simply adds the OPSD distillation loss as an auxiliary objective on top of GRPO training. All the algorithms of \methodname{} and other baselines are detailed in Appendix~\ref{appendix:proof}.
+\subsection{Main Results}
+\paragraph{Overall Performance.}          
+As summarized in Table~\ref{tab:main_results}, \methodname{} demonstrates exceptional performance, achieving the best or second-best results across almost all settings. Compared to GRPO, it delivers substantial gains: on Qwen2.5-3B, it improves ALFWorld by +9.4\% (84.4 vs.\ 75.0), Search-QA by +7.0\%, and WebShop-Acc by +4.7\%, with similarly consistent improvements on the 7B model. While standalone OPSD collapses catastrophically (near-zero on Search-QA) and a naive GRPO+OPSD combination degrades severely on Qwen3-1.7B (32.0 vs.\ 46.1) due to unbounded distillation gradients overwhelming the RL signal, \methodname{} avoids the observed instability and maintains stable gains. Through its adaptive gating mechanism, it ensures stable optimization and consistent gains across all model scales.
+ 
+\paragraph{Skills Internalization.}                                                           
+Beyond overall performance, \methodname{} successfully \emph{internalizes} privileged knowledge rather than superficially relying on it at inference~\citep{lu2026skill0}. While Skill-GRPO shows a massive performance drop when tested without skills (e.g., 60.2 vs.\ 80.5 on ALFWorld-3B) and even underperforms vanilla GRPO due to harmful distributional dependencies, \methodname{} requires no external skills during inference. Yet, it surpasses even the skill-augmented Skill-GRPO* in most settings, achieving 84.4 on ALFWorld-3B and a striking 53.9 (vs.\ 28.1) on ALFWorld-1.7B. These consistent gains confirm that our token-level gated distillation genuinely transfers underlying knowledge into the policy's parameters.
+
+\paragraph{Strong Generalization.}                                                            
+%\methodname{} also exhibits stronger generalization compared to hybrid baselines like Skill-SD and RLSD. On Qwen2.5-3B, it clearly outperforms both on ALFWorld (84.4 vs.\ 73.4 for Skill-SD and 79.7 for RLSD) and WebShop. This advantage is most pronounced on the challenging Qwen3-1.7B, where smaller models struggle to utilize retrieved skills. In this regime, Skill-GRPO collapses to 21.1\% on ALFWorld (well below GRPO's 46.1\%), and RLSD degrades to 42.2\% as noisy teacher signals amplify optimization errors. In contrast, \methodname{} achieves the highest score of 53.9\%. By adaptively suppressing negative teacher signals, our gating mechanism provides a principled way to incorporate privileged knowledge without sacrificing generalization.
+\methodname{} also exhibits stronger generalization compared to hybrid baselines such as Skill-SD and RLSD.
+On Qwen2.5-3B, it outperforms both methods on ALFWorld (84.4 vs.\ 73.4 for Skill-SD and 79.7 for RLSD) and WebShop.
+This advantage is most pronounced on the challenging Qwen3-1.7B model, where smaller models may struggle to utilize retrieved skills effectively.
+In this regime, Skill-GRPO drops to 21.1\% on ALFWorld, well below GRPO's 46.1\%, and RLSD reaches 42.2\%.
+In contrast, \methodname{} achieves the highest score of 53.9\%.
+By attenuating uncertain negative teacher guidance while preserving positive teacher endorsements, our gating mechanism provides a more robust way to incorporate privileged knowledge without sacrificing generalization.
+
+
+\subsection{Training Dynamics}                                                          
+To elucidate the adaptive behavior of \methodname{} throughout RL optimization, we monitor two key metrics for the Qwen2.5-7B backbone on ALFWorld in Figure~\ref{fig:7b_alfworld_gap_gate}. 
+\textit{(a)} shows that the mean Teacher-Student log-probability gap 
+($\bar\Delta = \mathbb{E}_t[\Delta_t]$) remains consistently negative, 
+indicating that the privileged teacher assigns lower probability than the student to sampled tokens on average.
+This reveals partial asymmetric trust in privileged guidance regime where na\"ive distillation would actively degrade performance. Crucially, $\bar\Delta$ steadily converges toward zero, confirming that the gating mechanism successfully identifies and up-weights the specific subset of tokens where the teacher \emph{does} provide beneficial signals. To further validate this adaptive filtering, \textit{(b)} tracks the gate activation ratio (the fraction of tokens where $g_t > 0.5$). For the majority of early training, this ratio remains strictly below $0.5$, correctly suppressing tokens that carry negative signals. However, as the student's policy evolves, the ratio gradually increases, reflecting that more tokens enter a regime of constructive teacher guidance.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/7b_alfworld_gap_gate.pdf}
+\caption{\textbf{Training Dynamics.} Average teacher-student gap (Left) and gate activation ratio (Right) during the training of Qwen2.5-7B-Instruct on ALFWorld.} 
+\label{fig:7b_alfworld_gap_gate}
+\end{figure}
+
+\subsection{Robust Analysis}
+
+%To address the practical concern of whether \methodname{} heavily relies on high-quality skill retrieval, we fix our optimal configuration ($\lambda=0.01$, $\beta=5.0$) and evaluate performance across four retrieval quality tiers (Table~\ref{tab:ablation_method}). Remarkably, all four strategies consistently outperform the pure GRPO baseline (\emph{w/o OPSD}). Even \textbf{Random Retrieval}---which selects skills with zero task awareness---yields notable gains of $+1.9$/$+1.6$/$+1.0$ on ALFWorld/WebShop-Score/WebShop-Acc. Naturally, higher-quality retrieval further amplifies these benefits: \textbf{Keyword Matching}, a simple rule-based heuristic, achieves impressive gains of $+4.7$/$+8.5$/$+10.2$ and even surpasses UCB on WebShop. Crucially, the performance variance among retrieval strategies is much smaller than their overall advantage over the baseline, confirming that the uplift stems primarily from \methodname{}'s gated distillation rather than retrieval fidelity. Such robustness arises because the gate actively filters noise from low-quality skills, distilling only genuinely beneficial signals to prevent policy degradation.
+
+
+To address the practical concern of whether \methodname{} heavily relies on high-quality skill retrieval, we fix our optimal configuration ($\lambda=0.01$, $\beta=5.0$) and evaluate performance across four retrieval quality tiers (Table~\ref{tab:ablation_method}). 
+All four strategies consistently outperform the pure GRPO baseline (\emph{w/o OPSD}). 
+Even \textbf{Random Retrieval}---which selects skills with zero task awareness---yields gains of $+1.9$/$+1.6$/$+1.0$ on ALFWorld/WebShop-Score/WebShop-Acc. 
+Higher-quality retrieval further amplifies these benefits: \textbf{Keyword Matching} achieves gains of $+4.7$/$+8.5$/$+10.2$ and even surpasses UCB on WebShop. 
+
+These results echo our observation on asymmetric privileged guidance. 
+Low-quality retrieval can introduce mismatched or unstable teacher signals, especially negative guidance from irrelevant skills. 
+Rather than uniformly following such signals, \methodname{} uses token-level gating to retain positive teacher endorsements while softly attenuating uncertain negative rejections. 
+Thus, the performance gains remain robust across retrieval qualities, suggesting that the uplift stems primarily from gated distillation rather than retrieval fidelity alone.
+
+\begin{table}[t]       
+    \centering
+    \caption{Robust Testing of different skill retrieval methods.}                          
+    \label{tab:ablation_method}                                                             
+    \begin{tabular}{lccc}
+    \toprule
+        Method & ALFWorld & WebShop-Score & WebShop-Acc \\
+
+        \midrule
+
+        UCB & 86.8\posval{$_{+5.6}$} & 87.5\posval{$_{+6.6}$} & 81.2\posval{$_{+8.6}$} \\   
+        KM & 85.9\posval{$_{+4.7}$} & 89.4\posval{$_{+8.5}$} & 82.8\posval{$_{+10.2}$} \\
+        Full & 83.2\posval{$_{+2.0}$} & 87.2\posval{$_{+6.3}$} & 78.1\posval{$_{+5.5}$} \\  
+        Random & 83.1\posval{$_{+1.9}$} & 82.5\posval{$_{+1.6}$} & 73.6\posval{$_{+1.0}$} \\
+        \rowcolor{gray!10} w/o OPSD & 81.2 & 80.9 & 72.6 \\
+        \bottomrule
+    \end{tabular}
+\end{table} 
+\subsection{Ablation Studies}
+
+\paragraph{Token-Level Gating Strategy.} As shown in Figure~\ref{fig:ablation_tip}, Teacher-Student Gap gating consistently outperforms both the entropy and soft-OR gating strategies (introduced in Section~\ref{sec:token_gating}), achieving a higher asymptotic success rate (${\sim}0.84$) and a steeper performance climb after the initial 100 steps. We attribute this superiority to the directness of the Teacher-Student gap ($\Delta_t$) as an importance signal, which precisely measures the teacher's disagreement with the student's chosen token. In contrast, entropy ($h_t$) acts as an indirect proxy that may erroneously activate on uncertain but already well-handled tokens, while soft-OR dilutes the gating signal by triggering when only one score is moderately large, thereby reducing its selectivity. All remaining experiments default to gap gating.
+\begin{figure}[t]
+\centering
+\begin{minipage}{0.48\columnwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/ablations_tip.pdf}
+    \caption{Ablations of Token-level Gating on Qwen2.5-3B-Instruct.}
+    \label{fig:ablation_tip}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\columnwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/ablations_beta.pdf}
+    \caption{Ablations of $\beta$ on Qwen2.5-3B-Instruct.}
+    \label{fig:ablation_beta}
+\end{minipage}
+\end{figure}
+\begin{figure}[t]
+\centering
+\begin{minipage}{0.48\columnwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/ablations_lambda.pdf}
+    \caption{Ablations of $\lambda$ on Qwen2.5-3B-Instruct.}
+    \label{fig:ablation_lambda}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\columnwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/ablations_loss.pdf}
+    \caption{Ablations of $\mathcal{L}_{\methodname}$ type on Qwen2.5-7B-Instruct.}
+    \label{fig:ablation_loss}
+\end{minipage}
+\end{figure}
+\paragraph{Sharpness $\beta$.} Figure~\ref{fig:ablation_beta} evaluates the impact of sigmoid sharpness across $\beta \in \{0, 1, 5, 10\}$, where $\beta = 0$ denotes the complete removal of the gating mechanism (i.e., uniform distillation). The optimal performance is achieved at $\beta = 5$, which effectively balances two distinct failure modes: an excessively small $\beta$ (including the no-gate baseline) applies distillation indiscriminately, thereby inheriting the multi-turn instability of na\"ive OPSD; conversely, an overly large $\beta$ strictly binarizes the gate, stripping away the smooth modulation necessary for assigning partial credit on borderline tokens.
+
+\paragraph{Distillation Coefficient $\lambda$.} Figure~\ref{fig:ablation_lambda} sweeps the distillation weight $\lambda_{\methodname} \in \{0.001, 0.01, 0.1\}$, revealing that $\lambda = 0.01$ provides an optimal, steady complementary signal without interfering with the primary RL objective. When $\lambda$ is increased to $0.1$, the distillation gradient overwhelmingly dominates the policy update; since the teacher is on average \emph{no confident} than the student in multi-turn settings (as evidenced by the negative gap in Figure~\ref{fig:7b_alfworld_gap_gate}), this over-weighted term forces the student toward inferior behaviors, causing a severe performance decline that overshadows the GRPO reward signal. Conversely, $\lambda = 0.001$ exerts insufficient corrective pressure to meaningfully aid the RL process, confirming the necessity of a carefully calibrated, moderate coefficient.
+
+\paragraph{Distillation Objective.} Figure~\ref{fig:ablation_loss} compares three token-level matching objectives on Qwen2.5-7B: reverse KL (our default), forward KL, and Jensen--Shannon divergence (JSD), where JSD is defined as the symmetrized average with respect to the mixture $M_t = \tfrac{1}{2}\bigl(\pi_{\theta}(\cdot\mid s_t) + \pi_T(\cdot\mid s_t^{+})\bigr)$: $$ D_{\mathrm{JSD}}^{(t)} = \tfrac{1}{2}\,D_{\mathrm{KL}}\!\bigl(\pi_{\theta}(\cdot\mid s_t)\,\|\,M_t\bigr) + \tfrac{1}{2}\,D_{\mathrm{KL}}\!\bigl(\pi_T(\cdot\mid s_t^{+})\,\|\,M_t\bigr). $$ Reverse KL clearly outperforms both alternatives, aligning perfectly with our design rationale in Section~\ref{sec:opsd}: the reverse direction $D_{\mathrm{KL}}(\pi_{\theta}\|\pi_T)$ is inherently \emph{mode-seeking}~\citep{murphy2012machine}, encouraging the student to concentrate probability mass only on modes supported by the teacher. In our partial "weak" teacher signals---where the teacher is frequently lost---this selectivity is paramount, as reverse KL naturally down-weights tokens with low teacher probability, thereby seamlessly complementing the explicit gating mechanism. In contrast, the \emph{mode-covering} nature of forward KL forces the student to spread mass across all teacher-supported tokens, indiscriminately incorporating unreliable guidance, while JSD acts as a symmetric compromise that inherits this detrimental mode-covering tendency, ultimately yielding intermediate performance.
+
+\section{Related Work}
+
+\subsection{Agentic RL}
+
+Recent advances in reinforcement learning for LLMs have demonstrated strong effectiveness on verifiable reasoning tasksn~\citep{shao2024deepseekmath,yu2025dapo,guo2025ds-r1,yao2026coba,chen2026learning}. 
+Building on this progress, LLMs are increasingly extended from static reasoning problems to autonomous agents that operate in dynamic, open-world environments, including GUI automation~\citep{ye2025mobileagentv3}, gameplay~\citep{shridhar2020alfworld}, and embodied control~\citep{wang2023voyager}. 
+In these settings, agents must make sequential decisions based on environment observations and feedback, making agentic RL a crucial post-training recipe for improving their decision-making capabilities~\citep{lu2025uis1,dong2025arpo,feng2025gigpo,lu2026uir1,lu2026uicopilot,shi2026skill1}.
+
+
+% Recent advancements in instruction-tuned LLMs have enabled autonomous agents 
+% to operate across a wide range of dynamic, open-world environments, 
+% including code generation~\citep{jimenez2023swebench}, 
+% GUI automation~\citep{ye2025mobileagentv3,}, 
+% gameplay~\citep{shridhar2020alfworld}, and embodied control~\citep{wang2023voyager}. 
+% %Inspired by Group Relative Policy Optimization (GRPO)~\citep{shao2024deepseekmath}, 
+% % agentic RL has emerged as a crucial post-training recipe 
+% % for equipping LLM agents with robust decision-making capabilities~\citep{lu2026uir1,lu2025uis1,feng2025gigpo}.
+% With the recent development of reinforcement learning for LLMs~\citep{shao2024deepseekmath,yu2025dapo}, agentic RL has emerged as a crucial post-training recipe for equipping LLM agents with robust decision-making capabilities~\citep{lu2025uis1,dong2025arpo,feng2025gigpo,lu2026uir1,lu2026uicopilot}.
+\subsection{OPSD}
+  On-policy distillation (OPD) supervises a student on its own generated sequences, avoiding offline distribution mismatch~\citep{agarwal2024gkd,gu2026minillm}. GKD-style methods~\citep{agarwal2024gkd,wen2023fdivergence} minimize token-level divergences but require full-vocabulary teacher distributions, while PG-style methods~\citep{yang2026rlsd,xu2026tip} convert discrepancy into token-level rewards but risk high-variance updates. For multi-turn agents, TCOD~\citep{wang2026tcod} applies a turn-level curriculum to mitigate compounding drift, but relies on rigid schedules. On-Policy Self-Distillation (OPSD)~\citep{zhao2026opsd,he2026sdzero} further removes the need for a separate teacher by conditioning only on privileged context.
+\paragraph{Hybrid Methods} Recent works have explored combining RL with distillation to leverage their complementary strengths~\citep{wang2026skillsd,yang2026rlsd,ding2026hdpo}, but suffer from rigid hand-crafted scheduling or substantially unstable updates. In contrast, our method treats distillation as a strictly separate auxiliary objective with adaptive, bounded, token-level gating, preserving the unbiasedness of the RL advantage while selectively injecting only beneficial teacher signals.
+
+
+  \section{Conclusion}
+  We presented \methodname{}, which reconciles RL and OPSD for multi-turn agent training through a sigmoid gate that lets each    
+  token autonomously regulate its distillation intensity. This preserves RL as the unbiased optimization backbone while           
+  selectively extracting beneficial teacher signals. Experiments across three benchmarks and three model scales confirm consistent
+   gains over both pure RL and hybrid baselines.                                                                                 
+\newpage
+\bibliography{colm2026_conference}
+\bibliographystyle{colm2026_conference}
+\newpage
+\appendix
+\renewcommand{\contentsname}{Table of Contents}
+\setcounter{tocdepth}{2}
+\tableofcontents
+\newpage
+\include{sections/proof}
+
+\include{sections/algorithm}
+
+\section{Hyperparameters}
+Table~\ref{tab:hyperparams} summarizes the method-specific hyperparameters used for all baselines and \methodname{} across our experiments. 
+\begin{table}[h]
+\centering
+\caption{\textbf{Hyperparameters}. $\eta$: learning rate; $G$: group size; $\epsilon$: PPO clip ratio; $\lambda$: distillation loss coefficient; $\beta$: sigmoid gate sharpness; $\alpha_{\mathrm{KL}}$: KL penalty coefficient toward the reference policy; SRS: skill retrieval strategy (KM = keyword matching).}
+\label{tab:hyperparams}
+\begin{tabular}{l c c c c c c c}
+\toprule
+\textbf{Method} & $\eta$ & $G$ & $\epsilon$ & $\lambda$ & $\beta$ & $\alpha_{\mathrm{KL}}$ & SRS \\
+\midrule
+GRPO & $10^{-6}$ & 8 & 0.2 & --- & --- & 0.01 & --- \\
+Skill-GRPO & $10^{-6}$ & 8 & 0.2 & --- & --- & 0.01 & KM \\
+OPSD & $10^{-6}$ & ---   & --- & 0.01 & 5.0 & 0.01 & KM \\
+Skill-SD & $10^{-6}$ & 8 & 0.2 & 0.001 & --- & 0.01 & KM \\
+GRPO+OPSD & $10^{-6}$ & 8 & 0.2 & 0.01 & 0.0 & 0.01 & KM \\
+RLSD & $10^{-6}$ & 8 & 0.2 & 0.5 & --- & 0.01 & KM \\
+\methodname{} (Ours) & $10^{-6}$ & 8 & 0.2 & 0.01 & 5.0 & 0.01 & KM \\
+\bottomrule
+\end{tabular}
+\end{table}
+\section{Training Dynamics}
+We present the full training dynamics of \methodname{} across all model scales and environments in Figures~\ref{fig:metrics_cgtd_gate_active_ratio}--\ref{fig:metrics_critic_score_mean}, tracking five diagnostic metrics throughout training.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{figures/metrics_cgtd_gate_active_ratio.pdf}
+\caption{\textbf{Gate Active Ratio} when training Qwen2.5-3B, Qwen2.5-7B and Qwen3-1.7B on ALFWorld, WebShop and Search-QA.}
+\label{fig:metrics_cgtd_gate_active_ratio}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{figures/metrics_cgtd_gate_mean.pdf}
+\caption{\textbf{Gate Mean} when training Qwen2.5-3B, Qwen2.5-7B and Qwen3-1.7B on ALFWorld, WebShop and Search-QA.}
+\label{fig:metrics_cgtd_gate_mean}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{figures/metrics_cgtd_loss.pdf}
+\caption{\textbf{OPSD Loss} when training Qwen2.5-3B, Qwen2.5-7B and Qwen3-1.7B on ALFWorld, WebShop and Search-QA.}
+\label{fig:metrics_cgtd_loss}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{figures/metrics_cgtd_teacher_gap_mean.pdf}
+\caption{\textbf{Teacher-Student Gap} when training Qwen2.5-3B, Qwen2.5-7B and Qwen3-1.7B on ALFWorld, WebShop and Search-QA.}
+\label{fig:metrics_cgtd_teacher_gap_mean}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{figures/metrics_critic_score_mean.pdf}
+\caption{\textbf{Reward Curve} when training Qwen2.5-3B, Qwen2.5-7B and Qwen3-1.7B on ALFWorld, WebShop and Search-QA.}
+\label{fig:metrics_critic_score_mean}
+\end{figure}
+
+\newpage
+\section{Prompt}
+
+Figures~\ref{fig:prompt_alfworld}--\ref{fig:prompt_webshop} present the full prompt templates used by \methodname{} for the three evaluation environments, where \texttt{\{skill\_context\}} is populated with the retrieved skill during training and left empty at inference time. 
+% Prompt figures for ALFWorld, Search-based QA, and WebShop environments
+% Requires: templatebox environment (e.g., from tcolorbox or custom definition)
+
+%% ==================== ALFWorld ==================== %%
+\begin{figure}[h]
+\centering
+\begin{templatebox}{Prompt of \methodname on ALFWorld}
+You are an expert agent operating in the ALFRED Embodied Environment. Your task is to: \{task\_description\}.
+
+\{skill\_context\}
+
+Prior to this step, you have already taken \{step\_count\} step(s). Below are the most recent \{history\_length\} observations and the corresponding actions you took: \{action\_history\}
+
+You are now at step \{current\_step\} and your current observation is: \{current\_observation\}
+
+Your admissible actions of the current situation are: [\{admissible\_actions\}].
+
+Now it's your turn to take an action.
+You should first reason step-by-step about the current situation. This reasoning process MUST be enclosed within \texttt{<think> </think>} tags.
+Once you've finished your reasoning, you should choose an admissible action for current step and present it within \texttt{<action> </action>} tags.
+\end{templatebox}
+\caption{Prompt template used by \methodname{} for the ALFWorld task environment.}
+\label{fig:prompt_alfworld}
+\end{figure}
+
+%% ==================== Search-based QA ==================== %%
+\begin{figure}[h]
+\centering
+\begin{templatebox}{Prompt of \methodname on Search-based QA}
+You are an expert agent tasked with answering the given question step-by-step.
+
+\{skill\_context\}
+
+Your question: \{task\_description\}.
+
+Prior to this step, you have already taken \{step\_count\} step(s). Below is the interaction history where \texttt{<search> </search>} wrapped your past search queries and \texttt{<information> </information>} wrapped the corresponding search results returned by the external search engine. History:
+
+\{memory\_context\}
+
+Now it's your turn to respond for the current step.
+You should first conduct a reasoning process. This process MUST be enclosed within \texttt{<think> </think>} tags.
+After completing your reasoning, choose only one of the following actions (do not perform both):
+\begin{enumerate}
+    \item If you find you lack some knowledge, you \textbf{MUST} call a search engine to get more external information using format: \texttt{<search> your query </search>}.
+    \item If you have enough knowledge to answer the question confidently, provide your final answer within \texttt{<answer> </answer>} tags, without detailed illustrations. For example, \texttt{<answer>Beijing</answer>}.
+\end{enumerate}
+\end{templatebox}
+\caption{Prompt template used by \methodname{} for the Search-based QA task environment.}
+\label{fig:prompt_searchqa}
+\end{figure}
+
+%% ==================== WebShop ==================== %%
+\begin{figure}[h]
+\centering
+\begin{templatebox}{Prompt of \methodname on WebShop}
+You are an expert autonomous agent operating in the WebShop e-commerce environment.
+
+\{skill\_context\}
+
+Your task is to: \{task\_description\}.
+
+Prior to this step, you have already taken \{step\_count\} step(s). Below are the most recent \{history\_length\} observations and the corresponding actions you took: \{action\_history\}
+
+You are now at step \{current\_step\} and your current observation is: \{current\_observation\}.
+
+Your admissible actions of the current situation are:
+[
+\{available\_actions\}
+].
+
+Now it's your turn to take one action for the current step.
+You should first reason step-by-step about the current situation, then think carefully which admissible action best advances the shopping goal. This reasoning process MUST be enclosed within \texttt{<think> </think>} tags.
+Once you've finished your reasoning, you should choose an admissible action for current step and present it within \texttt{<action> </action>} tags.
+\end{templatebox}
+\caption{Prompt template used by \methodname{} for the WebShop task environment.}
+\label{fig:prompt_webshop}
+\end{figure}
+
+\end{document}

@@ -1,0 +1,46 @@
+\section{Conclusion}
+
+% This report presents a simple and unified recipe for moving a compact
+% post-trained reasoning model toward olympiad-level mathematical and scientific
+% reasoning. By combining reverse-perplexity curriculum SFT, efficient coarse RL
+% with outcome verification, refined RL with proof-level rewards, self-refinement,
+% and experience replay, and finally test-time scaling, the recipe decomposes hard
+% reasoning improvement into a small number of aligned stages. The resulting
+% \textbf{SU-01} shows that a 30B-A3B backbone can reach
+% gold-medal-level olympiad performance while remaining efficient, and suggests a
+% broader path for scaling rigorous reasoning through better behavior shaping,
+% reward design, verifier reliability, and training--inference co-design.
+This report presents a simple and unified recipe for turning a compact
+post-trained reasoning model into a stronger mathematical and scientific
+reasoner. Starting from a broadly capable 30B-A3B backbone, SU-01 combines
+reverse-perplexity curriculum SFT, efficient coarse RL with outcome verification,
+refined RL with proof-level rewards, self-refinement and experience replay, and
+test-time scaling through self-verification and refinement. Together, these
+stages decompose rigorous reasoning improvement into behavior shaping, scalable
+reward feedback, proof-level specialization, and inference-time repair. 
+The resulting model reaches gold-medal-level performance on mathematical and
+physical olympiad competitions, sustains reasoning trajectories beyond 100K
+tokens during inference, and shows transfer to scientific domains beyond the
+main math and physics training signals. 
+In summary, SU-01 supports a specializable-generalist view of compact reasoning models: with the right training and inference recipe, a broadly capable backbone can be driven toward expert-level proof reasoning while retaining meaningful scientific transfer.
+
+
+\section*{Acknowledgments}
+This work was supported by the Shanghai Artificial Intelligence Laboratory. 
+We thank the authors and maintainers of prior open research and infrastructure
+that made this work possible. 
+In particular, we are
+grateful to DeepSeek for open-sourcing strong reasoning policies and generative reward models, which provided an important
+reference point for our work~\citep{deepseekai2025deepseekv32,deepseekmathv2}.
+IMO-Bench, AMO-Bench, and FrontierScience
+helped guide the overall system optimization by offering challenging
+mathematical and scientific reasoning benchmarks and evaluation
+protocols~\citep{luong2025imobench,an2025amobench,wang2026frontierscience}. We
+also thank prior data efforts that supported our SFT and RL data curation,
+including DeepMath, NaturalReasoning, Eurus, OpenCodeReasoning, P1, and
+OPC~\citep{he2025deepmath,yuan2025naturalreasoning,cui2025process,ahmad2025opencodereasoning,chen2025p1,dekoninck2025opc},
+as well as the many public problem sources and communities that cannot all be
+listed here. We further acknowledge the broader open-source infrastructure
+ecosystem, including slime for training and SGLang for efficient inference and
+serving~\citep{thudm2026slime,sglang2026repo}. 
+

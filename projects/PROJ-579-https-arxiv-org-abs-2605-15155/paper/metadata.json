@@ -1,0 +1,48 @@
+{
+  "arxiv_id": "2605.15155",
+  "arxiv_url": "https://arxiv.org/abs/2605.15155",
+  "title": "https://arxiv.org/abs/2605.15155",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #180",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/ZJU-REAL/SDAR"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "colm2026_conference.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "colm2026_conference.bib",
+    "colm2026_conference.bst",
+    "colm2026_conference.sty",
+    "colm2026_conference.tex",
+    "fancyhdr.sty",
+    "figures",
+    "figures/7b_alfworld_gap_gate.pdf",
+    "figures/ablations_beta.pdf",
+    "figures/ablations_lambda.pdf",
+    "figures/ablations_loss.pdf",
+    "figures/ablations_tip.pdf",
+    "figures/gaps_analysis.pdf",
+    "figures/longcat-logo-full.pdf",
+    "figures/metrics_cgtd_gate_active_ratio.pdf",
+    "figures/metrics_cgtd_gate_mean.pdf",
+    "figures/metrics_cgtd_loss.pdf",
+    "figures/metrics_cgtd_teacher_gap_mean.pdf",
+    "figures/metrics_critic_score_mean.pdf",
+    "figures/pre_study.pdf",
+    "figures/sdar_teaser.pdf",
+    "figures/sdart_method.pdf",
+    "natbib.sty",
+    "sections",
+    "sections/algorithm.tex",
+    "sections/proof.tex",
+    "tables",
+    "tables/experiment.tex"
+  ]
+}

@@ -1,0 +1,182 @@
+\definecolor{linkc}{rgb}{0, 0.44, 0.74}
+\definecolor{eqc}{rgb}{1, 0, 0}
+\definecolor{newcitecolor}{rgb}{0,0.6,0}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{wrapfig}
+\usepackage{xspace}
+\usepackage{textgreek}
+\usepackage{bm}
+\usepackage{multirow}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{graphicx}
+\usepackage{collectbox}
+\usepackage{adjustbox}
+\usepackage{colortbl}
+\usepackage{orcidlink}
+\usepackage{footmisc}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{csquotes}
+\usepackage{marvosym}
+\usepackage{mdframed}
+\usepackage[utf8]{inputenc} %
+\usepackage[T1]{fontenc}    %
+\def\UrlBreaks{\do\/\do-}
+\usepackage{nicefrac}       %
+\usepackage{microtype}      %
+\usepackage{multicol}
+\usepackage{tabto}
+
+\usepackage{dblfloatfix}
+\usepackage{times}
+\usepackage{verbatim}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{subcaption}
+\usepackage{array}
+\usepackage{bbm}
+\usepackage{makecell}
+\usepackage{siunitx}
+\usepackage{pifont}
+\usepackage{pdflscape}
+\usepackage{tabularx}
+\usepackage{arydshln}
+\usepackage{hhline}
+\usepackage{diagbox}
+\usepackage{tcolorbox}
+\usepackage[square,sort,comma,numbers]{natbib}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{fp} %
+\usepackage{authblk}
+
+\DeclareRobustCommand{\iconhref}[3]{%
+  \texorpdfstring{%
+    \href{#1}{%
+      \raisebox{-0.15em}{\includegraphics[height=1em]{#2}}\,#3%
+    }%
+  }{#3}%
+}
+
+
+\newcommand{\xmarker}{\ding{55}}
+\newcommand{\cmarker}{\ding{51}}
+\definecolor{mygreen}{RGB}{34,139,34}
+\definecolor{mylightblue}{RGB}{0,162,230}
+\definecolor{deepyellow}{RGB}{255, 215, 0} 
+\definecolor{catgray}{gray}{0.92}
+\definecolor{nvidiagreen}{HTML}{76B900}
+\definecolor{codebg}{RGB}{245, 245, 245} 
+\definecolor{keywordcolor}{RGB}{0, 0, 153} 
+\definecolor{commentcolor}{RGB}{34, 139, 34} 
+\definecolor{stringcolor}{RGB}{163, 21, 21}
+\definecolor{numbercolor}{RGB}{128, 128, 128}
+
+\newcommand{\cjs}[1]{\textcolor{red}{[junsong: #1]}}
+\newcommand{\enze}[1]{\textcolor{blue}{[enze: #1]}}
+\newcommand{\yy}[1]{\textcolor{mygreen}{[yuyang: #1]}}
+\newcommand{\jc}[1]{\textcolor{pink}{[jincheng: #1]}}
+\newcommand{\jy}[1]{\textcolor{pink}{[Junyu: #1]}}
+\newcommand{\cai}[1]{\textcolor{orange}{[CAI: #1]}}
+\newcommand{\sota}[1]{\cellcolor{pearDark!20}{#1}}
+\newcommand{\change}[1]{\textcolor{orange}{#1}}
+\newcommand{\crh}[1]{\textcolor{green}{[crh: #1]}}
+\newcommand{\muyang}[1]{\textcolor{cyan}{[muyangs: #1]}}
+
+\newcommand{\bx}{\boldsymbol{x}}
+\newcommand{\bz}{\boldsymbol{z}}
+\def\eg{\emph{e.g}\onedot} \def\Eg{\emph{E.g}\onedot}
+\def\ie{\emph{i.e}\onedot} \def\Ie{\emph{I.e}\onedot}
+\def\cf{\emph{cf}\onedot} \def\Cf{\emph{Cf}\onedot}
+\def\etc{\emph{etc}\onedot} \def\vs{\emph{vs}\onedot}
+\def\wrt{w.r.t\onedot} \def\dof{d.o.f\onedot}
+\def\iid{i.i.d\onedot} \def\wolog{w.l.o.g\onedot}
+\def\etal{\emph{et al}\onedot}
+\makeatletter
+\def\blfootnote#1{\xdef\@thefnmark{}\@footnotetext{\scriptsize #1}}
+\makeatother
+
+\hypersetup{
+    colorlinks=true,
+    urlcolor=nvidiagreen,
+}
+
+\newcommand{\model}{SANA-Video\xspace}
+\newcommand{\longsana}{LongSANA\xspace}
+\newcommand{\method}{SANA-Video\xspace}
+\newcommand{\methodshort}{SANA-Video\xspace}
+\newcommand{\pre}{\textsc{$\alpha$}\xspace}
+\newcommand{\now}{\textsc{\textSigma{}}\xspace}
+
+
+
+
+
+
+
+\definecolor{darkred}{rgb}{0.459,0.0,0.08}
+\definecolor{myblue}{HTML}{47B1E1}
+\definecolor{mygreen}{HTML}{46D45A}
+\definecolor{myorange}{HTML}{F3AA84}
+\definecolor{usercolor}{HTML}{B41601}       
+\definecolor{assistantcolor}{HTML}{76B900}  
+\definecolor{linkc}{rgb}{0,0.44,0.74}
+\definecolor{eqc}{rgb}{1,0,0}
+\definecolor{newcitecolor}{rgb}{0,0.6,0}
+\setlength{\textfloatsep}{7pt plus 1pt minus 2pt}
+\setlength{\floatsep}{6pt plus 1pt minus 2pt}
+\setlength{\intextsep}{6pt plus 1pt minus 2pt}
+\setlength{\dbltextfloatsep}{7pt plus 1pt minus 2pt}
+\setlength{\dblfloatsep}{6pt plus 1pt minus 2pt}
+\setlength{\abovecaptionskip}{2pt}
+\setlength{\belowcaptionskip}{0pt}
+\captionsetup{skip=2pt}
+
+
+
+
+
+
+\newcommand{\modelname}{SANA-WM\xspace}
+\newcommand{\haozhe}[1]{\textcolor{blue}{[haozhe: #1]}}
+\newcommand{\haoyi}[1]{\textcolor{cyan}{[haoyi: #1]}}
+\newcommand{\tbd}{\textcolor{gray}{$\dagger$}}       %
+\newcommand{\nan}{\textcolor{gray}{--}}              %
+\newcommand{\ph}{\textcolor{gray}{$\ast$}}           %
+\newcommand{\keycell}[1]{\cellcolor{assistantcolor!10}#1}      %
+\newcommand{\rankfirst}[1]{\cellcolor{assistantcolor!32}#1}
+\newcommand{\ranksecond}[1]{\cellcolor{assistantcolor!20}#1}
+\newcommand{\rankthird}[1]{\cellcolor{assistantcolor!10}#1}
+\newcommand{\bst}[1]{\rankfirst{#1}}                 %
+\newcommand{\snd}[1]{\ranksecond{#1}}                %
+
+\newcommand{\ModelOuput}{\mathbf{X}_{\theta}}
+\newcommand{\KVSet}{\mathbf{KV}}
+\newcommand{\KVOutput}{\mathbf{kv}}
+\newcommand{\vbench}{VBench\xspace}
+\let\cite\citep
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\footnotesize,
+    backgroundcolor=\color{codebg},
+    keywordstyle=\color{keywordcolor}\bfseries,
+    commentstyle=\color{commentcolor}\itshape,
+    stringstyle=\color{stringcolor},
+    numbers=none,
+    numberstyle=\color{numbercolor}\tiny,
+    stepnumber=1,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    breaklines=true,
+    frame=none,
+    framesep=8pt,
+    framerule=0.5pt
+}

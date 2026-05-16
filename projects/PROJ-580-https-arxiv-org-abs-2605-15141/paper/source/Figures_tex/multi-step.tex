@@ -1,0 +1,11 @@
+\newcommand{\leftfigwidth}{0.67\linewidth}
+\newcommand{\rightfigwidth}{0.25\linewidth}
+\newcommand{\figxshift}{-0.02\linewidth}
+\newcommand{\figgap}{0.05\linewidth}
+
+\begin{figure}[t]
+  \centering
+    \includegraphics[width=\linewidth]{Figures/multi-step-a.pdf}
+  \caption{\textbf{Performance of existing initialization methods after DMD.} Self Forcing ODE initialization and multi-step AR diffusion initialization leads to poor quality and degrade as the setting becomes more aggressive, while Causal Forcing's causal ODE initialization performs well but is costly and therefore difficult to scale.}
+  \label{fig:multi-step}
+\end{figure}

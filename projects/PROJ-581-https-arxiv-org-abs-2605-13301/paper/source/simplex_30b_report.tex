@@ -1,0 +1,281 @@
+\documentclass{article} % For LaTeX2e
+\PassOptionsToPackage{svgnames,dvipsnames,table}{xcolor}
+\usepackage{iclr2026_conference,times}
+
+\input{math_commands.tex}
+
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage[most]{tcolorbox}
+\usepackage{tabularx}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{multirow}
+\tcbuselibrary{breakable}
+\usepackage[capitalize,noabbrev]{cleveref}
+\usepackage{titletoc}
+\usepackage{tocbibind}
+\usepackage{tikz}
+\usepackage{marvosym}
+\usepackage{subcaption}
+\usepackage{threeparttable}
+\usepackage[fixed]{fontawesome5}
+
+% comment
+\NewDocumentCommand{\haoran}
+{ mO{} }{\textcolor{blue}{\textsuperscript{\textit{haoran}}\textsf{\textbf{\small[#1]}}}}
+
+\NewDocumentCommand{\runzhe}
+{ mO{} }{\textcolor{blue}{\textsuperscript{\textit{runzhe}}\textsf{\textbf{\small[#1]}}}}
+
+\NewDocumentCommand{\yizhuo}
+{ mO{} }{\textcolor{blue}{\textsuperscript{\textit{yizhuo}}\textsf{\textbf{\small[#1]}}}}
+
+% sk
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage{xcolor}
+\usetikzlibrary{shadows}
+\usepackage{xpatch}
+\usepackage{thmtools} 
+
+\mdfdefinestyle{mdpurpleremark}{%
+  skipabove=8pt,
+  skipbelow=8pt,
+  linewidth=3pt,            % 左侧粗线
+  rightline=false,
+  leftline=true,
+  topline=false,
+  bottomline=false,
+  linecolor=Violet!50!black, % 紫色线条（匹配题目框标题）
+  backgroundcolor=Orchid!5,  % 淡紫色背景（柔和版）
+  innertopmargin=6pt,
+  innerbottommargin=6pt,
+  innerleftmargin=8pt,
+  innerrightmargin=8pt,
+}
+
+\declaretheoremstyle[
+  headfont=\bfseries\color{Violet!50!black}, % 文字紫色
+  bodyfont=\normalfont,
+  spaceabove=0pt,
+  spacebelow=0pt,
+  mdframed={style=mdpurpleremark}
+]{purpleremark}
+
+% 定义带框的 remark / remark*
+\declaretheorem[style=purpleremark,name=Remark,numbered=no]{remark*}
+
+% 修复 mdframed 兼容问题（原版必须加）
+\xpatchcmd{\endmdframed}
+  {\aftergroup\endmdf@trivlist\color@endgroup}
+  {\endmdf@trivlist\color@endgroup\@doendpe}
+  {}{}
+
+% ======================
+% 原版 Evan mdpurplebox
+% ======================
+\mdfdefinestyle{mdpurplebox}{%
+  roundcorner=10pt,
+  linewidth=1pt,
+  skipabove=12pt,
+  skipbelow=12pt,
+  innertopmargin=9pt,
+  innerbottommargin=9pt,
+  linecolor=black,
+  nobreak=true,
+  backgroundcolor=Orchid!10,
+  shadow=true,
+  shadowsize=6pt,
+  shadowcolor=black!30,
+  frametitleaboveskip=8pt,
+  frametitlebelowskip=8pt,
+  frametitlebackgroundcolor=Violet!50!black,
+  frametitlefont=\bfseries\sffamily\color{white},
+  frametitlerule=true,
+}
+
+% 原版 Evan \ii 命令
+\newcommand{\ii}{\item}
+% 原版 Evan 数学符号（含 \NN）
+\newcommand{\CC}{\mathbb C}
+\newcommand{\FF}{\mathbb F}
+\newcommand{\NN}{\mathbb N}
+\newcommand{\QQ}{\mathbb Q}
+\newcommand{\RR}{\mathbb R}
+\newcommand{\ZZ}{\mathbb Z}
+% sk
+
+
+
+\input{misc/mybb}
+
+\definecolor{darkblue}{rgb}{0, 0, 0.5}
+\definecolor{citeblue}{rgb}{0.35, 0.62, 0.88}
+\hypersetup{colorlinks=true, citecolor=citeblue, urlcolor=citeblue, linkcolor=darkblue}
+\newcommand{\todoflag}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+\newcommand{\goldmedalicon}{\raisebox{-0.25ex}{\includegraphics[height=1.05em]{figure/gold_medal_emoji.pdf}}}
+\newcommand{\projectpage}{\raisebox{-1.5pt}{\faIcon{globe}}}
+\newcommand{\github}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{figure/icon/github-logo.pdf}}}
+\newcommand{\huggingface}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{figure/icon/hf-logo.pdf}}}
+
+\makeatletter
+\def\@fnsymbol#1{%
+  \ifcase#1 \or
+    *%
+  \or
+    \textrm{\Letter}%
+  \or
+    \ddagger
+  \or
+    \S
+  \or
+    \P
+  \or
+    \|
+  \or
+    **%
+  \or
+    \dagger\dagger
+  \or
+    \ddagger\ddagger
+  \else
+    \@ctrerr
+  \fi
+}
+\makeatother
+
+\title{Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling}
+% \vspace{-55.45em}
+\author{
+\textbf{Yafu Li}$^{1,2}$\thanks{~Core contributors. Yafu Li is the project lead.}\kern0.45em\thanks{~Corresponding authors. Contact: \texttt{yafuly@gmail.com} and \texttt{chengyu@cse.cuhk.edu.hk}.}, \enspace
+\textbf{Runzhe Zhan}$^{1}$\footnotemark[1], \enspace
+\textbf{Haoran Zhang}$^{1,4}$\footnotemark[1], \enspace
+\textbf{Shunkai Zhang}$^{1,5}$\footnotemark[1], \enspace
+\textbf{Yizhuo Li}$^{1}$\footnotemark[1], \enspace\\
+\textbf{~Zhilin Wang}$^{1}$, \enspace
+\textbf{Jiacheng Chen}$^{2}$, \enspace
+\textbf{Futing Wang}$^{1}$, \enspace
+\textbf{Xuyang Hu}$^{1}$, \enspace
+\textbf{Yuchen Fan}$^{1}$, \enspace\\
+\textbf{~Bangjie Xu}$^{3}$, \enspace
+\textbf{Yucheng Su}$^{3}$, \enspace
+\textbf{Xinmiao Han}$^{3}$, \enspace
+\textbf{Chenxi Li}$^{1}$, \enspace
+\textbf{Haodi Lei}$^{1}$, \enspace
+\textbf{Yufeng Zhao}$^{1}$, \enspace\\
+\textbf{~Zejin Lin}$^{3}$, \enspace
+\textbf{Qianjia Cheng}$^{1}$, \enspace
+\textbf{Tong Zhu}$^{1}$, \enspace
+\textbf{Xiaoye Qu}$^{1}$, \enspace
+\textbf{Ganqu Cui}$^{1}$, \enspace
+\textbf{Peng Ye}$^{1}$\footnotemark[2], \enspace\\
+\textbf{~Yun Luo}$^{1}$\footnotemark[2], \enspace
+\textbf{~Zhouchen Lin}$^{5}$, \enspace
+\textbf{~Yu Qiao}$^{1}$, \enspace
+\textbf{Bowen Zhou}$^{1,3}$\footnotemark[2], \enspace
+\textbf{Ning Ding}$^{3,1}$\footnotemark[2], \enspace
+\textbf{Yu Cheng}$^{2,1}$\footnotemark[2]
+\\
+$^{1}$Shanghai AI Laboratory \quad
+$^{2}$The Chinese University of Hong Kong\quad
+$^{3}$Tsinghua University \\
+$^{4}$Shanghai Jiao Tong University \quad
+$^{5}$Peking University
+}
+
+\iclrfinalcopy
+\begin{document}
+
+\maketitle
+\vspace{-1.45em}
+\begin{abstract}
+Recent progress in reasoning models has substantially advanced long-horizon
+mathematical and scientific problem solving, with several systems now reaching
+gold-medal-level performance on International Mathematical Olympiad (IMO) and
+International Physics Olympiad (IPhO) problems.
+In this
+paper, we introduce a simple and unified recipe for converting a post-trained
+reasoning backbone into a rigorous olympiad-level solver. The recipe first uses
+a reverse-perplexity curriculum for SFT to instill rigorous
+proof-search and self-checking behaviors, then scales these behaviors through a
+two-stage RL pipeline that progresses from RL with
+verifiable rewards to more delicate proof-level RL, and finally boosts solving
+performance with test-time scaling. 
+Applying this recipe, we train a \textit{30B-A3B}
+backbone with SFT on around \textit{340K sub-8K-token} trajectories followed by \textit{200} RL
+steps. 
+% The resulting model, \textbf{\textcolor{iclrdeepblue}{SU-01}}, achieves
+% gold-medal-level performance on mathematical and physical
+% olympiad competitions, including \textbf{IMO 2025/USAMO 2026} and \textbf{IPhO 2024/2025}. 
+The resulting model, \textbf{\textcolor{iclrdeepblue}{SU-01}}, supports
+  stable reasoning on difficult problems with trajectories exceeding \textit{100K} tokens,
+  while achieving gold-medal-level performance on mathematical and physical
+  olympiad competitions, including \textbf{IMO 2025/USAMO 2026} and \textbf{IPhO 2024/2025}. 
+  It also demonstrates strong generalization of scientific reasoning to domains beyond mathematics and physics.
+% \haoran{can add a brief conclusion that makes the main takeaway explicit? ``These results validate the recipe across both mathematical and physical olympiad reasoning.''} 
+% Beyond official
+% olympiad problems, the model also demonstrates competitive performance
+% on IMO-Bench and FrontierScience.
+% suggesting that the recipe
+% can yield strong scientific reasoning capability while retaining the efficiency
+% of a compact model.
+\vspace{-0.5em}
+\end{abstract}
+
+\begin{center}
+\vspace{-1em}
+~\projectpage~\href{http://simplified-reasoning.github.io/SU-01}{{\text{Project Page}}}
+\quad \quad \quad
+~\github~\href{https://github.com/Simplified-Reasoning/SU-01}{{\text{Code}}}
+\quad \quad \quad
+~\huggingface~\href{https://huggingface.co/Simplified-Reasoning/SU-01}{{\text{Models}}}
+\end{center}
+
+\begin{center}
+\vspace{-1em}
+\includegraphics[width=0.8\textwidth]{figure/proofbench_overall_simple.pdf}
+\captionsetup{type=figure,hypcap=false,skip=2pt}
+\captionof{figure}{Overall comparison on IMO-ProofBench. $\star$ denotes results reported in the original paper, and $\dagger$ denotes results with test-time scaling. Blue bars trace the evolution of our pipeline from the 30B-A3B backbone through rigorous SFT (\cref{sec:sft}), coarse RL, refined RL (\cref{sec:rl}), and test-time scaling (\cref{sec:tts}), culminating in gold-medal-level olympiad reasoning (\cref{sec:exp-results}).}
+\label{fig:proofbench-overall}
+% \vspace{-3em}
+\end{center}
+
+\input{section/report_introduction}
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figure/simplex-pipeline.pdf}
+% \vspace{-1 pt}
+\vspace{-1.5em}
+\caption{Overview of the SU-01 training and inference pipeline. The recipe first reshapes the backbone with rigorous long-form SFT, then scales the resulting behavior through coarse and refined RL, and finally applies test-time verification and refinement for olympiad-level problem solving.}
+\vspace{-0.5em}
+\label{fig:simplex-pipeline}
+\vspace{-4 pt}
+\end{figure*}
+\input{section/report_sft}
+\input{section/report_rl}
+\input{section/report_tts}
+\input{section/report_experiments}
+\input{section/report_analysis}
+\input{section/report_related}
+\input{section/report_conclusion}
+
+\bibliography{iclr2026_conference}
+\bibliographystyle{iclr2026_conference}
+
+\appendix
+\input{section/report_appendix}
+
+
+\end{document}

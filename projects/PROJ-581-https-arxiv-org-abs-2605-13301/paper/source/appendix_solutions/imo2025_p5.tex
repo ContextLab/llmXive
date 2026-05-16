@@ -1,0 +1,288 @@
+\begin{mdframed}[style=mdpurplebox,frametitle={IMO 2025 Problem 5}]
+Alice and Bazza are playing the \emph{inekoalaty game},
+a two‑player game whose rules depend on a positive real number $\lambda$ which is known to both players.
+On the $n$th turn of the game (starting with $n=1$) the following happens:
+\begin{itemize}
+  \ii If $n$ is odd, Alice chooses a nonnegative real number $x_n$ such that
+  \[ x_1 + x_2 + \cdots + x_n \le \lambda n.  \]
+  \ii If $n$ is even, Bazza chooses a nonnegative real number $x_n$ such that
+  \[ x_1^2 + x_2^2 + \cdots + x_n^2 \le n.  \]
+\end{itemize}
+If a player cannot choose a suitable $x_n$, the game ends and the other player wins.
+If the game goes on forever, neither player wins.
+All chosen numbers are known to both players.
+
+Determine all values of $\lambda$ for which Alice has a winning strategy
+and all those for which Bazza has a winning strategy.
+\end{mdframed}
+\solutionheading{Solution}
+\begin{remark*}
+  7/7.
+\end{remark*}
+We begin by setting notation and a couple of useful lemmas. For each \(n\ge 1\), let\par
+\[
+S_n = \sum_{i=1}^n x_i, \qquad Q_n = \sum_{i=1}^n x_i^2.
+\]
+The rules are:\par
+\compactbullet{On odd turns \(n\), Alice chooses \(x_n\ge 0\) with \(S_n\le \lambda n\).}
+\compactbullet{On even turns \(n\), Bazza chooses \(x_n\ge 0\) with \(Q_n\le n\).}
+If a player cannot make a legal move, the game ends and the other wins. If it continues forever, the result is a draw (no winner).\par
+\smallskip
+\solutionheading{Two elementary lemmas}
+\textbf{Lemma 1.} After any even turn \(n\), we have \(S_n\le n\) and \(Q_n\le n\).\par
+\emph{Proof.} The condition for even \(n\) is \(Q_n\le n\). By the Cauchy-Schwarz inequality,\par
+\[
+S_n^2 \le n\cdot Q_n \le n\cdot n = n^2,
+\]
+hence \(S_n\le n\).\par
+\textbf{Lemma 2.} Suppose that on all odd turns up to \(2M\) Alice plays \(0\) (so the only nonzero numbers are Bazza's choices on even turns). Then after turn \(2M\) we have\par
+\[
+S_{2M}\le M\sqrt{2}.
+\]
+\emph{Proof.} Write \(y_i=x_{2i}\) for \(i=1,\dots,M\). Then\par
+\[
+S_{2M} = \sum_{i=1}^M y_i, \qquad Q_{2M} = \sum_{i=1}^M y_i^2.
+\]
+By Cauchy-Schwarz,\par
+\[
+S_{2M}^2 \le M\cdot Q_{2M}.
+\]
+Lemma 1 with \(n=2M\) gives \(Q_{2M}\le 2M\). Therefore\par
+\[
+S_{2M}^2 \le M\cdot 2M = 2M^2 \quad\Longrightarrow\quad S_{2M}\le M\sqrt{2}. \quad\square
+\]
+\smallskip
+\solutionheading{1. The case \(\lambda > \dfrac{1}{\sqrt{2}}\) - Alice wins}
+Alice will force a win in a finite number of moves. Choose an integer \(M\) large enough so that\par
+\[
+\lambda(2M+1)-M\sqrt{2} > \sqrt{2}. \quad\text{(1)}
+\]
+(Such \(M\) exists because \(\lambda > 1/\sqrt{2}\) implies \(2\lambda-\sqrt{2}>0\), so the left-hand side tends to \(+\infty\) as \(M\to\infty\).) Her strategy is:\par
+\compactbullet{On turns \(1,3,5,\dots,2M-1\) (all odd turns before \(2M+1\)) she plays \(x_n=0\).}
+\compactbullet{On turn \(2M+1\) she plays \(x_{2M+1} = \lambda(2M+1)-S_{2M}\).}
+We must check that the zeros are legal and that the move on turn \(2M+1\) is well-defined.\par
+\solutionheading{Legality of the zeros}
+After each even turn \(2k\) (\(1\le k\le M\)), by Lemma 2 we have \(S_{2k}\le k\sqrt{2}\). For the odd turn \(2k+1\), Alice wants to choose \(0\); this is allowed iff\par
+\[
+S_{2k}+0 \le \lambda(2k+1).
+\]
+Since \(S_{2k}\le k\sqrt{2}\), it suffices to show \(k\sqrt{2} < \lambda(2k+1)\). Rewrite as \(\lambda > \dfrac{k\sqrt{2}}{2k+1}\). The function \(k\mapsto \dfrac{k\sqrt{2}}{2k+1}\) increases with \(k\) (its limit is \(\sqrt{2}/2 = 1/\sqrt{2}\)). Because \(\lambda > 1/\sqrt{2}\), we have \(\lambda > \dfrac{k\sqrt{2}}{2k+1}\) for every \(k\); hence \(k\sqrt{2} < \lambda(2k+1)\). Thus each \(0\) is legal.\par
+\solutionheading{The decisive move}
+After turn \(2M\), Lemma 2 gives \(S_{2M}\le M\sqrt{2}\). Define\par
+\[
+a = x_{2M+1} = \lambda(2M+1)-S_{2M}.
+\]
+From (1) and the bound on \(S_{2M}\),\par
+\[
+a \ge \lambda(2M+1)-M\sqrt{2} > \sqrt{2} > 0,
+\]
+so \(a\) is nonnegative and satisfies \(S_{2M}+a = \lambda(2M+1)\), hence the sum constraint on turn \(2M+1\) is met.\par
+Now we analyze the sum of squares after this move. Let \(S = S_{2M}\). Then\par
+\[
+Q_{2M+1} = Q_{2M} + a^2.
+\]
+By Cauchy-Schwarz applied to the \(M\) numbers \(x_2,x_4,\dots,x_{2M}\) we have\par
+\[
+S^2 \le M\cdot Q_{2M} \quad\Longrightarrow\quad Q_{2M} \ge \frac{S^2}{M}.
+\]
+Therefore\par
+\[
+Q_{2M+1} \ge \frac{S^2}{M} + a^2 = \frac{S^2}{M} + \bigl(\lambda(2M+1)-S\bigr)^2.
+\]
+Define the function\par
+\[
+f(S) = \frac{S^2}{M} + \bigl(\lambda(2M+1)-S\bigr)^2, \qquad 0\le S\le M\sqrt{2}.
+\]
+We need a lower bound for \(f(S)\).\par
+\textbf{Monotonicity of }\(f\).\textbf{ Compute}\par
+\[
+f'(S) = \frac{2S}{M} - 2\bigl(\lambda(2M+1)-S\bigr) = 2\Bigl( S\Bigl(1+\frac{1}{M}\Bigr) - \lambda(2M+1)\Bigr), \qquad f''(S)=\frac{2}{M}+2>0.
+\]
+Thus \(f'\) is strictly increasing. The critical point \(f'(S)=0\) gives\par
+\[
+S_0 = \frac{M\cdot \lambda(2M+1)}{M+1}.
+\]
+Because \(\lambda > 1/\sqrt{2}\), we have \(2\lambda > \sqrt{2}\), and for sufficiently large \(M\) (which we may assume)\par
+\[
+S_0 > M\sqrt{2}.
+\]
+(Simply check that \(S_0 > M\sqrt{2} \iff \lambda(2M+1) > \sqrt{2}(M+1)\), which holds for large \(M\) since the left grows like \(2\lambda M\) and the right like \(\sqrt{2} M\).)\par
+Since \(f'\) is increasing and \(S_0 > M\sqrt{2}\), we have \(f'(S) < f'(S_0)=0\) for all \(S\le M\sqrt{2}\). Hence \(f\) is strictly decreasing on \([0,M\sqrt{2}]\). Consequently its minimum on the interval is attained at \(S = M\sqrt{2}\):\par
+\[
+\min_{0\le S\le M\sqrt{2}} f(S) = f(M\sqrt{2}) = \frac{(M\sqrt{2})^2}{M} + \bigl(\lambda(2M+1)-M\sqrt{2}\bigr)^2 = 2M + \bigl(\lambda(2M+1)-M\sqrt{2}\bigr)^2.
+\]
+Thus\par
+\[
+Q_{2M+1} \ge 2M + \bigl(\lambda(2M+1)-M\sqrt{2}\bigr)^2.
+\]
+But condition (1) says \(\lambda(2M+1)-M\sqrt{2} > \sqrt{2}\), so\par
+\[
+\bigl(\lambda(2M+1)-M\sqrt{2}\bigr)^2 > 2.
+\]
+Therefore\par
+\[
+Q_{2M+1} > 2M + 2.
+\]
+Now it is Bazza's turn (turn \(2M+2\)). He must choose \(x_{2M+2}\ge 0\) such that\par
+\[
+Q_{2M+2} = Q_{2M+1} + x_{2M+2}^2 \le 2M+2.
+\]
+Even if he plays \(x_{2M+2}=0\), we obtain \(Q_{2M+2}=Q_{2M+1} > 2M+2\), which violates the constraint. Hence Bazza has no legal move, and Alice wins.\par
+\smallskip
+\solutionheading{2. The case \(\lambda < \dfrac{1}{\sqrt{2}}\) - Bazza wins}
+Bazza will use the following strategy on every even turn \(n\):\par
+\[
+x_n = \sqrt{\,n - Q_{n-1}\,}.
+\]
+In words, he takes the largest possible number that still keeps the sum of squares at most \(n\). We will prove by induction that after each of his moves (i.e., after turn \(2m\)) we have\par
+\[
+\text{(i) } Q_{2m}=2m, \qquad \text{(ii) } S_{2m} \ge m\sqrt{2}. \quad\text{(2)}
+\]
+\textbf{Base case }\(m=1\) (turn \(2\)).\textbf{ After turn 1, Alice has chosen some }\(a_1\ge 0\) with \(a_1\le \lambda\). Then\par
+\[
+x_2 = \sqrt{2 - a_1^2}
+\]
+(which is real because \(a_1^2 \le \lambda^2 < 1/2 < 2\)). We get\par
+\[
+Q_2 = a_1^2 + (2 - a_1^2) = 2.
+\]
+For the sum,\par
+\[
+S_2 = a_1 + \sqrt{2 - a_1^2}.
+\]
+Squaring gives\par
+\[
+S_2^2 = a_1^2 + (2 - a_1^2) + 2a_1\sqrt{2 - a_1^2} = 2 + 2a_1\sqrt{2 - a_1^2} \ge 2,
+\]
+so \(S_2 \ge \sqrt{2}\). Thus (2) holds for \(m=1\).\par
+\textbf{Inductive step.} Assume (2) is true for \(m-1\), i.e., after turn \(2(m-1)\) we have\par
+\[
+Q_{2(m-1)} = 2(m-1), \qquad S_{2(m-1)} \ge (m-1)\sqrt{2}.
+\]
+\emph{Turn \(2m-1\) (odd):} Alice chooses \(a \ge 0\) with
+\[
+S_{2(m-1)} + a \le \lambda(2m-1). \quad\text{(3)}
+\]
+\emph{Turn \(2m\) (even):} Bazza computes\par
+\[
+x_{2m} = \sqrt{2m - Q_{2m-1}}.
+\]
+First we verify that the square root is defined, i.e., \(Q_{2m-1} \le 2m\).\par
+We have\par
+\[
+Q_{2m-1} = Q_{2(m-1)} + a^2 = 2(m-1) + a^2.
+\]
+Hence we need \(a^2 \le 2\), or \(a \le \sqrt{2}\). To see that this always holds, use (3) and the inductive lower bound on \(S_{2(m-1)}\):\par
+\[
+a \le \lambda(2m-1) - S_{2(m-1)} \le \lambda(2m-1) - (m-1)\sqrt{2}. \quad\text{(4)}
+\]
+We claim that the right-hand side of (4) is at most \(\sqrt{2}\). Indeed,\par
+\[
+\lambda(2m-1) - (m-1)\sqrt{2} \le \sqrt{2}
+\;\Longleftrightarrow\; \lambda(2m-1) \le m\sqrt{2}.
+\]
+Because \(\lambda < 1/\sqrt{2}\), we have \(2\lambda < \sqrt{2}\). Then\par
+\[
+\lambda(2m-1) = 2\lambda m - \lambda \le \sqrt{2}\,m - \lambda < \sqrt{2}\,m,
+\]
+so the inequality holds (the left side is \(2\lambda m - \lambda\), the right side is \(\sqrt{2}\,m\); since \(2\lambda m \le \sqrt{2}\,m\), we get \(\lambda(2m-1) \le \sqrt{2}\,m\). More formally:
+\[
+\lambda(2m-1) \le \sqrt{2}\,m \;\Longleftrightarrow\; (2\lambda - \sqrt{2})m \le \lambda.
+\]
+The left-hand side is \(\le 0\) (because \(2\lambda - \sqrt{2} < 0\)), while the right-hand side is positive, so the inequality is true for all \(m\ge 1\). Therefore \(a \le \sqrt{2}\), so \(a^2 \le 2\), and the square root is defined.\par
+Now compute:\par
+\[
+x_{2m} = \sqrt{2m - \bigl(2(m-1) + a^2\bigr)} = \sqrt{2 - a^2}.
+\]
+Then\par
+\[
+Q_{2m} = Q_{2m-1} + x_{2m}^2 = \bigl(2(m-1) + a^2\bigr) + (2 - a^2) = 2m.
+\]
+For the sum:\par
+\[
+S_{2m} = S_{2(m-1)} + a + \sqrt{2 - a^2}.
+\]
+Observe that for any \(a\) with \(0\le a\le \sqrt{2}\),\par
+\[
+\bigl(a + \sqrt{2 - a^2}\bigr)^2 = 2 + 2a\sqrt{2 - a^2} \ge 2,
+\]
+hence \(a + \sqrt{2 - a^2} \ge \sqrt{2}\). Using the inductive bound \(S_{2(m-1)} \ge (m-1)\sqrt{2}\), we obtain\par
+\[
+S_{2m} \ge (m-1)\sqrt{2} + \sqrt{2} = m\sqrt{2}.
+\]
+This completes the induction.\par
+\solutionheading{Alice loses}
+From (2) we have \(S_{2m} \ge m\sqrt{2}\) for every \(m\). Since \(\lambda < 1/\sqrt{2}\), we have \(\sqrt{2} - 2\lambda > 0\). Choose \(m\) large enough so that
+\[
+m\sqrt{2} > \lambda(2m+1). \quad\text{(5)}
+\]
+(Such \(m\) exists because \(m(\sqrt{2} - 2\lambda) > \lambda\) eventually holds.)\par
+Consider turn \(2m+1\). After turn \(2m\),\par
+\[
+S_{2m} \ge m\sqrt{2} > \lambda(2m+1)
+\]
+by (5). Therefore, even if Alice tries to play \(x_{2m+1}=0\), we have
+\[
+S_{2m+1} = S_{2m} > \lambda(2m+1),
+\]
+which violates the sum constraint. Consequently she has no legal move, and Bazza wins.\par
+\smallskip
+\solutionheading{3. The case \(\lambda = \dfrac{1}{\sqrt{2}}\) - Draw}
+We show that neither player has a winning strategy by exhibiting a strategy for each that prevents the opponent from winning.\par
+\solutionheading{Bazza prevents Alice from winning}
+Bazza uses the same maximal strategy as in case 2: on each even turn \(n\), set \(x_n = \sqrt{n - Q_{n-1}}\). We check that the induction in case 2 still works when \(\lambda = 1/\sqrt{2}\).\par
+For the inductive step, from (3) and the lower bound \(S_{2(m-1)} \ge (m-1)\sqrt{2}\) we obtain\par
+\[
+a \le \lambda(2m-1) - (m-1)\sqrt{2}.
+\]
+With \(\lambda = 1/\sqrt{2}\),
+\[
+\lambda(2m-1) - (m-1)\sqrt{2} = \frac{2m-1}{\sqrt{2}} - (m-1)\sqrt{2} = \frac{2m-1 - 2(m-1)}{\sqrt{2}} = \frac{1}{\sqrt{2}}.
+\]
+Thus \(a \le 1/\sqrt{2} < \sqrt{2}\), so \(a^2 \le 1/2\), and the square root \(\sqrt{2 - a^2}\) is well-defined. The rest of the induction is unchanged, yielding\par
+\[
+Q_{2m}=2m, \qquad S_{2m} \ge m\sqrt{2} \quad\text{for all } m. \quad\text{(6)}
+\]
+Now consider any odd turn \(2m+1\). Alice must choose \(a' \ge 0\) such that\par
+\[
+S_{2m} + a' \le \lambda(2m+1) = \dfrac{2m+1}{\sqrt{2}}.
+\]
+From (6), \(S_{2m} \ge m\sqrt{2} = \dfrac{2m}{\sqrt{2}}\). Therefore
+\[
+a' \le \frac{2m+1}{\sqrt{2}} - S_{2m} \le \frac{2m+1}{\sqrt{2}} - \frac{2m}{\sqrt{2}} = \frac{1}{\sqrt{2}}.
+\]
+Consequently \(a'^2 \le \dfrac{1}{2}\), and\par
+\[
+Q_{2m+1} = Q_{2m} + a'^2 = 2m + a'^2 \le 2m + \frac{1}{2} < 2m+2.
+\]
+Thus after Alice's move, we have \(Q_{2m+1} < 2m+2\). Bazza can then reply with \(x_{2m+2}=0\) (or any number keeping \(Q_{2m+2} \le 2m+2\)). In particular, Bazza always has a legal move, so Alice cannot force a win.\par
+\solutionheading{Alice prevents Bazza from winning}
+Alice adopts the strategy: on every odd turn she plays \(0\).\par
+Then the only nonzero numbers are Bazza's even-turn choices. By Lemma 2, after turn \(2m\) we have\par
+\[
+S_{2m} \le m\sqrt{2}.
+\]
+The sum constraint on turn \(2m+1\) is\par
+\[
+S_{2m+1} = S_{2m} + x_{2m+1} \le \lambda(2m+1) = \dfrac{2m+1}{\sqrt{2}}.
+\]
+Since\par
+\[
+S_{2m} \le m\sqrt{2} = \dfrac{2m}{\sqrt{2}} < \dfrac{2m+1}{\sqrt{2}},
+\]
+the choice \(x_{2m+1}=0\) satisfies the inequality. Hence Alice never loses on her turn.\par
+Moreover, with this strategy Bazza cannot force a win, because Alice always has a legal move (namely \(0\)). Therefore Bazza does not possess a winning strategy.\par
+Since both players have strategies that thwart a forced win, the game is a draw; it can also be continued indefinitely (e.g., with Bazza always choosing \(0\) as well). So \(\lambda = 1/\sqrt{2}\) leads to no winner.\par
+\smallskip
+\solutionheading{Conclusion}
+We have determined the outcome for all positive \(\lambda\):\par
+\[
+\boxed{
+\begin{array}{l}
+\text{Alice has a winning strategy if and only if } \lambda > \dfrac{1}{\sqrt{2}}. \\[6pt]
+\text{Bazza has a winning strategy if and only if } \lambda < \dfrac{1}{\sqrt{2}}. \\[6pt]
+\text{When } \lambda = \dfrac{1}{\sqrt{2}}, \text{ the game is a draw (no winner).}
+\end{array}
+}
+\]
+\par

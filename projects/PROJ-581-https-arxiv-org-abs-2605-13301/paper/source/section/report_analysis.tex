@@ -1,0 +1,213 @@
+\section{Analysis and Discussion}
+
+% \begin{figure}[htbp]
+%     \centering
+
+%     \newlength{\figH}
+%     \setlength{\figH}{4cm}
+
+%     \begin{minipage}[t]{0.35\textwidth}
+%         \centering
+%         \includegraphics[height=5, keepaspectratio]{figure/progressive_rigorous_reasoning.pdf}
+%         \caption{Progressive reasoning performance across training stages.}
+%         \label{fig:progressive_rigorous_reasoning}
+%     \end{minipage}
+%     \hspace{0.01\textwidth}
+%     \begin{minipage}[t]{0.60\textwidth}
+%         \centering
+%         \includegraphics[height=\figH, keepaspectratio]{figure/tts_action_length_distribution_1.pdf}
+%         \caption{Generation-length distribution of actions in the TTS pipeline on USAMO 2026.}
+%         \label{fig:tts_action_length_distribution}
+%     \end{minipage}
+
+% \end{figure}
+
+% \begin{figure}[htbp]
+%     \centering
+
+%     \begin{minipage}{0.3\textwidth}
+%         \centering
+%         \includegraphics[height=5cm, keepaspectratio]{figure/progressive_rigorous_reasoning.pdf}
+%         \caption{1}
+%         \label{fig:fig1}
+%     \end{minipage}
+%     \hfill
+%     \begin{minipage}{0.2\textwidth}
+%         \centering
+%         \includegraphics[height=5cm, keepaspectratio]{figure/tts_action_length_distribution_1.pdf}
+%         \caption{2}
+%         \label{fig:fig2}
+%     \end{minipage}
+
+% \end{figure}
+
+\subsection{Progressive Rigorous Reasoning}
+
+% \begin{figure}[t]
+% \centering
+% \includegraphics[width=0.78\linewidth]{figure/progressive_rigorous_reasoning.pdf}
+% \caption{Progressive reasoning performance across training stages. AnswerBench
+% is answer-verifiable, while ProofBench-Basic and ProofBench-Advanced grade the
+% complete solution beyond the final answer.}
+% \label{fig:progressive-rigorous-reasoning}
+% \end{figure}
+
+\begin{wrapfigure}{r}{0.48\textwidth}
+    \vspace{-70 pt}
+    \centering
+    \includegraphics[width=\linewidth]{figure/progressive_rigorous_reasoning.pdf}
+    \vspace{-18 pt}
+    \caption{{Progressive reasoning performance across training stages.} 
+    % AnswerBench
+    % is answer-verifiable, while ProofBench-Basic and ProofBench-Advanced grade the
+    % complete solution beyond the final answer.
+    }
+    \label{fig:progressive-rigorous-reasoning}
+    \vspace{-1.em}
+\end{wrapfigure}
+
+
+\cref{fig:progressive-rigorous-reasoning} separates two kinds of reasoning
+progress. AnswerBench measures whether the model can recover a correct final
+answer under verifiable evaluation, whereas ProofBench grades the total solution
+and therefore exposes gaps in rigor, justification, and proof completion. The
+starting P1-30B-A3B model is already strong on AnswerBench, but its
+ProofBench scores are much lower, especially on the Advanced split, indicating that answer-seeking ability alone does not imply
+olympiad-style proof reliability.
+
+
+
+The staged trend matches the intended role of each method component. \textbf{SFT} lowers
+AnswerBench from 69.2 to 59.8, but raises ProofBench-Basic from 33.8 to 57.6
+and ProofBench-Advanced from 6.2 to 14.8. This is consistent with behavior
+shaping: the model is moved away from short answer recovery and toward longer
+proof-search, self-checking, and refinement patterns. \textbf{Coarse RL} then uses
+verifiable rewards to recover and improve direct solving ability, lifting
+AnswerBench to 77.2 while also improving ProofBench-Basic to 76.7 and
+ProofBench-Advanced to 25.2. This suggests that RLVR scales the rigorous
+reasoning behavior introduced by SFT into stronger problem-solving capability.
+
+
+
+The final SU-01 model keeps AnswerBench essentially saturated at 77.5 and ProofBench-Basic nearly unchanged at 77.1, but improves ProofBench-Advanced from 25.2 to 38.1. The gain is therefore concentrated on harder non-verifiable proof problems, matching the role of \textbf{Refined RL}: proof-level generative rewards provide
+supervision beyond final-answer correctness, self-refinement prompts train the model to critique and repair its own solutions, and experience replay keeps rare
+successful hard-problem trajectories available long enough for the policy to learn more robust proof construction. \textbf{Test-time scaling} then further lifts the
+proof-oriented evaluation, reaching 91.0 on ProofBench-Basic and 49.5 on ProofBench-Advanced, showing that the trained self-verification and refinement behavior
+remains useful when additional inference compute is spent on checking and repairing candidate proofs.
+
+% \subsection{Training Stablization}
+
+\subsection{Characterizing Inference Scaling}
+
+We further inspect the TTS traces from USAMO 2026 to understand where inference
+compute is spent during difficult proof search. The key distinction is not only
+between short and long responses, but between qualitatively different reasoning
+contexts: initial generation starts from the problem statement, whereas
+refinement must condition on an existing solution together with verifier
+feedback or a bug report and then produce a revised proof.
+
+\begin{wrapfigure}{r}{0.64\linewidth}
+\vspace{-8pt}
+\centering
+\includegraphics[width=\linewidth]{figure/tts_action_length_distribution_1.pdf}
+\vspace{-15 pt}
+\caption{{Generation-length distribution of actions in the TTS pipeline on USAMO 2026. }
+% Each point denotes one model response, the box marks the interquartile range, and the vertical line marks the median.
+}
+\label{fig:tts-action-length}
+\vspace{-6 pt}
+\end{wrapfigure}
+
+\cref{fig:tts-action-length} shows a clear allocation of computation across TTS actions. Initial solution generation is the longest stage, with a median length
+of 106K tokens, reflecting broad proof search and candidate construction. Refinement remains length-intensive, with a median of 83K tokens and a heavier upper
+tail, consistent with substantial proof repair. Verification is shorter but still substantive, with a median of 28.7K tokens, reflecting its role in auditing
+complete arguments for hidden gaps. Verdict parsing is lightweight, with a median of only 404 tokens.
+
+
+The long refinement traces indicate that the model can reason over complicated
+conditioning contexts rather than merely produce long first-pass solutions:
+given a candidate proof and a structured critique, it often sustains another
+long reasoning trajectory to localize the flaw, preserve useful parts of the
+argument, and synthesize a corrected proof. The pattern therefore suggests that
+the training recipe enables the 30B model to generalize beyond direct solution
+generation, sustaining complex reasoning beyond 100K tokens and repeatedly
+verifying and refining its own solutions toward stronger candidates.
+
+
+% This structure explains why the TTS loop is useful for difficult olympiad
+% problems: most computation is spent on generating and repairing proofs, while
+% the final accept/reject decision remains comparatively cheap. 
+% More importantly,
+\subsection{Reverse-Perplexity Ordering}
+\label{sec:ppl-order-analysis}
+
+
+\begin{wrapfigure}{r}{0.37\textwidth}
+\vspace{-55pt}
+\centering
+\includegraphics[width=\linewidth]{figure/sft_ppl_curriculum.pdf}
+\vspace{-16pt}
+\caption{{Validation results for SFT data ordering.}}
+\label{fig:sft-ppl-curriculum}
+\vspace{-15pt}
+\end{wrapfigure}
+
+% The reverse-perplexity curriculum in \S\ref{sec:reverse-ppl-curriculum} is motivated by the optimization
+% behavior of long-CoT SFT on post-trained reasoning models. Here we compare it
+% against random ordering and ascending-perplexity ordering.
+ We compare the effect of different SFT data orderings on validation performance, as shown in \cref{fig:sft-ppl-curriculum}. The results come from validation
+  experiments whose SFT training data differ from the final training mixture used for SU-01. Data ordering has a large effect on both score recovery and generation
+  stability. Random ordering substantially under-recovers the P1-30B baseline, reaching 39.5 on AnswerBench and 31.0 on AMO-Bench, with truncation rates of 7.3\%
+  and 8.0\%, respectively. Descending-PPL ordering recovers much more of the original capability, reaching 55.8 on AnswerBench and 40.0 on AMO-Bench, while reducing
+  truncation to 0.3\% and 0.0\%. The low-PPL-first setting is the weakest curriculum, degrading to 24.3 on AnswerBench and 15.0 on AMO-Bench. These results suggest
+  that descending-PPL ordering helps preserve the capability of the post-trained model while reshaping its reasoning behavior, and also prevents training from
+  falling into a superficial long-generation regime with high truncation rates.
+
+
+\subsection{Cost Analysis}
+\label{sec:cost_analysis}
+
+% 先写 our SU-01 要非常详细 
+% 再写 deepseek 但只聊 deepseek-v3.2
+% math-v2 specifically from v3.2
+% 再写 nemotron 详细，与 SU-01
+% 提两嘴闭源模型即可
+
+
+
+% SU-01 uses a compact and transparent post-training setup. Starting from a 30B-A3B backbone, we train on 338K SFT trajectories shorter than 8K tokens for
+% four epochs with batch size 128. 
+% The RL stage then uses 25K prompts for 200
+% steps, also with batch size 128, 8 rollouts per prompt, and a 160K-token maximum
+% response length. 
+% For context, DeepSeek-V3.2~\citep{deepseekai2025deepseekv32}
+% reports continued pre-training with warm-up steps over 2.1B tokens
+% and 15,000 sparse-training steps over 943.7B tokens, followed by post-training
+% with specialist distillation and thousands of RL steps. Nemotron-Cascade 2~\citep{yang2026nemotroncascade2}, a same-size 30B-A3B reference model, reports
+% SFT with up to roughly 26M trajectories and 256K-token maximum length, followed
+% by multiple RL stages including Cascade RL, agentless SWE RL, and agentic SWE
+% RL. 
+% Closed models such as GPT-5.5 and Gemini 3.1 Pro do not disclose directly comparable data scale, RL-step, or accelerator-budget figures in their public model cards~\citep{openai2026gpt55,googledeepmind2026gemini31pro}. 
+% These comparisons highlight the main design point of SU-01: a simple and unified post-training recipe can elicit strong olympiad-level reasoning from a compact 30B-A3B model.
+
+SU-01 uses a compact and transparent post-training setup. Starting from a
+30B-A3B backbone, we train on 338K SFT trajectories shorter than 8K tokens for
+four epochs with batch size 128. The RL stage uses 25K prompts for 200 steps,
+with batch size 128, 8 rollouts per prompt, and a 160K-token maximum response
+length. 
+For reference, DeepSeek-V3.2~\citep{deepseekai2025deepseekv32} reports
+continued pre-training with 1,000 indexer warm-up steps over 2.1B tokens and
+15,000 sparse-training steps over 943.7B tokens, followed by post-training with
+specialist distillation and mixed RL over thousands of continued-RL steps; its
+high-compute Speciale variant further trains on reasoning data with DeepSeekMath-V2-style proof rewards. 
+Nemotron-Cascade 2~\citep{yang2026nemotroncascade2}, a same-size 30B-A3B
+reference model, reports a substantially broader SFT mixture. Summing the
+disclosed category counts gives roughly 26.6M SFT samples across math, proof,
+code, science, long-context, chat, instruction-following, tool-use, and
+software-engineering data, trained with packed 256K-token sequences for 33K
+steps. Its post-training then continues with a multi-stage Cascade RL pipeline
+covering IF-RL, multi-domain RL, on-policy distillation, RLHF, long-context RL,
+CodeRL, and SWE RL. 
+These comparisons highlight the main design point of SU-01:
+a simple and unified recipe can elicit strong olympiad-level reasoning from a
+compact 30B-A3B model while preserving scientific transfer.

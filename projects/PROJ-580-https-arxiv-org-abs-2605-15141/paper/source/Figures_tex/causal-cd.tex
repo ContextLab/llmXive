@@ -1,0 +1,25 @@
+\begin{figure}[t]
+  \centering
+  \hspace*{\figxshift}%
+  \begin{subfigure}[t]{\leftfigwidth}
+    \centering
+    \includegraphics[width=\linewidth]{Figures/causal-cd-a.pdf}
+    \caption{\footnotesize Performance comparison.
+Causal CD achieves higher VBench scores than causal ODE both when directly evaluated at Stage~2 and when used as the initialization for Stage~3, while also producing videos with better visual quality. Init. denotes initialization.
+}
+    \label{fig:causal-cd-a}
+  \end{subfigure}%
+  \hspace{\figgap}%
+  \begin{subfigure}[t]{\rightfigwidth}
+    \centering
+    \includegraphics[width=\linewidth]{Figures/causal-cd-b.pdf}
+    \caption{\footnotesize Training-efficiency.
+Causal CD dramatically reduces training time and requires no extra storage.
+}
+    \label{fig:causal-cd-b}
+  \end{subfigure}
+\vspace{-.25cm}
+  \caption{\textbf{Performance and efficiency comparison between causal CD and causal ODE.}
+Causal CD outperforms causal ODE, while subsequently improving training efficiency in time and storage.}
+  \label{fig:cd-is-better-than-ode}
+\end{figure}

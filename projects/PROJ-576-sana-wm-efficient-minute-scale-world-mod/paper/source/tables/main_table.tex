@@ -1,0 +1,44 @@
+
+\begin{table}[t]
+  \centering
+  \caption{Quantitative comparison on our 1-min benchmark. %
+  Bold Res marks 720p. Pose Acc. reports R in degrees, plus T/CMC; VBench reports eight dimensions plus Overall. Mem/Tput are peak GB and videos/hour on 8 H100s. Green highlights mark top-three entries.}
+  \label{tab:vbench}
+  \resizebox{\textwidth}{!}{%
+  \scriptsize
+  \setlength{\tabcolsep}{1.65pt}
+  \renewcommand{\arraystretch}{1.10}
+  \begin{tabular}{@{} l c c c @{\hspace{4pt}} c c c @{\hspace{4pt}} c c c c c c c c c @{\hspace{4pt}} c c @{}}
+    \toprule
+    & & & & \multicolumn{3}{c}{\textbf{Pose Acc. ($\downarrow$)}} & \multicolumn{9}{c}{\textbf{VBench ($\uparrow$)}} & \multicolumn{2}{c}{\textbf{Efficiency}} \\
+    \cmidrule(lr){5-7} \cmidrule(lr){8-16} \cmidrule(l){17-18}
+    \textbf{Method} & \textbf{Param} & \textbf{Res} & \textbf{\#G}
+      & \textbf{R} & \textbf{T} & \textbf{CMC}
+      & \textbf{SC} & \textbf{BC} & \textbf{TF} & \textbf{MS} & \textbf{AQ} & \textbf{IQ} & \textbf{DD} & \textbf{OC} & \textbf{Overall}
+      & \textbf{Mem$\downarrow$} & \textbf{Tput$\uparrow$} \\
+    \midrule
+
+    \multicolumn{18}{@{}l}{\textbf{\textit{Simple-Trajectory Split}}} \\
+    \midrule
+    Infinite-World~\citep{infinite_world}        & 1.3B    & 480p & 1 & 16.55 & 1.98 & 2.08 & 79.48 & 87.79 & 97.35 & 98.78 & 51.99 & 69.34 & 88.75 & 12.28 & 79.18 & \ranksecond{53.5} & \rankthird{5.9} \\
+    LingBot-World~\citep{lingbot_world}          & 14B+14B & 480p & 8 & \rankthird{10.47} & 2.01 & 2.05 & 93.77 & 95.46 & 97.13 & 98.34 & 64.06 & 73.18 & 41.25 & 11.78 & \rankfirst{81.82} & 454.1 & 0.6 \\
+    HY-WorldPlay~\citep{hy_worldplay}            & 8B      & 480p & 8 & 17.89 & 2.36 & 2.45 & 65.95 & 81.97 & 94.63 & 96.01 & 40.28 & 53.05 & 91.25 & 13.83 & 68.82 & 215.5 & 1.1 \\
+    \midrule
+    Matrix-Game\,3.0~\citep{matrixgame3}          & 5B      & \textbf{720p} & 8 & 12.96 & \rankthird{1.83} & \rankthird{1.92} & 81.62 & 90.04 & 94.37 & 97.64 & 52.24 & 66.94 & 97.50 & 13.29 & 78.53 & 106.2 & 3.1 \\
+    \textbf{\modelname}               & 2.6B & \textbf{720p} & 1 & \ranksecond{7.59} & \ranksecond{1.59} & \ranksecond{1.63} & 87.46 & 91.87 & 94.99 & 97.69 & 55.70 & 69.69 & 72.50 & 11.54 & \rankthird{79.29} & \rankfirst{51.1} & \rankfirst{24.1} \\
+    \textbf{\modelname + refiner}     & 2.6B+17B & \textbf{720p} & 1 & \rankfirst{4.50} & \rankfirst{1.39} & \rankfirst{1.41} & 88.62 & 93.21 & 96.18 & 98.61 & 58.05 & 72.12 & 61.25 & 11.12 & \ranksecond{80.62} & \rankthird{74.7} & \ranksecond{22.0} \\
+    \midrule
+    \midrule
+
+    \multicolumn{18}{@{}l}{\textbf{\textit{Hard-Trajectory Split}}} \\
+    \midrule
+    Infinite-World~\citep{infinite_world}        & 1.3B    & 480p & 1 & 41.31 & 2.49 & 2.84 & 78.61 & 86.98 & 96.46 & 98.68 & 52.12 & 71.22 & 98.75 & 12.36 & 79.51 & \ranksecond{53.5} & \rankthird{5.9} \\
+    LingBot-World~\citep{lingbot_world}          & 14B+14B & 480p & 8 & 18.99 & \ranksecond{1.65} & \rankthird{1.81} & 91.79 & 94.41 & 96.10 & 97.82 & 62.79 & 72.60 & 62.50 & 12.06 & \rankfirst{81.89} & 454.1 & 0.6 \\
+    HY-WorldPlay~\citep{hy_worldplay}            & 8B      & 480p & 8 & 35.46 & 2.34 & 2.64 & 68.33 & 83.06 & 95.31 & 96.71 & 41.76 & 53.71 & 91.25 & 13.94 & 70.46 & 215.5 & 1.1 \\
+    \midrule
+    Matrix-Game\,3.0~\citep{matrixgame3}          & 5B      & \textbf{720p} & 8 & \rankthird{18.79} & 1.67 & 1.82 & 82.10 & 89.99 & 93.94 & 97.60 & 52.92 & 68.03 & 98.75 & 13.65 & 78.79 & 106.2 & 3.1 \\
+    \textbf{\modelname}               & 2.6B & \textbf{720p} & 1 & \ranksecond{10.02} & \rankthird{1.66} & \ranksecond{1.72} & 85.93 & 90.89 & 94.36 & 97.49 & 53.82 & 69.12 & 92.50 & 12.10 & \rankthird{79.60} & \rankfirst{51.1} & \rankfirst{24.1} \\
+    \textbf{\modelname + refiner}     & 2.6B+17B & \textbf{720p} & 1 & \rankfirst{8.34} & \rankfirst{1.39} & \rankfirst{1.44} & 87.26 & 92.55 & 95.54 & 98.49 & 56.67 & 71.38 & 91.25 & 11.34 & \ranksecond{81.89} & \rankthird{74.7} & \ranksecond{22.0} \\
+    \bottomrule
+  \end{tabular}}
+\end{table}

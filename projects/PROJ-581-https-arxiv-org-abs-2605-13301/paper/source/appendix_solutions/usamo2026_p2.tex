@@ -1,0 +1,78 @@
+\begin{mdframed}[style=mdpurplebox,frametitle={USAMO 2026 Problem 2}]
+Annie is playing a game where she starts with a row of positive integers, written on a blackboard, each of which is a power of $2$. On each turn, she can erase two adjacent numbers and replace them with a power of $2$ that is greater than either of the erased numbers. This shortens the row of numbers, and she continues to take turns until only one number remains. Annie wins the game if the final remaining number is less than $4$ times the sum of the original numbers. Is it always possible for Annie to win, regardless of the starting row of numbers?
+\end{mdframed}
+\par\noindent\textit{Excerpted solution: the original response is very long, so only the beginning and ending portions are shown.}\par
+\solutionheading{Solution}
+\begin{remark*}
+  0/7.
+\end{remark*}
+We will prove that Annie can always win, i.e., for any initial row of powers of two, there exists a sequence of moves that ends with a single number \(F\) satisfying \(F < 4S\), where \(S\) is the sum of the original numbers.\par
+Let \(S\) be the sum of the numbers, and let \(k = \lfloor \log_2 S \rfloor\), so that\par
+\[
+2^k \le S < 2^{k+1}.
+\]
+The proof proceeds by strong induction on the number of terms \(n\). We will show the following statement:\par
+\par\noindent\emph{\textbf{Claim.}  For any list of \(n\) powers of two, there exists a sequence of moves such that the final number \(F\) satisfies \(F \le 4 \cdot 2^{k}\).}\par
+Once the Claim is established, we obtain Annie's victory:\par
+\compactbullet{If \(S\) is \textbf{not} a power of two, then \(2^k < S\), hence \(4 \cdot 2^k < 4S\) and therefore \(F < 4S\).}
+\compactbullet{If \(S\) is a power of two, the same inductive proof (when analysed more carefully) actually yields the sharper bound \(F \le 2S\), which is certainly \(< 4S\) for \(S>0\).  (We will comment on this improvement at the end.)}
+Thus the main task is to prove the Claim by induction on \(n\).\par
+\smallskip
+\solutionheading{Base case \(n = 1\)}
+There is only the number itself, so \(F = S\). Since \(S \le 2^{k+1} \le 4 \cdot 2^{k}\), the Claim holds.\par
+\smallskip
+\solutionheading{Inductive step}
+Assume the Claim holds for every list of size less than \(n\). Consider a list of size \(n\). Let its sum be \(S\) and let \(k = \lfloor \log_2 S \rfloor\).\par
+\solutionheading{Case 1: There exists an adjacent equal pair}
+Choose such a pair, say \(a_i = a_{i+1} = a\). Replace them by \(2a\) (the smallest allowed power of two greater than \(a\)). The sum does not change, so \(k\) remains the same. The new list has size \(n-1\), so by the induction hypothesis it can be reduced to a final number \(\le 4 \cdot 2^{k}\). Hence the same holds for the original list.\par
+\solutionheading{Case 2: No two adjacent numbers are equal}
+In this case we choose an adjacent pair \((a_i, a_{i+1})\) for which \(\max(a_i, a_{i+1})\) is as small as possible; denote the two numbers by \(x\) and \(y\) with \(x < y\). Replace them by \(2y\) (again the smallest possible power of two greater than \(y\)). Let the new sum be\par
+\[
+S' = S + (y - x).
+\]
+Set \(k' = \lfloor \log_2 S' \rfloor\).\par
+We now consider two subcases.\par
+\solutionheading{Subcase 2a: \(k' = k\)}
+Then \(S' < 2^{k+1}\), so the floor has not increased. The new list has size \(n-1\); by the induction hypothesis it can be reduced to a final number \(\le 4 \cdot 2^{k'} = 4 \cdot 2^{k}\). So the original list also admits such a strategy.\par
+\solutionheading{Subcase 2b: \(k' = k+1\)}
+In this situation \(2^{k+1} \le S' < 2^{k+2}\). First note that \(y \le 2^{k}\); otherwise \(y \ge 2^{k+1}\) would force \(S \ge y \ge 2^{k+1}\), contradicting \(S < 2^{k+1}\). Consequently \(2y \le 2^{k+1}\).\par
+Now examine the list after the merge; it has size \(n-1\) and sum \(S'\). Although its floor is \(k+1\), we can still use the induction hypothesis - not directly on this list (which would give a bound of \(4 \cdot 2^{k+1} = 8 \cdot 2^{k}\)), but we can instead apply the induction hypothesis to the \textbf{rest} of the list - i.e., the numbers that were not part of the merged pair. However, after the merge the list is contiguous, so the "rest" is not isolated. Instead we perform the following two step reduction:\par
+\compactnumber{1}{Reduce the part of the list that does not contain the new number \(2y\) (i.e., all other numbers) to a single number \(T\).  Because the rest consists of several (possibly one) contiguous blocks, we can reduce each block independently to a single number using the induction hypothesis (the blocks have size \(< n\)).  By doing so we obtain a list consisting of \(2y\) and the numbers \(T_1, T_2, \dots\) (one per block).  Each \(T_j\) satisfies \(T_j \le 4 \cdot 2^{k}\) because the sum of the corresponding block is \(< 2^{k+1}\) (since the total sum \(S < 2^{k+1}\) and we have removed at least the two numbers \(x,y\) with \(y \ge 2\), so the block sum is at most \(2^{k+1} - 3\)?  Actually a precise bound is not needed; we only need that every such \(T_j\) is \(\le 4 \cdot 2^{k}\).  Indeed, for any block, its sum is less than \(2^{k+1}\), so by the induction hypothesis (applied to that block) we obtain a number \(\le 4 \cdot 2^{k}\) (its floor is at most \(k\), so the bound is \(4 \cdot 2^{k}\)).}
+After this reduction, the list contains \(2y\) and several numbers \(T_j\), each \(\le 4 \cdot 2^{k}\). Now we can merge these numbers one by one. A crucial observation is that \(2y \le 2^{k+1} \le 4 \cdot 2^{k}\) for \(k \ge 0\). Hence all numbers present are at most \(4 \cdot 2^{k}\). When we merge two numbers each at most \(4 \cdot 2^{k}\), the result is at most \(2 \cdot 4 \cdot 2^{k} = 8 \cdot 2^{k}\), which is still too large. To keep the bound at \(4 \cdot 2^{k}\), we must merge in a way that the maximum never exceeds \(2^{k+1}\). Notice that \(2y \le 2^{k+1}\). If we can ensure that every \(T_j\) is also \(\le 2^{k+1}\), then merging any two of them yields at most \(2^{k+2} = 4 \cdot 2^{k}\). Therefore the problem reduces to showing that each block can be reduced to a number \(\le 2^{k+1}\) rather than the coarser \(4 \cdot 2^{k}\).\par
+But can we guarantee \(\le 2^{k+1}\)? Since the sum of a block is \(< 2^{k+1}\), a direct application of the induction hypothesis would only give \(\le 4 \cdot 2^{k}\). However, we can prove a slightly stronger lemma that will serve our purpose:\par
+\textbf{Lemma.} If a list has sum \(T\) with \(2^{L} < T < 2^{L+1}\), then there exists a strategy with final number \(\le 2^{L+1}\) \textbf{provided} that \(T \le 3 \cdot 2^{L-1} - 1\). (This lemma will be proved by induction on \(n\) in a moment.)\par
+In our situation, each block sum is at most \(S - x - y < 2^{k+1}\). Moreover, because we are in Subcase 2b, the original list has no adjacent equal and we chose the pair with smallest maximum. A detailed analysis (which we will carry out for the lemma) shows that the sum of each block is actually \(\le 3 \cdot 2^{k-1} - 1\). Hence the Lemma applies, giving \(T_j \le 2^{k+1}\).\par
+\compactnumber{2}{With all numbers \(\le 2^{k+1}\), merging any two yields at most \(2^{k+2} = 4 \cdot 2^{k}\).  By continuing this process we eventually obtain a single number \(\le 4 \cdot 2^{k}\).}
+Thus, if the Lemma holds, the Claim is established in Subcase 2b as well.\par
+\smallskip
+\solutionheading{Proof of the Lemma}
+We now prove the Lemma stated above.\par
+\textbf{Lemma.} Let \(L \ge 2\) be an integer. For any list of powers of two whose sum \(T\) satisfies\par
+\[
+2^{L} < T \le 3 \cdot 2^{L-1} - 1,
+\]
+there exists a sequence of moves that ends with a number \(\le 2^{L+1}\).\par
+\emph{Proof.} We use strong induction on the number of terms \(n\).\par
+\compactbullet{\textbf{Base }\(n = 2\).\textbf{  The two numbers are powers of two, say }\(a \le b\).  Since \(T = a+b > 2^{L}\), we must have \(b \ge 2^{L}\).  If \(b > 2^{L}\), then \(b \ge 2^{L+1}\), implying \(T \ge 2^{L+1}\), which contradicts \(T \le 3 \cdot 2^{L-1} - 1 < 2^{L+1}\) (for \(L \ge 2\)).  Hence \(b = 2^{L}\).  Then \(a = T - 2^{L} \le 2^{L-1} - 1\).  The only legal move is to replace \((a, 2^{L})\) with a power of two greater than \(2^{L}\); the smallest such is \(2^{L+1}\).  By choosing that, we obtain a final number exactly \(2^{L+1}\), which certainly is \(\le 2^{L+1}\).}
+\compactbullet{\textbf{Inductive step.}  Assume the Lemma holds for all lists of size smaller than \(n\).  Consider a list of size \(n\) with sum \(T\) in the prescribed interval.}
+\emph{If there is an adjacent equal pair}, merge it.  The sum stays the same, so \(T\) remains in the interval, and the size becomes \(n-1\).  By the induction hypothesis we get a final number \(\le 2^{L+1}\).\par
+\emph{If there is no adjacent equal pair}, let \((x, y)\) be the adjacent pair with the smallest maximum; \(x < y\).  Merge them to \(2y\) and obtain a new list of size \(n-1\) with sum \(T' = T + (y - x)\).\par
+We need to show that \(T'\) still lies in an interval that allows us to apply the induction hypothesis (possibly with a different \(L\)) and still obtain the bound \(2^{L+1}\).\par
+\textbf{First, bound }\(y\).\textbf{ Because the list has no adjacent equal numbers and its sum is less than }\(2^{L+1}\), the maximum element cannot exceed \(2^{L-1}\) if we want to stay within the interval after the merge? Actually we can have \(y = 2^{L}\), but then the structure of the list is very restricted. We analyse the two possibilities:\par
+\compactbullet{\textbf{}\(y \le 2^{L-1}\).\textbf{  Then }\(2y \le 2^{L}\).  Also, \(y - x \le 2^{L-1} - 1\).  Consequently}
+\[
+    T' \le T + (2^{L-1} - 1) \le (3 \cdot 2^{L-1} - 1) + (2^{L-1} - 1) = 4 \cdot 2^{L-1} - 2 = 2^{L+1} - 2.
+\]
+Moreover, \(T' > T > 2^{L}\). Hence \(T'\) lies in \((2^{L}, 2^{L+1})\). If \(T' \le 3 \cdot 2^{L-1} - 1\), then \(T'\) is still in the original interval for \(L\), and the induction hypothesis (applied to the list of size \(n-1\)) gives \(F \le 2^{L+1}\). If \(T' > 3 \cdot 2^{L-1} - 1\), then \(T'\) is in \((3 \cdot 2^{L-1}, 2^{L+1})\). In this range, we claim that \(T'\) actually belongs to the interval for \(L+1\), i.e., \(2^{L+1} < T' \le 3 \cdot 2^{L} - 1\)? But \(T' < 2^{L+1}\), so it cannot be in \((2^{L+1}, \dots]\). However, observe that \(T' \ge 3 \cdot 2^{L-1} + 1\) (since it exceeds the upper bound). But then \(T' \ge 3 \cdot 2^{L-1} + 1\). For \(L \ge 2\), \(3 \cdot 2^{L-1} + 1\) may be less than \(2^{L+1}\), but we need a bound of \(2^{L+1}\). Since we are only required to obtain some final number \(\le 2^{L+1}\), we can simply note that \(T' < 2^{L+1}\) and therefore the floor of \(T'\) is at most \(L\). If the floor is \(L\) (i.e., \(T' < 2^{L+1}\)), then we can apply the induction hypothesis for the same \(L\)? The induction hypothesis requires the sum to be \(> 2^{L}\). It is, but we also need the upper bound \(3 \cdot 2^{L-1} - 1\) to use the Lemma? Actually the Lemma we are proving is exactly: for any list with sum in \((2^{L}, 3 \cdot 2^{L-1} - 1]\) we can achieve \(\le 2^{L+1}\). If \(T'\) falls outside this interval (i.e., \(T' > 3 \cdot 2^{L-1} - 1\)), the Lemma does not directly apply. However, we can then apply the induction hypothesis for a \textbf{different} statement: for any list with sum \(< 2^{L+1}\) we can achieve \(\le 2^{L+1}\). But is that universally true? No, as the example \([8,4,2]\) with \(L=3\) (sum 14) shows that the minimum final is 32, which is \(> 16 = 2^{L+1}\). So we cannot claim that for every list with sum \(< 2^{L+1}\) we can get \(\le 2^{L+1}\). Hence we must be more careful.\par
+\compactbullet{\textbf{}\(y = 2^{L}\).\textbf{  Then, because there are no adjacent equal numbers and the sum is at most }\(3 \cdot 2^{L-1} - 1 < 2^{L+1}\), the list can contain at most one copy of \(2^{L}\) (two would sum to at least \(2^{L+1}\)).  Moreover, to avoid any adjacent pair with maximum \(< 2^{L}\), every other number must be adjacent only to \(2^{L}\) (otherwise a pair of smaller numbers would have maximum \(< 2^{L}\)).  This forces the list to be of the form}
+\[
+    [\, a_1, a_2, \dots, a_p, 2^{L}, b_1, b_2, \dots, b_q \,]
+    \]
+where all \(a_i\) and \(b_j\) are powers of two less than \(2^{L}\), and no two of the \(a_i\) (or two of the \(b_j\)) are adjacent; in particular, \(p \le 1\) and \(q \le 1\). Thus the list has at most three elements. For size 2, the list is \([2^{L}, c]\) or \([c, 2^{L}]\) with \(c < 2^{L}\). That case is already covered by the base (size 2). For size 3, the list is \([a, 2^{L}, b]\) with \(a,b\) powers of two, \(a,b < 2^{L}\), and \(a+b \le 2^{L-1} - 1\) (since the total sum is at most \(3 \cdot 2^{L-1} - 1\)). Now, the pair with smallest maximum is either \((a,2^{L})\) or \((2^{L},b)\), both have maximum \(2^{L}\). Choose one, say \((a,2^{L})\). Merging gives \(2^{L+1}\) and the list becomes \([2^{L+1}, b]\). Its sum is \(2^{L+1} + b\). Since \(b \le 2^{L-1} - 1\), we have\par
+\[
+    2^{L+1} < 2^{L+1} + b \le 2^{L+1} + 2^{L-1} - 1 = 5 \cdot 2^{L-1} - 1.
+    \]
+For \(L \ge 2\), \(5 \cdot 2^{L-1} - 1\) is still less than \(6 \cdot 2^{L-1} - 1 = 3 \cdot 2^{L} - 1\), so the sum lies in \((2^{L+1}, 3 \cdot 2^{L} - 1]\). Now, by the induction hypothesis (the Lemma for the larger index \(L+1\)), we can reduce this list to a number \(\le 2^{(L+1)+1} = 2^{L+2}\). But we need \(\le 2^{L+1}\). However, we are not forced to apply the Lemma for \(L+1\); we can directly finish the game: from \([2^{L+1}, b]\), the only move is to merge the two numbers (they are different because \(b < 2^{L} < 2^{L+1}\)). The smallest possible result is \(2^{L+2}\) (since we must replace them with a power of two greater than \(\max(2^{L+1}, b) = 2^{L+1}\), so the smallest is \(2^{L+2}\). That would give \(F = 2^{L+2}\), which is larger than \(2^{L+1}\). But we are free to choose a larger number if we wish; however, to achieve the bound \(\le 2^{L+1}\) we would need to obtain exactly \(2^{L+1}\), which is impossible because the numbers are different and the rule requires a number \textbf{greater than} both, so the result must be at least \(2^{L+2}\). This suggests that the Lemma might be false for lists of size 3 of this form? Let's test with concrete numbers: \(L=3\), so \(2^{L}=8\). Choose \(a=2\), \(b=2\)? But \(a+b \le 2^{L-1} - 1 = 3\), so \(a=2,b=1\) gives sum \(8+2+1=11\), which is within the interval \((8, 11]\). According to the Lemma, there should be a strategy yielding \(F \le 2^{L+1}=16\). But earlier we saw that from \([2,8,1]\) the minimum final is 32, not 16. Let's verify carefully:\par
+List: \([2,8,1]\). No adjacent equal. The pair with smallest maximum: pairs are \((2,8)\) max=8, \((8,1)\) max=8. Suppose we merge \((2,8)\) to \(16\) (smallest possible). Resulting list: \([16,1]\). Now merge \((16,1)\): the smallest power of two greater than 16 is 32. So final 32. If we merge \((8,1)\) first, we get \([2,16]\) then merge to 32. So indeed the minimum is 32. Therefore the Lemma, as stated, is \textbf{false} for \(L=3\) with the list \([2,8,1]\). Indeed, \(2^{L}=8\), \(3 \cdot 2^{L-1} - 1 = 11\), and \(T=11\) is allowed. But we cannot achieve \(\le 16\); the best is 32.\par
+\par\noindent\textit{Remaining solution omitted because the original response is substantially longer than the other appendix examples.}\par
+\par

@@ -1,0 +1,99 @@
+\begin{mdframed}[style=mdpurplebox,frametitle={IMO 2025 Problem 6}]
+Consider a $2025 \times 2025$ grid of unit squares.
+Matilda wishes to place on the grid some rectangular tiles, possibly of different sizes,
+such that each side of every tile lies on a grid line
+and every unit square is covered by at most one tile.
+
+Determine the minimum number of tiles Matilda needs to place
+so that each row and each column of the grid has exactly one unit square
+that is not covered by any tile.
+\end{mdframed}
+\solutionheading{Solution}
+\begin{remark*}
+  0/7.
+\end{remark*}
+Let \(n = 2025\). The grid consists of \(n^2\) unit squares. We must choose a set of squares to remain uncovered such that each row and each column contains exactly one uncovered square; equivalently, the uncovered squares form a permutation matrix. The remaining \(n^2 - n\) squares must be covered by non-overlapping axis-aligned rectangles (tiles) whose sides lie on the grid lines. The goal is to minimize the number of tiles.\par
+\smallskip
+\solutionheading{1. Reduction to the diagonal configuration}
+Let the uncovered square in row \(i\) be at column \(c_i\); then \(c_1, c_2, \dots, c_n\) is a permutation of \(\{1,\dots,n\}\). Consider the column permutation \(\sigma\) defined by \(\sigma(c_i) = i\). Applying \(\sigma\) to the column indices (i.e., renaming column \(j\) to \(\sigma(j)\)) transforms the uncovered squares into the diagonal positions \((i,i)\). The tiling is transformed by moving each tile together with the columns; this does not change the number of tiles, and the covering properties remain valid because the grid structure is preserved (only the labels of columns are changed). Therefore, the minimum number of tiles over all configurations is the same as the minimum over configurations where the uncovered squares are exactly the main diagonal \(\{(i,i) \mid 1\le i\le n\}\).\par
+Consequently, \textbf{we may assume without loss of generality that the diagonal squares are the only uncovered ones}.\par
+\smallskip
+\solutionheading{2. A construction using \(2n-2\) tiles}
+We now exhibit a tiling of the board with the diagonal uncovered, using exactly \(2n-2\) rectangles.\par
+\compactbullet{\textbf{Lower triangle} (\(i > j\)): For each column \(j = 1, 2, \dots, n-1\), place a vertical tile that covers every cell in column \(j\) whose row index is greater than \(j\). Formally,}
+\[
+  R^{(L)}_j = \{(i,j) \mid j+1 \le i \le n\}.
+  \]
+These \(n-1\) rectangles are pairwise disjoint (they lie in different columns) and cover all squares with \(i>j\).\par
+\compactbullet{\textbf{Upper triangle} (\(i < j\)): For each row \(i = 1, 2, \dots, n-1\), place a horizontal tile that covers every cell in row \(i\) whose column index is greater than \(i\):}
+\[
+  R^{(U)}_i = \{(i,j) \mid i+1 \le j \le n\}.
+  \]
+These \(n-1\) rectangles are also pairwise disjoint (they occupy distinct rows) and cover all squares with \(i<j\).\par
+The two families are disjoint because a square with \(i>j\) belongs to some \(R^{(L)}_j\) (column \(j\)) and a square with \(i<j\) belongs to some \(R^{(U)}_i\) (row \(i\)); no square can satisfy both conditions. The diagonal squares \((i,i)\) are not covered by any tile. Thus we have a valid covering of all off-diagonal squares using\par
+\[
+k = (n-1)+(n-1) = 2n-2
+\]
+tiles.\par
+\smallskip
+\solutionheading{3. Lower bound: at least \(2n-2\) tiles}
+Now take any tiling \(\mathcal{T}\) of the board that leaves exactly the diagonal squares uncovered. Partition the off-diagonal squares into two sets:\par
+\[
+L = \{(i,j) \mid i > j\}, \qquad U = \{(i,j) \mid i < j\}.
+\]
+\textbf{Lemma 1.} Every tile \(T \in \mathcal{T}\) is entirely contained either in \(L\) or in \(U\).\par
+\emph{Proof.} Suppose a tile \(T\) contains a square from \(L\) and a square from \(U\). Represent \(T\) as the Cartesian product of an interval of rows and an interval of columns:\par
+\[
+T = \{(i,j) \mid a \le i \le b,\; c \le j \le d\},
+\]
+with \(1 \le a \le b \le n\), \(1 \le c \le d \le n\). If the intervals \([a,b]\) and \([c,d]\) intersect, then there exists an integer \(r \in [a,b] \cap [c,d]\), and the square \((r,r)\) belongs to \(T\), contradicting the fact that diagonal squares are uncovered. Hence \([a,b]\) and \([c,d]\) are disjoint.\par
+\compactbullet{If \(b < c\), then for any \((i,j) \in T\) we have \(i \le b < c \le j\), so \(i < j\); thus \(T \subseteq U\), contradicting the presence of an \(L\)square.}
+\compactbullet{If \(d < a\), then \(j \le d < a \le i\), so \(i > j\), giving \(T \subseteq L\), contradiction.}
+Therefore a tile cannot contain squares from both \(L\) and \(U\); it must lie wholly in one of them.\par
+\textbf{Lemma 2.} In the lower triangle \(L\), consider the \(n-1\) cells\par
+\[
+D_L = \{(i,i-1) \mid i = 2,3,\dots,n\}.
+\]
+No tile that is a subset of \(L\) can contain two distinct cells from \(D_L\).\par
+\emph{Proof.} Let \(T \subseteq L\) be a tile, so \(T = [a,b] \times [c,d]\). Because \(T \subseteq L\), we have \(i > j\) for every \((i,j) \in T\). In particular, the cell \((a,d)\) (the topmost row and rightmost column of the tile) satisfies \(a > d\).\par
+Assume, for contradiction, that \(T\) contains two distinct cells \((i,i-1)\) and \((j,j-1)\) with \(i < j\). From \((i,i-1) \in T\) we obtain\par
+\[
+a \le i \le b,\quad c \le i-1 \le d.
+\]
+Since \(a > d\) and \(d \ge i-1\), we have \(a > i-1\), hence \(a \ge i\). Combined with \(a \le i\), we get \(a = i\).\par
+Now \(a = i\) and \(a > d\) imply \(i > d\), i.e., \(d < i\). But \(d \ge i-1\) from the containment, so \(d = i-1\).\par
+Now apply the same reasoning to \((j,j-1) \in T\). We obtain \(a = j\) and \(d = j-1\). But we already have \(a = i\), so \(i = j\), contradicting \(i < j\). Hence \(T\) cannot contain two cells of \(D_L\).\par
+\textbf{Lemma 3.} In the upper triangle \(U\), consider the \(n-1\) cells\par
+\[
+D_U = \{(i,i+1) \mid i = 1,2,\dots,n-1\}.
+\]
+No tile that is a subset of \(U\) can contain two distinct cells from \(D_U\).\par
+\emph{Proof.} Let \(T \subseteq U\) be a tile, \(T = [a,b] \times [c,d]\). Since \(T \subseteq U\), we have \(i < j\) for every \((i,j) \in T\). In particular, the cell \((b,c)\) (the bottommost row and leftmost column) satisfies \(b < c\).\par
+Suppose \(T\) contains \((i,i+1)\) and \((j,j+1)\) with \(i < j\). From \((i,i+1) \in T\) we have\par
+\[
+a \le i \le b,\quad c \le i+1 \le d.
+\]
+Because \(c > b\) and \(b \ge i\), we get \(c > i\), thus \(c \ge i+1\). But \(c \le i+1\) from the containment, so \(c = i+1\).\par
+Moreover, \(c > b \ge i\) and \(c = i+1\) imply \(b < i+1\), i.e., \(b \le i\). Combined with \(i \le b\), we obtain \(b = i\).\par
+Now from \((j,j+1) \in T\) we similarly deduce \(c = j+1\) and \(b = j\). Since \(c = i+1\), we have \(i+1 = j+1\), so \(i = j\), contradiction. Hence \(T\) cannot contain two cells of \(D_U\).\par
+\textbf{Lower bound argument.} The sets \(D_L\) and \(D_U\) each contain \(n-1\) squares, and every square must be covered. By Lemma 1, any tile that covers a square from \(L\) is entirely contained in \(L\); similarly, any tile covering a square from \(U\) is entirely in \(U\).\par
+\compactbullet{\(D_L\) must be covered by tiles that lie in \(L\). Lemma 2 tells us that each such tile can cover at most one element of \(D_L\). Therefore at least \(|D_L| = n-1\) tiles are required that belong to \(L\).}
+\compactbullet{\(D_U\) must be covered by tiles that lie in \(U\), and Lemma 3 says each such tile can cover at most one element of \(D_U\), so at least \(n-1\) tiles are needed that belong to \(U\).}
+A tile cannot be in both \(L\) and \(U\) because \(L\) and \(U\) are disjoint. Hence the total number of tiles is at least\par
+\[
+(n-1) + (n-1) = 2n-2.
+\]
+\smallskip
+\solutionheading{4. Minimum number of tiles}
+We have shown:\par
+\compactbullet{There exists a tiling with \(2n-2\) tiles (Construction).}
+\compactbullet{Any tiling uses at least \(2n-2\) tiles (Lower bound).}
+Therefore the minimum possible number of tiles is exactly \(2n-2\).\par
+Substituting \(n = 2025\) gives\par
+\[
+2 \times 2025 - 2 = 4050 - 2 = 4048.
+\]
+\[
+\boxed{4048}
+\]
+\par

@@ -1,0 +1,205 @@
+\begin{mdframed}[style=mdpurplebox,frametitle={IMO 2025 Problem 4}]
+An infinite sequence $a_1$, $a_2$, \dots\ consists of positive integers
+has each of which has at least three proper divisors.
+Suppose that for each $n\geq 1$,
+$a_{n+1}$ is the sum of the three largest proper divisors of $a_n$.
+Determine all possible values of $a_1$.
+\end{mdframed}
+\solutionheading{Solution}
+\begin{remark*}
+  7/7.
+\end{remark*}
+Let \(a_1,a_2,\dots\) be an infinite sequence of positive integers such that each \(a_n\) has at least three proper divisors, and for each \(n\ge 1\)\par
+\[
+a_{n+1}=\text{sum of the three largest proper divisors of }a_n.
+\]
+Define the function \(f\) by \(f(N) =\) sum of the three largest proper divisors of \(N\).\par
+\smallskip
+\solutionheading{1. A useful formula for \(f(N)\)}
+Let the positive divisors of \(N\) be\par
+\[
+1=d_1<d_2<\dots<d_k=N,
+\]
+where \(k\ge4\) because \(N\) has at least three proper divisors. The three largest proper divisors are \(d_{k-3}, d_{k-2}, d_{k-1}\). Using the divisor pairing \(d_i\cdot d_{k+1-i}=N\), we get\par
+\[
+d_{k-1}=\frac{N}{d_2},\quad d_{k-2}=\frac{N}{d_3},\quad d_{k-3}=\frac{N}{d_4}.
+\]
+Thus\par
+\[
+f(N)=\frac{N}{d_2}+\frac{N}{d_3}+\frac{N}{d_4}=N\left(\frac{1}{d_2}+\frac{1}{d_3}+\frac{1}{d_4}\right). \quad\text{(1)}
+\]
+\smallskip
+\solutionheading{2. Fixed points}
+A fixed point satisfies \(f(N)=N\). From (1) this is equivalent to\par
+\[
+\frac{1}{d_2}+\frac{1}{d_3}+\frac{1}{d_4}=1. \quad\text{(2)}
+\]
+Let \(a=d_2,\;b=d_3,\;c=d_4\) (so \(2\le a<b<c\)). Solve \(1/a+1/b+1/c=1\).\par
+\compactbullet{\textbf{If }\(a=2\)\textbf{, then }\(1/b+1/c=1/2\). Multiplying gives \(2(b+c)=bc\) or \((b-2)(c-2)=4\). With \(b<c\), the only solution is \(b-2=1,\;c-2=4\), i.e., \((a,b,c)=(2,3,6)\).}
+\compactbullet{\textbf{If }\(a=3\)\textbf{, then }\(1/b+1/c=2/3\). But the maximum for \(b\ge4,c\ge5\) is \(1/4+1/5=9/20<2/3\), so no solution.}
+\compactbullet{\textbf{If }\(a\ge4\)\textbf{, the sum is at most }\(1/4+1/5+1/6=37/60<1\).}
+Hence the unique triple is \((2,3,6)\). Therefore a fixed point must have\par
+\[
+d_2=2,\quad d_3=3,\quad d_4=6.
+\]
+Interpretation:\par
+\compactbullet{\(2\mid N\) (so \(N\) even),}
+\compactbullet{\(3\mid N\),}
+\compactbullet{There is no divisor between \(3\) and \(6\); i.e., \(4\nmid N\) and \(5\nmid N\).}
+\compactbullet{Because \(2\) is the smallest divisor \(>1\), we must have \(\nu_2(N)=1\) (otherwise \(4\mid N\) would be a divisor \(<6\)).}
+Thus the set \(\mathcal{F}\) of all fixed points is\par
+\[
+\boxed{\mathcal{F}=\bigl\{N\in\mathbb{N}\;\big|\; \nu_2(N)=1,\;3\mid N,\;5\nmid N\bigr\}.}
+\]
+\smallskip
+\solutionheading{3. Special case: \(12\mid N\)}
+If \(12\mid N\), then \(2,3,4\mid N\) and these are the three smallest proper divisors (since \(4\) is the smallest possible after \(2,3\)). Then\par
+\[
+f(N)=\frac{N}{2}+\frac{N}{3}+\frac{N}{4}=\frac{13}{12}N. \quad\text{(3)}
+\]
+\smallskip
+\solutionheading{4. Lemma on odd numbers}
+\textbf{Lemma 1.} Let \(X\) be an odd positive integer with at least three proper divisors. Then \(f(X)<X\) and \(f(X)\) is odd.\par
+\emph{Proof.} All divisors of an odd number are odd. The three smallest divisors greater than \(1\) are at least \(3,5,7\). Therefore\par
+\[
+\frac{1}{d_2}+\frac{1}{d_3}+\frac{1}{d_4}\le\frac{1}{3}+\frac{1}{5}+\frac{1}{7}=\frac{71}{105}<1,
+\]
+so \(f(X)<X\). Moreover, each quotient \(X/d_i\) is odd (odd divided by odd). The sum of three odd numbers is odd, hence \(f(X)\) is odd.\par
+An immediate corollary:\par
+\par\noindent\emph{In an infinite orbit, no term can be odd, because starting from an odd term the sequence would be strictly decreasing and infinite - impossible. Hence every term of an infinite sequence is \textbf{even}.}\par
+\smallskip
+\solutionheading{5. Lemma for even numbers not divisible by \(12\)}
+\textbf{Lemma 2.} Let \(Y\) be an even integer with at least three proper divisors and \(12\nmid Y\). If the orbit of \(Y\) is infinite, then \(Y\in\mathcal{F}\).\par
+\emph{Proof.} Since \(12\nmid Y\) and \(Y\) is even, we have either \(4\nmid Y\) or \(3\nmid Y\) (or both). Consider two cases.\par
+\solutionheading{Case 1: \(3\mid Y\)}
+Because \(12\nmid Y\), we must have \(4\nmid Y\); thus \(\nu_2(Y)=1\). Write \(Y=2M\) with \(M\) odd. Since \(3\mid Y\) and \(\gcd(2,3)=1\), we get \(3\mid M\).\par
+The three smallest proper divisors are \(d_2=2\) and \(d_3=3\). The fourth divisor \(d_4\) depends on \(5\).\par
+\compactbullet{\textbf{Subcase 1a:} \(5\mid M\). Then \(5\mid Y\) and \(5<6\), so \(d_4=5\). Then}
+\[
+f(Y)=\frac{Y}{2}+\frac{Y}{3}+\frac{Y}{5}=\frac{31}{30}Y>Y.
+\]
+Moreover, \(Y\) is divisible by \(30\) (it contains factors \(2,3,5\)), so \(Y=30Z\) with \(Z\) odd. Then \(f(Y)=31Z\), which is odd. By Lemma 1, the orbit from an odd number is strictly decreasing and finite - contradiction to infinite orbit. Hence this subcase cannot occur.\par
+\compactbullet{\textbf{Subcase 1b:} \(5\nmid M\). Then no divisor equals \(4\) or \(5\); the next divisor after \(2,3\) is \(6=2\cdot3\). Hence \(d_4=6\), and}
+\[
+f(Y)=\frac{Y}{2}+\frac{Y}{3}+\frac{Y}{6}=Y.
+\]
+Thus \(Y\) is a fixed point, i.e., \(Y\in\mathcal{F}\).\par
+Therefore, if the orbit is infinite, we must be in Subcase 1b, so \(Y\in\mathcal{F}\).\par
+\solutionheading{Case 2: \(3\nmid Y\)}
+Then \(Y\) is even but not divisible by \(3\). For any such \(Y\) we have\par
+\[
+\frac{1}{d_2}+\frac{1}{d_3}+\frac{1}{d_4}\le\frac{1}{2}+\frac{1}{4}+\frac{1}{5}=\frac{19}{20}<1,
+\]
+so \(f(Y)<Y\). If the orbit never contained a term divisible by \(3\), then we would have an infinite strictly decreasing sequence - impossible. Hence there exists a smallest index \(m\ge2\) with \(3\mid a_m\). Then \(a_{m-1}\) is not divisible by \(3\), and \(a_m=f(a_{m-1})<a_{m-1}\).\par
+Now examine \(a_{m-1}\).\par
+\compactbullet{\textbf{Subcase 2a:} \(a_{m-1}\) is odd. By Lemma 1, \(a_m=f(a_{m-1})\) is odd and less than \(a_{m-1}\). Since \(a_m\) is odd and divisible by \(3\), Lemma 1 again implies that from \(a_m\) onward the sequence is strictly decreasing and odd - finite, contradiction.}
+\compactbullet{\textbf{Subcase 2b:} \(a_{m-1}\) is even. Write \(Y=a_{m-1}=2M\), with \(M\) odd. Since \(3\nmid Y\), we have \(3\nmid M\). We will show that \(a_m\) is odd, reducing to Subcase 2a and giving a contradiction.}
+Let \(r=Y\bmod 3\) (\(r=1\) or \(2\)). For any divisor \(d\) of \(Y\) (which is coprime to \(3\)), we have \(d\equiv1\) or \(2\pmod3\) and \(d^{-1}\equiv d\pmod3\) (because \(1\cdot1\equiv1,\;2\cdot2\equiv1\pmod3\)). Hence\par
+\[
+\frac{Y}{d}\equiv r\cdot d\pmod3.
+\]
+Thus\par
+\[
+f(Y)\equiv r\bigl(d_2+d_3+d_4\bigr)\pmod3.
+\]
+Since \(r\neq0\), the condition \(3\mid f(Y)\) is equivalent to\par
+\[
+2+d_3+d_4\equiv0\pmod3. \quad\text{(4)}
+\]
+Now, \(d_2=2\). Determine \(d_3,d_4\).\par
+First, \textbf{}\(4\) cannot divide \(Y\)\textbf{. If }\(4\mid Y\), then \(d_3=4\), and (4) gives \(2+4+d_4\equiv0\Rightarrow d_4\equiv0\pmod3\), impossible because \(3\nmid Y\). So \(\nu_2(Y)=1\): \(Y=2M\) with \(M\) odd, and \(4\nmid Y\).\par
+Thus the smallest divisor greater than \(2\) is an odd number; call it \(p\). Since \(3\nmid Y\), \(p\neq3\), so \(p\ge5\).\par
+The next divisor \(d_4\) is the smallest divisor larger than \(p\). Since \(4\nmid Y\), the next even divisor would be \(2p\). So either\par
+\compactbullet{\(d_4=q\) (an odd divisor, \(p<q<2p\)) if such an odd divisor exists, or}
+\compactbullet{\(d_4=2p\) (if there is no odd divisor between \(p\) and \(2p\)).}
+Check the two possibilities against (4) with \(d_3=p\):\par
+\[
+2+p+d_4\equiv0\pmod3. \quad\text{(5)}
+\]
+\compactbullet{If \(d_4=2p\), then \(2+p+2p=2+3p\equiv2\pmod3\), not \(0\). Hence \(d_4\) cannot be \(2p\). Therefore there exists an odd divisor \(q\) with \(p<q<2p\) and \(d_4=q\).}
+Then (5) becomes \(2+p+q\equiv0\pmod3\). Since \(p,q\not\equiv0\pmod3\), the only way is\par
+\[
+p\equiv q\equiv2\pmod3.
+\]
+Now compute \(f(Y)\):\par
+\[
+f(Y)=\frac{Y}{2}+\frac{Y}{p}+\frac{Y}{q}=M+\frac{2M}{p}+\frac{2M}{q}.
+\]
+Because \(p,q\) divide \(M\) (they are odd divisors of \(Y=2M\)), the fractions are integers. Now\par
+\compactbullet{\(M\) is odd,}
+\compactbullet{\(\frac{2M}{p}=2\cdot\frac{M}{p}\) is even,}
+\compactbullet{\(\frac{2M}{q}\) is even.}
+Thus \(f(Y)=\text{odd}+\text{even}+\text{even}=\text{odd}\).\par
+Hence \(a_m=f(Y)\) is odd. But \(3\mid a_m\) (by definition of \(m\)). So \(a_m\) is an odd multiple of \(3\). By Lemma 1, the orbit from \(a_m\) is strictly decreasing and odd - finite, contradiction.\par
+Both subcases lead to contradiction. Therefore \textbf{Case 2 cannot occur}. The only possibility is Case 1, and specifically Subcase 1b, which forces \(Y\in\mathcal{F}\).\par
+\smallskip
+\solutionheading{6. Necessity - form of \(a_1\) in an infinite orbit}
+Assume the sequence is infinite. Let \(N=a_1\). Define\par
+\[
+t=\max\{k\ge0\mid 12^k\mid N\}.
+\]
+Write \(N=12^tR\) with \(12\nmid R\).\par
+We claim that for \(i=1,\dots,t\), the term \(a_i\) is divisible by \(12\). Proof by induction: \(a_1=12^tR\) is divisible by \(12\) (if \(t\ge1\)). Suppose \(a_i\) is divisible by \(12\). Since \(12\mid a_i\), we have by (3) that \(a_{i+1}=\frac{13}{12}a_i\). If we write \(a_i=12^s\cdot S\) with \(12\nmid S\) and \(s\ge1\), then \(a_{i+1}=12^{s-1}(13S)\). Since \(12\nmid S\) and \(13\) is coprime to \(12\), we have \(12\nmid13S\). Thus \(a_{i+1}\) is divisible by \(12^{s-1}\). Starting with \(s=t\) at \(i=1\), after \(i\) steps the exponent of \(12\) is \(t-i+1\). Hence as long as \(i\le t\), the exponent is at least \(1\), i.e., \(12\mid a_i\).\par
+Thus we can apply (3) exactly \(t\) times:\par
+\[
+a_{t+1}=\left(\frac{13}{12}\right)^t a_1 = \frac{13^t}{12^t}\cdot 12^tR = 13^tR.
+\]
+Now \(12\nmid R\) and \(\gcd(13,12)=1\), so \(12\nmid 13^tR\); i.e., \(12\nmid a_{t+1}\).\par
+The orbit of \(a_{t+1}\) is also infinite (tail of an infinite sequence). By the corollary of Lemma 1, \(a_{t+1}\) cannot be odd; hence \(a_{t+1}\) is even. Also each term has at least three proper divisors. Therefore \(a_{t+1}\) satisfies the hypotheses of Lemma 2 (even, not divisible by \(12\), infinite orbit). Lemma 2 then yields\par
+\[
+a_{t+1}\in\mathcal{F}.
+\]
+Recall \(a_{t+1}=13^tR\). Since \(13^t\) is coprime to \(30\), the properties defining \(\mathcal{F}\) must already hold for \(R\):\par
+\compactbullet{\(\nu_2(a_{t+1})=\nu_2(R)=1\),}
+\compactbullet{\(3\mid a_{t+1}\) and \(3\nmid13^t\) $\Rightarrow$ \(3\mid R\),}
+\compactbullet{\(5\nmid a_{t+1}\) and \(5\nmid13^t\) $\Rightarrow$ \(5\nmid R\).}
+Thus \(R\in\mathcal{F}\). We have shown\par
+\[
+\boxed{a_1=12^{\,t}\cdot K\quad\text{with }t\ge0,\ K\in\mathcal{F}}.
+\]
+\smallskip
+\solutionheading{7. Sufficiency - every such number works}
+We prove by induction on \(t\) that if \(a_1=12^tK\) with \(K\in\mathcal{F}\), then the sequence is infinite.\par
+\compactbullet{\textbf{Base case }\(t=0\):\textbf{ }\(a_1=K\in\mathcal{F}\). By definition of a fixed point, \(f(K)=K\). Hence the sequence is constant: \(a_n=K\) for all \(n\). Since \(K\) has at least three proper divisors (as shown when characterizing \(\mathcal{F}\)), the sequence is infinite.}
+\compactbullet{\textbf{Inductive step:} Assume the statement holds for all starting values with parameter \(t-1\) (where \(t\ge1\)). Let \(a_1=12^tK\) with \(K\in\mathcal{F}\). Because \(12\mid a_1\), we can use (3):}
+\[
+a_2=f(a_1)=\frac{13}{12}a_1=\frac{13}{12}\cdot12^tK=12^{t-1}(13K).
+\]
+Now, because \(K\in\mathcal{F}\), we have \(\nu_2(K)=1,\ 3\mid K,\ 5\nmid K\). Multiplying by \(13\) (coprime to \(30\)) preserves these properties, so \(13K\in\mathcal{F}\). Thus\par
+\[
+a_2=12^{t-1}L\quad\text{with }L=13K\in\mathcal{F}.
+\]
+By the induction hypothesis, the sequence starting from \(a_2\) is infinite. Consequently, the whole sequence from \(a_1\) is infinite.
+
+This completes the induction, establishing sufficiency.
+
+\solutionheading{8. Final characterization}
+Combining necessity and sufficiency, the possible values of \(a_1\) are exactly those positive integers that can be written as
+
+\[
+a_1 = 12^{\,t} \cdot K \qquad (t\ge0,\ K\in\mathcal{F}),
+\]
+where\par
+\[
+\mathcal{F}=\bigl\{K\in\mathbb{N}\;\big|\; \nu_2(K)=1,\ 3\mid K,\ 5\nmid K\bigr\}.
+\]
+Equivalently, in terms of prime exponents:\par
+\[
+\nu_2(a_1)\text{ is odd},\quad \nu_3(a_1)>\tfrac12\nu_2(a_1),\quad 5\nmid a_1.
+\]
+More explicitly, writing\par
+\[
+t = \left\lfloor\frac{\nu_2(a_1)}{2}\right\rfloor,\qquad \ell = \nu_3(a_1)-(t+1)\ge0,\qquad \gcd(R,30)=1,
+\]
+we have\par
+\[
+a_1 = 2^{2t+1}\cdot3^{t+1+\ell}\cdot R.
+\]
+\[
+\boxed{a_1 = 12^{\,t} \cdot K \text{ with } t \ge 0 \text{ and } K \text{ satisfying } 2\parallel K,\ 3\mid K,\ 5\nmid K.}
+\]
+\[
+\boxed{a_1 = 2^{2t+1}\cdot 3^{t+1+\ell}\cdot R,\quad t,\ell\ge0,\ \gcd(R,30)=1.}
+\]
+This completely solves the problem.\par
+\par

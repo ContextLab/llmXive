@@ -1,0 +1,20 @@
+\begin{figure}[t]
+  \centering
+  \hspace*{\figxshift}%
+  \begin{subfigure}[t]{\leftfigwidth}
+    \centering
+    \includegraphics[width=0.95\linewidth]{Figures/causal-dmd-a.pdf}
+    \caption{\footnotesize Performance comparison. Causal DMD yields lower VBench scores than causal CD both when directly evaluated after Stage 2 and when used as the initialization for Stage 3. Although causal DMD produces sharper early frames, its quality rapidly drifts during autoregressive rollout, leading to severe exposure bias. Init. denotes initialization.}
+    \label{fig:causal-dmd-a}
+  \end{subfigure}%
+  \hspace{\figgap}%
+  \begin{subfigure}[t]{\rightfigwidth}
+    \centering
+    \includegraphics[width=1.25\linewidth]{Figures/causal-dmd-b.pdf}
+    \caption{\footnotesize Under history shift, causal CD preserves good-quality mass; causal DMD shifts most mass into poor-quality regions.}
+    \label{fig:causal-dmd-b}
+  \end{subfigure}
+
+  \caption{\textbf{Performance comparison between causal CD and causal DMD and the intuitive explanation.} Causal DMD achieves better early-frame quality than causal CD, but suffers from severe exposure bias in later frames, since mode-seeking DMD is more sensitive to accumulated errors.}
+  \label{fig:dmd-is-worse-than-cd}
+\end{figure}

@@ -1,0 +1,566 @@
+\appendix
+
+
+
+
+
+
+
+
+\section{Long-Video Refiner}
+\label{sec:appendix_refiner}
+
+\paragraph{Truncated-$\sigma$ flow matching.}
+Given a stage-1 latent $x_l$ and its high-fidelity target $x_h$, we train the
+refiner using a truncated-$\sigma$ flow-matching formulation that models the
+transformation from a noised version of $x_l$ to $x_h$.
+
+\noindent We first construct a source point by perturbing $x_l$ with Gaussian noise:
+\begin{equation}
+x_1 = (1 - \sigma_{\text{start}}) x_l + \sigma_{\text{start}} \epsilon,
+\quad \epsilon \sim \mathcal{N}(0, I).
+\end{equation}
+We then sample $\sigma_t \sim p(\sigma)$ from a shifted-logit-normal
+distribution truncated to $(0, \sigma_{\text{start}}]$, and define the
+interpolation coefficient
+\begin{equation}
+    \alpha = \frac{\sigma_t}{\sigma_{\text{start}}}.
+\end{equation}
+
+\noindent The intermediate state is given by linear interpolation between the clean
+target $x_h$ and the source point $x_1$:
+\begin{equation}
+    x_t = (1 - \alpha) x_h + \alpha x_1,
+\end{equation}
+where $\alpha \in (0,1]$, ensuring that all training states lie on the segment
+connecting $x_h$ and $x_1$.
+
+\noindent The target velocity is defined as
+\begin{equation}
+    v^\star = \frac{x_1 - x_h}{\sigma_{\text{start}}},
+\end{equation}
+and the model is trained to predict this velocity via a mean-squared error:
+\begin{equation}
+\mathcal{L}_{\text{refiner}} =
+\mathbb{E}_{\sigma_t, \epsilon}
+\left\| v_\theta(x_t, \sigma_t, c) - v^\star \right\|_2^2,    
+\end{equation}
+where $c$ denotes the conditioning inputs.
+
+\paragraph{Reference conditioning.}
+To preserve identity and appearance consistency, we prepend a clean slice of
+the target latent $x_h$ (at $\sigma=0$) as reference tokens to the input
+sequence. These tokens act as fixed key-value anchors via a block-wise
+attention mask, and are excluded from the flow-matching loss.
+
+\paragraph{Implementation details.}
+We set $\sigma_{\text{start}} = 0.909375$, following the base model. The
+noise level $\sigma_t$ is sampled from a shifted-logit-normal distribution
+with truncation at $\sigma_{\text{start}}$. The refiner is trained with a
+rank-384 LoRA applied to attention ($Q/K/V/O$) and feed-forward projections
+under FSDP2.
+
+\noindent The LoRA-only adaptation keeps refiner finetuning lightweight compared with
+full 17B-parameter optimization. Directly finetuning the distilled few-step
+refiner was unstable in our experiments, so we instead train the LoRA on the
+multi-step, non-distilled LTX-2 base model and then zero-shot merge the learned
+adapters into the original distilled few-step model. This transfers the
+long-video behavior learned by the LoRA while preserving the distilled
+inference schedule: the refiner uses the LTX-2 stage-2 distilled
+sigmas $[0.909375, 0.725, 0.421875, 0]$, i.e., only three Euler denoising
+steps. As a result, the refiner improves visual fidelity with limited impact
+on end-to-end throughput.
+
+
+\noindent To isolate the effect of adapting the refiner to long \modelname videos, we run an additional ablation that reuses the same Stage-1 \modelname latents and replaces our refiner with the original LTX-2.3 refiner applied directly to the full 60-second latent sequence.
+Tab.~\ref{tab:ltx23_original_refiner_ablation} shows that the original short-video refiner is not sufficient in this regime: it substantially reduces perceptual quality, late-window imaging quality, and camera-control accuracy.
+The adapted refiner therefore provides the quality and control needed for minute-scale world modeling, rather than merely serving as a generic second-stage decoder.
+We present the qualitative visualization results in Fig.~\ref{fig:appendix_vis_compare_refiner}.
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/vis_refiner.pdf}
+    \caption{
+    Qualitative comparison between SANA-WM and SANA-WM with the proposed refiner across long-horizon rollouts. 
+    Each column shows frames sampled from 10s to 50s, and red boxes highlight local regions where the refiner improves visual fidelity, object structure, and temporal consistency.
+    }
+    \label{fig:appendix_vis_compare_refiner}
+\end{figure*}
+\begin{table}[htbp]
+  \centering
+  \caption{Refiner ablation on the 60-second world-model benchmark using the same Stage-1 \modelname latents. VBench columns follow Tab.~\ref{tab:vbench}: SC, BC, TF, MS, AQ, IQ, DD, OC, and Overall. In Pose Acc., R is rotation error ($^\circ$), T is translation error, and CMC is camera-motion consistency. IQ$_{50\text{--}60}$ is VBench imaging quality on the last 10-second window, and $\Delta$IQ is the first-window score minus the last-window score ($\downarrow$ is more stable).}
+  \label{tab:ltx23_original_refiner_ablation}
+  \resizebox{\textwidth}{!}{%
+  \scriptsize
+  \setlength{\tabcolsep}{1.7pt}
+  \renewcommand{\arraystretch}{1.10}
+  \begin{tabular}{@{}l l @{\hspace{4pt}} c c c c c c c c c @{\hspace{4pt}} c c c @{\hspace{4pt}} c c@{}}
+    \toprule
+    & & \multicolumn{9}{c}{\textbf{VBench ($\uparrow$)}} & \multicolumn{3}{c}{\textbf{Pose Acc. ($\downarrow$)}} & \multicolumn{2}{c}{\textbf{Temporal IQ}} \\
+    \cmidrule(lr){3-11} \cmidrule(lr){12-14} \cmidrule(l){15-16}
+    \textbf{Split} & \textbf{Refiner}
+      & \textbf{SC} & \textbf{BC} & \textbf{TF} & \textbf{MS} & \textbf{AQ} & \textbf{IQ} & \textbf{DD} & \textbf{OC} & \keycell{\textbf{Overall}}
+      & \textbf{R} & \textbf{T} & \keycell{\textbf{CMC}} & IQ$_{50\text{--}60}$ & $\Delta$IQ \\
+    \midrule
+    \multirow{2}{*}{Simple}
+      & Original LTX-2.3 & \rankfirst{94.25} & \rankfirst{95.89} & \rankfirst{99.59} & \rankfirst{99.59} & 39.73 & 38.16 & 0.00 & \rankfirst{11.39} & \keycell{71.37} & 8.65 & 2.32 & \keycell{2.35} & 35.70 & 3.73 \\
+      & Ours (long-video) & 88.62 & 93.21 & 96.18 & 98.61 & \rankfirst{58.05} & \rankfirst{72.12} & \rankfirst{61.25} & 11.12 & \rankfirst{80.62} & \rankfirst{4.50} & \rankfirst{1.39} & \rankfirst{1.41} & \rankfirst{72.21} & \rankfirst{1.17} \\
+    \addlinespace[2pt]
+    \multirow{2}{*}{Hard}
+      & Original LTX-2.3 & \rankfirst{93.15} & \rankfirst{95.78} & \rankfirst{99.60} & \rankfirst{99.60} & 40.70 & 37.17 & 0.00 & \rankfirst{11.77} & \keycell{71.16} & 27.38 & 2.29 & \keycell{2.52} & 33.69 & 4.65 \\
+      & Ours (long-video) & 87.26 & 92.55 & 95.54 & 98.49 & \rankfirst{56.67} & \rankfirst{71.38} & \rankfirst{91.25} & 11.34 & \rankfirst{81.89} & \rankfirst{8.34} & \rankfirst{1.39} & \rankfirst{1.44} & \rankfirst{73.03} & \rankfirst{0.31} \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+
+
+
+
+
+
+
+
+
+
+\section{Data Pipeline Details}
+\label{sec:appendix_data}
+
+
+
+
+\subsection{Modified VIPE Pose Engine}
+\label{sec:appendix_vipe}
+
+We modify VIPE's~\citep{vipe} depth estimation and bundle adjustment (BA) stages while retaining its SLAM front-end (feature tracking, keyframe selection).
+
+\noindent\textbf{Depth model upgrade.}
+The original VIPE uses Metric3D-Small for single-frame depth.
+We replace it with Pi3X~\citep{pi3x} (multi-frame consistent 3D structure) fused with MoGe-2~\citep{moge2} (metric-scale anchor).
+The two are fused by solving for a per-frame scale factor $s$ minimizing $\sum_i w_i (s \cdot d^\text{Pi3X}_i - d^\text{MoGe}_i)^2$ with inverse-depth weights $w_i = 1/d_i$, smoothed temporally via exponential moving average (momentum $0.99$).
+
+\noindent\textbf{Per-frame intrinsics optimization.}
+The original VIPE assumes a single set of intrinsics shared across all frames.
+We extend BA to treat $(f_x, f_y, c_x, c_y)$ as independent variables per frame, stored as an $(N, V, D)$ tensor (frames $\times$ views $\times$ intrinsics dimension).
+Each frame's intrinsics are a separate variable in the optimization, enabling accurate calibration on internet video with non-square pixels and varying focal lengths.
+
+\noindent\textbf{Dataset-specific annotation modes.}
+(1)~\emph{Default} (internet video): full pipeline with Pi3X+MoGe-2 depth, SLAM, and per-frame BA.
+(2)~\emph{GT-depth} (OmniWorld): GT depth replaces predicted depth in SLAM; MoGe-2 recovers metric scale by aligning GT point clouds.
+(3)~\emph{GT-pose} (Sekai Game, DL3DV): Pi3X predicts structure; Umeyama Sim(3) alignment~\citep{umeyama} recovers the metric scale factor from GT trajectories, with 80th-percentile inlier filtering.
+
+\subsection{3DGS Augmentation Pipeline}
+\label{sec:appendix_3dgs}
+
+Following HY-WorldPlay~\citep{hy_worldplay}, we augment static-scene datasets such as DL3DV~\citep{dl3dv} by rendering novel one-minute videos from pre-fitted FCGS~\citep{fcgs} 3D Gaussian Splats.
+For each DL3DV scene, we load the FCGS reconstruction and its training cameras, compute the camera-position centroid, median scene radius, height range, and PCA directions, and use these statistics to keep synthetic cameras inside the observed capture region.
+We generate 40 candidate trajectories per scene: 10 trajectories stay close to the original training views via spline interpolation over sampled camera waypoints, while 30 trajectories are drawn from diverse motion families including orbit, spiral, dolly, fly-through, random walk, crane/boom, pendulum, and compound paths.
+Each trajectory is scaled by the median camera distance, anchored near a sampled training camera, reoriented toward the Gaussian centroid for forward-facing scenes, clamped to the original camera coverage zone, and smoothed with $\sigma \approx N_\text{frames}/200$.
+
+\noindent Before rendering a full clip, we run a splat-coverage test using subsampled Gaussian centers.
+Every tenth frame must project enough splats into the camera frustum for at least 70\% of sampled frames, and a $32{\times}32$ tile coverage check rejects views where more than 65\% of image tiles are empty.
+After FCGS rendering, we additionally discard clips with more than 30\% near-blank frames.
+Finally, rendered clips are refined frame-by-frame with the no-reference DiFix3D~\citep{difix3d} pipeline (single diffusion step, prompt ``remove degradation'', timestep 199, guidance scale 0).
+The refined set is further filtered based on saturation, scene cuts, VMAF motion, and first-frame black-pixel ratio.
+
+
+
+
+\subsection{Per-Dataset Quality Filter Thresholds}
+\label{sec:appendix_filters}
+
+We apply a unified scoring pipeline before training-data selection.
+For visual and motion quality, we measure mean color saturation, FFmpeg VMAF motion, UniMatch optical-flow magnitude, DOVER technical/aesthetic quality, and scene cuts from PySceneDetect.
+For long videos, UniMatch samples frame pairs every 0.5s across the first 60s, and DOVER is averaged over non-overlapping 5s chunks.
+We also run a Qwen3.5 VLM~\citep{qwen3_5} pass to count people, vehicles, and animals in each scene and to flag clips that are visually poor, overly dark, or otherwise unsuitable.
+Tab.~\ref{tab:filter_thresholds} summarizes the per-dataset thresholds; each metric value must fall within the specified range for a clip to be retained.
+\textbf{VLM Entity} denotes the allowed count of people, vehicles, and animals, while \textbf{VLM Quality} denotes the accepted range of the VLM quality flag.
+In addition, camera-specific filters are applied uniformly across all datasets.
+Given frame resolution $(W,H)$ and intrinsics $(f_x,f_y,c_x,c_y)$, we compute horizontal and vertical fields of view as $\theta_x=2\arctan(W/(2f_x))$ and $\theta_y=2\arctan(H/(2f_y))$, and require both to lie in $[25^\circ,120^\circ]$.
+The $f_x/f_y$ divergence is the symmetric normalized focal mismatch,
+$|f_x-f_y| / \bigl((f_x+f_y)/2\bigr)$, which must be at most $0.20$.
+For metric scale, let $\{s_t\}_{t=1}^T$ be the per-frame scale factors estimated during pose annotation; we compute the coefficient of variation as $\mathrm{std}(s_t)/(\mathrm{mean}(s_t)+\epsilon)$ and reject clips with value above $2.0$.
+
+\begin{table}[htbp]
+\centering
+\caption{Per-dataset quality filter thresholds. Ranges denote $[\min, \max]$ acceptable values. ``---'' indicates the filter is not applied for that dataset.}
+\label{tab:filter_thresholds}
+\scriptsize
+\begin{tabular}{@{}lccccccc@{}}
+\toprule
+\textbf{Dataset} & \textbf{VMAF Motion} & \textbf{UniMatch} & \textbf{DOVER} & \textbf{Color Sat.} & \textbf{Scene Cuts} & \textbf{VLM Entity} & \textbf{VLM Quality} \\
+\midrule
+OmniWorld       & $[0.5, 100]$ & $[3, 100]$ & $[0.35, 1.0]$ & ---          & ---    & $[0, 10]$  & $[0.5, 1.5]$ \\
+Sekai Game      & $[0.5, 50]$  & $[3, 80]$  & $[0.25, 1.0]$ & ---          & ---    & $[0, 10]$  & $[0.5, 1.5]$ \\
+Sekai Walking   & $[0.5, 50]$  & $[3, 50]$  & $[0.35, 1.0]$ & $[0, 180]$   & ---    & $[0, 25]$  & $[0.5, 1.5]$ \\
+MiraData        & $[0.5, 50]$  & $[3, 80]$  & $[0.4, 1.0]$  & $[0, 180]$   & $\leq 1$ & ---        & --- \\
+DL3DV-GS        & $[6, 50]$    & $[3, 80]$  & $[0.4, 1.0]$  & $[0, 180]$   & $\leq 1$ & ---        & --- \\
+SpatialVID      & $[0.5, 50]$  & $[3, 80]$  & $[0.35, 1.0]$ & $[0, 180]$   & ---    & $[0, 10]$  & $[0.5, 1.5]$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Implementation Details}
+\label{sec:appendix}
+
+\subsection{Detailed Implementation and Training Efficiency}
+\label{sec:impl_details_appendix}
+
+\noindent \textbf{Architectural Specifics.}
+The \modelname backbone is designed for long-horizon stability. The 20 transformer blocks use a head dimension of $D{=}112$ and interleave 15 frame-wise GDN blocks with softmax blocks at $\{3,7,11,15,19\}$. Every block uses dual UCPE + Pl\"ucker mixing camera conditioning. The interleaved softmax blocks allow the model to anchor long-term spatial consistency, while the GDN blocks provide efficient frame-by-frame evolution.
+
+\noindent \textbf{Context-Parallel (CP) Training}.
+To make 961-frame training feasible, we shard the latent sequence across $P$ GPUs. Each rank $p$ holds frames $\mathcal{I}_p=\{pT/P,\ldots,(p{+}1)T/P{-}1\}$. Since the GDN update (Eq.~\ref{eq:frame_gdn}) is affine, each shard computes a transition composite $\mathbf{C}_p$ and an input composite $\mathbf{H}_p$:
+
+\begin{equation}
+\mathbf{S}_{\mathrm{end}}^{(p)}=\mathbf{S}_{\mathrm{start}}^{(p)}\mathbf{C}_p+\mathbf{H}_p,
+\quad
+\text{where}
+\quad
+\mathbf{C}_p=\prod_{t\in\mathcal{I}_p}\mathbf{M}_t .
+\end{equation}
+
+\noindent We all-gather these compact summaries (rather than full activations) and compose them as an exclusive prefix:
+
+\begin{equation}
+\bar{\mathbf{S}}_0=\mathbf{0},
+\quad
+\bar{\mathbf{S}}_{p+1}=\bar{\mathbf{S}}_p\mathbf{C}_p+\mathbf{H}_p,
+\quad
+\mathbf{S}_{\mathrm{start}}^{(p)}=\bar{\mathbf{S}}_p.
+\end{equation}
+
+\noindent This recovers the mathematically exact initial GDN state for each rank with minimal communication overhead.
+
+\noindent \textbf{Halo Exchange for Convolutions.}
+While the recurrent scan uses prefix-sum composition, the temporal convolutions in GDN and FFN blocks require boundary context. For a kernel size $K$, rank $p$ exchanges $K-1$ frames with its neighbors to form a halo-augmented sequence $\tilde{\mathbf{X}}^{(p)}$, ensuring the output $\mathbf{Y}^{(p)}$ matches the unsharded version exactly. For chunk causal finetuning, we use zero padding at the global sequence boundaries and enforce causality by omitting the right-side halo where applicable.
+
+\noindent \textbf{Fused Triton Kernels.} We implement high-performance kernels using OpenAI Triton to fuse multiple operations: RMSNorm, ReLU, key scaling, UCPE/RoPE preparation, and the GDN recurrent scan. This fusion significantly reduces memory bandwidth bottlenecks and provides autograd support, contributing to about $1.5\times$ to $2\times$ efficiency gain.
+
+\subsection{Training Hyperparameters}
+\label{sec:appendix_training_hyperparams}
+
+Before DiT training, we adapt the LTX2 VAE on the SANA-Video SFT training data for about 50K steps, which takes roughly 3.5 days on 64 H100 GPUs. The main DiT training stages and compute budgets are summarized in Tab.~\ref{tab:training_stages}; together, they require about 15 days on 64 H100 GPUs. During minute-scale long-video training (Stages 3 and 4), we precompute VAE latents to remove the cost of online VAE encoding. Stages 1--2 use a per-GPU batch size of 1, while CP size 2 in Stages 3--4 corresponds to 0.5 clips per GPU and an effective global batch size of 32 on 64 GPUs.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Training schedule and hyperparameters for the progressive DiT/backbone training pipeline. All stages use AdamW, BF16 mixed precision, and gradient clipping at 0.5.}
+  \label{tab:training_stages}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lcccc}
+    \toprule
+    & \textbf{Stage 1} & \textbf{Stage 2} & \textbf{Stage 3} & \textbf{Stage 4} \\
+    \midrule
+    Purpose          & Frame-wise GDN      & Hybrid Attention   & Minute-Scale Video + CamCtrl & SFT \\
+    Training data    & SANA-Video SFT data & SANA-Video SFT data & \modelname data (Sec.~\ref{sec:data_pipeline}) & $\sim$50K high-quality clips \\
+    Clip duration    & 5s                  & 5s                  & 1 min               & 1 min \\
+    Batch/GPU        & 1                   & 1                   & 0.5                 & 0.5 \\
+    CP size          & --                  & --                  & 2                   & 2 \\
+    Effective global batch & 64             & 64                  & 32                  & 32 \\
+    Learning rate    & $5 \times 10^{-5}$  & $5 \times 10^{-5}$  & $1 \times 10^{-5}$  & $1 \times 10^{-5}$ \\
+    Training steps   & 30K                 & 30K                 & 31K                 & 10K \\
+    Compute budget   & $\sim$2.75 days     & $\sim$2 days        & $\sim$8 days        & $\sim$2.5 days \\
+    \bottomrule
+  \end{tabular}
+  }
+\end{table}
+
+
+\section{Benchmark Details}
+\label{sec:appendix_benchmark}
+
+\subsection{Benchmark Construction}
+\label{sec:appendix_benchmark_construction}
+
+Our benchmark starts from 80 first-frame conditioning images at $1280{\times}720$ resolution, generated by Nano Banana Pro~\citep{google2025nanobananapro} and balanced across four scene categories: game-style, indoor, outdoor-city, and outdoor-nature (20 scenes each).
+Each scene is then annotated by a Qwen3.5 VLM~\citep{qwen3_5} with a scene-static first-person prompt that describes layout, materials, lighting, and autonomous world dynamics while avoiding camera-motion language.
+
+\noindent We use two trajectory splits.
+The Simple split contains 10 smooth navigation templates with arcs, S-curves, backtracking, and figure-eight returns.
+The Hard split contains 10 stress-test templates with larger yaw changes, vertical motion, extreme pitch, whip-pan events, double loops, and crane-like moves.
+Each template is specified as 11--15 waypoints with position, yaw, pitch, time, and revisit metadata.
+Given a target duration and frame count, we interpolate positions with centripetal Catmull-Rom splines and rotations with quaternion Squad interpolation.
+We then apply arc-length reparameterization for approximately uniform speed, Laplacian position smoothing, and angular-velocity clamping at $12^\circ$/s, producing smooth frame-level camera trajectories rather than piecewise constant action chunks.
+The main benchmark uses the 60-second versions of both splits: each split contains 80 scenes at 16\,fps, giving 960 video frames and 961 \modelname camera frames.
+For each generated path, we also store revisit pairs where the camera nearly returns to the same viewpoint (position distance $<0.5$\,m and viewing-angle difference $<20^\circ$); these pairs support the revisit-memory metric described below.
+
+\noindent To adapt these template trajectories to each scene and avoid invalid camera motion, we estimate camera intrinsics and metric depth from the conditioning image with Pi3X~\citep{pi3x}.
+The resulting median depth provides a scene-scale proxy: travel distance is limited to 60\% of the median depth, with a global maximum speed of $0.4$\,m/s, so indoor scenes move more slowly while outdoor scenes can traverse farther.
+Pi3X also provides a downsampled metric point cloud for boundary checking.
+For collision avoidance, each candidate trajectory is checked against this point cloud with a 0.3\,m margin; if a camera center collides with the scene, the maximum speed is reduced by 30\% and the trajectory is regenerated for up to three retries.
+For reproducibility, the benchmark package records scene metadata, prompts, calibrated intrinsics, metric camera trajectories, collision status, smoothness statistics, revisit pairs, and model-specific action or camera-control inputs generated from the same underlying trajectories.
+
+\subsection{Benchmark Examples}
+\label{sec:appendix_benchmark_examples}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{figures/benchmark_initial_frame_grid.pdf}
+  \caption{Representative first-frame conditioning images from the benchmark. Each row shows examples from one scene category, illustrating the diversity of geometry, lighting, and visual style used for evaluation; zooming in reveals the fine-grained scene details.}
+  \label{fig:appendix_benchmark_initial_frames}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{figures/benchmark_hard_trajectory_3d.pdf}
+  \caption{Representative benchmark trajectory templates. The Simple split includes smooth symmetric or revisiting planar paths, while the Hard split adds vertical motion, loop closures, and pitch-heavy viewpoints. Each panel shows the ground-plane projection with a 60-second camera-height profile below, making out-of-plane motion visible beyond a BEV path alone.}
+  \label{fig:appendix_benchmark_hard_3d}
+\end{figure}
+
+\subsection{Evaluation Protocol}
+\label{sec:appendix_eval_protocol}
+
+All methods are evaluated from one generated video per benchmark scene under the same split-specific protocol.
+Because different baselines use different native frame rates, revisit evaluation remaps frame indices by timestamp: a reference frame index $i$ at 16\,fps is read from generated frame $\mathrm{round}(i\,f_{\mathrm{video}}/16)$.
+The benchmark exports model-specific camera-control inputs from the same underlying trajectories, including discrete action labels, pose tracks, camera-control tensors, and calibrated intrinsics.
+This keeps first frames, prompts, and trajectories fixed while allowing each baseline to run in its native interface.
+
+\noindent\textbf{Visual quality.}
+We run VBench~\citep{vbench} in custom-input mode using the benchmark prompts.
+For the main tables, we report the video-quality and prompt-consistency dimensions that are valid for custom-input evaluation: subject consistency (SC), background consistency (BC), temporal flickering (TF), motion smoothness (MS), aesthetic quality (AQ), imaging quality (IQ), dynamic degree (DD), and overall consistency (OC), together with the aggregated VBench Overall score.
+Scores are cached per dimension and aggregated following the VBench normalization and weighting convention, with dynamic degree weighted by $0.5$ in the quality group.
+
+\noindent\textbf{Camera accuracy.}
+We estimate camera poses from each generated video using Pi3X~\citep{pi3x}.
+The ground-truth trajectory is loaded from the benchmark camera annotations, relativized to the first frame, and sampled consistently with the evaluated video.
+The recovered Pi3X trajectory is aligned to the ground truth by Umeyama Sim(3) alignment~\citep{umeyama}.
+Let $\mathbf{P}_t=[\mathbf{R}_t|\mathbf{t}_t]$ be the ground-truth pose and $\widetilde{\mathbf{P}}_t=[\widetilde{\mathbf{R}}_t|\widetilde{\mathbf{t}}_t]$ be the aligned Pi3X pose for frame $t$.
+We report
+\[
+\mathrm{RotErr}=\frac{1}{T}\sum_{t=1}^{T}\frac{180}{\pi}
+\cos^{-1}\!\left(\operatorname{clip}\!\left(\frac{\operatorname{tr}(\mathbf{R}_t^\top\widetilde{\mathbf{R}}_t)-1}{2},-1,1\right)\right),
+\]
+\[
+\mathrm{TransErr}=\frac{1}{T}\sum_{t=1}^{T}\|\mathbf{t}_t-\widetilde{\mathbf{t}}_t\|_2,\qquad
+\mathrm{CamMC}=\frac{1}{T}\sum_{t=1}^{T}\|\mathbf{P}_t-\widetilde{\mathbf{P}}_t\|_F,
+\]
+where $\|\cdot\|_F$ is the Frobenius norm, RotErr is in degrees, and all three metrics are lower-is-better.
+
+\noindent\textbf{Revisit memory.}
+For each scene, we sort the stored revisit pairs by their quality score and evaluate at most five closest pairs.
+Each pair compares two generated frames at nearly identical camera viewpoints using PSNR, SSIM, and LPIPS~\citep{lpips}; higher PSNR/SSIM and lower LPIPS indicate better scene memory under loop closure.
+The reported split-level numbers are averages over all valid pairs and scenes.
+
+\noindent\textbf{Temporal degradation.}
+To measure long-horizon visual drift, we split each 60-second video into non-overlapping 10-second windows and run VBench on each window.
+The main temporal-stability statistic is $\Delta$IQ, the imaging-quality score in the first window minus the imaging-quality score in the last window; lower values indicate less degradation over the minute.
+
+\section{Additional Results}
+\label{sec:appendix_results}
+
+\subsection{Revisit memory and temporal stability (full table)}
+\label{sec:appendix_revisit_temporal}
+
+Tab.~\ref{tab:revisit_temporal} expands the brief revisit and temporal-stability discussion in Sec.~\ref{sec:main_results}.
+Revisit metrics test whether a model preserves scene identity when the camera returns to a nearby viewpoint, while $\Delta$IQ measures late-window visual degradation over a full minute.
+The results show that \modelname remains competitive on loop-closure memory at 720p, and the second-stage refiner consistently reduces long-horizon drift, especially on the Hard-Trajectory split.
+
+\begin{table}[t]
+  \centering
+  \caption{Revisit memory and temporal stability on the 60-second benchmark. PSNR/SSIM/LPIPS use same-pose pairs; $\Delta$IQ compares VBench imaging quality between the first and last 10-second windows. Bold Res marks 720p, and green highlights mark top-three entries per split.}
+  \label{tab:revisit_temporal}
+  \scriptsize
+  \setlength{\tabcolsep}{2.5pt}
+  \renewcommand{\arraystretch}{1.10}
+  \begin{tabular}{@{} l c c c @{\hspace{5pt}} c c c @{\hspace{5pt}} c c c @{}}
+    \toprule
+    & & & & \multicolumn{3}{c}{\textbf{Revisit consistency}} & \multicolumn{3}{c}{\textbf{Temporal degradation}} \\
+    \cmidrule(lr){5-7} \cmidrule(l){8-10}
+    \textbf{Method} & \textbf{Param} & \textbf{Res} & \textbf{\#G} & \textbf{PSNR$\uparrow$} & \textbf{SSIM$\uparrow$} & \textbf{LPIPS$\downarrow$} &
+                      \textbf{IQ$_{0\text{--}10}\uparrow$} & \textbf{IQ$_{50\text{--}60}\uparrow$} & \textbf{$\Delta$IQ$\downarrow$} \\
+    \midrule
+    \multicolumn{10}{@{}l}{\textbf{\textit{Simple-Trajectory Split}}} \\
+    \midrule
+    Infinite-World~\citep{infinite_world}       & 1.3B    & 480p & 1 & 12.60 & 0.284 & 0.595 & \rankfirst{73.93} & 67.22 & \phantom{+}6.72 \\
+    LingBot-World~\citep{lingbot_world}         & 14B+14B & 480p & 8 & \rankfirst{14.59} & \rankfirst{0.366} & \rankfirst{0.394} & \ranksecond{73.46} & \rankfirst{73.42} & \rankfirst{\phantom{+}0.04} \\
+    HY-WorldPlay~\citep{hy_worldplay}           & 8B      & 480p & 8 & 12.83 & 0.321 & 0.616 & 70.08 & 46.50 & \phantom{+}23.59 \\
+    \midrule
+    Matrix-Game\,3.0~\citep{matrixgame3}        & 5B      & \textbf{720p} & 8 & 12.29 & \rankthird{0.326} & 0.553 & 69.07 & 66.66 & \rankthird{\phantom{+}2.41} \\
+    \textbf{\modelname}                         & 2.6B    & \textbf{720p} & 1 & \rankthird{14.16} & \ranksecond{0.333} & \ranksecond{0.458} & 72.63 & \rankthird{68.84} & \phantom{+}3.79 \\
+    \textbf{\modelname + refiner}               & 2.6B    & \textbf{720p} & 1 & \ranksecond{14.46} & 0.292 & \rankthird{0.479} & \rankthird{73.37} & \ranksecond{72.21} & \ranksecond{\phantom{+}1.17} \\
+    \midrule
+    \midrule
+    \multicolumn{10}{@{}l}{\textbf{\textit{Hard-Trajectory Split}}} \\
+    \midrule
+    Infinite-World~\citep{infinite_world}       & 1.3B    & 480p & 1 & 12.04 & 0.248 & 0.617 & \rankfirst{73.79} & \rankthird{69.63} & \phantom{+}4.16 \\
+    LingBot-World~\citep{lingbot_world}         & 14B+14B & 480p & 8 & \rankthird{14.08} & \rankfirst{0.332} & \rankfirst{0.436} & \ranksecond{73.66} & \rankfirst{73.09} & \rankthird{\phantom{+}0.58} \\
+    HY-WorldPlay~\citep{hy_worldplay}           & 8B      & 480p & 8 & 13.72 & \ranksecond{0.328} & 0.654 & 70.21 & 44.33 & \phantom{+}25.88 \\
+    \midrule
+    Matrix-Game\,3.0~\citep{matrixgame3}        & 5B      & \textbf{720p} & 8 & 12.17 & 0.317 & 0.556 & 69.24 & 68.92 & \ranksecond{\phantom{+}0.32} \\
+    \textbf{\modelname}                         & 2.6B    & \textbf{720p} & 1 & \ranksecond{14.10} & \rankthird{0.327} & \rankthird{0.469} & 72.58 & 69.49 & \phantom{+}3.09 \\
+    \textbf{\modelname + refiner}               & 2.6B    & \textbf{720p} & 1 & \rankfirst{14.80} & 0.312 & \ranksecond{0.458} & \rankthird{73.34} & \ranksecond{73.03} & \rankfirst{\phantom{+}0.31} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[t]
+  \centering
+  \caption{\modelname bidirectional and autoregressive stage-1 comparison on the 60-second benchmark. The top panel follows the main quantitative table; the bottom panel reports the revisit-memory and temporal-stability metrics used in Tab.~\ref{tab:revisit_temporal}. Both variants use the same 2.6B 720p backbone and are measured as single-GPU rollouts for efficiency.}
+  \label{tab:sanawm_bidir_ar_full}
+  \scriptsize
+  \setlength{\tabcolsep}{1.5pt}
+  \renewcommand{\arraystretch}{1.10}
+  \begin{tabular}{@{} l c c c c @{\hspace{4pt}} c c c @{\hspace{4pt}} c c c c c c c c c @{\hspace{4pt}} c c @{}}
+    \toprule
+    & & & & & \multicolumn{3}{c}{\textbf{Pose Acc. ($\downarrow$)}} & \multicolumn{9}{c}{\textbf{VBench ($\uparrow$)}} & \multicolumn{2}{c}{\textbf{Efficiency}} \\
+    \cmidrule(lr){6-8} \cmidrule(lr){9-17} \cmidrule(l){18-19}
+    \textbf{Split} & \textbf{Mode} & \textbf{Param} & \textbf{Res} & \textbf{\#G}
+      & \textbf{R} & \textbf{T} & \textbf{CMC}
+      & \textbf{SC} & \textbf{BC} & \textbf{TF} & \textbf{MS} & \textbf{AQ} & \textbf{IQ} & \textbf{DD} & \textbf{OC} & \textbf{Overall}
+      & \textbf{Mem$\downarrow$} & \textbf{Tput$\uparrow$} \\
+    \midrule
+    Simple & Bidir. & 2.6B & \textbf{720p} & 1 & 3.11 & 1.08 & 1.09 & 90.34 & 93.31 & 95.65 & 98.24 & 58.54 & 72.32 & 45.00 & 11.63 & 79.39 & 49.2 & 29.5 \\
+    Simple & AR     & 2.6B & \textbf{720p} & 1 & 7.59 & 1.59 & 1.63 & 87.46 & 91.87 & 94.99 & 97.69 & 55.70 & 69.69 & 72.50 & 11.54 & 79.29 & 51.1 & 24.1 \\
+    Hard   & Bidir. & 2.6B & \textbf{720p} & 1 & 3.17 & 1.08 & 1.09 & 87.23 & 91.50 & 94.92 & 97.96 & 55.02 & 70.56 & 83.75 & 11.93 & 80.18 & 49.2 & 29.5 \\
+    Hard   & AR     & 2.6B & \textbf{720p} & 1 & 10.02 & 1.66 & 1.72 & 85.93 & 90.89 & 94.36 & 97.49 & 53.82 & 69.12 & 92.50 & 12.10 & 79.60 & 51.1 & 24.1 \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{2pt}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.08}
+  \begin{tabular}{@{} l c @{\hspace{6pt}} c c c @{\hspace{6pt}} c c c @{}}
+    \toprule
+    & & \multicolumn{3}{c}{\textbf{Revisit consistency}} & \multicolumn{3}{c}{\textbf{Temporal degradation}} \\
+    \cmidrule(lr){3-5} \cmidrule(l){6-8}
+    \textbf{Split} & \textbf{Mode} & \textbf{PSNR$\uparrow$} & \textbf{SSIM$\uparrow$} & \textbf{LPIPS$\downarrow$} &
+    \textbf{IQ$_{0\text{--}10}\uparrow$} & \textbf{IQ$_{50\text{--}60}\uparrow$} & \textbf{$\Delta$IQ$\downarrow$} \\
+    \midrule
+    Simple & Bidir. & 13.74 & 0.346 & 0.425 & 73.50 & 71.25 & \phantom{+}2.25 \\
+    Simple & AR     & 14.16 & 0.333 & 0.458 & 72.63 & 68.84 & \phantom{+}3.79 \\
+    Hard   & Bidir. & 13.78 & 0.342 & 0.432 & 72.95 & 70.82 & \phantom{+}2.13 \\
+    Hard   & AR     & 14.10 & 0.327 & 0.469 & 72.58 & 69.49 & \phantom{+}3.09 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\subsection{Progressive-training ablation: VBench-I2V per-dimension breakdown}
+\label{sec:appendix_ablation_stages}
+
+Tab.~\ref{tab:ablation_stages_perdim} expands the rolled-up scores of Tab.~\ref{tab:ablation_stages} into the nine VBench-I2V dimensions, split into the three I2V-specific axes (\emph{camera\_motion}, \emph{i2v\_subject}, \emph{i2v\_background}) and the six general video-quality axes (\emph{subject\_consistency}, \emph{background\_consistency}, \emph{motion\_smoothness}, \emph{dynamic\_degree}, \emph{aesthetic\_quality}, \emph{imaging\_quality}). The decomposition shows that the LTX2 VAE swap preserves quality while greatly improving efficiency, and the hybrid backbone improves the long-range consistency and I2V dimensions beyond the starting Sana-Video baseline.
+
+\begin{table}[htbp]
+  \centering
+  \caption{VBench-I2V per-dimension scores ($\uparrow$, $0$--$1$) for the visible progressive-training stages of Tab.~\ref{tab:ablation_stages}. Same checkpoints, prompts, seeds, sampler, and inference settings as the main table. \textbf{I2V-specific dims}: \emph{camera\_motion} (CM), \emph{i2v\_subject} (IS), \emph{i2v\_background} (IB). \textbf{General quality dims}: \emph{subject\_consistency} (SC), \emph{background\_consistency} (BC), \emph{motion\_smoothness} (MS), \emph{dynamic\_degree} (DD), \emph{aesthetic\_quality} (AQ), \emph{imaging\_quality} (IQ). Green highlights mark the best value per column.}
+  \label{tab:ablation_stages_perdim}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.05}
+  \begin{tabular}{@{}l ccc ccc ccc@{}}
+    \toprule
+    & \multicolumn{3}{c}{\textbf{I2V-specific}} & \multicolumn{6}{c}{\textbf{General quality}} \\
+    \cmidrule(lr){2-4} \cmidrule(l){5-10}
+    \textbf{Model} & CM & IS & IB & SC & BC & MS & DD & AQ & IQ \\
+    \midrule
+    Sana-Video        & \rankfirst{0.4755} & 0.9312       & 0.9545       & 0.8267       & 0.8841       & \rankfirst{0.9613} & \rankfirst{0.9976} & \rankfirst{0.5738} & 0.6376 \\
+    + LTX2 VAE        & 0.3942       & 0.9309       & 0.9622       & 0.8346       & 0.9048       & 0.9560       & 0.9902       & 0.5395       & 0.6636 \\
+    + Hybrid attention& 0.4343       & \rankfirst{0.9450} & \rankfirst{0.9693} & \rankfirst{0.8564} & \rankfirst{0.9114} & 0.9611       & 0.9602       & 0.5649       & \rankfirst{0.6765} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Additional Qualitative Results}
+\label{sec:appendix_qualitative}
+
+Fig.~\ref{fig:vis-appendix} provides additional Hard-Trajectory examples beyond the main qualitative figure.
+These cases emphasize viewpoint consistency under large camera motion: \modelname better preserves global layout and object identity across the minute-long rollout, whereas baselines often blur details, change scene structure, or collapse toward weak motion under the same action sequence.
+The examples are selected to complement the aggregate pose, VBench, and revisit-memory results rather than to introduce a separate evaluation protocol.
+
+\input{figures_tex/vis-appendix}
+
+\subsection{3D Reconstruction Visualization}
+\label{sec:appendix_3d_recon}
+
+Fig.~\ref{fig:appendix_3d_recon} provides an additional qualitative probe of the geometry contained in \modelname rollouts.
+The three examples are benchmark results: each video is generated from a Nano Banana Pro~\citep{google2025nanobananapro} first frame and then reconstructed with Pi3X~\citep{pi3x} from the generated frames.
+The recovered structures and camera paths indicate that the videos contain coherent 3D cues over minute-long camera-controlled rollouts, beyond frame-wise image quality alone.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/demo_3d_recon.pdf}
+  \caption{3D-aware qualitative demo on three benchmark videos generated by \modelname. Each example is a 60-second rollout conditioned on a Nano Banana Pro first frame; the accompanying 3D reconstruction is produced by Pi3X from the generated video.}
+  \label{fig:appendix_3d_recon}
+\end{figure}
+
+\section{Broader Impact}
+\label{sec:appendix_broader_impact}
+
+\modelname is intended to make long-horizon world modeling more accessible for simulation, embodied AI, robotics research, and interactive content prototyping.
+By reducing the training corpus size, training compute, and inference hardware needed for one-minute 720p rollouts, the system can lower the barrier for academic groups and smaller labs to study camera-controlled video generation, long-horizon scene consistency, and action-conditioned evaluation.
+The same efficiency may also reduce the marginal computational cost of generating evaluation data or synthetic rollouts, although total environmental cost still depends on how widely and how repeatedly the model is used.
+
+\noindent The main potential negative impacts are those common to high-quality video generation and simulation systems.
+Generated videos may be mistaken for real observations if provenance is not documented, and simulated rollouts may be over-interpreted as faithful predictions in safety-critical settings such as robotics, autonomous driving, or physical planning.
+The model also inherits biases and coverage limitations from its public video sources, generated benchmark images, and filtering/captioning tools, so performance should not be assumed to transfer uniformly across cultures, environments, rare viewpoints, or sensitive human-centered scenes.
+Practical deployments should therefore document data provenance, generation settings, intended use, and known failure modes; retain watermarks or other provenance signals when available; avoid presenting generated videos as real-world evidence; and verify downstream decisions with real data and task-specific safety checks.
+Tab.~\ref{tab:asset_terms} summarizes the public license or terms status of the main existing assets and tools used by our pipeline.
+
+\section{Existing Assets and Tool Terms}
+\label{sec:appendix_asset_terms}
+
+For transparency, Tab.~\ref{tab:asset_terms} summarizes the public license or terms status we found for the main existing assets and external tools used in our data construction, annotation, evaluation, and refinement pipeline.
+We cite the original projects and follow their release terms; the benchmark images and prompts are used as internal evaluation inputs rather than as a separately released dataset in this submission.
+
+\begin{table}[t]
+  \centering
+  \caption{Public license or terms status for existing assets and external tools used by \modelname. ``Project terms'' indicates that the official release uses a custom or non-standard access agreement rather than a standard SPDX-style license.}
+  \label{tab:asset_terms}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.08}
+  \begin{tabular}{@{}p{0.20\linewidth}p{0.27\linewidth}p{0.44\linewidth}@{}}
+    \toprule
+    \textbf{Asset / tool} & \textbf{Use in this work} & \textbf{Public license or terms status} \\
+    \midrule
+    SpatialVID-HQ~\citep{spatialvid} & Real-video training source & CC-BY-NC-SA 4.0; gated Hugging Face access requires agreement to non-commercial terms. \\
+    DL3DV-10K~\citep{dl3dv} & Static 3D scenes, GT poses, and 3DGS augmentation & Custom DL3DV project terms; access requires accepting the dataset terms rather than a standard open-source license. \\
+    OmniWorld~\citep{omniworld} & Synthetic/game data and held-out camera-control validation & CC-BY-NC-SA 4.0 on the public Hugging Face release. \\
+    Sekai~\citep{sekai} & Game and walking-video training sources & Public project/data release; no standard license was clearly specified on the project page we checked, so use should follow the project access terms. \\
+    MiraData~\citep{miradata} & Long real-video training source & Public project release; the repository lists GPL-3.0, while source videos may remain subject to their original hosting terms. \\
+    ViPE~\citep{vipe} & Camera-pose annotation engine & Apache-2.0 code release, with third-party components under their respective licenses. \\
+    Pi3X / Pi3~\citep{pi3x} & Pose/depth recovery and evaluation & BSD-3-Clause code; public model weights are released for non-commercial use (CC BY-NC 4.0). \\
+    MoGe-2~\citep{moge2} & Metric-scale depth prior & Public Microsoft MoGe release; repository licensing includes permissive MIT/Apache-style terms, while model-weight terms should be checked from the model card. \\
+    FCGS~\citep{fcgs} & 3D Gaussian Splatting reconstruction for DL3DV augmentation & Public research code; no standard license was clearly specified on the project page we checked. \\
+    DiFix3D~\citep{difix3d} & Refinement of 3DGS-rendered videos & NVIDIA research release; model/code use is governed by NVIDIA terms for research and development/non-commercial use. \\
+    Qwen3.5 VLM~\citep{qwen3_5} & Content filtering and scene-static captioning & Apache-2.0 public model/code release. \\
+    Nano Banana Pro~\citep{google2025nanobananapro} & Generation of first-frame evaluation images & Google/Gemini product terms apply; generated images are marked with SynthID according to Google's product documentation. \\
+    LTX-2 / LTX-2.3~\citep{ltx2} & LTX2 VAE and long-video refiner initialization & LTX-2 Community License Agreement for model weights, code, and related materials. \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+

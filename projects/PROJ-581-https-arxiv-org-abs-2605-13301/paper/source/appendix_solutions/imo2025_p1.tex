@@ -1,0 +1,239 @@
+\begin{mdframed}[style=mdpurplebox,frametitle={IMO 2025 Problem 1}]
+A line in the plane is called \emph{sunny}
+if it is not parallel to any of the $x$-axis, the $y$-axis, or the line $x+y=0$.
+
+Let $n \ge 3$ be a given integer.
+Determine all nonnegative integers $k$ such that there exist $n$ distinct lines
+in the plane satisfying both of the following:
+\begin{itemize}
+\ii for all positive integers $a$ and $b$ with $a+b\le n+1$,
+  the point $(a,b)$ lies on at least one of the lines; and
+\ii exactly $k$ of the $n$ lines are sunny.
+\end{itemize}
+\end{mdframed}
+\solutionheading{Solution}
+\begin{remark*}
+  7/7.
+\end{remark*}
+\textbf{Definition.} For an integer \(n\ge 3\) let\par
+\[
+P_n = \{(a,b)\in\mathbb{N}^2 \mid a\ge 1,\; b\ge 1,\; a+b\le n+1\}.
+\]
+We are asked for which nonnegative integers \(k\) there exist \(n\) distinct lines in the plane such that\par
+\compactbullet{every point of \(P_n\) lies on at least one of the lines, and}
+\compactbullet{exactly \(k\) of the lines are \emph{sunny} (i.e. not parallel to the \(x\)-axis, the \(y\)-axis, or the line \(x+y=0\)).}
+We will prove that for every \(n\ge 3\) the only possible values of \(k\) are \(0,1,3\).\par
+\smallskip
+\solutionheading{1. Constructions for \(k = 0,1,3\)}
+We give explicit families of \(n\) distinct lines that satisfy the two conditions.\par
+\solutionheading{\(k = 0\)}
+Take the \(n\) horizontal lines\par
+\[
+y = 1,\; y = 2,\; \dots,\; y = n.
+\]
+Each point \((a,b)\in P_n\) lies on the line \(y = b\). No line is sunny (all are parallel to the \(x\)-axis). Hence \(k = 0\) is attainable.\par
+\solutionheading{\(k = 1\)}
+Take the \(n-1\) horizontal lines\par
+\[
+y = 1,\; y = 2,\; \dots,\; y = n-1.
+\]
+These cover all points with \(b \le n-1\). The only point not covered is \((1,n)\) (since \(a+n\le n+1\) forces \(a = 1\)). Add one extra line, for instance\par
+\[
+L:\; y = x + (n-1).
+\]
+\(L\) has slope \(1\), so it is sunny. It passes through \((1,n)\). The total number of lines is \((n-1)+1 = n\), and exactly one line is sunny. Thus \(k = 1\) is attainable.\par
+\solutionheading{\(k = 3\)}
+\emph{If \(n = 3\):}Use the three sunny lines\par
+\[
+\begin{aligned}
+L_1 &: y = x,\\
+L_2 &: y = -2x + 5,\\
+L_3 &: y = -\tfrac12 x + \tfrac52.
+\end{aligned}
+\]
+Check: \(L_1\) contains \((1,1)\) and \((2,2)\); \(L_2\) contains \((1,3)\) and \((2,1)\); \(L_3\) contains \((1,2)\) and \((3,1)\). The six points of \(P_3\) are all covered. All three lines are sunny, so \(k = 3\).\par
+\emph{If \(n > 3\):}First take the \(n-3\) horizontal lines\par
+\[
+y = 1,\; y = 2,\; \dots,\; y = n-3.
+\]
+These cover all points with \(b \le n-3\). The remaining points are those with \(b = n-2,\, n-1,\, n\); there are exactly \(3+2+1 = 6\) such points. Translate the situation by \((0,\,-(n-3))\): the map\par
+\[
+(x,\,y) \;\longmapsto\; (x,\,y-(n-3))
+\]
+sends these six points bijectively onto the set \(P_3\) (because \(a+b \le n+1\) becomes \(a + (b'+(n-3)) \le n+1 \iff a+b' \le 4\)). Therefore, if we take the three sunny lines that cover \(P_3\) in the translated coordinates and then translate them back, we obtain three sunny lines in the original plane:\par
+\[
+\begin{aligned}
+S_1 &: y = x + (n-3),\\
+S_2 &: y = -2x + (n+2),\\
+S_3 &: y = -\tfrac12 x + \tfrac{2n-1}{2}.
+\end{aligned}
+\]
+Together with the \(n-3\) horizontal lines we have \(n\) distinct lines, exactly three of which are sunny. Hence \(k = 3\) is attainable for every \(n\ge 3\).\par
+\smallskip
+\solutionheading{2. Upper bound on points per sunny line}
+\textbf{Lemma 1.} For any sunny line \(L\), we have \(|L \cap P_n| \le \left\lfloor\dfrac{n+1}{2}\right\rfloor\).\par
+\emph{Proof.} If \(L\) contains no integer point, then obviously \(|L\cap P_n|\le 1\le\lfloor(n+1)/2\rfloor\) (since \(n\ge 3\)). So assume \(L\) contains at least one integer point. Since \(L\) is sunny, it is not vertical, so we can write its equation as \(y = mx + d\).\par
+\compactbullet{If \(m\) is irrational, then \(L\) can contain at most one integer point (two integer points would give a rational slope). Hence the bound holds. Thus we may assume \(m\) is rational.}
+Write \(m = p/q\) in lowest terms, \(q>0\), \(\gcd(p,q)=1\). Choose an integer point \((x_0,y_0)\) on \(L\). Then all integer points on \(L\) are\par
+\[
+(x,y) = (x_0 + q t,\; y_0 + p t),\qquad t\in\mathbb Z.
+\]
+Let the set of \(t\) for which the point lies in \(P_n\) be a consecutive integer interval \(t_{\min},\dots,t_{\max}\); let \(N\) be the number of such \(t\). Then \(t_{\max}-t_{\min} = N-1\).\par
+For any such point we have the constraints\par
+\[
+1 \le x \le n,\qquad 1 \le y \le n,\qquad 2 \le x+y \le n+1.
+\]
+In particular,\par
+\begin{align*}
+q\,(N-1) &= |x_{\max}-x_{\min}| \le n-1, \quad\text{(A)}\\
+|p|\,(N-1) &= |y_{\max}-y_{\min}| \le n-1, \quad\text{(B)}\\
+|p+q|\,(N-1) &= |(x+y)_{\max}-(x+y)_{\min}| \le n-1. \quad\text{(C)}
+\end{align*}
+Set \(M = \max\{q,\ |p|,\ |p+q|\}\). Then (A)-(C) give\par
+\[
+N-1 \le \frac{n-1}{M}.
+\]
+Now, because \(L\) is sunny, we have \(p \neq 0\) (otherwise horizontal) and \(p+q \neq 0\) (otherwise slope \(-1\)). We claim that \(M \ge 2\). Suppose \(M = 1\). Then \(q = 1\) (since \(q>0\)), \(|p| \le 1\), \(|p+q| \le 1\). As \(p \neq 0\), either \(p = 1\) or \(p = -1\).\par
+\compactbullet{If \(p = 1\), then \(|p+q| = |1+1| = 2 > 1\), contradiction.}
+\compactbullet{If \(p = -1\), then \(p+q = 0\), which is forbidden.}
+Hence \(M \ge 2\). Consequently,\par
+\[
+N-1 \le \frac{n-1}{2}\quad\Longrightarrow\quad N \le \frac{n+1}{2}.
+\]
+Since \(N\) is an integer, \(N \le \left\lfloor\frac{n+1}{2}\right\rfloor\). \(\square\)\par
+\smallskip
+\solutionheading{3. No covering by all sunny lines for \(n \ge 4\)}
+\textbf{Lemma 2.} For \(n \ge 4\) there is no set of \(n\) distinct sunny lines that covers \(P_n\).\par
+\emph{Proof.}\par
+\emph{Even \(n\):} Write \(n = 2m\). By Lemma 1 each sunny line contains at most \(m\) points. Therefore the total number of incidences (counting each point as many times as lines through it) is at most \(n \cdot m = 2m^2\). But\par
+\[
+|P_n| = \frac{n(n+1)}{2} = m(2m+1) = 2m^2 + m > 2m^2 \qquad (m\ge1),
+\]
+so it is impossible to cover all points.\par
+\emph{Odd \(n\):} Write \(n = 2m+1\) with \(m \ge 2\) (i.e. \(n \ge 5\)). Lemma 1 gives each sunny line at most \(m+1\) points. Hence\par
+\[
+\sum_{i=1}^{n} |L_i \cap P_n| \le n (m+1) = (2m+1)(m+1).
+\]
+But\par
+\[
+|P_n| = \frac{(2m+1)(2m+2)}{2} = (2m+1)(m+1).
+\]
+Thus the inequality must be an equality. In particular, each line contains exactly \(m+1\) points, and the sum of the sizes equals \(|P_n|\). Since every point is covered at least once, equality forces each point to be covered exactly once, and therefore the \(n\) lines are pairwise disjoint.\par
+We now classify all sunny lines that can contain exactly \(m+1\) points in \(P_n\).\par
+\textbf{Lemma 3.} Let \(n = 2m+1 \ge 3\). If a sunny line \(L\) satisfies \(|L \cap P_n| = m+1\), then \(L\) is one of the three lines\par
+\[
+L_A: y = x,\qquad L_B: y = -2x + (n+2),\qquad L_C: y = -\tfrac12 x + \tfrac{n+2}{2}.
+\]
+\emph{Proof.} Write \(L\) in reduced form \(y = \frac{p}{q}x + d\) with \(q>0\), \(\gcd(p,q)=1\), \(p \neq 0\), \(p+q \neq 0\). Let \(N = m+1\).\par
+From (A)-(C) we have (with \(N-1 = m\) and \(n-1 = 2m\))\par
+\[
+q\,m \le 2m,\quad |p|\,m \le 2m,\quad |p+q|\,m \le 2m,
+\]
+hence\par
+\[
+q \le 2,\quad |p| \le 2,\quad |p+q| \le 2.
+\]
+We examine the possibilities.\par
+\textbf{Case }\(q = 1\).\textbf{ Then }\(|p| \le 2\) and \(|p+1| \le 2\). Since \(p \neq 0\) and \(p+1 \neq 0\) (i.e. \(p \neq -1\)), the admissible integers are \(p = 1\) and \(p = -2\).\par
+\textbf{Case }\(q = 2\).\textbf{ Then }\(\gcd(p,2)=1\), so \(p\) is odd. \(|p| \le 2\) forces \(p = \pm 1\). \(|p+2| \le 2\) eliminates \(p = 1\) because \(|3| > 2\); thus only \(p = -1\) remains.\par
+Now we determine the intercept \(d\) so that exactly \(m+1\) integer points of \(P_n\) lie on the line.\par
+\smallskip
+\textbf{Subcase (1, 1):} \(L: y = x + d\).\par
+Let the integer points be \((a+i,\ a+i+d)\) for \(i = 0,1,\dots,m\) (since \(x\) increases by \(q=1\)). The \(x\)-coordinates range from \(a\) to \(a+m\) and must satisfy \(1 \le a+i \le 2m+1\). Hence \(1 \le a \le m+1\). The constraints from the bounds on \(y\) and on \(x+y\) yield:\par
+\[
+\begin{cases}
+a+d \ge 1,\\
+a+m+d \le 2m+1,\\
+2a+2m+d \le 2m+2.
+\end{cases}
+\]
+The third inequality gives \(d \le 2-2a\); the second gives \(d \le m+1 - a\); the first gives \(d \ge 1-a\).\par
+For consistency we need \(1-a \le 2-2a\), i.e. \(a \le 1\). Thus \(a = 1\). Then the bounds become \(0 \le d \le \min\{m,\,0\} = 0\), so \(d = 0\). Hence \(L: y = x\).\par
+\smallskip
+\textbf{Subcase (1, -2):} \(L: y = -2x + d\).\par
+Again the points are \((a+i,\ -2(a+i)+d)\) with \(i=0,\dots,m\) and \(1 \le a \le m+1\). The tightest constraints come from \(y \ge 1\) (at \(i=m\)), \(y \le 2m+1\) (at \(i=0\)), and \(x+y \le 2m+2\) (at \(i=0\)):\par
+\[
+\begin{aligned}
+-2(a+m)+d \ge 1 \;&\Longrightarrow\; d \ge 1 + 2a + 2m,\\
+-2a + d \le 2m+1 \;&\Longrightarrow\; d \le 2m+1 + 2a,\\
+-a + d \le 2m+2 \;&\Longrightarrow\; d \le 2m+2 + a.
+\end{aligned}
+\]
+The first two give\par
+\[
+1+2a+2m \le d \le 2m+1+2a.
+\]
+Hence \(d\) must equal \(2m+1+2a\) (the only integer satisfying both). Substituting into the third inequality yields\par
+\[
+2m+1+2a \le 2m+2 + a \;\Longrightarrow\; a \le 1.
+\]
+Since \(a \ge 1\), we have \(a = 1\). Then \(d = 2m+1+2 = 2m+3 = n+2\). So \(L: y = -2x + (n+2)\).\par
+\smallskip
+\textbf{Subcase (2, -1):} \(L: y = -\tfrac12 x + d\).\par
+The \(x\)-coordinates differ by \(q=2\). Let the smallest be \(a\). Then the points are \((a+2i,\ -\tfrac12(a+2i)+d)\) for \(i=0,\dots,m\). To stay within the bounds \(1 \le x \le 2m+1\) we need\par
+\[
+a \ge 1 \quad\text{and}\quad a+2m \le 2m+1 \;\Longrightarrow\; a \le 1,
+\]
+so \(a = 1\). Thus the \(x\)-coordinates are \(1,3,5,\dots,2m+1\).\par
+For the \(y\)-coordinates to be integers, \(d\) must have the form \(d = d' + \tfrac12\) with \(d' \in \mathbb Z\). Then\par
+\[
+y_i = -\tfrac12(2i+1) + d = -i - \tfrac12 + d' + \tfrac12 = d' - i.
+\]
+Now apply the constraints:\par
+\compactbullet{\(y_i \ge 1\) for all \(i\): the smallest \(y\) occurs at \(i=m\) (since slope negative), so \(d' - m \ge 1 \;\Rightarrow\; d' \ge m+1\).}
+\compactbullet{\(y_i \le 2m+1\) for all \(i\): the largest \(y\) occurs at \(i=0\), giving \(d' \le 2m+1\).}
+\compactbullet{\(x_i + y_i = (2i+1) + (d' - i) = d' + i + 1 \le 2m+2\): the most restrictive is at \(i=m\), giving \(d' + m + 1 \le 2m+2 \;\Rightarrow\; d' \le m+1\).}
+Thus \(d' \ge m+1\) and \(d' \le m+1\), so \(d' = m+1\). Then \(d = m+1 + \tfrac12 = \tfrac{2m+3}{2} = \tfrac{n+2}{2}\). Hence \(L: y = -\tfrac12 x + \tfrac{n+2}{2}\).\par
+\smallskip
+We have exhausted all possibilities; therefore any sunny line with exactly \(m+1\) points must be one of the three listed. \(\square\)\par
+Returning to the proof of Lemma 2 for odd \(n\ge 5\): we have \(n\) distinct sunny lines, each must contain exactly \(m+1\) points, hence each must be one of \(L_A, L_B, L_C\). But there are only three distinct such lines, while \(n \ge 5\) gives a contradiction. Hence no covering exists for odd \(n\ge 5\) either. (For \(n=3\) the three lines are exactly these three, and that case is covered by the construction.) This completes the proof of Lemma 2. \(\square\)\par
+\smallskip
+\solutionheading{4. Induction on \(n\)}
+We now prove by strong induction that for every \(n\ge 3\) the number \(k\) of sunny lines in any covering of \(P_n\) by \(n\) distinct lines can only be \(0,1,3\).\par
+\textbf{Base case }\(n = 3\).\textbf{ Constructions in 1 show that }\(k = 0,1,3\) are attainable. We must show that \(k = 2\) is impossible.\par
+Assume three lines cover \(P_3\) with exactly two sunny. Let the sunny lines be \(L_1, L_2\) and the third line \(L_3\) be non-sunny.\par
+Lemma 1 implies that each sunny line contains at most two points of \(P_3\). The only pairs of points in \(P_3\) that are collinear with a sunny line (i.e. with slope different from \(0\), undefined, or \(-1\)) are exactly the three pairs:\par
+\[
+\{(1,1),(2,2)\}\ (\text{slope }1),\quad \{(1,3),(2,1)\}\ (\text{slope }-2),\quad \{(1,2),(3,1)\}\ (\text{slope }-1/2).
+\]
+Hence any sunny line that contains two points must be one of the three lines\par
+\[
+\ell_1: y=x,\quad \ell_2: y=-2x+5,\quad \ell_3: y=-\tfrac12 x+\tfrac52.
+\]
+Now consider the possibilities.\par
+\emph{If both \(L_1\) and \(L_2\) contain two points and are disjoint.} Then they must be two of the three lines \(\ell_1,\ell_2,\ell_3\). Those three lines are pairwise disjoint, so they cover four points. The two remaining points lie on the third \(\ell\), which is sunny. The third line \(L_3\) is non-sunny, so it cannot cover both of those points (the unique line through them is sunny). Contradiction.\par
+\emph{If at least one of \(L_1, L_2\) contains at most one point.} Then the two sunny lines together cover at most three points. Consequently, the non-sunny line \(L_3\) must cover at least three points. The only lines that contain three points of \(P_3\) are the three "boundary" lines:\par
+\[
+y=1,\quad x=1,\quad x+y=4.
+\]
+(One verifies that any other line contains at most two points.) So \(L_3\) is one of these three.\par
+\compactbullet{\textbf{}\(L_3 = y=1\)\textbf{: covers }\((1,1),(2,1),(3,1)\). The uncovered points are \((1,2),(1,3),(2,2)\). Each of these three points lies on a different one of \(\ell_1,\ell_2,\ell_3\) (namely \((2,2)\in\ell_1\), \((1,3)\in\ell_2\), \((1,2)\in\ell_3\)). Two sunny lines can cover at most two of them (each \(\ell_i\) contains exactly one). Hence impossible.}
+\compactbullet{\textbf{}\(L_3 = x=1\)\textbf{: covers }\((1,1),(1,2),(1,3)\). Uncovered: \((2,1),(2,2),(3,1)\). Again these are one per \(\ell_i\); two sunny lines cannot cover all three. Contradiction.}
+\compactbullet{\textbf{}\(L_3 = x+y=4\)\textbf{: covers }\((1,3),(2,2),(3,1)\). Uncovered: \((1,1),(1,2),(2,1)\), again one per \(\ell_i\). Contradiction.}
+Thus \(k = 2\) is impossible, so the only possible values for \(n=3\) are \(0,1,3\).\par
+\textbf{Inductive step.} Assume the statement holds for all \(m\) with \(3 \le m < n\), where \(n \ge 4\). Consider any covering of \(P_n\) by \(n\) distinct lines.\par
+Define three special lines:\par
+\[
+R:\ y=1,\qquad C:\ x=1,\qquad D:\ x+y = n+1.
+\]
+Note that \(R, C, D\) are not sunny (horizontal, vertical, slope \(-1\) respectively).\par
+\textbf{Claim.} At least one of \(R, C, D\) belongs to the covering.\par
+\emph{Proof of claim.} Suppose none of them is present. Then:\par
+\compactbullet{The line \(y=1\) contains \(n\) distinct points \((a,1)\). To cover a point \((a,1)\), the line must intersect \(y=1\) at that point. A horizontal line different from \(y=1\) does not intersect \(y=1\). Hence every line that covers a point on \(y=1\) must be non-horizontal. Moreover, a non-horizontal line meets \(y=1\) in at most one point. Therefore we need at least \(n\) non-horizontal lines; since there are exactly \(n\) lines, \emph{all} lines are non-horizontal, and each covers exactly one point on \(y=1\).}
+\compactbullet{The line \(x=1\) contains \(n\) points \((1,b)\). Since \(C\) is absent, a vertical line different from \(x=1\) does not contain any point with \(x=1\). Hence every line covering a point on \(x=1\) must be non-vertical. Since all lines are already non-horizontal, they must all be non-vertical to cover those points (a vertical line would miss \(x=1\) unless it is \(x=1\) itself). Thus all lines are non-vertical.}
+\compactbullet{The line \(x+y=n+1\) contains \(n\) points. Since \(D\) is absent, a line with slope \(-1\) other than \(D\) is parallel to it and does not intersect it. Therefore every line covering a point on \(D\) must have slope different from \(-1\). Hence all lines have slope \(\neq -1\).}
+Therefore every line is non-horizontal, non-vertical, and slope \(\neq -1\); i.e., every line is sunny. But Lemma 2 states that for \(n\ge 4\) there is no covering of \(P_n\) by \(n\) sunny lines. Contradiction. Hence the claim holds. \(\square\)\par
+Now we examine which of \(R, C, D\) is present. (If more than one is present, we may choose any one; the argument works in each case.)\par
+\emph{If \(R\) is present:} Remove \(R\) from the set. The remaining \(n-1\) lines still cover all points of \(P_n\) with \(y\ge 2\) (because \(R\) only covered points with \(y=1\)). Apply the translation \(\phi_R: (x,y) \mapsto (x, y-1)\). This map sends the set \(\{(x,y)\in P_n \mid y\ge 2\}\) bijectively onto \(P_{n-1}\). Moreover, \(\phi_R\) sends each line to a line (translations preserve lines). The resulting family consists of \(n-1\) distinct lines (translation preserves distinctness) and covers \(P_{n-1}\) (each point of \(P_{n-1}\) corresponds to a point with \(y\ge 2\) that was covered). Since \(R\) is not sunny, the number of sunny lines among the \(n-1\) lines remains \(k\).\par
+Thus we have a covering of \(P_{n-1}\) by \(n-1\) distinct lines with exactly \(k\) sunny lines. By the induction hypothesis (applied to \(m=n-1\)), we must have \(k \in \{0,1,3\}\).\par
+\emph{If \(C\) is present:} Remove \(C\) and use \(\phi_C: (x,y) \mapsto (x-1, y)\). It maps \(\{(x,y)\in P_n \mid x\ge 2\}\) onto \(P_{n-1}\). \(C\) is non-sunny, so \(k\) unchanged. Induction gives \(k \in \{0,1,3\}\).\par
+\emph{If \(D\) is present:} Remove \(D\). The remaining \(n-1\) lines cover all points of \(P_n\) that are not on \(D\). Observe that \(P_{n-1} \subseteq P_n\) and \(P_{n-1} \cap D = \emptyset\) (since points in \(P_{n-1}\) satisfy \(a+b\le n\), while \(D\) requires \(a+b = n+1\). Hence they cover \(P_{n-1}\). \(D\) is not sunny, so \(k\) stays the same. Induction yields \(k \in \{0,1,3\}\).\par
+In every possible case we conclude \(k \in \{0,1,3\}\), which completes the inductive step.\par
+By strong induction, the statement holds for all integers \(n \ge 3\).\par
+\smallskip
+\solutionheading{5. Conclusion}
+We have shown that for every \(n \ge 3\) the only possible numbers of sunny lines in a covering of \(P_n\) by \(n\) distinct lines are \(0\), \(1\), and \(3\). Explicit constructions demonstrate that each of these values is indeed attainable.\par
+\[
+\boxed{k \in \{0,\,1,\,3\}\ \text{ for all } n\ge 3.}
+\]
+\par

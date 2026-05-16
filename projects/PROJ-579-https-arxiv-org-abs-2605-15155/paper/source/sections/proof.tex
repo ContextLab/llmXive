@@ -1,0 +1,203 @@
+\section{Theoretical Analysis}
+\label{appendix:proof}
+\subsection{Design Rationale}
+
+The central design question is how the divergence signal should enter optimization.
+We adopt the reverse-KL-aligned gap
+\[
+\Delta_t = \log \pi_T(y_t \mid s_t^{+}) - \log \pi_{\theta}(y_t \mid s_t)
+\]
+rather than forward KL, because it naturally evaluates on student-sampled tokens
+and avoids the computationally expensive full-vocabulary matching.
+However, using this raw gap directly as a coefficient would create overly strong,
+unbounded token-level gradients during early training or under severe teacher-student mismatch.
+To resolve this, we wrap the gap in a sigmoid function
+\[
+g_t = \sigma(\beta \Delta_t),
+\]
+which transforms the raw discrepancy into a bounded and monotone importance weight
+\[
+g_t \in (0,1), \qquad \frac{\partial g_t}{\partial \Delta_t} > 0.
+\]
+This preserves the ordering of token importance while strictly preventing gradient explosion.
+Finally, we apply a stop-gradient operator to the gate.
+Detaching $g_t$ ensures it acts purely as a confidence weight
+rather than creating an additional, self-referential optimization pathway,
+yielding a stable, first-order weighted likelihood update.
+
+\subsection{Theoretical Properties}
+
+We formalize the stability and curriculum properties of \methodname{} through the following propositions.
+
+\begin{proposition}[Equivalent Weighted Likelihood Form]
+\label{prop:weighted_mle}
+Assume that both $\log \pi_T(y_t \mid s_t^{+})$ and $g_t$ are detached from gradient computation.
+Minimizing $\mathcal{L}_{\methodname}$ is equivalent, up to an additive constant,
+to maximizing a token-weighted log-likelihood objective on student-sampled tokens:
+\[
+\mathcal{L}_{\methodname}
+= C - \operatorname{Agg}\!\left( g_t \log \pi_{\theta}(y_t \mid s_t) \right),
+\]
+where
+\[
+C = \operatorname{Agg}\!\left( g_t \log \pi_T(y_t \mid s_t^{+}) \right)
+\]
+is constant with respect to $\theta$.
+\end{proposition}
+
+\begin{proof}
+By definition,
+\[
+\mathcal{L}_{\methodname}
+= \operatorname{Agg}\!\left(
+g_t \bigl(\log \pi_T(y_t \mid s_t^{+}) - \log \pi_{\theta}(y_t \mid s_t)\bigr)
+\right)
+\]
+\[
+= \operatorname{Agg}\!\left(
+g_t \log \pi_T(y_t \mid s_t^{+})
+\right)
+-
+\operatorname{Agg}\!\left(
+g_t \log \pi_{\theta}(y_t \mid s_t)
+\right)
+\]
+\[
+= C - \operatorname{Agg}\!\left( g_t \log \pi_{\theta}(y_t \mid s_t) \right),
+\]
+where the first term $C = \operatorname{Agg}\!\left( g_t \log \pi_T(y_t \mid s_t^{+}) \right)$ is constant w.r.t.\ $\theta$ since both $g_t$ and $\log \pi_T(y_t \mid s_t^{+})$ are detached.
+\end{proof}
+
+\begin{proposition}[Gradient Form]
+\label{prop:grad_form}
+Under the same assumptions,
+the gradient of $\mathcal{L}_{\methodname}$ is strictly modulated by the bounded scalar gate:
+\[
+\nabla_{\theta}\mathcal{L}_{\methodname}
+= - \operatorname{Agg}\!\left( g_t \nabla_{\theta}\log \pi_{\theta}(y_t \mid s_t) \right).
+\]
+\end{proposition}
+
+\begin{proof}
+From Proposition~\ref{prop:weighted_mle},
+\[
+\nabla_{\theta}\mathcal{L}_{\methodname}
+= \nabla_{\theta}\left[
+C - \operatorname{Agg}\!\left( g_t \log \pi_{\theta}(y_t \mid s_t) \right)
+\right]
+\]
+\[
+= 0 - \operatorname{Agg}\!\left( g_t \nabla_{\theta}\log \pi_{\theta}(y_t \mid s_t) \right)
+= - \operatorname{Agg}\!\left( g_t \nabla_{\theta}\log \pi_{\theta}(y_t \mid s_t) \right).
+\]
+\end{proof}
+
+\begin{proposition}[Monotonicity and Smoothness of the Gate]
+\label{prop:gate}
+The gate $g_t = \sigma(\beta \Delta_t)$ is strictly increasing in $\Delta_t$,
+inducing an online token-level curriculum where larger discrepancies receive stronger weights.
+Its derivative satisfies
+\[
+\frac{\partial g_t}{\partial \Delta_t}
+= \beta \,\sigma(\beta \Delta_t)\bigl(1-\sigma(\beta \Delta_t)\bigr)
+\in (0,\,\beta/4].
+\]
+\end{proposition}
+
+\begin{proof}
+By the chain rule,
+\[
+\frac{\partial g_t}{\partial \Delta_t}
+= \beta \,\sigma'(\beta \Delta_t).
+\]
+Since the logistic sigmoid satisfies
+\[
+\sigma'(z) = \sigma(z)\bigl(1-\sigma(z)\bigr) > 0
+\qquad \forall\, z \in \mathbb{R},
+\]
+we obtain
+\[
+\frac{\partial g_t}{\partial \Delta_t}
+= \beta \,\sigma(\beta \Delta_t)\bigl(1-\sigma(\beta \Delta_t)\bigr)
+> 0.
+\]
+Let $u = \sigma(\beta \Delta_t) \in (0,1)$:
+\[
+u(1-u) \le \left(\frac{u + (1-u)}{2}\right)^{\!2} = \frac{1}{4}
+\]
+\[
+\frac{\partial g_t}{\partial \Delta_t}
+= \beta\, u(1-u) \le \frac{\beta}{4}.
+\]
+\end{proof}
+
+\begin{proposition}[Bounded Auxiliary Gradient]
+\label{prop:bounded_grad}
+Assume that $\|\nabla_{\theta}\log \pi_{\theta}(y_t \mid s_t)\| \le B_t$ for each valid token.
+Then the gate cannot amplify the auxiliary gradient beyond the unweighted likelihood gradient:
+\[
+\left\| \nabla_{\theta}\mathcal{L}_{\methodname} \right\|
+\le \operatorname{Agg}(B_t).
+\]
+\end{proposition}
+
+\begin{proof}
+By Proposition~\ref{prop:grad_form},
+\[
+\left\| \nabla_{\theta}\mathcal{L}_{\methodname} \right\|
+= \left\| \operatorname{Agg}\!\left( g_t \nabla_{\theta}\log \pi_{\theta}(y_t \mid s_t) \right) \right\|
+\]
+\[
+\le \operatorname{Agg}\!\left( g_t \left\| \nabla_{\theta}\log \pi_{\theta}(y_t \mid s_t) \right\| \right)
+\]
+\[
+\le \operatorname{Agg}\!\left( 1 \cdot B_t \right)
+= \operatorname{Agg}(B_t),
+\]
+where the first inequality is the triangle inequality and the second uses $0 < g_t < 1$ and $\|\nabla_{\theta}\log \pi_{\theta}(y_t \mid s_t)\| \le B_t$.
+\end{proof}
+
+\begin{proposition}[Effect of Not Detaching the Gate]
+\label{prop:detach}
+Without stop-gradient on the gate,
+the non-detached token loss $\tilde{\ell}_t = \sigma(\beta \Delta_t)\,\Delta_t$
+introduces an unstable self-referential coupling term into the gradient:
+\[
+\nabla_{\theta}\tilde{\ell}_t
+= - \Bigl( g_t + \beta \Delta_t\, g_t(1-g_t) \Bigr)
+\nabla_{\theta}\log \pi_{\theta}(y_t \mid s_t).
+\]
+\end{proposition}
+
+\begin{proof}
+Write $\tilde{\ell}_t = g_t \Delta_t$. Since $\log \pi_T(y_t \mid s_t^{+})$ is constant w.r.t.\ $\theta$,
+\[
+\nabla_{\theta}\Delta_t
+= \nabla_{\theta}\bigl[\log \pi_T(y_t \mid s_t^{+}) - \log \pi_{\theta}(y_t \mid s_t)\bigr]
+= -\nabla_{\theta}\log \pi_{\theta}(y_t \mid s_t).
+\]
+By the chain rule on $g_t = \sigma(\beta \Delta_t)$,
+\[
+\nabla_{\theta}g_t
+= \beta\, \sigma'(\beta \Delta_t)\,\nabla_{\theta}\Delta_t
+= \beta\, g_t(1-g_t)\,\nabla_{\theta}\Delta_t
+= -\beta\, g_t(1-g_t)\,\nabla_{\theta}\log \pi_{\theta}(y_t \mid s_t).
+\]
+Applying the product rule,
+\[
+\nabla_{\theta}\tilde{\ell}_t
+= (\nabla_{\theta}g_t)\,\Delta_t + g_t\,(\nabla_{\theta}\Delta_t)
+\]
+\[
+= \bigl[-\beta\, g_t(1-g_t)\,\nabla_{\theta}\log \pi_{\theta}(y_t \mid s_t)\bigr]\,\Delta_t
+  + g_t\,\bigl[-\nabla_{\theta}\log \pi_{\theta}(y_t \mid s_t)\bigr]
+\]
+\[
+= -\beta\, g_t(1-g_t)\,\Delta_t\,\nabla_{\theta}\log \pi_{\theta}(y_t \mid s_t)
+   - g_t\,\nabla_{\theta}\log \pi_{\theta}(y_t \mid s_t)
+\]
+\[
+= -\Bigl( g_t + \beta \Delta_t\, g_t(1-g_t) \Bigr)\,
+   \nabla_{\theta}\log \pi_{\theta}(y_t \mid s_t).
+\]
+\end{proof}

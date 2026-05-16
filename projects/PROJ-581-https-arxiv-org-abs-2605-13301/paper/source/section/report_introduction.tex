@@ -1,0 +1,89 @@
+\section{Introduction}
+Olympiad competitions provide one of the clearest stress tests for long-horizon
+reasoning. Unlike many standard benchmarks, these problems require a model to 
+search over many possible solution paths, control assumptions precisely, verify
+intermediate claims, and present a final argument that can survive strict
+grading across mathematical and scientific settings. Recent systems have made
+rapid progress in this direction: AlphaGeometry combined neural guidance with
+symbolic search for olympiad geometry~\citep{trinh2024alphageometry}, while
+AlphaProof, AlphaGeometry 2, and Gemini Deep Think reached silver- or
+gold-medal standards on International Mathematical Olympiad problems with
+larger search and verification budgets~\citep{deepmind2024alphaproof,deepmind2025geminiimo}.
+At the same time, general reasoning models have improved through
+chain-of-thought prompting, math-specialized post-training, and reinforcement
+learning with verifiable rewards~\citep{wei2022chain,shao2024deepseekmath,yang2024qwen25math,r1,yan2025learning,exgrpo}, while scientific olympiad benchmarks test transfer to modeling, derivation, and competition-style justification~\citep{olympiadbench,chen2025p1,luo2026p1vl}.
+
+% This report studies a practical question raised by this progress: 
+
+% We use a 30B-A3B model as the main vehicle and keep
+% the pipeline deliberately modular: supervised fine-tuning (SFT) first reshapes
+% the model's reasoning behavior, reinforcement learning (RL) then scales solving
+% capability, and test-time scaling (TTS) spends additional inference compute on
+% the hardest proof-search instances.
+% A central question is therefore \textit{whether a compact post-trained reasoning
+% backbone can be pushed to olympiad-level performance with a simple and
+% unified
+% recipe}.  
+A central question is therefore whether \textit{a reasoning backbone can be pushed to olympiad-level performance with a compact, domain-unified recipe} that
+applies the same reasoning-centric pipeline across mathematical and scientific problems. 
+Using
+a 30B-A3B model, we build a modular pipeline: SFT reshapes reasoning behavior, RL scales solving capability, and TTS allocates additional inference compute to the
+hardest proof-search problems. Together, these stages align behavior shaping, reward design, experience replay, and self-verification into a compact recipe for rigorous
+mathematical and scientific reasoning. The desgin follows a specializable-generalist view: rather than building a narrow olympiad solver, we specialize a broadly capable post-trained model toward expert-level proof reasoning while preserving transfer across scientific domains.
+  
+\textbf{The first stage aims to instill a more disciplined proof-search pattern.} 
+Starting from a post-trained model that is already competitive on scientific reasoning tasks,
+we curate long-form solution, self-verification, and self-refinement
+trajectories from mathematical, scientific, coding, and instruction-following
+sources. 
+After filtering, the SFT mixture contains 338K
+trajectories with responses shorter than 8K tokens. SFT on this rigorous proof
+data instills reasoning behaviors centered on proof search, self-checking, and
+repair. We then order the examples by reverse perplexity so
+that each pass starts with trajectories most mismatched to the initial policy
+before consolidating on more familiar examples. This curriculum helps preserve
+and recover the capability of the post-trained model with its reasoning
+behavior reshaped.
+% \haoran{Why does a high-perplexity-first ordering help the model learn the form of rigorous reasoning?}
+
+\textbf{The second stage scales this behavior through two levels of RL.}
+% \haoran{and TTS?}
+Coarse RL uses
+verifiable prompts and efficient outcome checking to scale the reasoning
+behaviors introduced by SFT under reliable binary rewards, following the broader RLVR paradigm for efficient reasoning improvement~\citep{r1,shao2024deepseekmath}. 
+Refined RL then shifts the target from answer correctness to proof quality.  It combines a proof-level generative reward model for scoring complete proofs,
+self-refinement prompts for training critique-and-repair behavior, and
+experience replay for preserving rare successful trajectories on hard
+problems.
+Finally, we apply test-time scaling through a self-verification-and-refinement loop to elevate the trained
+model to olympiad-level reasoning~\citep{huang2025winning}.
+
+
+On answer-verifiable benchmarks, the resulting model,
+\textbf{\textcolor{iclrdeepblue}{SU-01}}, nearly matches the strongest
+similar-size baseline, Qwen3.6-35B-A3B, across AnswerBench, AMO-Bench, AIME
+2025/2026, and FrontierScience-Olympiad. On proof-oriented evaluation, SU-01
+reaches 57.6\% on IMO-ProofBench with direct generation and 70.2\% with TTS,
+substantially outperforming similar-size models and approaching competitive
+commercial systems such as Gemini 3.1 Pro Thinking. Beyond solving
+competition problems, SU-01 obtains the best similar-size overall score on
+FrontierScience-Research, suggesting that the recipe generalizes scientific
+reasoning toward research-style problems beyond olympiad benchmarks.
+
+On official competition problems, SU-01 shows strong end-to-end reasoning beyond benchmark-style evaluation. 
+Direct SU-01 already exceeds the IPhO gold lines for
+both 2024 and 2025, and clears the bronze-medal lines on IMO 2025 and USAMO 2026. 
+With test-time scaling, it reaches \textbf{35 points} on both mathematical olympiads, meeting the \textbf{IMO
+2025 gold} line and exceeding the \textbf{USAMO 2026 gold} line by 10 points. 
+Notably, on USAMO 2026, this matches the highest reported human total among 340 competitors,
+indicating that the overall recipe can elicit top-level human-like olympiad reasoning from a compact 30B-A3B model. 
+The TTS traces further show how this
+capability emerges at inference time: SU-01 can sustain reasoning trajectories beyond 100K tokens, condition on its own drafts and error analyses, and repeatedly
+verify and repair candidate proofs. 
+Overall, these results support a specializable-generalist view of compact reasoning
+models: with the right training and inference recipe, a broadly capable backbone
+can be driven toward expert-level proof reasoning while retaining meaningful
+scientific transfer. 
+% than single-pass evaluation reveals.
+
+ 

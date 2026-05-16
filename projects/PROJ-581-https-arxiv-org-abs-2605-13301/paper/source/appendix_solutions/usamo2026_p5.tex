@@ -1,0 +1,283 @@
+\begin{mdframed}[style=mdpurplebox,frametitle={USAMO 2026 Problem 5}]
+Let $ABC$ be a triangle. Points $D$, $E$, and $F$ lie on sides $BC$, $CA$, and $AB$, respectively, such that
+\[
+\angle AFE = \angle BDF = \angle CED.
+\]
+Let $O_A$, $O_B$, and $O_C$ be the circumcenters of triangles $AFE$, $BDF$, and $CED$, respectively. Let $M$, $N$, and $O$ be the circumcenters of triangles $ABC$, $DEF$, and $O_A O_B O_C$, respectively. Prove that $OM = ON$.
+\end{mdframed}
+\solutionheading{Solution}
+\begin{remark*}
+  7/7.
+\end{remark*}
+We are given triangle \(ABC\) with points \(D\in BC\), \(E\in CA\), \(F\in AB\) such that\par
+\[
+\angle AFE = \angle BDF = \angle CED =: \theta.
+\]
+We shall use complex numbers. Without loss of generality we may place the triangle in the complex plane and denote by \(a,b,c\) the complex numbers corresponding to \(A,B,C\).\par
+\smallskip
+\solutionheading{1. Angle Chase}
+Denote the angles of \(\triangle ABC\) by \(\alpha = \angle BAC\), \(\beta = \angle ABC\), \(\gamma = \angle ACB\).\par
+\solutionheading{At vertex \(F\)}
+Points \(A,F,B\) are collinear, so \(\angle AFB = 180^\circ\). The three angles around \(F\) on the side of \(AB\) that contains the triangle are \(\angle AFE\), \(\angle EFD\), \(\angle DFB\) and they sum to \(180^\circ\):\par
+\[
+\angle AFE + \angle EFD + \angle DFB = 180^\circ. \quad\text{(1)}
+\]
+In \(\triangle BDF\) we have \(\angle BDF = \theta\) and \(\angle DBF = \beta\) (since \(D\) lies on \(BC\) and \(F\) on \(AB\)). Hence\par
+\[
+\angle BFD = 180^\circ - \theta - \beta,
+\]
+so \(\angle DFB = 180^\circ - \theta - \beta\).\par
+Inserting \(\angle AFE = \theta\) into (1) gives\par
+\[
+\theta + \angle EFD + (180^\circ - \theta - \beta) = 180^\circ \quad\Longrightarrow\quad \angle EFD = \beta.
+\]
+Thus\par
+\[
+\angle DFE = \beta. \quad\text{(2)}
+\]
+\solutionheading{At vertex \(D\)}
+Points \(B,D,C\) are collinear, so \(\angle BDC = 180^\circ\). The angles at \(D\) are \(\angle BDF\), \(\angle FDE\), \(\angle EDC\) and they sum to \(180^\circ\):\par
+\[
+\angle BDF + \angle FDE + \angle EDC = 180^\circ. \quad\text{(3)}
+\]
+Given \(\angle BDF = \theta\).\par
+In \(\triangle CED\), \(\angle CED = \theta\) and \(\angle ECD = \gamma\), so\par
+\[
+\angle CDE = 180^\circ - \theta - \gamma,
+\]
+i.e., \(\angle EDC = 180^\circ - \theta - \gamma\).\par
+Substituting into (3):\par
+\[
+\theta + \angle FDE + (180^\circ - \theta - \gamma) = 180^\circ \quad\Longrightarrow\quad \angle FDE = \gamma.
+\]
+Thus\par
+\[
+\angle EDF = \gamma. \quad\text{(4)}
+\]
+\solutionheading{At vertex \(E\)}
+Points \(C,E,A\) are collinear, so \(\angle CEA = 180^\circ\). The angles at \(E\) are \(\angle CED\), \(\angle DEF\), \(\angle FEA\) and they sum to \(180^\circ\):\par
+\[
+\angle CED + \angle DEF + \angle FEA = 180^\circ. \quad\text{(5)}
+\]
+Given \(\angle CED = \theta\).\par
+In \(\triangle AFE\), \(\angle AFE = \theta\) and \(\angle FAE = \alpha\), so\par
+\[
+\angle AEF = 180^\circ - \theta - \alpha,
+\]
+i.e., \(\angle FEA = 180^\circ - \theta - \alpha\).\par
+Substituting into (5):\par
+\[
+\theta + \angle DEF + (180^\circ - \theta - \alpha) = 180^\circ \quad\Longrightarrow\quad \angle DEF = \alpha.
+\]
+Thus\par
+\[
+\angle DEF = \alpha. \quad\text{(6)}
+\]
+From (2), (4), (6) we obtain\par
+\[
+\angle DFE = \beta,\quad \angle EDF = \gamma,\quad \angle DEF = \alpha.
+\]
+Therefore \(\triangle DEF\) has angles \(\alpha,\beta,\gamma\); it is \textbf{similar} to \(\triangle ABC\). The vertex correspondence is\par
+\[
+E \longleftrightarrow A,\qquad F \longleftrightarrow B,\qquad D \longleftrightarrow C. \quad\text{(7)}
+\]
+\smallskip
+\solutionheading{2. Complex Representation of the Similarity}
+The similarity (7) may be either orientation-preserving (direct) or orientation-reversing (opposite). The statement \(OM = ON\) involves only distances, which are invariant under reflection. Hence we may reflect the whole configuration if necessary and assume that the similarity is \textbf{direct}. Consequently there exist a non-zero complex number \(k\) and a complex number \(t\) such that\par
+\[
+e = k a + t,\qquad f = k b + t,\qquad d = k c + t. \quad\text{(8)}
+\]
+(If \(k=0\), then \(e=f=t\), making \(\triangle AFE\) degenerate, contrary to the existence of its circumcenter \(O_A\).)\par
+\smallskip
+\solutionheading{3. Eliminating the Translation}
+Assume for contradiction that \(k = 1\). Then (8) becomes\par
+\[
+e = a + t,\quad f = b + t,\quad d = c + t.
+\]
+Because \(F\) lies on \(AB\), the points \(A\), \(F\), \(B\) are collinear; hence\par
+\[
+\frac{f - a}{b - a} = \frac{b + t - a}{b - a} = 1 + \frac{t}{b-a} \in \mathbb{R}.
+\]
+Similarly, \(D\) lies on \(BC\), so\par
+\[
+\frac{d - b}{c - b} = \frac{c + t - b}{c - b} = 1 + \frac{t}{c-b} \in \mathbb{R},
+\]
+thus \(\frac{t}{b-a} \in \mathbb{R}\) and \(\frac{t}{c-b} \in \mathbb{R}\).\par
+The vectors \(b-a\) and \(c-b\) are not parallel (they are sides of a non-degenerate triangle), so the only complex number that is a real multiple of both is \(0\). Hence \(t = 0\), which gives \(e = a\), \(f = b\), \(d = c\). Then \(\triangle AFE\) degenerates to the segment \(AF\), contradicting the existence of \(O_A\). Therefore \(k \neq 1\).\par
+Consider the fixed point of the spiral similarity \(z \mapsto kz + t\) (when \(k \neq 1\)):\par
+\[
+X = \frac{t}{1 - k}.
+\]
+Translate the plane so that \(X\) becomes the origin. (Translation is an isometry, so all distances and circumcenters are preserved up to the same translation; we keep the same letters for the new coordinates.) After this translation we have\par
+\[
+e = k a,\qquad f = k b,\qquad d = k c. \quad\text{(9)}
+\]
+(We also note that \(a,b,c \neq 0\); otherwise, e.g., \(a = 0\) would imply \(A = X\), and then \(e = k \cdot 0 = 0\), so \(A\) and \(E\) coincide, making \(\triangle AFE\) degenerate - impossible. Hence \(a,b,c\) are non-zero.)\par
+\smallskip
+\solutionheading{4. The Origin Lies on the Three Circles}
+We now show that the origin \(0\) belongs to the circumcircles of \(\triangle AFE\), \(\triangle BDF\), and \(\triangle CED\).\par
+\textbf{Lemma (Cross Ratio and Concyclicity).} Four distinct points \(z_1,z_2,z_3,z_4\) in the complex plane lie on a common circle or line if and only if their cross ratio\par
+\[
+(z_1,z_2;z_3,z_4) = \frac{(z_1 - z_3)(z_2 - z_4)}{(z_1 - z_4)(z_2 - z_3)}
+\]
+is a real number.\par
+\emph{Proof.} The M\"obius transformation\par
+\[
+T(z) = \frac{(z - z_1)(z_2 - z_3)}{(z - z_3)(z_2 - z_1)}
+\]
+maps \(z_1,z_2,z_3\) to \(0,1,\infty\) respectively. Under \(T\), the circle/line through \(z_1,z_2,z_3\) is mapped to the real line. Hence \(z_4\) lies on that circle/line exactly when \(T(z_4)\) is real, and \(T(z_4)\) equals the cross ratio \((z_1,z_2;z_3,z_4)\).\par
+\smallskip
+\solutionheading{Circle \((AFE)\)}
+Take \(z_1 = a\), \(z_2 = f\), \(z_3 = e\), \(z_4 = 0\). Using (9):\par
+\[
+a - e = a - k a = a(1 - k),\quad f - 0 = k b,\quad a - 0 = a,\quad f - e = k b - k a = k(b - a).
+\]
+Thus\par
+\[
+(a,f;e,0) = \frac{(a - e)(f - 0)}{(a - 0)(f - e)} = \frac{a(1 - k) \cdot k b}{a \cdot k(b - a)} = \frac{(1 - k)b}{b - a}. \quad\text{(10)}
+\]
+Because \(A,F,B\) are collinear, the ratio \(\dfrac{f - a}{b - a}\) is real. Compute\par
+\[
+\frac{f - a}{b - a} = \frac{k b - a}{b - a}.
+\]
+Now\par
+\[
+\frac{(1 - k)b}{b - a} = 1 - \frac{k b - a}{b - a},
+\]
+which is therefore real. The points \(a,f,e\) are not collinear (otherwise \(\triangle AFE\) would be degenerate). By the lemma, \(0\) lies on the circle through \(a,f,e\), i.e.,\par
+\[
+0 \in (AFE). \quad\text{(11)}
+\]
+\smallskip
+\solutionheading{Circle \((BDF)\)}
+Take \(z_1 = b\), \(z_2 = d\), \(z_3 = f\), \(z_4 = 0\). Using (9):\par
+\[
+b - d = b - k c,\quad f - 0 = k b,\quad b - 0 = b,\quad f - d = k b - k c = k(b - c).
+\]
+Hence\par
+\[
+(b,d;f,0) = \frac{(b - d)(f - 0)}{(b - 0)(f - d)} = \frac{(b - k c) \cdot k b}{b \cdot k(b - c)} = \frac{b - k c}{b - c}. \quad\text{(12)}
+\]
+Collinearity of \(B,D,C\) gives \(\dfrac{d - b}{c - b} \in \mathbb{R}\):\par
+\[
+\frac{k c - b}{c - b} \in \mathbb{R}.
+\]
+Observe that\par
+\[
+\frac{b - k c}{b - c} = \frac{-(k c - b)}{-(c - b)} = \frac{k c - b}{c - b},
+\]
+so the cross ratio is real. Since \(b,d,f\) are non-collinear (triangle \(BDF\) is non-degenerate), the lemma yields\par
+\[
+0 \in (BDF). \quad\text{(13)}
+\]
+\smallskip
+\solutionheading{Circle \((CED)\)}
+Take \(z_1 = c\), \(z_2 = e\), \(z_3 = d\), \(z_4 = 0\). Using (9):\par
+\[
+c - e = c - k a,\quad d - 0 = k c,\quad c - 0 = c,\quad d - e = k c - k a = k(c - a).
+\]
+Thus\par
+\[
+(c,e;d,0) = \frac{(c - e)(d - 0)}{(c - 0)(d - e)} = \frac{(c - k a) \cdot k c}{c \cdot k(c - a)} = \frac{c - k a}{c - a}. \quad\text{(14)}
+\]
+Collinearity of \(C,E,A\) gives \(\dfrac{e - c}{a - c} \in \mathbb{R}\):\par
+\[
+\frac{k a - c}{a - c} \in \mathbb{R}.
+\]
+Since\par
+\[
+\frac{c - k a}{c - a} = \frac{-(k a - c)}{-(a - c)} = \frac{k a - c}{a - c},
+\]
+the cross ratio is real. Non-collinearity of \(c,e,d\) gives\par
+\[
+0 \in (CED). \quad\text{(15)}
+\]
+\smallskip
+\solutionheading{5. \(k\) is Not Real}
+Suppose, for contradiction, that \(k \in \mathbb{R}\). Then from (9) we have \(e = k a\), so points \(0\), \(a\), \(e\) are collinear (they lie on the line through the origin and \(a\)). However, by (11) all three points \(0,a,e\) lie on the circle \((AFE)\). A non-degenerate circle cannot contain three distinct collinear points. This contradiction forces\par
+\[
+k \notin \mathbb{R}. \quad\text{(16)}
+\]
+(Recall \(k \neq 0,1\); therefore \(0,1,k\) are distinct and not collinear.)\par
+\smallskip
+\solutionheading{6. Circumcenters \(O_A,O_B,O_C\)}
+Since \(0\) lies on \((AFE)\), the circle through \(a,f,e\) coincides with the circle through \(0,a,e\) (because three non-collinear points determine a circle, and \(0,a,e\) are distinct and, because \(k \notin \mathbb{R}\), they are not collinear). Hence \(O_A\) is the circumcenter of \(\triangle (0,a,e)\).\par
+Now consider the triangle with vertices \(0,1,k\). As \(k \notin \mathbb{R}\) and \(k \neq 0,1\), these points are distinct and non-collinear. Let \(\mu\) be its circumcenter; thus\par
+\[
+|\mu - 0| = |\mu - 1| = |\mu - k|. \quad\text{(17)}
+\]
+We claim that \(O_A = a \mu\). Indeed, the map \(z \mapsto a z\) (a spiral similarity about \(0\)) sends\par
+\[
+0 \mapsto 0,\quad 1 \mapsto a,\quad k \mapsto k a = e.
+\]
+Under a similarity, the image of the circumcenter of a triangle is the circumcenter of the image triangle. Therefore \(a \mu\) is the circumcenter of \(\triangle (0,a,e)\), i.e., \(O_A = a \mu\).\par
+One may also verify directly: The distances from \(a\mu\) to \(0,a,e\) are\par
+\[
+|a\mu - 0| = |a|\,|\mu|,\quad |a\mu - a| = |a|\,|\mu - 1|,\quad |a\mu - e| = |a|\,|\mu - k|,
+\]
+and by (17) these three numbers are equal, so \(a\mu\) is equidistant from \(0,a,e\). Because \(0,a,e\) are not collinear, \(a\mu\) is the unique point with that property, hence it is the circumcenter.\par
+Analogously, applying the same reasoning to the other two circles, we obtain\par
+\[
+O_B = b \mu,\qquad O_C = c \mu. \quad\text{(18)}
+\]
+\smallskip
+\solutionheading{7. Circumcenters \(M\), \(N\), \(O\)}
+Let \(M\) be the circumcenter of \(\triangle ABC\), so\par
+\[
+|M - a| = |M - b| = |M - c| =: R. \quad\text{(19)}
+\]
+\solutionheading{Circumcenter \(O\) of \(\triangle O_A O_B O_C\)}
+The vertices are \(O_A = a\mu\), \(O_B = b\mu\), \(O_C = c\mu\). Consider the point \(\mu M\):\par
+\[
+|\mu M - O_A| = |\mu M - a\mu| = |\mu|\,|M - a| = |\mu| R,
+\]
+\[
+|\mu M - O_B| = |\mu M - b\mu| = |\mu|\,|M - b| = |\mu| R,
+\]
+\[
+|\mu M - O_C| = |\mu M - c\mu| = |\mu|\,|M - c| = |\mu| R.
+\]
+Thus \(\mu M\) is equidistant from \(O_A,O_B,O_C\). Since \(\triangle O_A O_B O_C\) is non-degenerate (it is the image of \(\triangle ABC\) under the non-zero similarity \(z \mapsto \mu z\)), \(\mu M\) is the circumcenter:\par
+\[
+O = \mu M. \quad\text{(20)}
+\]
+\solutionheading{Circumcenter \(N\) of \(\triangle DEF\)}
+The vertices are \(D = k c\), \(E = k a\), \(F = k b\). Consider the point \(k M\):\par
+\[
+|k M - D| = |k M - k c| = |k|\,|M - c| = |k| R,
+\]
+\[
+|k M - E| = |k M - k a| = |k|\,|M - a| = |k| R,
+\]
+\[
+|k M - F| = |k M - k b| = |k|\,|M - b| = |k| R.
+\]
+Hence \(k M\) is equidistant from \(D,E,F\), and because \(\triangle DEF\) is non-degenerate (it is similar to \(\triangle ABC\) and, under the given configuration, non-degenerate), we have\par
+\[
+N = k M. \quad\text{(21)}
+\]
+(If \(M = 0\), then \(O = 0\), \(N = 0\), and the equalities hold trivially.)\par
+\smallskip
+\solutionheading{8. Proof of \(OM = ON\)}
+Using (20) and (21),\par
+\[
+OM = |O - M| = |\mu M - M| = |M|\,|\mu - 1|,
+\]
+\[
+ON = |O - N| = |\mu M - k M| = |M|\,|\mu - k|.
+\]
+Now \(\mu\) is the circumcenter of \(\triangle (0,1,k)\), so by (17)\par
+\[
+|\mu - 1| = |\mu - k|.
+\]
+Consequently,\par
+\[
+OM = |M|\,|\mu - 1| = |M|\,|\mu - k| = ON.
+\]
+\smallskip
+\solutionheading{9. Conclusion}
+We have shown that under the given conditions the distances \(OM\) and \(ON\) are equal.\par
+\[
+\boxed{OM = ON}.
+\]
+\par

@@ -1,0 +1,53 @@
+\section{Achieving Gold-Medal-Level Reasoning via Test-time Scaling}
+\label{sec:tts}
+
+% Training alone is not the full story for olympiad-level reasoning. 
+Even with a
+strong reasoning policy, the hardest problems often require substantial search
+and revision at inference time. This is not merely a matter of sampling more
+answers. IMO-style tasks demand complete and rigorous proofs, and a solution
+with the right final conclusion can still fail if it contains a hidden gap or a
+logical fallacy. Recent work on IMO 2025 makes this point explicit: strong
+frontier models already contain significant mathematical capability, but their
+single-pass outputs and even best-of-many selection can remain far below the
+level obtained by a structured verification-and-refinement pipeline
+\citep{huang2025winning}. 
+% Test-time scaling is therefore a core part of the
+% SU-01 recipe rather than a minor evaluation trick.
+
+The need for test-time scaling is also tied to reasoning budget. A single generation has a
+finite context and thinking budget, while an olympiad proof may require several
+rounds of exploration, lemma checking, counterexample search, and exposition
+repair. A model can spend most of its budget discovering a promising approach
+and still fail to fully close the proof. Breaking inference into repeated
+solve--verify--refine stages effectively allocates additional computation to the
+same problem while keeping each step focused and auditable. This extra budget is
+useful only when the model can remain coherent across repeated drafts,
+critiques, and repairs. 
+After the full training pipeline, SU-01 is able to use
+this budget productively on difficult problems, sustaining coherent reasoning
+trajectories longer than 100K tokens during inference.
+
+Our TTS procedure follows the verification-and-refinement paradigm of
+\citet{huang2025winning} as a self-verification and refinement loop. The model
+first produces an initial solution under a solver prompt that prioritizes proof
+rigor rather than merely reaching a final answer. It then enters refinement,
+where it revisits the draft, repairs weak steps, and tries to turn a promising
+argument into a complete proof. The refined candidate is next checked through a
+verification prompt: the model inspects the full solution and writes a structured
+bug report, identifying issues such as critical errors, unjustified claims, or
+missing cases. A verdict step interprets this report and decides whether the
+candidate should be accepted, rejected, or sent back for another refinement
+round. This loop is repeated until the solution consistently passes
+self-verification or the refinement budget is exhausted. Multiple independent
+runs can be executed in parallel or serial, and accepted candidates are selected
+only after the proof is stable under repeated verification. The corresponding
+inference setting is summarized in \cref{app:inference-serving-details}.
+
+% This inference-time procedure matches the behavior encouraged during training.
+% SFT installs a proof-search grammar, refined RL rewards complete and rigorous
+% solutions, self-refinement teaches the model to repair flawed arguments, and
+% experience replay preserves rare successful proof trajectories. Test-time
+% scaling then converts these learned behaviors into stronger end performance by
+% allowing the model to search more broadly, verify more carefully, and refine
+% candidate solutions more effectively.

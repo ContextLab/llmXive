@@ -1,0 +1,464 @@
+\begin{mdframed}[style=mdpurplebox,frametitle={IMO 2025 Problem 2}]
+Let $\Omega$ and $\Gamma$ be circles with centres $M$ and $N$, respectively,
+such that the radius of $\Omega$ is less than the radius of $\Gamma$.
+Suppose $\Omega$ and $\Gamma$ intersect at two distinct points $A$ and $B$.
+Line $MN$ intersects $\Omega$ at $C$ and $\Gamma$ at $D$,
+so that $C$, $M$, $N$, $D$ lie on $MN$ in that order.
+Let $P$ be the circumcenter of triangle $ACD$.
+Line $AP$ meets $\Omega$ again at $E \neq A$ and meets $\Gamma$ again at $F \neq A$.
+Let $H$ be the orthocenter of triangle $PMN$.
+
+Prove that the line through $H$ parallel to $AP$ is tangent
+to the circumcircle of triangle $BEF$.
+\end{mdframed}
+
+\solutionheading{Solution}
+\begin{remark*}
+  7/7.
+\end{remark*}
+We will prove the statement using analytic geometry. The configuration is invariant under similarity transformations, so we may fix convenient coordinates.\par
+\solutionheading{1. Coordinate setup}
+Place \(M\) and \(N\) on the \(x\)-axis. Without loss of generality, set \(MN = 1\) (scale the figure appropriately). Let\par
+\[
+M = (0,0),\qquad N = (1,0).
+\]
+Denote the radius of \(\Omega\) (with center \(M\)) by \(r\) and the radius of \(\Gamma\) (with center \(N\)) by \(R\), with \(0 < r < R\). Since the circles intersect in two distinct points, we have\par
+\[
+R - r < 1 < R + r.
+\]
+\solutionheading{2. Intersection points \(A\) and \(B\)}
+The equations of the circles are\par
+\[
+\begin{cases}
+x^2 + y^2 = r^2, & \text{(\(\Omega\))}\\[2mm]
+(x-1)^2 + y^2 = R^2, & \text{(\(\Gamma\))}.
+\end{cases}
+\]
+Subtracting gives \(2x-1 = R^2 - r^2\), so\par
+\[
+x = a = \frac{1 + r^2 - R^2}{2}.
+\]
+Let \(h > 0\) be such that \(a^2 + h^2 = r^2\). The two intersections are symmetric about the \(x\)-axis; we take\par
+\[
+A = (a,\, h),\qquad B = (a,\, -h).
+\]
+\solutionheading{3. Points \(C\) and \(D\) on line \(MN\)}
+The line \(MN\) is the \(x\)-axis. Intersection of \(\Omega\) with the \(x\)-axis: \(x^2 = r^2 \Rightarrow x = \pm r\). Because the order on the line is \(C\), \(M\), \(N\), \(D\), point \(C\) must lie left of \(M\) and \(D\) right of \(N\). Hence\par
+\[
+C = (-r,\, 0),\qquad D = (1+R,\, 0).
+\]
+\solutionheading{4. Circumcenter \(P\) of \(\triangle ACD\)}
+Points \(C\) and \(D\) lie on the \(x\)-axis, so the perpendicular bisector of \(CD\) is the vertical line through the midpoint of \(CD\):\par
+\[
+\text{midpoint} = \left(\frac{-r + 1+R}{2},\,0\right) = \left(\frac{1+R-r}{2},\,0\right).
+\]
+Thus\par
+\[
+x_P = \frac{1+R-r}{2}.
+\]
+To find \(y_P\), use \(PA = PC\):\par
+\[
+(x_P - a)^2 + (y_P - h)^2 = (x_P + r)^2 + y_P^2.
+\]
+Expanding and using \(a^2+h^2 = r^2\) yields\par
+\[
+-2h y_P = 2(r+a)x_P \quad\Longrightarrow\quad y_P = -\frac{(r+a)x_P}{h}.
+\]
+Hence\par
+\[
+P = \left(\frac{1+R-r}{2},\; -\frac{(r+a)x_P}{h}\right).
+\]
+\solutionheading{5. Simplifying notation with auxiliary parameters}
+Introduce\par
+\[
+p = R + r,\qquad q = R - r,\qquad S = 1 + R + r = 1 + p.
+\]
+Then\par
+\[
+r = \frac{p - q}{2},\quad R = \frac{p + q}{2},\quad a = \frac{1 - p q}{2},\quad x_P = \frac{1 + q}{2}.
+\]
+From \(h^2 = r^2 - a^2\) we obtain\par
+\[
+h^2 = \frac{(p^2-1)(1-q^2)}{4}.
+\]
+Also\par
+\[
+r + a = \frac{S(1 - q)}{2}.
+\]
+\solutionheading{6. Vector \(\overrightarrow{AP}\)}
+Set \(\vec{v} = \overrightarrow{AP} = (v_1,\, v_2)\).\par
+\[
+v_1 = x_P - a = \frac{1+q}{2} - \frac{1 - p q}{2} = \frac{q + p q}{2} = \frac{q S}{2}.
+\]
+For \(v_2\):\par
+\[
+v_2 = y_P - h = -\frac{(r+a)x_P}{h} - h = -\frac{(r+a)x_P + h^2}{h}.
+\]
+Since \(h^2 = (r-a)(r+a)\),\par
+\[
+(r+a)x_P + h^2 = (r+a)(x_P + r - a).
+\]
+Compute \(x_P + r - a\):\par
+\[
+x_P + r - a = \frac{1+q}{2} + r - \frac{1 - p q}{2} = \frac{q + 2r + p q}{2}.
+\]
+But \(2r = p - q\), so\par
+\[
+q + 2r + p q = q + (p - q) + p q = p + p q = p(1 + q).
+\]
+Thus\par
+\[
+x_P + r - a = \frac{p(1+q)}{2}.
+\]
+Now \((r+a) = \dfrac{S(1-q)}{2}\), so\par
+\[
+(r+a)(x_P + r - a) = \frac{S(1-q)}{2} \cdot \frac{p(1+q)}{2} = \frac{p S (1 - q^2)}{4}.
+\]
+Therefore\par
+\[
+v_2 = -\frac{1}{h}\cdot\frac{p S (1 - q^2)}{4} = -\frac{p S (1 - q^2)}{4h}.
+\]
+\solutionheading{7. Points \(E\) and \(F\) (second intersections of \(AP\) with the circles)}
+Parameterize line \(AP\) as \(A + \lambda \vec{v}\). Substitute into \(\Omega\): \(|A + \lambda \vec{v}|^2 = r^2\). Because \(|A|^2 = r^2\), we get\par
+\[
+2\lambda (\vec{v}\cdot A) + \lambda^2 |\vec{v}|^2 = 0.
+\]
+Hence \(\lambda = 0\) (point \(A\)) or\par
+\[
+\lambda_E = -\frac{2\,\vec{v}\cdot A}{|\vec{v}|^2}.
+\]
+Similarly, for \(\Gamma\) substitute into \(|(A+\lambda\vec{v}) - N|^2 = R^2\) (since \(N=(1,0)\)). \(|A - N|^2 = R^2\), so\par
+\[
+\lambda_F = -\frac{2\,\vec{v}\cdot(A - N)}{|\vec{v}|^2}.
+\]
+Now compute the needed dot products.\par
+\[
+\vec{v}\cdot A = a v_1 + h v_2 = a\cdot\frac{q S}{2} + h\left(-\frac{p S (1 - q^2)}{4h}\right) = \frac{a q S}{2} - \frac{p S (1 - q^2)}{4}
+= \frac{S}{4}\bigl(2a q - p(1 - q^2)\bigr).
+\]
+But \(2a q = q(1 - p q) = q - p q^2\), so\par
+\[
+2a q - p(1 - q^2) = q - p q^2 - p + p q^2 = q - p.
+\]
+Thus\par
+\[
+\vec{v}\cdot A = \frac{S}{4}(q - p) = -\frac{S(p - q)}{4} = -\frac{S\cdot 2r}{4} = -\frac{r S}{2}.
+\]
+Next,\par
+\[
+\vec{v}\cdot(A - N) = \vec{v}\cdot A - v_1 = -\frac{r S}{2} - \frac{q S}{2} = -\frac{S(r+q)}{2} = -\frac{R S}{2},
+\]
+because \(r+q = R\).\par
+Consequently,\par
+\[
+\lambda_E = -\frac{2\bigl(-\frac{r S}{2}\bigr)}{|\vec{v}|^2} = \frac{r S}{|\vec{v}|^2},
+\qquad
+\lambda_F = -\frac{2\bigl(-\frac{R S}{2}\bigr)}{|\vec{v}|^2} = \frac{R S}{|\vec{v}|^2}.
+\]
+Hence\par
+\[
+E = A + \frac{r S}{|\vec{v}|^2}\,\vec{v},
+\qquad
+F = A + \frac{R S}{|\vec{v}|^2}\,\vec{v}.
+\]
+\solutionheading{8. Orthocenter \(H\) of \(\triangle PMN\)}
+Vertices: \(M = (0,0)\), \(N = (1,0)\), \(P = (x_P, y_P)\).\par
+Side \(MN\) is horizontal, so the altitude from \(P\) is the vertical line \(x = x_P\).\par
+Altitude from \(M\) is the line through \(M\) perpendicular to \(PN\). Vector \(\overrightarrow{PN} = (1 - x_P,\,-y_P)\). A vector perpendicular to \(PN\) is \((y_P,\, 1 - x_P)\) (since \((1-x_P)y_P + (-y_P)(1-x_P)=0\)). Parametric equation: \(t\,(y_P,\,1 - x_P)\).\par
+The orthocenter \(H\) is the intersection of \(x = x_P\) with this altitude. So set\par
+\[
+t y_P = x_P \quad\Longrightarrow\quad t = \frac{x_P}{y_P}\ \ (y_P \neq 0).
+\]
+Then\par
+\[
+H = \bigl(x_P,\ t(1 - x_P)\bigr) = \left(x_P,\ \frac{x_P(1 - x_P)}{y_P}\right).
+\]
+Now substitute \(y_P = -\dfrac{(r+a)x_P}{h}\):\par
+\[
+\frac{x_P(1 - x_P)}{y_P} = \frac{x_P(1 - x_P)}{-\frac{(r+a)x_P}{h}} = -\frac{h(1 - x_P)}{r+a}.
+\]
+Compute \(1 - x_P = 1 - \dfrac{1+q}{2} = \dfrac{1 - q}{2}\). And \(r + a = \dfrac{S(1 - q)}{2}\). Therefore\par
+\[
+-\frac{h(1 - x_P)}{r+a} = -\frac{h \cdot \frac{1 - q}{2}}{\frac{S(1 - q)}{2}} = -\frac{h}{S}.
+\]
+Thus\par
+\[
+H = \left(\frac{1+q}{2},\; -\frac{h}{S}\right).
+\]
+\solutionheading{9. Circumcenter \(O'\) of \(\triangle BEF\)}
+We will determine \(O' = (x, y)\) that is equidistant from \(B\), \(E\), \(F\).\par
+Because \(E\) and \(F\) lie on line \(AP\), the segment \(EF\) is collinear with \(\vec{v}\). The perpendicular bisector of \(EF\) consists of points \(X\) satisfying \(\vec{v}\cdot (X - M_{EF}) = 0\), where \(M_{EF}\) is the midpoint of \(EF\).\par
+The midpoint:\par
+\[
+M_{EF} = \frac{E+F}{2} = A + \frac{\lambda_E + \lambda_F}{2}\,\vec{v}.
+\]
+Since \(\lambda_E + \lambda_F = \dfrac{(r+R)S}{|\vec{v}|^2} = \dfrac{p S}{|\vec{v}|^2}\),\par
+\[
+M_{EF} = A + \frac{p S}{2|\vec{v}|^2}\,\vec{v}.
+\]
+Hence the condition \(\vec{v}\cdot X = \vec{v}\cdot M_{EF}\) gives\par
+\[
+\vec{v}\cdot O' = \vec{v}\cdot A + \frac{p S}{2}.
+\]
+But \(\vec{v}\cdot A = -\dfrac{r S}{2}\), so\par
+\[
+\vec{v}\cdot O' = -\frac{r S}{2} + \frac{p S}{2} = \frac{(p - r) S}{2} = \frac{R S}{2}. \quad\text{(1)}
+\]
+Next impose \(|O' - B|^2 = |O' - E|^2\). Write \(U = O' - A\). Then\par
+\[
+O' - B = U - w,\quad \text{with } w = B - A = (0,\,-2h),
+\]
+and\par
+\[
+O' - E = U - \lambda_E \vec{v}.
+\]
+Then
+\[
+|U - w|^2 = |U - \lambda_E \vec{v}|^2.
+\]
+Expand:\par
+\[
+|U|^2 - 2 U\cdot w + |w|^2 = |U|^2 - 2\lambda_E \vec{v}\cdot U + \lambda_E^2 |\vec{v}|^2.
+\]
+Cancel \(|U|^2\):\par
+\[
+-2 U\cdot w + |w|^2 = -2\lambda_E \vec{v}\cdot U + \lambda_E^2 |\vec{v}|^2. \quad\text{(2)}
+\]
+Now \(U\cdot w = (x - a)\cdot 0 + (y - h)(-2h) = -2h(y - h)\). Thus\par
+\[
+-2 U\cdot w + |w|^2 = -2[-2h(y - h)] + 4h^2 = 4h(y - h) + 4h^2 = 4h y.
+\]
+So (2) becomes\par
+\[
+4h y = -2\lambda_E \vec{v}\cdot U + \lambda_E^2 |\vec{v}|^2. \quad\text{(3)}
+\]
+We have\par
+\[
+\vec{v}\cdot U = \vec{v}\cdot(O' - A) = \vec{v}\cdot O' - \vec{v}\cdot A = \frac{R S}{2} - \left(-\frac{r S}{2}\right) = \frac{(R + r)S}{2} = \frac{p S}{2}.
+\]
+Recall \(\lambda_E = \dfrac{r S}{|\vec{v}|^2}\). Substitute into (3):\par
+\[
+4h y = -2\left(\frac{r S}{|\vec{v}|^2}\right)\cdot \frac{p S}{2} + \left(\frac{r S}{|\vec{v}|^2}\right)^2 |\vec{v}|^2
+= -\frac{r p S^2}{|\vec{v}|^2} + \frac{r^2 S^2}{|\vec{v}|^2}
+= \frac{r S^2}{|\vec{v}|^2}(r - p)
+= -\frac{r p S^2}{|\vec{v}|^2} + \frac{r^2 S^2}{|\vec{v}|^2}
+= -\frac{r R S^2}{|\vec{v}|^2} \qquad (\text{since } p - r = R).
+\]
+Thus\par
+\[
+4h y = -\frac{r R S^2}{|\vec{v}|^2},
+\qquad\text{so}\qquad
+y = -\frac{r R S^2}{4h |\vec{v}|^2}. \quad\text{(4)}
+\]
+\solutionheading{10. Computation of \(|\vec{v}|^2\)}
+We have\par
+\[
+v_1 = \frac{q S}{2},\qquad v_2 = -\frac{p S (1 - q^2)}{4h}.
+\]
+Hence\par
+\[
+v_1^2 = \frac{q^2 S^2}{4},
+\]
+\[
+v_2^2 = \frac{p^2 S^2 (1 - q^2)^2}{16 h^2}.
+\]
+Using \(h^2 = \dfrac{(p^2-1)(1 - q^2)}{4}\),\par
+\[
+v_2^2 = \frac{p^2 S^2 (1 - q^2)}{4(p^2 - 1)}.
+\]
+Therefore\par
+\[
+|\vec{v}|^2 = \frac{S^2}{4}\left(q^2 + \frac{p^2 (1 - q^2)}{p^2 - 1}\right)
+= \frac{S^2}{4}\cdot \frac{q^2(p^2-1) + p^2(1 - q^2)}{p^2 - 1}.
+\]
+The numerator simplifies:\par
+\[
+q^2(p^2-1) + p^2(1 - q^2) = p^2 - q^2.
+\]
+Thus\par
+\[
+|\vec{v}|^2 = \frac{S^2}{4}\cdot \frac{p^2 - q^2}{p^2 - 1}.
+\]
+Now \(p^2 - q^2 = (R+r)^2 - (R-r)^2 = 4Rr.\) And \(p^2 - 1 = (p-1)(p+1) = (R+r-1)(R+r+1) = (R+r-1)S.\)\par
+Hence\par
+\[
+|\vec{v}|^2 = \frac{S^2}{4}\cdot \frac{4Rr}{(R+r-1)S} = \frac{S R r}{R+r-1}. \quad\text{(5)}
+\]
+\solutionheading{11. Simplify \(y\) from (4)}
+Insert (5) into (4):\par
+\[
+y = -\frac{r R S^2}{4h}\cdot \frac{R+r-1}{S R r} = -\frac{S (R+r-1)}{4h}. \quad\text{(6)}
+\]
+\solutionheading{12. Determine \(x\) from equation (1)}
+Equation (1): \(\vec{v}\cdot O' = v_1 x + v_2 y = \dfrac{R S}{2}\).\par
+We know \(v_1 = \dfrac{q S}{2}\), and from (6) we have \(y\). Compute \(v_2 y\).\par
+\[
+v_2 = -\frac{p S (1 - q^2)}{4h},\qquad y = -\frac{S (R+r-1)}{4h}.
+\]
+Thus\par
+\[
+v_2 y = \frac{p S^2 (1 - q^2) (R+r-1)}{16 h^2}.
+\]
+Recall \(4h^2 = (R+r-1) S (1 - q^2)\). Then \(16 h^2 = 4 (R+r-1) S (1 - q^2)\).\par
+\[
+v_2 y = \frac{p S^2 (1 - q^2) (R+r-1)}{4 (R+r-1) S (1 - q^2)} = \frac{p S}{4}.
+\]
+Now (1) becomes\par
+\[
+\frac{q S}{2}\, x + \frac{p S}{4} = \frac{R S}{2}.
+\]
+Divide by \(S \neq 0\):\par
+\[
+\frac{q}{2}\, x + \frac{p}{4} = \frac{R}{2}.
+\]
+Multiply by \(4\):\par
+\[
+2q x + p = 2R.
+\]
+Now \(q = R - r\), \(p = R + r\), so\par
+\[
+2(R - r) x + (R + r) = 2R
+\quad\Longrightarrow\quad 2(R - r) x = 2R - (R + r) = R - r.
+\]
+Since \(R \neq r\) (strict inequality), we obtain\par
+\[
+x = \frac{R - r}{2(R - r)} = \frac12.
+\]
+Therefore the circumcenter of \(\triangle BEF\) is\par
+\[
+O' = \left(\frac12,\; -\frac{S (R+r-1)}{4h}\right). \quad\text{(7)}
+\]
+\solutionheading{13. Distance from \(O'\) to the line through \(H\) parallel to \(\vec{v}\)}
+Let \(\ell\) be the line through \(H\) with direction \(\vec{v}\).\par
+The distance from a point to a line with direction \(\vec{v}\) through \(H\) is\par
+\[
+d = \frac{|(O' - H) \times \vec{v}|}{|\vec{v}|},
+\]
+where the cross product (in the plane) is taken as the scalar \(\Delta x\cdot v_2 - \Delta y\cdot v_1\).\par
+Coordinates:\par
+\[
+H = \left(\frac{1+q}{2},\; -\frac{h}{S}\right).
+\]
+Compute differences:\par
+\[
+\Delta x = \frac12 - x_H = \frac12 - \frac{1+q}{2} = -\frac{q}{2}.
+\]
+\[
+\Delta y = y_{O'} - y_H = -\frac{S (R+r-1)}{4h} - \left(-\frac{h}{S}\right) = -\frac{S (R+r-1)}{4h} + \frac{h}{S}.
+\]
+Write as a single fraction:\par
+\[
+\Delta y = \frac{ -S^2 (R+r-1) + 4h^2 }{4h S}.
+\]
+But \(4h^2 = (R+r-1) S (1 - q^2)\). Hence\par
+\[
+\Delta y = \frac{ (R+r-1) S (1 - q^2) - S^2 (R+r-1) }{4h S}
+= \frac{ (R+r-1) S \bigl( (1 - q^2) - S \bigr)}{4h S}
+= \frac{ (R+r-1) \bigl( (1 - q^2) - S \bigr)}{4h}.
+\]
+Now \(S = 1 + p\), so\par
+\[
+(1 - q^2) - S = 1 - q^2 - 1 - p = -p - q^2.
+\]
+Thus\par
+\[
+\Delta y = -\frac{ (R+r-1) (p + q^2)}{4h}. \quad\text{(8)}
+\]
+Now compute the cross product:\par
+\[
+\Delta \times \vec{v} = \Delta x \cdot v_2 - \Delta y \cdot v_1.
+\]
+\[
+\Delta x \cdot v_2 = \left(-\frac{q}{2}\right)\left(-\frac{p S (1 - q^2)}{4h}\right) = \frac{q p S (1 - q^2)}{8h}.
+\]
+\[
+\Delta y \cdot v_1 = \left(-\frac{ (R+r-1) (p + q^2)}{4h}\right) \left(\frac{q S}{2}\right) = -\frac{q S (R+r-1) (p + q^2)}{8h}.
+\]
+Therefore\par
+\[
+\Delta \times \vec{v} = \frac{q p S (1 - q^2)}{8h} - \left( -\frac{q S (R+r-1) (p + q^2)}{8h} \right)
+= \frac{q S}{8h}\Bigl( p (1 - q^2) + (R+r-1)(p + q^2) \Bigr).
+\]
+But \(R+r-1 = p - 1\). So the bracket becomes\par
+\[
+p (1 - q^2) + (p - 1)(p + q^2).
+\]
+Expand:\par
+\[
+p(1 - q^2) = p - p q^2,
+\]
+\[
+(p - 1)(p + q^2) = p(p-1) + (p-1)q^2 = p^2 - p + p q^2 - q^2.
+\]
+Sum:\par
+\[
+(p - p q^2) + (p^2 - p + p q^2 - q^2) = p^2 - q^2.
+\]
+Thus\par
+\[
+\Delta \times \vec{v} = \frac{q S}{8h} (p^2 - q^2) = \frac{q S}{8h} \cdot 4Rr = \frac{q S R r}{2 h}.
+\]
+Since \(q = R - r\),\par
+\[
+\Delta \times \vec{v} = \frac{ (R - r) S R r}{2 h}. \quad\text{(9)}
+\]
+\solutionheading{14. Squared distance from \(O'\) to \(\ell\)}
+\[
+d^2 = \frac{ \left( \dfrac{ (R - r) S R r}{2 h} \right)^2 }{ |\vec{v}|^2 }
+= \frac{ (R - r)^2 S^2 R^2 r^2}{4 h^2} \cdot \frac{1}{|\vec{v}|^2}.
+\]
+Substitute \(|\vec{v}|^2 = \dfrac{S R r}{R+r-1}\):\par
+\[
+d^2 = \frac{ (R - r)^2 S^2 R^2 r^2}{4 h^2} \cdot \frac{R+r-1}{S R r}
+= \frac{ (R - r)^2 S R r (R+r-1)}{4 h^2}. \quad\text{(10)}
+\]
+Now use \(4h^2 = (R+r-1) S (1 - q^2)\):\par
+\[
+d^2 = \frac{ (R - r)^2 S R r (R+r-1)}{ (R+r-1) S (1 - q^2) }
+= \frac{ (R - r)^2 R r}{1 - (R - r)^2}. \quad\text{(11)}
+\]
+\solutionheading{15. Radius of the circumcircle of \(\triangle BEF\)}
+Compute \(R_c = |O' - B|\), with \(B = (a,\,-h)\) and \(O'\) as in (7).\par
+\[
+\Delta x' = \frac12 - a = \frac12 - \frac{1 - p q}{2} = \frac{p q}{2}.
+\]
+\[
+\Delta y' = y_{O'} + h = -\frac{S (R+r-1)}{4h} + h = \frac{4h^2 - S (R+r-1)}{4h}.
+\]
+Again, \(4h^2 = (R+r-1) S (1 - q^2)\),\par
+\[
+\Delta y' = \frac{ (R+r-1) S (1 - q^2) - S (R+r-1) }{4h} = \frac{ S (R+r-1) (1 - q^2 - 1)}{4h} = -\frac{ S (R+r-1) q^2}{4h}.
+\]
+Thus\par
+\[
+R_c^2 = \left(\frac{p q}{2}\right)^2 + \left(-\frac{ S (R+r-1) q^2}{4h}\right)^2
+= \frac{p^2 q^2}{4} + \frac{ S^2 (R+r-1)^2 q^4}{16 h^2}.
+\]
+Substitute \(16 h^2 = 4 (R+r-1) S (1 - q^2)\):\par
+\[
+R_c^2 = \frac{p^2 q^2}{4} + \frac{ S^2 (R+r-1)^2 q^4}{4 (R+r-1) S (1 - q^2)}
+= \frac{p^2 q^2}{4} + \frac{ S (R+r-1) q^4}{4 (1 - q^2)}.
+\]
+Write as\par
+\[
+R_c^2 = \frac{q^2}{4}\left( p^2 + \frac{ S (R+r-1) q^2}{1 - q^2} \right).
+\]
+Now \(S (R+r-1) = (p+1)(p-1) = p^2 - 1.\) Therefore\par
+\[
+R_c^2 = \frac{q^2}{4} \cdot \frac{ p^2(1 - q^2) + (p^2 - 1) q^2}{1 - q^2}
+= \frac{q^2}{4} \cdot \frac{ p^2 - p^2 q^2 + p^2 q^2 - q^2}{1 - q^2}
+= \frac{q^2}{4} \cdot \frac{ p^2 - q^2}{1 - q^2}.
+\]
+Since \(p^2 - q^2 = 4R r\) and \(q^2 = (R - r)^2\),\par
+\[
+R_c^2 = \frac{ (R - r)^2}{4} \cdot \frac{4R r}{1 - (R - r)^2}
+= \frac{ (R - r)^2 R r}{1 - (R - r)^2}. \quad\text{(12)}
+\]
+\solutionheading{16. Conclusion}
+Comparing (11) and (12) we obtain\par
+\[
+d^2 = R_c^2,
+\]
+so \(d = R_c\) (all quantities are nonnegative).\par
+Hence the distance from the circumcenter \(O'\) of \(\triangle BEF\) to the line \(\ell\) (through \(H\) parallel to \(AP\)) equals the radius of its circumcircle. Therefore \(\ell\) is tangent to the circumcircle of \(\triangle BEF\).\par
+\par

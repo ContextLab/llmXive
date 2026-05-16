@@ -1,0 +1,99 @@
+\clearpage
+
+\section*{Appendix}
+\addcontentsline{toc}{part}{Appendix}  % Add to main TOC
+
+% Start contents tracking for appendix
+\startcontents[appendix]
+\printcontents[appendix]{}{1}{\subsection*{Contents}}
+
+\section{Implementation and Evaluation Details}
+\label{app:training-details}
+
+This appendix collects the implementation details needed to interpret and
+reproduce the reported training, inference, reward-model serving, and evaluation
+procedures. We summarize the effective modeling, optimization, decoding,
+serving, and grading settings extracted from the corresponding launch scripts
+and evaluation protocols, while omitting infrastructure-only commands that do
+not affect the training objective, data semantics, inference behavior, reward
+definition, or evaluation criteria.
+
+
+\section{Problem-Solving Prompt}
+\label{app:problem-solving-prompt}
+
+Unless otherwise specified, all RL training and inference stages use the following fixed problem-solving prompt for SU-01:
+
+\begin{mdframed}[style=mdpurplebox,frametitle={Problem-Solving Prompt}]
+\small
+\ttfamily
+Please solve the following olympiad problem. Show your complete reasoning and proof.\\[2pt]
+1. Please use LaTeX format to represent the variables and formulas used in the solution process and results.\\
+2. If the problem asks you to find specific values, please put the final answer(s) in \textbackslash boxed\{\}.\\
+3. If the problem requires a proof, present a clear and rigorous argument.
+\end{mdframed}
+
+
+
+
+\section{SFT Training Details}
+\label{app:sft-training-details}
+
+The SFT stage is implemented with slime~\citep{thudm2026slime}, trained on 8 GPUs, initializes from P1-30B, and optimizes the reverse-perplexity-ordered mixture described in \cref{sec:sft-data-curation}; rollout shuffling is disabled so that the curriculum order is preserved throughout training. We train for four epochs with batch size 128, using Adam with learning rate $1\times 10^{-5}$, cosine decay to a minimum learning rate of $1\times 10^{-6}$, warmup fraction 0.1, weight decay 0.1, and momentum parameters $\beta_1=0.9$ and $\beta_2=0.95$. This configuration treats SFT as a controlled behavioral adaptation step: the objective is not to maximize benchmark performance directly, but to expose the post-trained backbone to a stable sequence of rigorous long-form trajectories while preserving as much of its existing mathematical and scientific competence as possible.
+
+\section{RL Training Details}
+\label{app:rl-training-details}
+
+The RL stage is implemented with slime~\citep{thudm2026slime}, trained on 64 GPUs, continues from the SFT checkpoint, and trains with a GSPO objective over a balanced mixture of verifiable prompts, proof-reward prompts, self-refinement prompts, and replayed experience. In total, the model is trained for 200 RL steps, consisting of 96 coarse-RL steps followed by 104 refined-RL steps. Each rollout uses prompt batch size 128, 8 samples per prompt, maximum response length 160k tokens, temperature 1.0, and 4 policy-update steps per rollout. The data pipeline applies dynamic sampling with a non-zero standard-deviation reward requirement, partial rollout, and oversampling batch size 160; the oversampling and partial-rollout mechanism increases the candidate prompt pool under filtering while recycling completed partial generations, and replay filtering prevents repeatedly training on queries that have become too easy for the current policy. The policy objective uses the GSPO advantage estimator with KL coefficient 0, entropy coefficient 0, symmetric clip range $10^{-3}$, and trajectory importance sampling enabled. 
+
+The self-refinement mechanism uses a refinement prompt template that includes the original problem and the previous failed answer. The self-refinement ratio is set to $20\%$, which denotes the fraction of training queries sampled from refinement data, and the group reward threshold selects failed or partially failed rollout groups with an average reward below $0.5$ for refinement. Experience replay largely follows the ExGRPO setting without reward shaping and is re-implemented in the \texttt{slime} training framework. We use an experience admission threshold of online rollout correctness below $25\%$, one replayed trajectory per replay query, and entropy-based selection estimated from SGLang top-$16$ log probabilities. A query is admitted to the experience pool if only one sampled rollout succeeds, making the successful trajectory a hard positive example. Experiences are retired once online rollout correctness reaches $50\%$, indicating improved model performance on the corresponding query. Optimization is performed using Adam with a constant learning rate of $1\times 10^{-6}$, weight decay of 0.1, and momentum parameters $\beta_1=0.9$ and $\beta_2=0.98$.
+
+\section{Inference and Reward-Model Serving Details}
+\label{app:inference-serving-details}
+
+% For test-time scaling, inference is served with SGLang~\citep{sglang2026repo}, and we follow the same model-agnostic verification-and-refinement setting as \citet{huang2025winning}. 
+
+For test-time scaling, inference is served with SGLang~\citep{sglang2026repo} by default; the Nemotron-Cascade-2 and DeepSeek-V3.2-Speciale models are served with vLLM~\citep{vllm2026repo} \footnote{Nemotron-Cascade-2:vLLM-0.17.2rc1.dev148+g47b7af0d8.cu128 ; DeepSeek-V3.2-Speciale: vLLM-v0.20-CUDA12.9.}. We follow the same model-agnostic verification-and-refinement setting as \citet{huang2025winning}. 
+
+Concretely, inference is organized as an iterative solve--verify--refine procedure: the solver first produces a candidate proof, the candidate is inspected by a verifier that returns a structured critique or bug report, and the solver then revises the proof conditioned on this feedback until the candidate is accepted or the refinement budget is exhausted. 
+Unless otherwise specified, each generation uses a maximum length of 160,000 tokens, temperature 1.0, and top-p 0.95. We use the following exceptions for model- or benchmark-specific constraints. For Nemotron model, we set top-p to 1.0. The maximum generation length is set to 131K tokens for AIME25/26, AMOBench, IPhO, and FrontierScience-Olympic, and to 256K tokens for IMO-AnswerBench, IMO-ProofBench, and FrontierScience-Research subset. 
+For API-limited models, we set the maximum decoding completion length to the largest value allowed by the API request constraints: 128,000 tokens for GPT-5.5 API and 65,535 tokens for Gemini 3.1-Pro.
+
+The TTS loop uses explicit stopping rules following the verification-and-refinement protocol. Within a single run, \texttt{MAX\_VERIFICATION\_TRUE\_ROUNDS=5} means that a candidate is accepted once it passes verification for five consecutive rounds, while \texttt{MAX\_VERIFICATION\_FALSE\_ROUNDS=10} terminates the run early after ten consecutive failed verification rounds. Each run allows at most \texttt{MAX\_EXPLORATION\_ROUNDS=30} solve--verify--refine cycles, corresponding to the repeated exploration and correction loop in the TTS pipeline. For each problem, we set \texttt{MAX\_RUNS=10}, so at most ten independent runs are launched. This setting is intentionally aligned with the self-refinement behavior used during refined RL, so the model is evaluated under the same type of proof-repair workflow that it sees during training.
+
+For proof-reward evaluation during refined RL, the DeepSeekMath-V2 reward server is deployed on 32 GPUs with maximum context length 32k and data-parallel degree 64. 
+Speculative decoding is enabled during server-side inference using an MTP-based configuration. We adopt a $3$-step speculative decoding scheme with a \textit{single} top-ranked EAGLE draft candidate and $4$ draft tokens per step. This setting improves verifier efficiency while maintaining the evaluation correctness required by the refined-RL training.
+% The server uses SGLang speculative decoding with MTP/EAGLE settings \texttt{--sglang-speculative-num-steps 3}, \texttt{--sglang-speculative-eagle-topk 1}, and \texttt{--sglang-speculative-num-draft-tokens 4}; this configuration keeps verifier throughput high while preserving the full-solution proof-judging behavior required by the refined-RL reward.
+
+
+\section{Compared Models}
+\label{app:compared-models}
+
+The comparison tables use a mixture of public technical reports, official model
+cards, and official benchmark reports. For the answer-verifiable comparisons in
+\cref{tab:verifiable-single-pass}, the larger-model group contains
+DeepSeek-V3.2~\citep{deepseekai2025deepseekv32}, GPT-5.5~\citep{openai2026gpt55},
+and Gemini 3.1 Pro Thinking~\citep{googledeepmind2026gemini31pro}. The
+similar-size group contains GLM-4.7-Flash~\citep{zai2026glm47flash},
+Nemotron-Cascade-2-30B-A3B~\citep{yang2026nemotroncascade2},
+Qwen3.6-35B-A3B~\citep{qwen2026qwen36_35b}, and
+Gemma-4-31B~\citep{google2026gemma4_31b}, together with our
+\textbf{SU-01}. These same active comparison families are reused in the
+non-verifiable benchmark table in \cref{tab:nonverifiable-benchmarks}, with
+missing benchmark entries marked by --. GPT-5.5-High is treated as the
+high-reasoning variant of GPT-5.5, Gemini 3.1 Pro Thinking is drawn from the
+Gemini 3.1 Pro family, and DeepSeek V3.2 uses the same DeepSeek-V3.2 source as
+above. When no paper-style technical report is available, we cite the
+corresponding official model card, repository, or product page.
+
+\section{Evaluation Details}
+\label{app:evaluation-details}
+
+For answer-verifiable tasks, we use a layered automatic grading pipeline. We first apply rule-based verification, including canonicalized answer matching and symbolic or expression-level checks with Math-Verify\footnote{Math-Verify repository: \url{https://github.com/huggingface/Math-Verify}.}. If a response is not resolved by these checks, we send it to gpt-oss-120b for generative verification~\citep{openai2025gptoss}. For FrontierScience-O, we use the same verifiable grading pipeline, but adopt the dedicated prompt described in the original FrontierScience paper~\citep{wang2026frontierscience}.
+
+For non-verifiable and proof-oriented tasks, we follow each benchmark's official evaluation protocol. ProofBench is evaluated following the IMO-Bench framework~\citep{luong2025imobench}: solutions are graded with the four-level score set \(\{0,1,6,7\}\), and we use Gemini-2.5-Pro as the grading model to align with the official reported setting. FrontierScience-R is evaluated with the official FrontierScience procedure using GPT-5-high as the judge~\citep{wang2026frontierscience}.
+
+For IPhO, we follow the evaluation paradigms used in P1 and P1-VL~\citep{chen2025p1,luo2026p1vl}, which combine physics-specific grading prompts with competition-style scoring criteria. For IMO and USAMO, we construct a ProofBench-style automatic grading framework from annotated reference solutions and grading guidelines prepared by expert annotators who have won gold medals in mathematical olympiads, such as IMO or CMO. For the final verdict, three gold-medal experts independently assign scores from \(\{0,1,6,7\}\), and we report the worst of the three scores as a conservative final score.
+
+\clearpage
+\input{appendix_solutions/model_solutions}

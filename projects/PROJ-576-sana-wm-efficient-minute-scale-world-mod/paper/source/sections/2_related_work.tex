@@ -1,0 +1,39 @@
+\section{Related Work}
+\label{sec:related_work}
+
+
+
+
+
+
+
+
+
+
+
+\noindent\textbf{Long-video generation and interactive world models.}
+Large video generators increasingly use diffusion or flow-transformer backbones over compressed spatiotemporal latents, with representative systems including Stable Video Diffusion, Sora, CogVideoX, Wan, HunyuanVideo, MovieGen, Cosmos, LTX-Video/LTX2, and SANA-Video~\citep{stable_video_diffusion,sora,cogvideox,wan,hunyuanvideo,moviegen,cosmos,ltx_video,ltx2,chen2025sana}.
+Long-duration generation is commonly approached through autoregressive or block-wise rollout, diffusion forcing, streaming training, and memory- or cache-aware inference~\citep{skyreels_v2,magi,huang2024selfforcing,longlive,chen2025sana}.
+World-model research spans several related but distinct settings: latent predictive models for control and planning~\citep{world_models,dreamerv3}, representation-centric predictive models that learn visual or video abstractions without directly generating pixels~\citep{i_jepa,v_jepa,v_jepa2}, and generative simulators that roll out observations under actions or conditions~\citep{gaia1,genie,genie2,genie3,gamengen,oasis,gamegen,matrixgame,matrixgame3,relic,live_world,astra,magicworld,lingbot_world,infinite_world,yume,hy_worldplay}.
+Interactive world models extend video generation toward action-conditioned simulation, supporting keyboard, gamepad, camera, text, robot, or mixed controls over long rollouts~\citep{dreamzero,dreamdojo,genie3,gamegen,matrixgame,matrixgame3,unisim,yume,aether,hy_worldplay,lingbot_world,worldcam,ucm,captain_safari,deepverse}.
+A parallel line studies explicit memory, scene persistence, and geometry-aware state for revisits and long-horizon consistency, including BEV or occupancy-based driving simulators, camera-aware memories, reconstruction-based methods, and spatially persistent 3D/4D world-generation systems~\citep{drivedreamer,driveworld,ucm,mosaicmem,captain_safari,memorize_when_needed,vggt_world,aether,deepverse,versecrafter,hy_world2,inspatio_world,worldcam}.
+
+\noindent\textbf{Camera control, geometry, and action spaces.}
+Action-conditioned world models differ substantially in their control interface.
+Some systems use robot or embodied actions~\citep{dreamzero,dreamdojo}, some use keyboard or gamepad controls for games~\citep{genie3,gamegen,matrixgame,matrixgame3}, and others use language, events, or mixed high-level commands~\citep{unisim,yume}.
+Camera-controlled generation is closely related to novel-view synthesis and geometric video generation: CameraCtrl and MotionCtrl add camera-control modules to pretrained video diffusion models, CamCo combines Pl\"ucker conditioning with epipolar constraints, and ViewCrafter and SEVA use generative view synthesis to produce target-camera video from one or more input views~\citep{cameractrl,motionctrl,camco,viewcrafter,seva}.
+Camera representations include raw extrinsics and intrinsics, epipolar or geometric constraints, dense Pl\"ucker raymaps~\citep{plucker_lfn}, and relative or unified camera positional encodings such as UCPE~\citep{ucpe,li2025cameras}.
+Longer camera-controlled rollouts further benefit from camera-pose memory, spatial warping, or persistent 3D/4D scene representations~\citep{aether,ucm,worldcam,captain_safari,deepverse,versecrafter,hy_world2,inspatio_world}.
+Pose and depth recovery methods such as VIPE, Pi3/Pi3X, MoGe-2, VGGT, and WinT3R are complementary tools for estimating metric geometry from public videos or generated rollouts rather than video generators themselves~\citep{vipe,pi3x,moge2,vggt,wint3r}.
+
+\noindent\textbf{Efficient sequence models for long visual horizons.}
+Standard softmax attention remains effective and can be accelerated by kernels such as FlashAttention~\citep{flash_attention2}, but its memory and compute grow with context length.
+Efficient long-context modeling has therefore moved beyond pure softmax attention toward linear attention, kernelized attention, gated linear attention, state-space models, convolutional mixers, test-time-training layers, and delta-rule recurrences~\citep{linear_attention,performer,gla,rwkv,retnet,hyena,mamba,mamba2,ttt_layers,gated_deltanet}.
+Recent long-context language architectures combine recurrent, linear, or state-space layers with occasional exact-attention or sparse modules to recover selected long-range information while keeping most layers efficient~\citep{qwen3,qwen3_next,kimi_linear,kimi_k2}.
+Beyond language modeling, these efficient mechanisms are also entering visual generation: SANA and SANA-Video use linear-attention backbones for image and video diffusion generation, while high-compression tokenizers such as DC-AE, DC-VideoGen, and LTX-style VAEs reduce the number of visual tokens processed by the generator~\citep{sana,chen2025sana,dc_ae,dc-video-gen,ltx_video,ltx2}.
+
+\noindent\textbf{Data, annotation, and metrics.}
+Camera-controllable world modeling depends on data with reliable geometry, diverse motion, and long-horizon scene coverage.
+Existing sources include internet video datasets, real-estate and spatial-video collections, 3D captures, embodied-scene datasets, game or synthetic environments, and image-generation pipelines for controlled benchmark construction~\citep{realestate10k,dl3dv,spatialvid,miradata,omniworld,sekai,google2025nanobananapro}.
+For filtering and enhancement, prior work uses shot detection, video quality assessment, optical flow, 3D Gaussian reconstruction, and diffusion-based restoration tools~\citep{transnetv2,dover,unimatch,fcgs,difix3d}.
+Evaluation commonly combines perceptual video quality, learned perceptual similarity, generated-video distribution metrics, and recovered-camera trajectory accuracy~\citep{vbench,lpips,unterthiner2018towards,pi3x,umeyama}.

@@ -1,0 +1,23 @@
+\begin{table}[h]
+\small\setlength{\tabcolsep}{1pt} % tighten columns a bit more to accommodate new column
+\caption{\textbf{Comparisons with existing methods.} Our method reduces latency by half and improves throughput, while achieving generation quality comparable to or even better than previous SOTA methods. Dynamic., Vision. and Instruct. denote Dynamic Degree, VisionReward and Instruction Following, respectively. Throughput and latency are measured in FPS and seconds on an \textbf{\textit{A800}}.\protect\footnotemark}
+  \label{tab:performance-comparison}
+  \centering
+  \begin{tabular}{lcccccccc}
+      \toprule
+      Model & Throughput $\uparrow$& Latency $\downarrow$&Total$\uparrow$ & Quality$\uparrow$ & Semantic$\uparrow$ 
+      & Dynamic.$\uparrow$
+      & Vision.$\uparrow$
+      & Instruct.$\uparrow$
+       \\
+    \midrule
+    CausVid~\cite{yin2025slow}& 10.4 & 0.60 & 81.33 & 83.98 & 70.72 &  62  & 5.741 & 12 \\
+    Self Forcing~\cite{huang2025self} & 10.4 & 0.60 & 83.74 & 84.48 & 80.77 & 57 & 5.820 & 48 \\
+   Causal Forcing~\cite{zhu2026causal}  & 10.4 & 0.60 & 84.04 & 84.59& \textbf{81.84} & \underline{\textbf{\textit{68}}} & 6.326 & \textbf{56} \\
+      \textbf{Causal Forcing++} (1-step)  & \textbf{20.7} & \textbf{0.27} &83.35 & 84.50  &   78.75 & 66 & 5.412 & 38\\
+      \textbf{Causal Forcing++} (2-step)  & \underline{\textit{\textbf{14.1}}} & \textbf{0.27} & \textbf{84.14} & \underline{\textbf{\textit{84.89}}}  &   \underline{\textbf{\textit{81.13}}} & 64 &\underline{\textbf{\textit{6.661}}} & \underline{\textbf{\textit{51}}} \\
+     \textbf{Causal Forcing++} (4-step)  & 8.69 & \textbf{0.27} & \underline{\textbf{\textit{84.10}}} & \textbf{84.94}  &   80.75 & \textbf{71} &\textbf{6.798} &  47\\
+    \bottomrule
+  \end{tabular}\\
+\end{table}
+\footnotetext{Because we adopt the ASD trick~\cite{yang2025towards}, the first-frame latency for 1-step, 2-step, and 4-step generation is identical, and is determined by the 4-step generation of the first frame.}

@@ -1,0 +1,48 @@
+{
+  "arxiv_id": "2605.14906",
+  "arxiv_url": "https://arxiv.org/abs/2605.14906",
+  "title": "https://arxiv.org/abs/2605.14906",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #181",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/xrenaf/MEMLENS",
+    "https://github.com/hellock/icrawler"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "extra_pkgs.tex",
+    "figures",
+    "figures/ar_refusal_candidates.pdf",
+    "figures/composition_donut.pdf",
+    "figures/context_degradation_lines.pdf",
+    "figures/context_delta_heatmap.pdf",
+    "figures/ie_entity_candidates.pdf",
+    "figures/ie_previnfo_candidates.pdf",
+    "figures/ku_update.pdf",
+    "figures/msr_arithmetic_candidates.pdf",
+    "figures/msr_counting_candidates.pdf",
+    "figures/msr_entity_candidates.pdf",
+    "figures/per_type_heatmap.pdf",
+    "figures/pipeline.pdf",
+    "figures/retrieval_decomposition_stacked_bar.pdf",
+    "figures/scaling_curves.pdf",
+    "figures/specialization_heatmap_unified.pdf",
+    "figures/subtype_correlation_heatmap.pdf",
+    "figures/tr_dateorder_candidates.pdf",
+    "figures/tr_duration_candidates.pdf",
+    "figures/type_correlation_heatmap_32k.pdf",
+    "figures/visual_error_decomposition.pdf",
+    "figures/wrong_answer_pie.pdf",
+    "main.tex",
+    "neurips_2026.sty",
+    "ref.bib"
+  ]
+}

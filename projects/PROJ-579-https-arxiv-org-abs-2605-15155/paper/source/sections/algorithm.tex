@@ -1,0 +1,275 @@
+\section{Algorithm}
+\label{appendix:algorithm}
+The full procedure of \methodname{} is presented in Algorithm~\ref{alg:cgtd}.
+We compare against five baselines listed below:
+\begin{itemize}
+  \item \textbf{GRPO}~\citep{shao2024deepseekmath} (Algorithm~\ref{alg:grpo}): RL baseline that optimizes the policy via a clipped surrogate objective with group-relative advantages.
+  \item \textbf{OPSD}~\citep{zhao2026opsd} (Algorithm~\ref{alg:opsd}): an on-policy self-distillation method that distills token-level knowledge from a frozen reference policy $\pi_{\mathrm{ref}}$ into the student.
+  \item \textbf{Skill-SD}~\citep{wang2026skillsd} (Algorithm~\ref{alg:skillsd}): a hybrid method that augments GRPO with an importance-weighted $K_3$-divergence distillation loss, using retrieved skills as privileged context to construct the teacher signal.
+  \item \textbf{GRPO+OPSD} (Algorithm~\ref{alg:grpo_opsd}): a hybrid method that simply adds the OPSD distillation loss from $\pi_{\mathrm{ref}}$ as an auxiliary objective on top of GRPO training.
+  \item \textbf{RLSD}~\citep{yang2026rlsd} (Algorithm~\ref{alg:rlsd}): a hybrid method that re-weights GRPO's advantages with self-teacher's gap.
+\end{itemize}
+
+\begin{algorithm}[h]
+  \caption{\methodname}
+  \label{alg:cgtd}                     
+  \begin{algorithmic}[1]                                                                        
+  \Require Policy $\pi_{\theta}$, task set $\mathcal{S}$, skill library $\mathcal{E} =          
+  \{e_1,\dots,e_M\}$, group size $G$, mixing coefficient $\lambda$, sharpness $\beta$, clip     
+  bound $\epsilon$                                                                              
+  \For{each training iteration}                                                                 
+      \State Sample a batch of tasks $\{x\}$ from $\mathcal{S}$                                 
+      \For{each task $x$}                                                                       
+          \State Retrieve skill $c^{+}$ from $\mathcal{E}$ \Comment{UCB / KM / Full / Random}   
+          \State \mycomment{Step 1: On-policy rollout}                                          
+          \State Sample $G$ responses $\{y^{(1)},\dots,y^{(G)}\} \sim \pi_{\theta}(\cdot \mid   
+  x)$                                                                                           
+          \State \mycomment{Step 2: Sequence-level advantage from environment}                  
+          \For{$i = 1,\dots,G$}                                                                 
+              \State Obtain reward $R(x, y^{(i)})$ from environment interaction                 
+          \EndFor                                                                               
+          \State Compute $A^{(i)} = \frac{R(x,y^{(i)}) - \mu_G}{\sigma_G}$                      
+  \Comment{Group-relative advantage}                                                            
+          \State \mycomment{Step 3: GRPO policy loss}                                           
+          \For{$i = 1,\dots,G$}                                                                 
+              \For{$t = 1,\dots,|y^{(i)}|$}                                                     
+                  \State $r_t^{(i)} \gets \pi_{\theta}(y_t^{(i)} \mid s_t^{(i)}) \,/\,          
+  \pi_{\theta_{\mathrm{old}}}(y_t^{(i)} \mid s_t^{(i)})$                                        
+              \EndFor                                                                           
+          \EndFor                                                                               
+          \State Compute $\mathcal{L}_{\mathrm{GRPO}}$ via clipped surrogate with $\{A^{(i)},   
+  r_t^{(i)}\}$                                                                                  
+          \State \mycomment{Step 4: Token-level gated distillation}                             
+          \For{$i = 1,\dots,G$}                                                                 
+              \State Compute teacher logits via forward pass with $(x, c^{+}, y^{(i)})$         
+              \For{$t = 1,\dots,|y^{(i)}|$}                                                     
+                  \State $\Delta_t \gets \operatorname{sg}\!\bigl(\log\pi_{\theta}(y_t^{(i)}    
+  \mid s_t^{+}) - \log\pi_{\theta}(y_t^{(i)} \mid s_t)\bigr)$           
+                  \State $g_t \gets \sigma(\beta \cdot \Delta_t)$                                                          
+                  \State $\ell_t \gets g_t \cdot \bigl(\log\pi_{\theta}(y_t^{(i)} \mid s_t^{+})
+  - \log\pi_{\theta}(y_t^{(i)} \mid s_t)\bigr)$                                                 
+              \EndFor
+          \EndFor                                                                               
+          \State $\mathcal{L}_{\methodname} \gets                                               
+  \frac{1}{G}\sum_{i=1}^{G}\operatorname{Agg}\!\bigl(\ell_t^{(i)}\bigr)$                        
+          \State \mycomment{Step 5: Joint policy update}                                        
+          \State Update $\theta$ by minimizing $\mathcal{L}(\theta) =                           
+  \mathcal{L}_{\mathrm{GRPO}}(\theta) + \lambda \cdot \mathcal{L}_{\methodname}(\theta)$        
+      \EndFor                                                                                   
+  \EndFor                                                                                       
+  \end{algorithmic}
+  \end{algorithm}
+
+  \begin{algorithm}[t]
+  \caption{GRPO}
+  \label{alg:grpo}
+  \begin{algorithmic}[1]
+  \Require Policy $\pi_{\theta}$, task set $\mathcal{S}$, group size $G$, clip
+  bounds $\epsilon_{\mathrm{lo}},\epsilon_{\mathrm{hi}}$, dual-clip constant $c$
+  \For{each training iteration}
+      \State Sample a batch of tasks $\{x\}$ from $\mathcal{S}$
+      \For{each task $x$}
+          \State \mycomment{Step 1: On-policy rollout}
+          \State Sample $G$ responses $\{y^{(1)},\dots,y^{(G)}\} \sim \pi_{\theta}(\cdot \mid
+  x)$
+          \State \mycomment{Step 2: Sequence-level advantage from environment}
+          \For{$i = 1,\dots,G$}
+              \State Obtain reward $R(x, y^{(i)})$ from environment interaction
+          \EndFor
+          \State Compute $A^{(i)} = \frac{R(x,y^{(i)}) - \mu_G}{\sigma_G}$
+  \Comment{Group-relative advantage}
+          \State \mycomment{Step 3: Clipped surrogate policy loss}
+          \For{$i = 1,\dots,G$}
+              \For{$t = 1,\dots,|y^{(i)}|$}
+                  \State $r_t^{(i)} \gets \pi_{\theta}(y_t^{(i)} \mid s_t^{(i)}) \,/\,
+  \pi_{\theta_{\mathrm{old}}}(y_t^{(i)} \mid s_t^{(i)})$
+                  \State $L_1 \gets -A^{(i)} r_t^{(i)}$
+                  \State $L_2 \gets -A^{(i)} \operatorname{clip}(r_t^{(i)},\,
+  1{-}\epsilon_{\mathrm{lo}},\, 1{+}\epsilon_{\mathrm{hi}})$
+                  \State $\ell_t^{(i)} \gets \begin{cases}
+  \min(-A^{(i)} c,\;\max(L_1, L_2)) & \text{if } A^{(i)} < 0 \\
+  \max(L_1, L_2) & \text{otherwise}
+  \end{cases}$
+              \EndFor
+          \EndFor
+          \State $\mathcal{L}_{\mathrm{GRPO}} \gets
+  \operatorname{Agg}\!\bigl(\{\ell_t^{(i)}\}\bigr)$
+          \State \mycomment{Step 4: Policy update}
+          \State Update $\theta$ by minimizing $\mathcal{L}(\theta) =
+  \mathcal{L}_{\mathrm{GRPO}}(\theta)$
+      \EndFor
+  \EndFor
+  \end{algorithmic}
+\end{algorithm}
+
+%% ============================================================
+%% Algorithm 2: OPSD (On-Policy Self-Distillation via KL penalty)
+%% ============================================================
+\begin{algorithm}[t]
+  \caption{OPSD}
+  \label{alg:opsd}
+  \begin{algorithmic}[1]
+  \Require Policy $\pi_{\theta}$, frozen reference $\pi_{\mathrm{ref}}$, task set
+  $\mathcal{S}$, group size $G$, KL coefficient $\alpha$
+  \For{each training iteration}
+      \State Sample a batch of tasks $\{x\}$ from $\mathcal{S}$
+      \For{each task $x$}
+          \State \mycomment{Step 1: On-policy rollout}
+          \State Sample $G$ responses $\{y^{(1)},\dots,y^{(G)}\} \sim \pi_{\theta}(\cdot \mid
+  x)$
+          \State \mycomment{Step 2: Token-level KL distillation from reference}
+          \For{$i = 1,\dots,G$}
+              \For{$t = 1,\dots,|y^{(i)}|$}
+                  \State $d_t^{(i)} \gets \log\pi_{\theta}(y_t^{(i)} \mid s_t) -
+  \log\pi_{\mathrm{ref}}(y_t^{(i)} \mid s_t)$
+  \Comment{$D_{\mathrm{KL}}(\pi_\theta \| \pi_{\mathrm{ref}})$}
+              \EndFor
+          \EndFor
+          \State $\mathcal{L}_{\mathrm{OPSD}} \gets
+  \alpha \cdot \operatorname{Agg}\!\bigl(\{d_t^{(i)}\}\bigr)$
+          \State \mycomment{Step 3: Policy update}
+          \State Update $\theta$ by minimizing $\mathcal{L}(\theta) =
+  \mathcal{L}_{\mathrm{OPSD}}(\theta)$
+      \EndFor
+  \EndFor
+  \end{algorithmic}
+\end{algorithm}
+
+%% ============================================================
+%% Algorithm 3: Skill-SD (GRPO + Skill Self-Distillation via importance-weighted K3)
+%% ============================================================
+\begin{algorithm}[t]
+  \caption{Skill-SD}
+  \label{alg:skillsd}
+  \begin{algorithmic}[1]
+  \Require Policy $\pi_{\theta}$, task set $\mathcal{S}$, skill library $\mathcal{E} =
+  \{e_1,\dots,e_M\}$, group size $G$, distillation coefficient $\lambda$, clip
+  bound $\epsilon$
+  \For{each training iteration}
+      \State Sample a batch of tasks $\{x\}$ from $\mathcal{S}$
+      \For{each task $x$}
+          \State Retrieve skill $c^{+}$ from $\mathcal{E}$ \Comment{UCB}
+          \State \mycomment{Step 1: On-policy rollout}
+          \State Sample $G$ responses $\{y^{(1)},\dots,y^{(G)}\} \sim \pi_{\theta}(\cdot \mid
+  x)$
+          \State \mycomment{Step 2: Sequence-level advantage from environment}
+          \For{$i = 1,\dots,G$}
+              \State Obtain reward $R(x, y^{(i)})$ from environment interaction
+          \EndFor
+          \State Compute $A^{(i)} = \frac{R(x,y^{(i)}) - \mu_G}{\sigma_G}$
+  \Comment{Group-relative advantage}
+          \State \mycomment{Step 3: GRPO policy loss (same as Algorithm~\ref{alg:grpo})}
+          \State Compute $\mathcal{L}_{\mathrm{GRPO}}$ via clipped surrogate with $\{A^{(i)},
+  r_t^{(i)}\}$
+          \State \mycomment{Step 4: Importance-weighted K3 distillation}
+          \For{$i = 1,\dots,G$}
+              \State Compute teacher log-probs via forward pass with $(x, c^{+}, y^{(i)})$
+              \For{$t = 1,\dots,|y^{(i)}|$}
+                  \State $d_t \gets \log\pi_{\theta}(y_t^{(i)} \mid s_t) -
+  \log\pi_{\theta}(y_t^{(i)} \mid s_t^{+})$
+  \Comment{Student $-$ Teacher}
+                  \State $k_t \gets \exp(-d_t) - 1 + d_t$
+  \Comment{$K_3$ divergence}
+                  \State $\rho_t \gets \exp\!\bigl(\log\pi_{\theta}(y_t^{(i)} \mid s_t) -
+  \log\pi_{\theta_{\mathrm{old}}}(y_t^{(i)} \mid s_t)\bigr)$
+  \Comment{On-policy IS ratio}
+                  \State $\ell_t^{(i)} \gets \rho_t \cdot k_t$
+              \EndFor
+          \EndFor
+          \State $\mathcal{L}_{\text{Skill-SD}} \gets
+  \operatorname{Agg}\!\bigl(\{\ell_t^{(i)}\}\bigr)$
+          \State \mycomment{Step 5: Joint policy update}
+          \State Update $\theta$ by minimizing $\mathcal{L}(\theta) =
+  \mathcal{L}_{\mathrm{GRPO}}(\theta) + \lambda \cdot \mathcal{L}_{\text{Skill-SD}}(\theta)$
+      \EndFor
+  \EndFor
+  \end{algorithmic}
+\end{algorithm}
+
+%% ============================================================
+%% Algorithm 4: GRPO+OPSD (GRPO with KL distillation to reference)
+%% ============================================================
+\begin{algorithm}[t]
+  \caption{GRPO+OPSD}
+  \label{alg:grpo_opsd}
+  \begin{algorithmic}[1]
+  \Require Policy $\pi_{\theta}$, frozen reference $\pi_{\mathrm{ref}}$, task set
+  $\mathcal{S}$, group size $G$, KL coefficient $\alpha$, clip bound $\epsilon$
+  \For{each training iteration}
+      \State Sample a batch of tasks $\{x\}$ from $\mathcal{S}$
+      \For{each task $x$}
+          \State \mycomment{Step 1: On-policy rollout}
+          \State Sample $G$ responses $\{y^{(1)},\dots,y^{(G)}\} \sim \pi_{\theta}(\cdot \mid
+  x)$
+          \State \mycomment{Step 2: Sequence-level advantage from environment}
+          \For{$i = 1,\dots,G$}
+              \State Obtain reward $R(x, y^{(i)})$ from environment interaction
+          \EndFor
+          \State Compute $A^{(i)} = \frac{R(x,y^{(i)}) - \mu_G}{\sigma_G}$
+  \Comment{Group-relative advantage}
+          \State \mycomment{Step 3: GRPO policy loss (same as Algorithm~\ref{alg:grpo})}
+          \State Compute $\mathcal{L}_{\mathrm{GRPO}}$ via clipped surrogate with $\{A^{(i)},
+  r_t^{(i)}\}$
+          \State \mycomment{Step 4: Token-level KL penalty toward $\pi_{\mathrm{ref}}$}
+          \For{$i = 1,\dots,G$}
+              \For{$t = 1,\dots,|y^{(i)}|$}
+                  \State $d_t^{(i)} \gets \log\pi_{\theta}(y_t^{(i)} \mid s_t) -
+  \log\pi_{\mathrm{ref}}(y_t^{(i)} \mid s_t)$
+              \EndFor
+          \EndFor
+          \State $\mathcal{L}_{\mathrm{OPSD}} \gets
+  \alpha \cdot \operatorname{Agg}\!\bigl(\{d_t^{(i)}\}\bigr)$
+          \State \mycomment{Step 5: Joint policy update}
+          \State Update $\theta$ by minimizing $\mathcal{L}(\theta) =
+  \mathcal{L}_{\mathrm{GRPO}}(\theta) + \mathcal{L}_{\mathrm{OPSD}}(\theta)$
+      \EndFor
+  \EndFor
+  \end{algorithmic}
+\end{algorithm}
+
+%% ============================================================
+%% Algorithm 5: RLSD (Token-level advantage reweighting via teacher)
+%% ============================================================
+\begin{algorithm}[t]
+  \caption{RLSD}
+  \label{alg:rlsd}
+  \begin{algorithmic}[1]
+  \Require Policy $\pi_{\theta}$, task set $\mathcal{S}$, skill library $\mathcal{E} =
+  \{e_1,\dots,e_M\}$, group size $G$, mixing coefficient $\lambda$, weight clip
+  bound $\epsilon_w$, policy clip bound $\epsilon$
+  \For{each training iteration}
+      \State Sample a batch of tasks $\{x\}$ from $\mathcal{S}$
+      \For{each task $x$}
+          \State Retrieve skill $c^{+}$ from $\mathcal{E}$ \Comment{UCB / KM / Full / Random}
+          \State \mycomment{Step 1: On-policy rollout}
+          \State Sample $G$ responses $\{y^{(1)},\dots,y^{(G)}\} \sim \pi_{\theta}(\cdot \mid
+  x)$
+          \State \mycomment{Step 2: Sequence-level advantage from environment}
+          \For{$i = 1,\dots,G$}
+              \State Obtain reward $R(x, y^{(i)})$ from environment interaction
+          \EndFor
+          \State Compute $A^{(i)} = \frac{R(x,y^{(i)}) - \mu_G}{\sigma_G}$
+  \Comment{Group-relative advantage}
+          \State \mycomment{Step 3: Token-level advantage reweighting via teacher}
+          \For{$i = 1,\dots,G$}
+              \State Compute teacher log-probs via forward pass with $(x, c^{+}, y^{(i)})$
+              \For{$t = 1,\dots,|y^{(i)}|$}
+                  \State $\delta_t \gets \log\pi_{\theta}(y_t^{(i)} \mid s_t^{+}) -
+  \log\pi_{\theta_{\mathrm{old}}}(y_t^{(i)} \mid s_t)$
+  \Comment{Teacher $-$ Student gap}
+                  \State $w_t \gets \operatorname{clip}\!\bigl(\exp(\operatorname{sign}(A^{(i)})
+  \cdot \delta_t),\;1{-}\epsilon_w,\;1{+}\epsilon_w\bigr)$
+                  \State $\hat{A}_t^{(i)} \gets A^{(i)} \cdot
+  \bigl[(1-\lambda) + \lambda \cdot w_t\bigr]$
+              \EndFor
+          \EndFor
+          \State \mycomment{Step 4: Clipped surrogate with token-level advantages}
+          \State Compute $\mathcal{L}_{\mathrm{RLSD}}$ via clipped surrogate with
+  $\{\hat{A}_t^{(i)},\, r_t^{(i)}\}$
+          \State \mycomment{Step 5: Policy update}
+          \State Update $\theta$ by minimizing $\mathcal{L}(\theta) =
+  \mathcal{L}_{\mathrm{RLSD}}(\theta)$
+      \EndFor
+  \EndFor
+  \end{algorithmic}
+\end{algorithm}

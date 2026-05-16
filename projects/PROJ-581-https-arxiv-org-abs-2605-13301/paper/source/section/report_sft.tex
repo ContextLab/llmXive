@@ -1,0 +1,138 @@
+\section{Instilling Rigorous Reasoning via SFT}
+\label{sec:sft}
+
+The first stage of the SU-01 pipeline uses supervised fine-tuning to
+reshape the model's reasoning behavior. We choose P1-30B-A3B~\citep{chen2025p1} as the initial model
+because it already shows competitive performance in scientific reasoning,
+including both mathematics and physics. Despite its strong results on
+verifiable tasks, we observe that its solutions are not always organized around
+rigorous proof-search patterns. The purpose of SFT is therefore to reshape its
+reasoning behavior toward more explicit, disciplined, and proof-oriented
+long-form reasoning while preserving as much of its existing capability as
+possible.
+
+We empirically find that applying SFT to a post-trained backbone is more
+efficient than training the same reasoning behavior from a base model. A
+post-trained model already contains useful instruction-following behavior,
+problem-solving ability, and broad scientific competence. Starting from
+that checkpoint allows SFT to focus on changing the reasoning pattern rather
+than rebuilding these capabilities from scratch. 
+% In this framing, SFT aims to install 
+% a rigorous reasoning pattern and provides a stronger starting policy for
+% subsequent RL to scale. 
+% This stage is therefore a specialization step rather than a replacement of the original model capability: SFT reshapes the generalist backbone toward rigorous proof-search behavior while trying to preserve its broad scientific competence.
+In this framing, SFT specializes the generalist backbone toward rigorous proof-search behavior while preserving its broad scientific competence, providing a stronger
+  starting policy for subsequent RL to scale. 
+The launch configuration and optimization
+hyperparameters for this stage are summarized in
+\cref{app:sft-training-details}. 
+
+% \haoran{too much ``:'' in the main paper?}
+% The launch
+% configuration and optimization hyperparameters for this stage are summarized in
+% \cref{app:sft-training-details}.
+% In this framing, SFT is not
+% the final score-optimization stage; it is a targeted behavioral bootstrap that
+% creates a stronger starting policy for later reinforcement learning. \haoran{In this framing, SFT provides a stronger starting policy for subsequent reinforcement learning, rather than serving as the final stage of score optimization.}
+
+
+
+\subsection{SFT Data Curation}
+\label{sec:sft-data-curation}
+
+We curate SFT prompts from a broad mixture of mathematical, scientific,
+instruction-following, and coding sources. The mathematical subset includes
+problems from Evan Chen's olympiad materials\footnote{Evan Chen's olympiad
+materials: \url{https://web.evanchen.cc/}.}, the Shuzhimi Forum\footnote{The
+Shuzhimi Forum is an online Chinese mathematical problem-solving community.},
+AoPS (Art of Problem Solving)\footnote{AoPS: \url{https://artofproblemsolving.com/}.},
+online mathematical competition training books\footnote{The book subset is
+curated from publicly available online mathematical competition training
+materials.}, and DeepMath problems with difficulty at least 6
+\citep{he2025deepmath}. For scientific reasoning, we include prompts from
+NaturalReasoning \citep{yuan2025naturalreasoning}. To improve the
+generalization of the SFT model beyond narrow olympiad-style mathematics, we
+also include chat prompts from Nemotron-Instruction-Following-Chat-v1\footnote{Nemotron-Instruction-Following-Chat-v1 Hugging Face dataset card:
+\href{https://huggingface.co/datasets/nvidia/Nemotron-Instruction-Following-Chat-v1}{link}.}
+and coding prompts from Eurus-2-RL-Data \citep{cui2025process}
+and OpenCodeReasoning-2\footnote{OpenCodeReasoning-2 Hugging Face dataset card:
+\href{https://huggingface.co/datasets/nvidia/OpenCodeReasoning-2}{link}.}; the latter
+extends the OpenCodeReasoning data-distillation line for competitive coding
+\citep{ahmad2025opencodereasoning}.
+
+\begin{wrapfigure}{r}{0.46\linewidth}
+\vspace{-8pt}
+\centering
+\includegraphics[width=\linewidth]{figure/sft_data_composition_1.pdf}
+\caption{Composition of the SFT data after filtering. Math, STEM, Code, and IF form the direct-generation group; Self-Verify and Self-Refine form the self-improvement group.}
+\label{fig:sft-data-category}
+\vspace{-12pt}
+\end{wrapfigure}
+
+Before generation, we first filter contaminated problems from the prompt pool.
+For each remaining prompt, we use DeepSeek-V3.2-Speciale
+\citep{deepseekai2025deepseekv32} to generate high-quality long-form reasoning
+trajectories. We then filter noisy generations and remove trajectories longer
+than 8,192 tokens. This filtering step keeps the supervised signal focused on
+rigorous and usable reasoning traces, while avoiding extremely long outputs
+that are more likely to introduce truncation or unstable optimization.
+
+
+
+In addition to direct solution trajectories, we further equip the model with
+self-verification and self-refinement behaviors. 
+% For the mathematical subset,
+% we ask DeepSeek-V3.2-Speciale to generate verification traces over the generated
+% solutions, as well as refinement traces that revise a solution after inspecting
+% its potential gaps.
+For the mathematical subset, we ask DeepSeek-V3.2-Speciale to generate verification traces for the generated solutions, followed by refinement traces that address issues identified during verification. 
+These examples expose the model to the behaviors that are
+especially important for olympiad-level reasoning: checking whether a proof is
+actually justified and improving an argument when a flaw is found. Finally, we
+obtain a filtered SFT mixture of 338K trajectories, as shown in
+\cref{fig:sft-data-category}.
+
+\subsection{Reverse-Perplexity Curriculum for SFT}
+\label{sec:reverse-ppl-curriculum}
+
+Long-CoT SFT on a post-trained reasoning model is a delicate optimization
+problem. The model already contains a strong instruction-following and
+reasoning policy, so SFT is not simply adding a new capability to an empty
+backbone; it is modifying an existing policy while trying to preserve its
+original competence. 
+% \haoran{The model already contains a strong instruction-following and reasoning policy. SFT therefore operates on an existing policy rather than an empty backbone, while preserving its original competence during adaptation.}
+If the supervised signal is too narrow or the training is
+stopped too early, performance can degrade substantially even when the model
+starts to imitate more explicit long-form reasoning. This tension is consistent
+with the long-CoT degradation phenomenon studied by \citet{luo2025through}: a
+post-trained model often needs sufficient data scale and enough SFT epochs to
+absorb the new reasoning style without overwriting the useful competence
+installed by previous post-training stages.
+
+In our setting, recovery depends strongly on both training duration and the
+length behavior of the resulting model \citep{ren2026rethinking}. For trajectories capped at 8,192 tokens,
+we empirically find that four epochs are usually sufficient to recover most of
+the model capability after the initial behavioral shift, provided that the data
+mixture and learning rate are well controlled. 
+We also treat validation truncation rate as an operational indicator
+of SFT sufficiency. A post-trained model that has
+not been sufficiently adapted to rigorous long-CoT supervision often exhibits
+shallow reasoning behaviors: it circles around local heuristics, repeats
+intermediate claims, and continues reasoning without making decisive progress.
+These repetitive and endless-reasoning patterns naturally increase truncation.
+In practice, we find that a truncation rate below 5\% is a useful sign that the model has
+largely adapted to the target reasoning style.
+
+To make long-CoT SFT more stable, we use a reverse-perplexity training curriculum. Let
+\(\mathcal{D}=\{(x_i,y_i)\}_{i=1}^{N}\) be the SFT set, where \(x_i\) is the
+prompt and \(y_i=(y_{i,1},\ldots,y_{i,T_i})\) is the teacher trajectory. Given
+the initial policy \(\pi_0\), we score each example by its length-normalized
+perplexity, \(\mathrm{PPL}(x_i,y_i)=\exp\left(-\frac{1}{T_i}\sum_{t=1}^{T_i}
+\log \pi_0(y_{i,t}\mid x_i,y_{i,<t})\right)\).
+Instead of presenting examples in random order or in ascending perplexity, we
+sort the data in descending perplexity and train from high-PPL examples to
+low-PPL examples within each epoch. This order repeatedly starts each pass from
+teacher trajectories that are most mismatched with the current policy, using
+unfamiliar proof-search patterns for behavioral adaptation before consolidating
+on more familiar examples. We discuss the empirical effect of this ordering in
+\cref{sec:ppl-order-analysis}.

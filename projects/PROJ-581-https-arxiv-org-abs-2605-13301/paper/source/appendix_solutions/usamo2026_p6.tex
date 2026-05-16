@@ -1,0 +1,231 @@
+\begin{mdframed}[style=mdpurplebox,frametitle={USAMO 2026 Problem 6}]
+Let $a$ and $b$ be positive integers such that $\varphi(ab+1)$ divides $a^2 + b^2 + 1$. Prove that $a$ and $b$ are Fibonacci numbers.
+\end{mdframed}
+\solutionheading{Solution}
+\begin{remark*}
+  7/7.
+\end{remark*}
+Let \(a\) and \(b\) be positive integers such that\par
+\[
+\varphi(ab+1) \mid a^{2}+b^{2}+1.
+\]
+Set \(N = ab+1\) and define the positive integer\par
+\[
+k = \frac{a^{2}+b^{2}+1}{\varphi(N)}.
+\]
+We will prove that both \(a\) and \(b\) must be Fibonacci numbers.\par
+\smallskip
+\solutionheading{1. Preliminary bounds}
+Since \(N > 1\), we have \(\varphi(N) \le N-1 = ab\) (with equality exactly when \(N\) is prime). Hence\par
+\[
+a^{2}+b^{2}+1 = k\,\varphi(N) \le k\,ab. \quad\text{(1)}
+\]
+By the quadratic-mean-arithmetic-mean inequality, \(a^{2}+b^{2} \ge 2ab\), so\par
+\[
+a^{2}+b^{2}+1 \ge 2ab+1. \quad\text{(2)}
+\]
+Combining (1) and (2) yields\par
+\[
+2ab+1 \le k\,ab \quad\Longrightarrow\quad k \ge 2 + \frac{1}{ab}.
+\]
+Because \(k\) is an integer, if \(ab > 1\) we obtain \(k \ge 3\). If \(ab = 1\) then necessarily \(a=b=1\), \(N=2\), \(\varphi(2)=1\), and then \(k = 3\). Thus in every case\par
+\[
+\boxed{k \ge 3}. \quad\text{(3)}
+\]
+\smallskip
+\solutionheading{2. Parity and the even case}
+\textbf{Lemma 2.1.} If \(N\) is even and \(N>2\), then the divisibility condition cannot hold.\par
+\emph{Proof.} For \(N>2\), \(\varphi(N)\) is even (a standard fact: \(\varphi(n)\) is even for every \(n>2\)). Because \(N\) even implies \(ab = N-1\) odd, both \(a\) and \(b\) are odd. Then \(a^{2}+b^{2}+1\) is odd (odd+odd+1). An even number cannot divide an odd number. The only even possibility is \(N=2\), which gives \(a=b=1\) and indeed \(\varphi(2)=1\) divides \(3\).\par
+Consequently, the only even \(N\) that can occur is \(N=2\), producing \((a,b)=(1,1)\) - both Fibonacci numbers. From now on we assume\par
+\[
+N\ \text{is odd and}\ N>2.
+\]
+Then \(ab = N-1\) is even, so at least one of \(a,b\) is even. If both were even, \(a^{2}+b^{2}+1\) would be odd, while for odd \(N>2\) we still have \(\varphi(N)\) even. Hence exactly one of \(a,b\) is even and the other is odd. In particular,\par
+\[
+a^{2}+b^{2}+1 \equiv 0+1+1 \equiv 2 \pmod{4}. \quad\text{(4)}
+\]
+\smallskip
+\solutionheading{3. Case I: \(N\) is prime}
+Assume \(N = ab+1\) is prime. Then \(\varphi(N) = N-1 = ab\), and (1) becomes\par
+\[
+a^{2}+b^{2}+1 = k\,ab. \quad\text{(5)}
+\]
+We first determine \(k\).\par
+\solutionheading{3.1. The value of \(k\)}
+Without loss of generality, order the variables so that \(a \le b\). Write (5) as a quadratic in \(b\):\par
+\[
+b^{2} - (k a)\,b + (a^{2}+1) = 0.
+\]
+If \(b\) is a root, the other root is\par
+\[
+b' = \frac{a^{2}+1}{b} = k a - b,
+\]
+which is a positive integer.\par
+\textbf{Claim.} If \(a \ge 2\), then \(b' < b\).\par
+\emph{Proof.} Suppose \(b' \ge b\). Then \(\frac{a^{2}+1}{b} \ge b\), i.e. \(a^{2}+1 \ge b^{2}\). Because \(b \ge a\), we have \(a^{2} \le b^{2} \le a^{2}+1\). Hence either \(b^{2}=a^{2}\) or \(b^{2}=a^{2}+1\).\par
+\compactbullet{If \(b^{2}=a^{2}\), then \(b=a\). Substituting \(b=a\) into (5) gives \(2a^{2}+1 = k a^{2}\) \(\Rightarrow\) \(k = 2 + \frac{1}{a^{2}}\), which is not an integer for \(a \ge 2\). Contradiction.}
+\compactbullet{If \(b^{2}=a^{2}+1\), then \(a^{2}+1\) is a perfect square. For \(a \ge 2\), this is impossible because between \(a^{2}\) and \((a+1)^{2}=a^{2}+2a+1\) there is no other square.}
+Thus whenever \(a \ge 2\), we can replace \((a,b)\) by \((a,b')\) (which is also a solution of (5)) with \(a+b' < a+b\). Repeating this descent (the sum \(a+b\) strictly decreases each step) we eventually reach a solution with \(a=1\) (the minimal sum cannot have \(a \ge 2\)).\par
+Now consider \(a=1\). Equation (5) becomes\par
+\[
+1 + b^{2} + 1 = k \cdot 1 \cdot b \quad\Longrightarrow\quad b^{2} - k b + 2 = 0. \quad\text{(6)}
+\]
+For integer \(b\), the discriminant \(\Delta = k^{2}-8\) must be a perfect square, say \(d^{2}\). Then\par
+\[
+k^{2} - d^{2} = 8 \quad\Longrightarrow\quad (k-d)(k+d)=8.
+\]
+Both factors are positive integers of the same parity. The factor pairs of \(8\) are \((1,8)\) and \((2,4)\).\par
+\compactbullet{\((1,8)\) gives \(k-d=1\), \(k+d=8\) \(\Rightarrow\) \(2k=9\) \(\Rightarrow\) \(k=9/2\), not integer.}
+\compactbullet{\((2,4)\) gives \(k-d=2\), \(k+d=4\) \(\Rightarrow\) \(2k=6\) \(\Rightarrow\) \(k=3\), \(d=1\).}
+Hence \(k=3\) is forced. With \(k=3\), equation (6) is \(b^{2}-3b+2=0\), whose roots are \(b=1\) and \(b=2\). Thus the only solutions with \(a=1\) are \((1,1)\) and \((1,2)\) (and by symmetry, \((2,1)\) if we had not assumed \(a\le b\)). Since the reduction process preserves \(k\), every solution of (5) must have \(k=3\).\par
+Therefore, when \(N\) is prime,\par
+\[
+a^{2}+b^{2}+1 = 3ab \quad\Longleftrightarrow\quad a^{2} - 3ab + b^{2} = -1. \quad\text{(7)}
+\]
+\solutionheading{3.2. Solving \(a^{2} - 3ab + b^{2} = -1\)}
+Equation (7) is symmetric; we may assume \(a \le b\).\par
+Define a sequence \((A_n)_{n\ge 0}\) by\par
+\[
+A_0 = 1,\qquad A_1 = 1,\qquad A_{n+2} = 3A_{n+1} - A_n\ \ (n\ge 0).
+\]
+One verifies by induction that \((A_n, A_{n+1})\) satisfies (7): For \(n=0\), \(1^2-3\cdot1\cdot1+1^2=-1\). Assuming it holds for \(n\), using the recurrence one checks that it also holds for \(n+1\). (The computation is straightforward and can be filled in similarly to the proof in Lemma 4.1 of the original draft.)\par
+Now let \((a,b)\) be any positive integer solution of (7) with \(a \le b\). View (7) as a quadratic in \(b\):\par
+\[
+b^{2} - 3a\, b + (a^{2}+1) = 0.
+\]
+Its two roots are \(b\) and\par
+\[
+b' = \frac{a^{2}+1}{b} = 3a - b,
+\]
+which is an integer. A similar argument as in 3.1 shows that if \(a \ge 2\), then \(b' < b\). Consequently, by infinite descent on \(a+b\), we can reduce any solution to one with \(a=1\). The only solutions with \(a=1\) are \((1,1)\) and \((1,2)\) (and their symmetric versions). Therefore every solution can be obtained from these minimal ones by the inverse transformation: if \((x,y)\) is a solution with \(x \le y\), then \((y,\, 3y - x)\) is also a solution. Starting from \((1,1)\) and repeatedly applying this transformation yields the increasing sequence\par
+\[
+(1,1),\ (1,2),\ (2,5),\ (5,13),\ (13,34),\ \dots
+\]
+which exactly corresponds to the pairs \((A_n, A_{n+1})\) for \(n\ge 0\).\par
+It remains to identify these \(A_n\) with Fibonacci numbers. Define the Fibonacci numbers by\par
+\[
+F_1 = 1,\quad F_2 = 1,\quad F_{n+2} = F_{n+1} + F_n.
+\]
+We claim that for \(n \ge 1\),\par
+\[
+A_n = F_{2n-1}.
+\]
+\emph{Proof by induction.}\par
+\compactbullet{Base \(n=1\): \(A_1 = 1 = F_1\).}
+\compactbullet{\(n=2\): \(A_2 = 3A_1 - A_0 = 3\cdot1 - 1 = 2 = F_3\).}
+\compactbullet{Inductive step: Assume \(A_n = F_{2n-1}\) and \(A_{n+1} = F_{2n+1}\). Then}
+\[
+A_{n+2} = 3A_{n+1} - A_n = 3F_{2n+1} - F_{2n-1}.
+\]
+Using the identities
+\[
+F_{2n+1} - F_{2n-1} = F_{2n},\quad \text{and}\quad F_{2n+1} + F_{2n} = F_{2n+2},
+\]
+we compute\par
+\[
+\begin{aligned}
+3F_{2n+1} - F_{2n-1} &= 2F_{2n+1} + (F_{2n+1} - F_{2n-1}) \\
+&= 2F_{2n+1} + F_{2n} \\
+&= F_{2n+1} + (F_{2n+1} + F_{2n}) \\
+&= F_{2n+1} + F_{2n+2} \\
+&= F_{2n+3}.
+\end{aligned}
+\]
+Thus \(A_{n+2} = F_{2n+3} = F_{2(n+2)-1}\), completing the induction.\par
+Hence all solutions of (7) are pairs of Fibonacci numbers (specifically, consecutive odd-index Fibonacci numbers). This completes \textbf{Case I}.\par
+\smallskip
+\solutionheading{4. Case II: \(N\) is composite and odd (\(N>2\))}
+Now \(N = ab+1\) is composite, odd, and \(N>2\). From (4) we have\par
+\[
+a^{2}+b^{2}+1 \equiv 2 \pmod{4}.
+\]
+\solutionheading{4.1. \(N\) cannot have two distinct odd prime factors}
+Suppose \(N\) has at least two distinct odd prime divisors \(p\) and \(q\). Then \(\varphi(N)\) is divisible by \((p-1)(q-1)\). Since \(p\) and \(q\) are odd, both \(p-1\) and \(q-1\) are even, hence \(4 \mid (p-1)(q-1) \mid \varphi(N)\). Thus \(4 \mid \varphi(N)\). Since \(\varphi(N) \mid a^{2}+b^{2}+1\), we would have \(4 \mid a^{2}+b^{2}+1\), contradicting (4). Therefore \(N\) cannot possess two distinct odd prime factors.\par
+It follows that \(N\) must be a prime power:\par
+\[
+N = p^{e}, \qquad e \ge 2\ (\text{since } N \text{ is composite}).
+\]
+\solutionheading{4.2. The prime \(p\) cannot be \(\equiv 1 \pmod{4}\)}
+If \(p \equiv 1 \pmod{4}\), then \(p-1\) is divisible by \(4\), so \(4 \mid \varphi(N)\). Again this forces \(4 \mid a^{2}+b^{2}+1\), which is impossible by (4). Hence\par
+\[
+p \equiv 3 \pmod{4}. \quad\text{(8)}
+\]
+\solutionheading{4.3. Analysis modulo \(3\)}
+We now examine the residue of \(p\) modulo \(3\).\par
+\textbf{Subcase }\(p \equiv 1 \pmod{3}\).\textbf{ Then }\(3 \mid (p-1)\), so \(3 \mid \varphi(N)\). Moreover, \(p \equiv 1 \pmod{3}\) implies \(p^{e} \equiv 1 \pmod{3}\), so \(ab = p^{e} - 1 \equiv 0 \pmod{3}\). Thus \(3 \mid ab\).\par
+Now evaluate \(S = a^{2}+b^{2}+1\) modulo \(3\). Since \(3 \mid ab\), there are two possibilities:\par
+\compactbullet{\(3 \mid a\) and \(3 \mid b\): then \(a^{2}\equiv0\), \(b^{2}\equiv0\), so \(S \equiv 1 \pmod{3}\).}
+\compactbullet{Exactly one of \(a,b\) is divisible by \(3\): then \(S \equiv 0+1+1 = 2 \pmod{3}\).}
+In neither case is \(S\) divisible by \(3\). However, \(\varphi(N) \mid S\) and \(3 \mid \varphi(N)\) would force \(3 \mid S\). Contradiction. Therefore \(p \not\equiv 1 \pmod{3}\).\par
+\textbf{Subcase }\(p \equiv 2 \pmod{3}\).\textbf{ Then }\(p-1 \equiv 1 \pmod{3}\), so \(3 \nmid (p-1)\). But because \(e \ge 2\), \(\varphi(N) = p^{e-1}(p-1)\) contains the factor \(p^{e-1}\), so in particular \(p \mid \varphi(N)\). Consequently,\par
+\[
+p \mid S. \quad\text{(9)}
+\]
+Also, from \(ab = p^{e} - 1\) we have\par
+\[
+ab \equiv -1 \pmod{p}. \quad\text{(10)}
+\]
+In particular, \(p\) does not divide \(a\) or \(b\) (otherwise (10) would give \(0 \equiv -1 \pmod{p}\), impossible). Hence \(a\) and \(b\) are invertible modulo \(p\). Write \(b \equiv -a^{-1} \pmod{p}\). Substituting into (9):\par
+\[
+a^{2} + (-a^{-1})^{2} + 1 \equiv 0 \pmod{p},
+\]
+i.e.,
+\[
+a^{2} + a^{-2} + 1 \equiv 0 \pmod{p}.
+\]
+Multiply by \(a^{2}\) (invertible modulo \(p\)):\par
+\[
+a^{4} + a^{2} + 1 \equiv 0 \pmod{p}. \quad\text{(11)}
+\]
+Set \(y = a^{2} \pmod{p}\); then (11) becomes\par
+\[
+y^{2} + y + 1 \equiv 0 \pmod{p}. \quad\text{(12)}
+\]
+Equation (12) has a solution in \(\mathbb{F}_p\) iff \(-3\) is a quadratic residue modulo \(p\). Indeed, multiplying (12) by \(4\) gives \((2y+1)^{2} \equiv -3 \pmod{p}\).\par
+We need the following standard lemma:\par
+\textbf{Lemma.} For an odd prime \(p \neq 3\), \(-3\) is a quadratic residue modulo \(p\) if and only if \(p \equiv 1 \pmod{3}\).\par
+\emph{Proof.} The multiplicative group \(\mathbb{F}_p^{\times}\) is cyclic of order \(p-1\). The equation \(y^{2}+y+1=0\) is equivalent to \(y^{3}=1\) with \(y \neq 1\) (since \((y-1)(y^{2}+y+1)=y^{3}-1\). Hence a solution exists iff the group contains an element of order \(3\), i.e., iff \(3 \mid p-1\), which is \(p \equiv 1 \pmod{3}\). Conversely, if \(p \equiv 1 \pmod{3}\), then \(3 \mid p-1\), so such an element exists.\par
+Since \(p \equiv 2 \pmod{3}\), we have \(p-1\) not divisible by \(3\), so there is no element of order \(3\) in \(\mathbb{F}_p^{\times}\); therefore (12) has no solution modulo \(p\). This contradicts the existence of \(a\). Thus \(p \not\equiv 2 \pmod{3}\).\par
+The only remaining possibility for the odd prime \(p\) is \(p = 3\).\par
+\solutionheading{4.4. The exponent \(e\)}
+Now \(N = 3^{e}\) with \(e \ge 2\). Then\par
+\[
+\varphi(N) = 3^{e-1} \cdot 2.
+\]
+\textbf{If }\(e \ge 3\):\textbf{ Then }\(3^{e-1}\) is at least \(3^{2}=9\), so \(9 \mid \varphi(N)\). Since \(\varphi(N) \mid S\), we must have \(9 \mid S\).\par
+But we will show that \(S \equiv 3 \pmod{9}\), which is not divisible by \(9\), a contradiction. Let us verify this congruence.\par
+Because \(e \ge 3\), \(N = 3^{e}\) is divisible by \(27\), in particular \(N \equiv 0 \pmod{9}\). Hence\par
+\[
+ab = N-1 \equiv -1 \pmod{9}. \quad\text{(13)}
+\]
+Moreover, \(N \equiv 0 \pmod{3}\) gives \(ab \equiv -1 \equiv 2 \pmod{3}\). Hence \(3 \nmid a\) and \(3 \nmid b\) (otherwise \(ab \equiv 0 \pmod{3}\)). Thus \(a\) and \(b\) are each \(\equiv 1\) or \(2 \pmod{3}\), and their product is \(2 \pmod{3}\); the only possibilities are \(\{a,b\} \equiv \{1,2\} \pmod{3}\). Consequently,\par
+\[
+a + b \equiv 1 + 2 \equiv 0 \pmod{3}. \quad\text{(14)}
+\]
+Now compute\par
+\[
+S = a^{2}+b^{2}+1 = (a+b)^{2} - 2ab + 1.
+\]
+From (14), \(a+b = 3t\) for some integer \(t\), so \((a+b)^{2} = 9t^{2} \equiv 0 \pmod{9}\). Using (13), \(ab \equiv -1 \pmod{9}\), so \(-2ab \equiv -2(-1) = 2 \pmod{9}\). Thus\par
+\[
+S \equiv 0 + 2 + 1 = 3 \pmod{9}.
+\]
+Thus \(9 \nmid S\), contradicting \(9 \mid \varphi(N) \mid S\). Therefore \(e\) cannot be \(\ge 3\).\par
+The only remaining possibility is \(e = 2\), i.e., \(N = 9\). Then \(\varphi(9) = 6\) and \(ab = 8\). The positive factor pairs of \(8\) are\par
+\[
+(1,8),\ (2,4),\ (4,2),\ (8,1).
+\]
+Compute \(S\) for each:\par
+\compactbullet{\((1,8)\): \(S = 1 + 64 + 1 = 66\), and \(66 / 6 = 11 \in \mathbb{Z}\).}
+\compactbullet{\((2,4)\): \(S = 4 + 16 + 1 = 21\), \(21/6 = 3.5 \notin \mathbb{Z}\).}
+Thus only \((1,8)\) and \((8,1)\) satisfy the divisibility condition. Both \(1\) and \(8\) are Fibonacci numbers (\(1 = F_1\), \(8 = F_6\)).\par
+\smallskip
+\solutionheading{5. Conclusion}
+We have examined all possible values of \(N = ab+1\):\par
+\compactbullet{\textbf{Even case:} \(N=2\) gives \((a,b)=(1,1)\) - Fibonacci numbers.}
+\compactbullet{\textbf{Prime case:} \(N\) prime leads to the equation \(a^{2} - 3ab + b^{2} = -1\), whose complete set of positive integer solutions consists of pairs of Fibonacci numbers (as shown in 3.2).}
+\compactbullet{\textbf{Composite case:} \(N\) composite forces \(N=9\) and yields \((a,b) = (1,8)\) or \((8,1)\), again Fibonacci numbers.}
+Hence, under the hypothesis \(\varphi(ab+1) \mid a^{2}+b^{2}+1\), the integers \(a\) and \(b\) are necessarily Fibonacci numbers.\par
+\smallskip
+\emph{Remark.} The Fibonacci numbers are defined by \(F_1=F_2=1\) and \(F_{n+2}=F_{n+1}+F_n\). The solutions from the prime case are precisely \((F_{2n-1},F_{2n+1})\) (and symmetric) for \(n \ge 1\), together with the degenerate pair \((1,1)\) which can be seen as \((F_1,F_2)\) or \((F_2,F_1)\). The pair \((1,8)\) from the composite case also fits the Fibonacci sequence (\(F_1=1\), \(F_6=8\)). This completes the proof.\par
+\par

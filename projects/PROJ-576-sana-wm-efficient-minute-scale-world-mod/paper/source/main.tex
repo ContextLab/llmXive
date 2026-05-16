@@ -1,0 +1,72 @@
+\pdfoutput=1
+\documentclass[10pt, logo, onecolumn, copyright]{nv}
+
+\input{preamble}
+
+
+
+\title{\modelname: Efficient Minute-Scale World Modeling with Hybrid Linear Diffusion Transformer}
+
+\author{%
+\vspace{-1.5em}
+\centering
+\fontsize{10pt}{18pt}\selectfont
+Haoyi Zhu\textsuperscript{$*$}, ~~ Haozhe Liu\textsuperscript{$*$}, ~~ Yuyang Zhao\textsuperscript{$*$}, ~~ Tian Ye\textsuperscript{$*$}, ~~ Junsong Chen\textsuperscript{$*$}, ~~ Jincheng Yu ~~ 
+\\
+\vspace{0.4em}
+\textbf{\fontsize{10pt}{18pt}\selectfont
+Tong He, ~~ Song Han, ~~ Enze Xie ~~ 
+}
+\\
+\vspace{2.5mm}
+{\normalsize NVIDIA} \\ %
+\vspace{0.3em}
+{\normalsize $^*$Equal contribution.} \\
+\vspace{0.3em}
+{\normalsize
+\iconhref{https://nvlabs.github.io/Sana/WM/}{figures/rocket_16761028.png}{Project Page}
+\quad
+\iconhref{https://github.com/NVlabs/Sana}{figures/github-logo_25231.png}{GitHub}
+}
+}
+
+\begin{abstract}
+\noindent \textbf{Abstract:} We introduce \modelname, an efficient 2.6B-parameter open-source world model natively trained for one-minute generation, synthesizing high-fidelity, 720p, minute-scale videos with precise camera control. \modelname achieves visual quality comparable to large-scale industrial baselines such as LingBot-World and HY-WorldPlay, while significantly improving efficiency. Four core designs drive our architecture: (1) \textbf{Hybrid Linear Attention} combines frame-wise Gated DeltaNet (GDN) with softmax attention for memory-efficient long-context modeling. (2) \textbf{Dual-Branch Camera Control} ensures precise 6-DoF trajectory adherence. (3) \textbf{Two-Stage Generation Pipeline} applies a long-video refiner to stage-1 outputs, improving quality and consistency across sequences. (4) \textbf{Robust Annotation Pipeline} extracts accurate metric-scale 6-DoF camera poses from public videos to yield high-quality, spatiotemporally consistent action labels. Driven by these designs, \modelname demonstrates remarkable efficiency across data, training compute, and inference hardware: it uses only $\sim$213K public video clips with metric-scale pose supervision, completes training in 15 days on 64 H100s, and generates each 60s clip on a single GPU; its distilled variant can be deployed on a single RTX 5090 with NVFP4 quantization to denoise a \textbf{60s 720p clip in 34s}. On our one-minute world-model benchmark, \modelname demonstrates stronger action-following accuracy than prior open-source baselines and achieves comparable visual quality at $36\times$ higher throughput for scalable world modeling.
+\end{abstract}
+
+\begin{document}
+\maketitle
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/teaser.pdf}
+  \caption{\textbf{\modelname teaser.}
+    From one image and an action trajectory, \modelname generates minute-scale 720p worlds with precise control, 64-GPU training, and single-GPU inference.
+    }
+  \label{fig:teaser}
+\end{figure}
+
+
+\input{sections/0_abstract}
+\input{sections/1_introduction}
+\input{sections/2_related_work}
+\input{sections/3_method}
+\input{sections/4_data_pipeline}
+\input{sections/5_experiments}
+\input{sections/6_conclusions}
+
+\newpage
+\appendix
+\onecolumn
+
+\input{sections/7_appendix}
+
+\clearpage
+
+{
+  \small
+  \bibliographystyle{unsrt}
+  \bibliography{main}
+}
+
+\end{document}

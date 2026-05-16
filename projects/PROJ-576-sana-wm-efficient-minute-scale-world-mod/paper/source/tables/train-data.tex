@@ -1,0 +1,21 @@
+\begin{table}[h]
+  \centering
+  \caption{Training data overview after filtering.}
+  \label{tab:data_overview}
+  \footnotesize
+  \begin{tabular}{llcrc}
+    \toprule
+    Source & Type & Duration & Clips & Pose Source \\
+    \midrule
+    SpatialVID-HQ~\citep{spatialvid}  & Real           & 10\,s & 158,369 & VIPE + Pi3X/MoGe-2 \\
+    DL3DV~\citep{dl3dv}               & Real           & 10\,s & 5,691   & GT pose + Pi3X \\
+    DL3DV~\citep{dl3dv} GS Refined    & Synthetic      & 60s & 14,881  & GT pose + Pi3X \\
+    OmniWorld~\citep{omniworld}       & Synthetic      & 60s & 1,720   & VIPE + GT depth \\
+    Sekai~\citep{sekai} Game          & Synthetic      & 60s & 3,560   & GT pose + Pi3X \\
+    Sekai~\citep{sekai} Walking-HQ       & Real           & 60s & 9,767   & VIPE + Pi3X/MoGe-2 \\
+    MiraData~\citep{miradata}         & Real & 60s & 18,987  & VIPE + Pi3X/MoGe-2 \\
+    \midrule
+    \textbf{Total}       &                &       & \textbf{212,975} & \\
+    \bottomrule
+  \end{tabular}
+\end{table}

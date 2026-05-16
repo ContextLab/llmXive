@@ -1,0 +1,152 @@
+\section{Method}
+\label{sec:method}
+
+\input{figures_tex/model}
+
+\modelname is a world model designed to generate minute-long high-resolution videos with precise camera control under strict efficiency constraints. 
+Scaling to this regime introduces three key challenges: (i) the prohibitive compute and memory cost of modeling 720p sequences; (ii) accurate, high-frequency action conditioning on continuous 6-DoF camera trajectories; and (iii) degraded visual quality when a base generator is trained under limited data and compute. 
+To address these, \modelname builds on SANA-Video~\citep{chen2025sana} with three complementary designs: a hybrid GDN/softmax attention architecture for efficient long-context modeling, dual-rate camera conditioning for coarse-to-fine trajectory control, and a second-stage refiner for minute-length video to improve fidelity.
+
+
+\subsection{Progressive Training Strategy}
+\label{sec:training_strategy}
+
+We train progressively from short clips to minute-scale videos, increasing sequence length and introducing architectural components in four stages:
+
+\noindent\textbf{Stage 1: Efficient VAE Adaptation.}
+To make minute-scale video modeling computationally feasible, we replace the baseline VAE~\citep{wan, dc-video-gen} with LTX2-VAE~\citep{ltx2} to leverage its superior spatiotemporal compression ratio. 
+Given changed channel dimensions, we discard the original patchify layer and final output projection, and re-initialize them from scratch to align with the LTX2 space. 
+Full-model fine-tuning adapts the model to this new latent distribution in 50k steps. 
+The representation is $2.0\times$ smaller than ST-DC-AE and $8.0\times$ smaller than Wan2.1-VAE, improving training and inference efficiency.
+
+
+\noindent\textbf{Stage 2: Hybrid Architecture Adaptation.} 
+To improve the efficiency--quality trade-off of the backbone, we adapt the pre-trained SANA-Video model to the Hybrid GDN-Softmax architecture (Sec.~\ref{sec:long_context_modeling}). This architecture change is first optimized on short video clips, where training is cheaper and failure modes are easier to diagnose, before scaling to longer sequences.
+
+\noindent\textbf{Stage 3: Minute-Scale Extension and Action Conditioning.} 
+After stabilizing the architecture, we extend the sequence length to minute-scale videos to enable long-horizon temporal modeling. In parallel, we incorporate Dual-Branch Camera Control (Sec.~\ref{sec:camera_control}) to support metric 6-DoF trajectory conditioning, allowing explicit control over camera motion.
+
+\noindent\textbf{Stage 4: Chunk-Causal Fine-Tuning and Few-Step Distillation.}
+Starting from the one-minute bidirectional camera-control model, we further fine-tune a chunk-causal variant for autoregressive rollout.
+We then use self-forcing distillation~\citep{huang2024selfforcing} to reduce sampling to four denoising steps.
+For deployment, we add attention-sink tokens and local temporal windows to the softmax attention layers, keeping softmax memory and per-chunk latency constant with respect to rollout length.
+
+\subsection{Memory-Efficient Long-Context Modeling}
+\label{sec:long_context_modeling}
+
+As background, SANA-Video~\citep{chen2025sana} uses ReLU-based cumulative linear attention in place of causal softmax attention.
+For latent frame $t\ge0$ with $S=H_\ell W_\ell$ spatial tokens, let $\mathbf{Q}_t,\mathbf{K}_t,\mathbf{V}_t\in\mathbb{R}^{D\times S}$ collect the per-head queries, keys, and values, and let $\phi(\cdot)=\mathrm{ReLU}(\cdot)$.
+Unlike softmax attention, which forms pairwise weights from $\mathbf{Q}_t^\top\mathbf{K}_{\le t}$, cumulative linear attention accumulates key--value outer products before applying the current queries:
+{\small
+\begin{equation}
+\label{eq:cumulative_linear_attention}
+\widetilde{\mathbf{O}}^{\mathrm{LA}}_t
+=
+\underbrace{\left(\sum_{\tau=0}^{t}\mathbf{V}_\tau\phi(\mathbf{K}_\tau)^\top\right)}_{\mathbf{A}^{\mathrm{LA}}_t}
+\phi(\mathbf{Q}_t)
+=
+\left(\mathbf{A}^{\mathrm{LA}}_{t-1}+\mathbf{V}_t\phi(\mathbf{K}_t)^\top\right)\phi(\mathbf{Q}_t).
+\end{equation}
+}
+Eq.~\ref{eq:cumulative_linear_attention} shows only the unnormalized numerator for brevity; the standard linear-attention denominator is omitted.
+With $\mathbf{A}^{\mathrm{LA}}_{-1}=\mathbf{0}$, the cumulative numerator state $\mathbf{A}^{\mathrm{LA}}_t\in\mathbb{R}^{D\times D}$ is updated once per latent frame after aggregating all spatial-token outer products, so memory stays constant.
+
+\noindent \textbf{Limitations of Cumulative Linear Attention.}
+This compact state has no explicit decay or saliency mechanism: stale features accumulate with the same effective weight as more recent ones. At the minute scale, the unbounded growing state causes drift and degrades training stability.
+
+\noindent \textbf{From Token-wise GDN to Frame-wise GDN.}
+Gated DeltaNet (GDN)~\citep{gated_deltanet} augments the same recurrent state with a decay gate and a delta-rule correction:
+\begin{equation}
+\label{eq:token_gdn}
+\mathbf{S}_i
+=\gamma_i\mathbf{S}_{i-1}
++\big(\mathbf{v}_i-\gamma_i\mathbf{S}_{i-1}\hat{\mathbf{k}}_i\big)\beta_i\hat{\mathbf{k}}_i^\top,
+\qquad
+\mathbf{o}_i=\mathbf{S}_i\hat{\mathbf{q}}_i .
+\end{equation}
+Here $\mathbf{S}_i\in\mathbb{R}^{D\times D}$ is the token-wise recurrent state, $\hat{\mathbf{q}}_i,\hat{\mathbf{k}}_i,\mathbf{v}_i\in\mathbb{R}^{D}$ are the normalized query, normalized key, and value vectors, $\beta_i\in[0,1]$ is an update gate, and $\gamma_i\in(0,1]$ is a decay gate.
+The correction term updates only the residual between the target value and the current state prediction, while $\gamma_i$ forgets obsolete content.
+Standard GDN scans one token per recurrent step.
+Our video model instead scans one latent frame per step.
+For frame $t$, let $\hat{\mathbf{Q}}_t,\hat{\mathbf{K}}_t,\mathbf{V}_t\in\mathbb{R}^{D\times S}$ collect the query features, key features, and values used by frame-wise GDN; our additional key scaling is defined in the stabilization step below.
+Let $\gamma_t\in(0,1]$ be a frame-level decay, and let $\boldsymbol{\beta}_t=\mathrm{diag}(\beta_{t,1},\ldots,\beta_{t,S})$ be per-token update gates.
+The frame-wise state update becomes
+\begin{equation}
+\label{eq:frame_gdn}
+\mathbf{S}_t
+=\mathbf{S}_{t-1}\mathbf{M}_t+\mathbf{U}_t,\qquad
+\mathbf{M}_t=\gamma_t\!\left(\mathbf{I}-\hat{\mathbf{K}}_t\boldsymbol{\beta}_t\hat{\mathbf{K}}_t^\top\right),\qquad
+\mathbf{U}_t=\mathbf{V}_t\boldsymbol{\beta}_t\hat{\mathbf{K}}_t^\top,\qquad
+\mathbf{O}_t=\mathbf{S}_t\hat{\mathbf{Q}}_t .
+\end{equation}
+Here $\mathbf{S}_t,\mathbf{M}_t,\mathbf{U}_t\in\mathbb{R}^{D\times D}$ are frame recurrent state, transition matrix, and additive update, respectively, and $\mathbf{O}_t\in\mathbb{R}^{D\times S}$ contains the output tokens for frame $t$.
+Thus the recurrent state remains $D\times D$, while one recurrent step consumes all $S$ spatial tokens from a latent frame.
+
+\noindent \textbf{Algebraic Stabilization for Spatial Explosion.}
+Since $\mathbf{S}_t$ is repeatedly multiplied by $\mathbf{M}_t$, the transition should be non-expansive.
+Let $\bar{\mathbf{K}}_t=[\bar{\mathbf{k}}_{t,s}]_{s=1}^{S}=\mathrm{ReLU}(\mathrm{RMSNorm}(\mathbf{K}_t))$ and $\mathbf{A}_t=\bar{\mathbf{K}}_t\boldsymbol{\beta}_t\bar{\mathbf{K}}_t^\top$.
+The unscaled key energy is
+\begin{equation}
+\label{eq:gdn_key_mass}
+\operatorname{tr}(\mathbf{A}_t)
+=\sum_{s=1}^{S}\beta_{t,s}\|\bar{\mathbf{k}}_{t,s}\|_2^2 ,
+\end{equation}
+Since $\mathbf{A}_t$ is positive semidefinite, $\lambda_{\max}(\mathbf{A}_t)\le\operatorname{tr}(\mathbf{A}_t)$; an $O(S)$ trace can make $\mathbf{I}-\mathbf{A}_t$ expansive.
+We therefore scale only the keys:
+\begin{equation}
+\label{eq:k_scale}
+\hat{\mathbf{K}}_t = \bar{\mathbf{K}}_t \cdot \frac{1}{\sqrt{D \cdot S}} .
+\end{equation}
+With RMS-normalized keys and $\beta_{t,s}\in[0,1]$, $\operatorname{tr}(\hat{\mathbf{K}}_t\boldsymbol{\beta}_t\hat{\mathbf{K}}_t^\top)\le1$, hence $\|\mathbf{M}_t\|_2\le\gamma_t\le1$; $1/\sqrt{D}$ matches token-wise GDN L2 key normalization, and the extra $1/\sqrt{S}$ averages over spatial tokens.
+
+\noindent \textbf{Bidirectional and Chunk-Causal GDN Variants.}
+We use the same recurrence bidirectionally by summing forward and reversed-time scans. For chunk-causal inference, we partition latent frames into chunks, keep the forward scan global, and reset the reversed scan at chunk boundaries, giving each chunk local future context without leakage.
+
+\noindent \textbf{Hybrid GDN/Softmax Attention.}
+To enhance long-video generation performance, we further fine-tune the GDN model by replacing every fourth block with standard softmax attention~\citep{flash_attention2}, while retaining the original QKV and output projections.
+
+
+\subsection{Dual-Branch Camera Control}
+\label{sec:camera_control}
+
+We use dual-rate geometric conditioning: latent-frame UCPE~\citep{ucpe} captures global 6-DoF pose, while raw-frame Pl\"ucker mixing compensates motion inside each VAE stride.
+
+\noindent \textbf{Coarse Branch: Ray-Local UCPE.}
+For each latent token at frame $t$ and spatial cell $s$, let $\mathbf{T}^{\mathrm{c2w}}_t=[\mathbf{R}_t\,|\,\mathbf{o}_t]$ be the camera-to-world pose and let $\mathbf{A}_t$ be the camera intrinsic matrix.
+We unproject the corresponding pixel with $\mathbf{A}_t$ and transform it by $\mathbf{T}^{\mathrm{c2w}}_t$, obtaining a world-space ray with camera center $\mathbf{o}_{t}\in\mathbb{R}^{3}$ and unit direction $\mathbf{d}_{t,s}\in\mathbb{R}^{3}$.
+We build a ray-local basis $\mathbf{z}=\operatorname{norm}(\mathbf{d}_{t,s})$, $\mathbf{x}=\operatorname{norm}(\mathbf{u}_{t}\times\mathbf{z})$, and $\mathbf{y}=\mathbf{z}\times\mathbf{x}$, where $\mathbf{u}_{t}$ is the camera vertical axis and $\operatorname{norm}$ denotes $L_2$ normalization.
+This defines a homogeneous ray transform $\mathbf{D}_{t,s}\in\mathbb{R}^{4\times4}$ from world coordinates to the ray-local frame.
+Following UCPE~\citep{ucpe}, we split each camera-branch attention-head vector into geometric channels and standard RoPE channels.
+For token $i=(t,s)$, define $\mathbf{D}_i=\mathbf{D}_{t,s}$ and let $\mathrm{RoPE}_i$ be the standard spatiotemporal rotary operator for token $i$.
+We apply the ray-local transform to the geometric channels and RoPE to the remaining channels:
+\begin{equation}
+\begin{aligned}
+\widetilde{\mathbf{Q}}^{c}_{i} &=
+  \big(\mathbf{D}_{i}^{\top}\oplus \mathrm{RoPE}_{i}\big)\mathbf{Q}^{c}_{i},\\
+(\widetilde{\mathbf{K}}^{c}_{i},\widetilde{\mathbf{V}}^{c}_{i}) &=
+  \big(\mathbf{D}_{i}^{-1}\oplus \mathrm{RoPE}_{i}\big)(\mathbf{K}^{c}_{i},\mathbf{V}^{c}_{i}),\\
+\mathbf{O}^{c}_{i} &=
+  \big(\mathbf{D}_{i}\oplus \mathrm{RoPE}_{i}^{-1}\big)
+  \mathrm{GDN}_{\mathrm{cam}}(\widetilde{\mathbf{Q}}^{c},\widetilde{\mathbf{K}}^{c},\widetilde{\mathbf{V}}^{c})_{i},
+\end{aligned}
+\label{eq:ucpe_camera_branch}
+\end{equation}
+where superscript $c$ denotes the camera branch, $\mathbf{Q}^c_i,\mathbf{K}^c_i,\mathbf{V}^c_i\in\mathbb{R}^{D}$ are per-head camera-branch query/key/value vectors, and $\widetilde{\cdot}$ denotes the pose-transformed representation.
+The operator $\oplus$ denotes a block-diagonal composition over the UCPE and RoPE channel groups; $\mathbf{D}_i$ is applied blockwise to 4-D homogeneous coordinate groups within the UCPE channels.
+The camera branch uses its own QKV projections but shares the frame-wise GDN gates with the main branch; its zero-initialized projection is added to the main attention output.
+
+\noindent \textbf{Fine Branch: Raw-Frame Pl\"ucker Mixing.}
+The coarse UCPE branch operates at the latent-frame rate, whereas each latent token summarizes eight raw frames and their distinct camera poses.
+For raw frame $r$ and pixel $p$, let $\mathbf{T}^{\mathrm{c2w}}_r=[\mathbf{R}_r\,|\,\mathbf{o}_r]$ and $\mathbf{A}_r$ denote the raw-frame camera pose and intrinsics, with camera center $\mathbf{o}_{r}\in\mathbb{R}^{3}$ and unit ray direction $\mathbf{d}_{r,p}\in\mathbb{R}^{3}$.
+We compute pixel-wise Pl\"ucker raymaps $\boldsymbol{\rho}_{r,p}=(\mathbf{d}_{r,p},\mathbf{o}_{r}\times\mathbf{d}_{r,p})\in\mathbb{R}^{6}$ from $\mathbf{T}^{\mathrm{c2w}}_r$ and $\mathbf{A}_r$.
+For each latent frame, we pack the eight raw-frame raymaps within one VAE temporal stride into a $48$-channel tensor and pass it through a zero-initialized 3D patch embedder.
+A zero-initialized per-block projection then adds this embedding immediately after each self-attention output, preserving the pretrained model at initialization.
+
+
+\subsection{Second Stage Refiner}
+\label{sec:refiner}
+Following LTX-Video~\citep{ltx_video}, we add a second-stage refiner to improve stage-1 \modelname visual fidelity. 
+The refiner is trained on paired latents $(\mathbf{x}_{\ell},\mathbf{x}_{h})$, where $\mathbf{x}_{\ell}$ is a stage-1 or degraded latent and $\mathbf{x}_{h}$ is the high-fidelity target. 
+We use truncated-$\sigma$ flow matching: $\mathbf{x}_{\ell}$ is perturbed with a large starting noise ($\sigma_{\mathrm{start}}=0.9$), and the model learns to map this noisy source toward $\mathbf{x}_{h}$, encouraging refinement over full reconstruction. 
+We condition on text, camera, and a reference image, concatenate the reference to the sequence, and exclude it from the loss to preserve stage-1 appearance. 
+For minute-long refinement, we initialize from the 17B LTX-2 model and train LoRA adapters on paired synthetic data plus real videos processed by downsampling and upsampling; details are in App.~\ref{sec:appendix_refiner}.

@@ -1,0 +1,10 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We introduced \modelname, a camera-controlled world model for practical minute-scale 720p generation.
+By combining hybrid GDN--softmax modeling, dual UCPE + Pl\"ucker conditioning, metric-pose annotation, and a long-video refiner, \modelname makes limited-compute training and single-GPU rollout compatible with 720p visual quality and 6-DoF control.
+Experiments on revisit-heavy 60s trajectories show stronger camera following than open baselines and support a practical workflow: search trajectories efficiently with the stage-1 model, then refine promising rollouts for higher fidelity.
+
+\noindent\textbf{Limitations, social impact, and future work.}
+\modelname remains scale-limited, lacks explicit 3D scene memory, and can drift in dynamic scenes, rare viewpoints, or longer rollouts.
+Its efficiency broadens access to simulation, embodied AI, and robotics research; practical deployment should document provenance, model scope, and evaluation settings clearly, while future work should scale models/data, explore robot action or point-tracking controls, strengthen persistent scene memory, and develop robust real-time or streaming refiners.

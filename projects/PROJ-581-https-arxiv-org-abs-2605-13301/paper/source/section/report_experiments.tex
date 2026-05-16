@@ -1,0 +1,311 @@
+\section{Experimental Results}
+\label{sec:exp-results}
+The experimental section is organized around three complementary evaluation
+views: answer-verifiable reasoning tasks, non-verifiable or proof-oriented
+tasks, and official olympiad competition problems. 
+% This structure separates
+% standard automatic evaluation from settings that require proof-level judgment
+% and from the competition-style benchmarks that most directly reflect the final
+% goal of gold-medal-level reasoning.
+
+\subsection{Benchmarks}
+
+We organize evaluation into three benchmark families. The first family contains
+answer-verifiable reasoning tasks, where correctness can be checked by a final
+answer or a high-confidence automatic verifier. It includes AMO-Bench~\citep{an2025amobench},
+AIME 2025 and AIME 2026\footnote{AIME official competition page:
+\url{https://maa.org/math-competitions/aime}.}, AnswerBench from the
+IMO-Bench evaluation suite~\citep{luong2025imobench}, and FrontierScience-Olympiad,
+the Olympiad subset of FrontierScience~\citep{wang2026frontierscience}. These
+benchmarks mainly test whether the model can produce correct final answers
+under single-pass or fixed-budget inference.
+
+The second family contains non-verifiable or proof-oriented tasks. We include
+ProofBench from IMO-Bench~\citep{luong2025imobench}, which emphasizes proof
+quality rather than only final-answer matching, and FrontierScience-Research, the
+research subset of FrontierScience~\citep{wang2026frontierscience}. These tasks
+are used to probe whether training improves rigorous reasoning and scientific
+problem solving beyond answer-checkable settings.
+
+The third family contains official olympiad competition problems, including
+IMO 2025\footnote{International Mathematical Olympiad official archive:
+\url{https://www.imo-official.org/}.}, USAMO 2026\footnote{USA
+Mathematical Olympiad:
+\url{https://maa.org/math-competitions/usamo}.} and IPhO (2024, 2025)\footnote{International Physics
+Olympiad official site: \url{https://www.ipho-new.org/}.}. 
+% We separate these tasks from
+% general benchmark suites because they are closest to the final target setting:
+% long-horizon, high-stakes mathematical or scientific reasoning with strict
+% competition-style scoring. 
+Detailed grading and verifier settings are summarized
+in \cref{app:evaluation-details}.
+
+\definecolor{MathReasoningBg}{RGB}{255,244,204}
+\definecolor{ScienceReasoningBg}{RGB}{234,242,255}
+\begin{table*}[t]
+\centering
+\caption{Performance on answer-verifiable reasoning tasks. Results for AnswerBench, AMO-Bench, AIME 25/26, and FrontierScience-Olympiad are averaged over 4, 8, 8, and 4 runs, respectively. FrontierScience-Olympiad abbreviates the Olympiad subset of FrontierScience. Avg. is the mean of AnswerBench, AMO-Bench, AIME 2025, AIME 2026, and FrontierScience-Olympiad. Within each comparison block, \textbf{bold} marks the best score and underline marks the second best.}
+\label{tab:verifiable-single-pass}
+\vspace{-5 pt}
+\setlength{\tabcolsep}{2.2pt}
+\renewcommand{\arraystretch}{1.14}
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccc}
+\toprule
+\multirow{2}{*}{\textbf{Model}} & \multirow{2}{*}{\textbf{AnswerBench}} & \multirow{2}{*}{\textbf{AMO-Bench}} & \multirow{2}{*}{\textbf{AIME 25/26}} & \multicolumn{4}{c}{\textbf{FrontierScience-Olympiad}} & \multirow{2}{*}{\textbf{Avg.}} \\
+\cmidrule(lr){5-8}
+ & & & & \textbf{Physics} & \textbf{Chemistry} & \textbf{Biology} & \textbf{Overall} & \\
+\midrule
+% \multicolumn{5}{l}{\textit{Larger models}} \\
+% \midrule
+% % MiniMax-M2.7  & -- & -- & -- & -- \\
+% % Kimi K2.6 & -- & -- & -- & -- \\
+% DeepSeek-V3.2 & -- & -- & 91.7 / -- & -- \\
+% % GLM-5.1 & -- & -- & -- & -- \\
+% GPT-5.5 & -- & -- & 100.0 / -- & -- \\
+% Gemini 3.1 Pro Thinking & -- & 65.5 & 96.7 / -- & -- \\
+% \midrule
+% \multicolumn{5}{l}{\textit{Similar-size models}} \\
+% \midrule
+P1-30B-A3B & 69.3\% & 41.3\% & 90.4\% / 89.6\% & 57.5\% & 57.5\% & \underline{27.5\%} & 54.5\% & 69.0\% \\
+GLM-4.7-Flash & 73.8\% & 53.8\% & 91.3\% / 88.3\% & 54.5\% & 60.0\% & 17.5\% & 53.0\% & 72.0\% \\
+Nemotron-Cascade-2 & \textbf{80.5\%} & 40.8\% & \underline{94.2\%} / 90.0\% & 56.0\% & 56.3\% & \textbf{30.0\%} & 53.5\% & 71.8\% \\
+Qwen3.6-35B-A3B & \underline{78.0\%} & \underline{58.8\%} & 92.5\% / \underline{92.9\%} & \underline{65.5\%} & \textbf{74.4\%} & 25.0\% & \textbf{65.0\%} & \textbf{77.4\%} \\
+Gemma-4-31B & 74.0\% & 39.3\% & 88.8\% / 91.3\% & \textbf{69.0\%} & 61.9\% & 17.5\% & 61.0\% & 70.9\% \\
+% \midrule
+% \multicolumn{5}{l}{\textit{Ours}} \\
+% SFT & 59.8 & 31.0 & 81.3 / 85.8 & 55.0 \\
+% SFT + Coarse RL & 77.3 & 57.3 & 92.9 / 90.0 & 60.3 \\
+\rowcolor{ScienceReasoningBg!35}
+\textbf{\textcolor{iclrdeepblue}{SU-01}} & 77.5\% & \textbf{59.8\%} & \textbf{94.6\%} / \textbf{93.3\%} & 62.5\% & \underline{69.4\%} & 25.0\% & \underline{61.5\%} & \underline{77.3\%} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
+
+\subsection{Verifiable Problems}
+
+% Verifiable tasks provide the cleanest test of whether the post-training recipe
+%   improves problem solving under trusted evaluation. 
+  As shown in
+  \cref{tab:verifiable-single-pass}, SU-01 reaches a 77.3\% average score across
+  AnswerBench, AMO-Bench, AIME 2025, AIME 2026, and FrontierScience-Olympiad,
+  nearly matching the strongest similar-size baseline, Qwen3.6-35B-A3B (77.4\%).
+  Importantly, SU-01 achieves this level of performance with a simpler unified
+  post-training recipe and substantially lower training cost, highlighting the
+  efficiency of our approach.
+The mathematical benchmarks show where this improvement is most pronounced.
+SU-01 achieves the best similar-size results on AMO-Bench (59.8\%) and AIME
+2025/2026 (94.6\%/93.3\%), which are closer to competition-style problem solving
+than routine answer extraction. On AnswerBench, SU-01 remains competitive at
+77.5\%, close to Qwen3.6-35B-A3B (78.0\%) and behind only Nemotron-Cascade-2
+(80.5\%). 
+% This pattern suggests that the recipe is especially effective at
+% strengthening hard mathematical reasoning while preserving broad answer-verifiable
+% competence.
+  FrontierScience-Olympiad tests whether this behavior transfers beyond pure
+  mathematics. Although the RL stages use only math and physics signals, SU-01
+  reaches 61.5\% overall and shows strong transfer to untrained STEM domains,
+  including 69.4\% on Chemistry and 25.0\% on Biology. This cross-domain transfer
+  supports the specializable-generalist framing: the model is specialized through
+  math and physics reasoning signals, yet the resulting capability does not
+  collapse into a narrow contest solver.
+%  rather than simply
+% memorizing the reward domains used during RL.
+
+
+
+\subsection{Non-verifiable Problems}
+
+Non-verifiable benchmarks test whether the training recipe improves the quality
+of full reasoning traces, rather than only optimizing final-answer rewards. On
+IMO-ProofBench, \cref{tab:nonverifiable-benchmarks} shows that SU-01 reaches
+57.6\% overall in direct generation, already the strongest result among
+similar-size models. Test-time scaling further raises the score to 70.2\%,
+including 91.0\% on the basic split and 49.5\% on the advanced split, bringing a
+30B-A3B model close to much larger frontier systems such as Gemini 3.1 Pro. This improvement indicates
+that self-verification and refinement are especially useful when correctness
+depends on the complete proof, not merely on producing the right final answer.
+
+\begin{wraptable}{r}{0.54\textwidth}
+  % \vspace{-1.1em}
+  \centering
+  \captionsetup{type=table,hypcap=false}
+  \caption{Performance on physics olympiad problems, averaged over 8 runs. Gold lines for IPhO 2024/2025 are
+  20.8/19.7 points. For SU-01, $x/y$ reports scores without and with test-time scaling. 
+  % Within each block,
+  % \textbf{bold} marks the best score and underline marks the second best.
+  }
+  \vspace{-0.75em}
+  \label{tab:ipho-problems}
+  \setlength{\tabcolsep}{3.0pt}
+  \renewcommand{\arraystretch}{1.}
+  \small
+  \resizebox{0.85\linewidth}{!}{%
+  \begin{tabular}{@{}lc@{\hspace{1.0em}}c@{}}
+  \toprule
+  \textbf{Model} & \textbf{IPhO 2024} & \textbf{IPhO 2025} \\
+  \midrule
+  \multicolumn{3}{l}{\textit{Larger models}} \\
+  \midrule
+  Gemini 3.1 Pro Thinking & \textbf{25.9} & \textbf{25.1} \\
+  GPT-5.5-High & \underline{25.8} & \underline{23.2} \\
+  DeepSeek-V3.2-Speciale & 25.1 & 21.9 \\
+  \midrule
+  \multicolumn{3}{l}{\textit{Similar-size models}} \\
+  \midrule
+  P1-30B-A3B & 23.1 & 17.7 \\
+  GLM-4.7-Flash & 22.2 & 19.5 \\
+  Nemotron-Cascade-2 & 21.2 & 16.7 \\
+  Qwen3.6-35B-A3B & 24.3 & 19.9 \\
+  Gemma-4-31B & \underline{24.4} & \underline{20.3} \\
+  \rowcolor{ScienceReasoningBg!35}
+  \textbf{\textcolor{iclrdeepblue}{SU-01}} & 23.5\,/\,\textbf{25.3} & \underline{20.3}\,/\,\textbf{21.7} \\
+  \bottomrule
+  \end{tabular}
+  }
+  \vspace{-1.0em}
+  \end{wraptable}
+  
+FrontierScience-Research is a substantially harder research-oriented subset of
+FrontierScience, covering physics, chemistry, and biology problems that require
+scientific modeling and multi-step reasoning beyond standard contest formats.
+Absolute scores remain low even for frontier systems, but SU-01 obtains the
+best similar-size overall score at 11.7\%. It also leads the
+similar-size block on Physics, ties for the best Chemistry score, and ranks
+second on Biology, despite our RL stages using only mathematics and physics
+signals. This cross-domain pattern suggests that the recipe learns a more
+general scientific reasoning behavior rather than only specializing to the
+training domains, providing early evidence of transferable research-level
+reasoning in a compact model.
+
+\begin{table*}[t]
+\centering
+\caption{Performance on non-verifiable benchmarks. FrontierScience-Research refers to the research subset of FrontierScience. For SU-01, $x/y$ reports scores without and with TTS on ProofBench.}
+\label{tab:nonverifiable-benchmarks}
+% \begin{threeparttable}
+\vspace{-5 pt}
+\setlength{\tabcolsep}{2.4pt}
+\renewcommand{\arraystretch}{1.12}
+\small
+\resizebox{0.97\textwidth}{!}{%
+\begin{tabular}{lccccccc}
+\toprule
+\multirow{2}{*}{\textbf{Model}} & \multicolumn{3}{c}{\textbf{IMO-ProofBench}} & \multicolumn{4}{c}{\textbf{FrontierScience-Research}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-8}
+ & \textbf{Basic} & \textbf{Advanced} & \textbf{Overall} & \textbf{Physics} & \textbf{Chemistry} & \textbf{Biology} & \textbf{Overall} \\
+\midrule
+\multicolumn{8}{l}{\textit{Larger models}} \\
+\midrule
+Gemini 3.1 Pro Thinking & \underline{95.2\%} & \underline{50.0\%} & \underline{72.6\%} & 0.0\% & \underline{30.0\%} & 10.0\% & 13.3\% \\
+GPT-5.5-High & \textbf{96.7\%} & \textbf{64.8\%} & \textbf{80.7\%} & \textbf{25.0\%} & \textbf{40.0\%} & \textbf{45.0\%} & \textbf{36.7\%} \\
+DeepSeek-V3.2-Speciale & 77.6\% & 34.3\% & 56.0\% & \underline{10.0\%} & 20.0\% & \underline{15.0\%} & \underline{15.0\%} \\
+\midrule
+\multicolumn{8}{l}{\textit{Similar-size models}} \\
+\midrule
+P1-30B-A3B & 33.8\% & 6.2\% & 20.0\% & 0.0\% & \textbf{10.0\%} & 0.0\% & 3.3\% \\
+GLM-4.7-Flash & 51.0\% & 16.7\% & 33.8\% & 0.0\% & 0.0\% & 0.0\% & 0.0\% \\
+Nemotron-Cascade-2 & \underline{77.1\%} & 28.6\% & 52.9\% & \underline{5.0\%} & 5.0\% & \textbf{20.0\%} & \underline{10.0\%} \\
+Qwen3.6-35B-A3B & 39.1\% & 7.1\% & 23.1\% & 0.0\% & 5.0\% & 10.0\% & 5.0\% \\
+Gemma-4-31B & 46.7\% & 16.2\% & 31.4\% & 0.0\% & \textbf{10.0\%} & 5.0\% & 5.0\% \\
+\rowcolor{ScienceReasoningBg!35}
+\textbf{\textcolor{iclrdeepblue}{SU-01}} & \underline{77.1\%}\,/\,\textbf{91.0\%} & \underline{38.1\%}\,/\,\textbf{49.5\%} & \underline{57.6\%}\,/\,\textbf{70.2\%} & \textbf{10.0\%} & \textbf{10.0\%} & \underline{15.0\%} & \textbf{11.7\%} \\
+\bottomrule
+\end{tabular}%
+}
+% \begin{tablenotes}
+% \footnotesize
+% \item[*]Please refer to Appendix \ref{app:inference-serving-details} for the evaluation details of DeepSeek-V3.2-Speciale.
+% \end{tablenotes}
+% \end{threeparttable}
+\end{table*}
+
+% \clearpage
+\subsection{Olympiad Competition Problems}
+
+% Olympiad problems provide a direct view of whether the model can translate its
+% reasoning improvements into competition-level performance under strict scoring
+% criteria. We separate these results from the general verifiable benchmarks
+% because they are closer to the final target setting of the report.
+
+
+\begin{wraptable}{r}{0.58\textwidth}
+  \vspace{-1.3em}
+  \centering
+  \captionsetup{type=table,hypcap=false}
+  \caption{Performance on mathematical olympiad competition problems. Medal lines for
+  IMO 2025 are 35/28/19 points, and medal lines for USAMO 2026 are 25/18/11 points.
+  % $^{\star}$ marks human-expert evaluation for TTS scores; direct rows use
+  % automatic evaluation under the same protocol (\cref{app:evaluation-details}).
+  $^{\star}$ indicates that TTS results are evaluated by human experts, while direct generation results are evaluated automatically (\cref{app:evaluation-details}).
+  }
+  \vspace{-0.75em}
+  \label{tab:olympiad-competition-problems}
+  \setlength{\tabcolsep}{5.8pt}
+  \renewcommand{\arraystretch}{1.0}
+  \small
+  \begin{tabular}{@{}lccccccc@{}}
+  \toprule
+  \multicolumn{8}{c}{\textbf{IMO 2025}} \\
+  \midrule
+  \textbf{Model} & \textbf{P1} & \textbf{P2} & \textbf{P3} & \textbf{P4} & \textbf{P5} & \textbf{P6} & \textbf{Total} \\
+  \midrule
+  % \rowcolor{MathReasoningBg!16}
+  \textbf{\textcolor{iclrdeepblue}{SU-01}} & 1 & 7 & 1 & 6 & 6 & 0 & 21 \\
+  % \rowcolor{MathReasoningBg!16}
+  \textbf{\textcolor{iclrdeepblue}{SU-01} w/ TTS} & $7^{\star}$ & $7^{\star}$ & $7^{\star}$ & $7^{\star}$ & $7^{\star}$ & $0^{\star}$ & $35^{\star}$\,\goldmedalicon \\
+  \midrule
+  \multicolumn{8}{c}{\textbf{USAMO 2026}} \\
+  \midrule
+  \textbf{Model} & \textbf{P1} & \textbf{P2} & \textbf{P3} & \textbf{P4} & \textbf{P5} & \textbf{P6} & \textbf{Total} \\
+  \midrule
+  % \rowcolor{MathReasoningBg!16}
+  \textbf{\textcolor{iclrdeepblue}{SU-01}} & 7 & 0 & 0 & 7 & 0 & 1 & 15 \\
+  % \rowcolor{MathReasoningBg!16}
+  \textbf{\textcolor{iclrdeepblue}{SU-01} w/ TTS} & $7^{\star}$ & $0^{\star}$ & $7^{\star}$ & $7^{\star}$ & $7^{\star}$ & $7^{\star}$ & $35^{\star}$\,\goldmedalicon \\
+  \bottomrule
+  \end{tabular}
+  % \vspace{-2.0em}
+  \end{wraptable}
+
+
+
+% \cref{tab:ipho-problems} shows strong transfer to physics olympiad settings.
+Even without TTS, SU-01 averages 23.5 points on IPhO 2024 and 20.3 points on
+IPhO 2025, exceeding the corresponding gold lines of 20.8 and 19.7 points, as shown in \cref{tab:ipho-problems}. TTS
+further raises the scores to 25.3 and 21.7 points, making SU-01 the strongest
+similar-size model in both years among models with available scores. 
+% This is a
+% notable cross-domain result: although the training recipe is centered on
+% rigorous reasoning and math/physics feedback, the model must still combine
+% physical modeling, derivation, numerical reasoning, and competition-style
+% justification to score well on IPhO problems.
+
+\cref{tab:olympiad-competition-problems} reports the final competition-style
+mathematics results. In direct generation, SU-01 reaches 21 points on IMO 2025
+and 15 points on USAMO 2026, already clearing the bronze-medal lines for both
+competitions. 
+% The problem-level pattern is uneven but informative: 
+The direct
+model obtains full credit on IMO 2025 P2 and USAMO 2026 P1/P4, near-complete
+solutions on IMO 2025 P4/P5, and still fails several harder problems in a
+single pass. 
+This indicates that the base model has acquired substantial
+olympiad reasoning ability, but still benefits from additional search and
+self-correction on the most brittle proof attempts.
+
+With test-time scaling, SU-01 reaches \textbf{35 points} on both IMO 2025 and USAMO 2026, meeting the \textbf{IMO gold} line exactly and exceeding the \textbf{USAMO gold} line by 10
+points. TTS upgrades five IMO 2025 problems to full credit while P6 remains unsolved, and recovers full-credit solutions on five of six USAMO 2026 problems while
+P2 remains unresolved. The USAMO 2026 score summary reports 340 competitors, a median score of 6, a top-12 cutoff of 26, and a maximum score of 35\footnote{https://web.evanchen.cc/exams/posted-usamo-statistics.pdf}. 
+SU-01
+therefore matches the \textbf{highest} reported human total on this contest, while still exposing a concrete failure mode on P2. 
+This result suggests that our overall
+recipe can elicit top-level human-like olympiad reasoning from a compact 30B-A3B model.
+
+
+\paragraph{Case study.} 
+We include the corresponding
+model-generated solutions and expert verdicts in
+\cref{app:olympiad-solutions}. 
+Across the twelve IMO 2025 and USAMO 2026 problems, the model gives full-credit solutions to ten problems, with failures on IMO 2025 P6 and USAMO 2026 P2. Its main strength is translating olympiad problems into formal frameworks: coordinates or complex numbers for geometry, modular classifications for number theory, recurrences for functional equations, and automata-based dynamic programming for digit problems. A particularly striking example is USAMO 2026 P3: rather than following the standard synthetic geometry route, the model elegantly uses complex numbers to unify the unit circle, equilateral-triangle rotations, chord relations, and tangent conditions within a single algebraic framework. This yields an ingenious analytic reformulation of a configuration that olympiad solvers would typically approach through angle chasing and carefully chosen auxiliary constructions. IMO 2025 P2 shows a complementary strength: the model reduces a configuration involving two intersecting circles, an orthocenter, and a tangency claim to coordinate and distance computations. Other strong examples include the carry-state dynamic programming approach for USAMO P4 and the number-theoretic proof using totients, congruences, Vieta jumping, and Fibonacci structure in USAMO P6. However, the failures show a clear limitation: the model can miss subtle structural constraints, as in the invalid column-permutation reduction in IMO P6, or leave gaps in delicate global strategy arguments, as in USAMO P2. Overall, the model performs well when a problem admits a rigid formal representation, but is less reliable when the core challenge is preserving combinatorial structure or proving a finely tuned process invariant.

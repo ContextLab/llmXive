@@ -1,0 +1,20 @@
+\begin{table}[hbtp]
+  \centering
+  \caption{Progressive-training ablation on VBench-I2V. Scores are official rollups; efficiency is single-H100 bf16 timing, with per-dimension scores in App.~\ref{sec:appendix_ablation_stages}.}
+  \label{tab:ablation_stages}
+  \resizebox{\textwidth}{!}{%
+  \small
+  \setlength{\tabcolsep}{6pt}
+  \renewcommand{\arraystretch}{1.05}
+  \begin{tabular}{@{}l l l c c c c c c@{}}
+    \toprule
+    \textbf{Model} & \textbf{Attention} & \textbf{Tokenizer} &
+      \textbf{Quality\,$\uparrow$} & \textbf{I2V\,$\uparrow$} & \textbf{Total\,$\uparrow$} &
+      \textbf{Mem (GiB)\,$\downarrow$} & \textbf{Lat (ms)\,$\downarrow$} & \textbf{Tput (steps/s)\,$\uparrow$} \\
+    \midrule
+    Sana-Video        & cumulative linear  & Wan 2.1 / 480p & 0.7683       & 0.9073       & 0.8378       & 8.90        & 1266.6      & 0.79 \\
+    + LTX2 VAE        & cumulative linear  & LTX2 / 720p    & \ranksecond{0.7697} & \ranksecond{0.9082} & \ranksecond{0.8390} & \rankfirst{5.40}  & \rankfirst{371.7} & \rankfirst{2.69} \\
+    + Hybrid attn. & GDN + softmax & LTX2 / 720p    & \rankfirst{0.7834} & \rankfirst{0.9226} & \rankfirst{0.8530} & \ranksecond{5.68} & \ranksecond{433.2} & \ranksecond{2.31} \\
+    \bottomrule
+  \end{tabular}}
+\end{table}

@@ -1,0 +1,478 @@
+\begin{mdframed}[style=mdpurplebox,frametitle={IMO 2025 Problem 3}]
+A function $f \colon \NN \to \NN$ is said to be \emph{bonza} if
+\[ f(a)\quad\text{divides}\quad b^a-f(b)^{f(a)} \]
+for all positive integers $a$ and $b$.
+
+Determine the smallest real constant $c$ such that $f(n) \leq cn$
+for all bonza functions $f$ and all positive integers $n$.
+\end{mdframed}
+
+\solutionheading{Solution}
+\begin{remark*}
+  7/7.
+\end{remark*}
+\solutionheading{1. Preliminary lemmas}
+\textbf{Lemma 1.} \(f(1)=1\).\par
+\emph{Proof.} Taking \(a=b=1\) gives \(f(1)\mid 1^{1}-f(1)^{f(1)}=1-f(1)^{f(1)}\).\par
+Since \(f(1)\mid f(1)^{f(1)}\), we have \(f(1)\mid 1\). Hence \(f(1)=1\).\par
+\textbf{Lemma 2.} For every positive integer \(a\), \(f(a)\mid a^{a}\).\par
+\emph{Proof.} Put \(b=a\) in the definition: \(f(a)\mid a^{a}-f(a)^{f(a)}\).\par
+Because \(f(a)\mid f(a)^{f(a)}\), it follows that \(f(a)\mid a^{a}\).\par
+\textbf{Corollary.} If a prime \(p\) divides \(f(a)\), then \(p\) divides \(a\).\par
+\emph{Proof.} From \(f(a)\mid a^{a}\), any prime divisor of \(f(a)\) must divide \(a^{a}\), hence \(a\).\par
+\smallskip
+\solutionheading{2. Determination of \(f(2)\), \(f(3)\) and \(f(5)\)}
+From Lemma 2 we have:\par
+\[
+f(2)\mid 2^{2}=4\quad\Longrightarrow\quad f(2)\in\{1,2,4\},
+\]
+\[
+f(3)\mid 3^{3}=27\quad\Longrightarrow\quad f(3)\in\{1,3,9,27\}.
+\]
+\[
+f(5)\mid 5^{5}=3125\quad\Longrightarrow\quad f(5)=5^{\delta}\ \text{with}\ 0\le\delta\le 5.
+\]
+Now use the mixed conditions \((a,b)=(2,3)\) and \((3,2)\):\par
+\[
+\begin{aligned}
+(2,3)&:\ f(2)\mid 3^{2}-f(3)^{f(2)}=9-f(3)^{f(2)},\\
+(3,2)&:\ f(3)\mid 2^{3}-f(2)^{f(3)}=8-f(2)^{f(3)}.
+\end{aligned}
+\]
+Let \(x=f(2),\ y=f(3)\). We test all \(x\in\{1,2,4\},\ y\in\{1,3,9,27\}\) (note all \(y\) are odd).\par
+\compactbullet{\textbf{}\(x=1\):\textbf{ }\((2,3)\) automatic. \((3,2)\) gives \(y\mid 8-1^{y}=7\). Only \(y=1\) divides 7. So \((1,1)\) works.}
+\compactbullet{\textbf{}\(x=2\):\textbf{}}
+\((2,3)\): \(2\mid 9-y^{2}\). Since \(y\) is odd, \(y^{2}\) is odd, \(9-\text{odd}\) is even - holds for all odd \(y\).\par
+\((3,2)\): \(y\mid 8-2^{y}\).\par
+\compactbullet{\(y=1\): \(1\mid6\) - true.}
+\compactbullet{\(y=3\): \(3\mid 8-8=0\) - true.}
+\compactbullet{\(y=9\): \(9\mid 8-512=-504\) - true (\(-504/9=-56\)).}
+\compactbullet{\(y=27\): compute \(2^{27}\bmod27\). \(2^{9}\equiv512\equiv26\pmod{27}\), then \(2^{27}=(2^{9})^{3}\equiv26^{3}\equiv(-1)^{3}=-1\equiv26\pmod{27}\). So \(8-26=-18\not\equiv0\pmod{27}\) - false.}
+Thus for \(x=2\) we have \((2,1),\ (2,3),\ (2,9)\).\par
+\compactbullet{\textbf{}\(x=4\):\textbf{}}
+\((2,3)\): \(4\mid 9-y^{4}\). For odd \(y\), \(y^{4}\equiv1\pmod4\), so \(9-1=8\) divisible by 4 - holds for all odd \(y\). \((3,2)\): \(y\mid 8-4^{y}\).\par
+\compactbullet{\(y=1\): \(1\mid8-4=4\) - true.}
+\compactbullet{\(y=3\): \(3\mid 8-64=-56\) - false.}
+\compactbullet{\(y=9\): \(4^{3}\equiv64\equiv1\pmod9\), so \(4^{9}\equiv1\pmod9\), then \(8-1=7\not\equiv0\pmod9\) - false.}
+\compactbullet{\(y=27\): \(4^{3}\equiv64\equiv10\pmod{27}\), so \(4^{9}\equiv10^{3}=1000\equiv1\pmod{27}\), thus \(4^{27}\equiv1\pmod{27}\), \(8-1=7\not\equiv0\pmod{27}\) - false.}
+Hence only \((4,1)\) works.\par
+Therefore after \((2,3)\) and \((3,2)\) the possible pairs are\par
+\[
+(1,1),\ (2,1),\ (2,3),\ (2,9),\ (4,1). \quad\text{(1)}
+\]
+Now incorporate \(f(5)=5^{\delta}\). For each candidate pair we must satisfy\par
+\[
+\begin{aligned}
+(2,5)&:\ x\mid 25-5^{\delta x},\\
+(3,5)&:\ y\mid 125-5^{\delta y},\\
+(5,2)&:\ 5^{\delta}\mid 32 - x^{5^{\delta}},\\
+(5,3)&:\ 5^{\delta}\mid 243 - y^{5^{\delta}}.
+\end{aligned}
+\]
+We test \(\delta=0,1,2,3,4,5\) for each pair.\par
+\smallskip
+\textbf{1. Pair }\((x,y)=(1,1)\).\textbf{}\par
+\compactbullet{\((2,5)\) automatic.}
+\compactbullet{\((3,5)\) automatic.}
+\compactbullet{\((5,2)\): \(5^{\delta}\mid 32-1^{5^{\delta}}=31\). So \(5^{\delta}\mid31\) forces \(\delta=0\).}
+\compactbullet{\((5,3)\): \(5^{\delta}\mid 243-1^{5^{\delta}}=242\). Again only \(\delta=0\) works.}
+\(\Rightarrow (f(2),f(3),f(5))=(1,1,1)\).\par
+\smallskip
+\textbf{2. Pair }\((x,y)=(2,1)\).\textbf{}\par
+\compactbullet{\((2,5)\): \(2\mid 25-5^{2\delta}\) - difference even, automatic.}
+\compactbullet{\((3,5)\): \(1\) divides everything.}
+\compactbullet{\((5,3)\): \(5^{\delta}\mid 243-1=242\). Since \(5\nmid242\), only \(\delta=0\).}
+\compactbullet{\((5,2)\) with \(\delta=0\): \(1\mid32-2=30\) - true.}
+\(\Rightarrow (2,1,1)\).\par
+\smallskip
+\textbf{3. Pair }\((x,y)=(4,1)\).\textbf{}\par
+\compactbullet{\((2,5)\): \(4\mid 25-5^{2\delta}\). Mod 4: \(25\equiv1\), \(5^{2\delta}\equiv1\), difference divisible by 4 - automatic.}
+\compactbullet{\((3,5)\): automatic.}
+\compactbullet{\((5,3)\): \(5^{\delta}\mid 242\) - forces \(\delta=0\).}
+\compactbullet{\((5,2)\) with \(\delta=0\): \(1\mid32-4=28\) - true.}
+\(\Rightarrow (4,1,1)\).\par
+\smallskip
+\textbf{4. Pair }\((x,y)=(2,3)\).\textbf{}\par
+\compactbullet{\((2,5)\): automatic (even difference).}
+\compactbullet{\((3,5)\): \(3\mid125-5^{3\delta}\).}
+\compactbullet{\((5,2)\): \(5^{\delta}\mid 32-2^{5^{\delta}}\).}
+\compactbullet{\((5,3)\): \(5^{\delta}\mid 243-3^{5^{\delta}}\).}
+Test \(\delta\):\par
+\compactbullet{\(\delta=0\): \(f(5)=1\). Then \(3\mid125-1=124\) - false.}
+\compactbullet{\(\delta=1\): \(f(5)=5\).}
+\compactbullet{\(3\mid125-5^{3}=0\) - true.}
+\compactbullet{\(5\mid32-2^{5}=0\) - true.}
+\compactbullet{\(5\mid243-3^{5}=0\) - true.}
+So \(\delta=1\) works.\par
+\compactbullet{\(\delta=2\): \(f(5)=25\). \(3\mid125-5^{6}\). Mod 3: \(125\equiv2\), \(5^{6}\equiv(5^{3})^{2}\equiv2^{2}=4\equiv1\), so difference \(2-1=1\) - false.}
+\compactbullet{\(\delta=3\): \(f(5)=125\).}
+\compactbullet{\(3\mid125-5^{9}\): \(5^{9}\equiv5^{3}\equiv125\equiv2\pmod3\), difference \(0\) - true.}
+\compactbullet{Check \((5,2)\): \(125\mid32-2^{125}\). Compute \(2^{125}\bmod125\): \(\varphi(125)=100\), so \(2^{125}\equiv2^{25}\pmod{125}\). \(2^{5}=32\), \(2^{10}\equiv24\), \(2^{20}\equiv24^{2}=576\equiv576-5\cdot125=76\), then \(2^{25}=2^{20}\cdot2^{5}\equiv76\cdot32=2432\equiv2432-19\cdot125=57\). So \(32-57=-25\) not divisible by 125 - false.}
+\compactbullet{\(\delta=4\): \(f(5)=625\). \(3\mid125-5^{12}\). \(5^{12}\equiv(5^{6})^{2}\equiv1^{2}=1\pmod3\), \(125\equiv2\), difference \(1\) - false.}
+\compactbullet{\(\delta=5\): \(f(5)=3125\).}
+\compactbullet{\(3\mid125-5^{15}\): \(5^{15}\equiv5^{3}\equiv125\equiv2\pmod3\), difference \(0\) - true.}
+\compactbullet{\((5,2)\): \(3125\mid32-2^{3125}\). Mod 125: \(3125\equiv25\pmod{100}\), so \(2^{3125}\equiv2^{25}\equiv57\pmod{125}\) as before, \(32-57=-25\) not divisible by 125 - false.}
+Thus only \(\delta=1\) works, giving \((2,3,5)\).\par
+\smallskip
+\textbf{5. Pair }\((x,y)=(2,9)\).\textbf{}\par
+Test \(\delta\):\par
+\compactbullet{\(\delta=0\): \(3\mid125-1=124\) - false.}
+\compactbullet{\(\delta=1\): \(5\mid125-5^{9}\). \(5^{9}\bmod9\): \(5^{6}\equiv1\pmod9\) (since \(\varphi(9)=6\)), so \(5^{9}\equiv5^{3}=125\equiv8\pmod9\). \(125\equiv8\), difference \(0\) - true.}
+\((5,2)\): \(5\mid32-2^{5}=0\) - true. \((5,3)\): \(5\mid243-9^{5}\). \(9\equiv4\pmod5\), \(4^{5}=1024\equiv4\pmod5\). \(243\equiv3\pmod5\), so \(3-4=-1\not\equiv0\pmod5\) - false.\par
+\compactbullet{\(\delta=2\): \(25\mid125-5^{18}\). \(5^{18}\equiv(5^{6})^{3}\equiv1^{3}=1\pmod9\), \(125\equiv8\), difference \(7\) - false.}
+\compactbullet{\(\delta=3\): \(125\mid125-5^{27}\). \(5^{27}\equiv5^{3}\equiv8\pmod9\), difference \(0\) - true.}
+\((5,2)\): \(125\mid32-2^{125}\). As before, \(2^{125}\equiv57\pmod{125}\), \(32-57=-25\) - false.\par
+\compactbullet{\(\delta=4\): \(625\mid125-5^{36}\). \(36\equiv0\pmod6\), so \(5^{36}\equiv1\pmod9\), difference \(7\) - false.}
+\compactbullet{\(\delta=5\): \(3125\mid125-5^{45}\). \(45\equiv3\pmod6\), \(5^{45}\equiv8\pmod9\), difference \(0\) - true.}
+\((5,2)\): \(3125\mid32-2^{3125}\). Mod 125 fails as before.\par
+Hence no \(\delta\) satisfies all conditions.\par
+\smallskip
+\textbf{Conclusion of classification.} The only admissible triples \((f(2),f(3),f(5))\) are\par
+\[
+(1,1,1),\quad (2,1,1),\quad (4,1,1),\quad (2,3,5).
+\]
+We will analyze two families:\par
+\compactbullet{\textbf{Family A:} those with \(f(3)=1\), i.e. the first three triples.}
+\compactbullet{\textbf{Family B:} the triple \((2,3,5)\).}
+\smallskip
+\solutionheading{3. Analysis of Family A (\(f(3)=1\))}
+\textbf{Lemma 3.} If \(f(3)=1\), then \(f(q)=1\) for every odd prime \(q\).\par
+\emph{Proof.} From \((q,q)\) we have \(f(q)\mid q^{q}\), so \(f(q)=q^{k}\) for some \(0\le k\le q\).\par
+Consider \((q,3)\):\par
+\[
+f(q)\mid 3^{q}-f(3)^{f(q)}=3^{q}-1^{f(q)}=3^{q}-1.
+\]
+If \(k\ge1\), then \(q\mid f(q)\mid 3^{q}-1\). By Fermat's little theorem, \(3^{q}\equiv3\pmod q\), so \(q\mid 3-1=2\). Hence \(q=2\), contradicting that \(q\) is odd. Therefore \(k=0\) and \(f(q)=1\).\par
+\textbf{Lemma 4.} In Family A, for every positive integer \(n\), \(f(n)\) is a power of 2.\par
+\emph{Proof.} Suppose an odd prime \(r\) divides \(f(n)\). By Lemma 2, \(r\mid n\). Now use \((n,r)\):\par
+\[
+f(n)\mid r^{n}-f(r)^{f(n)}.
+\]
+Since \(r\) is odd, Lemma 3 gives \(f(r)=1\). Hence\par
+\[
+f(n)\mid r^{n}-1.
+\]
+In particular, \(r\mid r^{n}-1\), i.e. \(r\mid -1\), contradiction. Thus no odd prime divides \(f(n)\); i.e. \(f(n)=2^{e(n)}\) for some \(e(n)\ge0\).\par
+\textbf{Lemma 5.} For any \(n\), \(2^{e(n)}\mid 3^{n}-1\).\par
+\emph{Proof.} Take \((n,3)\):\par
+\[
+f(n)\mid 3^{n}-f(3)^{f(n)}=3^{n}-1^{f(n)}=3^{n}-1.
+\]
+Since \(f(n)=2^{e(n)}\), we have \(2^{e(n)}\mid 3^{n}-1\).\par
+\textbf{Lemma 6.} For \(n\in\mathbb N\),\par
+\[
+v_{2}(3^{n}-1)=\begin{cases}
+1 & \text{if } n \text{ is odd},\\
+v_{2}(n)+2 & \text{if } n \text{ is even}.
+\end{cases}
+\]
+\emph{Proof.}\par
+\emph{Odd \(n\):} Write\par
+\[
+3^{n}-1=(3-1)(3^{n-1}+3^{n-2}+\cdots+1)=2\cdot(\text{odd sum}),
+\]
+because there are \(n\) terms, each odd, and \(n\) odd $\Rightarrow$ the sum is odd. Hence \(v_{2}=1\).\par
+\emph{Even \(n\):} Write \(n=2^{\alpha}m\) with \(m\) odd, \(\alpha\ge1\). We prove by induction on \(\alpha\) that \(v_{2}(3^{2^{\alpha}m}-1)=\alpha+2\).\par
+\textbf{Base }\(\alpha=1\):\textbf{ }\(n=2m\). Then\par
+\[
+3^{2m}-1=(3^{m}-1)(3^{m}+1).
+\]
+We know \(v_{2}(3^{m}-1)=1\) (since \(m\) odd). For \(3^{m}+1\), note \(3^{m}\equiv 3\pmod 8\) when \(m\) is odd, so \(3^{m}+1\equiv 4\pmod 8\), thus \(v_{2}(3^{m}+1)=2\). Hence\par
+\[
+v_{2}(3^{2m}-1)=1+2=3=1+2=\alpha+2.
+\]
+\textbf{Inductive step:} Assume true for a given \(\alpha\ge1\). Write \(n'=2^{\alpha+1}m = 2\cdot(2^{\alpha}m)\). Let \(k=2^{\alpha}m\). Then
+\[
+3^{n'}-1=(3^{k}-1)(3^{k}+1).
+\]
+By hypothesis, \(v_{2}(3^{k}-1)=\alpha+2\).\par
+Since \(k\) is even (because \(\alpha\ge1\)), \(3^{k}\equiv 1\pmod 4\), so \(3^{k}+1\equiv 2\pmod 4\), giving \(v_{2}(3^{k}+1)=1\).\par
+Thus\par
+\[
+v_{2}(3^{n'}-1)=(\alpha+2)+1=\alpha+3=(\alpha+1)+2.
+\]
+This completes the induction.
+
+From Lemmas 5 and 6 we obtain
+
+\[
+e(n)\le \begin{cases}
+1 & \text{if } n \text{ is odd},\\
+v_{2}(n)+2 & \text{if } n \text{ is even}.
+\end{cases}
+\]
+Consequently\par
+\[
+f(n)=2^{e(n)}\le \begin{cases}
+2 & \text{if } n \text{ odd},\\
+2^{v_{2}(n)+2} & \text{if } n \text{ even}.
+\end{cases}
+\]
+For even \(n\), \(2^{v_{2}(n)+2}=4\cdot2^{v_{2}(n)}\le 4n\) because \(2^{v_{2}(n)}\mid n\) implies \(2^{v_{2}(n)}\le n\). For odd \(n\), \(2\le 4n\) (since \(n\ge1\)).\par
+Hence \textbf{in Family A} we have\par
+\[
+\boxed{f(n)\le4n\quad\text{for all }n\in\mathbb N}.
+\]
+\smallskip
+\solutionheading{4. Analysis of Family B (\(f(2)=2,\ f(3)=3,\ f(5)=5\))}
+\textbf{Proposition 7.} For every prime \(p\), \(f(p)=p\).\par
+\emph{Proof.} We proceed by strong induction on \(p\). The base cases \(p=2,3,5\) are given.\par
+Assume \(p>5\) and that for every prime \(q<p\) we already know \(f(q)=q\).\par
+From \((p,p)\) we have \(f(p)\mid p^{p}\), so \(f(p)=p^{k}\) for some integer \(k\) with \(0\le k\le p\). We show that \(k\) must be 1.\par
+\smallskip
+\textbf{Step 1 - Eliminate }\(k=0\) and \(k=2\).\textbf{}\par
+Take any prime \(q<p\). Consider \((q,p)\):\par
+\[
+f(q)=q\mid p^{q}-f(p)^{q}=p^{q}-p^{kq}.
+\]
+Factor out \(p^{q}\):\par
+\[
+q\mid p^{q}(1-p^{(k-1)q}).
+\]
+Since \(q\neq p\), \(q\nmid p^{q}\). Hence\par
+\[
+q\mid 1-p^{(k-1)q}.
+\]
+By Fermat's little theorem, \(p^{q}\equiv p\pmod q\), and more generally \(p^{(k-1)q}\equiv p^{k-1}\pmod q\) (raising to the \(q\)th power is the identity modulo \(q\)). Thus\par
+\[
+1-p^{k-1}\equiv 0\pmod q\quad\Longrightarrow\quad p^{k-1}\equiv 1\pmod q. \quad\text{(2)}
+\]
+\compactbullet{If \(k=0\), then the original condition \((q,p)\) gives \(q\mid p^{q}-1\). Using FLT, \(p^{q}\equiv p\pmod q\), so \(p\equiv1\pmod q\).}
+\compactbullet{If \(k=2\), (2) gives \(p^{1}\equiv1\pmod q\), i.e. \(p\equiv1\pmod q\).}
+Thus for both \(k=0\) and \(k=2\) we have\par
+\[
+p\equiv 1\pmod q \qquad\text{for every prime } q<p. \quad\text{(3)}
+\]
+Now by \textbf{Bertrand's postulate} (for any integer \(m>1\) there exists a prime between \(m\) and \(2m\)), for \(p>3\) there exists a prime \(q\) with \(\frac{p}{2}<q<p\). From (3), \(q\mid p-1\). But \(q>p/2\) and \(q\le p-1\) (since \(q<p\)). The only positive multiple of \(q\) that is at most \(p-1\) is \(q\) itself (because \(2q>p\)). Hence \(p-1=q\), so \(p=q+1\), which is even - contradicting that \(p>2\) is odd. Therefore \(k\) cannot be \(0\) or \(2\).\par
+\smallskip
+\textbf{Step 2 - Eliminate }\(k\ge3\).\textbf{}\par
+Consider the pair \((p,\,p-1)\):\par
+\[
+f(p)=p^{k}\mid (p-1)^{p} - f(p-1)^{p^{k}}.
+\]
+Let \(r = f(p-1)\).\par
+\compactbullet{\textbf{Modulo }\(p\):\textbf{}}
+\[
+  (p-1)^{p}\equiv (-1)^{p} = -1\pmod p,
+  \]
+and by Fermat's little theorem, \(r^{p^{k}}\equiv r\pmod p\) (since \(r^{p}\equiv r\pmod p\), and then by induction \(r^{p^{k}}\equiv r\pmod p\).\par
+Since \(p^{k}\mid D := (p-1)^{p} - r^{p^{k}}\), in particular \(p\mid D\). Reducing modulo \(p\) gives\par
+\[
+  -1 \equiv r \pmod p,\qquad\text{i.e.}\quad r\equiv -1\pmod p. \quad\text{(4)}
+  \]
+Write \(r = -1 + p t\) for some integer \(t\).\par
+\compactbullet{\textbf{Expansion of }\((p-1)^{p}\):\textbf{}}
+By the binomial theorem,\par
+\[
+  (p-1)^{p} = \sum_{i=0}^{p}\binom{p}{i}p^{i}(-1)^{p-i}.
+  \]
+The term with \(i=0\) is \((-1)^{p} = -1\). The term with \(i=1\) is \(\binom{p}{1}p^{1}(-1)^{p-1} = p\cdot p\cdot1 = p^{2}\).\par
+For \(i\ge2\), \(\binom{p}{i}\) is divisible by \(p\), and together with \(p^{i}\) yields a factor \(p^{i+1}\ge p^{3}\). Thus we can write\par
+\[
+  (p-1)^{p} = -1 + p^{2} A,
+  \]
+where \(A\) is an integer and, because the \(i=1\) term contributes exactly \(p^{2}\) and the higher terms are multiples of \(p^{3}\), we have \(A\equiv 1\pmod p\) (in particular \(p\nmid A\)).\par
+\compactbullet{\textbf{Expansion of }\(r^{p^{k}}\):\textbf{}}
+Write \(r = -1 + p t\). Then\par
+\[
+  r^{p^{k}} = \sum_{j=0}^{p^{k}}\binom{p^{k}}{j}(-1)^{p^{k}-j}(p t)^{j}.
+  \]
+Since \(p^{k}\) is odd, \((-1)^{p^{k}} = -1\).\par
+\compactbullet{\(j=0\): term = \(-1\).}
+\compactbullet{\(j=1\): \(\binom{p^{k}}{1}(-1)^{p^{k}-1}p t = p^{k}\cdot 1\cdot p t = p^{k+1} t\).}
+\compactbullet{For \(j\ge2\): we show that each term is divisible by \(p^{k+2}\).}
+Indeed, for \(j\ge2\),\par
+\[
+    v_{p}\Bigl(\binom{p^{k}}{j}\Bigr) = k - v_{p}(j),
+    \]
+hence\par
+\[
+    v_{p}\biggl(\binom{p^{k}}{j}p^{j}\biggr) = (k - v_{p}(j)) + j = k + j - v_{p}(j) \ge k+2,
+    \]
+because \(j\ge2\) and if \(p\nmid j\) then \(j\ge2\) and \(v_{p}(j)=0\); if \(p\mid j\) then \(j\ge p\) and \(v_{p}(j)\ge1\), so \(j - v_{p}(j) \ge j- (j-1) =1\)? Wait, need to be precise: For any \(j\) with \(2\le j\le p^{k}-1\), we have\par
+\[
+    v_{p}\Bigl(\binom{p^{k}}{j}\Bigr) = k - v_{p}(j)
+\]
+(a standard property for prime powers). Then
+\[
+    v_{p}\Bigl(\binom{p^{k}}{j} p^{j}\Bigr) = k - v_{p}(j) + j = k + j - v_{p}(j).
+    \]
+Since \(j\ge2\) and \(v_{p}(j)\le \log_{p} j < j\), but we need at least \(k+2\). The minimal value occurs when \(j=2\) and \(p\nmid 2\) (since \(p\ge3\)), then \(v_{p}(j)=0\), giving \(k+2\). For \(j=p\) we have \(v_{p}(j)=1\), then \(k + p - 1 \ge k+2\) because \(p\ge3\). So indeed each term for \(j\ge2\) is divisible by \(p^{k+2}\).\par
+Therefore\par
+\[
+  r^{p^{k}} = -1 + p^{k+1} t + p^{k+2} S
+  \]
+for some integer \(S\).\par
+\compactbullet{\textbf{Form the difference:}}
+\[
+  D = (p-1)^{p} - r^{p^{k}} = (-1 + p^{2} A) - (-1 + p^{k+1} t + p^{k+2} S) = p^{2} A - p^{k+1} t - p^{k+2} S.
+  \]
+Factor \(p^{2}\):\par
+\[
+  D = p^{2}\bigl(A - p^{k-1} t - p^{k} S\bigr). \quad\text{(5)}
+  \]
+Since \(k\ge3\), we have \(k-1\ge2\), so \(p^{k-1} t\) and \(p^{k} S\) are both multiples of \(p^{2}\). Moreover,\par
+\[
+  A - p^{k-1} t - p^{k} S \equiv A \pmod p,
+  \]
+and \(p\nmid A\). Hence the expression in parentheses is \textbf{not} divisible by \(p\), and we obtain\par
+\[
+  v_{p}(D) = 2.
+  \]
+However, we require \(v_{p}(D) \ge k \ge 3\) (because \(p^{k}\mid D\)). This contradiction shows that \(k\ge3\) is impossible.\par
+\smallskip
+Since \(k\) cannot be \(0\), \(2\), or \(\ge3\), the only remaining possibility is \(k=1\). Thus \(f(p)=p\).\par
+\textbf{Proposition 8.} In Family B, \(f(n)=n\) for all positive integers \(n\).\par
+\emph{Proof.} Fix any \(n\) and any prime \(p\). Using the bonza condition with \(a=p\), \(b=n\):\par
+\[
+f(p)=p \mid n^{p} - f(n)^{p}.
+\]
+By Fermat's little theorem,\par
+\[
+n^{p}\equiv n\pmod p,\qquad f(n)^{p}\equiv f(n)\pmod p.
+\]
+Therefore\par
+\[
+p\mid n - f(n).
+\]
+This holds for \textbf{every} prime \(p\). The only integer divisible by all primes is 0, so \(n-f(n)=0\), i.e. \(f(n)=n\).\par
+Hence in Family B we have \(f(n)=n\le 4n\) for all \(n\).\par
+\smallskip
+\solutionheading{5. Upper bound summary}
+We have shown:\par
+\compactbullet{In Family A, \(f(n)\le 4n\) for all \(n\).}
+\compactbullet{In Family B, \(f(n)=n\le 4n\).}
+Therefore \textbf{for every bonza function }\(f\) and every \(n\in\mathbb N\),\textbf{}\par
+\[
+\boxed{f(n)\le 4n}.
+\]
+\smallskip
+\solutionheading{6. Sharpness: a bonza function attaining \(4n\)}
+Define a function \(h:\mathbb N\to\mathbb N\) by\par
+\[
+h(1)=1,
+\]
+and for \(n\ge 2\):\par
+\[
+h(n)=\begin{cases}
+1 & \text{if } n \text{ is odd},\\[2pt]
+4 & \text{if } n=2,\\[2pt]
+2^{v_{2}(n)+2} & \text{if } n \text{ is even and } n>2.
+\end{cases}
+\]
+We verify that \(h\) is bonza, i.e.,\par
+\[
+h(a)\mid b^{a} - h(b)^{h(a)}\quad\text{for all } a,b\in\mathbb N.
+\]
+\smallskip
+\solutionheading{Verification}
+We consider cases based on \(a\).\par
+\compactbullet{\textbf{Case 1: }\(a\) is odd.\textbf{}}
+Then \(h(a)=1\) (by definition: for odd \(n>1\), \(h(n)=1\); and \(a=1\) gives \(1\)). Since \(1\) divides any integer, the condition holds trivially.\par
+\compactbullet{\textbf{Case 2: }\(a=2\).\textbf{}}
+Here \(h(2)=4\). We must show\par
+\[
+  4\mid b^{2} - h(b)^{4}\quad\text{for all } b.
+  \]
+\compactbullet{If \(b\) is odd: \(b^{2}\) is odd, \(h(b)=1\), so \(h(b)^{4}=1\). Then \(b^{2}-1\) is divisible by 4 because for an odd \(b\), \(b^{2}\equiv1\pmod8\), hence certainly by 4.}
+\compactbullet{If \(b=2\): \(b^{2}=4\), \(h(b)=4\), \(h(b)^{4}=4^{4}=256\). Then \(4-256=-252\), and \(-252\) is divisible by 4.}
+\compactbullet{If \(b\) is even and \(b>2\): write \(b=2^{\beta}c\) with \(\beta\ge1\), \(c\) odd. Then \(h(b)=2^{\beta+2}\) (since \(b>2\) even). Then \(h(b)^{4}=2^{4(\beta+2)}=2^{4\beta+8}\), which is divisible by 4. Moreover, \(b^{2}\) is divisible by 4 (since \(b\) is even). Thus \(b^{2}-h(b)^{4}\) is a difference of two multiples of 4, hence itself a multiple of 4.}
+Therefore the condition holds for \(a=2\).\par
+\compactbullet{\textbf{Case 3: }\(a\) is even and \(a>2\).\textbf{}}
+Let \(\alpha = v_{2}(a)\) (so \(\alpha\ge1\); note that if \(a\) is even and \(>2\), then either \(\alpha\ge2\) or \(\alpha=1\) with \(a=2m\), \(m\) odd \(\ge3\)). Then \(h(a)=2^{\alpha+2}\). We need to prove\par
+\[
+  2^{\alpha+2} \mid b^{a} - h(b)^{2^{\alpha+2}}.
+  \]
+We split into subcases according to \(b\).\par
+\compactbullet{\textbf{Subcase 3a: }\(b\) is odd.\textbf{}}
+Then \(h(b)=1\). So we need \(2^{\alpha+2}\mid b^{a}-1\).\par
+Since \(a\) is even, write \(a = 2^{\alpha} m\) with \(m\) odd.\par
+\textbf{Claim:} For any odd integer \(b\) and any integer \(s\ge1\),\par
+\[
+    b^{2^{s}} \equiv 1 \pmod{2^{s+2}}.
+    \]
+\emph{Proof of claim.} For \(s=1\), any odd \(b\) satisfies \(b^{2}\equiv1\pmod8\), i.e. modulo \(2^{3}\). Assume the claim holds for some \(s\ge1\). Then\par
+\[
+    b^{2^{s}} = 1 + 2^{s+2} K
+\]
+for some integer \(K\). Squaring gives
+\[
+    b^{2^{s+1}} = (1 + 2^{s+2} K)^{2} = 1 + 2^{s+3} K + 2^{2s+4} K^{2} \equiv 1 \pmod{2^{s+3}},
+\]
+because the extra term is divisible by \(2^{s+3}\). This proves the claim.\par
+Applying the claim with \(s=\alpha\) yields\par
+\[
+    b^{2^{\alpha}} \equiv 1 \pmod{2^{\alpha+2}}.
+    \]
+Then\par
+\[
+    b^{a} = \bigl(b^{2^{\alpha}}\bigr)^{m} \equiv 1^{m} = 1 \pmod{2^{\alpha+2}},
+    \]
+and therefore \(b^{a}-1\) is divisible by \(2^{\alpha+2}\).\par
+\compactbullet{\textbf{Subcase 3b: }\(b=1\).\textbf{}}
+Then \(b^{a}=1\), \(h(b)=h(1)=1\), so \(h(b)^{2^{\alpha+2}}=1\), and \(1-1=0\) is divisible by any integer.\par
+\compactbullet{\textbf{Subcase 3c: }\(b=2\).\textbf{}}
+Here \(h(b)=h(2)=4\). So we need\par
+\[
+    2^{\alpha+2} \mid 2^{a} - 4^{2^{\alpha+2}} = 2^{a} - (2^{2})^{2^{\alpha+2}} = 2^{a} - 2^{2\cdot 2^{\alpha+2}} = 2^{a} - 2^{2^{\alpha+3}}.
+    \]
+Let \(D = 2^{a} - 2^{2^{\alpha+3}}\). The \(2\)-adic valuation of a difference of two powers of two is\par
+\[
+    v_{2}(D) = \begin{cases}
+    a & \text{if } a < 2^{\alpha+3},\\
+    2^{\alpha+3} & \text{if } a > 2^{\alpha+3},\\
+    \text{higher} & \text{if } a = 2^{\alpha+3} \text{ (then } D=0\text{)}.
+    \end{cases}
+    \]
+We claim \(v_{2}(D)\ge\alpha+2\).\par
+\textbf{Lemma 9.} If \(a\) is even and \(a>2\), then \(a \ge \alpha+2\) where \(\alpha=v_{2}(a)\).\par
+\emph{Proof.} Write \(a = 2^{\alpha}\cdot m\) with \(m\) odd.\par
+\compactbullet{If \(\alpha = 1\), then \(a = 2m\) with \(m\) odd. Since \(a>2\), we have \(m\ge3\), so \(a\ge6\). Meanwhile \(\alpha+2 = 3\). So \(a \ge 3\).}
+\compactbullet{If \(\alpha \ge 2\), then \(a \ge 2^{\alpha}\). It remains to show \(2^{\alpha} \ge \alpha+2\) for \(\alpha\ge2\). This is true for \(\alpha=2\) (\(4\ge4\)), and if true for \(\alpha\), then \(2^{\alpha+1} = 2\cdot2^{\alpha} \ge 2(\alpha+2) = 2\alpha+4 \ge (\alpha+1)+2\) for \(\alpha\ge -1\), which holds. Hence \(a \ge \alpha+2\).}
+Now we have two possibilities:\par
+\compactbullet{If \(a \le 2^{\alpha+3}\), then \(v_{2}(D) = a\) (if \(a < 2^{\alpha+3}\)) or \(D=0\) (if \(a = 2^{\alpha+3}\)). In either case, since \(a \ge \alpha+2\), we get \(v_{2}(D) \ge \alpha+2\).}
+\compactbullet{If \(a > 2^{\alpha+3}\), then \(v_{2}(D) = 2^{\alpha+3}\). Since \(\alpha\ge1\), \(2^{\alpha+3} \ge 2^{4}=16\) for \(\alpha=1\), and \(\alpha+2=3\); clearly \(2^{\alpha+3} \ge \alpha+2\) (e.g. for \(\alpha=1\), \(16\ge3\); for larger \(\alpha\) it's even larger). Thus \(v_{2}(D) \ge \alpha+2\).}
+Therefore \(2^{\alpha+2}\mid D\).\par
+\compactbullet{\textbf{Subcase 3d: }\(b\) is even and \(b>2\).\textbf{}}
+Write \(b = 2^{\beta}c\) with \(\beta = v_{2}(b)\ge1\) and \(c\) odd. Since \(b>2\), we have \(\beta\ge1\); note that if \(b=2\) we already handled.\par
+Then \(h(b) = 2^{\beta+2}\) (by definition, because \(b\) is even and \(b>2\)).\par
+We need to show \(2^{\alpha+2}\) divides\par
+\[
+    b^{a} - \bigl(2^{\beta+2}\bigr)^{2^{\alpha+2}} = b^{a} - 2^{(\beta+2)2^{\alpha+2}}.
+    \]
+Observe that the second term is a power of two, and its exponent is \((\beta+2)2^{\alpha+2} \ge 2^{\alpha+2}\) (since \(\beta\ge1\) gives \(\beta+2\ge3\)). Hence it is certainly divisible by \(2^{\alpha+2}\).\par
+For the first term,\par
+\[
+b^{a} = (2^{\beta}c)^{a} = 2^{\beta a} c^{a}.
+\]
+Since \(c^{a}\) is odd, the \(2\)-adic valuation of \(b^{a}\) is \(\beta a\). By Lemma 9, \(a \ge \alpha+2\). Therefore
+\[
+    \beta a \ge a \ge \alpha+2.
+    \]
+Thus \(2^{\alpha+2} \mid b^{a}\).\par
+Consequently both \(b^{a}\) and the second term are multiples of \(2^{\alpha+2}\), so their difference is also a multiple of \(2^{\alpha+2}\).\par
+All subcases are exhausted, and in each the required divisibility holds.\par
+\smallskip
+Thus \(h\) is bonza.\par
+Now evaluate \(h(n)\) for powers of two:\par
+\compactbullet{\(h(2)=4 = 2\cdot2\).}
+\compactbullet{For any \(t\ge2\), \(n=2^{t}\) is even and \(>2\), so}
+\[
+h(2^{t}) = 2^{v_{2}(2^{t})+2} = 2^{t+2} = 4\cdot 2^{t} = 4n.
+\]
+In particular, \(h(4)=16 = 4\cdot4\). Hence\par
+\[
+\frac{h(n)}{n} = 4 \quad\text{for all } n=2^{t}\ (t\ge2).
+\]
+If \(c<4\), then for \(n=4\) (or any \(2^{t}\) with \(t\ge2\)) we have\par
+\[
+h(4) = 16 > c\cdot 4,
+\]
+so \(c\) cannot satisfy \(f(n)\le cn\) for all bonza functions. Therefore no constant smaller than 4 works.\par
+\smallskip
+\solutionheading{7. Conclusion}
+We have proved that \(4\) is an upper bound for \(f(n)/n\) and that this bound is attainable. Consequently, the smallest real constant \(c\) with the property that \(f(n)\le cn\) for every bonza function \(f\) and every \(n\in\mathbb N\) is\par
+\[
+\boxed{4}.
+\]
+\par

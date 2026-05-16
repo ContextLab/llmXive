@@ -1,0 +1,41 @@
+\begin{table}
+\small\setlength{\tabcolsep}{1pt} % tighten columns a bit more to accommodate new column
+  \caption{\textbf{Ablation study.} Causal CD is comparable to or even outperforms causal ODE, while dramatically reducing both time and storage cost. In contrast, Self Forcing ODE initialization, multi-step and causal DMD initialization perform worse.}
+  \label{tab:ablation}
+  \centering
+  \begin{tabular}{lcccccccc}
+      \toprule
+      Model & Total$\uparrow$ & Quality$\uparrow$ & Semantic$\uparrow$ 
+      & Dynamic.$\uparrow$
+      & Vision.$\uparrow$
+      & Instruct.$\uparrow$
+      & Time (Stage 2)$\downarrow$
+      & Extra Storage $\downarrow$
+       \\
+    \midrule
+     \rowcolor{catgray}
+    \multicolumn{9}{l}{\textit{1-Step Asymmetric DMD}}\\
+        Self Forcing initialization  & 78.87 & 79.85  &  74.95 & 0 & 1.992 & -12 &\cellcolor{red!10}5000 &\cellcolor{red!10}1500\\
+      AR diffusion initialization  & 80.54 & 80.97  &   78.84& 0 & 1.101 & -14 &\cellcolor{green!10}- &\cellcolor{green!10}0\\
+      Causal ODE initialization  &\underline{\textbf{\textit{83.06}}} & \underline{\textbf{\textit{83.88}}}  &   \textbf{79.77} & 46 & \textbf{5.464} & \textbf{40} & \cellcolor{red!10}11600 & \cellcolor{red!10}1900 \\
+      Causal DMD initialization  &82.34 & 83.50  &   77.71 & \underline{\textbf{\textit{62}}} & 4.868 & 20&\cellcolor{green!10}2900 &\cellcolor{green!10}0\\
+      Causal CD initialization  &\textbf{83.35} &\textbf{ 84.50}  &   \underline{\textbf{\textit{78.75}}} & \textbf{66} & \underline{\textbf{\textit{5.412}}} & \underline{\textbf{\textit{38}}} & \cellcolor{green!10}2900 &\cellcolor{green!10}0\\
+        \midrule
+     \rowcolor{catgray}
+    \multicolumn{9}{l}{\textit{2-Step Asymmetric DMD}}\\
+     Self Forcing initialization  & 79.44 & 80.43  &   75.47 & 0 & 2.826 & -14 &\cellcolor{red!10}5000 &\cellcolor{red!10}1500\\
+      AR diffusion initialization  & 82.43 & 83.04  &   80.00& 8 & 3.645 & 16 & \cellcolor{green!10}-& \cellcolor{green!10}0 \\
+      Causal ODE initialization  &\underline{\textbf{\textit{83.77}}} & 84.42  &   \textbf{81.19}& 57 &\underline{\textbf{\textit{6.224}}} & \underline{\textbf{\textit{46}}}&\cellcolor{red!10}11600& \cellcolor{red!10}1900 \\
+      Causal DMD initialization  & 83.73 & \underline{\textbf{\textit{84.56}}}  &   80.39& \textbf{69} & 6.108 & 38 & \cellcolor{green!10}2900&\cellcolor{green!10}0 \\
+      Causal CD initialization  &\textbf{84.14} & \textbf{84.89}  &   \underline{\textbf{\textit{81.13}}} & \underline{\textbf{\textit{64}}} &\textbf{6.661} & \textbf{51} & \cellcolor{green!10}2900& \cellcolor{green!10}0 \\
+        \midrule
+     \rowcolor{catgray}
+    \multicolumn{9}{l}{\textit{4-Step Asymmetric DMD}}\\
+     Self Forcing initialization  & 79.82 & 80.58  &  76.76& 2 & 3.675 & -2 &\cellcolor{red!10}5000 &\cellcolor{red!10}1500\\
+      AR diffusion initialization  & 83.41 & 84.42  &   \underline{\textbf{\textit{79.38}}} & 62 & 5.166 &  30& \cellcolor{green!10}- &\cellcolor{green!10}0\\
+      Causal ODE initialization  & \underline{\textbf{\textit{83.78}}} & \underline{\textbf{\textit{84.90}}}  &   79.28  &  \textbf{75}&\underline{\textbf{\textit{6.435}}} &  \underline{\textbf{\textit{42}}}& \cellcolor{red!10}11600 & \cellcolor{red!10}1900 \\
+      Causal DMD initialization  &83.49 & 84.84  &   78.11& 67 & 6.309&  36 & \cellcolor{green!10}2900 & \cellcolor{green!10}0\\
+      Causal CD initialization  & \textbf{84.10} & \textbf{84.94}  &   \textbf{80.75} & \underline{\textbf{\textit{71}}} &\textbf{6.798} &  \textbf{47}& \cellcolor{green!10}2900 & \cellcolor{green!10}0\\
+    \bottomrule
+  \end{tabular}
+\end{table}
