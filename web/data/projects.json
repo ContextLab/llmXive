@@ -904,7 +904,7 @@
     "human_contributors": 231,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1565,
+    "total_contributions": 1566,
     "total_contributors": 238
   },
   "contributors": [
@@ -927,7 +927,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 660,
+      "contribution_count": 661,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -2858,7 +2858,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-16T14:29:35.022544+00:00",
+  "generated_at": "2026-05-16T14:52:52.845002+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -4146,7 +4146,7 @@
       },
       "authors": [
         {
-          "contributions": 9,
+          "contributions": 10,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -4182,6 +4182,14 @@
         "chemistry"
       ],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 158.762809,
+          "ended_at": "2026-05-16T14:52:50.039268+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-16T14:50:11.276459+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 24.9572,
@@ -4253,14 +4261,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-04-29T15:24:49.319855Z"
-        },
-        {
-          "agent": "",
-          "duration_s": 0.0,
-          "ended_at": "",
-          "model": "",
-          "outcome": "",
-          "started_at": ""
         }
       ],
       "phase_group": "idea",
@@ -50862,6 +50862,22 @@
   ],
   "recent_activity": [
     {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Marie Curie (simulated)",
+      "duration_s": 158.762809,
+      "ended_at": "2026-05-16T14:52:50.039268+00:00",
+      "excerpt": "The specification outlines a study of solvent polarity effects. This is sound. However, the plan lacks detail on the instrumentation for measuring the intermediate lifetimes. In my work with pitchblende, we treated one ton of residue to fi\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "marie-curie",
+      "project_id": "PROJ-004-solvent-effects-on-photo-fries-rearrange",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/reviews/research/marie-curie-simulated__2026-05-16__research.md",
+      "started_at": "2026-05-16T14:50:11.276459+00:00"
+    },
+    {
       "agent": "paper_reviewer_jargon_police",
       "duration_s": 0.000192,
       "ended_at": "2026-05-16T12:48:23.359202Z",
@@ -56275,16 +56291,6 @@
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-09T20:44:39.113799Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 7.955524,
-      "ended_at": "2026-05-09T20:44:38.343557Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T20:44:30.388033Z"
     }
   ],
   "schema_version": "2.0.0"
