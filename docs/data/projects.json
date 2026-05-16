@@ -2858,7 +2858,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-16T16:19:50.794648+00:00",
+  "generated_at": "2026-05-16T16:46:26.830733+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -49495,7 +49495,88 @@
       "field": "computer science",
       "id": "PROJ-570-leveraging-verifier-based-reinforcement",
       "keywords": [],
-      "last_run_log": [],
+      "last_run_log": [
+        {
+          "agent": "paper_reviewer_jargon_police",
+          "duration_s": 0.000182,
+          "ended_at": "2026-05-16T16:46:24.162634Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T16:46:24.162452Z"
+        },
+        {
+          "agent": "paper_reviewer_figure_critic",
+          "duration_s": 0.000187,
+          "ended_at": "2026-05-16T16:46:24.118477Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T16:46:24.118290Z"
+        },
+        {
+          "agent": "paper_reviewer_text_formatting",
+          "duration_s": 0.000206,
+          "ended_at": "2026-05-16T16:46:24.074053Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T16:46:24.073847Z"
+        },
+        {
+          "agent": "paper_reviewer_data_quality_paper",
+          "duration_s": 0.000193,
+          "ended_at": "2026-05-16T16:46:24.029789Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T16:46:24.029596Z"
+        },
+        {
+          "agent": "paper_reviewer_code_quality_paper",
+          "duration_s": 0.000188,
+          "ended_at": "2026-05-16T16:46:23.985582Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T16:46:23.985394Z"
+        },
+        {
+          "agent": "paper_reviewer_statistical_analysis",
+          "duration_s": 0.000196,
+          "ended_at": "2026-05-16T16:46:23.941309Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T16:46:23.941113Z"
+        },
+        {
+          "agent": "paper_reviewer_scientific_evidence",
+          "duration_s": 0.00021,
+          "ended_at": "2026-05-16T16:46:23.897136Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T16:46:23.896926Z"
+        },
+        {
+          "agent": "paper_reviewer_safety_ethics",
+          "duration_s": 0.000188,
+          "ended_at": "2026-05-16T16:46:23.852485Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T16:46:23.852297Z"
+        },
+        {
+          "agent": "paper_reviewer_overreach",
+          "duration_s": 0.00019,
+          "ended_at": "2026-05-16T16:46:23.807865Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T16:46:23.807675Z"
+        },
+        {
+          "agent": "paper_reviewer_claim_accuracy",
+          "duration_s": 0.00019,
+          "ended_at": "2026-05-16T16:46:23.762871Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T16:46:23.762681Z"
+        }
+      ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
@@ -50862,6 +50943,136 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 0.000182,
+      "ended_at": "2026-05-16T16:46:24.162634Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T16:46:24.162452Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 0.000187,
+      "ended_at": "2026-05-16T16:46:24.118477Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T16:46:24.118290Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 0.000206,
+      "ended_at": "2026-05-16T16:46:24.074053Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T16:46:24.073847Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 0.000193,
+      "ended_at": "2026-05-16T16:46:24.029789Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T16:46:24.029596Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 0.000188,
+      "ended_at": "2026-05-16T16:46:23.985582Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T16:46:23.985394Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 0.000196,
+      "ended_at": "2026-05-16T16:46:23.941309Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T16:46:23.941113Z"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 0.00021,
+      "ended_at": "2026-05-16T16:46:23.897136Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T16:46:23.896926Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 0.000188,
+      "ended_at": "2026-05-16T16:46:23.852485Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T16:46:23.852297Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 0.00019,
+      "ended_at": "2026-05-16T16:46:23.807865Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T16:46:23.807675Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 0.00019,
+      "ended_at": "2026-05-16T16:46:23.762871Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T16:46:23.762681Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 0.000196,
+      "ended_at": "2026-05-16T16:46:23.718596Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T16:46:23.718400Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 0.0002,
+      "ended_at": "2026-05-16T16:46:23.673909Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T16:46:23.673709Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 0.000363,
+      "ended_at": "2026-05-16T16:46:23.615507Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T16:46:23.615144Z"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -56168,136 +56379,6 @@
       "project_id": "PROJ-512-predicting-molecular-permeability-of-pol",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-10T01:06:28.481349Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 29.300016,
-      "ended_at": "2026-05-09T23:26:31.230554Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-511-predicting-molecular-packing-efficiency-",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T23:26:01.930538Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 103.979688,
-      "ended_at": "2026-05-09T23:26:01.249644Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-510-predicting-the-glass-forming-region-of-a",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T23:24:17.269956Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 33.117152,
-      "ended_at": "2026-05-09T23:24:16.504381Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-509-evaluating-the-correlation-between-compo",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T23:23:43.387229Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 37.53401,
-      "ended_at": "2026-05-09T22:25:43.238311Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-508-evaluating-the-impact-of-llm-based-code-",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T22:25:05.704301Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 28.150317,
-      "ended_at": "2026-05-09T22:25:05.041403Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T22:24:36.891086Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 162.385327,
-      "ended_at": "2026-05-09T22:24:36.193171Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-506-predicting-material-stiffness-from-micro",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T22:21:53.807844Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 78.116297,
-      "ended_at": "2026-05-09T21:28:21.993014Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-505-exploring-the-statistical-relationship-b",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T21:27:03.876717Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 278.892921,
-      "ended_at": "2026-05-09T21:27:03.030794Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-504-evaluating-the-impact-of-variable-select",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T21:22:24.137873Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 5.200835,
-      "ended_at": "2026-05-09T20:46:49.190331Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T20:46:43.989496Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 9.891262,
-      "ended_at": "2026-05-09T20:46:43.266160Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T20:46:33.374898Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 28.110896,
-      "ended_at": "2026-05-09T20:46:32.657623Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T20:46:04.546727Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 9.902452,
-      "ended_at": "2026-05-09T20:46:03.825408Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T20:45:53.922956Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 59.045666,
-      "ended_at": "2026-05-09T20:45:53.197945Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T20:44:54.152279Z"
     }
   ],
   "schema_version": "2.0.0"
