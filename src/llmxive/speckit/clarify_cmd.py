@@ -79,11 +79,18 @@ class ClarifierAgent(SlashCommandAgent):
             {"project_id": ctx.project_id},
             repo_root=repo,
         )
+        # Spec 011 / FR-013: inject recent personality + reviewer comments
+        # so the clarifier's question selection reflects what reviewers
+        # have already flagged on this project.
+        from llmxive.speckit._comments_context import render_recent_comments_block
+        comments_block = render_recent_comments_block(ctx.project_dir)
+
         user = (
             f"# Current spec.md\n\n{mechanical_output['spec_text']}\n\n"
             f"# Markers\n\n{yaml.safe_dump(mechanical_output['markers'])}\n\n"
             f"# Attempts so far\n{mechanical_output['attempts_so_far']}\n\n"
-            "# Task\n\nReturn the YAML clarification report per the contract."
+            + (comments_block + "\n\n" if comments_block else "")
+            + "# Task\n\nReturn the YAML clarification report per the contract."
         )
         return [
             ChatMessage(role="system", content=system),

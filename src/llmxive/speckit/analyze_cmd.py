@@ -29,6 +29,7 @@ def run_analyze(
     fallback_backends: list[BackendName],
     default_model: str,
     repo_root: Path | None = None,
+    project_dir: Path | None = None,
 ) -> str:
     """Issue an analyze pass over the three artifacts; return raw report text.
 
@@ -44,11 +45,20 @@ def run_analyze(
         "(severity: CRITICAL|HIGH|MEDIUM|LOW), (file:section), and a one-sentence summary. "
         "If no issues are found, return the literal string 'CLEAN' on its own line."
     )
+    # Spec 011 / FR-013: inject recent personality + reviewer comments
+    # so the analyzer's flagged issues reflect existing feedback. The
+    # caller passes project_dir (optional, kept None for legacy callsites).
+    comments_block = ""
+    if project_dir is not None:
+        from llmxive.speckit._comments_context import render_recent_comments_block
+        comments_block = render_recent_comments_block(project_dir)
+
     user = (
         f"# spec.md\n\n{spec_text}\n\n"
         f"# plan.md\n\n{plan_text}\n\n"
         f"# tasks.md\n\n{tasks_text}\n\n"
-        "Now produce the analyze report."
+        + (comments_block + "\n\n" if comments_block else "")
+        + "Now produce the analyze report."
     )
     response = chat_with_fallback(
         [ChatMessage(role="system", content=system), ChatMessage(role="user", content=user)],

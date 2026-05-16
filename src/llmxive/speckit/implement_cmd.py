@@ -135,6 +135,12 @@ class ImplementerAgent(SlashCommandAgent):
                 "(extend / modify these EXACTLY — do not invent new APIs)\n\n"
                 + referenced
             )
+        # Spec 011 / FR-013: inject recent personality + reviewer comments
+        # so the implementer's design choices reflect accumulated feedback.
+        from llmxive.speckit._comments_context import render_recent_comments_block
+        comments_block = render_recent_comments_block(ctx.project_dir)
+        if comments_block:
+            user_parts.append(comments_block)
         user_parts.append(
             "# Task\n\nReturn the YAML implementation report. "
             "If your script imports from sibling modules, the imported "

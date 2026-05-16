@@ -69,12 +69,15 @@ class PaperTaskerAgent(SlashCommandAgent):
             {"project_id": ctx.project_id, "mode": "A"},
             repo_root=repo,
         )
+        from llmxive.speckit._comments_context import render_recent_comments_block
+        comments_block = render_recent_comments_block(ctx.project_dir)
         user = (
             "Mode: A (generate paper tasks.md)\n\n"
             f"# Paper spec.md\n\n{spec_text}\n\n"
             f"# Paper plan.md\n\n{plan_text}\n\n"
             f"# Tasks template\n\n{tasks_template}\n\n"
-            "# Task\n\nReturn the full paper tasks.md Markdown. "
+            + (comments_block + "\n\n" if comments_block else "")
+            + "# Task\n\nReturn the full paper tasks.md Markdown. "
             "EVERY task line MUST include a `[kind:<value>]` token."
         )
         return [

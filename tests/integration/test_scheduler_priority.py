@@ -63,26 +63,54 @@ def _bootstrap_state(repo: Path) -> None:
         (repo / "state" / sub).mkdir(parents=True, exist_ok=True)
 
 
-def test_in_progress_preempts_analyzed(tmp_path: Path) -> None:
+import random
+
+
+def _picked_distribution(repo: Path, *, n_samples: int = 400) -> dict[str, int]:
+    """Sample pick_next() `n_samples` times with a fresh seeded RNG and
+    return a histogram of project_ids. Used for probabilistic assertions."""
+    counts: dict[str, int] = {}
+    for seed in range(n_samples):
+        rng = random.Random(seed)
+        p = scheduler.pick_next(repo_root=repo, rng=rng)
+        if p is None:
+            continue
+        counts[p.id] = counts.get(p.id, 0) + 1
+    return counts
+
+
+def test_in_progress_strongly_preempts_analyzed(tmp_path: Path) -> None:
+    """IN_PROGRESS is one rank deeper than ANALYZED in STAGE_PROGRESSION;
+    its base weight is STAGE_GROWTH_BASE^1 ≈ 1.5× higher. Over many
+    samples, IN_PROGRESS should win the strong majority of picks."""
     _bootstrap_state(tmp_path)
     _make(tmp_path, "PROJ-001-fresh", Stage.ANALYZED, age_days=10)
     _make(tmp_path, "PROJ-002-active", Stage.IN_PROGRESS, age_days=1)
 
-    picked = scheduler.pick_next(repo_root=tmp_path)
-    assert picked is not None
-    assert picked.id == "PROJ-002-active", (
-        f"in_progress should preempt analyzed; got {picked.id}"
+    counts = _picked_distribution(tmp_path)
+    total = sum(counts.values())
+    # IN_PROGRESS / (IN_PROGRESS + ANALYZED) = 1.5 / 2.5 = 60%. Allow 50% floor.
+    assert counts.get("PROJ-002-active", 0) / total > 0.5, (
+        f"in_progress should win majority of picks; got {counts}"
     )
+    # ANALYZED still gets non-zero share — the queue keeps draining.
+    assert counts.get("PROJ-001-fresh", 0) > 0
 
 
-def test_oldest_updated_at_wins_within_tier(tmp_path: Path) -> None:
+def test_same_stage_yields_roughly_uniform_picks(tmp_path: Path) -> None:
+    """Three projects at the same stage with identical comment counts
+    should produce roughly uniform picks (within sampling noise)."""
     _bootstrap_state(tmp_path)
     _make(tmp_path, "PROJ-100-newest", Stage.ANALYZED, age_days=1)
     _make(tmp_path, "PROJ-101-oldest", Stage.ANALYZED, age_days=20)
     _make(tmp_path, "PROJ-102-middle", Stage.ANALYZED, age_days=10)
 
-    picked = scheduler.pick_next(repo_root=tmp_path)
-    assert picked is not None and picked.id == "PROJ-101-oldest"
+    counts = _picked_distribution(tmp_path)
+    total = sum(counts.values())
+    # Each should get ~33% ± sampling noise; allow 20-50% per project.
+    for pid in ("PROJ-100-newest", "PROJ-101-oldest", "PROJ-102-middle"):
+        share = counts.get(pid, 0) / total
+        assert 0.20 < share < 0.50, f"{pid} share {share:.2%} outside band; counts={counts}"
 
 
 def test_locked_projects_skipped(tmp_path: Path) -> None:
@@ -91,9 +119,10 @@ def test_locked_projects_skipped(tmp_path: Path) -> None:
     _make(tmp_path, "PROJ-201-free", Stage.ANALYZED, age_days=10)
     lockmod.acquire(p.id, holder_run_id="other-run", ttl_seconds=3600, repo_root=tmp_path)
 
-    picked = scheduler.pick_next(repo_root=tmp_path)
-    assert picked is not None
-    assert picked.id == "PROJ-201-free", "locked in_progress should be skipped"
+    # Across many samples, the locked PROJ-200 must NEVER be picked.
+    counts = _picked_distribution(tmp_path)
+    assert "PROJ-200-locked" not in counts, "locked project must never be picked"
+    assert counts.get("PROJ-201-free", 0) > 0, "free project should be pickable"
 
 
 @pytest.mark.parametrize("stage", [Stage.HUMAN_INPUT_NEEDED, Stage.BLOCKED, Stage.POSTED])
@@ -102,19 +131,49 @@ def test_excluded_stages_never_picked(tmp_path: Path, stage: Stage) -> None:
     _make(tmp_path, "PROJ-300-stuck", stage, age_days=1)
     _make(tmp_path, "PROJ-301-ready", Stage.IN_PROGRESS, age_days=10)
 
-    picked = scheduler.pick_next(repo_root=tmp_path)
-    assert picked is not None and picked.id == "PROJ-301-ready"
+    counts = _picked_distribution(tmp_path)
+    assert "PROJ-300-stuck" not in counts, "terminal/human-input must never be picked"
+    assert counts.get("PROJ-301-ready", 0) > 0
 
 
-def test_full_priority_order(tmp_path: Path) -> None:
-    """Plant one project at each priority tier; assert the highest-priority is picked."""
+def test_deepest_stage_dominates_picks(tmp_path: Path) -> None:
+    """With projects at BRAINSTORMED, CLARIFIED, and PAPER_IN_PROGRESS,
+    the paper-stage project should win the majority of picks — it's
+    further along the pipeline so closer to publication."""
     _bootstrap_state(tmp_path)
-    # Fill in only a subset of tiers (full enum is too large to test
-    # exhaustively in one pass). Pick three points along the order.
     _make(tmp_path, "PROJ-401-clarified", Stage.CLARIFIED, age_days=1)
     _make(tmp_path, "PROJ-402-brainstormed", Stage.BRAINSTORMED, age_days=1)
     _make(tmp_path, "PROJ-403-paper-progress", Stage.PAPER_IN_PROGRESS, age_days=1)
-    # The highest-priority among these (per the PRIORITY list) is CLARIFIED
-    # — IN_PROGRESS / ANALYZED tiers are empty.
-    picked = scheduler.pick_next(repo_root=tmp_path)
-    assert picked is not None and picked.id == "PROJ-401-clarified"
+
+    counts = _picked_distribution(tmp_path)
+    total = sum(counts.values())
+    # PAPER_IN_PROGRESS has the deepest rank (16 in STAGE_PROGRESSION),
+    # so its weight (1.5^16 ≈ 657) dwarfs CLARIFIED (1.5^4 ≈ 5) and
+    # BRAINSTORMED (1.5^0 = 1). Should win >85%.
+    paper_share = counts.get("PROJ-403-paper-progress", 0) / total
+    assert paper_share > 0.85, (
+        f"deepest-stage project should dominate picks; got {counts}"
+    )
+
+
+def test_comments_boost_priority(tmp_path: Path) -> None:
+    """Two projects at the same stage; the one with more comments should
+    get a noticeable share boost."""
+    _bootstrap_state(tmp_path)
+    p_quiet = _make(tmp_path, "PROJ-500-quiet", Stage.ANALYZED, age_days=1)
+    p_busy = _make(tmp_path, "PROJ-501-busy", Stage.ANALYZED, age_days=1)
+    # Plant 10 comments on PROJ-501.
+    reviews_dir = tmp_path / "projects" / p_busy.id / "reviews" / "research"
+    reviews_dir.mkdir(parents=True, exist_ok=True)
+    for i in range(10):
+        (reviews_dir / f"persona-{i}__2026-05-01__research.md").write_text("body")
+
+    counts = _picked_distribution(tmp_path)
+    total = sum(counts.values())
+    # busy multiplier = 1 + 0.10*10 = 2.0; quiet = 1.0. Busy share ≈ 2/3.
+    busy_share = counts.get("PROJ-501-busy", 0) / total
+    assert busy_share > 0.55, (
+        f"commented project should be picked more often; got {counts}"
+    )
+    # Quiet still non-zero.
+    assert counts.get("PROJ-500-quiet", 0) > 0

@@ -71,11 +71,14 @@ class PaperPlannerAgent(SlashCommandAgent):
             {"project_id": ctx.project_id},
             repo_root=repo,
         )
+        from llmxive.speckit._comments_context import render_recent_comments_block
+        comments_block = render_recent_comments_block(ctx.project_dir)
         user = (
             f"# Paper spec.md\n\n{spec_text}\n\n"
             f"# Paper constitution\n\n{paper_constitution}\n\n"
             f"# Plan template\n\n{plan_template}\n\n"
-            "# Task\n\nProduce all five documents per the output contract."
+            + (comments_block + "\n\n" if comments_block else "")
+            + "# Task\n\nProduce all five documents per the output contract."
         )
         return [
             ChatMessage(role="system", content=system),

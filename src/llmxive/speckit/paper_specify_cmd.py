@@ -82,12 +82,15 @@ class PaperSpecifierAgent(SlashCommandAgent):
             },
             repo_root=repo,
         )
+        from llmxive.speckit._comments_context import render_recent_comments_block
+        comments_block = render_recent_comments_block(ctx.project_dir)
         user = (
             f"# Research-stage spec.md\n\n{research_spec}\n\n"
             f"# Research-stage plan.md\n\n{research_plan}\n\n"
             f"# Research-stage tasks.md\n\n{research_tasks}\n\n"
             f"# Paper spec template\n\n{spec_template}\n\n"
-            "# Task\n\nProduce the final paper-stage spec.md."
+            + (comments_block + "\n\n" if comments_block else "")
+            + "# Task\n\nProduce the final paper-stage spec.md."
         )
         return [
             ChatMessage(role="system", content=system),

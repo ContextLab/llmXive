@@ -85,12 +85,20 @@ class SpecifierAgent(SlashCommandAgent):
             },
             repo_root=repo,
         )
+        # Spec 011 / FR-013: inject recent personality + reviewer
+        # comments into the user prompt so the agent's output reflects
+        # accumulated feedback (single source of truth — every speckit
+        # command pulls this from `_comments_context.render_recent_comments_block`).
+        from llmxive.speckit._comments_context import render_recent_comments_block
+        comments_block = render_recent_comments_block(ctx.project_dir)
+
         user = (
             "# Idea Markdown\n\n"
             f"{idea_md}\n\n"
             "# Spec template (canonical Spec Kit)\n\n"
             f"{spec_template}\n\n"
-            "# Task\n\n"
+            + (comments_block + "\n\n" if comments_block else "")
+            + "# Task\n\n"
             "Produce the final spec.md content."
         )
         return [
