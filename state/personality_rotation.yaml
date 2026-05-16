@@ -1,5 +1,5 @@
-last_used: marie-curie
-last_used_at: '2026-05-16T03:47:27.996710+00:00'
+last_used: rosalind-franklin
+last_used_at: '2026-05-16T05:07:21.596425+00:00'
 last_outcome: abstained
 history:
 - slug: ada-lovelace
@@ -346,5 +346,10 @@ history:
 - slug: marie-curie
   started_at: '2026-05-16T02:18:36.578992+00:00'
   ended_at: '2026-05-16T03:47:27.996710+00:00'
+  outcome: abstained
+  action: abstain
+- slug: rosalind-franklin
+  started_at: '2026-05-16T03:47:27.996710+00:00'
+  ended_at: '2026-05-16T05:07:21.596425+00:00'
   outcome: abstained
   action: abstain
