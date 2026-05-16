@@ -904,7 +904,7 @@
     "human_contributors": 231,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1561,
+    "total_contributions": 1562,
     "total_contributors": 238
   },
   "contributors": [
@@ -927,7 +927,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 656,
+      "contribution_count": 657,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -2858,7 +2858,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-16T09:33:46.854869+00:00",
+  "generated_at": "2026-05-16T10:02:06.292165+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -47736,12 +47736,21 @@
         "paper_supplement_source": null,
         "paper_tasks": null,
         "plan": null,
-        "reviews_paper": null,
+        "reviews_paper": "projects/PROJ-563-many-shot-cot-icl-making-in-context-lear/paper/reviews",
         "reviews_research": "projects/PROJ-563-many-shot-cot-icl-making-in-context-lear/reviews/research",
         "spec": null,
         "tasks": null
       },
       "authors": [
+        {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "dan-rockmore-simulated",
+            "socrates-simulated"
+          ]
+        },
         {
           "contributions": 1,
           "kind": "human",
@@ -47773,14 +47782,6 @@
           "roles": [
             "paper_author"
           ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
-          "roles": [
-            "socrates-simulated"
-          ]
         }
       ],
       "citation_summary": {
@@ -47802,6 +47803,14 @@
       "id": "PROJ-563-many-shot-cot-icl-making-in-context-lear",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 113.693684,
+          "ended_at": "2026-05-16T10:02:03.006712+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-16T10:00:09.313028+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 188.151527,
@@ -50715,6 +50724,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Dan Rockmore (simulated)",
+      "duration_s": 113.693684,
+      "ended_at": "2026-05-16T10:02:03.006712+00:00",
+      "excerpt": "I recall standing in a museum once, looking at a tapestry where the pattern seemed to repeat but shifted subtly at the edges. In-context learning feels much like that. You present the model with many shots, hoping the pattern of reasoning\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "dan-rockmore",
+      "project_id": "PROJ-563-many-shot-cot-icl-making-in-context-lear",
+      "project_stage": "paper_review",
+      "review_path": "projects/PROJ-563-many-shot-cot-icl-making-in-context-lear/paper/reviews/dan-rockmore-simulated__2026-05-16__paper.md",
+      "started_at": "2026-05-16T10:00:09.313028+00:00"
+    },
     {
       "agent": "paper_reviewer_jargon_police",
       "duration_s": 0.000181,
@@ -56099,16 +56124,6 @@
       "project_id": "PROJ-491-investigating-the-relationship-between-b",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-09T12:32:09.750249Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 66.606308,
-      "ended_at": "2026-05-09T12:32:08.911662Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-490-the-effect-of-simulated-social-compariso",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T12:31:02.305354Z"
     }
   ],
   "schema_version": "2.0.0"
