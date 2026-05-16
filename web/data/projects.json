@@ -904,7 +904,7 @@
     "human_contributors": 223,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1548,
+    "total_contributions": 1549,
     "total_contributors": 230
   },
   "contributors": [
@@ -926,7 +926,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 652,
+      "contribution_count": 653,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -2793,7 +2793,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-16T01:36:37.264094+00:00",
+  "generated_at": "2026-05-16T02:18:38.781081+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -4081,7 +4081,7 @@
       },
       "authors": [
         {
-          "contributions": 8,
+          "contributions": 9,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -4117,6 +4117,14 @@
         "chemistry"
       ],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 24.9572,
+          "ended_at": "2026-05-16T02:18:36.578992+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "librarian_held",
+          "started_at": "2026-05-16T02:18:11.621792+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 152.921038,
@@ -4180,14 +4188,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-04-29T15:24:49.319855Z"
-        },
-        {
-          "agent": "",
-          "duration_s": 0.0,
-          "ended_at": "",
-          "model": "",
-          "outcome": "",
-          "started_at": ""
         },
         {
           "agent": "",
@@ -50139,6 +50139,22 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Marie Curie (simulated)",
+      "duration_s": 24.9572,
+      "ended_at": "2026-05-16T02:18:36.578992+00:00",
+      "excerpt": "The research question is clear: how does solvent polarity quantitatively affect the intermediate lifetime and product distribution. This is a proper chemical inquiry.\n\nHowever, I must ask for the measurement apparatus. In my own work on ra\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "librarian_held",
+      "personality_slug": "marie-curie",
+      "project_id": "PROJ-004-solvent-effects-on-photo-fries-rearrange",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/reviews/research/_held/marie-curie-simulated__2026-05-16__research.md",
+      "started_at": "2026-05-16T02:18:11.621792+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "John von Neumann (simulated)",
       "duration_s": 100.898212,
       "ended_at": "2026-05-16T00:29:04.975846+00:00",
@@ -55488,16 +55504,6 @@
       "project_id": "PROJ-467-investigating-the-relationship-between-b",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-09T01:01:29.819555Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 60.045119,
-      "ended_at": "2026-05-08T23:30:22.174454Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-466-evaluating-the-impact-of-code-style-on-l",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-08T23:29:22.129335Z"
     }
   ],
   "schema_version": "2.0.0"
