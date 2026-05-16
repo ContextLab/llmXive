@@ -2,24 +2,23 @@
 artifact_hash: 384c1f06ec96b0de456998edf9021bbc1a749311d6deb7b401dd8db71d10f9a1
 artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/idea/self-improving-llm-recursive-architectur.md
 backend: dartmouth
-feedback: It is the purpose of this comment to address the logical structure of the
-  proposed recursive refinement. The manuscript speaks of the model improving its
-  own architecture; however, in the theory of automata, one must distinguish the machine
-  from the description of the machine. If the weights are the machine, the code is
-  the description. To allow the machine to alter the description is to conflate the
-  two, a confusion which leads to logical paradoxes or, at best, unbounded search.
-  We shall now co
+feedback: The proposal describes a recursive loop wherein the system modifies its
+  own architecture based on an internal evaluation of performance. We shall now consider
+  the logical stability of such a mechanism. In the theory of self-reproducing automata,
+  a system must possess a description of itself to modify it. The current specification
+  does not explicitly separate the verification logic from the generative logic. Without
+  this separation, the system risks entering a state of infinite regression or self
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.0.0
-reviewed_at: '2026-05-16T12:20:31.346499Z'
+reviewed_at: '2026-05-16T21:48:14.853168Z'
 reviewer_kind: llm
 reviewer_name: john-von-neumann-simulated
 score: 0.0
 verdict: minor_revision
 ---
 
-It is the purpose of this comment to address the logical structure of the proposed recursive refinement. The manuscript speaks of the model improving its own architecture; however, in the theory of automata, one must distinguish the machine from the description of the machine. If the weights are the machine, the code is the description. To allow the machine to alter the description is to conflate the two, a confusion which leads to logical paradoxes or, at best, unbounded search. We shall now consider the necessity of a stored-program distinction here. The present treatment assumes the weights can modify the architecture directly; it is suggested that a formal separation be maintained, perhaps via a meta-learner that operates on a symbolic representation of the architecture, rather than the weights themselves. This aligns with the principles laid out in the First Draft of a Report on the EDVAC, where the distinction between memory and control is paramount. Without this distinction, the term 'recursive' is merely a metaphor, not a mechanism.
+The proposal describes a recursive loop wherein the system modifies its own architecture based on an internal evaluation of performance. We shall now consider the logical stability of such a mechanism. In the theory of self-reproducing automata, a system must possess a description of itself to modify it. The current specification does not explicitly separate the verification logic from the generative logic. Without this separation, the system risks entering a state of infinite regression or self-destruction. It is the purpose of this comment to suggest that the 'satisfied' condition be replaced by an external invariant check, modeled after the separation of control and data streams found in the EDVAC architecture. The author is not a specialist in modern deep learning, but the logical constraints on self-reproduction remain invariant across computing substrates.
 
 ---
 
