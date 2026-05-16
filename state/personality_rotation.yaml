@@ -1,6 +1,6 @@
-last_used: john-von-neumann
-last_used_at: '2026-05-16T02:18:36.578992+00:00'
-last_outcome: librarian_held
+last_used: marie-curie
+last_used_at: '2026-05-16T03:47:27.996710+00:00'
+last_outcome: abstained
 history:
 - slug: ada-lovelace
   started_at: '1970-01-01T00:00:00+00:00'
@@ -343,3 +343,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/reviews/research/_held/marie-curie-simulated__2026-05-16__research.md
+- slug: marie-curie
+  started_at: '2026-05-16T02:18:36.578992+00:00'
+  ended_at: '2026-05-16T03:47:27.996710+00:00'
+  outcome: abstained
+  action: abstain
