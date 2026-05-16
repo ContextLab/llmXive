@@ -808,7 +808,21 @@ def build_wrapper(
 
     if forwarded_newcommands:
         parts.append("\n%% ── User-defined macros forwarded from original preamble ─────")
+        # Wrap in \makeatletter...\makeatother. Without it, ANY forwarded
+        # \providecommand{\@xxx}{...} fails: the `@` is not a letter in
+        # the document scope, so `{\@xxx}` parses as `{\@ xxx}` →
+        # `\providecommand` sees `\@` as the cmd name and `xxx{body}`
+        # becomes raw preamble text that gets typeset at \begin{document}.
+        # Symptoms seen in the wild:
+        #   - PROJ-578 ("MemLens"): `\@noticestring` → "oticestring"
+        #     leaked above the title block.
+        #   - PROJ-580 ("Causal Forcing++"): `\@onedot` (from CVPR
+        #     `\onedot` macro) → "nedot." leaked above the title.
+        # Even non-@ macros are safe inside the block — \makeatletter
+        # only affects how `@` is tokenized, not letter macros.
+        parts.append(r"\makeatletter")
         parts.extend(forwarded_newcommands)
+        parts.append(r"\makeatother")
 
     parts.append("\n%% ── llmXive paper metadata ──────────────────────────────────")
     if title:

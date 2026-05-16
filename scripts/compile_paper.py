@@ -119,11 +119,29 @@ def _entry_tex(project: Path, metadata: dict[str, Any]) -> str | None:
 
 
 def _restyle_if_needed(project: Path, metadata: dict[str, Any], entry: str) -> Path | None:
-    """Run restyle_arxiv_paper.py to produce main-llmxive.tex if missing."""
+    """Run restyle_arxiv_paper.py to produce main-llmxive.tex if missing
+    OR stale.
+
+    Staleness rule: if the wrapper exists but the extract script
+    (`scripts/extract_paper_content.py`) is newer, regenerate. This
+    protects against the silent regression that bit PROJ-571: a fix to
+    the wrapper-generator landed but old wrappers kept compiling with
+    the unfixed bug intact (we patched `\\@onedot` handling, but the
+    pre-existing `\\providecommand{...}` line in the wrapper was still
+    leaking 'nedot.' above the title).
+    """
     src = project / "paper" / "source"
     wrapper = src / "main-llmxive.tex"
     if wrapper.is_file():
-        return wrapper
+        try:
+            wrapper_mtime = wrapper.stat().st_mtime
+            script_mtime = RESTYLE_SCRIPT.stat().st_mtime
+            if wrapper_mtime >= script_mtime:
+                return wrapper
+            print(f"[compile] wrapper stale (script newer) — regenerating "
+                  f"{wrapper.relative_to(REPO)}", file=sys.stderr)
+        except OSError:
+            return wrapper  # mtime read failed → just reuse
     arxiv_id = (metadata.get("arxiv_id") or "").strip()
     if not arxiv_id:
         # Synthesize one from the project id so the metadata block isn't empty
@@ -154,6 +172,38 @@ def _clean_partial_outputs(pdf_dir: Path, base: str) -> None:
                 pass
 
 
+def _install_precompiled_bbl(src: Path, pdf_dir: Path, wrapper_stem: str) -> Path | None:
+    """When the arXiv tarball ships a pre-compiled `.bbl` but no `.bib`
+    (a common practice — bibliographies arrive resolved), bibtex can't
+    run and lualatex can't find a `.bbl` matching the wrapper's stem.
+    The result: natbib renders every `\\cite{...}` as `[?]`.
+
+    Symptom seen in the wild: PROJ-576 (SANA-WM) had `[? ? ? ? ?]`
+    throughout its Introduction.
+
+    Fix: copy the source `.bbl` into `pdf_dir`, renamed to
+    `{wrapper_stem}.bbl` so lualatex picks it up by name. Returns the
+    destination path on success, or None when no source `.bbl` exists.
+    """
+    src_bbl_candidates = list(src.glob("*.bbl"))
+    if not src_bbl_candidates:
+        return None
+    # Prefer `main.bbl` over alternates, otherwise the first.
+    src_bbl = next(
+        (p for p in src_bbl_candidates if p.stem == "main"),
+        src_bbl_candidates[0],
+    )
+    pdf_dir.mkdir(parents=True, exist_ok=True)
+    dst_bbl = pdf_dir / f"{wrapper_stem}.bbl"
+    try:
+        shutil.copy2(src_bbl, dst_bbl)
+    except OSError as exc:
+        print(f"[compile] could not copy {src_bbl} → {dst_bbl}: {exc}",
+              file=sys.stderr)
+        return None
+    return dst_bbl
+
+
 def _run_lualatex(project: Path, wrapper: Path) -> tuple[bool, str]:
     """Run lualatex N times from the repo root. Returns (success, log_tail)."""
     if not shutil.which("lualatex"):
@@ -175,6 +225,8 @@ def _run_lualatex(project: Path, wrapper: Path) -> tuple[bool, str]:
     }
     last_tail = ""
     has_bib = any(src.glob("*.bib"))
+    if not has_bib:
+        _install_precompiled_bbl(src, pdf_dir, wrapper.stem)
     for i in range(1, LUALATEX_PASSES + 1):
         cmd = [
             "lualatex", "-interaction=nonstopmode",

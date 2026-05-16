@@ -89,6 +89,65 @@ class TestEntryTex:
         assert cp._entry_tex(tmp_path, {}) is None
 
 
+class TestRestyleStaleness:
+    """Wrapper-regen staleness rule: when `extract_paper_content.py`
+    has been updated more recently than an existing wrapper.tex, the
+    wrapper must be regenerated. Without this rule, fixes to the
+    wrapper-generator silently fail to flow through to old papers
+    (PROJ-571 reproduced exactly this — fix landed, old wrapper kept
+    compiling 'nedot.' above the title)."""
+
+    def test_existing_wrapper_returned_when_fresh(self, cp, tmp_path: Path, monkeypatch) -> None:
+        # Wrapper newer than script → no regen.
+        src = tmp_path / "paper" / "source"
+        src.mkdir(parents=True)
+        wrapper = src / "main-llmxive.tex"
+        wrapper.write_text("existing wrapper", encoding="utf-8")
+        import os
+        # Set wrapper mtime to NOW; restyle script mtime to long ago.
+        script = cp.RESTYLE_SCRIPT
+        if not script.exists():
+            pytest.skip("RESTYLE_SCRIPT not found in test env")
+        os.utime(wrapper, (10_000_000_000, 10_000_000_000))  # year 2286
+        out = cp._restyle_if_needed(tmp_path, {"arxiv_id": "2099.99999"}, "main.tex")
+        assert out == wrapper
+        # The "existing wrapper" content must not have been overwritten.
+        assert wrapper.read_text(encoding="utf-8") == "existing wrapper"
+
+
+class TestInstallPrecompiledBbl:
+    """When the source has a `.bbl` but no `.bib`, we must copy the
+    `.bbl` into pdf_dir, renamed to match the wrapper stem, so lualatex
+    can find it. Without this, natbib emits `[?]` for every citation
+    (PROJ-576 symptom: the SANA-WM Intro was full of `[? ? ? ?]`)."""
+
+    def test_copies_main_bbl_renamed_to_wrapper_stem(self, cp, tmp_path: Path) -> None:
+        src = tmp_path / "source"
+        pdf_dir = tmp_path / "pdf"
+        src.mkdir()
+        (src / "main.bbl").write_text(r"\bibitem{key}A. Author.", encoding="utf-8")
+        dst = cp._install_precompiled_bbl(src, pdf_dir, "main-llmxive")
+        assert dst is not None
+        assert dst.name == "main-llmxive.bbl"
+        assert dst.exists()
+        assert r"\bibitem{key}" in dst.read_text(encoding="utf-8")
+
+    def test_returns_none_when_no_bbl(self, cp, tmp_path: Path) -> None:
+        src = tmp_path / "source"
+        pdf_dir = tmp_path / "pdf"
+        src.mkdir()
+        assert cp._install_precompiled_bbl(src, pdf_dir, "main-llmxive") is None
+
+    def test_prefers_main_bbl_when_multiple_exist(self, cp, tmp_path: Path) -> None:
+        src = tmp_path / "source"
+        pdf_dir = tmp_path / "pdf"
+        src.mkdir()
+        (src / "other.bbl").write_text("other-bib", encoding="utf-8")
+        (src / "main.bbl").write_text("main-bib", encoding="utf-8")
+        dst = cp._install_precompiled_bbl(src, pdf_dir, "main-llmxive")
+        assert dst is not None and dst.read_text(encoding="utf-8") == "main-bib"
+
+
 class TestCleanPartialOutputs:
     def test_removes_stub_family(self, cp, tmp_path: Path) -> None:
         for suffix in (".pdf", ".log", ".aux", ".out", ".toc", ".bbl", ".blg"):
