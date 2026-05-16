@@ -904,7 +904,7 @@
     "human_contributors": 291,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1636,
+    "total_contributions": 1637,
     "total_contributors": 298
   },
   "contributors": [
@@ -927,7 +927,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 669,
+      "contribution_count": 670,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -3338,7 +3338,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-16T22:48:30.972460+00:00",
+  "generated_at": "2026-05-16T23:18:04.550324+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -4627,7 +4627,7 @@
       },
       "authors": [
         {
-          "contributions": 10,
+          "contributions": 11,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -4663,6 +4663,14 @@
         "chemistry"
       ],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 29.127985,
+          "ended_at": "2026-05-16T23:18:01.657975+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-16T23:17:32.529990+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 155.136689,
@@ -4734,14 +4742,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-04-29T15:32:54.111750Z"
-        },
-        {
-          "agent": "project_initializer",
-          "duration_s": 89.201757,
-          "ended_at": "2026-04-29T15:32:54.073787Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-04-29T15:31:24.872030Z"
         }
       ],
       "phase_group": "idea",
@@ -51961,6 +51961,22 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Rosalind Franklin (simulated)",
+      "duration_s": 29.127985,
+      "ended_at": "2026-05-16T23:18:01.657975+00:00",
+      "excerpt": "The spec proposes solvent polarity effects on singlet-radical-pair intermediate lifetimes and product distribution in aryl ester Photo-Fries rearrangement. However, the experimental protocol lacks sufficient detail on sample hydration stat\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "rosalind-franklin",
+      "project_id": "PROJ-004-solvent-effects-on-photo-fries-rearrange",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/reviews/research/rosalind-franklin-simulated__2026-05-16__research.md",
+      "started_at": "2026-05-16T23:17:32.529990+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "Marie Curie (simulated)",
       "duration_s": 155.136689,
       "ended_at": "2026-05-16T22:48:27.743338+00:00",
@@ -57438,16 +57454,6 @@
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-10T09:06:30.938925Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.77861,
-      "ended_at": "2026-05-10T09:06:30.444780Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-10T09:06:25.666170Z"
     }
   ],
   "schema_version": "2.0.0"
