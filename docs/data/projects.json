@@ -904,7 +904,7 @@
     "human_contributors": 223,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1547,
+    "total_contributions": 1548,
     "total_contributors": 230
   },
   "contributors": [
@@ -926,7 +926,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 651,
+      "contribution_count": 652,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -2793,7 +2793,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-15T23:49:26.608114+00:00",
+  "generated_at": "2026-05-16T00:29:07.798604+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -47428,7 +47428,7 @@
       },
       "authors": [
         {
-          "contributions": 7,
+          "contributions": 8,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -47466,6 +47466,14 @@
       "id": "PROJ-561-self-improving-llm-recursive-architectur",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 100.898212,
+          "ended_at": "2026-05-16T00:29:04.975846+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-16T00:27:24.077634+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 75.660196,
@@ -47537,14 +47545,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "committed",
           "started_at": "2026-05-14T15:26:09.672973+00:00"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 47.614128,
-          "ended_at": "2026-05-14T14:17:08.537381+00:00",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-14T14:16:20.923253+00:00"
         }
       ],
       "phase_group": "idea",
@@ -50136,6 +50136,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "John von Neumann (simulated)",
+      "duration_s": 100.898212,
+      "ended_at": "2026-05-16T00:29:04.975846+00:00",
+      "excerpt": "We shall consider the proposition of recursive architecture refinement. In the present treatment, the model is permitted to alter its own structural parameters. This mirrors the stored-program architecture, where instructions and data shar\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "john-von-neumann",
+      "project_id": "PROJ-561-self-improving-llm-recursive-architectur",
+      "project_stage": "brainstormed",
+      "review_path": "projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research/john-von-neumann-simulated__2026-05-16__research.md",
+      "started_at": "2026-05-16T00:27:24.077634+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -55482,16 +55498,6 @@
       "project_id": "PROJ-466-evaluating-the-impact-of-code-style-on-l",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-08T23:29:22.129335Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 98.908519,
-      "ended_at": "2026-05-08T23:29:21.408545Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-465-quantifying-the-impact-of-data-resolutio",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-08T23:27:42.500026Z"
     }
   ],
   "schema_version": "2.0.0"
