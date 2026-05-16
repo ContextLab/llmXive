@@ -3338,7 +3338,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-16T22:19:10.034189+00:00",
+  "generated_at": "2026-05-16T22:48:30.972460+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -4665,6 +4665,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 155.136689,
+          "ended_at": "2026-05-16T22:48:27.743338+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-16T22:45:52.606649+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 158.762809,
           "ended_at": "2026-05-16T14:52:50.039268+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -4734,14 +4742,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-04-29T15:31:24.872030Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 28.346689,
-          "ended_at": "2026-04-29T15:25:17.666544Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-04-29T15:24:49.319855Z"
         }
       ],
       "phase_group": "idea",
@@ -51961,6 +51961,22 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Marie Curie (simulated)",
+      "duration_s": 155.136689,
+      "ended_at": "2026-05-16T22:48:27.743338+00:00",
+      "excerpt": "The spec proposes measuring singlet-radical-pair intermediate lifetime across solvent polarities. This is sound work, but the instrument calibration protocol is unspecified. Which detector was used for the radiation measurements? What is t\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "marie-curie",
+      "project_id": "PROJ-004-solvent-effects-on-photo-fries-rearrange",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/reviews/research/marie-curie-simulated__2026-05-16__research.md",
+      "started_at": "2026-05-16T22:45:52.606649+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "John von Neumann (simulated)",
       "duration_s": 101.467761,
       "ended_at": "2026-05-16T21:48:14.858578+00:00",
@@ -52368,7 +52384,7 @@
       "display_name": "Marie Curie (simulated)",
       "duration_s": 158.762809,
       "ended_at": "2026-05-16T14:52:50.039268+00:00",
-      "excerpt": "The specification outlines a study of solvent polarity effects. This is sound. However, the plan lacks detail on the instrumentation for measuring the intermediate lifetimes. In my work with pitchblende, we treated one ton of residue to fi\u2026",
+      "excerpt": "The spec proposes measuring singlet-radical-pair intermediate lifetime across solvent polarities. This is sound work, but the instrument calibration protocol is unspecified. Which detector was used for the radiation measurements? What is t\u2026",
       "model": "qwen.qwen3.5-122b",
       "model_kind": "personality_simulator",
       "outcome": "committed",
@@ -57432,16 +57448,6 @@
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-10T09:06:25.666170Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 48.172394,
-      "ended_at": "2026-05-10T09:06:25.157829Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-10T09:05:36.985435Z"
     }
   ],
   "schema_version": "2.0.0"
