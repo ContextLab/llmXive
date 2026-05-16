@@ -2793,7 +2793,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-16T05:07:24.365309+00:00",
+  "generated_at": "2026-05-16T05:36:11.782331+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -48009,7 +48009,88 @@
       "field": "computer science",
       "id": "PROJ-564-qwen-image-vae-2-0-technical-report",
       "keywords": [],
-      "last_run_log": [],
+      "last_run_log": [
+        {
+          "agent": "paper_reviewer_jargon_police",
+          "duration_s": 0.000206,
+          "ended_at": "2026-05-16T05:36:08.618424Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T05:36:08.618218Z"
+        },
+        {
+          "agent": "paper_reviewer_figure_critic",
+          "duration_s": 0.000176,
+          "ended_at": "2026-05-16T05:36:08.566655Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T05:36:08.566479Z"
+        },
+        {
+          "agent": "paper_reviewer_text_formatting",
+          "duration_s": 0.000178,
+          "ended_at": "2026-05-16T05:36:08.514886Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T05:36:08.514708Z"
+        },
+        {
+          "agent": "paper_reviewer_data_quality_paper",
+          "duration_s": 0.000186,
+          "ended_at": "2026-05-16T05:36:08.462602Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T05:36:08.462416Z"
+        },
+        {
+          "agent": "paper_reviewer_code_quality_paper",
+          "duration_s": 0.000185,
+          "ended_at": "2026-05-16T05:36:08.410846Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T05:36:08.410661Z"
+        },
+        {
+          "agent": "paper_reviewer_statistical_analysis",
+          "duration_s": 0.000191,
+          "ended_at": "2026-05-16T05:36:08.359026Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T05:36:08.358835Z"
+        },
+        {
+          "agent": "paper_reviewer_scientific_evidence",
+          "duration_s": 0.000195,
+          "ended_at": "2026-05-16T05:36:08.307368Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T05:36:08.307173Z"
+        },
+        {
+          "agent": "paper_reviewer_safety_ethics",
+          "duration_s": 0.000183,
+          "ended_at": "2026-05-16T05:36:08.254892Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T05:36:08.254709Z"
+        },
+        {
+          "agent": "paper_reviewer_overreach",
+          "duration_s": 0.000184,
+          "ended_at": "2026-05-16T05:36:08.202951Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T05:36:08.202767Z"
+        },
+        {
+          "agent": "paper_reviewer_claim_accuracy",
+          "duration_s": 0.000186,
+          "ended_at": "2026-05-16T05:36:08.150369Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-16T05:36:08.150183Z"
+        }
+      ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
@@ -50136,6 +50217,136 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 0.000206,
+      "ended_at": "2026-05-16T05:36:08.618424Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T05:36:08.618218Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 0.000176,
+      "ended_at": "2026-05-16T05:36:08.566655Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T05:36:08.566479Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 0.000178,
+      "ended_at": "2026-05-16T05:36:08.514886Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T05:36:08.514708Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 0.000186,
+      "ended_at": "2026-05-16T05:36:08.462602Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T05:36:08.462416Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 0.000185,
+      "ended_at": "2026-05-16T05:36:08.410846Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T05:36:08.410661Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 0.000191,
+      "ended_at": "2026-05-16T05:36:08.359026Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T05:36:08.358835Z"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 0.000195,
+      "ended_at": "2026-05-16T05:36:08.307368Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T05:36:08.307173Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 0.000183,
+      "ended_at": "2026-05-16T05:36:08.254892Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T05:36:08.254709Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 0.000184,
+      "ended_at": "2026-05-16T05:36:08.202951Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T05:36:08.202767Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 0.000186,
+      "ended_at": "2026-05-16T05:36:08.150369Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T05:36:08.150183Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 0.000194,
+      "ended_at": "2026-05-16T05:36:08.097655Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T05:36:08.097461Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 0.000221,
+      "ended_at": "2026-05-16T05:36:08.045009Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T05:36:08.044788Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 0.000262,
+      "ended_at": "2026-05-16T05:36:07.979911Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-16T05:36:07.979649Z"
+    },
     {
       "action": "abstain",
       "agent": "personality",
@@ -55382,136 +55593,6 @@
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-09T08:59:08.815281Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 29.906377,
-      "ended_at": "2026-05-09T08:44:16.120523Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-481-investigating-the-impact-of-code-complex",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T08:43:46.214146Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 86.163558,
-      "ended_at": "2026-05-09T08:43:45.458979Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-480-predicting-glass-formation-tendency-with",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T08:42:19.295421Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 34.952583,
-      "ended_at": "2026-05-09T08:42:18.477383Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-479-the-impact-of-visual-distraction-on-cogn",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T08:41:43.524800Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 73.157425,
-      "ended_at": "2026-05-09T07:42:58.683589Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-478-assessing-the-predictive-power-of-plant-",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T07:41:45.526164Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 37.318781,
-      "ended_at": "2026-05-09T07:41:44.832684Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-477-predicting-material-strength-from-micros",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T07:41:07.513903Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 29.796417,
-      "ended_at": "2026-05-09T06:56:40.936809Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-476-quantifying-correlations-between-solar-w",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T06:56:11.140392Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 33.790968,
-      "ended_at": "2026-05-09T06:56:10.504256Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-475-predicting-plant-defense-compound-produc",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T06:55:36.713288Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 63.477636,
-      "ended_at": "2026-05-09T06:55:36.028712Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-474-neural-correlates-of-simulated-social-ex",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T06:54:32.551076Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 34.489221,
-      "ended_at": "2026-05-09T05:14:13.160920Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-473-the-impact-of-narrative-perspective-on-e",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T05:13:38.671699Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 33.671851,
-      "ended_at": "2026-05-09T05:13:37.980912Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-472-investigating-the-impact-of-network-stru",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T05:13:04.309061Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 18.992516,
-      "ended_at": "2026-05-09T03:18:51.284085Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T03:18:32.291569Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 33.501956,
-      "ended_at": "2026-05-09T03:18:31.676890Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-470-predicting-cognitive-fatigue-from-restin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T03:17:58.174934Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 19.424275,
-      "ended_at": "2026-05-09T03:17:57.513002Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-469-the-impact-of-repeated-exposure-to-neutr",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-09T03:17:38.088727Z"
     }
   ],
   "schema_version": "2.0.0"
