@@ -1172,6 +1172,24 @@
     _openAboutModal("Agent registry", intro + '<div class="am-agent-list">' + rows + '</div>');
   }
 
+  // ── About page: dynamic personality-roster line ──
+  //
+  // The About > Simulated personalities section has a hardcoded prose list
+  // (David Krakauer, Geoffrey West, …) inside <span data-personality-roster>.
+  // Replace that list with the live payload roster so the prose stays in
+  // sync as personas are added/removed (was a manual edit hazard — until
+  // 2026-05-16 the prose still named Aristotle and Socrates after they
+  // were rotated out of the pool).
+  function renderPersonalityRoster(payload) {
+    const span = document.querySelector("[data-personality-roster]");
+    if (!span) return;
+    const personas = (payload.personalities || [])
+      .slice()
+      .sort((a, b) => (a.display_name || "").localeCompare(b.display_name || ""));
+    if (personas.length === 0) return;
+    span.textContent = personas.map(p => p.display_name).join(", ");
+  }
+
   // ── Personality Registry modal (spec 008 / US6 / FR-022 / FR-023) ──
   //
   // Mirrors openAgentRegistry's behaviour: same `.about-modal` shell, same
@@ -1290,6 +1308,7 @@
 
     renderAggregates(payload);
     renderTabCounts();
+    renderPersonalityRoster(payload);
     ["papers", "paper", "inProgress", "plans", "designs"].forEach(renderCards);
     renderBacklog();
     renderContributors();
