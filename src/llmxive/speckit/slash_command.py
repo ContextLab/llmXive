@@ -10,11 +10,20 @@ authored prompt from upstream `.specify/templates/` or
 (Principle I), (3) calls the LLM via the configured backend chain, (4)
 writes artifacts at canonical Spec Kit paths, (5) appends a run-log
 entry.
+
+Opt-in inspection hook (spec 011 / FR-003): when the environment variable
+``LLMXIVE_INSPECTION_DIR`` is set, ``run()`` ALSO writes a per-invocation
+inspection record (via :mod:`llmxive.speckit._inspection`) to
+``<LLMXIVE_INSPECTION_DIR>/<agent_name>.json`` capturing the verbatim
+system + user prompts, the raw LLM response, and outcome metadata.
+Production cron jobs leave the env var unset, so this is a strict no-op
+unless explicitly enabled by the spec-011 validation harness.
 """
 
 from __future__ import annotations
 
 import abc
+import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -85,6 +94,10 @@ class SlashCommandAgent(abc.ABC):
         outputs: list[str] = []
         backend_used: BackendName = ctx.default_backend
         model_used: str = ctx.default_model
+        # Spec 011 inspection-hook locals — initialized so the finally block
+        # can capture even when build_prompt or chat_with_fallback raises.
+        messages: list[ChatMessage] = []
+        llm_response_text: str = ""
 
         try:
             mechanical_output = self.mechanical_step(ctx)
@@ -97,6 +110,7 @@ class SlashCommandAgent(abc.ABC):
             )
             backend_used = BackendName(llm_response.backend)
             model_used = llm_response.model
+            llm_response_text = llm_response.text
             outputs = self.write_artifacts(ctx, mechanical_output, llm_response)
             # FR-026 point 1: validate citations on every artifact write.
             _validate_artifact_citations(ctx, outputs)
@@ -124,7 +138,63 @@ class SlashCommandAgent(abc.ABC):
                 cost_estimate_usd=0.0,
             )
             runlog.append_entry(entry)
+            _maybe_write_inspection(
+                ctx=ctx, started=started, ended=ended, outcome=outcome,
+                failure_reason=failure_reason, messages=messages,
+                llm_response_text=llm_response_text, model_used=model_used,
+                backend_used=backend_used,
+            )
         return entry
+
+
+def _maybe_write_inspection(
+    *,
+    ctx: SlashCommandContext,
+    started: datetime,
+    ended: datetime,
+    outcome: Outcome,
+    failure_reason: str | None,
+    messages: list[ChatMessage],
+    llm_response_text: str,
+    model_used: str,
+    backend_used: BackendName,
+) -> None:
+    """Spec 011 / FR-003 inspection-record hook (opt-in via env var).
+
+    No-op unless ``LLMXIVE_INSPECTION_DIR`` is set. When set, writes a
+    minimal per-invocation record to ``<env_dir>/<agent_name>.json``
+    capturing the verbatim system + user prompts, the raw LLM response,
+    timestamps, model, backend, and outcome. The validation harness
+    (``scripts/validate_phase3.py``) augments this record post-hoc with
+    file_diffs and reset_artifacts (which the agent doesn't know about).
+    Any hook failure is swallowed — never block the agent on inspection.
+    """
+    env_dir = os.environ.get("LLMXIVE_INSPECTION_DIR")
+    if not env_dir:
+        return
+    try:
+        from llmxive.speckit._inspection import capture
+        sys_prompt = next((m.content for m in messages if m.role == "system"), "")
+        usr_prompt = next((m.content for m in messages if m.role == "user"), "")
+        capture(
+            project_id=ctx.project_id,
+            agent_name=ctx.agent_name,
+            agent_version=ctx.prompt_version,
+            model=model_used,
+            backend=backend_used.value if hasattr(backend_used, "value") else str(backend_used),
+            started_at=started,
+            ended_at=ended,
+            outcome=("committed" if outcome == Outcome.SUCCESS else "failed"),
+            prompts={"system": sys_prompt, "user": usr_prompt},
+            raw_response=llm_response_text,
+            parsed_output={},
+            file_diffs=[],
+            reset_artifacts=[],
+            error=failure_reason,
+            spec_root=Path(env_dir).parent.parent,  # env points at .../inspections/<project_id>; spec_root = .../  (two parents up)
+        )
+    except Exception:  # noqa: BLE001 — never block an agent on a capture failure
+        pass
 
 
 def _validate_artifact_citations(

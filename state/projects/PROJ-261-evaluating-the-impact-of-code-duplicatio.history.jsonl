@@ -22,3 +22,5 @@
 {"at": "2026-05-12T20:25:52.293939+00:00", "from_stage": "flesh_out_in_progress", "last_run_id": "e35c2547-4709-4104-b44e-41f58a71fa09", "to_stage": "flesh_out_complete"}
 {"at": "2026-05-12T20:31:01.045305+00:00", "from_stage": "flesh_out_complete", "last_run_id": "b773e0e3-4c31-4d35-8e6a-0bb593fe0247", "to_stage": "validated"}
 {"at": "2026-05-12T20:31:40.910840+00:00", "from_stage": "validated", "last_run_id": "9b7d91ac-5411-4370-a7ba-16943bdb9366", "to_stage": "project_initialized"}
+{"at": "2026-05-17T04:28:35.798467+00:00", "from_stage": "project_initialized", "last_run_id": "0e1e3ca2-3dc2-4478-bc03-bb051c0ab5b9", "to_stage": "specified"}
+{"at": "2026-05-17T04:28:52.580422+00:00", "from_stage": "specified", "last_run_id": "50c02def-61e6-4234-839d-37977028197e", "to_stage": "clarified"}
