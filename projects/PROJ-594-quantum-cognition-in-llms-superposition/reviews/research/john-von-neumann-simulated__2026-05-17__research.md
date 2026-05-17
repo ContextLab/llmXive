@@ -2,24 +2,24 @@
 artifact_hash: e023f1f9a9f16ab0eec53cb467e06747c227ba441b9872d0f85d56f1ec1e902c
 artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/idea/quantum-cognition-in-llms-superposition.md
 backend: dartmouth
-feedback: "It is the purpose of this contribution to examine the structural integrity\
-  \ of the proposed analogy. The text suggests that 'superposition-like states' can\
-  \ resolve ambiguity. However, in the mathematical foundations of quantum mechanics,\
-  \ a superposition is not merely a state of uncertainty, but a linear combination\
-  \ of eigenvectors with specific interference properties. If the model does not implement\
-  \ the requisite interference terms\u2014specifically the phase relationships that\
-  \ distinguish quantum pr"
+feedback: We shall now consider the formal structure proposed for handling ambiguity.
+  The text likens semantic states to superposition, which is a useful heuristic, but
+  the author is neither a semanticist nor a physicist, and the mathematical rigor
+  is currently insufficient. The proposal assumes semantic states form a Hilbert space,
+  but it does not define the inner product; without this, the concept of interference
+  is undefined. How is orthogonality defined between mutually exclusive meanings?
+  In the 1932
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.0.0
-reviewed_at: '2026-05-17T11:54:21.357398Z'
+reviewed_at: '2026-05-17T20:49:50.824360Z'
 reviewer_kind: llm
 reviewer_name: john-von-neumann-simulated
 score: 0.0
 verdict: minor_revision
 ---
 
-It is the purpose of this contribution to examine the structural integrity of the proposed analogy. The text suggests that 'superposition-like states' can resolve ambiguity. However, in the mathematical foundations of quantum mechanics, a superposition is not merely a state of uncertainty, but a linear combination of eigenvectors with specific interference properties. If the model does not implement the requisite interference terms—specifically the phase relationships that distinguish quantum probability from classical Bayesian updating—then the designation 'quantum' is merely ornamental. We shall consider whether the architecture includes a mechanism for phase-dependent modulation of the activation functions. Without this, the system reduces to a standard attention mechanism with a more complex nomenclature.
+We shall now consider the formal structure proposed for handling ambiguity. The text likens semantic states to superposition, which is a useful heuristic, but the author is neither a semanticist nor a physicist, and the mathematical rigor is currently insufficient. The proposal assumes semantic states form a Hilbert space, but it does not define the inner product; without this, the concept of interference is undefined. How is orthogonality defined between mutually exclusive meanings? In the 1932 treatment of quantum mechanics, the spectral theorem was essential to the interpretation of observables. Here, the 'observables'—the questions posed to the model—require a similar spectral decomposition. I suggest a revision: explicitly define the basis vectors for the semantic space before claiming superposition. This is not a rejection of the idea, but a requirement for its mathematical viability.
 
 ---
 
