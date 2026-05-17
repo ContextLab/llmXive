@@ -1,0 +1,104 @@
+# Feature Specification: Predicting Molecular Dipole Moments with Graph Neural Networks
+
+**Feature Branch**: `001-predicting-molecular-dipole-moments`  
+**Created**: 2026-05-15  
+**Status**: Draft  
+**Input**: User description: "To what extent does 3D conformational geometry provide independent predictive information for molecular dipole moments beyond 2D connectivity and atom types?"
+
+## User Scenarios & Testing *(mandatory)*
+
+### User Story 1 - Dataset Preparation and Baseline Feature Extraction (Priority: P1)
+
+A researcher can download the QM9 dataset, filter to a 10k random subset, and extract both 3D coordinates and 2D descriptors (Morgan fingerprints, Coulomb matrices) for baseline comparison.
+
+**Why this priority**: This is the foundational step without which no modeling can occur. It delivers immediate value by establishing the data infrastructure and confirming the dataset is accessible and preprocessed correctly.
+
+**Independent Test**: Can be fully tested by verifying data files exist, subset size equals 10k, and both 3D and 2D feature matrices are generated with no missing values.
+
+**Acceptance Scenarios**:
+
+1. **Given** the QM9 dataset is available at the specified DOI, **When** the researcher runs the preprocessing script, **Then** a 10k subset is created with extracted 3D coordinates, atom types, bond connectivity, and 2D descriptors
+2. **Given** the preprocessing script has completed, **When** the researcher validates the output files, **Then** all 10k molecules have complete feature vectors with no NaN values
+
+---
+
+### User Story 2 - Model Training and Evaluation Pipeline (Priority: P2)
+
+A researcher can train a lightweight SchNet-style GNN and Random Forest baseline on the same train/test splits, then evaluate both on a held-out test set using MAE for dipole moments.
+
+**Why this priority**: This delivers the core comparative analysis. Without it, the research question cannot be answered. It builds on the data preparation from Story 1.
+
+**Independent Test**: Can be fully tested by running training with 50 epochs and early stopping, then verifying both models produce MAE scores on the test set.
+
+**Acceptance Scenarios**:
+
+1. **Given** the preprocessed dataset from Story 1, **When** the researcher trains both the GNN and Random Forest models with 5 random seeds, **Then** each model produces a test set MAE score
+2. **Given** both models have completed training, **When** the researcher compares their performance, **Then** the RMSE distributions are saved for statistical comparison
+
+---
+
+### User Story 3 - Feature Attribution and Statistical Significance Analysis (Priority: P3)
+
+A researcher can apply permutation importance to the Random Forest and saliency mapping to GNN embeddings, then perform paired t-tests to confirm statistical significance of the performance delta.
+
+**Why this priority**: This provides the interpretability and scientific rigor needed to answer the research question. It depends on both Story 1 (data) and Story 2 (model outputs).
+
+**Independent Test**: Can be fully tested by verifying feature importance rankings are generated and t-test p-values are computed across the 5 random seeds.
+
+**Acceptance Scenarios**:
+
+1. **Given** trained models from Story 2, **When** the researcher runs the attribution analysis, **Then** structural contributions are ranked (e.g., electronegative atom placement, local bond angles)
+2. **Given** RMSE distributions from 5 random seeds, **When** paired t-tests are performed (α=0.05), **Then** statistical significance of the GNN vs baseline delta is reported
+
+---
+
+### Edge Cases
+
+- What happens when the QM9 dataset DOI link is inaccessible or the download fails?
+- How does the system handle molecules with missing 3D coordinates in the QM9 subset?
+- What happens when the 6h CPU time limit is exceeded during model training?
+
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+- **FR-001**: System MUST download and cache the QM9 dataset (DOI: 10.6084/m9.figshare.9981994) with integrity verification
+- **FR-002**: System MUST extract 3D coordinates, atom types, and bond connectivity from the dataset
+- **FR-003**: System MUST generate 2D descriptors (Morgan fingerprints, Coulomb matrices) for baseline comparison
+- **FR-004**: System MUST implement a lightweight SchNet-style GNN using PyTorch Geometric in CPU-only mode
+- **FR-005**: System MUST train and evaluate both GNN and Random Forest models with identical train/test splits across 5 random seeds
+- **FR-006**: System MUST compute MAE and RMSE metrics for dipole moment predictions on a held-out test set
+- **FR-007**: System MUST apply permutation importance to Random Forest features and saliency mapping to GNN node embeddings
+- **FR-008**: System MUST perform paired t-tests (α=0.05) comparing RMSE distributions between GNN and baseline
+- **FR-009**: System MUST visualize feature importance maps on representative molecules to correlate with chemical intuition
+- **FR-010**: System MUST complete execution within 6h on 2 CPU cores
+
+*Example of marking unclear requirements:*
+
+- **FR-011**: System MUST validate predictions against QM9 quantum calculation reference data (physical experimental measurements are out of scope for this computational feature; QM9 dipole moments are derived from DFT calculations at the B3LYP/6-31G(2df,p) level per the dataset specification)
+- **FR-012**: System MUST report confidence intervals for both MAE and RMSE (as specified in FR-006 and evaluated in SC-001/SC-004)
+
+### Key Entities *(include if feature involves data)*
+
+- **Molecule**: Represents a chemical compound with attributes including 3D atomic coordinates, atom types, bond connectivity, and dipole moment reference value
+- **Model**: Represents either the GNN or Random Forest predictor with attributes including architecture type, training hyperparameters, and performance metrics
+- **FeatureSet**: Represents extracted descriptors (3D coordinates, Morgan fingerprints, Coulomb matrices) with relationships to specific molecules
+
+## Success Criteria *(mandatory)*
+
+### Measurable Outcomes
+
+- **SC-001**: GNN model achieves lower MAE than Random Forest baseline on held-out test set (statistically significant at α=0.05)
+- **SC-002**: Feature attribution analysis identifies at least 3 structural features contributing to predictive variance (e.g., electronegative atom placement, local bond angles)
+- **SC-003**: All experiments complete within 6h runtime on 2 CPU cores
+- **SC-004**: Paired t-tests confirm performance delta between 3D GNN and 2D baseline across all 5 random seeds
+- **SC-005**: Reproducibility achieved with consistent results across the 5 random seeds (RMSE variance < 10%)
+
+## Assumptions
+
+- The QM9 dataset is accessible via the specified DOI and contains dipole moment reference values
+- PyTorch Geometric is available in the execution environment with CPU-only mode support
+- The 10k random subset of QM9 is representative of the full dataset for dipole moment prediction
+- Physical experimental validation is out of scope for this feature; validation is against QM9 quantum calculation reference data Physical measurement validation is out of scope for this computational feature; validation will use QM9 quantum calculation reference data as the ground truth standard (experimental validation is a downstream research requirement, not a feature requirement)
+- The 6h execution time limit on 2 CPU cores is a hard constraint that cannot be exceeded
+- All cited literature URLs from the idea markdown are valid and accessible for reference validation

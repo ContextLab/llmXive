@@ -1,0 +1,11 @@
+- artifact_hash: fe673c8dc593c9d9a4f459a6e33f6cfc46b5aa4529deaf64398a3b5bb91e8397
+  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.6084/m9.figshare.9981994
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.6084/m9.figshare.9981994
+  verified_at: '2026-05-17T04:29:43.978035Z'

@@ -1,0 +1,32 @@
+spec: 011-phase3-specify-clarify-testing
+generated_at: '2026-05-17T04:29:44.536080+00:00'
+final_commit: HEAD
+projects:
+- project_id: PROJ-261-evaluating-the-impact-of-code-duplicatio
+  final_state: clarified
+  final_commit: HEAD
+  audited_iter_id: PROJ-261-evaluating-the-impact-of-code-duplicatio
+  agents_run:
+  - name: specifier
+    iterations: 1
+    final_outcome: committed
+  - name: clarifier
+    iterations: 1
+    final_outcome: committed
+  justification: Phase 3 ran cleanly on PROJ-261-evaluating-the-impact-of-code-duplicatio.
+    Both agents committed; final state clarified. Inspection records at specs/011-…/inspections/PROJ-261-evaluating-the-impact-of-code-duplicatio/.
+    Ready for Phase 4.
+- project_id: PROJ-262-predicting-molecular-dipole-moments-with
+  final_state: clarified
+  final_commit: HEAD
+  audited_iter_id: PROJ-262-predicting-molecular-dipole-moments-with
+  agents_run:
+  - name: specifier
+    iterations: 1
+    final_outcome: committed
+  - name: clarifier
+    iterations: 1
+    final_outcome: committed
+  justification: Phase 3 ran cleanly on PROJ-262-predicting-molecular-dipole-moments-with.
+    Both agents committed; final state clarified. Inspection records at specs/011-…/inspections/PROJ-262-predicting-molecular-dipole-moments-with/.
+    Ready for Phase 4.
