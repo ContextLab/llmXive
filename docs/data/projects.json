@@ -3340,7 +3340,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-17T08:47:10.572465+00:00",
+  "generated_at": "2026-05-17T09:11:17.459932+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -50397,7 +50397,88 @@
       "field": "computer science",
       "id": "PROJ-571-co-evolving-policy-distillation",
       "keywords": [],
-      "last_run_log": [],
+      "last_run_log": [
+        {
+          "agent": "paper_reviewer_jargon_police",
+          "duration_s": 0.000175,
+          "ended_at": "2026-05-17T09:11:14.299228Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T09:11:14.299053Z"
+        },
+        {
+          "agent": "paper_reviewer_figure_critic",
+          "duration_s": 0.00018,
+          "ended_at": "2026-05-17T09:11:14.247838Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T09:11:14.247658Z"
+        },
+        {
+          "agent": "paper_reviewer_text_formatting",
+          "duration_s": 0.000206,
+          "ended_at": "2026-05-17T09:11:14.196719Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T09:11:14.196513Z"
+        },
+        {
+          "agent": "paper_reviewer_data_quality_paper",
+          "duration_s": 0.000202,
+          "ended_at": "2026-05-17T09:11:14.145621Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T09:11:14.145419Z"
+        },
+        {
+          "agent": "paper_reviewer_code_quality_paper",
+          "duration_s": 0.000184,
+          "ended_at": "2026-05-17T09:11:14.094798Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T09:11:14.094614Z"
+        },
+        {
+          "agent": "paper_reviewer_statistical_analysis",
+          "duration_s": 0.000187,
+          "ended_at": "2026-05-17T09:11:14.043274Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T09:11:14.043087Z"
+        },
+        {
+          "agent": "paper_reviewer_scientific_evidence",
+          "duration_s": 0.000176,
+          "ended_at": "2026-05-17T09:11:13.992213Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T09:11:13.992037Z"
+        },
+        {
+          "agent": "paper_reviewer_safety_ethics",
+          "duration_s": 0.000219,
+          "ended_at": "2026-05-17T09:11:13.940686Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T09:11:13.940467Z"
+        },
+        {
+          "agent": "paper_reviewer_overreach",
+          "duration_s": 0.000183,
+          "ended_at": "2026-05-17T09:11:13.889410Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T09:11:13.889227Z"
+        },
+        {
+          "agent": "paper_reviewer_claim_accuracy",
+          "duration_s": 0.000181,
+          "ended_at": "2026-05-17T09:11:13.837525Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T09:11:13.837344Z"
+        }
+      ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
@@ -53228,6 +53309,136 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 0.000175,
+      "ended_at": "2026-05-17T09:11:14.299228Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-571-co-evolving-policy-distillation",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T09:11:14.299053Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 0.00018,
+      "ended_at": "2026-05-17T09:11:14.247838Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-571-co-evolving-policy-distillation",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T09:11:14.247658Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 0.000206,
+      "ended_at": "2026-05-17T09:11:14.196719Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-571-co-evolving-policy-distillation",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T09:11:14.196513Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 0.000202,
+      "ended_at": "2026-05-17T09:11:14.145621Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-571-co-evolving-policy-distillation",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T09:11:14.145419Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 0.000184,
+      "ended_at": "2026-05-17T09:11:14.094798Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-571-co-evolving-policy-distillation",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T09:11:14.094614Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 0.000187,
+      "ended_at": "2026-05-17T09:11:14.043274Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-571-co-evolving-policy-distillation",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T09:11:14.043087Z"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 0.000176,
+      "ended_at": "2026-05-17T09:11:13.992213Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-571-co-evolving-policy-distillation",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T09:11:13.992037Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 0.000219,
+      "ended_at": "2026-05-17T09:11:13.940686Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-571-co-evolving-policy-distillation",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T09:11:13.940467Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 0.000183,
+      "ended_at": "2026-05-17T09:11:13.889410Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-571-co-evolving-policy-distillation",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T09:11:13.889227Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 0.000181,
+      "ended_at": "2026-05-17T09:11:13.837525Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-571-co-evolving-policy-distillation",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T09:11:13.837344Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 0.000171,
+      "ended_at": "2026-05-17T09:11:13.785995Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-571-co-evolving-policy-distillation",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T09:11:13.785824Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 0.000174,
+      "ended_at": "2026-05-17T09:11:13.734577Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-571-co-evolving-policy-distillation",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T09:11:13.734403Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 0.000254,
+      "ended_at": "2026-05-17T09:11:13.675163Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-571-co-evolving-policy-distillation",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T09:11:13.674909Z"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -58672,136 +58883,6 @@
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-10T20:45:02.382054Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.398292,
-      "ended_at": "2026-05-10T20:45:01.539923Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-10T20:44:57.141631Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 14.9208,
-      "ended_at": "2026-05-10T20:44:56.348169Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-10T20:44:41.427369Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 106.077999,
-      "ended_at": "2026-05-10T20:25:30.910549Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-544-predicting-the-glass-forming-region-of-m",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-10T20:23:44.832550Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 33.356411,
-      "ended_at": "2026-05-10T20:23:44.032241Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-543-predicting-molecular-interactions-in-pro",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-10T20:23:10.675830Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 29.471912,
-      "ended_at": "2026-05-10T19:31:39.033796Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-542-predicting-defect-formation-energies-in-",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-10T19:31:09.561884Z"
-    },
-    {
-      "agent": "project_initializer",
-      "duration_s": 63.932617,
-      "ended_at": "2026-05-10T19:11:18.373592Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
-      "project_stage": "clarified",
-      "started_at": "2026-05-10T19:10:14.440975Z"
-    },
-    {
-      "agent": "research_question_validator",
-      "duration_s": 35.05152,
-      "ended_at": "2026-05-10T19:10:14.369463Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
-      "project_stage": "clarified",
-      "started_at": "2026-05-10T19:09:39.317943Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 72.453707,
-      "ended_at": "2026-05-10T19:09:39.246772Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
-      "project_stage": "clarified",
-      "started_at": "2026-05-10T19:08:26.793065Z"
-    },
-    {
-      "agent": "project_initializer",
-      "duration_s": 93.602051,
-      "ended_at": "2026-05-10T19:08:26.723644Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
-      "project_stage": "clarified",
-      "started_at": "2026-05-10T19:06:53.121593Z"
-    },
-    {
-      "agent": "research_question_validator",
-      "duration_s": 15.803681,
-      "ended_at": "2026-05-10T19:06:53.047005Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
-      "project_stage": "clarified",
-      "started_at": "2026-05-10T19:06:37.243324Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 386.330281,
-      "ended_at": "2026-05-10T19:06:37.173551Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
-      "project_stage": "clarified",
-      "started_at": "2026-05-10T19:00:10.843270Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 30.536174,
-      "ended_at": "2026-05-10T18:30:44.148001Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-541-evaluating-the-impact-of-data-scaling-on",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-10T18:30:13.611827Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 69.340051,
-      "ended_at": "2026-05-10T18:30:12.855589Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-540-the-influence-of-social-media-doomscroll",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-10T18:29:03.515538Z"
     }
   ],
   "schema_version": "2.0.0"
