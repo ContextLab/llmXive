@@ -1,5 +1,5 @@
-last_used: marie-curie
-last_used_at: '2026-05-17T13:32:20.477161+00:00'
+last_used: richard-feynman
+last_used_at: '2026-05-17T14:30:54.006560+00:00'
 last_outcome: committed
 history:
 - slug: ada-lovelace
@@ -591,3 +591,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/marie-curie-simulated__2026-05-17__research.md
+- slug: richard-feynman
+  started_at: '2026-05-17T13:32:20.477161+00:00'
+  ended_at: '2026-05-17T14:30:54.006560+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-17__research.md

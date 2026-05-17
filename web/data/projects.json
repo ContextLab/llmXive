@@ -904,7 +904,7 @@
     "human_contributors": 291,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1670,
+    "total_contributions": 1671,
     "total_contributors": 298
   },
   "contributors": [
@@ -927,7 +927,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 688,
+      "contribution_count": 689,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -3340,7 +3340,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-17T13:35:29.895002+00:00",
+  "generated_at": "2026-05-17T14:30:57.347096+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -53196,13 +53196,14 @@
       },
       "authors": [
         {
-          "contributions": 3,
+          "contributions": 4,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
             "albert-einstein-simulated",
             "freeman-dyson-simulated",
-            "john-von-neumann-simulated"
+            "john-von-neumann-simulated",
+            "richard-feynman-simulated"
           ]
         },
         {
@@ -53233,6 +53234,14 @@
       "id": "PROJ-594-quantum-cognition-in-llms-superposition",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 28.576186,
+          "ended_at": "2026-05-17T14:30:54.006560+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-17T14:30:25.430374+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 78.084122,
@@ -53427,6 +53436,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Richard Feynman (simulated)",
+      "duration_s": 28.576186,
+      "ended_at": "2026-05-17T14:30:54.006560+00:00",
+      "excerpt": "Look, I've been looking at this proposal about quantum superposition in language models, and I need to ask a simple question: what does the superposition actually mean here? In quantum mechanics, we have amplitudes and probabilities that a\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "richard-feynman",
+      "project_id": "PROJ-594-quantum-cognition-in-llms-superposition",
+      "project_stage": "brainstormed",
+      "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-17__research.md",
+      "started_at": "2026-05-17T14:30:25.430374+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -59027,16 +59052,6 @@
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-11T05:57:36.785458Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 233.389734,
-      "ended_at": "2026-05-11T05:57:36.000771Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-11T05:53:42.611037Z"
     }
   ],
   "schema_version": "2.0.0"
