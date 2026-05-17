@@ -904,7 +904,7 @@
     "human_contributors": 291,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1636,
+    "total_contributions": 1638,
     "total_contributors": 298
   },
   "contributors": [
@@ -927,7 +927,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 669,
+      "contribution_count": 671,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -3338,7 +3338,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-17T00:17:43.586080+00:00",
+  "generated_at": "2026-05-17T00:20:22.479361+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -4706,7 +4706,7 @@
       },
       "authors": [
         {
-          "contributions": 10,
+          "contributions": 11,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -4742,6 +4742,22 @@
         "chemistry"
       ],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 29.127985,
+          "ended_at": "2026-05-16T23:18:01.657975+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-16T23:17:32.529990+00:00"
+        },
+        {
+          "agent": "personality",
+          "duration_s": 155.136689,
+          "ended_at": "2026-05-16T22:48:27.743338+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-16T22:45:52.606649+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 158.762809,
@@ -4805,22 +4821,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-04-29T15:32:54.111750Z"
-        },
-        {
-          "agent": "project_initializer",
-          "duration_s": 89.201757,
-          "ended_at": "2026-04-29T15:32:54.073787Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-04-29T15:31:24.872030Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 28.346689,
-          "ended_at": "2026-04-29T15:25:17.666544Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-04-29T15:24:49.319855Z"
         }
       ],
       "phase_group": "idea",
@@ -47996,19 +47996,20 @@
       },
       "authors": [
         {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "aristotle-simulated",
+            "socrates-simulated"
+          ]
+        },
+        {
           "contributions": 1,
           "kind": "human",
           "name": "Jeremy R. Manning",
           "roles": [
             "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
-          "roles": [
-            "aristotle-simulated"
           ]
         }
       ],
@@ -48031,6 +48032,14 @@
       "id": "PROJ-560-embodied-curriculum-learning-physical-si",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 45.899791,
+          "ended_at": "2026-05-16T23:47:46.266718+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-16T23:47:00.366927+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 51.334629,
@@ -52040,6 +52049,54 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Socrates (simulated)",
+      "duration_s": 45.899791,
+      "ended_at": "2026-05-16T23:47:46.266718+00:00",
+      "excerpt": "My friends, you present a curious proposal: to teach abstract concepts through embodied, physics-based simulations. I am eager to understand, for I know that I know nothing. But tell me, what do you mean by 'abstract concept'? Is mathemati\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "socrates",
+      "project_id": "PROJ-560-embodied-curriculum-learning-physical-si",
+      "project_stage": "brainstormed",
+      "review_path": "projects/PROJ-560-embodied-curriculum-learning-physical-si/reviews/research/socrates-simulated__2026-05-16__research.md",
+      "started_at": "2026-05-16T23:47:00.366927+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Rosalind Franklin (simulated)",
+      "duration_s": 29.127985,
+      "ended_at": "2026-05-16T23:18:01.657975+00:00",
+      "excerpt": "The spec proposes solvent polarity effects on singlet-radical-pair intermediate lifetimes and product distribution in aryl ester Photo-Fries rearrangement. However, the experimental protocol lacks sufficient detail on sample hydration stat\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "rosalind-franklin",
+      "project_id": "PROJ-004-solvent-effects-on-photo-fries-rearrange",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/reviews/research/rosalind-franklin-simulated__2026-05-16__research.md",
+      "started_at": "2026-05-16T23:17:32.529990+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Marie Curie (simulated)",
+      "duration_s": 155.136689,
+      "ended_at": "2026-05-16T22:48:27.743338+00:00",
+      "excerpt": "The spec proposes measuring singlet-radical-pair intermediate lifetime across solvent polarities. This is sound work, but the instrument calibration protocol is unspecified. Which detector was used for the radiation measurements? What is t\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "marie-curie",
+      "project_id": "PROJ-004-solvent-effects-on-photo-fries-rearrange",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/reviews/research/marie-curie-simulated__2026-05-16__research.md",
+      "started_at": "2026-05-16T22:45:52.606649+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "John von Neumann (simulated)",
       "duration_s": 101.467761,
       "ended_at": "2026-05-16T21:48:14.858578+00:00",
@@ -52447,7 +52504,7 @@
       "display_name": "Marie Curie (simulated)",
       "duration_s": 158.762809,
       "ended_at": "2026-05-16T14:52:50.039268+00:00",
-      "excerpt": "The specification outlines a study of solvent polarity effects. This is sound. However, the plan lacks detail on the instrumentation for measuring the intermediate lifetimes. In my work with pitchblende, we treated one ton of residue to fi\u2026",
+      "excerpt": "The spec proposes measuring singlet-radical-pair intermediate lifetime across solvent polarities. This is sound work, but the instrument calibration protocol is unspecified. Which detector was used for the radiation measurements? What is t\u2026",
       "model": "qwen.qwen3.5-122b",
       "model_kind": "personality_simulator",
       "outcome": "committed",
@@ -57491,36 +57548,6 @@
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-10T09:13:20.301031Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 408.865669,
-      "ended_at": "2026-05-10T09:13:19.804594Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-10T09:06:30.938925Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.77861,
-      "ended_at": "2026-05-10T09:06:30.444780Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-10T09:06:25.666170Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 48.172394,
-      "ended_at": "2026-05-10T09:06:25.157829Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-10T09:05:36.985435Z"
     }
   ],
   "schema_version": "2.0.0"
