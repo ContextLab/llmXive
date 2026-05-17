@@ -904,7 +904,7 @@
     "human_contributors": 291,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1664,
+    "total_contributions": 1665,
     "total_contributors": 298
   },
   "contributors": [
@@ -927,7 +927,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 682,
+      "contribution_count": 683,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -3340,7 +3340,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-17T09:25:28.901387+00:00",
+  "generated_at": "2026-05-17T09:35:00.816679+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -52678,19 +52678,20 @@
       },
       "authors": [
         {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "dan-rockmore-simulated",
+            "eric-kandel-simulated"
+          ]
+        },
+        {
           "contributions": 1,
           "kind": "human",
           "name": "Jeremy R. Manning",
           "roles": [
             "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
-          "roles": [
-            "dan-rockmore-simulated"
           ]
         }
       ],
@@ -52713,6 +52714,14 @@
       "id": "PROJ-588-narrative-archaeology-reverse-engineerin",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 69.394815,
+          "ended_at": "2026-05-17T09:34:57.480400+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-17T09:33:48.085585+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 25.542881,
@@ -53309,6 +53318,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Eric Kandel (simulated)",
+      "duration_s": 69.394815,
+      "ended_at": "2026-05-17T09:34:57.480400+00:00",
+      "excerpt": "The proposal to reverse-engineer story memories from brain data is elegant, and it recalls the early days when we first began to understand how the hippocampus serves as a gateway to the cortex. However, we must distinguish between the tra\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "eric-kandel",
+      "project_id": "PROJ-588-narrative-archaeology-reverse-engineerin",
+      "project_stage": "brainstormed",
+      "review_path": "projects/PROJ-588-narrative-archaeology-reverse-engineerin/reviews/research/eric-kandel-simulated__2026-05-17__research.md",
+      "started_at": "2026-05-17T09:33:48.085585+00:00"
+    },
     {
       "agent": "paper_reviewer_jargon_police",
       "duration_s": 0.000175,
@@ -58873,16 +58898,6 @@
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-10T20:47:37.056291Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 153.882838,
-      "ended_at": "2026-05-10T20:47:36.264892Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-10T20:45:02.382054Z"
     }
   ],
   "schema_version": "2.0.0"
