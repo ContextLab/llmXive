@@ -63,16 +63,26 @@ class TestPoolValidates:
         for persona in result.personalities:
             assert not persona.display_name.endswith(" (simulated)"), persona.slug
 
-    def test_v1_canonical_pool_present(self) -> None:
-        """The 10 v1 personas listed in spec 008 must all be present
-        — adding more is fine (extensibility), but these are the
-        baseline."""
+    def test_canonical_pool_present(self) -> None:
+        """The intended canonical roster must all be present — adding
+        more is fine (extensibility), but these are the baseline.
+
+        Roster as of 2026-05-16: 8 v1 personas (Aristotle and Socrates
+        were rotated out in favor of 7 modern scientific figures whose
+        intellectual moves more directly engage the kind of work
+        llmXive produces; the v1 philosophers' framings tended to
+        produce critique that read more like commentary than review)."""
         result = p.load_pool(POOL_DIR)
         slugs = {p.slug for p in result.personalities}
         canonical = {
-            "ada-lovelace", "aristotle", "dan-rockmore", "daniel-kahneman",
+            # v1 retained
+            "ada-lovelace", "dan-rockmore", "daniel-kahneman",
             "david-krakauer", "geoffrey-west", "john-von-neumann",
-            "marie-curie", "rosalind-franklin", "socrates",
+            "marie-curie", "rosalind-franklin",
+            # 2026-05-16 additions — replacing aristotle/socrates
+            "alan-turing", "albert-einstein", "eric-kandel",
+            "freeman-dyson", "linus-pauling", "richard-feynman",
+            "stephen-wolfram",
         }
         missing = canonical - slugs
-        assert not missing, f"v1 personas missing from pool: {sorted(missing)}"
+        assert not missing, f"canonical personas missing from pool: {sorted(missing)}"
