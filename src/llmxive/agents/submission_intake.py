@@ -740,6 +740,36 @@ def _move_staged_pdf(gh: GhFn, *, staged_path: str, dest_path: str) -> bool:
     return True
 
 
+def _write_run_log_entry(repo_root: Path, entry: dict[str, Any]) -> None:
+    """Append a single JSONL line to the canonical per-run log path.
+
+    Mirrors `llmxive.agents.personality._write_run_log_entry` so the
+    Activity tab on the website (which reads from
+    `state/run-log/<YYYY-MM>/*.jsonl`) surfaces submission-intake events
+    alongside personality and pipeline events. Before this helper landed,
+    submission-intake invoked LLM triage and created projects, but its
+    outcomes never appeared in the Activity feed — the only evidence was
+    a GitHub Actions log and the new project's idea file.
+    """
+    import os
+    now = datetime.now(UTC)
+    log_dir = repo_root / "state" / "run-log" / now.strftime("%Y-%m")
+    log_dir.mkdir(parents=True, exist_ok=True)
+    rid = os.environ.get("GITHUB_RUN_ID") or f"local-{now.strftime('%Y%m%dT%H%M%SZ')}"
+    log_path = log_dir / f"{rid}.jsonl"
+    with log_path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(entry, sort_keys=True) + "\n")
+
+
+# Map IntakeResult.status → run-log outcome vocabulary used elsewhere in
+# the pipeline (so the Activity tab's filters/labels work consistently).
+_INTAKE_STATUS_TO_OUTCOME = {
+    "ok": "committed",       # the LLM triage produced an actionable result
+    "skipped": "no-op",       # already-closed issue / duplicate paper / etc.
+    "failed": "failed",       # malformed labels / unhandled exception
+}
+
+
 def process_submission_issue(
     issue: dict,
     *,
@@ -753,25 +783,51 @@ def process_submission_issue(
     body = issue.get("body") or ""
     author = (issue.get("user") or {}).get("login") or "anonymous"
 
+    started = datetime.now(UTC)
+    result: IntakeResult
+
     # Already closed? → nothing to do.
     if str(issue.get("state", "")).lower() == "closed":
-        return IntakeResult(status="skipped")
+        result = IntakeResult(status="skipped")
+    else:
+        subtype = _subtype(issue)
+        if subtype is None:
+            _comment(gh, number, "🤖 The submission-intake agent couldn't determine this issue's type — "
+                     "it should be labelled `human-submission` plus exactly one of `feedback` / `new-paper`. "
+                     "Leaving it open for a maintainer.")
+            result = IntakeResult(status="failed", error="malformed labels")
+        else:
+            try:
+                if subtype == "feedback":
+                    result = _handle_feedback(issue, number, body, author, repo=repo, gh=gh, registry_entry=registry_entry)
+                else:
+                    result = _handle_new_paper(issue, number, body, author, repo=repo, gh=gh)
+            except Exception as exc:
+                _comment(gh, number, f"🤖 The submission-intake agent couldn't process this automatically: "
+                         f"`{type(exc).__name__}: {exc}`. A maintainer will take a look. (It'll retry on the next cron tick.)")
+                result = IntakeResult(status="failed", error=f"{type(exc).__name__}: {exc}")
 
-    subtype = _subtype(issue)
-    if subtype is None:
-        _comment(gh, number, "🤖 The submission-intake agent couldn't determine this issue's type — "
-                 "it should be labelled `human-submission` plus exactly one of `feedback` / `new-paper`. "
-                 "Leaving it open for a maintainer.")
-        return IntakeResult(status="failed", error="malformed labels")
-
+    ended = datetime.now(UTC)
+    # Surface the per-issue outcome on the Activity tab.
     try:
-        if subtype == "feedback":
-            return _handle_feedback(issue, number, body, author, repo=repo, gh=gh, registry_entry=registry_entry)
-        return _handle_new_paper(issue, number, body, author, repo=repo, gh=gh)
-    except Exception as exc:
-        _comment(gh, number, f"🤖 The submission-intake agent couldn't process this automatically: "
-                 f"`{type(exc).__name__}: {exc}`. A maintainer will take a look. (It'll retry on the next cron tick.)")
-        return IntakeResult(status="failed", error=f"{type(exc).__name__}: {exc}")
+        _write_run_log_entry(repo, {
+            "agent_name": "submission_intake",
+            "model_kind": "deterministic_router",  # only the inner _triage_feedback_llm hits the LLM
+            "project_id": result.target,            # may be None for skipped/failed
+            "started_at": started.isoformat(),
+            "ended_at": ended.isoformat(),
+            "duration_s": (ended - started).total_seconds(),
+            "outcome": _INTAKE_STATUS_TO_OUTCOME.get(result.status, result.status),
+            "action": result.action,
+            "issue_number": number,
+            "issue_author": author,
+            "comment_url": result.comment_url,
+            "error": result.error,
+        })
+    except Exception as exc:  # noqa: BLE001 — never block intake on a log write
+        print(f"[submissions] could not write run-log entry for #{number}: {exc!r}",
+              file=__import__("sys").stderr)
+    return result
 
 
 def _fetch_comments(gh: GhFn, issue_number: int) -> list[dict]:
