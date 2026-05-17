@@ -3338,7 +3338,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-16T22:16:04.248333+00:00",
+  "generated_at": "2026-05-17T00:17:43.586080+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -3355,19 +3355,36 @@
       "summary": "19th-century English mathematician; annotator of Babbage's Analytical Engine, early computing visionary."
     },
     {
-      "display_name": "Aristotle",
-      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/aristotle.md",
-      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/aristotle.md",
-      "prompt_repo_path": "agents/prompts/personalities/aristotle.md",
-      "slug": "aristotle",
+      "display_name": "Alan Turing",
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/alan-turing.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/alan-turing.md",
+      "prompt_repo_path": "agents/prompts/personalities/alan-turing.md",
+      "slug": "alan-turing",
       "sources": [
-        "Nicomachean Ethics (Ross translation)",
-        "Metaphysics, Book I",
-        "Physics, Book II",
-        "Categories",
-        "Stanford Encyclopedia of Philosophy: Aristotle's Ethics"
+        "On Computable Numbers, with an Application to the Entscheidungsproblem (Proc. London Math. Soc., 1936)",
+        "Computing Machinery and Intelligence (Mind, 1950)",
+        "The Chemical Basis of Morphogenesis (Phil. Trans. R. Soc. B, 1952)",
+        "Intelligent Machinery (NPL report, 1948)",
+        "Andrew Hodges, Alan Turing -- The Enigma (biography, 1983)",
+        "Stanford Encyclopedia of Philosophy, \"Alan Turing\" (https://plato.stanford.edu/entries/turing/)"
       ],
-      "summary": "Classical Greek philosopher; taxonomist of biology and ethics, first-principles thinker."
+      "summary": "English mathematician and logician; foundations of computation, machine intelligence, and mathematical biology."
+    },
+    {
+      "display_name": "Albert Einstein",
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/albert-einstein.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/albert-einstein.md",
+      "prompt_repo_path": "agents/prompts/personalities/albert-einstein.md",
+      "slug": "albert-einstein",
+      "sources": [
+        "\"Zur Elektrodynamik bewegter K\u00f6rper\" (Annalen der Physik, 1905)",
+        "The Meaning of Relativity (Princeton/Stafford Little Lectures, 1921; expanded eds. through 1955)",
+        "Einstein, Podolsky, Rosen, \"Can Quantum-Mechanical Description of Physical Reality Be Considered Complete?\" (Phys. Rev. 47, 1935)",
+        "\"Autobiographical Notes\" in Schilpp, ed., Albert Einstein: Philosopher-Scientist (1949)",
+        "Abraham Pais, Subtle is the Lord: The Science and the Life of Albert Einstein (Oxford, 1982)",
+        "Stanford Encyclopedia of Philosophy, entries on \"Einstein's Philosophy of Science\" and \"The Einstein-Podolsky-Rosen Argument in Quantum Theory\""
+      ],
+      "summary": "German-born theoretical physicist; special and general relativity, quantum skepticism, unified-field-theory pursuit."
     },
     {
       "display_name": "Dan Rockmore",
@@ -3414,6 +3431,38 @@
       "summary": "SFI President, evolutionary theorist; complexity science, intelligence, information."
     },
     {
+      "display_name": "Eric Kandel",
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/eric-kandel.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/eric-kandel.md",
+      "prompt_repo_path": "agents/prompts/personalities/eric-kandel.md",
+      "slug": "eric-kandel",
+      "sources": [
+        "In Search of Memory: The Emergence of a New Science of Mind (Norton 2006)",
+        "Nobel Lecture: The Molecular Biology of Memory Storage \u2014 A Dialogue Between Genes and Synapses (2000)",
+        "Principles of Neural Science (Kandel, Schwartz, Jessell, et al.; multiple editions)",
+        "The Age of Insight: The Quest to Understand the Unconscious in Art, Mind, and Brain, from Vienna 1900 to the Present (Random House 2012)",
+        "The Disordered Mind: What Unusual Brains Tell Us About Ourselves (FSG 2018)",
+        "Kandel & Schwartz, 'Molecular biology of learning: modulation of transmitter release', Science (1982)"
+      ],
+      "summary": "Austrian-American neuroscientist, Columbia; Nobel laureate for the cellular basis of memory."
+    },
+    {
+      "display_name": "Freeman Dyson",
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/freeman-dyson.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/freeman-dyson.md",
+      "prompt_repo_path": "agents/prompts/personalities/freeman-dyson.md",
+      "slug": "freeman-dyson",
+      "sources": [
+        "Dyson, \"The Radiation Theories of Tomonaga, Schwinger, and Feynman\" (Phys Rev 75, 486, 1949)",
+        "Dyson, Disturbing the Universe (autobiography, Harper & Row 1979)",
+        "Dyson, Origins of Life (Cambridge Tarner Lectures, 1985; 2nd ed. 1999)",
+        "Dyson, \"Birds and Frogs\" (Notices of the AMS, Feb 2009)",
+        "Dyson, From Eros to Gaia (essays, Pantheon 1992)",
+        "https://en.wikipedia.org/wiki/Freeman_Dyson"
+      ],
+      "summary": "British-American theoretical physicist; QED unification, speculative engineering, essayist across physics, biology, and policy."
+    },
+    {
       "display_name": "Geoffrey West",
       "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/geoffrey-west.md",
       "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/geoffrey-west.md",
@@ -3444,6 +3493,21 @@
       "summary": "Hungarian-American mathematician; foundations of QM, game theory, computer architecture."
     },
     {
+      "display_name": "Linus Pauling",
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/linus-pauling.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/linus-pauling.md",
+      "prompt_repo_path": "agents/prompts/personalities/linus-pauling.md",
+      "slug": "linus-pauling",
+      "sources": [
+        "The Nature of the Chemical Bond (Cornell University Press, 1939; 3rd ed. 1960)",
+        "Pauling, Corey & Branson, \"The Structure of Proteins: Two Hydrogen-Bonded Helical Configurations of the Polypeptide Chain,\" PNAS 37(4):205-211 (1951)",
+        "Pauling & Itano, \"Sickle Cell Anemia, a Molecular Disease,\" Science 110:543-548 (1949)",
+        "Pauling, Nobel Lecture in Chemistry, \"Modern Structural Chemistry\" (December 11, 1954)",
+        "Thomas Hager, Force of Nature: The Life of Linus Pauling (Simon & Schuster, 1995)"
+      ],
+      "summary": "American chemist; quantum theory of the chemical bond, protein secondary structure, molecular medicine."
+    },
+    {
       "display_name": "Marie Curie",
       "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/marie-curie.md",
       "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/marie-curie.md",
@@ -3457,6 +3521,21 @@
         "Eve Curie, Madame Curie: A Biography (1937)"
       ],
       "summary": "Polish-French physicist and chemist; discoverer of polonium and radium, two-time Nobel laureate."
+    },
+    {
+      "display_name": "Richard Feynman",
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/richard-feynman.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/richard-feynman.md",
+      "prompt_repo_path": "agents/prompts/personalities/richard-feynman.md",
+      "slug": "richard-feynman",
+      "sources": [
+        "The Feynman Lectures on Physics (Feynman, Leighton & Sands, Addison-Wesley 1963-65)",
+        "QED: The Strange Theory of Light and Matter (Princeton University Press, 1985)",
+        "Surely You're Joking, Mr. Feynman! (Norton, 1985)",
+        "Cargo Cult Science \u2014 Caltech commencement address, 1974",
+        "Stanford Encyclopedia of Philosophy, entry on Quantum Field Theory (and Feynman diagrams)"
+      ],
+      "summary": "American physicist; Nobel laureate for QED, path-integral pioneer, first-principles teacher."
     },
     {
       "display_name": "Rosalind Franklin",
@@ -3474,19 +3553,19 @@
       "summary": "British X-ray crystallographer; structural work on DNA, coal, tobacco mosaic virus."
     },
     {
-      "display_name": "Socrates",
-      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/socrates.md",
-      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/socrates.md",
-      "prompt_repo_path": "agents/prompts/personalities/socrates.md",
-      "slug": "socrates",
+      "display_name": "Stephen Wolfram",
+      "prompt_github_url": "https://github.com/ContextLab/llmXive/blob/main/agents/prompts/personalities/stephen-wolfram.md",
+      "prompt_raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/agents/prompts/personalities/stephen-wolfram.md",
+      "prompt_repo_path": "agents/prompts/personalities/stephen-wolfram.md",
+      "slug": "stephen-wolfram",
       "sources": [
-        "Plato, Apology (Jowett translation)",
-        "Plato, Euthyphro",
-        "Plato, Meno",
-        "Plato, Republic, Book I",
-        "Stanford Encyclopedia of Philosophy: Socrates"
+        "A New Kind of Science (Wolfram Media, 2002)",
+        "An Elementary Introduction to the Wolfram Language (Wolfram Media, 2017)",
+        "Wolfram, Statistical Mechanics of Cellular Automata (Rev. Mod. Phys. 55, 1983)",
+        "A Project to Find the Fundamental Theory of Physics \u2014 announcement essay, writings.stephenwolfram.com (April 14, 2020)",
+        "Stephen Wolfram, Writings (writings.stephenwolfram.com) \u2014 long-form essays and retrospectives"
       ],
-      "summary": "Classical Athenian philosopher (as portrayed by Plato); dialectical questioner."
+      "summary": "British-American physicist + computer scientist; cellular automata, Mathematica, hypergraph physics."
     }
   ],
   "pipeline_steps": [
