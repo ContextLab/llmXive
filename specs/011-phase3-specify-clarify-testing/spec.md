@@ -14,6 +14,12 @@ Phase 3 of the llmXive agentic pipeline (tracked in [#47](https://github.com/Con
 
 The validation must use **real projects** — `PROJ-261-evaluating-the-impact-of-code-duplicatio` (Computer Science) and `PROJ-262-predicting-molecular-dipole-moments-with` (Chemistry), both currently parked at `project_initialized` after passing Phase 2 cleanly.
 
+## Clarifications
+
+### Session 2026-05-16
+
+- Q: When validation starts on a reference project, what should happen if a `specs/<n>-<slug>/` directory already exists from an earlier partial run? → A: Reset cleanly — wipe pre-existing `specs/<n>-<slug>/` artifacts before invoking the Specifier so each run starts from the same clean state YAML + idea body. Reproducible by construction; inspection records make any "lost work" recoverable.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 — Run the full Phase 3 pipeline on a single fresh real project (Priority: P1)
@@ -77,7 +83,7 @@ After Phase 3 validation is complete on both reference projects, a `carry-forwar
 - **Clarifier produces more patches than there are markers.** Past failure mode — the LLM hallucinates extra patches for markers that don't exist. The Clarifier MUST drop unmatched patches and log a warning; it MUST NOT silently insert hallucinated content into `spec.md`.
 - **The Specifier's underlying `create-new-feature.sh` script fails or returns no JSON.** The script is a project-local shell script; if it crashes, the Specifier MUST surface the crash (not bury it) and HOLD the project at `project_initialized` with an actionable error.
 - **The Specifier's response contains a unified-diff prefix** (`--- a/spec.md\n+++ b/spec.md\n@@ …`). Past failure mode — 8 production files were corrupted before this was caught. The diff-guard MUST already reject this; the validation must include a regression test that asserts the guard is still active.
-- **Phase 3 is invoked on a project NOT at `project_initialized`** (e.g., already at `clarified`). The runner MUST decline to re-run and either no-op cleanly or report the project as "already past this phase".
+- **Phase 3 is invoked on a project NOT at `project_initialized`** (e.g., already at `clarified`). The runner MUST decline to re-run and either no-op cleanly or report the project as "already past this phase". This is distinct from FR-015's reset semantic: FR-015 fires only when the project is still at `project_initialized` but has leftover `specs/` artifacts; this edge case fires when the project state YAML itself has already advanced.
 - **Concurrent invocations on the same project.** Phase 3 acquires the project lock for the duration of each agent. A second runner trying the same project MUST block (or skip) — never produce a torn write to `spec.md`.
 
 ## Requirements *(mandatory)*
@@ -98,6 +104,7 @@ After Phase 3 validation is complete on both reference projects, a `carry-forwar
 - **FR-012**: The validation MUST include regression unit tests for: (a) the diff-leak guard (spec 010's bug — `\\---\\n\\+\\+\\+` leak), (b) the template-rejection guard, (c) the echo-the-question clarifier guard. These tests MUST live under `tests/integration/test_phase3_specify_clarify.py` and MUST run as part of the standard unit-test pass.
 - **FR-013**: The validation MUST NOT require any code changes to the Specifier or Clarifier agent classes themselves UNLESS a real bug is found; in that case, the bug fix MUST be a separate, justified commit and MUST cite the failing inspection record by path.
 - **FR-014**: Per-agent wall-clock budget MUST be enforced at 600 seconds (the `wall_clock_budget_seconds` value from the registry); a timeout MUST classify as `failed`, NOT `committed`.
+- **FR-015**: At the start of every validation run on a reference project, if a `projects/<PROJ-ID>/specs/<n>-<slug>/` directory already exists (from a previous partial run), the validation MUST delete that directory before invoking the Specifier. This is the "reset cleanly" semantic — each run is reproducible from the same state-YAML + idea-body starting point. The deletion MUST be recorded in the inspection record under a `reset_artifacts` key (listing the paths that were removed) so the maintainer can audit what was wiped.
 
 ### Key Entities
 
