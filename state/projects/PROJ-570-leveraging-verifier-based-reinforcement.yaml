@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-15T15:14:08.852973Z'
-current_stage: paper_review
+current_stage: paper_minor_revision
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-570-leveraging-verifier-based-reinforcement
-last_run_id: null
+last_run_id: ae1c0aae-eef3-4236-ae8b-df4eb6c92144
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -14,4 +14,4 @@ revision_round: 0
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Leveraging Verifier-Based Reinforcement Learning in Image Editing
-updated_at: '2026-05-15T15:14:19.696175Z'
+updated_at: '2026-05-17T15:09:12.305469Z'

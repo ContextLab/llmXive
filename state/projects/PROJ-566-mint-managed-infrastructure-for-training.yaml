@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-14T04:19:55.772254Z'
-current_stage: paper_review
+current_stage: paper_minor_revision
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-566-mint-managed-infrastructure-for-training
-last_run_id: null
+last_run_id: e50b26f0-9311-43dd-9dc9-be9c36600412
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -14,4 +14,4 @@ revision_round: 0
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'MinT: Managed Infrastructure for Training and Serving Millions of LLMs'
-updated_at: '2026-05-14T04:19:56.074542Z'
+updated_at: '2026-05-17T15:06:57.385623Z'
