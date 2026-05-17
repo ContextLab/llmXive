@@ -108,8 +108,22 @@ class PaperReviewerAgent(Agent):
         project_dir = self._project_dir(ctx)
         paper_dir = project_dir / "paper"
         feature_dir = self._paper_feature_dir(project_dir)
-        if feature_dir is None:
-            raise FileNotFoundError(f"no paper specs/ feature dir in {project_dir}")
+        # No hard-fail when feature_dir is missing: arXiv-intake papers
+        # (e.g., PROJ-564, PROJ-566 — papers ingested verbatim from
+        # arXiv with `paper/metadata.json` + `paper/source/`) never ran
+        # through the home-grown spec→plan→tasks→implement pipeline, so
+        # `paper/specs/<n>-<slug>/` simply doesn't exist. The reviewer
+        # can still read the PDF + source + figures + bibliography.
+        # handle_response() falls back to hashing `paper/metadata.json`
+        # for the artifact_hash / artifact_path fields when feature_dir
+        # is None.
+        is_arxiv_intake = feature_dir is None and (paper_dir / "metadata.json").is_file()
+        if feature_dir is None and not is_arxiv_intake:
+            raise FileNotFoundError(
+                f"no paper specs/ feature dir and no paper/metadata.json "
+                f"in {project_dir} — paper review cannot proceed without "
+                "either a generated spec or an intake-metadata artifact"
+            )
 
         source_concat = _concat_tex(paper_dir / "source")
         figures_summary = _summarize_figures(paper_dir / "figures")
@@ -183,16 +197,29 @@ class PaperReviewerAgent(Agent):
         front["prompt_version"] = self.entry.prompt_version
         front["reviewed_at"] = datetime.now(timezone.utc).isoformat()
 
-        # Compute artifact_hash from the live paper tasks.md.
+        # Compute artifact_hash + artifact_path. Two paths:
+        #   (a) Home-grown paper pipeline: tasks.md under paper/specs/<n>-<slug>/
+        #   (b) arXiv-intake paper: paper/metadata.json (no feature_dir)
+        # In both cases artifact_path satisfies the schema regex
+        # `^projects/PROJ-\d{3,}-[a-z0-9-]+/.+`.
         project_dir = self._project_dir(ctx)
         feature_dir = self._paper_feature_dir(project_dir)
+        from llmxive.state.project import hash_file
+
         if feature_dir is not None:
             tasks_path = feature_dir / "tasks.md"
             if tasks_path.exists():
-                from llmxive.state.project import hash_file
-
                 front["artifact_hash"] = hash_file(tasks_path)
                 front["artifact_path"] = str(tasks_path.relative_to(repo))
+        else:
+            # arXiv-intake fallback — metadata.json is the canonical
+            # per-project artifact summary (arxiv_id, title, authors,
+            # source_files list, etc.). Stable + always present for
+            # arXiv-submitted papers.
+            meta_path = project_dir / "paper" / "metadata.json"
+            if meta_path.is_file():
+                front["artifact_hash"] = hash_file(meta_path)
+                front["artifact_path"] = str(meta_path.relative_to(repo))
 
         record = ReviewRecord.model_validate(front)
         path = reviews_store.write(
