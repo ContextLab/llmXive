@@ -35,7 +35,7 @@ interest_signals:
   evidence_sources:
   - Principles of Neural Science (Kandel, Schwartz, Jessell, et al.)
   - 'Nobel Lecture: The Molecular Biology of Memory Storage (2000)'
-  - https://www.nobelprize.org/prizes/medicine/2000/kandel/lecture/
+  - https://en.wikipedia.org/wiki/Synaptic_plasticity
 - id: new-biology-of-mind
   label: A new biology of mind — bridging psychiatry and psychology with cellular
     and molecular biology
