@@ -23,12 +23,13 @@ jobs:
       DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
     steps:
+      # No `ref:` override — use actions/checkout's default
+      # merge-commit-SHA fetch for pull_request events. A previous
+      # branch-name fetch raced against PR auto-merge --delete-branch
+      # and every PR failed CI here with "exit 1" on checkout. None of
+      # the steps below need the source branch name; they're all
+      # Python checks and pytest. SHA-based checkout is race-safe.
       - uses: actions/checkout@v5
-        with:
-          # On PR runs, github.head_ref is the source branch name (e.g.
-          # 001-agentic-pipeline-refactor) rather than the PR-merge SHA;
-          # the spec-kit bash scripts require a feature-branch name.
-          ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
