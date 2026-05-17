@@ -67,6 +67,34 @@ def _summarize_figures(fig_dir: Path) -> str:
     return "\n".join(lines) if lines else "(empty)"
 
 
+def _collect_figures_from_arxiv_source(source_dir: Path) -> str:
+    """For arXiv-intake papers, figures live inside the source tarball
+    under conventional subdirs (figures/, figs/, pics/, images/, plots/,
+    Figures/, etc.) — NOT under paper/figures/. Discover them by
+    extension across `source/**` so the reviewer can comment on them.
+
+    Returns a single-line-per-figure listing. Capped at 200 entries to
+    keep the prompt bounded.
+    """
+    if not source_dir.is_dir():
+        return "(no source directory)"
+    fig_exts = {".pdf", ".png", ".jpg", ".jpeg", ".eps", ".svg", ".tikz", ".gif"}
+    lines: list[str] = []
+    for path in sorted(source_dir.rglob("*")):
+        if not path.is_file() or path.suffix.lower() not in fig_exts:
+            continue
+        # Skip top-level paper PDFs (the compiled output goes to
+        # paper/pdf/, but some arxiv tarballs include the source PDF too).
+        rel = path.relative_to(source_dir).as_posix()
+        if rel.endswith(".pdf") and "/" not in rel:
+            continue
+        lines.append(f"- `{rel}` ({path.stat().st_size} bytes)")
+        if len(lines) >= 200:
+            lines.append("- (truncated at 200 entries)")
+            break
+    return "\n".join(lines) if lines else "(no figure-like files found in source)"
+
+
 def _summarize_pdf(pdf_dir: Path) -> str:
     if not pdf_dir.is_dir():
         return "(no pdf directory)"
@@ -126,7 +154,15 @@ class PaperReviewerAgent(Agent):
             )
 
         source_concat = _concat_tex(paper_dir / "source")
+        # For arxiv-intake papers, figures live inside source/ (not
+        # paper/figures/). Fall back to scanning source/ when the
+        # canonical figures dir is empty/missing so the reviewer can
+        # actually see what visual artifacts exist.
         figures_summary = _summarize_figures(paper_dir / "figures")
+        if is_arxiv_intake or figures_summary.startswith("("):
+            arxiv_figs = _collect_figures_from_arxiv_source(paper_dir / "source")
+            if not arxiv_figs.startswith("(no"):
+                figures_summary = arxiv_figs
         pdf_summary = _summarize_pdf(paper_dir / "pdf")
         proofreader_flags = _read_optional(
             paper_dir / ".specify" / "memory" / "proofreader_flags.yaml"
@@ -162,9 +198,38 @@ class PaperReviewerAgent(Agent):
             {"project_id": ctx.project_id, "reviewer_name": self.entry.name},
             repo_root=repo,
         )
+        # arXiv-intake metadata block — surface the upstream context the
+        # LLM needs to review a third-party paper (vs. a home-grown one).
+        intake_block = ""
+        if is_arxiv_intake:
+            import json as _json
+            try:
+                meta = _json.loads((paper_dir / "metadata.json").read_text(encoding="utf-8"))
+            except (OSError, _json.JSONDecodeError):
+                meta = {}
+            authors = ", ".join(meta.get("authors", []) or []) or "(unknown)"
+            arxiv_url = meta.get("arxiv_url") or (
+                f"https://arxiv.org/abs/{meta['arxiv_id']}" if meta.get("arxiv_id") else "(unknown)"
+            )
+            intake_block = (
+                "# Paper provenance — IMPORTANT context\n\n"
+                "This is an arXiv-submitted paper ingested verbatim from the "
+                "public archive. The llmXive pipeline did NOT generate it; you "
+                "are reviewing a third-party manuscript. The paper's authors "
+                "are listed below; the submitter field is the llmXive intake "
+                "agent that filed it, not an author.\n\n"
+                f"- arXiv URL: {arxiv_url}\n"
+                f"- Paper authors: {authors}\n"
+                f"- Title (as recorded by intake): {meta.get('title', '(none)')}\n"
+                f"- Submitter (intake actor): {meta.get('submitter', '(unknown)')}\n\n"
+                "Focus your review on the paper itself — claims, methodology, "
+                "figures, evidence — not on the speckit/plan/tasks artifacts "
+                "that don't exist for arXiv-ingested papers.\n\n"
+            )
         user = (
             f"# project_id\n{ctx.project_id}\n\n"
             f"# title\n{ctx.metadata.get('title', '')}\n\n"
+            f"{intake_block}"
             f"# Paper LaTeX source\n\n{source_concat}\n\n"
             f"# Compiled PDFs\n\n{pdf_summary}\n\n"
             f"# Figures\n\n{figures_summary}\n\n"
