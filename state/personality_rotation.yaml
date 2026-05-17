@@ -1,5 +1,5 @@
-last_used: daniel-kahneman
-last_used_at: '2026-05-17T07:52:03.777650+00:00'
+last_used: david-krakauer
+last_used_at: '2026-05-17T08:44:33.025498+00:00'
 last_outcome: committed
 history:
 - slug: ada-lovelace
@@ -542,3 +542,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/daniel-kahneman-simulated__2026-05-17__research.md
+- slug: david-krakauer
+  started_at: '2026-05-17T07:52:03.777650+00:00'
+  ended_at: '2026-05-17T08:44:33.025498+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-586-social-memory-networks-modeling-collecti/reviews/research/david-krakauer-simulated__2026-05-17__research.md
