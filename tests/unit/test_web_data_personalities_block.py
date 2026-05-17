@@ -84,7 +84,11 @@ def test_malformed_file_skipped(tmp_path: Path) -> None:
 
 
 def test_live_pool_emits_expected_count(tmp_path: Path) -> None:
-    """Integration smoke: run against the actual repo pool (the v1 ten)."""
+    """Integration smoke: run against the actual repo pool.
+
+    Roster as of 2026-05-16: 15 personas (Aristotle and Socrates were
+    rotated out in PR #185 in favor of 7 modern scientific figures;
+    see notes in test_personality_prompt_schema.py for the rationale)."""
     repo = Path(__file__).resolve().parents[2]
     pool_dir = repo / "agents" / "prompts" / "personalities"
     if not pool_dir.is_dir():
@@ -92,9 +96,14 @@ def test_live_pool_emits_expected_count(tmp_path: Path) -> None:
     block = _build_personalities_block(repo)
     slugs = {e["slug"] for e in block}
     canonical = {
-        "ada-lovelace", "aristotle", "dan-rockmore", "daniel-kahneman",
+        # v1 retained
+        "ada-lovelace", "dan-rockmore", "daniel-kahneman",
         "david-krakauer", "geoffrey-west", "john-von-neumann",
-        "marie-curie", "rosalind-franklin", "socrates",
+        "marie-curie", "rosalind-franklin",
+        # 2026-05-16 additions — replacing aristotle/socrates
+        "alan-turing", "albert-einstein", "eric-kandel",
+        "freeman-dyson", "linus-pauling", "richard-feynman",
+        "stephen-wolfram",
     }
     missing = canonical - slugs
-    assert not missing, f"missing v1 personas from emitted block: {sorted(missing)}"
+    assert not missing, f"missing canonical personas from emitted block: {sorted(missing)}"
