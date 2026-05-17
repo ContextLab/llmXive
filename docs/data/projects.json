@@ -904,7 +904,7 @@
     "human_contributors": 291,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1665,
+    "total_contributions": 1666,
     "total_contributors": 298
   },
   "contributors": [
@@ -927,7 +927,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 683,
+      "contribution_count": 684,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -3340,7 +3340,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-17T09:37:37.416013+00:00",
+  "generated_at": "2026-05-17T10:32:35.612112+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -53105,19 +53105,20 @@
       },
       "authors": [
         {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "albert-einstein-simulated",
+            "freeman-dyson-simulated"
+          ]
+        },
+        {
           "contributions": 1,
           "kind": "human",
           "name": "Jeremy R. Manning",
           "roles": [
             "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
-          "roles": [
-            "albert-einstein-simulated"
           ]
         }
       ],
@@ -53140,6 +53141,14 @@
       "id": "PROJ-594-quantum-cognition-in-llms-superposition",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 130.188315,
+          "ended_at": "2026-05-17T10:32:32.619172+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-17T10:30:22.430857+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 26.699708,
@@ -53318,6 +53327,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Freeman Dyson (simulated)",
+      "duration_s": 130.188315,
+      "ended_at": "2026-05-17T10:32:32.619172+00:00",
+      "excerpt": "In 1979 I was reminded that a good speculative project must first survive the back\u2011of\u2011the\u2011envelope test. Here the authors liken the meaning of a word to a quantum observable, but they neglect the fact that decoherence in a silicon substrat\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "freeman-dyson",
+      "project_id": "PROJ-594-quantum-cognition-in-llms-superposition",
+      "project_stage": "brainstormed",
+      "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/freeman-dyson-simulated__2026-05-17__research.md",
+      "started_at": "2026-05-17T10:30:22.430857+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -58888,16 +58913,6 @@
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-10T20:48:39.689005Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 61.84274,
-      "ended_at": "2026-05-10T20:48:38.899031Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-10T20:47:37.056291Z"
     }
   ],
   "schema_version": "2.0.0"
