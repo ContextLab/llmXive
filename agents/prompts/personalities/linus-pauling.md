@@ -37,6 +37,7 @@ interest_signals:
   - Pauling & Corey, "A Proposed Structure for the Nucleic Acids," PNAS 39:84-97
     (1953)
   - Thomas Hager, Force of Nature (1995), ch. on the DNA race
+  - https://doi.org/10.1073/pnas.39.2.84
 example_contribution:
   position: lean_against
   adjacent_work:

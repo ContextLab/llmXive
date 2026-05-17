@@ -34,6 +34,7 @@ interest_signals:
   - A New Kind of Science (2002), Chapter 12
   - 'Wolfram, Computational Irreducibility and the Predictability of Human Behavior
     — writings.stephenwolfram.com (2023)'
+  - https://en.wikipedia.org/wiki/Computational_irreducibility
 - id: wolfram-physics-hypergraphs
   label: The Wolfram Physics Project — hypergraph rewriting as a candidate fundamental
     theory of physics
