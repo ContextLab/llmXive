@@ -150,6 +150,125 @@ class TestArxivIntakeFigureDiscovery:
         assert any("pics/" in line for line in lines)
 
 
+class TestTexConcatPrefersEntryPoint:
+    """Real-world failure on PROJ-578: the prompt sent to the reviewer
+    was 3,390 chars of *package declarations only* (extra_pkgs.tex sorts
+    before main.tex alphabetically; main.tex itself was 254KB > the old
+    60KB budget, so it got skipped). The reviewer (correctly) called this
+    out as 'Incomplete LaTeX source' and demanded a major_revision. The
+    fix promotes the file containing ``\\documentclass`` (the entry
+    point) to the front so it always gets included, truncated if needed.
+    """
+
+    def test_promotes_documentclass_file_first(self, tmp_path: Path) -> None:
+        from llmxive.agents.paper_reviewer import _concat_tex
+        src = tmp_path / "source"
+        src.mkdir()
+        # extra_pkgs.tex sorts first alphabetically but is just packages.
+        (src / "extra_pkgs.tex").write_text(r"\usepackage{amsmath}", encoding="utf-8")
+        # main.tex is the entry point — must appear first in concat output.
+        (src / "main.tex").write_text(
+            r"\documentclass{article}\begin{document}HELLO\end{document}",
+            encoding="utf-8",
+        )
+        out = _concat_tex(src)
+        idx_main = out.index("main.tex")
+        idx_pkgs = out.index("extra_pkgs.tex")
+        assert idx_main < idx_pkgs, (
+            "entry-point file (with \\documentclass) must be inlined "
+            "BEFORE package files"
+        )
+        assert "HELLO" in out
+
+    def test_entry_point_included_even_when_budget_tight(self, tmp_path: Path) -> None:
+        from llmxive.agents.paper_reviewer import _concat_tex
+        src = tmp_path / "source"
+        src.mkdir()
+        big_body = "X" * 50_000
+        (src / "extra_pkgs.tex").write_text(r"\usepackage{amsmath}", encoding="utf-8")
+        (src / "main.tex").write_text(
+            r"\documentclass{article}\begin{document}" + big_body + r"\end{document}",
+            encoding="utf-8",
+        )
+        # Budget smaller than main.tex — old code would skip main.tex
+        # entirely and only include the tiny package file. New code must
+        # include main.tex (truncated) since it's the entry point.
+        out = _concat_tex(src, max_chars=10_000)
+        assert "main.tex" in out
+        assert "truncated to fit budget" in out
+
+    def test_real_world_proj_578_includes_actual_paper_body(self) -> None:
+        """Smoke test against PROJ-578 (the failure that motivated the fix).
+        Skips if PROJ-578 isn't checked out."""
+        from llmxive.agents.paper_reviewer import _concat_tex
+        repo = Path(__file__).resolve().parents[2]
+        src = repo / "projects" / "PROJ-578-https-arxiv-org-abs-2605-14906" / "paper" / "source"
+        if not src.is_dir():
+            pytest.skip("PROJ-578 source not checked out")
+        out = _concat_tex(src)
+        # The old prompt had ~3,390 chars (just extra_pkgs.tex + truncation
+        # marker). The new prompt must include the real paper body.
+        assert len(out) > 50_000, (
+            f"expected ≥50KB of tex concat, got {len(out)} chars — "
+            "the entry-point file is probably being skipped again"
+        )
+        # MemLens defines a custom \bench command in the main file —
+        # confirms we have the actual paper body, not just packages.
+        assert "MemLens" in out or "\\bench" in out
+
+
+class TestBibSummary:
+    """For arXiv-intake papers, ``state/citations/<PROJ>.yaml`` is never
+    populated — only the .bib file under paper/source/ exists. The
+    reviewer must fall back to inlining that .bib so it can see what's
+    cited (otherwise the reviewer correctly says 'no citations recorded'
+    and demands a major_revision)."""
+
+    def test_summarize_bibfile_includes_content(self, tmp_path: Path) -> None:
+        from llmxive.agents.paper_reviewer import _summarize_bibfile
+        src = tmp_path / "source"
+        src.mkdir()
+        (src / "ref.bib").write_text(
+            "@article{smith2024,\n  title={A paper},\n  author={Smith},\n}\n",
+            encoding="utf-8",
+        )
+        out = _summarize_bibfile(src)
+        assert "ref.bib" in out
+        assert "smith2024" in out
+        assert "A paper" in out
+
+    def test_summarize_bibfile_empty_when_no_bib(self, tmp_path: Path) -> None:
+        from llmxive.agents.paper_reviewer import _summarize_bibfile
+        src = tmp_path / "source"
+        src.mkdir()
+        (src / "main.tex").write_text("x", encoding="utf-8")
+        out = _summarize_bibfile(src)
+        assert out == ""
+
+    def test_summarize_bibfile_truncates_at_budget(self, tmp_path: Path) -> None:
+        from llmxive.agents.paper_reviewer import _summarize_bibfile
+        src = tmp_path / "source"
+        src.mkdir()
+        # 100KB of bib entries
+        big = ("@article{a,\n  title={hello},\n}\n" * 4000)
+        (src / "ref.bib").write_text(big, encoding="utf-8")
+        out = _summarize_bibfile(src, max_chars=5000)
+        assert "ref.bib" in out
+        assert "truncated" in out
+        assert len(out) <= 5200  # small slack for header
+
+    def test_real_world_proj_578_inlines_refbib(self) -> None:
+        """Smoke test against PROJ-578 ref.bib (46KB)."""
+        from llmxive.agents.paper_reviewer import _summarize_bibfile
+        repo = Path(__file__).resolve().parents[2]
+        src = repo / "projects" / "PROJ-578-https-arxiv-org-abs-2605-14906" / "paper" / "source"
+        if not src.is_dir():
+            pytest.skip("PROJ-578 source not checked out")
+        out = _summarize_bibfile(src)
+        assert "ref.bib" in out
+        assert len(out) > 10_000
+
+
 class TestArxivIntakeMetadataBlock:
     """The reviewer prompt must include a 'paper provenance' header for
     arxiv-intake papers so the LLM knows it's reviewing a third-party
@@ -161,3 +280,19 @@ class TestArxivIntakeMetadataBlock:
         assert "Paper provenance — IMPORTANT context" in text
         assert "third-party" in text or "ingested verbatim" in text
         assert "submitter field is the llmXive intake" in text
+
+
+class TestScoreNormalization:
+    """LLM occasionally picks a verdict but writes the wrong score
+    (e.g., verdict=accept score=0.0). The score↔verdict binding is
+    invariant — we normalize on parse so a typo doesn't lose a
+    substantive review to a validation error."""
+
+    def test_handle_response_normalizes_accept_score(self) -> None:
+        src = Path(__file__).resolve().parents[2] / "src" / "llmxive" / "agents" / "paper_reviewer.py"
+        text = src.read_text()
+        # The normalization is deterministic; document its presence so
+        # future refactors don't silently drop it.
+        assert 'verdict == "accept"' in text
+        assert 'front["score"] = 0.5' in text
+        assert 'front["score"] = 0.0' in text

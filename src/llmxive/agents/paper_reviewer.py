@@ -40,21 +40,93 @@ def _read_optional(path: Path) -> str:
     return path.read_text(encoding="utf-8") if path.exists() else ""
 
 
-def _concat_tex(source_dir: Path, *, max_chars: int = 60000) -> str:
+def _concat_tex(source_dir: Path, *, max_chars: int = 180_000) -> str:
+    """Concatenate .tex files for the reviewer prompt.
+
+    Ordering matters: arXiv tarballs commonly have a tiny `extra_pkgs.tex`
+    that sorts alphabetically BEFORE the multi-hundred-KB `main.tex`. With
+    a small budget that ordering meant the reviewer saw only package
+    declarations — never the actual paper body. We now:
+      1. Promote the entry-point file (`\\documentclass`) to the front,
+         and if needed include it truncated to fit the budget.
+      2. Then include other files until the budget is exhausted.
+
+    The default budget (~180KB ≈ 45K tokens) leaves headroom in a 128K
+    context window for the system prompt, figure list, bibliography,
+    prior reviews, and the response.
+    """
     if not source_dir.is_dir():
         return ""
+    all_tex = sorted(source_dir.rglob("*.tex"))
+    if not all_tex:
+        return ""
+
+    # Locate the entry-point file (contains \documentclass). Skim only
+    # the head of each file to avoid loading every tex twice.
+    primary: Path | None = None
+    for tex in all_tex:
+        try:
+            head = tex.read_text(encoding="utf-8", errors="ignore")[:4000]
+        except OSError:
+            continue
+        if "\\documentclass" in head:
+            primary = tex
+            break
+
+    ordering = [primary] + [t for t in all_tex if t != primary] if primary else list(all_tex)
+
     chunks: list[str] = []
     total = 0
-    for tex in sorted(source_dir.rglob("*.tex")):
+    included = 0
+    for tex in ordering:
         rel = tex.relative_to(source_dir).as_posix()
         body = tex.read_text(encoding="utf-8", errors="ignore")
         chunk = f"=== {rel} ===\n{body}\n"
         if total + len(chunk) > max_chars:
-            chunks.append(f"=== (truncated; remaining files: {len(list(source_dir.rglob('*.tex'))) - len(chunks)}) ===\n")
+            remaining_budget = max(max_chars - total - 200, 0)
+            if remaining_budget > 0 and included == 0:
+                # Always include at least the primary file, even if it
+                # needs to be cut. A truncated entry-point is far more
+                # useful than only seeing package declarations.
+                chunks.append(chunk[:remaining_budget] +
+                              f"\n=== ({rel} truncated to fit budget) ===\n")
+                total += remaining_budget
+                included += 1
+            files_omitted = len(ordering) - included
+            chunks.append(
+                f"=== ({files_omitted} additional .tex file(s) omitted to fit budget) ===\n"
+            )
             break
         chunks.append(chunk)
         total += len(chunk)
+        included += 1
     return "\n".join(chunks)
+
+
+def _summarize_bibfile(source_dir: Path, *, max_chars: int = 30_000) -> str:
+    """For arXiv-intake papers, state/citations/<PROJ>.yaml is empty.
+    Surface ref.bib (or any .bib) so the reviewer can see what's cited.
+    """
+    if not source_dir.is_dir():
+        return ""
+    bibs = sorted(source_dir.rglob("*.bib"))
+    if not bibs:
+        return ""
+    parts: list[str] = []
+    total = 0
+    for bib in bibs:
+        rel = bib.relative_to(source_dir).as_posix()
+        body = bib.read_text(encoding="utf-8", errors="ignore")
+        head = f"=== {rel} ===\n"
+        if total + len(head) + len(body) > max_chars:
+            remaining = max(max_chars - total - len(head) - 100, 0)
+            if remaining > 0:
+                parts.append(head + body[:remaining] + "\n=== (truncated) ===\n")
+                total += len(head) + remaining
+            break
+        parts.append(head + body + "\n")
+        total += len(head) + len(body)
+    return "\n".join(parts)
 
 
 def _summarize_figures(fig_dir: Path) -> str:
@@ -177,7 +249,12 @@ class PaperReviewerAgent(Agent):
             ]
             bib_summary = "\n".join(bib_lines)
         else:
-            bib_summary = "(no citations recorded)"
+            # arXiv-intake fallback: state/citations is never populated for
+            # papers ingested verbatim, so surface the raw .bib file(s)
+            # from paper/source/ — the reviewer can at least see what's
+            # being cited and judge whether the reference set is sensible.
+            bib_fallback = _summarize_bibfile(paper_dir / "source")
+            bib_summary = bib_fallback or "(no citations recorded)"
 
         prior = reviews_store.list_for(ctx.project_id, stage="paper", repo_root=repo)
         prior_block = (
@@ -261,6 +338,19 @@ class PaperReviewerAgent(Agent):
         front["backend"] = response.backend
         front["prompt_version"] = self.entry.prompt_version
         front["reviewed_at"] = datetime.now(timezone.utc).isoformat()
+
+        # Normalize score: the LLM occasionally picks a verdict but
+        # forgets the verdict↔score binding (e.g., verdict=accept with
+        # score=0.0 or score=1.0). The score is purely derived from the
+        # verdict, so we recompute it deterministically. This avoids
+        # losing a substantive review to a numeric-formatting slip.
+        verdict = front.get("verdict")
+        if verdict == "accept":
+            front["score"] = 0.5
+        elif verdict in {"reject", "minor_revision", "full_revision",
+                         "major_revision_writing", "major_revision_science",
+                         "fundamental_flaws"}:
+            front["score"] = 0.0
 
         # Compute artifact_hash + artifact_path. Two paths:
         #   (a) Home-grown paper pipeline: tasks.md under paper/specs/<n>-<slug>/

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-15T15:14:34.745826Z'
-current_stage: paper_review
+current_stage: paper_minor_revision
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-571-co-evolving-policy-distillation
-last_run_id: null
+last_run_id: 52271de9-1a3d-4d45-a976-9e0eb248c59b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -14,4 +14,4 @@ revision_round: 0
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Co-Evolving Policy Distillation
-updated_at: '2026-05-15T15:14:37.463083Z'
+updated_at: '2026-05-17T14:54:28.496117Z'
