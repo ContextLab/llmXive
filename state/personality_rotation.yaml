@@ -1,5 +1,5 @@
-last_used: albert-einstein
-last_used_at: '2026-05-17T05:17:19.242427+00:00'
+last_used: dan-rockmore
+last_used_at: '2026-05-17T06:33:56.652279+00:00'
 last_outcome: committed
 history:
 - slug: ada-lovelace
@@ -528,3 +528,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/albert-einstein-simulated__2026-05-17__research.md
+- slug: dan-rockmore
+  started_at: '2026-05-17T05:17:19.242427+00:00'
+  ended_at: '2026-05-17T06:33:56.652279+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-588-narrative-archaeology-reverse-engineerin/reviews/research/dan-rockmore-simulated__2026-05-17__research.md
