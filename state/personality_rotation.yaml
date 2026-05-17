@@ -1,5 +1,5 @@
-last_used: daniel-kahneman
-last_used_at: '2026-05-17T18:22:07.716471+00:00'
+last_used: david-krakauer
+last_used_at: '2026-05-17T18:50:30.021333+00:00'
 last_outcome: committed
 history:
 - slug: ada-lovelace
@@ -647,3 +647,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-578-https-arxiv-org-abs-2605-14906/paper/reviews/daniel-kahneman-simulated__2026-05-17__paper.md
+- slug: david-krakauer
+  started_at: '2026-05-17T18:22:07.716471+00:00'
+  ended_at: '2026-05-17T18:50:30.021333+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-587-episodic-future-thinking-in-llms-impleme/reviews/research/david-krakauer-simulated__2026-05-17__research.md
