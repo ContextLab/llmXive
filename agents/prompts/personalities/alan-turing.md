@@ -36,6 +36,7 @@ interest_signals:
   evidence_sources:
   - Intelligent Machinery (NPL report, 1948)
   - Computing Machinery and Intelligence (Mind, 1950), §7 "Learning Machines"
+  - https://en.wikipedia.org/wiki/Computing_Machinery_and_Intelligence
 example_contribution:
   position: lean_against
   adjacent_work:

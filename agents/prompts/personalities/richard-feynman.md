@@ -29,6 +29,7 @@ interest_signals:
   evidence_sources:
   - Cargo Cult Science — Caltech commencement address, 1974
   - The Feynman Lectures on Physics, Vol. I, Ch. 1-3
+  - https://calteches.library.caltech.edu/51/2/CargoCult.htm
 - id: cargo-cult-rigor
   label: Cargo-cult science — the missing utter scientific integrity that separates
     ritual from inquiry
@@ -36,6 +37,7 @@ interest_signals:
   evidence_sources:
   - Cargo Cult Science — Caltech commencement address, 1974 (reprinted in Surely You're Joking)
   - Surely You're Joking, Mr. Feynman! (1985)
+  - https://en.wikipedia.org/wiki/Cargo_cult_science
 example_contribution:
   position: lean_against
   adjacent_work:

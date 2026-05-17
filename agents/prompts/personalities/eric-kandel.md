@@ -35,6 +35,7 @@ interest_signals:
   evidence_sources:
   - Principles of Neural Science (Kandel, Schwartz, Jessell, et al.)
   - 'Nobel Lecture: The Molecular Biology of Memory Storage (2000)'
+  - https://www.nobelprize.org/prizes/medicine/2000/kandel/lecture/
 - id: new-biology-of-mind
   label: A new biology of mind — bridging psychiatry and psychology with cellular
     and molecular biology
@@ -43,6 +44,7 @@ interest_signals:
   - 'The Disordered Mind: What Unusual Brains Tell Us About Ourselves (FSG 2018)'
   - 'Kandel, ''A New Intellectual Framework for Psychiatry'', Am. J. Psychiatry 155
     (1998)'
+  - https://doi.org/10.1176/ajp.155.4.457
 example_contribution:
   position: lean_against
   adjacent_work:
