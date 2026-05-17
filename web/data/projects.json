@@ -3340,7 +3340,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-17T12:42:17.789451+00:00",
+  "generated_at": "2026-05-17T12:47:09.587769+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -51670,7 +51670,88 @@
       "field": "computer science",
       "id": "PROJ-578-https-arxiv-org-abs-2605-14906",
       "keywords": [],
-      "last_run_log": [],
+      "last_run_log": [
+        {
+          "agent": "paper_reviewer_jargon_police",
+          "duration_s": 0.00019,
+          "ended_at": "2026-05-17T12:47:06.835433Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T12:47:06.835243Z"
+        },
+        {
+          "agent": "paper_reviewer_figure_critic",
+          "duration_s": 0.000191,
+          "ended_at": "2026-05-17T12:47:06.790877Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T12:47:06.790686Z"
+        },
+        {
+          "agent": "paper_reviewer_text_formatting",
+          "duration_s": 0.000192,
+          "ended_at": "2026-05-17T12:47:06.746005Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T12:47:06.745813Z"
+        },
+        {
+          "agent": "paper_reviewer_data_quality_paper",
+          "duration_s": 0.000214,
+          "ended_at": "2026-05-17T12:47:06.701231Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T12:47:06.701017Z"
+        },
+        {
+          "agent": "paper_reviewer_code_quality_paper",
+          "duration_s": 0.000189,
+          "ended_at": "2026-05-17T12:47:06.656677Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T12:47:06.656488Z"
+        },
+        {
+          "agent": "paper_reviewer_statistical_analysis",
+          "duration_s": 0.000192,
+          "ended_at": "2026-05-17T12:47:06.612186Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T12:47:06.611994Z"
+        },
+        {
+          "agent": "paper_reviewer_scientific_evidence",
+          "duration_s": 0.000194,
+          "ended_at": "2026-05-17T12:47:06.567578Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T12:47:06.567384Z"
+        },
+        {
+          "agent": "paper_reviewer_safety_ethics",
+          "duration_s": 0.000221,
+          "ended_at": "2026-05-17T12:47:06.522295Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T12:47:06.522074Z"
+        },
+        {
+          "agent": "paper_reviewer_overreach",
+          "duration_s": 0.000197,
+          "ended_at": "2026-05-17T12:47:06.477602Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T12:47:06.477405Z"
+        },
+        {
+          "agent": "paper_reviewer_claim_accuracy",
+          "duration_s": 0.000219,
+          "ended_at": "2026-05-17T12:47:06.432384Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-17T12:47:06.432165Z"
+        }
+      ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
@@ -53346,6 +53427,136 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 0.00019,
+      "ended_at": "2026-05-17T12:47:06.835433Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T12:47:06.835243Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 0.000191,
+      "ended_at": "2026-05-17T12:47:06.790877Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T12:47:06.790686Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 0.000192,
+      "ended_at": "2026-05-17T12:47:06.746005Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T12:47:06.745813Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 0.000214,
+      "ended_at": "2026-05-17T12:47:06.701231Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T12:47:06.701017Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 0.000189,
+      "ended_at": "2026-05-17T12:47:06.656677Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T12:47:06.656488Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 0.000192,
+      "ended_at": "2026-05-17T12:47:06.612186Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T12:47:06.611994Z"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 0.000194,
+      "ended_at": "2026-05-17T12:47:06.567578Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T12:47:06.567384Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 0.000221,
+      "ended_at": "2026-05-17T12:47:06.522295Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T12:47:06.522074Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 0.000197,
+      "ended_at": "2026-05-17T12:47:06.477602Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T12:47:06.477405Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 0.000219,
+      "ended_at": "2026-05-17T12:47:06.432384Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T12:47:06.432165Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 0.000195,
+      "ended_at": "2026-05-17T12:47:06.387445Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T12:47:06.387250Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 0.000197,
+      "ended_at": "2026-05-17T12:47:06.341728Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T12:47:06.341531Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 0.000371,
+      "ended_at": "2026-05-17T12:47:06.282756Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-17T12:47:06.282385Z"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -58820,136 +59031,6 @@
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-11T05:47:20.829145Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 14.847657,
-      "ended_at": "2026-05-11T05:47:19.978707Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-11T05:47:05.131050Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 8.880186,
-      "ended_at": "2026-05-11T05:47:04.345482Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-11T05:46:55.465296Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 27.14907,
-      "ended_at": "2026-05-11T05:37:20.082977Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "started_at": "2026-05-11T05:36:52.933907Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 32.132997,
-      "ended_at": "2026-05-11T05:29:21.840285Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "started_at": "2026-05-11T05:28:49.707288Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 23.859968,
-      "ended_at": "2026-05-11T03:25:50.693047Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "started_at": "2026-05-11T03:25:26.833079Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 31.677353,
-      "ended_at": "2026-05-11T03:21:25.539896Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "started_at": "2026-05-11T03:20:53.862543Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 95.753372,
-      "ended_at": "2026-05-11T01:17:08.890421Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "started_at": "2026-05-11T01:15:33.137049Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 36.360714,
-      "ended_at": "2026-05-11T01:07:12.760517Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "started_at": "2026-05-11T01:06:36.399803Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 34.103365,
-      "ended_at": "2026-05-10T23:25:40.484382Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "started_at": "2026-05-10T23:25:06.381017Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 37.305183,
-      "ended_at": "2026-05-10T22:30:43.316655Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "started_at": "2026-05-10T22:30:06.011472Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 36.052945,
-      "ended_at": "2026-05-10T22:23:29.580753Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "started_at": "2026-05-10T22:22:53.527808Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 93.600244,
-      "ended_at": "2026-05-10T21:25:21.240737Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "started_at": "2026-05-10T21:23:47.640493Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 29.552141,
-      "ended_at": "2026-05-10T20:49:37.277615Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-10T20:49:07.725474Z"
     }
   ],
   "schema_version": "2.0.0"
