@@ -490,9 +490,11 @@
           const end = text.indexOf("\n---\n", 4);
           if (end > 0) stripped = text.slice(end + 5);
         }
-        body.innerHTML = M
-          ? M.render(stripped, { rewriteLinks: true })
-          : '<pre>' + escapeHtml(stripped) + '</pre>';
+        if (M && typeof M.renderMarkdownInto === "function") {
+          M.renderMarkdownInto(body, stripped);
+        } else {
+          body.innerHTML = '<pre>' + escapeHtml(stripped) + '</pre>';
+        }
       })
       .catch(err => {
         body.innerHTML = '<div style="color:var(--err);">Failed to load review: ' +
