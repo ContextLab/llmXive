@@ -1409,3 +1409,73 @@ a:hover { color: var(--accent-2); }
   padding: 0 4px;
   color: var(--fg-muted, #666);
 }
+
+/* Spec 012: unified reviews list in the project modal's right pane.
+   Each .review-row is a clickable button that expands the review's
+   full markdown into the main pane (.ad-pdf). */
+.artifact-dialog .ad-list .review-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border, #e0e0e0);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-top: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text, #222);
+  transition: border-color .12s, background-color .12s;
+}
+.artifact-dialog .ad-list .review-row:hover {
+  border-color: var(--accent, #4a90e2);
+  background: var(--bg-hover, #f5f9ff);
+}
+.artifact-dialog .ad-list .review-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.artifact-dialog .ad-list .review-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.artifact-dialog .ad-list .review-verdict {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.artifact-dialog .ad-list .review-verdict.accept           { background: #d8f3dc; color: #2d6a4f; }
+.artifact-dialog .ad-list .review-verdict.minor_revision   { background: #fff3cd; color: #856404; }
+.artifact-dialog .ad-list .review-verdict.major_revision_writing,
+.artifact-dialog .ad-list .review-verdict.major_revision_science,
+.artifact-dialog .ad-list .review-verdict.full_revision    { background: #ffe0b3; color: #a0522d; }
+.artifact-dialog .ad-list .review-verdict.fundamental_flaws,
+.artifact-dialog .ad-list .review-verdict.reject           { background: #f8d7da; color: #721c24; }
+.artifact-dialog .ad-list .review-excerpt {
+  color: var(--muted, #666);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* Expanded review in main pane: header with back button + reviewer name +
+   "view on GitHub" link. */
+.artifact-dialog .ad-pdf .ad-art-back {
+  background: transparent;
+  border: 1px solid var(--border, #e0e0e0);
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.artifact-dialog .ad-pdf .ad-art-back:hover {
+  border-color: var(--accent, #4a90e2);
+}
