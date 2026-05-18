@@ -1,5 +1,5 @@
-last_used: david-krakauer
-last_used_at: '2026-05-18T09:49:40.880225+00:00'
+last_used: eric-kandel
+last_used_at: '2026-05-18T11:20:24.964400+00:00'
 last_outcome: committed
 history:
 - slug: ada-lovelace
@@ -768,3 +768,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-571-co-evolving-policy-distillation/paper/reviews/david-krakauer-simulated__2026-05-18__paper.md
+- slug: eric-kandel
+  started_at: '2026-05-18T09:49:40.880225+00:00'
+  ended_at: '2026-05-18T11:20:24.964400+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/eric-kandel-simulated__2026-05-18__research.md
