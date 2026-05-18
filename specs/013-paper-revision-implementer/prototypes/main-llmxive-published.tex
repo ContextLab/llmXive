@@ -2804,77 +2804,230 @@ The five abilities span the retrieval--reasoning--update space with minimal redu
 
 
 %% =====================================================================
-%% Spec 013 prototype: post-paper appendix (reviews + revision history)
+%% Spec 013: post-paper appendix (reviews + revision history)
 %% =====================================================================
 \clearpage
 \thispagestyle{empty}
 \null\vfill
 \begin{center}
-{\Large\bfseries End of paper.}\\[1.2em]
-{\large The remainder of this PDF contains the reviewer comments and the revision history for this manuscript.}\\[2em]
-{\small The full project — source, reviews, revision history, and all artifacts —
-is permanently archived at:}\\[0.3em]
+{\large The remainder of this PDF contains the reviewer comments and the revision history for this manuscript.}\\[2.5em]
+{\normalsize The full project --- source, reviews, revision history, and all artifacts --- is permanently archived at:}\\[0.6em]
 \url{https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906/}
 \end{center}
 \vfill\null
 \clearpage
 
 \section*{Reviews}
+\subsection*{paper\_reviewer \hfill \textit{verdict: minor\_revision}}
+\noindent\textit{Feedback summary:} Citation verification status missing from input; LaTeX source truncated preventing full audit.\par\medskip
+\paragraph*{Strengths}
+\begin{itemize}\setlength\itemsep{2pt}
+\item \textbf{Comprehensive Benchmark Design:} MemLens introduces a well-structured benchmark for multimodal long-term memory, covering five distinct abilities (IE, MSR, TR, KU, AR) across significant context lengths (32K–256K).
+\item \textbf{Rigorous Methodology:} The paper employs a robust construction pipeline with entity abstraction to enforce cross-modal dependency, validated by strong image-ablation results (accuracy drops below 2\% without images).
+\item \textbf{Extensive Evaluation:} The evaluation spans 27 LVLMs and 7 memory-augmented agents, providing a broad landscape of current capabilities and failure modes.
+\item \textbf{Clear Analysis:} The distinction between context-length degradation (LVLMs) and visual fidelity loss (agents) is well-articulated and supported by error decomposition.
+\end{itemize}
 
-\subsection*{paper\_reviewer\_jargon\_police \hfill \textit{verdict: minor\_revision}}
-The manuscript uses some specialized terminology that could be better defined.
-Define MLP, LVLM, RAG, LoRA at first use. Several passages mix Greek
-letters with English variable names in non-standard ways. Simplify
-``lossy cross-modality compression at storage time'' to a plain-English
-equivalent for the introduction.
+\paragraph*{Concerns}
+\begin{itemize}\setlength\itemsep{2pt}
+\item \textbf{Citation Verification Status:} The \texttt{accept} verdict requires every cited reference to have \texttt{verification\_status: verified}. The provided input includes \texttt{ref.bib} content but lacks the \texttt{state/citations/<PROJ-ID>.yaml} summary with verification statuses. I cannot confirm this critical acceptance criterion is met.
+\item \textbf{Input Truncation:} The LaTeX source provided in the input is truncated (\texttt{=== (main-llmxive.tex truncated to fit budget) ===}), and additional \texttt{.tex} files are omitted. This prevents a full audit of compilation, bibliography completeness, and appendix content (e.g., full prompt templates, extended tables).
+\item \textbf{Prior Review Follow-up:} A prior review by \texttt{daniel-kahneman-simulated} returned \texttt{minor\_revision}. While the specific feedback was truncated, the persistence of the \texttt{minor\_revision} verdict suggests previous issues may not be fully resolved or new metadata gaps have emerged.
+\end{itemize}
 
-\subsection*{paper\_reviewer\_figure\_critic \hfill \textit{verdict: minor\_revision}}
-Figures are generally informative but a few suffer from accessibility
-issues. Figure 2 (per\_type\_heatmap) uses a green colormap that may be
-inaccessible to colorblind readers; replace with a colorblind-safe palette
-such as Viridis or Cividis. Figure 1's caption is minimal ('construction
-pipeline'); expand to briefly describe the four visual components.
-
-\subsection*{paper\_reviewer\_scientific\_evidence \hfill \textit{verdict: minor\_revision}}
-The empirical claims rest on evaluations of models that are not clearly
-identified by their primary citations. Verify that specific model
-versions (e.g., GPT-5.4, Gemini-3.1-Pro) are explicitly supported by
-the cited system cards. The image-ablation methodology section needs
-clarification on the threshold for "below 2\% accuracy" — was this
-averaged over which subset of questions?
-
-\subsection*{paper\_reviewer\_writing\_quality \hfill \textit{verdict: minor\_revision}}
-The writing is generally clear but could benefit from tighter transitions
-between sections. Several paragraphs in Section 2 (Related Work) read as
-a list of citations rather than a synthesis. Consider grouping prior
-work into 2--3 thematic clusters with explicit transitions.
+\paragraph*{Recommendation}
+The scientific content and experimental design appear sound and publication-ready in principle. However, the \texttt{accept} verdict is blocked by missing metadata (citation verification) and incomplete source input (truncation). A \texttt{minor\_revision} is appropriate to allow the pipeline to supply the missing citation verification YAML and ensure the full paper source is available for final compilation and audit. Once these administrative and completeness checks are passed, the paper should be eligible for \texttt{accept}.
 
 \bigskip
-\textit{Remaining 9 specialist reviews follow the same format and are
-included in the full PDF.}
+
+\subsection*{paper\_reviewer\_claim\_accuracy \hfill \textit{verdict: minor\_revision}}
+The manuscript presents a comprehensive benchmark, but several factual claims regarding related work and model specifications are not accurately supported by the provided citations.
+
+First, in Section 1 (Introduction) and Section 2 (Related Work), the authors state that "Multimodal conversational benchmarks such as LoCoMo\textasciitilde{}\textbackslash\{\}cite\{maharana2024evaluatinglongtermconversationalmemory\}... retain both visual and text modalities". The cited paper (Maharana et al., 2024) describes LoCoMo as a text-only benchmark for long-term conversational memory. Claiming it retains visual modalities is factually incorrect. This error is significant because the paper's core motivation relies on the gap between existing benchmarks: it argues that text-only benchmarks (like LongMemEval) overlook visuals, while multimodal ones (like LoCoMo) allow text-only shortcuts. If LoCoMo is text-only, the authors must rephrase this to accurately reflect the landscape (e.g., acknowledging LoCoMo as text-only and clarifying that Mem-Gallery is the multimodal counterpart). This misrepresentation weakens the claim that MemLens fills a unique multimodal gap.
+
+Second, regarding model versions, Section 4.1 cites "GPT-5.4\textasciitilde{}\textbackslash\{\}citep\{singh2025openaigpt5card\}". The citation refers to an "OpenAI GPT-5 System Card". While plausible in a future-dated context, the specific version "5.4" should be explicitly validated against the system card's versioning to ensure the citation supports the specific capabilities (e.g., context window size, multimodal grounding) attributed to it. Similarly, "Gemini-3.1-Pro"\textasciitilde{}\textbackslash\{\}citep\{googledeepmind2026gemini31pro\} and "Claude Sonnet 4.5"\textasciitilde{}\textbackslash\{\}citep\{anthropic2025claudesonnet45card\} are cited; ensure these specific version numbers match the released system cards referenced.
+
+These issues require textual corrections to ensure factual alignment with the cited literature. They do not invalidate the experimental results but affect the accuracy of the related work summary and model attribution.
+
+\bigskip
+
+\subsection*{paper\_reviewer\_code\_quality\_paper \hfill \textit{verdict: minor\_revision}}
+This review is limited to the code quality of the artifacts that produced the paper. However, the provided input package contains only the manuscript LaTeX source (\texttt{main-llmxive.tex}), bibliography (\texttt{ref.bib}), and compiled figures. No executable code artifacts (e.g., \texttt{scripts/}, \texttt{src/}, \texttt{tests/}, \texttt{requirements.txt}) are present in the review batch.
+
+Per the \textbf{Reproducibility Statement} (Section 7), the authors claim the evaluation harness and prompt templates are released at \texttt{https://github.com/xrenaf/MEMLENS}. As an offline reviewer, I cannot access external URLs to verify repository structure, linting, test coverage, or dependency management. Consequently, I cannot assess readability, modularity, or reproducibility from scratch.
+
+Additionally, the LaTeX source is truncated (\texttt{=== (main-llmxive.tex truncated to fit budget) ===}). While the paper includes prompt templates in \textbf{Appendix C (Prompt Templates)}, these are embedded as static text boxes rather than executable configuration files. For instance, \texttt{app:prompts} contains JSON schemas and system instructions that function as code for the data pipeline, but they are not provided as separate, version-controlled files. If these were actual implementation files, their length and complexity (e.g., the \texttt{Question Generation: MSR} template spanning 100+ lines) might warrant modular decomposition to stay within output token budgets during implementation, as per the truncation guidance.
+
+To proceed with a valid code quality review, the submission must include the actual repository contents. Specifically, I require:
+1.  The data construction pipeline scripts (referenced in Section 3.2).
+2.  The evaluation harness code (referenced in Section 4.1).
+3.  Dependency manifests (e.g., \texttt{pyproject.toml} or \texttt{requirements.txt}) to check for hygiene.
+4.  Test suites to verify the reliability of the benchmark generation and scoring.
+
+Without these artifacts, the code quality lens cannot be applied, and the reproducibility claims remain unverified from a software engineering perspective.
+
+\bigskip
+
+\subsection*{paper\_reviewer\_data\_quality\_paper \hfill \textit{verdict: minor\_revision}}
+The manuscript provides a strong foundation for data quality, particularly in schema definition and provenance tracking. The data construction pipeline is well-documented in Appendix \textbackslash\{\}ref\{app:image\_release\} and \textbackslash\{\}ref\{app:annotation\}, detailing the use of iCrawler for image sourcing, topic ontologies for sampling, and a three-round human review process. The problem formulation in Appendix \textbackslash\{\}ref\{app:problem\_formulation\} clearly specifies the data tuple \$(S, q, I, a)\$, ensuring a consistent schema for downstream users. Furthermore, the inclusion of per-image metadata (source URL, retrieval timestamp, perceptual hash) in the release is excellent practice for traceability.
+
+However, two critical data governance issues require attention before the data can be considered fully production-ready. First, the \textit{Ethics Statement} and \textit{Reproducibility Statement} claim that third-party images retain their "original source-site licenses" but are redistributed alongside the benchmark. Without explicit verification of these licenses (e.g., confirming CC-BY or public domain status for all 4,695 images), this redistribution poses a significant legal risk for downstream users. A license mapping table or a statement confirming fair-use justification for evaluation purposes is necessary to mitigate this.
+
+Second, while the \textit{Reproducibility Statement} mentions "frozen version tags," it does not specify the actual tag names (e.g., \texttt{v1.0}, \texttt{release-2026}). For a benchmark intended to track model progress over time, precise versioning is essential to prevent link rot and ensure that leaderboard scores can be traced to exact dataset snapshots. The current text leaves this ambiguous.
+
+Finally, the datasheet referenced in Appendix \textbackslash\{\}ref\{app:image\_release\} is described as accompanying the release but its specific file path or URL within the repository is not provided. Citing the exact location of the datasheet (e.g., \texttt{datasheet.md} in the root directory) would improve usability. Addressing these documentation and licensing gaps will solidify the data quality and legal robustness of the benchmark.
+
+\bigskip
+
+\subsection*{paper\_reviewer\_figure\_critic \hfill \textit{verdict: minor\_revision}}
+\textbf{Figure Review Summary}
+
+The paper utilizes 15 figures across the main text and appendix to convey benchmark construction, performance results, and error analysis. While the figure selection is comprehensive, several visual design choices require refinement to meet accessibility standards and scientific visualization best practices.
+
+\textbf{Main Text Figures}
+\begin{itemize}\setlength\itemsep{2pt}
+\item \textbf{Figure 1 (Pipeline)}: The caption is overly terse ("construction pipeline"). Given the figure's complexity, the caption should summarize the four stages (session simulation, question construction, evidence session, history assembly) to allow the figure to stand alone for accessibility tools.
+\item \textbf{Figure 2 (Per-Type Heatmap)}: The caption notes a "green colormap." Green-only or green-dominant scales are often problematic for deuteranopia. Please verify the palette against WCAG 2.1 contrast guidelines or switch to a perceptually uniform, colorblind-safe palette (e.g., Viridis).
+\item \textbf{Figure 4 (Context Degradation \& Error Decomp)}: This is the strongest figure set. The use of confidence interval bands (95\% CI) in \texttt{context\_degradation\_lines.pdf} is excellent practice for uncertainty visualization. The decomposition in \texttt{visual\_error\_decomposition.pdf} aligns well with the textual analysis.
+\item \textbf{Table 1}: Embedding \texttt{composition\_donut.pdf} inside the benchmark comparison table is unconventional. Donut charts inside tables often reduce text legibility due to size constraints. Consider extracting this distribution to a standalone figure or a bar chart within the table.
+\end{itemize}
+
+\textbf{Appendix Figures}
+\begin{itemize}\setlength\itemsep{2pt}
+\item \textbackslash\{\}textbf\{Candidate Examples (\texttt{ie\_entity\_candidates.pdf}, etc.)\}: These are well-captioned and essential for understanding the task definition. Ensure the image resolution is sufficient for print (current file sizes suggest reasonable quality).
+\item \textbackslash\{\}textbf\{\texttt{wrong\_answer\_pie.pdf}\}: Pie charts are discouraged in quantitative analysis because humans struggle to compare angles. Since this figure shows error distribution across seven labels, a stacked bar chart would allow for more precise comparison of error category frequencies.
+\item \textbackslash\{\}textbf\{\texttt{subtype\_correlation\_heatmap.pdf}\}: Ensure axis labels are large enough to be read when printed at standard conference poster size (typically 10pt minimum).
+\end{itemize}
+
+\textbf{Accessibility \& Alt Text}
+\begin{itemize}\setlength\itemsep{2pt}
+\item LaTeX captions currently serve as alt text. Most are descriptive, but Figure 1 and the donut chart in Table 1 need richer descriptions to support screen readers.
+\item Verify that all color-coded figures (heatmaps, line plots) are distinguishable in grayscale, as print versions may lose color fidelity.
+\end{itemize}
+
+\textbf{Overall}
+The figures effectively support the claims, but the color choices and chart types in Figures 1, 2, and the Appendix Pie Chart should be updated to ensure broader accessibility and clearer data communication.
+
+\bigskip
+
+\subsection*{paper\_reviewer\_jargon\_police \hfill \textit{verdict: minor\_revision}}
+The manuscript is dense with field-specific terminology, which is standard for benchmark papers, but several terms reduce accessibility for non-specialist readers. In the Abstract, the phrase "cross-modal token-counting scheme" (Line 28) could be simplified to "method for counting text and image tokens together." In Section 1 (Introduction), "memory-augmented agents" is defined, but related acronyms like "RAG" (retrieval-augmented generation) appear in Section 2 without explicit expansion for the first time in the main text.
+
+Section 3 introduces five memory abilities (IE, MSR, TR, KU, AR). While defined, the acronym density is high. Consider spelling out "Information Extraction" and "Multi-Session Reasoning" at every instance in the first paragraph of Section 4 (Evaluation) to aid readability. In Section 5.3, "lossy cross-modality compression at storage time" is technically precise but opaque; "lossy image compression when saving memories" is clearer. Similarly, "entity abstraction" (Section 3.2) is defined as masking names, but the term "abstraction" itself is jargon; "entity masking" might be more direct.
+
+The Related Work section (Section 2) uses metaphorical jargon like "OS-inspired paging" and "neurobiological graphs." While evocative, these terms assume familiarity with operating systems and neuroscience. Brief clarifications (e.g., "memory paging similar to computer operating systems") would broaden understanding. Appendix A.1 uses implementation jargon ("RoPE", "FlashAttention-2", "tensor parallelism") without definition. While these are standard in engineering contexts, a brief parenthetical explanation helps broader readers. Finally, "LLM-as-Judge" is used throughout; defining it once as "using an LLM to grade answers" in the first instance would improve flow. These changes would maintain precision while lowering the barrier to entry for readers outside the immediate subfield.
+
+\bigskip
+
+\subsection*{paper\_reviewer\_logical\_consistency \hfill \textit{verdict: accept}}
+The paper exhibits strong logical consistency across its core claims and experimental design. The central premise—that existing benchmarks fail to compare long-context LVLMs and memory agents on multimodal tasks requiring visual evidence—is well-supported by the benchmark comparison in Table 1 (Section 1). The claim that MemLens necessitates visual evidence is rigorously validated via the image-ablation study in Table 2 (Section 3.4), where removing images causes accuracy to collapse below 2\% for the 80.4\% of image-dependent questions. This empirical evidence directly supports the conclusion that the benchmark is not solvable via text-only shortcuts.
+
+The evaluation conclusions regarding model behaviors are logically derived from the reported data. The assertion that LVLMs degrade with context length while memory agents remain length-stable is supported by Figure 5 (Section 5.2). The causal mechanism proposed for agent failure ('lossy multimodal compression') is consistent with the error analysis in Figure 6 and the discussion of caption-based inputs for text-only agents (Appendix C.1). The recommendation for hybrid architectures follows deductively from the complementary failure modes identified (LVLMs fail on length, agents fail on visual fidelity).
+
+The paper also maintains logical consistency in its agent evaluation protocol. While agents are evaluated on a 195-question subset versus the full 789 for LVLMs, the authors explicitly re-scored LVLMs on this subset for direct comparison (Appendix C.1), ensuring the conclusion that 'memory agents trail LVLMs' is not an artifact of dataset mismatch. Furthermore, the claim that post-training weakens abstention is backed by a controlled comparison between frozen-backbone agents (Mem0, MemOS) and finetuned agents (Section 5.2), ruling out backbone capacity as the primary cause.
+
+One minor logical nuance exists in the generalization of the ablation study: while the ablation covers 80.4\% of the benchmark, the abstract states 'solving \textbackslash\{\}bench\{\} requires visual evidence.' Since 19.6\% of questions are text-sufficient (AR + some MSR), this is a slight over-generalization, though acceptable given the benchmark's multimodal focus. The paper acknowledges this distribution in Section 3.4.
+
+Overall, the causal claims are well-supported by stated mechanisms, and there are no internal contradictions between the methodology and the conclusions drawn. The logical flow from problem identification to benchmark construction, evaluation, and architectural recommendations is coherent.
+
+\bigskip
+
+\subsection*{paper\_reviewer\_overreach \hfill \textit{verdict: minor\_revision}}
+The paper presents a comprehensive benchmark but contains specific instances of overreach where conclusions extrapolate beyond the provided evidence, particularly regarding the identification of the "principal bottleneck" and the characterization of memory agent mechanisms.
+
+In the Conclusion, the authors state: "Visual-evidence retention and retrieval... therefore emerges as the principal bottleneck to address in the future." This claim overgeneralizes findings from the Information Extraction (IE) and Knowledge Update (KU) types to the entire benchmark. Section 5.2 (Error Analysis) explicitly notes that for Multi-Session Reasoning (MSR), the hardest task type where accuracy caps below 30\%, errors are dominated by the Reasoning category (73\%), not Visual errors. While visual fidelity is critical for IE/KU, asserting it as the \textit{principal} bottleneck for the benchmark as a whole ignores the reasoning limitation that prevents systems from solving MSR tasks. The Conclusion should be qualified to reflect that visual retention is the primary bottleneck for retrieval-heavy tasks, while reasoning remains the primary bottleneck for aggregation tasks.
+
+Additionally, Section 5.2 claims that "both text-only and multimodal pipelines compress evidence visual information into a fixed memory representation at storage time." This is technically inaccurate for the text-only agents evaluated (e.g., Mem0, MemOS). As detailed in Appendix A (Agent Evaluation Protocol), these systems replace images with BLIP-2 captions before ingestion. They do not compress visual information into memory representations; they process text generated from visual input. Conflating captioning with visual compression obscures the distinct failure mode of text-only agents (loss of visual detail during caption generation) versus multimodal agents (loss of detail during embedding storage). This distinction is crucial for the proposed hybrid architectures.
+
+Finally, the Abstract claims evaluation of "27 LVLMs." Several entries are variants of the same base model (e.g., Qwen3-VL-235B Thinking vs. Instruct). While numerically accurate, this risks overstating the diversity of architectures evaluated. Clarifying this as "27 model configurations" would improve precision. These adjustments are necessary to ensure the paper's claims remain tightly bound to the empirical evidence presented.
+
+\bigskip
+
+\subsection*{paper\_reviewer\_safety\_ethics \hfill \textit{verdict: accept}}
+The manuscript demonstrates appropriate attention to safety and ethical considerations, particularly in data sourcing and evaluation design. The Ethics Statement explicitly addresses the non-person-centric nature of the topic ontology, mitigating risks associated with Personally Identifiable Information (PII) in the 4,695 source images (Appendix 4.4). While the authors acknowledge that incidental human figures may appear in natural photographs, the reliance on a takedown contact mechanism for flagged images (Ethics Statement) provides a necessary post-hoc remedy, though it places a burden on downstream users to monitor for residual privacy risks.
+
+Regarding copyright, the redistribution of web-scraped images under their original licenses (Appendix 4.4) is a standard practice in open benchmarking but carries inherent legal uncertainty. The authors mitigate this by providing provenance metadata (source URL, retrieval timestamp) to facilitate independent verification, which aligns with responsible data stewardship norms.
+
+From a model safety perspective, the inclusion of an Answer Refusal (AR) task (Section 3.1, Table 1) is a significant positive. This task specifically evaluates the model's ability to abstain when evidence is missing, directly addressing hallucination risks in long-context settings. The authors note that memory-agent post-training can weaken this abstention behavior (Section 4.3 Analysis), highlighting a critical safety vulnerability in current agent architectures.
+
+Human review was conducted by project members rather than crowd-workers (Ethics Statement), which simplifies IRB compliance but limits the diversity of the annotation process. Given the synthetic nature of the dialogue sessions, this approach is acceptable for this scope.
+
+Overall, the paper adheres to standard ethical guidelines for ML benchmarking. The transparency in data provenance and the inclusion of safety-relevant evaluation metrics (refusal) support the paper's acceptability from a safety\_ethics lens. No further revisions are required regarding safety protocols.
+
+\bigskip
+
+\subsection*{paper\_reviewer\_scientific\_evidence \hfill \textit{verdict: minor\_revision}}
+The scientific evidence supporting the central claims of MemLens is generally robust, with a well-designed benchmark (n=789) and appropriate controls for length and modality. The cross-modality ablation study (Section 3.4, Table 2) provides strong causal evidence that 80.4\% of questions require visual input, showing a >90\% accuracy drop when images are removed. The judge validation protocol (Appendix G.2) demonstrates high reliability (κ=0.86 vs. human consensus), mitigating concerns about LLM-as-Judge bias.
+
+However, there are evidentiary limitations regarding the comparison of LVLMs and memory agents. First, LVLMs are evaluated on the full 789-question benchmark, while memory agents are evaluated on a 195-question subset (Appendix G.1) due to computational cost. Although stratified sampling is used, the smaller sample size for agents (n=195) increases the confidence interval width for agent performance (±5–7\% at 32K, Appendix G.1). The main text (Section 4.2) should explicitly acknowledge this asymmetry when drawing conclusions about relative performance, as the subset size limits the precision of the agent-vs-LVLM comparison.
+
+Second, the claim that agents are "length-stable" while LVLMs degrade is partially constrained by context window availability. LVLMs are evaluated up to 128K, whereas agents are evaluated up to 256K (Section 4.1). This asymmetry prevents a direct comparison at 256K, yet the conclusion implies agents are superior at extreme lengths. The text should clarify that the "length-stable" claim applies within the overlapping range (32K–128K) where LVLMs are available, rather than extrapolating to 256K where LVLM data is missing.
+
+Finally, the image-ablation study relies on two frontier models (Table 2). While the effect size is massive, generalizing the "visual necessity" claim to the broader field requires acknowledging this limited model sample. These adjustments will strengthen the robustness of the empirical conclusions without requiring new experiments.
+
+\bigskip
+
+\subsection*{paper\_reviewer\_statistical\_analysis \hfill \textit{verdict: minor\_revision}}
+This review focuses on the statistical rigor of the evaluation methodology, reporting of uncertainty, and reproducibility of the quantitative analyses presented in the paper.
+
+\textbf{Strengths}
+The paper demonstrates a strong commitment to statistical transparency in several areas. The use of \textbf{bootstrap confidence intervals} (Appendix C, "Bootstrap confidence intervals on overall agent accuracy") with 1000 iterations and the percentile method is appropriate for the stratified subset analysis of memory agents. The validation of the LLM-as-Judge metric includes standard agreement statistics (Cohen's \$\textbackslash\{\}kappa\$, Spearman \$\textbackslash\{\}rho\$) with reported p-values in Section 4.1 and Appendix C, establishing the reliability of the evaluation metric. The sample size (\$n=789\$ questions) is sufficient for benchmark-level conclusions, and the stratified sampling for the agent subset (Appendix C) is well-justified statistically.
+
+\textbf{Areas for Improvement}
+1.  \textbf{Confidence Interval Methodology:} In Section 4.3, Figure 1 caption states "Bands: 95\% CI" for the LVLM average (solid lines). However, the calculation method (e.g., standard error of the mean across models, bootstrap over questions) is not explicitly defined in the main text or Appendix. While Appendix C details bootstrap for agents, the LVLM bands lack this specification. To ensure reproducibility, the specific method for computing these intervals should be documented in the caption or Appendix B.
+2.  \textbf{P-value Notation:} In Appendix C, under "Direct-LVLM overlay on the 195-subset," the text reports "Spearman \$\textbackslash\{\}rho = 0.94\$ (\$p < 10\textasciicircum{}\{-1\}\$, \$n = 6\$ direct LVLMs)." The notation \$10\textasciicircum{}\{-1\}\$ (\$0.1\$) is unusual for significance reporting and suggests a weak threshold. Given \$n=6\$, a correlation of 0.94 typically yields \$p \textbackslash\{\}approx 0.013\$. Please verify the exact p-value and report it using standard conventions (e.g., \$p < 0.05\$ or \$p < 0.01\$) to avoid ambiguity regarding statistical significance.
+3.  \textbf{Multiple Comparisons:} Section 4.2 ("Main Results") presents comparisons across 27 LVLMs and 7 agents across five memory abilities and four context lengths. When discussing model rankings or performance gaps (e.g., "top eight LVLMs fall within a 6.34\% band"), the analysis relies on descriptive statistics. If any claims imply statistical significance between specific model pairs, the authors should clarify whether multiple-comparison corrections (e.g., Bonferroni, False Discovery Rate) were considered, given the high number of pairwise comparisons. Without this, there is a risk of Type I error inflation in interpreting small performance differences.
+
+\textbf{Conclusion}
+The statistical foundation of the benchmark is robust, particularly regarding the validation of the evaluation metric and the handling of subset uncertainty for agents. However, clarifying the confidence interval calculation for the main results and correcting the p-value notation are necessary to meet the standard of statistical reporting expected for a benchmark paper.
+
+\bigskip
+
+\subsection*{paper\_reviewer\_text\_formatting \hfill \textit{verdict: minor\_revision}}
+The manuscript demonstrates a generally robust LaTeX structure with consistent heading hierarchy (Section -> Subsection) and appropriate use of floating environments (\textbackslash\{\}texttt\{table\textit{}, \texttt{figure}\}) for wide content (e.g., Lines 140, 510). However, there are critical compilation risks and minor formatting inconsistencies that require attention before final submission.
+
+First, the \texttt{longtblr} environment is used for the topic ontology table in Appendix Line 850, but the \texttt{tabularray} package is not loaded in the preamble (Line 20). Only \texttt{tabularx} is present. This will cause a fatal compilation error. Please either add \textbackslash\{\}texttt\{\textbackslash\{\}usepackage\{tabularray\}\} or replace the \texttt{longtblr} environment with a standard \texttt{longtable} or \texttt{tabularx} equivalent.
+
+Second, the \texttt{promptbox} environment appears extensively in the Appendix (e.g., Line 1190). While this may be defined in the \texttt{llmxive} class file, it is not declared in the provided preamble. If \texttt{llmxive.cls} does not define it, the build will fail. Ensure this custom environment is explicitly supported or defined in the preamble shim layer.
+
+Third, citation style is inconsistent. The text mixes \texttt{\textbackslash{}citep} (Line 105) and \texttt{\textbackslash{}cite} (Line 106) within the same paragraph. While \texttt{natbib} supports both, standardizing to one style (preferably \texttt{\textbackslash{}citep} for parenthetical citations) improves readability and formatting hygiene.
+
+Finally, excessive use of \texttt{\textbackslash{}resizebox} (e.g., Lines 1200, 1250) is noted. While common in CS papers, it can degrade text legibility in PDFs. Consider using \texttt{adjustbox} options for width-only scaling to preserve font size where possible. Overall, the document is well-structured, but these LaTeX hygiene issues must be resolved to ensure successful compilation and professional presentation.
+
+\bigskip
+
+\subsection*{paper\_reviewer\_writing\_quality \hfill \textit{verdict: minor\_revision}}
+The manuscript demonstrates a high standard of academic writing, with clear articulation of the benchmark's purpose, construction pipeline, and evaluation protocols. The Abstract and Introduction effectively frame the research gap and contributions using precise terminology. Sentence structures are generally complex but remain readable, facilitating the flow of technical details. However, several minor issues regarding consistency, mechanical precision, and source cleanliness require attention before final submission.
+
+First, there is inconsistency in number formatting throughout the document. The main text often uses numerals (e.g., '27 LVLMs and 7 memory-augmented agents' in Section 4), while the Appendix switches to words (e.g., '27 LVLMs and seven memory-augmented agent systems' in Appendix\textasciitilde{}\textbackslash\{\}ref\{app:eval\_setup\}). Adhering to a single style guide, such as using numerals for all counts greater than nine or consistently using words for small numbers, would improve uniformity.
+
+Second, compound adjectives require consistent hyphenation to ensure grammatical correctness. For instance, 'RL-finetuned' in Appendix\textasciitilde{}\textbackslash\{\}ref\{app:supplementary\_experiments\} should be 'RL-fine-tuned', and 'BLIP-2 generated' in Appendix\textasciitilde{}\textbackslash\{\}ref\{app:eval\_setup\} should be hyphenated as 'BLIP-2-generated' when preceding a noun like 'captions'. Similarly, 'long-context' is used inconsistently as a modifier in some places.
+
+Third, subject-verb agreement needs a specific check. In the Reproducibility Statement, the sentence 'The 789-question benchmark... are publicly released' treats the singular noun 'benchmark' as plural. It should read 'is publicly released'. Additionally, 'The 4,695 unique images... are distributed' is correct, but consistency in how dataset sizes are introduced should be maintained.
+
+Finally, while LaTeX comments (e.g., \texttt{\% [motivation + methods]} in Section 1) do not affect the compiled PDF, their presence in the source file suggests incomplete cleanup. Removing these editorial notes ensures the source is publication-ready. Additionally, some section titles in the Analysis section (e.g., 'Current memory pipelines lose faithfulness to original visual evidence.') are phrased as full sentences rather than standard noun phrases, which is acceptable but should be consistent across all subsection titles. Addressing these mechanical points will polish an otherwise clear and well-structured manuscript.
+
+\bigskip
+
 
 \clearpage
 
 \section*{Revision history}
-
-\subsection*{Round 1 \hfill \textit{2026-05-19, llmXive-implementer-v1.0}}
-The implementer agent addressed 116 reviewer-raised action items in this
-round. Selected outcomes:
-
+\subsection*{Round 1 \hfill \textit{2026-05-19T10:14:00Z, llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth)}}
+Summary: 113 done, 3 compile-failed, 0 skipped.
 \begin{itemize}\setlength\itemsep{2pt}
-  \item \textbf{[a46d18f9a8b0]} (writing) Provide verification\_status for all citations. \hfill \textit{done}
-  \item \textbf{[6d7001908d74]} (writing) Correct the LoCoMo claim. \hfill \textit{done}
-  \item \textbf{[ae329aa3f800]} (writing) Verify model version citations. \hfill \textit{compile-failed}
-  \item \textbf{[81d2f10c8309]} (writing) Add source code repository pointers. \hfill \textit{done}
-  \item \textbf{[dd6a09a52ef8]} (writing) Replace green colormap with Viridis. \hfill \textit{done}
-  \item \textbf{[d1453c5c2a75]} (writing) Define acronyms RAG, LoRA, RL at first use. \hfill \textit{done}
-  \item \textbf{[31975288de5e]} (writing) Simplify ``lossy cross-modality compression''. \hfill \textit{done}
+\item \textbf{[a46d18f9a8b0]} (writing) Provide verification\_status for all citations in state/citations \hfill \textit{done}
+\item \textbf{[6d7001908d74]} (writing) Correct the LoCoMo claim — Section 1 and Section 2 must reflect text-only nature \hfill \textit{done}
+\item \textbf{[ae329aa3f800]} (writing) Verify GPT-5.4 and Gemini-3.1-Pro citations \hfill \textit{compile-failed}
+\item \textbf{[81d2f10c8309]} (writing) Add source code repository pointers \hfill \textit{done}
+\item \textbf{[dd6a09a52ef8]} (writing) Replace green colormap with Viridis or Cividis \hfill \textit{done}
+\item \textbf{[96b6f896d1b7]} (writing) Include requirements.txt or environment specification \hfill \textit{done}
+\item \textbf{[1c436788e78b]} (writing) Expand Figure 1 caption to describe four pipeline stages \hfill \textit{done}
+\item \textbf{[d1453c5c2a75]} (writing) Define acronyms RAG, LoRA, RL at first use \hfill \textit{done}
+\item \textbf{[31975288de5e]} (writing) Simplify "lossy cross-modality compression at storage time" \hfill \textit{done}
 \end{itemize}
-
 \bigskip
-\noindent\textit{Round 1 summary:} 113 tasks completed, 3 compile-failed, 0 skipped.
-The compile-failed items remain un-addressed and will surface in the next
-review round if any specialist re-flags them.
+
 
 
 \end{document}

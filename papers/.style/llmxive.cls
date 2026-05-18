@@ -286,16 +286,16 @@
       {\llmxmono\footnotesize\color{llmxMuted}%
         \ifx\llmx@paperid\@empty\else\llmx@paperid\quad\textbar\quad\fi
         \llmx@papercategory}\\[2pt]
-      {\llmxmono\footnotesize
-        \color{llmxGreen}\textbullet\ \color{llmxInk2}\llmx@paperstatus}%
+      {\llmxmono\footnotesize\color{llmxInk2}\llmx@paperstatus}%
       %% Spec 013: publication-info line (DOI + volume/issue), rendered
       %% only when the publisher has set them. Empty for preprints +
-      %% mid-revision states.
+      %% mid-revision states. `~` between "vol" and the number keeps
+      %% them on the same line if the surrounding column is narrow.
       \ifx\llmx@paperdoi\@empty\else
         \\[2pt]{\llmxmono\footnotesize\color{llmxMuted}%
           doi:\llmx@paperdoi%
           \ifx\llmx@papervolume\@empty\else
-            \quad\textbar\quad vol \llmx@papervolume.\llmx@paperissue%
+            \quad\textbar\quad vol~\llmx@papervolume.\llmx@paperissue%
           \fi}%
       \fi
     \end{minipage}\par
