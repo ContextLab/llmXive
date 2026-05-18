@@ -16,12 +16,20 @@
 
   // Stage → tab mapping (FR-005). Mirrors src/llmxive/web_data.py.
   const TAB_STAGE_SETS = {
-    papers:     new Set(["posted"]),
+    // Published papers: spec 012 — paper_accepted is the published state
+    // for arxiv-intake papers (frozen source; nothing else to do after
+    // review accepts). For home-grown papers, paper_accepted → posted
+    // when the pipeline finalizes; both should surface on this tab.
+    papers:     new Set(["posted", "paper_accepted"]),
     paper:      new Set([
       "paper_drafting_init", "paper_specified", "paper_clarified", "paper_planned",
       "paper_tasked", "paper_analyzed", "paper_in_progress", "paper_complete",
       "paper_review", "paper_minor_revision", "paper_major_revision_writing",
-      "paper_major_revision_science", "paper_fundamental_flaws", "paper_accepted",
+      "paper_major_revision_science", "paper_fundamental_flaws",
+      // Spec 012 convergence-pipeline stages (in-flight; NOT on the
+      // published papers tab):
+      "paper_revision_in_progress", "ready_for_implementation",
+      "paper_revision_blocked",
     ]),
     inProgress: new Set([
       "in_progress", "research_complete", "research_review",
