@@ -613,6 +613,71 @@ def _cmd_pdf_audit(args: argparse.Namespace) -> int:
     return 0 if agg["total_failures"] == 0 else 1
 
 
+def _cmd_project_unblock(args: argparse.Namespace) -> int:
+    """`llmxive project unblock <PROJ-ID>` (spec 012 / FR-023).
+
+    Operator escape hatch for projects stuck at PAPER_REVISION_BLOCKED.
+    Refuses to no-op-unblock: requires the operator to have actually
+    modified `state/revisions/<PROJ-ID>/round-<N>.yaml` since the block
+    was recorded (mtime check). On success, transitions the project to
+    PAPER_REVIEW (or PAPER_MINOR_REVISION if --to-minor is passed).
+    """
+    from datetime import datetime, timezone
+    from pathlib import Path
+
+    from llmxive.state import project as project_store
+    from llmxive.types import Stage
+
+    project_id = args.project_id
+    repo = Path.cwd()
+    try:
+        project = project_store.load(project_id, repo_root=repo)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[unblock] ERROR: cannot load {project_id}: {exc}", file=sys.stderr)
+        return 2
+
+    if project.current_stage != Stage.PAPER_REVISION_BLOCKED:
+        print(
+            f"[unblock] ERROR: {project_id} is at {project.current_stage.value}, "
+            f"not paper_revision_blocked; refusing to unblock.",
+            file=sys.stderr,
+        )
+        return 2
+
+    # FR-023(b): require the action-items file to have been touched since the block.
+    # We approximate "since the block" as "in the last 24h relative to project.updated_at"
+    # OR "mtime is newer than project.updated_at" if the file exists.
+    revisions_dir = repo / "state" / "revisions" / project_id
+    round_files = sorted(revisions_dir.glob("round-*.yaml")) if revisions_dir.is_dir() else []
+    if not round_files:
+        print(
+            f"[unblock] ERROR: no state/revisions/{project_id}/round-*.yaml files found. "
+            f"Nothing to validate as 'operator-edited'.",
+            file=sys.stderr,
+        )
+        return 2
+    latest_round = round_files[-1]
+    file_mtime = datetime.fromtimestamp(latest_round.stat().st_mtime, tz=timezone.utc)
+    if file_mtime <= project.updated_at:
+        print(
+            f"[unblock] ERROR: {latest_round.name} mtime ({file_mtime.isoformat()}) is "
+            f"NOT newer than project.updated_at ({project.updated_at.isoformat()}). "
+            f"Refusing no-op-unblock — edit the action items first.",
+            file=sys.stderr,
+        )
+        return 2
+
+    target = Stage.PAPER_MINOR_REVISION if args.to_minor else Stage.PAPER_REVIEW
+    project = project.model_copy(update={
+        "current_stage": target,
+        "updated_at": datetime.now(timezone.utc),
+        "revision_spec_path": None,
+    })
+    project_store.save(project, repo_root=repo)
+    print(f"[unblock] {project_id}: paper_revision_blocked → {target.value}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="llmxive")
     subs = parser.add_subparsers(dest="cmd", required=True)
@@ -733,6 +798,20 @@ def build_parser() -> argparse.ArgumentParser:
         help="where to write per-PDF JSON reports (default: state/audit/pdf/<date>/)",
     )
     p_pdf_audit.set_defaults(func=_cmd_pdf_audit)
+
+    # Spec 012 / FR-023: project unblock CLI.
+    p_project = subs.add_parser("project", help="project state operations")
+    project_subs = p_project.add_subparsers(dest="project_cmd", required=True)
+    p_unblock = project_subs.add_parser(
+        "unblock",
+        help="manually unblock a project stuck at paper_revision_blocked",
+    )
+    p_unblock.add_argument("project_id", help="e.g. PROJ-564-qwen-image-vae-2-0-...")
+    p_unblock.add_argument(
+        "--to-minor", action="store_true",
+        help="transition to paper_minor_revision (default: paper_review)",
+    )
+    p_unblock.set_defaults(func=_cmd_project_unblock)
 
     return parser
 

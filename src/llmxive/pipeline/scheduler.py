@@ -87,6 +87,15 @@ _NEVER_PICK: set[Stage] = {
     Stage.HUMAN_INPUT_NEEDED,
     Stage.BLOCKED,
     Stage.POSTED,
+    # Spec 012 / FR-009: scheduler MUST NOT re-trigger work on a project
+    # while its revision-spec auto-plan is running. The driver that owns
+    # the planning loop is the only entity that should advance such
+    # projects.
+    Stage.PAPER_REVISION_IN_PROGRESS,
+    # Spec 012: blocked-or-waiting-for-implementer states. The dedicated
+    # implementer agent (out of scope for this spec) picks these up.
+    Stage.READY_FOR_IMPLEMENTATION,
+    Stage.PAPER_REVISION_BLOCKED,
 }
 
 
