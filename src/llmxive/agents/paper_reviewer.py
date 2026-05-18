@@ -275,6 +275,35 @@ class PaperReviewerAgent(Agent):
             {"project_id": ctx.project_id, "reviewer_name": self.entry.name},
             repo_root=repo,
         )
+        # Spec 012 / FR-014: per-specialist re-review protocol. When THIS
+        # specialist (self.entry.name) has ≥1 prior paper-stage review
+        # record for THIS project, prepend the shared rereview block
+        # listing that specialist's MOST-RECENT prior action_items so the
+        # model performs a diff-check rather than fresh critique.
+        rereview_block = ""
+        try:
+            prior_for_self = reviews_store.prior_reviews_for_specialist(
+                ctx.project_id, self.entry.name, stage="paper", repo_root=repo,
+            )
+        except Exception:  # noqa: BLE001 — defensive; prior-loading must not break review
+            prior_for_self = []
+        if prior_for_self:
+            most_recent = prior_for_self[-1]
+            prior_items_yaml = yaml.safe_dump(
+                [{"id": ai.id, "text": ai.text, "severity": ai.severity}
+                 for ai in most_recent.action_items],
+                sort_keys=False,
+            ) if most_recent.action_items else "[]\n"
+            snippet_path = repo / "agents" / "prompts" / "_shared" / "rereview_block.md"
+            try:
+                snippet = snippet_path.read_text(encoding="utf-8")
+            except OSError:
+                snippet = ""
+            if snippet:
+                rereview_block = snippet.replace(
+                    "{prior_action_items_yaml}", prior_items_yaml.strip()
+                ) + "\n\n"
+
         # arXiv-intake metadata block — surface the upstream context the
         # LLM needs to review a third-party paper (vs. a home-grown one).
         intake_block = ""
@@ -306,6 +335,7 @@ class PaperReviewerAgent(Agent):
         user = (
             f"# project_id\n{ctx.project_id}\n\n"
             f"# title\n{ctx.metadata.get('title', '')}\n\n"
+            f"{rereview_block}"
             f"{intake_block}"
             f"# Paper LaTeX source\n\n{source_concat}\n\n"
             f"# Compiled PDFs\n\n{pdf_summary}\n\n"
