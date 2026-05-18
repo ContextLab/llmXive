@@ -1030,11 +1030,80 @@ def _project_to_entry(repo: Path, project: Project) -> dict[str, Any]:
         # Spec 012: upstream_feedback summary for arxiv-intake papers
         # whose specialists raised non-fatal action items.
         "upstream_feedback": _upstream_feedback_summary(repo, project.id),
+        # Spec 012 modal redesign: unified review list (paper + research
+        # + personality) for the modal's expandable review pane.
+        "reviews": _project_reviews(repo, project.id),
         "artifact_links": links,
         "current_artifact": _current_artifact(repo, project, links),
         "citation_summary": _citation_summary(repo, project.id),
         "last_run_log": _last_run_log(repo, project.id),
     }
+
+
+def _project_reviews(repo: Path, project_id: str) -> list[dict[str, Any]]:
+    """Spec 012 modal-redesign: build a unified list of reviews (paper +
+    research + personality) for the modal to render. Each entry is a
+    light-weight dict the modal can show inline + expand on click.
+
+    Per-entry fields:
+      - reviewer_name : str (e.g. "paper_reviewer_jargon_police", "Marie Curie (simulated)")
+      - reviewer_kind : "paper" | "research" | "personality"
+      - verdict       : "accept" | "minor_revision" | ... (None for personality comments)
+      - review_path   : repo-relative path
+      - raw_url       : raw GitHub URL for the markdown body
+      - github_url    : blob URL (for the "view on GitHub" link)
+      - reviewed_at   : ISO 8601 string (best-effort from frontmatter)
+      - excerpt       : first ~200 chars of the body for inline preview
+    """
+    out: list[dict[str, Any]] = []
+    for sub in ("paper/reviews", "reviews/paper", "reviews/research"):
+        sub_dir = repo / "projects" / project_id / sub
+        if not sub_dir.is_dir():
+            continue
+        kind = "paper" if "paper" in sub else "research"
+        for path in sorted(sub_dir.glob("*.md")):
+            try:
+                text = path.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            # Parse the YAML frontmatter if present.
+            front: dict[str, Any] = {}
+            body = text
+            if text.startswith("---\n"):
+                try:
+                    import yaml as _yaml
+                    end = text.index("\n---\n", 4)
+                    front = _yaml.safe_load(text[4:end]) or {}
+                    body = text[end + 5:]
+                except (ValueError, Exception):  # noqa: BLE001
+                    front = {}
+                    body = text
+            reviewer_name = front.get("reviewer_name") or path.stem.split("__")[0]
+            # personality reviews use display_name like "Marie Curie (simulated)"
+            if "-simulated__" in path.name:
+                kind_str = "personality"
+                # Derive a human name from the slug.
+                slug = path.name.split("-simulated__")[0]
+                reviewer_name = " ".join(w.capitalize() for w in slug.split("-")) + " (simulated)"
+            else:
+                kind_str = kind
+            rel = str(path.relative_to(repo)).replace("\\", "/")
+            blob_url = f"https://github.com/ContextLab/llmXive/blob/main/{rel}"
+            raw_url = f"https://raw.githubusercontent.com/ContextLab/llmXive/main/{rel}"
+            excerpt = body.strip()[:300]
+            out.append({
+                "reviewer_name": reviewer_name,
+                "reviewer_kind": kind_str,
+                "verdict": front.get("verdict"),
+                "review_path": rel,
+                "raw_url": raw_url,
+                "github_url": blob_url,
+                "reviewed_at": str(front.get("reviewed_at") or ""),
+                "excerpt": excerpt,
+            })
+    # Sort: most-recent first
+    out.sort(key=lambda r: r.get("reviewed_at") or "", reverse=True)
+    return out
 
 
 def _upstream_feedback_summary(repo: Path, project_id: str) -> dict[str, Any] | None:

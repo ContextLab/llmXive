@@ -227,16 +227,53 @@
     }).join("");
   }
 
+  // Spec 012 follow-up: unified reviews list (paper + research + personality)
+  // surfaced from project.reviews (built by web_data._project_reviews).
+  // Each entry is clickable — on click the main pane (.ad-pdf) swaps to
+  // show the full review markdown + a "back to artifact" link.
+  function _reviewsListHTML(reviews) {
+    if (!reviews || !reviews.length) {
+      return '<div style="color:var(--muted); font-size:11px;">No reviews yet.</div>';
+    }
+    return reviews.map((r, idx) => {
+      const verdictBadge = r.verdict
+        ? '<span class="review-verdict ' + escapeHtml(r.verdict) + '">' + escapeHtml(r.verdict) + '</span>'
+        : '';
+      const kindIcon = r.reviewer_kind === "personality"
+        ? '<i class="fa-solid fa-quote-left"></i>'
+        : (r.reviewer_kind === "research"
+          ? '<i class="fa-solid fa-flask"></i>'
+          : '<i class="fa-solid fa-file-pen"></i>');
+      return '<button class="review-row" type="button" data-review-idx="' + idx + '">' +
+        '<div class="review-head">' +
+        kindIcon + ' ' +
+        '<span class="review-name">' + escapeHtml(r.reviewer_name || "(unknown)") + '</span>' +
+        verdictBadge +
+        '</div>' +
+        '<div class="review-excerpt">' + escapeHtml((r.excerpt || "").slice(0, 180)) +
+        (((r.excerpt || "").length > 180) ? "…" : "") +
+        '</div>' +
+        '</button>';
+    }).join("");
+  }
+
   function _renderListColumn(project, comments) {
     const links = project.artifact_links || {};
     const artifacts = ARTIFACT_ROWS
       .map(([key, icon, label]) => _artifactRow(label, icon, links[key]))
       .filter(Boolean).join("");
+    // Spec 012: unified reviews section (replaces the prior personality-
+    // only block). The personality `comments` payload is the legacy
+    // shape — we render the full project.reviews list when present, and
+    // fall back to the personality-only block for older payloads.
+    const reviewsBlock = (project.reviews && project.reviews.length)
+      ? '<h4>Reviews <span style="color:var(--muted); font-weight:normal; font-size:11px;">(click to expand)</span></h4>' +
+        _reviewsListHTML(project.reviews)
+      : '<h4>Personality reviews</h4>' + _personalityReviewsHTML(comments);
     return '' +
       '<h4>Artifacts</h4>' +
       (artifacts || '<div style="color:var(--muted); font-size:11px;">No artifacts produced yet.</div>') +
-      '<h4>Personality reviews</h4>' +
-      _personalityReviewsHTML(comments) +
+      reviewsBlock +
       '<h4>Authors</h4>' +
       _authorsHTML(project.authors) +
       '<h4>Citations</h4>' +
@@ -397,7 +434,71 @@
 
     _renderArtifactPane(bd.querySelector(".ad-pdf"), project);
 
+    // Spec 012: wire click-to-expand on review rows. Each .review-row's
+    // data-review-idx indexes into project.reviews; on click, fetch the
+    // raw markdown + render in the main pane with a "back to artifact"
+    // button.
+    list.querySelectorAll(".review-row").forEach(row => {
+      row.addEventListener("click", () => {
+        const idx = parseInt(row.getAttribute("data-review-idx"), 10);
+        const review = (project.reviews || [])[idx];
+        if (review) _renderReviewInMainPane(bd.querySelector(".ad-pdf"), project, review);
+      });
+    });
+
     bd.classList.add("open");
+  }
+
+  // Spec 012 follow-up: swap the main (.ad-pdf) pane to show a review's
+  // full markdown content, with a "back to artifact" button + "view on
+  // GitHub" link.
+  function _renderReviewInMainPane(pdfEl, project, review) {
+    pdfEl.replaceChildren();
+    const M = window.LlmxiveMarkdown;
+
+    const header = '<div class="ad-art-head">' +
+      '<button class="ad-art-back" type="button" title="back to artifact">' +
+      '<i class="fa-solid fa-arrow-left"></i> Back to artifact</button>' +
+      '<div class="ad-art-title">' +
+      '<i class="fa-solid fa-file-pen"></i> ' +
+      '<strong>' + escapeHtml(review.reviewer_name || "(unknown reviewer)") + '</strong>' +
+      (review.verdict
+        ? ' <span class="review-verdict ' + escapeHtml(review.verdict) + '">' + escapeHtml(review.verdict) + '</span>'
+        : "") +
+      '</div>' +
+      '<a class="ad-art-foot-link" href="' + escapeHtml(review.github_url) +
+      '" target="_blank" rel="noopener" title="view on GitHub">' +
+      '<i class="fa-brands fa-github"></i> View on GitHub</a>' +
+      '</div>' +
+      '<div class="ad-art-body" style="overflow:auto;"><em>Loading…</em></div>';
+    pdfEl.insertAdjacentHTML("beforeend", header);
+
+    // Wire the back button.
+    pdfEl.querySelector(".ad-art-back").addEventListener("click", () => {
+      _renderArtifactPane(pdfEl, project);
+    });
+
+    // Fetch + render the review markdown.
+    const body = pdfEl.querySelector(".ad-art-body");
+    fetch(review.raw_url)
+      .then(r => r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status)))
+      .then(text => {
+        // Strip the YAML frontmatter from the body — only show the
+        // free-form review text (the frontmatter is metadata).
+        let stripped = text;
+        if (text.startsWith("---\n")) {
+          const end = text.indexOf("\n---\n", 4);
+          if (end > 0) stripped = text.slice(end + 5);
+        }
+        body.innerHTML = M
+          ? M.render(stripped, { rewriteLinks: true })
+          : '<pre>' + escapeHtml(stripped) + '</pre>';
+      })
+      .catch(err => {
+        body.innerHTML = '<div style="color:var(--err);">Failed to load review: ' +
+          escapeHtml(err && err.message ? err.message : String(err)) +
+          '. <a href="' + escapeHtml(review.github_url) + '" target="_blank" rel="noopener">View on GitHub</a></div>';
+      });
   }
 
   window.LlmxiveDialog = { open, close };
