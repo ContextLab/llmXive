@@ -48,13 +48,117 @@ def _required_specialists(prefix: str, *, repo_root: Path | None = None) -> set[
 
 
 def _all_specialists_accept(records: list[ReviewRecord], required: set[str]) -> bool:
-    """True iff every required reviewer has at least one accept record."""
+    """True iff every required reviewer has at least one accept record.
+
+    Legacy semantic — pre-spec-012. Retained for the research-review gate
+    (which has not changed). The paper-stage gate now uses
+    :func:`_all_specialists_accept_most_recent` per spec 012 / FR-001.
+    """
     if not required:
         return True  # no gate configured
     accepted_by: set[str] = {
         r.reviewer_name for r in records if r.verdict == "accept"
     }
     return required <= accepted_by
+
+
+def _most_recent_per_specialist(
+    records: list[ReviewRecord],
+    *,
+    live_hash: str | None = None,
+) -> dict[str, ReviewRecord]:
+    """Return one record per specialist — the latest by ``reviewed_at``.
+
+    If ``live_hash`` is provided, only records whose ``artifact_hash``
+    matches are considered (stale-artifact reviews are ignored per
+    spec 012 / FR-003).
+    """
+    eligible = (
+        [r for r in records if r.artifact_hash == live_hash]
+        if live_hash is not None
+        else list(records)
+    )
+    by_specialist: dict[str, ReviewRecord] = {}
+    for r in eligible:
+        cur = by_specialist.get(r.reviewer_name)
+        if cur is None or r.reviewed_at > cur.reviewed_at:
+            by_specialist[r.reviewer_name] = r
+    return by_specialist
+
+
+def _all_specialists_accept_most_recent(
+    records: list[ReviewRecord], required: set[str], *, live_hash: str | None = None,
+) -> bool:
+    """Spec 012 / FR-001: every required specialist's MOST-RECENT non-stale
+    verdict must be ``accept``. Replaces the "any historical accept counts"
+    semantic — that gate was unreachable in practice because specialists
+    nit-pick every round.
+    """
+    if not required:
+        return True
+    latest = _most_recent_per_specialist(records, live_hash=live_hash)
+    for name in required:
+        rec = latest.get(name)
+        if rec is None or rec.verdict != "accept":
+            return False
+    return True
+
+
+def _max_severity_across_specialists(
+    records: list[ReviewRecord], *, live_hash: str | None = None,
+) -> str | None:
+    """Spec 012 / FR-004-005: severity ordering writing < science < fatal.
+
+    Returns the highest severity in any per-specialist most-recent record's
+    action_items list, or ``None`` if all most-recent verdicts are accept
+    (i.e. no non-accept items exist).
+    """
+    latest = _most_recent_per_specialist(records, live_hash=live_hash)
+    order = {"writing": 1, "science": 2, "fatal": 3}
+    rev = {v: k for k, v in order.items()}
+    max_rank = 0
+    for rec in latest.values():
+        if rec.verdict == "accept":
+            continue
+        for item in rec.action_items:
+            r = order.get(item.severity, 0)
+            if r > max_rank:
+                max_rank = r
+    return rev.get(max_rank)
+
+
+def _infer_live_hash(records: list[ReviewRecord]) -> str | None:
+    """The "live" artifact hash for the current paper-review round.
+
+    Spec 012 / FR-003: stale reviews (whose ``artifact_hash`` doesn't match
+    the live artifact) must be ignored for the gate. We approximate "live"
+    as the artifact_hash carried by the most-recent review record overall
+    — this is the artifact every specialist most-recently reviewed.
+
+    Returns ``None`` if there are no records (in which case the gate is
+    trivially not satisfied).
+    """
+    if not records:
+        return None
+    latest = max(records, key=lambda r: r.reviewed_at)
+    return latest.artifact_hash
+
+
+def _consolidate_action_items(
+    records: list[ReviewRecord], *, live_hash: str | None = None,
+) -> list:
+    """Deduplicate action items by id across all per-specialist
+    most-recent non-accept reviews. Preserves first-seen order.
+    """
+    latest = _most_recent_per_specialist(records, live_hash=live_hash)
+    seen: dict[str, object] = {}
+    for rec in latest.values():
+        if rec.verdict == "accept":
+            continue
+        for item in rec.action_items:
+            if item.id not in seen:
+                seen[item.id] = item
+    return list(seen.values())
 
 
 class AdvancementError(RuntimeError):
@@ -232,7 +336,7 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
             return _transition(project, Stage.RESEARCH_REJECTED)
         return project  # not enough votes yet
 
-    # Paper-review handling (US5 wiring).
+    # Paper-review handling (spec 012 convergence pipeline).
     if project.current_stage == Stage.PAPER_REVIEW:
         records = reviews_store.list_for(project.id, stage="paper", repo_root=repo_root)
         project = _award_review_points(
@@ -242,24 +346,97 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
             citations=cits,
             is_paper_stage=True,
         )
-        accept_total = sum(r.score for r in records if r.verdict == "accept")
-        winning = _winning_recommendation(records)
         required = _required_specialists("paper_reviewer_", repo_root=repo_root)
-        all_accept = _all_specialists_accept(records, required)
+        # Spec 012 / FR-003: most-recent verdict per specialist against the
+        # live artifact hash. For the live_hash, we use the most common
+        # artifact_hash across the most recent records (an arxiv-intake
+        # paper's metadata.json hash, or a home-grown paper's tasks.md hash).
+        live_hash = _infer_live_hash(records)
+        # Spec 012 / FR-001: PAPER_ACCEPTED iff every specialist's
+        # most-recent non-stale verdict is accept. No additional point
+        # threshold — the all-accept condition is the sole gate.
         if (
-            accept_total >= PAPER_ACCEPT_THRESHOLD
-            and all_accept
+            _all_specialists_accept_most_recent(records, required, live_hash=live_hash)
             and not _has_blocking_citations(cits)
         ):
             return _transition(project, Stage.PAPER_ACCEPTED)
-        if winning == "minor_revision":
-            return _transition(project, Stage.PAPER_MINOR_REVISION)
-        if winning == "major_revision_writing":
-            return _transition(project, Stage.PAPER_MAJOR_REVISION_WRITING)
-        if winning == "major_revision_science":
-            return _transition(project, Stage.PAPER_MAJOR_REVISION_SCIENCE)
-        if winning == "fundamental_flaws":
-            return _transition(project, Stage.PAPER_FUNDAMENTAL_FLAWS)
+
+        # Spec 012 / FR-004-008: severity-based routing.
+        max_sev = _max_severity_across_specialists(records, live_hash=live_hash)
+
+        # Back-compat for legacy records (prompt_version 1.0.x) with no
+        # action_items: fall back to the pre-spec-012 `_winning_recommendation`
+        # so we don't regress projects whose reviewers haven't yet been
+        # re-run under the new prompts. _max_severity returns None in this
+        # case, which lets us detect "no spec-012-style data available".
+        if max_sev is None and not _all_specialists_accept_most_recent(
+            records, required, live_hash=live_hash
+        ):
+            winning = _winning_recommendation(records)
+            if winning == "minor_revision":
+                return _transition(project, Stage.PAPER_MINOR_REVISION)
+            if winning == "major_revision_writing":
+                return _transition(project, Stage.PAPER_MAJOR_REVISION_WRITING)
+            if winning == "major_revision_science":
+                return _transition(project, Stage.PAPER_MAJOR_REVISION_SCIENCE)
+            if winning == "fundamental_flaws":
+                return _transition(project, Stage.PAPER_FUNDAMENTAL_FLAWS)
+            return project
+
+        if max_sev == "fatal":
+            # Reject to backlog with consolidated fatal items appended to
+            # the idea record (FR-008 + US4).
+            from llmxive.agents.upstream_feedback import append_rejection_rationale
+            try:
+                append_rejection_rationale(
+                    project.id,
+                    _consolidate_action_items(records, live_hash=live_hash),
+                    repo_root=repo_root,
+                )
+            except Exception:  # noqa: BLE001 — defensive; rationale failure must not block transition
+                pass
+            return _transition(project, Stage.BRAINSTORMED)
+
+        # arxiv-intake guardrail (FR-021/022, US7): for third-party
+        # arxiv-submitted papers, the writing-revision and science-revision
+        # paths CANNOT mutate paper/source/ (it's frozen). Record an
+        # upstream-feedback annotation and accept-with-caveats.
+        if max_sev in ("writing", "science"):
+            from llmxive.agents.upstream_feedback import is_arxiv_intake, record_round
+            project_dir = (repo_root or Path(__file__).resolve().parents[3]) / "projects" / project.id
+            if is_arxiv_intake(project_dir):
+                try:
+                    record_round(
+                        project.id,
+                        verdict_class=max_sev,
+                        action_items=_consolidate_action_items(records, live_hash=live_hash),
+                        repo_root=repo_root,
+                    )
+                except Exception:  # noqa: BLE001
+                    pass
+                return _transition(project, Stage.PAPER_ACCEPTED)
+
+            # Home-grown paper with writing/science items: route through
+            # the legacy MINOR/MAJOR revision stages for now (FR-006/007's
+            # PAPER_REVISION_IN_PROGRESS auto-plan path is part of US2/US3
+            # and ships in a follow-up — until then the legacy graph is
+            # the back-compat path).
+            #
+            # The mapping: severity=writing → PAPER_MINOR_REVISION; any
+            # `major_revision_writing` verdict on a most-recent record
+            # overrides to PAPER_MAJOR_REVISION_WRITING; severity=science
+            # → PAPER_MAJOR_REVISION_SCIENCE.
+            latest = _most_recent_per_specialist(records, live_hash=live_hash)
+            verdicts = {r.verdict for r in latest.values()}
+            if max_sev == "writing":
+                if "major_revision_writing" in verdicts:
+                    return _transition(project, Stage.PAPER_MAJOR_REVISION_WRITING)
+                return _transition(project, Stage.PAPER_MINOR_REVISION)
+            if max_sev == "science":
+                return _transition(project, Stage.PAPER_MAJOR_REVISION_SCIENCE)
+
+        # No specialists yet, or some other non-canonical state — keep
+        # waiting at PAPER_REVIEW for more reviews.
         return project
 
     return project

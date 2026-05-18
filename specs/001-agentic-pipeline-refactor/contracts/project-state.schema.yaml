@@ -67,6 +67,10 @@ properties:
       - paper_major_revision_writing
       - paper_major_revision_science
       - paper_fundamental_flaws
+      # Convergence pipeline (spec 012)
+      - paper_revision_in_progress
+      - ready_for_implementation
+      - paper_revision_blocked
       - posted
       # Cross-stage states
       - human_input_needed
@@ -129,6 +133,9 @@ properties:
   human_escalation_reason:
     type: ["string", "null"]
     description: "Set when current_stage=human_input_needed."
+  revision_spec_path:
+    type: ["string", "null"]
+    description: "Spec 012: path to the completed RevisionSpec dir when current_stage=ready_for_implementation; null otherwise."
 
 # Cross-field invariants enforced by the runtime (pydantic):
 #  - current_stage='research_accepted' => points_research.research_review meets the

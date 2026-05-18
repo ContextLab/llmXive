@@ -424,7 +424,7 @@ agents:
   outputs:
   - review
   prompt_path: agents/prompts/paper_reviewer.md
-  prompt_version: 1.0.0
+  prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
   - huggingface
@@ -507,7 +507,7 @@ agents:
   outputs:
   - review
   prompt_path: agents/prompts/paper_reviewer_writing_quality.md
-  prompt_version: 1.0.0
+  prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
   - huggingface
@@ -523,7 +523,7 @@ agents:
   outputs:
   - review
   prompt_path: agents/prompts/paper_reviewer_logical_consistency.md
-  prompt_version: 1.0.0
+  prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
   - huggingface
@@ -539,7 +539,7 @@ agents:
   outputs:
   - review
   prompt_path: agents/prompts/paper_reviewer_claim_accuracy.md
-  prompt_version: 1.0.0
+  prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
   - huggingface
@@ -555,7 +555,7 @@ agents:
   outputs:
   - review
   prompt_path: agents/prompts/paper_reviewer_overreach.md
-  prompt_version: 1.0.0
+  prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
   - huggingface
@@ -571,7 +571,7 @@ agents:
   outputs:
   - review
   prompt_path: agents/prompts/paper_reviewer_safety_ethics.md
-  prompt_version: 1.0.0
+  prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
   - huggingface
@@ -587,7 +587,7 @@ agents:
   outputs:
   - review
   prompt_path: agents/prompts/paper_reviewer_scientific_evidence.md
-  prompt_version: 1.0.0
+  prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
   - huggingface
@@ -603,7 +603,7 @@ agents:
   outputs:
   - review
   prompt_path: agents/prompts/paper_reviewer_statistical_analysis.md
-  prompt_version: 1.0.0
+  prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
   - huggingface
@@ -619,7 +619,7 @@ agents:
   outputs:
   - review
   prompt_path: agents/prompts/paper_reviewer_code_quality_paper.md
-  prompt_version: 1.0.0
+  prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
   - huggingface
@@ -635,7 +635,7 @@ agents:
   outputs:
   - review
   prompt_path: agents/prompts/paper_reviewer_data_quality_paper.md
-  prompt_version: 1.0.0
+  prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
   - huggingface
@@ -651,7 +651,7 @@ agents:
   outputs:
   - review
   prompt_path: agents/prompts/paper_reviewer_text_formatting.md
-  prompt_version: 1.0.0
+  prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
   - huggingface
@@ -667,7 +667,7 @@ agents:
   outputs:
   - review
   prompt_path: agents/prompts/paper_reviewer_figure_critic.md
-  prompt_version: 1.0.0
+  prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
   - huggingface
@@ -683,7 +683,7 @@ agents:
   outputs:
   - review
   prompt_path: agents/prompts/paper_reviewer_jargon_police.md
-  prompt_version: 1.0.0
+  prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
   - huggingface
@@ -804,9 +804,9 @@ agents:
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: submission_intake
-  purpose: Triage human-submission GitHub issues from the website — route feedback
-    to the right pipeline step, create a project, file a submitted paper, or
-    acknowledge — then comment and close.
+  purpose: "Triage human-submission GitHub issues from the website \u2014 route feedback\
+    \ to the right pipeline step, create a project, file a submitted paper, or acknowledge\
+    \ \u2014 then comment and close."
   inputs:
   - review
   outputs:
@@ -823,9 +823,9 @@ agents:
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: personality
-  purpose: Simulated public-figure personas (spec 008) — one per 30-min tick,
-    rotating over agents/prompts/personalities/. Action ∈ comment / contribute /
-    propose_arxiv / abstain, tagged "<Name> (simulated)".
+  purpose: "Simulated public-figure personas (spec 008) \u2014 one per 30-min tick,\
+    \ rotating over agents/prompts/personalities/. Action \u2208 comment / contribute\
+    \ / propose_arxiv / abstain, tagged \"<Name> (simulated)\"."
   inputs:
   - review
   outputs:

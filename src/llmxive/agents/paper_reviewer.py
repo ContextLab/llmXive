@@ -352,6 +352,30 @@ class PaperReviewerAgent(Agent):
                          "fundamental_flaws"}:
             front["score"] = 0.0
 
+        # Spec 012 FR-018/019: normalize action_items emitted by the LLM.
+        # The prompt tells the LLM to leave `id` blank and let the system
+        # derive it from text via the canonical action_item_id() helper.
+        # We also tolerate the LLM accidentally including an `id` (use it
+        # only if it matches the canonical hex pattern; else recompute).
+        items = front.get("action_items") or []
+        if not isinstance(items, list):
+            items = []
+        from llmxive.types import action_item_id  # local import to avoid cycle at module load
+        import re as _re
+        normalized: list[dict] = []
+        for raw in items:
+            if not isinstance(raw, dict):
+                continue
+            text = raw.get("text")
+            severity = raw.get("severity")
+            if not text or severity not in ("writing", "science", "fatal"):
+                continue
+            raw_id = raw.get("id") or ""
+            if not _re.fullmatch(r"[0-9a-f]{12}", str(raw_id)):
+                raw_id = action_item_id(text)
+            normalized.append({"id": raw_id, "text": text, "severity": severity})
+        front["action_items"] = normalized
+
         # Compute artifact_hash + artifact_path. Two paths:
         #   (a) Home-grown paper pipeline: tasks.md under paper/specs/<n>-<slug>/
         #   (b) arXiv-intake paper: paper/metadata.json (no feature_dir)

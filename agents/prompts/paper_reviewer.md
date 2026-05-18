@@ -1,6 +1,6 @@
 # Paper-Reviewer Agent
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Stage owned**: `paper_complete` → `paper_review` (writes a review
 record; the Advancement-Evaluator decides the next stage based on
 accumulated vote totals).
@@ -56,9 +56,23 @@ verdict: accept | minor_revision | major_revision_writing |
          major_revision_science | fundamental_flaws
 feedback: <one-line summary used in vote tabulation>
 reviewed_at: <ISO 8601 UTC>
-prompt_version: 1.0.0
+prompt_version: 1.1.0
 model_name: <model id used>
 backend: dartmouth | huggingface | local
+action_items:           # NEW in 1.1.0 — REQUIRED for non-accept verdicts;
+  - text: "<short, actionable statement, <=500 chars>"
+    severity: writing | science | fatal
+  # ... one entry per concrete concern. Leave the id field blank;
+  # the system will derive it from the text. Severity rules:
+  #   - "writing": fixable by editing the manuscript text alone
+  #     (typo, jargon, missing citation, unclear caption, terminology
+  #     drift, formatting). NO new experiments or data needed.
+  #   - "science": requires re-running an experiment, adding a control,
+  #     re-analyzing data, or otherwise touching the underlying
+  #     research artifact. CANNOT be fixed by text edits alone.
+  #   - "fatal": the central claim is unsupportable; the paper cannot
+  #     be salvaged by any revision. The underlying idea should
+  #     return to the backlog.
 ---
 
 # Free-form review body
