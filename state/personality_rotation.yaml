@@ -1,5 +1,5 @@
-last_used: freeman-dyson
-last_used_at: '2026-05-18T12:47:27.562786+00:00'
+last_used: geoffrey-west
+last_used_at: '2026-05-18T14:15:21.633562+00:00'
 last_outcome: committed
 history:
 - slug: ada-lovelace
@@ -782,3 +782,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/freeman-dyson-simulated__2026-05-18__research.md
+- slug: geoffrey-west
+  started_at: '2026-05-18T12:47:27.562786+00:00'
+  ended_at: '2026-05-18T14:15:21.633562+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-590-cortical-column-llms-implementing-canoni/reviews/research/geoffrey-west-simulated__2026-05-18__research.md
