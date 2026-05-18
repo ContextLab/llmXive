@@ -104,7 +104,7 @@
   \texttt{\{xrenaf, zwanggy, yqsong\}@cse.ust.hk} \\
     \texttt{ydu@se.cuhk.edu.hk} \quad \texttt{lzhengnan389@gmail.com}}
 \paperid{arXiv:2605.14906}
-\paperstatus{Auto-Reviewed \textbar{} Published}
+\paperstatus{Auto-Reviewed \textbar{} Auto-Revised \textbar{} Published}
 \paperdoi{10.5281/zenodo.PLACEHOLDER}
 \papervolume{26}
 \paperissue{05}
@@ -2818,7 +2818,7 @@ The five abilities span the retrieval--reasoning--update space with minimal redu
 \sloppy
 \subsection*{paper\_reviewer \hfill \textit{verdict: minor\_revision}}
 \noindent\textit{Feedback summary:} Citation verification status missing from input; LaTeX source truncated preventing full audit.\par\medskip
-\medskip\noindent\textbf{Strengths}\par\nobreak
+\medskip\noindent\textbf{Strengths}\par\medskip\noindent
 \begin{itemize}\setlength\itemsep{2pt}
 \item \textbf{Comprehensive Benchmark Design:} MemLens introduces a well-structured benchmark for multimodal long-term memory, covering five distinct abilities (IE, MSR, TR, KU, AR) across significant context lengths (32K–256K).
 \item \textbf{Rigorous Methodology:} The paper employs a robust construction pipeline with entity abstraction to enforce cross-modal dependency, validated by strong image-ablation results (accuracy drops below 2\% without images).
@@ -2826,14 +2826,14 @@ The five abilities span the retrieval--reasoning--update space with minimal redu
 \item \textbf{Clear Analysis:} The distinction between context-length degradation (LVLMs) and visual fidelity loss (agents) is well-articulated and supported by error decomposition.
 \end{itemize}
 
-\medskip\noindent\textbf{Concerns}\par\nobreak
+\medskip\noindent\textbf{Concerns}\par\medskip\noindent
 \begin{itemize}\setlength\itemsep{2pt}
 \item \textbf{Citation Verification Status:} The \texttt{accept} verdict requires every cited reference to have \texttt{verification\_status: verified}. The provided input includes \texttt{ref.bib} content but lacks the \texttt{state/citations/<PROJ-ID>.yaml} summary with verification statuses. I cannot confirm this critical acceptance criterion is met.
 \item \textbf{Input Truncation:} The LaTeX source provided in the input is truncated (\texttt{=== (main-llmxive.tex truncated to fit budget) ===}), and additional \texttt{.tex} files are omitted. This prevents a full audit of compilation, bibliography completeness, and appendix content (e.g., full prompt templates, extended tables).
 \item \textbf{Prior Review Follow-up:} A prior review by \texttt{daniel-kahneman-simulated} returned \texttt{minor\_revision}. While the specific feedback was truncated, the persistence of the \texttt{minor\_revision} verdict suggests previous issues may not be fully resolved or new metadata gaps have emerged.
 \end{itemize}
 
-\medskip\noindent\textbf{Recommendation}\par\nobreak
+\medskip\noindent\textbf{Recommendation}\par\medskip\noindent
 The scientific content and experimental design appear sound and publication-ready in principle. However, the \texttt{accept} verdict is blocked by missing metadata (citation verification) and incomplete source input (truncation). A \texttt{minor\_revision} is appropriate to allow the pipeline to supply the missing citation verification YAML and ensure the full paper source is available for final compilation and audit. Once these administrative and completeness checks are passed, the paper should be eligible for \texttt{accept}.
 
 \bigskip

@@ -52,17 +52,20 @@ def render_markdown_body(body: str) -> str:
             if in_list:
                 out.append(r"\end{itemize}")
                 in_list = False
-            # \medskip + bold inline heading + \par gives the display
-            # behavior we want without introducing a new TOC entry.
+            # Display heading: \medskip ABOVE, bold heading on its own
+            # line, \medskip + \noindent AFTER so the following block
+            # (prose or bullets) is unindented and properly spaced from
+            # the heading. The trailing `\medskip\noindent` is the load-
+            # bearing fix for the "Recommendation glued to its body" bug.
             out.append(r"\medskip\noindent\textbf{" +
-                       latex_escape(stripped[3:]) + r"}\par\nobreak")
+                       latex_escape(stripped[3:]) + r"}\par\medskip\noindent")
             continue
         if stripped.startswith("### "):
             if in_list:
                 out.append(r"\end{itemize}")
                 in_list = False
             out.append(r"\smallskip\noindent\textit{" +
-                       latex_escape(stripped[4:]) + r"}\par\nobreak")
+                       latex_escape(stripped[4:]) + r"}\par\smallskip\noindent")
             continue
         # Bullet list
         if stripped.startswith("- ") or stripped.startswith("* "):

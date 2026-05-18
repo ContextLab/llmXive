@@ -169,10 +169,10 @@ After the implementer routes the project back to `paper_review`, the per-special
 #### Publication on acceptance (US6)
 
 - **FR-021**: When a project's `current_stage` transitions to `paper_accepted`, a `paper_publisher` agent MUST run as the final step. It is responsible for FR-022 through FR-029 below; on success it transitions the project to `posted`.
-- **FR-022**: The publisher MUST regenerate the paper's PDF using the **existing `llmxive.cls` document class** (at `papers/.style/llmxive.cls`). The status indicator is set via the class's existing `\paperstatus{...}` command. The value reflects the paper's actual provenance:
-  - If the paper went through ≥1 revision round (implementer applied edits): `\paperstatus{Auto-Reviewed \textbar\ Published}`.
-  - If the paper reached `paper_accepted` on the FIRST review round (no revisions ever applied): `\paperstatus{Published}`.
-  The publisher determines which case applies by reading `paper/revision_history.yaml`: ≥1 round with ≥1 successful task → "Auto-Reviewed | Published"; otherwise → "Published".
+- **FR-022**: The publisher MUST regenerate the paper's PDF using the **existing `llmxive.cls` document class** (at `papers/.style/llmxive.cls`). The status indicator is set via the class's existing `\paperstatus{...}` command. The value reflects the paper's actual provenance via a three-state badge:
+  - If the paper went through ≥1 revision round (implementer applied edits): `\paperstatus{Auto-Reviewed \textbar{} Auto-Revised \textbar{} Published}`.
+  - If the paper reached `paper_accepted` on the FIRST review round (no revisions ever applied): `\paperstatus{Auto-Reviewed \textbar{} Published}`.
+  The publisher determines which case applies by reading `paper/revision_history.yaml`: ≥1 round with ≥1 successful task → 3-state ("Auto-Reviewed | Auto-Revised | Published"); otherwise → 2-state ("Auto-Reviewed | Published"). Reaching `paper_accepted` always implies ≥1 review round happened, so "Auto-Reviewed" is always present at publication.
   A **coversheet PDF MUST NOT be prepended** to the paper. The status badging lives in the existing title-page byline rendered by `llmxive.cls`.
 - **FR-023**: The publisher MUST extend `llmxive.cls` (and use the new commands in the paper) so the title-page byline can include the **DOI, volume, and issue** alongside the existing paperid/status. New commands: `\paperdoi{<DOI>}`, `\papervolume{<YY>}`, `\paperissue{<MM>}`. Their values are rendered as a small monospaced line below the existing `paperstatus` bullet on the title page (e.g., `doi:10.5281/zenodo.12345  |  vol 26.05`).
 - **FR-024**: The system MUST assign a **volume/issue number** of the form `YY.MM` (2-digit year + 2-digit month at the time of acceptance) to every accepted paper. Multiple papers accepted in the same month share the same volume/issue; the order within an issue is determined by acceptance timestamp.
