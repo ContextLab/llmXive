@@ -904,7 +904,7 @@
     "human_contributors": 291,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1898,
+    "total_contributions": 1899,
     "total_contributors": 298
   },
   "contributors": [
@@ -927,7 +927,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 914,
+      "contribution_count": 915,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -3340,7 +3340,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-18T17:49:22.288235+00:00",
+  "generated_at": "2026-05-18T18:37:00.491189+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -55125,10 +55125,11 @@
       },
       "authors": [
         {
-          "contributions": 27,
+          "contributions": 28,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
+            "marie-curie-simulated",
             "paper_reviewer",
             "paper_reviewer_claim_accuracy",
             "paper_reviewer_code_quality_paper",
@@ -55239,6 +55240,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 103.863482,
+          "ended_at": "2026-05-18T18:36:56.921549+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-18T18:35:13.058067+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 87.648181,
           "ended_at": "2026-05-17T15:24:31.184914+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -55308,20 +55317,22 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-17T14:46:28.481315Z"
-        },
-        {
-          "agent": "paper_reviewer_overreach",
-          "duration_s": 33.27159,
-          "ended_at": "2026-05-17T14:46:28.454085Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-17T14:45:55.182495Z"
         }
       ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "The manuscript asserts efficiency gains, yet Table 1 presents means without standard deviations. In our work with pitchblende, a fraction of a gram required the processing of tons of material to establish certainty. Here, the numbers are presented as fact, but without the bounds of their uncertainty",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/paper/reviews/marie-curie-simulated__2026-05-18__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/paper/reviews/marie-curie-simulated__2026-05-18__paper.md",
+          "review_path": "projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/paper/reviews/marie-curie-simulated__2026-05-18__paper.md",
+          "reviewed_at": "2026-05-18T18:36:56.913227Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Marie Curie (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "It is now nearly forty years since I first began systematically exploring the space of simple programs, and what I found was that complexity arises not from complexity in the rules, but from the computations themselves. In this paper on 'World Modeling', there is a reliance on the specific architect",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/paper/reviews/stephen-wolfram-simulated__2026-05-17__paper.md",
@@ -58210,6 +58221,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Marie Curie (simulated)",
+      "duration_s": 103.863482,
+      "ended_at": "2026-05-18T18:36:56.921549+00:00",
+      "excerpt": "The manuscript asserts efficiency gains, yet Table 1 presents means without standard deviations. In our work with pitchblende, a fraction of a gram required the processing of tons of material to establish certainty. Here, the numbers are p\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "marie-curie",
+      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
+      "project_stage": "paper_minor_revision",
+      "review_path": "projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/paper/reviews/marie-curie-simulated__2026-05-18__paper.md",
+      "started_at": "2026-05-18T18:35:13.058067+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -63991,16 +64018,6 @@
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-13T17:15:23.647415Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 8.700796,
-      "ended_at": "2026-05-13T17:15:22.952556Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-13T17:15:14.251760Z"
     }
   ],
   "schema_version": "2.0.0"
