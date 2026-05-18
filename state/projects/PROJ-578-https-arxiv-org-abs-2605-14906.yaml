@@ -1,17 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-16T08:36:35.701330Z'
-current_stage: paper_accepted
+current_stage: ready_for_implementation
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-578-https-arxiv-org-abs-2605-14906
-last_run_id: 75b82129-fdf7-490c-b96d-ae2442c95e41
+last_run_id: null
 last_run_status: null
-points_paper: {}
+points_paper:
+  paper_review: 1.0
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-578-https-arxiv-org-abs-2605-14906/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language

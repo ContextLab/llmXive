@@ -8,7 +8,6 @@ import pytest
 import yaml
 
 from llmxive.agents.revision_planner import (
-    ArxivIntakeError,
     RevisionPlanningError,
     run_revision_pipeline,
 )
@@ -50,13 +49,19 @@ class TestRunRevisionPipeline:
         assert (spec_dir / "analyze-report.md").is_file()
         assert (spec_dir / "result.yaml").is_file()
 
-    def test_arxiv_intake_raises_defensive_error(self, tmp_path: Path) -> None:
+    def test_arxiv_intake_also_produces_revision_spec(self, tmp_path: Path) -> None:
+        """Spec 012 → 013 (2026-05-18 clarification): arxiv-intake papers
+        are NO LONGER short-circuited. The revision planner produces a
+        spec for them just like home-grown papers; the implementer agent
+        (spec 013, in flight) is responsible for editing paper/source/ and
+        adding the contributing LLMs to the author list."""
         _make_arxiv_intake_project(tmp_path, "PROJ-200-arxiv")
-        items = [ActionItem.from_text("x.", "writing")]
-        with pytest.raises(ArxivIntakeError):
-            run_revision_pipeline(
-                "PROJ-200-arxiv", items, revision_kind="paper_writing", repo_root=tmp_path,
-            )
+        items = [ActionItem.from_text("Add a citation.", "writing")]
+        result = run_revision_pipeline(
+            "PROJ-200-arxiv", items, revision_kind="paper_writing", repo_root=tmp_path,
+        )
+        assert result.final_outcome == "ready_for_implementation"
+        assert (result.revision_spec_path / "spec.md").is_file()
 
     def test_action_items_become_tasks(self, tmp_path: Path) -> None:
         _make_home_grown_project(tmp_path, "PROJ-100-test")

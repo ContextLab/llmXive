@@ -252,15 +252,12 @@ def run_revision_pipeline(
         The caller (advancement.py) uses this to set the project's
         ``current_stage`` and ``revision_spec_path``.
     """
-    from llmxive.agents.upstream_feedback import is_arxiv_intake
-
+    # Spec 012 → 013 (in flight): the prior `ArxivIntakeError` guard was
+    # removed per the 2026-05-18 clarification. Arxiv-intake papers now
+    # go through the same revision pipeline as home-grown papers; the
+    # implementer agent (spec 013) edits paper/source/ for both kinds.
     repo = _repo_root(repo_root)
     project_dir = repo / "projects" / project_id
-    if is_arxiv_intake(project_dir):
-        raise ArxivIntakeError(
-            f"{project_id} is an arxiv-intake project; revision planner "
-            f"must not be called on frozen-source third-party submissions"
-        )
 
     round_num = _next_round_number(repo, project_id)
     spec_dir = repo / "specs" / "auto-revisions" / project_id / f"round-{round_num}"

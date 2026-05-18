@@ -406,14 +406,20 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
                 pass
             return _transition(project, Stage.BRAINSTORMED)
 
-        # arxiv-intake guardrail (FR-021/022, US7): for third-party
-        # arxiv-submitted papers, the writing-revision and science-revision
-        # paths CANNOT mutate paper/source/ (it's frozen). Record an
-        # upstream-feedback annotation and accept-with-caveats.
+        # Spec 012 → 013 (in flight): per the 2026-05-18 user clarification,
+        # arxiv-intake papers are NO LONGER auto-accepted-with-caveats.
+        # The journal's value proposition is that LLM agents apply the
+        # revisions (and join the author list on the revised manuscript).
+        # Both home-grown AND arxiv-intake papers now route through the
+        # same auto-plan revision pipeline; the upstream_feedback.yaml
+        # is retained as a record but no longer gates the transition.
         if max_sev in ("writing", "science"):
             from llmxive.agents.upstream_feedback import is_arxiv_intake, record_round
             project_dir = (repo_root or Path(__file__).resolve().parents[3]) / "projects" / project.id
             if is_arxiv_intake(project_dir):
+                # Preserve the upstream_feedback annotation for diagnostics
+                # but DON'T short-circuit to PAPER_ACCEPTED. Fall through
+                # to the standard revision pipeline below.
                 try:
                     record_round(
                         project.id,
@@ -423,10 +429,9 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
                     )
                 except Exception:  # noqa: BLE001
                     pass
-                return _transition(project, Stage.PAPER_ACCEPTED)
 
-            # Home-grown paper with writing/science items: route through
-            # the auto-plan revision pipeline (FR-006/007/009).
+            # All papers with writing/science items route through the
+            # auto-plan revision pipeline (FR-006/007/009).
             from llmxive.agents.revision_planner import (
                 ArxivIntakeError, RevisionPlanningError, run_revision_pipeline,
             )
