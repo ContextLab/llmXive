@@ -277,27 +277,31 @@
     \vspace{6pt}%
     % kicker row: brand left, meta right
     \noindent
-    \begin{minipage}[t]{0.55\textwidth}
+    \begin{minipage}[t]{0.42\textwidth}
       {\llmxmono\footnotesize\color{llmxGreen}%
         \MakeUppercase{llmXive}\hspace{0.6em}\textcolor{llmxMuted}{\textbar}\hspace{0.6em}%
-        \textcolor{llmxInk2}{Automated scientific discovery}}
+        \textcolor{llmxInk2}{Automated scientific discovery}}%
+      %% Spec 013: DOI under the LLMXIVE heading on the left, so the
+      %% right side has room for the longer 3-state paperstatus. Only
+      %% rendered when the publisher has set the DOI; preprints and
+      %% mid-revision states show no DOI line on the left.
+      \ifx\llmx@paperdoi\@empty\else
+        \\[2pt]{\llmxmono\footnotesize\color{llmxMuted}%
+          doi:\llmx@paperdoi}%
+      \fi
     \end{minipage}\hfill
-    \begin{minipage}[t]{0.40\textwidth}\raggedleft
+    \begin{minipage}[t]{0.55\textwidth}\raggedleft
       {\llmxmono\footnotesize\color{llmxMuted}%
         \ifx\llmx@paperid\@empty\else\llmx@paperid\quad\textbar\quad\fi
         \llmx@papercategory}\\[2pt]
       {\llmxmono\footnotesize\color{llmxInk2}\llmx@paperstatus}%
-      %% Spec 013: publication-info lines (volume/issue, then DOI),
-      %% rendered only when the publisher has set them. Empty for
-      %% preprints + mid-revision states. Volume on its own line above
-      %% the DOI, no separator between them.
+      %% Volume/issue on its own line under the status. The status
+      %% string can be the 3-state "Auto-Reviewed | Auto-Revised |
+      %% Published" — the 55%-wide right column is sized to fit it
+      %% without wrapping.
       \ifx\llmx@papervolume\@empty\else
         \\[2pt]{\llmxmono\footnotesize\color{llmxMuted}%
           vol~\llmx@papervolume.\llmx@paperissue}%
-      \fi
-      \ifx\llmx@paperdoi\@empty\else
-        \\[2pt]{\llmxmono\footnotesize\color{llmxMuted}%
-          doi:\llmx@paperdoi}%
       \fi
     \end{minipage}\par
     %% Title-block vspacing: balance against editorial-summary box height so
