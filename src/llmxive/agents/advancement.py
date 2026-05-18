@@ -93,9 +93,18 @@ def _all_specialists_accept_most_recent(
     verdict must be ``accept``. Replaces the "any historical accept counts"
     semantic — that gate was unreachable in practice because specialists
     nit-pick every round.
+
+    "No required specialists configured" (empty ``required``) means the
+    registry didn't load. The defensible default is to require at least
+    one accept record — never trivially accept on a vacuous gate.
     """
     if not required:
-        return True
+        # Defensive: with no required-set, only auto-pass when there ARE
+        # accept records AND no non-accept records. Otherwise return False
+        # so the severity branch handles non-accept verdicts.
+        if not records:
+            return False
+        return all(r.verdict == "accept" for r in records)
     latest = _most_recent_per_specialist(records, live_hash=live_hash)
     for name in required:
         rec = latest.get(name)

@@ -85,9 +85,24 @@ class TestAllSpecialistsAcceptMostRecent:
         ]
         assert _all_specialists_accept_most_recent(records, required, live_hash=_HASH_A) is False
 
-    def test_empty_required_gate_passes_trivially(self) -> None:
-        """No specialists registered (e.g., empty test registry) → gate is vacuously true."""
-        assert _all_specialists_accept_most_recent([], set(), live_hash=_HASH_A) is True
+    def test_empty_required_no_records_returns_false(self) -> None:
+        """Empty required + no records is the 'unconfigured' case — defensively
+        refuse to advance rather than vacuously accepting."""
+        assert _all_specialists_accept_most_recent([], set(), live_hash=_HASH_A) is False
+
+    def test_empty_required_all_accept_records(self) -> None:
+        """Empty required + every record accept → True (no specialists
+        registered to gate against, but every reviewer that DID record a
+        verdict accepted)."""
+        records = [_rec("a", "accept"), _rec("b", "accept")]
+        assert _all_specialists_accept_most_recent(records, set(), live_hash=_HASH_A) is True
+
+    def test_empty_required_any_non_accept_returns_false(self) -> None:
+        """Empty required + any non-accept record → False."""
+        records = [_rec("a", "accept"),
+                   _rec("b", "minor_revision",
+                        items=[ActionItem.from_text("typo.", "writing")])]
+        assert _all_specialists_accept_most_recent(records, set(), live_hash=_HASH_A) is False
 
 
 # --- Severity-based routing --------------------------------------------------
