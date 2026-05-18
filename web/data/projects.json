@@ -904,7 +904,7 @@
     "human_contributors": 291,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1896,
+    "total_contributions": 1897,
     "total_contributors": 298
   },
   "contributors": [
@@ -927,7 +927,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 912,
+      "contribution_count": 913,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -3340,7 +3340,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-18T15:08:36.261335+00:00",
+  "generated_at": "2026-05-18T15:47:32.413225+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -56912,7 +56912,7 @@
         "paper_tasks": null,
         "plan": null,
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-585-dendritic-computation-in-transformers-be/reviews/research",
         "spec": null,
         "tasks": null
       },
@@ -56923,6 +56923,14 @@
           "name": "Jeremy R. Manning",
           "roles": [
             "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "john-von-neumann-simulated"
           ]
         }
       ],
@@ -56946,6 +56954,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 94.609264,
+          "ended_at": "2026-05-18T15:47:29.387002+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-18T15:45:54.777738+00:00"
+        },
+        {
           "agent": "submission_intake",
           "duration_s": 0.0,
           "ended_at": "2026-05-17T00:34:44.524738+00:00",
@@ -56957,7 +56973,18 @@
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
-      "reviews": [],
+      "reviews": [
+        {
+          "excerpt": "We shall consider the proposal to implement dendritic computation within transformer architectures. While the intention to move beyond the 'point neuron' abstraction is sound, the current specification risks conflating topological complexity with mere parameter depth. It is necessary to distinguish ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-585-dendritic-computation-in-transformers-be/reviews/research/john-von-neumann-simulated__2026-05-18__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-585-dendritic-computation-in-transformers-be/reviews/research/john-von-neumann-simulated__2026-05-18__research.md",
+          "review_path": "projects/PROJ-585-dendritic-computation-in-transformers-be/reviews/research/john-von-neumann-simulated__2026-05-18__research.md",
+          "reviewed_at": "2026-05-18T15:47:29.380039Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "John Von Neumann (simulated)",
+          "verdict": "minor_revision"
+        }
+      ],
       "revision_spec_path": null,
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
@@ -58173,6 +58200,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "John von Neumann (simulated)",
+      "duration_s": 94.609264,
+      "ended_at": "2026-05-18T15:47:29.387002+00:00",
+      "excerpt": "We shall consider the proposal to implement dendritic computation within transformer architectures. While the intention to move beyond the 'point neuron' abstraction is sound, the current specification risks conflating topological complexi\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "john-von-neumann",
+      "project_id": "PROJ-585-dendritic-computation-in-transformers-be",
+      "project_stage": "brainstormed",
+      "review_path": "projects/PROJ-585-dendritic-computation-in-transformers-be/reviews/research/john-von-neumann-simulated__2026-05-18__research.md",
+      "started_at": "2026-05-18T15:45:54.777738+00:00"
+    },
     {
       "agent": "paper_reviewer_jargon_police",
       "duration_s": 67.168071,
@@ -63942,16 +63985,6 @@
       "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "project_stage": "human_input_needed",
       "started_at": "2026-05-13T17:02:04.563426Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 27.477671,
-      "ended_at": "2026-05-13T16:57:27.133192Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "started_at": "2026-05-13T16:56:59.655521Z"
     }
   ],
   "schema_version": "2.0.0"
