@@ -74,6 +74,28 @@ After every implementer round, the manuscript is re-compiled. The resulting PDF 
 
 ---
 
+### User Story 6 — Accepted papers are published, indexed, and DOI-registered (Priority: P1)
+
+When a paper reaches `paper_accepted`, the system performs the **final publication step**:
+
+1. The PDF is regenerated one final time with the *acceptance* badging: the original "preprint" badge is replaced with "auto-reviewed" + "published" badges, and a **citation footer** is added to every page (or to a coversheet) containing: the canonical citation string (authors, year, title, journal, volume/issue), the DOI as a clickable link, and the dashboard URL.
+2. A **DOI** is registered via Zenodo's free API: a new Zenodo deposition is created with the PDF + metadata, published (triggering DataCite DOI registration), and the resulting DOI is stored in `paper/metadata.json::doi` and rendered in the citation footer.
+3. The paper is assigned a **volume/issue number** in the form `YY.MM` (2-digit year + 2-digit month at the time of acceptance, e.g., `26.05` for May 2026). The volume/issue is part of the citation string and the DOI metadata.
+4. The project's `current_stage` advances `paper_accepted → posted`. The web dashboard's **#published** section surfaces it (this already works for `posted` per the existing `papers: new Set(["posted"])` tab filter; spec 012's interim addition of `paper_accepted` to that tab can now be reverted).
+5. An **activity log entry** is emitted (`agent_name: paper_publisher`, `outcome: success`, `outputs: [the new DOI, the published PDF path]`) so the dashboard's Activity tab shows the acceptance/publication event.
+
+**Why this priority**: Without this step, "accepted" is a private state. The journal's whole point is that papers go from review to public, citable artifacts. P1 because this is what closes the entire end-to-end loop: brainstorm → write → review → revise → **publish**.
+
+**Independent Test**: Drive a fixture project from `paper_accepted` through the publisher agent. Assert: (a) the PDF has the new "auto-reviewed" + "published" badges and a citation footer with the volume/issue + DOI, (b) `paper/metadata.json::doi` is set to a real Zenodo DOI that resolves, (c) the project's stage is now `posted`, (d) the activity log has a publisher entry, (e) the #published tab on the dashboard lists the project.
+
+**Acceptance Scenarios**:
+
+1. **Given** a project reaches `paper_accepted` in May 2026, **When** the publisher agent runs, **Then** the PDF gets volume/issue `26.05`, a DOI is registered via Zenodo, the badges flip to "auto-reviewed" + "published", the project transitions to `posted`, and the activity log records the publication.
+2. **Given** the same project later needs a revision (a new round opens), **When** the revision lands and the paper re-reaches `paper_accepted`, **Then** a NEW DOI version is registered (Zenodo supports DOI versioning) and the citation footer reflects the new revision number; the original DOI continues to resolve to the prior version.
+3. **Given** Zenodo's API is unreachable or returns an error, **When** the publisher runs, **Then** the project stays at `paper_accepted` (NOT `posted`), an error is logged with the failure reason, and the publisher retries on the next scheduler tick. After 5 consecutive failures, the project transitions to a `publish_blocked` state (defensive — surfaces to operator).
+
+---
+
 ### User Story 5 — Re-review honors prior action items via the existing protocol (Priority: P2)
 
 After the implementer routes the project back to `paper_review`, the per-specialist re-review protocol (already shipped in spec 012 / FR-014-017) fires. Each specialist with prior reviews uses the two-question diff-check protocol: "(a) prior items addressed? (b) any new issues?" If every specialist returns `accept`, the project transitions to `PAPER_ACCEPTED`. Otherwise, the un-addressed items + any new issues become the next round's action items.
@@ -142,12 +164,30 @@ After the implementer routes the project back to `paper_review`, the per-special
 
 - **FR-020**: The web dashboard MUST surface the `revision_history.yaml` and the `implementer-log.yaml` for each round on the project's card (modal). Each implementer round shows: round number, implementer agent, tasks done/failed counts, link to the new PDF, link to the changelog.
 
+#### Publication on acceptance (US6)
+
+- **FR-021**: When a project's `current_stage` transitions to `paper_accepted`, a `paper_publisher` agent MUST run as the final step. It is responsible for FR-022 through FR-029 below; on success it transitions the project to `posted`.
+- **FR-022**: The publisher MUST regenerate the paper's PDF with **acceptance badging**: the prior "preprint" / "auto-reviewed" indicator (added during the revision rounds per FR-011) is replaced with a clear "AUTO-REVIEWED" badge AND a "PUBLISHED" badge, visually distinct from the revision-round indicator (e.g., different color, different page position, or both).
+- **FR-023**: The regenerated PDF MUST include a **citation footer** on every page (or, alternatively, a coversheet) containing: (a) the canonical citation string in the form `<authors>. <year>. <title>. llmXive, <volume>.<issue>. doi:<DOI>`, (b) the DOI as a clickable hyperlink, (c) the dashboard URL.
+- **FR-024**: The system MUST assign a **volume/issue number** of the form `YY.MM` (2-digit year + 2-digit month at the time of acceptance) to every accepted paper. Multiple papers accepted in the same month share the same volume/issue; the order within an issue is determined by acceptance timestamp.
+- **FR-025**: The publisher MUST register a **DOI** for the published PDF via Zenodo's REST API (`POST /api/deposit/depositions` + `POST /api/deposit/depositions/<id>/actions/publish`). The DOI is the one returned by Zenodo (which auto-registers via DataCite). The DOI MUST be stored in `paper/metadata.json::doi` AND `paper/metadata.json::doi_url` (the resolvable URL).
+- **FR-026**: Zenodo deposition metadata MUST include: `title`, `creators` (the full author list, original + LLM contributors), `description` (the paper's abstract from metadata.json), `publication_date` (the acceptance date), `keywords`, `related_identifiers` (the project's GitHub repo URL), and a custom `notes` field linking to the dashboard's project page.
+- **FR-027**: When a previously-`posted` paper goes through ANOTHER revision round and re-reaches `paper_accepted`, the publisher MUST register a NEW Zenodo **DOI version** (Zenodo supports DOI versioning via `POST /api/deposit/depositions/<id>/actions/newversion`). The original DOI continues to resolve to the prior version's PDF; the new DOI is added to `metadata.json::doi_versions` (an ordered list) and becomes the new canonical `doi`.
+- **FR-028**: An **activity log entry** MUST be emitted on successful publication: `agent_name: paper_publisher`, `outcome: success`, `outputs: [<new PDF path>, <DOI URL>]`. The dashboard's Activity tab surfaces this event so the public can see when papers are published.
+- **FR-029**: The web dashboard's `#published` section (the existing `papers` tab) MUST surface every `posted` project. The `paper_accepted` entry added to the tab filter in spec 012 follow-up can be REMOVED — `paper_accepted` is a transient pre-publication state once the publisher agent ships.
+- **FR-030**: If Zenodo's API is unreachable or returns an error, the project MUST stay at `paper_accepted` (NOT `posted`), the publisher retries on the next scheduler tick, and after 5 consecutive failures the project transitions to a new `publish_blocked` state with a diagnostic. The operator can manually clear this via a CLI command (`llmxive project republish <PROJ-ID>`).
+- **FR-031**: The Zenodo API token MUST be loaded from `~/.config/llmxive/credentials.toml` (the same pattern as `dartmouth-key-resolution`) under a new `[zenodo]` section with key `api_token`. The same value is also accepted from the `ZENODO_API_TOKEN` environment variable for CI use.
+
 ### Key Entities
 
 - **ImplementerAgent**: an LLM agent with a stable canonical identity (`name`, `agent_version`, `model_name`, `backend`). Identity strings used in author lists must be unique per `(name, agent_version)`.
 - **ImplementerLog**: `specs/auto-revisions/<PROJ-ID>/round-<N>/implementer-log.yaml`. One entry per task processed in this round.
 - **RevisionHistory**: `projects/<PROJ-ID>/paper/revision_history.yaml`. Append-only log of every round across the paper's lifetime. Each entry references the round's implementer-log + the resulting PDF hash.
 - **Updated `Project.authors`**: existing `paper/metadata.json::authors` field, extended to support LLM-author entries with `kind: llm` + agent metadata.
+- **PaperPublisher**: a non-LLM (deterministic) agent that handles FR-021-031. Inputs: a `paper_accepted` project. Outputs: a Zenodo deposition + DOI, a republished PDF with the new badges + citation footer, an activity-log entry, and a transition to `posted`.
+- **VolumeIssue**: derived from the acceptance timestamp as `YY.MM`. Stored in `paper/metadata.json::volume` and `metadata.json::issue` (e.g., `"26"` and `"05"`). The full volume/issue string `26.05` appears in the citation.
+- **ZenodoDeposition**: a Zenodo record. Identified by Zenodo's internal `id` (stored in `paper/metadata.json::zenodo_id` for future updates) and its DOI. Multiple depositions per project are allowed when DOI-versioning is invoked on re-acceptance (FR-027).
+- **DOI**: a Zenodo-issued DataCite DOI of the form `10.5281/zenodo.<number>` (Zenodo's prefix is `10.5281`). Stored in `paper/metadata.json::doi`. The resolvable URL is stored in `metadata.json::doi_url` as `https://doi.org/<doi>`.
 
 ## Success Criteria *(mandatory)*
 
@@ -158,6 +198,9 @@ After the implementer routes the project back to `paper_review`, the per-special
 - **SC-003**: Every PDF produced by an implementer round visibly displays the llmXive-reviewed indicator (coversheet OR per-page footer with dashboard URL).
 - **SC-004**: For every revised paper, the `authors` field in metadata.json includes BOTH the original authors (unchanged) AND the contributing LLM agents (added in chronological order, deduplicated by identity).
 - **SC-005**: The end-to-end test (US1's independent test on a 3-task fixture) MUST run successfully under `LLMXIVE_REAL_TESTS=1` in the real-call CI suite, exercising the real Dartmouth API.
+- **SC-006**: At least one fixture project that reaches `paper_accepted` successfully publishes to Zenodo's **sandbox** environment (`sandbox.zenodo.org`) within ≤2 minutes wall-clock, receives a real test DOI of the form `10.5072/zenodo.<n>`, and transitions to `posted`. The sandbox test exercises the real Zenodo Sandbox API.
+- **SC-007**: Every published paper's metadata.json contains a non-empty `doi`, `doi_url`, `volume`, `issue`, and `zenodo_id`. The DOI URL resolves to the published PDF.
+- **SC-008**: When the same project re-reaches `paper_accepted` after a subsequent revision round, a new DOI version is registered and the original DOI continues to resolve to the prior version's PDF (verified via Zenodo API + an HTTP HEAD on the original DOI URL).
 
 ## Assumptions
 
@@ -169,3 +212,9 @@ After the implementer routes the project back to `paper_review`, the per-special
 - The per-specialist re-review protocol (spec 012 / FR-014-017) handles the re-review round verbatim. No new re-review logic is needed in this spec.
 - Author deduplication uses canonical identity strings, not free-form names. Each implementer agent declares its identity once and uses it consistently.
 - Compile-failure rollback uses git's content-addressable model (the implementer captures a `before_hash` per file before each task; on failure it restores from the hash).
+- **Zenodo** is the chosen DOI registrar (vs. DataCite direct or Crossref). Rationale: Zenodo is FREE for research use, operated by CERN, auto-registers real (resolvable) DataCite DOIs on `publish`, and has a documented REST API at `https://zenodo.org/api/`. DataCite direct requires a paid Repository account (~$1-2k/year); Crossref is also paid. Zenodo's sandbox (`https://sandbox.zenodo.org/api/`) is used for tests and emits a test-prefix DOI (`10.5072/...`) that resolves but is not permanent.
+- Each contributor (operator/maintainer) provisioning their own llmXive instance needs to register a free Zenodo account, generate an API token under "Account → Applications → Personal access tokens" with scopes `deposit:write` and `deposit:actions`, and store it in `~/.config/llmxive/credentials.toml` under `[zenodo].api_token` or set the `ZENODO_API_TOKEN` env var. The CI sandbox test uses a separate sandbox token under `[zenodo_sandbox].api_token`.
+- Zenodo DOI versioning is used for re-published papers (rather than minting an entirely separate DOI). Versioning is invoked via Zenodo's `/actions/newversion` endpoint, which produces a NEW DOI that's linked to the original via the same Concept DOI. Both DOIs resolve permanently; the new one is canonical.
+- The publisher agent is **deterministic** (no LLM call), unlike the revision implementer. Its job is mechanical: render the citation footer, swap the badges, upload to Zenodo, store the returned DOI, transition the project to `posted`. Determinism keeps publication a known-cheap, known-fast operation with no LLM-side variability.
+- The volume/issue scheme (`YY.MM`) is intentionally simple. If multiple papers accept in the same month, they share `26.05`; per-paper uniqueness comes from the DOI, not the issue. Future versions could add a paper-number within issue (e.g., `26.05.7`); v1 does not.
+- The `paper_publisher` agent runs as part of the existing scheduler (`llmxive run`), the same way the implementer does. It is gated on `current_stage == paper_accepted`. No new GitHub Actions workflow is required.
