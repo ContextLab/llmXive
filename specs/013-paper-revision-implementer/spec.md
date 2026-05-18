@@ -59,18 +59,18 @@ When the implementer agent applies one or more action items to a paper, it joins
 
 ---
 
-### User Story 4 — Regenerated PDF visibly indicates llmXive-reviewed status (Priority: P1)
+### User Story 4 — Regenerated PDF visibly indicates llmXive-reviewed status via the existing class (Priority: P1)
 
-After every implementer round, the manuscript is re-compiled. The resulting PDF MUST visually distinguish itself from the original-arXiv-preprint version: either (a) a 1-page coversheet prepended showing the llmXive review status, action-item summary, and dashboard link, OR (b) a footer line on every page reading "Reviewed and revised by the llmXive automated journal pipeline — see <dashboard URL> for the full revision history".
+After every implementer round, the manuscript is re-compiled using the **existing `llmxive.cls`** document class. The status indicator is set via the class's existing `\paperstatus{...}` command — values like `Preprint` (untouched), `Auto-Reviewed` (after a successful revision round), or `Auto-Reviewed | Published` (after final acceptance). The paper's title page byline therefore reflects the paper's actual state through this existing typographic system — **no coversheet, no per-page footer overlay** is added.
 
 **Why this priority**: This is what makes the revised PDF clearly different from the original. P1 because without it, no reader of the PDF can tell which version they have or that the paper has been through the journal.
 
-**Independent Test**: Inspect the regenerated `paper/pdf/main.pdf`. Assert either: a 1-page coversheet exists OR every page has the llmXive footer. Both options must include the dashboard URL.
+**Independent Test**: Inspect the regenerated `paper/pdf/main.pdf`. Assert the title page byline includes a `paperstatus` value that reflects the paper's current state (`Auto-Reviewed`, `Auto-Reviewed | Published`, etc.). The DOI + volume/issue line is present on the title page when those values exist.
 
 **Acceptance Scenarios**:
 
-1. **Given** an implementer round completes successfully, **When** the new PDF is rendered, **Then** at least one of (coversheet present | per-page footer present) is true, AND the dashboard URL is reachable.
-2. **Given** the implementer rolled back ALL tasks (every edit broke compilation), **When** the project re-enters paper_review, **Then** the PDF is NOT regenerated and the status indicator is NOT added (the manuscript is unchanged; the next review round will re-flag the same items).
+1. **Given** an implementer round completes successfully, **When** the new PDF is rendered, **Then** the title page byline includes `\paperstatus{Auto-Reviewed}` (or the appropriate status) AND no coversheet has been prepended.
+2. **Given** the implementer rolled back ALL tasks (every edit broke compilation), **When** the project re-enters paper_review, **Then** the PDF is NOT regenerated and the status indicator is NOT changed (the manuscript is unchanged; the next review round will re-flag the same items).
 
 ---
 
@@ -78,15 +78,17 @@ After every implementer round, the manuscript is re-compiled. The resulting PDF 
 
 When a paper reaches `paper_accepted`, the system performs the **final publication step**:
 
-1. The PDF is regenerated one final time with the *acceptance* badging: the original "preprint" badge is replaced with "auto-reviewed" + "published" badges, and a **citation footer** is added to every page (or to a coversheet) containing: the canonical citation string (authors, year, title, journal, volume/issue), the DOI as a clickable link, and the dashboard URL.
-2. A **DOI** is registered via Zenodo's free API: a new Zenodo deposition is created with the PDF + metadata, published (triggering DataCite DOI registration), and the resulting DOI is stored in `paper/metadata.json::doi` and rendered in the citation footer.
-3. The paper is assigned a **volume/issue number** in the form `YY.MM` (2-digit year + 2-digit month at the time of acceptance, e.g., `26.05` for May 2026). The volume/issue is part of the citation string and the DOI metadata.
-4. The project's `current_stage` advances `paper_accepted → posted`. The web dashboard's **#published** section surfaces it (this already works for `posted` per the existing `papers: new Set(["posted"])` tab filter; spec 012's interim addition of `paper_accepted` to that tab can now be reverted).
-5. An **activity log entry** is emitted (`agent_name: paper_publisher`, `outcome: success`, `outputs: [the new DOI, the published PDF path]`) so the dashboard's Activity tab shows the acceptance/publication event.
+1. A **DOI is pre-reserved** via Zenodo (`prereserve_doi: true`) before the final compile, so the DOI can be baked into the title-page byline.
+2. The PDF is recompiled using the **existing `llmxive.cls`**, with `\paperstatus{Auto-Reviewed | Published}` (or `\paperstatus{Published}` for never-revised papers), and `\paperdoi{<DOI>}` + `\papervolume{<YY>}` + `\paperissue{<MM>}` set so the title page reflects the publication state.
+3. The **publication metadata** is written to `projects/<PROJ-ID>/paper/publication.yaml` (the authoritative source for DOI, volume, issue, citation string).
+4. The **post-paper appendix** is generated and appended to the END of the PDF: a spacer page demarcating "End of paper" with the project-directory link, followed by every review (formatted), followed by the full revision changelog.
+5. The final PDF is uploaded to the Zenodo deposition, the deposition is published, and the DOI activates.
+6. The project's `current_stage` advances `paper_accepted → posted`.
+7. An **activity log entry** is emitted (`agent_name: paper_publisher`, `outcome: success`, `outputs: [the new DOI, the published PDF path]`).
 
 **Why this priority**: Without this step, "accepted" is a private state. The journal's whole point is that papers go from review to public, citable artifacts. P1 because this is what closes the entire end-to-end loop: brainstorm → write → review → revise → **publish**.
 
-**Independent Test**: Drive a fixture project from `paper_accepted` through the publisher agent. Assert: (a) the PDF has the new "auto-reviewed" + "published" badges and a citation footer with the volume/issue + DOI, (b) `paper/metadata.json::doi` is set to a real Zenodo DOI that resolves, (c) the project's stage is now `posted`, (d) the activity log has a publisher entry, (e) the #published tab on the dashboard lists the project.
+**Independent Test**: Drive a fixture project from `paper_accepted` through the publisher agent. Assert: (a) the PDF's title page shows `Auto-Reviewed | Published` + DOI + `26.05` via the existing `llmxive.cls` byline, (b) `paper/publication.yaml` exists with the canonical metadata, (c) the post-paper appendix is present (spacer page + reviews + changelog), (d) the project's stage is now `posted`, (e) the activity log has a publisher entry, (f) the #published tab on the dashboard lists the project, (g) no coversheet has been prepended.
 
 **Acceptance Scenarios**:
 
@@ -167,11 +169,12 @@ After the implementer routes the project back to `paper_review`, the per-special
 #### Publication on acceptance (US6)
 
 - **FR-021**: When a project's `current_stage` transitions to `paper_accepted`, a `paper_publisher` agent MUST run as the final step. It is responsible for FR-022 through FR-029 below; on success it transitions the project to `posted`.
-- **FR-022**: The publisher MUST regenerate the paper's PDF with **acceptance badging** that reflects the paper's actual provenance:
-  - If the paper went through ≥1 revision round (the implementer applied edits): both **"AUTO-REVIEWED"** AND **"PUBLISHED"** badges appear on the PDF.
-  - If the paper reached `paper_accepted` on the FIRST review round (unanimous accept, no revisions ever applied): ONLY the **"PUBLISHED"** badge appears. The paper is not "auto-reviewed" in the LLM-edited sense — it is the original manuscript that the specialist reviewers accepted as-is.
-  The publisher determines which case applies by reading `paper/revision_history.yaml`: presence of ≥1 round with ≥1 successful task → auto-reviewed, otherwise → not auto-reviewed.
-- **FR-023**: The regenerated PDF MUST include a **citation footer** on every page (or, alternatively, a coversheet) containing: (a) the canonical citation string in the form `<authors>. <year>. <title>. llmXive, <volume>.<issue>. doi:<DOI>`, (b) the DOI as a clickable hyperlink, (c) the dashboard URL.
+- **FR-022**: The publisher MUST regenerate the paper's PDF using the **existing `llmxive.cls` document class** (at `papers/.style/llmxive.cls`). The status indicator is set via the class's existing `\paperstatus{...}` command. The value reflects the paper's actual provenance:
+  - If the paper went through ≥1 revision round (implementer applied edits): `\paperstatus{Auto-Reviewed \textbar\ Published}`.
+  - If the paper reached `paper_accepted` on the FIRST review round (no revisions ever applied): `\paperstatus{Published}`.
+  The publisher determines which case applies by reading `paper/revision_history.yaml`: ≥1 round with ≥1 successful task → "Auto-Reviewed | Published"; otherwise → "Published".
+  A **coversheet PDF MUST NOT be prepended** to the paper. The status badging lives in the existing title-page byline rendered by `llmxive.cls`.
+- **FR-023**: The publisher MUST extend `llmxive.cls` (and use the new commands in the paper) so the title-page byline can include the **DOI, volume, and issue** alongside the existing paperid/status. New commands: `\paperdoi{<DOI>}`, `\papervolume{<YY>}`, `\paperissue{<MM>}`. Their values are rendered as a small monospaced line below the existing `paperstatus` bullet on the title page (e.g., `doi:10.5281/zenodo.12345  |  vol 26.05`).
 - **FR-024**: The system MUST assign a **volume/issue number** of the form `YY.MM` (2-digit year + 2-digit month at the time of acceptance) to every accepted paper. Multiple papers accepted in the same month share the same volume/issue; the order within an issue is determined by acceptance timestamp.
 - **FR-025**: The publisher MUST register a **DOI** for the published PDF via Zenodo's REST API (`POST /api/deposit/depositions` + `POST /api/deposit/depositions/<id>/actions/publish`). The DOI is the one returned by Zenodo (which auto-registers via DataCite). The DOI MUST be stored in `paper/metadata.json::doi` AND `paper/metadata.json::doi_url` (the resolvable URL).
 - **FR-026**: Zenodo deposition metadata MUST include: `title`, `creators` (the full author list, original + LLM contributors), `description` (the paper's abstract from metadata.json), `publication_date` (the acceptance date), `keywords`, `related_identifiers` (the project's GitHub repo URL), and a custom `notes` field linking to the dashboard's project page.
@@ -180,6 +183,21 @@ After the implementer routes the project back to `paper_review`, the per-special
 - **FR-029**: The web dashboard's `#published` section (the existing `papers` tab) MUST surface every `posted` project. The `paper_accepted` entry added to the tab filter in spec 012 follow-up can be REMOVED — `paper_accepted` is a transient pre-publication state once the publisher agent ships.
 - **FR-030**: If Zenodo's API is unreachable or returns an error, the project MUST stay at `paper_accepted` (NOT `posted`), the publisher retries on the next scheduler tick, and after 5 consecutive failures the project transitions to a new `publish_blocked` state with a diagnostic. The operator can manually clear this via a CLI command (`llmxive project republish <PROJ-ID>`).
 - **FR-031**: The Zenodo API token MUST be loaded from `~/.config/llmxive/credentials.toml` (the same pattern as `dartmouth-key-resolution`) under a new `[zenodo]` section with key `api_token`. The same value is also accepted from the `ZENODO_API_TOKEN` environment variable for CI use.
+
+#### Publication metadata storage
+
+- **FR-032**: The publisher MUST write a `paper/publication.yaml` file under the project's directory recording the publication metadata: `doi`, `doi_url`, `zenodo_id`, `volume`, `issue`, `published_at` (ISO 8601 UTC), `citation_string` (the canonical citation). This file is the single-source-of-truth for publication metadata; `paper/metadata.json::doi` MAY mirror these values for convenience but `publication.yaml` is authoritative.
+- **FR-033**: When the citation/links in the PDF reference "where to find this paper", they MUST point to the project's GitHub directory at `https://github.com/ContextLab/llmXive/tree/main/projects/<PROJ-ID>/` — NOT the dashboard root. The project directory is the canonical permanent home for the paper's full revision history, reviews, source, and PDF.
+
+#### Post-paper appendix (reviews + changelog at the END of the PDF)
+
+- **FR-034**: After the main paper's bibliography but BEFORE the published PDF's final page, the publisher MUST append a **post-paper appendix** consisting of:
+  1. A **spacer page** that clearly demarcates where the paper ends and the post-paper material begins (e.g., a centered headline reading "End of paper. The remainder of this PDF contains the reviews and revision history for this manuscript." with the project's GitHub directory link).
+  2. Each **review** rendered as a section: reviewer name + verdict + reviewed_at timestamp as a header, then the markdown body of the review rendered as LaTeX (or formatted plaintext if markdown rendering is impractical).
+  3. The **revision changelog**: for each round in `paper/revision_history.yaml`, a section listing the round number + implementer agent + per-task outcomes (action item id, text, status: done/compile-failed/file-not-found/skipped).
+  This appendix is part of the same PDF artifact (no separate file) — readers see the paper, the spacer, then the reviews + history.
+- **FR-035**: The post-paper appendix MUST use the same `llmxive.cls` typographic style (same fonts, same color palette, same heading hierarchy) so the appendix visually belongs to the same document as the paper. Implementation MAY use `\appendix\section{...}` + custom commands, OR a separate `appendix.tex` file `\include`d before `\end{document}`, OR a back-merged PDF compiled from a separate `appendix.tex` source that uses `llmxive.cls`.
+- **FR-036**: The spacer page MUST be a single page containing only the demarcation text + a link to the project directory; no headers, no page numbering bleeding through, no continuation of the paper's content.
 
 ### Key Entities
 

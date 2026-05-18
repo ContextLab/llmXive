@@ -230,6 +230,16 @@
 \newcommand{\correspondence}[1]{\renewcommand{\llmx@correspondence}{#1}}
 \newcommand{\reviewscore}[1]{\renewcommand{\llmx@reviewscore}{#1}}
 
+%% Spec 013: publication metadata (DOI, volume, issue) — set by the
+%% paper_publisher agent at acceptance time. Empty when the paper is
+%% still a Preprint / unrevised manuscript.
+\let\llmx@paperdoi\@empty
+\let\llmx@papervolume\@empty
+\let\llmx@paperissue\@empty
+\newcommand{\paperdoi}[1]{\renewcommand{\llmx@paperdoi}{#1}}
+\newcommand{\papervolume}[1]{\renewcommand{\llmx@papervolume}{#1}}
+\newcommand{\paperissue}[1]{\renewcommand{\llmx@paperissue}{#1}}
+
 %% Editorial-summary + artifact-list metadata. Stored as macros so the
 %% title block can lay them out deterministically on the first (title)
 %% page. `\seteditorialsummary` accepts the rendered summary body (already
@@ -277,7 +287,17 @@
         \ifx\llmx@paperid\@empty\else\llmx@paperid\quad\textbar\quad\fi
         \llmx@papercategory}\\[2pt]
       {\llmxmono\footnotesize
-        \color{llmxGreen}\textbullet\ \color{llmxInk2}\llmx@paperstatus}
+        \color{llmxGreen}\textbullet\ \color{llmxInk2}\llmx@paperstatus}%
+      %% Spec 013: publication-info line (DOI + volume/issue), rendered
+      %% only when the publisher has set them. Empty for preprints +
+      %% mid-revision states.
+      \ifx\llmx@paperdoi\@empty\else
+        \\[2pt]{\llmxmono\footnotesize\color{llmxMuted}%
+          doi:\llmx@paperdoi%
+          \ifx\llmx@papervolume\@empty\else
+            \quad\textbar\quad vol \llmx@papervolume.\llmx@paperissue%
+          \fi}%
+      \fi
     \end{minipage}\par
     %% Title-block vspacing: balance against editorial-summary box height so
     %% the editorial summary fits on the title page. Tighter than the original
