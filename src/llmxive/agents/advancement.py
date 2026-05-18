@@ -417,23 +417,40 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
                 return _transition(project, Stage.PAPER_ACCEPTED)
 
             # Home-grown paper with writing/science items: route through
-            # the legacy MINOR/MAJOR revision stages for now (FR-006/007's
-            # PAPER_REVISION_IN_PROGRESS auto-plan path is part of US2/US3
-            # and ships in a follow-up — until then the legacy graph is
-            # the back-compat path).
-            #
-            # The mapping: severity=writing → PAPER_MINOR_REVISION; any
-            # `major_revision_writing` verdict on a most-recent record
-            # overrides to PAPER_MAJOR_REVISION_WRITING; severity=science
-            # → PAPER_MAJOR_REVISION_SCIENCE.
-            latest = _most_recent_per_specialist(records, live_hash=live_hash)
-            verdicts = {r.verdict for r in latest.values()}
-            if max_sev == "writing":
-                if "major_revision_writing" in verdicts:
-                    return _transition(project, Stage.PAPER_MAJOR_REVISION_WRITING)
-                return _transition(project, Stage.PAPER_MINOR_REVISION)
-            if max_sev == "science":
-                return _transition(project, Stage.PAPER_MAJOR_REVISION_SCIENCE)
+            # the auto-plan revision pipeline (FR-006/007/009).
+            from llmxive.agents.revision_planner import (
+                ArxivIntakeError, RevisionPlanningError, run_revision_pipeline,
+            )
+            consolidated = _consolidate_action_items(records, live_hash=live_hash)
+            kind = "paper_writing" if max_sev == "writing" else "paper_science"
+            # Move to PAPER_REVISION_IN_PROGRESS first so the scheduler's
+            # idempotency rule kicks in (FR-009). Even if the planner
+            # fails below, the project doesn't get re-triggered until
+            # someone unblocks it.
+            project = _transition(project, Stage.PAPER_REVISION_IN_PROGRESS)
+            try:
+                result = run_revision_pipeline(
+                    project.id, consolidated, revision_kind=kind, repo_root=repo_root,
+                )
+            except ArxivIntakeError:
+                # Defensive — we already checked is_arxiv_intake above. If
+                # the planner still detects this case, stay at PAPER_REVISION_IN_PROGRESS
+                # so a human notices.
+                return project
+            except RevisionPlanningError:
+                # Planner emitted partial state but failed. Transition to
+                # blocked so the operator notices + can unblock.
+                return _transition(project, Stage.PAPER_REVISION_BLOCKED)
+
+            if result.final_outcome == "ready_for_implementation":
+                return project.model_copy(update={
+                    "current_stage": Stage.READY_FOR_IMPLEMENTATION,
+                    "revision_spec_path": str(result.revision_spec_path.relative_to(
+                        repo_root or Path(__file__).resolve().parents[3]
+                    )),
+                })
+            # final_outcome == "paper_revision_blocked"
+            return _transition(project, Stage.PAPER_REVISION_BLOCKED)
 
         # No specialists yet, or some other non-canonical state — keep
         # waiting at PAPER_REVIEW for more reviews.
