@@ -3340,7 +3340,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-18T15:47:32.413225+00:00",
+  "generated_at": "2026-05-18T15:52:14.372223+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -55770,7 +55770,7 @@
         "repo_path": "projects/PROJ-578-https-arxiv-org-abs-2605-14906/paper/pdf/main-llmxive.pdf",
         "type": "pdf"
       },
-      "current_stage": "paper_accepted",
+      "current_stage": "ready_for_implementation",
       "description": "Memory is essential for large vision-language models (LVLMs) to handle long, multimodal interactions, with two method directions providing this capability: long-context LVLMs and memory-augmented agents. However, no existing benchmark conducts a systematic comparison of the two on questions that genuinely require\u2026",
       "field": "computer science",
       "id": "PROJ-578-https-arxiv-org-abs-2605-14906",
@@ -55858,7 +55858,7 @@
         }
       ],
       "phase_group": "paper_review",
-      "points_paper_total": 0.0,
+      "points_paper_total": 1.0,
       "points_research_total": 0.0,
       "reviews": [
         {
@@ -56002,7 +56002,7 @@
           "verdict": "minor_revision"
         }
       ],
-      "revision_spec_path": null,
+      "revision_spec_path": "specs/auto-revisions/PROJ-578-https-arxiv-org-abs-2605-14906/round-1",
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
@@ -56011,7 +56011,7 @@
       "upstream_feedback": {
         "latest_action_item_count": 29,
         "latest_verdict_class": "science",
-        "round_count": 4,
+        "round_count": 1,
         "schema_version": 1
       }
     },
@@ -58223,7 +58223,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-18T14:32:33.812155Z"
     },
     {
@@ -58233,7 +58233,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-18T14:31:40.499142Z"
     },
     {
@@ -58243,7 +58243,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-18T14:30:06.493475Z"
     },
     {
@@ -58253,7 +58253,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-18T14:29:18.762723Z"
     },
     {
@@ -58263,7 +58263,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-18T14:28:35.200457Z"
     },
     {
@@ -58273,7 +58273,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-18T14:27:43.301276Z"
     },
     {
@@ -58283,7 +58283,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-18T14:26:55.950240Z"
     },
     {
@@ -58293,7 +58293,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-18T14:25:11.015500Z"
     },
     {
@@ -58303,7 +58303,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-18T14:23:18.412668Z"
     },
     {
@@ -58313,7 +58313,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-18T14:20:49.058892Z"
     },
     {
@@ -58323,7 +58323,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-18T14:19:19.673223Z"
     },
     {
@@ -58333,7 +58333,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-18T14:17:51.057913Z"
     },
     {
@@ -58343,7 +58343,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-18T14:07:50.996980Z"
     },
     {
@@ -58689,7 +58689,7 @@
       "outcome": "committed",
       "personality_slug": "daniel-kahneman",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "review_path": "projects/PROJ-578-https-arxiv-org-abs-2605-14906/paper/reviews/daniel-kahneman-simulated__2026-05-17__paper.md",
       "started_at": "2026-05-17T18:21:08.118648+00:00"
     },
@@ -59706,7 +59706,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T14:27:59.028870Z"
     },
     {
@@ -59732,7 +59732,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T14:26:44.022957Z"
     },
     {
@@ -59742,7 +59742,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T14:19:27.117170Z"
     },
     {
@@ -59752,7 +59752,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T14:18:28.446080Z"
     },
     {
@@ -59762,7 +59762,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T14:17:17.068198Z"
     },
     {
@@ -59772,7 +59772,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T14:16:18.804762Z"
     },
     {
@@ -59782,7 +59782,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T14:15:27.734846Z"
     },
     {
@@ -59792,7 +59792,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "failed",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T14:14:28.658358Z"
     },
     {
@@ -59802,7 +59802,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T14:13:57.385841Z"
     },
     {
@@ -59812,7 +59812,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T14:11:44.213413Z"
     },
     {
@@ -59822,7 +59822,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T14:10:12.470406Z"
     },
     {
@@ -59832,7 +59832,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T14:07:25.558342Z"
     },
     {
@@ -59842,7 +59842,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T14:06:34.474822Z"
     },
     {
@@ -59852,7 +59852,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T14:00:59.885620Z"
     },
     {
@@ -59862,7 +59862,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T14:00:35.619825Z"
     },
     {
@@ -59872,7 +59872,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T14:00:16.712767Z"
     },
     {
@@ -59882,7 +59882,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T13:59:21.202980Z"
     },
     {
@@ -59892,7 +59892,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T13:58:57.904343Z"
     },
     {
@@ -59902,7 +59902,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T13:57:45.895335Z"
     },
     {
@@ -59912,7 +59912,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "failed",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T13:57:30.638306Z"
     },
     {
@@ -59922,7 +59922,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T13:57:17.928223Z"
     },
     {
@@ -59932,7 +59932,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T13:56:21.887147Z"
     },
     {
@@ -59942,7 +59942,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T13:55:27.572638Z"
     },
     {
@@ -59952,7 +59952,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T13:55:11.910956Z"
     },
     {
@@ -59962,7 +59962,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T13:54:52.252861Z"
     },
     {
@@ -59972,7 +59972,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T13:54:30.013345Z"
     },
     {
@@ -59998,7 +59998,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "failed",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T12:47:06.835243Z"
     },
     {
@@ -60008,7 +60008,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "failed",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T12:47:06.790686Z"
     },
     {
@@ -60018,7 +60018,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "failed",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T12:47:06.745813Z"
     },
     {
@@ -60028,7 +60028,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "failed",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T12:47:06.701017Z"
     },
     {
@@ -60038,7 +60038,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "failed",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T12:47:06.656488Z"
     },
     {
@@ -60048,7 +60048,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "failed",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T12:47:06.611994Z"
     },
     {
@@ -60058,7 +60058,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "failed",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T12:47:06.567384Z"
     },
     {
@@ -60068,7 +60068,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "failed",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T12:47:06.522074Z"
     },
     {
@@ -60078,7 +60078,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "failed",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T12:47:06.477405Z"
     },
     {
@@ -60088,7 +60088,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "failed",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T12:47:06.432165Z"
     },
     {
@@ -60098,7 +60098,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "failed",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T12:47:06.387250Z"
     },
     {
@@ -60108,7 +60108,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "failed",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T12:47:06.341531Z"
     },
     {
@@ -60118,7 +60118,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "failed",
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_accepted",
+      "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T12:47:06.282385Z"
     },
     {
