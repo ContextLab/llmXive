@@ -41,18 +41,28 @@ def render_markdown_body(body: str) -> str:
     in_list = False
     for line in lines:
         stripped = line.strip()
-        # Heading levels (## → \subsection*, ### → \paragraph)
+        # Heading levels: ## → display heading (own line + spacing).
+        # `\subsubsection*` gives a proper display heading inside a
+        # `\section*{Reviews}` already in use, so the in-body headings
+        # ("Strengths", "Concerns", "Recommendation", etc.) stand on
+        # their own line. `\paragraph*` was wrong: it inlines the
+        # heading with the following text, which the reviews-page user
+        # flagged ("Recommendation" appearing glued to its body).
         if stripped.startswith("## "):
             if in_list:
                 out.append(r"\end{itemize}")
                 in_list = False
-            out.append(r"\paragraph*{" + latex_escape(stripped[3:]) + "}")
+            # \medskip + bold inline heading + \par gives the display
+            # behavior we want without introducing a new TOC entry.
+            out.append(r"\medskip\noindent\textbf{" +
+                       latex_escape(stripped[3:]) + r"}\par\nobreak")
             continue
         if stripped.startswith("### "):
             if in_list:
                 out.append(r"\end{itemize}")
                 in_list = False
-            out.append(r"\subparagraph*{" + latex_escape(stripped[4:]) + "}")
+            out.append(r"\smallskip\noindent\textit{" +
+                       latex_escape(stripped[4:]) + r"}\par\nobreak")
             continue
         # Bullet list
         if stripped.startswith("- ") or stripped.startswith("* "):
@@ -139,7 +149,14 @@ def render_reviews(project_dir: Path) -> str:
     if not review_dir.is_dir():
         return ""
     files = sorted(review_dir.glob("paper_reviewer*.md"))
-    out = [r"\section*{Reviews}"]
+    # `\sloppy` widens TeX's tolerance for inter-word spacing in the
+    # reviews section so long URLs, identifier-style tokens (e.g.
+    # `paper_reviewer_jargon_police`), and long quoted phrases don't
+    # overflow the right margin. Reviewers tend to quote verbatim
+    # passages that exceed the normal line-break vocabulary. Use
+    # \sloppy ONLY in this appendix so the paper body keeps its
+    # tighter typography.
+    out = [r"\section*{Reviews}", r"\sloppy"]
     for f in files:
         rec = parse_review_file(f)
         out.append(r"\subsection*{" + latex_escape(rec["reviewer_name"]) +
@@ -153,6 +170,16 @@ def render_reviews(project_dir: Path) -> str:
     return "\n".join(out)
 
 
+def _strip_backend(name: str) -> str:
+    """Drop the trailing ' on <backend>' from a display name like
+    'llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth)' →
+    'llmXive-implementer-v1.0 (qwen.qwen3.5-122b)'. The backend is
+    operationally important but irrelevant to the published artifact;
+    it lives in the per-task implementer-log for audit."""
+    import re as _re
+    return _re.sub(r"\s+on\s+[a-z0-9_-]+", "", name or "")
+
+
 def render_history(project_dir: Path) -> str:
     hist_path = project_dir / "paper" / "revision_history.yaml"
     if not hist_path.is_file():
@@ -160,11 +187,11 @@ def render_history(project_dir: Path) -> str:
                 "This manuscript has not yet undergone any implementer-driven revision rounds.")
     data = yaml.safe_load(hist_path.read_text(encoding="utf-8")) or {}
     rounds = data.get("rounds", [])
-    out = [r"\section*{Revision history}"]
+    out = [r"\section*{Revision history}", r"\sloppy"]
     for r in rounds:
         out.append(r"\subsection*{Round " + str(r.get("round_number", "?")) +
                    r" \hfill \textit{" + latex_escape(str(r.get("ran_at", ""))) + ", " +
-                   latex_escape(r.get("implementer_agent", "")) + "}}")
+                   latex_escape(_strip_backend(r.get("implementer_agent", ""))) + "}}")
         out.append(r"Summary: " + str(r.get("tasks_done", 0)) + " done, " +
                    str(r.get("tasks_failed", 0)) + " compile-failed, " +
                    str(r.get("tasks_skipped", 0)) + " skipped.")
