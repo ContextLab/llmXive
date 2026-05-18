@@ -1,6 +1,6 @@
-last_used: daniel-kahneman
-last_used_at: '2026-05-18T08:23:28.529792+00:00'
-last_outcome: librarian_held
+last_used: david-krakauer
+last_used_at: '2026-05-18T09:49:40.880225+00:00'
+last_outcome: committed
 history:
 - slug: ada-lovelace
   started_at: '1970-01-01T00:00:00+00:00'
@@ -761,3 +761,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/_held/david-krakauer-simulated__2026-05-18__research.md
+- slug: david-krakauer
+  started_at: '2026-05-18T08:23:28.529792+00:00'
+  ended_at: '2026-05-18T09:49:40.880225+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-571-co-evolving-policy-distillation/paper/reviews/david-krakauer-simulated__2026-05-18__paper.md
