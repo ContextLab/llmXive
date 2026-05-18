@@ -34,12 +34,37 @@ reports it: `paper init` → `paper spec` → `paper plan` → `paper tasks` →
 `drafting` (paper-writing + figure-generation + statistics agents; LaTeX is
 built and citations verified) → `paper complete` → `paper review` → `posted`.
 
-Paper review needs both a points threshold and an accept verdict from **twelve**
-specialist reviewers: writing quality, logical consistency, claim accuracy,
-over-reach, safety/ethics, scientific evidence, statistical analysis, code
-quality, data quality, text formatting, figure critic, jargon police.
+Paper review uses a **convergence pipeline** (spec 012). Every reviewer
+emits structured `action_items` with severity ∈ {`writing`, `science`,
+`fatal`}, and the advancement evaluator uses the **most-recent verdict per
+specialist** (against the live artifact hash — stale reviews are ignored).
 
+Three terminal outcomes:
+
+- **All specialists accept** → `paper_accepted` → `posted`.
+- **Any `fatal` severity** → `brainstormed` (back to the backlog), with a
+  rejection rationale appended to the idea record citing each fatal item.
+- **Otherwise** (writing/science items, no fatal) → `paper_revision_in_progress`,
+  which auto-kicks a revision-spec pipeline that produces a complete
+  spec/plan/tasks/analyze directory under
+  `specs/auto-revisions/<PROJ-ID>/round-<N>/`. The project then sits at
+  `ready_for_implementation` until an implementer agent picks it up.
+
+The **per-specialist re-review protocol** prevents endless-nit loops: when
+a specialist has prior reviews for the same project, its prompt reduces
+to two questions — "(a) prior action items addressed? (b) any new
+issues?" — instead of starting fresh and finding new nits each round.
+
+The twelve specialist reviewers (writing quality, logical consistency,
+claim accuracy, over-reach, safety/ethics, scientific evidence,
+statistical analysis, code quality, data quality, text formatting,
+figure critic, jargon police) each emit action items in their lane.
 Human reviews count double; self-review is rejected by the schema.
+
+arXiv-submitted papers (third-party, source frozen) skip the writing-
+revision pipeline. Instead the consolidated action items land in
+`projects/<PROJ-ID>/upstream_feedback.yaml`; outcomes are restricted to
+accept-with-caveats or reject.
 
 ## The agents
 

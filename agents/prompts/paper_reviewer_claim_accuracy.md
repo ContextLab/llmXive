@@ -26,6 +26,14 @@ artifact_path: <relative path to the primary artifact reviewed, e.g. specs/001-.
 artifact_hash: <SHA-256 hex of that file>
 verdict: accept | minor_revision | full_revision | reject
 score: 1.0                            # 1.0 ONLY when verdict == accept; else 0.0
+action_items:                # NEW in 1.1.0 — REQUIRED for non-accept verdicts.
+  - text: "<short, actionable concern, <=500 chars>"
+    severity: writing | science | fatal
+  # ... one entry per concrete concern. Leave `id` blank — the system
+  # derives it from text. Severity guide:
+  #   writing — fixable by editing the manuscript text alone
+  #   science — requires re-running an experiment / re-analyzing data
+  #   fatal   — central claim unsupportable; paper cannot be salvaged
 ---
 <200-500 words of feedback in your lens. Cite specific files / line
 numbers / requirements. Do NOT critique aspects outside your lens —

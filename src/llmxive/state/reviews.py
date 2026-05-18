@@ -110,4 +110,22 @@ def list_for(
     return [read(p) for p in sorted(review_dir.glob("*.md"))]
 
 
-__all__ = ["write", "read", "list_for", "SelfReviewRefused"]
+def prior_reviews_for_specialist(
+    project_id: str,
+    specialist_name: str,
+    *,
+    stage: str = "paper",
+    repo_root: Path | None = None,
+) -> list[ReviewRecord]:
+    """Spec 012 / FR-014: return all prior review records for THIS project
+    AND THIS specialist, sorted by ``reviewed_at`` ascending. Returns an
+    empty list if the specialist has no prior reviews — in which case the
+    re-review protocol does NOT activate for this specialist (FR-017).
+    """
+    records = list_for(project_id, stage=stage, repo_root=repo_root)
+    matching = [r for r in records if r.reviewer_name == specialist_name]
+    matching.sort(key=lambda r: r.reviewed_at)
+    return matching
+
+
+__all__ = ["write", "read", "list_for", "prior_reviews_for_specialist", "SelfReviewRefused"]

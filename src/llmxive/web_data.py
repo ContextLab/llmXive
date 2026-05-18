@@ -83,6 +83,10 @@ _PHASE_GROUP_BY_STAGE: dict[Stage, str] = {
     Stage.PAPER_MAJOR_REVISION_WRITING: "paper_review",
     Stage.PAPER_MAJOR_REVISION_SCIENCE: "paper_review",
     Stage.PAPER_FUNDAMENTAL_FLAWS: "paper_review",
+    # Spec 012 convergence pipeline stages
+    Stage.PAPER_REVISION_IN_PROGRESS: "paper_review",
+    Stage.READY_FOR_IMPLEMENTATION: "paper_review",
+    Stage.PAPER_REVISION_BLOCKED: "paper_review",
     Stage.POSTED: "posted",
     Stage.HUMAN_INPUT_NEEDED: "blocked",
     Stage.BLOCKED: "blocked",
@@ -1019,10 +1023,42 @@ def _project_to_entry(repo: Path, project: Project) -> dict[str, Any]:
         "authors": _project_authors(repo, project.id),
         "speckit_research_dir": project.speckit_research_dir,
         "speckit_paper_dir": project.speckit_paper_dir,
+        # Spec 012: revision_spec_path is set only when current_stage is
+        # READY_FOR_IMPLEMENTATION. The web dashboard renders it as a link
+        # to the auto-planned revision spec dir.
+        "revision_spec_path": project.revision_spec_path,
+        # Spec 012: upstream_feedback summary for arxiv-intake papers
+        # whose specialists raised non-fatal action items.
+        "upstream_feedback": _upstream_feedback_summary(repo, project.id),
         "artifact_links": links,
         "current_artifact": _current_artifact(repo, project, links),
         "citation_summary": _citation_summary(repo, project.id),
         "last_run_log": _last_run_log(repo, project.id),
+    }
+
+
+def _upstream_feedback_summary(repo: Path, project_id: str) -> dict[str, Any] | None:
+    """Spec 012: surface upstream_feedback.yaml content (if present) so
+    the web dashboard can render reviewer feedback on arxiv-intake papers.
+    """
+    path = repo / "projects" / project_id / "upstream_feedback.yaml"
+    if not path.is_file():
+        return None
+    try:
+        import yaml as _yaml
+        data = _yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except Exception:  # noqa: BLE001
+        return None
+    rounds = data.get("rounds", []) or []
+    if not isinstance(rounds, list):
+        return None
+    return {
+        "schema_version": data.get("schema_version"),
+        "round_count": len(rounds),
+        "latest_verdict_class": rounds[-1].get("verdict_class") if rounds else None,
+        "latest_action_item_count": (
+            len(rounds[-1].get("action_items", [])) if rounds else 0
+        ),
     }
 
 

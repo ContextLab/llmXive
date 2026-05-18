@@ -93,19 +93,40 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
         Stage.PAPER_MAJOR_REVISION_SCIENCE,
         Stage.PAPER_FUNDAMENTAL_FLAWS,
     },
-    # Final paper review (US5):
+    # Final paper review (US5).
+    #
+    # Spec 012 adds three new outgoing transitions from PAPER_REVIEW to
+    # support the convergence pipeline:
+    #   - BRAINSTORMED (direct reject when any action item has severity=fatal)
+    #   - PAPER_REVISION_IN_PROGRESS (auto-plan kicks off for writing/science)
+    # The old direct transitions (PAPER_MINOR_REVISION / WRITING / SCIENCE /
+    # FUNDAMENTAL_FLAWS) remain valid for back-compat with deployments that
+    # don't yet have the auto-plan revision pipeline wired up.
     Stage.PAPER_REVIEW: {
         Stage.PAPER_ACCEPTED,
         Stage.PAPER_MINOR_REVISION,
         Stage.PAPER_MAJOR_REVISION_WRITING,
         Stage.PAPER_MAJOR_REVISION_SCIENCE,
         Stage.PAPER_FUNDAMENTAL_FLAWS,
+        Stage.PAPER_REVISION_IN_PROGRESS,
+        Stage.BRAINSTORMED,
     },
     Stage.PAPER_ACCEPTED: {Stage.POSTED},
     Stage.PAPER_MINOR_REVISION: {Stage.PAPER_TASKED},
     Stage.PAPER_MAJOR_REVISION_WRITING: {Stage.PAPER_CLARIFIED},
     Stage.PAPER_MAJOR_REVISION_SCIENCE: {Stage.CLARIFIED},  # back to research clarify
     Stage.PAPER_FUNDAMENTAL_FLAWS: {Stage.BRAINSTORMED},
+    # Convergence-pipeline stages (spec 012):
+    Stage.PAPER_REVISION_IN_PROGRESS: {
+        Stage.READY_FOR_IMPLEMENTATION,
+        Stage.PAPER_REVISION_BLOCKED,
+    },
+    Stage.READY_FOR_IMPLEMENTATION: {Stage.PAPER_REVIEW},
+    Stage.PAPER_REVISION_BLOCKED: {
+        Stage.PAPER_REVIEW,
+        Stage.PAPER_MINOR_REVISION,
+        Stage.BRAINSTORMED,
+    },
     Stage.POSTED: set(),  # terminal
     Stage.HUMAN_INPUT_NEEDED: set(),  # exit only via human action
     Stage.BLOCKED: set(),

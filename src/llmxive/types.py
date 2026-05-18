@@ -11,12 +11,54 @@ written out from these models via state/.
 
 from __future__ import annotations
 
+import hashlib
 import re
 from datetime import datetime
 from enum import Enum
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+
+# ----- action item id (spec 012) ---------------------------------------------
+
+# Strip section/figure references (e.g., "in Section 4.1", "Figure 3") before
+# hashing so cosmetic LLM rephrasings that change only the reference don't
+# break ID stability across re-reviews.
+_SECTION_REF_RE = re.compile(r"\b(?:Section|Sec\.?)\s*\d+(?:\.\d+)*\b", re.IGNORECASE)
+_FIGURE_REF_RE = re.compile(r"\b(?:Figure|Fig\.?)\s*\d+(?:\.\d+)*\b", re.IGNORECASE)
+_TABLE_REF_RE = re.compile(r"\b(?:Table|Tab\.?)\s*\d+(?:\.\d+)*\b", re.IGNORECASE)
+_EQ_REF_RE = re.compile(r"\b(?:Equation|Eq\.?)\s*\d+(?:\.\d+)*\b", re.IGNORECASE)
+_PUNCT_RE = re.compile(r"[\s,;:!?\.\(\)\[\]\{\}'\"`\-_/\\]+")
+
+
+def _canonicalize_action_item_text(text: str) -> str:
+    """Normalize an action item's text for stable ID derivation.
+
+    Steps (in order):
+      1. Strip section/figure/table/equation references.
+      2. Lowercase.
+      3. Collapse all punctuation runs and whitespace to a single space.
+      4. Strip leading/trailing whitespace.
+    """
+    s = _SECTION_REF_RE.sub("", text)
+    s = _FIGURE_REF_RE.sub("", s)
+    s = _TABLE_REF_RE.sub("", s)
+    s = _EQ_REF_RE.sub("", s)
+    s = s.lower()
+    s = _PUNCT_RE.sub(" ", s)
+    return s.strip()
+
+
+def action_item_id(text: str) -> str:
+    """Compute a stable 12-char hex ID for an action item from its text.
+
+    Two action items whose texts are canonicalize-equivalent will share an
+    ID. This is the contract from spec 012's research R1: stability across
+    re-reviews depends on the SAME concern producing the SAME hash.
+    """
+    canonical = _canonicalize_action_item_text(text)
+    return hashlib.sha1(canonical.encode("utf-8")).hexdigest()[:12]
 
 # ----- shared regexes ---------------------------------------------------------
 
@@ -86,6 +128,13 @@ class Stage(str, Enum):
     PAPER_MAJOR_REVISION_WRITING = "paper_major_revision_writing"
     PAPER_MAJOR_REVISION_SCIENCE = "paper_major_revision_science"
     PAPER_FUNDAMENTAL_FLAWS = "paper_fundamental_flaws"
+    # Convergence-pipeline stages (spec 012):
+    #   PAPER_REVISION_IN_PROGRESS  — auto-plan pipeline is generating a revision spec
+    #   READY_FOR_IMPLEMENTATION    — revision spec ready; implementer agent picks it up
+    #   PAPER_REVISION_BLOCKED      — analyzer stuck; terminal until human unblock
+    PAPER_REVISION_IN_PROGRESS = "paper_revision_in_progress"
+    READY_FOR_IMPLEMENTATION = "ready_for_implementation"
+    PAPER_REVISION_BLOCKED = "paper_revision_blocked"
     POSTED = "posted"
     # Cross-stage states
     HUMAN_INPUT_NEEDED = "human_input_needed"
@@ -169,6 +218,10 @@ class Project(_Strict):
     speckit_paper_dir: str | None = None
     revision_round: int = Field(default=0, ge=0)
     human_escalation_reason: str | None = None
+    # Spec 012: points to a completed RevisionSpec dir when current_stage
+    # == READY_FOR_IMPLEMENTATION. Cleared back to None when the implementer
+    # agent completes and the project re-enters PAPER_REVIEW.
+    revision_spec_path: str | None = None
 
     @field_validator("points_research", "points_paper")
     @classmethod
@@ -225,6 +278,25 @@ class Citation(_Strict):
         return value
 
 
+class ActionItem(_Strict):
+    """One concrete reviewer-raised concern (spec 012).
+
+    Two action items with the same `id` represent the same concern (the id
+    is deterministic from `canonicalize(text)`). When a re-reviewer flags
+    the same concern they MUST reuse the prior id rather than minting a
+    new one — see FR-020 and contracts/action_item.md.
+    """
+
+    id: str = Field(pattern=r"^[0-9a-f]{12}$")
+    text: str = Field(min_length=1, max_length=500)
+    severity: Literal["writing", "science", "fatal"]
+
+    @classmethod
+    def from_text(cls, text: str, severity: Literal["writing", "science", "fatal"]) -> ActionItem:
+        """Build an ActionItem from text + severity, auto-deriving the id."""
+        return cls(id=action_item_id(text), text=text, severity=severity)
+
+
 class ReviewRecord(_Strict):
     """Frontmatter of a review file under projects/<PROJ-ID>/reviews/{research,paper}/."""
 
@@ -253,6 +325,10 @@ class ReviewRecord(_Strict):
     # set this; the advancement-evaluator refuses to count points
     # from human reviews where this is False/missing.
     github_authenticated: bool = False
+    # Spec 012: structured action items per-reviewer. Empty for accept;
+    # non-empty for non-accept (validator below). Old records (without this
+    # field) load with the default empty list — back-compat preserved.
+    action_items: list[ActionItem] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def _score_matches_verdict(self) -> ReviewRecord:
@@ -266,6 +342,20 @@ class ReviewRecord(_Strict):
             if self.prompt_version is None or self.model_name is None or self.backend is None:
                 raise ValueError(
                     "LLM reviews must declare prompt_version, model_name, backend"
+                )
+            # Spec 012 / FR-018: structured action items required for
+            # non-accept verdicts emitted under prompt_version >= 1.1.0.
+            # Legacy records (prompt_version 1.0.x) are grandfathered to
+            # preserve back-compat with reviews emitted before this spec.
+            if (
+                self.prompt_version is not None
+                and self.prompt_version >= "1.1.0"
+                and self.verdict != "accept"
+                and len(self.action_items) == 0
+            ):
+                raise ValueError(
+                    f"LLM non-accept verdict {self.verdict!r} under prompt_version "
+                    f"{self.prompt_version} must include at least one action_item"
                 )
         else:  # human
             if self.verdict == "accept" and self.score != 1.0:

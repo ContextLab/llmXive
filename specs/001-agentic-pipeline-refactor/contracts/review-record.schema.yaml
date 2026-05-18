@@ -70,6 +70,28 @@ properties:
       web flow. Forged review files (committed directly to the repo with no
       OAuth token) MUST set this to false; the Advancement-Evaluator awards
       0 points for un-authenticated human reviews.
+  action_items:
+    type: array
+    description: |
+      Spec 012: structured per-concern action items. REQUIRED non-empty for
+      non-accept verdicts emitted under prompt_version >= 1.1.0; legacy
+      records (1.0.x) may omit this field (back-compat).
+    items:
+      type: object
+      additionalProperties: false
+      required: [id, text, severity]
+      properties:
+        id:
+          type: string
+          pattern: '^[0-9a-f]{12}$'
+          description: "Stable 12-char hex hash derived from canonicalize(text)."
+        text:
+          type: string
+          minLength: 1
+          maxLength: 500
+        severity:
+          type: string
+          enum: [writing, science, fatal]
 
 # Cross-field constraints expressed in the validator (Pydantic):
 #  - if reviewer_kind == 'llm':

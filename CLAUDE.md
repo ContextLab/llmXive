@@ -70,5 +70,5 @@ Since this is primarily a research documentation repository without traditional 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-[specs/011-phase3-specify-clarify-testing/plan.md](specs/011-phase3-specify-clarify-testing/plan.md).
+[specs/012-paper-review-convergence/plan.md](specs/012-paper-review-convergence/plan.md).
 <!-- SPECKIT END -->
