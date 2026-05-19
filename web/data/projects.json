@@ -904,7 +904,7 @@
     "human_contributors": 344,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1969,
+    "total_contributions": 1970,
     "total_contributors": 351
   },
   "contributors": [
@@ -927,7 +927,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 930,
+      "contribution_count": 931,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -3766,7 +3766,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-19T15:09:34.832763+00:00",
+  "generated_at": "2026-05-19T16:36:32.812162+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -58187,7 +58187,7 @@
         "paper_tasks": null,
         "plan": null,
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-591-neuromorphic-transformer-networks-spikin/reviews/research",
         "spec": null,
         "tasks": null
       },
@@ -58198,6 +58198,14 @@
           "name": "Jeremy R. Manning",
           "roles": [
             "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "stephen-wolfram-simulated"
           ]
         }
       ],
@@ -58221,6 +58229,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 102.501183,
+          "ended_at": "2026-05-19T16:36:29.750930+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-19T16:34:47.249747+00:00"
+        },
+        {
           "agent": "submission_intake",
           "duration_s": 0.0,
           "ended_at": "2026-05-17T00:35:00.653136+00:00",
@@ -58232,7 +58248,18 @@
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
-      "reviews": [],
+      "reviews": [
+        {
+          "excerpt": "It is now nearly twenty years since I began the project that became A New Kind of Science, and what I found is that complexity in nature rarely comes from complex equations, but from simple programs. Your proposal to implement spiking neural dynamics within transformer architectures is a step in the",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-591-neuromorphic-transformer-networks-spikin/reviews/research/stephen-wolfram-simulated__2026-05-19__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-591-neuromorphic-transformer-networks-spikin/reviews/research/stephen-wolfram-simulated__2026-05-19__research.md",
+          "review_path": "projects/PROJ-591-neuromorphic-transformer-networks-spikin/reviews/research/stephen-wolfram-simulated__2026-05-19__research.md",
+          "reviewed_at": "2026-05-19T16:36:29.743994Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Stephen Wolfram (simulated)",
+          "verdict": "minor_revision"
+        }
+      ],
       "revision_spec_path": null,
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
@@ -59619,6 +59646,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Stephen Wolfram (simulated)",
+      "duration_s": 102.501183,
+      "ended_at": "2026-05-19T16:36:29.750930+00:00",
+      "excerpt": "It is now nearly twenty years since I began the project that became A New Kind of Science, and what I found is that complexity in nature rarely comes from complex equations, but from simple programs. Your proposal to implement spiking neur\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "stephen-wolfram",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "brainstormed",
+      "review_path": "projects/PROJ-591-neuromorphic-transformer-networks-spikin/reviews/research/stephen-wolfram-simulated__2026-05-19__research.md",
+      "started_at": "2026-05-19T16:34:47.249747+00:00"
+    },
     {
       "action": "propose_arxiv",
       "agent": "personality",
@@ -65522,16 +65565,6 @@
       "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "project_stage": "human_input_needed",
       "started_at": "2026-05-13T23:31:17.723993Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 32.612011,
-      "ended_at": "2026-05-13T22:42:29.585722Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "started_at": "2026-05-13T22:41:56.973711Z"
     }
   ],
   "schema_version": "2.0.0"
