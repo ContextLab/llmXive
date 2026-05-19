@@ -24,6 +24,8 @@ from pathlib import Path
 
 DARTMOUTH_KEY_NAME = "DARTMOUTH_CHAT_API_KEY"
 SEMANTIC_SCHOLAR_KEY_NAME = "SEMANTIC_SCHOLAR_API_KEY"
+ZENODO_TOKEN_NAME = "ZENODO_API_TOKEN"
+ZENODO_SANDBOX_TOKEN_NAME = "ZENODO_SANDBOX_API_TOKEN"
 
 
 def credentials_path() -> Path:
@@ -228,9 +230,53 @@ def _toml_escape(s: str) -> str:
     return s.replace("\\", "\\\\").replace('"', '\\"')
 
 
+class MissingCredentialError(RuntimeError):
+    """Raised when a required credential is absent from both env and
+    the credentials file. Used by fail-fast paths per Constitution V."""
+
+
+def load_zenodo_token(*, sandbox: bool = False) -> str:
+    """Load the Zenodo API token (FR-031, spec 013).
+
+    Resolution order matches `load_dartmouth_key`:
+
+      1. Env var (``ZENODO_API_TOKEN`` for production; ``ZENODO_SANDBOX_API_TOKEN`` when sandbox=True).
+      2. ``~/.config/llmxive/credentials.toml``: ``[zenodo].api_token`` or
+         ``[zenodo_sandbox].api_token`` respectively.
+
+    Raises :class:`MissingCredentialError` when the requested token is
+    not configured — the publisher's fail-fast precondition (FR-030).
+    """
+    env_name = ZENODO_SANDBOX_TOKEN_NAME if sandbox else ZENODO_TOKEN_NAME
+    env = os.environ.get(env_name)
+    if env and env.strip():
+        return env.strip()
+
+    chk = check_permissions()
+    if not chk.ok:
+        raise PermissionError(chk.reason)
+    if chk.exists:
+        data = _read_file(chk.path) or {}
+        section = "zenodo_sandbox" if sandbox else "zenodo"
+        token = (data.get(section) or {}).get("api_token")
+        if isinstance(token, str) and token.strip():
+            return token.strip()
+
+    env_hint = env_name
+    section_hint = "[zenodo_sandbox]" if sandbox else "[zenodo]"
+    raise MissingCredentialError(
+        f"Zenodo {'sandbox' if sandbox else 'production'} token not found. "
+        f"Set ${env_hint} or add a {section_hint} section with "
+        f"`api_token = \"...\"` to {chk.path}."
+    )
+
+
 __all__ = [
     "DARTMOUTH_KEY_NAME",
     "SEMANTIC_SCHOLAR_KEY_NAME",
+    "ZENODO_TOKEN_NAME",
+    "ZENODO_SANDBOX_TOKEN_NAME",
+    "MissingCredentialError",
     "CredentialsCheck",
     "check_permissions",
     "credentials_path",
@@ -238,6 +284,7 @@ __all__ = [
     "save_dartmouth_key",
     "load_semantic_scholar_key",
     "save_semantic_scholar_key",
+    "load_zenodo_token",
     "clear_dartmouth_key",
     "mask_key",
 ]

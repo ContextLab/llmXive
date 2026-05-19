@@ -136,6 +136,10 @@ class Stage(str, Enum):
     READY_FOR_IMPLEMENTATION = "ready_for_implementation"
     PAPER_REVISION_BLOCKED = "paper_revision_blocked"
     POSTED = "posted"
+    # Spec 013 (FR-030): 5 consecutive Zenodo failures during publication
+    # transition the project to PUBLISH_BLOCKED. Operator clears via
+    # `llmxive project republish <PROJ-ID>` which rolls back to PAPER_ACCEPTED.
+    PUBLISH_BLOCKED = "publish_blocked"
     # Cross-stage states
     HUMAN_INPUT_NEEDED = "human_input_needed"
     BLOCKED = "blocked"

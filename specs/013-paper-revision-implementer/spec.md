@@ -7,9 +7,9 @@
 
 ## Background
 
-Spec 012 (paper review convergence) shipped the *decision* layer of the paper-review pipeline: structured `action_items`, most-recent-verdict acceptance gate, severity-based routing, and the `revision_planner` that produces a revision-spec directory under `specs/auto-revisions/<PROJ-ID>/round-<N>/` when a paper needs revision. Projects then sit at the `READY_FOR_IMPLEMENTATION` stage with a `revision_spec_path` field set, waiting for an *implementer* agent to consume the work.
+Spec 012 (paper review convergence) shipped the *decision* layer of the paper-review pipeline: structured `action_items`, most-recent-verdict acceptance gate, severity-based routing, and the `revision_planner` that produces a revision-spec directory under `specs/auto-revisions/<PROJ-ID>/round-<N>/` when a paper needs revision. Projects then sit at the `ready_for_implementation` stage with a `revision_spec_path` field set, waiting for an *implementer* agent to consume the work.
 
-That implementer agent does not yet exist. Today, every paper that enters the convergence pipeline (PROJ-578 being the first real example, with 116 action items) ends up parked at `READY_FOR_IMPLEMENTATION` indefinitely. The journal produces no revised papers.
+That implementer agent does not yet exist. Today, every paper that enters the convergence pipeline (PROJ-578 being the first real example, with 116 action items) ends up parked at `ready_for_implementation` indefinitely. The journal produces no revised papers.
 
 Per the 2026-05-18 user clarification, the journal's value proposition is: **LLM agents apply the revisions, and the contributing LLM agents become co-authors of the revised manuscript**. This spec closes that loop.
 
@@ -17,15 +17,15 @@ Per the 2026-05-18 user clarification, the journal's value proposition is: **LLM
 
 ### User Story 1 — Paper with writing action items gets a real LLM-driven revision (Priority: P1)
 
-A paper at `READY_FOR_IMPLEMENTATION` with a revision spec containing one or more `writing`-severity action items is picked up by the implementer agent. The agent reads each task, locates the relevant section of the manuscript (e.g., `paper/source/main.tex`), generates a real LaTeX edit, applies it, and confirms the manuscript still compiles. After every task is processed, the paper is re-routed to `paper_review` for re-review.
+A paper at `ready_for_implementation` with a revision spec containing one or more `writing`-severity action items is picked up by the implementer agent. The agent reads each task, locates the relevant section of the manuscript (e.g., `paper/source/main.tex`), generates a real LaTeX edit, applies it, and confirms the manuscript still compiles. After every task is processed, the paper is re-routed to `paper_review` for re-review.
 
 **Why this priority**: This is the missing link. Without it, the convergence pipeline produces revision specs that no one ever acts on. P1 because every other piece of the convergence pipeline assumes this exists.
 
-**Independent Test**: Take a fixture project at `READY_FOR_IMPLEMENTATION` with a 3-task revision spec containing concrete edits (e.g., "fix typo in abstract", "add citation for X", "define acronym Y at first use"). Drive the implementer agent. Assert: (a) `paper/source/main.tex` is modified, (b) the modifications correspond to the action items by line/section reference, (c) LaTeX still compiles, (d) the project's `current_stage` is now `paper_review`.
+**Independent Test**: Take a fixture project at `ready_for_implementation` with a 3-task revision spec containing concrete edits (e.g., "fix typo in abstract", "add citation for X", "define acronym Y at first use"). Drive the implementer agent. Assert: (a) `paper/source/main.tex` is modified, (b) the modifications correspond to the action items by line/section reference, (c) LaTeX still compiles, (d) the project's `current_stage` is now `paper_review`.
 
 **Acceptance Scenarios**:
 
-1. **Given** a project at `READY_FOR_IMPLEMENTATION` with a 3-task revision spec, **When** the implementer agent runs, **Then** all 3 tasks are processed, the manuscript is modified per each task, LaTeX compiles, and the project transitions to `paper_review`.
+1. **Given** a project at `ready_for_implementation` with a 3-task revision spec, **When** the implementer agent runs, **Then** all 3 tasks are processed, the manuscript is modified per each task, LaTeX compiles, and the project transitions to `paper_review`.
 2. **Given** a project where one of the 5 tasks cannot be safely applied (e.g., the LLM's edit breaks compilation), **When** the implementer agent runs, **Then** the failing task's edit is rolled back, the task is recorded as "compile-failed" in the changelog, the remaining 4 tasks still apply, and the project still transitions to `paper_review` (the next round's re-review will re-flag the un-addressed item).
 
 ---
@@ -40,7 +40,7 @@ A paper with `science`-severity action items (e.g., "add a control condition", "
 
 **Acceptance Scenarios**:
 
-1. **Given** a project at `READY_FOR_IMPLEMENTATION` whose revision spec includes a `science`-severity task referencing both `paper/source/main.tex` and `projects/<id>/code/analysis.py`, **When** the implementer runs, **Then** both files are modified consistently and the PDF rebuilds.
+1. **Given** a project at `ready_for_implementation` whose revision spec includes a `science`-severity task referencing both `paper/source/main.tex` and `projects/<id>/code/analysis.py`, **When** the implementer runs, **Then** both files are modified consistently and the PDF rebuilds.
 
 ---
 
@@ -100,15 +100,15 @@ When a paper reaches `paper_accepted`, the system performs the **final publicati
 
 ### User Story 5 — Re-review honors prior action items via the existing protocol (Priority: P2)
 
-After the implementer routes the project back to `paper_review`, the per-specialist re-review protocol (already shipped in spec 012 / FR-014-017) fires. Each specialist with prior reviews uses the two-question diff-check protocol: "(a) prior items addressed? (b) any new issues?" If every specialist returns `accept`, the project transitions to `PAPER_ACCEPTED`. Otherwise, the un-addressed items + any new issues become the next round's action items.
+After the implementer routes the project back to `paper_review`, the per-specialist re-review protocol (already shipped in spec 012 / FR-014-017) fires. Each specialist with prior reviews uses the two-question diff-check protocol: "(a) prior items addressed? (b) any new issues?" If every specialist returns `accept`, the project transitions to `paper_accepted`. Otherwise, the un-addressed items + any new issues become the next round's action items.
 
 **Why this priority**: This is the convergence guarantee. P2 because the prerequisites (US1-US4) deliver the work; this is the loop-closing check that already mostly exists.
 
-**Independent Test**: Drive a fixture through round 1 (implementer applies edits), then round 2 (re-review). If the implementer's edits address every prior item, assert the project transitions to `PAPER_ACCEPTED`. If one task was compile-failed, assert that specialist's re-review re-flags the un-addressed item AND the project re-enters `paper_revision_in_progress` for round 2.
+**Independent Test**: Drive a fixture through round 1 (implementer applies edits), then round 2 (re-review). If the implementer's edits address every prior item, assert the project transitions to `paper_accepted`. If one task was compile-failed, assert that specialist's re-review re-flags the un-addressed item AND the project re-enters `paper_revision_in_progress` for round 2.
 
 **Acceptance Scenarios**:
 
-1. **Given** an implementer applied 5/5 tasks successfully and re-reviewers all judge "addressed", **When** the advancement evaluator runs, **Then** the project transitions to `PAPER_ACCEPTED`.
+1. **Given** an implementer applied 5/5 tasks successfully and re-reviewers all judge "addressed", **When** the advancement evaluator runs, **Then** the project transitions to `paper_accepted`.
 2. **Given** an implementer applied 4/5 tasks (one compile-failed), **When** re-reviewers run under the re-review protocol, **Then** at least one specialist re-flags the un-addressed item, the project re-enters `paper_revision_in_progress`, and the round counter increments.
 
 ---
@@ -130,7 +130,7 @@ After the implementer routes the project back to `paper_review`, the per-special
 
 #### Implementer agent core
 
-- **FR-001**: The system MUST provide an `llmXive-implementer` agent that picks up projects whose `current_stage == READY_FOR_IMPLEMENTATION`.
+- **FR-001**: The system MUST provide an `llmXive-implementer` agent that picks up projects whose `current_stage == ready_for_implementation`.
 - **FR-002**: The implementer MUST read the revision spec at `Project.revision_spec_path` and process each task in `tasks.md` in the order they appear.
 - **FR-003**: For each task, the implementer MUST (a) read the cited action item's text + severity, (b) locate the relevant manuscript section, (c) generate an LLM-produced edit, (d) apply the edit, (e) run the existing LaTeX build, (f) on success mark the task done, on failure roll back the edit and mark the task `compile-failed`.
 - **FR-004**: The implementer MUST emit a per-task changelog under `specs/auto-revisions/<PROJ-ID>/round-<N>/implementer-log.yaml` recording for each task: `id`, `status` (`done` | `compile-failed` | `file-not-found` | `skipped`), `files_modified`, `before_hash`, `after_hash`, `model_response_excerpt`, `duration_s`.
@@ -146,14 +146,14 @@ After the implementer routes the project back to `paper_review`, the per-special
 #### PDF regeneration & status indicator
 
 - **FR-010**: After any successful task, the implementer MUST recompile the manuscript via the existing LaTeX build pipeline (see `agents/prompts/latex_build.md`). The output replaces `paper/pdf/main.pdf`.
-- **FR-011**: The regenerated PDF MUST include a visible "Reviewed and revised by llmXive" indicator. The default implementation is a per-page footer (added via a LaTeX package or class option) reading: `Reviewed and revised by llmXive — <dashboard URL>`. A 1-page coversheet prefix is an acceptable alternative if the per-page footer interferes with the manuscript's existing footer formatting.
+- **FR-011**: The regenerated PDF MUST visibly indicate llmXive-reviewed status via the existing `llmxive.cls` `\paperstatus{...}` byline (delegated to FR-022). After a successful revision round the implementer sets `\paperstatus{Auto-Reviewed}` (single state — the publisher appends "Published" later per FR-022). **A coversheet MUST NOT be prepended; a per-page footer overlay MUST NOT be added.** The 2026-05-18 user clarification and the shipped prototype both establish this constraint.
 - **FR-012**: If LaTeX compilation fails after all task-level rollbacks, the implementer MUST NOT replace `paper/pdf/main.pdf` (the original stays intact) and MUST record a `compile-after-all-tasks-failed` flag in the changelog.
 
 #### Loop completion & state transitions
 
-- **FR-013**: After processing all tasks (whether each succeeded, failed, or was skipped), the implementer MUST transition the project from `READY_FOR_IMPLEMENTATION` → `PAPER_REVIEW`. The advancement evaluator's re-review protocol (already shipped in spec 012) then takes over.
+- **FR-013**: After processing all tasks (whether each succeeded, failed, or was skipped), the implementer MUST transition the project from `ready_for_implementation` → `paper_review`. The advancement evaluator's re-review protocol (already shipped in spec 012) then takes over.
 - **FR-014**: The transition MUST clear `Project.revision_spec_path` (it points to a completed round, no longer "current"). The round's metadata stays in `specs/auto-revisions/<PROJ-ID>/round-<N>/`.
-- **FR-015**: If three consecutive implementer rounds produce zero successful tasks (i.e., every edit compile-fails or is skipped), the system MUST transition the project to `PAPER_REVISION_BLOCKED` with a diagnostic record. This prevents endless-failure loops.
+- **FR-015**: If three consecutive implementer rounds produce zero successful tasks (i.e., every edit compile-fails or is skipped), the system MUST transition the project to `paper_revision_blocked` with a diagnostic record. This prevents endless-failure loops.
 
 #### Safety constraints
 
@@ -214,9 +214,9 @@ After the implementer routes the project back to `paper_review`, the per-special
 
 ### Measurable Outcomes
 
-- **SC-001**: At least one fixture project at `READY_FOR_IMPLEMENTATION` with ≥3 writing-severity tasks completes a full implementer round (all 3 edits applied, manuscript recompiles, project transitions to `paper_review`) within ≤10 minutes of wall-clock time on the standard CI runner.
-- **SC-002**: For PROJ-578 (the real fixture, 116 tasks), after at most 5 implementer rounds the project either reaches `PAPER_ACCEPTED` OR `PAPER_REVISION_BLOCKED`. Endless oscillation between `paper_review` and `READY_FOR_IMPLEMENTATION` is prohibited (FR-015 enforces this).
-- **SC-003**: Every PDF produced by an implementer round visibly displays the llmXive-reviewed indicator (coversheet OR per-page footer with dashboard URL).
+- **SC-001**: At least one fixture project at `ready_for_implementation` with ≥3 writing-severity tasks completes a full implementer round (all 3 edits applied, manuscript recompiles, project transitions to `paper_review`) within ≤10 minutes of wall-clock time on the standard CI runner.
+- **SC-002**: For PROJ-578 (the real fixture, 116 tasks), after at most 5 implementer rounds the project either reaches `paper_accepted` OR `paper_revision_blocked`. Endless oscillation between `paper_review` and `ready_for_implementation` is prohibited (FR-015 enforces this).
+- **SC-003**: Every PDF produced by an implementer round renders `\paperstatus{Auto-Reviewed}` in the title-page byline via `llmxive.cls`. No coversheet is prepended; no per-page footer overlay is added.
 - **SC-004**: For every revised paper, the `authors` field in metadata.json includes BOTH the original authors (unchanged) AND the contributing LLM agents (added in chronological order, deduplicated by identity).
 - **SC-005**: The end-to-end test (US1's independent test on a 3-task fixture) MUST run successfully under `LLMXIVE_REAL_TESTS=1` in the real-call CI suite, exercising the real Dartmouth API.
 - **SC-006**: At least one fixture project that reaches `paper_accepted` successfully publishes to Zenodo's **sandbox** environment (`sandbox.zenodo.org`) within ≤2 minutes wall-clock, receives a real test DOI of the form `10.5072/zenodo.<n>`, and transitions to `posted`. The sandbox test exercises the real Zenodo Sandbox API.
@@ -229,7 +229,7 @@ After the implementer routes the project back to `paper_review`, the per-special
 - The LLM produces structured edits (unified diff or search-and-replace pair) reliably under the new implementer prompt. If the model output is malformed for a given task, the task is marked `skipped` and the next review round will re-flag the item.
 - A single implementer agent (the canonical `llmXive-implementer-v1.0`) handles all paper revisions in the initial release. Future versions can register additional implementer agents (e.g., specialized ones for science-class tasks) without changing the contract.
 - The dashboard URL is a stable, well-known constant (`https://context-lab.com/llmXive/`).
-- The implementer runs as part of the regular `llmxive run` scheduler tick — it doesn't require a separate workflow. The scheduler picks up `READY_FOR_IMPLEMENTATION` projects automatically (this is a small change to `scheduler._NEVER_PICK` — `READY_FOR_IMPLEMENTATION` needs to come OUT of the never-pick set since spec 012's implementer-agent-out-of-scope assumption is now resolved).
+- The implementer runs as part of the regular `llmxive run` scheduler tick — it doesn't require a separate workflow. The scheduler picks up `ready_for_implementation` projects automatically (this is a small change to `scheduler._NEVER_PICK` — `ready_for_implementation` needs to come OUT of the never-pick set since spec 012's implementer-agent-out-of-scope assumption is now resolved).
 - The per-specialist re-review protocol (spec 012 / FR-014-017) handles the re-review round verbatim. No new re-review logic is needed in this spec.
 - Author deduplication uses canonical identity strings, not free-form names. Each implementer agent declares its identity once and uses it consistently.
 - Compile-failure rollback uses git's content-addressable model (the implementer captures a `before_hash` per file before each task; on failure it restores from the hash).
