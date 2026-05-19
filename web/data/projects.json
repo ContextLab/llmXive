@@ -901,11 +901,11 @@
   "aggregates": {
     "active_projects": 609,
     "ai_contributors": 7,
-    "human_contributors": 302,
+    "human_contributors": 344,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1923,
-    "total_contributors": 309
+    "total_contributions": 1967,
+    "total_contributors": 351
   },
   "contributors": [
     {
@@ -1010,6 +1010,24 @@
       "contribution_count": 3,
       "kind": "llm",
       "name": "Qwen2.5-3B-Instruct"
+    },
+    {
+      "areas": [
+        "linguistics",
+        "other"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Bin Wang"
+    },
+    {
+      "areas": [
+        "computer science",
+        "linguistics"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Conghui He"
     },
     {
       "areas": [
@@ -1133,11 +1151,11 @@
     },
     {
       "areas": [
-        "other"
+        "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Bin Wang"
+      "name": "Bin Yu"
     },
     {
       "areas": [
@@ -1146,6 +1164,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Bo Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Bo Zheng"
     },
     {
       "areas": [
@@ -1178,6 +1204,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Changhai Zhou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Changti Wu"
     },
     {
       "areas": [
@@ -1253,6 +1287,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chunxi Luo"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -1265,7 +1307,7 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Conghui He"
+      "name": "Cong Huang"
     },
     {
       "areas": [
@@ -1309,6 +1351,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ding Cao"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -1322,6 +1372,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Dit-Yan Yeung"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Dongsheng Ma"
     },
     {
       "areas": [
@@ -1445,11 +1503,27 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Guangzhong Sun"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Guian Fang"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Guiquan Liu"
     },
     {
       "areas": [
@@ -1465,7 +1539,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Haishan Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Han Cai"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Hang Yuan"
     },
     {
       "areas": [
@@ -1490,6 +1580,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Hao Meng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Hao Sun"
     },
     {
       "areas": [
@@ -1653,6 +1751,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jiahao Kong"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -1701,6 +1807,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jiayu Li"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -1714,6 +1828,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jie Wu"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jie Yang"
     },
     {
       "areas": [
@@ -1762,6 +1884,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jinhang Xu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jinsong Lan"
     },
     {
       "areas": [
@@ -1821,11 +1951,43 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Junfeng Fang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Junsong Chen"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jutao Xiao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Kai Chen"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Kai Yang"
     },
     {
       "areas": [
@@ -1949,6 +2111,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Liang Lin"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2017,6 +2187,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Liujuan Cao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Logan Liu"
     },
     {
@@ -2050,6 +2228,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Mengting Ai"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Mengting Chen"
     },
     {
       "areas": [
@@ -2269,6 +2455,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Quanjian Song"
+    },
+    {
+      "areas": [
         "biology"
       ],
       "contribution_count": 1,
@@ -2341,6 +2535,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Saiyong Yang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2370,6 +2572,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Shijian Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shijie Lian"
     },
     {
       "areas": [
@@ -2549,6 +2759,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Tianxiang Zhao"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -2618,6 +2836,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Weijia Mao"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Weijie Liu"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Weijun Zeng"
     },
     {
       "areas": [
@@ -2693,6 +2927,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Wentao Zhang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2737,7 +2979,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Xiaolin Hu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Xiaoling Gu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiaopeng Lin"
     },
     {
       "areas": [
@@ -2761,7 +3019,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Xiaoyong Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Xiaoyue Chen"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xin Xu"
     },
     {
       "areas": [
@@ -2945,6 +3219,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yefeng Shen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yi Lin"
     },
     {
@@ -2978,6 +3260,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yifan Pu"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yijie Wang"
     },
     {
       "areas": [
@@ -3117,6 +3407,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuchen Cai"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -3185,6 +3483,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yukun Shi"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yumou Liu"
     },
     {
@@ -3233,6 +3539,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yuxuan Tian"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yuyang Zhao"
     },
     {
@@ -3249,6 +3563,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yuzhuo Miao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Zejin Lin"
     },
     {
@@ -3258,6 +3580,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zekai Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhaolong Shen"
     },
     {
       "areas": [
@@ -3282,6 +3612,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zhengnan Li"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhengren Wang"
     },
     {
       "areas": [
@@ -3428,7 +3766,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-19T10:46:19.637643+00:00",
+  "generated_at": "2026-05-19T11:07:34.165638+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -3668,27 +4006,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-601-https-arxiv-org-abs-2605-12882",
           "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
-          "title": "https://arxiv.org/abs/2605.12882"
+          "title": "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-600-https-arxiv-org-abs-2605-15298",
           "project_id": "PROJ-600-https-arxiv-org-abs-2605-15298",
-          "title": "https://arxiv.org/abs/2605.15298"
+          "title": "PhysBrain 1.0 Technical Report"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
+          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
+          "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
+          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+          "title": "Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "title": "MMSkills: Towards Multimodal Skills for General Visual Agents"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
-          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
-          "title": "https://arxiv.org/abs/2605.15824"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
-          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
-          "title": "https://arxiv.org/abs/2605.11739"
         }
       ],
       "inputs": [
@@ -3712,27 +4050,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-601-https-arxiv-org-abs-2605-12882",
           "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
-          "title": "https://arxiv.org/abs/2605.12882"
+          "title": "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-600-https-arxiv-org-abs-2605-15298",
           "project_id": "PROJ-600-https-arxiv-org-abs-2605-15298",
-          "title": "https://arxiv.org/abs/2605.15298"
+          "title": "PhysBrain 1.0 Technical Report"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
+          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
+          "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
+          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+          "title": "Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "title": "MMSkills: Towards Multimodal Skills for General Visual Agents"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
-          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
-          "title": "https://arxiv.org/abs/2605.15824"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
-          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
-          "title": "https://arxiv.org/abs/2605.11739"
         }
       ],
       "inputs": [
@@ -3756,27 +4094,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-601-https-arxiv-org-abs-2605-12882",
           "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
-          "title": "https://arxiv.org/abs/2605.12882"
+          "title": "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-600-https-arxiv-org-abs-2605-15298",
           "project_id": "PROJ-600-https-arxiv-org-abs-2605-15298",
-          "title": "https://arxiv.org/abs/2605.15298"
+          "title": "PhysBrain 1.0 Technical Report"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
+          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
+          "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
+          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+          "title": "Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "title": "MMSkills: Towards Multimodal Skills for General Visual Agents"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
-          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
-          "title": "https://arxiv.org/abs/2605.15824"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
-          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
-          "title": "https://arxiv.org/abs/2605.11739"
         }
       ],
       "inputs": [
@@ -3800,27 +4138,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-601-https-arxiv-org-abs-2605-12882",
           "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
-          "title": "https://arxiv.org/abs/2605.12882"
+          "title": "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-600-https-arxiv-org-abs-2605-15298",
           "project_id": "PROJ-600-https-arxiv-org-abs-2605-15298",
-          "title": "https://arxiv.org/abs/2605.15298"
+          "title": "PhysBrain 1.0 Technical Report"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
+          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
+          "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
+          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+          "title": "Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "title": "MMSkills: Towards Multimodal Skills for General Visual Agents"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
-          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
-          "title": "https://arxiv.org/abs/2605.15824"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
-          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
-          "title": "https://arxiv.org/abs/2605.11739"
         }
       ],
       "inputs": [
@@ -3843,27 +4181,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-601-https-arxiv-org-abs-2605-12882",
           "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
-          "title": "https://arxiv.org/abs/2605.12882"
+          "title": "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-600-https-arxiv-org-abs-2605-15298",
           "project_id": "PROJ-600-https-arxiv-org-abs-2605-15298",
-          "title": "https://arxiv.org/abs/2605.15298"
+          "title": "PhysBrain 1.0 Technical Report"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
+          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
+          "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
+          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+          "title": "Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "title": "MMSkills: Towards Multimodal Skills for General Visual Agents"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
-          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
-          "title": "https://arxiv.org/abs/2605.15824"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
-          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
-          "title": "https://arxiv.org/abs/2605.11739"
         }
       ],
       "inputs": [
@@ -3886,27 +4224,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-601-https-arxiv-org-abs-2605-12882",
           "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
-          "title": "https://arxiv.org/abs/2605.12882"
+          "title": "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-600-https-arxiv-org-abs-2605-15298",
           "project_id": "PROJ-600-https-arxiv-org-abs-2605-15298",
-          "title": "https://arxiv.org/abs/2605.15298"
+          "title": "PhysBrain 1.0 Technical Report"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
+          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
+          "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
+          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+          "title": "Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "title": "MMSkills: Towards Multimodal Skills for General Visual Agents"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
-          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
-          "title": "https://arxiv.org/abs/2605.15824"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
-          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
-          "title": "https://arxiv.org/abs/2605.11739"
         }
       ],
       "inputs": [
@@ -3932,27 +4270,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-601-https-arxiv-org-abs-2605-12882",
           "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
-          "title": "https://arxiv.org/abs/2605.12882"
+          "title": "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-600-https-arxiv-org-abs-2605-15298",
           "project_id": "PROJ-600-https-arxiv-org-abs-2605-15298",
-          "title": "https://arxiv.org/abs/2605.15298"
+          "title": "PhysBrain 1.0 Technical Report"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
+          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
+          "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
+          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+          "title": "Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "title": "MMSkills: Towards Multimodal Skills for General Visual Agents"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
-          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
-          "title": "https://arxiv.org/abs/2605.15824"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
-          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
-          "title": "https://arxiv.org/abs/2605.11739"
         }
       ],
       "inputs": [
@@ -3984,27 +4322,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-601-https-arxiv-org-abs-2605-12882",
           "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
-          "title": "https://arxiv.org/abs/2605.12882"
+          "title": "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-600-https-arxiv-org-abs-2605-15298",
           "project_id": "PROJ-600-https-arxiv-org-abs-2605-15298",
-          "title": "https://arxiv.org/abs/2605.15298"
+          "title": "PhysBrain 1.0 Technical Report"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
+          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
+          "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
+          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+          "title": "Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "title": "MMSkills: Towards Multimodal Skills for General Visual Agents"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
-          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
-          "title": "https://arxiv.org/abs/2605.15824"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
-          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
-          "title": "https://arxiv.org/abs/2605.11739"
         }
       ],
       "inputs": [
@@ -4028,27 +4366,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-601-https-arxiv-org-abs-2605-12882",
           "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
-          "title": "https://arxiv.org/abs/2605.12882"
+          "title": "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-600-https-arxiv-org-abs-2605-15298",
           "project_id": "PROJ-600-https-arxiv-org-abs-2605-15298",
-          "title": "https://arxiv.org/abs/2605.15298"
+          "title": "PhysBrain 1.0 Technical Report"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
+          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
+          "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
+          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+          "title": "Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "title": "MMSkills: Towards Multimodal Skills for General Visual Agents"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
-          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
-          "title": "https://arxiv.org/abs/2605.15824"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
-          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
-          "title": "https://arxiv.org/abs/2605.11739"
         }
       ],
       "inputs": [
@@ -4071,27 +4409,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-601-https-arxiv-org-abs-2605-12882",
           "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
-          "title": "https://arxiv.org/abs/2605.12882"
+          "title": "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-600-https-arxiv-org-abs-2605-15298",
           "project_id": "PROJ-600-https-arxiv-org-abs-2605-15298",
-          "title": "https://arxiv.org/abs/2605.15298"
+          "title": "PhysBrain 1.0 Technical Report"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
+          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
+          "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
+          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+          "title": "Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "title": "MMSkills: Towards Multimodal Skills for General Visual Agents"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
-          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
-          "title": "https://arxiv.org/abs/2605.15824"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
-          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
-          "title": "https://arxiv.org/abs/2605.11739"
         }
       ],
       "inputs": [
@@ -4115,27 +4453,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-601-https-arxiv-org-abs-2605-12882",
           "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
-          "title": "https://arxiv.org/abs/2605.12882"
+          "title": "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-600-https-arxiv-org-abs-2605-15298",
           "project_id": "PROJ-600-https-arxiv-org-abs-2605-15298",
-          "title": "https://arxiv.org/abs/2605.15298"
+          "title": "PhysBrain 1.0 Technical Report"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
+          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
+          "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
+          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+          "title": "Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "title": "MMSkills: Towards Multimodal Skills for General Visual Agents"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
-          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
-          "title": "https://arxiv.org/abs/2605.15824"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
-          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
-          "title": "https://arxiv.org/abs/2605.11739"
         }
       ],
       "inputs": [
@@ -4158,27 +4496,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-601-https-arxiv-org-abs-2605-12882",
           "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
-          "title": "https://arxiv.org/abs/2605.12882"
+          "title": "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-600-https-arxiv-org-abs-2605-15298",
           "project_id": "PROJ-600-https-arxiv-org-abs-2605-15298",
-          "title": "https://arxiv.org/abs/2605.15298"
+          "title": "PhysBrain 1.0 Technical Report"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
+          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
+          "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
+          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+          "title": "Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "title": "MMSkills: Towards Multimodal Skills for General Visual Agents"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
-          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
-          "title": "https://arxiv.org/abs/2605.15824"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
-          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
-          "title": "https://arxiv.org/abs/2605.11739"
         }
       ],
       "inputs": [
@@ -4209,27 +4547,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-601-https-arxiv-org-abs-2605-12882",
           "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
-          "title": "https://arxiv.org/abs/2605.12882"
+          "title": "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-600-https-arxiv-org-abs-2605-15298",
           "project_id": "PROJ-600-https-arxiv-org-abs-2605-15298",
-          "title": "https://arxiv.org/abs/2605.15298"
+          "title": "PhysBrain 1.0 Technical Report"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
+          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
+          "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
+          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+          "title": "Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "title": "MMSkills: Towards Multimodal Skills for General Visual Agents"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
-          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
-          "title": "https://arxiv.org/abs/2605.15824"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
-          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
-          "title": "https://arxiv.org/abs/2605.11739"
         }
       ],
       "inputs": [
@@ -4255,27 +4593,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-601-https-arxiv-org-abs-2605-12882",
           "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
-          "title": "https://arxiv.org/abs/2605.12882"
+          "title": "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-600-https-arxiv-org-abs-2605-15298",
           "project_id": "PROJ-600-https-arxiv-org-abs-2605-15298",
-          "title": "https://arxiv.org/abs/2605.15298"
+          "title": "PhysBrain 1.0 Technical Report"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
+          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
+          "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
+          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+          "title": "Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "title": "MMSkills: Towards Multimodal Skills for General Visual Agents"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
-          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
-          "title": "https://arxiv.org/abs/2605.15824"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
-          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
-          "title": "https://arxiv.org/abs/2605.11739"
         }
       ],
       "inputs": [
@@ -4310,27 +4648,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-601-https-arxiv-org-abs-2605-12882",
           "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
-          "title": "https://arxiv.org/abs/2605.12882"
+          "title": "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-600-https-arxiv-org-abs-2605-15298",
           "project_id": "PROJ-600-https-arxiv-org-abs-2605-15298",
-          "title": "https://arxiv.org/abs/2605.15298"
+          "title": "PhysBrain 1.0 Technical Report"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
+          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
+          "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
+          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+          "title": "Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
           "title": "MMSkills: Towards Multimodal Skills for General Visual Agents"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-598-https-arxiv-org-abs-2605-15824",
-          "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
-          "title": "https://arxiv.org/abs/2605.15824"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-597-https-arxiv-org-abs-2605-11739",
-          "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
-          "title": "https://arxiv.org/abs/2605.11739"
         }
       ],
       "inputs": [
@@ -58528,7 +58866,104 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuchen Cai",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ding Cao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Liang Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chunxi Luo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xin Xu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kai Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Weijie Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Saiyong Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tianxiang Zhao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Guangzhong Sun",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Guiquan Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Junfeng Fang",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -58543,8 +58978,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.11739 Submitted by: github-actions[bot] (Intake from human-submission issue #203.)",
-      "field": "other",
+      "description": "On-policy distillation (OPD) has emerged as an efficient post-training paradigm for large language models. However, existing studies largely attribute this advantage to denser and more stable supervision, while the parameter-level mechanisms underlying OPD's efficiency remain poorly understood. In this work, we argue\u2026",
+      "field": "linguistics",
       "id": "PROJ-597-https-arxiv-org-abs-2605-11739",
       "keywords": [],
       "last_run_log": [
@@ -58565,8 +59000,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.11739",
-      "updated_at": "2026-05-19T09:10:57.230536+00:00",
+      "title": "Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation",
+      "updated_at": "2026-05-19T11:06:03.962754+00:00",
       "upstream_feedback": null
     },
     {
@@ -58589,7 +59024,72 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Quanjian Song",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yefeng Shen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mengting Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hao Sun",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jinsong Lan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiaoyong Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bo Zheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Liujuan Cao",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -58604,8 +59104,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.15824 Submitted by: github-actions[bot] (Intake from human-submission issue #202.)",
-      "field": "other",
+      "description": "Human-centric video customization, particularly at the garment level, has shown significant commercial value. However, existing approaches cannot support low-latency and interactive garment control, which is crucial for applications such as e-commerce and content creation. This paper studies how to achieve interactive\u2026",
+      "field": "computer science",
       "id": "PROJ-598-https-arxiv-org-abs-2605-15824",
       "keywords": [],
       "last_run_log": [
@@ -58626,8 +59126,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.15824",
-      "updated_at": "2026-05-19T09:11:15.616244+00:00",
+      "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization",
+      "updated_at": "2026-05-19T11:06:04.070908+00:00",
       "upstream_feedback": null
     },
     {
@@ -58800,7 +59300,112 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shijie Lian",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bin Yu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiaopeng Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Changti Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hang Yuan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiaolin Hu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhaolong Shen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuzhuo Miao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haishan Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuxuan Tian",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yukun Shi",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Cong Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kai Chen",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -58815,8 +59420,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.15298 Submitted by: github-actions[bot] (Intake from human-submission issue #200.)",
-      "field": "other",
+      "description": "Vision-language-action models have advanced rapidly, but robot trajectories alone provide limited coverage for learning broad physical understanding. PhysBrain 1.0 studies a complementary route: converting large-scale human egocentric video into structured physical commonsense supervision before robot adaptation. Our\u2026",
+      "field": "computer science",
       "id": "PROJ-600-https-arxiv-org-abs-2605-15298",
       "keywords": [],
       "last_run_log": [
@@ -58837,8 +59442,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.15298",
-      "updated_at": "2026-05-19T09:11:37.008925+00:00",
+      "title": "PhysBrain 1.0 Technical Report",
+      "updated_at": "2026-05-19T11:06:04.175124+00:00",
       "upstream_feedback": null
     },
     {
@@ -58861,7 +59466,96 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dongsheng Ma",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiayu Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhengren Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yijie Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiahao Kong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Weijun Zeng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jutao Xiao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jie Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wentao Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bin Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Conghui He",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -58876,8 +59570,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.12882 Submitted by: github-actions[bot] (Intake from human-submission issue #199.)",
-      "field": "other",
+      "description": "Multimodal Large Language Models (MLLMs) have significantly advanced document understanding, yet current Doc-VQA evaluations score only the final answer and leave the supporting evidence unchecked. This answer-only approach masks a critical failure mode: a model can land on the correct answer while grounding it in the\u2026",
+      "field": "linguistics",
       "id": "PROJ-601-https-arxiv-org-abs-2605-12882",
       "keywords": [],
       "last_run_log": [
@@ -58898,8 +59592,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.12882",
-      "updated_at": "2026-05-19T09:11:55.038797+00:00",
+      "title": "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence",
+      "updated_at": "2026-05-19T11:06:04.280618+00:00",
       "upstream_feedback": null
     }
   ],
