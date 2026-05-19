@@ -23,6 +23,12 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{llmxive}[2026/05/13 v1.0 llmXive paper class]
 
+%% Preload natbib's option set so the cls and the paper's own preamble
+%% don't fight when both `\usepackage{natbib}` calls reach LaTeX with
+%% different options. `numbers,compress,sort` gives bracketed numeric
+%% citations with collapsed consecutive ranges (`[1,2,3]` -> `[1-3]`).
+\PassOptionsToPackage{numbers,compress,sort}{natbib}
+
 %% ---- options & base class -----------------------------------------------
 \newif\ifllmx@twocolumn   \llmx@twocolumnfalse
 \newif\ifllmx@draft       \llmx@draftfalse
@@ -59,10 +65,22 @@
 }
 \RequirePackage{microtype}
 \RequirePackage{graphicx}
+%% `export` matches the option papers often pass downstream so the two
+%% loads share options and don't trigger "Option clash for package
+%% adjustbox" — the cls is loaded first.
+\RequirePackage[export]{adjustbox}
 \RequirePackage{caption}
 \RequirePackage{booktabs}
 \RequirePackage{array}
 \RequirePackage{tabularx}
+%% `tabularray` provides `tblr`/`longtblr` environments with X-columns
+%% that auto-wrap to `width = \linewidth`. Some submitted papers depend
+%% on it; load proactively so we don't error on first use. The booktabs
+%% library lets `\toprule`/`\midrule`/`\bottomrule` work inside `tblr`
+%% bodies; without it those macros trigger "Misplaced \noalign" errors
+%% and the table renders as raw colspec text (`0>10>100sppt…`).
+\RequirePackage{tabularray}
+\UseTblrLibrary{booktabs}
 \RequirePackage{colortbl}    %% provides \arrayrulecolor
 \RequirePackage{enumitem}
 \RequirePackage{amsmath,amssymb,amsthm,mathtools}
@@ -71,6 +89,25 @@
 \RequirePackage{fancyhdr}
 \RequirePackage{ragged2e}
 \RequirePackage{etoolbox}
+%% Auto-fit overfull plain `tabular` environments. When a tabular's
+%% natural width exceeds \linewidth OR its natural height exceeds the
+%% space available next to its caption, `adjustbox` scales it down
+%% with `keepaspectratio`; tables that already fit are untouched. We
+%% only hook plain `tabular` (not `tabular*`, `longtable`, `tblr`, or
+%% `longtblr` from tabularray) because those manage their own width
+%% and wrapping their internals in an lrbox would break page-breaking
+%% and rule placement.
+%%
+%% `max totalheight=0.72\textheight` reserves ~28% of textheight for
+%% the caption + section heading + the surrounding paragraph; without
+%% the height cap, tall tables would shove their caption below the
+%% page footer (visible failure mode on the MemLens subtype-taxonomy
+%% table during prototype review).
+\newsavebox\llmx@tabbox
+\BeforeBeginEnvironment{tabular}{\begin{lrbox}{\llmx@tabbox}}
+\AfterEndEnvironment{tabular}{\end{lrbox}%
+  \adjustbox{max width=\linewidth, max totalheight=0.72\textheight,%
+             keepaspectratio}{\usebox{\llmx@tabbox}}}
 \RequirePackage{xparse}
 \RequirePackage{calc}
 \RequirePackage{tikz}
@@ -176,6 +213,13 @@
 \setlength{\parindent}{1.15em}
 \setlength{\parskip}{0pt}
 \frenchspacing
+%% Dense scientific prose with citation lists like `~\cite{a,b,c,d,e}`
+%% routinely has zero break opportunities inside a long span; raising
+%% \tolerance and giving the line-breaker some \emergencystretch lets
+%% it find a tolerable break instead of producing a 12--14pt overfull
+%% \hbox that bleeds into the right margin.
+\tolerance=2000
+\emergencystretch=12pt
 
 %% ---- transparent figure-cache redirect ---------------------------------
 %% When `scripts/restyle_arxiv_paper.py` runs, it normalizes each figure
@@ -191,12 +235,21 @@
 %% \includegraphics-call time. If no sanitized copy exists, the original
 %% path is used (the class is safe to use without the cache).
 \let\llmx@origincludegraphics\includegraphics
+%% Cap every figure to safe bounds so an over-sized graphic can't bleed
+%% into the page footer (caused the visible overflow on the KU-Update
+%% example figure during early prototypes). adjustbox's
+%% `max totalheight` includes the caption's space allowance, so we leave
+%% room for a 2--3-line caption beneath every figure.
+\newcommand{\llmx@figmaxheight}{0.78\textheight}
+\newcommand{\llmx@figmaxwidth}{\linewidth}
 \renewcommand{\includegraphics}[2][]{%
-  \IfFileExists{figs-sanitized/#2}%
-    {\llmx@origincludegraphics[#1]{figs-sanitized/#2}}%
-    {\IfFileExists{figs-sanitized/#2.pdf}%
-      {\llmx@origincludegraphics[#1]{figs-sanitized/#2.pdf}}%
-      {\llmx@origincludegraphics[#1]{#2}}}%
+  \adjustbox{max totalheight=\llmx@figmaxheight, max width=\llmx@figmaxwidth}{%
+    \IfFileExists{figs-sanitized/#2}%
+      {\llmx@origincludegraphics[#1]{figs-sanitized/#2}}%
+      {\IfFileExists{figs-sanitized/#2.pdf}%
+        {\llmx@origincludegraphics[#1]{figs-sanitized/#2.pdf}}%
+        {\llmx@origincludegraphics[#1]{#2}}}%
+  }%
 }
 
 %% ---- compatibility no-ops for stripped packages ------------------------
@@ -386,7 +439,10 @@
     \noindent
     \begin{minipage}{\textwidth}
       {\llmxmono\footnotesize\color{llmxGreen}\MakeUppercase{Abstract}}\par\vspace{4pt}%
-      \color{llmxInk2}\itshape\small\noindent\ignorespaces
+      %% `\sloppy` lets the italic body relax line-breaking so a long URL
+      %% or unbreakable name doesn't push the last word past the right
+      %% margin (we saw a 12pt overflow on the MemLens abstract).
+      \color{llmxInk2}\itshape\small\sloppy\noindent\ignorespaces
 }{%
     \end{minipage}\par
     \vspace{10pt}%
@@ -825,7 +881,7 @@
 %% The deterministic restyle pipeline normalises every variant to \cite,
 %% but if a residual \citep/\citet slips through, natbib lets it render.
 \@ifpackageloaded{natbib}{}{%
-  \RequirePackage[numbers,sort]{natbib}%
+  \RequirePackage[numbers,compress,sort]{natbib}%
 }
 
 \endinput

@@ -99,7 +99,7 @@
   Ginny Wong$^{4}$ \quad
   Simon See$^{4}$} \\[6pt]
   \textit{Revised by:} \\
-  qwen3.5-122b$^{*}$ \quad \textit{(llmXive-implementer-v1.0)} \\[6pt]
+  qwen3.5-122b$^{*}$ \\[6pt]
   $^{1}$CSE Deparment, HKUST \quad $^{2}$CUHK \\
   $^{3}$OmniMemory (Shenzhen) Intelligent Technology Co., Ltd. \\
   $^{4}$ NVIDIA AI Technology Center (NVAITC), NVIDIA, Santa Clara, USA \\
@@ -381,7 +381,7 @@ Figure~\ref{fig:context_degradation} plots accuracy across five abilities from 3
 \begin{figure}[t]
 \vspace{-8pt}
 \centering
-\includegraphics[width=\linewidth]{figures/type_correlation_heatmap_32k.pdf}
+\includegraphics[width=0.3\linewidth]{figures/type_correlation_heatmap_32k.pdf}
 \caption{\small Spearman rank correlation ($\rho$) at 32K across all 34 evaluated LVLMs and memory agents.}
 \label{fig:type_correlation}
 \vspace{-6pt}
@@ -530,7 +530,7 @@ For agents that include RL-finetuned or LoRA-adapted models (Memory-T1, MemAgent
 \paragraph{Agent evaluation protocol.}
 Because agent pipelines are substantially slower than direct LVLM inference (M2A takes roughly $60\times$ longer per question), we evaluate all agents on a stratified 195-question subset ($\sim$1/4 of the benchmark; derivation in Appendix~\ref{app:canonical195}). LVLMs are evaluated at 32K, 64K, and 128K; agents are evaluated at all four context lengths including 256K. The four text-only agents receive BLIP-2~\cite{li2023blip2} generated image captions in place of actual images as text input. Among the three multimodal agents, M3-Agent is a video-based model that does not natively support interleaved image-text conversations; we render each session as a composite image and feed sessions as a sequence of images. M2A and M3C process the multimodal input directly. Table~\ref{tab:new_model_list} lists the full model specifications.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{lrcr}
@@ -592,7 +592,7 @@ Qwen3-VL-2B (I) & 262,144 & Dynamic-Resolution ViT & 2B \\
 \paragraph{Agent input-format adapters and protocol asymmetry.}
 Memory agents and direct LVLMs do not consume the same input. Each agent ingests the conversation through an adapter that depends on its architecture: the four text-only agents see BLIP-2~\cite{li2023blip2} captions in place of every evidence image, M3-Agent sees one composite image per session because its video-style backbone does not natively accept interleaved image-text sequences, and only M2A and M3C process the original interleaved messages directly. At answer time the asymmetry persists: the text-only agents have no path back to pixel evidence, M3-Agent re-attends a session-level composite, while M2A and M3C retrieve embedding-based memory entries (no raw pixels at query time). Direct LVLMs, in contrast, attend over the original conversation pixel-for-pixel within the model's context window. Table~\ref{tab:agent_adapters} lists each adapter explicitly. We do not normalize this asymmetry because the adapter is part of the system being evaluated---released checkpoints assume the input format their authors trained on, and any uniform substitute would either degrade architectures that depend on caption-only memory (Mem0, MemOS, MemAgent-7B, Memory-T1) or block agents whose backbones cannot accept interleaved input (M3-Agent). Reported deficits relative to direct LVLMs therefore conflate adapter-induced visual information loss with retrieval and reading quality. The matched-backbone contrast in Appendix~\ref{app:agent_underperformance} (M2A vs.\ direct Qwen3-VL-8B-Instruct on identical weights) and the backbone ablations for Mem0 and MemOS (Table~\ref{tab:backbone_ablation}) isolate the architectural component, while the BLIP-2 captioning step bounds the visual-information ceiling for text-only agents from above.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{llll}
@@ -707,7 +707,7 @@ Each of the four answerable memory abilities (IE, MSR, TR, KU) is backed by a de
 
 Table~\ref{tab:subtype_detail} provides the complete subtype taxonomy of \bench{}, listing the 8 answerable subtypes plus Answer Refusal with per-subtype question counts, the visual skill or reasoning operation each subtype isolates, and a representative example. Across the benchmark, 65.7\% of questions are image-essential (the evidence image is required to recover the answer), 14.7\% are image-supportive (the image confirms or disambiguates a textual fact that a strong text-only model could otherwise guess), and 19.6\% are text-sufficient (all AR questions plus a subset of MSR items retained by design). The image-essential share is highest in IE and MSR, substantial in KU, and lower in TR, where a portion of items renders the temporal cue as explicit textual dates or session-boundary timestamps. The cross-subtype correlation structure (Figure~\ref{fig:subtype_correlation}) confirms that the nine subtypes do not consistently correlate with each other, supporting per-type evaluation rather than a single aggregate.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}llcp{6.2cm}@{}}
@@ -741,7 +741,7 @@ Refusal & AR & 90 & Decline to answer when the evidence image has been deliberat
 
 Table~\ref{tab:question_examples} presents representative examples from each question type, illustrating the cross-modal reasoning chain required to reach the correct answer.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}lp{5.0cm}lp{4.8cm}@{}}
@@ -764,7 +764,7 @@ AR & How many vertical cables are visible on one side of the bridge? & \texttt{N
 \end{table}
 
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.85\linewidth]{figures/subtype_correlation_heatmap.pdf}
 \caption{Cross-subtype Spearman rank correlation across the evaluated models ($n=789$, 9 reporting subtypes). IE Entity and IE PrevInfo form the only near-ceiling pair ($\rho = 0.87$ at 32K, $0.94$ at 128K), reflecting their shared retrieval skill. MSR-internal correlation is weak at 32K (mean pairwise $\rho = 0.20$) and rises to $0.38$ at 128K as a shared-failure artifact of MSR collapsing toward the floor; TR-internal correlation stays near zero at both contexts ($\rho = 0.06$). The heterogeneity supports evaluating all five major types separately rather than reporting a single aggregate (\S\ref{subsec:analysis}).}
@@ -859,7 +859,7 @@ retrieved per topic rather than per target proportion. As a result,
 perceptual regimes, and avoids the narrow object-centric or OCR-only focus
 of prior benchmarks.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabularx}{\linewidth}{@{}l X l@{}}
@@ -905,14 +905,14 @@ Evidence sessions are inserted into the full conversation history with positions
 \subsection{Information Extraction}
 \label{app:examples_ie}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/ie_entity_candidates.pdf}
 \caption{Sampled IE-Entity questions. The visually grounded entity is abstracted in the question text, so the agent must first identify the entity from the evidence image before retrieving the relevant fact.}
 \label{fig:samples_ie_entity}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/ie_previnfo_candidates.pdf}
 \caption{Sampled IE-PrevInfo questions. The answer is a visual detail (color, count, layout, on-screen text) of an image shared in an earlier session, requiring multi-session image recall.}
@@ -922,21 +922,21 @@ Evidence sessions are inserted into the full conversation history with positions
 \subsection{Multi-Session Reasoning}
 \label{app:examples_msr}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/msr_arithmetic_candidates.pdf}
 \caption{Sampled MSR-Arithmetic questions. The agent sums or computes over prices, durations, or quantities scattered across sessions; at least one operand is visible only in an image.}
 \label{fig:samples_msr_arithmetic}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/msr_counting_candidates.pdf}
 \caption{Sampled MSR-Counting questions. The agent counts how many sessions or items match a given criterion across the conversation history.}
 \label{fig:samples_msr_counting}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/msr_entity_candidates.pdf}
 \caption{Sampled MSR-Entity Resolution questions. The agent decides whether two cross-session references denote the same entity, either via Yes/No identity matching or by counting distinct entities.}
@@ -946,14 +946,14 @@ Evidence sessions are inserted into the full conversation history with positions
 \subsection{Temporal Reasoning}
 \label{app:examples_tr}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/tr_duration_candidates.pdf}
 \caption{Sampled TR-Duration Comparison questions. The agent compares two time spans whose endpoints come from a mixture of textual dates, session timestamps, and visual cues.}
 \label{fig:samples_tr_duration}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/tr_dateorder_candidates.pdf}
 \caption{Sampled TR-Temporal Grounding questions, including chronological ordering and absolute date extraction. The temporal cue is sometimes available only as an image of a clock face or a calendar page.}
@@ -963,7 +963,7 @@ Evidence sessions are inserted into the full conversation history with positions
 \subsection{Knowledge Update}
 \label{app:examples_ku}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/ku_update.pdf}
 \caption{Sampled KU-Update questions. A four-step preference chain is anchored by a different image at each step; the gold answer is always the most recent state.}
@@ -973,7 +973,7 @@ Evidence sessions are inserted into the full conversation history with positions
 \subsection{Answer Refusal}
 \label{app:examples_ar}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/ar_refusal_candidates.pdf}
 \caption{Sampled AR-Refusal questions. The supporting evidence has been deliberately removed from the conversation history, so the gold answer is a refusal phrase rather than a content answer.}
@@ -1062,7 +1062,7 @@ Table~\ref{tab:judge_per_type} reports Qwen3-VL-235B judge vs GPT-5.4-mini accur
 The Qwen3-VL-235B judge is equally or slightly more lenient across every question type; the gap is largest on IE ($-$6.50\%), driven by partial-match acceptances, and zero on MSR.
 No type reverses the ranking direction between judges.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}lcccc@{}}
@@ -1086,7 +1086,7 @@ Two observations matter.
 First, 9 of the 10 AR false positives live in pre-retest runs that no longer feed any production leaderboard; on canonical retest runs, a deterministic substring rule for the canonical refusal phrase reaches 95.90\% agreement with the human consensus (consistent with the AR row of the deterministic typed-accuracy audit; Table~\ref{tab:det_audit}).
 Second, the 11 IE false positives reflect the same partial-match leniency observed in the aggregate cross-judge analysis---the Qwen3-VL-235B judge accepts short factual answers that GPT and the human consensus both reject---which is a judge-personality trait rather than a family-specific bias.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}lcl@{}}
@@ -1114,7 +1114,7 @@ Item-level agreement ranges from 87.4\% on TR Order Ranking to 98.5\% on MSR Ari
 The disagreement is systematically leniency-biased: the LLM judge credits a deterministically-wrong answer (\textit{J-FP}) on a weighted 5.4\% of items, against only 1.0\% deterministically-correct answers rejected (\textit{J-FN}). The largest leniency channels are TR Order Ranking (12.6\% J-FP, partial credit on near-correct tuples), TR Date Extraction (8.6\% J-FP, format-flexible date matching), and AR (5.7\% J-FP, hedge phrases credited as refusal)---the same partial-match and hedge-phrase patterns identified on the 484-item human subset, but estimated here at $25{\times}$ the sample size.
 At the model-leaderboard level, the Spearman rank correlation between the LLM- and the deterministic-aggregated per-model accuracy across the 34 rosters is $\rho = 0.78$, the top-10 sets overlap on 7 of 10 entries, and within the LLM-top-10 the rank correlation is $\rho = 0.82$. The top-5 (Kimi-K2.5, Qwen3-VL-30B-Instruct, Qwen3.5-122B, Qwen3-VL-235B-Instruct, Qwen3-VL-8B-Instruct) is preserved under both metrics. The three rosters that drop out of the top-10 under deterministic rescoring---GLM-4.6V, Qwen3-VL-235B-Thinking, and Mem0 (GPT-4.1-mini backbone)---all produce verbose justifications that the LLM judge credits but the rule-based check rejects, consistent with the format-dependent leniency already corrected for short outputs in this section. The takeaway is that LLM-judge leniency inflates closed-form accuracy by approximately 5\% in absolute terms but does not reorder the leaderboard top, which is the same conclusion reached by the cross-family and human-consensus audits above on a much smaller sample.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}lrccccc@{}}
@@ -1766,7 +1766,7 @@ Return JSON:
 \subsection{Extended Results Tables}
 \label{app:extended}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \scriptsize
 \setlength{\tabcolsep}{2.5pt}
@@ -1816,7 +1816,7 @@ Qwen3-VL-2B (I) & 32.52 & 16.78 & 50.52 & 20.69 & 72.22 & 36.88 & 32.52 & 21.68 
 \label{tab:per_type_full_vlm}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \scriptsize
 \setlength{\tabcolsep}{2.0pt}
@@ -1854,7 +1854,7 @@ The 195-question (a quarter of the original dataset) canonical subset is constru
 \paragraph{Per-type composition matches the full benchmark.}
 Table~\ref{tab:canonical195_strat} compares the 195-subset's per-type proportions against the full 789-question benchmark. Differences are below 0.2 percentage points for every type, so rankings computed on the subset transfer to the full benchmark without systematic bias.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}lccc@{}}
@@ -1877,7 +1877,7 @@ Total                            & 100.00 & 195 & 100.00 \\
 \paragraph{Direct-LVLM overlay on the 195-subset.}
 To enable apples-to-apples comparison with the seven memory agents, we re-score every direct-LVLM run used elsewhere in the paper on exactly the 195 canonical qids. Table~\ref{tab:agent_vs_vlm_195} reports overall and per-type accuracy for six representative LVLMs at 32K/64K/128K and the four agents at 32K/64K/128K/256K. This is the matched-subset version of Figure~\ref{fig:per_type_heatmap}; rankings transfer between the subset and the full benchmark at 32K with Spearman $\rho = 0.94$ ($p < 0.01$, $n = 6$ direct LVLMs), so conclusions drawn on the 195-subset are not an artifact of subset choice.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
@@ -1940,7 +1940,7 @@ The accuracies in Table~\ref{tab:agent_vs_vlm_195} and Table~\ref{tab:per_type_f
 \subsection{Coverage and Per-Answer Accuracy}
 \label{app:coverage_full}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}llcccc@{}}
@@ -2071,14 +2071,14 @@ total-miss shift are stable under that default assignment.
 
 
 \label{app:wrong_answer_figures}
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.70\linewidth]{figures/wrong_answer_pie.pdf}
 \caption{Distribution of wrong-answer types at 32K context ($n=5{,}592$ attempted-but-incorrect LVLM answers, out of $27 \times 789 = 21{,}303$ evaluations). Near-miss errors (evidence located before erring) account for 69.44\% of wrong answers; total-miss errors (no correct evidence anchor) for 30.57\%.}
 \label{fig:wrong_answer_pie}
 \end{figure}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}llll@{}}
@@ -2113,7 +2113,7 @@ attempted-but-incorrect answer; Table~\ref{tab:modality_mapping} gives the exact
 \item \textbf{Output.} Non-answer pathology (empty or non-extractable response).
 \end{itemize}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}lccc@{}}
@@ -2135,7 +2135,7 @@ Non-answer pathology    & \multicolumn{3}{c}{Output} \\
 
 The seven-label and five-modality views are two lenses on the same wrong-answer set. The seven-label view records what \emph{kind} of error the model made (e.g., right answer set but wrong element); the five-modality view records which \emph{evidence channel} the error relied on. Reading the two together explains the per-type asymmetries in Figure~\ref{fig:visual_error}: a question type whose closed-set or arithmetic structure makes computation-slips and selection-swaps the dominant Phase-1 labels (e.g., MSR Counting/Arithmetic, MSR Yes/No, TR Duration A/B, TR order-ranking) will accordingly show a large Reasoning share regardless of how reliably the model retrieves evidence---which is why the Reasoning share in MSR/TR should be cross-checked against the oracle-retrieval diagnostic in \S\ref{app:msr_ceiling} before being interpreted as a reasoning bottleneck.
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.96\linewidth]{figures/context_delta_heatmap.pdf}
 \caption{Wrong-answer error-type shift from 32K to 128K by question type ($n=789$). Unsupported answer (+10.23\%) replaces grounding failure ($-$5.38\%) and computation slip ($-$4.82\%).}
@@ -2363,7 +2363,7 @@ In summary, the expected monotonic degradation holds across the benchmark: no co
 
 AR accuracy degrades monotonically with context length across all Qwen3-VL sizes, but the rate depends on both scale and decoding mode (Table~\ref{tab:ar_degrade}). At the 235B Instruct tier the drop is modest ($-$5.6\% from 32K to 128K), whereas 2B-Thinking collapses from 87.8\% to 14.4\% ($-$73.3\%): truncated reasoning traces produce substantive answers instead of refusals.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}llccc|c@{}}
@@ -2388,7 +2388,7 @@ AR accuracy degrades monotonically with context length across all Qwen3-VL sizes
 
 
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.85\linewidth]{figures/scaling_curves.pdf}
 \caption{Model-size scaling within the Qwen3-VL Instruct family ($n=789$). Dense scaling from 2B to 8B is monotone; the 30B (3B-active) MoE outperforms the 8B dense variant, indicating that active-parameter efficiency drives short-context performance more than total size.}
@@ -2412,7 +2412,7 @@ The cross-agent comparison above is confounded by architecture, training recipe,
 
 Per-type profiles shift markedly across backbones. In Mem0, the default Qwen3-8B reaches 77.27\% AR while the Qwen2.5-7B variant achieves perfect refusal (100\%), indicating that the backbone's intrinsic calibration against hallucination propagates through the memory pipeline. Conversely, Qwen3-8B leads on TR (50.00\% vs.\ 32.69\%) within the same FAISS architecture, suggesting complementary strengths that the pipeline cannot arbitrate. Crucially, all backbone variants preserve the context-length invariance observed for the default configurations: the 32K-to-256K range stays below 5\% for every variant, confirming that flatness is an architectural property independent of backbone quality.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}llcccccc@{}}
@@ -2446,7 +2446,7 @@ On the shared answerable subset at 32K, 52\% of the questions are answered incor
 
 
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.85\linewidth]{figures/retrieval_decomposition_stacked_bar.pdf}
 \caption{Retrieval attribution for three agents with retrieval logs at 32K, decomposed by question type. Each bar partitions outcomes into correct (green), comprehension failure (yellow, evidence retrieved but answer wrong), and retrieval failure (red, evidence not retrieved). M3C is retrieval-dominated across all types; Mem0 and Memory-T1 are comprehension-dominated despite high evidence recall.}
@@ -2459,7 +2459,7 @@ On the shared answerable subset at 32K, 52\% of the questions are answered incor
 
 % All Thinking-vs-Instruct claims in this appendix are conditioned on a fixed 16{,}384-token generation budget (\S\ref{subsec:infra}), matched across Instruct and Thinking runs at every size except 30B (excluded; see Appendix~\ref{app:limitations}). Thinking mode consistently underperforms direct answering on overall accuracy across all Qwen3-VL model sizes and input lengths we evaluate.
 
-% \begin{table}[h]
+% \begin{table}[!htbp]
 % \centering
 % \caption{Instruct vs.\ Thinking mode decomposition for Qwen3-VL ($n=699$ answerable). $\Delta_{\text{ov}}$: overall accuracy gap (Thinking $-$ Instruct). $\Delta_{\text{PA}}$: per-attempted accuracy gap. Degen: fraction of Thinking outputs that hit the token budget without producing an answer. Thinking improves per-answer quality for $\leq$8B models but overall scores collapse due to degenerate output loss.}
 % \label{tab:thinking}
@@ -2489,7 +2489,7 @@ On the shared answerable subset at 32K, 52\% of the questions are answered incor
 
 
 
-% \begin{figure}[h]
+% \begin{figure}[!htbp]
 % \centering
 % \includegraphics[width=0.85\linewidth]{figures/degenerate_comparison.pdf}
 % \caption{Degenerate-output rate (\% of generations that hit the maximum token budget without producing a final answer) for Qwen3-VL Instruct vs.\ Thinking modes across sizes ($n=789$). Thinking mode triggers a generation-budget confound that explains its leaderboard regression in Table~\ref{tab:thinking}; once degenerate outputs are excluded, Thinking gains a positive per-attempted accuracy delta for models up to 8B, while 235B shows a quality loss at longer contexts.}
@@ -2844,9 +2844,9 @@ The scientific content and experimental design appear sound and publication-read
 \subsection*{paper\_reviewer\_claim\_accuracy \hfill \textit{verdict: minor\_revision}}
 The manuscript presents a comprehensive benchmark, but several factual claims regarding related work and model specifications are not accurately supported by the provided citations.
 
-First, in Section 1 (Introduction) and Section 2 (Related Work), the authors state that "Multimodal conversational benchmarks such as LoCoMo\textasciitilde{}\textbackslash\{\}cite\{maharana2024evaluatinglongtermconversationalmemory\}... retain both visual and text modalities". The cited paper (Maharana et al., 2024) describes LoCoMo as a text-only benchmark for long-term conversational memory. Claiming it retains visual modalities is factually incorrect. This error is significant because the paper's core motivation relies on the gap between existing benchmarks: it argues that text-only benchmarks (like LongMemEval) overlook visuals, while multimodal ones (like LoCoMo) allow text-only shortcuts. If LoCoMo is text-only, the authors must rephrase this to accurately reflect the landscape (e.g., acknowledging LoCoMo as text-only and clarifying that Mem-Gallery is the multimodal counterpart). This misrepresentation weakens the claim that MemLens fills a unique multimodal gap.
+First, in Section 1 (Introduction) and Section 2 (Related Work), the authors state that ``Multimodal conversational benchmarks such as LoCoMo\textasciitilde{}\cite{maharana2024evaluatinglongtermconversationalmemory}... retain both visual and text modalities''. The cited paper (Maharana et al., 2024) describes LoCoMo as a text-only benchmark for long-term conversational memory. Claiming it retains visual modalities is factually incorrect. This error is significant because the paper's core motivation relies on the gap between existing benchmarks: it argues that text-only benchmarks (like LongMemEval) overlook visuals, while multimodal ones (like LoCoMo) allow text-only shortcuts. If LoCoMo is text-only, the authors must rephrase this to accurately reflect the landscape (e.g., acknowledging LoCoMo as text-only and clarifying that Mem-Gallery is the multimodal counterpart). This misrepresentation weakens the claim that MemLens fills a unique multimodal gap.
 
-Second, regarding model versions, Section 4.1 cites "GPT-5.4\textasciitilde{}\textbackslash\{\}citep\{singh2025openaigpt5card\}". The citation refers to an "OpenAI GPT-5 System Card". While plausible in a future-dated context, the specific version "5.4" should be explicitly validated against the system card's versioning to ensure the citation supports the specific capabilities (e.g., context window size, multimodal grounding) attributed to it. Similarly, "Gemini-3.1-Pro"\textasciitilde{}\textbackslash\{\}citep\{googledeepmind2026gemini31pro\} and "Claude Sonnet 4.5"\textasciitilde{}\textbackslash\{\}citep\{anthropic2025claudesonnet45card\} are cited; ensure these specific version numbers match the released system cards referenced.
+Second, regarding model versions, Section 4.1 cites ``GPT-5.4\textasciitilde{}\citep{singh2025openaigpt5card}''. The citation refers to an ``OpenAI GPT-5 System Card''. While plausible in a future-dated context, the specific version ``5.4'' should be explicitly validated against the system card's versioning to ensure the citation supports the specific capabilities (e.g., context window size, multimodal grounding) attributed to it. Similarly, ``Gemini-3.1-Pro''\textasciitilde{}\citep{googledeepmind2026gemini31pro} and ``Claude Sonnet 4.5''\textasciitilde{}\citep{anthropic2025claudesonnet45card} are cited; ensure these specific version numbers match the released system cards referenced.
 
 These issues require textual corrections to ensure factual alignment with the cited literature. They do not invalidate the experimental results but affect the accuracy of the related work summary and model attribution.
 
@@ -2870,13 +2870,13 @@ Without these artifacts, the code quality lens cannot be applied, and the reprod
 \bigskip
 
 \subsection*{paper\_reviewer\_data\_quality\_paper \hfill \textit{verdict: minor\_revision}}
-The manuscript provides a strong foundation for data quality, particularly in schema definition and provenance tracking. The data construction pipeline is well-documented in Appendix \textbackslash\{\}ref\{app:image\_release\} and \textbackslash\{\}ref\{app:annotation\}, detailing the use of iCrawler for image sourcing, topic ontologies for sampling, and a three-round human review process. The problem formulation in Appendix \textbackslash\{\}ref\{app:problem\_formulation\} clearly specifies the data tuple \$(S, q, I, a)\$, ensuring a consistent schema for downstream users. Furthermore, the inclusion of per-image metadata (source URL, retrieval timestamp, perceptual hash) in the release is excellent practice for traceability.
+The manuscript provides a strong foundation for data quality, particularly in schema definition and provenance tracking. The data construction pipeline is well-documented in Appendix \ref{app:image_release} and \ref{app:annotation}, detailing the use of iCrawler for image sourcing, topic ontologies for sampling, and a three-round human review process. The problem formulation in Appendix \ref{app:problem_formulation} clearly specifies the data tuple $(S, q, I, a)$, ensuring a consistent schema for downstream users. Furthermore, the inclusion of per-image metadata (source URL, retrieval timestamp, perceptual hash) in the release is excellent practice for traceability.
 
-However, two critical data governance issues require attention before the data can be considered fully production-ready. First, the \textit{Ethics Statement} and \textit{Reproducibility Statement} claim that third-party images retain their "original source-site licenses" but are redistributed alongside the benchmark. Without explicit verification of these licenses (e.g., confirming CC-BY or public domain status for all 4,695 images), this redistribution poses a significant legal risk for downstream users. A license mapping table or a statement confirming fair-use justification for evaluation purposes is necessary to mitigate this.
+However, two critical data governance issues require attention before the data can be considered fully production-ready. First, the \textit{Ethics Statement} and \textit{Reproducibility Statement} claim that third-party images retain their ``original source-site licenses'' but are redistributed alongside the benchmark. Without explicit verification of these licenses (e.g., confirming CC-BY or public domain status for all 4,695 images), this redistribution poses a significant legal risk for downstream users. A license mapping table or a statement confirming fair-use justification for evaluation purposes is necessary to mitigate this.
 
-Second, while the \textit{Reproducibility Statement} mentions "frozen version tags," it does not specify the actual tag names (e.g., \texttt{v1.0}, \texttt{release-2026}). For a benchmark intended to track model progress over time, precise versioning is essential to prevent link rot and ensure that leaderboard scores can be traced to exact dataset snapshots. The current text leaves this ambiguous.
+Second, while the \textit{Reproducibility Statement} mentions ``frozen version tags,'' it does not specify the actual tag names (e.g., \texttt{v1.0}, \texttt{release-2026}). For a benchmark intended to track model progress over time, precise versioning is essential to prevent link rot and ensure that leaderboard scores can be traced to exact dataset snapshots. The current text leaves this ambiguous.
 
-Finally, the datasheet referenced in Appendix \textbackslash\{\}ref\{app:image\_release\} is described as accompanying the release but its specific file path or URL within the repository is not provided. Citing the exact location of the datasheet (e.g., \texttt{datasheet.md} in the root directory) would improve usability. Addressing these documentation and licensing gaps will solidify the data quality and legal robustness of the benchmark.
+Finally, the datasheet referenced in Appendix \ref{app:image_release} is described as accompanying the release but its specific file path or URL within the repository is not provided. Citing the exact location of the datasheet (e.g., \texttt{datasheet.md} in the root directory) would improve usability. Addressing these documentation and licensing gaps will solidify the data quality and legal robustness of the benchmark.
 
 \bigskip
 
@@ -2887,17 +2887,17 @@ The paper utilizes 15 figures across the main text and appendix to convey benchm
 
 \textbf{Main Text Figures}
 \begin{itemize}\setlength\itemsep{2pt}
-\item \textbf{Figure 1 (Pipeline)}: The caption is overly terse ("construction pipeline"). Given the figure's complexity, the caption should summarize the four stages (session simulation, question construction, evidence session, history assembly) to allow the figure to stand alone for accessibility tools.
-\item \textbf{Figure 2 (Per-Type Heatmap)}: The caption notes a "green colormap." Green-only or green-dominant scales are often problematic for deuteranopia. Please verify the palette against WCAG 2.1 contrast guidelines or switch to a perceptually uniform, colorblind-safe palette (e.g., Viridis).
+\item \textbf{Figure 1 (Pipeline)}: The caption is overly terse (``construction pipeline''). Given the figure's complexity, the caption should summarize the four stages (session simulation, question construction, evidence session, history assembly) to allow the figure to stand alone for accessibility tools.
+\item \textbf{Figure 2 (Per-Type Heatmap)}: The caption notes a ``green colormap.'' Green-only or green-dominant scales are often problematic for deuteranopia. Please verify the palette against WCAG 2.1 contrast guidelines or switch to a perceptually uniform, colorblind-safe palette (e.g., Viridis).
 \item \textbf{Figure 4 (Context Degradation \& Error Decomp)}: This is the strongest figure set. The use of confidence interval bands (95\% CI) in \texttt{context\_degradation\_lines.pdf} is excellent practice for uncertainty visualization. The decomposition in \texttt{visual\_error\_decomposition.pdf} aligns well with the textual analysis.
 \item \textbf{Table 1}: Embedding \texttt{composition\_donut.pdf} inside the benchmark comparison table is unconventional. Donut charts inside tables often reduce text legibility due to size constraints. Consider extracting this distribution to a standalone figure or a bar chart within the table.
 \end{itemize}
 
 \textbf{Appendix Figures}
 \begin{itemize}\setlength\itemsep{2pt}
-\item \textbackslash\{\}textbf\{Candidate Examples (\texttt{ie\_entity\_candidates.pdf}, etc.)\}: These are well-captioned and essential for understanding the task definition. Ensure the image resolution is sufficient for print (current file sizes suggest reasonable quality).
-\item \textbackslash\{\}textbf\{\texttt{wrong\_answer\_pie.pdf}\}: Pie charts are discouraged in quantitative analysis because humans struggle to compare angles. Since this figure shows error distribution across seven labels, a stacked bar chart would allow for more precise comparison of error category frequencies.
-\item \textbackslash\{\}textbf\{\texttt{subtype\_correlation\_heatmap.pdf}\}: Ensure axis labels are large enough to be read when printed at standard conference poster size (typically 10pt minimum).
+\item \textbf{Candidate Examples (\texttt{ie\_entity\_candidates.pdf}, etc.)}: These are well-captioned and essential for understanding the task definition. Ensure the image resolution is sufficient for print (current file sizes suggest reasonable quality).
+\item \textbf{\texttt{wrong\_answer\_pie.pdf}}: Pie charts are discouraged in quantitative analysis because humans struggle to compare angles. Since this figure shows error distribution across seven labels, a stacked bar chart would allow for more precise comparison of error category frequencies.
+\item \textbf{\texttt{subtype\_correlation\_heatmap.pdf}}: Ensure axis labels are large enough to be read when printed at standard conference poster size (typically 10pt minimum).
 \end{itemize}
 
 \textbf{Accessibility \& Alt Text}
@@ -2912,11 +2912,11 @@ The figures effectively support the claims, but the color choices and chart type
 \bigskip
 
 \subsection*{paper\_reviewer\_jargon\_police \hfill \textit{verdict: minor\_revision}}
-The manuscript is dense with field-specific terminology, which is standard for benchmark papers, but several terms reduce accessibility for non-specialist readers. In the Abstract, the phrase "cross-modal token-counting scheme" (Line 28) could be simplified to "method for counting text and image tokens together." In Section 1 (Introduction), "memory-augmented agents" is defined, but related acronyms like "RAG" (retrieval-augmented generation) appear in Section 2 without explicit expansion for the first time in the main text.
+The manuscript is dense with field-specific terminology, which is standard for benchmark papers, but several terms reduce accessibility for non-specialist readers. In the Abstract, the phrase ``cross-modal token-counting scheme'' (Line 28) could be simplified to ``method for counting text and image tokens together.'' In Section 1 (Introduction), ``memory-augmented agents'' is defined, but related acronyms like ``RAG'' (retrieval-augmented generation) appear in Section 2 without explicit expansion for the first time in the main text.
 
-Section 3 introduces five memory abilities (IE, MSR, TR, KU, AR). While defined, the acronym density is high. Consider spelling out "Information Extraction" and "Multi-Session Reasoning" at every instance in the first paragraph of Section 4 (Evaluation) to aid readability. In Section 5.3, "lossy cross-modality compression at storage time" is technically precise but opaque; "lossy image compression when saving memories" is clearer. Similarly, "entity abstraction" (Section 3.2) is defined as masking names, but the term "abstraction" itself is jargon; "entity masking" might be more direct.
+Section 3 introduces five memory abilities (IE, MSR, TR, KU, AR). While defined, the acronym density is high. Consider spelling out ``Information Extraction'' and ``Multi-Session Reasoning'' at every instance in the first paragraph of Section 4 (Evaluation) to aid readability. In Section 5.3, ``lossy cross-modality compression at storage time'' is technically precise but opaque; ``lossy image compression when saving memories'' is clearer. Similarly, ``entity abstraction'' (Section 3.2) is defined as masking names, but the term ``abstraction'' itself is jargon; ``entity masking'' might be more direct.
 
-The Related Work section (Section 2) uses metaphorical jargon like "OS-inspired paging" and "neurobiological graphs." While evocative, these terms assume familiarity with operating systems and neuroscience. Brief clarifications (e.g., "memory paging similar to computer operating systems") would broaden understanding. Appendix A.1 uses implementation jargon ("RoPE", "FlashAttention-2", "tensor parallelism") without definition. While these are standard in engineering contexts, a brief parenthetical explanation helps broader readers. Finally, "LLM-as-Judge" is used throughout; defining it once as "using an LLM to grade answers" in the first instance would improve flow. These changes would maintain precision while lowering the barrier to entry for readers outside the immediate subfield.
+The Related Work section (Section 2) uses metaphorical jargon like ``OS-inspired paging'' and ``neurobiological graphs.'' While evocative, these terms assume familiarity with operating systems and neuroscience. Brief clarifications (e.g., ``memory paging similar to computer operating systems'') would broaden understanding. Appendix A.1 uses implementation jargon (``RoPE'', ``FlashAttention-2'', ``tensor parallelism'') without definition. While these are standard in engineering contexts, a brief parenthetical explanation helps broader readers. Finally, ``LLM-as-Judge'' is used throughout; defining it once as ``using an LLM to grade answers'' in the first instance would improve flow. These changes would maintain precision while lowering the barrier to entry for readers outside the immediate subfield.
 
 \bigskip
 
@@ -2927,20 +2927,20 @@ The evaluation conclusions regarding model behaviors are logically derived from 
 
 The paper also maintains logical consistency in its agent evaluation protocol. While agents are evaluated on a 195-question subset versus the full 789 for LVLMs, the authors explicitly re-scored LVLMs on this subset for direct comparison (Appendix C.1), ensuring the conclusion that 'memory agents trail LVLMs' is not an artifact of dataset mismatch. Furthermore, the claim that post-training weakens abstention is backed by a controlled comparison between frozen-backbone agents (Mem0, MemOS) and finetuned agents (Section 5.2), ruling out backbone capacity as the primary cause.
 
-One minor logical nuance exists in the generalization of the ablation study: while the ablation covers 80.4\% of the benchmark, the abstract states 'solving \textbackslash\{\}bench\{\} requires visual evidence.' Since 19.6\% of questions are text-sufficient (AR + some MSR), this is a slight over-generalization, though acceptable given the benchmark's multimodal focus. The paper acknowledges this distribution in Section 3.4.
+One minor logical nuance exists in the generalization of the ablation study: while the ablation covers 80.4\% of the benchmark, the abstract states 'solving \bench{} requires visual evidence.' Since 19.6\% of questions are text-sufficient (AR + some MSR), this is a slight over-generalization, though acceptable given the benchmark's multimodal focus. The paper acknowledges this distribution in Section 3.4.
 
 Overall, the causal claims are well-supported by stated mechanisms, and there are no internal contradictions between the methodology and the conclusions drawn. The logical flow from problem identification to benchmark construction, evaluation, and architectural recommendations is coherent.
 
 \bigskip
 
 \subsection*{paper\_reviewer\_overreach \hfill \textit{verdict: minor\_revision}}
-The paper presents a comprehensive benchmark but contains specific instances of overreach where conclusions extrapolate beyond the provided evidence, particularly regarding the identification of the "principal bottleneck" and the characterization of memory agent mechanisms.
+The paper presents a comprehensive benchmark but contains specific instances of overreach where conclusions extrapolate beyond the provided evidence, particularly regarding the identification of the ``principal bottleneck'' and the characterization of memory agent mechanisms.
 
-In the Conclusion, the authors state: "Visual-evidence retention and retrieval... therefore emerges as the principal bottleneck to address in the future." This claim overgeneralizes findings from the Information Extraction (IE) and Knowledge Update (KU) types to the entire benchmark. Section 5.2 (Error Analysis) explicitly notes that for Multi-Session Reasoning (MSR), the hardest task type where accuracy caps below 30\%, errors are dominated by the Reasoning category (73\%), not Visual errors. While visual fidelity is critical for IE/KU, asserting it as the \textit{principal} bottleneck for the benchmark as a whole ignores the reasoning limitation that prevents systems from solving MSR tasks. The Conclusion should be qualified to reflect that visual retention is the primary bottleneck for retrieval-heavy tasks, while reasoning remains the primary bottleneck for aggregation tasks.
+In the Conclusion, the authors state: ``Visual-evidence retention and retrieval... therefore emerges as the principal bottleneck to address in the future.'' This claim overgeneralizes findings from the Information Extraction (IE) and Knowledge Update (KU) types to the entire benchmark. Section 5.2 (Error Analysis) explicitly notes that for Multi-Session Reasoning (MSR), the hardest task type where accuracy caps below 30\%, errors are dominated by the Reasoning category (73\%), not Visual errors. While visual fidelity is critical for IE/KU, asserting it as the \textit{principal} bottleneck for the benchmark as a whole ignores the reasoning limitation that prevents systems from solving MSR tasks. The Conclusion should be qualified to reflect that visual retention is the primary bottleneck for retrieval-heavy tasks, while reasoning remains the primary bottleneck for aggregation tasks.
 
-Additionally, Section 5.2 claims that "both text-only and multimodal pipelines compress evidence visual information into a fixed memory representation at storage time." This is technically inaccurate for the text-only agents evaluated (e.g., Mem0, MemOS). As detailed in Appendix A (Agent Evaluation Protocol), these systems replace images with BLIP-2 captions before ingestion. They do not compress visual information into memory representations; they process text generated from visual input. Conflating captioning with visual compression obscures the distinct failure mode of text-only agents (loss of visual detail during caption generation) versus multimodal agents (loss of detail during embedding storage). This distinction is crucial for the proposed hybrid architectures.
+Additionally, Section 5.2 claims that ``both text-only and multimodal pipelines compress evidence visual information into a fixed memory representation at storage time.'' This is technically inaccurate for the text-only agents evaluated (e.g., Mem0, MemOS). As detailed in Appendix A (Agent Evaluation Protocol), these systems replace images with BLIP-2 captions before ingestion. They do not compress visual information into memory representations; they process text generated from visual input. Conflating captioning with visual compression obscures the distinct failure mode of text-only agents (loss of visual detail during caption generation) versus multimodal agents (loss of detail during embedding storage). This distinction is crucial for the proposed hybrid architectures.
 
-Finally, the Abstract claims evaluation of "27 LVLMs." Several entries are variants of the same base model (e.g., Qwen3-VL-235B Thinking vs. Instruct). While numerically accurate, this risks overstating the diversity of architectures evaluated. Clarifying this as "27 model configurations" would improve precision. These adjustments are necessary to ensure the paper's claims remain tightly bound to the empirical evidence presented.
+Finally, the Abstract claims evaluation of ``27 LVLMs.'' Several entries are variants of the same base model (e.g., Qwen3-VL-235B Thinking vs. Instruct). While numerically accurate, this risks overstating the diversity of architectures evaluated. Clarifying this as ``27 model configurations'' would improve precision. These adjustments are necessary to ensure the paper's claims remain tightly bound to the empirical evidence presented.
 
 \bigskip
 
@@ -2958,13 +2958,13 @@ Overall, the paper adheres to standard ethical guidelines for ML benchmarking. T
 \bigskip
 
 \subsection*{paper\_reviewer\_scientific\_evidence \hfill \textit{verdict: minor\_revision}}
-The scientific evidence supporting the central claims of MemLens is generally robust, with a well-designed benchmark (n=789) and appropriate controls for length and modality. The cross-modality ablation study (Section 3.4, Table 2) provides strong causal evidence that 80.4\% of questions require visual input, showing a >90\% accuracy drop when images are removed. The judge validation protocol (Appendix G.2) demonstrates high reliability (κ=0.86 vs. human consensus), mitigating concerns about LLM-as-Judge bias.
+The scientific evidence supporting the central claims of MemLens is generally robust, with a well-designed benchmark (n=789) and appropriate controls for length and modality. The cross-modality ablation study (Section 3.4, Table 2) provides strong causal evidence that 80.4\% of questions require visual input, showing a >90\% accuracy drop when images are removed. The judge validation protocol (Appendix G.2) demonstrates high reliability ($\kappa$=0.86 vs. human consensus), mitigating concerns about LLM-as-Judge bias.
 
-However, there are evidentiary limitations regarding the comparison of LVLMs and memory agents. First, LVLMs are evaluated on the full 789-question benchmark, while memory agents are evaluated on a 195-question subset (Appendix G.1) due to computational cost. Although stratified sampling is used, the smaller sample size for agents (n=195) increases the confidence interval width for agent performance (±5–7\% at 32K, Appendix G.1). The main text (Section 4.2) should explicitly acknowledge this asymmetry when drawing conclusions about relative performance, as the subset size limits the precision of the agent-vs-LVLM comparison.
+However, there are evidentiary limitations regarding the comparison of LVLMs and memory agents. First, LVLMs are evaluated on the full 789-question benchmark, while memory agents are evaluated on a 195-question subset (Appendix G.1) due to computational cost. Although stratified sampling is used, the smaller sample size for agents (n=195) increases the confidence interval width for agent performance ($\pm$5–7\% at 32K, Appendix G.1). The main text (Section 4.2) should explicitly acknowledge this asymmetry when drawing conclusions about relative performance, as the subset size limits the precision of the agent-vs-LVLM comparison.
 
-Second, the claim that agents are "length-stable" while LVLMs degrade is partially constrained by context window availability. LVLMs are evaluated up to 128K, whereas agents are evaluated up to 256K (Section 4.1). This asymmetry prevents a direct comparison at 256K, yet the conclusion implies agents are superior at extreme lengths. The text should clarify that the "length-stable" claim applies within the overlapping range (32K–128K) where LVLMs are available, rather than extrapolating to 256K where LVLM data is missing.
+Second, the claim that agents are ``length-stable'' while LVLMs degrade is partially constrained by context window availability. LVLMs are evaluated up to 128K, whereas agents are evaluated up to 256K (Section 4.1). This asymmetry prevents a direct comparison at 256K, yet the conclusion implies agents are superior at extreme lengths. The text should clarify that the ``length-stable'' claim applies within the overlapping range (32K–128K) where LVLMs are available, rather than extrapolating to 256K where LVLM data is missing.
 
-Finally, the image-ablation study relies on two frontier models (Table 2). While the effect size is massive, generalizing the "visual necessity" claim to the broader field requires acknowledging this limited model sample. These adjustments will strengthen the robustness of the empirical conclusions without requiring new experiments.
+Finally, the image-ablation study relies on two frontier models (Table 2). While the effect size is massive, generalizing the ``visual necessity'' claim to the broader field requires acknowledging this limited model sample. These adjustments will strengthen the robustness of the empirical conclusions without requiring new experiments.
 
 \bigskip
 
@@ -2972,12 +2972,12 @@ Finally, the image-ablation study relies on two frontier models (Table 2). While
 This review focuses on the statistical rigor of the evaluation methodology, reporting of uncertainty, and reproducibility of the quantitative analyses presented in the paper.
 
 \textbf{Strengths}
-The paper demonstrates a strong commitment to statistical transparency in several areas. The use of \textbf{bootstrap confidence intervals} (Appendix C, "Bootstrap confidence intervals on overall agent accuracy") with 1000 iterations and the percentile method is appropriate for the stratified subset analysis of memory agents. The validation of the LLM-as-Judge metric includes standard agreement statistics (Cohen's \$\textbackslash\{\}kappa\$, Spearman \$\textbackslash\{\}rho\$) with reported p-values in Section 4.1 and Appendix C, establishing the reliability of the evaluation metric. The sample size (\$n=789\$ questions) is sufficient for benchmark-level conclusions, and the stratified sampling for the agent subset (Appendix C) is well-justified statistically.
+The paper demonstrates a strong commitment to statistical transparency in several areas. The use of \textbf{bootstrap confidence intervals} (Appendix C, ``Bootstrap confidence intervals on overall agent accuracy'') with 1000 iterations and the percentile method is appropriate for the stratified subset analysis of memory agents. The validation of the LLM-as-Judge metric includes standard agreement statistics (Cohen's $\kappa$, Spearman $\rho$) with reported p-values in Section 4.1 and Appendix C, establishing the reliability of the evaluation metric. The sample size ($n=789$ questions) is sufficient for benchmark-level conclusions, and the stratified sampling for the agent subset (Appendix C) is well-justified statistically.
 
 \textbf{Areas for Improvement}
-1.  \textbf{Confidence Interval Methodology:} In Section 4.3, Figure 1 caption states "Bands: 95\% CI" for the LVLM average (solid lines). However, the calculation method (e.g., standard error of the mean across models, bootstrap over questions) is not explicitly defined in the main text or Appendix. While Appendix C details bootstrap for agents, the LVLM bands lack this specification. To ensure reproducibility, the specific method for computing these intervals should be documented in the caption or Appendix B.
-2.  \textbf{P-value Notation:} In Appendix C, under "Direct-LVLM overlay on the 195-subset," the text reports "Spearman \$\textbackslash\{\}rho = 0.94\$ (\$p < 10\textasciicircum{}\{-1\}\$, \$n = 6\$ direct LVLMs)." The notation \$10\textasciicircum{}\{-1\}\$ (\$0.1\$) is unusual for significance reporting and suggests a weak threshold. Given \$n=6\$, a correlation of 0.94 typically yields \$p \textbackslash\{\}approx 0.013\$. Please verify the exact p-value and report it using standard conventions (e.g., \$p < 0.05\$ or \$p < 0.01\$) to avoid ambiguity regarding statistical significance.
-3.  \textbf{Multiple Comparisons:} Section 4.2 ("Main Results") presents comparisons across 27 LVLMs and 7 agents across five memory abilities and four context lengths. When discussing model rankings or performance gaps (e.g., "top eight LVLMs fall within a 6.34\% band"), the analysis relies on descriptive statistics. If any claims imply statistical significance between specific model pairs, the authors should clarify whether multiple-comparison corrections (e.g., Bonferroni, False Discovery Rate) were considered, given the high number of pairwise comparisons. Without this, there is a risk of Type I error inflation in interpreting small performance differences.
+1.  \textbf{Confidence Interval Methodology:} In Section 4.3, Figure 1 caption states ``Bands: 95\% CI'' for the LVLM average (solid lines). However, the calculation method (e.g., standard error of the mean across models, bootstrap over questions) is not explicitly defined in the main text or Appendix. While Appendix C details bootstrap for agents, the LVLM bands lack this specification. To ensure reproducibility, the specific method for computing these intervals should be documented in the caption or Appendix B.
+2.  \textbf{P-value Notation:} In Appendix C, under ``Direct-LVLM overlay on the 195-subset,'' the text reports ``Spearman $\rho = 0.94$ ($p < 10^{-1}$, $n = 6$ direct LVLMs).'' The notation $10^{-1}$ ($0.1$) is unusual for significance reporting and suggests a weak threshold. Given $n=6$, a correlation of 0.94 typically yields $p \approx 0.013$. Please verify the exact p-value and report it using standard conventions (e.g., $p < 0.05$ or $p < 0.01$) to avoid ambiguity regarding statistical significance.
+3.  \textbf{Multiple Comparisons:} Section 4.2 (``Main Results'') presents comparisons across 27 LVLMs and 7 agents across five memory abilities and four context lengths. When discussing model rankings or performance gaps (e.g., ``top eight LVLMs fall within a 6.34\% band''), the analysis relies on descriptive statistics. If any claims imply statistical significance between specific model pairs, the authors should clarify whether multiple-comparison corrections (e.g., Bonferroni, False Discovery Rate) were considered, given the high number of pairwise comparisons. Without this, there is a risk of Type I error inflation in interpreting small performance differences.
 
 \textbf{Conclusion}
 The statistical foundation of the benchmark is robust, particularly regarding the validation of the evaluation metric and the handling of subset uncertainty for agents. However, clarifying the confidence interval calculation for the main results and correcting the p-value notation are necessary to meet the standard of statistical reporting expected for a benchmark paper.
@@ -2985,9 +2985,9 @@ The statistical foundation of the benchmark is robust, particularly regarding th
 \bigskip
 
 \subsection*{paper\_reviewer\_text\_formatting \hfill \textit{verdict: minor\_revision}}
-The manuscript demonstrates a generally robust LaTeX structure with consistent heading hierarchy (Section -> Subsection) and appropriate use of floating environments (\textbackslash\{\}texttt\{table\textit{}, \texttt{figure}\}) for wide content (e.g., Lines 140, 510). However, there are critical compilation risks and minor formatting inconsistencies that require attention before final submission.
+The manuscript demonstrates a generally robust LaTeX structure with consistent heading hierarchy (Section -> Subsection) and appropriate use of floating environments (\texttt{table\textit{}, \texttt{figure}}) for wide content (e.g., Lines 140, 510). However, there are critical compilation risks and minor formatting inconsistencies that require attention before final submission.
 
-First, the \texttt{longtblr} environment is used for the topic ontology table in Appendix Line 850, but the \texttt{tabularray} package is not loaded in the preamble (Line 20). Only \texttt{tabularx} is present. This will cause a fatal compilation error. Please either add \textbackslash\{\}texttt\{\textbackslash\{\}usepackage\{tabularray\}\} or replace the \texttt{longtblr} environment with a standard \texttt{longtable} or \texttt{tabularx} equivalent.
+First, the \texttt{longtblr} environment is used for the topic ontology table in Appendix Line 850, but the \texttt{tabularray} package is not loaded in the preamble (Line 20). Only \texttt{tabularx} is present. This will cause a fatal compilation error. Please either add \texttt{\usepackage{tabularray}} or replace the \texttt{longtblr} environment with a standard \texttt{longtable} or \texttt{tabularx} equivalent.
 
 Second, the \texttt{promptbox} environment appears extensively in the Appendix (e.g., Line 1190). While this may be defined in the \texttt{llmxive} class file, it is not declared in the provided preamble. If \texttt{llmxive.cls} does not define it, the build will fail. Ensure this custom environment is explicitly supported or defined in the preamble shim layer.
 
@@ -3000,9 +3000,9 @@ Finally, excessive use of \texttt{\textbackslash{}resizebox} (e.g., Lines 1200, 
 \subsection*{paper\_reviewer\_writing\_quality \hfill \textit{verdict: minor\_revision}}
 The manuscript demonstrates a high standard of academic writing, with clear articulation of the benchmark's purpose, construction pipeline, and evaluation protocols. The Abstract and Introduction effectively frame the research gap and contributions using precise terminology. Sentence structures are generally complex but remain readable, facilitating the flow of technical details. However, several minor issues regarding consistency, mechanical precision, and source cleanliness require attention before final submission.
 
-First, there is inconsistency in number formatting throughout the document. The main text often uses numerals (e.g., '27 LVLMs and 7 memory-augmented agents' in Section 4), while the Appendix switches to words (e.g., '27 LVLMs and seven memory-augmented agent systems' in Appendix\textasciitilde{}\textbackslash\{\}ref\{app:eval\_setup\}). Adhering to a single style guide, such as using numerals for all counts greater than nine or consistently using words for small numbers, would improve uniformity.
+First, there is inconsistency in number formatting throughout the document. The main text often uses numerals (e.g., '27 LVLMs and 7 memory-augmented agents' in Section 4), while the Appendix switches to words (e.g., '27 LVLMs and seven memory-augmented agent systems' in Appendix\textasciitilde{}\ref{app:eval_setup}). Adhering to a single style guide, such as using numerals for all counts greater than nine or consistently using words for small numbers, would improve uniformity.
 
-Second, compound adjectives require consistent hyphenation to ensure grammatical correctness. For instance, 'RL-finetuned' in Appendix\textasciitilde{}\textbackslash\{\}ref\{app:supplementary\_experiments\} should be 'RL-fine-tuned', and 'BLIP-2 generated' in Appendix\textasciitilde{}\textbackslash\{\}ref\{app:eval\_setup\} should be hyphenated as 'BLIP-2-generated' when preceding a noun like 'captions'. Similarly, 'long-context' is used inconsistently as a modifier in some places.
+Second, compound adjectives require consistent hyphenation to ensure grammatical correctness. For instance, 'RL-finetuned' in Appendix\textasciitilde{}\ref{app:supplementary_experiments} should be 'RL-fine-tuned', and 'BLIP-2 generated' in Appendix\textasciitilde{}\ref{app:eval_setup} should be hyphenated as 'BLIP-2-generated' when preceding a noun like 'captions'. Similarly, 'long-context' is used inconsistently as a modifier in some places.
 
 Third, subject-verb agreement needs a specific check. In the Reproducibility Statement, the sentence 'The 789-question benchmark... are publicly released' treats the singular noun 'benchmark' as plural. It should read 'is publicly released'. Additionally, 'The 4,695 unique images... are distributed' is correct, but consistency in how dataset sizes are introduced should be maintained.
 
@@ -3015,7 +3015,7 @@ Finally, while LaTeX comments (e.g., \texttt{\% [motivation + methods]} in Secti
 
 \section*{Revision history}
 \sloppy
-\subsection*{Round 1 \hfill \textit{2026-05-19T10:14:00Z, llmXive-implementer-v1.0 (qwen.qwen3.5-122b)}}
+\subsection*{Round 1 \hfill \textit{2026-05-19T10:14:00Z, qwen3.5-122b}}
 Summary: 113 done, 3 compile-failed, 0 skipped.
 \begin{itemize}\setlength\itemsep{2pt}
 \item \textbf{[a46d18f9a8b0]} (writing) Provide verification\_status for all citations in state/citations \hfill \textit{done}

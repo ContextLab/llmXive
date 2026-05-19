@@ -11,16 +11,18 @@ accumulated review records.
 
 from __future__ import annotations
 
+import hashlib
 import re
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import yaml
 
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.backends.router import chat_with_fallback
 from llmxive.state import citations as citations_store
 from llmxive.state import reviews as reviews_store
 from llmxive.types import (
@@ -101,6 +103,212 @@ def _concat_tex(source_dir: Path, *, max_chars: int = 180_000) -> str:
         total += len(chunk)
         included += 1
     return "\n".join(chunks)
+
+
+def _gather_raw_concat(source_dir: Path) -> str:
+    """Return the full `.tex` corpus concatenated with no budget cap.
+    Same file ordering as `_concat_tex` (entry-point file containing
+    `\\documentclass` first). Callers that need a bounded corpus should
+    pipe this through `_chunk_and_summarize` instead of `_concat_tex`."""
+    if not source_dir.is_dir():
+        return ""
+    all_tex = sorted(source_dir.rglob("*.tex"))
+    if not all_tex:
+        return ""
+    primary: Path | None = None
+    for tex in all_tex:
+        try:
+            head = tex.read_text(encoding="utf-8", errors="ignore")[:4000]
+        except OSError:
+            continue
+        if "\\documentclass" in head:
+            primary = tex
+            break
+    ordering = ([primary] + [t for t in all_tex if t != primary]
+                if primary else list(all_tex))
+    blocks: list[str] = []
+    for tex in ordering:
+        rel = tex.relative_to(source_dir).as_posix()
+        body = tex.read_text(encoding="utf-8", errors="ignore")
+        blocks.append(f"=== {rel} ===\n{body}\n")
+    return "\n".join(blocks)
+
+
+def _chunk_corpus(text: str, *, max_chunk_size: int) -> list[str]:
+    """Split `text` into chunks of at most `max_chunk_size` chars at
+    natural LaTeX boundaries. Preference order:
+      1. `\\section{` / `\\subsection{` / `\\subsubsection{` start
+      2. `=== <path> ===` file-separator the gather pass emits
+      3. blank-line paragraph break
+      4. hard-cut at the budget (last resort).
+
+    Each chunk is a self-contained slice — a downstream summarizer
+    can summarize it without needing context from neighbours.
+    """
+    if len(text) <= max_chunk_size:
+        return [text]
+    # Collect boundary offsets in priority order. Strong-preference
+    # boundaries are sections; weaker are file-separators; weakest is
+    # paragraph breaks.
+    strong = sorted({
+        m.start()
+        for m in re.finditer(r"\n\\(?:sub){0,2}section\b", text)
+    } | {m.start() for m in re.finditer(r"\n=== [^\n]+ ===\n", text)})
+    paras = sorted({m.start() for m in re.finditer(r"\n\n", text)})
+
+    chunks: list[str] = []
+    start = 0
+    n = len(text)
+    while start < n:
+        if n - start <= max_chunk_size:
+            chunks.append(text[start:])
+            break
+        budget_end = start + max_chunk_size
+        cut: int | None = None
+        # Prefer the latest strong boundary in [start+1, budget_end].
+        strong_cands = [b for b in strong if start < b <= budget_end]
+        if strong_cands:
+            cut = max(strong_cands)
+        else:
+            para_cands = [b for b in paras if start < b <= budget_end]
+            if para_cands:
+                cut = max(para_cands)
+        if cut is None or cut <= start:
+            cut = budget_end
+        chunks.append(text[start:cut])
+        start = cut
+    return chunks
+
+
+_CHUNK_SUMMARY_PROMPT_PREFIX = """\
+You are summarizing one chunk of a LaTeX paper for a downstream peer \
+reviewer who cannot see the full source. The output MUST be SHORTER \
+than the input (it's a summary, not a transcription). A good target is \
+20-40% of the input length: long enough to preserve the technical \
+content, short enough to fit alongside other chunk summaries in the \
+reviewer's context budget.
+
+Output plain LaTeX. Preserve LOSSLESSLY:
+
+  - every \\section / \\subsection / \\subsubsection heading (verbatim)
+  - every numeric claim, statistic, and percentage
+  - every \\ref{...}, \\label{...}, \\cite{...}, \\citep{...}, \\citet{...}
+  - every \\includegraphics / \\caption text (verbatim)
+  - the structure of any tabular environment (column headers + a \
+representative row); replace bulk content with `(... N rows omitted ...)`
+  - any directly-quoted phrase that uses `\\emph` or scare quotes
+
+Drop only redundant prose, verbose framing, and repetitive examples. Do \
+NOT invent content. Do NOT add a preamble about what you're about to \
+summarize — just emit the summary. Do NOT wrap the output in \
+`\\begin{document}...\\end{document}` (it's already a fragment).
+
+=== CHUNK ===
+"""
+
+_CHUNK_SUMMARY_PROMPT_SUFFIX = (
+    "\n=== END CHUNK ===\n\n"
+    "Remember: output must be SHORTER than input. Emit the summary now."
+)
+
+
+def _summarize_chunk(
+    chunk: str,
+    *,
+    default_backend: str,
+    fallback_backends: list[str],
+    model: str,
+) -> str:
+    """Single real LLM call (no mocks) that summarizes one chunk of the
+    paper's LaTeX source. Returns the model's summary. We assemble the
+    prompt via string concatenation (not `.format`) so the chunk's own
+    `\\section{...}` braces don't get interpreted as format placeholders.
+
+    If the model violates the "shorter than input" contract (rare with
+    the current prompt, but observed with tiny inputs), we hard-truncate
+    to 60% of the input length so the chunked path doesn't inflate the
+    final corpus beyond the budget."""
+    prompt = _CHUNK_SUMMARY_PROMPT_PREFIX + chunk + _CHUNK_SUMMARY_PROMPT_SUFFIX
+    response = chat_with_fallback(
+        [ChatMessage(role="user", content=prompt)],
+        default_backend=default_backend,
+        fallback_backends=fallback_backends,
+        model=model,
+    )
+    summary = (response.text or "").strip() or "(summarizer returned empty content)"
+    # Defensive: if the model expanded instead of summarized, trim to
+    # 60% of input. This preserves the head of the summary (where the
+    # model tends to put structural content) and protects the final
+    # corpus from inflating beyond `final_budget`.
+    max_summary = int(len(chunk) * 0.6)
+    if len(summary) > max_summary > 0:
+        summary = summary[:max_summary].rstrip() + "\n%% (summary truncated to 60% of input)\n"
+    return summary
+
+
+def _cached_summarize(
+    chunk: str,
+    summarize_fn: Callable[[str], str],
+    *,
+    cache_dir: Path | None,
+) -> str:
+    """Memoize chunk summaries to disk so re-runs across reviewers
+    (and across review rounds) don't re-pay the LLM cost for unchanged
+    source. Key is sha256 of the chunk's bytes — any source-byte change
+    invalidates the cache entry automatically."""
+    if cache_dir is None:
+        return summarize_fn(chunk)
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    h = hashlib.sha256(chunk.encode("utf-8")).hexdigest()[:16]
+    path = cache_dir / f"{h}.txt"
+    if path.exists():
+        return path.read_text(encoding="utf-8")
+    summary = summarize_fn(chunk)
+    path.write_text(summary, encoding="utf-8")
+    return summary
+
+
+def _build_corpus_with_summaries(
+    source_dir: Path,
+    *,
+    final_budget: int = 180_000,
+    chunk_size: int = 100_000,
+    summarize_fn: Callable[[str], str] | None = None,
+    cache_dir: Path | None = None,
+) -> str:
+    """Return a corpus for the reviewer prompt. If the raw `.tex`
+    concatenation fits in `final_budget`, return verbatim. Otherwise:
+    chunk the corpus, summarize each chunk with `summarize_fn`, and
+    return a notice + joined summaries.
+
+    The chunked path requires `summarize_fn`. Falling back to truncation
+    when none is provided keeps unit tests (which run without a backend)
+    working.
+    """
+    raw = _gather_raw_concat(source_dir)
+    if not raw or len(raw) <= final_budget:
+        return raw
+    if summarize_fn is None:
+        # No summarizer — fall back to truncation (legacy behavior).
+        return _concat_tex(source_dir, max_chars=final_budget)
+    chunks = _chunk_corpus(raw, max_chunk_size=chunk_size)
+    summary_blocks: list[str] = []
+    for i, chunk in enumerate(chunks, start=1):
+        summary = _cached_summarize(chunk, summarize_fn, cache_dir=cache_dir)
+        summary_blocks.append(
+            f"=== AUTO-SUMMARIZED CHUNK {i}/{len(chunks)} "
+            f"({len(chunk)} bytes -> {len(summary)} bytes) ===\n{summary}"
+        )
+    header = (
+        "=== NOTICE: The full paper source exceeded the reviewer's "
+        f"context budget ({len(raw)} > {final_budget} bytes). It was "
+        f"split into {len(chunks)} chunks and each chunk was summarized "
+        "by an LLM in isolation. The summaries preserve section "
+        "headings, numeric claims, references, and quoted material; "
+        "redundant prose was dropped. Treat the summaries as faithful "
+        "but lossy transcripts of the original. ===\n\n"
+    )
+    return header + "\n\n".join(summary_blocks)
 
 
 def _summarize_bibfile(source_dir: Path, *, max_chars: int = 30_000) -> str:
@@ -225,7 +433,26 @@ class PaperReviewerAgent(Agent):
                 "either a generated spec or an intake-metadata artifact"
             )
 
-        source_concat = _concat_tex(paper_dir / "source")
+        # Chunked-summarization corpus: if the raw `.tex` fits in the
+        # 180KB reviewer-prompt budget, use it verbatim; otherwise
+        # delegate to per-chunk LLM summarization so the reviewer sees a
+        # faithful (lossy) transcript of the whole paper instead of a
+        # truncation marker. Summaries are cached on disk under
+        # `paper/.chunk_summaries/` so the 12 specialist reviewers
+        # (each calling this) share the cost across the project.
+        def _summarize(chunk: str) -> str:
+            return _summarize_chunk(
+                chunk,
+                default_backend=self.entry.default_backend.value,
+                fallback_backends=[b.value for b in self.entry.fallback_backends],
+                model=self.entry.default_model,
+            )
+
+        source_concat = _build_corpus_with_summaries(
+            paper_dir / "source",
+            summarize_fn=_summarize,
+            cache_dir=paper_dir / ".chunk_summaries",
+        )
         # For arxiv-intake papers, figures live inside source/ (not
         # paper/figures/). Fall back to scanning source/ when the
         # canonical figures dir is empty/missing so the reviewer can

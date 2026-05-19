@@ -289,3 +289,10 @@ projects/*/paper/source/figs/.sanitized/
 # Spec 010 audit screenshots — not tracked (regenerated on demand)
 state/audit/pdf/*/screenshots/
 
+# Spec 013 chunked-summarization cache. When the raw `.tex` corpus
+# exceeds the reviewer's context budget, paper_reviewer.py chunks +
+# summarizes each piece via LLM and caches the summaries here so the
+# 12 specialist reviewers share the cost. Cache is regenerated on
+# demand keyed by sha256 of chunk bytes.
+projects/*/paper/.chunk_summaries/
+

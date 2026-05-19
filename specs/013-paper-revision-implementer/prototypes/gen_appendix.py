@@ -8,6 +8,13 @@ Reads:
   - <project_dir>/paper/revision_history.yaml        (revision rounds, if any)
 
 Emits a LaTeX fragment that fits inside an llmxive.cls document.
+
+Inline-markdown processing strategy: extract inline spans (code, bold,
+italic) into placeholders BEFORE latex-escaping the rest of the line.
+This is the only reliable way to handle nested patterns like
+``**[Candidate Examples (`ie_entity_candidates.pdf`, etc.)]**`` — a
+naive regex that tries to escape AFTER substitution will produce
+literal `\textbf{...}` text in the output (the prior version's bug).
 """
 
 from __future__ import annotations
@@ -23,115 +30,156 @@ _FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n(.*)$", re.DOTALL)
 
 
 def latex_escape(s: str) -> str:
-    """Minimal LaTeX-text escape. Preserves markdown line breaks as \\par."""
+    """Escape literal text for LaTeX body (NOT inside any inline command)."""
     s = s.replace("\\", r"\textbackslash{}")
     s = s.replace("&", r"\&").replace("%", r"\%").replace("$", r"\$")
     s = s.replace("#", r"\#").replace("_", r"\_").replace("{", r"\{").replace("}", r"\}")
     s = s.replace("~", r"\textasciitilde{}").replace("^", r"\textasciicircum{}")
+    # Curly quotes: prefer LaTeX-style open/close. Replace ASCII pairs.
+    s = re.sub(r'"([^"]*)"', r"``\1''", s)
     return s
 
 
+def _escape_inside_texttt(s: str) -> str:
+    """Escape special chars inside `\texttt{...}` (already a monospace
+    box; we don't want to convert `_` → `\textbackslash{}_`, just `\_`)."""
+    s = s.replace("\\", r"\textbackslash{}")
+    s = s.replace("&", r"\&").replace("%", r"\%").replace("$", r"\$")
+    s = s.replace("#", r"\#").replace("_", r"\_")
+    # Don't touch { } here — caller ensures content has no literal braces.
+    return s
+
+
+def _expand(s: str, spans: list[str]) -> str:
+    """Walk `s` and turn placeholder tokens (`\x00N\x00`) back into LaTeX
+    using the shared `spans` table. Non-token text is latex-escaped."""
+    parts = re.split(r"(\x00\d+\x00)", s)
+    out = []
+    for part in parts:
+        m = re.fullmatch(r"\x00(\d+)\x00", part)
+        if m:
+            token = spans[int(m.group(1))]
+            if token.startswith("\\"):
+                # Raw LaTeX command (whitelisted passthrough): emit
+                # verbatim — `\ref{...}`, `\cite{...}`, etc.
+                out.append(token)
+            elif token.startswith("$"):
+                # Math span: preserve verbatim so `$\kappa$` etc. render.
+                out.append(token)
+            elif token.startswith("`"):
+                inner = token[1:-1]
+                out.append(r"\texttt{" + _escape_inside_texttt(inner) + "}")
+            elif token.startswith("**"):
+                inner = token[2:-2]
+                # _expand on the inner text — same shared spans table, so
+                # nested code/math placeholders inside the bold span resolve.
+                out.append(r"\textbf{" + _expand(inner, spans) + "}")
+            else:  # starts with *
+                inner = token[1:-1]
+                out.append(r"\textit{" + _expand(inner, spans) + "}")
+        else:
+            out.append(latex_escape(part))
+    return "".join(out)
+
+
+# Reviewers sometimes paste raw LaTeX commands into their markdown body
+# (e.g., `\ref{app:image_release}`, `\cite{foo2024}`). We must preserve
+# those verbatim — if we let latex_escape see them, the `\` becomes
+# `\textbackslash{}` and the inner `_` becomes `\_`, breaking the ref
+# lookup entirely. Whitelist of safe-to-pass-through commands:
+_LATEX_PASSTHROUGH_CMDS = (
+    "ref", "cref", "Cref", "autoref", "eqref",
+    "label", "pageref",
+    "cite", "citep", "citet", "citeauthor", "citeyear", "citealp", "citealt",
+    "S",  # \S (section symbol) is sometimes written with braces too
+    "url", "href",
+)
+_LATEX_CMD_RE = re.compile(
+    r"\\(?:" + "|".join(_LATEX_PASSTHROUGH_CMDS) + r")\b(?:\s*\{[^{}]*\})?"
+)
+
+
+def render_inline(s: str) -> str:
+    """Render an inline string with markdown emphasis/code → LaTeX,
+    safely handling nested commands. Strategy: stash inline spans into
+    placeholders, escape the rest, then expand placeholders.
+    """
+    spans: list[str] = []
+
+    def stash(m: re.Match) -> str:
+        spans.append(m.group(0))
+        return f"\x00{len(spans) - 1}\x00"
+
+    # Raw LaTeX commands FIRST: pass `\ref{app:foo_bar}` etc. through
+    # verbatim. Without this, `latex_escape` turns the backslash into
+    # `\textbackslash{}` and the inner `_` into `\_`, so the label
+    # lookup fails and the PDF shows `Appendix ??appfoobar`.
+    s = _LATEX_CMD_RE.sub(stash, s)
+    # Inline math: `$...$` is LaTeX math. Reviewers write things like
+    # `Cohen's $\kappa$` or `$n=789$` in markdown; without preserving
+    # the math span, our escape would turn `$` into `\$` and `\kappa`
+    # into literal backslash-text. Stash math spans verbatim.
+    s = re.sub(r"\$[^$\n]+\$", stash, s)
+    # Code (so its content isn't reinterpreted as bold/italic).
+    s = re.sub(r"`([^`]+)`", stash, s)
+    # Italic BEFORE bold so that nested italic inside bold (`**a *b* c**`)
+    # gets stashed first; the lookbehind/lookahead guards skip `**` markers
+    # so we never mis-match a bold open/close as an italic span.
+    s = re.sub(r"(?<!\*)\*(?!\*)([^*\n]+?)(?<!\*)\*(?!\*)", stash, s)
+    # Bold (with italic already stashed, the inner contains no bare `*`).
+    s = re.sub(r"\*\*([^*]+)\*\*", stash, s)
+
+    return _expand(s, spans)
+
+
 def render_markdown_body(body: str) -> str:
-    """Render a review's markdown body as LaTeX. Handles headings, bullets,
-    and bold/italic minimally."""
-    # Remove the leading "# Free-form review body" if present.
+    """Render a markdown review body as LaTeX with proper inline handling."""
     body = re.sub(r"^#\s*Free-form review body\s*\n+", "", body, count=1, flags=re.M)
     lines = body.split("\n")
     out: list[str] = []
     in_list = False
     for line in lines:
         stripped = line.strip()
-        # Heading levels: ## → display heading (own line + spacing).
-        # `\subsubsection*` gives a proper display heading inside a
-        # `\section*{Reviews}` already in use, so the in-body headings
-        # ("Strengths", "Concerns", "Recommendation", etc.) stand on
-        # their own line. `\paragraph*` was wrong: it inlines the
-        # heading with the following text, which the reviews-page user
-        # flagged ("Recommendation" appearing glued to its body).
+        # Headings: display block above + below for proper spacing.
         if stripped.startswith("## "):
             if in_list:
                 out.append(r"\end{itemize}")
                 in_list = False
-            # Display heading: \medskip ABOVE, bold heading on its own
-            # line, \medskip + \noindent AFTER so the following block
-            # (prose or bullets) is unindented and properly spaced from
-            # the heading. The trailing `\medskip\noindent` is the load-
-            # bearing fix for the "Recommendation glued to its body" bug.
             out.append(r"\medskip\noindent\textbf{" +
-                       latex_escape(stripped[3:]) + r"}\par\medskip\noindent")
+                       render_inline(stripped[3:]) + r"}\par\medskip\noindent")
             continue
         if stripped.startswith("### "):
             if in_list:
                 out.append(r"\end{itemize}")
                 in_list = False
             out.append(r"\smallskip\noindent\textit{" +
-                       latex_escape(stripped[4:]) + r"}\par\smallskip\noindent")
+                       render_inline(stripped[4:]) + r"}\par\smallskip\noindent")
             continue
-        # Bullet list
+        # Bullet lists.
         if stripped.startswith("- ") or stripped.startswith("* "):
             if not in_list:
                 out.append(r"\begin{itemize}\setlength\itemsep{2pt}")
                 in_list = True
-            item = stripped[2:]
-            # Inline bold + italic + code
-            item = re.sub(r"\*\*([^*]+)\*\*", r"\\textbf{\1}", item)
-            item = re.sub(r"\*([^*]+)\*", r"\\textit{\1}", item)
-            item = re.sub(r"`([^`]+)`", r"\\texttt{\1}", item)
-            # Escape AFTER the inline patterns (so we don't mangle them).
-            # But the \textbf/\textit/\texttt content already has braces;
-            # we need to escape inside that content. Simpler approach:
-            # apply escape to whole line, then un-escape the LaTeX commands.
-            # Use a placeholder approach.
-            out.append(r"\item " + _safe_escape_keeping_inline_commands(item))
+            out.append(r"\item " + render_inline(stripped[2:]))
             continue
+        # Blank line → paragraph break.
         if not stripped:
             if in_list:
                 out.append(r"\end{itemize}")
                 in_list = False
             out.append("")
             continue
-        # Plain paragraph line.
+        # Plain text line.
         if in_list:
             out.append(r"\end{itemize}")
             in_list = False
-        # Inline bold + italic + code in plain lines too.
-        line2 = re.sub(r"\*\*([^*]+)\*\*", r"\\textbf{\1}", line)
-        line2 = re.sub(r"\*([^*]+)\*", r"\\textit{\1}", line2)
-        line2 = re.sub(r"`([^`]+)`", r"\\texttt{\1}", line2)
-        out.append(_safe_escape_keeping_inline_commands(line2))
+        out.append(render_inline(line))
     if in_list:
         out.append(r"\end{itemize}")
     return "\n".join(out)
 
 
-def _safe_escape_keeping_inline_commands(s: str) -> str:
-    """Escape & % $ # _ { } in a string that may already contain
-    \textbf{..}, \textit{..}, \texttt{..}. We split on those commands,
-    escape the literal segments, and re-join."""
-    pattern = re.compile(r"(\\(?:textbf|textit|texttt)\{[^{}]*\})")
-    parts = pattern.split(s)
-    out: list[str] = []
-    for i, part in enumerate(parts):
-        if i % 2 == 1:
-            # This is a \textbf{..} / \textit{..} / \texttt{..} segment;
-            # only escape inside the braces.
-            m = re.match(r"(\\(?:textbf|textit|texttt))\{([^{}]*)\}", part)
-            if m:
-                cmd, inner = m.group(1), m.group(2)
-                inner = inner.replace("\\", r"\textbackslash{}")
-                inner = inner.replace("&", r"\&").replace("%", r"\%").replace("$", r"\$")
-                inner = inner.replace("#", r"\#").replace("_", r"\_")
-                out.append(cmd + "{" + inner + "}")
-            else:
-                out.append(part)
-        else:
-            # Literal segment; escape everything.
-            out.append(latex_escape(part))
-    return "".join(out)
-
-
 def parse_review_file(path: Path) -> dict:
-    """Return {'reviewer_name', 'verdict', 'reviewed_at', 'feedback', 'body'}."""
     text = path.read_text(encoding="utf-8")
     m = _FRONTMATTER_RE.match(text)
     if not m:
@@ -152,21 +200,14 @@ def render_reviews(project_dir: Path) -> str:
     if not review_dir.is_dir():
         return ""
     files = sorted(review_dir.glob("paper_reviewer*.md"))
-    # `\sloppy` widens TeX's tolerance for inter-word spacing in the
-    # reviews section so long URLs, identifier-style tokens (e.g.
-    # `paper_reviewer_jargon_police`), and long quoted phrases don't
-    # overflow the right margin. Reviewers tend to quote verbatim
-    # passages that exceed the normal line-break vocabulary. Use
-    # \sloppy ONLY in this appendix so the paper body keeps its
-    # tighter typography.
     out = [r"\section*{Reviews}", r"\sloppy"]
     for f in files:
         rec = parse_review_file(f)
-        out.append(r"\subsection*{" + latex_escape(rec["reviewer_name"]) +
-                   r" \hfill \textit{verdict: " + latex_escape(rec["verdict"]) + "}}")
+        out.append(r"\subsection*{" + render_inline(rec["reviewer_name"]) +
+                   r" \hfill \textit{verdict: " + render_inline(str(rec["verdict"])) + "}}")
         if rec.get("feedback"):
             out.append(r"\noindent\textit{Feedback summary:} " +
-                       latex_escape(rec["feedback"]) + r"\par\medskip")
+                       render_inline(rec["feedback"]) + r"\par\medskip")
         out.append(render_markdown_body(rec["body"]))
         out.append(r"\bigskip")
         out.append("")
@@ -174,13 +215,8 @@ def render_reviews(project_dir: Path) -> str:
 
 
 def _strip_backend(name: str) -> str:
-    """Drop the trailing ' on <backend>' from a display name like
-    'llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth)' →
-    'llmXive-implementer-v1.0 (qwen.qwen3.5-122b)'. The backend is
-    operationally important but irrelevant to the published artifact;
-    it lives in the per-task implementer-log for audit."""
-    import re as _re
-    return _re.sub(r"\s+on\s+[a-z0-9_-]+", "", name or "")
+    """Drop ' on <backend>' suffix from an implementer display name."""
+    return re.sub(r"\s+on\s+[a-z0-9_-]+", "", name or "")
 
 
 def render_history(project_dir: Path) -> str:
@@ -193,8 +229,8 @@ def render_history(project_dir: Path) -> str:
     out = [r"\section*{Revision history}", r"\sloppy"]
     for r in rounds:
         out.append(r"\subsection*{Round " + str(r.get("round_number", "?")) +
-                   r" \hfill \textit{" + latex_escape(str(r.get("ran_at", ""))) + ", " +
-                   latex_escape(_strip_backend(r.get("implementer_agent", ""))) + "}}")
+                   r" \hfill \textit{" + render_inline(str(r.get("ran_at", ""))) + ", " +
+                   render_inline(_strip_backend(r.get("implementer_agent", ""))) + "}}")
         out.append(r"Summary: " + str(r.get("tasks_done", 0)) + " done, " +
                    str(r.get("tasks_failed", 0)) + " compile-failed, " +
                    str(r.get("tasks_skipped", 0)) + " skipped.")
@@ -202,10 +238,10 @@ def render_history(project_dir: Path) -> str:
         if items:
             out.append(r"\begin{itemize}\setlength\itemsep{2pt}")
             for it in items:
-                out.append(r"\item \textbf{[" + latex_escape(it.get("id", "")) + "]} (" +
-                           latex_escape(it.get("severity", "")) + ") " +
-                           latex_escape(it.get("text", "")) + r" \hfill \textit{" +
-                           latex_escape(it.get("status", "")) + "}")
+                out.append(r"\item \textbf{[" + render_inline(it.get("id", "")) + "]} (" +
+                           render_inline(it.get("severity", "")) + ") " +
+                           render_inline(it.get("text", "")) + r" \hfill \textit{" +
+                           render_inline(it.get("status", "")) + "}")
             out.append(r"\end{itemize}")
         out.append(r"\bigskip")
         out.append("")

@@ -1026,6 +1026,14 @@ def _body_cleanup_passes(body: str) -> str:
     #    convention used for figures.
     body = _move_table_captions_below(body)
 
+    # 9. Relax restrictive float-placement specs (`[h]` / `[H]`) on
+    #    `table`/`figure` to `[!htbp]` so LaTeX can defer a tall float
+    #    to the next page instead of forcing it "here" and overflowing
+    #    the page footer (e.g. p.79 of the MemLens prototype showed a
+    #    caption running BELOW the page number because `[h]` left no
+    #    space for the caption after the tabular body).
+    body = _relax_float_placement(body)
+
     return body
 
 
@@ -1207,6 +1215,25 @@ def _wrap_section_math(body: str) -> str:
     return "".join(out)
 
 
+def _relax_float_placement(body: str) -> str:
+    """Rewrite restrictive `[h]` / `[H]` placement specs on `table` and
+    `figure` floats to the permissive `[!htbp]` so LaTeX can defer to a
+    later page when the float doesn't fit (rather than overflowing the
+    page footer with the caption — visible failure mode on tall tables
+    placed near a page bottom).
+
+    Leaves `[!h]`, `[!htbp]`, `[t]`, etc. alone. The `H` placement comes
+    from the `float` package and pins the float strictly in place; we
+    can relax that to `!htbp` since arXiv-intake papers don't usually
+    need strict-here positioning, and when they do they should use the
+    `float` package explicitly with comments.
+    """
+    pat = re.compile(
+        r"\\begin\{(table|figure)\}\s*\[(h|H)\]"
+    )
+    return pat.sub(r"\\begin{\1}[!htbp]", body)
+
+
 def _convert_wrapfigure(body: str) -> str:
     """Replace every `\\begin{wrap{figure,table}}[N]{R}{W} ... \\end{wrap…}`
     with the full-width equivalent — preserving the inner content.
@@ -1232,7 +1259,18 @@ def _convert_wrapfigure(body: str) -> str:
 
 def _convert_wrapped_env(body: str, env_src: str, env_dst: str) -> str:
     """Replace each `\\begin{env_src}[N]{R}{W} … \\end{env_src}` with
-    `\\begin{env_dst}[t] … \\end{env_dst}` (full-width float)."""
+    `\\begin{env_dst}[t] … \\end{env_dst}` (full-width float).
+
+    Inside the wrapfigure the source's `\\includegraphics[width=\\linewidth]`
+    means `\\linewidth` is the WRAP container's width (e.g. `0.3\\linewidth`
+    of the page). Once we convert to a plain `figure`, `\\linewidth` means
+    the full text width, and the figure renders 3× too large — visible
+    overflow into footers on the published PDF. So we capture the wrap
+    width arg (the third `{W}` brace) and rewrite every inner
+    `\\includegraphics[width=\\linewidth]` / `\\includegraphics[width=\\columnwidth]`
+    to `\\includegraphics[width=W\\linewidth]` so the rendered size matches
+    the original wrapfigure container.
+    """
     out: list[str] = []
     pat = re.compile(r"\\begin\s*\{" + env_src + r"\}")
     end_pat = re.compile(r"\\end\s*\{" + env_src + r"\}")
@@ -1245,6 +1283,8 @@ def _convert_wrapped_env(body: str, env_src: str, env_dst: str) -> str:
             break
         out.append(body[i : m.start()])
         idx = m.end()
+        wrap_width_arg: str | None = None
+        required_args_seen = 0
         # Skip up to 3 args. Each can be optional [...] or required {...}.
         for _ in range(3):
             while idx < n and body[idx] in " \t\r\n":
@@ -1257,10 +1297,18 @@ def _convert_wrapped_env(body: str, env_src: str, env_dst: str) -> str:
                     break
                 idx = close + 1
             elif body[idx] == "{":
-                _, idx = _capture_braced_arg(body, idx)
-                if idx is None:
+                arg, new_idx = _capture_braced_arg(body, idx)
+                if new_idx is None:
                     idx = m.end()
                     break
+                required_args_seen += 1
+                # The wrap width is the SECOND required arg for
+                # wrap{figure,table}: `\begin{wrapfigure}[N]{R}{W}`. The
+                # first required arg is the row-position spec (l/r/i/o);
+                # the second is the container width (e.g. `0.3\linewidth`).
+                if required_args_seen == 2:
+                    wrap_width_arg = arg
+                idx = new_idx
             else:
                 break
         em = end_pat.search(body, idx)
@@ -1268,9 +1316,39 @@ def _convert_wrapped_env(body: str, env_src: str, env_dst: str) -> str:
             out.append(body[m.start():])
             break
         inner = body[idx : em.start()]
+        if wrap_width_arg:
+            inner = _scale_inner_includegraphics(inner, wrap_width_arg)
         out.append(rf"\begin{{{env_dst}}}[t]" + "\n" + inner + "\n" + rf"\end{{{env_dst}}}")
         i = em.end()
     return "".join(out)
+
+
+def _scale_inner_includegraphics(inner: str, wrap_width: str) -> str:
+    """Inside a converted wrapfigure body, rewrite each
+    `\\includegraphics[width=\\linewidth]` to `\\includegraphics[width=W]`
+    where W is the original wrapfigure container width. Falls back to
+    leaving the directive alone if the width spec is unparseable."""
+    # Strip leading numeric coefficient if present: `0.3\linewidth` →
+    # match exactly. We only fire when the inner uses one of the relative
+    # width macros that referred to the WRAP container's width.
+    width_unit_re = re.compile(
+        r"(?<!\d)(?<!\.)\\(linewidth|columnwidth|hsize)\b"
+    )
+    inc_re = re.compile(
+        r"(\\includegraphics\s*\[[^\]]*?width\s*=\s*)([^,\]]+?)(\s*[,\]])"
+    )
+
+    def repl(m: re.Match) -> str:
+        prefix, val, suffix = m.group(1), m.group(2).strip(), m.group(3)
+        # Only rewrite if val is a relative-to-container reference.
+        if width_unit_re.search(val):
+            # Multiply: e.g. `0.3\linewidth` * `\linewidth` = `0.3\linewidth`.
+            # Pragmatically: replace `\linewidth` with the wrap_width arg.
+            new_val = width_unit_re.sub(wrap_width, val)
+            return f"{prefix}{new_val}{suffix}"
+        return m.group(0)
+
+    return inc_re.sub(repl, inner)
 
 
 def _strip_textcolor(body: str) -> str:
