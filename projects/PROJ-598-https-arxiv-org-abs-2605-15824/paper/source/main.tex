@@ -1,0 +1,102 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+%     \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2026
+
+% The authors should use one of these tracks.
+% Before accepting by the NeurIPS conference, select one of the options below.
+% 0. "default" for submission
+\usepackage[preprint,nonatbib]{techreport}
+
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage[table]{xcolor}
+\usepackage{ulem}
+
+
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote. 
+
+% additional
+\usepackage{amsmath}
+\usepackage{xspace}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{multirow}
+\usepackage{bbding}
+\usepackage{caption}
+\usepackage{tabularx}
+\usepackage{wrapfig}
+\usepackage[most]{tcolorbox}
+\usepackage{sectsty}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+
+
+\newcommand{\method}{FashionChameleon\xspace}
+
+\definecolor{taobaocolor}{RGB}{220, 70, 0} 
+\definecolor{xmucolor}{RGB}{68, 114, 196} 
+
+\sectionfont{\color{taobaocolor}}
+\subsectionfont{\color{taobaocolor}}
+\subsubsectionfont{\color{taobaocolor}}
+
+\title{\includegraphics[height=1.0em]{figures/chameleon.png} \method: Towards Real-Time and Interactive Human-Garment Video Customization}
+
+
+\author{
+  \textbf{Quanjian Song\textsuperscript{\rm 1, 2}, \; Yefeng Shen\textsuperscript{\rm 2}, \; Mengting Chen\textsuperscript{\rm 2}, \; Hao Sun\textsuperscript{\rm 2},} \\ \textbf{Jinsong Lan\textsuperscript{\rm 2}, \; Xiaoyong Zhu\textsuperscript{\rm 2}, \; Bo Zheng\textsuperscript{\rm 2}, \; Liujuan Cao\textsuperscript{\rm 1}} \vspace{0.03cm} \\
+  \textsuperscript{\rm 1}Xiamen University \quad \textsuperscript{\rm 2}Alibaba Group \vspace{0.07cm} \\
+  Project Page: \href{https://quanjiansong.github.io/projects/FashionChameleon/}{\includegraphics[width=0.8em]{figures/github.png}}
+}
+
+
+\begin{document}
+
+
+\maketitle
+
+
+\input{sections/0-abs}
+
+
+\begin{center}
+  \includegraphics[width=\textwidth]{figures/teaser.pdf}
+  \captionof{figure}{
+  Given a reference image and a sequence of garment images, \method generate customized videos in a streaming and interactive manner, where users can interactively switch garments during generation while preserving coherent motion, achieving $23.8$ FPS real-time generation.
+}
+  \label{fig:teaser}
+\end{center}
+
+
+\input{sections/1-intro}
+\input{sections/2-related_works}
+\input{sections/3-method}
+\input{sections/4-exp}
+\input{sections/5-conclusion}
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{reference}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+\input{sections/X-suppl}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\end{document}

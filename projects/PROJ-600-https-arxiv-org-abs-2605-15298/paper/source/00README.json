@@ -1,0 +1,65 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "amap/amap-Bold.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "amap/amap-Medium.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "amap/amap.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "amap/amapmedium.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "fig/PhysBrainVLA.svg"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "fig/meta_qa_example.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "fig/physbrain_overview.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "main.bbl"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "physbrain.sty"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "ref.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sec/test.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tab/vlm_qa_results.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "update_overleaf.sh"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

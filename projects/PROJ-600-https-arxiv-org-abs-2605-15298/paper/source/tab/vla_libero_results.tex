@@ -1,0 +1,34 @@
+\begin{table}[!t]
+    \centering
+    % \scriptsize
+    \setlength{\tabcolsep}{15pt}
+    \renewcommand{\arraystretch}{1}
+    \caption{
+    LIBERO simulation results on four task suites.
+    We report success rates (\%) on Spatial, Object, Goal, and Long, together with the average across the four suites.
+    The first block lists representative policy/VLA systems, while the final block isolates the controlled comparison between full-frame training and PhysBrain 1.0.
+    }
+    \begin{adjustbox}{max width=0.92\linewidth}
+    % \rowcolors{2}{gray!15}{white}
+    \begin{tabular}{lccccc}
+        \toprule
+        \textbf{Method} & \textbf{L-Spatial} & \textbf{L-Object} & \textbf{L-Goal} & \textbf{L-Long} & \textbf{Avg.} \\
+        \midrule
+        Diffusion Policy~\citep{DiffusionPolicy_23} & 78.5 & 87.5 & 73.5 & 64.8 & 76.1 \\
+        OpenVLA~\citep{OpenVLA_2024_CoRL}          & 84.7 & 88.4 & 79.2 & 53.7 & 76.5 \\
+        SpatialVLA~\citep{Spatialvla_2025_arXiv}       & 88.2 & 89.9 & 78.6 & 55.5 & 78.1 \\
+        CoT-VLA~\citep{CoT-VLA}          & 87.5 & 91.6 & 87.6 & 69.0 & 83.9 \\
+        GR00T N1~\citep{GR00T_2025_arXiv}         & 94.4 & 97.6 & 93.0 & 90.6 & 93.9 \\
+        F1~\citep{F1-VLA_2025_arXiv}               & 98.2 & 97.8 & 95.4 & 91.3 & 95.7 \\
+        InternVLA-M1~\citep{InternVLA_M1_25}     & 98.0 & 99.0 & 93.8 & 92.6 & 95.9 \\
+        $\pi_0$~\citep{PI0_2024_arXiv}          & 98.0 & 96.8 & 94.4 & 88.4 & 94.4 \\
+        $\pi_{0.5}$~\citep{PI05_2025_arXiv}      & 98.8 & 98.2 & 98.0 & 92.4 & 96.9 \\
+        GR00T N1.6~\citep{GR00T_N1.6}       & 97.7 & 98.5 & 97.5 & 94.4 & 97.0 \\
+        Xiaomi-Robotics-0~\citep{XiaomiRobotics0_2026_arxiv} & 98.8 & 100.0 & 98.8 & 97.2 & \underline{98.7} \\
+        \midrule
+        \rowcolor{gray!30}\textbf{PhysBrain 1.0 (ours)} & 99.6 & 99.6 & 99.4 & 96.4 & \textbf{98.8} \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+    \label{tab:libero_results}
+\end{table}

@@ -1,0 +1,130 @@
+\section{Real-World Experiments}
+\label{sec:real_world_franka}
+
+To validate the transferability of PhysBrain 1.0's physical priors to real-world robot control, we conducted extensive experiments on a Franka Research 3 robot arm equipped with a Robotiq 2F-85 parallel-jaw gripper. The experiments focus on tabletop vegetable grasping tasks, which require fine-grained physical understanding of object geometry, material properties, and contact dynamics.
+
+\paragraph{Experimental Setup}
+The robot is mounted in front of a table where various vegetables are placed. The workspace includes common items such as eggplants, carrots, cucumbers, potatoes, tomatoes, romaine lettuce, and Chinese cabbage. Each object category presents distinct physical challenges: smooth surfaces (eggplants, tomatoes), irregular shapes (carrots, potatoes), deformable structures (romaine lettuce, Chinese cabbage), and varying stiffness (cucumbers vs.~ripe tomatoes). Two Intel RealSense D435i cameras provide RGB observations: one mounted as an external viewpoint overlooking the workspace, and another mounted on the robot wrist for close-up observation during manipulation.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}[c]{0.35\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{fig/setup-removebg}
+        \\[-1mm]
+        \small (a) Front view
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{0.62\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{fig/setup2-removebg}
+        \\[-1mm]
+        \small (b) Rear-side view
+    \end{minipage}
+    \caption{\textbf{Real-world experimental setup overview.} The Franka Research 3 robot with a Robotiq 2F-85 gripper is positioned in front of a tabletop workspace with various vegetables. Two Intel RealSense D435i cameras provide RGB observations: one external viewpoint and one wrist-mounted viewpoint for close-up observation during manipulation. (a) Front view of the robot arm. (b) Rear-side view showing the workspace layout.}
+    \label{fig:franka_scene_overview}
+\end{figure}
+
+\paragraph{Data Collection}
+For each vegetable category, we collected 50 demonstration trajectories using a SpaceMouse to control the 6-DoF end-effector pose. The human operator guides the robot arm to grasp the object from various initial poses and orientations, ensuring coverage of diverse grasp configurations. All demonstrations are recorded in the LeRobot 3.0 data format, which provides a standardized structure for robot learning datasets. Each trajectory includes end-effector poses, gripper states, and synchronized RGB observations from both external and wrist-mounted cameras. In total, we collected 450 trajectories across 9 object categories: Chinese cabbage, carrot, cucumber, eggplant, onion, potato, pumpkin, tomato, and romaine lettuce.
+
+\paragraph{Post-Training Protocol}
+We performed post-training on the collected real-world data to adapt PhysBrain 1.0 to the Franka embodiment. The post-training follows the same dual-pathway architecture described in Section~\ref{sec:architecture}, with the general pathway frozen and the embodied pathway fine-tuned on the Franka trajectory distribution. The flow-matching action decoder is optimized to predict continuous end-effector motions in the Franka action space. All real-world evaluations use a single post-trained policy across object categories and long-horizon instructions, rather than training separate specialist models for individual vegetables or tasks.
+
+\paragraph{Evaluation Metrics}
+We report task success rate over 50 independent trials per task. For single-object grasping, a trial is counted as successful when the robot grasps and lifts the target object into a stable hold. For long-horizon tasks, a trial is counted as successful only when the policy completes the full instruction over the requested set of vegetables.
+
+\paragraph{Long-Horizon Tasks}
+In addition to single-object grasping, we evaluate the model on long-horizon abstract tasks that require multi-step reasoning and instruction following. For example, given the instruction ``pick up all the green vegetables and put them into the brown basket,'' the model must identify green vegetables (Chinese cabbage, cucumber, and romaine lettuce), plan a sequence of grasping and placing actions, and execute them in the correct order. We also evaluate an orange-vegetable instruction involving pumpkin and carrot. These tasks test the model's ability to decompose high-level instructions into executable action sequences while maintaining spatial awareness of the scene.
+
+\subsection{Baseline Comparisons}
+We compare PhysBrain 1.0 against $\pi_{0.5}$~\cite{PI05_2025_arXiv}, a vision-language-action flow model pre-trained on large-scale robot demonstrations. Both models are post-trained on the same Franka demonstration data and evaluated under the same 50-trial protocol. This controlled comparison isolates whether the physical priors learned by PhysBrain 1.0 before robot adaptation improve real-world manipulation after both systems see the same embodiment-specific data.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{fig/real_world_vegetable_results.pdf}
+    \caption{\textbf{Real-world Franka manipulation results.}
+    We compare PhysBrain 1.0 with $\pi_{0.5}$ on single-object vegetable grasping and long-horizon semantic instructions. The left panel uses a dumbbell plot to show paired per-category success rates, while the right panel uses vertical bars for the long-horizon tasks. All results are evaluated over 50 trials, with raw success counts annotated next to each mark. All PhysBrain 1.0 results use a single post-trained policy across the evaluated object categories and long-horizon tasks. PhysBrain 1.0 improves the average single-object success rate from 47.1\% to 63.3\% and the average long-horizon success rate from 31.0\% to 45.0\%.}
+    \label{fig:real_world_vegetable_results}
+\end{figure*}
+
+As shown in Figure~\ref{fig:real_world_vegetable_results}, PhysBrain 1.0 improves over $\pi_{0.5}$ on every evaluated single-object category. Across the nine grasping tasks, $\pi_{0.5}$ succeeds in 212 of 450 trials (47.1\%), while PhysBrain 1.0 succeeds in 285 of 450 trials (63.3\%), corresponding to an average gain of 16.2 percentage points. The gains are especially visible on deformable or visually ambiguous objects such as Chinese cabbage and romaine lettuce, as well as on smooth objects such as eggplant. On the two long-horizon semantic tasks, PhysBrain 1.0 improves from 31 of 100 successful trials (31.0\%) to 45 of 100 successful trials (45.0\%). These results support the central hypothesis of PhysBrain 1.0: human-derived physical priors can improve downstream robot adaptation even when the final policy is trained with the same real-robot demonstrations as a strong VLA baseline.
+
+% \subsection{Qualitative Results}
+% Figures~\ref{fig:eggplant_grasp}--\ref{fig:chinese_cabbage_grasp} show representative grasping sequences for different object categories, with both external and wrist-mounted camera views. The model successfully adjusts its grasp strategy based on object characteristics: firm grasp on smooth eggplants, enveloping grasp on irregular carrots, and gentle grasp on deformable leafy vegetables such as Chinese cabbage. Figure~\ref{fig:long_horizon_task} demonstrates the model's capability on long-horizon tasks, including error recovery behavior where the model adjusts its strategy after a failed grasp attempt.
+
+% \begin{figure}[htbp]
+%     \centering
+%     \includegraphics[width=0.9\linewidth]{fig/eggplant_exterior.jpg}\\[2mm]
+%     \includegraphics[width=0.9\linewidth]{fig/eggplant_wrist.jpg}
+%     \caption{\textbf{Eggplant grasping sequence.} The model performs a firm grasp on the smooth eggplant surface. Top: external camera view showing the overall scene and robot motion. Bottom: wrist-mounted camera view providing close-up observation during approach and grasp execution.}
+%     \label{fig:eggplant_grasp}
+% \end{figure}
+
+% \begin{figure}[htbp]
+%     \centering
+%     \includegraphics[width=0.9\linewidth]{fig/carrot_exterior.jpg}\\[2mm]
+%     \includegraphics[width=0.9\linewidth]{fig/carrot_wrist.jpg}
+%     \caption{\textbf{Carrot grasping sequence.} The model adapts to the irregular elongated shape of the carrot. Top: external camera view. Bottom: wrist-mounted camera view showing the approach and grasp execution.}
+%     \label{fig:carrot_grasp}
+% \end{figure}
+
+% \begin{figure}[htbp]
+%     \centering
+%     \includegraphics[width=0.9\linewidth]{fig/chinese_cabbage_exterior.jpg}\\[2mm]
+%     \includegraphics[width=0.9\linewidth]{fig/chinese_cabbage_wrist.jpg}
+%     \caption{\textbf{Chinese cabbage grasping sequence.} The model performs a gentle grasp on the deformable leafy vegetable. Top: external camera view. Bottom: wrist-mounted camera view showing careful approach and grasp execution to avoid damaging the leaves.}
+%     \label{fig:chinese_cabbage_grasp}
+% \end{figure}
+
+% \begin{figure}[htbp]
+%     \centering
+%     \includegraphics[width=0.9\linewidth]{fig/multi_exterior.jpg}\\[2mm]
+%     \includegraphics[width=0.9\linewidth]{fig/multi_wrist.jpg}
+%     \caption{\textbf{Long-horizon task execution with error recovery.} Given the instruction ``pick up all the green vegetables and put them into the brown basket,'' the model identifies green vegetables, plans the grasping sequence, and executes multiple pick-and-place operations. Notably, the model demonstrates error recovery capability: when the first attempt to grasp the cucumber fails, the policy promptly adjusts and successfully completes the grasp on the second attempt. Top: external camera view showing the overall task progress. Bottom: wrist-mounted camera view during grasping actions.}
+%     \label{fig:long_horizon_task}
+% \end{figure}
+
+% \subsection{Implementation Details}
+% The post-training experiments use the following configuration:
+
+% \begin{itemize}
+%     \item \textbf{Training Hardware}: NVIDIA H100  $\times$ 8
+%     \item \textbf{Inference Hardware}: NVIDIA RTX 4090 (24GB)
+%     \item \textbf{Data Format}: LeRobot 3.0 format with standardized episode structure
+%     \item \textbf{Teleoperation}: SpaceMouse for 6-DoF end-effector control
+%     \item \textbf{Observation Modality}: RGB images only (no depth)
+%     \item \textbf{Optimizer}: AdamW with learning rate \todo{value, e.g., 1e-4}, weight decay 0.01
+%     \item \textbf{Batch Size}: \todo{value}
+%     \item \textbf{Epochs}: \todo{number of training epochs}
+%     \item \textbf{Action Horizon}: 16
+%     \item \textbf{Action Space}: 6-DoF end-effector delta pose (position + rotation) + binary gripper state (open/close)
+% \end{itemize}
+
+% \todo{Add any other relevant implementation details, such as data augmentation, learning rate schedule, or training stability techniques.}
+
+% \begin{table}[htbp]
+% \centering
+% \caption{\textbf{Real-World Franka Grasping Results.} Post-trained PhysBrain 1.0 achieves high success rates across all vegetable categories. Each category was tested with 10 trials. The long-horizon task was tested with 5 trials.}
+% \label{tab:franka_results}
+% \vspace{2mm}
+% \begin{tabular}{lccc}
+% \toprule
+% \textbf{Object Category} & \textbf{Success / Total} & \textbf{Success Rate (\%)} & \textbf{Avg. Time (s)} \\
+% \midrule
+% Eggplant              & 10/10 & 100 & 10.3 \\
+% Carrot                & 9/10 & 90 & 6.5 \\
+% Cucumber              & \todo{X/10} & \todo{XX.X} & \todo{X.X} \\
+% Potato                & \todo{X/10} & \todo{XX.X} & \todo{X.X} \\
+% Tomato                & \todo{X/10} & \todo{XX.X} & \todo{X.X} \\
+% Romaine Lettuce       & \todo{X/10} & \todo{XX.X} & \todo{X.X} \\
+% Chinese Cabbage       & \todo{X/10} & \todo{XX.X} & \todo{X.X} \\
+% \midrule
+% \textbf{Single-Object Avg.} & \todo{XX/70} & \todo{XX.X} & \todo{X.X} \\
+% \midrule
+% Long-Horizon Task     & 4/5 & 80 & 45.1 \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+% \todo{Add analysis of failure cases. Common failure modes include: (1) slippery objects causing grasp slip, (2) occlusion of target object, (3) edge cases with unusual orientations.}

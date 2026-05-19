@@ -1,0 +1,387 @@
+% !TEX root = ../mmskills.tex
+
+\section{Benchmark Statistics}
+\label{app:benchmark-statistics}
+
+We use four visual-agent benchmarks. \textbf{OSWorld} is the primary GUI benchmark and contains Ubuntu desktop tasks across browsers, office software, creative tools, media applications, system settings, code editors, email, and multi-application workflows \citep{xie2024osworld}. \textbf{macOSWorld} provides an auxiliary cross-operating-system GUI evaluation with file management, media, productivity, system/interface, and system-application tasks \citep{yang2025macosworld}. \textbf{VAB-Minecraft} is the Minecraft subset of VisualAgentBench and evaluates item-acquisition tasks that require visual grounding, inventory tracking, recipe reasoning, tool use, and handling failed actions \citep{liu2024visualagentbench}. \textbf{LMGame-Bench} evaluates game-playing agents through a unified interface \citep{hu2025lmgamebenchgoodllmsplaying}; we use Super Mario Bros because its recurring visual situations naturally align with reusable multimodal skills.
+
+\begin{table}[h]
+\centering
+\caption{Test-case distributions for OSWorld and macOSWorld. OSWorld contains 360 test cases; macOSWorld contains 143 test cases. ``Share'' is the percentage of test cases in each domain within the corresponding benchmark.}
+\label{tab:desktop-test-distribution}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{cccccc}
+\toprule
+Benchmark & Domain & Count & Share & Snapshot-en & Snapshot-apps \\
+\midrule
+OSWorld & Multi-app & 93 & 25.83 & -- & -- \\
+OSWorld & LibreOffice Calc & 47 & 13.06 & -- & -- \\
+OSWorld & LibreOffice Impress & 47 & 13.06 & -- & -- \\
+OSWorld & Chrome & 45 & 12.50 & -- & -- \\
+OSWorld & GIMP & 26 & 7.22 & -- & -- \\
+OSWorld & OS & 24 & 6.67 & -- & -- \\
+OSWorld & LibreOffice Writer & 23 & 6.39 & -- & -- \\
+OSWorld & VS Code & 23 & 6.39 & -- & -- \\
+OSWorld & VLC & 17 & 4.72 & -- & -- \\
+OSWorld & Thunderbird & 15 & 4.17 & -- & -- \\
+\midrule
+macOSWorld & File management & 29 & 20.28 & 29 & 0 \\
+macOSWorld & Media & 12 & 8.39 & 0 & 12 \\
+macOSWorld & Productivity & 35 & 24.48 & 16 & 19 \\
+macOSWorld & System and interface & 29 & 20.28 & 29 & 0 \\
+macOSWorld & System apps & 38 & 26.57 & 38 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Skill Source Statistics}
+\label{app:skill-source-statistics}
+
+All MMSkills are extracted from non-test trajectories. For OSWorld and macOSWorld, we use the Ubuntu and macOS subsets of OpenCUA trajectories as GUI skill sources \citep{wang2025opencuaopenfoundationscomputeruse}. For macOS, the raw OpenCUA trajectories do not directly follow the five macOSWorld categories; we therefore perform additional clustering and relevance filtering before assigning trajectories to the analysis categories below.
+
+\begin{table}[h]
+\centering
+\caption{OpenCUA trajectory statistics used for GUI skill extraction. ``Tasks'' counts source trajectories, ``Share'' is the within-platform percentage, and ``Clusters'' is the number of Phase-0 semantic trajectory clusters used for downstream skill planning.}
+\label{tab:opencua-source-distribution}
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{ccccc}
+\toprule
+Platform & Domain & Tasks & Share & Clusters \\
+\midrule
+Ubuntu & Chrome & 718 & 17.1 & 17 \\
+Ubuntu & LibreOffice Impress & 605 & 14.4 & 11 \\
+Ubuntu & VS Code & 605 & 14.4 & 4 \\
+Ubuntu & OS & 497 & 11.8 & 2 \\
+Ubuntu & GIMP & 492 & 11.7 & 14 \\
+Ubuntu & LibreOffice Writer & 490 & 11.7 & 3 \\
+Ubuntu & Thunderbird & 300 & 7.1 & 11 \\
+Ubuntu & LibreOffice Calc & 298 & 7.1 & 3 \\
+Ubuntu & VLC & 200 & 4.8 & 8 \\
+\midrule
+macOS & Productivity & 1,424 & 45.1 & 20 \\
+macOS & System apps & 768 & 24.3 & 11 \\
+macOS & File management & 341 & 10.8 & 9 \\
+macOS & Media & 315 & 10.0 & 7 \\
+macOS & System and interface & 309 & 9.8 & 12 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{OSWorld MMSkill package statistics. ``\#Skills'' counts unique skill packages, while ``Skills/Task'' reports the average number of skill matches assigned to evaluation tasks and therefore need not equal \#Skills/\#Tasks. Word statistics are median/mean over skill procedures. ``Full/Focus'' and ``Before/After'' report counts of those view types; ``Transition Cards'' counts state cards with at least one before/after transition view, with percentages over state cards. The Total/Avg row reports total counts and weighted averages; $\dagger$ marks a fitted value estimated from domain-level medians.}
+\label{tab:osworld-skill-package-distribution}
+\scriptsize
+\setlength{\tabcolsep}{2.3pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cccccccccccc}
+\toprule
+Domain & \#Tasks & \#Skills & Skills/Task & Words Med/Mean & \#Cards & Cards/Skill & \#Views & Views/Card & Full/Focus & Before/After & Transition Cards \\
+\midrule
+Chrome & 45 & 34 & 1.20 & 653 / 630.9 & 134 & 3.94 & 292 & 2.18 & 134/134 & 13/11 & 24 (17.9\%) \\
+GIMP & 26 & 26 & 1.19 & 470 / 400.2 & 77 & 2.96 & 190 & 2.47 & 77/77 & 14/22 & 36 (46.8\%) \\
+Calc & 47 & 26 & 1.36 & 278 / 278.1 & 79 & 3.04 & 184 & 2.33 & 79/79 & 7/19 & 26 (32.9\%) \\
+Impress & 47 & 20 & 1.32 & 498 / 466.2 & 60 & 3.00 & 140 & 2.33 & 60/60 & 1/19 & 20 (33.3\%) \\
+Writer & 23 & 23 & 1.13 & 264 / 289.2 & 71 & 3.09 & 144 & 2.03 & 71/71 & 1/1 & 2 (2.8\%) \\
+Multi-apps & 93 & 20 & 1.19 & 574 / 502.0 & 82 & 4.10 & 164 & 2.00 & 82/82 & 0/0 & 0 (0.0\%) \\
+OS & 24 & 37 & 1.21 & 544 / 539.8 & 139 & 3.76 & 283 & 2.04 & 139/139 & 5/0 & 5 (3.6\%) \\
+Thunderbird & 15 & 25 & 1.20 & 508 / 542.5 & 87 & 3.48 & 192 & 2.21 & 87/84 & 6/15 & 21 (24.1\%) \\
+VLC & 17 & 18 & 1.00 & 260 / 275.3 & 61 & 3.39 & 122 & 2.00 & 61/61 & 0/0 & 0 (0.0\%) \\
+VS Code & 23 & 18 & 1.09 & 391 / 389.3 & 89 & 4.94 & 187 & 2.10 & 89/89 & 9/0 & 9 (10.1\%) \\
+\midrule
+\textbf{Total / Avg.} & \textbf{360} & \textbf{247} & \textbf{1.21} & \textbf{498.0$^\dagger$ / 447.8} & \textbf{879} & \textbf{3.56} & \textbf{1898} & \textbf{2.16} & \textbf{879/876} & \textbf{56/87} & \textbf{143 (16.3\%)} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{macOSWorld MMSkill package statistics. ``\#Skills'' counts unique skill packages, while ``Skills/Task'' reports the average number of skill matches assigned to evaluation tasks. Word statistics are median/mean over skill procedures. ``Full/Focus'' and ``Before/After'' report counts of those view types; ``Transition Cards'' counts state cards with at least one before/after transition view, with percentages over state cards.}
+\label{tab:macosworld-skill-package-distribution}
+\scriptsize
+\setlength{\tabcolsep}{2.3pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cccccccccccc}
+\toprule
+Domain & \#Tasks & \#Skills & Skills/Task & Words Med/Mean & \#Cards & Cards/Skill & \#Views & Views/Card & Full/Focus & Before/After & Transition Cards \\
+\midrule
+File management & 29 & 30 & 1.03 & 358 / 374.5 & 62 & 2.07 & 128 & 2.06 & 62/62 & 4/0 & 4 (6.5\%) \\
+Media & 12 & 25 & 2.08 & 378 / 400.8 & 55 & 2.20 & 116 & 2.11 & 55/55 & 6/0 & 6 (10.9\%) \\
+Productivity & 35 & 59 & 1.69 & 324 / 330.2 & 125 & 2.12 & 261 & 2.09 & 125/125 & 11/0 & 11 (8.8\%) \\
+System/interface & 29 & 88 & 3.03 & 282 / 285.5 & 182 & 2.07 & 380 & 2.09 & 182/182 & 16/0 & 16 (8.8\%) \\
+System apps & 38 & 46 & 1.21 & 347 / 352.0 & 98 & 2.13 & 212 & 2.16 & 98/98 & 6/10 & 16 (16.3\%) \\
+\midrule
+\textbf{Total / Avg.} & \textbf{143} & \textbf{248} & \textbf{1.73} & \textbf{324 / 330.9} & \textbf{522} & \textbf{2.10} & \textbf{1097} & \textbf{2.10} & \textbf{522/522} & \textbf{43/10} & \textbf{53 (10.2\%)} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Game benchmark MMSkill package statistics. Word statistics are median/mean over skill procedures and plans. ``Full/Focus'' and ``Before/After'' report counts of those view types; ``Transition Cards'' counts state cards with at least one before/after transition view, with percentages over state cards. $\dagger$ marks a fitted value estimated from the available before/after view counts.}
+\label{tab:game-skill-package-distribution}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ccccccccccc}
+\toprule
+Benchmark & \#Skills & Skill Words Med/Mean & Plan Words Med/Mean & \#Cards & Cards/Skill & \#Views & Views/Card & Full/Focus & Before/After & Transition Cards \\
+\midrule
+VAB-Minecraft & 24 & 278.5 / 281.7 & 68.0 / 68.4 & 79 & 3.29 & 185 & 2.34 & 79/79 & 8/19 & 20 (25.3\%) \\
+Super Mario Bros & 10 & 374.0 / 370.8 & 280.0 / 271.0 & 34 & 3.40 & 48$^\dagger$ & 1.41$^\dagger$ & 34/0 & 5/9 & 14 (41.2\%)$^\dagger$ \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+For VAB-Minecraft, we use the official training set as the source for extracting multimodal skill packages. For Super Mario Bros from LMGame-Bench, MMSkills are extracted from multiple runs over four source cases. In both settings, the skill-source data are disjoint from the final evaluation cases.
+
+\section{Experiment Details}
+\label{app:experiment-details}
+
+Across all evaluations, agents plan from visual environment observations rather than privileged state, using desktop screenshots for GUI tasks and game screenshots for game tasks. For OSWorld and macOSWorld, we run the full evaluations primarily on Amazon Web Services using the official benchmark images and task definitions. The agent interacts through the benchmark harness, and we use a maximum interaction budget of 20 steps for both GUI benchmarks. VAB-Minecraft and Super Mario Bros follow their official evaluation protocols.
+
+For VAB-Minecraft, we use the official test set for evaluation. The training trajectories described in Appendix~\ref{app:skill-source-statistics} are used only to generate reusable procedures, state cards, and keyframes; no test episodes are used during skill construction.
+
+For Super Mario Bros from LMGame-Bench, we split the available game cases into disjoint source and evaluation subsets. The source cases are described in Appendix~\ref{app:skill-source-statistics}, while a separate set of four held-out cases is used for final evaluation. This separation ensures that the generated skills capture reusable game situations rather than memorizing the measured episodes.
+
+We evaluate both frontier and smaller multimodal models: Gemini 3.1 Pro, Gemini 3 Flash\footnote{\url{https://storage.googleapis.com/deepmind-media/Model-Cards/Gemini-3-Flash-Model-Card.pdf}}, Qwen3-VL-235B-A22B-Thinking \citep{bai2025qwen3vltechnicalreport}, GLM-5V-Turbo \citep{vteam2026glm5vturbonativefoundationmodel}, Kimi-K2.6 \citep{kimiteam2026kimik25visualagentic}, and Qwen3-VL-8B-Instruct \citep{bai2025qwen3vltechnicalreport}. For each base model, we compare \emph{no-skill}, \emph{text-only skill}, and \emph{MMSkills} conditions. Unless otherwise stated, skill conditions use branch loading: text-only skills use the same branch mechanism without state cards or images, while MMSkills inspect selected state cards and multi-view keyframes before returning structured guidance to the main agent. Direct text-skill loading and direct multimodal loading are evaluated only as ablation variants.
+
+\section{Branch-Loaded Runtime Algorithm}
+\label{app:branch-loaded-algorithm}
+
+Algorithm~\ref{alg:branch-loaded-agent} summarizes the branch-loaded runtime loop. Candidate skills are selected before task execution, while branch calls occur only when the main agent decides to consult a specific skill. The main trajectory receives the structured guidance $G_t$ rather than the full multimodal skill package.
+
+\begin{algorithm}[t]
+\caption{Branch-loaded MMSkill Agent}
+\label{alg:branch-loaded-agent}
+\begin{algorithmic}[1]
+\Require Skill library $\mathcal{M}$, task instruction $I$, visual environment $\mfield{Env}$
+\State Initialize history $H_0 \leftarrow \emptyset$
+\State Pre-recall candidate skills $\mathcal{C}_I \leftarrow \text{PreRecall}(I,\mathcal{M})$
+\For{$t=1,2,\ldots$}
+    \State Observe current visual observation $O_t$ from $\mfield{Env}$
+    \State Main agent chooses either action $A_t$ or skill request $M_t\in\mathcal{C}_I$
+    \If{the main agent chooses action $A_t$}
+        \State Execute $A_t$ in $\mfield{Env}$ and update $H_t$
+    \Else
+        \State Unpack $M_t=(D_t,P_t,S_t,K_t)$
+        \State Stage 1: $(J_t,R_t)\leftarrow\text{SelectViews}(O_t,H_{t-1},P_t,S_t)$
+        \State Load $V_t\leftarrow\{K_j^v:j\in J_t,\ v\in R_{t,j}\}$
+        \State Stage 2: $G_t\leftarrow\text{PlanBranch}(O_t,H_{t-1},P_t,\{S_j:j\in J_t\},V_t)$
+        \State Choose grounded action $A_t\leftarrow\pi_{\text{main}}(O_t,H_{t-1},G_t)$
+        \State Execute $A_t$ in $\mfield{Env}$ and update $H_t$
+    \EndIf
+    \If{the task is verified complete}
+        \State \Return success
+    \EndIf
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{fig_appendix_agent_prompt_examples_cropped.pdf}
+    \caption{Prompt surfaces used by the branch-loaded multimodal skill agent. The main agent prompt decides whether to act directly or consult a skill branch, Stage 1 selects the relevant state cards and keyframe views, and Stage 2 returns compact structured guidance to the main agent.}
+    \label{fig:appendix-agent-prompt-examples}
+\end{figure}
+
+\makeatletter
+\@ifundefined{promptbox}{%
+\newenvironment{promptbox}[2][]{%
+    \par\medskip\noindent\begin{minipage}{\textwidth}
+    \hrule\medskip\noindent\textbf{##2}\par\smallskip\small
+}{%
+    \medskip\hrule\end{minipage}\par\medskip
+}%
+}{}
+\makeatother
+
+\section{MMSkillAgent Prompt Templates}
+\label{app:mmskillagent-prompts}
+
+This section reports the prompt templates used by the branch-loaded MMSkillAgent. Dynamic fields are shown as placeholders such as \texttt{\{instruction\}}, \texttt{\{available\_skills\}}, and \texttt{\{previous\_steps\}}. The implementation instantiates these templates with the current screenshot, recent trajectory, execution feedback, candidate skills, state-card summaries, and selected keyframe views. The Stage-2 JSON contains a few implementation-facing fields beyond Eq.~\ref{eq:branch-summary}; they are collapsed into $G_t$ in the method description.
+
+\begin{promptbox}{Main-Agent Skill-Calling System Prompt}
+\textbf{Role.} Follow the user instruction to perform desktop computer tasks. You control the computer using Python code with \texttt{pyautogui}. At each step, you receive the current screenshot and recent visible trajectory history. Use the current screenshot to decide the next action; do not assume previous clicks succeeded.
+
+\medskip
+\textbf{Skill consultation policy.}
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+    \item Task skills are optional procedural planners only.
+    \item The final user message includes each non-exhausted skill's short description and minimal runtime state hints. Use these hints to judge whether a skill is genuinely relevant before calling \texttt{LOAD\_SKILL(...)}.
+    \item Call \texttt{LOAD\_SKILL("<exact\_skill\_name>")} only when the current screenshot, recent steps, and skill hints suggest that extra procedural guidance is useful.
+    \item \texttt{LOAD\_SKILL(...)} opens a temporary planner branch for extra skill-guided reasoning; it does not execute the action.
+    \item Skill hints and planner notes are references only, never coordinate templates.
+    \item Each skill may be consulted at most \texttt{\{consult\_limit\}} times in one trajectory. Exhausted skills are removed from the available-skill list and must not be called again.
+\end{itemize}
+
+\textbf{Available skills.} \texttt{\{available\_skills\}} lists non-exhausted candidate skills for the task.
+
+\medskip
+\textbf{Action rules.}
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+    \item Use \texttt{pyautogui} only for GUI actions. Do not use \texttt{pyautogui.locateCenterOnScreen} or \texttt{pyautogui.screenshot()}.
+    \item Each response must be self-contained and must not rely on variables from previous steps.
+    \item If a click does not work, revise the target from the new screenshot instead of repeating the same guess.
+    \item Prefer short, direct, grounded actions over long speculative scripts; avoid repetitive unproductive loops.
+    \item Before outputting \texttt{DONE}, verify that the full user instruction has been completed, not only a local subgoal.
+\end{itemize}
+
+\textbf{Output interface.} Return exactly one code block containing one of: Python code using \texttt{pyautogui}, \texttt{WAIT}, \texttt{DONE}, \texttt{FAIL}, or \texttt{LOAD\_SKILL("<exact\_skill\_name>")}. Do not mix Python code with a skill call, do not load more than one skill, and do not return prose outside the code block. If returning Python, include concise \texttt{\#} comments. Use \texttt{WAIT} only for loading UI, \texttt{DONE} only after full verification, and \texttt{FAIL} only when the task is truly impossible. Canonical outputs include \texttt{LOAD\_SKILL("Example\_Skill\_Name")} and a single grounded action such as \texttt{pyautogui.click(120, 54)}.
+
+\medskip
+\textbf{Coordinate and task context.} Use the declared screen resolution for all \texttt{pyautogui} coordinates. The computer password is available as \texttt{\{client\_password\}} when needed. The task is \texttt{\{instruction\}}.
+\end{promptbox}
+
+\begin{promptbox}{Main-Agent Per-Step User Instruction}
+\textbf{Decision request.} Decide the next grounded response for the current screenshot. Return either the next GUI action or \texttt{LOAD\_SKILL(...)} when extra procedural guidance is useful.
+
+\medskip
+\textbf{Per-step context.}
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+    \item \textbf{Instruction:} \texttt{\{instruction\}}
+    \item \textbf{Available non-exhausted skills:} \texttt{\{skills\_with\_state\_previews\}}, including each skill name, short description, and minimal when-to-use state hints.
+    \item \textbf{Active planner memo:} \texttt{\{active\_memo\}}
+    \item \textbf{Planner notes returned in this step:} \texttt{\{current\_step\_planner\_summaries\}}
+    \item \textbf{Previous steps:} \texttt{\{previous\_steps\}}, including full model responses and action comments.
+    \item \textbf{Execution feedback:} optional feedback for the current step and optional loop-warning diagnostics.
+    \item \textbf{Screen resolution:} \texttt{\{screen\_resolution\_prompt\}}.
+\end{itemize}
+
+\textbf{Grounding rules.}
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+    \item Ground every action in the current screenshot.
+    \item Planner notes are fallible references; re-decide the real action from the current screenshot, recent history, and execution feedback.
+    \item Treat state hints, selected reference views, and planner notes as references only, never coordinate templates.
+    \item If no listed skill is clearly useful, act directly from the current screenshot.
+    \item If planner notes already exist for this step, use them before consulting another branch.
+    \item If recent actions repeat without progress, change strategy.
+    \item Before \texttt{DONE}, verify the full instruction; if returning Python, include concise comments.
+\end{itemize}
+\end{promptbox}
+
+\begin{promptbox}{Branch Stage 1 Prompt: Gated State-View Selection}
+\textbf{Branch reference package.} The branch receives the requested call \texttt{LOAD\_SKILL("\{skill\_name\}")}, the selected skill text, runtime state bundles, and compact state-card manifests. These materials are supplemental procedural references only. Stage 1 must decide whether visual reference images are needed at all and, if so, which state IDs and view types should be loaded. The main agent, not the branch, will choose the concrete GUI action.
+
+\medskip
+\textbf{Role.} You are inside Stage 1 of a temporary state-view selection branch for a single desktop step. Decide whether visual reference images are needed before planner reasoning and which evidence goal they should serve.
+
+\medskip
+\textbf{View semantics.}
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+    \item \texttt{full\_frame}: global placement and window context.
+    \item \texttt{focus\_crop}: detailed control localization.
+    \item \texttt{before}: pre-change state, useful for recognizing whether the UI is still before a change and for avoiding repeated toggles.
+    \item \texttt{after}: target completion state, useful for verifying the result after save, enable, format, or apply operations.
+\end{itemize}
+
+\textbf{Evidence goals.}
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+    \item \texttt{locate\_control}: request exactly one of \texttt{full\_frame} or \texttt{focus\_crop}.
+    \item \texttt{recognize\_before}: request \texttt{before}, optionally with \texttt{full\_frame}.
+    \item \texttt{verify\_after}: request \texttt{after}, optionally with \texttt{full\_frame}.
+    \item \texttt{compare\_transition}: request minimal transition evidence; avoid defaulting to the \texttt{full\_frame}+\texttt{focus\_crop} pair and prefer \texttt{before}/\texttt{after} when useful.
+\end{itemize}
+
+\textbf{Visual gating policy.} First decide \texttt{visual\_reference\_needed}. If the useful help is a generic shortcut, formula, file operation, stable menu path, or textual procedure, default to \texttt{false}. Load images only for state transitions, visual result verification, or complex UI-state recognition where text alone is likely insufficient. Keep the request minimal: at most \texttt{\{max\_states\}} states and \texttt{\{max\_views\}} total views.
+
+\medskip
+\textbf{Input fields.} Stage 1 receives \texttt{\{instruction\}}, \texttt{\{previous\_steps\}}, environment feedback from the previous step, loop warnings if present, the screen-resolution prompt, and the current screenshot.
+
+\medskip
+\textbf{Output interface.} Return exactly one code block containing one \texttt{LOAD\_STATE\_VIEWS(...)} call. Its JSON payload contains:
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+    \item \texttt{"visual\_reference\_needed"}: true or false;
+    \item \texttt{"why\_not\_text\_only"}: why text-only is insufficient, or why no images are needed;
+    \item \texttt{"requests"}: a list of objects, each with exact \texttt{"state\_id"}, exact \texttt{"views"}, \texttt{"evidence\_goal"}, and \texttt{"reason"}.
+\end{itemize}
+When \texttt{"visual\_reference\_needed"} is false, \texttt{"requests"} must be empty. Do not return Python code, planner JSON, \texttt{WAIT}, \texttt{DONE}, \texttt{FAIL}, \texttt{LOAD\_SKILL}, or prose outside the code block.
+
+\medskip
+\textbf{Canonical examples.} A transition request sets \texttt{"visual\_reference\_needed": true} and requests a state with \texttt{"views": ["before", "after"]} under \texttt{"evidence\_goal": "compare\_transition"}. A text-only branch sets \texttt{"visual\_reference\_needed": false}, gives a brief reason in \texttt{"why\_not\_text\_only"}, and returns \texttt{"requests": []}.
+\end{promptbox}
+
+\begin{promptbox}{Branch Stage 2 Prompt: Planner JSON}
+\textbf{Selected evidence package.} Stage 2 receives the Stage-1 selection record, including the evidence goal, selected states, requested view types, reasons, when-to-use conditions, verification cues, and any loaded keyframe views. Loaded views are supplemental references only and are never coordinate templates.
+
+\medskip
+\textbf{Role.} You are inside Stage 2 of a temporary planner-only skill consultation branch for a single desktop step. Do not return a GUI action. Return a structured planner summary for the current state.
+
+\medskip
+\textbf{Branch rules.}
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+    \item Do not return Python code, \texttt{WAIT}, \texttt{DONE}, \texttt{FAIL}, \texttt{LOAD\_SKILL}, \texttt{LOAD\_SKILL\_IMAGE}, or \texttt{LOAD\_STATE\_VIEWS}. Do not request another skill in this branch.
+    \item Use the current screenshot first. Skill text, runtime state bundles, Stage-1 decisions, and loaded reference views are supplemental only.
+    \item If Stage 1 chose no visual references, respect that decision and avoid inventing image-based assumptions.
+    \item If the skill is ineffective for the current state, say so clearly and avoid forcing the plan toward it.
+    \item Treat reference views as state references, never as coordinate templates.
+\end{itemize}
+
+\textbf{Planning requirements.}
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+    \item \texttt{subgoal}: next immediate local milestone under the live UI.
+    \item \texttt{plan}: longer-range route grounded in the current screenshot, including the relevant UI surface, the next 2--4 actions/checks/transitions, and the cue that means advance versus re-plan.
+    \item \texttt{do\_not\_do}: the likely wrong path or skill-induced mistake to avoid.
+    \item \texttt{fallback\_if\_no\_progress}: a concrete alternate route if the skill-guided path stalls.
+    \item \texttt{expected\_state}: visible screenshot cues the main agent should aim to reveal next.
+    \item \texttt{completion\_scope}: whether the branch only advances a local step, still needs verification, or may be complete after verification.
+\end{itemize}
+
+\textbf{Per-step input fields.} Stage 2 receives \texttt{\{instruction\}}, \texttt{\{stage1\_decision\}}, \texttt{\{selected\_state\_views\}}, \texttt{\{previous\_steps\}}, environment feedback, optional loop warnings, the screen-resolution prompt, and the live screenshot, which is more authoritative than any skill reference view.
+
+\medskip
+\textbf{Output interface.} Return exactly one code block containing one JSON object with keys:
+\texttt{"skill\_applicability"}, \texttt{"subgoal"}, \texttt{"plan"}, \texttt{"do\_not\_do"}, \texttt{"fallback\_if\_no\_progress"}, \texttt{"expected\_state"}, and \texttt{"completion\_scope"}. The values of \texttt{"skill\_applicability"} are \texttt{"effective"}, \texttt{"ineffective"}, or \texttt{"uncertain"}; the values of \texttt{"completion\_scope"} are \texttt{"local\_only"}, \texttt{"needs\_verification"}, or \texttt{"maybe\_complete"}. Do not return prose outside the code block.
+
+\medskip
+\textbf{Canonical example shape.} A valid planner object may mark the skill as \texttt{"effective"}, set a local \texttt{"subgoal"} such as opening the visible settings surface, give a grounded multi-step \texttt{"plan"}, block a likely repeated or irrelevant click through \texttt{"do\_not\_do"}, provide a concrete fallback route, and describe the next visible \texttt{"expected\_state"} with \texttt{"completion\_scope": "local\_only"}.
+\end{promptbox}
+
+\section{Additional Behavioral Shift Analysis}
+\label{app:additional-behavior-analysis}
+
+Figure~\ref{fig:appendix-behavior-shift-glm-kimi} complements Figure~\ref{fig:behavior-shift} with the same OSWorld behavioral analysis for GLM-5V and Kimi-K2.6.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{fig_appendix_behavior_shift_glm_kimi.pdf}
+    \caption{Behavioral shifts induced by MMSkills on OSWorld for GLM-5V and Kimi-K2.6. The panels follow the same metrics as Figure~\ref{fig:behavior-shift}: action primitive distribution, low-level primitives per task, and repetitive behavior statistics.}
+    \label{fig:appendix-behavior-shift-glm-kimi}
+\end{figure}
+
+\section{Interaction Case Studies}
+\label{app:interaction-case-studies}
+
+Figures~\ref{fig:appendix-interaction-cases} and~\ref{fig:appendix-interaction-case-terminal} show two representative OSWorld interaction traces. The first case illustrates a LibreOffice Calc workflow in which the agent consults different spreadsheet skills at different stages of table construction. The second case illustrates a terminal file-organization task where branch guidance helps move past an initially brittle command and then verifies the final archive structure.
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\textwidth,height=0.88\textheight,keepaspectratio]{fig_appendix_interaction_case1.pdf}
+    \caption{Representative interaction case with branch-loaded MMSkills: LibreOffice Calc table construction. Colored turn labels distinguish direct GUI actions, skill loading, branch guidance, evidence-gated reasoning, and final completion.}
+    \label{fig:appendix-interaction-cases}
+\end{figure}
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\textwidth,height=0.88\textheight,keepaspectratio]{fig_appendix_interaction_case2.pdf}
+    \caption{Representative interaction case with branch-loaded MMSkills: terminal file organization and compression. Colored turn labels distinguish direct GUI actions, skill loading, branch guidance, evidence-gated reasoning, and final completion.}
+    \label{fig:appendix-interaction-case-terminal}
+\end{figure}
+
+\section{Broader Impact}
+\label{app:broader-impact}
+
+MMSkills are intended to make visual agents more reliable by externalizing reusable multimodal procedural knowledge. Potential benefits include improved desktop automation, reduced repeated trial-and-error interactions, better support for smaller models, and more reusable agent knowledge across GUI and game-like visual environments. At the same time, more capable visual agents may also increase the risk of unwanted automation, misuse in interactive software, or accidental actions in sensitive environments. Multimodal skill packages can also contain screenshots or cropped visual evidence, so their construction should avoid private or proprietary user data unless appropriate consent, filtering, and access controls are in place. In this work, we construct skills from public non-evaluation trajectories and store compact state evidence rather than raw demonstrations whenever possible. Future deployments should combine MMSkills with permission controls, task-level safety policies, sensitive-information filtering, and auditing of generated skill packages before they are made available to autonomous agents.
+
+\section{Use of LLMs}
+\label{app:use-of-llms}
+
+Large language models are used in this work as both research artifacts and research assistants. Methodologically, LLM-based agents are used in the skill-generation pipeline to process and filter trajectories, propose reusable procedures, draft state cards, and generate multimodal skill packages under human-designed schemas and quality checks. LLMs also serve as the evaluated visual agents in the benchmark results. In addition, LLM tools were used during manuscript preparation for editing, polishing, and organizing written content. The authors remained responsible for experimental design, result interpretation, citation checking, and final paper content.
+
+\clearpage
+\input{paper/appendix_related_work}

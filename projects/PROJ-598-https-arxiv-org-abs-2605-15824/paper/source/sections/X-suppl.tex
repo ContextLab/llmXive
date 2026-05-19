@@ -1,0 +1,698 @@
+\appendix
+
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.98\linewidth]{figures/data_pipeline.pdf}
+    \caption{
+    The high-quality data curation pipeline of \method. It consists of four stages: \textit{(1) General Coarse-to-Fine Video Filtering}, \textit{(2) Static-Dynamic Video Captioning}, \textit{(3) Fine-Grained Garment Image Extraction}, and \textit{(4) Adaptive Reference Image Construction}.
+    }
+    \label{fig:data_pipeline}
+\end{figure}
+
+
+
+\section{Data Curation Pipeline Details}
+%
+Recall that we briefly introduce our high-quality data curation pipeline in the main paper, which comprises four stages: \textit{1. General Coarse-to-Fine Video Filtering}, \textit{2. Static-Dynamic Video Captioning}, \textit{3. Fine-Grained Garment Image Extraction}, and \textit{4. Adaptive Reference Image Construction}.
+% 
+The overall curation pipeline is illustrated in Figure~\ref{fig:data_pipeline}, and we detail each stage as follows:
+
+
+
+\noindent
+\textbf{1. General Coarse-to-Fine Video Filtering.}
+% 
+We collected a large set of raw videos from the Internet and filtered them in a coarse-to-fine manner using \textit{Shot Segmentation}, \textit{Human Detection}, \textit{Optical-Flow Estimation}, and \textit{Overall Assessment} to retain only qualified videos:
+\begin{itemize}
+    % 
+    \item \textbf{Shot Segmentation.} The raw videos are first processed with PySceneDetect to identify scene transitions and split into separate scene clips. These clips are then further divided into 3-5 second subclips, while discontinuous or overly short subclips are removed.
+    % 
+    \item \textbf{Human Detection.} We apply YOLOv8-Seg to each subclip to detect human presence and retain only single-person clips. Clips without humans or with multiple prominent humans are removed. Note that a clip is still considered single-person if one person occupies most of the frame and any other visible people appear only as small, blurred background figures.
+    % 
+    \item \textbf{Optical-Flow Estimation} For each subclip containing one human, we estimate optical flow using UniMatch~\cite{li2025unimatch} to measure motion magnitude. We then retain clips with moderate to large motion and discard clips with little or slow motion based on a predefined threshold.
+    % 
+    \item \textbf{Overall Assessment.} Finally, we evaluate each subclip using Q-Align~\cite{wu2023q} for aesthetics and FAST-VQA-M~\cite{wu2022fast} for overall visual quality. We retain clips with high aesthetic and quality scores according to predefined thresholds, and remove those with low scores.
+\end{itemize}
+
+
+
+\noindent
+\textbf{2. Static-Dynamic Video Captioning.}
+% 
+For the filtered videos, we use the vision-language model (VLM) Gemini-3.1 to generate captions. Specifically, we adopt a static-dynamic decoupling strategy:
+\begin{itemize}
+    \item \textbf{Static Caption.} We prompt the VLM to focus on the static content in each video, including the scene layout, environmental atmosphere, human attributes (\emph{e.g.}, appearance), and garment details. These elements are intrinsic to the video and remain unchanged over time.
+    \item \textbf{Dynamic Caption.} We then prompt the VLM to capture the dynamic content of each video, including human evolution (\emph{e.g}. facial expressions), human action, camera motion, and scene transitions. These elements are inherently temporal and typically change over time.
+\end{itemize}
+% 
+The system prompt for Gemini-3.1 is presented in Sec.\,\ref{sec:system_prompt}.
+
+\noindent
+\textbf{3. Fine-Grained Garment Images Extraction.}
+% 
+For each filtered video, we extract the initial frame and apply the image try-off model Qwen-Image-Edit~\cite{wu2025qwen} to extract corresponding garment images.
+Since try-off is not always reliable in practice, we further introduce a VLM to verify the extracted garments.
+In detail, for each extracted garment, the VLM performs a three-stage validity check:
+% 
+\begin{itemize}
+% 
+\item \textbf{Semantic Consistency.} The VLM will check whether the extracted garment matches the clothing in the initial frame at a high level, such as garment category and color.
+% 
+\item \textbf{Textural Consistency.} The VLM will check whether the extracted garment matches the clothing in the initial frame at a low level, such as texture and logos.
+% 
+\item \textbf{Non-Garment Context.} The VLM will check whether the extracted garment contains information beyond the garment itself, such as irrelevant scene content or other artifacts.
+\end{itemize}
+% 
+We reapply the image try-off model until the extracted result passes all VLM-based validity checks. If extraction fails repeatedly, we discard the corresponding sample.
+
+\noindent
+\textbf{4. Adaptive Reference Images Construction.}
+% 
+In the final stage, we construct the reference image. To improve training robustness, the garment worn by the person in the reference image should differ from the extracted garment.
+% 
+We note that the garment information extracted in the previous stage may be incomplete, for example, including only the upper-body or lower-body clothing.
+To fully utilize the available garment information, we employ the VLM Gemini-3.1 to guide the accurate construction of the reference image. In detail, the overall process is formulated as follows:
+\begin{itemize}
+% 
+\item \textbf{Garment Type Classification.} For the garment extracted from each video, the VLM first determines whether it corresponds to upper-body, lower-body, or full-body clothing.
+% 
+\item \textbf{Garment Type Retrieval.} Based on the predicted garment category, the VLM will retrieve a visually compatible garment of the same type from the garment database.
+% 
+\item \textbf{Accurate Image Try-On.} Given the retrieved garment and the extracted first frame, we apply an image try-on model to construct the reference image. This enables fine-grained customization, where the specified garment is changed while other regions remain unchanged.
+% 
+\item \textbf{Validity Check.} We use a VLM to verify each reference image by checking whether the non-edited regions remain unchanged. If not, we reconstruct the reference image using the image try-on mode. We discard the corresponding sample if reconstruction fails repeatedly.
+\end{itemize}
+
+
+In total, we curate about 82K triplets, each consisting of a reference image, a garment image, and the corresponding video. After manual verification, about 62K triplets are retained in the training dataset.
+
+
+
+\section{Training Details}
+%
+\noindent
+\textbf{Pre-training Configuration.}
+% 
+During teacher model pre-training, we keep the VAE in \texttt{float32} precision and fully fine-tune the transformer in \texttt{bfloat16}. 
+To further improve GPU utilization, we adopt a Fully Sharded Data Parallel (FSDP) training strategy with a global batch size of $64$.
+We optimize the model using AdamW with $\beta_1=0.9$, $\beta_2=0.999$, and a weight decay of $0.01$. 
+We further employ a learning rate schedule with a warm-up of $200$ steps, followed by a two-stage decay: the learning rate is set to $1\times10^{-5}$ until step $1100$ and then decayed to $5\times10^{-6}$ until step $2300$.
+%
+
+
+
+\noindent
+\textbf{Post-training Configuration.}
+% 
+During streaming distillation post-training, we maintain both the VAE and transformer in bfloat16 and also adopt FSDP training strategy with a global batch size of $64$.
+% 
+\textit{For teacher forcing}, the generator is initialized from the pre-trained teacher model and then fully fine-tuned for $4000$ steps using AdamW with a learning rate of $1\times10^{-6}$, $\beta_1=0.0$, $\beta_2=0.999$, and a weight decay of $0.01$.
+% 
+\textit{For gradient-reweighted distribution distillation matching}, the generator is initialized from the model fine-tuned with teacher forcing, while both the real score and fake score networks are initialized from the pre-trained teacher model. The few-step generator uses a timestep schedule of $[1000, 750, 500, 250]$. 
+We fully fine-tune the generator and the fake score network with a 1:5 update ratio, while keeping the real score network frozen.
+We optimize both generator and fake score network with AdamW for $400$ steps, using learning rates of $2\times10^{-6}$ for the generator and $4\times10^{-7}$ for the fake score network, with $\beta_1=0.0$, $\beta_2=0.999$, and a weight decay of $1\times10^{-2}$.
+
+
+
+
+\noindent
+\textbf{Dataset Configuration.}
+% 
+For both pre-training and post-training, we use a carefully curated paired dataset of 62K samples, each consisting of a reference image, a garment image, and a video sequence. We sample sequences of $81$ frames to align with existing customization methods.
+The video and reference image are resized to $1280 \times 704$ while preserving aspect ratio, whereas the garment image is center-padded to $1280 \times 704$ with aspect ratio preserved, following the standard resolution of WAN2.2-5B-TI2V~\cite{wan2025wan}.
+% 
+\textit{During pre-training}, since the reference image already contains rich static information, we use only the dynamic content with a probability of 70\%, and use the full caption (static-dynamic contents), in the remaining 30\% of cases.
+This encourages the model to infer static attributes directly from the reference image, reducing its reliance on textual descriptions.
+% 
+\textit{During post-training}, we observe that using full captions, which include both static and dynamic content, leads to improved performance. We provide a more comprehensive analysis in Sec.\,~\ref{sec:ablation4}.
+% 
+\textit{During interactive inference}, we intentionally avoid including garment-related descriptions in the input prompt, since the character's outfit is determined by the input garment image and may vary over time, which could otherwise conflict with fixed textual descriptions.
+
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.98\linewidth]{figures/hgc_bench.pdf}
+    \caption{
+    Data analysis and representative samples of HGC-Bench.
+    (a) A word cloud generated from the input prompts, illustrating the diversity of scenarios and semantic content.
+    (b) The distribution of garment categories, showing the proportions of different garment types.
+    (c) Representative samples from HGC-Bench, each comprising a reference image, a garment image, and an input prompt.
+    }
+    \label{fig:hgc_bench}
+    \vspace{-1.0em}
+\end{figure}
+
+
+\section{HGC-Bench Details}
+%
+We propose HGC-Bench, a dedicated benchmark for comprehensive evaluation. Specifically, we curate high aesthetic reference images from the Internet, anonymize identifiable facial information via face swapping, and pair them with corresponding garment images from our collected garment database.
+Given the reference image and the garment image, we employ Gemini-3.0 to generate the corresponding prompt, which consists of a concise static description (\emph{e.g.}, human accessories and scene information), and a detailed dynamic description (\emph{e.g.}, human motions, camera movements).
+In total, we curate $240$ samples, where each sample consists of a reference image, a garment image, and the corresponding prompt.
+%
+Figure~\ref{fig:hgc_bench} presents the data analysis and representative samples of HGC-Bench.
+% 
+The system prompt for Gemini-3.0 is presented in Sec.\,\ref{sec:system_prompt}:
+
+
+
+
+
+\section{Additional Ablation Studies on Distillation Prompts}
+\label{sec:ablation4}
+% 
+Recall that we adopted the hybrid caption strategy (70\% dynamic content and 30\% static-dynamic contents) during the teacher model training, to facilitate the extraction of static information from reference images.
+% 
+During the streaming distillation (teacher forcing and gradient reweighted DMD) process, we find that using different types of captions can lead to different distilled results.
+We quantify this effect, and the comparison results are reported in Table~\ref{tab:ablation3}.
+% 
+Experimental results demonstrate that employing long caption (static-dynamic contents) yields superior performance.
+
+
+
+\begin{table}[!t]
+\centering
+\caption{
+Additional quantitative ablation on different distillation captions with $\tau=0.2$.
+}
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{l c ccccccccc}
+\toprule
+Variants & Cur. $\uparrow$ & GME $\uparrow$ & Amp. $\uparrow$ & Smoo. $\uparrow$ & VQ $\uparrow$ & HGC $\uparrow$ & LGC $\uparrow$ & NTP $\uparrow$ \\
+\midrule
+Naive DMD (Mixed Caption)          & 0.4237 & 0.6564 & 0.7164 & 0.9797 & 0.7349 & 4.6234 & 3.8703 & 4.6444  \\
+\rowcolor{gray!25}
+Naive DMD (Long Caption)           & 0.4232 & 0.6700 & 0.8026 & 0.9932 & 0.7419 & 4.6958 & 3.8958 & 4.7125  \\
+GR-DMD (Mixed Caption) & 0.4102 & 0.6692 & 1.1699 & 0.9955 & 0.7473 & 4.6583 & 3.9000 & 4.7369  \\
+\rowcolor{gray!25}
+GR-DMD (Long Caption) & 0.4265 & 0.6732 & 0.8395 & 0.9975 & 0.7480 & 4.7000 & 3.9042 & 4.7333  \\
+\bottomrule
+\label{tab:ablation3}
+\end{tabular}
+\vspace{-1.0em}
+\end{table}
+
+
+
+\section{Additional User Study}
+% 
+To evaluate user preference over videos generated by our method \method and other baselines, we conduct a user study.
+% 
+In detail, for each comparison group, participants are shown videos generated by different methods and are asked to select the one with the best \textit{ID Consistency}, the best \textit{Garment Consistency}, the best \textit{Temporal Coherence}, and the best \textit{Visual Quality}.
+% 
+In total, we collected $672$ valid responses, and the results are shown in Figure~\ref{fig:user_study}.
+Our method achieves superior performance in id consistency, garment consistency, temporal coherence, and visual quality.
+
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.98\linewidth]{figures/user_preference.pdf}
+    \caption{
+    Quantitative results of the human evaluation. We compare our \method with other baselines across four key dimensions: \textit{ID Consistency}, \textit{Garment Consistency}, \textit{Temporal Coherence}, and \textit{Visual Quality}. Our \method achieves superior human preference rates.
+    }
+    \label{fig:user_study}
+    \vspace{-1.0em}
+\end{figure}
+
+
+
+\section{Evaluation Details}
+% 
+In this section, we provide a detailed clarification of the quantitative metrics used in the main paper.
+
+
+\noindent
+\textbf{ID Consistency (Cur Score)}
+% 
+The Cur Score measures the consistency between the reference image and generated video.
+Specifically, we extract facial embeddings from the reference image and each video frame using ArcFace~\cite{deng2019arcface} and compute the cosine similarity between the resulting embeddings.
+
+
+\noindent
+\textbf{Text Alignment (GME Score)}
+% 
+The Gme Score is used to assess the semantic alignment between the generated video and the input prompt.
+In detail, we utilize a vision-language model fine-tuned from Qwen2-VL~\cite{wang2024qwen2} to provide stronger capability in handling long and complex text descriptions.
+
+
+\noindent
+\textbf{Motion Magnitude (Amplitude)}
+% 
+The Amplitude score measures motion amplitude in the generated video.
+Specifically, we compute forward and backward optical flow between adjacent frames, calculate the flow magnitude, and average it over all pixels and frames to obtain the final score.
+
+
+\noindent
+\textbf{Temporal Smoothness (Smoothness)}
+% 
+The Smoothness score evaluates the overall fluidity of motion in the generated video.
+In particular, we utilize Q-Align~\cite{wu2023q} to measure the temporal coherence and the smoothness of motion transitions between consecutive frames.
+
+
+\noindent
+\textbf{Visual Quality (VQ Score)}
+% 
+The VQ Score evaluates the overall visual quality of a video.
+Specifically, we apply the no-reference image quality assessment model MUSIQ~\cite{ke2021musiq} to predict a quality score for each frame, and then average the frame-level scores to obtain the final video-level score.
+
+
+\noindent
+\textbf{Inference Efficiency (FPS)}
+% 
+The frames per second (FPS) measures the inference efficiency of a model.
+Specifically, we compute it as the total number of frames generated by the backbone network divided by the corresponding inference time.
+
+
+\noindent
+\textbf{Garment Consistency}
+Besides the metrics above, we further evaluate the consistency between the garment worn by the character in the generated video and the given garment image.
+As no established metric is available for this purpose, we employ the vision-language model Gemini-3.0 to assess this consistency from three dimensions: \textit{high-level garment consistency}, \textit{low-level garment consistency}, and \textit{non-target garment preservation}.
+% 
+System prompt for Gemini-3.0 is provided in Sec.\,\ref{sec:system_prompt}.
+
+
+
+
+
+\section{Limitations and Future Work}
+%
+While \method shows strong efficiency and interactivity in human-centric applications, several limitations remain: 
+% 
+(i) Despite the curated data pipeline, the current training data still has limited garment categories and variations, which may restrict its generalization to complex scenarios.
+% 
+(ii) The model remains challenged by complex human motions and camera movements, largely due to the imperfect performance of current open-source video generation backbones like Wan~\cite{wan2025wan}.
+
+
+Therefore, future work could focus on developing a more efficient data curation pipeline, scaling up training datasets, and exploring stronger video generation backbones to address these limitations.
+
+
+
+\section{Potential Negative Societal Impact}
+%
+Our \method is intended for human-garment customized video generation in human-centric content creation scenarios.
+Nevertheless, we acknowledge that current models for human-garment video customization can introduce nontrivial societal risks when deployed irresponsibly or used with malicious intent.
+% 
+We summarize our discussion in the following three points:
+% 
+\begin{itemize}
+    % 
+    \item \textbf{Sexually Explicit or Violent Content.} Without proper safeguards, generated content may include sexually explicit, violent, or otherwise inappropriate material, potentially causing psychological or emotional harm to diverse audiences.
+    % 
+    \item \textbf{Stereotypes and Bias.} Unintended biases in character and garment information in the training data may be reflected or amplified in generated content, potentially reinforcing harmful cultural stereotypes or discriminatory visual representations.
+    % 
+    \item \textbf{Misleading Content.} Human-garment video customization models may be misused to create realistic yet false video advertisements, increasing the risk that misleading information spreads quickly and widely at scale.
+\end{itemize}
+% 
+We include these considerations to make clear that the method should be deployed responsibly and always accompanied by appropriate protections against misuse.
+
+
+
+\section{Additional Qualitative Comparison}
+%
+To further validate the effectiveness of  our \method and its advantages over competing baselines, we provide additional qualitative comparisons in Figure~\ref{fig:additional} and Figure~\ref{fig:additional2}.
+Visually, \method demonstrates better character consistency and garment consistency, while producing more coherent and higher-quality results.
+
+
+
+\begin{figure*}[!t]
+\begin{center}
+   \includegraphics[width=0.98\textwidth] {figures/additional.pdf}
+   \caption{
+   Additional qualitative comparison between our \method and other baselines.
+   }
+   \label{fig:additional}
+\end{center}
+\vspace{-1.0em}
+\end{figure*}
+
+
+\begin{figure*}[!h]
+\begin{center}
+   \includegraphics[width=0.98\textwidth] {figures/additional2.pdf}
+   \caption{
+   Additional qualitative comparison between our \method and other baselines.
+   }
+   \label{fig:additional2}
+\end{center}
+\vspace{-1.0em}
+\end{figure*}
+
+
+
+
+
+\section{Additional Examples of Short Video Customization}
+%
+Our \method is trained on 81-frame video clips and therefore supports customized generation of short videos of the same length. We provide additional examples, as shown in Figure~\ref{fig:short_video} and Figure~\ref{fig:short_video2}.
+% 
+Notably, \method can produce coherent and high-fidelity human-garment customized videos, further highlighting its superiority.
+
+
+\begin{figure*}[!h]
+\begin{center}
+   \includegraphics[width=0.98\textwidth] {figures/short_video.pdf}
+   \caption{
+   Additional results for short video customization using our \method.
+   }
+   \label{fig:short_video}
+\end{center}
+\end{figure*}
+
+
+\begin{figure*}[!h]
+\begin{center}
+   \includegraphics[width=0.98\textwidth] {figures/short_video2.pdf}
+   \caption{
+   Additional results for short video customization using our \method.
+   }
+   \label{fig:short_video2}
+\end{center}
+\end{figure*}
+
+
+\section{Additional Examples of Interactive Customization}
+% 
+Thanks to the proposed KV cache rescheduling strategy, our \method supports interactive multi-garment customized generation, with the additional examples shown in Figure~\ref{fig:switch} and Figure~\ref{fig:switch2}.
+% 
+Unlike conventional methods that require a reference image to be specified in advance, \method allows users to freely switch reference images at different stages of generation while preserving motion continuity, enabling interactive customization.
+This further demonstrates the superiority of \method in the interactive generation domain.
+
+
+\begin{figure*}[!h]
+\begin{center}
+   \includegraphics[width=0.98\textwidth] {figures/switch.pdf}
+   \caption{
+   Additional visualizations for interactive multi-garment video customization using our \method.
+   }
+   \label{fig:switch}
+\end{center}
+\vspace{-1.0em}
+\end{figure*}
+
+
+\begin{figure*}[!h]
+\begin{center}
+   \includegraphics[width=0.98\textwidth] {figures/switch2.pdf}
+   \caption{
+   Additional visualizations for interactive multi-garment video customization using our \method.
+   }
+   \label{fig:switch2}
+\end{center}
+\vspace{-1.0em}
+\end{figure*}
+
+
+
+\section{Additional Examples of Long Video Customization.}
+% 
+Benefiting from our dedicated autoregressive design, \method can generalize beyond the training sequence length, thereby enabling customized generation of longer videos. Additional qualitative results are provided in Figure~\ref{fig:long_video} and Figure~\ref{fig:long_video2}.
+% 
+The qualitative results show that \method maintains long-range character consistency and garment consistency.
+
+
+\begin{figure*}[!h]
+\begin{center}
+   \includegraphics[width=0.98\textwidth] {figures/long_video.pdf}
+   \caption{
+   Additional long video extrapolation visualizations of our \method.
+   }
+   \label{fig:long_video}
+\end{center}
+\end{figure*}
+
+
+\begin{figure*}[!h]
+\begin{center}
+   \includegraphics[width=0.98\textwidth] {figures/long_video2.pdf}
+   \caption{
+   Additional long video extrapolation visualizations of our \method.
+   }
+   \label{fig:long_video2}
+\end{center}
+\end{figure*}
+
+
+
+\section{Prompt List of Figures}
+% 
+For reproducibility, we list the prompts used to generate Figure~\ref{fig:teaser} in the main paper:
+\begin{enumerate}
+\item ``A woman wearing a blue beret, earrings, and a watch stands on a floral garden path. She takes light steps forward, with her arms swinging naturally. Her gaze shifts from downward to focusing on the lens with a gentle smile, then smoothly transitions into a still pose, ensuring the movement is continuous and physically realistic.''
+\end{enumerate}
+
+
+
+For reproducibility, we list the prompts used to generate Figure~\ref{fig:analysis} in the main paper:
+\begin{enumerate}
+\item ``A woman performs a series of poses in an indoor setting while holding a white handbag in her right hand. Initially facing the camera, she subtly shifts her body to the left and places her left hand into her pocket. She then moves her left hand to rest lightly on a black shelving unit behind her. Throughout the video, she maintains a friendly smile and steady eye contact with the camera, with subtle changes in her stance and orientation. The video is filmed in a minimalist indoor studio featuring plain white walls and a light grey carpeted floor. To the right, a sleek black shelf displays decorative items such as vinyl records and magazines, while the corner of a white sofa is partially visible on the left. The lighting is bright and diffused, creating a clean and modern aesthetic. The camera remains stationary in a full-body composition, ensuring a consistent visual style.''
+\end{enumerate}
+
+
+
+For reproducibility, we list the prompts used to generate Figure~\ref{fig:qualitative_comparison} in the main paper:
+\begin{enumerate}
+\item ``A man strolls along an outdoor brick path, wearing a brown turtleneck long-sleeved knit sweater paired with white shorts and beige sandals. He maintains a steady forward gait, his arms swinging naturally to showcase the drape of the new garment. The camera performs a smooth tracking shot, moving backward to keep him centered in the frame. Initially looking to the side, he slowly turns his head forward, shifting his gaze naturally and smoothly to look directly into the lens.''
+% 
+\item ``A young woman stands in a room, wearing a red short-sleeved t-shirt paired with a long floral skirt, with a red string bracelet on her left wrist. She initially tilts her head slightly to the side, then naturally shifts her gaze back to the lens with a soft smile. She performs a subtle turn to the left, causing the hem of the long skirt to sway with natural physics. The camera pans slowly to the right to keep her centered as she turns back to face forward, showcasing the elegant silhouette of the outfit.''
+\end{enumerate}
+
+
+
+For reproducibility, we list the prompts used to generate Figure~\ref{fig:app} in the main paper:
+\begin{enumerate}
+\item ``A young woman walks near park flowers, wearing a blue zippered crop top and lace-up distressed denim shorts, accented with a white cap, necklace, and a bag featuring a teddy bear charm. She walks forward with an elegant catwalk stride, her arms swinging naturally while her platform sneakers land steadily. The camera performs a steady tracking shot, keeping her centered. She shifts her gaze from forward to the lens, blinking with a smile and tilting her head slightly.''
+% 
+\item ``A young woman stands against a pink and blue background. She wears purple flower earrings and carries a pink woven bag on her shoulder. She walks forward with light steps, her arms swinging naturally, while the bag strap bounces slightly. She then tilts her head toward the camera with a bright smile and a natural blink. The movement is smooth and consistent, ending in a frozen mid-stride pose.''
+% 
+\item ``A young woman stands in a room filled with books and vintage items. She wears a baseball cap with text and has one hand in her pocket. She slowly lowers her hand from the cap, shifts her weight, and turns slightly to the right. Her gaze shifts from the lens toward the stack of books before turning back to blink and smile naturally. The movement is smooth and consistent, ending with her holding a slightly turned pose.''
+\end{enumerate}
+
+
+
+For reproducibility, we list the prompts used to generate Figure~\ref{fig:ablation2} in the main paper:
+\begin{enumerate}
+\item ``In the video, a young woman slowly enters from the right side of the frame and stops near a table. She initially looks down in reflection, then gracefully turns her head to the left, gazing into the distance. The camera remains in a fixed position, capturing the scene through a transparent glass door, with subtle reflections on the glass shifting as she moves. The setting is an interior space with soft lighting, likely a cafe or restaurant, featuring wooden tables and chairs with a warm texture. The overall visual style is realistic and cinematic, using the glass door in the foreground to create an observational perspective within a warm and tranquil atmosphere.''
+% 
+\item ``Captured from a static camera angle, a young woman with long, flowing black hair sways her body gracefully to a rhythmic beat. She raises her left hand to touch and adjust her hair, tossing it over her shoulder while her arms move naturally in sync with her shifting posture. Throughout the sequence, she maintains direct eye contact with the camera, exhibiting a series of fluid and confident movements. The setting is a minimalist and elegant indoor environment featuring large beige pleated curtains in the background and a brown striped carpet on the floor. To the right stands a contemporary white floor lamp with a decorative stem made of transparent spherical crystals. The lighting is soft and diffused, dominated by a warm color palette of beige and tan, creating a cozy, high-quality lifestyle aesthetic.''
+\end{enumerate}
+
+
+
+For reproducibility, we list the prompts used to generate Figure~\ref{fig:additional} and Figure~\ref{fig:additional2} in the Appendix:
+\begin{enumerate}
+\item ``On a lush tree-lined path, a woman wears a black and white checkered vest paired with a blue mini skirt featuring a cherry graphic, accented by a pearl necklace and white boots. She slowly lowers her raised right arm and turns her body slightly to the left to showcase the skirt's silhouette. The camera orbits steadily around her in an arc. She shifts her gaze from the side back to the lens, her long hair swaying naturally over her shoulders as she moves.''
+% 
+\item ``A woman in a blue cap and sunglasses stands by a white tiled wall, wearing a light grey multi-pocket hooded jacket, white wide-leg pants, and beige shoes, holding a brown bag with a bear charm. She slowly lowers her raised right arm and takes a natural step forward to showcase the outfit. The camera pans horizontally to the right; she turns her head from the side to face forward, gazing into the lens through her sunglasses with a relaxed posture.''
+% 
+\item ``A young woman stands outdoors wearing white headphones and sunglasses, dressed in a black short-sleeved T-shirt and a dark green button-front maxi skirt, carrying a black backpack with white socks and sneakers. She walks steadily toward the camera, the long skirt's hem swaying naturally and gracefully with her steps. The camera pulls back smoothly to reveal the full silhouette of the outfit; she shifts her gaze from the side to the lens, smiling faintly and blinking.''
+% 
+\item ``On a city street, a black-haired man wearing sunglasses is dressed in a black U-neck tank top paired with ripped blue jeans and a black belt, holding a brown leather bag in his right hand with a watch and bracelet on his wrists. He walks forward with steady steps, his body swaying naturally to showcase the fit of the tank top. The camera slowly zooms out from a close-up to a full-body view. He shifts his gaze from downward to looking straight ahead with a calm expression.''
+\end{enumerate}
+
+
+
+For reproducibility, we list the prompts used to generate Figure~\ref{fig:short_video} and Figure~\ref{fig:short_video2} in the Appendix:
+\begin{enumerate}
+\item ``A young woman stands by the poolside with city buildings in the background, wearing a turquoise long-sleeved shirt and a white tiered ruffled long skirt, holding a small cream-colored handbag. She walks toward the camera with light catwalk steps, the layered hem swaying naturally. The camera slowly zooms out to reveal the full silhouette; her gaze shifts from the side back to the lens as she gives a slight, steady nod.''
+% 
+\item ``A young woman stands in a minimalist gray indoor setting, wearing a white puff-sleeved blouse and a red phoenix-embroidered vest paired with a red patterned pleated skirt, with a thin bracelet on her left wrist. She looks down initially, then raises her gaze to the camera while turning slightly to the left, allowing the skirt to drape naturally. The camera smoothly pulls back from a close-up to reveal the full-length silhouette of the traditional outfit.''
+% 
+\item ``In front of a white wall, a man wearing black-rimmed glasses holds a coffee cup, dressed in a tan sports bra and dark brown leggings with white sneakers. He slowly transitions from a leaning pose to a steady upright stance, balancing his weight on both feet to showcase the silhouette. The camera zooms out smoothly to capture the full outfit; he tilts his head slightly, shifting his gaze from the side back to the lens with a calm expression.''
+% 
+\item ``A young man wearing a baseball cap and black glasses stands before a dark rolling shutter, dressed in a white long-sleeved top and dark blue wide-leg trousers. He moves his hands out of his pockets to his sides and walks forward toward the camera, the loose pant legs creating natural folds and swaying with each step. The camera tracks him steadily; he tilts his head slightly upward, shifting his gaze from the side to the lens with a composed expression.''
+% 
+\item ``A young woman stands by an outdoor road, wearing a red and blue striped tie-front top with light-blue denim shorts and carrying a large pink canvas bag. Transitioning from an open-arm pose, she naturally lowers her hands and walks forward toward the camera with a brisk, steady gait. The camera tracks backward smoothly, keeping her centered in the frame. She briefly looks down before raising her head, shifting her gaze from the side to the lens with a bright smile, her long hair swaying naturally as she moves.''
+% 
+\item ``A Black man sits on an outdoor hay bale, wearing a brown long-sleeved shirt with double chest pockets, paired with wide-leg white trousers, brown boots, and olive socks. Resting his hands on his knees, he slowly stands up from the bale, smoothing the shirt front to showcase the drape. The camera pulls back slowly to reveal the full outfit. He tilts his head slightly, shifting his gaze from the side back to the lens with a calm expression.''
+\end{enumerate}
+
+
+
+For reproducibility, we list the prompts used to generate Figure~\ref{fig:switch} and Figure~\ref{fig:switch2} in the Appendix:
+\begin{enumerate}
+\item ``The woman stands against a white backdrop holding an exquisite bouquet of lilies and greenery. Starting with a direct gaze, she blinks and transitions into a natural smile with gentle eyes. She then turns her body slowly to the right while holding the bouquet, showcasing her side profile with smooth movements. Her hair and the flower petals sway slightly following the physics of the motion. Finally, she holds a graceful side-facing posture with a relaxed expression.''
+% 
+\item ``A woman strolls through an urban street. She carries a brown leather tote bag on her right shoulder and holds an iced coffee in her left hand, with her gold necklace and hair clip glinting. She walks forward toward the camera with light steps, her arms swinging naturally and the bag swaying slightly with her rhythm. Initially laughing and looking aside, she then turns her gaze to the camera with bright eyes, eventually pausing while maintaining a natural walking posture.''
+% 
+\item ``A woman stands against a simple background, cradling a woven basket of white daisies in her right arm and wearing a watch on her left wrist. She initially looks down at the flowers, then slowly turns her body to the left with smooth movements, her arms swinging naturally. She then shifts her gaze to the camera with a gentle smile and a slight head tilt, ensuring a fluid transition before returning to a stable forward-facing pose.''
+% 
+\item ``A young man stands against a clean light blue background. He shifts his center of gravity and takes a natural small step forward, with his arms swinging slightly and naturally. He blinks and tilts his head down slightly before looking up to gaze at the lens with a confident and gentle smile. His head turns slightly in coordination with his body, and the entire movement is smooth, consistent, and physically natural.''
+% 
+\item ``A young man stands in a minimalist studio with a wooden cabinet nearby, holding a pair of headphones in his right hand. Wearing orange sunglasses and a silver chain, he begins by taking a steady step forward. As his weight shifts, he transitions from a slight head tilt to looking directly into the lens with a relaxed expression. The headphones sway gently with his movement, which is smooth and physically natural, ending in a stable standing pose.''
+% 
+\item ``The woman stands in the center of a leafy street, wearing hoop earrings. She tilts her head slightly to showcase her accessories, then begins walking slowly toward the camera with her arms swinging naturally and her weight shifting steadily. During the walk, she turns her gaze from the side back to the lens, blinking naturally with a confident smile, before coming to a smooth stop.''
+\end{enumerate}
+
+
+
+For reproducibility, we list the prompts used to generate Figure~\ref{fig:long_video} and Figure~\ref{fig:long_video2} in the Appendix:
+\begin{enumerate}
+\item ``On a sunlit park path, a long-haired woman with a red flower hair accessory wears a black V-neck sweater paired with a long blue traditional skirt featuring gold patterns and a delicate necklace. She takes elegant catwalk steps toward the camera, the heavy blue hem swaying naturally with her stride. The camera moves backward smoothly to track her, maintaining a consistent frame. She tilts her head slightly, shifting her gaze upward from the ground to fixate on the lens with a gentle smile.''
+% 
+\item ``On an outdoor park path, a long-haired woman wearing sunglasses is dressed in a white short-sleeved T-shirt with a blue bow and a pink tie-dye denim mini skirt. She carries a white mini handbag in her left hand and holds a phone in her right. She walks toward the camera with a graceful catwalk gait, her movements fluid and natural. The camera performs a steady tracking shot as she tilts her head slightly to the right, shifting her gaze from the side back to the lens with a smile, her hair swaying gently with her steps.''
+% 
+\item ``A silver-haired elderly woman stands by a traditional wooden chair, wearing a beige stand-collar jacket with plaid cuffs and a cinched hem, paired with red printed trousers and a pearl necklace. She lowers her raised right arm and gently turns to the left to display the jacket's side profile. The camera pulls back steadily to capture the full ensemble; the woman turns her head to shift her gaze from the side back to the lens with a kind and composed expression.''
+% 
+\item ``A young woman stands against a light blue background, wearing a navy blue camisole paired with a long dark blue denim skirt featuring a brown belt, along with white socks and sneakers. She slowly turns her body to the left, showcasing the drape of the long skirt and the belt details with fluid movements. The camera performs a subtle orbital rotation around her; she tilts her chin slightly and shifts her gaze naturally from the side back to the lens with a gentle smile.''
+\item ``A young woman stands in a clothing store wearing a light purple ruffled short-sleeve shirt and cream-colored wide-leg pants, with a gold bracelet on her right wrist and white sneakers. She walks toward the camera with light steps, the wide pant legs swaying naturally with her movement. The camera tracks her steadily; she initially looks toward the side shelves before gently turning her head to shift her gaze back to the lens with a smile.''
+% 
+\item ``A long-haired woman wearing sunglasses, a colorful necklace, and an orange bracelet, dressed in a brown turtleneck sweater and black trousers with white sneakers, walks outdoors. She maintains a steady gait approaching the camera, her arms swinging naturally to showcase the drape of the sweater and trousers. The camera tracks her movement, keeping her centered in the frame. She tilts her head slightly to the left, shifting her gaze from the side back to the lens with a relaxed expression.''
+\end{enumerate}
+
+
+
+\section{System Prompts of VLM}
+\label{sec:system_prompt}
+% 
+We present the system prompt for Gemini-3.1 to generate prompts in training datasets below:
+% 
+\begin{tcolorbox}[
+    colback=gray!10,
+    colframe=gray!30,
+    boxrule=0.3pt,
+    arc=1.5pt,
+    left=6pt,
+    right=6pt,
+    top=6pt,
+    bottom=6pt
+]
+% 
+\textbf{System Prompt:}
+\\
+Please generate a structured multilingual description based on the input video content, strictly following the specifications below:
+\\
+1. \textit{Dynamic element description}: Focus on content that changes over time in the video, such as: (a) The subject (e.g., person, animal, object, etc.) and changes in its behavior, state, or position; (b) Specific actions (e.g., running, waving, opening a door, vehicles moving, etc.); (c) Scene transitions (e.g., switching from a street to an indoor setting, weather changing from sunny to rainy, etc.); (d) Camera movement (e.g., push-in, pull-out, pan, tracking shot, fixed shot, zoom, etc.).
+\\
+2. \textit{Static element description}: Accurately identify visual features that remain unchanged throughout the video, such as: (a) The inherent appearance of the subject or environment (e.g., clothing style, architectural style, object color and material, indoor layout, etc.); b The overall aesthetic style (e.g., realistic, animated, film-like, cyberpunk, minimalist, etc.); (c) Consistent visual style elements such as color tone, lighting atmosphere, and composition principles; d. The character’s clothing, styling, and accessories.
+\\
+3. \textit{Additional notes:} In the dynamic element description, completely ignore any description of the character’s clothing, styling, or accessories, but handheld items (if any) may be briefly described.
+\\
+Please output in standard JSON format, containing the following four fields. The value of each field must be an array of two strings: (a) The first string: description of dynamic elements; (b) The second string: description of static elements.
+\\
+The field definitions are as follows:
+\\
+``cn long'': two detailed Chinese descriptions (the first for dynamics, the second for statics);
+\\
+``cn short'': two concise Chinese descriptions (the first for dynamics, the second for statics);
+\\
+``en long'': two detailed English descriptions, semantically corresponding to cn long;
+\\
+``en short': two concise English descriptions, semantically corresponding to cn short.
+\\
+\textit{Output requirements}:
+\\
+1. Use natural, objective, and accurate language, based only on visible video content, without adding speculation or fabricated details;
+\\
+2. The Chinese and English descriptions should be semantically aligned, but do not need to be word-for-word translations;
+\\
+3. Long descriptions should be comprehensive and detailed, while short descriptions should be concise and focused on the core information.
+\end{tcolorbox}
+
+
+% 
+We present the system prompt for Gemini-3.0 to generate prompts in HGC-Bench below:
+% 
+\begin{tcolorbox}[
+    colback=gray!10,
+    colframe=gray!30,
+    boxrule=0.3pt,
+    arc=1.5pt,
+    left=6pt,
+    right=6pt,
+    top=6pt,
+    bottom=6pt
+]
+\textbf{System Prompt:}
+\\
+Role Definition:
+\\
+You are a senior prompt expert specializing in video generation (I2V). Your core task is to write coherent, dynamic, and physically plausible video-generation description scripts based on the characteristics of the first-frame image [Image1] and the target garment image [Image2]. The script mainly includes a static description of the first frame and a subsequent dynamic description. The static description should focus on the person wearing the new garment in the original scene. The dynamic description should be coherent and natural, avoiding motion collapse.
+\\
+I. \textbf{Static Description}:
+\\
+    1. \textit{Scene Description}: Since the first frame largely provides the scene information, only a brief description is needed here.
+    2. \textit{Garment Description}: The person’s original clothing in the first-frame image [Image1] must be used as an anchor, with its type described but without detailed description, and integrated with the new garment from the target garment image [Image2], whose type should be described but without unnecessary details. In the description, directly assign the new garment to the person. It is strictly forbidden to use words that describe a dynamic transformation process, such as ``changed into,'' ``switched to,'' ``turned into,'' or similar expressions. The new garment should already be part of the person’s outfit in the initial state.
+    3. \textit{Detail Description}: Pay attention to describing accessories, backpacks, handheld items, and similar details of the person in the first-frame image [Image1]. Ignoring these details may degrade the performance of the I2V task. The description should focus on the person wearing the new garment in the original scene.
+    4. \textit{Consistency Preservation}: When the target garment image [Image2] provides only part of the outfit, the description must logically and coherently match it with the remaining clothing from [Image1], ensuring overall character consistency. Do not describe the old garment in the first-frame image [Image1] that has been replaced, because it has already been discarded and replaced by the new garment.
+    5. \textit{Hallucination Avoidance}: It is strictly forbidden to use any adjectives describing visual style, such as ``cinematic,'' ``high-definition,'' or ``hyper-realistic.'' It is strictly forbidden to fabricate objects that do not exist in the first-frame image.
+\\
+II. \textbf{Dynamic Description (one item must be selected from each category)}:
+\\
+    1. \textit{Overall Body Movement}: One of the following must be randomly included:
+        (a) Runway Walk / Walking: Walking forward toward the camera, walking away with the back facing the camera, catwalk, etc. Reasonable imagination is allowed, but the motion must be coherent and should avoid causing collapse.
+        (b) Turning / Spinning: Slightly turning to the left, turning backward, etc. Reasonable imagination is allowed, but the motion must be coherent and should avoid causing collapse.
+        (c) Posture Transition: Standing up from a seated pose, sitting down from a standing pose, shifting from leaning to upright, etc. Reasonable imagination is allowed, but the motion must be coherent and should avoid causing collapse.
+        (d) Stretching / Extending: Raising both arms horizontally, stretching upward, turning sideways to show the back or side cut, etc. Reasonable imagination is allowed, but the motion must be coherent and should avoid causing collapse.
+\\
+    2. \textit{Facial Expression and Head Movement}: One of the following must be randomly included:
+        (a) Gaze Shift: From looking down to looking at the camera, glancing sideways and then turning back, blinking with a slight smile, etc. Reasonable imagination is allowed, but the motion must be coherent and should avoid causing collapse.
+        (b) Head Movement: Tilting the head left and right for display, hair-swaying motion, etc. Reasonable imagination is allowed, but the motion must be coherent and should avoid causing collapse.
+        (c) Notes:
+            (i) Motion Stability: The description must logically include an “initial transition phase,” a “dynamic display phase,” and a “final freeze phase,” but these do not need to be explicitly written out. Reasonable imagination is allowed, but the motion must be coherent and should avoid causing collapse.
+            (ii) Physical Plausibility: The range of motion must be kept within a reasonable scope. For example, turning should preferably not exceed 90 degrees to avoid limb deformation. The motion must follow gravity, such as the hem of the garment moving with the body during turning and the arms swinging naturally.
+            (iii) First-Frame Continuity: If there is a large difference between the pose in the first frame and the subsequent pose, the description should provide a gradual, coherent, and smooth transition to avoid collapse.
+            (iv) Hallucination Avoidance: It is strictly forbidden to use any adjectives describing visual style, such as ``cinematic,'' ``high-definition,'' or ``hyper-realistic.''
+\\
+III. \textbf{Output Requirements}:
+\\
+1. Each set of descriptions must be strictly limited to within 150 words.
+\\
+2. Output format: JSON, generating both Chinese (cn short) and English (en short) descriptions.
+\end{tcolorbox}
+
+
+We present the system prompt for Gemini-3.0 to evaluate garment consistency below:
+% 
+\begin{tcolorbox}[
+    colback=gray!10,
+    colframe=gray!30,
+    boxrule=0.3pt,
+    arc=1.5pt,
+    left=6pt,
+    right=6pt,
+    top=6pt,
+    bottom=6pt
+]
+\textbf{System Prompt:}
+\\
+Task Objective: Evaluate the quality of AI-customized video generation.
+\\
+Input Description:
+[Image 1]: Original image of the model (reference for person identity, pose, non-target clothing, and original background).
+[Image 2]: Target garment image (reference for the clothing to be virtually tried on).
+[Video 1]: AI-generated video sequence (evaluation target).
+\\
+Scoring Dimensions: 1–5, where 1 is the worst and 5 is the best:
+\\
+\textit{1. High-level garment consistency}
+\\
+Evaluate how well the target garment in [Image 2] matches the garment worn by the model in the corresponding [Video 1] sequence at a high-level semantic level.
+Checkpoints: whether the category, overall silhouette (e.g. fit, cut), large color block distribution, and overall style are consistent.
+Execution focus: Only evaluate the match of the target garment from [Image 2]; ignore other non-target garments worn by the model in [Video 1].
+\\
+\textit{2. Low-level garment consistency}
+\\
+Evaluate how well the target garment in [Image 2] matches the garment worn by the model in the corresponding [Video 1] sequence at the pixel-detail level.
+Checkpoints: whether fine-grained features are accurately reproduced, such as patterns (prints, stripes), logos, embroidery, fabric texture, surface gloss, etc.
+Hard constraint: If there is obvious pattern distortion, blurred logos, or completely incorrect fabric texture, this score must be <= 2.
+Execution focus: Only evaluate the match of the target garment from [Image 2]; ignore other non-target garments worn by the model in [Video 1].
+\\
+\textit{3. Non-target garment preservation}
+\\
+Evaluate the consistency between the non-target garments in [Video 1] (i.e. all other clothing items, accessories, etc. worn by the model besides the target garment) and those in [Image 1].
+Checkpoints: whether the style, color, and texture of all non-target parts in [Video 1] have been incorrectly modified or removed.
+Logical focus: Apart from virtually trying on the target garment, all other garments on the model in [Video 1] should preserve the original appearance from [Image 1] as much as possible.
+\\
+\textit{Output Requirements}:
+\\
+Please output only a single JSON object, without any explanatory text:
+\\
+\{
+``high-level garment consistency'': 0-5,
+``low-level garment consistency'': 0-5,
+``non-target garment preservation'': 0-5
+\}
+\end{tcolorbox}

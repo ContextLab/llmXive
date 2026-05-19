@@ -1,0 +1,87 @@
+\section{Introduction}
+%
+Driven by advances in diffusion models~\cite{ho2020denoising, lipman2022flow}, text-to-video and image-to-video generation~\cite{yang2024cogvideox, kong2024hunyuanvideo, wan2025wan} have become prominent directions.
+% 
+However, these approaches condition only on a simple prompt or an initial frame, which limits their applicability in real-world scenarios~\cite{li2025realcam,fu2024drivegenvlm,song2025worldwander}.
+% 
+To overcome this limitation, recent work has explored various customized video generation, in which visual concepts are injected into the generation process through user-provided reference images.
+%
+One representative setting is subject-to-video (S2V)~\cite{wang2026customvideo,chen2024disenstudio,he2024id,yuan2025identity,liu2025phantom,vace,xue2025stand}  customization, which aims to ensure that subjects in generated videos remain consistent with the given reference images.
+% 
+With the advances of Diffusion Transformers (DiT)~\cite{peebles2023scalable,yang2024cogvideox,kong2024hunyuanvideo,wan2025wan}, subsequent works~\cite{li2025bindweave,deng2025magref,fei2025skyreels,zhang2025kaleido} extend S2V customization to multi-reference settings, enabling more flexible control in complex scenes.
+
+
+
+
+
+
+\begin{wrapfigure}{r}{0.48\columnwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/intro.pdf}
+    \caption{
+    Average performance (Cur., GME, Amp., Smoo., and VQ) and inference speed comparison across different approaches.
+    }
+    \label{fig:intro}
+    \vspace{-0.7em}
+\end{wrapfigure}
+
+
+
+
+
+Despite this progress, existing customization methods mainly focus on human-centric subject consistency, with comparatively less emphasis on fine-grained human attributes.
+Among these attributes, garment-level customization is particularly desirable in practical applications such as filmmaking~\cite{wang2024motionctrl,song2025lightmotion}, e-commerce~\cite{lari2022artifical} and entertainment~\cite{li2023photomaker,song2025univst,zhang2025objectadd}, where users often require low-latency, streaming, and interactive control over garments.
+% 
+Given the recent success of hybrid autoregressive generation~\cite{yin2025slow,huang2025self,zhu2026causal} in diverse domains~\cite{zhuang2025flashvsr,huang2025live,shin2025motionstream}, we are inspired to ask: \textit{Can this paradigm be extended to the customization domain?}
+% 
+In this work, we formulate \textbf{streaming and interactive human-garment video customization} and pinpoint three key challenges:
+%
+(i) \textit{Single-to-multiple generalization.}
+Video data with multi-garment switching are typically difficult to obtain. How to effectively exploit single-garment data for interactive multi-garment video customization remains a significant challenge.
+%
+(ii) \textit{Consistency and efficiency.}
+%
+Although distillation from bidirectional to autoregressive generation improves inference efficiency, it also introduces error accumulation during self-rollout.
+In human-centric scenarios, it is important to maintain identity and motion consistency while achieving efficiency during streaming generation.
+% 
+(iii) \textit{Coherent interaction.}
+% 
+Interactive video customization requires dynamically switching a character's garments during generation.
+Ensuring seamless garment transitions while preserving continuous human motion remains challenging.
+
+
+
+
+
+In this paper, we introduce \textbf{\method}, a real-time and interactive framework that enables human-garment customization in autoregressive video generation (see Figure~\ref{fig:teaser}), where users can interactively switch garments during generation while maintaining coherent human motion.
+
+
+
+
+
+(i) Rather than directly training a teacher model on multi-garment video data, we train a \textbf{Teacher Model with In-Context Learning} to process a reference image paired with a garment image.
+Notably, we retain the \textit{image-to-video training paradigm} while ensuring that \textit{the garment worn by the reference person differs from the target garment}.
+This enables the model to implicitly preserve coherence during single-garment switching, laying the foundation for interactive multi-garment switching.
+
+
+
+
+
+(ii) To achieve consistency and efficiency during streaming video generation, we introduce \textbf{Streaming Distillation with In-Context Learning}.
+Specifically, it fine-tunes the model with \textit{in-context teacher forcing} to eliminate the data-intensive ODE initialization, and incorporates \textit{gradient-reweighted distribution matching distillation} to improve consistency in long-video extrapolation.
+
+
+
+
+
+(iii) To extend the model for interactive multi-garment video customization, we propose \textbf{Training-Free KV Cache Rescheduling}.
+Specifically, it first perform \textit{garment KV refresh} to switch garments during inference, then apply \textit{historical KV withdraw} to suppress outdated garment in historical frames, and utilize \textit{reference KV disentangle} to preserve coherent human motion during garment-switching.
+
+
+
+
+
+To further support teacher model pre-training and streaming distillation post-training, we propose a high-quality data curation pipeline with four stages: \textit{general coarse-to-fine video filtering}, \textit{static-dynamic video captioning}, \textit{fine-grained garment image extraction}, and \textit{adaptive reference image extraction}.
+% 
+Qualitative and quantitative experiments on the proposed HGC-Bench show that our \method\ is superior to existing baselines while achieving real-time 720p customization at 23.8 FPS on a single H200 GPU (see Figure~\ref{fig:intro}). 
+Additional experiments on interactive multi-garment video customization and consistent long-video extrapolation further highlight its unique capabilities.

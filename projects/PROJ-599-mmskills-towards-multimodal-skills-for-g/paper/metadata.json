@@ -1,0 +1,58 @@
+{
+  "arxiv_id": "2605.13527",
+  "arxiv_url": "https://arxiv.org/abs/2605.13527",
+  "title": "MMSkills: Towards Multimodal Skills for General Visual Agents",
+  "authors": [
+    "Kangning Zhang",
+    "Shuai Shao",
+    "Qingyao Li",
+    "Jianghao Lin",
+    "Lingyue Fu",
+    "Shijian Wang",
+    "Wenxiang Jiao",
+    "Yuan Lu",
+    "Weiwen Liu",
+    "Weinan Zhang",
+    "Yong Yu"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Reusable skills have become a core substrate for improving agent capabilities, yet most existing skill packages encode reusable behavior primarily as textual prompts, executable code, or learned routines. For visual agents, however, procedural knowledge is inherently multimodal: reuse depends not only on what operation to perform, but also on recognizing the relevant state, interpreting visual evidence of progress or failure, and deciding what to do next. We formalize this requirement as multimodal procedural knowledge and address three practical challenges: (I) what a multimodal skill package should contain; (II) where such packages can be derived from public interaction experience; and (III) how agents can consult multimodal evidence at inference time without excessive image context or over-anchoring to reference screenshots. We introduce MMSkills, a framework for representing, generating, and using reusable multimodal procedures for runtime visual decision making. Each MMSkill is a compact, state-conditioned package that couples a textual procedure with runtime state cards and multi-view keyframes. To construct these packages, we develop an agentic trajectory-to-skill Generator that transforms public non-evaluation trajectories into reusable multimodal skills through workflow grouping, procedure induction, visual grounding, and meta-skill-guided auditing. To use them, we introduce a branch-loaded multimodal skill agent: selected state cards and keyframes are inspected in a temporary branch, aligned with the live environment, and distilled into structured guidance for the main agent. Experiments across GUI and game-based visual-agent benchmarks show that MMSkills consistently improve both frontier and smaller multimodal agents, suggesting that external multimodal procedural knowledge complements model-internal priors.",
+  "submitted_via": "llmXive dashboard, GitHub issue #201",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/DeepExperience/MMSkills"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "mmskills_arxiv.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "assets",
+    "assets/plainnat.bst",
+    "assets/optimistic.tfm",
+    "assets/Optimistic.ttf",
+    "Images",
+    "Images/fig_ablation_results.pdf",
+    "Images/fig_appendix_agent_prompt_examples_cropped.pdf",
+    "Images/fig_appendix_interaction_case1.pdf",
+    "Images/fig_appendix_interaction_case2.pdf",
+    "Images/fig_appendix_behavior_shift_glm_kimi.pdf",
+    "Images/fig_behavior_shift.pdf",
+    "Images/Full_Figure.pdf",
+    "Images/introduction.pdf",
+    "mmskills_arxiv.bbl",
+    "mmskills_arxiv.tex",
+    "paper",
+    "paper/appendix_related_work.tex",
+    "paper/conclusion.tex",
+    "paper/related_work.tex",
+    "paper/introduction.tex",
+    "paper/methods.tex",
+    "paper/experiments.tex",
+    "paper/appendix.tex",
+    "references.bib",
+    "selfevolagent.cls"
+  ]
+}

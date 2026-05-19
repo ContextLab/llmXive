@@ -1,0 +1,37 @@
+{
+  "arxiv_id": "2605.12882",
+  "arxiv_url": "https://arxiv.org/abs/2605.12882",
+  "title": "https://arxiv.org/abs/2605.12882",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #199",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/opendatalab/CiteVQA"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "paper.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "figures",
+    "figures/Case_Study1.pdf",
+    "figures/Case_Study2.pdf",
+    "figures/OpenDataLab_blue_no_words.pdf",
+    "figures/Simple_Case.pdf",
+    "figures/citevqa_ability_radar.pdf",
+    "figures/citevqa_domain_radar.pdf",
+    "figures/citevqa_example.pdf",
+    "figures/citevqa_pipeline.pdf",
+    "figures/pdf_statistics.pdf",
+    "figures/quality_vs_accuracy_100.pdf",
+    "figures/question_statistics.pdf",
+    "figures/shlab.png",
+    "opendatalab.cls",
+    "paper.bib",
+    "paper.tex"
+  ]
+}

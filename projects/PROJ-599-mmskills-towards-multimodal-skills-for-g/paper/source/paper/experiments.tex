@@ -1,0 +1,193 @@
+% !TEX root = ../mmskills.tex
+
+\section{Experiments}
+\label{sec:experiments}
+
+We evaluate whether MMSkills provide useful external procedural knowledge for visual agents. The experiments are organized around four research questions:
+
+
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{RQ1: Overall performance on GUI and game tasks.} Do MMSkills improve visual agents across realistic desktop environments and open-ended visual game tasks?
+    \item \textbf{RQ2: Ablations of skill content and branch loading.} Which parts of MMSkills matter, and how do branch loading and view selection affect multimodal skill use?
+    \item \textbf{RQ3: Skill usage and interaction dynamics.} How often are MMSkills invoked, how do they affect interaction length, and which visual views are selected at runtime?
+    \item \textbf{RQ4: Behavioral shift analysis.} How do MMSkills change the agent's low-level action patterns beyond final success rate?
+\end{itemize}
+
+\definecolor{mmskillrowpurple}{RGB}{244,238,255}
+\renewcommand{\mmskillhl}{\cellcolor{mmskillrowpurple}}
+
+\begin{table}[!t]
+\centering
+\caption{OSWorld application-level success rates. All entries are percentages. ``Calc'', ``Impress'', and ``Writer'' denote LibreOffice applications.}
+\label{tab:osworld-domain-results}
+\scriptsize
+\setlength{\tabcolsep}{2.4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ccccccccccccc}
+\toprule
+Base model & Skill condition & Chrome & GIMP & Calc & Impress & Writer & Multi-app & OS & Mail & VLC & VS Code & Overall \\
+\midrule
+\multirow{3}{*}{\parbox{1.9cm}{\centering Gemini 3.1 Pro}}
+ & No skill & 53.47 & 34.62 & \textbf{57.45} & 40.43 & 47.82 & \textbf{31.97} & 54.17 & 40.00 & 35.29 & 56.52 & 44.08 \\
+ & Text-only & 44.35 & 34.62 & 38.30 & 40.34 & 56.52 & 22.38 & \textbf{70.83} & \textbf{66.67} & 41.18 & 56.52 & 40.76 \\
+ & \mmskillhl \textbf{MMSkills} & \mmskillhl \textbf{59.91} & \mmskillhl \textbf{50.00} & \mmskillhl 53.19 & \mmskillhl \textbf{53.19} & \mmskillhl \textbf{60.86} & \mmskillhl 24.11 & \mmskillhl \textbf{70.83} & \mmskillhl \textbf{66.67} & \mmskillhl \textbf{70.59} & \mmskillhl \textbf{65.22} & \mmskillhl \textbf{50.11} \\
+\midrule
+\multirow{3}{*}{\parbox{1.9cm}{\centering Gemini 3 Flash}}
+ & No skill & 37.78 & 50.00 & 38.30 & 29.73 & 52.17 & 21.51 & 54.17 & 66.67 & 52.39 & 47.83 & 36.65 \\
+ & Text-only & 51.02 & 23.08 & 38.30 & 34.00 & 56.52 & 19.16 & 54.17 & 60.00 & 58.82 & 52.17 & 40.27 \\
+ & \mmskillhl \textbf{MMSkills} & \mmskillhl \textbf{55.37} & \mmskillhl 42.31 & \mmskillhl \textbf{53.19} & \mmskillhl \textbf{40.34} & \mmskillhl \textbf{56.52} & \mmskillhl \textbf{30.98} & \mmskillhl \textbf{75.00} & \mmskillhl \textbf{66.67} & \mmskillhl 52.94 & \mmskillhl \textbf{60.87} & \mmskillhl \textbf{47.97} \\
+\midrule
+\multirow{3}{*}{\parbox{1.9cm}{\centering Qwen3-VL-235B}}
+ & No skill & 15.56 & 38.46 & 17.02 & 25.53 & 43.48 & 9.48 & 25.00 & 26.67 & 17.65 & 34.78 & 21.34 \\
+ & Text-only & 42.22 & 50.00 & 10.64 & 21.31 & 34.78 & 14.86 & 33.33 & 60.00 & 35.29 & 47.83 & 28.57 \\
+ & \mmskillhl \textbf{MMSkills} & \mmskillhl \textbf{59.91} & \mmskillhl \textbf{69.23} & \mmskillhl \textbf{23.40} & \mmskillhl \textbf{32.01} & \mmskillhl \textbf{47.82} & \mmskillhl \textbf{19.35} & \mmskillhl \textbf{41.67} & \mmskillhl \textbf{73.33} & \mmskillhl \textbf{41.18} & \mmskillhl \textbf{56.52} & \mmskillhl \textbf{39.17} \\
+\midrule
+\multirow{3}{*}{\parbox{1.9cm}{\centering GLM-5V}}
+ & No skill & 37.78 & 19.23 & 21.28 & 29.70 & 26.08 & 18.70 & 54.17 & 53.33 & 11.76 & 47.83 & 28.71 \\
+ & Text-only & \textbf{53.24} & \textbf{53.85} & \textbf{31.91} & \textbf{31.98} & \textbf{52.17} & 20.24 & 20.83 & \textbf{46.67} & \textbf{35.29} & \textbf{65.22} & 36.61 \\
+ & \mmskillhl \textbf{MMSkills} & \mmskillhl 51.02 & \mmskillhl \textbf{53.85} & \mmskillhl \textbf{31.91} & \mmskillhl 31.83 & \mmskillhl 43.47 & \mmskillhl \textbf{22.26} & \mmskillhl \textbf{66.67} & \mmskillhl 40.00 & \mmskillhl 23.53 & \mmskillhl \textbf{65.22} & \mmskillhl \textbf{38.51} \\
+\midrule
+\multirow{3}{*}{\parbox{1.9cm}{\centering Kimi-K2.6}}
+ & No skill & 51.02 & 34.62 & 34.04 & 35.32 & 30.43 & 14.86 & 54.17 & 66.67 & 32.60 & 52.17 & 34.98 \\
+ & Text-only & \textbf{57.69} & 40.00 & \textbf{40.43} & 36.14 & 17.38 & 22.38 & 62.50 & 53.33 & \textbf{58.82} & 43.48 & 39.66 \\
+ & \mmskillhl \textbf{MMSkills} & \mmskillhl \textbf{57.69} & \mmskillhl \textbf{42.31} & \mmskillhl \textbf{40.43} & \mmskillhl \textbf{48.92} & \mmskillhl \textbf{60.86} & \mmskillhl \textbf{23.40} & \mmskillhl \textbf{79.17} & \mmskillhl \textbf{73.33} & \mmskillhl 41.18 & \mmskillhl \textbf{69.57} & \mmskillhl \textbf{46.59} \\
+\midrule
+\multirow{3}{*}{\parbox{1.9cm}{\centering Qwen3-VL-8B-\\Instruct}}
+ & No skill & 15.47 & 7.69 & 2.13 & 8.59 & 4.34 & 7.33 & 25.00 & 13.33 & 29.41 & 17.39 & 10.78 \\
+ & Text-only & 19.91 & 11.54 & 6.38 & 16.99 & \textbf{17.39} & 7.33 & 16.67 & 33.33 & 17.65 & 34.78 & 14.93 \\
+ & \mmskillhl \textbf{MMSkills} & \mmskillhl \textbf{39.91} & \mmskillhl \textbf{42.31} & \mmskillhl \textbf{8.51} & \mmskillhl \textbf{23.37} & \mmskillhl \textbf{17.39} & \mmskillhl \textbf{13.43} & \mmskillhl \textbf{25.00} & \mmskillhl \textbf{60.00} & \mmskillhl \textbf{29.41} & \mmskillhl \textbf{47.83} & \mmskillhl \textbf{25.40} \\
+\bottomrule
+\end{tabular}}
+\vspace{-0.15em}
+\parbox{\textwidth}{\scriptsize\emph{Note:} Due to the substantially higher inference cost and wall-clock time of Gemini 3.1 Pro and Kimi-K2.6, we report their full three-condition results only on OSWorld.}
+\end{table}
+
+\begin{table}[!t]
+\centering
+\caption{Auxiliary GUI and game-based visual-agent results. macOSWorld reports domain-level and overall success rates; VAB-Minecraft reports success rate and average score; Super Mario Bros reports total performance and total reward.}
+\label{tab:auxiliary-results}
+\scriptsize
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cccccccccccc}
+\toprule
+& & \multicolumn{6}{c}{macOSWorld} & \multicolumn{2}{c}{VAB-Minecraft} & \multicolumn{2}{c}{Super Mario Bros} \\
+\cmidrule(lr){3-8}\cmidrule(lr){9-10}\cmidrule(lr){11-12}
+Base model & Skill condition & File & Media & Prod. & Sys/IF & Apps & Overall & Success & Avg. score & Total perf. & Total reward \\
+\midrule
+\multirow{3}{*}{\parbox{1.9cm}{\centering Gemini 3 Flash}}
+ & No skill & 41.38 & 33.33 & 60.00 & 62.07 & 55.79 & 55.94 & 67.24 & 0.7462 & 411.00 & 766.67 \\
+ & Text-only & 31.03 & 25.00 & 62.86 & \textbf{75.86} & 55.26 & 53.85 & 68.96 & 0.7541 & 548.00 & 912.00 \\
+ & \mmskillhl \textbf{MMSkills} & \mmskillhl \textbf{58.62} & \mmskillhl \textbf{50.00} & \mmskillhl \textbf{77.14} & \mmskillhl 65.52 & \mmskillhl \textbf{65.73} & \mmskillhl \textbf{65.73} & \mmskillhl \textbf{73.28} & \mmskillhl \textbf{0.7884} & \mmskillhl \textbf{624.00} & \mmskillhl \textbf{1081.33} \\
+\midrule
+\multirow{3}{*}{\parbox{1.9cm}{\centering Qwen3-VL-235B}}
+ & No skill & 31.03 & \textbf{58.33} & 51.43 & 58.62 & 44.74 & 47.55 & 52.59 & 0.6308 & 454.50 & 955.50 \\
+ & Text-only & 34.48 & 33.33 & 37.14 & 51.72 & 52.63 & 43.36 & 55.17 & 0.6634 & 610.50 & 1138.25 \\
+ & \mmskillhl \textbf{MMSkills} & \mmskillhl \textbf{37.93} & \mmskillhl 33.33 & \mmskillhl \textbf{54.29} & \mmskillhl \textbf{62.07} & \mmskillhl \textbf{57.89} & \mmskillhl \textbf{51.75} & \mmskillhl \textbf{62.07} & \mmskillhl \textbf{0.7114} & \mmskillhl \textbf{788.00} & \mmskillhl \textbf{1514.25} \\
+\midrule
+\multirow{3}{*}{\parbox{1.9cm}{\centering GLM-5V}}
+ & No skill & 24.14 & 16.67 & 40.00 & 41.38 & 39.47 & 34.97 & 56.03 & 0.6701 & 612.75 & 1191.50 \\
+ & Text-only & 31.03 & \textbf{66.67} & \textbf{62.86} & \textbf{58.62} & 47.37 & \textbf{51.75} & 61.20 & 0.6938 & 794.50 & 1218.00 \\
+ & \mmskillhl \textbf{MMSkills} & \mmskillhl \textbf{44.83} & \mmskillhl \textbf{66.67} & \mmskillhl 48.57 & \mmskillhl \textbf{58.62} & \mmskillhl \textbf{50.00} & \mmskillhl \textbf{51.75} & \mmskillhl \textbf{68.10} & \mmskillhl \textbf{0.7495} & \mmskillhl \textbf{950.50} & \mmskillhl \textbf{1384.50} \\
+\midrule
+\multirow{3}{*}{\parbox{1.9cm}{\centering Qwen3-VL-8B-\\Instruct}}
+ & No skill & \textbf{10.34} & 0.00 & \textbf{14.29} & \textbf{3.45} & 0.00 & \textbf{6.29} & 23.28 & 0.3017 & 415.25 & 928.75 \\
+ & Text-only & 0.00 & \textbf{8.33} & 2.86 & \textbf{3.45} & \textbf{10.53} & 4.90 & 29.31 & 0.3754 & 596.50 & 997.25 \\
+ & \mmskillhl \textbf{MMSkills} & \mmskillhl 6.90 & \mmskillhl \textbf{8.33} & \mmskillhl 8.57 & \mmskillhl \textbf{3.45} & \mmskillhl 5.26 & \mmskillhl \textbf{6.29} & \mmskillhl \textbf{38.79} & \mmskillhl \textbf{0.4668} & \mmskillhl \textbf{764.00} & \mmskillhl \textbf{1128.75} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\renewcommand{\mmskillhl}{\cellcolor{mmskillrow}}
+
+
+
+\subsection{Experimental Setup}
+\label{sec:experiments-setup}
+
+In all settings, agents plan from visual observations, namely desktop or game screenshots. We evaluate on OSWorld \citep{xie2024osworld}, macOSWorld \citep{yang2025macosworld}, VAB-Minecraft from VisualAgentBench \citep{liu2024visualagentbench}, and Super Mario Bros from LMGame-Bench \citep{hu2025lmgamebenchgoodllmsplaying}, covering both realistic GUI tasks and open visual game environments. Detailed benchmark descriptions and test-case distributions are illustrated in Appendix~\ref{app:benchmark-statistics}; implementation details, evaluation protocols, model choices, and runtime variants are given in Appendix~\ref{app:experiment-details}.
+
+\textbf{All skills are extracted from non-test data}. We evaluate frontier and smaller multimodal models and compare \emph{no-skill}, \emph{text-only skill}, and \emph{MMSkills} conditions, with direct-loading variants studied in the ablations. Dataset-specific skill sources, source statistics, and skill-package distributions are provided in Appendix~\ref{app:skill-source-statistics}.
+
+\subsection{RQ1: Overall Performance on GUI and Game Tasks}
+\label{sec:experiments-desktop}
+
+Table~\ref{tab:osworld-domain-results} reports OSWorld application-level success rates, and Table~\ref{tab:auxiliary-results} reports the auxiliary GUI and game results. \textbf{MMSkills improve OSWorld overall performance across all evaluated model families.} Overall success increases for Gemini 3.1 Pro ($44.08\%\!\to\!50.11\%$), Gemini 3 Flash ($36.65\%\!\to\!47.97\%$), Qwen3-VL-235B ($21.34\%\!\to\!39.17\%$), GLM-5V, and Kimi-K2.6. Text-only skills help but are less stable across domains, suggesting that procedures alone are insufficient when skill use depends on visual state matching. \textbf{External multimodal procedural knowledge is especially valuable for weaker visual agents.} For Qwen3-VL-8B-Instruct, MMSkills raise OSWorld from $10.78\%$ to $25.40\%$ and VAB-Minecraft from $23.28\%$ to $38.79\%$, indicating that explicit visual procedural knowledge can compensate for limited model-internal priors.
+
+\textbf{The gains transfer beyond Ubuntu desktop tasks.} On macOSWorld, MMSkills improve the completed large-model runs, including Gemini 3 Flash and GLM-5V, while VAB-Minecraft shows consistent gains in both success rate and average score across all evaluated models. Super Mario Bros follows the same pattern in the completed runs, with higher total performance and reward under MMSkills. These results indicate that MMSkills are not specialized to a single GUI benchmark; the same state-conditioned skill format helps in visually grounded game settings where recurring states and action strategies can be reused.
+
+\subsection{RQ2: Ablations of Skill Content and Branch Loading}
+\label{sec:experiments-ablation}
+
+Figure~\ref{fig:ablation-results} combines the skill-content and branch-loading ablations. Unless otherwise stated, skill variants use the branch-loaded agent; the main exception is \emph{Direct load}, which inserts skill content into the main context. For skill content, we compare text-only skills, MMSkills without state cards, MMSkills without images, and the complete MMSkills package. \textbf{State cards and multi-view visual evidence both improve skill utility.} Text-only branch loading already improves over the no-skill baseline, but the complete MMSkills package is consistently stronger. Removing state cards weakens the agent's ability to distinguish relevant runtime states, while removing images preserves decision rules but removes visual grounding evidence. Both removals reduce performance on OSWorld and VAB-Minecraft, confirming that state cards and keyframes play complementary roles: one supports state discrimination, and the other helps the agent recognize the corresponding visual evidence. \textbf{Branch loading helps even for text-only skills.} The branch-loaded text-only variant is stronger than direct text loading in most model--benchmark pairs, indicating that the temporary branch improves skill interpretation even before multimodal evidence is introduced.
+
+For branch loading, we ablate whether skill evidence is inspected in a temporary branch and whether Stage-1 view selection filters state cards and keyframes. \textbf{Branch loading and view selection address different failure modes.} Direct-full loading hurts performance because unfiltered images and state descriptions pollute the main context; view selection alone reduces this damage but stays near baseline. Branch loading already gives clear gains, and the full two-stage design performs best, indicating that separated evidence inspection and filtered visual evidence are both necessary.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{fig_ablation_results.pdf}
+    \caption{Ablation results for MMSkills components and branch loading. Bars report percentage-point gains over the no-skill baseline. Panel (A) removes runtime state cards or visual keyframes from the skill package. Panel (B) compares direct loading with branch loading and with or without view selection.}
+    \label{fig:ablation-results}
+\end{figure}
+
+\subsection{RQ3: Skill Usage and Interaction Dynamics}
+\label{sec:experiments-analysis}
+
+Table~\ref{tab:skill-usage-analysis} analyzes when and how agents call skills. \textbf{MMSkills are invoked more often than text-only skills.} Invocation coverage increases on both OSWorld and VAB-Minecraft for Gemini 3 Flash and Qwen3-VL-235B, with the largest OSWorld change rising from $37.50\%$ to $65.28\%$ for Qwen3-VL-235B. This suggests that multimodal skills make external knowledge easier to recognize as relevant: state cards expose when-to-use and when-not-to-use conditions, and visual cues help the agent detect when its current observation matches a reusable procedural state.
+
+\renewcommand{\mmskillhl}{\cellcolor{mmskillrowpurple}}
+
+\begin{table}[t]
+\centering
+\caption{Skill invocation, interaction length, and selected views. ``Invoked'' is the percentage of cases with at least one skill call, and ``Step $\Delta$'' is relative to the no-skill baseline.}
+\label{tab:skill-usage-analysis}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cccccccc}
+\toprule
+Benchmark & Model & Skill condition & Invoked (\%) & Calls/case & Steps & Step $\Delta$ & Views (Full/Focus/Before/After) \\
+\midrule
+\multirow{6}{*}{OSWorld}
+ & \multirow{3}{*}{Gemini 3 Flash}
+ & No skill & -- & -- & 13.11 & 0.00 & -- \\
+ & & Text-only & 41.11 & 0.7139 & 15.64 & +2.53 & -- \\
+ & & \mmskillhl \textbf{MMSkills} & \mmskillhl \textbf{62.50} & \mmskillhl \textbf{0.9556} & \mmskillhl \textbf{11.86} & \mmskillhl \textbf{-1.25} & \mmskillhl 79/241/8/24 \\
+\cmidrule(lr){2-8}
+ & \multirow{3}{*}{Qwen3-VL-235B}
+ & No skill & -- & -- & 15.22 & 0.00 & -- \\
+ & & Text-only & 37.50 & 0.4917 & 13.34 & -1.88 & -- \\
+ & & \mmskillhl \textbf{MMSkills} & \mmskillhl \textbf{65.28} & \mmskillhl \textbf{0.9222} & \mmskillhl \textbf{9.87} & \mmskillhl \textbf{-5.35} & \mmskillhl 40/27/17/13 \\
+\midrule
+\multirow{6}{*}{VAB-Minecraft}
+ & \multirow{3}{*}{Gemini 3 Flash}
+ & No skill & -- & -- & 16.92 & 0.00 & -- \\
+ & & Text-only & 68.97 & 1.8706 & 17.30 & +0.38 & -- \\
+ & & \mmskillhl \textbf{MMSkills} & \mmskillhl \textbf{81.90} & \mmskillhl \textbf{2.4310} & \mmskillhl \textbf{13.75} & \mmskillhl \textbf{-3.17} & \mmskillhl 105/205/15/12 \\
+\cmidrule(lr){2-8}
+ & \multirow{3}{*}{Qwen3-VL-235B}
+ & No skill & -- & -- & 34.74 & 0.00 & -- \\
+ & & Text-only & 54.31 & 1.5776 & 31.36 & -3.38 & -- \\
+ & & \mmskillhl \textbf{MMSkills} & \mmskillhl \textbf{64.66} & \mmskillhl \textbf{2.3534} & \mmskillhl \textbf{27.07} & \mmskillhl \textbf{-7.67} & \mmskillhl 98/196/13/10 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\renewcommand{\mmskillhl}{\cellcolor{mmskillrow}}
+
+\textbf{MMSkills shorten trajectories rather than merely adding extra consultation.} Text-only skills can add overhead when they provide procedural hints without visual grounding, but MMSkills reduce average steps in every setting, with the largest reductions appearing for Qwen3-VL-235B. These reductions indicate that multimodal skills help agents find shorter task-solving paths and avoid unnecessary exploration or repeated low-value actions. \textbf{Focus crops dominate selected visual evidence.} The branch does not load all views uniformly: focus crops are selected most frequently in three of four settings, while full-frame, before, and after views provide global context, transition evidence, and completion references when local crops alone are insufficient.
+
+\subsection{RQ4: Behavioral Shift Analysis}
+\label{sec:experiments-behavior}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{fig_behavior_shift.pdf}
+    \caption{Behavioral shifts induced by MMSkills on OSWorld. Panel (A) reports the distribution of executed action primitives. Panel (B) compares the average number of low-level primitives per task. Panel (C) measures repetitive behavior through exact repeated actions, repeated action modes, and the longest same-mode run normalized by the 20-step budget.}
+    \label{fig:behavior-shift}
+\end{figure}
+
+Figure~\ref{fig:behavior-shift} shows that the effect of MMSkills is not merely a success-rate gain. \textbf{MMSkills reduce low-level action load.} Gemini 3 Flash uses substantially fewer primitives per task, and Qwen3-VL-235B shows a similar reduction, especially in click actions. This supports the view that multimodal state cards and visual evidence constrain the agent's search space: the agent performs fewer exploratory GUI operations before reaching a useful state. \textbf{The behavioral shift is strongest for Qwen3-VL-235B.} Its click share drops from $75.8\%$ to $63.7\%$, while keyboard and DONE actions increase, suggesting that MMSkills help click-heavy agents move toward more structured input and stronger completion judgments.
+
+\textbf{MMSkills suppress repetitive trajectories and improve completion awareness.} The effect is clearest for Qwen3-VL-235B: exact repeated actions fall from $21.8\%$ to $6.2\%$, and the longest same-mode run decreases substantially. Gemini 3 Flash shows the same direction of change, though from a stronger baseline. MMSkills also increase DONE behavior for both models, indicating that state cards and verification cues help agents decide not only what to do next, but also when the task is complete. Overall, MMSkills reshape agent behavior from exploratory trial-and-error toward grounded, state-aware execution; Appendix~\ref{app:additional-behavior-analysis} provides the GLM-5V and Kimi-K2.6 analysis.

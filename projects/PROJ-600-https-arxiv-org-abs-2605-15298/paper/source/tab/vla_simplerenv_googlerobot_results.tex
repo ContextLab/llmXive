@@ -1,0 +1,28 @@
+\begin{table*}[!t]
+  \centering
+  \caption{
+    \textbf{Results of evaluating the VLA models with the Google Robot in the SimplerEnv-GoogleRobot simulation benchmark}. We highlight the best results in \textbf{bold} and the second-best results with \underline{underline}.
+    }
+    \setlength{\tabcolsep}{15pt}
+  \begin{adjustbox}{width=0.82\linewidth}
+  \begin{tabular}{l c c c c}
+    \toprule
+    \textbf{Method}
+     & \makecell[c]{\textbf{Pick} \\ \textbf{Coke Can}}
+     & \makecell[c]{\textbf{Move} \\ \textbf{Near}}
+     & \makecell[c]{\textbf{Open/Close} \\ \textbf{Drawer}}
+     & \textbf{Average} \\
+    \midrule
+    $\pi_0$~\citep{PI0_2024_arXiv} & 75.2 & 63.7 & 25.6 & 54.8 \\
+    GR00T-N1~\citep{GR00T_2025_arXiv} & 78.8 & 62.5 & 13.2 & 51.5 \\
+    GreenVLA (R1)~\citep{GreenVLA_2026_arxiv} & 90.4 & 61.2 & 62.9 & 66.9 \\
+    X-VLA~\citep{X-VLA_2025_arXiv} & 85.5 & 79.8 & 61.9 & 75.7 \\
+    Xiaomi-Robotics-0~\citep{XiaomiRobotics0_2026_arxiv} & 98.7 & 88.8 & 79.6 & \underline{89.03} \\
+    \midrule
+    \rowcolor{gray!30}\textbf{PhysBrain 1.0} (ours) & 100.0 & 94.8 & 79.2 & \textbf{91.33} \\
+    \bottomrule
+  \end{tabular}
+  \end{adjustbox}
+  \vspace{0.5 em}
+  \label{tab:simplerenv_googlerobot_results}
+\end{table*}

@@ -1,0 +1,101 @@
+\documentclass[]{amap}
+
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{siunitx}
+\usepackage[table]{xcolor}
+\usepackage{makecell}
+\usepackage{framed}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{placeins}
+\usepackage{longtable}
+\usepackage{hhline}
+\usepackage{fancyvrb}
+\usepackage{float}
+\usepackage{fvextra}
+\usepackage{multicol}
+\usepackage{cleveref}
+\usepackage{tablefootnote}
+\usepackage{threeparttable}
+\usepackage{tabularx}
+\usepackage{mdframed}
+\usepackage[usestackEOL]{stackengine}
+\usepackage[numbers]{natbib}
+\usepackage{enumitem}
+\usepackage{adjustbox}
+\usepackage{arydshln}
+\usepackage{pifont}
+\usepackage[dvipsnames]{xcolor}
+
+\newcommand{\commentout}[1]{}
+\renewcommand{\paragraph}[1]{\noindent\textbf{#1.}\hspace*{1em}}
+\setlist[itemize]{leftmargin=15pt}
+
+\sisetup{
+table-number-alignment = center,
+table-space-text-post = \textsuperscript{*},
+output-decimal-marker = .
+}
+
+\title{PhysBrain 1.0 Technical Report}
+
+\author{PhysBrain Team}
+
+\contribution{See \hyperref[sec:contributions]{Contributions section} for a full author list.}
+
+% \date{April 29, 2026}
+\projectpage{https://phys-brain.github.io/}
+% \correspondence{xxx@xxx.com, xxx@deepcybo.com}
+
+\abstract{\input{sec/abstract}}
+
+\begin{document}
+\newcommand{\todo}[1]{\textcolor{red}{TODO: #1}}
+\newcommand{\lz}[1]{\textcolor{blue}{Lyna: #1}}
+\newcommand{\infobox}[1]{
+    \begin{tcolorbox}[
+        width=0.97\linewidth,
+        center,
+        colback=amappaleblue!45!white,
+        colframe=amapblue!75!black,
+        arc=5pt,
+        boxsep=4pt,
+        left=4pt,
+        right=4pt,
+        top=3pt,
+        bottom=4pt,
+        boxrule=0.8pt,
+    ]
+        \begin{minipage}{0.98\linewidth}
+        \small\raggedright
+        #1
+        \end{minipage}
+    \end{tcolorbox}
+}
+
+\maketitle
+
+\begin{figure}[H]
+	\centering
+    \vspace{-3em}
+    \includegraphics[width=\textwidth]{fig/cover.pdf}
+	% \fcolorbox{amapblue}{white}{\rule{0pt}{1.9in}\rule{1\linewidth}{0pt}}
+	\caption{\textbf{PhysBrain 1.0 overall system overview.} PhysBrain 1.0 transforms large-scale human egocentric interaction videos into structured physical supervision, including scene elements, spatial dynamics, action execution, and depth- aware relations, and renders these records into physically grounded QA for training a stronger base VLM. The learned physical priors are then transferred to robot control through capability-preserving VLA adaptation, supporting language-conditioned action generation across simulated and real-world embodied tasks.}
+\end{figure}
+
+\clearpage
+\tableofcontents
+\clearpage
+
+\input{sec/body}
+
+{
+	\bibliographystyle{plainnat}
+	\bibliography{ref}
+}
+
+\end{document}
