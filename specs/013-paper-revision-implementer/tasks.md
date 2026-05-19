@@ -161,7 +161,7 @@ Single-project Python layout per [plan.md](plan.md#project-structure):
 
 **Independent Test**: Drive a fixture through round 1 (implementer with 4/5 tasks succeeding, 1 compile-failed) + round 2 (re-review). Assert: the compile-failed task's specialist re-flags it, project re-enters `READY_FOR_IMPLEMENTATION` for round 2 with the un-addressed item.
 
-- [ ] T053 [US5] Integration test in [tests/real_call/test_implementer_e2e.py](tests/real_call/test_implementer_e2e.py): extend the existing E2E to drive round 1 (implementer) + round 2 (re-review) on the same fixture. Assert FR-014..FR-017 behaviors hold (round increments, re-review fires, transitions per spec 012). No new code required — this verifies spec 012's per-specialist re-review correctly activates after the implementer's transition.
+- [X] T053 [US5] Integration test in [tests/real_call/test_implementer_e2e.py](tests/real_call/test_implementer_e2e.py): extend the existing E2E to drive round 1 (implementer) + round 2 (re-review) on the same fixture. Assert FR-014..FR-017 behaviors hold (round increments, re-review fires, transitions per spec 012). No new code required — this verifies spec 012's per-specialist re-review correctly activates after the implementer's transition.
 
 **Checkpoint**: US5 complete — the convergence loop closes via the re-existing re-review machinery.
 
@@ -169,10 +169,10 @@ Single-project Python layout per [plan.md](plan.md#project-structure):
 
 ## Phase 9: Polish & Cross-Cutting Concerns
 
-- [ ] T054 [P] Add `PAPER_REVISION_BLOCKED` and `publish_blocked` badges to [web/](web/) status renderer with operator-facing diagnostic text.
-- [ ] T055 [P] Update activity-log renderer in [web/](web/) to display new agents (`llmXive-implementer-v1.0`, `paper_publisher`) with appropriate icons/labels.
+- [X] T054 [P] Add `PAPER_REVISION_BLOCKED` and `publish_blocked` badges to [web/](web/) status renderer with operator-facing diagnostic text.
+- [X] T055 [P] Update activity-log renderer in [web/](web/) to display new agents (`llmXive-implementer-v1.0`, `paper_publisher`) with appropriate icons/labels.
 - [ ] T056 [P] Add dashboard modal section for `revision_history.yaml` + per-round `implementer-log.yaml` per FR-020 — round number, agent identity, tasks done/failed, link to new PDF, link to changelog.
-- [ ] T057 [P] Update [README.md](README.md) — add a short paragraph in the Workflow section describing US6 (publication step + Zenodo DOI). Mention the `[zenodo]` credentials.toml section. Per the constitution's Documentation-parity rule.
+- [X] T057 [P] Update [README.md](README.md) — add a short paragraph in the Workflow section describing US6 (publication step + Zenodo DOI). Mention the `[zenodo]` credentials.toml section. Per the constitution's Documentation-parity rule.
 - [X] T058 Run the full test suite: `pytest -q` (deterministic) + `LLMXIVE_REAL_TESTS=1 pytest tests/real_call/ -q` (real-call). All tests MUST pass per Principle III; any failures must be diagnosed and fixed before the spec is considered shipped. **SC-002 operational check (closes finding F7)**: after driving the implementer through up to 5 rounds against PROJ-578, assert `current_stage` is one of `{PAPER_ACCEPTED, posted, PAPER_REVISION_BLOCKED}` — endless oscillation between `paper_review` and `READY_FOR_IMPLEMENTATION` is a regression. Inspect via `yq '.rounds | length' projects/PROJ-578-*/paper/revision_history.yaml` and the project's stage field.
 
 ---

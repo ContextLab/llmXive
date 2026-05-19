@@ -41,14 +41,31 @@ specialist** (against the live artifact hash — stale reviews are ignored).
 
 Three terminal outcomes:
 
-- **All specialists accept** → `paper_accepted` → `posted`.
+- **All specialists accept** → `paper_accepted` → the `paper_publisher`
+  agent (spec 013) pre-reserves a Zenodo DOI, recompiles the PDF with
+  the final `\paperstatus{Auto-Reviewed | Auto-Revised | Published}`
+  byline + DOI + volume/issue, uploads to Zenodo, appends the
+  post-paper appendix (spacer + reviews + revision changelog), writes
+  `paper/publication.yaml`, and transitions to `posted`.
 - **Any `fatal` severity** → `brainstormed` (back to the backlog), with a
   rejection rationale appended to the idea record citing each fatal item.
 - **Otherwise** (writing/science items, no fatal) → `paper_revision_in_progress`,
   which auto-kicks a revision-spec pipeline that produces a complete
   spec/plan/tasks/analyze directory under
   `specs/auto-revisions/<PROJ-ID>/round-<N>/`. The project then sits at
-  `ready_for_implementation` until an implementer agent picks it up.
+  `ready_for_implementation` until the `llmxive_implementer` agent
+  (spec 013) picks it up, applies each task to `paper/source/main.tex`
+  (and `projects/<id>/code/` for science-class tasks), recompiles after
+  every edit (rolling back on compile failure), joins the paper's
+  author list, and routes back to `paper_review` for re-review.
+
+**Credentials**: the publisher loads a Zenodo API token from
+`~/.config/llmxive/credentials.toml` under `[zenodo].api_token` (or
+the `ZENODO_API_TOKEN` env var). For real-call sandbox tests, register
+a separate account at `sandbox.zenodo.org` and add a
+`[zenodo_sandbox]` section with `api_token`. The Dartmouth Chat API
+key (`dartmouth_chat_api_key`) at the top level of the same file is
+used by the implementer's LLM calls.
 
 The **per-specialist re-review protocol** prevents endless-nit loops: when
 a specialist has prior reviews for the same project, its prompt reduces
