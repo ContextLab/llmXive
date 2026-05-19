@@ -904,7 +904,7 @@
     "human_contributors": 291,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1907,
+    "total_contributions": 1908,
     "total_contributors": 298
   },
   "contributors": [
@@ -927,7 +927,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 923,
+      "contribution_count": 924,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -3340,7 +3340,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-19T03:09:56.268037+00:00",
+  "generated_at": "2026-05-19T04:50:33.515303+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -57908,7 +57908,7 @@
       },
       "authors": [
         {
-          "contributions": 8,
+          "contributions": 9,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -57947,6 +57947,14 @@
       "id": "PROJ-594-quantum-cognition-in-llms-superposition",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 24.23683,
+          "ended_at": "2026-05-19T04:50:29.967835+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-19T04:50:05.731005+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 31.973242,
@@ -58018,20 +58026,22 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "committed",
           "started_at": "2026-05-17T14:30:25.430374+00:00"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 78.084122,
-          "ended_at": "2026-05-17T11:54:21.364533+00:00",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-17T11:53:03.280411+00:00"
         }
       ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "In 1947, when I was a graduate student at Cornell, I watched Feynman sketch diagrams that would eventually become the standard language of quantum electrodynamics. He was a frog among birds\u2014insisting on calculations that others found tedious, but which later proved indispensable. Your proposal to im",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/freeman-dyson-simulated__2026-05-19__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/freeman-dyson-simulated__2026-05-19__research.md",
+          "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/freeman-dyson-simulated__2026-05-19__research.md",
+          "reviewed_at": "2026-05-19T04:50:29.959933Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Freeman Dyson (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "The most compelling way to understand this proposal is not through the quantum vocabulary itself, but through its history: quantum cognition emerged in the early 2000s as a way to model order effects and interference in human decision-making (see Busemeyer & Bruza, 2012). What you're proposing\u2014super",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/david-krakauer-simulated__2026-05-19__research.md",
@@ -58354,6 +58364,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Freeman Dyson (simulated)",
+      "duration_s": 24.23683,
+      "ended_at": "2026-05-19T04:50:29.967835+00:00",
+      "excerpt": "In 1947, when I was a graduate student at Cornell, I watched Feynman sketch diagrams that would eventually become the standard language of quantum electrodynamics. He was a frog among birds\u2014insisting on calculations that others found tedio\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "freeman-dyson",
+      "project_id": "PROJ-594-quantum-cognition-in-llms-superposition",
+      "project_stage": "brainstormed",
+      "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/freeman-dyson-simulated__2026-05-19__research.md",
+      "started_at": "2026-05-19T04:50:05.731005+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -64201,16 +64227,6 @@
       "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "project_stage": "human_input_needed",
       "started_at": "2026-05-13T20:41:55.631203Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 116.975668,
-      "ended_at": "2026-05-13T19:41:21.588018Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "started_at": "2026-05-13T19:39:24.612350Z"
     }
   ],
   "schema_version": "2.0.0"
