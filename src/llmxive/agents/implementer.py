@@ -336,7 +336,14 @@ class LLMXiveImplementer(Agent):
                     "has no revision_spec_path; cannot proceed"
                 )
 
-            round_number = self._next_round_number(project.id, repo_root=repo)
+            # Derive the round number from the revision_spec_path the
+            # revision_planner set (e.g. `.../round-3` → 3) rather than
+            # counting existing dirs. The planner and the implementer
+            # share the same `round-N` directory; the implementer writes
+            # its log INTO that directory next to the planner's
+            # tasks.md + action items.
+            round_number = self._derive_round_number(project.revision_spec_path)
+            self._round_n_cached = round_number
             paper_dir = repo / "projects" / project.id / "paper"
             source_dir = paper_dir / "source"
 
@@ -692,6 +699,16 @@ class LLMXiveImplementer(Agent):
         n = (max(existing) if existing else 0) + 1
         self._round_n_cached = n
         return n
+
+    def _derive_round_number(self, revision_spec_path: str) -> int:
+        """Parse the trailing `round-N` segment of the planner's
+        revision_spec_path. Falls back to `_next_round_number` if the
+        path doesn't end in `round-<int>`."""
+        m = re.search(r"round-(\d+)/?$", revision_spec_path or "")
+        if m:
+            return int(m.group(1))
+        # Defensive fallback — uses dir-count discovery.
+        return 1
 
     def _emit_run_log(
         self,

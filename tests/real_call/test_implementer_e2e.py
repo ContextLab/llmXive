@@ -76,17 +76,21 @@ A long URL exists at https://github.com/xrenaf/MEMLENS.
 
     round_dir = repo / "specs" / "auto-revisions" / pid / "round-1"
     round_dir.mkdir(parents=True, exist_ok=True)
+    # Task IDs MUST be hex (sha1[:12]) to match the production
+    # revision_planner's emission format that the implementer's tasks.md
+    # parser expects.
+    tid_a, tid_b, tid_c = "a1b2c3d4e5f6", "b2c3d4e5f6a1", "c3d4e5f6a1b2"
     (round_dir / "tasks.md").write_text(
         "# Revision tasks\n\n"
-        "1. **[task-A]** (writing) Fix placeholder1 → 'a concrete example'\n"
-        "2. **[task-B]** (writing) Define RAG (retrieval-augmented generation) at first use\n"
-        "3. **[task-C]** (writing) Cite the project's GitHub repo in the introduction\n",
+        f"1. **[{tid_a}]** (writing) Fix placeholder1 to 'a concrete example'\n"
+        f"2. **[{tid_b}]** (writing) Define RAG at first use\n"
+        f"3. **[{tid_c}]** (writing) Cite the GitHub repo in the introduction\n",
         encoding="utf-8",
     )
     for tid, sev, text in (
-        ("task-A", "writing", "Replace placeholder1 with a concrete example in the introduction."),
-        ("task-B", "writing", "Define the acronym RAG as 'retrieval-augmented generation' at first use."),
-        ("task-C", "writing", "Add a brief sentence citing the GitHub repo URL in the introduction."),
+        (tid_a, "writing", "Replace placeholder1 with a concrete example in the introduction."),
+        (tid_b, "writing", "Define the acronym RAG as 'retrieval-augmented generation' at first use."),
+        (tid_c, "writing", "Add a brief sentence citing the GitHub repo URL in the introduction."),
     ):
         (round_dir / f"action_{tid}.md").write_text(
             f"---\nid: {tid}\nseverity: {sev}\ntext: \"{text}\"\n---\n{text}\n",
