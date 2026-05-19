@@ -449,22 +449,220 @@ class Task(_Strict):
     siblings_total: int | None = Field(default=None, ge=1)
 
 
+#  Spec 013 — Paper revision implementer + publisher schemas
+#  -------------------------------------------------------------------------
+#  These models back the on-disk artifacts the new agents read/write:
+#    - ImplementerLogEntry / ImplementerLog → implementer-log.yaml (per round)
+#    - RevisionRound / RevisionHistory      → revision_history.yaml
+#    - AuthorEntry                          → paper/metadata.json::authors
+#    - VolumeIssue / DOIVersion / Publication / ZenodoDeposition
+#                                           → paper/publication.yaml + metadata.json mirror
+#  Contracts: specs/013-paper-revision-implementer/contracts/.
+# -------------------------------------------------------------------------
+
+
+ImplementerStatus = Literal[
+    "done", "compile-failed", "file-not-found", "skipped", "needs-external-data"
+]
+
+
+class ImplementerLogEntry(_Strict):
+    """One per task processed in an implementer round (FR-004)."""
+
+    task_id: str
+    status: ImplementerStatus
+    action_item_severity: Literal["writing", "science"] | None = None
+    action_item_text: str = ""
+    edit_kind: Literal["search_and_replace", "unified_diff"] | None = None
+    files_modified: list[str] = Field(default_factory=list)
+    before_hashes: dict[str, Sha256Field] = Field(default_factory=dict)
+    after_hashes: dict[str, Sha256Field] = Field(default_factory=dict)
+    model_response_excerpt: str = ""
+    duration_s: float = Field(ge=0.0)
+    error_reason: str | None = None
+
+
+class ImplementerLog(_Strict):
+    """`specs/auto-revisions/<PROJ-ID>/round-<N>/implementer-log.yaml`."""
+
+    schema_version: Literal["1"] = "1"
+    round_number: int = Field(ge=1)
+    project_id: ProjectIdField
+    revision_spec_path: str
+    implementer_agent: str          # name only (dedupe key part 1)
+    agent_version: str              # dedupe key part 2
+    model_name: str
+    backend: str
+    canonical_identity: str
+    started_at: datetime
+    ended_at: datetime
+    duration_s: float = Field(ge=0.0)
+    exit_reason: Literal[
+        "all-tasks-processed", "wall-clock-budget-exceeded", "halted-error"
+    ]
+    total_tasks: int = Field(ge=0)
+    tasks_done: int = Field(ge=0)
+    tasks_compile_failed: int = Field(ge=0)
+    tasks_file_not_found: int = Field(ge=0)
+    tasks_skipped: int = Field(ge=0)
+    tasks_needs_external_data: int = Field(ge=0)
+    final_compile_attempted: bool = False
+    final_compile_succeeded: bool = False
+    final_compile_pdf_sha256: Sha256Field | None = None
+    final_compile_pdf_bytes: int | None = None
+    author_added: bool = False
+    author_entry: AuthorEntry | None = None  # forward-declared below
+    task_outcomes: list[ImplementerLogEntry] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _outcome_count_invariant(self) -> ImplementerLog:
+        observed_total = (self.tasks_done + self.tasks_compile_failed
+                          + self.tasks_file_not_found + self.tasks_skipped
+                          + self.tasks_needs_external_data)
+        if observed_total != self.total_tasks:
+            raise ValueError(
+                f"task outcome counts ({observed_total}) must sum to total_tasks "
+                f"({self.total_tasks})"
+            )
+        if len(self.task_outcomes) != self.total_tasks:
+            raise ValueError(
+                f"len(task_outcomes)={len(self.task_outcomes)} != total_tasks={self.total_tasks}"
+            )
+        return self
+
+
+class RevisionRound(_Strict):
+    """One entry per round in `paper/revision_history.yaml` (FR-009).
+
+    Summary form: see ImplementerLog for the per-task detail.
+    """
+
+    round_number: int = Field(ge=1)
+    ran_at: datetime
+    implementer_agent: str
+    canonical_identity: str
+    tasks_done: int = Field(ge=0)
+    tasks_failed: int = Field(ge=0)
+    tasks_skipped: int = Field(ge=0)
+    resulting_pdf_sha256: Sha256Field | None = None
+    implementer_log_path: str
+    task_outcomes: list[dict[str, str]] = Field(default_factory=list)
+
+
+class RevisionHistory(_Strict):
+    """`projects/<PROJ-ID>/paper/revision_history.yaml`. Append-only."""
+
+    schema_version: Literal["1"] = "1"
+    project_id: ProjectIdField
+    rounds: list[RevisionRound] = Field(default_factory=list)
+
+
+class AuthorEntry(_Strict):
+    """`paper/metadata.json::authors[]` extended schema (FR-006)."""
+
+    name: str = Field(min_length=1)
+    kind: Literal["human", "llm"] = "human"
+    affiliation: str | None = None
+    email: str | None = None
+    # LLM-only fields
+    agent_version: str | None = None
+    model_name: str | None = None
+    backend: str | None = None
+    first_contributed_at: datetime | None = None
+
+
+class VolumeIssue(_Strict):
+    """Derived from acceptance timestamp; `YY.MM` (FR-024)."""
+
+    volume: str = Field(pattern=r"^\d{2}$")
+    issue: str = Field(pattern=r"^\d{2}$")
+
+    @classmethod
+    def from_datetime(cls, dt: datetime) -> VolumeIssue:
+        return cls(volume=dt.strftime("%y"), issue=dt.strftime("%m"))
+
+    @property
+    def display(self) -> str:
+        return f"{self.volume}.{self.issue}"
+
+
+class DOIVersion(_Strict):
+    """One row of `publication.yaml::doi_versions[]` (FR-027)."""
+
+    doi: str = Field(pattern=r"^10\.\d{4,9}/[^\s]+$")
+    version_index: int = Field(ge=1)
+    published_at: datetime
+    pdf_sha256: Sha256Field
+
+
+class ZenodoDeposition(_Strict):
+    """Reference to a Zenodo-side record."""
+
+    deposition_id: int = Field(ge=1)
+    doi: str
+    concept_doi: str | None = None
+    published_at: datetime
+    pdf_sha256: Sha256Field
+    version_index: int = Field(ge=1)
+
+
+class Publication(_Strict):
+    """`projects/<PROJ-ID>/paper/publication.yaml` (FR-032).
+
+    Authoritative publication metadata. `paper/metadata.json` mirrors
+    `doi`/`doi_url`/`zenodo_id`/`volume`/`issue` for convenience but
+    `publication.yaml` is the single source of truth.
+    """
+
+    schema_version: Literal["1"] = "1"
+    project_id: ProjectIdField
+    title: str = Field(min_length=1)
+    volume: str = Field(pattern=r"^\d{2}$")
+    issue: str = Field(pattern=r"^\d{2}$")
+    display_volume_issue: str = Field(pattern=r"^\d{2}\.\d{2}$")
+    doi: str = Field(pattern=r"^10\.\d{4,9}/[^\s]+$")
+    doi_url: str = Field(pattern=r"^https://doi\.org/")
+    concept_doi: str | None = None
+    doi_versions: list[DOIVersion] = Field(default_factory=list)
+    zenodo_id: int = Field(ge=1)
+    zenodo_environment: Literal["production", "sandbox"] = "production"
+    citation_string: str = Field(min_length=1)
+    authors_at_publication: list[AuthorEntry] = Field(default_factory=list)
+    accepted_at: datetime
+    published_at: datetime
+    review_summary: dict[str, int] = Field(default_factory=dict)
+
+
+# Resolve the forward reference inside ImplementerLog.
+ImplementerLog.model_rebuild()
+
+
 __all__ = [
     "AgentRegistry",
     "AgentRegistryEntry",
     "ArtifactKind",
+    "AuthorEntry",
     "BackendEntry",
     "BackendKind",
     "BackendName",
     "Citation",
     "CitationKind",
+    "DOIVersion",
+    "ImplementerLog",
+    "ImplementerLogEntry",
+    "ImplementerStatus",
     "Lock",
     "Outcome",
     "Project",
+    "Publication",
     "ReviewRecord",
     "ReviewerKind",
+    "RevisionHistory",
+    "RevisionRound",
     "RunLogEntry",
     "Stage",
     "Task",
     "VerificationStatus",
+    "VolumeIssue",
+    "ZenodoDeposition",
 ]
