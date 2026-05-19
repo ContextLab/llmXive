@@ -1,5 +1,5 @@
-last_used: dan-rockmore
-last_used_at: '2026-05-18T23:53:23.451551+00:00'
+last_used: daniel-kahneman
+last_used_at: '2026-05-19T00:35:13.345175+00:00'
 last_outcome: committed
 history:
 - slug: ada-lovelace
@@ -859,3 +859,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/reviews/research/dan-rockmore-simulated__2026-05-18__research.md
+- slug: daniel-kahneman
+  started_at: '2026-05-18T23:53:23.451551+00:00'
+  ended_at: '2026-05-19T00:35:13.345175+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-587-episodic-future-thinking-in-llms-impleme/reviews/research/daniel-kahneman-simulated__2026-05-19__research.md
