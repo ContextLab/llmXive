@@ -1033,6 +1033,9 @@ def _project_to_entry(repo: Path, project: Project) -> dict[str, Any]:
         # Spec 012 modal redesign: unified review list (paper + research
         # + personality) for the modal's expandable review pane.
         "reviews": _project_reviews(repo, project.id),
+        # Spec 013 / FR-020: per-round implementer revision history for
+        # the modal's revision-history section.
+        "revision_history": _project_revision_history(repo, project.id),
         "artifact_links": links,
         "current_artifact": _current_artifact(repo, project, links),
         "citation_summary": _citation_summary(repo, project.id),
@@ -1103,6 +1106,63 @@ def _project_reviews(repo: Path, project_id: str) -> list[dict[str, Any]]:
             })
     # Sort: most-recent first
     out.sort(key=lambda r: r.get("reviewed_at") or "", reverse=True)
+    return out
+
+
+def _project_revision_history(repo: Path, project_id: str) -> list[dict[str, Any]]:
+    """Spec 013 / FR-020: surface `paper/revision_history.yaml` for the
+    project modal. One entry per implementer round:
+      - round_number, implementer_agent (canonical display identity)
+      - ran_at (ISO 8601)
+      - tasks_done / tasks_failed / tasks_skipped counts
+      - pdf_url       : raw GitHub URL of the regenerated PDF (if present)
+      - changelog_url : blob URL of the round's implementer-log.yaml
+      - task_outcomes : per-task {id, severity, status, text} list
+    """
+    hist_path = repo / "projects" / project_id / "paper" / "revision_history.yaml"
+    if not hist_path.is_file():
+        return []
+    try:
+        import yaml as _yaml
+        data = _yaml.safe_load(hist_path.read_text(encoding="utf-8")) or {}
+    except Exception:  # noqa: BLE001
+        return []
+    rounds = data.get("rounds", []) or []
+    if not isinstance(rounds, list):
+        return []
+    pdf_rel = f"projects/{project_id}/paper/pdf/main.pdf"
+    pdf_url = f"https://raw.githubusercontent.com/ContextLab/llmXive/main/{pdf_rel}"
+    out: list[dict[str, Any]] = []
+    for r in rounds:
+        if not isinstance(r, dict):
+            continue
+        log_path = r.get("implementer_log_path") or ""
+        changelog_url = (
+            f"https://github.com/ContextLab/llmXive/blob/main/{log_path}"
+            if log_path else None
+        )
+        out.append({
+            "round_number": r.get("round_number"),
+            "implementer_agent": r.get("canonical_identity") or r.get("implementer_agent"),
+            "ran_at": str(r.get("ran_at") or ""),
+            "tasks_done": int(r.get("tasks_done", 0)),
+            "tasks_failed": int(r.get("tasks_failed", 0)),
+            "tasks_skipped": int(r.get("tasks_skipped", 0)),
+            "pdf_url": pdf_url if (repo / pdf_rel).exists() else None,
+            "changelog_url": changelog_url,
+            "task_outcomes": [
+                {
+                    "id": o.get("id", ""),
+                    "severity": o.get("severity", ""),
+                    "status": o.get("status", ""),
+                    "text": (o.get("text", "") or "")[:200],
+                }
+                for o in (r.get("task_outcomes") or [])
+                if isinstance(o, dict)
+            ],
+        })
+    # Most-recent round first.
+    out.sort(key=lambda x: (x.get("round_number") or 0), reverse=True)
     return out
 
 
