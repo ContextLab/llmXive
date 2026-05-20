@@ -1,0 +1,61 @@
+% ==================== Appendix Table: S1 Idea Generation ====================
+\begingroup
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\rowcolors{2}{white}{S1color!6}
+\begin{table*}[!ht]
+\centering
+\caption{\textbf{Comprehensive inventory: \Sone Idea Generation.} $^\dagger$Evaluation information uncertain.}
+\vspace{-7pt}
+\label{tab:appendix_s1}
+\stagecard{\Sone}{Idea Generation}{S1color}{figures/icons/s1_ideation.png}{%
+Generating, refining, and evaluating novel research hypotheses. Techniques range from knowledge graph reasoning and retrieval-augmented generation to Multi-Agent collaboration for structured hypothesis formation.}
+\vspace{2pt}
+\resizebox{\linewidth}{!}{\begin{tabular}{c| >{\centering\arraybackslash}p{3cm} r r |c| >{\centering\arraybackslash}p{2.4cm} |c| p{7.8cm}}
+\toprule
+\rowcolor{tableheader!10}
+\textbf{\#} & \textbf{Method} & \textbf{Ref} & \textbf{Venue} & \textbf{Link} & \textbf{Category} & \textbf{GitHub} & \textbf{Evaluation} \\
+\midrule
+\multicolumn{8}{@{}l}{\cellcolor{S1color!65}\textbf{\textsf{\textcolor{white}{~~LLM Internal Knowledge-Based Generation}}}} \\
+\addlinespace[1pt]
+{1} & Chain of Ideas & \cite{li2024chainofideas} & {\small arXiv'24}  & \href{https://arxiv.org/abs/2410.13185}{\faExternalLink} & LLM Internal    & \githubicon{https://github.com/DAMO-NLP-SG/CoI-Agent}                                   & Comparable to human quality; \$0.50/idea min cost \\
+{2} & ResearchAgent & \cite{baek2024researchagent} & {\small NAACL'25} & \href{https://aclanthology.org/2025.naacl-long.342/}{\faExternalLink} & LLM Internal    & \githubicon{https://github.com/JinheonBaek/ResearchAgent}                                & Human + model eval; academic graph feedback \\
+{3} & SciMON & \cite{wang2024scimon} & {\small ACL'24} & \href{https://arxiv.org/abs/2305.14259}{\faExternalLink} & LLM Internal    & \githubicon{https://github.com/EagleW/CLBD}                                             & Mitigates shallow novelty; iterative refinement \\
+{4} & Idea Gen Agent & \cite{si2024ideas} & {\small arXiv'24} & \href{https://arxiv.org/abs/2409.04109}{\faExternalLink} & LLM Internal    & -                                                                                     & 100+ NLP researchers; LLM ideas higher novelty ($p<0.05$) \\
+{5} & IRIS & \cite{iris2025} & {\small ACL'25} & \href{https://aclanthology.org/2025.acl-demo.57/}{\faExternalLink} & LLM Internal    & \githubicon{https://github.com/Anikethh/IRIS-Interactive-Research-Ideation-System}       & MCTS adaptive reasoning; human-in-the-loop platform \\
+{6} & Spark & \cite{sanyal2025spark} & {\small ICCC'25} & \href{https://arxiv.org/abs/2504.20090}{\faExternalLink} & LLM Internal    & -                                                                                     & Judge model trained on 600K OpenReview reviews \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S1color!65}\textbf{\textsf{\textcolor{white}{~~External Signal-Driven Generation}}}} \\
+\addlinespace[1pt]
+{7} & MOOSE-Chem & \cite{yang2024moosechem} & {\small ICLR'25} & \href{https://openreview.net/forum?id=X9OfMNNepI}{\faExternalLink} & External Signal  & -                                                                                     & Rediscovers hypotheses from 51 high-impact papers \\
+{8} & Nova & \cite{hu2024nova} & {\small arXiv'24} & \href{https://arxiv.org/abs/2410.14255}{\faExternalLink} & External Signal  & -                                                                                     & 3.4$\times$ more novel ideas; 2.5$\times$ more top-rated \\
+{9} & SciAgents & \cite{ghafarollahi2024sciagents} & {\small arXiv'24} & \href{https://arxiv.org/abs/2409.05556}{\faExternalLink} & External Signal  & \githubicon{https://github.com/lamm-mit/SciAgentsDiscovery}                              & Multi-agent reasoning over knowledge graphs \\
+{10} & SciPIP & \cite{wang2024scipip} & {\small arXiv'24} & \href{https://arxiv.org/abs/2410.23166}{\faExternalLink} & External Signal  & \githubicon{https://github.com/cheerss/SciPIP}                                           & Multi-domain; paper-anchored idea generation \\
+{11} & IdeaSynth & \cite{pu2025ideasynth} & {\small CHI'25} & \href{https://arxiv.org/abs/2410.04025}{\faExternalLink} & External Signal  & -                                                                                     & 20-user study; more alternatives explored vs baseline \\
+{12} & MOOSE-Chem2 & \cite{yang2025moosechem2} & {\small NeurIPS'25} & \href{https://nips.cc/virtual/2025/poster/118171}{\faExternalLink} & External Signal  & -                                                                                     & Fine-grained, experimentally actionable hypotheses \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S1color!65}\textbf{\textsf{\textcolor{white}{~~Multi-Agent Collaborative Generation}}}} \\
+\addlinespace[1pt]
+{13} & Combi. Creativity & \cite{gu2024combinatorial} & {\small arXiv'24} & \href{https://arxiv.org/abs/2412.14141}{\faExternalLink} & Multi-Agent   & -                                                                                     & +7--10\% similarity scores; cross-domain composition \\
+{14} & Deep Ideation & \cite{zhao2025deepideation} & {\small arXiv'25} & \href{https://arxiv.org/abs/2511.02238}{\faExternalLink} & Multi-Agent      & \githubicon{https://github.com/kyZhao-1/Deep-Ideation}                                   & +10.67\% quality; surpasses conference acceptance levels \\
+{15} & VirSci & \cite{su2024virsci} & {\small ACL'25} & \href{https://aclanthology.org/2025.acl-long.1368/}{\faExternalLink} & Multi-Agent      & \githubicon{https://github.com/open-sciencelab/Virtual-Scientists}                       & Outperforms single-agent on novelty$^\dagger$ \\
+{16} & Multi-Agent Dial. & \cite{sigdial2025multiagent} & {\small SIGDIAL'25} & \href{https://arxiv.org/abs/2507.08350}{\faExternalLink} & Multi-Agent   & -                                                                                     & Optimal at 3 critique-revision rounds$^\dagger$ \\
+{17} & Artificial Hivemind & \cite{jiang2025artificialhivemind} & {\small NeurIPS'25} & \href{https://arxiv.org/abs/2510.22954}{\faExternalLink} & Multi-Agent & -                                                                                     & 26K queries; diversity collapse across models \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S1color!65}\textbf{\textsf{\textcolor{white}{~~Novelty and Feasibility Assessment}}}} \\
+\addlinespace[1pt]
+{18} & IdeaBench & \cite{guo2025ideabench} & {\small KDD'25} & \href{https://doi.org/10.1145/3711896.3737419}{\faExternalLink} & Evaluation       & -                                                                                     & 2,374 papers; 8 domains; novelty $>$0.6, feasibility $<$0.5 \\
+{19} & LiveIdeaBench & \cite{liveideabench2024} & {\small arXiv'24} & \href{https://arxiv.org/abs/2412.17596}{\faExternalLink} & Evaluation       & -                                                                                     & 40+ models; 1,180 keywords; 22 scientific domains \\
+{20} & AI Idea Bench 2025 & \cite{aiideabench2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2504.14191}{\faExternalLink} & Evaluation       & \githubicon{https://github.com/yansheng-qiu/AI_Idea_Bench_2025}                          & 3,495 papers; alignment + general reference eval \\
+{21} & HeurekaBench & \cite{heurekabench2026} & {\small ICLR'26} & \href{https://arxiv.org/abs/2601.01678}{\faExternalLink} & Evaluation       & \githubicon{https://github.com/mlbio-epfl/HeurekaBench}                                  & +22\% with critic module; open-ended science tasks \\
+{22} & ResearchBench & \cite{researchbench2025} & {\small ACL'26} & \href{https://arxiv.org/abs/2503.21248}{\faExternalLink} & Evaluation       & -                                                                                     & 12 disciplines; inspiration retrieval + ranking \\
+{23} & HindSight & \cite{hindsight2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2603.15164}{\faExternalLink} & Evaluation       & -                                                                                     & LLM novelty negatively correlated with impact ($\rho$=$-$0.29) \\
+{24} & Rubric Rewards & \cite{rubricrewards2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2512.23707}{\faExternalLink} & LLM Internal & - & 70\% expert preference; RL with rubric self-grading \\
+{25} & DeepInnovator & \cite{deepinnovator2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2602.18920}{\faExternalLink} & LLM Internal & \githubicon{https://github.com/HKUDS/DeepInnovator} & 80--94\% win rates vs frontier; 14B model \\
+{26} & FlowPIE & \cite{flowpie2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2603.29557}{\faExternalLink} & External Signal & - & Higher novelty, feasibility, diversity vs baselines \\
+\bottomrule
+\end{tabular}}
+\vspace{-1cm}
+\end{table*}
+\endgroup

@@ -1,0 +1,67 @@
+% ==================== Appendix Table: Cross-Phase End-to-End Systems ====================
+\begingroup
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\rowcolors{2}{white}{tableheader!6}
+\begin{table*}[!ht]
+\centering
+\caption{\textbf{Comprehensive inventory: End-to-End and Cross-Phase Systems.} Systems that span multiple stages of the research lifecycle. $^\dagger$Evaluation information uncertain.}
+\vspace{-7pt}
+\label{tab:appendix_e2e}
+\vspace{2pt}
+\resizebox{\linewidth}{!}{\begin{tabular}{c| >{\centering\arraybackslash}p{3cm} r r |c| >{\centering\arraybackslash}p{2.4cm} |c| p{7.2cm}}
+\toprule
+\rowcolor{tableheader!10}
+\textbf{\#} & \textbf{Method} & \textbf{Ref} & \textbf{Venue} & \textbf{Link} & \textbf{Category} & \textbf{GitHub} & \textbf{Evaluation} \\
+\midrule
+\multicolumn{8}{@{}l}{\cellcolor{tableheader!65}\textbf{\textsf{\textcolor{white}{~~Fully Automated Research Systems}}}} \\
+\addlinespace[1pt]
+{1} & AI Scientist & \cite{lu2024aiscientist} & {\small arXiv'24} & \href{https://arxiv.org/abs/2408.06292}{\faExternalLink} & E2E Pipeline & \githubicon{https://github.com/SakanaAI/AI-Scientist} & Pioneered E2E at \$15/paper; ICLR-scale review \\
+{2} & Agent Laboratory & \cite{schmidgall2025agentlab} & {\small EMNLP'25} & \href{https://aclanthology.org/2025.findings-emnlp.320/}{\faExternalLink} & E2E Pipeline & - & \$2--13/paper; 3.5--4.0 NeurIPS scale \\
+{3} & AI-Researcher & \cite{airesearcher2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2505.18705}{\faExternalLink} & E2E Pipeline & - & Scientist-Bench; approaches human-level quality \\
+{4} & CycleResearcher & \cite{cycleresearcher2024} & {\small ICLR'25} & \href{https://arxiv.org/abs/2411.00816}{\faExternalLink} & E2E Pipeline & - & 5.36 ICLR scale; cyclic write--review \\
+{5} & AI Scientist v2 & \cite{yamada2025aiscientistv2} & {\small arXiv'25} & \href{https://arxiv.org/abs/2504.08066}{\faExternalLink} & E2E + Tree Search & \githubicon{https://github.com/SakanaAI/AI-Scientist-v2} & ICLR 2025 ICBINB workshop; score 6.33 \\
+{6} & Kosmos & \cite{kosmos2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2511.02824}{\faExternalLink} & E2E Pipeline & - & 79.4\% claim accuracy; 7 discoveries; 4 domains \\
+{7} & Dolphin & \cite{dolphin2025} & {\small ACL'25} & \href{https://aclanthology.org/2025.acl-long.1056/}{\faExternalLink} & E2E Pipeline & - & Closed-loop auto-research pipeline \\
+{8} & CodeScientist & \cite{codescientist2025} & {\small ACL'25} & \href{https://aclanthology.org/2025.findings-acl.692/}{\faExternalLink} & E2E Pipeline & \githubicon{https://github.com/allenai/codescientist} & Hypothesis to verification; closed-loop \\
+{9} & InternAgent & \cite{novelseek2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2505.16938}{\faExternalLink} & E2E Pipeline & \githubicon{https://github.com/InternScience/InternAgent} & Closed-loop hypothesis to verification \\
+{10} & freephdlabor & \cite{freephdlabor2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2510.15624}{\faExternalLink} & Multi-Agent & - & Personalized research group; continual automation \\
+{11} & SciMaster & \cite{scimaster2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2507.05241}{\faExternalLink} & Multi-Agent & \githubicon{https://github.com/sjtu-sai-agents/X-Master} & General-purpose scientific AI agents \\
+{12} & ARIS & \cite{aris2025} & {\small GitHub'26} & \href{https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep}{\faExternalLink} & Skill Library & \githubicon{https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep} & 31 skills; score 5.0$\to$7.5; 20+ GPU experiments \\
+{13} & EvoScientist & \cite{evoscientist2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2603.08127}{\faExternalLink} & Multi-Agent & \githubicon{https://github.com/EvoScientist/EvoScientist} & 6 papers accepted at ICAIS'25 \\
+{14} & UniScientist & \cite{uniscientist2026} & {\small Web'26} & \href{https://unipat.ai/blog/UniScientist}{\faExternalLink} & Multi-Agent & - & 30B open-source; beats Claude Opus 4.5 \\
+{15} & ASI-Evolve & \cite{asievolve2026} & {\small GitHub'26} & \href{https://github.com/GAIR-NLP/ASI-Evolve}{\faExternalLink} & Multi-Agent & \githubicon{https://github.com/GAIR-NLP/ASI-Evolve} & +0.97 DeltaNet; +18 MMLU; +12.5 GRPO \\
+{16} & AiScientist-LH & \cite{aiscientistlonghorizon2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2604.13018}{\faExternalLink} & E2E + Hierarchical & - & Long-horizon ML engineering; File-as-Bus \\
+{17} & AutoSOTA & \cite{autosota2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2604.05550}{\faExternalLink} & E2E Pipeline & \githubicon{https://github.com/tsinghua-fib-lab/AutoSOTA} & Paper-to-code-to-SOTA optimization \\
+{18} & CORAL & \cite{coral2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2604.01658}{\faExternalLink} & Multi-Agent & \githubicon{https://github.com/Human-Agent-Society/CORAL} & Multi-agent evolution; SOTA on 10 tasks \\
+{19} & FARS & \cite{fars2026} & {\small Web'26} & \href{https://analemma.ai/blog/introducing-fars}{\faExternalLink} & Multi-Agent & - & 100 papers in 228h; avg 5.05 ICLR scale \\
+{20} & AutoResearchClaw & \cite{autoresearchclaw2026} & {\small GitHub'26} & \href{https://github.com/aiming-lab/AutoResearchClaw}{\faExternalLink} & Multi-Agent & \githubicon{https://github.com/aiming-lab/AutoResearchClaw} & fully autonomous 23-stage pipeline \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{tableheader!65}\textbf{\textsf{\textcolor{white}{~~Domain-Specific Systems}}}} \\
+\addlinespace[1pt]
+{21} & Coscientist & \cite{boiko2023coscientist} & {\small Nature'23} & \href{https://www.nature.com/articles/s41586-023-06792-0}{\faExternalLink} & Chemistry & - & Autonomous chemistry; LLM-driven tool use \\
+{22} & AlphaFold~3 & \cite{abramson2024alphafold3} & {\small Nature'24} & \href{https://www.nature.com/articles/s41586-024-07487-w}{\faExternalLink} & Biology & - & Biomolecular structure prediction \\
+{23} & ChemCrow & \cite{bran2024chemcrow} & {\small NMI'24} & \href{https://www.nature.com/articles/s42256-024-00832-8}{\faExternalLink} & Chemistry & - & Chemistry tool orchestration \\
+{24} & Medical AI Scientist & \cite{medicalaiscientist2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2603.28589}{\faExternalLink} & Medicine & - & Clinical research automation \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{tableheader!65}\textbf{\textsf{\textcolor{white}{~~Evolutionary \& Self-Improving Systems}}}} \\
+\addlinespace[1pt]
+{25} & ShinkaEvolve & \cite{shinkaevolve2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2509.19349}{\faExternalLink} & Evolutionary & \githubicon{https://github.com/SakanaAI/ShinkaEvolve} & Open-ended sample-efficient program evolution \\
+{26} & Darwin Godel Machine & \cite{darwingodelmachine2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2505.22954}{\faExternalLink} & Self-Improving & \githubicon{https://github.com/jennyzzt/dgm} & Open-ended evolution of self-improving agents \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{tableheader!65}\textbf{\textsf{\textcolor{white}{~~Research Platforms \& Infrastructure}}}} \\
+\addlinespace[1pt]
+{27} & R\&D-Agent & \cite{chen2025rdagent} & {\small arXiv'25} & \href{https://arxiv.org/abs/2505.14738}{\faExternalLink} & Infrastructure & \githubicon{https://github.com/microsoft/RD-Agent} & Researcher+Developer dual-agent; MLE-Bench top \\
+{28} & autoresearch & \cite{karpathy2025autoresearch} & {\small GitHub'25} & \href{https://github.com/karpathy/autoresearch}{\faExternalLink} & Infrastructure & \githubicon{https://github.com/karpathy/autoresearch} & ${\sim}$12 exp/hour overnight \\
+{29} & Google AI Co-scientist & \cite{gottweis2025aicoscientist} & {\small arXiv'25} & \href{https://arxiv.org/abs/2502.18864}{\faExternalLink} & Platform & - & Multi-agent hypothesis gen + validation \\
+{30} & ResearchTown & \cite{researchtown2025} & {\small ICML'25} & \href{https://arxiv.org/abs/2412.17767}{\faExternalLink} & Multi-Agent & \githubicon{https://github.com/ulab-uiuc/research-town} & Simulates research community with LLM agents \\
+{31} & AgentRxiv & \cite{schmidgall2025agentrxiv} & {\small arXiv'25} & \href{https://arxiv.org/abs/2503.18102}{\faExternalLink} & Multi-Agent & - & 11.4\% improvement on MATH-500 \\
+{32} & LabClaw & \cite{labclaw2026} & {\small Web'26} & \href{https://labclaw-ai.github.io}{\faExternalLink} & Skill Library & \githubicon{https://github.com/wu-yc/LabClaw} & 206 biomedical skills; always-on autonomous lab agent \\
+{33} & PiFlow & \cite{piflow2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2505.15047}{\faExternalLink} & Multi-Agent & - & Principle-aware scientific discovery \\
+\addlinespace[3pt]
+\bottomrule
+\end{tabular}}
+\vspace{-1cm}
+\end{table*}
+\endgroup

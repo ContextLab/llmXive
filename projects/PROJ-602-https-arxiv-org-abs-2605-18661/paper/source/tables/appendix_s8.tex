@@ -1,0 +1,61 @@
+% ==================== Appendix Table: S8 Dissemination ====================
+\begingroup
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\rowcolors{2}{white}{S8color!6}
+\begin{table*}[!ht]
+\centering
+\caption{\textbf{Comprehensive inventory: \Seight Dissemination (Paper2X).} $^\dagger$Evaluation information uncertain.}
+\vspace{-7pt}
+\label{tab:appendix_s8}
+\stagecard{\Seight}{Dissemination / Paper2X}{S8color}{figures/icons/s8_dissemination.png}{%
+Converting papers into posters, slides, videos, websites, and social media content. Each output format targets a different audience and demands its own design logic, AI tool chain, and trust considerations.}
+\vspace{2pt}
+\resizebox{\linewidth}{!}{\begin{tabular}{c| >{\centering\arraybackslash}p{3cm} r r |c| >{\centering\arraybackslash}p{2.2cm} |c| p{7.2cm}}
+\toprule
+\rowcolor{tableheader!10}
+\textbf{\#} & \textbf{Method} & \textbf{Ref} & \textbf{Venue} & \textbf{Link} & \textbf{Category} & \textbf{GitHub} & \textbf{Evaluation} \\
+\midrule
+\multicolumn{8}{@{}l}{\cellcolor{S8color!65}\textbf{\textsf{\textcolor{white}{~~Paper2Poster}}}} \\
+\addlinespace[1pt]
+{1}  & P2P & \cite{p2p2025} & {\small ICLR'26} & \href{https://openreview.net/forum?id=JojyT9niJL}{\faExternalLink} & Paper2Poster     & -                                                                     & P2PInstruct 30K+ examples; 3 specialized agents \\
+{2}  & Paper2Poster & \cite{paper2poster2025} & {\small NeurIPS'25} & \href{https://openreview.net/forum?id=p0E74lpRBD}{\faExternalLink} & Paper2Poster     & \githubicon{https://github.com/Paper2Poster/Paper2Poster}                & \$0.005/poster; 87\% fewer tokens vs GPT-4o \\
+{3}  & PosterForest & \cite{choi2025posterforest} & {\small arXiv'25} & \href{https://arxiv.org/abs/2508.21720}{\faExternalLink} & Paper2Poster     & -                                                                     & Hierarchical multi-agent collaboration$^\dagger$ \\
+{4}  & PosterGen & \cite{postergen2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2508.17188}{\faExternalLink} & Paper2Poster     & -                                                                     & Aesthetic-aware multi-agent generation$^\dagger$ \\
+{5}  & APEX & \cite{apex2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2601.04794}{\faExternalLink} & Paper2Poster     & \githubicon{https://github.com/Breesiu/APEX}                             & First agentic interactive poster editing \\
+{6}  & PosterOmni & \cite{posteromni2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2602.12127}{\faExternalLink} & Paper2Poster     & -                                                                     & 6 unified poster tasks; outperforms open-source \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S8color!65}\textbf{\textsf{\textcolor{white}{~~Paper2Slides}}}} \\
+\addlinespace[1pt]
+{7}  & DOC2PPT & \cite{doc2ppt2022} & {\small AAAI'22} & \href{https://ojs.aaai.org/index.php/AAAI/article/view/19943}{\faExternalLink} & Paper2Slides     & -                                                                     & 5,873 paired document--slide decks \\
+{8}  & PPTAgent & \cite{pptagent2025} & {\small EMNLP'25} & \href{https://arxiv.org/abs/2501.03936}{\faExternalLink} & Paper2Slides     & \githubicon{https://github.com/icip-cas/PPTAgent}                        & PPTEval benchmark; 10,448 curated presentations \\
+{9}  & AutoPresent & \cite{autopresent2025} & {\small CVPR'25} & \href{https://arxiv.org/abs/2501.00912}{\faExternalLink} & Paper2Slides     & -                                                                     & 8B Llama model; SlidesBench (7K train, 585 test) \\
+{10} & Paper2Slides & \cite{paper2slides2025} & {\small GitHub'25} & \href{https://github.com/HKUDS/Paper2Slides}{\faExternalLink} & Paper2Slides     & \githubicon{https://github.com/HKUDS/Paper2Slides}                       & 4-stage RAG pipeline; one-click conversion \\
+{11} & Auto-Slides & \cite{autoslides2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2509.11062}{\faExternalLink} & Paper2Slides     & -                                                                     & Multi-agent Beamer generation; interactive editing$^\dagger$ \\
+{12} & PASS & \cite{pass2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2501.06497}{\faExternalLink} & Paper2Slides     & -                                                                     & First combined slides + AI audio delivery$^\dagger$ \\
+{13} & SlideGen & \cite{slidegen2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2512.04529}{\faExternalLink} & Paper2Slides     & -                                                                     & Multi-agent VLM coordination; editable PPTX output \\
+{14} & Talk to Your Slides & \cite{talkslides2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2505.11604}{\faExternalLink} & Paper2Slides     & -                                                                     & +34\% instruction fidelity; 87\% lower cost vs GUI \\
+{15} & SlideTailor & \cite{slidetailor2025} & {\small AAAI'26} & \href{https://arxiv.org/abs/2512.20292}{\faExternalLink} & Paper2Slides     & \githubicon{https://github.com/nusnlp/SlideTailor}                       & User-preference conditioned; chain-of-speech \\
+{16} & DeepPresenter & \cite{deeppresenter2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2602.22839}{\faExternalLink} & Paper2Slides     & \githubicon{https://github.com/icip-cas/PPTAgent}                        & 9B model competitive with frontier at lower cost \\
+{17} & Office Raccoon & \cite{sensetime2026} & {\small Web'26} & \href{https://www.sensetime.com/en/news-detail/51170569}{\faExternalLink} & Paper2Slides     & -                                                                     & Page-level editing; template/brand-guideline learning$^\dagger$ \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S8color!65}\textbf{\textsf{\textcolor{white}{~~Paper2Video}}}} \\
+\addlinespace[1pt]
+{18} & Preacher & \cite{preacher2025} & {\small ICCV'25} & \href{https://github.com/Gen-Verse/Paper2Video}{\faExternalLink} & Paper2Video      & \githubicon{https://github.com/Gen-Verse/Paper2Video}                    & Top-down decomposition; 5 research fields \\
+{19} & Paper2Video & \cite{paper2video2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2510.05096}{\faExternalLink} & Paper2Video      & \githubicon{https://github.com/showlab/Paper2Video}                      & 101 paper--video pairs; +10\% PresentQuiz accuracy \\
+{20} & PresentAgent & \cite{presentagent2025} & {\small EMNLP'25} & \href{https://aclanthology.org/2025.emnlp-demos.58/}{\faExternalLink} & Paper2Video      & \githubicon{https://github.com/AIGeeksGroup/PresentAgent}                & PresentEval benchmark; approaches human-level \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S8color!65}\textbf{\textsf{\textcolor{white}{~~Paper2Web \& Social Media}}}} \\
+\addlinespace[1pt]
+{21} & Paper2Web & \cite{paper2web2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2510.15842}{\faExternalLink} & Paper2Web        & \githubicon{https://github.com/YuhangChen1/Paper2All}                    & 10,716 papers; multimedia-rich academic homepages \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S8color!65}\textbf{\textsf{\textcolor{white}{~~Fidelity and Adoption Assessment}}}} \\
+\addlinespace[1pt]
+{22} & PPTEval & \cite{pptagent2025} & {\small EMNLP'25} & \href{https://arxiv.org/abs/2501.03936}{\faExternalLink} & Benchmark        & \githubicon{https://github.com/icip-cas/PPTAgent}                        & Content, design, coherence; 10,448 presentations \\
+{23} & PresentQuiz & \cite{paper2video2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2510.05096}{\faExternalLink} & Benchmark        & \githubicon{https://github.com/showlab/Paper2Video}                      & 101 paper--video pairs; +10\% over human on comprehension \\
+{24} & PresentEval & \cite{presentagent2025} & {\small EMNLP'25} & \href{https://aclanthology.org/2025.emnlp-demos.58/}{\faExternalLink} & Benchmark        & \githubicon{https://github.com/AIGeeksGroup/PresentAgent}                & End-to-end narrated video quality; near human-level \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+\endgroup

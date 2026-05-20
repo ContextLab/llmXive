@@ -1,0 +1,190 @@
+\documentclass[11pt,letterpaper,logo]{mystyle}
+
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{array}
+\usepackage{stfloats}
+\usepackage{verbatim}
+\usepackage[numbers]{natbib}
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{multirow}
+\usepackage{tablefootnote}
+\usepackage{makecell}
+\usepackage{xparse}
+\usepackage{fontawesome5}
+\usepackage{bxcoloremoji}
+\captionsetup{justification=centering}
+\usepackage{twemojis}
+\usepackage{bbding}
+
+\def\E{\mathbb{E}}
+\def\argmax{\mathop{\arg\max}}
+
+% taxonomy
+\usepackage{forest}
+\usepackage{tikz}
+
+\definecolor{deepgreen}{HTML}{057311}
+\definecolor{AgentIndigo}{HTML}{3F51B5}
+\definecolor{AgentIndigoLight}{HTML}{E8EAF6}
+\definecolor{AgentAmber}{HTML}{FF8F00}
+\definecolor{AgentAmberLight}{HTML}{FFF3E0}
+
+
+\tcbset{
+  agentscope/.style={
+    colback=AgentIndigoLight,
+    colframe=AgentIndigo,
+    colbacktitle=AgentIndigo!20!white,
+    coltitle=black,
+    boxrule=0.9pt, arc=2mm,
+    left=3mm, right=3mm, top=2mm, bottom=2mm,
+    fonttitle=\bfseries,
+    title=Survey Scope
+  },
+  agentcontrib/.style={
+    colback=AgentAmberLight,
+    colframe=AgentAmber,
+    colbacktitle=AgentAmber!20!white,
+    coltitle=black,
+    boxrule=0.9pt, arc=2mm,
+    left=3mm, right=3mm, top=2mm, bottom=2mm,
+    fonttitle=\bfseries,
+    title=Contributions
+  },
+  }
+  
+
+\runningtitle{Code as Agent Harness}
+
+\title{%
+\textbf{Code as Agent Harness}\\
+\vspace{0.3em}
+{\fontsize{11.5}{13.5}\selectfont\scshape\color{LARGBlue!85}
+$\lozenge$~Toward Executable, Verifiable, and Stateful Agent Systems~$\lozenge$}
+\vspace{-0.8em}
+}
+
+
+\author{
+   \normalfont
+   Xuying Ning$^{\textcolor{Maroon}{1}\dag}$ \quad
+   Katherine Tieu$^{\textcolor{Maroon}{1}\dag}$ \quad
+   Dongqi Fu$^{\textcolor{Maroon}{2}\dag}$ \quad
+   Tianxin Wei$^{\textcolor{Maroon}{1}\dag}$ \quad
+   Zihao Li$^{\textcolor{Maroon}{1}\dag}$ \quad
+   Yuanchen Bei$^{\textcolor{Maroon}{1}\dag}$ \quad \\
+   Jiaru Zou$^{\textcolor{Maroon}{3}}$ \quad 
+   Mengting Ai$^{\textcolor{Maroon}{1}}$ \quad
+   Zhining Liu$^{\textcolor{Maroon}{1}}$ \quad
+   Ting-Wei Li$^{\textcolor{Maroon}{1}}$ \quad
+   Lingjie Chen$^{\textcolor{Maroon}{1}}$ \quad
+   Yanjun Zhao$^{\textcolor{Maroon}{1}}$ \quad
+   Ke Yang$^{\textcolor{Maroon}{1}}$ \quad \\
+   Bingxuan Li$^{\textcolor{Maroon}{1}}$ \quad 
+   Cheng Qian$^{\textcolor{Maroon}{1}}$ \quad
+   Gaotang Li$^{\textcolor{Maroon}1}$ \quad 
+   Xiao Lin$^{\textcolor{Maroon}{1}}$ \quad 
+   Zhichen Zeng$^{\textcolor{Maroon}{1}}$ \quad
+   Ruizhong Qiu$^{\textcolor{Maroon}{1}}$ \quad 
+   Sirui Chen$^{\textcolor{Maroon}{1}}$ \quad \\
+   Yifan Sun$^{\textcolor{Maroon}{1}}$ \quad 
+   Xiyuan Yang$^{\textcolor{Maroon}{1}}$ \quad 
+   Ruida Wang$^{\textcolor{Maroon}{1}}$ \quad 
+   Rui Pan$^{\textcolor{Maroon}{1}}$ \quad 
+   Chenyuan Yang$^{\textcolor{Maroon}{1}}$ \quad
+   Dylan Zhang$^{\textcolor{Maroon}{1}}$ \quad 
+   Liri Fang$^{\textcolor{Maroon}{1}}$ \quad \\
+   Zikun Cui$^{\textcolor{Maroon}{2}}$ \quad
+   Yang Cao$^{\textcolor{Maroon}{2}}$ \quad
+   Pan Chen$^{\textcolor{Maroon}{2}}$ \quad
+   Dorothy Sun$^{\textcolor{Maroon}{2}}$ \quad
+   Ren Chen$^{\textcolor{Maroon}{2}}$ \quad\\
+   Mahesh Srinivasan$^{\textcolor{Maroon}{2}}$ \quad
+   Nipun Mathur$^{\textcolor{Maroon}{2}}$ \quad 
+   Yinglong Xia$^{\textcolor{Maroon}{2}}$ \quad
+   Hong Li$^{\textcolor{Maroon}{2}}$ \quad 
+   Hong Yan$^{\textcolor{Maroon}{2}}$ \quad\\
+Pan Lu$^{\textcolor{Maroon}{3}}$ \quad 
+% ...\quad
+Lingming Zhang $^{\textcolor{Maroon}{1}}$ \quad
+Tong Zhang$^{\textcolor{Maroon}{1}}$ \quad 
+Hanghang Tong$^{\textcolor{Maroon}{1}}$$^{\coloremojicode{2709}}$ \quad
+   Jingrui He$^{\textcolor{Maroon}{1}}$$^{\coloremojicode{2709}}$ \quad
+   \\
+   \vspace{12pt}
+   \small
+   \raisebox{1.0ex}{\includegraphics[height=1.1ex]{arxiv/figs/illinois_logo.png}}$^{\textcolor{Maroon}{1}}$University of Illinois Urbana-Champaign \quad
+   \raisebox{0.9ex}{\includegraphics[height=1.1ex]{arxiv/figs/meta_logo.png}}$^{\textcolor{Maroon}{2}}$Meta \quad
+   \raisebox{0.9ex}{\includegraphics[height=1.9ex] {arxiv/figs/stanford_logo.png}}$^{\textcolor{Maroon}{3}}$Stanford University
+   \\
+   $^{\dag}$ \textit{Core Contributor}, \quad
+   $^{\coloremojicode{2709}}$ \textit{Corresponding Author}
+}
+
+\date{\vspace{-3ex}}
+
+\begin{document}
+
+\begin{abstract}
+\textbf{\large Abstract:} Recent large language models (LLMs) have demonstrated strong
+capabilities in understanding and generating code, from
+competitive programming to repository-level software engineering.
+In emerging agentic systems, code is no longer only a target output.
+It increasingly serves as an operational substrate for agent
+reasoning, acting, environment modeling, and execution-based verification.
+We frame this shift through the lens of \emph{agent harnesses} and
+introduce \emph{code as agent harness}: a unified view that centers code as the basis for agent
+infrastructure.
+To systematically study this perspective, we organize the survey around three connected layers. First, we study the \emph{harness interface}, where code connects agents
+to reasoning, action, and environment modeling. Second, we examine \emph{harness mechanisms}: planning, memory, and tool use for long-horizon execution, together with feedback-driven control and optimization that make harness reliable and adaptive. Third, we discuss \emph{scaling the harness} from single-agent systems to multi-agent settings, where shared code artifacts support multi-agent coordination, review, and verification.
+Across these layers, we summarize representative methods and practical
+applications of \emph{code as agent harness}, spanning coding
+assistants, GUI/OS automation, embodied agents, scientific
+discovery, personalization and recommendation, DevOps, and enterprise
+workflows.
+We further outline open challenges for harness engineering,
+including evaluation beyond final task success, verification under incomplete
+feedback, regression-free harness improvement, consistent shared state across
+multiple agents, human oversight for safety-critical actions, and extensions
+to multimodal environments.
+By centering code as the harness of agentic AI, this survey
+provides a unified roadmap toward executable, verifiable, and
+stateful AI agent systems.
+
+\vspace{5mm}
+\textcolor{Maroon}{\faBullseye}~\textbf{Keywords}: Agent Harness, Coding Agent, Harness Engineering, Agentic AI \\
+\faGithub~\textbf{Github}: \url{https://github.com/YennNing/Awesome-Code-as-Agent-Harness-Papers}
+\end{abstract}
+
+\maketitle
+
+\vspace{-3mm}
+\section{Introduction}
+\label{sec:intro}
+\input{sections_revision/introduction}
+
+\clearpage
+\tableofcontents
+\clearpage
+\input{sections_revision/section2_2}
+
+\input{sections_revision/section2_1}
+
+\input{sections_revision/section2_3}
+
+\input{sections_revision/section_3_harness}
+\input{sections_revision/sec_4}
+
+\clearpage
+\bibliographystyle{unsrtnat}
+\bibliography{reference}
+
+
+\clearpage
+
+
+
+\vfill
+
+\end{document}

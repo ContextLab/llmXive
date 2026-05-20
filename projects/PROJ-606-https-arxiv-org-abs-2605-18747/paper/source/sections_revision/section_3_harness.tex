@@ -1,0 +1,1063 @@
+\section{Scaling the Harness: Multi-Agent Orchestration over Code}
+\label{sec:mas}
+
+As AI systems tackle increasingly complex problems from
+function-level code synthesis to repository-level system
+engineering, fundamental limitations for single-agent emerge: (1)
+context window constraints prevent a single agent from holding an
+entire codebase, long interaction history, and execution trace in
+working memory; (2) specialization requirements make it
+inefficient to use one generalist agent for planning, synthesis,
+testing, review, and debugging simultaneously; and (3) the
+absence of independent coordination and verification channels
+prevents the agent from reliably detecting and correcting its own
+errors during long-horizon execution.
+Multi-agent systems introduce a powerful principle: once these
+responsibilities are distributed across specialized roles, the
+agent harness itself becomes more modular, inspectable, and
+adaptable.
+Early systems such as ChatDev~\cite{Qian2023ChatDev},
+MetaGPT~\cite{Hong2023MetaGPT}, and AgentCoder~\cite{huang2023agentcoder}
+demonstrate this shift by dividing software-development
+responsibilities among distinct agents such as architect,
+programmer, tester, reviewer, and executor.
+Coordinated through structured communication protocols and shared
+code artifacts, these role-specialized agents turn code from a
+mere output target into the shared substrate through which the
+overall harness plans, acts, verifies, and improves itself.
+
+In this section, we systematically survey the rapidly growing
+direction on using MAS to scale coding harnesses, and we propose
+a new position on building shared code-centric harness substrates
+for AI agents.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\linewidth]{figures/mas_harness_overview.pdf}
+    \caption{Overview of scaling the agent harness through multi-agent orchestration over code. The figure illustrates how role-specialized agents, shared code-centric substrates, execution feedback, and adaptive collaboration topologies address single-agent limitations in context, specialization, and self-correction.}
+    \label{fig:mas-overview}
+\end{figure}
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=0.85\linewidth]{figures/mas_roadmap_new.pdf}
+    \caption{Roadmap of scaling code harnesses for multi-agent orchestration, organized by workflow collaboration, shared repository state, execution verification, and adaptive coordination.}
+    \label{fig:roadmap_sec4}
+\end{figure}
+
+\subsection{Improved Coding Support through Multi-agent Collaboration}
+
+The most immediate contribution of multi-agent systems is that
+they improve coding support by decomposing the harness into
+specialized but coordinated components. Instead of integrating
+planning, synthesis, execution, and verification into a single
+agent loop, these systems distribute responsibility across roles
+that interact through shared code artifacts and feedback signals.
+This division of labor makes the overall harness more capable of
+handling complex software tasks, while also making its internal
+workflow more inspectable and controllable. In practice, this
+improvement is realized through three closely related design
+dimensions: how roles are specialized, how agents interact over
+shared program artifacts, and how the workflow topology organizes
+their collaboration.
+
+
+
+
+\begin{table}[t]
+\centering
+\caption{Representative MAS collaboration designs by role specialization and interaction structure. }
+\label{tab:mas_collaboration_systems}
+\renewcommand{\arraystretch}{1.16}
+\setlength{\tabcolsep}{3.5pt}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}
+  >{\raggedright\arraybackslash}p{2.55cm}
+  >{\raggedright\arraybackslash}p{2.85cm}
+  >{\raggedright\arraybackslash}p{3.05cm}
+  >{\raggedright\arraybackslash}p{3.05cm}
+  >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{System}
+& \textbf{Harness Substrate}
+& \textbf{Agent Roles}
+& \textbf{Interaction Mode}
+& \textbf{Topology} \\
+\midrule
+Self-Collaboration~\cite{Dong2024SelfCollaboration}
+& Blackboard, implicit
+& Plan, Synth., Verif. (simulated)
+& Critique-repair
+& Pre-defined cyclic \\ \midrule
+CodePori~\cite{Rasheed2024Codepori}
+& Implicit
+& Plan, Synth., Verif.
+& Collab-Synth., critique-repair
+& Pre-defined chain, cyclic \\ \midrule
+MAGIS~\cite{Tao2024Magis}
+& Repository, evolution memory
+& Plan, Understand, Synth., Verif.
+& Critique-repair, debate, delegation
+& Hierarchical, cyclic, dynamic pool \\ \midrule
+HyperAgent~\cite{Phan2024HyperAgent}
+& Repository, execution
+& Plan, Understand, Synth., Exec
+& Critique-repair
+& Pre-defined hierarchical, cyclic \\ \midrule
+PairCoder~\cite{Zhang2024PairProgramming}
+& Execution
+& Plan-Understand, Synth-Exec
+& Collab-Synth., critique-repair
+& Pre-defined cyclic with conditional branch \\ \midrule
+FlowGen~\cite{Lin2025Soen101}
+& Execution, implicit
+& Plan, Understand, Synth., Verif.
+& Critique-repair, debate
+& Pre-defined chain, cyclic (Scrum) \\ \midrule
+Trae Agent~\cite{gao2025traeagent}
+& Repository, execution
+& Generate, Prune, Select
+& Collab-Synth., search (selection)
+& Pre-defined search pipeline \\ \midrule
+BOAD~\cite{xu2025boad}
+& Repository, execution
+& Orchestrate, Localize, Edit, Validate
+& Delegation, adaptive selection
+& Adaptive hierarchical \\ \midrule
+FlowReasoner~\cite{gao2025flowreasoner}
+& Execution, implicit
+& Meta-design, Solve
+& Runtime workflow generation
+& Objective-driven adaptive \\ \midrule
+ChatDev~\cite{Qian2023ChatDev}
+& Implicit, borderline exec
+& Plan, Synth., Verif., Exec
+& Critique-repair, debate
+& Pre-defined chain (waterfall) \\ \midrule
+MetaGPT~\cite{Hong2023MetaGPT}
+& Implicit, partial blackboard
+& Plan$\times$3, Synth., Verif.
+& Critique-repair, pub-sub scheduling
+& Pre-defined chain (waterfall) \\ \midrule
+GameGPT~\cite{chen2023gamegpt}
+& Blackboard (dual collaboration)
+& Plan, Synth., Verif.
+& Critique-repair, collaborative
+& Pre-defined \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+
+
+\subsubsection{Functional Role Specialization and Human-Guided Planning}
+In human software development, different roles specialize in
+different aspects of the development process. Many MAS naturally
+mirror this division of labor by assigning distinct functional
+roles to different agents. This specialization allows each agent
+to focus on a specific slice of the shared code harness,
+leveraging its unique capabilities and perspectives to contribute
+to the overall task.
+Here, we elaborate on the most common functional roles identified
+across the surveyed literature, noting that many systems
+implement multiple roles and that the boundaries between them can
+be fluid.
+
+\paragraph{Program synthesis agents} Program synthesis agents are
+responsible for generating or transforming code. They consume
+specifications, plans, or feedback signals and produce or revise
+code artifacts. This is the most common role across surveyed
+systems. Representative instances include the Coder in
+Self-Collaboration~\cite{Dong2024SelfCollaboration}, the
+Programmer in AgentCoder~\cite{huang2023agentcoder}, the Engineer
+in MetaGPT~\cite{Hong2023MetaGPT}, the Developer in
+ChatDev~\cite{Qian2023ChatDev}, and the RTL Generation Agent in
+MAGE~\cite{Zhao2024MAGE}.
+
+\paragraph{Program understanding agents} Program understanding
+agents analyze existing code or specifications to produce
+higher-level representations. They own the interpretation of what
+the code means rather than what it does. This category includes
+the Repository Custodian in MAGIS~\cite{Tao2024Magis}, the
+Navigator in HyperAgent~\cite{Phan2024HyperAgent}, the RepoUer in
+Lingma SWE-GPT~\cite{Ma2024Lingma}, and the Column-type Annotator
+in CleanAgent~\cite{Qi2024CleanAgent}.
+
+\paragraph{Verification agents} Verification agents evaluate code
+quality, typically by generating test cases, running static
+analysis, or simulating execution. The Test Designer in
+AgentCoder~\cite{huang2023agentcoder} generates test cases
+independently of the code to avoid circular reasoning, a design
+principle against the mode-collapse problem where an agent's
+biased tests pass its own buggy code. The Test Quality Checker in
+QualityFlow~\cite{Hu2025QualityFlow} addresses this at a
+meta-level, filtering synthesized tests before they are used as
+feedback. The Static Analyzer and Fuzzing Agent in
+AutoSafeCoder~\cite{Nunez2024AutoSafeCoder} provide
+security-oriented verification through static CWE analysis and
+dynamic crash detection, respectively. The Panelists in
+CANDOR~\cite{Xu2025Hallucination} independently audit oracle
+correctness against natural language specifications rather than
+against the code itself, deliberately avoiding contamination by
+faulty implementations.
+
+\paragraph{Execution agents} Execution agents interface directly
+with the program runtime. Critically, the Test Executor in
+AgentCoder~\cite{huang2023agentcoder} is a deterministic Python
+script (not an LLM) which cleanly separates reasoning from
+execution and grounds the feedback signal in objective program
+behavior. The Executor in HyperAgent~\cite{Phan2024HyperAgent}
+runs unit and integration tests via an interactive bash shell.
+The Judge Agent in MAGE~\cite{Zhao2024MAGE} interfaces with RTL
+simulation tools to produce per-clock-edge waveform snapshots.
+
+\paragraph{Planning agents} Planning agents decompose the overall
+software-development task into subtasks and assign them to
+synthesis agents. The Architect and Project Manager in
+MetaGPT~\cite{Hong2023MetaGPT}, the Manager in
+MAGIS~\cite{Tao2024Magis}, the Scrum Master in
+FlowGen~\cite{Lin2025Soen101}, and the Mother agents in
+SoA~\cite{Ishibashi2024SelfOrganized} all perform task
+decomposition. The Mother agents in
+SoA~\cite{Ishibashi2024SelfOrganized} are particularly notable:
+they dynamically spawn Child agents at runtime based on the
+inferred complexity of each subfunction, making planning and
+agent initialization interdependent.
+
+A distinctive feature of EvoMAC~\cite{Hu2025EvoMAC} is the
+introduction of two novel meta-roles not present in any other
+surveyed system: the Gradient Agent, which reads execution logs
+to identify which agents caused failures, and the Updating Agent,
+which revises agent prompts and restructures the workflow DAG
+accordingly. These roles operate at the level of the MAS itself
+rather than the program, enabling the system to adapt its own
+structure in response to execution feedback.
+
+
+\subsubsection{Diverse Interaction Modes Grounded in Shared Program State}
+Unlike general MAS where agent interaction is primarily
+message-passing, code-centric interaction is characterized by
+artifact-mediated communication: agents observe and modify shared
+code artifacts, and their interaction is grounded in the
+objective state exposed by those artifacts and their execution
+results. {These coordination channels are broader
+than source code alone: agents communicate through APIs, files,
+diffs, tests, logs, schemas, blackboards, and explicit workflow
+states. In most systems, these channels are part of the
+human-designed harness, while agents dynamically write to or
+modify the artifacts circulating within them.} We identify four
+interaction modes.
+
+\paragraph{Collaborative synthesis} Collaborative synthesis occurs
+when two agents jointly construct a program component, analogous
+to pair programming \cite{zou2026recursivemas}. The Navigator--Driver pairing in
+PairCoder~\cite{Zhang2024PairProgramming} is the most direct
+instantiation: the Navigator generates and selects solution plans
+while the Driver implements them, with bidirectional information
+flow. CodePori~\cite{Rasheed2024Codepori} implements
+collaborative synthesis between Dev\_01 and Dev\_02, who exchange
+code drafts across three rounds. This mode is relatively rare among the surveyed system, as most systems prefer a sequential handoff
+rather than true co-construction.
+
+\paragraph{Critique and repair} Critique and repair is the
+dominant interaction mode across the surveyed literature. A
+verification or evaluation agent inspects a code artifact and
+produces structured feedback; a synthesis agent then revises the
+artifact in response. This pattern appears in some form in
+virtually every surveyed system. Its key design decisions are:
+(a) whether the critique is LLM-simulated or execution-grounded
+(Self-Collaboration~\cite{Dong2024SelfCollaboration} uses a
+simulated LLM tester, while
+AgentCoder~\cite{huang2023agentcoder} uses a real Python
+executor); (b) the richness of the feedback signal (ranging from
+binary pass/fail in SEW~\cite{Liu2025SEW} to structured execution
+logs enumerating satisfied requirements, function errors, and
+unmet requirements in EvoMAC~\cite{Hu2025EvoMAC}); and (c) the
+number of repair iterations permitted before fallback.
+
+\paragraph{Adversarial validation} Adversarial validation is a
+more active form of verification in which one agent attempts to
+break the code through adversarial inputs, rather than passively
+reviewing it. AutoSafeCoder~\cite{Nunez2024AutoSafeCoder}
+implements this via its Fuzzing Agent, which generates
+crash-inducing input seeds using type-aware mutation and executes
+the code to produce crash traces. This mode has a fundamentally
+different character from critique-and-repair: the fuzzer does not
+explain what is wrong, but demonstrates a concrete execution
+failure, a counterexample that the coding agent must address.
+MAGE~\cite{Zhao2024MAGE} similarly uses simulation mismatch as an
+adversarial signal: the Debug Agent receives the exact waveform
+window around the first clock-edge failure, enabling targeted
+repair.
+
+\paragraph{Reasoning debate} Reasoning debate involves agents
+arguing over the correctness of a decision or the interpretation
+of a specification, before arriving at a consensus.
+ChatDev~\cite{Qian2023ChatDev} introduces communicative
+de-hallucination, a mechanism in which the assistant agent
+reverses roles to ask clarifying questions before committing to a
+response. The Scrum sprint meetings in
+FlowGen~\cite{Lin2025Soen101} enable disordered multi-agent
+discussion around a shared context buffer before the Scrum Master
+synthesizes a decision. CANDOR~\cite{Xu2025Hallucination}
+implements the most structured debate mechanism: three
+independent Panelists evaluate oracle correctness, and a Curator
+aggregates their verdicts via majority vote. The kick-off meeting
+in MAGIS~\cite{Tao2024Magis} involves a circular speech among the
+Manager and all Developer agents to negotiate task dependencies
+and prevent conflicts.
+
+
+\subsubsection{Optimized Workflow Topology for Agentic Coordination}
+
+The topology of agent interaction, who communicates with whom, in
+what order, and how many times, is one of the most consequential
+design decisions in a MAS for code generation. We organize
+topologies along two primary axes.
+
+\paragraph{Pre-defined Heuristic Topologies}
+The majority of surveyed systems use topologies that mirror
+established software development life cycle (SDLC) models. These
+topologies are fixed at design time and do not change in response
+to task complexity or system performance.
+
+\textbf{\textit{Chain (Waterfall) topologies}} sequence agents in
+a strict linear order, with artifacts flowing unidirectionally
+from planning to synthesis to verification. ChatDev~\cite{Qian2023ChatDev}
+and MetaGPT~\cite{Hong2023MetaGPT} are canonical examples,
+explicitly modeling the waterfall SDLC: design $\rightarrow$
+coding $\rightarrow$ testing. FlowGen~\cite{Lin2025Soen101}
+operationalizes three SDLC models as distinct topologies:
+FlowWater (strict waterfall chain), FlowTDD (requirement
+$\rightarrow$ design $\rightarrow$ test $\rightarrow$
+implementation $\rightarrow$ fix, a test-driven reordering), and
+FlowScrum (cyclic iterative sprints). This paper is unique in
+directly comparing the implications of different
+SDLC-mirroring topologies for code quality.
+L2MAC~\cite{Holt2023L2MAC} also follows a chain topology but with
+a novel twist: each step in the instruction plan is executed by a
+fresh-context agent, making the chain a sequence of independent
+LLM invocations sharing only the external file store.
+
+\textbf{\textit{Cyclic (Agile/Iterative) topologies}} introduce
+back-edges that allow code to be revised in response to
+verification feedback. AgentCoder~\cite{huang2023agentcoder}
+implements a programmer $\rightarrow$ test executor $\rightarrow$
+(if fail) $\rightarrow$ programmer cycle, bounded at 5
+iterations. Self-Collaboration~\cite{Dong2024SelfCollaboration}
+embeds a coder $\leftrightarrow$ tester back-edge within its
+waterfall chain, max 4 iterations.
+PairCoder~\cite{Zhang2024PairProgramming} enhances the cyclic
+pattern with multi-plan exploration: a pool of $n$ solution plans
+is pre-generated via k-means++ clustering for diversity, and the
+cycle can switch to the next candidate plan when dead-end is
+detected through history-based loop analysis.
+MAGE~\cite{Zhao2024MAGE} combines a linear initialization chain
+with a cyclic debug-judge loop, and introduces high-temperature
+candidate sampling to explore multiple program variants
+simultaneously.
+
+\textbf{\textit{Hierarchical topologies}} place one or more
+manager agents above a pool of worker agents, enabling
+decomposition-and-delegation patterns. MAGIS~\cite{Tao2024Magis}
+has a Manager that dynamically instantiates one Developer agent
+per candidate file at runtime; each Developer edits its assigned
+file and reports back to the manager-review layer. HyperAgent~\cite{Phan2024HyperAgent}
+uses a planner above multiple repository navigation and editing
+workers, combining top-down decomposition with bottom-up
+repository evidence. SoA~\cite{Ishibashi2024SelfOrganized}
+pushes this hierarchy further by allowing Mother agents to spawn
+Child agents recursively according to inferred subtask
+complexity. These systems treat harness orchestration itself as a
+resource-allocation problem.
+
+\textbf{\textit{Star topologies}} center on a hub agent that
+coordinates multiple parallel worker agents. The
+CANDOR~\cite{Xu2025Hallucination} Stage 3 panel is an example: a
+Requirement Engineer fans out to three independent
+Panelist+Interpreter pipelines, and the Curator aggregates their
+outputs. MetaGPT~\cite{Hong2023MetaGPT}'s publish-subscribe
+message pool creates a de facto star topology where the shared
+pool serves as the hub.
+
+\paragraph{Objective-driven and Adaptive Topologies}
+A smaller but rapidly growing class of systems treats the
+topology itself as a design variable to be optimized toward a
+code quality signal. Recent systems such as
+FlowReasoner~\cite{gao2025flowreasoner} and
+BOAD~\cite{xu2025boad} further reinforce this trend by treating
+multi-agent organization itself as an adaptive object to be
+generated, searched, or optimized per task.
+
+\textbf{\textit{Dynamic agent pool scaling}} is the simplest form
+of adaptivity: the number of agents scales with task complexity,
+but the topology type is fixed.
+SoA~\cite{Ishibashi2024SelfOrganized} implements this via a
+hierarchical tree of Mother and Child agents, where Mother agents
+decide at runtime how many subfunctions to decompose into,
+spawning corresponding Child agents. The key insight is that each
+agent's context window remains bounded, as complexity is handled
+by growing the agent pool rather than growing individual context
+windows. MAGIS~\cite{Tao2024Magis} similarly instantiates
+Developer agents dynamically based on the number of candidate
+files identified during repository analysis. BOAD~\cite{xu2025boad} extends this line of thought from dynamic
+scaling to hierarchy discovery: instead of manually fixing the
+specialized sub-agent structure, it formulates the selection of
+helpful localization, editing, and validation sub-agents as a
+bandit-optimization problem, showing that automatically
+discovered hierarchical teams can outperform manually designed ones.
+
+\textbf{\textit{Feedback-driven DAG restructuring}} is best
+represented by EvoMAC~\cite{Hu2025EvoMAC}. Its workflow is a DAG
+whose nodes correspond to agents and whose edges define
+information flow. After each iteration, a Gradient Agent reads
+execution logs to attribute failures to agents, and an Updating
+Agent modifies the prompts and graph structure. This is the only
+system in the survey where the harness topology is structurally
+modified in response to execution feedback.
+
+\textbf{\textit{Runtime self-reorganization}} is
+SEW~\cite{Liu2025SEW}'s approach: the system generates and mutates
+entire workflow specifications using Direct Evolution (DE) and
+Hyper Evolution (HE) operators applied to LLM-generated workflow
+descriptions in structured formats (BPMN, CoRE, Python, YAML).
+Rather than optimizing agent parameters, SEW~\cite{Liu2025SEW}
+optimizes the workflow structure including the sequence of agent
+calls, the routing logic, and the feedback paths. The two
+canonical topologies it discovers (a linear chain and a feedback
+loop) emerge from optimization rather than being hand-designed. FlowReasoner~\cite{gao2025flowreasoner} pushes this adaptive view
+further by training a query-level meta-agent that generates a
+tailored multi-agent system for each input problem under external
+execution feedback, making topology selection itself part of the
+deliberative inference process rather than a fixed system design.
+
+\subsection{Execution Feedback and Shared-Harness Synchronization}
+
+We discuss how a group of agents can exploit the executability of
+code, and how they maintain a consistent shared view of the
+program state.
+This dimension is the defining one for code-centric MAS: the
+shared harness is uniquely executable and produces objective
+oracle signals. We address two sub-questions: what types of
+execution feedback are used, and how is shared state
+synchronized across agents.
+
+
+\begin{table}[t]
+\centering
+\caption{Representative MAS execution-feedback and convergence designs.}
+\label{tab:mas_feedback_systems}
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{5pt}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}
+  >{\raggedright\arraybackslash}p{2.6cm}
+  >{\raggedright\arraybackslash}p{3.8cm}
+  >{\raggedright\arraybackslash}p{2.3cm}
+  >{\raggedright\arraybackslash}p{3.3cm}
+  >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{System} & \textbf{Harness Substrate} & \textbf{Topology} & \textbf{Execution Feedback} & \textbf{Convergence} \\
+\midrule
+\multicolumn{5}{@{}l}{\textit{Pre-defined topology}} \\
+\addlinespace[2pt]
+AgentCoder~\cite{huang2023agentcoder} & Execution & Cyclic & Test pass/fail & Correctness (test-gated) \\
+MAGE~\cite{Zhao2024MAGE} & Execution (waveform) & Chain-cyclic & Checkpoint waveform & Score-based correctness \\
+MapCoder~\cite{islam2024mapcoder} & Execution, implicit & Cyclic & Test pass/fail & Correctness \\
+AutoSafeCoder~\cite{Nunez2024AutoSafeCoder} & Execution (static, fuzzer) & Cyclic & CWE warnings, crashes & Security convergence \\
+QualityFlow~\cite{Hu2025QualityFlow} & Execution (real, imagined) & Gated cyclic & Pass/fail, imagined exec & Correctness (quality-gated) \\
+CodeCoR~\cite{Pan2025CodeCoR} & Execution, implicit & Cyclic & Syntax, test pass/fail & Score-based soft correctness \\
+MARCO~\cite{Rahman2025MACRO} & Execution (performance) & 2-node Cyclic & Time, memory, FLOPS & Performance, correctness \\
+\midrule
+\multicolumn{5}{@{}l}{\textit{Adaptive topology}} \\
+\addlinespace[2pt]
+SoA~\cite{Ishibashi2024SelfOrganized} & Execution, implicit gap & Hierarchical tree & Test pass/fail & Correctness (implicit fallback) \\
+SEW~\cite{Liu2025SEW} & Implicit & Evolution & Test pass/fail & Implicit \\
+EvoMAC~\cite{Hu2025EvoMAC} & Execution & Text DAG & Compiler, execution logs & Correctness (fixed-iteration) \\
+FlowReasoner~\cite{gao2025flowreasoner} & Execution, implicit & Query workflow & Execution feedback & Objective-driven adaptive \\
+Trae Agent~\cite{gao2025traeagent} & Repository, execution & Search pipeline & Test, pruning signals & Score-/selection-based \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{Execution Feedback Integration}
+\paragraph{Compiler and syntax feedback} Compiler and syntax
+feedback catch structural errors before runtime and are used by
+many systems. ChatDev~\cite{Qian2023ChatDev} feeds compiler
+errors from the testing phase back to the programmer, though only
+as one-off corrections within a single phase.
+L2MAC~\cite{Holt2023L2MAC} runs syntax checks via its evaluator
+module $E(D)$ after every file write, treating them as blocking
+conditions that prevent the instruction pipeline from advancing.
+
+\paragraph{Test pass/fail signals} Test pass/fail signals are the
+most commonly used execution-feedback type.
+AgentCoder~\cite{huang2023agentcoder} centers its entire loop on
+whether independently generated test cases pass; the iteration
+terminates on full pass or at the 5-iteration budget.
+QualityFlow~\cite{Hu2025QualityFlow} introduces a notable
+variant: Imagined Execution, in which an LLM simulates the Python
+interpreter step-by-step and predicts test outcomes without
+actually running the code, achieving 98\%+ precision and recall
+on MBPP while avoiding label leakage from visible test cases.
+The near-identical performance of
+Self-Collaboration~\cite{Dong2024SelfCollaboration}'s simulated
+LLM tester and its real-compiler ablation raises a provocative
+empirical question: when is actual execution necessary, and when
+can linguistic simulation of execution suffice?
+
+\paragraph{Fuzzer crash traces} Fuzzer crash traces represent a
+qualitatively different type of feedback: rather than a pass/fail
+outcome, they provide a concrete failing input.
+AutoSafeCoder~\cite{Nunez2024AutoSafeCoder} uses type-aware
+mutation to generate crash-inducing input seeds and passes the
+crashing input plus exit code to the Coding Agent. This
+adversarial feedback is more informative than a generic failure
+signal because it localizes the bug to a specific input category.
+
+\paragraph{Static analysis warnings} Static analysis warnings
+provide feedback about code structure and security properties
+without execution. AutoSafeCoder~\cite{Nunez2024AutoSafeCoder}
+uses CWE-mapped static analysis against the MITRE vulnerability
+database, enabling the Static Analyzer Agent to suggest
+remediation strategies keyed to specific vulnerability classes.
+
+\paragraph{Performance profiling results} Performance profiling
+results are uniquely exploited by MACRO~\cite{Rahman2025MACRO},
+which treats code optimization as the primary task rather than
+correctness. The Performance Evaluator Agent measures execution
+time, memory usage, and FLOPS, and MACRO~\cite{Rahman2025MACRO} uniquely augments this
+with real-time web search to retrieve relevant optimization
+techniques from the research literature.
+
+\paragraph{Fine-grained simulation feedback} MAGE~\cite{Zhao2024MAGE}'s
+distinctive contribution is the finest-grained execution feedback
+in the surveyed literature. Rather than reporting only whether a
+testbench passes or fails, the State Checkpoint mechanism records
+signal values at every clock edge and delivers to the Debug Agent
+a waveform window around the first failing clock cycle. This
+enables targeted repair at sub-test granularity.
+
+
+\subsubsection{Shared-Harness Synchronization}
+
+Sequential handoff is the most common synchronization mechanism:
+each agent receives the output of its predecessor and passes its
+own output to its successor. The program state exists only in the
+form of the most recent artifact in the pipeline. This is
+sufficient for simple linear pipelines but creates invisible
+state divergence in multi-agent settings where multiple agents
+modify the codebase in parallel or iteratively. {It
+is also where the limits of code-mediated coordination become
+clear. Even when agents share executable artifacts, the harness
+still imposes information-theoretic constraints: channels have
+finite bandwidth, summaries introduce compression loss, logs
+become noisy, cached views go stale, and parallel branches raise
+unresolved questions of authority and consistency. Code provides
+a richer substrate for coordination, but it does not remove
+these distributed-systems constraints.}
+
+\paragraph{Shared blackboard} Shared blackboard provides a
+globally accessible program state that all agents can read and
+update. L2MAC~\cite{Holt2023L2MAC} implements this most cleanly:
+the file store $D$ is an external, persistent structure that is
+never overwritten but extended and revised. The Control Unit
+manages all reads and writes, ensuring that each agent invocation
+receives a precisely controlled context window.
+MAGIS~\cite{Tao2024Magis}'s repository evolution memory $M$ is a
+persistent key-value store mapping file versions to
+LLM-generated summaries, updated incrementally via a specialized
+blackboard for repository-level reasoning.
+Self-Collaboration~\cite{Dong2024SelfCollaboration} is among the
+first systems to explicitly name and invoke the blackboard
+architecture, establishing a shared memory from which all three
+roles read and write.
+
+\paragraph{Parallel branches with merge} Parallel branches with
+merge arise when multiple agents modify independent components
+simultaneously, with their changes integrated at a later stage.
+MAGIS~\cite{Tao2024Magis} instantiates one Developer per
+candidate file; each modifies its assigned file independently,
+and all changes are merged into the final repository diff.
+HyperAgent~\cite{Phan2024HyperAgent} runs multiple Navigator and
+Editor instances in parallel via Redis queues, with results
+merged at the Planner level.
+
+\paragraph{Structured context scheduling} Structured context
+scheduling is the explicit management of what each agent sees and
+when. It is the primary innovation of
+L2MAC~\cite{Holt2023L2MAC}. The Control Unit resets the context
+window between instruction steps, providing each new invocation
+with a targeted summary of prior progress $(M_{rs})$ rather than
+the full conversation history. When the context window approaches
+capacity, the Control Unit stores partial results to $D$ and
+re-initializes with a compressed view, explicitly instructing the
+LLM which files to read or skip given the remaining context
+margin. This mechanism solves the context-window problem not by
+expanding the window but by carefully controlling its contents.
+MetaGPT~\cite{Hong2023MetaGPT} implements a lighter form of
+context scheduling via a publish-subscribe message pool: each
+agent subscribes only to the document types relevant to its role,
+receiving a filtered view of the shared state.
+
+\paragraph{Hierarchical memory} Hierarchical memory combines
+short-term working context with longer-term accumulated
+knowledge. ChatDev~\cite{Qian2023ChatDev} explicitly separates
+short-term memory (full dialogue within a phase) from long-term
+memory (extracted solutions carried across phases).
+Cogito~\cite{Li2025Cogito} implements hierarchical memory, drawing on
+neurobiological architecture: short-term memory for immediate
+task state, a long-term knowledge base for accumulated expertise,
+and growth units for evolving abstractions that improve over
+time. HyperAgent~\cite{Phan2024HyperAgent} uses a lightweight
+LLaMA-3.1-8B summarizer to condense execution logs before storing
+them in hierarchical memory, preventing context bloat.
+
+\paragraph{Agent pool scaling} Agent pool scaling addresses the
+context-management problem orthogonally: rather than managing
+what a single agent sees, it distributes the context load across
+more agents. SoA~\cite{Ishibashi2024SelfOrganized} is the
+canonical example: by spawning more agents as task complexity
+grows, each agent's context remains bounded. This is a
+structural solution to the harness-state problem: instead of
+building a shared representation that all agents can query,
+SoA~\cite{Ishibashi2024SelfOrganized} partitions the task state
+across agents, each holding a bounded slice. The limitation is
+that global consistency is sacrificed: agents cannot reason about
+the full program, only their assigned sub-function.
+
+\paragraph{Other}
+QualityFlow~\cite{Hu2025QualityFlow}'s revert mechanism
+represents a synchronization pattern: the initial code artifact is never overwritten,
+enabling the system to roll back to a prior shared harness state
+if the debugging trajectory degrades quality. This is the only
+work among the surveyed system that explicitly manages state history rather than always
+moving forward.
+
+\subsection{Position: The Shared Code-Centric Harness Substrate}
+
+We propose a new position for the next generation of multi-agent
+intelligence: the shared code-centric harness substrate. This
+position is motivated by the central gap identified in the
+literature: the lack of formal, persistent representations of the
+shared code state that agents can query and update across
+iterations. We argue that building such a harness substrate is
+both feasible and necessary for achieving robust, scalable
+multi-agent intelligence.
+
+
+
+\begin{table}[t]
+\centering
+\caption{Representative MAS designs centered on shared program-state representation and synchronization.}
+\label{tab:mas_world_state_systems}
+\renewcommand{\arraystretch}{1.16}
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}
+  >{\raggedright\arraybackslash}p{2.55cm}
+  >{\raggedright\arraybackslash}p{3.05cm}
+  >{\raggedright\arraybackslash}p{3.15cm}
+  >{\raggedright\arraybackslash}p{3.05cm}
+  >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{System}
+& \textbf{Harness Substrate}
+& \textbf{Agent Roles}
+& \textbf{Execution Feedback}
+& \textbf{Convergence / Synchronization} \\
+\midrule
+L2MAC~\cite{Holt2023L2MAC}
+& Blackboard, repository, execution
+& Plan, Synth, Verif (evaluator)
+& Syntax, test pass/fail
+& Correctness per instruction step \\ \midrule
+Cogito~\cite{Li2025Cogito}
+& Blackboard (3-tier memory)
+& Neurobiological model
+& NA
+& Hierarchical memory synchronization \\ \midrule
+CleanAgent~\cite{Qi2024CleanAgent}
+& Execution (weak), implicit
+& Plan, Understand, Synth, Exec
+& Runtime errors
+& Correctness through execution success \\ \midrule
+Lingma SWE-GPT~\cite{Ma2024Lingma}
+& Repository, execution
+& Understand, Synth-Verif
+& Syntax, git apply, tests
+& Fixed-limit implicit convergence \\ \midrule
+SyncMind~\cite{Guo2025SyncMind}
+& Repository, execution (formal $S_k/B_k$)
+& Synth-Understand, oracle Understand
+& Test pass/fail, runtime errors
+& Correctness, resource-constrained synchronization \\ \midrule
+BOAD~\cite{xu2025boad}
+& Repository, execution
+& Orchestrator with specialized sub-agents
+& Test pass/fail, validation reward
+& Hierarchy discovery, coordination \\ \midrule
+CANDOR~\cite{Xu2025Hallucination}
+& Execution (Java, JaCoCo)
+& Plan, Synth, Verif, Understand, Debate
+& Compiler, coverage, tests
+& Correctness, coverage, consensus \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+\subsubsection{Shared Harness Representation}
+
+A foundational question for any MAS is: what is the substrate
+these agents inhabit? In code as agent harness, the natural
+answer is the shared program environment, namely the collection
+of artifacts, execution contexts, and quality signals that agents
+collectively act upon and that evolve as agents produce, revise,
+and evaluate code. We call this the shared harness substrate, and
+we distinguish four levels of formalization with which existing
+systems represent it.
+
+\paragraph{Implicit / File-only Representation}
+
+The most common and least formalized category treats the shared
+harness as simply the current code file or set of code files.
+Agents receive the latest code artifact as part of their input
+context and produce a modified or evaluated version. There is no
+persistent, queryable representation: the shared state is
+reconstructed implicitly at each agent invocation from the
+conversational history. This category encompasses many
+foundational systems: ChatDev~\cite{Qian2023ChatDev},
+MetaGPT~\cite{Hong2023MetaGPT}, FlowGen~\cite{Lin2025Soen101},
+MapCoder~\cite{islam2024mapcoder},
+CodeCoR~\cite{Pan2025CodeCoR}, SEW~\cite{Liu2025SEW}, and
+CodePori~\cite{Rasheed2024Codepori}. While this representation is
+simple to implement, it entails a fundamental limitation: agents
+cannot reason about the shared substrate except through the
+narrow lens of their most recent context window.
+State divergence~\cite{Guo2025SyncMind}, in which an agent's
+internal belief about the code state diverges from the true
+state, is invisible to the system and cannot be detected or
+corrected.
+
+\paragraph{Repository-based Representation}
+
+A richer class of systems represents the shared harness as a
+navigable repository: a file system with directory structure,
+inter-file dependency graphs, call hierarchies, and version
+history. This representation supports agents that reason about
+where in the codebase a change needs to be made, what other
+components depend on the changed function, and how the codebase
+has evolved over time. MAGIS~\cite{Tao2024Magis} introduces a
+repository evolution memory that caches file-level summaries and
+incrementally updates them via git diff as files change across
+issue-resolution episodes. HyperAgent~\cite{Phan2024HyperAgent}
+provides agents with repository navigation tools
+(get\_tree\_structure, go\_to\_definition, code\_search,
+get\_all\_references), treating the repository as a structured
+knowledge base. Lingma SWE-GPT~\cite{Ma2024Lingma} compresses the
+repository view via abstract syntax tree (AST) skeletons,
+preserving function signatures and class definitions to enable
+efficient navigation. SyncMind~\cite{Guo2025SyncMind} is the only
+work to formally define the repository substrate as a ground-truth
+state $S_k$ and measure the divergence between $S_k$ and an
+agent's belief state $B_k$.
+
+\paragraph{Execution-based Representation}
+
+Execution-based representation is the most distinctive category
+for code generation. It has no direct parallel in general MAS and
+represents the shared substrate through execution behavior. The
+state is not what the code looks like but what the code does:
+whether it compiles, which tests it passes, what vulnerabilities
+a fuzzer uncovers, how fast it runs, and whether its runtime
+behavior matches its specification. This execution-based
+representation provides an objective oracle signal, a ground
+truth that is not subject to the hallucination or bias that
+affects purely linguistic agent evaluations. Systems that exploit
+this representation include
+AgentCoder~\cite{huang2023agentcoder},
+AutoSafeCoder~\cite{Nunez2024AutoSafeCoder},
+QualityFlow~\cite{Hu2025QualityFlow},
+MACRO~\cite{Rahman2025MACRO}, EvoMAC~\cite{Hu2025EvoMAC},
+CANDOR~\cite{Xu2025Hallucination}, and
+MAGE~\cite{Zhao2024MAGE}. Notably,
+MAGE~\cite{Zhao2024MAGE} achieves the finest-grained execution
+feedback in the literature, operating at clock-edge granularity
+via \textit{State Checkpoint} waveform snapshots.
+
+\paragraph{Blackboard / Shared-State Representation}
+
+A fourth category introduces an explicit, globally accessible
+data structure that all agents can read from and write to (akin
+to the classical blackboard architecture in
+AI~\cite{erman1980hearsay}). This shared state is the closest
+approximation in the literature to a formal harness substrate: it
+persists across agent invocations, can be queried and updated,
+and provides a consistent view of the program state to all
+agents. Self-Collaboration~\cite{Dong2024SelfCollaboration} is
+among the first systems to explicitly invoke the blackboard
+metaphor, establishing a shared memory from which all three roles
+(Analyst, Coder, Tester) read and write.
+L2MAC~\cite{Holt2023L2MAC} implements the most principled
+blackboard in the literature: a persistent file store $D$ with
+semantically meaningful paths, accessed through a Control Unit
+that explicitly manages which slice of state each agent
+invocation sees. GameGPT~\cite{chen2023gamegpt} uses a shared
+context buffer to reduce redundant information retransmission in
+multi-round game development. Cogito~\cite{Li2025Cogito} draws on
+neurobiological architecture to implement a three-tier memory:
+short-term working state, long-term knowledge base, and growth
+units for evolving abstractions, as a structured harness
+representation.
+
+\paragraph{The Central Gap}
+
+The distribution of systems across these four categories reveals
+a striking pattern: the majority of the literature resides in the
+implicit/file-only category, lacking any formal model of the
+shared harness substrate. This is the central gap that motivates
+the code as agent harness framing. The program, uniquely among
+multi-agent domains, is an artifact that executes. It produces
+objective, non-linguistic signals that could in principle anchor
+a formal shared substrate. Yet most systems fail to exploit this
+property at the architectural level, instead relying on agents to
+reason about code quality through natural language alone.
+
+
+\subsubsection{Harness-State Convergence}
+
+
+Convergence determines when a multi-agent coding harness should
+stop iterating and accept its current program state as a
+satisfactory outcome. In many existing MAS, convergence is still
+defined implicitly, either by consensus among agents or by an
+external iteration budget. However, code as agent harness has a
+distinctive advantage: because the shared substrate is
+executable, convergence can be grounded in objective behavioral
+signals rather than in conversational agreement alone. We identify six convergence patterns, ranging from widely used test-gated and implicit convergence to less common security-, performance-, and consensus-based criteria.
+
+\paragraph{Correctness convergence} Correctness convergence
+(test-gated) is the most principled and widely used objective
+criterion: the system terminates successfully when all test cases
+pass. AgentCoder~\cite{huang2023agentcoder},
+L2MAC~\cite{Holt2023L2MAC}, SyncMind~\cite{Guo2025SyncMind}, and
+CANDOR~\cite{Xu2025Hallucination} implement test-gated
+convergence. PairCoder~\cite{Zhang2024PairProgramming} augments
+this with dead-end detection: if the same buggy code or feedback
+appears in the iteration history, the system switches to the next
+candidate plan rather than looping. FlowGen~\cite{Lin2025Soen101}
+uses test-gated convergence but on LLM-generated tests rather
+than ground-truth tests, introducing a potential quality concern:
+a system can converge on code that passes its own biased tests
+but fails on external evaluation.
+
+\paragraph{Security convergence} Security convergence is uniquely
+implemented by AutoSafeCoder~\cite{Nunez2024AutoSafeCoder}: the
+system terminates successfully when no CWE vulnerabilities are
+flagged by static analysis and no crashes are induced by the
+fuzzer. This multi-criteria convergence is a strong argument for
+the execution-based harness framing. Both convergence criteria
+are grounded in objective program behavior, not agent opinions.
+
+\paragraph{Performance convergence} Performance convergence is the
+focus of MACRO~\cite{Rahman2025MACRO}: the optimization loop
+terminates when user-defined runtime and memory thresholds are
+satisfied, as measured by the Performance Evaluator against
+actual execution benchmarks. This is the only system that treats
+performance as the primary convergence criterion rather than
+correctness.
+
+\paragraph{Score-based convergence} Score-based convergence uses
+quantitative quality scores computed by agents evaluating
+intermediate outputs to determine when to stop.
+MAGE~\cite{Zhao2024MAGE} ranks candidate programs by their
+simulation mismatch score $s(r) = 1 - m(r) / tc(r)$ and
+continues iterating until the maximum score reaches 1.0.
+CodeCoR~\cite{Pan2025CodeCoR} uses a four-criteria binary score
+(clarity, relevance, conciseness, context) to prune intermediate
+outputs at each agent stage and selects the highest-ranked code
+in its Ranked Code Set as the final output. It sets a soft
+correctness convergence that submits the best available result
+rather than waiting for a perfect solution. Trae Agent~\cite{gao2025traeagent} introduces a closely related
+search-and-selection view at repository scale: it formulates
+issue resolution as an optimal solution search problem and uses
+modular generation, pruning, and selection agents to navigate a
+large ensemble space of candidate patches. In this setting,
+convergence is not only a matter of repeated repair, but also of
+ranking, filtering, and selecting among competing solutions under
+repository-aware evidence.
+
+\paragraph{Consensus convergence} Consensus convergence aggregates
+judgments from multiple reviewer agents.
+CANDOR~\cite{Xu2025Hallucination} implements majority voting
+among three Panelists on oracle correctness.
+MAGIS~\cite{Tao2024Magis} uses LLM-judgment from the QA Engineer
+as the acceptance signal, though this is a single-agent consensus
+rather than a multi-agent vote. QualityFlow~\cite{Hu2025QualityFlow}
+uses its Code Quality Checker as the single gating signal. It is
+an efficient design where the quality checker serves as both a
+convergence oracle and the system controller, enabling early exit
+(75--84\% of problems converge after the first generator call).
+
+\paragraph{Implicit convergence} Pipeline termination after a
+fixed number of stages or iterations with no objective quality
+criterion is the most prevalent convergence pattern in the
+literature and represents the most significant gap in the field.
+ChatDev~\cite{Qian2023ChatDev} terminates after a fixed number of
+phases, or when two consecutive rounds produce identical code, or
+after 10 rounds, none of which is an objective quality signal.
+MetaGPT~\cite{Hong2023MetaGPT} terminates after completing the
+fixed SOP stages.
+Self-Collaboration~\cite{Dong2024SelfCollaboration} falls back to
+implicit convergence after $n = 4$ iterations if the tester never
+approves. EvoMAC~\cite{Hu2025EvoMAC} runs a fixed $K$ iterations
+of the textual backpropagation loop. The prevalence of implicit
+convergence is a direct consequence of the lack of formal shared
+substrates: without an objective representation of the program
+state, systems have no principled criterion for convergence.
+
+
+\subsection{Patterns and Trends}
+
+Across systems, differences in role specialization, shared-state representation,
+execution grounding, and workflow topology are not independent
+engineering choices; they interact to determine how reliably a
+group of agents can maintain coherence over long-horizon coding
+tasks. In this subsection, we distill the main
+trends that emerge from the surveyed systems, highlighting both the common
+structural bottlenecks of current systems and the design
+principles that point toward more robust shared harnesses.
+
+
+\paragraph{The implicit-harness-state constraint} The majority of
+surveyed systems (ChatDev~\cite{Qian2023ChatDev},
+MetaGPT~\cite{Hong2023MetaGPT}, FlowGen~\cite{Lin2025Soen101},
+CodePori~\cite{Rasheed2024Codepori}, SEW~\cite{Liu2025SEW},
+MapCoder~\cite{islam2024mapcoder},
+CodeCoR~\cite{Pan2025CodeCoR}) operate without explicit
+representations of the shared code harness. These systems rely on
+agents to reconstruct state implicitly from conversational
+history at each invocation. This design choice works for
+function-level tasks where the program state is simple and does
+not fragment across agents. However, this implicit approach
+creates a fundamental vulnerability: without a formal shared
+substrate, agents cannot reliably detect when their internal
+understanding diverges from the true program
+state~\cite{Guo2025SyncMind}. From the code as agent harness
+perspective, the reliance on implicit state representations is
+the technical root of system brittleness rather than a
+scalability convenience.
+
+\paragraph{Code-mediated channels do not eliminate coordination bottlenecks}
+{The shift from free-form dialogue to code-mediated
+coordination is a genuine architectural advance, but it should
+not be overstated. Files, APIs, diffs, tests, logs, schemas,
+blackboards, and workflow states are all partial channels
+through which task state is encoded, transmitted, and
+reconstructed. Each channel trades off fidelity, latency, and
+scope: tests compress semantics into pass/fail, summaries save
+context at the cost of detail, logs are grounded but noisy, and
+shared blackboards improve persistence while creating authority
+and consistency problems. The central design question is
+therefore not merely whether code is present, but which
+artifacts are authoritative, how they are compressed, and how
+conflicts across channels are resolved.}
+
+\paragraph{Execution feedback as the bridge between linguistic and formal reasoning}
+The deepest divide in the literature is between systems that use
+execution as ground truth and those that rely on linguistic model
+judgments. Systems that ground shared state in execution
+(AgentCoder~\cite{huang2023agentcoder},
+AutoSafeCoder~\cite{Nunez2024AutoSafeCoder},
+QualityFlow~\cite{Hu2025QualityFlow}, EvoMAC~\cite{Hu2025EvoMAC},
+MAGE~\cite{Zhao2024MAGE}) have access to objective oracle
+signals, signals that cannot hallucinate. Yet a surprising
+finding complicates this picture:
+Self-Collaboration~\cite{Dong2024SelfCollaboration} and
+QualityFlow~\cite{Hu2025QualityFlow} demonstrate that
+LLM-simulated execution can achieve 98\%+ precision and recall in
+predicting actual outcomes without running code. This suggests
+that execution feedback's value is not uniform across all failure
+modes. It excels at detecting the corner cases that linguistic
+simulation structurally cannot imagine (runtime crashes, resource
+exhaustion, boundary condition errors, performance regressions),
+but for many correctable bugs, simulated reasoning may suffice. A
+mature harness would integrate both: using linguistic reasoning
+as the fast path and delegating to execution as the verification
+oracle only for the failure modes that require it.
+
+\paragraph{Two complementary representations of the shared harness}
+The surveyed systems reveals two conceptually orthogonal views:
+repository-based representation (structure: what functions call
+what, where does data flow, what are the dependencies) and
+execution-based representation (behavior: what does the code do
+when run, how does state evolve at runtime, what emergent
+failures occur under different inputs). MAGIS~\cite{Tao2024Magis}
+and HyperAgent~\cite{Phan2024HyperAgent} operate primarily in the
+repository view, enabling agents to reason about codebase
+architecture. AgentCoder~\cite{huang2023agentcoder} and
+MAGE~\cite{Zhao2024MAGE} operate primarily in the execution view,
+grounding shared state in runtime signals. Yet none of the
+surveyed systems fully unifies both views into a single harness
+substrate where agents can reason across both the static
+structure of code and its dynamic behavior. The deepest harness
+would integrate these two perspectives, answering questions like
+``which components are slow'' (requires both call graphs and
+profiling data) or ``does this refactoring break APIs that
+external code depends on'' (requires both static analysis and
+dynamic testing).
+
+\paragraph{Topology complexity inversely correlates with harness-state formality}
+Systems with explicit, formal shared substrates use simpler
+topologies, while systems lacking formal shared state employ
+increasingly complex topology patterns as a structural
+workaround. L2MAC~\cite{Holt2023L2MAC}, which has the clearest
+formal harness substrate (a persistent file store with explicit
+context scheduling), uses a simple sequential chain with
+sophisticated state management. By contrast,
+implicit-state systems like EvoMAC~\cite{Hu2025EvoMAC} and
+SEW~\cite{Liu2025SEW} develop elaborate adaptive topologies
+(dynamic DAGs, workflow mutation, agent pool scaling) that
+attempt to optimize the collaboration structure in the absence of
+a principled shared representation. This suggests that topology
+complexity is partially a symptom: when the substrate is
+formally represented and queryable, agents can coordinate through
+simple, transparent protocols. When the substrate is implicit,
+agents require richer interaction patterns to compensate for
+missing state information.
+
+\paragraph{Context management is the tax of implicit shared state}
+A striking pattern is that many systems have
+developed sophisticated context-management mechanisms precisely
+because they lack a formal shared substrate.
+L2MAC~\cite{Holt2023L2MAC}'s Control Unit,
+MetaGPT~\cite{Hong2023MetaGPT}'s publish-subscribe pool,
+SoA~\cite{Ishibashi2024SelfOrganized}'s agent-pool scaling, and
+Cogito~\cite{Li2025Cogito}'s three-tier memory are all responses
+to the same underlying problem: how to give agents a coherent
+view of a code harness that is too large to fit in any one
+context window. A mature harness substrate could unify these
+disparate solutions by providing a principled, queryable
+representation of task state that agents access on demand,
+rather than forcing the system to carefully manage what each
+agent sees at every step.
+
+\paragraph{Agent specialization increases the criticality of shared state metrics}
+As agent role diversity increases, from basic coder-tester pairs
+to systems with Architect, Manager, Navigator, Executor, and
+Verifier roles, the need for a unified shared substrate becomes
+urgent. Without shared understanding of code state, the Planning
+Agent may decompose tasks based on an outdated codebase snapshot,
+the Execution Agent may run tests against a different version
+than the Synthesis Agent intended, and the Verification Agent's
+feedback may misfire. EvoMAC~\cite{Hu2025EvoMAC} addresses this
+through its Gradient and Updating agents that explicitly monitor
+failure attribution at the MAS level.
+SyncMind~\cite{Guo2025SyncMind} formalizes the problem as agent
+belief divergence $|B_k - S_k|$, proposing explicit
+synchronization protocols. The proliferation of agent roles is
+thus not merely an engineering choice. It is a forcing function
+for developing more mature shared harnesses. Multi-agent systems
+with rich role repertoires cannot function robustly without them.

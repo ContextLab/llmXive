@@ -1,0 +1,86 @@
+\documentclass[]{memtensor}
+
+\usepackage[toc,page,header]{appendix}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{wrapfig}        % text-wrapped figures
+\usepackage{needspace}      % keep wrapped figures off page bottoms
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{pmboxdraw}
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{amsmath}
+\usepackage{etoolbox}
+\usepackage{lipsum}
+\usepackage{minitoc}
+\usepackage[table]{xcolor}  % colors + table color support
+\usepackage{arydshln}       % dashed lines in tables
+\usepackage{tablefootnote}  % footnote in table
+\usepackage{threeparttable}
+\usepackage{xspace}
+\IfFileExists{fontawesome5.sty}{
+    \usepackage{fontawesome5}
+}{
+    \newcommand{\faGlobe}{[Web]}
+    \newcommand{\faGithub}{[GH]}
+    \newcommand{\faEnvelope}{[Email]}
+    \newcommand{\faCalendar}{[Date]}
+    \newcommand{\faUsers}{[Authors]}
+}
+%%%%%%%%%%%%%%%%%%%%
+\newcommand{\ours}{\textsc{SkillsVote}\xspace}
+\newcommand{\online}{\textsc{Online}\xspace}
+\newcommand{\offline}{\textsc{Offline}\xspace}
+\colorlet{svGainColor}{green!50!black}
+\colorlet{svLossColor}{red!70!black}
+\newcommand{\svgain}[1]{\textcolor{svGainColor}{#1}}
+\newcommand{\svloss}[1]{\textcolor{svLossColor}{#1}}
+\newcommand{\svup}[1]{$_{\svgain{\scriptstyle\uparrow #1}}$}
+\newcommand{\svdown}[1]{$_{\svloss{\scriptstyle\downarrow #1}}$}
+\renewcommand{\bottomfraction}{0.75}
+\renewcommand{\textfraction}{0.10}
+\setcounter{bottomnumber}{2}
+
+\title{\ours : Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution}
+
+\author[*]{Hongyi Liu}
+\author[*]{Haoyan Yang}
+\author[*]{Tao Jiang}
+\author[]{Bo Tang}
+\author[]{Feiyu Xiong}
+\author[\dagger]{Zhiyu Li}
+
+\affiliation[]{MemTensor (Shanghai) Technology}
+
+\contribution[*]{Co-first authors}
+\contribution[\dagger]{Corresponding author}
+
+\abstract{
+\input{sections/0_abs.tex}
+}
+% \checkdata[\faCalendar\ Date]{\today}
+\checkdata[\faEnvelope\ Correspondence]{Zhiyu Li (\email{lizy@memtensor.cn})}
+\checkdata[\faGlobe\ Website]{\href{https://skills.vote}{skills.vote}}
+\checkdata[\faGithub\ GitHub]{\href{https://github.com/MemTensor/skills-vote}{MemTensor/skills-vote}}
+
+\begin{document}
+\maketitle
+\par\noindent
+\begin{minipage}{\linewidth}
+  \centering
+  \vspace{-5mm}
+  \includegraphics[width=0.98\linewidth]{assets/results_overview.pdf}
+  \vspace{-2mm}
+  \captionof{figure}{Main performance overview of \ours across Terminal-Bench 2.0 and SWE-Bench Pro.}
+  \label{fig:results-overview}
+\end{minipage}
+\clearpage
+\input{sections/main.tex}
+\end{document}

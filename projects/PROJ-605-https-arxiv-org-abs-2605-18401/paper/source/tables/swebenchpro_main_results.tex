@@ -1,0 +1,43 @@
+\begin{table*}[t]
+    \caption{Main results on SWE-Bench Pro public. Scores are avg@1 Resolve Rate; deltas denote absolute percentage-point changes in the overall column.}
+    \label{tab:main-results-swebenchpro}
+    \centering
+    \scriptsize
+    \setlength{\tabcolsep}{3pt}
+    \renewcommand{\arraystretch}{1.7}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{
+        >{\raggedright\arraybackslash}m{1.1in}
+        >{\raggedright\arraybackslash}m{0.52in}
+        ccccccccccc
+    }
+        \toprule
+        \multirow{2}{*}{\textbf{Model / Setting}} & \multicolumn{1}{c}{\underline{\textbf{Overall}}} & \textbf{ansib.} & \textbf{openl.} & \textbf{quteb.}
+        & \textbf{flipt} & \textbf{telep.} & \textbf{vuls} & \textbf{navid.}
+        & \textbf{webcl.} & \textbf{eleme.} & \textbf{nodeb.} & \textbf{tutan.} \\
+        & \multicolumn{1}{c}{\footnotesize (731)} & \footnotesize (96) & \footnotesize (91) & \footnotesize (79)
+        & \footnotesize (85) & \footnotesize (76) & \footnotesize (62) & \footnotesize (57)
+        & \footnotesize (65) & \footnotesize (56) & \footnotesize (44) & \footnotesize (20) \\
+        \specialrule{\lightrulewidth}{\aboverulesep}{0pt}
+        \rowcolor{black!8}
+        \multicolumn{13}{c}{Codex} \\
+        GPT-5.2 Medium
+        & 47.6 & 49.0 & \textbf{64.8} & 62.0 & 32.9 & 34.2 & 54.8 & \textbf{49.1} & \textbf{43.1} & 50.0 & 47.7 & 0.0 \\
+        \quad \online
+        & 50.2\svup{2.6} & \textbf{56.2} & 63.7 & \textbf{68.4} & 32.9 & \textbf{35.5} & \textbf{56.5} & 45.6 & 38.5 & 50.0 & \textbf{72.7} & 0.0 \\
+        \arrayrulecolor{black!25}\hdashline\arrayrulecolor{black}
+        GPT-5.4 mini Medium
+        & 46.9 & \textbf{52.1} & 55.0 & 64.6 & 31.8 & 35.5 & 50.0 & \textbf{50.9} & 38.5 & 46.4 & 61.4 & 0.0 \\
+        \quad \online
+        & 49.0\svup{2.1} & 51.0 & \textbf{59.3} & \textbf{68.4} & \textbf{32.9} & \textbf{38.2} & \textbf{56.5} & 49.1 & 38.5 & \textbf{51.8} & 61.4 & 0.0 \\
+        % \midrule
+        % \rowcolor{black!8}
+        % \multicolumn{13}{c}{Claude Code} \\
+        % Claude 4.5
+        % & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+        % \quad \online
+        % & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+        \bottomrule
+    \end{tabular}%
+    }
+\end{table*}

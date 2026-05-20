@@ -1,0 +1,133 @@
+\section{Phase 4: Dissemination}
+\label{sec:dissemination}
+
+This phase converts the validated manuscript into formats accessible to audiences beyond specialist venue readers. The discussion covers the transformation of papers into posters, slides, videos, social media posts, and interactive agents. Compared with earlier phases, Dissemination is less about producing or validating scientific claims than about adapting those claims to different audiences, media, and interaction modes.
+
+Dissemination merits a separate phase because its outputs are independent knowledge artifacts rather than simple derivatives of the paper. A poster must compress the contribution into a single visual narrative; a slide deck must support oral explanation; a video must synchronize visual, textual, and spoken channels; a social media post must balance accessibility with precision; and an interactive agent must expose the paper's methods for downstream use. The central challenge is therefore not whether AI can reformat a paper, but whether it can preserve scientific fidelity while adapting the work to new modalities, audiences, and levels of interactivity.
+
+
+
+\subsection{Research Dissemination (Paper2X)}
+\label{sec:paper2x}
+
+Research dissemination converts a completed paper into audience-adaptive artifacts. Unlike Phases~1--3, which primarily target specialist authors, reviewers, and readers, Paper2X outputs must serve diverse audiences: conference attendees, oral-session audiences, online readers, prospective users, journalists, practitioners, and future researchers who may interact with the work through tools rather than text. Existing systems cover poster generation, slide generation, narrated video and talk generation, social media and web-page generation, and emerging paper-to-agent conversion. Across these formats, the core bottleneck is trust: researchers may use AI to draft public-facing materials, but they remain reluctant to delegate final communication to systems that may distort results, overstate claims, or omit important limitations.
+
+A comprehensive inventory of Paper2X systems across poster, slides, video, web, social media, and agentic formats is provided in \cref{tab:appendix_s8} (Appendix).
+
+
+
+\subsubsection{Paper to Posters}
+\label{sec:paper2poster}
+
+Paper-to-poster generation transforms a full manuscript into a compact visual narrative. This requires more than summarization: the system must select the central message, allocate space across motivation, method, results, and conclusion, preserve key figures and tables, and arrange them into a readable layout. Compared with slide generation, poster generation has stronger spatial constraints because all content must be legible and coherent on a single canvas.
+
+Early systems established agentic poster generation as a feasible task. Paper2Poster~\cite{paper2poster2025} introduces PosterAgent with binary-tree layout planning and a Painter--Commenter feedback loop, showing that poster generation can be decomposed into layout construction, rendering, and critique. Subsequent systems add stronger design and hierarchy awareness. PosterGen~\cite{postergen2025} incorporates aesthetic-aware multi-agent generation, PosterForest~\cite{choi2025posterforest} uses hierarchical multi-agent collaboration, and P2P~\cite{p2p2025} introduces P2PInstruct with specialized agents and instruction data for poster design.
+
+Recent systems move from one-shot poster creation toward editing and unified poster manipulation. APEX~\cite{apex2026} supports interactive poster editing with fine-grained control, addressing the practical need for human post-editing in conference preparation. PosterOmni~\cite{posteromni2026} unifies multiple poster tasks, including rescaling, filling, extension, layout-driven generation, style-driven generation, and identity-driven generation, while PosterCraft~\cite{postercraft2026} further explores quality-aware poster generation in a unified framework. Together, these systems suggest that poster automation is shifting from direct paper summarization toward editable, design-aware poster production.
+
+
+
+\subsubsection{Paper to Slides}
+\label{sec:paper2slides}
+
+Paper-to-slides systems convert manuscripts into sequential visual narratives for oral presentation. Unlike posters, slides unfold over time and must support speaker delivery. This requires content selection, section-to-slide mapping, visual layout, speaker-note synthesis, and often iterative refinement based on rendered slide quality. The key challenge is preserving the paper's argument while changing its rhetorical structure from written exposition to spoken explanation.
+
+Early datasets and pipelines established the task. DOC2PPT~\cite{doc2ppt2022} provides paired document--slide data, while PPTAgent~\cite{pptagent2025} generates and evaluates presentations with PPTEval across content, design, and coherence. Environment-grounded refinement then closes the gap between symbolic planning and rendered slides. DeepPresenter~\cite{deeppresenter2026} conditions revision on rendered slide images rather than only internal reasoning traces, showing that visual feedback is important for presentation quality.
+
+Multi-agent and interactive systems further decompose slide generation into specialized subtasks. SlideGen~\cite{slidegen2025} uses agents for outlining, content mapping, arrangement, note synthesis, and iterative refinement to produce editable PPTX slides. Auto-Slides~\cite{autoslides2025} targets Beamer generation with multi-agent collaboration and interactive editing. SlideTailor~\cite{slidetailor2025} conditions generation on user preference from a single example pair using a chain-of-speech mechanism. Other systems focus on task-specific capabilities: PASS~\cite{pass2025} combines slide generation with AI audio delivery, AutoPresent~\cite{autopresent2025} fine-tunes a slide-generation model on SlidesBench, Paper2Slides~\cite{paper2slides2025} provides one-click conversion through a multi-stage RAG pipeline, Talk to Your Slides~\cite{talkslides2025} supports natural-language slide editing, and Office Raccoon~\cite{sensetime2026} targets page-level editing with template and brand-guideline learning. Across these systems, the main trend is from static slide generation toward editable, feedback-aware, and user-preference-conditioned presentation design.
+
+
+
+\subsubsection{Paper to Videos and Talks}
+\label{sec:paper2video}
+
+Paper-to-video and paper-to-talk systems extend dissemination from visual artifacts to multimodal explanation. These systems must coordinate slides, subtitles, narration, cursor motion, pacing, and sometimes avatar or talking-head video. This makes the task substantially harder than poster or slide generation: errors can arise not only from content selection, but also from temporal alignment, speech clarity, visual synchronization, and duration constraints.
+
+PresentAgent~\cite{presentagent2025} provides an end-to-end document-to-narrated-video pipeline with synchronized slides, text-to-speech narration, and the PresentEval benchmark. Paper2Video~\cite{paper2video2025} introduces a benchmark of paper--video pairs and the PaperTalker framework, decomposing video generation into slide, subtitle, cursor, and talker builders. Preacher~\cite{preacher2025} uses top-down decomposition followed by bottom-up generation with Progressive Chain of Thought across multiple research fields.
+
+Although these systems show promising progress, video remains one of the hardest Paper2X formats. Unlike posters and slides, video generation requires coordination across at least four modalities: visual slides, subtitles, speech audio, and temporal or avatar-based presentation. The resulting artifact must also remain faithful to the paper while being concise enough for viewers to follow. Current systems, therefore, work best as first-draft generators that produce synchronized presentation assets for human review, rather than final public-facing videos requiring no editing.
+
+
+
+\subsubsection{Paper to Social Media}
+\label{sec:paper2social}
+
+Paper-to-social-media and paper-to-web generation aims to make research discoverable outside the publication venue. Outputs include project pages, blog posts, press-release-style summaries, short-form research posts, and X/Twitter threads. These formats require stronger audience modeling than posters or slides: a thread for ML practitioners, a lay summary for journalists, and a project-page introduction for potential users should emphasize different details, use different vocabulary, and make different assumptions about background knowledge.
+
+Paper2Web~\cite{paper2web2025} converts papers into interactive multimedia-rich academic homepages and provides a benchmark for this task. More generally, researchers increasingly use general-purpose LLMs to draft online summaries, figure captions, project-page text, and social media announcements. However, dedicated research-to-social-media tools remain comparatively underdeveloped. The bottleneck is not text generation alone, but audience-adaptive fidelity: systems must simplify without distorting, emphasize contributions without exaggeration, and preserve limitations while remaining engaging.
+
+This makes social dissemination a distinct trust problem. Public-facing outputs are often read without the paper, so any overclaim, missing caveat, or misleading comparison can shape how the work is perceived. AI assistance is therefore most credible when it provides audience-specific drafts, style variants, and claim-checking support, while leaving final messaging and factual responsibility to the authors.
+
+
+
+\subsubsection{Paper to Agents and Tools}
+\label{sec:paper2agent}
+
+A newer dissemination direction converts papers from static documents into interactive agents or tools. This changes the function of dissemination: instead of only explaining a contribution, the system exposes the paper's methods, code, data, or workflows through natural-language interaction. In this setting, the reader becomes a user who can query, reproduce, adapt, or extend the work.
+
+Paper2Agent~\cite{miao2025paper2agent} exemplifies this shift by converting research papers and associated codebases into interactive paper agents. The system analyzes the paper and code, constructs a Model Context Protocol (MCP) server with tools, resources, and prompts, and iteratively tests the resulting agent so that users can interact with the paper's methods through natural language. This reframes dissemination as operational access: a paper is no longer only read, but queried and executed.
+
+Related systems broaden this idea from paper-specific agents to tool-using scientific agents. Gao~\etal~\cite{gao2025democratizing} study how scientific tool ecosystems can democratize AI scientists by exposing computational capabilities through agent-accessible interfaces. ProteinMCP~\cite{xu2026proteinmcp} applies an MCP-based agentic framework to protein engineering, illustrating how domain-specific workflows can be wrapped into interactive, tool-using systems. These systems suggest that future dissemination may increasingly involve executable interfaces, reproducible workflows, and domain agents that make research easier to reuse.
+
+This direction also introduces new risks. An interactive paper agent must not only summarize the paper faithfully, but also execute tools correctly, respect the limitations of the original method, and avoid presenting unsupported extrapolations as valid conclusions. Evaluation therefore requires both communication metrics and reproducibility metrics: whether the agent explains the paper clearly, whether it invokes the correct tools, whether it reproduces expected results, and whether it handles out-of-scope user queries responsibly.
+
+
+
+\subsubsection{Assessment: Fidelity, Usability, and Adoption}
+
+\label{sec:paper2x_eval}
+
+Assessment for Paper2X must evaluate three dimensions: \emph{fidelity}, whether the generated artifact accurately represents the paper; \emph{usability}, whether the artifact supports its intended communication or interaction goal; and \emph{adoption}, whether researchers trust the artifact enough to use it publicly. Fidelity is the most important dimension because dissemination artifacts often circulate independently of the paper. A polished poster, slide, video, or thread can misrepresent a contribution if it omits caveats, changes baselines, simplifies methods incorrectly, or exaggerates results.
+
+Poster and slide generation have the most mature evaluation infrastructure. Paper2Poster~\cite{paper2poster2025} evaluates poster quality under cost-efficient generation settings, while PPTAgent~\cite{pptagent2025} introduces PPTEval to assess slide quality along content, design, and coherence dimensions. Video evaluation is newer: PresentEval~\cite{presentagent2025} evaluates narrated video pipelines, and Paper2Video~\cite{paper2video2025} introduces comprehension-oriented evaluation through paper--video pairs. These benchmarks reflect a broader shift from surface aesthetics toward whether generated materials preserve content and improve audience understanding.
+
+Agentic dissemination requires additional evaluation criteria. A paper agent should be assessed not only by answer quality, but also by tool correctness, reproducibility, error handling, and boundary awareness. This makes Paper2X evaluation closer to the assessment problems in Coding and Experiments (\Sthree): a system may appear helpful in natural language while invoking the wrong workflow or returning unsupported outputs. Across formats, no large-scale adoption study has yet established whether Paper2X tools reduce or increase misrepresentation compared with manual author-created materials. As a result, Paper2X systems are currently best understood as drafting and interaction aids rather than final producers.
+
+
+
+\subsubsection{Findings and Observations}
+\label{sec:s8_findings}
+
+\stageanalysis{~Stage 8: Dissemination (Paper2X)}{S8color}{figures/teasers/s8_l.png}{figures/teasers/s8_r.png}{%
+\posbadge[S8color]{Low Cost} \posbadge[S8color]{Paper2Poster} \posbadge[S8color]{Paper2Slides}\par\vspace{2pt}
+\posbadge[S8color]{Paper2Video} \posbadge[S8color]{Multi-Agent} \posbadge[S8color]{Interactive}
+}{%
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Cost barrier eliminated: \$0.005/poster with $87\%$ fewer tokens~\cite{paper2poster2025}; $8$B models match frontier on slides~\cite{deeppresenter2026}. Most cost-efficient stage to automate.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Poster and slide generation are the most developed directions, moving from one-shot conversion toward editable, feedback-aware, and user-preference-conditioned workflows~\cite{paper2poster2025,pptagent2025,deeppresenter2026}.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Paper-to-agent systems extend dissemination from static explanation to interactive reuse, exposing paper methods, code, and workflows through tool-using agents~\cite{miao2025paper2agent,xu2026proteinmcp}.
+\end{itemize}
+}{%
+\negbadge{Trust} \negbadge{4-Modal Hard} \negbadge{No Adaptation}\par\vspace{2pt}
+\negbadge{Adoption} \negbadge{Fidelity} \negbadge{Social Media}
+}{%
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Trust, not generation cost, is the bottleneck: researchers need confidence that AI-generated public artifacts preserve claims, caveats, and limitations.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Video remains difficult because it must coordinate slides, subtitles, narration, pacing, and sometimes avatar or cursor motion under strict time constraints~\cite{preacher2025,paper2video2025}.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Social media and web dissemination remain limited by audience modeling: simplifying a paper for broader reach without exaggerating or distorting the contribution remains unresolved.
+\end{itemize}
+}
+\vspace{8pt}
+
+
+
+\subsection{Summary and Transition: Dissemination}
+\label{sec:dissemination_summary}
+
+This phase shifts the focus from validated scholarly argument to audience-adaptive communication and reuse. The goal is to convert the manuscript into posters, slides, videos, project pages, social media posts, and increasingly interactive agents or tools. Progress in this phase shows that AI can substantially lower the cost of producing dissemination artifacts, especially when the input paper is complete and the target format has a predictable structure.
+
+The central limitation is fidelity under format change. Each dissemination artifact compresses, reorders, or re-expresses the paper, creating opportunities for omission, overstatement, or distortion. This risk appears differently across formats: posters and slides may oversimplify the contribution, videos may misalign narration and visual evidence, social media posts may trade nuance for engagement, and paper agents may expose tools or workflows beyond their validated scope. Dissemination-stage automation is therefore most credible when it supports draft generation, format adaptation, editing, and interaction while preserving author oversight over claims and limitations.
+
+The completion of this phase closes the research lifecycle: a contribution has been created, written, validated, and communicated. The remaining question is what patterns cut across all phases. We therefore next synthesize the common architectures, capability boundaries, deployment principles, and open challenges that define AI-assisted research as a whole.

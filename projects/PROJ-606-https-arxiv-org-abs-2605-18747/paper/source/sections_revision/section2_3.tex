@@ -1,0 +1,133 @@
+\subsection{Harness Control through the Plan, Execute, and Verify Loop}
+\label{sec:debug}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/sec3_verification.pdf}
+    \caption{Overview of harness control through PEV loop.}
+    \label{fig:modules-verification}
+\end{figure}
+
+
+Code-as-harness systems require a control loop that turns model intentions into bounded, observable, and revisable state transitions. This subsection frames that loop as \emph{Plan--Execute--Verify} (PEV): the harness first externalizes an intended change and its validation criteria, then executes the change inside a sandboxed and permissioned environment, and finally verifies the resulting state through deterministic sensors and human-review gates. This framing unifies planning, execution, debugging, verification, and escalation as parts of a single harness-level control process.
+\subsubsection{From Debugging to Harness-Level Control}
+The preceding subsections describe planning as trajectory control, memory as state management, and tool use as a governed action interface. Feedback-guided debugging connects these mechanisms into a closed loop: plans specify intended changes, memory preserves relevant evidence, tools execute and inspect actions, and validation signals determine whether the agent should continue, revise, or stop. As code-centric agents move from single-turn generation to repository-level software work, debugging is therefore better understood as control over executable program state rather than as a post hoc correction stage. Generated programs can fail through syntax errors, runtime exceptions, incorrect outputs, incomplete edge-case handling, unsafe operations, or violations of project-specific conventions, making one-pass generation insufficient~\cite{chen2023teaching}. Recent systems revise code through feedback from compilers, runtimes, tests, static analyzers, humans, and auxiliary agents~\cite{shinn2023reflexion, zhong2024debug, bi2024iterative, dai2025feedbackeval}. From the harness perspective, this process can be reframed as a \emph{Plan--Execute--Verify} (PEV) loop: the agent externalizes an intended trajectory, executes bounded actions inside a controlled environment, and verifies the resulting state before the next transition. The growing engineering ecosystem around agent harnesses reinforces this view: recent curated resources distinguish orchestration, working state, execution substrates, evaluation harnesses, observability, and governance as separable harness layers rather than incidental implementation details~\cite{picrew2026awesomeagentharness,openaiharnessengineering2026,opencodexloop2026,langchainanatomyharness2026}.
+
+In this view, the harness acts as a \emph{cybernetic governor}: a control layer that observes the effects of agent actions and regulates subsequent state transitions. Rather than merely forwarding error messages to the model, it observes the repository and execution environment through deterministic sensors such as linters, parsers, compilers, type checkers, unit tests, integration tests, static analyzers, fuzzers, runtime monitors, and CI pipelines. These sensors turn a coding trajectory into inspectable signals, including pass/fail outcomes, diagnostics, failing traces, coverage gaps, security warnings, resource limits, and policy violations. The harness can then decide whether to continue execution, revise a patch, request more context, route the task to another module, reduce permissions, or escalate to a human reviewer. Table~\ref{tab:pev_modules} summarizes this control surface; the remainder of this subsection follows the loop from contract formation, through sandboxed state transition, to deterministic verification and evidence-grounded repair.
+
+
+\begin{table}[t]
+\centering
+\caption{Representative methods and systems for PEV-loop harness control.}
+\label{tab:pev_modules}
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Method} & \textbf{PEV Role} & \textbf{Core Mechanism} & \textbf{Signals and Gates} \\
+\midrule
+CodePlan~\cite{bairi2024codeplan} & Plan, structural & Dependency plan graph & Repo links, critiques \\
+MapCoder~\cite{islam2024mapcoder} & Plan, orchestration & Map-code-test stages & Handoffs, tests, failures \\
+Open\-Hands~\cite{wang2025openhands} & Full PEV harness & Stateful edit-exec workspace & Diffs, logs, tests, approvals \\
+SWE-agent~\cite{yang2024swe} & Execute, CLI & Replayable shell interface & Commands, patches, tests \\
+Daytona~\cite{daytona2026} & Execute, cloud sandbox & Isolated dev workspace & Files, limits, snapshots \\
+E2B~\cite{e2b2026} & Execute, code-browser sandbox & Cloud code-browser sandbox & Stdout, limits, UI state \\
+Self-Debugging~\cite{chen2023teaching} & Verify, self-debug & Explanation-guided repair & Errors, tests \\
+Reflexion~\cite{shinn2023reflexion} & Verify, reflection memory & Verbal feedback memory & Outcomes, critiques \\
+Debug Like a Human~\cite{zhong2024debug} & Verify, stepwise debug & Runtime-step checks & Traces, variables, asserts \\
+Iterative Refinement~\cite{bi2024iterative} & Plan--Verify feedback & Project-context repair & Compiler diagnostics \\
+Quality\-Flow~\cite{Hu2025QualityFlow} & Verify, quality gate & Quality feedback routing & Tests, success, stopping \\
+AgentCoder~\cite{huang2023agentcoder} & Verify, multi-agent repair & Coder-tester-executor loop & Tests, failures, critique \\
+Auto\-SafeCoder~\cite{Nunez2024AutoSafeCoder} & Verify, safety sensors & Static checks, fuzzing & Alerts, traces, tests \\
+VeriGuard~\cite{miculicich2025veriguard} & Verify, verified gen. & Verifier guard layer & Proofs, tests, alerts \\
+LiteLLM~\cite{litellm2026} & Permission gateway & Proxy policy routing & Approvals, denials, cost logs \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+
+
+
+\subsubsection{Planning as Contract Formation}
+The planning phase turns a user request into an explicit contract over the next state transition. A robust plan does more than decompose the request into implementation steps; it also identifies relevant files, expected invariants, validation commands, rollback points, and risky operations. This makes planning a harness artifact rather than an unobserved reasoning trace. In repository-level tasks, such artifacts constrain the subsequent action space by specifying which components may be read, which files may be edited, and which verification criteria must be satisfied before completion~\cite{jiang2024selfplanning, bairi2024codeplan, islam2024mapcoder}. Repository-local instructions and tool protocols strengthen this contract layer: AGENTS.md-style guidance, MCP server registries, typed tool schemas, adapters, and protocol gateways make the available actions inspectable before execution rather than discovered opportunistically during execution~\cite{agentsmd2026,mcpservers2026,modelcontextprotocol2026,langchainmcpadapters2026,RayASO,hou2025model,li2025glue,contextforge2026}. The PEV framing also clarifies why planning and debugging should not be separated: failed verification updates the plan, while the plan determines which verification evidence is meaningful.
+
+\subsubsection{Sandboxed Execution and Permissioned State Transition}
+The execution phase realizes the plan as a bounded and observable state transition. The sandboxed environment is the operational substrate of the loop: it provides an isolated filesystem, dependency state, shell, language runtime, browser or IDE interface, and resource boundary in which agent-generated actions can be run without directly compromising the host system~\cite{vijayvargiya2025openagentsafety, cheng2026llm}. Contemporary execution-substrate work is best read as functional clusters rather than as an undifferentiated catalog. Coding sandboxes expose filesystems, Git operations, shells, package managers, and code-execution backends~\cite{daytona2026,e2b2026,alibabaopensandbox2026,judge02026,swerex2026,wang2025openhands}; computer-use substrates add browser, desktop, LSP, or IDE state~\cite{trycua2026,browserharness2026,e2bdesktop2026,agentinfrasandbox2026,agentscoperuntime2026}; and durable runtimes emphasize microVM or WASM isolation, snapshots, warm pools, resumable sessions, benchmark environments, and always-on operating contexts~\cite{tensorlake2026,arrakis2025,capsule2026,kubernetesagentsandbox2026,sandboxedsh2026,terminalbenchenv2026,stakpakagent2026}. Sandboxes also improve reproducibility because the harness can replay the same patch, command, seed, dependency lockfile, or test configuration under comparable conditions. Without this stable substrate, verification signals become difficult to interpret, and failures may reflect environment drift rather than program defects~\cite{wang2025openhands, feng2026longcli,anthropicinfranoise2026}.
+
+Execution must also be permissioned. A multi-tier model separates low-risk observation from high-risk action: a read-only tier supports repository browsing, retrieval, static inspection, and log analysis; a sandbox-edit tier supports local patching, test execution, and temporary dependency installation inside an isolated workspace; and a full-access tier covers network access, credentials, deployment commands, package publishing, destructive filesystem operations, or Git history mutation. Actions in the final tier should be guarded by mandatory human-in-the-loop (HITL) gates because their consequences can extend beyond the sandbox. Recent software-agent systems and harness engineering work increasingly expose these control points through explicit tools, sessions, policies, approval prompts, and audit logs~\cite{sergeyuk2026human, wang2025openhands, lin2026agentic, zhou2026externalization,anthropicclaudecodeautomode2026,anthropicsandboxing2026}. Gateway and policy layers then provide the production counterpart: systems for model routing, tool registration, proxy-level logging, centralized guardrails, security automation, and falsifiable approval evidence keep governance outside the prompt alone~\cite{litellm2026,kong2026,portkey2026,contextforge2026,agentgateway2026,openairealtimeagents2026,openaicsagentsdemo2026,tracecat2026,archestra2026,haft2026}.
+
+\subsubsection{Verification through Deterministic Sensors}
+
+The verification phase closes and, when necessary, reopens the loop by comparing the new state against explicit constraints. Compilation and static-analysis feedback provide low-cost sensors before full execution, including parser diagnostics, type errors, lint warnings, and security alerts~\cite{bi2024iterative, adnan2025debugging, blyth2025static}. Runtime signals expose failures that only arise along concrete execution paths, such as exceptions, assertion breaks, invalid API usage, resource exhaustion, and timeouts~\cite{sun2024llm, huang2025mldebugging, zhong2024debug}. Test-based feedback then evaluates whether the observed behavior satisfies the intended specification, using unit tests, integration tests, regression tests, fuzzing, or benchmark-specific evaluators~\cite{chen2023teaching, fakhoury2024llm, gu2024testart, shi2025from}. Evaluation harnesses broaden this idea from a single test command to repeatable task distributions: they encode evaluator logic, simulation hooks, red-team cases, or RL-style environments that can compare harness variants under controlled conditions~\cite{promptfoo2026,deepeval2026,ragas2026,lmevaluationharness2026,langwatch2026,evalscope2026,harbor2026,tau2bench2026,nemogym2026,agentevaluation2026,inspectevals2026}. Compared with natural-language critique, these sensors are deterministic or at least reproducible enough to serve as control signals. Human or agentic critiques remain useful when failure evidence is sparse, but in a governed PEV loop they should interpret sensor outputs rather than replace them~\cite{shinn2023reflexion, ross2023programmer, wu2024autogen}.
+
+Verification also supplies the evidence for repair, reflection, and termination, so these activities are treated as consequences of the Verify phase rather than as an independent stage. When a check fails, the same sensor evidence can determine whether the harness should ask the model to diagnose the failure, retrieve missing context, regenerate a localized patch, route the task to a testing or security agent, or abandon the current branch. Self-reflection mechanisms help transform raw diagnostics into actionable hypotheses, such as whether the failure comes from incorrect control flow, missing edge cases, misunderstood APIs, or inadequate tests~\cite{Wu2025IterPrefFP, Pan2025CodeCoR}. However, reflection is reliable only when it remains grounded in executable evidence. Systems such as AgentCoder, AutoSafeCoder, and QualityFlow illustrate this principle by combining agentic critique with independent execution, static analysis, fuzzing, or test-quality gates~\cite{huang2023agentcoder, Nunez2024AutoSafeCoder, Hu2025QualityFlow}. Termination should likewise be governed by verification rather than by model confidence: a loop can stop when required checks pass, when additional attempts no longer improve the state, when the risk tier changes, or when human review is required.
+
+\textbf{\textit{Discussion:}} Recasting iterative debugging as the PEV loop emphasizes that reliability comes from governed state transitions, not simply from better repair prompts. Planning externalizes intended changes and risk assumptions; execution applies them inside sandboxed and permissioned environments; verification uses deterministic sensors to decide whether the state is acceptable; and HITL gates preserve accountability when the action space crosses a safety boundary. This framing unifies static analysis, runtime errors, tests, critique, self-reflection, and human review as components of a cybernetic harness that regulates the agent's trajectory over executable program state.
+
+
+\subsection{Agentic Harness Engineering for Adaptive Harness Optimization}
+\label{sec:ahe}
+
+
+
+Agentic Harness Engineering (AHE) names a harness-level design problem: how to measure and revise the software substrate that turns a language model into a coding agent. Whereas prompt engineering changes instructions and context engineering changes what evidence is presented to the model, AHE treats the operating environment itself as the object of analysis, including tool schemas, planning artifacts, memory policies, retrieval strategies, sandbox configuration, verification sensors, permission tiers, routing rules, multi-agent workflows, and human-review gates~\cite{lin2026agentic, zhou2026externalization}. This perspective is useful because many observed failures in code agents arise from missing repository context, brittle tool interfaces, weak validators, excessive token cost, poor retry policies, or mismatched permission boundaries rather than from model generation.
+
+Existing work can be read as three complementary strands. AutoHarness studies automatic synthesis of code harnesses~\cite{lou2026autoharness}; Meta-Harness formulates harness design as an optimization problem over model-facing infrastructure~\cite{lee2026metaharness}; and observability-driven AHE emphasizes telemetry-rich diagnosis of where the agent loop fails and which harness component should change~\cite{lin2026agentic}. Related work on reflective prompt evolution, self-evolving workflows, and live software-engineering agents supports the same systems view: changing the scaffold around the model can change agent behavior without retraining the base model~\cite{agrawal2025gepa, Liu2025SEW, xia2025live}. Engineering guides from OpenAI, Anthropic, and LangChain converge on the same practical lesson: reliable agents require explicit harness loops, tool contracts, trace replay, evaluation suites, context budgets, and controlled execution boundaries~\cite{openaiharnessengineering2026,opencodexloop2026,anthropicmanagedagents2026,anthropicmcpexecution2026,langchaindeepagentsharness2026}.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.85\linewidth]{figures/sec3_auto.pdf}
+    \caption{Overview of harness engineering for adaptive harness optimization.}
+    \label{fig:modules-harness-engineering}
+\end{figure}
+
+
+\subsubsection{Deep Telemetry as the Optimization Substrate}
+The central substrate of AHE is \emph{deep telemetry}: structured traces that connect model decisions, harness actions, environment states, and outcomes. A shallow log may record only the final answer or pass/fail result. Deep telemetry records the decision process in greater detail: prompts and retrieved context, token usage and cost, model/tool latency, tool arguments, permission requests, edited files, sandbox snapshots, command outputs, test results, stack traces, lint warnings, branch decisions, rejected alternatives, human interventions, and final task outcome. In code-centric settings, these traces are especially valuable because program execution already exposes state transitions through logs, tests, diffs, and runtime behavior~\cite{ding2024semcoder, armengol2025cannot, copet2025cwm}. In production systems, this role is increasingly served by observability and reliability stacks that record traces, metrics, prompts, model traffic, eval results, and cost signals~\cite{langfuse2026,mlflow2026,opik2026,ragaaicatalyst2026,tensorzero2026,arizephoenix2026,openllmetry2026,helicone2026,agentops2026,latitude2026,laminar2026,openinference2026,futureagi2026}. Evaluation, observability, and governance systems therefore provide complementary telemetry channels: evaluators expose task-level regressions, tracing stacks expose trajectory-level causes, and policy gateways expose boundary violations that an Evolution Agent can turn into harness revisions.
+
+Telemetry turns harness revision from anecdotal debugging into comparative diagnosis. Token-cost traces reveal when retrieval or reflection stages consume budget without improving verification outcomes. Decision-tree traces show where the agent repeatedly chooses unproductive tools, edits irrelevant files, or loops between failed strategies. Failure traces cluster recurring patterns such as missing dependencies, weak tests, hallucinated APIs, flaky sandboxes, over-permissive tool calls, or premature termination. Because these signals are linked to concrete artifacts, they can be replayed and compared across harness versions, making it possible to evaluate whether a change improves reliability rather than merely changing surface behavior~\cite{jimenez2024swebench, feng2026longcli}.
+
+\subsubsection{The Evolution Agent}
+An \emph{Evolution Agent} is a meta-level agent that uses deep telemetry to propose, evaluate, and promote revisions to harness components. Unlike a task agent, which edits the target repository, the Evolution Agent edits the operating conditions under which later task agents work. Its input is a corpus of trajectories; its output may be a revised prompt template, a retrieval policy, a more precise tool schema, an added validator, a changed permission rule, a workflow-topology adjustment, or a new regression test. This role is closely related to self-evolving multi-agent systems in which specialized agents inspect execution logs, attribute failures to workflow components, and update collaboration structures~\cite{Hu2025EvoMAC,zou2025latentmas}. In the harness setting, the same idea is generalized from multi-agent topology to the control surface of the agent runtime.
+
+A typical Evolution-Agent loop contains five stages. First, it \emph{observes} trajectories by collecting telemetry from PEV executions. Second, it \emph{diagnoses} failure modes by attributing cost, latency, invalid actions, test failures, or permission denials to specific harness components. Third, it \emph{proposes} candidate revisions, such as rewriting tool descriptions, changing context packing rules, adding a linter, modifying retry limits, or inserting a HITL gate before risky commands. Fourth, it \emph{evaluates} the revised harness on held-out tasks or replayed traces using deterministic sensors and regression tests. Finally, it \emph{promotes} only changes that improve reliability, cost, or safety without regressing previously solved cases. This keeps AHE within the same engineering discipline as the PEV loop: proposed changes must be executed, verified, and made auditable before adoption.
+
+\begin{table}[t]
+\centering
+\caption{Representative methods for Agentic Harness Engineering with telemetry-driven revision targets.}
+\label{tab:ahe_telemetry}
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Method} & \textbf{Category} & \textbf{Telemetry} & \textbf{Revision Target} \\
+\midrule
+AutoHarness~\cite{lou2026autoharness} & Harness synthesis & Failures, fixtures, assertions & Harness code and tests \\
+Meta-Harness~\cite{lee2026metaharness} & Harness search & Code, scores, traces & Prompts, tools, scripts \\
+AHE~\cite{lin2026agentic} & Telemetry-driven optimization & Cost, decisions, latency, failures & Context, tools, validators \\
+GEPA~\cite{agrawal2025gepa} & Reflective prompt evolution & Scores, feedback, critiques & Prompts and instructions \\
+EvoMAC~\cite{Hu2025EvoMAC} & Workflow topology evolution & Handoffs, idle roles, loops & Agent roles and graph \\
+SEW~\cite{Liu2025SEW} & Self-evolving workflow & Workflow scores, failures & Stage order and roles \\
+Live-SWE~\cite{xia2025live} & Online agent evolution & Live issue trajectories & Policies, tools, memory \\
+GroundedTTA~\cite{chen2026grounded} & Test-time adaptation & State-action evidence & Adaptation rules \\
+RLEF~\cite{gehring2024rlef} & Execution-feedback learning & Execution rewards, failures & Feedback reward signal \\
+DeepEval~\cite{deepeval2026} & Evaluation harness & Scenario and metric traces & Regression suites, gates \\
+FeedbackEval~\cite{dai2025feedbackeval} & Repair evaluation benchmark & Feedback-task scores & Failure taxonomy and eval set \\
+Langfuse~\cite{langfuse2026} & Observability platform & Spans, cost, latency, evals & Dashboards and replay \\
+OpenLLMetry~\cite{openllmetry2026} & Trace instrumentation & OpenTelemetry spans, calls & Harness instrumentation \\
+Promptfoo~\cite{promptfoo2026} & Evaluation harness & Scores, regressions, failures & Eval gates and red tests \\
+LiteLLM~\cite{litellm2026} & Gateway governance & Routing, budgets, failures & Budgets, fallbacks, tiers \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsubsection{Governed Harness Mutation}
+AHE should not be confused with unconstrained self-modification. Because the Evolution Agent changes the harness that controls later task agents, its actions require stronger governance than ordinary code repair. Candidate harness changes should be evaluated inside sandboxes, compared against fixed regression suites, and recorded with auditable rationales. Changes that alter permission boundaries, network access, credential handling, deployment behavior, or human-review requirements should require HITL approval before activation. In this sense, the Evolution Agent is itself subject to the PEV loop: it plans a harness mutation, executes it in an isolated evaluation environment, verifies the result through telemetry and regression tests, and escalates risky changes to humans.
+
+\textbf{\textit{Discussion:}} Agentic Harness Engineering extends the code-as-harness view from operating agents to analyzing the infrastructure that operates them. Deep telemetry provides evidence for locating failures across prompts, tools, memory, sandboxes, validators, permissions, and workflows. Evolution Agents use this evidence to propose and evaluate harness mutations, turning harness design into an iterative and measurable engineering process governed by verification and human approval.

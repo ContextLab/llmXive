@@ -1,0 +1,18 @@
+
+\section{Conclusion, Limitations and Future Work}
+\label{sec:Conclusion}
+
+In this work, we present Lance, a lightweight native unified multimodal model for image and video understanding, generation, and editing. Our key finding is that multi-task synergy can effectively advance unified multimodal modeling, enabling diverse tasks to mutually enhance each other within a shared framework. To this end, Lance combines unified interleaved context modeling with decoupled capability pathways, allowing semantic understanding and visual synthesis to interact while preserving task-specific specialization. Extensive experiments demonstrate that Lance achieves strong performance across image generation, video generation, multimodal editing, and video understanding benchmarks. Notably, these results are obtained with only $3$B activated parameters and a maximum $128$-GPU training budget, showing that capable unified multimodal models can be built in a resource-efficient manner.
+
+Lance opens several promising directions for future exploration. 
+\begin{itemize}
+    \item \textbf{Post-training:} More comprehensive video-aware reward models, together with reward-based optimization methods~\cite{liu2026flow,xue2025dancegrpo,zheng2025diffusionnft}, could provide stronger supervision for temporally coherent, visually appealing, and user-aligned generation.
+
+    \item \textbf{Model Scaling:} Scaling model capacity, expert capacity, and context length may further improve Lance's overall capability and cross-task generalization.
+
+    \item \textbf{Broader Modalities:} Incorporating audio, speech, 3D, depth, and embodied sensory signals would be a natural step toward general-purpose any-to-any multimodal intelligence.
+
+    \item \textbf{Streaming Multimodal Interaction:}  Integrating streaming perception and generation mechanisms~\cite{huang2026self,wu2026stream,tu2026stream} could extend Lance toward real-time interaction and closed-loop multimodal agents.
+\end{itemize}
+
+We hope Lance can serve as a practical foundation for future research on efficient, scalable, and task-general unified multimodal systems.

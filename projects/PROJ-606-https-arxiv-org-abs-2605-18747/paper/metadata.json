@@ -1,0 +1,53 @@
+{
+  "arxiv_id": "2605.18747",
+  "arxiv_url": "https://arxiv.org/abs/2605.18747",
+  "title": "https://arxiv.org/abs/2605.18747",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #204",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/YennNing/Awesome-Code-as-Agent-Harness-Papers"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "arxiv",
+    "arxiv/assets",
+    "arxiv/assets/logometa.pdf",
+    "arxiv/figs",
+    "arxiv/figs/illinois_logo.png",
+    "arxiv/figs/meta_logo.png",
+    "arxiv/figs/stanford-university-logo.png",
+    "arxiv/figs/stanford_logo.png",
+    "arxiv/figs/uiuc_logo.png",
+    "figures",
+    "figures/applications.pdf",
+    "figures/mas_harness_overview.pdf",
+    "figures/mas_roadmap_new.pdf",
+    "figures/overview.pdf",
+    "figures/roadmap_sec2.pdf",
+    "figures/roadmap_sec3_new_2.pdf",
+    "figures/sec2teaser.pdf",
+    "figures/sec3_auto.pdf",
+    "figures/sec3_memory.pdf",
+    "figures/sec3_planning.pdf",
+    "figures/sec3_tool.pdf",
+    "figures/sec3_verification.pdf",
+    "main.tex",
+    "mystyle.cls",
+    "reference.bib",
+    "sections_revision",
+    "sections_revision/introduction.tex",
+    "sections_revision/sec_4.tex",
+    "sections_revision/section2_1.tex",
+    "sections_revision/section2_2.tex",
+    "sections_revision/section2_3.tex",
+    "sections_revision/section_3_harness.tex"
+  ]
+}

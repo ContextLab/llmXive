@@ -1,0 +1,36 @@
+\begin{table}[t]
+    \caption{Main results on Terminal-Bench 2.0. Scores are avg@5 Accuracy; deltas denote absolute percentage-point changes from the corresponding no-skill baseline.}
+    \label{tab:main-results-tb2}
+    \centering
+    \scriptsize
+    \setlength{\tabcolsep}{4pt}
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{
+        >{\raggedright\arraybackslash}m{0.20\linewidth}
+        >{\raggedright\arraybackslash}m{0.11\linewidth}
+        >{\raggedright\arraybackslash}m{0.085\linewidth}
+        >{\raggedright\arraybackslash}m{0.095\linewidth}
+        >{\raggedright\arraybackslash}m{0.085\linewidth}
+    }
+        \toprule
+        \multirow{2}{*}{\textbf{Model / Setting}} & \multicolumn{1}{c}{\underline{\textbf{Overall}}} & \multicolumn{1}{c}{\textbf{Easy}} & \multicolumn{1}{c}{\textbf{Medium}} & \multicolumn{1}{c}{\textbf{Hard}} \\
+        & \multicolumn{1}{c}{\footnotesize (89)} & \multicolumn{1}{c}{\footnotesize (4)} & \multicolumn{1}{c}{\footnotesize (55)} & \multicolumn{1}{c}{\footnotesize (30)} \\
+        \specialrule{\lightrulewidth}{\aboverulesep}{0pt}
+        \rowcolor{black!8}
+        \multicolumn{5}{c}{Codex} \\
+        GPT-5.2 Medium & 51.0 & 75.0 & 54.9 & 40.7 \\
+        \quad \online & 53.7\svup{2.7} & 75.0 & 62.9\svup{8.0} & 34.0\svdown{6.7} \\
+        \quad \offline & 58.9\svup{7.9} & 90.0\svup{15.0} & 65.1\svup{10.2} & 43.3\svup{2.7} \\
+        \arrayrulecolor{black!25}\hdashline\arrayrulecolor{black}
+        GPT-5.4 mini Medium & 51.7 & 75.0 & 61.8 & 30.0 \\
+        \quad \online & 52.8\svup{1.1} & 75.0 & 63.6\svup{1.8} & 30.0 \\
+        \quad \offline & 57.5\svup{5.8} & 65.0\svdown{10.0} & 64.7\svup{2.9} & 43.3\svup{13.3} \\
+        % \midrule
+        % \rowcolor{black!8}
+        % \multicolumn{5}{c}{Claude Code} \\
+        % Claude 4.5 & -- & -- & -- & -- \\
+        % \quad \online & -- & -- & -- & -- \\
+        % \quad \offline & -- & -- & -- & -- \\
+        \bottomrule
+    \end{tabular}
+\end{table}

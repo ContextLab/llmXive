@@ -1,0 +1,48 @@
+{
+  "arxiv_id": "2605.18739",
+  "arxiv_url": "https://arxiv.org/abs/2605.18739",
+  "title": "https://arxiv.org/abs/2605.18739",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #206",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/NVlabs/LongLive"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "appendix.tex",
+    "assets",
+    "assets/nvlogo2.png",
+    "figs",
+    "figs/fig1-overall.pdf",
+    "figs/DMD_comparison.png",
+    "figs/nvfp4_dmd.pdf",
+    "figs/shot-level-sink.pdf",
+    "figs/sp_2.pdf",
+    "figs/inference_all.pdf",
+    "figs/sp_1.pdf",
+    "figs/sp_inference.pdf",
+    "figs/shot-level-sink-ablation.pdf",
+    "figs/ptq_nvfp4.pdf",
+    "figs/Fig-clean-pipeline.pdf",
+    "figs/fig3-training-pipeline-v7.pdf",
+    "figs/teaser.pdf",
+    "main.tex",
+    "nv.cls",
+    "preamble.tex",
+    "reference.bib",
+    "sec",
+    "sec/02_training_infra.tex",
+    "sec/04_algo.tex",
+    "sec/01_intro.tex",
+    "sec/05_experiment.tex",
+    "sec/03_inference_infra.tex"
+  ]
+}

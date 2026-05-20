@@ -1,0 +1,41 @@
+% ==================== Appendix Table: S7 Rebuttal ====================
+\begingroup
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\rowcolors{2}{white}{S7color!6}
+\begin{table*}[!ht]
+\centering
+\caption{\textbf{Comprehensive inventory: \Sseven Rebuttal \& Revision.} $^\dagger$Evaluation information uncertain.}
+\vspace{-7pt}
+\label{tab:appendix_s7}
+\stagecard{\Sseven}{Rebuttal \& Revision}{S7color}{figures/icons/s7_rebuttal.png}{%
+Analyzing reviewer comments and generating evidence-grounded responses. The newest frontier in AI auto-research, rebuttal automation is decisive for roughly one in five borderline submissions at major venues.}
+\vspace{2pt}
+\resizebox{\linewidth}{!}{\begin{tabular}{c| >{\centering\arraybackslash}p{3cm} r r |c| >{\centering\arraybackslash}p{2.4cm} |c| p{7.5cm}}
+\toprule
+\rowcolor{tableheader!10}
+\textbf{\#} & \textbf{Method} & \textbf{Ref} & \textbf{Venue} & \textbf{Link} & \textbf{Category} & \textbf{GitHub} & \textbf{Evaluation} \\
+\midrule
+\multicolumn{8}{@{}l}{\cellcolor{S7color!65}\textbf{\textsf{\textcolor{white}{~~Reviewer Comment Analysis}}}} \\
+\addlinespace[1pt]
+{1}  & ReviewMT & \cite{reviewmt2024} & {\small arXiv'24} & \href{https://arxiv.org/abs/2406.05688}{\faExternalLink} & Analysis         & -                                                                     & 26,841 papers; 92,017 reviews; multi-turn dialogue \\
+{2}  & ICLR Rebuttal Study & \cite{iclr_rebuttal2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2511.15462}{\faExternalLink} & Analysis         & -                                                                     & ICLR 2024--2025; score transition analysis \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S7color!65}\textbf{\textsf{\textcolor{white}{~~Automated Rebuttal Generation}}}} \\
+\addlinespace[1pt]
+{3}  & ReviewerToo & \cite{reviewertoo2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2510.08867}{\faExternalLink} & Modular Pipeline & -                                                                     & 81.8\% accept/reject accuracy (vs 83.9\% human) \\
+{4}  & RebuttalAgent & \cite{rebuttalagent2026} & {\small ICLR'26} & \href{https://arxiv.org/abs/2601.15715}{\faExternalLink} & Rebuttal Gen.     & \githubicon{https://github.com/Zhitao-He/RebuttalAgent}             & 18.3\% avg improvement; ToM-grounded \\
+{5}  & Author-in-the-Loop & \cite{ruan2026authorinloop} & {\small ACL'26} & \href{https://arxiv.org/abs/2602.11173}{\faExternalLink} & Author-Aware     & -                                                                     & Integrates author expertise and intent \\
+{6}  & DRPG & \cite{drpg2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2601.18081}{\faExternalLink} & Rebuttal Gen.     & \githubicon{https://github.com/ulab-uiuc/DRPG-RebuttalAgent}             & 98\%+ planning accuracy; surpasses avg human quality \\
+{7}  & Paper2Rebuttal & \cite{paper2rebuttal2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2601.14171}{\faExternalLink} & Rebuttal Gen.     & -                                                                     & Evidence-centric rebuttal planning \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S7color!65}\textbf{\textsf{\textcolor{white}{~~Rebuttal Effectiveness Assessment}}}} \\
+\addlinespace[1pt]
+{8}  & Re$^2$ & \cite{re2dataset2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2505.07920}{\faExternalLink} & Dataset          & -                                                                     & 19,926 submissions; 70,668 reviews; 53,818 rebuttals \\
+{9}  & Commitment Checklist & \cite{rebuttalcommitment2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2603.00003}{\faExternalLink} & Benchmark     & -                                                                     & 11.8 commitments/paper; $\sim$25\% unfulfilled \\
+{10} & Re$^3$Align & \cite{ruan2026authorinloop} & {\small ACL'26} & \href{https://arxiv.org/abs/2602.11173}{\faExternalLink} & Dataset     & -                                                                     & First large-scale aligned review--response--revision triplets \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+\endgroup

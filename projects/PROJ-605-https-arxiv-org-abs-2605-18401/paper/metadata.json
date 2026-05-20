@@ -1,0 +1,46 @@
+{
+  "arxiv_id": "2605.18401",
+  "arxiv_url": "https://arxiv.org/abs/2605.18401",
+  "title": "https://arxiv.org/abs/2605.18401",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #205",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/MemTensor/skills-vote"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "paper.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "assets",
+    "assets/attribution_evolve_pipeline.pdf",
+    "assets/evolve_demo.pdf",
+    "assets/evolve_dynamics.pdf",
+    "assets/logo.png",
+    "assets/method_contrast.pdf",
+    "assets/overview.pdf",
+    "assets/results_overview.pdf",
+    "assets/tb2_hard_ablation.pdf",
+    "main.bib",
+    "memtensor.cls",
+    "paper.tex",
+    "sections",
+    "sections/0_abs.tex",
+    "sections/1_intro.tex",
+    "sections/3_review.tex",
+    "sections/4_framework.tex",
+    "sections/5_experiment.tex",
+    "sections/6_conclusion.tex",
+    "sections/7_appendix.tex",
+    "sections/appendix_prompts.tex",
+    "sections/main.tex",
+    "tables",
+    "tables/swebenchpro_main_results.tex",
+    "tables/tb2_main_results.tex"
+  ]
+}

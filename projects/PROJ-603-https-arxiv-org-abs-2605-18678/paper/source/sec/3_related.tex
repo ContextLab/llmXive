@@ -1,0 +1,37 @@
+\section{Related Work}
+\label{sec:Related Work}
+
+
+\subsection{Multimodal Large Language Models}
+Multimodal large language models (MLLMs) have become the dominant paradigm for image and video understanding by aligning pretrained visual encoders with powerful language backbones.
+Representative early systems include Flamingo \cite{alayrac2022flamingo}, IDEFICS \cite{laurenccon2023obelics}, and InstructBLIP \cite{dai2023instructblip}, while later open-source families such as LLaVA \cite{liu2023visual,liu2024improved,liu2024llavanext,li2024llava}, Qwen-VL \cite{Qwen-VL,Qwen2-VL,Qwen2.5-VL,Qwen3-VL}, and InternVL \cite{chen2024internvl,gao2024mini,chen2024far,wang2025internvl3_5} further improve instruction following, high-resolution perception, and long-context multimodal reasoning. 
+This line of work mainly follows the LLaVA paradigm \cite{liu2023visual}, in which visual inputs are first encoded by a vision encoder \cite{radford2021learning,tschannen2025siglip} and then concatenated with text tokens for joint modeling by a language model decoder.
+Some proprietary models such as GPT \cite{achiam2023gpt} and Gemini \cite{team2024gemini,team2023gemini} also demonstrate strong multimodal reasoning ability. 
+Recent progress further extends these models to interleaved image-text modeling \cite{yang2024vision,cui2025emu3,deng2025emerging} and video understanding \cite{li2025videochat,lin2024video,yang2025cambrian}.
+Despite their strong semantic abstraction and cross-modal alignment capabilities, these models are primarily optimized for understanding and text generation, rather than native visual synthesis.
+
+
+\subsection{Visual Generative Models}
+Visual generation has been dominated by diffusion- and flow-based frameworks \cite{ho2020denoising,esser2024scaling,lipman2024flow,wu2024vmix,huang2024realcustom, mao2024realcustom++,fu2025feededit,fu2026layeredit,mou2025dreamo,blackforestlabs_flux,labs2025flux}, which serve as mainstream paradigms for high-fidelity image and video synthesis.
+As for image generation, representative large-scale systems include Stable Diffusion \cite{rombach2022high,podell2024sdxl,wu2024taiyidiffusionxl,esser2024scaling}, FLUX \cite{blackforestlabs_flux,labs2025flux}, Qwen-Image \cite{wu2025qwen}, and HunyuanImage 3.0 \cite{cao2025hunyuanimage}, while multimodal image generation models such as RealCustom++ \cite{huang2024realcustom, mao2025realcustom++} and UNO series \cite{wu2025less,cheng2025umo,wu2025uso} further advance these frameworks by supporting diverse multimodal conditional inputs. As for video generation, recent systems such as Wan \cite{wan2025wan}, HunyuanVideo \cite{wu2025hunyuanvideo} and CogVideo \cite{hong2022cogvideo,yang2024cogvideox} demonstrate the effectiveness of continuous latent modeling with dedicated temporal VAEs.
+In contrast to continuous latent generators, autoregressive visual token models \cite{ramesh2021zero,chang2022maskgit,esser2021taming,peebles2023scalable,kondratyuk2023videopoet,tian2024visual,huang2023towards,mao2026toward} formulate image generation as next-token prediction, providing a simpler unified token interface, but often face trade-offs in visual fidelity and generation efficiency.
+Recently, several studies \cite{liu2024mardini,li2024autoregressive,fan2025unified} have explored hybrid frameworks that combine diffusion modeling with autoregressive modeling, aiming to leverage the advantages of both in generation quality and modeling flexibility, thereby further advancing visual generation capabilities.
+
+\subsection{Unified Multimodal Models}
+
+Recent unified multimodal models (UMMs) attempt to bridge multimodal understanding and visual generation within a single framework. One line follows a fully {autoregressive formulation}, represented by Chameleon \cite{team2024chameleon}, Emu3/Emu3.5 \cite{wang2024emu3,cui2025emu3}, and more recent systems such as TokenFlow \cite{qu2025tokenflow}, HunyuanImage 3.0 \cite{cao2025hunyuanimage}. These models cast both understanding and generation into next-token prediction under a shared token space. These models offer a clean unified interface and naturally support mixed-modality sequence modeling, but they may still face nontrivial trade-offs among reasoning ability, visual fidelity, and generation efficiency.
+Another line adopts {autoregressive–diffusion hybrid formulations}, combining language modeling for text with diffusion- or flow-based modeling for visual generation.
+Representative works include Transfusion \cite{zhou2024transfusion}, Show-o/Show-o2 \cite{xie2024show,xie2025show}, BLIP3-o \cite{chen2025blip3}, BAGEL \cite{deng2025emerging}, and others \cite{zhao2025unified,liu2025tuna,wang2025ovis,he2025emma,li2025onecat,tian2025unigen,ma2025janusflow,dai2026chatumm,feng2026dreamlite}.
+Within this family, recent work further explores decoupling in representation design, module architecture, and optimization. For instance, Janus-series models \cite{zhao2025unified,ma2025janusflow} decouple visual encoding for understanding and generation; RealGeneral \cite{lin2025realgeneral} tames a pretrained video foundation model for unified image generation and editing; Show-o2 \cite{xie2025show} integrates autoregressive language modeling with flow matching, extending native unification to both image and video modalities; BAGEL \cite{deng2025emerging} studies expert specialization under a shared decoder-only backbone; TUNA \cite{liu2025tuna} emphasizes unified continuous visual representations; and InternVL-U \cite{tian2026internvlu} couples a strong open MLLM with a specialized generation head. 
+In addition to native unified models, modular bridging systems such as OmniBridge \cite{xiao2025omnibridge} connect pretrained understanding and generation models through latent-space alignment, offering a more lightweight but less fully native alternative.
+
+Although unified multimodal modeling has advanced rapidly, much of the literature remains image-centric. Extending unified modeling to the video domain is substantially more challenging because it requires not only semantic understanding but also temporal reasoning, motion modeling, long-context generation, and consistent editing.
+Early general any-to-any or modular systems such as NEXT-GPT \cite{wu2024next} and GPT4Video \cite{wang2024gpt4video} extend MLLMs with external generative backends to support multimodal understanding and video generation, but their video synthesis capability is still largely mediated through additional generators rather than native joint video modeling. More recent video-focused frameworks, including Omni-Video \cite{tan2025omni}, UniVideo \cite{wei2025univideo}, and TV2TV \cite{han2025tv2tv}, move closer to genuinely unified video models by jointly addressing video understanding, generation, editing, or interleaved language-video modeling under a more integrated architecture. Meanwhile, several task-unified video editing frameworks, such as AnyV2V \cite{ku2024anyv2v}, VACE \cite{jiang2025vace}, UNIC \cite{ye2025unic}, EditVerse \cite{ju2025editverse}, and FullDiT \cite{ju2025fulldit}, expand the controllability of video generation, but typically do not aim for full understanding-generation unification within a single multimodal model. 
+Overall, multi-task synergy for image-video unified multimodal modeling remains to be further explored.
+
+
+
+
+
+
+

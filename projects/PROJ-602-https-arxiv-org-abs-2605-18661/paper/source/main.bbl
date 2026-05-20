@@ -1,0 +1,1367 @@
+\begin{thebibliography}{271}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Abramson et~al.(2024)Abramson, Adler, Dunger, Evans, Green, Pritzel, Ronneberger, Willmore, Ballard, Bambrick, Bodenstein, Evans, Hung, O'Neill, Reiman, Tunyasuvunakool, Wu, \v{Z}emgulyt\.{e}, Arvaniti, Beattie, Bertolusso, Sherwood, Jumper, and Hassabis]{abramson2024alphafold3}
+J.~Abramson, J.~Adler, J.~Dunger, R.~Evans, T.~Green, A.~Pritzel, O.~Ronneberger, L.~Willmore, A.~J. Ballard, J.~Bambrick, S.~W. Bodenstein, D.~A. Evans, C.-C. Hung, M.~O'Neill, D.~Reiman, K.~Tunyasuvunakool, Z.~Wu, A.~\v{Z}emgulyt\.{e}, E.~Arvaniti, C.~Beattie, O.~Bertolusso, A.~Sherwood, J.~M. Jumper, and D.~Hassabis.
+\newblock Accurate structure prediction of biomolecular interactions with {AlphaFold} 3.
+\newblock \emph{Nature}, 630:\penalty0 493--500, 2024.
+
+\bibitem[Agarwal et~al.(2024)Agarwal, Sahu, Puri, Laradji, Dvijotham, Stanley, Charlin, and Pal]{agarwal2024litllm}
+S.~Agarwal, G.~Sahu, A.~Puri, I.~H. Laradji, K.~D. Dvijotham, J.~Stanley, L.~Charlin, and C.~Pal.
+\newblock {LitLLM}: A toolkit for literature review with large language models.
+\newblock \emph{arXiv preprint arXiv:2402.01788}, 2024.
+
+\bibitem[Aggarwal and Bhand(2025)]{pass2025}
+T.~Aggarwal and A.~Bhand.
+\newblock {PASS}: Presentation automation for slide generation and speech.
+\newblock \emph{arXiv preprint arXiv:2501.06497}, 2025.
+
+\bibitem[Ajith et~al.(2024)Ajith, Xia, Chevalier, Goyal, Chen, and Gao]{litsearch2024}
+A.~Ajith, M.~Xia, A.~Chevalier, T.~Goyal, D.~Chen, and T.~Gao.
+\newblock {LitSearch}: A retrieval benchmark for scientific literature search.
+\newblock In \emph{Conference on Empirical Methods in Natural Language Processing}, 2024.
+
+\bibitem[Al~Azher et~al.(2025)Al~Azher, Mokarrama, Guo, Choudhury, and Alhoori]{futuregen2025}
+I.~Al~Azher, M.~J. Mokarrama, Z.~Guo, S.~R. Choudhury, and H.~Alhoori.
+\newblock {FutureGen}: A {RAG}-based approach to generate the future work of scientific article.
+\newblock \emph{arXiv preprint arXiv:2503.16561}, 2025.
+
+\bibitem[Al~Azher et~al.(2026)Al~Azher, Guo, and Alhoori]{limagents2026}
+I.~Al~Azher, Z.~Guo, and H.~Alhoori.
+\newblock Multi-agent {LLMs} for generating research limitations.
+\newblock \emph{arXiv preprint arXiv:2601.11578}, 2026.
+
+\bibitem[{Alibaba NLP}(2025)]{tongyi2025deepresearch}
+{Alibaba NLP}.
+\newblock {Tongyi DeepResearch}: An agentic {LLM} for long-horizon deep information seeking.
+\newblock \url{https://github.com/Alibaba-NLP/DeepResearch}, 2025.
+
+\bibitem[{Analemma.ai}(2026)]{fars2026}
+{Analemma.ai}.
+\newblock {FARS}: Fully automated research system.
+\newblock \url{https://analemma.ai/blog/introducing-fars}, 2026.
+
+\bibitem[Asai et~al.(2026)Asai, He, Shao, Shi, Singh, Chang, Lo, Soldaini, Feldman, D'Arcy, Wadden, Latzke, Sparks, Hwang, Kishore, Tian, Ji, Liu, Tong, Wu, Xiong, Zettlemoyer, Neubig, Weld, Downey, tau Yih, Koh, and Hajishirzi]{openscholar2025}
+A.~Asai, J.~He, R.~Shao, W.~Shi, A.~Singh, J.~C. Chang, K.~Lo, L.~Soldaini, S.~Feldman, M.~D'Arcy, D.~Wadden, M.~Latzke, J.~Sparks, J.~D. Hwang, V.~Kishore, M.~Tian, P.~Ji, S.~Liu, H.~Tong, B.~Wu, Y.~Xiong, L.~Zettlemoyer, G.~Neubig, D.~S. Weld, D.~Downey, W.~tau Yih, P.~W. Koh, and H.~Hajishirzi.
+\newblock Synthesizing scientific literature with retrieval-augmented language models.
+\newblock \emph{Nature}, 650:\penalty0 857--863, 2026.
+
+\bibitem[Baek et~al.(2025)Baek, Jauhar, Cucerzan, and Hwang]{baek2024researchagent}
+J.~Baek, S.~K. Jauhar, S.~Cucerzan, and S.~J. Hwang.
+\newblock {ResearchAgent}: Iterative research idea generation over scientific literature with large language models.
+\newblock In \emph{Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics: Human Language Technologies}, pages 6709--6738, 2025.
+
+\bibitem[Beger and Henneking(2025)]{beger2025citegeist}
+C.~Beger and C.-L. Henneking.
+\newblock Citegeist: Automated generation of related work analysis on the {arXiv} corpus.
+\newblock \emph{arXiv preprint arXiv:2503.23229}, 2025.
+
+\bibitem[Belouadi et~al.(2024{\natexlab{a}})Belouadi, Lauscher, and Eger]{belouadi2024automatikz}
+J.~Belouadi, A.~Lauscher, and S.~Eger.
+\newblock {AutomaTikZ}: Text-guided synthesis of scientific vector graphics with {TikZ}.
+\newblock In \emph{International Conference on Learning Representations}, 2024{\natexlab{a}}.
+
+\bibitem[Belouadi et~al.(2024{\natexlab{b}})Belouadi, Ponzetto, and Eger]{belouadi2024detikzify}
+J.~Belouadi, S.~P. Ponzetto, and S.~Eger.
+\newblock {DeTikZify}: Synthesizing graphics programs for scientific figures and sketches with {TikZ}.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~37, pages 85074--85108, 2024{\natexlab{b}}.
+
+\bibitem[{Blog}(2026)]{fars2026_report}
+{Blog}.
+\newblock 228 hours of non-stop work to produce 100 papers, burning through 11.4 billion tokens: Fars has gone crazy.
+\newblock \url{https://eu.36kr.com/en/p/3696795271966336}, 2026.
+
+\bibitem[Boiko et~al.(2023)Boiko, MacKnight, Kline, and Gomes]{boiko2023coscientist}
+D.~A. Boiko, R.~MacKnight, B.~Kline, and G.~Gomes.
+\newblock Autonomous chemical research with large language models.
+\newblock \emph{Nature}, 624\penalty0 (7992):\penalty0 570--578, 2023.
+
+\bibitem[Bragg et~al.(2026)Bragg, D'Arcy, Balepur, Bareket, Dalvi, Feldman, Haddad, Hwang, Jansen, Kishore, Majumder, Naik, Rahamimov, Richardson, Singh, Surana, Tiktinsky, Vasu, Wiener, Anastasiades, Candra, Dunkelberger, Emery, Evans, Hamada, Huff, Kinney, Latzke, Lochner, Lozano-Aguilera, Nguyen, Rao, Tanaka, Vlahos, Clark, Downey, Goldberg, Sabharwal, and Weld]{astabench2025}
+J.~Bragg, M.~D'Arcy, N.~Balepur, D.~Bareket, B.~Dalvi, S.~Feldman, D.~Haddad, J.~D. Hwang, P.~Jansen, V.~Kishore, B.~P. Majumder, A.~Naik, S.~Rahamimov, K.~Richardson, A.~Singh, H.~Surana, A.~Tiktinsky, R.~Vasu, G.~Wiener, C.~Anastasiades, S.~Candra, J.~Dunkelberger, D.~Emery, R.~Evans, M.~Hamada, R.~Huff, R.~Kinney, M.~Latzke, J.~Lochner, R.~Lozano-Aguilera, C.~Nguyen, S.~Rao, A.~Tanaka, B.~Vlahos, P.~Clark, D.~Downey, Y.~Goldberg, A.~Sabharwal, and D.~S. Weld.
+\newblock {AstaBench}: Rigorous benchmarking of {AI} agents with a scientific research suite.
+\newblock In \emph{International Conference on Learning Representations}, 2026.
+
+\bibitem[Bran et~al.(2024)Bran, Cox, Schilter, Baldassari, White, and Schwaller]{bran2024chemcrow}
+A.~M. Bran, S.~Cox, O.~Schilter, C.~Baldassari, A.~D. White, and P.~Schwaller.
+\newblock {ChemCrow}: Augmenting large language models with chemistry tools.
+\newblock \emph{Nature Machine Intelligence}, 6\penalty0 (5):\penalty0 525--535, 2024.
+
+\bibitem[{ByteDance}(2025)]{deerflow2025}
+{ByteDance}.
+\newblock {DeerFlow}: A deep research framework orchestrating sub-agents, memory, and sandboxes.
+\newblock \url{https://github.com/bytedance/deer-flow}, 2025.
+
+\bibitem[Chai et~al.(2025)Chai, Tang, Ye, Du, Zhu, Zhou, Wang, E, Zhang, Zhang, and Chen]{scimaster2025}
+J.~Chai, S.~Tang, R.~Ye, Y.~Du, X.~Zhu, M.~Zhou, Y.~Wang, W.~E, Y.~Zhang, L.~Zhang, and S.~Chen.
+\newblock {SciMaster}: Towards general-purpose scientific {AI} agents, part {I}. {X-Master} as foundation: Can we lead on humanity's last exam?
+\newblock \emph{arXiv preprint arXiv:2507.05241}, 2025.
+
+\bibitem[Chan et~al.(2025)Chan, Chowdhury, Jaffe, Aung, Sherburn, Mays, Starace, Liu, Maksin, Patwardhan, Weng, and Madry]{chan2024mlebench}
+J.~S. Chan, N.~Chowdhury, O.~Jaffe, J.~Aung, D.~Sherburn, E.~Mays, G.~Starace, K.~Liu, L.~Maksin, T.~Patwardhan, L.~Weng, and A.~Madry.
+\newblock {MLE-Bench}: Evaluating machine learning agents on machine learning engineering.
+\newblock In \emph{International Conference on Learning Representations}, 2025.
+
+\bibitem[Chen and Gurevych(2026)]{rebuttalcommitment2026}
+C.-C. Chen and I.~Gurevych.
+\newblock Commitment checklist: Auditing author commitments in peer review.
+\newblock \emph{arXiv preprint arXiv:2603.00003}, 2026.
+
+\bibitem[Chen(2026)]{aifigurepolicies2026}
+D.~Chen.
+\newblock {AI}-generated figures in academic publishing: Policies, tools, and practical guidelines.
+\newblock \emph{arXiv preprint arXiv:2603.16159}, 2026.
+
+\bibitem[Chen et~al.(2026{\natexlab{a}})Chen, Chen, Chen, Zhao, Meng, Zhao, Song, Chen, Wen, and Jia]{aiscientistlonghorizon2026}
+G.~Chen, J.~Chen, L.~Chen, J.~Zhao, F.~Meng, W.~X. Zhao, R.~Song, C.~Chen, J.-R. Wen, and K.~Jia.
+\newblock Toward autonomous long-horizon engineering for {ML} research.
+\newblock \emph{arXiv preprint arXiv:2604.13018}, 2026{\natexlab{a}}.
+
+\bibitem[Chen et~al.(2025{\natexlab{a}})Chen, Xiong, Lu, Han, Deng, He, Wu, Li, Liu, and Hooi]{mlrbench2025}
+H.~Chen, M.~Xiong, Y.~Lu, W.~Han, A.~Deng, Y.~He, J.~Wu, Y.~Li, Y.~Liu, and B.~Hooi.
+\newblock {MLR-Bench}: Evaluating {AI} agents on open-ended machine learning research.
+\newblock \emph{arXiv preprint arXiv:2505.19955}, 2025{\natexlab{a}}.
+
+\bibitem[Chen et~al.(2025{\natexlab{b}})Chen, Lin, Wu, Hou, Zhang, Wang, Wang, and He]{xtragpt2025}
+N.~Chen, A.~H. Lin, J.~Wu, J.~Hou, Z.~Zhang, Q.~Wang, X.~Wang, and B.~He.
+\newblock {XtraGPT}: Context-aware and controllable academic paper revision.
+\newblock \emph{arXiv preprint arXiv:2505.11336}, 2025{\natexlab{b}}.
+
+\bibitem[Chen et~al.(2025{\natexlab{c}})Chen, Yang, Qin, Liu, Yan, Guan, Peng, Ji, Li, Hu, Zhang, Liang, Zhou, Wang, Chen, and Che]{ai4research2025}
+Q.~Chen, M.~Yang, L.~Qin, J.~Liu, Z.~Yan, J.~Guan, D.~Peng, Y.~Ji, H.~Li, M.~Hu, Y.~Zhang, Y.~Liang, Y.~Zhou, J.~Wang, Z.~Chen, and W.~Che.
+\newblock {AI4Research}: A survey of artificial intelligence for scientific research.
+\newblock \emph{arXiv preprint arXiv:2507.01903}, 2025{\natexlab{c}}.
+
+\bibitem[Chen et~al.(2026{\natexlab{b}})Chen, Lai, Gao, Shi, Liu, Ye, Luo, Wei, and Zhu]{posteromni2026}
+S.~Chen, J.~Lai, J.~Gao, H.~Shi, Z.~Liu, T.~Ye, J.~Luo, X.~Wei, and L.~Zhu.
+\newblock {PosterOmni}: Generalized artistic poster creation via task distillation and unified reward feedback.
+\newblock \emph{arXiv preprint arXiv:2602.12127}, 2026{\natexlab{b}}.
+
+\bibitem[Chen et~al.(2026{\natexlab{c}})Chen, Lai, Gao, Ye, Chen, Shi, Shao, Lin, Fei, Xing, Jin, Luo, Wei, and Zhu]{postercraft2026}
+S.~Chen, J.~Lai, J.~Gao, T.~Ye, H.~Chen, H.~Shi, S.~Shao, Y.~Lin, S.~Fei, Z.~Xing, Y.~Jin, J.~Luo, X.~Wei, and L.~Zhu.
+\newblock {PosterCraft}: Rethinking high-quality aesthetic poster generation in a unified framework.
+\newblock In \emph{International Conference on Learning Representations}, 2026{\natexlab{c}}.
+
+\bibitem[Chen et~al.(2026{\natexlab{d}})Chen, Zhong, Brumby, and Cox]{reviewerfeedback2026}
+S.~Chen, S.~Zhong, D.~P. Brumby, and A.~L. Cox.
+\newblock What happens when reviewers receive {AI} feedback in their reviews?
+\newblock In \emph{CHI Conference on Human Factors in Computing Systems}, pages 1--19, 2026{\natexlab{d}}.
+
+\bibitem[Chen et~al.(2025{\natexlab{d}})Chen, Lv, Zhang, Yin, Wan, Yu, and Chen]{paper2web2025}
+Y.~Chen, T.~Lv, S.~Zhang, Y.~Yin, Y.~Wan, P.~S. Yu, and D.~Chen.
+\newblock {Paper2Web}: Let's make your paper alive!
+\newblock \emph{arXiv preprint arXiv:2510.15842}, 2025{\natexlab{d}}.
+
+\bibitem[Chen et~al.(2025{\natexlab{e}})Chen, Chen, Arik, Sra, Pfister, and Yoon]{coda2025}
+Z.~Chen, J.~Chen, S.~O. Arik, M.~Sra, T.~Pfister, and J.~Yoon.
+\newblock {CoDA}: Agentic systems for collaborative data visualization.
+\newblock \emph{arXiv preprint arXiv:2510.03194}, 2025{\natexlab{e}}.
+
+\bibitem[Chen et~al.(2025{\natexlab{f}})Chen, Chen, Ning, Zhang, Wang, Yu, Li, Liao, Wei, Lu, Dey, Xue, Baker, Burns, Adu-Ampratwum, Huang, Ning, Gao, Su, and Sun]{scienceagentbench2024}
+Z.~Chen, S.~Chen, Y.~Ning, Q.~Zhang, B.~Wang, B.~Yu, Y.~Li, Z.~Liao, C.~Wei, Z.~Lu, V.~Dey, M.~Xue, F.~N. Baker, B.~Burns, D.~Adu-Ampratwum, X.~Huang, X.~Ning, S.~Gao, Y.~Su, and H.~Sun.
+\newblock {ScienceAgentBench}: Toward rigorous assessment of language agents for data-driven scientific discovery.
+\newblock In \emph{International Conference on Learning Representations}, 2025{\natexlab{f}}.
+
+\bibitem[Choi et~al.(2025)Choi, Park, Song, and Shim]{choi2025posterforest}
+J.~Choi, S.~Park, S.~Song, and H.~Shim.
+\newblock {PosterForest}: Hierarchical multi-agent collaboration for scientific poster generation.
+\newblock \emph{arXiv preprint arXiv:2508.21720}, 2025.
+
+\bibitem[Couto et~al.(2024)Couto, Ho, Kumari, Rachmat, Khuong, Ullah, and Sun-Hosoya]{relevaireviewer2024}
+P.~H. Couto, Q.~P. Ho, N.~Kumari, B.~K. Rachmat, T.~G.~H. Khuong, I.~Ullah, and L.~Sun-Hosoya.
+\newblock {RelevAI-Reviewer}: A benchmark on {AI} reviewers for survey paper relevance.
+\newblock \emph{arXiv preprint arXiv:2406.10294}, 2024.
+
+\bibitem[D'Arcy et~al.(2024)D'Arcy, Hope, Birnbaum, and Downey]{darcy2024marg}
+M.~D'Arcy, T.~Hope, L.~Birnbaum, and D.~Downey.
+\newblock {MARG}: Multi-agent review generation for scientific papers.
+\newblock \emph{arXiv preprint arXiv:2401.04259}, 2024.
+
+\bibitem[De~Ponte(2025)]{opendraft2025}
+F.~De~Ponte.
+\newblock {OpenDraft}: 19-agent research draft generation.
+\newblock \url{https://github.com/federicodeponte/opendraft}, 2025.
+
+\bibitem[Deng et~al.(2025)Deng, Da, Pan, He, Ide, Garg, Lauffer, Park, Pasari, Rane, Sampath, Krishnan, Kundurthy, Hendryx, Wang, Bharadwaj, Holm, Aluri, Zhang, Jacobson, Liu, and Kenstler]{deng2025swebenchpro}
+X.~Deng, J.~Da, E.~Pan, Y.~Y. He, C.~Ide, K.~Garg, N.~Lauffer, A.~Park, N.~Pasari, C.~Rane, K.~Sampath, M.~Krishnan, S.~Kundurthy, S.~Hendryx, Z.~Wang, V.~Bharadwaj, J.~Holm, R.~Aluri, C.~B.~C. Zhang, N.~Jacobson, B.~Liu, and B.~Kenstler.
+\newblock {SWE-Bench Pro}: Can {AI} agents solve long-horizon software engineering tasks?
+\newblock \emph{arXiv preprint arXiv:2509.16941}, 2025.
+
+\bibitem[Elovic(2024)]{gptresearcher2024}
+A.~Elovic.
+\newblock {GPT Researcher}: Autonomous agent for comprehensive online research.
+\newblock \url{https://github.com/assafelovic/gpt-researcher}, 2024.
+
+\bibitem[Fan et~al.(2026)Fan, Zhang, Zheng, Chen, Niu, Huang, Lin, and Huang]{deepinnovator2026}
+T.~Fan, F.~Zhang, Y.~Zheng, B.~Chen, X.~Niu, C.~Huang, J.~Lin, and C.~Huang.
+\newblock {DeepInnovator}: Triggering the innovative capabilities of {LLMs}.
+\newblock \emph{arXiv preprint arXiv:2602.18920}, 2026.
+
+\bibitem[Feng et~al.(2026)Feng, Huang, Xie, Yang, Yu, Chen, and Tung]{idrbench2026}
+Y.~Feng, Q.~Huang, X.~Xie, Z.~Yang, J.~Yu, W.~Chen, and A.~K.~H. Tung.
+\newblock {IDRBench}: Interactive deep research benchmark.
+\newblock \emph{arXiv preprint arXiv:2601.06676}, 2026.
+
+\bibitem[Fu et~al.(2022)Fu, Wang, McDuff, and Song]{doc2ppt2022}
+T.-J. Fu, W.~Y. Wang, D.~McDuff, and Y.~Song.
+\newblock {DOC2PPT}: Automatic presentation slides generation from scientific documents.
+\newblock In \emph{AAAI Conference on Artificial Intelligence}, volume~36, pages 634--642, 2022.
+
+\bibitem[Gao et~al.(2025{\natexlab{a}})Gao, Zhu, Sui, Kong, Aldogom, Huang, Noori, Shamji, Parvataneni, Tsiligkaridis, and Zitnik]{gao2025democratizing}
+S.~Gao, R.~Zhu, P.~Sui, Z.~Kong, S.~Aldogom, Y.~Huang, A.~Noori, R.~Shamji, K.~Parvataneni, T.~Tsiligkaridis, and M.~Zitnik.
+\newblock Democratizing {AI} scientists using {ToolUniverse}.
+\newblock \emph{arXiv preprint arXiv:2509.23426}, 2025{\natexlab{a}}.
+
+\bibitem[Gao et~al.(2025{\natexlab{b}})Gao, Ruan, Zhang, Gao, Liu, and Fu]{reviewagents2025}
+X.~Gao, J.~Ruan, Z.~Zhang, J.~Gao, T.~Liu, and Y.~Fu.
+\newblock {ReviewAgents}: Bridging the gap between human and {AI}-generated paper reviews.
+\newblock \emph{arXiv preprint arXiv:2503.08506}, 2025{\natexlab{b}}.
+
+\bibitem[Gao et~al.(2020)Gao, Wu, and Zhu]{gao2020arxivcitationmerging}
+Y.~Gao, Q.~Wu, and L.~Zhu.
+\newblock Merging the citations received by {arXiv}-deposited e-prints and their corresponding published journal articles: Problems and perspectives.
+\newblock \emph{Information Processing \& Management}, 57\penalty0 (5):\penalty0 102267, 2020.
+
+\bibitem[Gao et~al.(2024)Gao, Brantley, and Joachims]{reviewer2024}
+Z.~Gao, K.~Brantley, and T.~Joachims.
+\newblock Reviewer2: Optimizing review generation through prompt generation.
+\newblock \emph{arXiv preprint arXiv:2402.10886}, 2024.
+
+\bibitem[Garg et~al.(2025)Garg, Shaik, Bandyopadhyay, and Caragea]{sciig2025}
+K.~Garg, F.~Shaik, S.~Bandyopadhyay, and C.~Caragea.
+\newblock Let's use {ChatGPT} to write our paper! benchmarking {LLMs} to write the introduction of a research paper.
+\newblock \emph{arXiv preprint arXiv:2508.14273}, 2025.
+
+\bibitem[Garikaparthi et~al.(2025)Garikaparthi, Patwardhan, Vig, and Cohan]{iris2025}
+A.~Garikaparthi, M.~Patwardhan, L.~Vig, and A.~Cohan.
+\newblock {IRIS}: Interactive research ideation system for accelerating scientific discovery.
+\newblock In \emph{Annual Meeting of the Association for Computational Linguistics}, pages 592--603, 2025.
+
+\bibitem[Ge et~al.(2025)Ge, Wang, Zhou, Peng, Subramanian, Tan, Sap, Suhr, Fried, Neubig, and Darrell]{autopresent2025}
+J.~Ge, Z.~Z. Wang, X.~Zhou, Y.-H. Peng, S.~Subramanian, Q.~Tan, M.~Sap, A.~Suhr, D.~Fried, G.~Neubig, and T.~Darrell.
+\newblock {AutoPresent}: Designing structured visuals from scratch.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 2902--2911, 2025.
+
+\bibitem[Ghafarollahi and Buehler(2024)]{ghafarollahi2024sciagents}
+A.~Ghafarollahi and M.~J. Buehler.
+\newblock {SciAgents}: Automating scientific discovery through multi-agent intelligent graph reasoning.
+\newblock \emph{arXiv preprint arXiv:2409.05556}, 2024.
+
+\bibitem[Gibney(2026)]{aiuserejects2026}
+E.~Gibney.
+\newblock Major conference catches illicit {AI} use — and rejects hundreds of papers.
+\newblock \emph{Nature News}, 652:\penalty0 281--282, 2026.
+
+\bibitem[Go et~al.(2025)Go, Ly, Sogaard, Tabatabaei, de~Rijke, and Chen]{lira2025}
+G.~H.~T. Go, K.~Ly, A.~Sogaard, A.~Tabatabaei, M.~de~Rijke, and X.~Chen.
+\newblock {LiRA}: A multi-agent framework for reliable and readable literature review generation.
+\newblock \emph{arXiv preprint arXiv:2510.05138}, 2025.
+
+\bibitem[Goel et~al.(2025)Goel, Hazra, Jayalath, Willi, Jain, Shen, Leontiadis, Barbieri, Bachrach, Geiping, and Whitehouse]{rubricrewards2025}
+S.~Goel, R.~Hazra, D.~Jayalath, T.~Willi, P.~Jain, W.~F. Shen, I.~Leontiadis, F.~Barbieri, Y.~Bachrach, J.~Geiping, and C.~Whitehouse.
+\newblock Training {AI} co-scientists using rubric rewards.
+\newblock \emph{arXiv preprint arXiv:2512.23707}, 2025.
+
+\bibitem[Goswami et~al.(2025)Goswami, Mathur, Rossi, and Dernoncourt]{plotgen2025}
+K.~Goswami, P.~Mathur, R.~Rossi, and F.~Dernoncourt.
+\newblock {PlotGen}: Multi-agent {LLM}-based scientific data visualization via multimodal feedback.
+\newblock \emph{arXiv preprint arXiv:2502.00988}, 2025.
+
+\bibitem[Gottweis et~al.(2025)Gottweis, Weng, Daryin, Tu, Palepu, Sirkovic, Myaskovsky, Weissenberger, Rong, Tanno, Saab, Popovici, Blum, Zhang, Chou, Hassidim, Gokturk, Vahdat, Kohli, Matias, Carroll, Kulkarni, Tomasev, Guan, Dhillon, Vaishnav, Lee, Costa, Penad{\'e}s, Peltz, Xu, Pawlosky, Karthikesalingam, and Natarajan]{gottweis2025aicoscientist}
+J.~Gottweis, W.-H. Weng, A.~Daryin, T.~Tu, A.~Palepu, P.~Sirkovic, A.~Myaskovsky, F.~Weissenberger, K.~Rong, R.~Tanno, K.~Saab, D.~Popovici, J.~Blum, F.~Zhang, K.~Chou, A.~Hassidim, B.~Gokturk, A.~Vahdat, P.~Kohli, Y.~Matias, A.~Carroll, K.~Kulkarni, N.~Tomasev, Y.~Guan, V.~Dhillon, E.~D. Vaishnav, B.~Lee, T.~R.~D. Costa, J.~R. Penad{\'e}s, G.~Peltz, Y.~Xu, A.~Pawlosky, A.~Karthikesalingam, and V.~Natarajan.
+\newblock Towards an {AI} co-scientist.
+\newblock \emph{arXiv preprint arXiv:2502.18864}, 2025.
+
+\bibitem[Goyal et~al.(2026)Goyal, Parmar, Song, Palangi, Pfister, and Yoon]{scholarpeer2026}
+P.~Goyal, M.~Parmar, Y.~Song, H.~Palangi, T.~Pfister, and J.~Yoon.
+\newblock {ScholarPeer}: A context-aware multi-agent framework for automated peer review.
+\newblock \emph{arXiv preprint arXiv:2601.22638}, 2026.
+
+\bibitem[Greisinger and Eger(2026)]{tikzilla2026}
+C.~Greisinger and S.~Eger.
+\newblock {TikZilla}: Scaling text-to-{TikZ} with high-quality data and reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2603.03072}, 2026.
+
+\bibitem[Gu et~al.(2024)Gu, Wang, Zhang, and Li]{gu2024combinatorial}
+T.~Gu, J.~Wang, Z.~Zhang, and H.~Li.
+\newblock {LLMs} can realize combinatorial creativity: Generating creative ideas via {LLMs} for scientific research.
+\newblock \emph{arXiv preprint arXiv:2412.14141}, 2024.
+
+\bibitem[Guo et~al.(2024)Guo, Deng, Wen, Chen, Chang, and Wang]{dsagent2024}
+S.~Guo, C.~Deng, Y.~Wen, H.~Chen, Y.~Chang, and J.~Wang.
+\newblock {DS-Agent}: Automated data science by empowering large language models with case-based reasoning.
+\newblock \emph{arXiv preprint arXiv:2402.17453}, 2024.
+
+\bibitem[Guo et~al.(2025)Guo, Shariatmadari, Xiong, Huang, Kim, Williams, Bekiranov, and Zhang]{guo2025ideabench}
+S.~Guo, A.~H. Shariatmadari, G.~Xiong, A.~Huang, M.~Kim, C.~M. Williams, S.~Bekiranov, and A.~Zhang.
+\newblock {IdeaBench}: Benchmarking large language models for research idea generation.
+\newblock In \emph{ACM SIGKDD Conference on Knowledge Discovery and Data Mining}, pages 5888--5899, 2025.
+
+\bibitem[Han et~al.(2026)Han, Yu, Xu, and You]{drpg2026}
+P.~Han, Y.~Yu, J.~Xu, and J.~You.
+\newblock {DRPG} (decompose, retrieve, plan, generate): An agentic framework for academic rebuttal.
+\newblock \emph{arXiv preprint arXiv:2601.18081}, 2026.
+
+\bibitem[Hao et~al.(2026)Hao, Xu, Li, and Evans]{aicontractfocus2025}
+Q.~Hao, F.~Xu, Y.~Li, and J.~Evans.
+\newblock Artificial intelligence tools expand scientists’ impact but contract science’s focus.
+\newblock \emph{Nature}, 649:\penalty0 1237--1243, 2026.
+
+\bibitem[He et~al.(2025)He, Huang, Feng, Lin, Zhang, Li, and E]{pasa2025}
+Y.~He, G.~Huang, P.~Feng, Y.~Lin, Y.~Zhang, H.~Li, and W.~E.
+\newblock {PaSa}: An {LLM} agent for comprehensive academic paper search.
+\newblock \emph{arXiv preprint arXiv:2501.10120}, 2025.
+
+\bibitem[He et~al.(2026)He, Lyu, and Fung]{rebuttalagent2026}
+Z.~He, Z.~Lyu, and Y.~R. Fung.
+\newblock {RebuttalAgent}: Strategic persuasion in academic rebuttal via theory of mind.
+\newblock \emph{arXiv preprint arXiv:2601.15715}, 2026.
+
+\bibitem[{HKU Data Intelligence Lab}(2025)]{paper2slides2025}
+{HKU Data Intelligence Lab}.
+\newblock {Paper2Slides}: From paper to presentation in one click.
+\newblock \url{https://github.com/HKUDS/Paper2Slides}, 2025.
+
+\bibitem[Hong et~al.(2026)Hong, Jiang, Zhang, Guo, Li, Chen, Cui, and Su]{citellm2026}
+M.~Hong, D.~Jiang, C.~J. Zhang, Z.~Guo, Y.~Li, J.~Chen, S.~Cui, and Z.~Su.
+\newblock {CiteLLM}: An agentic platform for trustworthy scientific reference discovery.
+\newblock \emph{arXiv preprint arXiv:2602.23075}, 2026.
+
+\bibitem[Hossain et~al.(2025)Hossain, Sinha, Bansal, Knipper, Sarkar, Salvador, Mahajan, Guttikonda, Akter, Hassan, Freestone, Jr., Feng, and Karmaker]{metareviewllm2024}
+E.~Hossain, S.~K. Sinha, N.~Bansal, R.~A. Knipper, S.~Sarkar, J.~Salvador, Y.~Mahajan, S.~R. P.~K. Guttikonda, M.~Akter, M.~M. Hassan, M.~Freestone, M.~C.~W. Jr., D.~Feng, and S.~Karmaker.
+\newblock {LLMs} as meta-reviewers' assistants: A case study.
+\newblock In \emph{Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics}, pages 7763--7803, 2025.
+
+\bibitem[Hou et~al.(2025)Hou, Lin, Chen, Gong, and He]{paperdebugger2025}
+J.~Hou, A.~H. Lin, N.~Chen, Y.~Gong, and B.~He.
+\newblock {PaperDebugger}: A plugin-based multi-agent system for in-editor academic writing, review, and editing.
+\newblock \emph{arXiv preprint arXiv:2512.02589}, 2025.
+
+\bibitem[Hsu et~al.(2024)Hsu, Bransom, Sparks, Kuehl, Tan, Wadden, Wang, and Naik]{kang2024chime}
+C.-C. Hsu, E.~Bransom, J.~Sparks, B.~Kuehl, C.~Tan, D.~Wadden, L.~L. Wang, and A.~Naik.
+\newblock {CHIME}: {LLM}-assisted hierarchical organization of scientific studies for literature review support.
+\newblock \emph{arXiv preprint arXiv:2407.16148}, 2024.
+
+\bibitem[Hu et~al.(2024{\natexlab{a}})Hu, Fu, Wang, Wang, Li, Xu, Lu, Jin, Pan, and Lan]{hu2024nova}
+X.~Hu, H.~Fu, J.~Wang, Y.~Wang, Z.~Li, R.~Xu, Y.~Lu, Y.~Jin, L.~Pan, and Z.~Lan.
+\newblock Nova: An iterative planning and search approach to enhance novelty and diversity of {LLM} generated ideas.
+\newblock \emph{arXiv preprint arXiv:2410.14255}, 2024{\natexlab{a}}.
+
+\bibitem[Hu et~al.(2024{\natexlab{b}})Hu, Zhao, Wei, Chai, Ma, Wang, Wang, Su, Xu, Zhu, Cheng, Yuan, Li, Kuang, Yang, Yang, and Wu]{infidabench2024}
+X.~Hu, Z.~Zhao, S.~Wei, Z.~Chai, Q.~Ma, G.~Wang, X.~Wang, J.~Su, J.~Xu, M.~Zhu, Y.~Cheng, J.~Yuan, J.~Li, K.~Kuang, Y.~Yang, H.~Yang, and F.~Wu.
+\newblock {InfiAgent-DABench}: Evaluating agents on data analysis tasks.
+\newblock \emph{arXiv preprint arXiv:2401.05507}, 2024{\natexlab{b}}.
+
+\bibitem[Hua et~al.(2025)Hua, Hua, Xiang, Klieger, Truong, Liang, Sun, and Haber]{researchcodebench2025}
+T.~Hua, H.~Hua, V.~Xiang, B.~Klieger, S.~T. Truong, W.~Liang, F.-Y. Sun, and N.~Haber.
+\newblock {ResearchCodeBench}: Benchmarking {LLMs} on implementing novel machine learning research code.
+\newblock \emph{arXiv preprint arXiv:2506.02314}, 2025.
+
+\bibitem[Huang et~al.(2025)Huang, Zhang, Wang, Qu, Lu, Roohani, Li, Qiu, Li, Zhang, Yin, Marwaha, Carter, Zhou, Wheeler, Bernstein, Wang, He, Zhou, Snyder, Cong, Regev, and Leskovec]{biomni2025}
+K.~Huang, S.~Zhang, H.~Wang, Y.~Qu, Y.~Lu, Y.~Roohani, R.~Li, L.~Qiu, G.~Li, J.~Zhang, D.~Yin, S.~Marwaha, J.~N. Carter, X.~Zhou, M.~Wheeler, J.~A. Bernstein, M.~Wang, P.~He, J.~Zhou, M.~Snyder, L.~Cong, A.~Regev, and J.~Leskovec.
+\newblock {Biomni}: A general-purpose biomedical {AI} agent.
+\newblock \url{https://github.com/snap-stanford/Biomni}, 2025.
+
+\bibitem[Huang et~al.(2024)Huang, Vora, Liang, and Leskovec]{mlagentbench2024}
+Q.~Huang, J.~Vora, P.~Liang, and J.~Leskovec.
+\newblock {MLAgentBench}: Evaluating language agents on machine learning experimentation.
+\newblock In \emph{International Conference on Machine Learning}, 2024.
+
+\bibitem[Huang et~al.(2026)Huang, Gao, Bai, Zhou, Yin, Liu, Chellappa, Lau, Nag, Peng, and Pramanick]{scifig2026}
+S.~Huang, Y.~Gao, J.~Bai, Y.~Zhou, Z.~Yin, X.~Liu, R.~Chellappa, C.~P. Lau, S.~Nag, C.~Peng, and S.~Pramanick.
+\newblock {SciFig}: Towards automating scientific figure generation.
+\newblock \emph{arXiv preprint arXiv:2601.04390}, 2026.
+
+\bibitem[Idahl and Ahmadi(2025)]{openreviewer2025}
+M.~Idahl and Z.~Ahmadi.
+\newblock {OpenReviewer}: A specialized large language model for generating critical scientific paper reviews.
+\newblock In \emph{Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics: Human Language Technologies}, pages 550--562, 2025.
+
+\bibitem[Jansen et~al.(2024)Jansen, Cote, Khot, Bransom, Dalvi~Mishra, Majumder, Tafjord, and Clark]{discoveryworld2024}
+P.~Jansen, M.-A. Cote, T.~Khot, E.~Bransom, B.~Dalvi~Mishra, B.~P. Majumder, O.~Tafjord, and P.~Clark.
+\newblock {DiscoveryWorld}: A virtual environment for developing and evaluating automated scientific discovery agents.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2024.
+
+\bibitem[Jansen et~al.(2025)Jansen, Tafjord, Radensky, Siangliulue, Hope, Dalvi~Mishra, Majumder, Weld, and Clark]{codescientist2025}
+P.~Jansen, O.~Tafjord, M.~Radensky, P.~Siangliulue, T.~Hope, B.~Dalvi~Mishra, B.~P. Majumder, D.~S. Weld, and P.~Clark.
+\newblock {CodeScientist}: End-to-end semi-automated scientific discovery with code-based experimentation.
+\newblock In \emph{Annual Meeting of the Association for Computational Linguistics}, pages 13370--13467, 2025.
+
+\bibitem[Jiang(2026)]{hindsight2026}
+B.~Jiang.
+\newblock {HindSight}: Evaluating {LLM}-generated research ideas via future impact.
+\newblock \emph{arXiv preprint arXiv:2603.15164}, 2026.
+
+\bibitem[Jiang et~al.(2025{\natexlab{a}})Jiang, Chai, Li, Liu, Fok, Dziri, Tsvetkov, Sap, Albalak, and Choi]{jiang2025artificialhivemind}
+L.~Jiang, Y.~Chai, M.~Li, M.~Liu, R.~Fok, N.~Dziri, Y.~Tsvetkov, M.~Sap, A.~Albalak, and Y.~Choi.
+\newblock Artificial hivemind: The open-ended homogeneity of language models (and beyond).
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2025{\natexlab{a}}.
+
+\bibitem[Jiang and Ng(2025)]{stanfordreviewer2025}
+Y.~Jiang and A.~Y. Ng.
+\newblock Automated scientific reviewing with agentic {AI}.
+\newblock \url{https://paperreview.ai/tech-overview}, 2025.
+
+\bibitem[Jiang et~al.(2025{\natexlab{b}})Jiang, Schmidt, Srikanth, Xu, Kaplan, Jacenko, and Wu]{jiang2025aide}
+Z.~Jiang, D.~Schmidt, D.~Srikanth, D.~Xu, I.~Kaplan, D.~Jacenko, and Y.~Wu.
+\newblock {AIDE}: {AI}-driven exploration in the space of code.
+\newblock \emph{arXiv preprint arXiv:2502.13138}, 2025{\natexlab{b}}.
+
+\bibitem[Jimenez et~al.(2024)Jimenez, Yang, Wettig, Yao, Pei, Press, and Narasimhan]{swebench2024}
+C.~E. Jimenez, J.~Yang, A.~Wettig, S.~Yao, K.~Pei, O.~Press, and K.~Narasimhan.
+\newblock {SWE-bench}: Can language models resolve real-world {GitHub} issues?
+\newblock In \emph{International Conference on Learning Representations}, 2024.
+
+\bibitem[Jin et~al.(2024)Jin, Zhao, Wang, Chen, Zhu, Xiao, and Wang]{agentreview2024}
+Y.~Jin, Q.~Zhao, Y.~Wang, H.~Chen, K.~Zhu, Y.~Xiao, and J.~Wang.
+\newblock {AgentReview}: Exploring peer review dynamics with {LLM} agents.
+\newblock In \emph{Conference on Empirical Methods in Natural Language Processing}, pages 1208--1226, 2024.
+
+\bibitem[Jung et~al.(2025)Jung, Cho, Yun, Yang, Jang, and Choo]{talkslides2025}
+K.~Jung, H.~Cho, J.~Yun, S.~Yang, J.~Jang, and J.~Choo.
+\newblock Talk to your slides: High-efficiency slide editing via language-driven structured data manipulation.
+\newblock \emph{arXiv preprint arXiv:2505.11604}, 2025.
+
+\bibitem[Kale and Nadadur(2025)]{texpert2025}
+S.~Kale and V.~Nadadur.
+\newblock {TeXpert}: A multi-level benchmark for evaluating {LaTeX} code generation by {LLMs}.
+\newblock In \emph{Workshop on Scholarly Document Processing}, pages 7--16, 2025.
+
+\bibitem[Kargaran et~al.(2025)Kargaran, Nikeghbal, Yang, and Ousidhoum]{iclr_rebuttal2025}
+A.~H. Kargaran, N.~Nikeghbal, J.~Yang, and N.~Ousidhoum.
+\newblock Insights from {ICLR} peer review and rebuttal process.
+\newblock \emph{arXiv preprint arXiv:2511.15462}, 2025.
+
+\bibitem[Karpathy(2025)]{karpathy2025autoresearch}
+A.~Karpathy.
+\newblock {autoresearch}.
+\newblock \url{https://github.com/karpathy/autoresearch}, 2025.
+
+\bibitem[Keuper(2025)]{promptinjectionreview2025}
+J.~Keuper.
+\newblock Prompt injection attacks on {LLM} generated reviews of scientific publications.
+\newblock \emph{arXiv preprint arXiv:2509.10248}, 2025.
+
+\bibitem[Kim et~al.(2025)Kim, Gu, Park, Park, Schmidgall, Heydari, Yan, Zhang, Zhuang, Malhotra, Liang, Park, Yang, Xu, Du, Patel, Althoff, McDuff, and Liu]{googlemit2025scaling}
+Y.~Kim, K.~Gu, C.~Park, C.~Park, S.~Schmidgall, A.~A. Heydari, Y.~Yan, Z.~Zhang, Y.~Zhuang, M.~Malhotra, P.~P. Liang, H.~W. Park, Y.~Yang, X.~Xu, Y.~Du, S.~Patel, T.~Althoff, D.~McDuff, and X.~Liu.
+\newblock Towards a science of scaling agent systems.
+\newblock \emph{arXiv preprint arXiv:2512.08296}, 2025.
+
+\bibitem[Kobak et~al.(2025)Kobak, Gonz{\'a}lez-M{\'a}rquez, {\'A}kos Bern{\'a}rdez-Vilaboa, and Lause]{kobak2024delve}
+D.~Kobak, R.~Gonz{\'a}lez-M{\'a}rquez, E.~{\'A}kos Bern{\'a}rdez-Vilaboa, and J.~Lause.
+\newblock Delving into {LLM}-assisted writing in biomedical publications through excess vocabulary.
+\newblock \emph{Science Advances}, 11\penalty0 (27):\penalty0 eadt3813, 2025.
+
+\bibitem[Kon et~al.(2025)Kon, Liu, Ding, Qiu, Yang, Huang, Srinivasa, Lee, Chowdhury, and Chen]{curie2025}
+P.~T.~J. Kon, J.~Liu, Q.~Ding, Y.~Qiu, Z.~Yang, Y.~Huang, J.~Srinivasa, M.~Lee, M.~Chowdhury, and A.~Chen.
+\newblock Curie: Toward rigorous and automated scientific experimentation with {AI} agents.
+\newblock \emph{arXiv preprint arXiv:2502.16069}, 2025.
+
+\bibitem[Kon et~al.(2026)Kon, Ding, Liu, Zhu, Peng, Xing, Huang, Qiu, Srinivasa, Lee, Chowdhury, Zaharia, and Chen]{expbench2025}
+P.~T.~J. Kon, Q.~Ding, J.~Liu, X.~Zhu, J.~Peng, J.~Xing, Y.~Huang, Y.~Qiu, J.~Srinivasa, M.~Lee, M.~Chowdhury, M.~Zaharia, and A.~Chen.
+\newblock {EXP-Bench}: Can {AI} conduct {AI} research experiments?
+\newblock In \emph{International Conference on Learning Representations}, 2026.
+
+\bibitem[Kusumegi et~al.(2025)Kusumegi, Yang, Ginsparg, de~Vaan, Stuart, and Yin]{cornell2025science}
+K.~Kusumegi, X.~Yang, P.~Ginsparg, M.~de~Vaan, T.~Stuart, and Y.~Yin.
+\newblock Scientific production in the era of large language models.
+\newblock \emph{Science}, 390:\penalty0 1240--1243, 2025.
+
+\bibitem[L{\'a}la et~al.(2023)L{\'a}la, O'Donoghue, Shtedritski, Cox, Rodriques, and White]{lala2023paperqa}
+J.~L{\'a}la, O.~O'Donoghue, A.~Shtedritski, S.~Cox, S.~G. Rodriques, and A.~D. White.
+\newblock {PaperQA}: Retrieval-augmented generative agent for scientific research.
+\newblock \emph{arXiv preprint arXiv:2312.07559}, 2023.
+
+\bibitem[Lange et~al.(2025)Lange, Imajuku, and Cetin]{shinkaevolve2025}
+R.~T. Lange, Y.~Imajuku, and E.~Cetin.
+\newblock {ShinkaEvolve}: Towards open-ended and sample-efficient program evolution.
+\newblock \emph{arXiv preprint arXiv:2509.19349}, 2025.
+
+\bibitem[Laurent et~al.(2024)Laurent, Janizek, Ruzo, Hinks, Hammerling, Narayanan, Ponnapati, White, and Rodriques]{labbench2024}
+J.~M. Laurent, J.~D. Janizek, M.~Ruzo, M.~M. Hinks, M.~J. Hammerling, S.~Narayanan, M.~Ponnapati, A.~D. White, and S.~G. Rodriques.
+\newblock {Lab-Bench}: Measuring capabilities of language models for biology research.
+\newblock \emph{arXiv preprint arXiv:2407.10362}, 2024.
+
+\bibitem[Lee et~al.(2022)Lee, Liang, and Yang]{coauthor2022}
+M.~Lee, P.~Liang, and Q.~Yang.
+\newblock {CoAuthor}: Human-{AI} collaborative writing with language models.
+\newblock \emph{arXiv preprint arXiv:2201.06796}, 2022.
+
+\bibitem[Lewis et~al.(2020)Lewis, Perez, Piktus, Petroni, Karpukhin, Goyal, K{\"u}ttler, Lewis, Yih, Rockt{\"a}schel, Riedel, and Kiela]{lewis2020retrieval}
+P.~Lewis, E.~Perez, A.~Piktus, F.~Petroni, V.~Karpukhin, N.~Goyal, H.~K{\"u}ttler, M.~Lewis, W.-t. Yih, T.~Rockt{\"a}schel, S.~Riedel, and D.~Kiela.
+\newblock Retrieval-augmented generation for knowledge-intensive {NLP} tasks.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~33, pages 9459--9474, 2020.
+
+\bibitem[Li et~al.(2026{\natexlab{a}})Li, Wu, Zhao, Xu, Chen, Yin, Chen, Zhang, and Li]{uniscientist2026}
+B.~Li, J.~Wu, Y.~Zhao, W.~Xu, X.~Chen, H.~Yin, L.~Chen, W.~Zhang, and K.~Li.
+\newblock {UniScientist}: Advancing universal scientific research intelligence.
+\newblock \url{https://unipat.ai/blog/UniScientist}, 2026{\natexlab{a}}.
+
+\bibitem[Li et~al.(2025{\natexlab{a}})Li, Ren, Pan, Yan, Li, Bergemann, and Yang]{freephdlabor2025}
+E.~Li, J.~Ren, X.~Pan, C.~Yan, C.~Li, D.~Bergemann, and Z.~Yang.
+\newblock Build your personalized research group: A multiagent framework for continual and interactive science automation.
+\newblock \emph{arXiv preprint arXiv:2510.15624}, 2025{\natexlab{a}}.
+
+\bibitem[Li et~al.(2025{\natexlab{b}})Li, Li, Gao, Shi, Li, Wang, Huang, Wang, Wang, Han, Liu, and Sun]{tritonbench2025}
+J.~Li, S.~Li, Z.~Gao, Q.~Shi, Y.~Li, Z.~Wang, J.~Huang, H.~Wang, J.~Wang, X.~Han, Z.~Liu, and M.~Sun.
+\newblock {TritonBench}: Benchmarking large language model capabilities for generating triton operators.
+\newblock In \emph{Annual Meeting on Association for Computational Linguistics}, 2025{\natexlab{b}}.
+
+\bibitem[Li et~al.(2024{\natexlab{a}})Li, Xu, Guo, Zhao, Li, Yuan, Zhang, Jiang, Xin, Dang, Zhao, Rong, Feng, and Bing]{li2024chainofideas}
+L.~Li, W.~Xu, J.~Guo, R.~Zhao, X.~Li, Y.~Yuan, B.~Zhang, Y.~Jiang, Y.~Xin, R.~Dang, D.~Zhao, Y.~Rong, T.~Feng, and L.~Bing.
+\newblock Chain of ideas: Revolutionizing research via novel idea development with {LLM} agents.
+\newblock \emph{arXiv preprint arXiv:2410.13185}, 2024{\natexlab{a}}.
+
+\bibitem[Li et~al.(2025{\natexlab{c}})Li, Zeng, Cheng, Ma, and Jia]{reportbench2025}
+M.~Li, Y.~Zeng, Z.~Cheng, C.~Ma, and K.~Jia.
+\newblock {ReportBench}: Evaluating deep research agents via academic survey tasks.
+\newblock \emph{arXiv preprint arXiv:2508.15804}, 2025{\natexlab{c}}.
+
+\bibitem[Li et~al.(2024{\natexlab{b}})Li, Patel, Wang, and Du]{mlrcopilot2024}
+R.~Li, T.~Patel, Q.~Wang, and X.~Du.
+\newblock {MLR-Copilot}: Autonomous machine learning research based on large language models agents.
+\newblock \emph{arXiv preprint arXiv:2408.14033}, 2024{\natexlab{b}}.
+
+\bibitem[Li et~al.(2026{\natexlab{b}})Li, Fan, Lin, Li, Wei, Ni, Alinejad-Rokny, and Yang]{reviewgraph2025}
+S.~Li, L.~Fan, Y.~Lin, Z.~Li, X.~Wei, S.~Ni, H.~Alinejad-Rokny, and M.~Yang.
+\newblock Automatic paper reviewing with heterogeneous graph reasoning over {LLM}-simulated reviewer-author debates.
+\newblock \emph{arXiv preprint arXiv:2511.08317}, 2026{\natexlab{b}}.
+\newblock AAAI-2026.
+
+\bibitem[Li(2024)]{leey21awesome}
+Y.~Li.
+\newblock {awesome-ai-research-writing}.
+\newblock \url{https://github.com/Leey21/awesome-ai-research-writing}, 2024.
+
+\bibitem[Li et~al.(2026{\natexlab{c}})Li, Shao, Liu, Zhao, Liu, Su, Chen, Yang, Xu, Fang, Zeng, Li, Xu, Xu, Li, and Liu]{autosota2026}
+Y.~Li, C.~Shao, X.~Liu, R.~Zhao, P.~Liu, H.~Su, Z.~Chen, Q.~Yang, A.~Xu, Y.~Fang, Q.~Zeng, T.~Li, J.~Xu, F.~Xu, Y.~Li, and T.-Y. Liu.
+\newblock {AutoSOTA}: An end-to-end automated research system for state-of-the-art {AI} model discovery.
+\newblock \emph{arXiv preprint arXiv:2604.05550}, 2026{\natexlab{c}}.
+
+\bibitem[Li et~al.(2026{\natexlab{d}})Li, Jiang, Ma, Zhang, Nie, Zhang, Zou, Xie, Zhang, and Chen]{li2026openresearcher}
+Z.~Li, D.~Jiang, X.~Ma, H.~Zhang, P.~Nie, Y.~Zhang, K.~Zou, J.~Xie, Y.~Zhang, and W.~Chen.
+\newblock {OpenResearcher}: A fully open pipeline for long-horizon deep research trajectory synthesis.
+\newblock \emph{arXiv preprint arXiv:2603.20278}, 2026{\natexlab{d}}.
+
+\bibitem[Liang et~al.(2024)Liang, Zhang, Wu, Lepp, Ji, Zhao, Cao, Liu, He, Huang, Yang, Potts, Manning, and Zou]{liang2024mapping}
+W.~Liang, Y.~Zhang, Z.~Wu, H.~Lepp, W.~Ji, X.~Zhao, H.~Cao, S.~Liu, S.~He, Z.~Huang, D.~Yang, C.~Potts, C.~D. Manning, and J.~Y. Zou.
+\newblock Mapping the increasing use of {LLMs} in scientific papers.
+\newblock \emph{arXiv preprint arXiv:2404.01268}, 2024.
+
+\bibitem[Liang et~al.(2025{\natexlab{a}})Liang, Yang, Wang, Tang, Zheng, Song, Lin, Yang, Niu, Wang, Tang, Xiong, Mao, and Li]{liang2025surveyx}
+X.~Liang, J.~Yang, Y.~Wang, C.~Tang, Z.~Zheng, S.~Song, Z.~Lin, Y.~Yang, S.~Niu, H.~Wang, B.~Tang, F.~Xiong, K.~Mao, and Z.~Li.
+\newblock {SurveyX}: Academic survey automation via large language models.
+\newblock \emph{arXiv preprint arXiv:2502.14776}, 2025{\natexlab{a}}.
+
+\bibitem[Liang et~al.(2025{\natexlab{b}})Liang, Zhang, Xu, Sun, and You]{slidegen2025}
+X.~Liang, X.~Zhang, Y.~Xu, S.~Sun, and C.~You.
+\newblock {SlideGen}: Collaborative multimodal agents for scientific slide generation.
+\newblock \emph{arXiv preprint arXiv:2512.04529}, 2025{\natexlab{b}}.
+
+\bibitem[Lin(2004)]{lin2004rouge}
+C.-Y. Lin.
+\newblock {ROUGE}: A package for automatic evaluation of summaries.
+\newblock In \emph{Text Summarization Branches Out}, pages 74--81, 2004.
+\newblock URL \url{https://aclanthology.org/W04-1013/}.
+
+\bibitem[Lin et~al.(2025)Lin, Chen, Hsiao, Liu, Yeh, Chan, Lien, Kuo, Yu, and Shuai]{breakingreviewer2025}
+T.-L. Lin, W.-C. Chen, T.-F. Hsiao, H.-I. Liu, Y.-H. Yeh, Y.-K. Chan, W.-S. Lien, P.-Y. Kuo, P.~S. Yu, and H.-H. Shuai.
+\newblock Breaking the reviewer: Assessing the vulnerability of large language models in automated peer review under textual adversarial attacks.
+\newblock \emph{arXiv preprint arXiv:2506.11113}, 2025.
+
+\bibitem[Lin et~al.(2026)Lin, Xie, Zhu, Li, Sun, Gu, Ding, Sun, Guo, Lu, Ning, Weng, and Zhang]{autofigure2026}
+Z.~Lin, Q.~Xie, M.~Zhu, S.~Li, Q.~Sun, E.~Gu, Y.~Ding, K.~Sun, F.~Guo, P.~Lu, Z.~Ning, Y.~Weng, and Y.~Zhang.
+\newblock {AutoFigure-Edit}: Generating editable scientific illustration.
+\newblock \emph{arXiv preprint arXiv:2603.06674}, 2026.
+
+\bibitem[Ling et~al.(2025)Ling, Qi, Huang, Zhou, Huang, Yang, Song, Zhou, Yang, Shen, and Wang]{table2latexrl2025}
+J.~Ling, Y.~Qi, T.~Huang, S.~Zhou, Y.~Huang, J.~Yang, Z.~Song, Y.~Zhou, Y.~Yang, H.~T. Shen, and P.~Wang.
+\newblock Table2{LaTeX}-{RL}: High-fidelity {LaTeX} code generation from table images via reinforced multimodal language models.
+\newblock \emph{arXiv preprint arXiv:2509.17589}, 2025.
+
+\bibitem[Liu et~al.(2025{\natexlab{a}})Liu, Yang, Luo, Wang, Li, and Wang]{preacher2025}
+J.~Liu, L.~Yang, H.~Luo, F.~Wang, H.~Li, and M.~Wang.
+\newblock {Preacher}: Paper-to-video agentic system.
+\newblock In \emph{IEEE/CVF International Conference on Computer Vision}, pages 17129--17139, 2025{\natexlab{a}}.
+
+\bibitem[Liu et~al.(2026{\natexlab{a}})Liu, Xia, Han, Qiu, Zhang, Chen, Tu, Yang, Zhou, Zhu, Li, Zhang, Zhou, Zheng, Xie, Ding, and Yao]{autoresearchclaw2026}
+J.~Liu, P.~Xia, S.~Han, S.~Qiu, L.~Zhang, G.~Chen, H.~Tu, X.~Yang, J.~Zhou, H.~Zhu, Y.~Li, J.~Zhang, Y.~Zhou, Z.~Zheng, C.~Xie, M.~Ding, and H.~Yao.
+\newblock {AutoResearchClaw}: Fully autonomous research from idea to paper.
+\newblock \url{https://github.com/aiming-lab/AutoResearchClaw}, 2026{\natexlab{a}}.
+
+\bibitem[Liu et~al.(2026{\natexlab{b}})Liu, Yang, Zhao, and Li]{rate2026}
+W.~Liu, Z.~Yang, Y.~Zhao, and X.~Li.
+\newblock {RATE}: Reviewer profiling and annotation-free training for expertise ranking in peer review systems.
+\newblock \emph{arXiv preprint arXiv:2601.19637}, 2026{\natexlab{b}}.
+
+\bibitem[Liu et~al.(2025{\natexlab{b}})Liu, Wu, Zhang, and Sun]{agenticautosurvey2025}
+Y.~Liu, Y.~Wu, D.~Zhang, and L.~Sun.
+\newblock Agentic {AutoSurvey}: Let {LLMs} survey {LLMs}.
+\newblock \emph{arXiv preprint arXiv:2509.18661}, 2025{\natexlab{b}}.
+
+\bibitem[Liu et~al.(2026{\natexlab{c}})Liu, Yang, Xie, Ni, Gao, Li, Tang, Ouyang, Cambria, and Zhou]{researchbench2025}
+Y.~Liu, Z.~Yang, T.~Xie, J.~Ni, B.~Gao, Y.~Li, S.~Tang, W.~Ouyang, E.~Cambria, and D.~Zhou.
+\newblock {ResearchBench}: Benchmarking {LLMs} in scientific discovery via inspiration-based task decomposition.
+\newblock In \emph{Annual Meeting of the Association for Computational Linguistics}, 2026{\natexlab{c}}.
+
+\bibitem[Liu et~al.(2026{\natexlab{d}})Liu, Bao, Li, Zhou, Liao, He, Jiang, Xie, Zheng, and Xie]{showtable2025}
+Z.~Liu, X.~Bao, P.~Li, J.~Zhou, Z.~Liao, Y.~He, K.~Jiang, C.-W. Xie, Y.~Zheng, and H.~Xie.
+\newblock {ShowTable}: Unlocking creative table visualization with collaborative reflection and refinement.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern Recognition}, 2026{\natexlab{d}}.
+
+\bibitem[Lu et~al.(2024)Lu, Lu, Lange, Foerster, Clune, and Ha]{lu2024aiscientist}
+C.~Lu, C.~Lu, R.~T. Lange, J.~Foerster, J.~Clune, and D.~Ha.
+\newblock The {AI} scientist: Towards fully automated open-ended scientific discovery.
+\newblock \emph{arXiv preprint arXiv:2408.06292}, 2024.
+
+\bibitem[Lu et~al.(2026)Lu, Lu, Lange, Yamada, Hu, Foerster, Ha, and Clune]{aiscientistnature2026}
+C.~Lu, C.~Lu, R.~T. Lange, Y.~Yamada, S.~Hu, J.~Foerster, D.~Ha, and J.~Clune.
+\newblock Towards end-to-end automation of {AI} research.
+\newblock \emph{Nature}, 651:\penalty0 914--919, 2026.
+
+\bibitem[Luo et~al.(2023)Luo, Wang, Gam, Cui, circlestarzero, Ni, Quanta, Fu, and Hou]{chatpaper2023}
+Y.~Luo, R.~Wang, P.~Gam, J.~Cui, circlestarzero, S.~Ni, J.~Quanta, Q.~Fu, and S.~Hou.
+\newblock {ChatPaper}: Use {LLM} to summarize papers.
+\newblock \url{https://github.com/kaixindelele/ChatPaper}, 2023.
+
+\bibitem[Luo et~al.(2025{\natexlab{a}})Luo, Kasirzadeh, and Shah]{hiddenpitfalls2025}
+Z.~Luo, A.~Kasirzadeh, and N.~B. Shah.
+\newblock The more you automate, the less you see: Hidden pitfalls of {AI} scientist systems.
+\newblock \emph{arXiv preprint arXiv:2509.08713}, 2025{\natexlab{a}}.
+
+\bibitem[Luo et~al.(2025{\natexlab{b}})Luo, Yang, Xu, Yang, and Du]{luo2025llm4sr}
+Z.~Luo, Z.~Yang, Z.~Xu, W.~Yang, and X.~Du.
+\newblock {LLM4SR}: A survey on large language models for scientific research.
+\newblock \emph{arXiv preprint arXiv:2501.04306}, 2025{\natexlab{b}}.
+
+\bibitem[Lyu et~al.(2026)Lyu, Zhang, Yi, Zhao, Guo, Hu, Piotrowski, Kaliski, Urbani, Meng, Zhou, and Yan]{evoscientist2026}
+Y.~Lyu, X.~Zhang, X.~Yi, Y.~Zhao, S.~Guo, W.~Hu, J.~Piotrowski, J.~Kaliski, J.~Urbani, Z.~Meng, L.~Zhou, and X.~Yan.
+\newblock {EvoScientist}: Towards multi-agent evolving {AI} scientists for end-to-end scientific discovery.
+\newblock \emph{arXiv preprint arXiv:2603.08127}, 2026.
+
+\bibitem[Lála et~al.(2023)Lála, O'Donoghue, Shtedritski, Cox, Rodriques, and White]{paperqa2024github}
+J.~Lála, O.~O'Donoghue, A.~Shtedritski, S.~Cox, S.~G. Rodriques, and A.~D. White.
+\newblock {PaperQA}: Retrieval-augmented generative agent for scientific research.
+\newblock \emph{arXiv preprint arXiv:2312.07559}, 2023.
+
+\bibitem[Ma et~al.(2026)Ma, Guo, Tian, Wang, Xiao, Yue, and Zhang]{paper2rebuttal2026}
+Q.~Ma, C.~Guo, Z.~Tian, S.~Wang, J.~Xiao, Y.~Yue, and Z.~Zhang.
+\newblock {Paper2Rebuttal}: A multi-agent framework for transparent author response assistance.
+\newblock \emph{arXiv preprint arXiv:2601.14171}, 2026.
+
+\bibitem[Majumder et~al.(2025)Majumder, Surana, Agarwal, Mishra, Meena, Prakhar, Vora, Khot, Sabharwal, and Clark]{majumder2024discoverybench}
+B.~P. Majumder, H.~Surana, D.~Agarwal, B.~D. Mishra, A.~Meena, A.~Prakhar, T.~Vora, T.~Khot, A.~Sabharwal, and P.~Clark.
+\newblock {DiscoveryBench}: Towards data-driven discovery with large language models.
+\newblock In \emph{International Conference on Learning Representations}, 2025.
+
+\bibitem[{METR Team}(2025)]{metr2025forecasting}
+{METR Team}.
+\newblock Measuring {AI} ability to complete long tasks.
+\newblock \url{https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks}, 2025.
+
+\bibitem[Miao et~al.(2025)Miao, Davis, Zhang, Pritchard, and Zou]{miao2025paper2agent}
+J.~Miao, J.~R. Davis, Y.~Zhang, J.~K. Pritchard, and J.~Zou.
+\newblock {Paper2Agent}: Reimagining research papers as interactive and reliable {AI} agents.
+\newblock \emph{arXiv preprint arXiv:2509.06917}, 2025.
+
+\bibitem[Mitchener et~al.(2025)Mitchener, Yiu, Chang, Bourdenx, Nadolski, Sulovari, Landsness, Barabasi, Narayanan, Evans, Reddy, Foiani, Kamal, Shriver, Cao, Wassie, Laurent, Melville-Green, Caldas, Bou, Roberts, Zagorac, Orr, Orr, Zwezdaryk, Ghareeb, McCoy, Gomes, Ashley, Duff, Buonassisi, Rainforth, Bateman, Skarlinski, Rodriques, Hinks, and White]{kosmos2025}
+L.~Mitchener, A.~Yiu, B.~Chang, M.~Bourdenx, T.~Nadolski, A.~Sulovari, E.~C. Landsness, D.~L. Barabasi, S.~Narayanan, N.~Evans, S.~Reddy, M.~Foiani, A.~Kamal, L.~P. Shriver, F.~Cao, A.~T. Wassie, J.~M. Laurent, E.~Melville-Green, M.~Caldas, A.~Bou, K.~F. Roberts, S.~Zagorac, T.~C. Orr, M.~E. Orr, K.~J. Zwezdaryk, A.~E. Ghareeb, L.~McCoy, B.~Gomes, E.~A. Ashley, K.~E. Duff, T.~Buonassisi, T.~Rainforth, R.~J. Bateman, M.~Skarlinski, S.~G. Rodriques, M.~M. Hinks, and A.~D. White.
+\newblock Kosmos: An {AI} scientist for autonomous discovery.
+\newblock \emph{arXiv preprint arXiv:2511.02824}, 2025.
+
+\bibitem[Naddaf(2026)]{aireviewsurvey2025}
+M.~Naddaf.
+\newblock More than half of researchers now use {AI} for peer review — often against guidance.
+\newblock \emph{Nature News}, 649:\penalty0 273--274, 2026.
+
+\bibitem[Nathani et~al.(2025)Nathani, Madaan, Roberts, Bashlykov, Menon, Moens, Budhiraja, Magka, Vorotilov, Chaurasia, Hupkes, Cabral, Shavrina, Foerster, Bachrach, Wang, and Raileanu]{mlgym2025}
+D.~Nathani, L.~Madaan, N.~Roberts, N.~Bashlykov, A.~Menon, V.~Moens, A.~Budhiraja, D.~Magka, V.~Vorotilov, G.~Chaurasia, D.~Hupkes, R.~S. Cabral, T.~Shavrina, J.~Foerster, Y.~Bachrach, W.~Y. Wang, and R.~Raileanu.
+\newblock {MLGym}: A new framework and benchmark for advancing {AI} research agents.
+\newblock \emph{arXiv preprint arXiv:2502.14499}, 2025.
+
+\bibitem[Newman et~al.(2024)Newman, Lee, Naik, Siangliulue, Fok, Kim, Weld, Chang, and Lo]{arxivdigestables2024}
+B.~Newman, Y.~Lee, A.~Naik, P.~Siangliulue, R.~Fok, J.~Kim, D.~S. Weld, J.~C. Chang, and K.~Lo.
+\newblock {ArxivDIGESTables}: Synthesizing scientific literature into tables using language models.
+\newblock In \emph{Conference on Empirical Methods in Natural Language Processing}, pages 9612--9631, 2024.
+
+\bibitem[Nguyen et~al.(2025)Nguyen, Nguyen, N.T., Dang, Dong, and Le]{surveyg2025}
+M.-A. Nguyen, M.-D. Nguyen, H.~L. N.T., K.~H. Dang, N.~T. Dong, and D.~D. Le.
+\newblock {SurveyG}: A multi-agent {LLM} framework with hierarchical citation graph for automated survey generation.
+\newblock \emph{arXiv preprint arXiv:2510.07733}, 2025.
+
+\bibitem[Ni(2023)]{chatreviewer2023}
+S.~Ni.
+\newblock {ChatReviewer}: {ChatGPT}-based paper reviewing and response generation.
+\newblock \url{https://github.com/nishiwen1214/ChatReviewer}, 2023.
+
+\bibitem[Ni et~al.(2025)Ni, Nie, Zou, Yue, and Chen]{viscoder2025}
+Y.~Ni, P.~Nie, K.~Zou, X.~Yue, and W.~Chen.
+\newblock {VisCoder}: Fine-tuning {LLMs} for executable python visualization code generation.
+\newblock In \emph{Conference on Empirical Methods in Natural Language Processing}, pages 2956--2983, 2025.
+
+\bibitem[Novikov et~al.(2025)Novikov, Vu, Eisenberger, Dupont, Huang, Wagner, Shirobokov, Kozlovskii, Ruiz, Mehrabian, Kumar, See, Chaudhuri, Holland, Davies, Nowozin, Kohli, and Balog]{alphaevolve2025}
+A.~Novikov, N.~Vu, M.~Eisenberger, E.~Dupont, P.-S. Huang, A.~Z. Wagner, S.~Shirobokov, B.~Kozlovskii, F.~J.~R. Ruiz, A.~Mehrabian, M.~P. Kumar, A.~See, S.~Chaudhuri, G.~Holland, A.~Davies, S.~Nowozin, P.~Kohli, and M.~Balog.
+\newblock {AlphaEvolve}: A coding agent for scientific and algorithmic discovery.
+\newblock \emph{arXiv preprint arXiv:2506.13131}, 2025.
+
+\bibitem[O'Donoghue et~al.(2023)O'Donoghue, Shtedritski, Ginger, Abboud, Ghareeb, Booth, and Rodriques]{bioplanner2024}
+O.~O'Donoghue, A.~Shtedritski, J.~Ginger, R.~Abboud, A.~E. Ghareeb, J.~Booth, and S.~G. Rodriques.
+\newblock {BioPlanner}: Automatic evaluation of {LLMs} on protocol planning.
+\newblock \emph{arXiv preprint arXiv:2310.10632}, 2023.
+
+\bibitem[Ou et~al.(2025)Ou, Walden, Sanders, Jiang, Sun, Cheng, Jurayj, Wanner, Liang, Morgan, Han, Wang, May, Recknor, Khashabi, and Durme]{claimcheck2025}
+J.~Ou, W.~G. Walden, K.~Sanders, Z.~Jiang, K.~Sun, J.~Cheng, W.~Jurayj, M.~Wanner, S.~Liang, C.~Morgan, S.~Han, W.~Wang, C.~May, H.~Recknor, D.~Khashabi, and B.~V. Durme.
+\newblock {ClaimCheck}: How grounded are {LLM} critiques of scientific papers?
+\newblock In \emph{Conference on Empirical Methods in Natural Language Processing}, pages 21712--21735, 2025.
+
+\bibitem[Ouyang et~al.(2025)Ouyang, Guo, Arora, Zhang, Hu, Ré, and Mirhoseini]{kernelbench2025}
+A.~Ouyang, S.~Guo, S.~Arora, A.~L. Zhang, W.~Hu, C.~Ré, and A.~Mirhoseini.
+\newblock {KernelBench}: Can {LLMs} write efficient {GPU} kernels?
+\newblock In \emph{International Conference on Machine Learning}, 2025.
+
+\bibitem[Ouyang et~al.(2022)Ouyang, Wu, Jiang, Almeida, Wainwright, Mishkin, Zhang, Agarwal, Slama, Ray, Schulman, Hilton, Kelton, Miller, Simens, Askell, Welinder, Christiano, Leike, and Lowe]{ouyang2022training}
+L.~Ouyang, J.~Wu, X.~Jiang, D.~Almeida, C.~L. Wainwright, P.~Mishkin, C.~Zhang, S.~Agarwal, K.~Slama, A.~Ray, J.~Schulman, J.~Hilton, F.~Kelton, L.~Miller, M.~Simens, A.~Askell, P.~Welinder, P.~Christiano, J.~Leike, and R.~Lowe.
+\newblock Training language models to follow instructions with human feedback.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~35, pages 27730--27744, 2022.
+
+\bibitem[Pan et~al.(2025)Pan, Fu, Wang, Lu, Pan, Qian, Chen, Wang, Zhou, Zheng, Tang, Wen, Wu, Lu, Zhu, Zhu, Zhang, and Chen]{visshepherd2025}
+B.~Pan, Y.~Fu, K.~Wang, J.~Lu, L.~Pan, Z.~Qian, Y.~Chen, G.~Wang, Y.~Zhou, L.~Zheng, Y.~Tang, Z.~Wen, Y.~Wu, J.~Lu, B.~Zhu, M.~Zhu, B.~Zhang, and W.~Chen.
+\newblock {VIS-Shepherd}: Constructing critic for {LLM}-based data visualization generation.
+\newblock \emph{arXiv preprint arXiv:2506.13326}, 2025.
+
+\bibitem[Pang et~al.(2025)Pang, Lin, Jian, He, and Torr]{paper2poster2025}
+W.~Pang, K.~Q. Lin, X.~Jian, X.~He, and P.~Torr.
+\newblock {Paper2Poster}: Towards multimodal poster automation from scientific papers.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2025.
+
+\bibitem[Panigrahi et~al.(2026)Panigrahi, Videnovic, and Brbic]{heurekabench2026}
+S.~S. Panigrahi, J.~Videnovic, and M.~Brbic.
+\newblock {HeurekaBench}: A benchmarking framework for {AI} co-scientist.
+\newblock In \emph{International Conference on Learning Representations}, 2026.
+
+\bibitem[Papineni et~al.(2002)Papineni, Roukos, Ward, and Zhu]{papineni2002bleu}
+K.~Papineni, S.~Roukos, T.~Ward, and W.-J. Zhu.
+\newblock {BLEU}: A method for automatic evaluation of machine translation.
+\newblock In \emph{Annual Meeting on Association for Computational Linguistics}, pages 311--318, 2002.
+
+\bibitem[Patel et~al.(2025)Patel, Arabzadeh, Gupta, Sundar, Stoica, Zaharia, and Guestrin]{deepscholar2025}
+L.~Patel, N.~Arabzadeh, H.~Gupta, A.~Sundar, I.~Stoica, M.~Zaharia, and C.~Guestrin.
+\newblock {DeepScholar-Bench}: A live benchmark and automated evaluation for generative research synthesis.
+\newblock \emph{arXiv preprint arXiv:2508.20033}, 2025.
+
+\bibitem[Poldrack(2024)]{poldrack2024aireview}
+R.~A. Poldrack.
+\newblock {AI-Peer-Review}: Multi-{LLM} peer review with meta-review.
+\newblock \url{https://github.com/poldrack/ai-peer-review}, 2024.
+
+\bibitem[Press et~al.(2024)Press, Hochlehnert, Prabhu, Udandarao, Press, and Bethge]{citeme2024}
+O.~Press, A.~Hochlehnert, A.~Prabhu, V.~Udandarao, O.~Press, and M.~Bethge.
+\newblock {CiteME}: Can language models accurately cite scientific claims?
+\newblock \emph{arXiv preprint arXiv:2407.12861}, 2024.
+
+\bibitem[Pu et~al.(2025{\natexlab{a}})Pu, Feng, Grossman, Hope, Mishra, Latzke, Bragg, Chang, and Siangliulue]{pu2025ideasynth}
+K.~Pu, K.~J.~K. Feng, T.~Grossman, T.~Hope, B.~D. Mishra, M.~Latzke, J.~Bragg, J.~C. Chang, and P.~Siangliulue.
+\newblock {IdeaSynth}: Iterative research idea development through evolving and composing idea facets with literature-grounded feedback.
+\newblock In \emph{CHI Conference on Human Factors in Computing Systems}, pages 1--31, 2025{\natexlab{a}}.
+
+\bibitem[Pu et~al.(2025{\natexlab{b}})Pu, Lin, and Chen]{piflow2025}
+Y.~Pu, T.~Lin, and H.~Chen.
+\newblock {PiFlow}: Principle-aware scientific discovery with multi-agent collaboration.
+\newblock \emph{arXiv preprint arXiv:2505.15047}, 2025{\natexlab{b}}.
+
+\bibitem[Qiu et~al.(2025)Qiu, Zhang, Xu, Li, Song, Wang, and Zhang]{aiideabench2025}
+Y.~Qiu, H.~Zhang, Z.~Xu, M.~Li, D.~Song, Z.~Wang, and K.~Zhang.
+\newblock {AI Idea Bench 2025}: {AI} research idea generation benchmark.
+\newblock \emph{arXiv preprint arXiv:2504.14191}, 2025.
+
+\bibitem[Qu et~al.(2026)Qu, Zheng, Zhou, Yan, Tang, Ong, Hong, Zhou, Jiang, Kong, Zhu, Jiang, Li, Wu, Low, Zhao, and Liang]{coral2026}
+A.~Qu, H.~Zheng, Z.~Zhou, Y.~Yan, Y.~Tang, S.~Y. Ong, F.~Hong, K.~Zhou, C.~Jiang, M.~Kong, J.~Zhu, X.~Jiang, S.~Li, C.~Wu, B.~K.~H. Low, J.~Zhao, and P.~P. Liang.
+\newblock {CORAL}: Towards autonomous multi-agent evolution for open-ended discovery.
+\newblock \emph{arXiv preprint arXiv:2604.01658}, 2026.
+
+\bibitem[Qu et~al.(2024)Qu, Huang, Yin, Zhan, Liu, Yin, Cousins, Johnson, Wang, Shah, Altman, Zhou, Wang, and Cong]{crisprgpt2024}
+Y.~Qu, K.~Huang, M.~Yin, K.~Zhan, D.~Liu, D.~Yin, H.~C. Cousins, W.~A. Johnson, X.~Wang, M.~Shah, R.~B. Altman, D.~Zhou, M.~Wang, and L.~Cong.
+\newblock {CRISPR-GPT} for agentic automation of gene-editing experiments.
+\newblock \emph{arXiv preprint arXiv:2404.18021}, 2024.
+
+\bibitem[Raina et~al.(2024)Raina, Liusie, and Gales]{raina2024adversarialjudge}
+V.~Raina, A.~Liusie, and M.~Gales.
+\newblock Is {LLM}-as-a-judge robust? investigating universal adversarial attacks on zero-shot {LLM} assessment.
+\newblock In \emph{Conference on Empirical Methods in Natural Language Processing}, pages 7499--7517, 2024.
+
+\bibitem[Rank et~al.(2026)Rank, Bhatnagar, Prabhu, Eisenberg, Nguyen, Bethge, and Andriushchenko]{posttrainbench2026}
+B.~Rank, H.~Bhatnagar, A.~Prabhu, S.~Eisenberg, K.~Nguyen, M.~Bethge, and M.~Andriushchenko.
+\newblock {PostTrainBench}: Can {LLM} agents automate {LLM} post-training?
+\newblock \emph{arXiv preprint arXiv:2603.08640}, 2026.
+
+\bibitem[Rao et~al.(2025)Rao, Kumar, Lakkaraju, and Shah]{watermarking2025}
+V.~Rao, A.~Kumar, H.~Lakkaraju, and N.~B. Shah.
+\newblock Detecting {LLM}-generated peer reviews.
+\newblock \emph{arXiv preprint arXiv:2503.15772}, 2025.
+
+\bibitem[Rodriguez et~al.(2025)Rodriguez, Puri, Agarwal, Laradji, Rodriguez, Rajeswar, Vazquez, Pal, and Pedersoli]{starVector2025}
+J.~A. Rodriguez, A.~Puri, S.~Agarwal, I.~H. Laradji, P.~Rodriguez, S.~Rajeswar, D.~Vazquez, C.~Pal, and M.~Pedersoli.
+\newblock {StarVector}: Generating scalable vector graphics code from images and text.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 16175--16186, 2025.
+
+\bibitem[Romera-Paredes et~al.(2024)Romera-Paredes, Barekatain, Novikov, Balog, Kumar, Dupont, Ruiz, Ellenberg, Wang, Fawzi, Kohli, and Fawzi]{funsearch2024}
+B.~Romera-Paredes, M.~Barekatain, A.~Novikov, M.~Balog, M.~P. Kumar, E.~Dupont, F.~J.~R. Ruiz, J.~S. Ellenberg, P.~Wang, O.~Fawzi, P.~Kohli, and A.~Fawzi.
+\newblock Mathematical discoveries from program search with large language models.
+\newblock \emph{Nature}, 625\penalty0 (7995):\penalty0 468--475, 2024.
+
+\bibitem[Ruan et~al.(2024)Ruan, Wang, Hong, Wang, Liu, and Sun]{liveideabench2024}
+K.~Ruan, X.~Wang, J.~Hong, P.~Wang, Y.~Liu, and H.~Sun.
+\newblock {LiveIdeaBench}: Evaluating {LLMs}' scientific creativity and idea generation with minimal context.
+\newblock \emph{arXiv preprint arXiv:2412.17596}, 2024.
+
+\bibitem[Ruan and Gurevych(2026)]{ruan2026authorinloop}
+Q.~Ruan and I.~Gurevych.
+\newblock Author-in-the-loop response generation and evaluation: Integrating author expertise and intent in responses to peer review.
+\newblock \emph{arXiv preprint arXiv:2602.11173}, 2026.
+
+\bibitem[Russo~Latona et~al.(2024)Russo~Latona, Ribeiro, Davidson, Veselovsky, and West]{ailottery2024}
+G.~Russo~Latona, M.~H. Ribeiro, T.~R. Davidson, V.~Veselovsky, and R.~West.
+\newblock The {AI} review lottery: Widespread {AI}-assisted peer reviews boost paper scores and acceptance rates.
+\newblock \emph{arXiv preprint arXiv:2405.02150}, 2024.
+
+\bibitem[Saha et~al.(2026)Saha, Juneja, Chaudhuri, Sajeevan, Shah, and Pruthi]{reviewpolicyenforce2026}
+R.~Saha, G.~Juneja, D.~Chaudhuri, N.~Sajeevan, N.~B. Shah, and D.~Pruthi.
+\newblock Policies permitting {LLM} use for polishing peer reviews are currently not enforceable.
+\newblock \emph{arXiv preprint arXiv:2603.20450}, 2026.
+
+\bibitem[Sahoo et~al.(2025)Sahoo, Prasad, Majhi, Singh, Chamola, Sinha, Mandal, and Kumar]{sahoo2025indirect}
+D.~Sahoo, M.~Prasad, V.~Majhi, J.~Singh, V.~Chamola, Y.~Sinha, M.~Mandal, and D.~Kumar.
+\newblock When reject turns into accept: Quantifying the vulnerability of {LLM}-based scientific reviewers to indirect prompt injection.
+\newblock \emph{arXiv preprint arXiv:2512.10449}, 2025.
+
+\bibitem[Sahu et~al.(2025)Sahu, Larochelle, Charlin, and Pal]{reviewertoo2025}
+G.~Sahu, H.~Larochelle, L.~Charlin, and C.~Pal.
+\newblock {ReviewerToo}: Should {AI} join the program committee? a look at the future of peer review.
+\newblock \emph{arXiv preprint arXiv:2510.08867}, 2025.
+
+\bibitem[Sanyal et~al.(2025)Sanyal, Schapiro, Shashidhar, Moon, Varshney, and Hakkani-Tur]{sanyal2025spark}
+A.~Sanyal, S.~Schapiro, S.~Shashidhar, R.~Moon, L.~R. Varshney, and D.~Hakkani-Tur.
+\newblock {Spark}: A system for scientifically creative idea generation.
+\newblock In \emph{International Conference on Computational Creativity}, 2025.
+
+\bibitem[Schick et~al.(2023)Schick, Dwivedi-Yu, Dess{\`i}, Raileanu, Lomeli, Zettlemoyer, Cancedda, and Scialom]{schick2023toolformer}
+T.~Schick, J.~Dwivedi-Yu, R.~Dess{\`i}, R.~Raileanu, M.~Lomeli, L.~Zettlemoyer, N.~Cancedda, and T.~Scialom.
+\newblock Toolformer: Language models can teach themselves to use tools.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~36, pages 68539--68551, 2023.
+
+\bibitem[Schmidgall and Moor(2025)]{schmidgall2025agentrxiv}
+S.~Schmidgall and M.~Moor.
+\newblock {AgentRxiv}: Towards collaborative autonomous research.
+\newblock \emph{arXiv preprint arXiv:2503.18102}, 2025.
+
+\bibitem[Schmidgall et~al.(2025)Schmidgall, Su, Wang, Sun, Wu, Yu, Liu, Moor, Liu, and Barsoum]{schmidgall2025agentlab}
+S.~Schmidgall, Y.~Su, Z.~Wang, X.~Sun, J.~Wu, X.~Yu, J.~Liu, M.~Moor, Z.~Liu, and E.~Barsoum.
+\newblock Agent laboratory: Using {LLM} agents as research assistants.
+\newblock In \emph{Conference on Empirical Methods in Natural Language Processing}, pages 5977--6043, 2025.
+
+\bibitem[Schuster et~al.(2026)Schuster, Salcedo, Bouchard, Frei, Pisani, Bautista, Zoubian, Escoffier, Liu, Valogiannis, and Zarrouk]{sail2026}
+N.~Schuster, A.~N. Salcedo, S.~Bouchard, D.~Frei, A.~Pisani, J.~E. Bautista, J.~Zoubian, S.~Escoffier, W.~Liu, G.~Valogiannis, and P.~Zarrouk.
+\newblock Setting {SAIL}: Leveraging scientist-{AI}-loops for rigorous visualization tools.
+\newblock \emph{arXiv preprint arXiv:2603.18145}, 2026.
+
+\bibitem[{SenseTime}(2026)]{sensetime2026}
+{SenseTime}.
+\newblock Office raccoon: Ai-powered office agent.
+\newblock \url{https://www.sensetime.com/en/news-detail/51170569}, 2026.
+\newblock News and Blog, March 4, 2026.
+
+\bibitem[Seo et~al.(2025)Seo, Baek, Lee, and Hwang]{papercoder2025}
+M.~Seo, J.~Baek, S.~Lee, and S.~J. Hwang.
+\newblock {Paper2Code}: Automating code generation from scientific papers in machine learning.
+\newblock \emph{arXiv preprint arXiv:2504.17192}, 2025.
+
+\bibitem[Shahhosseini et~al.(2025)Shahhosseini, Marioriyad, Momen, Baghshah, Rohban, and Javanmard]{shahhosseini2025ideationsurvey}
+F.~Shahhosseini, A.~Marioriyad, A.~Momen, M.~S. Baghshah, M.~H. Rohban, and S.~H. Javanmard.
+\newblock Large language models for scientific idea generation: A creativity-centered survey.
+\newblock \emph{arXiv preprint arXiv:2511.07448}, 2025.
+
+\bibitem[Shao et~al.(2026{\natexlab{a}})Shao, Li, and Xu]{scinetbench2026}
+C.~Shao, Y.~Li, and F.~Xu.
+\newblock {SciNetBench}: A relation-aware benchmark for scientific literature retrieval agents.
+\newblock \emph{arXiv preprint arXiv:2601.03260}, 2026{\natexlab{a}}.
+
+\bibitem[Shao et~al.(2026{\natexlab{b}})Shao, Wang, Qian, Pan, Liu, and Wang]{sciscigpt2025}
+E.~Shao, Y.~Wang, Y.~Qian, Z.~Pan, H.~Liu, and D.~Wang.
+\newblock {SciSciGPT}: Advancing human--{AI} collaboration in the science of science.
+\newblock \emph{Nature Computational Science}, 6:\penalty0 301--315, 2026{\natexlab{b}}.
+
+\bibitem[Shao et~al.(2024)Shao, Jiang, Kanell, Xu, Khattab, and Lam]{shao2024storm}
+Y.~Shao, Y.~Jiang, T.~A. Kanell, P.~Xu, O.~Khattab, and M.~S. Lam.
+\newblock Assisting in writing {Wikipedia}-like articles from scratch with large language models.
+\newblock \emph{arXiv preprint arXiv:2402.14207}, 2024.
+
+\bibitem[Shen et~al.(2026)Shen, Yang, Gu, and Han]{scholargym2026}
+H.~Shen, H.~Yang, Z.~Gu, and W.~Han.
+\newblock {ScholarGym}: Benchmarking large language model capabilities in the information-gathering stage of deep research.
+\newblock \emph{arXiv preprint arXiv:2601.21654}, 2026.
+
+\bibitem[Shi et~al.(2026)Shi, Cai, Chen, Zeng, Zhao, Yu, Yu, and Li]{apex2026}
+C.~Shi, Q.~Cai, Z.~Chen, L.~Zeng, Y.~Zhao, J.~Yu, J.~Yu, and X.~Li.
+\newblock {APEX}: Academic poster editing agentic expert.
+\newblock \emph{arXiv preprint arXiv:2601.04794}, 2026.
+
+\bibitem[Shi et~al.(2025)Shi, Zhang, Wu, Liang, Fang, Chen, and Zhao]{presentagent2025}
+J.~Shi, Z.~Zhang, B.~Wu, Y.~Liang, M.~Fang, L.~Chen, and Y.~Zhao.
+\newblock {PresentAgent}: Multimodal agent for presentation video generation.
+\newblock In \emph{Conference on Empirical Methods in Natural Language Processing}, pages 760--773, 2025.
+
+\bibitem[Shinn et~al.(2023)Shinn, Cassano, Gopinath, Narasimhan, and Yao]{shinn2023reflexion}
+N.~Shinn, F.~Cassano, A.~Gopinath, K.~Narasimhan, and S.~Yao.
+\newblock Reflexion: Language agents with verbal reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~36, pages 8634--8652, 2023.
+
+\bibitem[Si et~al.(2024)Si, Yang, and Hashimoto]{si2024ideas}
+C.~Si, D.~Yang, and T.~Hashimoto.
+\newblock Can {LLMs} generate novel research ideas? {A} large scale human study with 100+ {NLP} researchers.
+\newblock \emph{arXiv preprint arXiv:2409.04109}, 2024.
+
+\bibitem[Si et~al.(2025)Si, Hashimoto, and Yang]{si2025gap}
+C.~Si, T.~Hashimoto, and D.~Yang.
+\newblock The ideation-execution gap: Execution outcomes of {LLM}-generated versus human research ideas.
+\newblock \emph{arXiv preprint arXiv:2506.20803}, 2025.
+
+\bibitem[Si et~al.(2026)Si, Yang, Choi, Candes, Yang, and Hashimoto]{si2026executiongrounded}
+C.~Si, Z.~Yang, Y.~Choi, E.~Candes, D.~Yang, and T.~Hashimoto.
+\newblock Towards execution-grounded automated {AI} research.
+\newblock \emph{arXiv preprint arXiv:2601.14525}, 2026.
+
+\bibitem[Siddiqui et~al.(2025{\natexlab{a}})Siddiqui, Pea, and Subramonyam]{siddiqui2025scriptshift}
+M.~Siddiqui, R.~Pea, and H.~Subramonyam.
+\newblock Script\&shift: A layered interface paradigm for integrating content development and rhetorical strategy with {LLM} writing assistants.
+\newblock In \emph{CHI Conference on Human Factors in Computing Systems}, pages 1--19, 2025{\natexlab{a}}.
+
+\bibitem[Siddiqui et~al.(2025{\natexlab{b}})Siddiqui, Feliciano, Pea, and Subramonyam]{siddiqui2025aiwriting}
+M.~N. Siddiqui, V.~Feliciano, R.~Pea, and H.~Subramonyam.
+\newblock {AI} in the writing process: How purposeful {AI} support fosters student writing.
+\newblock In \emph{International Conference on Artificial Intelligence in Education}, pages 190--203, 2025{\natexlab{b}}.
+
+\bibitem[Siddiqui et~al.(2025{\natexlab{c}})Siddiqui, Nasseri, Coscia, Pea, and Subramonyam]{siddiqui2025draftmarks}
+M.~N. Siddiqui, N.~Nasseri, A.~Coscia, R.~Pea, and H.~Subramonyam.
+\newblock {DraftMarks}: Enhancing transparency in human-{AI} co-writing through interactive skeuomorphic process traces.
+\newblock In \emph{arXiv preprint arXiv:2509.23505}, 2025{\natexlab{c}}.
+
+\bibitem[Skarlinski et~al.(2024)Skarlinski, Cox, Laurent, Braza, Hinks, Hammerling, Ponnapati, Rodriques, and White]{skarlinski2024paperqa2}
+M.~D. Skarlinski, S.~Cox, J.~M. Laurent, J.~D. Braza, M.~Hinks, M.~J. Hammerling, M.~Ponnapati, S.~G. Rodriques, and A.~D. White.
+\newblock Language agents achieve superhuman synthesis of scientific knowledge.
+\newblock \emph{arXiv preprint arXiv:2409.13740}, 2024.
+
+\bibitem[{Skywork AI}(2025)]{deepresearchagent2025}
+{Skywork AI}.
+\newblock {DeepResearchAgent}: A hierarchical multi-agent system for deep research.
+\newblock \url{https://github.com/SkyworkAI/DeepResearchAgent}, 2025.
+
+\bibitem[Song et~al.(2026)Song, Song, Pfister, and Yoon]{paperwritingbench2026}
+Y.~Song, Y.~Song, T.~Pfister, and J.~Yoon.
+\newblock {PaperOrchestra}: A multi-agent framework for automated {AI} research paper writing.
+\newblock \emph{arXiv preprint arXiv:2604.05018}, 2026.
+
+\bibitem[Starace et~al.(2025)Starace, Jaffe, Sherburn, Aung, Chan, Maksin, Dias, Mays, Kinsella, Thompson, Heidecke, Glaese, and Patwardhan]{paperbench2025}
+G.~Starace, O.~Jaffe, D.~Sherburn, J.~Aung, J.~S. Chan, L.~Maksin, R.~Dias, E.~Mays, B.~Kinsella, W.~Thompson, J.~Heidecke, A.~Glaese, and T.~Patwardhan.
+\newblock {PaperBench}: Evaluating {AI}'s ability to replicate {AI} research.
+\newblock In \emph{International Conference on Machine Learning}, 2025.
+
+\bibitem[Su et~al.(2025)Su, Chen, Tang, Yin, Zheng, Li, Qi, Wu, Li, Ouyang, Torr, Zhou, and Dong]{su2024virsci}
+H.~Su, R.~Chen, S.~Tang, Z.~Yin, X.~Zheng, J.~Li, B.~Qi, Q.~Wu, H.~Li, W.~Ouyang, P.~Torr, B.~Zhou, and N.~Dong.
+\newblock Many heads are better than one: Improved scientific idea generation by a {LLM}-based multi-agent system.
+\newblock In \emph{Annual Meeting of the Association for Computational Linguistics}, pages 28201--28240, 2025.
+
+\bibitem[Sun et~al.(2026)Sun, Pan, Yang, Sui, Shi, Cheng, Li, Zhang, Huang, Yang, and Li]{p2p2025}
+T.~Sun, E.~Pan, Z.~Yang, K.~Sui, J.~Shi, X.~Cheng, T.~Li, G.~Zhang, W.~Huang, J.~Yang, and Z.~Li.
+\newblock {P2P}: Automated paper-to-poster generation and fine-grained benchmark.
+\newblock In \emph{International Conference on Learning Representations}, 2026.
+
+\bibitem[{SWE-bench Team}(2026)]{swebench2024_leaderboard}
+{SWE-bench Team}.
+\newblock {SWE-bench} {Leaderboards}.
+\newblock \url{https://www.swebench.com}, 2026.
+\newblock Accessed: 2026-04-24.
+
+\bibitem[Taechoyotin and Acuna(2025)]{remor2025}
+P.~Taechoyotin and D.~Acuna.
+\newblock {REMOR}: Automated peer review generation with {LLM} reasoning and multi-objective reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2505.11718}, 2025.
+
+\bibitem[Tan et~al.(2024)Tan, Lyu, Li, Gao, Wei, Ma, Liu, and Li]{reviewmt2024}
+C.~Tan, D.~Lyu, S.~Li, Z.~Gao, J.~Wei, S.~Ma, Z.~Liu, and S.~Z. Li.
+\newblock Peer review as a multi-turn and long-context dialogue with role-based interactions.
+\newblock \emph{arXiv preprint arXiv:2406.05688}, 2024.
+
+\bibitem[Tang et~al.(2025{\natexlab{a}})Tang, Fan, and Huang]{tang2025autodeepresearch}
+J.~Tang, T.~Fan, and C.~Huang.
+\newblock {AutoAgent}: A fully-automated and zero-code framework for {LLM} agents.
+\newblock \emph{arXiv preprint arXiv:2502.05957}, 2025{\natexlab{a}}.
+
+\bibitem[Tang et~al.(2025{\natexlab{b}})Tang, Xia, Li, and Huang]{airesearcher2025}
+J.~Tang, L.~Xia, Z.~Li, and C.~Huang.
+\newblock {AI-Researcher}: Autonomous scientific innovation.
+\newblock \emph{arXiv preprint arXiv:2505.18705}, 2025{\natexlab{b}}.
+
+\bibitem[Tang et~al.(2024)Tang, Duan, and Cai]{emnlp2025litreview}
+X.~Tang, X.~Duan, and Z.~G. Cai.
+\newblock Large language models for automated literature review.
+\newblock \emph{arXiv preprint arXiv:2412.13612}, 2024.
+
+\bibitem[Thai et~al.(2025)Thai, Le, Manh, Nhat, and Bui]{thai2025sweevo}
+M.~V.~T. Thai, T.~Le, D.~N. Manh, H.~P. Nhat, and N.~D.~Q. Bui.
+\newblock {SWE-EVO}: Benchmarking coding agents in long-horizon software evolution scenarios.
+\newblock \emph{arXiv preprint arXiv:2512.18470}, 2025.
+
+\bibitem[Thakkar et~al.(2026)Thakkar, Yuksekgonul, Silberg, Garg, Peng, Sha, Yu, Vondrick, and Zou]{iclr2025reviewstudy}
+N.~Thakkar, M.~Yuksekgonul, J.~Silberg, A.~Garg, N.~Peng, F.~Sha, R.~Yu, C.~Vondrick, and J.~Zou.
+\newblock A large-scale randomized study of large language model feedback in peer review.
+\newblock \emph{Nature Machine Intelligence}, 8:\penalty0 326--336, 2026.
+
+\bibitem[Tian et~al.(2024)Tian, Gao, Zhang, Chen, Fan, Guo, Haas, Ji, Krongchon, Li, Liu, Luo, Ma, Tong, Trinh, Tian, Wang, Wu, Xiong, Yin, Zhu, Lieret, Lu, Liu, Du, Tao, Press, Callan, Huerta, and Peng]{scicode2024}
+M.~Tian, L.~Gao, S.~D. Zhang, X.~Chen, C.~Fan, X.~Guo, R.~Haas, P.~Ji, K.~Krongchon, Y.~Li, S.~Liu, D.~Luo, Y.~Ma, H.~Tong, K.~Trinh, C.~Tian, Z.~Wang, B.~Wu, Y.~Xiong, S.~Yin, M.~Zhu, K.~Lieret, Y.~Lu, G.~Liu, Y.~Du, T.~Tao, O.~Press, J.~Callan, E.~Huerta, and H.~Peng.
+\newblock {SciCode}: A research coding benchmark curated by scientists.
+\newblock \emph{arXiv preprint arXiv:2407.13168}, 2024.
+
+\bibitem[Tian et~al.(2023)Tian, Cui, Deng, Yi, Yang, Zhang, and Wu]{yuan2023chartgpt}
+Y.~Tian, W.~Cui, D.~Deng, X.~Yi, Y.~Yang, H.~Zhang, and Y.~Wu.
+\newblock {ChartGPT}: Leveraging {LLMs} to generate charts from abstract natural language.
+\newblock \emph{arXiv preprint arXiv:2311.01920}, 2023.
+
+\bibitem[Tie et~al.(2025)Tie, Zhou, and Sun]{tie2025survey}
+G.~Tie, P.~Zhou, and L.~Sun.
+\newblock A survey of {AI} scientists.
+\newblock \emph{arXiv preprint arXiv:2510.23045}, 2025.
+
+\bibitem[Ueda et~al.(2025)Ueda, Hirota, Asakura, Omi, Takahashi, Arima, and Ishigaki]{sigdial2025multiagent}
+K.~Ueda, W.~Hirota, T.~Asakura, T.~Omi, K.~Takahashi, K.~Arima, and T.~Ishigaki.
+\newblock Exploring design of multi-agent {LLM} dialogues for research ideation.
+\newblock In \emph{Annual Meeting of the Special Interest Group on Discourse and Dialogue}, pages 322--337, 2025.
+
+\bibitem[van~de Schoot et~al.(2021)van~de Schoot, de~Bruin, Schram, Zahedi, de~Boer, Weijdema, Kramer, Huijts, Hoogerwerf, Ferdinands, Harkema, Willemsen, Ma, Fang, Hindriks, Tummers, and Oberski]{asreview2020}
+R.~van~de Schoot, J.~de~Bruin, R.~Schram, P.~Zahedi, J.~de~Boer, F.~Weijdema, B.~Kramer, M.~Huijts, M.~Hoogerwerf, G.~Ferdinands, A.~Harkema, J.~Willemsen, Y.~Ma, Q.~Fang, S.~Hindriks, L.~Tummers, and D.~L. Oberski.
+\newblock An open source machine learning framework for efficient and transparent systematic reviews.
+\newblock \emph{Nature Machine Intelligence}, 3:\penalty0 125--133, 2021.
+
+\bibitem[Wang et~al.(2026{\natexlab{a}})Wang, Lin, Hu, Jiao, Chowdhury, Chang, and Patwardhan]{wang2026frontierscience}
+M.~Wang, R.~Lin, K.~Hu, J.~Jiao, N.~Chowdhury, E.~Chang, and T.~Patwardhan.
+\newblock {FrontierScience}: Evaluating {AI}'s ability to perform expert-level scientific tasks.
+\newblock \emph{arXiv preprint arXiv:2601.21165}, 2026{\natexlab{a}}.
+
+\bibitem[Wang et~al.(2024{\natexlab{a}})Wang, Downey, Ji, and Hope]{wang2024scimon}
+Q.~Wang, D.~Downey, H.~Ji, and T.~Hope.
+\newblock {SciMON}: Scientific inspiration machines optimized for novelty.
+\newblock In \emph{Annual Meeting of the Association for Computational Linguistics}, pages 279--299, 2024{\natexlab{a}}.
+
+\bibitem[Wang et~al.(2026{\natexlab{b}})Wang, Wang, Chen, Yang, Chen, Alinejad-Rokny, Li, Lin, and Yang]{flowpie2026}
+Q.~Wang, H.~Wang, L.~Chen, Z.~Yang, G.~Chen, H.~Alinejad-Rokny, H.~Li, Y.~Lin, and M.~Yang.
+\newblock {FlowPIE}: Test-time scientific idea evolution with flow-guided literature exploration.
+\newblock \emph{arXiv preprint arXiv:2603.29557}, 2026{\natexlab{b}}.
+
+\bibitem[Wang et~al.(2024{\natexlab{b}})Wang, Gu, Zhang, Luo, Dai, Shen, Xie, Lin, He, and Ye]{wang2024scipip}
+W.~Wang, L.~Gu, L.~Zhang, Y.~Luo, Y.~Dai, C.~Shen, L.~Xie, B.~Lin, X.~He, and J.~Ye.
+\newblock {SciPIP}: An {LLM}-based scientific paper idea proposer.
+\newblock \emph{arXiv preprint arXiv:2410.23166}, 2024{\natexlab{b}}.
+
+\bibitem[Wang et~al.(2024{\natexlab{c}})Wang, Li, Song, Xu, Tang, Zhuge, Pan, Song, Li, Singh, Tran, Li, Ma, Zheng, Qian, Shao, Muennighoff, Zhang, Hui, Lin, Brennan, Peng, Ji, and Neubig]{wang2024openhands}
+X.~Wang, B.~Li, Y.~Song, F.~F. Xu, X.~Tang, M.~Zhuge, J.~Pan, Y.~Song, B.~Li, J.~Singh, H.~H. Tran, F.~Li, R.~Ma, M.~Zheng, B.~Qian, Y.~Shao, N.~Muennighoff, Y.~Zhang, B.~Hui, J.~Lin, R.~Brennan, H.~Peng, H.~Ji, and G.~Neubig.
+\newblock {OpenHands}: An open platform for {AI} software developers as generalist agents.
+\newblock \emph{arXiv preprint arXiv:2407.16741}, 2024{\natexlab{c}}.
+
+\bibitem[Wang et~al.(2023)Wang, Kordi, Mishra, Liu, Smith, Khashabi, and Hajishirzi]{wang2023selfinstruct}
+Y.~Wang, Y.~Kordi, S.~Mishra, A.~Liu, N.~A. Smith, D.~Khashabi, and H.~Hajishirzi.
+\newblock {Self-Instruct}: Aligning language models with self-generated instructions.
+\newblock In \emph{Annual Meeting of the Association for Computational Linguistics}, pages 13484--13508, 2023.
+
+\bibitem[Wang et~al.(2024{\natexlab{d}})Wang, Guo, Yao, Zhang, Zhang, Wu, Zhang, Dai, Zhang, Wen, Ye, Zhang, and Zhang]{wang2024autosurvey}
+Y.~Wang, Q.~Guo, W.~Yao, H.~Zhang, X.~Zhang, Z.~Wu, M.~Zhang, X.~Dai, M.~Zhang, Q.~Wen, W.~Ye, S.~Zhang, and Y.~Zhang.
+\newblock {AutoSurvey}: Large language models can automatically write surveys.
+\newblock \emph{arXiv preprint arXiv:2406.10252}, 2024{\natexlab{d}}.
+
+\bibitem[Wang et~al.(2025)Wang, Ma, Nie, Zeng, Lyu, Zhang, Schneider, Lu, Yue, and Chen]{scholarcop2025}
+Y.~Wang, X.~Ma, P.~Nie, H.~Zeng, Z.~Lyu, Y.~Zhang, B.~Schneider, Y.~Lu, X.~Yue, and W.~Chen.
+\newblock {ScholarCopilot}: Training large language models for academic writing with accurate citations.
+\newblock \emph{arXiv preprint arXiv:2504.00824}, 2025.
+
+\bibitem[Wang et~al.(2024{\natexlab{e}})Wang, Zhang, Li, Eisenschlos, Perot, Wang, Miculicich, Fujii, Shang, Lee, and Pfister]{chainoftable2024}
+Z.~Wang, H.~Zhang, C.-L. Li, J.~M. Eisenschlos, V.~Perot, Z.~Wang, L.~Miculicich, Y.~Fujii, J.~Shang, C.-Y. Lee, and T.~Pfister.
+\newblock Chain-of-table: Evolving tables in the reasoning chain for table understanding.
+\newblock In \emph{International Conference on Learning Representations}, 2024{\natexlab{e}}.
+
+\bibitem[Wei et~al.(2022)Wei, Wang, Schuurmans, Bosma, Ichter, Xia, Chi, Le, and Zhou]{wei2022chain}
+J.~Wei, X.~Wang, D.~Schuurmans, M.~Bosma, B.~Ichter, F.~Xia, E.~H. Chi, Q.~V. Le, and D.~Zhou.
+\newblock Chain-of-thought prompting elicits reasoning in large language models.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~35, pages 24824--24837, 2022.
+
+\bibitem[Wei et~al.(2025)Wei, Tan, Chen, Wu, Li, Gao, Sun, Yu, and Guo]{diagramagent2024}
+J.~Wei, C.~Tan, Q.~Chen, G.~Wu, S.~Li, Z.~Gao, L.~Sun, B.~Yu, and R.~Guo.
+\newblock From words to structured visuals: A benchmark and framework for text-to-diagram generation and editing.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 13315--13325, 2025.
+
+\bibitem[Wen et~al.(2025)Wen, Cao, Wang, Guo, Yang, and Liu]{interactivesurvey2025}
+Z.~Wen, J.~Cao, Z.~Wang, B.~Guo, R.~Yang, and S.~Liu.
+\newblock {InteractiveSurvey}: An {LLM}-based personalized and interactive survey paper generation system.
+\newblock \emph{arXiv preprint arXiv:2504.08762}, 2025.
+
+\bibitem[Weng et~al.(2025)Weng, Zhu, Bao, Zhang, Wang, Zhang, and Yang]{cycleresearcher2024}
+Y.~Weng, M.~Zhu, G.~Bao, H.~Zhang, J.~Wang, Y.~Zhang, and L.~Yang.
+\newblock {CycleResearcher}: Improving automated research via automated review.
+\newblock In \emph{International Conference on Learning Representations}, 2025.
+
+\bibitem[Wijk et~al.(2024)Wijk, Lin, Becker, Jawhar, Parikh, Broadley, Chan, Chen, Clymer, Dhyani, Ericheva, Garcia, Goodrich, Jurkovic, Karnofsky, Kinniment, Lajko, Nix, Sato, Saunders, Taran, West, and Barnes]{rebench2024}
+H.~Wijk, T.~Lin, J.~Becker, S.~Jawhar, N.~Parikh, T.~Broadley, L.~Chan, M.~Chen, J.~Clymer, J.~Dhyani, E.~Ericheva, K.~Garcia, B.~Goodrich, N.~Jurkovic, H.~Karnofsky, M.~Kinniment, A.~Lajko, S.~Nix, L.~Sato, W.~Saunders, M.~Taran, B.~West, and E.~Barnes.
+\newblock {RE-Bench}: Evaluating frontier {AI} {R\&D} capabilities of language model agents against human experts.
+\newblock \emph{arXiv preprint arXiv:2411.15114}, 2024.
+
+\bibitem[Wu et~al.(2026{\natexlab{a}})Wu, Zheng, Song, Jiang, Gao, Xing, Sun, and Yuan]{medicalaiscientist2026}
+H.~Wu, B.~Zheng, D.~Song, Y.~Jiang, J.~Gao, L.~Xing, L.~Sun, and Y.~Yuan.
+\newblock Towards a medical {AI} scientist.
+\newblock \emph{arXiv preprint arXiv:2603.28589}, 2026{\natexlab{a}}.
+
+\bibitem[Wu et~al.(2026{\natexlab{b}})Wu, Jian, Zhao, Cong, and Wang]{labclaw2026}
+Y.~C. Wu, J.~Jian, Z.~Zhao, L.~Cong, and M.~Wang.
+\newblock {LabClaw}: Operating layer for labos.
+\newblock \url{https://labclaw-ai.github.io}, 2026{\natexlab{b}}.
+
+\bibitem[Xiang et~al.(2025)Xiang, Yan, Ouyang, Gui, and He]{scireplicatebench2025}
+Y.~Xiang, H.~Yan, S.~Ouyang, L.~Gui, and Y.~He.
+\newblock {SciReplicate-Bench}: Benchmarking {LLMs} in agent-driven algorithmic reproduction from research papers.
+\newblock \emph{arXiv preprint arXiv:2504.00255}, 2025.
+
+\bibitem[Xu et~al.(2025)Xu, Zhou, Zhou, Cao, Li, Bu, Liu, Chen, He, Zhao, Zhuang, Wang, Zhou, Feng, Huang, Wei, Wu, Yang, Wang, Xu, Huang, Liu, Liu, Tang, Li, Chen, Ning, Jiang, Ma, Du, Ji, Xu, Hu, Zheng, Chen, Wu, Jiang, Chen, Tang, Fu, Lu, Zhang, Sun, Li, Ma, Liu, Liu, Wu, Chai, Wang, Zhangjin, Tang, Zhang, Cao, Ren, Cui, Yao, Deng, Sun, Liu, Wei, Xu, Li, Gong, Guo, Yao, Chen, Peng, Yu, Zhang, Zhou, Tang, Liu, Ling, Lu, Ren, Fei, Zhao, Gu, Su, Wu, Si, Liu, Chen, Yan, Yang, Yan, Wu, Zheng, Li, Gao, Kong, He, Su, Fu, Ye, Song, Dong, Li, Fu, Sun, Cheng, Lin, Ouyang, Zhou, Zhang, and Bai]{researchclawbench2025}
+W.~Xu, Y.~Zhou, Y.~Zhou, Q.~Cao, S.~Li, J.~Bu, B.~Liu, Y.~Chen, X.~He, X.~Zhao, X.~Zhuang, F.~Wang, Z.~Zhou, Q.~Feng, W.~Huang, J.~Wei, H.~Wu, Y.~Yang, G.~Wang, S.~Xu, Z.~Huang, X.~Liu, J.~Liu, C.~Tang, W.~Li, Y.~Chen, J.~Ning, P.~Jiang, C.~Ma, Y.~Du, C.~Ji, H.~Xu, M.~Hu, J.~Zheng, X.~Chen, Y.~Wu, F.~Jiang, X.~Chen, X.~Tang, Y.~Fu, Y.~Lu, Y.~Zhang, L.~Sun, C.~Li, J.~Ma, W.~Liu, Y.~Liu, K.-C. Wu, S.~Chai, Y.~Wang, O.~Zhangjin, C.~Tang, S.~Zhang, W.~Cao, J.~Ren, T.~Cui, Z.~Yao, J.~Deng, Y.~Sun, F.~Liu, W.~Wei, J.~Xu, Z.~Li, J.~Gong, Z.~Guo, Z.~Yao, Z.~Chen, T.~Peng, F.~Yu, B.~Zhang, D.~Zhou, S.~Tang, J.~Liu, F.~Ling, Y.~Lu, Y.~Ren, B.~Fei, Z.~Zhao, X.~Gu, R.~Su, X.-M. Wu, W.~Si, Y.~Liu, H.~Chen, X.~Yan, X.~Yang, J.~Yan, J.~Wu, Q.~Zheng, C.~Li, Z.~Gao, H.~Kong, J.~He, M.~Su, T.~Fu, P.~Ye, C.~Song, N.~Dong, Y.~Li, H.~Fu, S.~Sun, L.~Cheng, J.~Lin, W.~Ouyang, B.~Zhou, W.~Zhang, and L.~Bai.
+\newblock Probing scientific general intelligence of {LLMs} with scientist-aligned workflows.
+\newblock \emph{arXiv preprint arXiv:2512.16969}, 2025.
+
+\bibitem[Xu et~al.(2026{\natexlab{a}})Xu, Mi, Liu, Nan, Zhou, Ye, Zhang, Qiao, and Liu]{asievolve2026}
+W.~Xu, T.~Mi, Y.~Liu, Y.~Nan, Z.~Zhou, L.~Ye, L.~Zhang, Y.~Qiao, and P.~Liu.
+\newblock {ASI-Evolve}: {AI} accelerates {AI}.
+\newblock \url{https://github.com/GAIR-NLP/ASI-Evolve}, 2026{\natexlab{a}}.
+
+\bibitem[Xu et~al.(2026{\natexlab{b}})Xu, Feng, Zha, He, He, Xiao, and Gao]{xu2026proteinmcp}
+X.~Xu, C.~Feng, C.~Zha, W.~He, M.~He, B.~Xiao, and X.~Gao.
+\newblock {ProteinMCP}: An agentic {AI} framework for autonomous protein engineering.
+\newblock \emph{Protein Science}, 35\penalty0 (4):\penalty0 e70547, 2026{\natexlab{b}}.
+
+\bibitem[Yamada et~al.(2025)Yamada, Lange, Lu, Hu, Lu, Foerster, Clune, and Ha]{yamada2025aiscientistv2}
+Y.~Yamada, R.~T. Lange, C.~Lu, S.~Hu, C.~Lu, J.~Foerster, J.~Clune, and D.~Ha.
+\newblock The {AI Scientist-v2}: Workshop-level automated scientific discovery via agentic tree search.
+\newblock \emph{arXiv preprint arXiv:2504.08066}, 2025.
+
+\bibitem[Yan et~al.(2025)Yan, Feng, Yuan, Xia, Wang, Zhang, and Bai]{gao2025surveyforge}
+X.~Yan, S.~Feng, J.~Yuan, R.~Xia, B.~Wang, B.~Zhang, and L.~Bai.
+\newblock {SurveyForge}: On the outline heuristics, memory-driven generation, and multi-dimensional evaluation for automated survey writing.
+\newblock \emph{arXiv preprint arXiv:2503.04629}, 2025.
+
+\bibitem[Yang et~al.(2024{\natexlab{a}})Yang, Jimenez, Wettig, Lieret, Yao, Narasimhan, and Press]{yang2024sweagent}
+J.~Yang, C.~E. Jimenez, A.~Wettig, K.~Lieret, S.~Yao, K.~Narasimhan, and O.~Press.
+\newblock {SWE-agent}: Agent-computer interfaces enable automated software engineering.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~37, pages 50528--50652, 2024{\natexlab{a}}.
+
+\bibitem[Yang(2025)]{researchclaw2025}
+M.~Yang.
+\newblock {ResearchClaw}: Personal {AI} research assistant with extensible skills.
+\newblock \url{https://github.com/ymx10086/ResearchClaw}, 2025.
+
+\bibitem[Yang et~al.(2026)Yang, Li, and Li]{aris2025}
+R.~Yang, Y.~Li, and S.~Li.
+\newblock {ARIS}: Fully autonomous research via adversarial multi-agent collaboration.
+\newblock \url{https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep}, 2026.
+
+\bibitem[Yang et~al.(2025{\natexlab{a}})Yang, Yang, Fang, Zhang, Wang, Xian, Li, Li, Xu, Li, Pan, Zhang, Liu, Shen, Chen, and Bian]{chen2025rdagent}
+X.~Yang, X.~Yang, S.~Fang, Y.~Zhang, J.~Wang, B.~Xian, Q.~Li, J.~Li, M.~Xu, Y.~Li, H.~Pan, Y.~Zhang, W.~Liu, Y.~Shen, W.~Chen, and J.~Bian.
+\newblock {R\&D-Agent}: An {LLM}-agent framework towards autonomous data science.
+\newblock \emph{arXiv preprint arXiv:2505.14738}, 2025{\natexlab{a}}.
+
+\bibitem[Yang et~al.(2025{\natexlab{b}})Yang, Jiang, Wang, Song, Wang, and Zhang]{autoslides2025}
+Y.~Yang, W.~Jiang, Y.~Wang, Y.~Song, Y.~Wang, and C.~Zhang.
+\newblock {Auto-Slides}: An interactive multi-agent system for creating and customizing research presentations.
+\newblock \emph{arXiv preprint arXiv:2509.11062}, 2025{\natexlab{b}}.
+
+\bibitem[Yang et~al.(2024{\natexlab{b}})Yang, Zhou, Wang, Cong, Han, Yan, Liu, Tan, Liu, Yu, Liu, Shi, and Sun]{matplotagent2024}
+Z.~Yang, Z.~Zhou, S.~Wang, X.~Cong, X.~Han, Y.~Yan, Z.~Liu, Z.~Tan, P.~Liu, D.~Yu, Z.~Liu, X.~Shi, and M.~Sun.
+\newblock {MatPlotAgent}: Method and evaluation for {LLM}-based agentic scientific data visualization.
+\newblock \emph{arXiv preprint arXiv:2402.11453}, 2024{\natexlab{b}}.
+
+\bibitem[Yang et~al.(2025{\natexlab{c}})Yang, Liu, Gao, Liu, Li, Xie, Bing, Ouyang, Cambria, and Zhou]{yang2025moosechem2}
+Z.~Yang, W.~Liu, B.~Gao, Y.~Liu, W.~Li, T.~Xie, L.~Bing, W.~Ouyang, E.~Cambria, and D.~Zhou.
+\newblock {MOOSE-Chem2}: Exploring {LLM} limits in fine-grained scientific hypothesis discovery via hierarchical search.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2025{\natexlab{c}}.
+
+\bibitem[Yang et~al.(2025{\natexlab{d}})Yang, Liu, Gao, Xie, Li, Ouyang, Poria, Cambria, and Zhou]{yang2024moosechem}
+Z.~Yang, W.~Liu, B.~Gao, T.~Xie, Y.~Li, W.~Ouyang, S.~Poria, E.~Cambria, and D.~Zhou.
+\newblock {MOOSE-Chem}: Large language models for rediscovering unseen chemistry scientific hypotheses.
+\newblock In \emph{International Conference on Learning Representations}, 2025{\natexlab{d}}.
+
+\bibitem[Yao et~al.(2023)Yao, Zhao, Yu, Du, Shafran, Narasimhan, and Cao]{yao2023react}
+S.~Yao, J.~Zhao, D.~Yu, N.~Du, I.~Shafran, K.~Narasimhan, and Y.~Cao.
+\newblock {ReAct}: Synergizing reasoning and acting in language models.
+\newblock In \emph{International Conference on Learning Representations}, 2023.
+
+\bibitem[Yao et~al.(2026)Yao, Zhu, Wang, Ren, Yang, Chen, Li, Shi, Li, Wang, Wang, Liu, Wu, Liu, and Zhou]{oresearcher2026}
+Y.~Yao, H.~Zhu, P.~Wang, J.~Ren, X.~Yang, Q.~Chen, X.~Li, D.~Shi, J.~Li, Q.~Wang, S.~Wang, X.~Liu, J.~Wu, M.~Liu, and W.~Zhou.
+\newblock {O-Researcher}: An open ended deep research model via multi-agent distillation and agentic {RL}.
+\newblock \emph{arXiv preprint arXiv:2601.03743}, 2026.
+
+\bibitem[Ye et~al.(2024{\natexlab{a}})Ye, Wang, Huang, Chen, Zhang, Moniz, Gao, Geyer, Huang, Chen, Chawla, and Zhang]{ye2024llmjudgebias}
+J.~Ye, Y.~Wang, Y.~Huang, D.~Chen, Q.~Zhang, N.~Moniz, T.~Gao, W.~Geyer, C.~Huang, P.-Y. Chen, N.~V. Chawla, and X.~Zhang.
+\newblock Justice or prejudice? {Quantifying} biases in {LLM-as-a-Judge}.
+\newblock \emph{arXiv preprint arXiv:2410.02736}, 2024{\natexlab{a}}.
+
+\bibitem[Ye et~al.(2024{\natexlab{b}})Ye, Pang, Chai, Chen, Yin, Xiang, Dong, Shao, and Chen]{ye2024peerrisks}
+R.~Ye, X.~Pang, J.~Chai, J.~Chen, Z.~Yin, Z.~Xiang, X.~Dong, J.~Shao, and S.~Chen.
+\newblock Are we there yet? revealing the risks of utilizing large language models in scholarly peer review.
+\newblock \emph{arXiv preprint arXiv:2412.01708}, 2024{\natexlab{b}}.
+
+\bibitem[Yu et~al.(2025{\natexlab{a}})Yu, Hong, Cheng, Zhu, Xuan, Yao, Feng, and You]{researchtown2025}
+H.~Yu, Z.~Hong, Z.~Cheng, K.~Zhu, K.~Xuan, J.~Yao, T.~Feng, and J.~You.
+\newblock {ResearchTown}: Simulator of human research community.
+\newblock In \emph{International Conference on Machine Learning}, pages 73051--73096. PMLR, 2025{\natexlab{a}}.
+
+\bibitem[Yu et~al.(2025{\natexlab{b}})Yu, Luo, Madasu, Lal, and Howard]{aidetectionreview2025}
+S.~Yu, M.~Luo, A.~Madasu, V.~Lal, and P.~Howard.
+\newblock Is your paper being reviewed by an {LLM}? benchmarking {AI} text detection in peer review.
+\newblock \emph{arXiv preprint arXiv:2502.19614}, 2025{\natexlab{b}}.
+
+\bibitem[Yuan et~al.(2025)Yuan, Yan, Zhang, Chen, Shi, Ouyang, Qiao, Bai, and Zhou]{dolphin2025}
+J.~Yuan, X.~Yan, B.~Zhang, T.~Chen, B.~Shi, W.~Ouyang, Y.~Qiao, L.~Bai, and B.~Zhou.
+\newblock Dolphin: Moving towards closed-loop auto-research through thinking, practice, and feedback.
+\newblock In \emph{Annual Meeting of the Association for Computational Linguistics}, pages 21768--21789, 2025.
+
+\bibitem[Yuksekgonul et~al.(2026)Yuksekgonul, Koceja, Li, Bianchi, McCaleb, Wang, Kautz, Choi, Zou, Guestrin, and Sun]{yuksekgonul2026learntodiscover}
+M.~Yuksekgonul, D.~Koceja, X.~Li, F.~Bianchi, J.~McCaleb, X.~Wang, J.~Kautz, Y.~Choi, J.~Zou, C.~Guestrin, and Y.~Sun.
+\newblock Learning to discover at test time.
+\newblock \emph{arXiv preprint arXiv:2601.16175}, 2026.
+
+\bibitem[Zeng et~al.(2025)Zeng, Tian, Zhang, wang, Gao, Liu, Yang, Li, Long, Ma, Qi, and Zhou]{reviewrl2025}
+S.~Zeng, K.~Tian, K.~Zhang, Y.~wang, J.~Gao, R.~Liu, S.~Yang, J.~Li, X.~Long, J.~Ma, B.~Qi, and B.~Zhou.
+\newblock {ReviewRL}: Towards automated scientific review with {RL}.
+\newblock In \emph{Conference on Empirical Methods in Natural Language Processing}, pages 16931--16943, 2025.
+
+\bibitem[Zeng et~al.(2026)Zeng, Ouyang, Cui, and Ng]{slidetailor2025}
+W.~Zeng, M.~Ouyang, L.~Cui, and H.~T. Ng.
+\newblock {SlideTailor}: Personalized presentation slide generation for scientific papers.
+\newblock In \emph{AAAI Conference on Artificial Intelligence}, volume~40, pages 34584--34592, 2026.
+
+\bibitem[Zhang et~al.(2025{\natexlab{a}})Zhang, Feng, Yan, Yuan, Ma, Hu, Yu, He, Huang, Hou, Nie, Wang, Liu, Peng, Ye, Zhou, Zhang, Wang, Zhang, Li, Tu, Yue, Ouyang, Zhou, and Bai]{novelseek2025}
+B.~Zhang, S.~Feng, X.~Yan, J.~Yuan, R.~Ma, Y.~Hu, Z.~Yu, X.~He, S.~Huang, S.~Hou, Z.~Nie, Z.~Wang, J.~Liu, T.~Peng, P.~Ye, D.~Zhou, S.~Zhang, X.~Wang, Y.~Zhang, M.~Li, Z.~Tu, X.~Yue, W.~Ouyang, B.~Zhou, and L.~Bai.
+\newblock {InternAgent}: When agent becomes the scientist -- building closed-loop system from hypothesis to verification.
+\newblock \emph{arXiv preprint arXiv:2505.16938}, 2025{\natexlab{a}}.
+
+\bibitem[Zhang et~al.(2025{\natexlab{b}})Zhang, Bao, Du, Zhao, Zhang, Bao, and Yang]{re2dataset2025}
+D.~Zhang, Z.~Bao, S.~Du, Z.~Zhao, K.~Zhang, D.~Bao, and Y.~Yang.
+\newblock Re2: A consistency-ensured dataset for full-stage peer review and multi-turn rebuttal discussions.
+\newblock \emph{arXiv preprint arXiv:2505.07920}, 2025{\natexlab{b}}.
+
+\bibitem[Zhang et~al.(2025{\natexlab{c}})Zhang, Cui, Wang, Tian, Guo, Wang, Wu, Song, and Zhang]{itersurvey2025}
+H.~Zhang, H.~Cui, Y.~Wang, Y.~Tian, Q.~Guo, C.~Wang, J.~Wu, C.~Song, and Y.~Zhang.
+\newblock {IterSurvey}: Deep literature survey automation with an iterative workflow.
+\newblock \emph{arXiv preprint arXiv:2510.21900}, 2025{\natexlab{c}}.
+
+\bibitem[Zhang et~al.(2025{\natexlab{d}})Zhang, Hu, Lu, Lange, and Clune]{darwingodelmachine2025}
+J.~Zhang, S.~Hu, C.~Lu, R.~Lange, and J.~Clune.
+\newblock Darwin godel machine: Open-ended evolution of self-improving agents.
+\newblock \emph{arXiv preprint arXiv:2505.22954}, 2025{\natexlab{d}}.
+
+\bibitem[Zhang et~al.(2025{\natexlab{e}})Zhang, Zhang, Cui, Yang, Zhang, Hui, Liu, Wang, Wang, and Lin]{plotcraft2025}
+J.~Zhang, J.~Zhang, Z.~Cui, J.~Yang, L.~Zhang, B.~Hui, Q.~Liu, Z.~Wang, L.~Wang, and J.~Lin.
+\newblock {PlotCraft}: Pushing the limits of {LLMs} for complex and interactive data visualization.
+\newblock \emph{arXiv preprint arXiv:2511.00010}, 2025{\natexlab{e}}.
+
+\bibitem[Zhang and Sun(2026)]{scinav2026}
+T.~Zhang and H.~Sun.
+\newblock {SciNav}: A general agent framework for scientific coding tasks.
+\newblock \emph{arXiv preprint arXiv:2603.20256}, 2026.
+
+\bibitem[Zhang et~al.(2020)Zhang, Kishore, Wu, Weinberger, and Artzi]{zhang2020bertscore}
+T.~Zhang, V.~Kishore, F.~Wu, K.~Q. Weinberger, and Y.~Artzi.
+\newblock {BERTScore}: Evaluating text generation with {BERT}.
+\newblock In \emph{International Conference on Learning Representations}, 2020.
+
+\bibitem[Zhang et~al.(2026)Zhang, Lin, Liu, Chen, and Zhang]{scifigbench2026}
+T.~Zhang, H.~Lin, Z.~Liu, C.~Chen, and W.~Zhang.
+\newblock {SciFlow-Bench}: Evaluating structure-aware scientific diagram generation via inverse parsing.
+\newblock \emph{arXiv preprint arXiv:2602.09809}, 2026.
+
+\bibitem[Zhang et~al.(2025{\natexlab{f}})Zhang, Zhang, Wei, Xu, and You]{postergen2025}
+Z.~Zhang, X.~Zhang, J.~Wei, Y.~Xu, and C.~You.
+\newblock {PosterGen}: Aesthetic-aware multi-modal paper-to-poster generation via multi-agent {LLMs}.
+\newblock \emph{arXiv preprint arXiv:2508.17188}, 2025{\natexlab{f}}.
+
+\bibitem[Zhao et~al.(2026)Zhao, Zhang, Whitehouse, Jiang, Shvartsman, Charnalia, Magka, Shavrina, Dunfield, Aodha, and Bachrach]{apres2026}
+B.~Zhao, J.~Zhang, C.~Whitehouse, M.~Jiang, M.~Shvartsman, A.~Charnalia, D.~Magka, T.~Shavrina, D.~Dunfield, O.~M. Aodha, and Y.~Bachrach.
+\newblock {APRES}: An agentic paper revision and evaluation system.
+\newblock \emph{arXiv preprint arXiv:2603.03142}, 2026.
+
+\bibitem[Zhao et~al.(2025{\natexlab{a}})Zhao, Lin, Zheng, Xu, and Li]{zhao2025deepideation}
+K.~Zhao, W.~Lin, Q.~Zheng, F.~Xu, and Y.~Li.
+\newblock Deep ideation: Designing {LLM} agents to generate novel research ideas on scientific concept network.
+\newblock \emph{arXiv preprint arXiv:2511.02238}, 2025{\natexlab{a}}.
+
+\bibitem[Zhao et~al.(2025{\natexlab{b}})Zhao, Sang, Li, Shi, Zhao, Wang, Zhang, Han, Liu, and Sun]{autoreproduce2025}
+X.~Zhao, Z.~Sang, Y.~Li, Q.~Shi, W.~Zhao, S.~Wang, D.~Zhang, X.~Han, Z.~Liu, and M.~Sun.
+\newblock {AutoReproduce}: Automatic {AI} experiment reproduction with paper lineage.
+\newblock \emph{arXiv preprint arXiv:2505.20662}, 2025{\natexlab{b}}.
+
+\bibitem[Zhao et~al.(2025{\natexlab{c}})Zhao, Chen, Xu, Patwardhan, Wang, Liu, Vig, and Cohan]{abgen2025}
+Y.~Zhao, W.~Chen, Z.~Xu, M.~Patwardhan, C.~Wang, Y.~Liu, L.~Vig, and A.~Cohan.
+\newblock {AbGen}: Evaluating large language models in ablation study design and evaluation for scientific research.
+\newblock In \emph{Annual Meeting of the Association for Computational Linguistics}, pages 12479--12491, 2025{\natexlab{c}}.
+
+\bibitem[Zheng et~al.(2025{\natexlab{a}})Zheng, Guan, Kong, Zhang, Zheng, Zhou, Lin, Lu, Han, and Sun]{pptagent2025}
+H.~Zheng, X.~Guan, H.~Kong, W.~Zhang, J.~Zheng, W.~Zhou, H.~Lin, Y.~Lu, X.~Han, and L.~Sun.
+\newblock {PPTAgent}: Generating and evaluating presentations beyond text-to-slides.
+\newblock In \emph{Conference on Empirical Methods in Natural Language Processing}, pages 14402--14418, 2025{\natexlab{a}}.
+
+\bibitem[Zheng et~al.(2026)Zheng, Mo, Yan, Yuan, Zhang, Chen, Lu, Lin, Han, and Sun]{deeppresenter2026}
+H.~Zheng, G.~Mo, X.~Yan, Q.~Yuan, W.~Zhang, X.~Chen, Y.~Lu, H.~Lin, X.~Han, and L.~Sun.
+\newblock {DeepPresenter}: Environment-grounded reflection for agentic presentation generation.
+\newblock \emph{arXiv preprint arXiv:2602.22839}, 2026.
+
+\bibitem[Zheng et~al.(2025{\natexlab{b}})Zheng, Deng, Tsang, Wang, Bai, Wang, and Song]{zheng2025automation}
+T.~Zheng, Z.~Deng, H.~T. Tsang, W.~Wang, J.~Bai, Z.~Wang, and Y.~Song.
+\newblock From automation to autonomy: A survey on large language models for scientific discovery.
+\newblock \emph{arXiv preprint arXiv:2505.13259}, 2025{\natexlab{b}}.
+
+\bibitem[Zheng et~al.(2024)Zheng, Sun, Qiu, Ru, Jiayang, Li, Lin, Wang, Luo, Pan, Xu, Min, Zhang, Wang, Li, and Liu]{li2024openresearcher}
+Y.~Zheng, S.~Sun, L.~Qiu, D.~Ru, C.~Jiayang, X.~Li, J.~Lin, B.~Wang, Y.~Luo, R.~Pan, Y.~Xu, Q.~Min, Z.~Zhang, Y.~Wang, W.~Li, and P.~Liu.
+\newblock {OpenResearcher}: Unleashing {AI} for accelerated scientific research.
+\newblock In \emph{Conference on Empirical Methods in Natural Language Processing}, pages 209--218, 2024.
+
+\bibitem[Zhou et~al.(2025)Zhou, Zhang, Li, and Sun]{zhou2025positiveprompt}
+Q.~Zhou, Z.~Zhang, Z.~Li, and L.~Sun.
+\newblock ``{Give} a positive review only'': {An} early investigation into in-paper prompt injection attacks and defenses for {AI} reviewers.
+\newblock \emph{arXiv preprint arXiv:2511.01287}, 2025.
+
+\bibitem[Zhu et~al.(2025{\natexlab{a}})Zhu, Xiong, Ma, Lu, Liu, and Li]{llmreviewer2025}
+C.~Zhu, J.~Xiong, R.~Ma, Z.~Lu, Y.~Liu, and L.~Li.
+\newblock When your reviewer is an {LLM}: Biases, divergence, and prompt injection risks in peer review.
+\newblock \emph{arXiv preprint arXiv:2509.09912}, 2025{\natexlab{a}}.
+
+\bibitem[Zhu et~al.(2026{\natexlab{a}})Zhu, Meng, Song, Wei, Li, Pfister, and Yoon]{paperbanana2026}
+D.~Zhu, R.~Meng, Y.~Song, X.~Wei, S.~Li, T.~Pfister, and J.~Yoon.
+\newblock {PaperBanana}: Automating academic illustration for {AI} scientists.
+\newblock \emph{arXiv preprint arXiv:2601.23265}, 2026{\natexlab{a}}.
+
+\bibitem[Zhu et~al.(2025{\natexlab{b}})Zhu, Weng, Yang, and Zhang]{deepreviewer2025}
+M.~Zhu, Y.~Weng, L.~Yang, and Y.~Zhang.
+\newblock {DeepReview}: Improving {LLM}-based paper review with human-like deep thinking process.
+\newblock \emph{arXiv preprint arXiv:2503.08569}, 2025{\natexlab{b}}.
+
+\bibitem[Zhu et~al.(2026{\natexlab{b}})Zhu, Lin, Weng, Lu, Xie, Wei, Liu, Sun, and Zhang]{autofigure2026iclr}
+M.~Zhu, Z.~Lin, Y.~Weng, P.~Lu, Q.~Xie, Y.~Wei, S.~Liu, Q.~Sun, and Y.~Zhang.
+\newblock {AutoFigure}: Generating and refining publication-ready scientific illustrations.
+\newblock In \emph{International Conference on Learning Representations}, 2026{\natexlab{b}}.
+
+\bibitem[Zhu et~al.(2025{\natexlab{c}})Zhu, Lin, and Shou]{paper2video2025}
+Z.~Zhu, K.~Q. Lin, and M.~Z. Shou.
+\newblock {Paper2Video}: Automatic video generation from scientific papers.
+\newblock \emph{arXiv preprint arXiv:2510.05096}, 2025{\natexlab{c}}.
+
+\bibitem[Zhuang et~al.(2025)Zhuang, Chen, Xu, Jiang, and Lin]{zhuang2025asprsurvey}
+Z.~Zhuang, J.~Chen, H.~Xu, Y.~Jiang, and J.~Lin.
+\newblock Large language models for automated scholarly paper review: A survey.
+\newblock \emph{Information Fusion}, 124:\penalty0 103332, 2025.
+
+\end{thebibliography}

@@ -1,0 +1,307 @@
+
+
+
+%%%%%%
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{7pt}
+\begin{tabular}{p{6.8cm}!{\vrule width 0.6pt}c c c c}
+\toprule
+& \textbf{PT} & \textbf{CT} & \textbf{SFT} & \textbf{RL} \\
+\midrule
+
+\textbf{Hyperparameters} & & & & \\
+Learning rate & $1.0\times10^{-4}$ & $1.0\times10^{-4}$ & $2.5\times10^{-5}$ & $2.0\times10^{-6}$ \\
+LR scheduler & Constant & Constant & Cosine & Constant \\
+Weight decay & 0.0 & 0.0 & 0.0 & 0.0 \\
+Gradient norm clip & 1.0 & 1.0 & 1.0 & 1.0 \\
+Optimizer & \multicolumn{4}{c}{AdamW ($\beta_1=0.9,\ \beta_2=0.95,\ \epsilon=1.0\times10^{-15}$)} \\
+Loss weight (CE : MSE) & 0.25 : 1 & 0.5 : 1 & 0.25 : 1  & $-$  \\
+Warm-up steps & 2500 & 2500 & 500 & 50 \\
+Training steps & 350k & 80k & 15k & 800 \\
+% EMA ratio & -- & -- & 0.9999 & - \\
+Sequence length per rank (min, max) & (44K, 50K) & (74K, 80K) & (74K, 80K) & (74K, 80K) \\
+\# Seen training tokens & 1.5T & 300B & 72B & 0.5B \\
+Max context window & 40k & 70k & 70k & 70k \\
+Gen resolution (min short side, max long side) & (192, 848) & (480, 848) & (480, 848) & (480, 848) \\
+Und resolution (min short side, max long side) & (168, 826) & (462, 826) & (462, 826) & (462, 826) \\
+Diffusion timestep shift & 1.0 & 4.0 & 4.0 & 4.0 \\
+\iffalse
+\midrule
+\textbf{Training Data sampling ratio} & & & & \\
+Image captioning (I2T) & 0.04 & 0.02/0.01/0.01 &  0.01 & -\\
+Image generation (V2T) & 0.16 & 0.08/0.06/0.04 & 0.048 & - \\
+Video captioning (V2T) &0.16 & 0.08/0.05/0.03 & 0.03 \\
+Video generation (T2V) &0.64 &0.32/0.22/0.13 & 0.346\\
+%Conditional generation (T2I/T2V/I2V) & 0.16/0.64/- & 0.1/0.32/0.08 & T2V only & - \\
+Image-to-video generation (I2V) & - & 0.06/0.11/0.13 & 0.086 & - \\
+\rowcolor{gray!20}
+Text-output Multi-task  (X2T) & - &  0.24/0.27/0.29 & 0.16 & - \\ %Interleaved understanding
+\rowcolor{gray!20}
+Image-output Multi-task (X2I) & - & 0.04/0.05/0.08 & 0.032 & -\\
+\rowcolor{gray!20}
+Video-output Multi-task (X2V) & - & 0.16/0.22/0.28 & 0.288 & - \\
+\fi
+\bottomrule
+\end{tabular}
+\caption{\textbf{Training hyperparameters of Lance.} %Training recipe of Lance.}
+% Multi-task training data are highlighted in gray.Within the image/video-output multi-task data, the sampling ratio between editing and subject-driven generation data is set to 1:1.During CT, the mixture ratio of video generation data (T2V:I2V:Edit:S2V) is scheduled in three stages, changing from $60 : 10 : 15:15$ to $40:20:20:20$, and finally to $25:25:25:25$.
+% multi-task 内部的edit 和idip数据比例为1:1; CT 中生成数据的比例经过了三个阶段，数据比例是60 : 10 : 15:15；40:20:20:20 ；25:25:25:25
+}
+\label{Tab_train}
+\end{table}
+
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Training data mixture schedule of Lance.}
+Img., Vid., Gen., and Und. denote image, video, generation, and understanding, respectively.
+CT is divided into three stages that progressively increase the proportion of challenging generation tasks.}
+\label{tab:data_mixture_schedule}
+\setlength{\tabcolsep}{7pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{1\linewidth}{!}{
+% \begin{tabular}{ll|ccccc}
+\begin{tabular}{ll!{\vrule width 0.6pt}ccccc}
+\toprule
+\textbf{Mixture} & \textbf{Ratio Type} 
+& \textbf{PT} & \textbf{CT-I} & \textbf{CT-II} & \textbf{CT-III} & \textbf{SFT} \\
+\midrule
+
+\multirow{1}{*}{\textbf{Global}}
+% & \textbf{Gen. : Und.} 
+% & $8:2$ & $8:2$ & $8:2$ & $8:2$ & $8:2$ \\
+
+% & \textbf{Vid. : Img.} 
+% & $8:2$ & $8:2$ & $8:2$ & $8:2$ & $8:2$ \\
+
+& \textbf{Vid.-Gen. : Vid.-Und. : Img.-Gen. : Img.-Und.} 
+& $64:16:16:4$
+& $64:16:16:4$
+& $64:16:16:4$
+& $64:16:16:4$
+& $64:16:16:4$ \\
+
+\midrule
+
+\multirow{2}{*}{\textbf{Generation}}
+& \textbf{T2I : I-Edit : S2I} 
+& $100:0:0$
+& $70 : 15:15$
+& $60:20:20$
+& $50:25:25$
+& $60:20:20$ \\
+
+& \textbf{T2V : I2V : V-Edit : S2V} 
+& $100:0:0:0$
+& $60 : 10 : 15:15$
+& $40:20:20:20$
+& $25:25:25:25$
+& $60 : 10 : 15:15$ \\
+
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+%%%
+
+
+
+
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcp{7.5cm}cc}
+\toprule
+\textbf{Output Type} & \textbf{Notation} & \textbf{Task} & \textbf{\# Samples} & \textbf{Phases} \\
+\midrule
+
+\multirow{3}{*}{\textbf{Text}}
+& I2T  & General image captioning                     & 1B    & PT, CT \\
+& V2T  & General video captioning                     & 140M  & PT, CT \\
+% \cdashline{2-5}
+\rowcolor{gray!20}
+& I2T  & High-quality image captioning                & 190K  & SFT \\
+\rowcolor{gray!20}
+& V2T  & High-quality video captioning                & 5K    & SFT \\
+\rowcolor{gray!20}
+& X2T  & Interleaved multimodal understanding         & 2.73M & CT, SFT \\
+\midrule
+
+\multirow{5}{*}{\textbf{Image}}
+& T2I  & General image generation                     & 1B    & PT, CT \\
+& X2I & General image editing             & 2.8M  & CT \\
+& X2I  & General subject-driven image generation          & 3.6M  & CT \\
+% \cdashline{2-5}
+\rowcolor{gray!20}
+& T2I  & High-quality image generation                & 190K  & SFT \\
+\rowcolor{gray!20}
+& X2I & High-quality image editing                   & 84K   & SFT \\
+\midrule
+
+\multirow{5}{*}{\textbf{Video}}
+& T2V/I2V  & General video generation                     & 140M  & PT, CT \\
+& X2V  & General video editing            & 2.6M  & CT \\
+& X2V  & General subject-driven video generation         & 1M    & CT \\
+% \cdashline{2-5}
+\rowcolor{gray!20}
+& T2V/I2V  & High-quality video generation                & 5K    & SFT \\
+\rowcolor{gray!20}
+& X2V  & High-quality video editing                   & 9K    & SFT \\
+\rowcolor{gray!20}
+& X2V  & High-quality subject-driven video generation & 5.5K &  SFT \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Summary of task categories and sample statistics for Lance.}
+Within each output type, high-quality data are listed separately and highlighted in gray. ``Phases'' indicates the training phase(s) where each data type is applied. 
+}
+\label{tab:task_data_summary}
+\end{table*}
+
+\section{Training and Data}
+\label{sec:training_data}
+
+Lance adopts a staged multi-task training strategy to progressively develop and balance multimodal understanding and generation within a unified task formulation. As shown in \Cref{Tab_train}, the pipeline consists of four stages: PT establishes basic image/video understanding and generation from large-scale paired data; CT expands the task space with interleaved multi-task data and promotes cross-task transfer; SFT refines instruction following, visual fidelity, editing accuracy, and identity consistency with curated supervision; and RL further optimizes image generation with task-specific rewards. The data mixture schedule and task statistics are summarized in \Cref{tab:data_mixture_schedule,tab:task_data_summary}.
+
+
+\subsection{Pre-Training Stage (PT)}
+
+\textbf{Training Objectives.}
+The pre-training stage establishes preliminary multimodal alignment and basic visual generation capabilities. To this end, we freeze the VAE and ViT encoders and optimize the remaining components, including the multimodal backbone, QK-Norm modules, and MLP connectors.
+
+\textbf{Pre-Training Data.}
+The PT stage is trained on large-scale image-text and video-text pairs, organized around paired captioning and conditional generation tasks. The image-text subset comprises approximately $1$B samples spanning diverse visual domains, including natural scenes, human-centric, object-centric, knowledge-oriented, and stylized content. The video-text subset comprises approximately $140$M samples and covers diverse dynamic scenarios, including actions, events, scene transitions, and long-range temporal processes. 
+To improve scalability, we adopt a progressive resolution curriculum of $192$p \(\rightarrow\) $360$p \(\rightarrow\) $480$p, with dynamic resolution enabled at each stage. In addition, we use an image:video sampling ratio of approximately $1:4$ to account for the greater difficulty of video modeling and to strengthen temporal reasoning and generation.
+
+\vspace{0.5em}
+
+\begin{minipage}{\textwidth}
+\centering
+\small
+\setlength{\parskip}{0pt}
+
+\begin{promptfigbox}{System Prompt for I2T/V2T captioning tasks}
+{\ttfamily
+\textless|im\_start|\textgreater system\\[1pt]
+Generate a detailed and accurate description of the \{{\color{blue}image}/{\color{orange}{video}}\}, including all the visual details {\color{blue}{\{and key moments\}}}.\textless|im\_end|\textgreater\\[1pt]
+\textless|im\_start|\textgreater user\\[1pt]
+\textless|vision\_start|\textgreater {{\color{red}\textless|user\_vision|\textgreater}}\textless|vision\_end|\textgreater\textless|im\_end|\textgreater\\[1pt]
+\textless|im\_start|\textgreater assistant
+}
+\end{promptfigbox}
+
+\vspace{-0.3em}
+
+\begin{promptfigbox}{System Prompt for other I2T/V2T tasks}
+{\ttfamily
+\textless|im\_start|\textgreater system\\[1pt]
+View the \{{\color{blue}{image}}/{\color{orange}{video}}\} attentively and provide a suitable answer to the posed question.\textless|im\_end|\textgreater\\[1pt]
+\textless|im\_start|\textgreater user\\[1pt]
+\textless|vision\_start|\textgreater {{\color{red}\textless|user\_vision|\textgreater}}\textless|vision\_end|\textgreater
+{{\color{red}\textless|user\_text|\textgreater}}\textless|im\_end|\textgreater\\[1pt]
+\textless|im\_start|\textgreater assistant
+}
+\end{promptfigbox}
+
+\vspace{-0.5em}
+
+\captionof{figure}{\textbf{System prompts for understanding tasks.} {\color{red}{Red}} placeholders denote user-provided text and visual inputs.}
+\label{fig:prompt-und}
+
+\end{minipage}
+
+
+
+\begin{figure*}[t]
+\centering
+\begin{minipage}{\textwidth}
+\centering
+\small
+\setlength{\parskip}{0pt}
+
+\begin{promptfigbox}{System Prompt for T2I/T2V tasks}
+{\ttfamily
+\textless|im\_start|\textgreater system\\[1pt]
+Describe the \{{\color{blue}image}/{\color{orange}{video}}\} by detailing the color, quantity, text, shape, size, texture, spatial relationships {\color{blue}{\{and motion/camera movements\}}} of the objects and background:\textless|im\_end|\textgreater\\[1pt]
+\textless|im\_start|\textgreater user\\[1pt]
+{\color{red}\bfseries \textless|user\_text|\textgreater}\textless|im\_end|\textgreater\\[1pt]
+\textless|im\_start|\textgreater assistant
+}
+\end{promptfigbox}
+
+\vspace{-0.3em}
+
+\begin{promptfigbox}{System Prompt for other X2I/X2V tasks}
+{\ttfamily
+\textless|im\_start|\textgreater system\\[1pt]
+Describe the key features of the input \{{\color{blue}image}/{\color{orange}{video}}\} (color, shape, size, texture, objects, background), then explain how the user’s text instruction should alter or modify the \{{\color{blue}image}/{\color{orange}{video}}\}. Generate a new \{{\color{blue}image}/{\color{orange}{video}}\} that meets the user’s requirements while maintaining consistency with the original input where appropriate.\textless|im\_end|\textgreater\\[1pt]
+\textless|im\_start|\textgreater user\\[1pt]
+\textless|vision\_start|\textgreater {{\color{red}\textless|user\_vision|\textgreater}}\textless|vision\_end|\textgreater
+{{\color{red}\textless|user\_text|\textgreater}}\textless|im\_end|\textgreater\\[1pt]
+\textless|im\_start|\textgreater assistant
+}
+\end{promptfigbox}
+
+\vspace{-0.5em}
+
+\end{minipage}
+\caption{\textbf{System prompts for generation tasks.} {\color{red}{Red}} placeholders denote user-provided text and visual inputs.}
+\label{fig:prompt-gen}
+\end{figure*}
+
+
+
+
+
+\subsection{Continual Training Stage (CT)}
+
+\textbf{Training Objectives.}
+The continual training stage extends the PT model from basic paired supervision to unified multi-task multimodal learning. By introducing richer interleaved multimodal data and more diverse input-output mappings, CT expands the task space and improves task-aware multimodal generalization.
+
+
+
+\textbf{Continual Training Data.}
+During CT, we progressively introduce a broader set of tasks for both understanding and generation. For understanding, we incorporate $2.73$M interleaved multimodal understanding samples, covering pure text understanding (T2T, $41$K), captioning ($443$K), classification ($142$K), conversation ($72$K), grounding ($200$K), reasoning ($194$K), VQA ($600$K), and OCR ($120$K). For generation, we incorporate large-scale any-to-image/video data, including $2.8$M image editing samples and $2.6$M video editing samples, together with $3.6$M subject-driven image generation samples and $1$M subject-driven video generation samples. To accommodate the increased task diversity, we adopt a progressive data-mixture strategy that gradually increases the sampling ratio of more challenging tasks, such as editing and subject-driven generation, while correspondingly reducing the proportion of simpler caption-style supervision (detailed in \Cref{tab:data_mixture_schedule}). In total, the CT stage consumes approximately $300$B training tokens.
+
+
+\textbf{Task-specific System Prompts.}
+To better distinguish heterogeneous tasks within a unified multimodal context, we further introduce task-specific \textit{system prompts} for understanding and generation tasks, as illustrated in \Cref{fig:prompt-und} and \Cref{fig:prompt-gen}. These prompts provide explicit task priors and guide task-specific input-output formats while preserving unified sequence modeling.
+
+
+
+
+
+
+
+
+
+
+\subsection{Supervised Fine-Tuning Stage (SFT)}
+
+
+\textbf{Training Objectives.}
+The supervised fine-tuning stage refines the model with high-quality, task-aligned supervision under a reduced learning rate. Unlike PT and CT, which focus on capability acquisition and task expansion, SFT emphasizes instruction fidelity, visual consistency, editing accuracy, and identity preservation, improving controllability and downstream task performance.
+
+
+
+
+\textbf{Supervised Fine-Tuning Data.}
+The SFT stage uses curated high-quality data spanning both understanding and generation tasks. For understanding, we use $190$K high-quality image captioning samples, $5$K high-quality video captioning samples, together with $2.73$M interleaved multimodal understanding samples for continued instruction refinement. For image generation, we include $190$K high-quality image generation samples and $84$K high-quality image editing samples. For video generation, we further incorporate $5$K high-quality video generation samples, $9$K high-quality video editing samples, and $5.5$K high-quality subject-driven video generation samples. Compared with the large-scale corpora used in PT and CT, these curated data provide stronger task alignment and higher annotation quality, and thus offer more precise supervision for improving instruction following and generation fidelity.
+
+
+
+
+\subsection{Reinforcement Learning Stage}
+
+\textbf{Training Objectives.}
+The reinforcement learning stage further refines the model's image generation capability by directly optimizing generation behavior with task-specific rewards. Unlike SFT, which learns from static supervised targets through maximum likelihood, RL uses Group Relative Policy Optimization (GRPO) to encourage outputs that better satisfy fine-grained textual constraints. In particular, this stage focuses on improving text rendering accuracy, image-text correspondence, and prompt compositional adherence.
+
+\textbf{Reinforcement Learning Data.}
+The RL stage uses $20$K image generation prompts that emphasize fine-grained text-related requirements. During optimization, PaddleOCR \cite{cui2025paddleocr} serves as the reward model to evaluate the consistency between the generated image and the textual constraints specified in the prompt. This reward provides direct feedback on text rendering quality and text-image alignment, helping improve aspects that are difficult to fully capture with supervised fine-tuning alone.
+

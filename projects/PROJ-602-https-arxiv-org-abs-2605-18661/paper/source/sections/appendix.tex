@@ -1,0 +1,135 @@
+\ifarxivmode
+  \beginappendix
+\else
+  \appendices
+\fi
+
+\section{Auto-Research Tool Inventory}
+\label{sec:appendix_inventory}
+
+This appendix provides a comprehensive inventory of all surveyed works, organized by stage.
+
+\subsection{Phase 1: Creation}
+\input{tables/appendix_s1}
+
+\clearpage
+\input{tables/appendix_s2}
+
+\clearpage
+\input{tables/appendix_s3}
+
+\clearpage
+\input{tables/appendix_s4}
+
+
+\clearpage
+\subsection{Phase 2: Writing}
+
+\input{tables/appendix_s5}
+
+
+\clearpage
+\subsection{Phase 3: Validation}
+
+\input{tables/appendix_s6}
+
+\clearpage
+\input{tables/appendix_s7}
+
+
+\clearpage
+\subsection{Phase 4: Dissemination}
+
+\input{tables/appendix_s8}
+
+
+\clearpage
+\subsection{Cross-Phase: End-to-End Systems}
+
+\input{tables/appendix_e2e}
+
+
+
+\clearpage\clearpage
+\clearpage
+\section{Survey Coverage Comparison \& Taxonomy Analysis}
+\label{sec:appendix_surveys}
+
+\Cref{tab:survey_comparison} compares our coverage with five closely related concurrent efforts. The goal is not to rank surveys, but to clarify how our lifecycle framework differs in scope and organization.
+
+Our eight-stage framework subsumes several prior taxonomies while making two distinctions explicit: AI auto-research should be analyzed across the complete lifecycle, and stages should be grouped by epistemological function rather than only by task name or autonomy level.
+
+
+\begin{wraptable}{r}{0.59\textwidth}
+\vspace{-12pt}
+\centering
+\caption{%
+  Comparison of survey coverage across our four-phase research lifecycle framework.
+  \cmarkc~= in-depth coverage, \pmarkc~= partial coverage, \xmarkc~= not covered,
+  {\textcolor{violet}{\scriptsize$\bigstar$\,new}}~= newly introduced stage.
+}
+\vspace{-6pt}
+\label{tab:survey_comparison}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{3pt}
+\resizebox{0.56\textwidth}{!}{
+\begin{tabular}{@{}l!{\vrule width 0.8pt}c!{\vrule width 0.8pt}ccccc@{}}
+\toprule
+\rowcolor{tableheader!10}
+\textbf{Stage} &
+\rotatebox{75}{\makecell[l]{\textbf{Ours}}} &
+\rotatebox{75}{\makecell[l]{LLM4SR\\{\tiny 2501}}} &
+\rotatebox{75}{\makecell[l]{PR Survey\\{\tiny 2501}}} &
+\rotatebox{75}{\makecell[l]{Auto$\to$Auton\\{\tiny 2505}}} &
+\rotatebox{75}{\makecell[l]{AI4Research\\{\tiny 2507}}} &
+\rotatebox{75}{\makecell[l]{AI Scientists\\{\tiny 2510}}} \\
+%% ---- Phase 1: Creation ----
+\multicolumn{7}{l}{\cellcolor{S1color!8}\textbf{Phase~1: Creation}} \\
+\makecell[tl]{\Sone: Idea Generation\\\textcolor{gray}{\scriptsize novelty, feasibility, multi-agent}}
+  & \cmarkc & \cmarkc & \xmarkc & \cmarkc & \cmarkc & \cmarkc \\
+\makecell[tl]{\Stwo: Literature Review\\\textcolor{gray}{\scriptsize retrieval, survey gen, deep research}}
+  & \cmarkc & \xmarkc & \xmarkc & \cmarkc & \cmarkc & \cmarkc \\
+\makecell[tl]{\Sthree: Coding \& Experiments\\\textcolor{gray}{\scriptsize paper-to-code, execution, analysis}}
+  & \cmarkc & \cmarkc & \xmarkc & \cmarkc & \cmarkc & \cmarkc \\
+\makecell[tl]{\Sfour: Figures \& Tables\\\textcolor{gray}{\scriptsize diagrams, plots, formulas}}
+  & \cmarkc & \xmarkc & \xmarkc & \pmarkc & \pmarkc & \xmarkc \\
+\midrule
+%% ---- Phase 2: Writing ----
+\multicolumn{7}{l}{\cellcolor{S5color!8}\textbf{Phase~2: Writing}} \\
+\makecell[tl]{\Sfive: Paper Writing\\\textcolor{gray}{\scriptsize semi-auto, full-auto, detection}}
+  & \cmarkc & \cmarkc & \xmarkc & \pmarkc & \cmarkc & \cmarkc \\
+\midrule
+%% ---- Phase 3: Validation ----
+\multicolumn{7}{l}{\cellcolor{S6color!8}\textbf{Phase~3: Validation}} \\
+\makecell[tl]{\Ssix: Peer Review\\\textcolor{gray}{\scriptsize auto-review, matching, quality}}
+  & \cmarkc & \cmarkc & \cmarkc & \pmarkc & \cmarkc & \xmarkc \\
+\makecell[tl]{\Sseven: Rebuttal \& Revision\\\textcolor{gray}{\scriptsize comment analysis, rebuttal gen}}
+  & {\textcolor{violet}{\scriptsize$\bigstar$\,new}} & \xmarkc & \xmarkc & \xmarkc & \xmarkc & \xmarkc \\
+\midrule
+%% ---- Phase 4: Dissemination ----
+\multicolumn{7}{l}{\cellcolor{S8color!8}\textbf{Phase~4: Dissemination}} \\
+\makecell[tl]{\Seight: Dissemination\\\textcolor{gray}{\scriptsize poster, slides, video, social}}
+  & {\textcolor{violet}{\scriptsize$\bigstar$\,new}} & \xmarkc & \xmarkc & \xmarkc & \xmarkc & \xmarkc \\
+\midrule
+\rowcolor{tableheader!6}
+\textbf{Stages covered}
+  & \textbf{8/8} & \textbf{4} & \textbf{1} & \textbf{5} & \textbf{5} & \textbf{4} \\
+\bottomrule
+\end{tabular}}
+\vspace{-9pt}
+\end{wraptable}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{AI4Research}~\cite{ai4research2025} defines five task categories: Comprehension, Survey, Discovery, Writing, and Review. These overlap with our \Sone--\Sthree, \Sfive, and \Ssix. Our framework newly elevates \Sfour (Tables \& Figures), \Sseven (Rebuttal \& Revision), and \Seight (Dissemination) as independent lifecycle stages.
+
+  \item \textbf{From Automation to Autonomy}~\cite{zheng2025automation} organizes systems by autonomy level, from tool-like assistance to scientist-level automation. This axis is complementary: each of our stages can be instantiated at different autonomy levels, while our framework specifies \emph{where} in the research lifecycle the system operates.
+
+  \item \textbf{LLM4SR}~\cite{luo2025llm4sr} proposes a four-part view centered on hypothesis, experiment, writing, and review. This structure is close to ours, but does not separately model rebuttal and revision as a feedback stage. Our Validation phase separates \Ssix from \Sseven, making the review--response loop explicit.
+
+  \item \textbf{Automated Scholarly Paper Review}~\cite{zhuang2025asprsurvey} provide in-depth coverage of review generation, quality assessment, and reviewer--paper matching. They are complementary to our work: they focus on \Ssix, while our framework places peer review within the broader lifecycle.
+
+  \item \textbf{AI Scientist Survey}~\cite{tie2025survey} focus on autonomous or semi-autonomous scientific discovery, overlapping mainly with \Sone--\Sthree and \Sfive. Our framework extends this view by also covering scientific visualization, peer validation, rebuttal, and dissemination.
+\end{itemize}
+
+These comparisons show that prior taxonomies often list research tasks sequentially, while leaving functional distinctions and feedback loops implicit. Our four-phase framework makes these dependencies explicit. For example, \Ssix (\emph{Peer Review}) and \Sseven (\emph{Rebuttal \& Revision}) do not simply follow paper writing as isolated downstream steps; they can redirect the workflow back to \Sthree for additional experiments, \Sfour for revised figures or tables, and \Sfive for manuscript restructuring. Similarly, dissemination artifacts in \Seight may expose ambiguities in the original framing, requiring revisions to claims, explanations, or visual evidence. 
+
+These cross-stage dependencies are central to real research practice and are especially important for AI-assisted workflows, where errors can propagate from generated ideas to experiments, from experiments to claims, and from claims to public-facing summaries. By organizing the field into \emph{Creation}, \emph{Writing}, \emph{Validation}, and \emph{Dissemination}, our framework highlights not only which stages are covered by existing systems, but also where evidence, claims, critique, and communication must remain aligned.

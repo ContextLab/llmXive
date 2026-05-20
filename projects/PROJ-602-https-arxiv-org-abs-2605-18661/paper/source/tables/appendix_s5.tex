@@ -1,0 +1,56 @@
+% ==================== Appendix Table: S5 Paper Writing ====================
+\begingroup
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\rowcolors{2}{white}{S5color!6}
+\begin{table*}[!ht]
+\centering
+\caption{\textbf{Comprehensive inventory: \Sfive Paper Writing.} $^\dagger$Evaluation information uncertain.}
+\vspace{-7pt}
+\label{tab:appendix_s5}
+\stagecard{\Sfive}{Paper Writing}{S5color}{figures/icons/s5_writing.png}{%
+Drafting, editing, and polishing academic manuscripts. AI assistance ranges from semi-automated grammar and citation tools to fully automated paper generation: the most commercially mature yet ethically contested stage.}
+\vspace{2pt}
+\resizebox{\linewidth}{!}{\begin{tabular}{c| >{\centering\arraybackslash}p{3cm} r r |c| >{\centering\arraybackslash}p{2.5cm} |c| p{7.2cm}}
+\toprule
+\rowcolor{tableheader!10}
+\textbf{\#} & \textbf{Method} & \textbf{Ref} & \textbf{Venue} & \textbf{Link} & \textbf{Category} & \textbf{GitHub} & \textbf{Evaluation} \\
+\midrule
+\multicolumn{8}{@{}l}{\cellcolor{S5color!65}\textbf{\textsf{\textcolor{white}{~~Semi-Automated Writing Assistance}}}} \\
+\addlinespace[1pt]
+{1}  & CoAuthor & \cite{coauthor2022} & {\small arXiv'22} & \href{https://arxiv.org/abs/2201.06796}{\faExternalLink} & Collaborative    & -                                                                     & Human--AI collaborative writing workflows \\
+{2}  & Script\&Shift & {\small \cite{siddiqui2025scriptshift}} & {\small CHI'25} & \href{https://arxiv.org/abs/2502.07440}{\faExternalLink}   & Source Transform & -                                                                     & CHI Honorable Mention; preserves cognitive engagement \\
+{3}  & AI Writing Study & \cite{siddiqui2025aiwriting} & {\small AIED'25} & \href{https://arxiv.org/abs/2506.20595}{\faExternalLink} & Empirical Study  & -                                                                     & 90-student RCT; purposeful AI fosters writing \\
+{4}  & OpenDraft & \cite{opendraft2025} & - & \href{https://github.com/federicodeponte/opendraft}{\faExternalLink} & Full Draft Gen.   & \githubicon{https://github.com/federicodeponte/opendraft}                & 19 agents; 20K+ words in 10 min; verified citations \\
+{5}  & DraftMarks & \cite{siddiqui2025draftmarks} & {\small arXiv'25} & \href{https://arxiv.org/abs/2509.23505}{\faExternalLink} & Transparency     & -                                                                     & Skeuomorphic visual traces for AI process transparency \\
+{6}  & PaperDebugger & \cite{paperdebugger2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2512.02589}{\faExternalLink} & In-Editor Assist & \githubicon{https://github.com/PaperDebugger/PaperDebugger}              & Multi-agent Overleaf plugin (Reviewer+Enhancer+Scorer) \\
+{7}  & ScholarCopilot & \cite{scholarcop2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2504.00824}{\faExternalLink} & Citation Assist  & -                                                                     & 40.1\% top-1 citation accuracy (vs 15.0\% E5-Mistral) \\
+{8}  & XtraGPT & \cite{xtragpt2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2505.11336}{\faExternalLink} & Post-Writing     & -                                                                     & 1.5B--14B models; 7K papers; 140K revision pairs \\
+{9}  & LimAgents & \cite{limagents2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2601.11578}{\faExternalLink} & Limitations Gen. & -                                                                     & OpenReview comments + citation network integration \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S5color!65}\textbf{\textsf{\textcolor{white}{~~Fully Automated Paper Generation}}}} \\
+\addlinespace[1pt]
+{10} & CycleResearcher & \cite{cycleresearcher2024} & {\small ICLR'25} & \href{https://arxiv.org/abs/2411.00816}{\faExternalLink} & E2E Gen.   & -                                                                     & 5.36 ICLR scale (vs 5.24 preprint, 5.69 accepted) \\
+{11} & Agent Laboratory & \cite{schmidgall2025agentlab} & {\small EMNLP'25} & \href{https://aclanthology.org/2025.findings-emnlp.320/}{\faExternalLink} & E2E Gen.   & -                                                                     & \$2--13/paper; 84\% cost reduction; 3.5--4.0 score \\
+{12} & FutureGen & \cite{futuregen2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2503.16561}{\faExternalLink} & Section Gen.      & -                                                                     & RAG-based Future Work section generation \\
+{13} & AI Scientist & \cite{lu2024aiscientist} & {\small Nature'26} & \href{https://arxiv.org/abs/2408.06292}{\faExternalLink} & E2E Gen.   & \githubicon{https://github.com/SakanaAI/AI-Scientist}                    & \$15/paper; end-to-end across 3 ML subfields \\
+{14} & APRES & \cite{apres2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2603.03142}{\faExternalLink} & Rubric Revision  & -                                                                     & 79\% expert preference; citation-predictive rubrics \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S5color!65}\textbf{\textsf{\textcolor{white}{~~Societal Analysis}}}} \\
+\addlinespace[1pt]
+{15} & AI Writing Adoption & \cite{aicontractfocus2025} & {\small Nature'26} & \href{https://www.nature.com/articles/s41586-025-08681-8}{\faExternalLink} & Measurement      & -                                                                     & 41.3M papers; AI expands impact but contracts focus \\
+{16} & Nature AI Survey & \cite{aireviewsurvey2025} & {\small Nature'26} & \href{https://www.nature.com/articles/d41586-025-04066-5}{\faExternalLink} & Survey           & -                                                                     & 57\% of researchers use AI in peer review \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S5color!65}\textbf{\textsf{\textcolor{white}{~~Writing Quality and AI Detection Assessment}}}} \\
+\addlinespace[1pt]
+{17} & Mapping LLM Use & \cite{liang2024mapping} & {\small arXiv'24} & \href{https://arxiv.org/abs/2404.01268}{\faExternalLink} & Detection        & -                                                                     & Up to 17.5\% of CS papers AI-modified \\
+{18} & CycleReviewer & \cite{cycleresearcher2024} & {\small ICLR'25} & \href{https://arxiv.org/abs/2411.00816}{\faExternalLink} & AI Judge         & -                                                                     & 26.89\% MAE reduction vs individual human reviewers \\
+{19} & Stanford Agentic & \cite{stanfordreviewer2025} & {\small Web'25} & \href{https://paperreview.ai/tech-overview}{\faExternalLink} & AI Judge         & -                                                                     & $\rho=0.42$ vs human $\rho=0.41$; matches consistency \\
+{20} & SciIG & \cite{sciig2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2508.14273}{\faExternalLink} & Writing Bench    & -                                                                     & NAACL/ICLR 2025 introduction writing benchmark$^\dagger$ \\
+{21} & Watermarking & \cite{watermarking2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2503.15772}{\faExternalLink} & Detection        & -                                                                     & Near-zero false-positive rate under controlled conditions \\
+{22} & PaperWritingBench & \cite{paperwritingbench2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2604.05018}{\faExternalLink} & Benchmark        & -                                                                     & 200 reverse-engineered top-tier conference papers \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+\endgroup
