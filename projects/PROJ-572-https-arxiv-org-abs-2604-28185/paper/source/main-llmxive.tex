@@ -21,7 +21,6 @@
 \usepackage{subcaption}
 \usepackage{makecell}
 \usepackage{algpseudocode}
-\usepackage[linesnumbered,lined,boxed,commentsnumbered,ruled,longend]{algorithm2e}
 \usepackage{enumitem}
 \usepackage{pifont}
 \usepackage{tikz}
@@ -38,7 +37,7 @@
 \usepackage{multirow}
 \usepackage{bm}
 \usepackage[noabbrev,nameinlink]{cleveref}
-\usepackage[round,authoryear]{natbib}
+\usepackage{natbib}
 
 %% ── Shim layer (venue macros made into no-ops) ────────────────
 \makeatletter
@@ -47,6 +46,7 @@
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
 \providecommand{\aistatsfinalcopy}{}
+\providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
@@ -65,6 +65,7 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\tablecite}[1]{\cite{#1}}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -108,7 +109,7 @@
 
 %% ── llmXive paper metadata ──────────────────────────────────
 \title{Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic World Modeling}
-\author{Keming Wu$^{1,12,\dagger\text{\faCube}}$ \and Zuhao Yang$^{2,12,\dagger\text{\faCube}}$ \and Kaichen Zhang$^{3,12,\dagger}$ \and Shizun Wang$^{4,\dagger}$ \and Haowei Zhu$^{1,\dagger}$ \and Sicong Leng$^{2}$ \and Zhongyu Yang$^{2}$ \and Qijie Wang$^{1}$ \and Sudong Wang$^{11}$ \and Ziting Wang$^{6}$ \and Zili Wang$^{6}$ \and Hui Zhang$^{9}$ \and Haonan Wang$^{4}$ \and Hang Zhou$^{8}$ \and Yifan Pu$^{1}$ \and Xingxuan Li$^{7}$ \and Fangneng Zhan$^{10}$ \and Bo Li$^{2,12,}$ \and Lidong Bing$^{7}$ \and Yuxin Song$^{8,\ddagger}$ \and Ziwei Liu$^{2,12,\ddagger}$ \and Wenhu Chen$^{5,\ddagger}$ \and Jingdong Wang$^{8,\ddagger}$ \and Xinchao Wang$^{4,\ddagger}$ \and Xiaojuan Qi$^{3,\ddagger}$ \and Shijian Lu$^{2,\ddagger}$ \and Bin Wang$^{1,\ddagger}$}
+\author{Keming Wu \and Zuhao Yang \and Kaichen Zhang \and Shizun Wang \and Haowei Zhu \and Sicong Leng \and Zhongyu Yang \and Qijie Wang \and Sudong Wang \and Ziting Wang \and Zili Wang \and Hui Zhang \and Haonan Wang \and Hang Zhou \and Yifan Pu \and Xingxuan Li \and Fangneng Zhan \and Bo Li \and Lidong Bing \and Yuxin Song \and Ziwei Liu \and Wenhu Chen \and Jingdong Wang \and Xinchao Wang \and Xiaojuan Qi \and Shijian Lu \and Bin Wang}
 \paperid{arXiv:2604.28185}
 \paperstatus{Preprint}
 
@@ -146,22 +147,22 @@ Evaluations often overestimate progress by privileging perceptual quality over s
 ]
 \begin{itemize}[leftmargin=*]
 
-\item[\ding{182}] \textbf{Capability Taxonomy:}
+\item[] \textbf{Capability Taxonomy:}
 What does it mean for a visual generation model to become ``more intelligent,'' and how can we organize progress from atomic rendering to world-modeling generation?
 
-\item[\ding{183}] \textbf{Modeling Mechanisms:}
+\item[] \textbf{Modeling Mechanisms:}
 How do diffusion, flow matching, autoregressive modeling, hybrid AR--diffusion systems, and unified multimodal architectures each change the trade-off between fidelity, controllability, reasoning, and efficiency?
 
-\item[\ding{184}] \textbf{Training and Data Engines:}
+\item[] \textbf{Training and Data Engines:}
 Why are modern gains increasingly driven by data density, VLM-based relabeling, continued training, SFT, preference alignment, reward models, and acceleration rather than by parameter scaling alone?
 
-\item[\ding{185}] \textbf{Applications as Constraints:}
+\item[] \textbf{Applications as Constraints:}
 How do applications such as personalization, layout control, typography, editing, domain adaptation, and embodied prediction reveal increasingly explicit requirements for structure, memory, and state consistency?
 
-\item[\ding{186}] \textbf{Evaluation and Stress Testing:}
+\item[] \textbf{Evaluation and Stress Testing:}
 Why do current metrics overestimate progress, and how can in-the-wild stress tests expose failures in spatial logic, physical reasoning, identity preservation, text fidelity, and causal grounding?
 
-\item[\ding{187}] \textbf{Agentic and World-Modeling Frontiers:}
+\item[] \textbf{Agentic and World-Modeling Frontiers:}
 What separates today’s strong renderers from closed-loop visual agents and playable world models, and how might visual chain-of-thought, tool use, verification, and world simulation define the next stage?
 
 

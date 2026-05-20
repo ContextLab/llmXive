@@ -37,7 +37,7 @@
 \usepackage{bm}
 \usepackage[most]{tcolorbox}
 \usepackage[noabbrev,nameinlink]{cleveref}
-\usepackage[numbers, sort&compress]{natbib}
+\usepackage{natbib}
 
 %% ── Shim layer (venue macros made into no-ops) ────────────────
 \makeatletter
@@ -46,6 +46,7 @@
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
 \providecommand{\aistatsfinalcopy}{}
+\providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
@@ -64,6 +65,7 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\tablecite}[1]{\cite{#1}}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -71,6 +73,7 @@
 \makeatother
 
 %% ── User-defined macros forwarded from original preamble ─────
+\makeatletter
 \providecommand{\seedmoe}{Seed-MoE}
 \providecommand{\rlhf}{RLHF}
 \providecommand{\rrm}{RRM}
@@ -85,18 +88,11 @@
 \definecolor{seedbg}{HTML}{2E5AA8}
 \definecolor{seedblue}{HTML}{2E5AA8}
 \definecolor{black}{rgb}{0,0,0}
+\makeatother
 
 %% ── llmXive paper metadata ──────────────────────────────────
 \title{Leveraging Verifier-Based Reinforcement Learning in Image Editing}
-\author{Hanzhong Guo\texorpdfstring{$^{1,2}$}{} \quad
-Jie Wu\texorpdfstring{$^{2,\dagger}$}{} \quad
-Jie Liu\texorpdfstring{$^{2,4}$}{} \quad
-Yu Gao\texorpdfstring{$^{2}$}{} \quad
-Zilyu Ye\texorpdfstring{$^{2}$}{} \quad
-Linxiao Yuan\texorpdfstring{$^{2}$}{} \quad
-Xionghui Wang\texorpdfstring{$^{2}$}{} \quad
-Yizhou Yu\texorpdfstring{$^{1,3}$}{}\texorpdfstring{$^{*}$}{} \quad
-Weilin Huang\texorpdfstring{$^{2}$}{}\texorpdfstring{$^{*}$}{}}
+\author{Hanzhong Guo \and Jie Wu \and Jie Liu \and Yu Gao \and Zilyu Ye \and Linxiao Yuan \and Xionghui Wang \and Yizhou Yu \and Weilin Huang}
 \paperid{arXiv:2604.27505}
 \paperstatus{Preprint}
 
@@ -707,7 +703,7 @@ Although GCPO requires rollouts from both preferred and non-preferred groups, th
 Our proposed \editrone{} framework yields a state-of-the-art reward model for predicting human preferences. As shown in Tab.~\ref{tab:full_rm_results}, our 7B Edit-RRM, trained via our full two-stage pipeline, achieves a top accuracy of \textbf{82.2\%}. 
 % Tab.~\ref{tab:full_rm_results} shows that our 7B Edit-RRM achieves the best accuracy of 82.2\% on the internal benchmark.
 This result significantly surpasses strong closed-source APIs like Seed-1.5-VL (79.3\%) and demonstrates the effectiveness of our training strategy.
-\begin{table}[h] 
+\begin{table}[!htbp] 
     \centering
     % \vspace{-.5em}
     \label{tab:full_rm_results}
@@ -1387,7 +1383,7 @@ Category 1-11 represent Background Change, Color Alteration, Material Modificati
 
 To validate that the automatic GPT-based metrics are aligned with human perception, we conducted a human study comparing FLUX.Kontext optimized by our RL-RRM (7B) against the original FLUX.Kontext baseline. Annotators judged whether our model output was better, comparable, or worse than the baseline for the same input. Following the Good-Same-Bad (GSB) protocol, we compute the score as $(G-B)/(G+S+B)$.
 
-\begin{table}[h]
+\begin{table}[!htbp]
   \centering
   \small
   \begin{tabular}{lc}

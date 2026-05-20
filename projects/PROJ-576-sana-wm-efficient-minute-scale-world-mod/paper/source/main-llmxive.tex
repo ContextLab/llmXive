@@ -37,7 +37,7 @@
 \usepackage{pifont}
 \usepackage{tabularx}
 \usepackage{tcolorbox}
-\usepackage[square,sort,comma,numbers]{natbib}
+\usepackage{natbib}
 \usepackage{cleveref}
 \usepackage{amsthm}
 \usepackage{changepage}
@@ -49,6 +49,7 @@
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
 \providecommand{\aistatsfinalcopy}{}
+\providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
@@ -67,6 +68,7 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\tablecite}[1]{\cite{#1}}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -149,9 +151,9 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-\noindent \textbf{Abstract:} We introduce \modelname, an efficient 2.6B-parameter open-source world model natively trained for one-minute generation, synthesizing high-fidelity, 720p, minute-scale videos with precise camera control. \modelname achieves visual quality comparable to large-scale industrial baselines such as LingBot-World and HY-WorldPlay, while significantly improving efficiency. Four core designs drive our architecture: (1) \textbf{Hybrid Linear Attention} combines frame-wise Gated DeltaNet (GDN) with softmax attention for memory-efficient long-context modeling. (2) \textbf{Dual-Branch Camera Control} ensures precise 6-DoF trajectory adherence. (3) \textbf{Two-Stage Generation Pipeline} applies a long-video refiner to stage-1 outputs, improving quality and consistency across sequences. (4) \textbf{Robust Annotation Pipeline} extracts accurate metric-scale 6-DoF camera poses from public videos to yield high-quality, spatiotemporally consistent action labels. Driven by these designs, \modelname demonstrates remarkable efficiency across data, training compute, and inference hardware: it uses only $\sim$213K public video clips with metric-scale pose supervision, completes training in 15 days on 64 H100s, and generates each 60s clip on a single GPU; its distilled variant can be deployed on a single RTX 5090 with NVFP4 quantization to denoise a \textbf{60s 720p clip in 34s}. On our one-minute world-model benchmark, \modelname demonstrates stronger action-following accuracy than prior open-source baselines and achieves comparable visual quality at $36\times$ higher throughput for scalable world modeling.
+We introduce \modelname, an efficient 2.6B-parameter open-source world model natively trained for one-minute generation, synthesizing high-fidelity, 720p, minute-scale videos with precise camera control. \modelname achieves visual quality comparable to large-scale industrial baselines such as LingBot-World and HY-WorldPlay, while significantly improving efficiency. Four core designs drive our architecture: (1) \textbf{Hybrid Linear Attention} combines frame-wise Gated DeltaNet (GDN) with softmax attention for memory-efficient long-context modeling. (2) \textbf{Dual-Branch Camera Control} ensures precise 6-DoF trajectory adherence. (3) \textbf{Two-Stage Generation Pipeline} applies a long-video refiner to stage-1 outputs, improving quality and consistency across sequences. (4) \textbf{Robust Annotation Pipeline} extracts accurate metric-scale 6-DoF camera poses from public videos to yield high-quality, spatiotemporally consistent action labels. Driven by these designs, \modelname demonstrates remarkable efficiency across data, training compute, and inference hardware: it uses only $\sim$213K public video clips with metric-scale pose supervision, completes training in 15 days on 64 H100s, and generates each 60s clip on a single GPU; its distilled variant can be deployed on a single RTX 5090 with NVFP4 quantization to denoise a \textbf{60s 720p clip in 34s}. On our one-minute world-model benchmark, \modelname demonstrates stronger action-following accuracy than prior open-source baselines and achieves comparable visual quality at $36\times$ higher throughput for scalable world modeling.
 \end{abstract}
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=\textwidth]{figures/teaser.pdf}
   \caption{\textbf{\modelname teaser.}
@@ -435,7 +437,7 @@ We build a robust annotation pipeline that re-annotates seven open-source video 
   \label{fig:data_pipeline}
 \end{figure}
 
-\begin{table}[h]
+\begin{table}[!htbp]
   \centering
   \footnotesize
   \begin{tabular}{llcrc}

@@ -14,7 +14,7 @@
 \usepackage[most]{tcolorbox}
 \usepackage{longtable}
 \usepackage{listings}
-\usepackage[numbers]{natbib}
+\usepackage{natbib}
 \usepackage{enumitem}
 \usepackage{graphicx}
 \usepackage{xspace}
@@ -42,6 +42,7 @@
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
 \providecommand{\aistatsfinalcopy}{}
+\providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
@@ -60,6 +61,7 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\tablecite}[1]{\cite{#1}}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -82,6 +84,15 @@
 \definecolor{odlblue}{HTML}{0064E0}
 \definecolor{odlfg}{HTML}{1C2B33}
 \definecolor{odlbg}{HTML}{F0FFFF}
+\newtcolorbox{promptbox}[1][]{
+  enhanced, breakable,
+  top=0.3em,bottom=0.3em,left=0.5em,right=0.5em,
+  toptitle=0.3em,bottomtitle=0.2em,boxsep=0pt,
+  colframe=promptcolorheader, colback=promptcolor!50, boxrule=0.5pt,
+  width=\columnwidth, 
+  coltitle=prompttitletext,
+  title={\footnotesize #1} 
+}
 \makeatother
 
 %% ── llmXive paper metadata ──────────────────────────────────
@@ -453,7 +464,7 @@ from a pilot run on NeurIPS-2024 full texts and consolidated by the authors into
 operational definitions are reproduced verbatim in the Phase-2 extraction prompt and are used wherever a record
 field is typed by $\mathcal{D}$.
 
-% \begin{table}[h]
+% \begin{table}[!htbp]
 % \centering
 % \caption{The 14-axis bottleneck dimension taxonomy $\mathcal{D}$. Each axis names a fundamental cost or quality of
 % methodological design; axes type the bottleneck and impact fields of $\rho(e)$ and feed the
@@ -482,7 +493,7 @@ field is typed by $\mathcal{D}$.
 % \label{tab:dim-taxonomy}
 % \end{table}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \begin{tabularx}{\linewidth}{l X}
 \toprule
@@ -515,7 +526,7 @@ extraction prompt.}
 Edges $\mathcal{E}\subseteq(\mathcal{V}_P\cup\mathcal{V}_S)^2$ carry a type from a nine-class causal vocabulary
 (Table~\ref{tab:edge-types}), whose glossary is reproduced verbatim in the Phase-1 extraction prompt.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \begin{tabularx}{\linewidth}{l X}
 \toprule
@@ -549,7 +560,7 @@ by citation-anchored extraction: \texttt{optimizes} typically surfaces in releas
 formal citation, while \texttt{inspired\_by} appears in narrative framing rather than bibliographic anchors. We
 source both from hand-curated seed annotations, yielding $\mathcal{T}_M=\{\texttt{variant\_of}, \texttt{specializes}, \texttt{component\_of},\texttt{optimizes},\texttt{inspired\_by}\}$.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \begin{tabularx}{\linewidth}{l X}
 \toprule
@@ -583,7 +594,7 @@ negative-surface list for ambiguous names (e.g., ``Mamba'' the state-space model
 \paragraph{Collection window and venues.}
 Intern-Atlas indexes a comprehensive corpus of major AI venues, journals, and preprint servers over the window 1965--2025, spanning core ML (NeurIPS, ICML, ICLR), computer vision (CVPR, ICCV, ECCV), NLP (ACL, EMNLP, NAACL), general AI (AAAI, IJCAI), and data/information (KDD, SIGIR). ICCV and ECCV run in alternating years, explaining their narrower temporal footprint; all other venues contribute three editions each. Main-conference, Findings (for ACL/EMNLP/NAACL), and accepted-workshop tracks are included uniformly.
 
-% \begin{table}[h]
+% \begin{table}[!htbp]
 % \centering
 % \caption{Per-venue coverage of the released graph. ``Resolved references'' counts outgoing citations from
 % $\mathcal{V}_P$ that resolved to a node in $\mathcal{V}_P\cup\mathcal{V}_S$; the additional $39{,}000$ pre-window
@@ -787,7 +798,7 @@ linearly to $-2.0$ at $>1000$ (saturated).
 \subsection{Cross-Dimensional Regularizer \texorpdfstring{$\Omega_{\text{cross}}$}{_cross}}
 \label{app:cross-dim}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \begin{tabularx}{\linewidth}{l X c}
 \toprule
@@ -955,7 +966,7 @@ convolutional masked autoencoder and global response normalization.
 \emph{ConvNeXt V2}.
 \]
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabularx}{\linewidth}{l X}

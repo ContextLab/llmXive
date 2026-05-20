@@ -23,7 +23,6 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{mathrsfs}
-\usepackage[ruled]{algorithm2e}
 \usepackage{pifont}
 \usepackage{enumitem}
 \usepackage{listings}
@@ -50,6 +49,7 @@
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
 \providecommand{\aistatsfinalcopy}{}
+\providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
@@ -68,6 +68,7 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\tablecite}[1]{\cite{#1}}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -99,8 +100,7 @@
 \providecommand{\bdelta}{{\boldsymbol{\delta}}}
 \providecommand{\transform}{\mathcal{T}}
 \providecommand{\expect}{\mathbb{E}}
-\providecommand{\dist}[2]{%
-    \operatorname{d}\left({#1},{#2}\right)}
+\providecommand{\dist}[2]{    \operatorname{d}\left({#1},{#2}\right)}
 \providecommand{\textlnorm}[1]{\( \ell_{#1} \)-norm}
 \providecommand{\lnorm}[2]{{\norm{#2}}_{#1}}
 \providecommand{\tabpm}[2]{{#1}\( \pm \){\scriptsize#2}}
@@ -112,8 +112,7 @@
 \providecommand{\hlprimarytab}[1]{\colorbox{green!20}{#1}}
 \providecommand{\okmark}{\textbf{\ensuremath{\checkmark}}}
 \providecommand{\ngmark}{\textbf{\ding{55}}}
-\providecommand{\roundbox}[2]{%
-  \tikz[baseline=(text.base), inner sep=0pt]{
+\providecommand{\roundbox}[2]{  \tikz[baseline=(text.base), inner sep=0pt]{
     \node[
       fill=#1,
       text=black,
@@ -122,20 +121,9 @@
       inner xsep=4pt,
       inner ysep=1pt
     ] (text) {\small #2};
-  }%
-}
-\providecommand{\uag}[1]{%
-  \roundbox{lightgreen}{%
-    \scalebox{0.7}{$\uparrow$}%
-    \small\,#1%
-  }%
-}
-\providecommand{\dab}[1]{%
-  \roundbox{lightred}{%
-    \scalebox{0.7}{$\downarrow$}%
-    \small\,#1%
-  }%
-}
+  }}
+\providecommand{\uag}[1]{  \roundbox{lightgreen}{    \scalebox{0.7}{$\uparrow$}    \small\,#1  }}
+\providecommand{\dab}[1]{  \roundbox{lightred}{    \scalebox{0.7}{$\downarrow$}    \small\,#1  }}
 \providecommand{\fixme}[2][]{\todo[color=yellow,size=\scriptsize,fancyline,caption={},#1]{#2}}
 \providecommand{\note}[4][]{\todo[author=#2,color=#3,size=\scriptsize,fancyline,caption={},#1]{#4}}
 \providecommand{\chunshu}[2][]{\note[#1]{chunshu}{green}{#2}\xspace}
@@ -156,6 +144,14 @@
 \definecolor{ogreen}{RGB}{34, 139, 34}
 \definecolor{jingdongbg}{RGB}{218,41,28}
 \definecolor{jingdongred}{RGB}{218,41,28}
+\newtcolorbox{promptbox}[2][Prompt]{
+colback=black!5!white,
+arc=5pt, 
+boxrule=0.5pt,
+fonttitle=\bfseries,
+title=#1, 
+before upper={\small}, fontupper=\fontfamily{ptm}\selectfont,
+colframe=#2, }
 \makeatother
 
 %% ── llmXive paper metadata ──────────────────────────────────
@@ -407,7 +403,7 @@ While we have presented \method with two branches for clarity, the framework sca
 \section{Experiments} 
 \label{sec:exps}
 \subsection{Experimental Setting}
-\fakeparagraph{Training Data and Evaluation Benchmarks} 
+{Training Data and Evaluation Benchmarks} 
 We evaluate \method on its ability to co-evolve text, image, 
 and video reasoning capabilities through parallel branch 
 training. Our main analysis focuses on the two-branch setting 
@@ -421,12 +417,12 @@ reasoning problems. For image reasoning, we use
 MMFineReason-123K~\cite{lin2026mmfinereason}, a collection of image reasoning 
 samples with verifiable answers. For video reasoning, we collect training data from OneThinker~\cite{feng2025onethinker}, VideoChat-R1~\cite{li2025videochatr1enhancingspatiotemporalperception}, and Video-R1~\cite{feng2025videor1}, and filter with Qwen3-8B-VL by removing samples with a pass rate of either 0\% or 100\%, retaining 40K samples of moderate difficulty.
 
-\fakeparagraph{Evaluation Benchmarks} For evaluation, image reasoning is assessed on seven benchmarks. MMMU~\cite{yue2024mmmumassivemultidisciplinemultimodal} and MMMU-Pro~\cite{yue2025mmmuprorobustmultidisciplinemultimodal} cover multi-discipline college-level problems. MathVista~\cite{lu2024mathvistaevaluatingmathematicalreasoning} and MathVision~\cite{wang2024measuring} test mathematical reasoning with visual context. ZeroBench~\cite{roberts2025zerobenchimpossiblevisualbenchmark} evaluates zero-shot visual reasoning. WeMath~\cite{qiao-etal-2025-math} and MathVerse~\cite{zhang2024mathversedoesmultimodalllm} focus on math problems presented with diagrams and multi-format visual inputs. Text reasoning is assessed on five benchmarks. AIME 2024 and AIME 2025~\cite{aime} are competition-level mathematical olympiad problems. HMMT 2025~\cite{balunovic_srimatharena_2025} contains problems from the Harvard-MIT Mathematics Tournament. MATH-500~\cite{math500hendrycks2021measuringmathematicalproblemsolving} is a curated subset of the MATH benchmark, and Minerva Math~\cite{lewkowycz2022solvingquantitativereasoningproblemsminerva} covers scientific and quantitative reasoning. For all benchmarks, we report accuracy (\%) as the evaluation metric. We report Vis. Avg. and Text Avg. as the mean accuracy over the respective benchmark groups. For the three-branch setting, we additionally evaluate video reasoning on Video-Holmes~\cite{cheng2025videoholmesmllmthinklike}, MVBench~\cite{li2024mvbenchcomprehensivemultimodalvideo}, MMVU~\cite{zhao2025mmvumeasuringexpertlevelmultidiscipline}, and VideoMathQA~\cite{rasheed2025videomathqabenchmarkingmathematicalreasoning}, and report Video Avg. as the mean accuracy over these video benchmarks.
+{Evaluation Benchmarks} For evaluation, image reasoning is assessed on seven benchmarks. MMMU~\cite{yue2024mmmumassivemultidisciplinemultimodal} and MMMU-Pro~\cite{yue2025mmmuprorobustmultidisciplinemultimodal} cover multi-discipline college-level problems. MathVista~\cite{lu2024mathvistaevaluatingmathematicalreasoning} and MathVision~\cite{wang2024measuring} test mathematical reasoning with visual context. ZeroBench~\cite{roberts2025zerobenchimpossiblevisualbenchmark} evaluates zero-shot visual reasoning. WeMath~\cite{qiao-etal-2025-math} and MathVerse~\cite{zhang2024mathversedoesmultimodalllm} focus on math problems presented with diagrams and multi-format visual inputs. Text reasoning is assessed on five benchmarks. AIME 2024 and AIME 2025~\cite{aime} are competition-level mathematical olympiad problems. HMMT 2025~\cite{balunovic_srimatharena_2025} contains problems from the Harvard-MIT Mathematics Tournament. MATH-500~\cite{math500hendrycks2021measuringmathematicalproblemsolving} is a curated subset of the MATH benchmark, and Minerva Math~\cite{lewkowycz2022solvingquantitativereasoningproblemsminerva} covers scientific and quantitative reasoning. For all benchmarks, we report accuracy (\%) as the evaluation metric. We report Vis. Avg. and Text Avg. as the mean accuracy over the respective benchmark groups. For the three-branch setting, we additionally evaluate video reasoning on Video-Holmes~\cite{cheng2025videoholmesmllmthinklike}, MVBench~\cite{li2024mvbenchcomprehensivemultimodalvideo}, MMVU~\cite{zhao2025mmvumeasuringexpertlevelmultidiscipline}, and VideoMathQA~\cite{rasheed2025videomathqabenchmarkingmathematicalreasoning}, and report Video Avg. as the mean accuracy over these video benchmarks.
 
-\fakeparagraph{Models and Baselines} We mainly conduct experiments on Qwen3-VL-4B-Instruct~\cite{bai2025qwen3vltechnicalreport} and compare \method against the following baselines. Text-Expert and Image-Expert are trained independently from the base model via RLVR on text reasoning data and image reasoning data, respectively. In the three-branch setting, we additionally train a Video-Expert on video reasoning data. Mixed 
+{Models and Baselines} We mainly conduct experiments on Qwen3-VL-4B-Instruct~\cite{bai2025qwen3vltechnicalreport} and compare \method against the following baselines. Text-Expert and Image-Expert are trained independently from the base model via RLVR on text reasoning data and image reasoning data, respectively. In the three-branch setting, we additionally train a Video-Expert on video reasoning data. Mixed 
 RLVR combines all data into a single pool and trains one model via RLVR. Static OPD (V$\to$T / T$\to$V) follows a two-stage pipeline: two branches are first independently trained via RLVR on their respective domains, then one expert serves as a fixed teacher and transfers knowledge to the other through unidirectional OPD. We report results for both directions, where V$\to$T denotes the image expert teaching the text branch and T$\to$V denotes the reverse. For the three-branch setting, we use multi-teacher OPD (MOPD) as a stronger baseline, where all domain experts jointly distill into a single student. \method (Ours) alternates between RLVR and bidirectional mutual on-policy distillation throughout training.
 
-\fakeparagraph{Implementation Details} We implement CoPD on top of the EasyVideoR1 framework~\cite{qin2026easyvideor1easierrlvideo}, which builds upon verl~\cite{sheng2024hybridflow} and EasyR1~\cite{zheng2025easyr1}. During training, the maximum input and output length are both set to 16,384 tokens. The learning rate is fixed at $1 \times 10^{-6}$. The rollout batch size is set to 256, and for each prompt we sample 8 rollouts at temperature 1.0. The clipping bounds are set to $\epsilon_{\text{low}} = 0.2$ and $\epsilon_{\text{high}} = 0.28$. Static OPD is built on top of two independently trained specifc experts and performs one additional stage of OPD. Mixed RLVR and CoPD use a total number of training steps equal to the sum of the two specifc experts to ensure the same data throughput. 
+{Implementation Details} We implement CoPD on top of the EasyVideoR1 framework~\cite{qin2026easyvideor1easierrlvideo}, which builds upon verl~\cite{sheng2024hybridflow} and EasyR1~\cite{zheng2025easyr1}. During training, the maximum input and output length are both set to 16,384 tokens. The learning rate is fixed at $1 \times 10^{-6}$. The rollout batch size is set to 256, and for each prompt we sample 8 rollouts at temperature 1.0. The clipping bounds are set to $\epsilon_{\text{low}} = 0.2$ and $\epsilon_{\text{high}} = 0.28$. Static OPD is built on top of two independently trained specifc experts and performs one additional stage of OPD. Mixed RLVR and CoPD use a total number of training steps equal to the sum of the two specifc experts to ensure the same data throughput. 
 
 \subsection{Main Results}
 \label{sec:main_exps}
@@ -463,10 +459,10 @@ RLVR combines all data into a single pool and trains one model via RLVR. Static 
 \caption{Main results on image and text reasoning benchmarks. Mixed RLVR runs for the combined step budget of both single-domain experts. Static OPD depends on independently trained experts and performs an additional distillation stage to consolidate them. \method uses the same total steps as static OPD. Best results are in \textbf{bold} and worst results (excluding the Base Model) are marked with $^\dagger$.}
 \label{tab:two_branch_results}
 \end{table}
-\fakeparagraph{Co-Evolution on Text and Image Reasoning}
+{Co-Evolution on Text and Image Reasoning}
 Table~\ref{tab:two_branch_results} presents the main results on text and image reasoning, where \method achieves the best overall performance among all baselines. Mixed RLVR weakens text reasoning compared to the Text-Expert, confirming the capability divergence cost analyzed in \S\ref{sec:motivation}: jointly optimizing heterogeneous data incurs cross-domain interference that erodes individual capabilities. Static OPD avoids this interference by training experts separately. In the V$\to$T direction, both image and text reasoning improve over Mixed RLVR, partially resolving the cross-domain divergence. However, text reasoning still falls well short of the Text-Expert. Similarly, in the T$\to$V direction, although image reasoning benefits from the text expert's guidance, the Text-Expert's strong text capability (57.89) is only partially transferred, dropping to 56.09 in the distilled model. In both cases, a substantial portion of the teacher's knowledge fails to reach the student through post-hoc distillation. This is consistent with the analysis in Section~\ref{sec:motivation}: when experts have drifted far from the student, their thinking patterns diverge substantially, making the distillation signal difficult to absorb. In contrast, \method improves both image reasoning and text reasoning simultaneously, surpassing the specific experts on both sides. 
 
-\fakeparagraph{Scaling to Co-Evolution on Text, Image, and Video Reasoning} Table~\ref{tab:three_branch_results} extends CoPD from the dual-branch setting to a three-branch setting, where text, image, and video reasoning capabilities are jointly optimized and consolidated. The results follow the same trend as Table~\ref{tab:two_branch_results}: CoPD achieves the best overall performance and improves over MOPD across major capability groups, showing that its effectiveness generalizes beyond pairwise capability transfer. Notably, MOPD underperforms the Video-Expert on video reasoning (58.32 vs.\ 58.75), confirming that static multi-teacher distillation struggles to absorb all experts' knowledge as the number of capability branches grows. Mixed RLVR achieves the highest video average among baselines, likely because video reasoning benefits from diverse data, but this comes at the cost of text reasoning (55.39), again exhibiting the capability divergence pattern observed in the two-branch setting. \method avoids this trade-off by co-evolving all three branches, consolidating their capabilities without sacrificing any individual domain.
+{Scaling to Co-Evolution on Text, Image, and Video Reasoning} Table~\ref{tab:three_branch_results} extends CoPD from the dual-branch setting to a three-branch setting, where text, image, and video reasoning capabilities are jointly optimized and consolidated. The results follow the same trend as Table~\ref{tab:two_branch_results}: CoPD achieves the best overall performance and improves over MOPD across major capability groups, showing that its effectiveness generalizes beyond pairwise capability transfer. Notably, MOPD underperforms the Video-Expert on video reasoning (58.32 vs.\ 58.75), confirming that static multi-teacher distillation struggles to absorb all experts' knowledge as the number of capability branches grows. Mixed RLVR achieves the highest video average among baselines, likely because video reasoning benefits from diverse data, but this comes at the cost of text reasoning (55.39), again exhibiting the capability divergence pattern observed in the two-branch setting. \method avoids this trade-off by co-evolving all three branches, consolidating their capabilities without sacrificing any individual domain.
 \begin{table}[t]
 \centering
 \setlength{\tabcolsep}{4pt}
@@ -511,7 +507,7 @@ Table~\ref{tab:two_branch_results} presents the main results on text and image r
 \subsection{Analysis}
 \label{sec:analysis_exps}
 
-\fakeparagraph{Ablation Study} Table~\ref{tab:ablation_results} studies the contribution of each component in \method. Removing I-OPD causes text reasoning to drop from 58.76 to 57.41, while removing T-OPD causes image reasoning to drop from 56.97 to 56.48. In both cases, the overall performance degrades, confirming that mutual OPD in both directions is necessary: each branch's learning benefits from receiving the other's distillation signal. We also ablate the merge operation. When only the text branch is retained, text reasoning remains strong (58.61) but image reasoning drops to 56.26. Conversely, when only the image branch is retained, image reasoning holds at 56.78 but text reasoning falls to 57.17. Notably, even without merging, each single branch already surpasses both static OPD variants in Table~\ref{tab:two_branch_results} on overall performance (57.24 and 56.94 vs.\ 56.09 and 56.29), showing that co-evolution alone produces branches with well-rounded capabilities. Merging further consolidates their complementary strengths, yielding the best overall result.
+{Ablation Study} Table~\ref{tab:ablation_results} studies the contribution of each component in \method. Removing I-OPD causes text reasoning to drop from 58.76 to 57.41, while removing T-OPD causes image reasoning to drop from 56.97 to 56.48. In both cases, the overall performance degrades, confirming that mutual OPD in both directions is necessary: each branch's learning benefits from receiving the other's distillation signal. We also ablate the merge operation. When only the text branch is retained, text reasoning remains strong (58.61) but image reasoning drops to 56.26. Conversely, when only the image branch is retained, image reasoning holds at 56.78 but text reasoning falls to 57.17. Notably, even without merging, each single branch already surpasses both static OPD variants in Table~\ref{tab:two_branch_results} on overall performance (57.24 and 56.94 vs.\ 56.09 and 56.29), showing that co-evolution alone produces branches with well-rounded capabilities. Merging further consolidates their complementary strengths, yielding the best overall result.
 \begin{table}[t]
 \centering
 \scriptsize
@@ -558,10 +554,10 @@ Image-Branch Only
 \label{tab:ablation_results}
 \end{table}
 
-\fakeparagraph{Behavioral Pattern Consistency During Training}
+{Behavioral Pattern Consistency During Training}
 Figures~\ref{fig:analyse} (a) and (b) track the top-$k$ token overlap and symmetric KL between the two branches throughout training. In the baseline, both metrics diverge monotonically, while symmetric KL rises by an order of magnitude. Since static OPD applies distillation after this expert training completes, it operates at the point where the two experts are furthest apart, confirming the low absorption efficiency predicted in \S\ref{sec:motivation}. In \method, top-$k$ overlap decreases during each RLVR phase but recovers during mutual OPD, staying above 0.90 throughout training. Symmetric KL remains consistently low. This confirms the core design of \method: RLVR creates divergence that makes distillation informative, and mutual OPD restores proximity that makes it easy to absorb.
 
-\fakeparagraph{Effect of the $S_{\mathrm{RL}}/S_{\mathrm{OPD}}$ Ratio}
+{Effect of the $S_{\mathrm{RL}}/S_{\mathrm{OPD}}$ Ratio}
 We further analyze the impact of the ratio between RLVR exploration steps and OPD consolidation steps in Figure~\ref{fig:analyse} (c). CoPD consistently outperforms static OPD under different $S_{\mathrm{RL}}/S_{\mathrm{OPD}}$ ratios, showing that coupling exploration with mutual distillation is more effective than post-hoc distillation. Among different ratios, $S_{\mathrm{RL}}$:$S_{\mathrm{OPD}}$ = 1.5:1 achieves the best overall performance, suggesting that sufficient branch-specific exploration is needed to create useful complementary knowledge, while overly long exploration may weaken the alignment between branches and reduce the effectiveness of subsequent distillation. This result supports the importance of balancing specialization and consolidation in CoPD.
 
 

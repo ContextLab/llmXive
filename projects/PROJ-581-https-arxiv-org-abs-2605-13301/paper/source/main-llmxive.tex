@@ -38,6 +38,7 @@
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
 \providecommand{\aistatsfinalcopy}{}
+\providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
@@ -56,6 +57,7 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\tablecite}[1]{\cite{#1}}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -132,14 +134,12 @@
   }
   \end{center}
 }
-\providecommand{\DrawLine}{%
-  \begin{tikzpicture}
+\providecommand{\DrawLine}{  \begin{tikzpicture}
   \path[use as bounding box] (0,0) -- (\linewidth,0);
   \draw[color=minttitle!70!white,dashed,dash phase=1.5pt]
         (0-\kvtcb@leftlower-\kvtcb@boxsep,0)--
         (\linewidth+\kvtcb@rightlower+\kvtcb@boxsep,0);
-  \end{tikzpicture}%
-  }
+  \end{tikzpicture}  }
 \providecommand{\todoflag}[1]{\textbf{[TODO: #1]}}
 \providecommand{\goldmedalicon}{\raisebox{-0.25ex}{\includegraphics[height=1.05em]{figure/gold_medal_emoji.pdf}}}
 \providecommand{\projectpage}{\raisebox{-1.5pt}{\faIcon{globe}}}
@@ -567,44 +567,63 @@
 \definecolor{MathReasoningBg}{RGB}{255,244,204}
 \definecolor{ScienceReasoningBg}{RGB}{234,242,255}
 \definecolor{iclrdeepblue}{rgb}{0.04,0.18,0.42}
+\tcbuselibrary{breakable}
+\newtcolorbox{promptbox}[1]{
+  enhanced,
+  breakable,
+  colback= runzhemilk!30!white,   
+  colframe=roseframe,                
+  colbacktitle= runzhecotton!66!white, 
+  coltitle=white!33,
+  title=\textbf{#1},
+  fonttitle=\bfseries,
+  sharp corners=south, 
+  borderline={0.8pt}{0pt}{roseframe},
+  boxrule=0.8pt,
+  arc=6pt, 
+  left=6pt, right=6pt, top=6pt, bottom=6pt,
+  before skip=10pt, after skip=10pt,
+  drop shadow=black!12,      
+}
+\newtcolorbox{casebox}[1]{
+enhanced,
+breakable,
+colback=mintblue!40!white,
+colframe=mintframe,
+colbacktitle=minttitle!70!white,
+coltitle=white,
+title=\textbf{#1},
+fonttitle=\bfseries,
+sharp corners=south, 
+borderline={0.8pt}{0pt}{minttitle},
+boxrule=0.8pt,
+arc=6pt, 
+left=6pt, right=6pt, top=6pt, bottom=6pt,
+before skip=10pt, after skip=10pt,
+drop shadow=black!15, 
+}
+\newtcolorbox{takeawaysbox}{
+enhanced,
+breakable,
+colback=mintblue!40!white,
+colframe=mintframe,
+colbacktitle=minttitle!70!white,
+coltitle=white,
+title=\textbf{Key Takeaways},
+fonttitle=\bfseries,
+sharp corners=south, 
+borderline={0.8pt}{0pt}{minttitle},
+boxrule=0.8pt,
+arc=6pt, 
+left=6pt, right=6pt, top=6pt, bottom=6pt,
+before skip=10pt, after skip=10pt,
+drop shadow=black!15, 
+}
 \makeatother
 
 %% ── llmXive paper metadata ──────────────────────────────────
 \title{Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling}
-\author{\textbf{Yafu Li}$^{1,2}$\thanks{~Core contributors. Yafu Li is the project lead.}\kern0.45em\thanks{~Corresponding authors. Contact: \texttt{yafuly@gmail.com} and \texttt{chengyu@cse.cuhk.edu.hk}.}, \enspace
-\textbf{Runzhe Zhan}$^{1}$\footnotemark[1], \enspace
-\textbf{Haoran Zhang}$^{1,4}$\footnotemark[1], \enspace
-\textbf{Shunkai Zhang}$^{1,5}$\footnotemark[1], \enspace
-\textbf{Yizhuo Li}$^{1}$\footnotemark[1], \enspace\\
-\textbf{~Zhilin Wang}$^{1}$, \enspace
-\textbf{Jiacheng Chen}$^{2}$, \enspace
-\textbf{Futing Wang}$^{1}$, \enspace
-\textbf{Xuyang Hu}$^{1}$, \enspace
-\textbf{Yuchen Fan}$^{1}$, \enspace\\
-\textbf{~Bangjie Xu}$^{3}$, \enspace
-\textbf{Yucheng Su}$^{3}$, \enspace
-\textbf{Xinmiao Han}$^{3}$, \enspace
-\textbf{Chenxi Li}$^{1}$, \enspace
-\textbf{Haodi Lei}$^{1}$, \enspace
-\textbf{Yufeng Zhao}$^{1}$, \enspace\\
-\textbf{~Zejin Lin}$^{3}$, \enspace
-\textbf{Qianjia Cheng}$^{1}$, \enspace
-\textbf{Tong Zhu}$^{1}$, \enspace
-\textbf{Xiaoye Qu}$^{1}$, \enspace
-\textbf{Ganqu Cui}$^{1}$, \enspace
-\textbf{Peng Ye}$^{1}$\footnotemark[2], \enspace\\
-\textbf{~Yun Luo}$^{1}$\footnotemark[2], \enspace
-\textbf{~Zhouchen Lin}$^{5}$, \enspace
-\textbf{~Yu Qiao}$^{1}$, \enspace
-\textbf{Bowen Zhou}$^{1,3}$\footnotemark[2], \enspace
-\textbf{Ning Ding}$^{3,1}$\footnotemark[2], \enspace
-\textbf{Yu Cheng}$^{2,1}$\footnotemark[2]
-\\
-$^{1}$Shanghai AI Laboratory \quad
-$^{2}$The Chinese University of Hong Kong\quad
-$^{3}$Tsinghua University \\
-$^{4}$Shanghai Jiao Tong University \quad
-$^{5}$Peking University}
+\author{Yafu Li \and Runzhe Zhan \and Haoran Zhang \and Shunkai Zhang \and Yizhuo Li \and Zhilin Wang \and Jiacheng Chen \and Futing Wang \and Xuyang Hu \and Yuchen Fan \and Bangjie Xu \and Yucheng Su \and Xinmiao Han \and Chenxi Li \and Haodi Lei \and Yufeng Zhao \and Zejin Lin \and Qianjia Cheng \and Tong Zhu \and Xiaoye Qu \and Ganqu Cui \and Peng Ye \and Yun Luo \and Zhouchen Lin \and Yu Qiao \and Bowen Zhou \and Ning Ding \and Yu Cheng}
 \paperid{arXiv:2605.13301}
 \paperstatus{Preprint}
 
@@ -626,10 +645,10 @@ performance with test-time scaling.
 Applying this recipe, we train a \textit{30B-A3B}
 backbone with SFT on around \textit{340K sub-8K-token} trajectories followed by \textit{200} RL
 steps. 
-% The resulting model, \textbf{\textcolor{iclrdeepblue}{SU-01}}, achieves
+% The resulting model, \textbf{SU-01}, achieves
 % gold-medal-level performance on mathematical and physical
 % olympiad competitions, including \textbf{IMO 2025/USAMO 2026} and \textbf{IPhO 2024/2025}. 
-The resulting model, \textbf{\textcolor{iclrdeepblue}{SU-01}}, supports
+The resulting model, \textbf{SU-01}, supports
   stable reasoning on difficult problems with trajectories exceeding \textit{100K} tokens,
   while achieving gold-medal-level performance on mathematical and physical
   olympiad competitions, including \textbf{IMO 2025/USAMO 2026} and \textbf{IPhO 2024/2025}. 
@@ -646,14 +665,7 @@ The resulting model, \textbf{\textcolor{iclrdeepblue}{SU-01}}, supports
 \vspace{-1.45em}
 
 
-\begin{center}
-\vspace{-1em}
-~\projectpage~\href{http://simplified-reasoning.github.io/SU-01}{{\text{Project Page}}}
-\quad \quad \quad
-~\github~\href{https://github.com/Simplified-Reasoning/SU-01}{{\text{Code}}}
-\quad \quad \quad
-~\huggingface~\href{https://huggingface.co/Simplified-Reasoning/SU-01}{{\text{Models}}}
-\end{center}
+
 
 \begin{center}
 \vspace{-1em}
@@ -828,7 +840,7 @@ extends the OpenCodeReasoning data-distillation line for competitive coding
 \begin{figure}[t]
 \vspace{-8pt}
 \centering
-\includegraphics[width=\linewidth]{figure/sft_data_composition_1.pdf}
+\includegraphics[width=0.46\linewidth]{figure/sft_data_composition_1.pdf}
 \caption{Composition of the SFT data after filtering. Math, STEM, Code, and IF form the direct-generation group; Self-Verify and Self-Refine form the self-improvement group.}
 \label{fig:sft-data-category}
 \vspace{-12pt}
@@ -1521,7 +1533,7 @@ Across the twelve IMO 2025 and USAMO 2026 problems, the model gives full-credit 
 \begin{figure}[t]
 \vspace{-70 pt}
     \centering
-    \includegraphics[width=\linewidth]{figure/progressive_rigorous_reasoning.pdf}
+    \includegraphics[width=0.48\textwidth]{figure/progressive_rigorous_reasoning.pdf}
     \vspace{-18 pt}
     \caption{{Progressive reasoning performance across training stages.} 
     % AnswerBench
@@ -1576,7 +1588,7 @@ feedback or a bug report and then produce a revised proof.
 \begin{figure}[t]
 \vspace{-8pt}
 \centering
-\includegraphics[width=\linewidth]{figure/tts_action_length_distribution_1.pdf}
+\includegraphics[width=0.64\linewidth]{figure/tts_action_length_distribution_1.pdf}
 \vspace{-15 pt}
 \caption{{Generation-length distribution of actions in the TTS pipeline on USAMO 2026. }
 % Each point denotes one model response, the box marks the interquartile range, and the vertical line marks the median.
@@ -1613,7 +1625,7 @@ verifying and refining its own solutions toward stronger candidates.
 \begin{figure}[t]
 \vspace{-55pt}
 \centering
-\includegraphics[width=\linewidth]{figure/sft_ppl_curriculum.pdf}
+\includegraphics[width=0.37\textwidth]{figure/sft_ppl_curriculum.pdf}
 \vspace{-16pt}
 \caption{{Validation results for SFT data ordering.}}
 \label{fig:sft-ppl-curriculum}
