@@ -901,11 +901,11 @@
   "aggregates": {
     "active_projects": 614,
     "ai_contributors": 7,
-    "human_contributors": 344,
+    "human_contributors": 428,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 1983,
-    "total_contributors": 351
+    "total_contributions": 2080,
+    "total_contributors": 435
   },
   "contributors": [
     {
@@ -1013,6 +1013,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Song Han"
+    },
+    {
+      "areas": [
         "linguistics",
         "other"
       ],
@@ -1035,7 +1043,79 @@
       ],
       "contribution_count": 2,
       "kind": "human",
-      "name": "Song Han"
+      "name": "Enze Xie"
+    },
+    {
+      "areas": [
+        "linguistics",
+        "other"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Jiaru Zou"
+    },
+    {
+      "areas": [
+        "linguistics",
+        "other"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Jingrui He"
+    },
+    {
+      "areas": [
+        "linguistics",
+        "other"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Mengting Ai"
+    },
+    {
+      "areas": [
+        "linguistics",
+        "other"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Sirui Chen"
+    },
+    {
+      "areas": [
+        "linguistics",
+        "other"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Tianxin Wei"
+    },
+    {
+      "areas": [
+        "computer science",
+        "other"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Xiaojuan Qi"
+    },
+    {
+      "areas": [
+        "linguistics",
+        "other"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Xiyuan Yang"
+    },
+    {
+      "areas": [
+        "linguistics",
+        "other"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Xuying Ning"
     },
     {
       "areas": [
@@ -1051,7 +1131,33 @@
       ],
       "contribution_count": 2,
       "kind": "human",
+      "name": "Yuyang Zhao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
       "name": "Zhaowei Wang"
+    },
+    {
+      "areas": [
+        "linguistics",
+        "other"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Zihao Li"
+    },
+    {
+      "areas": [
+        "computer science",
+        "other"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Ziwei Liu"
     },
     {
       "areas": [
@@ -1155,7 +1261,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Benoit R. Cottereau"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Bin Yu"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Bingxuan Li"
     },
     {
       "areas": [
@@ -1167,11 +1289,27 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Bo Tang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Bo Zheng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Bohan Zhang"
     },
     {
       "areas": [
@@ -1239,6 +1377,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Cheng Qian"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -1260,6 +1406,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Chenxu Yang"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chenyuan Yang"
     },
     {
       "areas": [
@@ -1379,6 +1533,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Dongqi Fu"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Dongsheng Ma"
     },
     {
@@ -1388,6 +1550,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Dongxu Zhang"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Dorothy Sun"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Dylan Zhang"
     },
     {
       "areas": [
@@ -1404,14 +1582,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Elad Hoffer"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Enze Xie"
     },
     {
       "areas": [
@@ -1439,11 +1609,35 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Fei Ding"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Feihao Fang"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Feiyu Xiong"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Fengyi Fu"
     },
     {
       "areas": [
@@ -1476,6 +1670,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Ganqu Cui"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Gaotang Li"
     },
     {
       "areas": [
@@ -1567,11 +1769,27 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Hanghang Tong"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Hanzhong Guo"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Hao Li"
     },
     {
       "areas": [
@@ -1631,6 +1849,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Haoyan Yang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -1687,11 +1913,35 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Hong Li"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Hong Yan"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Hongquan Gu"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Hongyi Liu"
     },
     {
       "areas": [
@@ -1723,6 +1973,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Huizi Mao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Irvine Lu"
     },
     {
@@ -1740,6 +1998,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jiabao Pan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jiachen Liu"
     },
     {
       "areas": [
@@ -1779,15 +2045,15 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Jiaqi Wang"
+      "name": "Jianzhu Guo"
     },
     {
       "areas": [
-        "other"
+        "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Jiaru Zou"
+      "name": "Jiaqi Wang"
     },
     {
       "areas": [
@@ -1860,14 +2126,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jingdong Wang"
-    },
-    {
-      "areas": [
-        "other"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Jingrui He"
     },
     {
       "areas": [
@@ -2047,6 +2305,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Katherine Tieu"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2055,11 +2321,27 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ke Yang"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Keming Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Kevin Qinghong Lin"
     },
     {
       "areas": [
@@ -2092,6 +2374,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Kyrie Lei"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Lai Xing Ng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Leigang Qu"
     },
     {
       "areas": [
@@ -2163,6 +2461,38 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Linfeng Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Lingdong Kong"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Lingjie Chen"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Lingming Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Lingyue Fu"
     },
     {
@@ -2172,6 +2502,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Linxiao Yuan"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Liri Fang"
     },
     {
       "areas": [
@@ -2211,7 +2549,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Luozhou Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Maeve Luo"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Mahesh Srinivasan"
     },
     {
       "areas": [
@@ -2223,11 +2577,11 @@
     },
     {
       "areas": [
-        "other"
+        "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Mengting Ai"
+      "name": "Mengqi Huang"
     },
     {
       "areas": [
@@ -2343,6 +2697,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Nipun Mathur"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2364,6 +2726,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Oluwanifemi Bamgbose"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Pan Chen"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Pan Lu"
     },
     {
       "areas": [
@@ -2411,6 +2789,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Qian He"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Qianjia Cheng"
     },
     {
@@ -2420,6 +2806,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Qijie Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qing Wu"
     },
     {
       "areas": [
@@ -2444,6 +2838,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Qiuyu Jin"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qixin Hu"
     },
     {
       "areas": [
@@ -2495,6 +2897,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ren Chen"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2515,7 +2925,47 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Rong Li"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Rui Pan"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ruida Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ruihang Chu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Ruijia Zhang"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ruizhong Qiu"
     },
     {
       "areas": [
@@ -2540,6 +2990,30 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Saiyong Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shaojin Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shaoteng Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shaoyuan Xie"
     },
     {
       "areas": [
@@ -2572,6 +3046,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Shijian Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shijie Li"
     },
     {
       "areas": [
@@ -2619,6 +3101,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Shuai Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Shunkai Zhang"
     },
     {
@@ -2655,14 +3145,6 @@
     },
     {
       "areas": [
-        "other"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Sirui Chen"
-    },
-    {
-      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2676,6 +3158,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Song Cao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Song Wang"
     },
     {
       "areas": [
@@ -2719,11 +3209,27 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Tao Jiang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Tara Bogavelli"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Tat-Seng Chua"
     },
     {
       "areas": [
@@ -2767,11 +3273,11 @@
     },
     {
       "areas": [
-        "other"
+        "linguistics"
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Tianxin Wei"
+      "name": "Ting-Wei Li"
     },
     {
       "areas": [
@@ -2780,6 +3286,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Tong He"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Tong Zhang"
     },
     {
       "areas": [
@@ -2827,7 +3341,47 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Wei Chow"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Wei Gao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Wei Huang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Wei Tsang Ooi"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Wei Zhao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Weian Mao"
     },
     {
       "areas": [
@@ -2947,7 +3501,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Xian Sun"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Xiang Liu"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiao Lin"
     },
     {
       "areas": [
@@ -2964,14 +3534,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xiao Yang"
-    },
-    {
-      "areas": [
-        "other"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Xiaojuan Qi"
     },
     {
       "areas": [
@@ -3119,11 +3681,11 @@
     },
     {
       "areas": [
-        "other"
+        "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Xiyuan Yang"
+      "name": "Xuan Billy Zhang"
     },
     {
       "areas": [
@@ -3167,14 +3729,6 @@
     },
     {
       "areas": [
-        "other"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Xuying Ning"
-    },
-    {
-      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -3199,11 +3753,27 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yang Cao"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Yang Shi"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yanjun Zhao"
     },
     {
       "areas": [
@@ -3251,6 +3821,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yicheng Xiao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yifan Dai"
     },
     {
@@ -3260,6 +3838,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yifan Pu"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yifan Sun"
     },
     {
       "areas": [
@@ -3307,6 +3893,38 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Ying-Cong Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yinghang Song"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yinglong Xia"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yingshuo Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yixian Xu"
     },
     {
@@ -3340,6 +3958,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yong Yu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yongdong Zhang"
     },
     {
       "areas": [
@@ -3388,6 +4014,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yuan Lu"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuanchen Bei"
     },
     {
       "areas": [
@@ -3443,6 +4077,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yufei Huo"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yufeng Zhao"
     },
     {
@@ -3483,6 +4125,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yukang Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yukun Shi"
     },
     {
@@ -3500,6 +4150,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yun Luo"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yunsheng Jiang"
     },
     {
       "areas": [
@@ -3547,14 +4205,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Yuyang Zhao"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Yuyi Jiang"
     },
     {
@@ -3588,6 +4238,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zhaolong Shen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhendong Mao"
     },
     {
       "areas": [
@@ -3635,6 +4293,22 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Zheren Fu"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhichen Zeng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Zhihui Li"
     },
     {
@@ -3644,6 +4318,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zhilin Wang"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhining Liu"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhiyu Li"
     },
     {
       "areas": [
@@ -3703,14 +4393,6 @@
     },
     {
       "areas": [
-        "other"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Zihao Li"
-    },
-    {
-      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -3724,6 +4406,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zikai Zhou"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zikun Cui"
     },
     {
       "areas": [
@@ -3755,18 +4445,10 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Ziwei Liu"
-    },
-    {
-      "areas": [
-        "other"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-20T10:33:22.738458+00:00",
+  "generated_at": "2026-05-20T11:05:05.566059+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -4006,27 +4688,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-606-https-arxiv-org-abs-2605-18747",
           "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-          "title": "https://arxiv.org/abs/2605.18747"
+          "title": "Code as Agent Harness"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-605-https-arxiv-org-abs-2605-18401",
           "project_id": "PROJ-605-https-arxiv-org-abs-2605-18401",
-          "title": "https://arxiv.org/abs/2605.18401"
+          "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-604-https-arxiv-org-abs-2605-18739",
           "project_id": "PROJ-604-https-arxiv-org-abs-2605-18739",
-          "title": "https://arxiv.org/abs/2605.18739"
+          "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-603-https-arxiv-org-abs-2605-18678",
           "project_id": "PROJ-603-https-arxiv-org-abs-2605-18678",
-          "title": "https://arxiv.org/abs/2605.18678"
+          "title": "Lance: Unified Multimodal Modeling by Multi-Task Synergy"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-602-https-arxiv-org-abs-2605-18661",
           "project_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-          "title": "https://arxiv.org/abs/2605.18661"
+          "title": "AI for Auto-Research: Roadmap & User Guide"
         }
       ],
       "inputs": [
@@ -4050,27 +4732,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-606-https-arxiv-org-abs-2605-18747",
           "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-          "title": "https://arxiv.org/abs/2605.18747"
+          "title": "Code as Agent Harness"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-605-https-arxiv-org-abs-2605-18401",
           "project_id": "PROJ-605-https-arxiv-org-abs-2605-18401",
-          "title": "https://arxiv.org/abs/2605.18401"
+          "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-604-https-arxiv-org-abs-2605-18739",
           "project_id": "PROJ-604-https-arxiv-org-abs-2605-18739",
-          "title": "https://arxiv.org/abs/2605.18739"
+          "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-603-https-arxiv-org-abs-2605-18678",
           "project_id": "PROJ-603-https-arxiv-org-abs-2605-18678",
-          "title": "https://arxiv.org/abs/2605.18678"
+          "title": "Lance: Unified Multimodal Modeling by Multi-Task Synergy"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-602-https-arxiv-org-abs-2605-18661",
           "project_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-          "title": "https://arxiv.org/abs/2605.18661"
+          "title": "AI for Auto-Research: Roadmap & User Guide"
         }
       ],
       "inputs": [
@@ -4094,27 +4776,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-606-https-arxiv-org-abs-2605-18747",
           "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-          "title": "https://arxiv.org/abs/2605.18747"
+          "title": "Code as Agent Harness"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-605-https-arxiv-org-abs-2605-18401",
           "project_id": "PROJ-605-https-arxiv-org-abs-2605-18401",
-          "title": "https://arxiv.org/abs/2605.18401"
+          "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-604-https-arxiv-org-abs-2605-18739",
           "project_id": "PROJ-604-https-arxiv-org-abs-2605-18739",
-          "title": "https://arxiv.org/abs/2605.18739"
+          "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-603-https-arxiv-org-abs-2605-18678",
           "project_id": "PROJ-603-https-arxiv-org-abs-2605-18678",
-          "title": "https://arxiv.org/abs/2605.18678"
+          "title": "Lance: Unified Multimodal Modeling by Multi-Task Synergy"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-602-https-arxiv-org-abs-2605-18661",
           "project_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-          "title": "https://arxiv.org/abs/2605.18661"
+          "title": "AI for Auto-Research: Roadmap & User Guide"
         }
       ],
       "inputs": [
@@ -4138,27 +4820,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-606-https-arxiv-org-abs-2605-18747",
           "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-          "title": "https://arxiv.org/abs/2605.18747"
+          "title": "Code as Agent Harness"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-605-https-arxiv-org-abs-2605-18401",
           "project_id": "PROJ-605-https-arxiv-org-abs-2605-18401",
-          "title": "https://arxiv.org/abs/2605.18401"
+          "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-604-https-arxiv-org-abs-2605-18739",
           "project_id": "PROJ-604-https-arxiv-org-abs-2605-18739",
-          "title": "https://arxiv.org/abs/2605.18739"
+          "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-603-https-arxiv-org-abs-2605-18678",
           "project_id": "PROJ-603-https-arxiv-org-abs-2605-18678",
-          "title": "https://arxiv.org/abs/2605.18678"
+          "title": "Lance: Unified Multimodal Modeling by Multi-Task Synergy"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-602-https-arxiv-org-abs-2605-18661",
           "project_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-          "title": "https://arxiv.org/abs/2605.18661"
+          "title": "AI for Auto-Research: Roadmap & User Guide"
         }
       ],
       "inputs": [
@@ -4181,27 +4863,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-606-https-arxiv-org-abs-2605-18747",
           "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-          "title": "https://arxiv.org/abs/2605.18747"
+          "title": "Code as Agent Harness"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-605-https-arxiv-org-abs-2605-18401",
           "project_id": "PROJ-605-https-arxiv-org-abs-2605-18401",
-          "title": "https://arxiv.org/abs/2605.18401"
+          "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-604-https-arxiv-org-abs-2605-18739",
           "project_id": "PROJ-604-https-arxiv-org-abs-2605-18739",
-          "title": "https://arxiv.org/abs/2605.18739"
+          "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-603-https-arxiv-org-abs-2605-18678",
           "project_id": "PROJ-603-https-arxiv-org-abs-2605-18678",
-          "title": "https://arxiv.org/abs/2605.18678"
+          "title": "Lance: Unified Multimodal Modeling by Multi-Task Synergy"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-602-https-arxiv-org-abs-2605-18661",
           "project_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-          "title": "https://arxiv.org/abs/2605.18661"
+          "title": "AI for Auto-Research: Roadmap & User Guide"
         }
       ],
       "inputs": [
@@ -4224,27 +4906,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-606-https-arxiv-org-abs-2605-18747",
           "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-          "title": "https://arxiv.org/abs/2605.18747"
+          "title": "Code as Agent Harness"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-605-https-arxiv-org-abs-2605-18401",
           "project_id": "PROJ-605-https-arxiv-org-abs-2605-18401",
-          "title": "https://arxiv.org/abs/2605.18401"
+          "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-604-https-arxiv-org-abs-2605-18739",
           "project_id": "PROJ-604-https-arxiv-org-abs-2605-18739",
-          "title": "https://arxiv.org/abs/2605.18739"
+          "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-603-https-arxiv-org-abs-2605-18678",
           "project_id": "PROJ-603-https-arxiv-org-abs-2605-18678",
-          "title": "https://arxiv.org/abs/2605.18678"
+          "title": "Lance: Unified Multimodal Modeling by Multi-Task Synergy"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-602-https-arxiv-org-abs-2605-18661",
           "project_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-          "title": "https://arxiv.org/abs/2605.18661"
+          "title": "AI for Auto-Research: Roadmap & User Guide"
         }
       ],
       "inputs": [
@@ -4270,27 +4952,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-606-https-arxiv-org-abs-2605-18747",
           "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-          "title": "https://arxiv.org/abs/2605.18747"
+          "title": "Code as Agent Harness"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-605-https-arxiv-org-abs-2605-18401",
           "project_id": "PROJ-605-https-arxiv-org-abs-2605-18401",
-          "title": "https://arxiv.org/abs/2605.18401"
+          "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-604-https-arxiv-org-abs-2605-18739",
           "project_id": "PROJ-604-https-arxiv-org-abs-2605-18739",
-          "title": "https://arxiv.org/abs/2605.18739"
+          "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-603-https-arxiv-org-abs-2605-18678",
           "project_id": "PROJ-603-https-arxiv-org-abs-2605-18678",
-          "title": "https://arxiv.org/abs/2605.18678"
+          "title": "Lance: Unified Multimodal Modeling by Multi-Task Synergy"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-602-https-arxiv-org-abs-2605-18661",
           "project_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-          "title": "https://arxiv.org/abs/2605.18661"
+          "title": "AI for Auto-Research: Roadmap & User Guide"
         }
       ],
       "inputs": [
@@ -4322,27 +5004,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-606-https-arxiv-org-abs-2605-18747",
           "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-          "title": "https://arxiv.org/abs/2605.18747"
+          "title": "Code as Agent Harness"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-605-https-arxiv-org-abs-2605-18401",
           "project_id": "PROJ-605-https-arxiv-org-abs-2605-18401",
-          "title": "https://arxiv.org/abs/2605.18401"
+          "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-604-https-arxiv-org-abs-2605-18739",
           "project_id": "PROJ-604-https-arxiv-org-abs-2605-18739",
-          "title": "https://arxiv.org/abs/2605.18739"
+          "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-603-https-arxiv-org-abs-2605-18678",
           "project_id": "PROJ-603-https-arxiv-org-abs-2605-18678",
-          "title": "https://arxiv.org/abs/2605.18678"
+          "title": "Lance: Unified Multimodal Modeling by Multi-Task Synergy"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-602-https-arxiv-org-abs-2605-18661",
           "project_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-          "title": "https://arxiv.org/abs/2605.18661"
+          "title": "AI for Auto-Research: Roadmap & User Guide"
         }
       ],
       "inputs": [
@@ -4366,27 +5048,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-606-https-arxiv-org-abs-2605-18747",
           "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-          "title": "https://arxiv.org/abs/2605.18747"
+          "title": "Code as Agent Harness"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-605-https-arxiv-org-abs-2605-18401",
           "project_id": "PROJ-605-https-arxiv-org-abs-2605-18401",
-          "title": "https://arxiv.org/abs/2605.18401"
+          "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-604-https-arxiv-org-abs-2605-18739",
           "project_id": "PROJ-604-https-arxiv-org-abs-2605-18739",
-          "title": "https://arxiv.org/abs/2605.18739"
+          "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-603-https-arxiv-org-abs-2605-18678",
           "project_id": "PROJ-603-https-arxiv-org-abs-2605-18678",
-          "title": "https://arxiv.org/abs/2605.18678"
+          "title": "Lance: Unified Multimodal Modeling by Multi-Task Synergy"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-602-https-arxiv-org-abs-2605-18661",
           "project_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-          "title": "https://arxiv.org/abs/2605.18661"
+          "title": "AI for Auto-Research: Roadmap & User Guide"
         }
       ],
       "inputs": [
@@ -4409,27 +5091,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-606-https-arxiv-org-abs-2605-18747",
           "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-          "title": "https://arxiv.org/abs/2605.18747"
+          "title": "Code as Agent Harness"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-605-https-arxiv-org-abs-2605-18401",
           "project_id": "PROJ-605-https-arxiv-org-abs-2605-18401",
-          "title": "https://arxiv.org/abs/2605.18401"
+          "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-604-https-arxiv-org-abs-2605-18739",
           "project_id": "PROJ-604-https-arxiv-org-abs-2605-18739",
-          "title": "https://arxiv.org/abs/2605.18739"
+          "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-603-https-arxiv-org-abs-2605-18678",
           "project_id": "PROJ-603-https-arxiv-org-abs-2605-18678",
-          "title": "https://arxiv.org/abs/2605.18678"
+          "title": "Lance: Unified Multimodal Modeling by Multi-Task Synergy"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-602-https-arxiv-org-abs-2605-18661",
           "project_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-          "title": "https://arxiv.org/abs/2605.18661"
+          "title": "AI for Auto-Research: Roadmap & User Guide"
         }
       ],
       "inputs": [
@@ -4453,27 +5135,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-606-https-arxiv-org-abs-2605-18747",
           "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-          "title": "https://arxiv.org/abs/2605.18747"
+          "title": "Code as Agent Harness"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-605-https-arxiv-org-abs-2605-18401",
           "project_id": "PROJ-605-https-arxiv-org-abs-2605-18401",
-          "title": "https://arxiv.org/abs/2605.18401"
+          "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-604-https-arxiv-org-abs-2605-18739",
           "project_id": "PROJ-604-https-arxiv-org-abs-2605-18739",
-          "title": "https://arxiv.org/abs/2605.18739"
+          "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-603-https-arxiv-org-abs-2605-18678",
           "project_id": "PROJ-603-https-arxiv-org-abs-2605-18678",
-          "title": "https://arxiv.org/abs/2605.18678"
+          "title": "Lance: Unified Multimodal Modeling by Multi-Task Synergy"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-602-https-arxiv-org-abs-2605-18661",
           "project_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-          "title": "https://arxiv.org/abs/2605.18661"
+          "title": "AI for Auto-Research: Roadmap & User Guide"
         }
       ],
       "inputs": [
@@ -4496,27 +5178,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-606-https-arxiv-org-abs-2605-18747",
           "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-          "title": "https://arxiv.org/abs/2605.18747"
+          "title": "Code as Agent Harness"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-605-https-arxiv-org-abs-2605-18401",
           "project_id": "PROJ-605-https-arxiv-org-abs-2605-18401",
-          "title": "https://arxiv.org/abs/2605.18401"
+          "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-604-https-arxiv-org-abs-2605-18739",
           "project_id": "PROJ-604-https-arxiv-org-abs-2605-18739",
-          "title": "https://arxiv.org/abs/2605.18739"
+          "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-603-https-arxiv-org-abs-2605-18678",
           "project_id": "PROJ-603-https-arxiv-org-abs-2605-18678",
-          "title": "https://arxiv.org/abs/2605.18678"
+          "title": "Lance: Unified Multimodal Modeling by Multi-Task Synergy"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-602-https-arxiv-org-abs-2605-18661",
           "project_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-          "title": "https://arxiv.org/abs/2605.18661"
+          "title": "AI for Auto-Research: Roadmap & User Guide"
         }
       ],
       "inputs": [
@@ -4547,27 +5229,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-606-https-arxiv-org-abs-2605-18747",
           "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-          "title": "https://arxiv.org/abs/2605.18747"
+          "title": "Code as Agent Harness"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-605-https-arxiv-org-abs-2605-18401",
           "project_id": "PROJ-605-https-arxiv-org-abs-2605-18401",
-          "title": "https://arxiv.org/abs/2605.18401"
+          "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-604-https-arxiv-org-abs-2605-18739",
           "project_id": "PROJ-604-https-arxiv-org-abs-2605-18739",
-          "title": "https://arxiv.org/abs/2605.18739"
+          "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-603-https-arxiv-org-abs-2605-18678",
           "project_id": "PROJ-603-https-arxiv-org-abs-2605-18678",
-          "title": "https://arxiv.org/abs/2605.18678"
+          "title": "Lance: Unified Multimodal Modeling by Multi-Task Synergy"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-602-https-arxiv-org-abs-2605-18661",
           "project_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-          "title": "https://arxiv.org/abs/2605.18661"
+          "title": "AI for Auto-Research: Roadmap & User Guide"
         }
       ],
       "inputs": [
@@ -4593,27 +5275,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-606-https-arxiv-org-abs-2605-18747",
           "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-          "title": "https://arxiv.org/abs/2605.18747"
+          "title": "Code as Agent Harness"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-605-https-arxiv-org-abs-2605-18401",
           "project_id": "PROJ-605-https-arxiv-org-abs-2605-18401",
-          "title": "https://arxiv.org/abs/2605.18401"
+          "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-604-https-arxiv-org-abs-2605-18739",
           "project_id": "PROJ-604-https-arxiv-org-abs-2605-18739",
-          "title": "https://arxiv.org/abs/2605.18739"
+          "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-603-https-arxiv-org-abs-2605-18678",
           "project_id": "PROJ-603-https-arxiv-org-abs-2605-18678",
-          "title": "https://arxiv.org/abs/2605.18678"
+          "title": "Lance: Unified Multimodal Modeling by Multi-Task Synergy"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-602-https-arxiv-org-abs-2605-18661",
           "project_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-          "title": "https://arxiv.org/abs/2605.18661"
+          "title": "AI for Auto-Research: Roadmap & User Guide"
         }
       ],
       "inputs": [
@@ -4648,27 +5330,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-606-https-arxiv-org-abs-2605-18747",
           "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-          "title": "https://arxiv.org/abs/2605.18747"
+          "title": "Code as Agent Harness"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-605-https-arxiv-org-abs-2605-18401",
           "project_id": "PROJ-605-https-arxiv-org-abs-2605-18401",
-          "title": "https://arxiv.org/abs/2605.18401"
+          "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-604-https-arxiv-org-abs-2605-18739",
           "project_id": "PROJ-604-https-arxiv-org-abs-2605-18739",
-          "title": "https://arxiv.org/abs/2605.18739"
+          "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-603-https-arxiv-org-abs-2605-18678",
           "project_id": "PROJ-603-https-arxiv-org-abs-2605-18678",
-          "title": "https://arxiv.org/abs/2605.18678"
+          "title": "Lance: Unified Multimodal Modeling by Multi-Task Synergy"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-602-https-arxiv-org-abs-2605-18661",
           "project_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-          "title": "https://arxiv.org/abs/2605.18661"
+          "title": "AI for Auto-Research: Roadmap & User Guide"
         }
       ],
       "inputs": [
@@ -59830,7 +60512,168 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lingdong Kong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xian Sun",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wei Chow",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Linfeng Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kevin Qinghong Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xuan Billy Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Song Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Rong Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qing Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wei Gao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yingshuo Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shaoyuan Xie",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiachen Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Leigang Qu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shijie Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lai Xing Ng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Benoit R. Cottereau",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ziwei Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tat-Seng Chua",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wei Tsang Ooi",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -59845,8 +60688,8 @@
         "type": "latex"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.18661 Submitted by: github-actions[bot] (Intake from human-submission issue #208.)",
-      "field": "other",
+      "description": "AI-assisted research is crossing a threshold: fully automated systems can now generate research papers for as little as $15, while long-horizon agents can execute experiments, draft manuscripts, and simulate critique with minimal human input. Yet this productivity frontier exposes a deeper integrity problem: under\u2026",
+      "field": "computer science",
       "id": "PROJ-602-https-arxiv-org-abs-2605-18661",
       "keywords": [],
       "last_run_log": [
@@ -59867,8 +60710,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.18661",
-      "updated_at": "2026-05-20T09:08:52.164687+00:00",
+      "title": "AI for Auto-Research: Roadmap & User Guide",
+      "updated_at": "2026-05-20T11:03:37.299030+00:00",
       "upstream_feedback": null
     },
     {
@@ -59891,7 +60734,112 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Fengyi Fu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mengqi Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shaojin Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yunsheng Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yufei Huo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hao Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yinghang Song",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Fei Ding",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jianzhu Guo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qian He",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zheren Fu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhendong Mao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yongdong Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -59906,8 +60854,8 @@
         "type": "latex"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.18678 Submitted by: github-actions[bot] (Intake from human-submission issue #207.)",
-      "field": "other",
+      "description": "We present Lance, a lightweight native unified model supporting multimodal understanding, generation, and editing for both images and videos. Rather than relying on model capacity scaling or text-image-dominant designs, Lance explores a practical paradigm for unified multimodal modeling via collaborative multi-task\u2026",
+      "field": "computer science",
       "id": "PROJ-603-https-arxiv-org-abs-2605-18678",
       "keywords": [],
       "last_run_log": [
@@ -59928,8 +60876,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.18678",
-      "updated_at": "2026-05-20T09:08:57.962126+00:00",
+      "title": "Lance: Unified Multimodal Modeling by Multi-Task Synergy",
+      "updated_at": "2026-05-20T11:03:37.393208+00:00",
       "upstream_feedback": null
     },
     {
@@ -59952,7 +60900,136 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yukang Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Luozhou Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wei Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shuai Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bohan Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yicheng Xiao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ruihang Chu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Weian Mao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qixin Hu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shaoteng Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuyang Zhao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Huizi Mao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ying-Cong Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Enze Xie",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiaojuan Qi",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Song Han",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -59967,8 +61044,8 @@
         "type": "latex"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.18739 Submitted by: github-actions[bot] (Intake from human-submission issue #206.)",
-      "field": "other",
+      "description": "We present LongLive-2.0, an NVFP4-based parallel infrastructure throughout the full training and inference workflow of long video generation, addressing speed and memory bottlenecks. For training, we introduce sequence-parallel autoregressive (AR) training, instantiated as Balanced SP, which co-designs the efficient\u2026",
+      "field": "computer science",
       "id": "PROJ-604-https-arxiv-org-abs-2605-18739",
       "keywords": [],
       "last_run_log": [
@@ -59989,8 +61066,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.18739",
-      "updated_at": "2026-05-20T09:09:00.351778+00:00",
+      "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation",
+      "updated_at": "2026-05-20T11:03:37.479688+00:00",
       "upstream_feedback": null
     },
     {
@@ -60013,7 +61090,56 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hongyi Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haoyan Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tao Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bo Tang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Feiyu Xiong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhiyu Li",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -60028,8 +61154,8 @@
         "type": "markdown"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.18401 Submitted by: github-actions[bot] (Intake from human-submission issue #205.)",
-      "field": "other",
+      "description": "Long-horizon LLM agents leave traces that could become reusable experience, but raw trajectories are noisy and hard to govern. We treat Agent Skills as an experience schema that couples executable scripts, with non-executable guidance on procedures. Yet open skill ecosystems contain redundant, uneven,\u2026",
+      "field": "linguistics",
       "id": "PROJ-605-https-arxiv-org-abs-2605-18401",
       "keywords": [],
       "last_run_log": [
@@ -60050,8 +61176,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.18401",
-      "updated_at": "2026-05-20T09:09:03.085087+00:00",
+      "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution",
+      "updated_at": "2026-05-20T11:03:37.559008+00:00",
       "upstream_feedback": null
     },
     {
@@ -60074,7 +61200,344 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xuying Ning",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Katherine Tieu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dongqi Fu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tianxin Wei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zihao Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuanchen Bei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiaru Zou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mengting Ai",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhining Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ting-Wei Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lingjie Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yanjun Zhao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ke Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bingxuan Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Cheng Qian",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Gaotang Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiao Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhichen Zeng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ruizhong Qiu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sirui Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yifan Sun",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiyuan Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ruida Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Rui Pan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chenyuan Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dylan Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Liri Fang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zikun Cui",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yang Cao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Pan Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dorothy Sun",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ren Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mahesh Srinivasan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Nipun Mathur",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yinglong Xia",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hong Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hong Yan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Pan Lu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lingming Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tong Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hanghang Tong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jingrui He",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -60089,8 +61552,8 @@
         "type": "latex"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.18747 Submitted by: github-actions[bot] (Intake from human-submission issue #204.)",
-      "field": "other",
+      "description": "Recent large language models (LLMs) have demonstrated strong capabilities in understanding and generating code, from competitive programming to repository-level software engineering. In emerging agentic systems, code is no longer only a target output. It increasingly serves as an operational substrate for agent\u2026",
+      "field": "linguistics",
       "id": "PROJ-606-https-arxiv-org-abs-2605-18747",
       "keywords": [],
       "last_run_log": [
@@ -60111,8 +61574,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.18747",
-      "updated_at": "2026-05-20T09:09:05.340364+00:00",
+      "title": "Code as Agent Harness",
+      "updated_at": "2026-05-20T11:03:37.649528+00:00",
       "upstream_feedback": null
     }
   ],
