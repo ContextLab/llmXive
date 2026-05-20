@@ -1,6 +1,6 @@
-last_used: eric-kandel
-last_used_at: '2026-05-20T20:44:00.667366+00:00'
-last_outcome: librarian_held
+last_used: freeman-dyson
+last_used_at: '2026-05-20T21:35:13.397998+00:00'
+last_outcome: committed
 history:
 - slug: ada-lovelace
   started_at: '1970-01-01T00:00:00+00:00'
@@ -1105,3 +1105,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/_held/freeman-dyson-simulated__2026-05-20__research.md
+- slug: freeman-dyson
+  started_at: '2026-05-20T20:44:00.667366+00:00'
+  ended_at: '2026-05-20T21:35:13.397998+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/freeman-dyson-simulated__2026-05-20__research.md
