@@ -495,10 +495,69 @@ def _forwarded_packages(*sources: str) -> list[str]:
                 if name in seen:
                     continue
                 seen.add(name)
-                if opts:
+                # natbib is ALWAYS loaded by llmxive.cls itself (with the
+                # house options `numbers,compress,sort`). Forwarding it again
+                # WITH options causes a fatal `! Option clash for package
+                # natbib` whenever the paper's own options differ from the
+                # class's (e.g. PROJ-603 used `[numbers, sort&compress]`,
+                # which is a different option string than `numbers,compress,
+                # sort` → clash → arXiv-fallback). Emit it WITHOUT options:
+                # a bare re-request of an already-loaded package is a no-op,
+                # and the class's options win — which is the intended house
+                # citation style anyway.
+                if name == "natbib":
+                    out.append(r"\usepackage{natbib}")
+                elif opts:
                     out.append(rf"\usepackage[{opts}]{{{name}}}")
                 else:
                     out.append(rf"\usepackage{{{name}}}")
+    return out
+
+
+# algorithm2e is mutually INCOMPATIBLE with the algorithmicx family
+# (algpseudocode) and the classic `algorithmic` package: they each define
+# the `algorithmic` environment / `\State` / `\For` etc. differently.
+# Loading both leaves the algorithmic list environment half-defined, so
+# `\end{algorithmic}` fails to restore the text width and EVERY following
+# paragraph renders in a ~1-inch column (PROJ-571: a 30-page paper blew up
+# to 107 pages of one-word-per-line text). Venue .cls bundles sometimes
+# `\RequirePackage` all of them, so the extractor forwards the whole
+# conflicting set. Resolve by which family the BODY actually uses.
+_ALG2E_USAGE_RE = re.compile(
+    r"\\(?:KwIn|KwOut|KwData|KwResult|KwRet|SetKwInOut|SetKwFunction|"
+    r"SetKwData|SetAlgoLined|SetAlgoNoLine|DontPrintSemicolon|BlankLine|"
+    r"Indp|Indm|tcp|tcc|eIf|lIf|lElse|uIf|uElse|SetKw)\b"
+    r"|\\begin\{algorithm2e\}"
+)
+_ALGX_USAGE_RE = re.compile(
+    r"\\(?:State|Statex|EndFor|EndIf|EndWhile|EndProcedure|EndFunction|"
+    r"EndLoop|Procedure|Ensure|Require)\b"
+)
+
+
+def _resolve_algorithm_conflict(pkgs: list[str], body: str) -> list[str]:
+    """Drop the algorithm-package family the body does NOT use, so
+    `algorithm2e` and `algpseudocode`/`algorithmic` never coexist."""
+    have_a2e = any("algorithm2e" in p for p in pkgs)
+    have_algx = any(("algpseudocode" in p) or ("algorithmicx" in p)
+                    or ("algorithmic" in p and "algorithmicx" not in p)
+                    for p in pkgs)
+    if not (have_a2e and have_algx):
+        return pkgs
+    a2e_hits = len(_ALG2E_USAGE_RE.findall(body))
+    algx_hits = len(_ALGX_USAGE_RE.findall(body))
+    # Default to keeping the algorithmicx family (the class supports it and
+    # most arXiv papers use \State/\For), drop algorithm2e — unless the body
+    # clearly uses algorithm2e more.
+    drop_a2e = a2e_hits <= algx_hits
+    out: list[str] = []
+    for p in pkgs:
+        if drop_a2e and "algorithm2e" in p:
+            continue
+        if not drop_a2e and (("algpseudocode" in p) or
+                             ("algorithmic" in p and "algorithmicx" not in p)):
+            continue
+        out.append(p)
     return out
 
 
@@ -626,6 +685,73 @@ def seen_names_from_forwarded(forwarded: list[str]) -> set[str]:
     return names
 
 
+_TCB_DEF_CMDS = ("newtcolorbox", "renewtcolorbox", "providetcolorbox",
+                 "DeclareTColorBox", "NewTColorBox")
+
+
+def _forwarded_tcolorbox(source: str) -> list[str]:
+    """Forward tcolorbox configuration the body relies on: `\\tcbuselibrary`,
+    `\\tcbset` styles, and `\\newtcolorbox` environment definitions.
+
+    Venue `.cls`/`.sty` bundles define custom callout/prompt boxes
+    (`\\newtcolorbox{promptbox}{...}`, `\\tcbset{agentscope/.style={...}}`)
+    in the preamble — which we discard. Without the definition the body's
+    `\\begin{promptbox}` / `\\begin{tcolorbox}[agentscope]` either errors or
+    (shimmed) dumps its content unboxed, where long prompt text overflows the
+    margin by hundreds of pt (PROJ-565, PROJ-601) or a styled callout loses
+    its frame (PROJ-606). Forwarding the definitions restores proper, content-
+    wrapping boxes. `\\tcbuselibrary` is forwarded first so `breakable`/`skins`
+    are available to the definitions that need them.
+    """
+    src = _strip_tex_comments(source)
+    libs: list[str] = []
+    sets: list[str] = []
+    defs: list[str] = []
+    seen: set[str] = set()
+
+    for m in re.finditer(r"\\tcbuselibrary\s*(?:\[[^\]]*\])?\s*\{[^}]*\}", src):
+        if m.group(0) not in seen:
+            seen.add(m.group(0)); libs.append(m.group(0))
+
+    for m in re.finditer(r"\\tcbset\b", src):
+        arg, _ = _capture_braced_arg(src, m.end())
+        # Forward ONLY style DEFINITIONS (`name/.style={…}`) — these register
+        # a reusable named style the body invokes via `[name]`. Bare option-
+        # setting (`\tcbset{colback=…}`) is skipped: it's usually scoped
+        # inside another macro (PROJ-601 set it inside \mymaketitle) and
+        # forwarding it would restyle EVERY box globally with venue colours.
+        if arg is not None and re.search(r"/\.(?:style|append\s*style|code|init)\b", arg):
+            piece = "\\tcbset{" + arg + "}"
+            if piece not in seen:
+                seen.add(piece); sets.append(piece)
+
+    for cmd in _TCB_DEF_CMDS:
+        for m in re.finditer(r"\\" + cmd + r"\b", src):
+            i = m.end()
+            piece = "\\" + cmd
+            bm = re.match(r"\s*\[[^\]]*\]", src[i:])      # optional [init]
+            if bm:
+                piece += src[i:i + bm.end()]; i += bm.end()
+            name, i = _capture_braced_arg(src, i)          # {name}
+            if name is None:
+                continue
+            piece += "{" + name + "}"
+            for _ in range(2):                              # optional [n][default]
+                bm = re.match(r"\s*\[[^\]]*\]", src[i:])
+                if bm:
+                    piece += src[i:i + bm.end()]; i += bm.end()
+                else:
+                    break
+            body, i = _capture_braced_arg(src, i)           # {body}
+            if body is None:
+                continue
+            piece += "{" + body + "}"
+            if name.strip() not in seen:
+                seen.add(name.strip()); defs.append(piece)
+
+    return libs + sets + defs
+
+
 def _forwarded_definecolor(source: str) -> list[str]:
     """Capture `\\definecolor{name}{model}{spec}` calls from anywhere in
     the source. These often live in bundled `.cls` files and the body
@@ -712,6 +838,20 @@ def _forwarded_newcommands(source: str) -> list[str]:
         captured_spans.append((m.start(), end))
         if name in seen_names or name in _KNOWN_SHIMS:
             continue
+        # Strip comments from the captured body. A macro whose body (and
+        # closing brace) lives entirely on `%`-comment lines — a *disabled*
+        # definition — would otherwise re-emit with its closing brace
+        # commented out, leaving `\providecommand{\foo}[1]{` unclosed and
+        # crashing the compile with "File ended while scanning use of
+        # \@argdef" (PROJ-603's bytedance macros.tex had
+        # `\providecommand{\authorheading}[1]{%` … `% }`). Stripping
+        # comments here matches what LaTeX does at definition time; if the
+        # result is brace-unbalanced (close brace was commented), forward a
+        # safe empty body instead of a broken one.
+        body = _strip_tex_comments(body)
+        _nb = re.sub(r"\\[{}]", "", body)
+        if _nb.count("{") != _nb.count("}"):
+            body = ""
         # Sanity: if the body references `#N` for an N larger than the
         # declared arity, this command can't stand alone in a clean
         # `\providecommand` — usually a sign of nested definitions or
@@ -899,6 +1039,53 @@ def _strip_chapter_prefix(title: str | None) -> str | None:
     return _CHAPTER_PREFIX_RE.sub("", title, count=1)
 
 
+def _metadata_field(source_dir: Path, key: str) -> Any:
+    """Read `paper/metadata.json::<key>` (the clean values captured at
+    intake from the arXiv API). `source_dir` is `.../paper/source`, so the
+    metadata sits one level up. Returns None on any failure."""
+    meta_path = source_dir.parent / "metadata.json"
+    if not meta_path.is_file():
+        return None
+    try:
+        meta = json.loads(meta_path.read_text(encoding="utf-8", errors="replace"))
+    except (json.JSONDecodeError, OSError):
+        return None
+    return meta.get(key) if isinstance(meta, dict) else None
+
+
+# Markup in a `\title{...}` that signals the source baked layout/styling
+# into the title — a styled subtitle line, decorative symbols, font-size
+# switches, colors, embedded logos, etc. When any of these appear we prefer
+# the clean `metadata.json::title` (captured from the arXiv API) so the
+# llmXive title page shows just the paper title, not a transplanted
+# subtitle/decoration block. Examples this catches:
+#   - PROJ-606: `\textbf{Code as Agent Harness}\\ {\fontsize..\scshape
+#     \color..$\lozenge$~Toward Executable…~$\lozenge$}` → subtitle leaked
+#   - PROJ-580: `Causal Forcing\\{\small ◇ Scalable Few-Step…}` → subtitle
+_TITLE_MARKUP_RE = re.compile(
+    r"\\\\"                         # line break → multi-line/subtitle
+    r"|\\vspace|\\hspace"
+    r"|\\fontsize|\\selectfont|\\scshape|\\textsc\b"
+    r"|\\color\b|\\textcolor\b"
+    r"|\\thanks\b|\\footnote\b"
+    r"|\\includegraphics|\\raisebox"
+    r"|\$"                          # inline math (decorative $\lozenge$ etc.)
+)
+
+
+def _clean_title(title: str | None, source_dir: Path) -> str | None:
+    """If the extracted `\\title{...}` carries layout/styling markup (a
+    baked-in subtitle, decorative symbols, font switches), prefer the clean
+    `metadata.json::title`. Falls back to the raw title when no clean
+    metadata title is available."""
+    if not title or not _TITLE_MARKUP_RE.search(title):
+        return title
+    meta_title = _metadata_field(source_dir, "title")
+    if isinstance(meta_title, str) and meta_title.strip():
+        return meta_title.strip()
+    return title
+
+
 def _build_icml_author_line(full_tex: str) -> str | None:
     """Build a clean "Name¹, Name²" string from ICML's
     `\\icmlauthor{Name}{aff_key}` + `\\icmlaffiliation{aff_key}{Aff text}`
@@ -976,6 +1163,14 @@ def _body_cleanup_passes(body: str) -> str:
     5. Drop `\\IEEEpubid{...}` / `\\IEEEoverridecommandlockouts` /
        `\\copyrightnotice{...}` — IEEE-specific layout commands.
     """
+    # 0a. Convert markdown code fences (```lang … ```) to a themed, wrapping
+    #     lstlisting BEFORE any text scrub, so raw code isn't mangled and no
+    #     longer overflows hundreds of pt into the margin (PROJ-601).
+    body = _convert_markdown_code_fences(body)
+    # 0b. Strip venue page-overlay banners (\AddToShipoutPicture* etc.) — the
+    #     llmxive class owns the header/footer (PROJ-603).
+    body = _strip_shipout_overlays(body)
+
     # 1. Drop \keywords{...}
     body = re.sub(
         r"\\keywords\s*\{[^}]*\}",
@@ -983,6 +1178,26 @@ def _body_cleanup_passes(body: str) -> str:
     )
     # And the icml variant.
     body = re.sub(r"\\icmlkeywords\s*\{[^}]*\}", "", body, flags=re.S)
+
+    # 1b. Strip decorative icon/emoji marker macros everywhere (fontawesome
+    #     \faGithub, \twemoji, \coloremoji, dingbats). They render as tofu
+    #     under the house fonts. PROJ-581/597/606 used these for Project-Page/
+    #     Code teaser links and corresponding-author markers.
+    body = _strip_icons_and_emoji(body)
+
+    # 1c. Drop a centered "Project Page · Code · Models" resource-link row
+    #     anywhere in the body — it's the title/abstract teaser (PROJ-581),
+    #     never real body content (the check requires \href/\url + almost no
+    #     prose, so figure `center` blocks are safe).
+    body = _strip_resource_envs(body)
+    # 1d. Drop "resource link" metadata lines (Keywords:/Github:/Code:/
+    #     Project Page:/bare \href|\url link lines) — but ONLY in the body's
+    #     leading title/teaser zone, so real reference links deeper in the
+    #     paper are never touched. These leak from the source's title block
+    #     after we transplant the title/author/affiliation (PROJ-565, 601,
+    #     604: a bare GitHub URL left sitting between the authors and the
+    #     abstract; PROJ-573: icon-prefixed Project-Page/Code lines).
+    body = _strip_resource_lines(body, only_leading_chars=2500)
 
     # 2. wrapfigure → figure. We need brace-balanced argument capture
     # because wrapfigure takes 2-3 brace args before its content.
@@ -1344,7 +1559,14 @@ def _scale_inner_includegraphics(inner: str, wrap_width: str) -> str:
         if width_unit_re.search(val):
             # Multiply: e.g. `0.3\linewidth` * `\linewidth` = `0.3\linewidth`.
             # Pragmatically: replace `\linewidth` with the wrap_width arg.
-            new_val = width_unit_re.sub(wrap_width, val)
+            # NB: `wrap_width` is a literal TeX string like `0.3\linewidth`
+            # or `\columnwidth`. It MUST be passed as a function replacement,
+            # not a template string — `re.sub` interprets backslash escapes
+            # (`\l`, `\c`, …) in a template and raises `re.error: bad escape`,
+            # which previously crashed the WHOLE conversion (every paper with
+            # a `\linewidth`/`\columnwidth` wrapfigure width: PROJ-579, 598,
+            # 605 all fell back to the raw arXiv PDF because of this).
+            new_val = width_unit_re.sub(lambda _m: wrap_width, val)
             return f"{prefix}{new_val}{suffix}"
         return m.group(0)
 
@@ -1392,6 +1614,216 @@ def _strip_textcolor(body: str) -> str:
     return "".join(out)
 
 
+# Icon / emoji macros that arXiv papers use as decorative affiliation
+# markers, corresponding-author symbols, or section bullets. Under the
+# llmxive class (fontspec + Fraunces/JetBrains Mono) these render as tofu
+# boxes or wrong glyphs (the fontawesome/twemoji glyph fonts aren't part
+# of the house style), so we strip them entirely. Each is a low-fidelity
+# scrub: drop the marker, keep surrounding text. Examples in the wild:
+#   - PROJ-606: `\coloremojicode{2709}` (✉ corresponding author),
+#     `\faGithub`, `\textcolor{Maroon}{\faBullseye}` keyword bullet.
+#   - PROJ-581/597: `\faGithub`/`\faCode` Project-Page/Code teaser links.
+_ICON_EMOJI_RE = re.compile(
+    r"\\fa[A-Za-z]+(?:\[[^\]]*\])?"          # fontawesome: \faGithub, \faBullseye[…]
+    r"|\\twemoji(?:\[[^\]]*\])?\s*\{[^}]*\}"  # \twemoji[..]{..}
+    r"|\\coloremoji(?:code)?\s*\{[^}]*\}"     # \coloremoji{..} / \coloremojicode{..}
+    r"|\\emoji\s*\{[^}]*\}"                   # \emoji{..}
+    r"|\\ding\s*\{[^}]*\}"                    # \ding{..} (pifont dingbats as markers)
+)
+
+
+def _strip_icons_and_emoji(text: str) -> str:
+    """Remove decorative icon/emoji marker macros (fontawesome, twemoji,
+    coloremoji, dingbats). They render as tofu under the house fonts."""
+    return _ICON_EMOJI_RE.sub("", text)
+
+
+# A "resource link" metadata line: authors append a `Keywords:` / `Github:`
+# / `Code:` / `Project Page:` line (often icon-prefixed) right after the
+# abstract or under the title block. These aren't part of the llmxive style
+# — the website surfaces artifact links in the project modal — so we drop
+# them from the abstract and from the body's leading teaser zone.
+_RESOURCE_LABEL_RE = re.compile(
+    r"^\s*"
+    r"(?:Key\s*-?\s*words?|Index\s+Terms|Github|GitHub|Code|Codebase|"
+    r"Project(?:\s*Page)?|Homepage|Home\s*Page|Website|Web\s*Page|"
+    r"Data(?:set)?|Models?|Demo|Repository|Repo|Correspondence)\s*:",
+    re.IGNORECASE,
+)
+# Spacing / layout commands that precede a resource label (`\vspace{5mm}`
+# before `\textbf{Keywords}:`). Stripped from visible text so the anchored
+# label match still fires.
+_LAYOUT_PREFIX_RE = re.compile(
+    r"\\(?:vspace|hspace|noindent|par|centering|raggedright|raggedleft"
+    r"|smallskip|medskip|bigskip|smash|leavevmode|newline|break)\b"
+    r"\s*(?:\*?\s*\{[^}]*\}|\*)?",
+)
+# A near-bare link line: dominated by \href/\url with little prose around it.
+_LINK_ONLY_RE = re.compile(r"\\(?:href|url)\s*\{")
+
+
+# Structural commands that must NEVER be dropped, even if they share a
+# segment with a resource label. Swallowing one of these (e.g. an adjacent
+# `\end{abstract}`) leaves the document malformed.
+_STRUCTURAL_RE = re.compile(
+    r"\\(?:begin|end|section|subsection|subsubsection|paragraph|chapter"
+    r"|maketitle|input|include|item|caption|bibliography|appendix)\b"
+)
+
+
+def _resource_visible_text(segment: str) -> str:
+    """Reduce a segment to its bare visible text: drop icons/emoji, unwrap
+    `\\textcolor{c}{t}`→t and `\\textbf{t}`/`\\textit{t}`/… → t, drop `~`."""
+    s = _strip_icons_and_emoji(segment)
+    s = _strip_textcolor(s)
+    for _ in range(3):
+        s = re.sub(
+            r"\\(?:textbf|textit|textsc|texttt|emph|mathbf|mathrm|large|Large|"
+            r"normalsize|small|bfseries|itshape|scshape)\s*\{([^{}]*)\}",
+            r"\1", s,
+        )
+    s = _LAYOUT_PREFIX_RE.sub(" ", s)
+    return s.replace("~", " ").strip()
+
+
+def _is_resource_line(segment: str) -> bool:
+    """True when a `\\\\`/blank-line-delimited segment is a resource-metadata
+    line (a `Keywords:`/`Code:`/… label, or a near-bare \\href/\\url link)
+    rather than real prose. Never matches a segment carrying structural
+    commands (so we can't strand an `\\end{abstract}` etc.)."""
+    if _STRUCTURAL_RE.search(segment):
+        return False
+    s = _resource_visible_text(segment)
+    if not s:
+        return False
+    if _RESOURCE_LABEL_RE.search(s):
+        return True
+    # Near-bare link line: contains \href/\url and, once URLs, commands and
+    # markup are stripped, leaves almost no prose — just a short label like
+    # "Project Page" / "Code". Computed aggressively so custom icon macros
+    # (\projectpage, \github) and nested-brace labels
+    # (\href{url}{{\text{Project Page}}}) are handled (PROJ-581).
+    if _LINK_ONLY_RE.search(segment):
+        prose = re.sub(r"https?://\S+|www\.\S+", " ", s)   # URLs
+        prose = re.sub(r"\\[A-Za-z@]+", " ", prose)          # all commands
+        prose = re.sub(r"[\\{}\[\]$&~|]", " ", prose)         # markup chars
+        prose = re.sub(r"\s+", " ", prose).strip()
+        return len(prose) <= 30
+    return False
+
+
+_RESOURCE_ENV_RE = re.compile(
+    r"\\begin\s*\{(center|flushleft|flushright)\}(.*?)\\end\s*\{\1\}",
+    re.S,
+)
+
+
+def _strip_resource_envs(text: str) -> str:
+    """Remove a `center`/`flushleft`/`flushright` block whose content is just
+    a row of resource links — the "Project Page · Code · Models" teaser many
+    papers center right under the title/abstract (PROJ-581). Only fires when
+    the block contains \\href/\\url and almost no prose, so figure/table
+    `center` blocks (no links) and real centered prose are left alone."""
+    def _repl(m: re.Match[str]) -> str:
+        inner = m.group(2)
+        if not re.search(r"\\(?:href|url)\b", inner):
+            return m.group(0)
+        prose = re.sub(r"https?://\S+|www\.\S+", " ", inner)
+        prose = re.sub(r"\\[A-Za-z@]+", " ", prose)
+        prose = re.sub(r"[\\{}\[\]$&~|]", " ", prose)
+        prose = re.sub(r"\s+", " ", prose).strip()
+        # A few short labels (Project Page / Code / Models / Demo) → drop.
+        return "" if len(prose) <= 48 else m.group(0)
+    return _RESOURCE_ENV_RE.sub(_repl, text)
+
+
+def _strip_resource_lines(text: str, *, only_leading_chars: int | None = None) -> str:
+    """Drop resource-metadata lines (Keywords:/Github:/Code:/Project Page:/
+    bare link lines). Segments are delimited by LaTeX `\\\\` breaks and blank
+    lines. When `only_leading_chars` is set, only the leading slice of the
+    text is scrubbed (used for the body's title/teaser zone, so we never
+    touch real link references deep in the paper)."""
+    if only_leading_chars is not None and len(text) > only_leading_chars:
+        head, tail = text[:only_leading_chars], text[only_leading_chars:]
+    else:
+        head, tail = text, ""
+    # First remove centered resource-link rows (Project Page · Code · …).
+    head = _strip_resource_envs(head)
+    # Split on `\\` (one or more) and blank lines, keeping delimiters out.
+    parts = re.split(r"(\\\\+|\n\s*\n)", head)
+    kept: list[str] = []
+    for i, part in enumerate(parts):
+        # Odd indices are the delimiters captured by the split group.
+        if i % 2 == 1:
+            kept.append(part)
+            continue
+        if _is_resource_line(part):
+            # Drop the segment AND the delimiter that preceded it so we don't
+            # leave a dangling `\\`.
+            if kept and re.fullmatch(r"\\\\+|\n\s*\n", kept[-1]):
+                kept.pop()
+            continue
+        kept.append(part)
+    return "".join(kept) + tail
+
+
+# Shipout / page-overlay directives that venues use for submission banners,
+# "Preprint" / arXiv stamps, copyright watermarks, and conference notices.
+# They paint full-page-width content on every page (often via eso-pic),
+# which (a) overflows the llmxive text block and (b) duplicates info the
+# llmxive class already shows in its own header/footer (arXiv id, status,
+# page number). We strip them — the house style owns page furniture.
+# PROJ-603 carried a `\AddToShipoutPictureFG*{ … \makebox[\paperwidth] … }`
+# banner that produced a 168pt overfull box on every page.
+_SHIPOUT_CMD_RE = re.compile(
+    r"\\(?:AddToShipoutPictureFG|AddToShipoutPictureBG|AddToShipoutPicture|"
+    r"AtBeginShipoutNext|AtBeginShipout|AddEverypageHook|AddThispageHook|"
+    r"backgroundsetup)\b\s*\*?\s*"
+    r"(?:\[[^\]]*\])?\s*"
+)
+
+
+def _strip_shipout_overlays(body: str) -> str:
+    """Remove `\\AddToShipoutPicture*`/`\\AtBeginShipout`/`backgroundsetup`
+    page-overlay directives (and their brace-balanced argument)."""
+    out: list[str] = []
+    i, n = 0, len(body)
+    while i < n:
+        m = _SHIPOUT_CMD_RE.match(body, i)
+        if m:
+            j = m.end()
+            if j < n and body[j] == "{":
+                _, j = _capture_braced_arg(body, j)
+            i = j
+            continue
+        out.append(body[i])
+        i += 1
+    return "".join(out)
+
+
+# Markdown fenced code blocks (```lang … ```) sometimes survive into arXiv
+# sources (authors paste prompt/JSON examples). LaTeX renders the literal
+# back-ticks plus an unwrapped, justified paragraph that runs hundreds of pt
+# into the margin (PROJ-601's JSON examples overflowed by 1000+pt). Convert
+# them to a `lstlisting`, which the class themes (llmx style) AND wraps
+# (breaklines=true) — turning raw fences into proper, contained code blocks.
+_MD_FENCE_RE = re.compile(
+    r"^[ \t]*```[ \t]*[A-Za-z0-9_+\-]*[ \t]*\n(.*?)\n[ \t]*```[ \t]*$",
+    re.M | re.S,
+)
+
+
+def _convert_markdown_code_fences(body: str) -> str:
+    def _repl(m: re.Match[str]) -> str:
+        code = m.group(1).rstrip("\n")
+        # lstlisting is verbatim; guard the (vanishingly rare) case where the
+        # fenced content itself contains the end delimiter.
+        if r"\end{lstlisting}" in code:
+            return m.group(0)
+        return "\\begin{lstlisting}\n" + code + "\n\\end{lstlisting}"
+    return _MD_FENCE_RE.sub(_repl, body)
+
+
 # ───────────────────────────────────────────────────────────────────────
 # 9. Top-level entry point
 # ───────────────────────────────────────────────────────────────────────
@@ -1430,44 +1862,41 @@ def extract(
     # carry this prefix in the source but the website's listing strips
     # it heuristically — we should produce the same prefix-free form.
     title = _strip_chapter_prefix(title)
+    # If the source baked a styled subtitle / decorations into \title{...},
+    # prefer the clean metadata.json title (PROJ-580, PROJ-606).
+    title = _clean_title(title, source_dir)
 
-    # Author: standard \author{} OR repeated authblk-style \author[K]{Name}
-    # (which we collect all of and \\and-join), then venue aliases. For
-    # ICML's `\icmlauthorlist` we synthesize a clean "Name¹, Name², ..."
-    # string by combining \icmlauthor{Name}{affkey} entries with
-    # \icmlaffiliation.
-    all_authors = _extract_all_macros(full_tex, "author")
-    if len(all_authors) > 1:
-        # authblk shape — many \author{}s, one per author.
-        author = " \\and ".join(all_authors)
-    elif len(all_authors) == 1:
-        # Classic single-\author{All \and Authors} shape.
-        author = all_authors[0]
-    else:
-        author = _build_icml_author_line(full_tex)
+    # Author: PREFER the canonical `paper/metadata.json::authors` list
+    # captured at intake from the arXiv API. It's a clean list of plain
+    # names — free of the affiliation superscripts, footnote markers
+    # (†/‡/∗), embedded institution logos, and \href markup that pollute a
+    # transplanted LaTeX `\author{}` block. Mining the source's `\author`
+    # leaked exactly that cruft onto the title page (PROJ-570:
+    # "Hanzhong Guo1,2 Jie Wu2,†…", PROJ-572: "Keming Wu1,12,†CUBE …",
+    # PROJ-573/606: embedded logos & links). The body is still preserved
+    # verbatim — only the title-page author line uses the clean list.
+    author: str | None = None
+    meta_authors = _metadata_field(source_dir, "authors")
+    if isinstance(meta_authors, list):
+        cleaned = [
+            str(a).strip() for a in meta_authors
+            if isinstance(a, str) and a.strip() and "\\" not in a
+        ]
+        if cleaned:
+            author = " \\and ".join(cleaned)
 
-    # Messy-author fallback: when the extracted author string contains
-    # markup that won't render cleanly under the llmxive class (figures,
-    # links, minipages, font commands), prefer the canonical
-    # `paper/metadata.json::authors` list parsed at intake from the arXiv
-    # API. This catches PROJ-573 (Eywa) and similar papers whose authors
-    # are inside a `\begin{minipage}{...}` with `\includegraphics{logo.png}`
-    # and `\href{}{}` markup.
-    if author and re.search(
-        r"\\includegraphics|\\begin\{minipage\}|\\href\s*\{|\\faGithub|\\faLink|\\textbf",
-        author,
-    ):
-        meta_path = source_dir.parent / "metadata.json"
-        if meta_path.is_file():
-            try:
-                meta = json.loads(meta_path.read_text(encoding="utf-8", errors="replace"))
-                json_authors = meta.get("authors") if isinstance(meta, dict) else None
-                if isinstance(json_authors, list) and json_authors:
-                    cleaned = [str(a).strip() for a in json_authors if str(a).strip()]
-                    if cleaned:
-                        author = " \\and ".join(cleaned)
-            except (json.JSONDecodeError, OSError):
-                pass
+    # Fall back to parsing the source when metadata has no usable author
+    # list (home-grown papers without an arXiv-intake metadata.json):
+    # standard \author{} OR repeated authblk-style \author[K]{Name} (which
+    # we collect and \\and-join), then ICML's \icmlauthor list.
+    if author is None:
+        all_authors = _extract_all_macros(full_tex, "author")
+        if len(all_authors) > 1:
+            author = " \\and ".join(all_authors)
+        elif len(all_authors) == 1:
+            author = all_authors[0]
+        else:
+            author = _build_icml_author_line(full_tex)
 
     # Abstract can be in the BODY (most papers) OR in the preamble if the
     # source `\input{}`s an abstract file BEFORE `\begin{document}` —
@@ -1484,7 +1913,28 @@ def extract(
     # inside `\begin{abstract}...\end{abstract}` (e.g. PROJ-568).
     if abstract:
         abstract = re.sub(r"\\keywords\s*\{[^}]*\}", "", abstract, flags=re.S)
-        abstract = re.sub(r"\\icmlkeywords\s*\{[^}]*\}", "", abstract, flags=re.S).strip()
+        abstract = re.sub(r"\\icmlkeywords\s*\{[^}]*\}", "", abstract, flags=re.S)
+        # Strip decorative icon/emoji markers, then drop the "Keywords:" /
+        # "Github:" / "Code:" metadata lines authors append to the abstract
+        # (PROJ-606 ended its abstract with
+        #   \textcolor{Maroon}{\faBullseye}~\textbf{Keywords}: … \\
+        #   \faGithub~\textbf{Github}: \url{…}
+        # both of which leaked onto the title page).
+        abstract = _strip_icons_and_emoji(abstract)
+        abstract = _strip_textcolor(abstract)
+        abstract = _strip_resource_lines(abstract)
+        # A leading "Abstract:" label is redundant — the class prints the
+        # ABSTRACT heading itself (PROJ-606 had `\textbf{\large Abstract:}`).
+        # Match either `\textbf{… Abstract …}` or a `{… Abstract …}` group
+        # at the very start; `[^{}]` keeps it from eating nested braces.
+        abstract = re.sub(
+            r"^\s*(?:\\noindent\s*)?"
+            r"(?:\\(?:textbf|textsc|textit|emph)\s*\{[^{}]*?Abstract[^{}]*?\}"
+            r"|\{[^{}]*?Abstract[^{}]*?\})"
+            r"\s*",
+            "", abstract, count=1, flags=re.IGNORECASE,
+        )
+        abstract = abstract.strip()
 
     # Body cleanup: drop title/author/affiliation/etc. (transplanted to
     # wrapper), then strip layout-warping commands (twocolumn, geometry,
@@ -1494,6 +1944,18 @@ def extract(
     # isn't available, etc.).
     body_clean = _strip_body_commands(body)
     body_clean = _strip_layout_directives(body_clean)
+    # Remove the body's own \begin{abstract}...\end{abstract} BEFORE the
+    # cosmetic cleanup passes run — we inject the captured (and cleaned)
+    # abstract explicitly in build_wrapper. Removing it first means the
+    # resource-line scrub in _body_cleanup_passes never has to navigate
+    # around the abstract's structure. (A prior ordering swallowed the
+    # abstract's `\end{abstract}` when it dropped an adjacent `Github:` link
+    # line, leaving the environment unclosed → "! LaTeX Error: Not in outer
+    # par mode" — PROJ-606.)
+    body_clean = re.sub(
+        r"\\begin\s*\{abstract\}.*?\\end\s*\{abstract\}",
+        "", body_clean, flags=re.S,
+    )
     body_clean = _body_cleanup_passes(body_clean)
 
     # Read every bundled .cls / .sty file alongside the source — those
@@ -1509,6 +1971,10 @@ def extract(
                 continue
 
     fwd_pkgs = _forwarded_packages(preamble, *cls_sources)
+    # Never forward algorithm2e alongside algpseudocode/algorithmic — the
+    # mismatch leaks a ~1-inch text column across the whole document
+    # (PROJ-571). Keep whichever family the body actually uses.
+    fwd_pkgs = _resolve_algorithm_conflict(fwd_pkgs, body)
     # Forward user macros from the WHOLE inlined source — preamble +
     # body + every \input{}ed file (per the user's request: "if any
     # macros are defined directly in the document, or even in an
@@ -1549,13 +2015,12 @@ def extract(
     # at expansion time, which leaks past the llmxive style intent.
     fwd_cmds = [_strip_textcolor(re.sub(r"\\color\s*\{[^}]*\}", "", c)) for c in fwd_cmds]
 
-    # If the body itself still has a \begin{abstract}...\end{abstract},
-    # drop it — we'll inject the captured abstract explicitly in the
-    # wrapper preamble of <body> so it always shows on the title page.
-    body_clean = re.sub(
-        r"\\begin\s*\{abstract\}.*?\\end\s*\{abstract\}",
-        "", body_clean, flags=re.S,
-    )
+    # Forward tcolorbox config (\tcbuselibrary, \tcbset, \newtcolorbox) so
+    # custom callout/prompt boxes the body uses render properly instead of
+    # dumping unboxed, overflowing content (PROJ-565/601 promptbox, PROJ-606
+    # agentscope). Appended AFTER the \color scrub above so the boxes' colour
+    # KEYS (colback=, colframe=) survive verbatim.
+    fwd_cmds.extend(_forwarded_tcolorbox(full_tex + "\n".join(cls_sources)))
 
     wrapper = build_wrapper(
         title=title, author=author,
