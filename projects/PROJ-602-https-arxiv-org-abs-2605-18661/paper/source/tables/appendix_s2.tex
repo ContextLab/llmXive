@@ -1,0 +1,69 @@
+% ==================== Appendix Table: S2 Literature Review ====================
+\begingroup
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\rowcolors{2}{white}{S2color!6}
+\begin{table*}[!ht]
+\centering
+\caption{\textbf{Comprehensive inventory: \Stwo Literature Review.} $^\dagger$Evaluation information uncertain.}
+\vspace{-7pt}
+\label{tab:appendix_s2}
+\stagecard{\Stwo}{Literature Review}{S2color}{figures/icons/s2_literature.png}{%
+Retrieving, synthesizing, and organizing prior work into coherent narratives. Modern approaches span semantic retrieval, citation-graph traversal, and Deep Research agents that iteratively explore the literature.}
+\vspace{2pt}
+\resizebox{\linewidth}{!}{\begin{tabular}{c| >{\centering\arraybackslash}p{3cm} r r |c| >{\centering\arraybackslash}p{2.3cm} |c| p{8cm}}
+\toprule
+\rowcolor{tableheader!10}
+\textbf{\#} & \textbf{Method} & \textbf{Ref} & \textbf{Venue} & \textbf{Link} & \textbf{Category} & \textbf{GitHub} & \textbf{Evaluation} \\
+\midrule
+\multicolumn{8}{@{}l}{\cellcolor{S2color!65}\textbf{\textsf{\textcolor{white}{~~Literature Retrieval}}}} \\
+\addlinespace[1pt]
+{1} & CiteME & \cite{citeme2024} & {\small arXiv'24} & \href{https://arxiv.org/abs/2407.12861}{\faExternalLink} & Retrieval        & -                                                                                     & Citation fidelity benchmark \\
+{2} & LitLLM & \cite{agarwal2024litllm} & {\small arXiv'24} & \href{https://arxiv.org/abs/2402.01788}{\faExternalLink} & Retrieval        & -                                                                                     & LLM + academic database integration \\
+{3} & LitSearch & \cite{litsearch2024} & {\small arXiv'24} & \href{https://arxiv.org/abs/2407.18940}{\faExternalLink} & Retrieval        & \githubicon{https://github.com/princeton-nlp/LitSearch}                                  & Retrieval precision benchmark \\
+{4} & PaperQA2 & \cite{skarlinski2024paperqa2} & {\small arXiv'24} & \href{https://arxiv.org/abs/2409.13740}{\faExternalLink} & Retrieval        & \githubicon{https://github.com/Future-House/paper-qa}                                    & Matches/exceeds expert on 3 tasks; 70\% contradiction validation \\
+{5} & OpenResearcher & \cite{li2024openresearcher} & {\small EMNLP'24} & \href{https://arxiv.org/abs/2408.09578}{\faExternalLink} & Retrieval        & -                                                                                     & RAG + graph traversal for literature exploration \\
+{6} & PaSa & \cite{pasa2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2501.10120}{\faExternalLink} & Retrieval        & \githubicon{https://github.com/bytedance/pasa}                                           & Agentic multi-step iterative retrieval \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S2color!65}\textbf{\textsf{\textcolor{white}{~~Survey \& Related Work Generation}}}} \\
+\addlinespace[1pt]
+{7} & ChatPaper & \cite{chatpaper2023} & {\small GitHub'23} & \href{https://github.com/kaixindelele/ChatPaper}{\faExternalLink} & Generation       & \githubicon{https://github.com/kaixindelele/ChatPaper}                                   & 19K+ GitHub stars; arXiv summarization tool \\
+{8} & PaperQA & \cite{paperqa2024github} & {\small arXiv'23} & \href{https://arxiv.org/abs/2312.07559}{\faExternalLink} & Generation       & \githubicon{https://github.com/Future-House/paper-qa}                                    & 8K+ GitHub stars; RAG for scientific Q\&A \\
+{9} & AutoSurvey & \cite{wang2024autosurvey} & {\small arXiv'24} & \href{https://arxiv.org/abs/2406.10252}{\faExternalLink} & Generation       & \githubicon{https://github.com/AutoSurveys/AutoSurvey}                                   & First end-to-end LLM survey drafting system \\
+{10} & GPT Researcher & \cite{gptresearcher2024} & {\small GitHub'24} & \href{https://github.com/assafelovic/gpt-researcher}{\faExternalLink} & Generation       & \githubicon{https://github.com/assafelovic/gpt-researcher}                               & 26K+ GitHub stars; comprehensive report generation \\
+{11} & LLMs for Lit.\ Review & \cite{emnlp2025litreview} & {\small arXiv'24} & \href{https://arxiv.org/abs/2412.13612}{\faExternalLink} & Generation       & -                                                                                     & Hallucination analysis; models still generate errors$^\dagger$ \\
+{12} & STORM & \cite{shao2024storm} & {\small arXiv'24} & \href{https://arxiv.org/abs/2402.14207}{\faExternalLink} & Generation       & \githubicon{https://github.com/stanford-oval/storm}                                      & Multi-perspective question-asking for outlines \\
+{13} & Agentic AutoSurvey & \cite{agenticautosurvey2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2509.18661}{\faExternalLink} & Generation       & -                                                                                     & Multi-agent role decomposition$^\dagger$ \\
+{14} & Citegeist & \cite{beger2025citegeist} & {\small arXiv'25} & \href{https://arxiv.org/abs/2503.23229}{\faExternalLink} & Generation       & -                                                                                     & Dynamic RAG pipeline on arXiv corpus \\
+{15} & IterSurvey & \cite{itersurvey2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2510.21900}{\faExternalLink} & Generation       & \githubicon{https://github.com/HancCui/IterSurvey_Autosurveyv2}                          & Iterative outline planning with stability checks \\
+{16} & LiRA & \cite{lira2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2510.05138}{\faExternalLink} & Generation       & -                                                                                     & Multi-agent retrieval + verification + narrative \\
+{17} & SurveyForge & \cite{gao2025surveyforge} & {\small arXiv'25} & \href{https://arxiv.org/abs/2503.04629}{\faExternalLink} & Generation       & \githubicon{https://github.com/Alpha-Innovator/SurveyForge}                              & Outperforms AutoSurvey on outline quality$^\dagger$ \\
+{18} & SurveyG & \cite{surveyg2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2510.07733}{\faExternalLink} & Generation       & -                                                                                     & Three-layer citation graph (Foundation/Dev/Frontier) \\
+{19} & SurveyX & \cite{liang2025surveyx} & {\small arXiv'25} & \href{https://arxiv.org/abs/2502.14776}{\faExternalLink} & Generation       & -                                                                                     & +0.259 content quality improvement; near expert level \\
+{20} & InteractiveSurvey & \cite{interactivesurvey2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2504.08762}{\faExternalLink} & Generation       & \githubicon{https://github.com/TechnicolorGUO/InteractiveSurvey}                        & User-customizable reference categorization + outlines \\
+{21} & CiteLLM & \cite{citellm2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2602.23075}{\faExternalLink} & Generation       & -                                                                                     & Hallucination-free via trusted repository routing \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S2color!65}\textbf{\textsf{\textcolor{white}{~~Deep Research Agents}}}} \\
+\addlinespace[1pt]
+{22} & ASReview & \cite{asreview2020} & {\small Nature MI'21} & \href{https://www.nature.com/articles/s42256-020-00287-7}{\faExternalLink} & Deep Research & \githubicon{https://github.com/asreview/asreview}                                        & Active learning; up to 95\% effort reduction \\
+{23} & CHIME & \cite{kang2024chime} & {\small arXiv'24} & \href{https://arxiv.org/abs/2407.16148}{\faExternalLink} & Deep Research    & -                                                                                     & Hierarchical organization of scientific studies \\
+{24} & DeepResearch-Agent & \cite{deepresearchagent2025} & {\small GitHub'25} & \href{https://github.com/SkyworkAI/DeepResearchAgent}{\faExternalLink} & Deep Research    & \githubicon{https://github.com/SkyworkAI/DeepResearchAgent}                              & Hierarchical multi-agent; planner + sub-agents \\
+{25} & DeerFlow & \cite{deerflow2025} & {\small GitHub'25} & \href{https://github.com/bytedance/deer-flow}{\faExternalLink} & Deep Research    & \githubicon{https://github.com/bytedance/deer-flow}                                      & Sub-agents with shared memory; sandboxed execution \\
+{26} & OpenScholar & \cite{openscholar2025} & {\small Nature'26} & \href{https://doi.org/10.1038/s41586-025-10072-4}{\faExternalLink} & Deep Research    & -                                                                                     & 45M papers; +6.1\% over GPT-4o, +5.5\% over PaperQA2 \\
+{27} & AutoAgent & \cite{tang2025autodeepresearch} & {\small arXiv'25} & \href{https://arxiv.org/abs/2502.05957}{\faExternalLink} & Deep Research    & -                                                                                     & Universal LLM compatibility; GAIA benchmark \\
+{28} & Tongyi DeepResearch & \cite{tongyi2025deepresearch} & {\small GitHub'25} & \href{https://github.com/Alibaba-NLP/DeepResearch}{\faExternalLink} & Deep Research    & \githubicon{https://github.com/Alibaba-NLP/DeepResearch}                                 & 30.5B params (3.3B activated); SOTA on Deep Research \\
+{29} & O-Researcher & \cite{oresearcher2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2601.03743}{\faExternalLink} & Deep Research    & -                                                                                     & Multi-agent distillation + agentic RL \\
+{30} & OpenResearcher & \cite{li2026openresearcher} & {\small arXiv'26} & \href{https://arxiv.org/abs/2603.20278}{\faExternalLink} & Deep Research    & \githubicon{https://github.com/TIGER-AI-Lab/OpenResearcher}                              & 54.8\% BrowseComp-Plus; 97K+ trajectories \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S2color!65}\textbf{\textsf{\textcolor{white}{~~Retrieval and Synthesis Quality Assessment}}}} \\
+\addlinespace[1pt]
+{31} & DeepScholar-Bench & \cite{deepscholar2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2508.20033}{\faExternalLink} & Evaluation       & \githubicon{https://github.com/guestrin-lab/deepscholar-bench}                            & Coverage, coherence, factual accuracy benchmark \\
+{32} & ReportBench & \cite{reportbench2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2508.15804}{\faExternalLink} & Evaluation       & \githubicon{https://github.com/ByteDance-BandAI/ReportBench}                             & 100-prompt benchmark from 678 filtered survey papers \\
+{33} & IDRBench & \cite{idrbench2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2601.06676}{\faExternalLink} & Evaluation       & -                                                                                     & 100 tasks; interactive Deep Research evaluation \\
+{34} & ScholarGym & \cite{scholargym2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2601.21654}{\faExternalLink} & Evaluation       & -                                                                                     & 2,536 queries; query planning + tool invocation \\
+{35} & SciNetBench & \cite{scinetbench2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2601.03260}{\faExternalLink} & Evaluation       & -                                                                                     & 18M papers; relation-aware retrieval $<$20\% \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+\endgroup

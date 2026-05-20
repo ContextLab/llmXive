@@ -1,0 +1,34 @@
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.3}
+\begin{longtable}{@{}p{0.27\linewidth}p{0.49\linewidth}p{0.21\linewidth}@{}}
+\caption{Capability coverage of the PhysBrain 1.0 QA generation stage. The table summarizes the QA families used to
+convert structured scene meta-information into trainable natural-language supervision.}\\
+\toprule
+\textbf{QA family} & \textbf{Main target} & \textbf{Training role} \\
+\midrule
+Spatial relations & Left/right, above/below, and front/behind relations & Spatial intelligence \\
+Distance and depth & Relative depth and absolute metric distance & Spatial grounding \\
+Size estimation & Real-world length, width, height, and object scale & Metric understanding \\
+Grounding and coordinates & Bounding boxes, points, and vacant-space coordinates & Visual grounding \\
+Viewpoint reasoning & Cross-view consistency and object-facing direction & Egocentric reasoning \\
+Next-step prediction & Action choice under the current observation and goal & Embodied decision making \\
+Route planning & Navigation direction and route completion & Embodied navigation \\
+Affordance and safety & Operability, touch safety, and immediate danger & Physical commonsense \\
+Long-horizon planning & Multi-step task decomposition & Long-horizon control \\
+Object state change & Physical outcome after manipulation & Dynamics modeling \\
+Action recognition and counting & Performed action and repetition count & Video understanding \\
+Temporal ordering & Event order and object appearance order & Temporal reasoning \\
+Action localization & Time interval of a specified action & Video grounding \\
+Causal/counterfactual reasoning & Why-events and what-if outcomes & Physical causality \\
+Counting & Object counts and attribute-conditioned counts & Fine-grained perception \\
+Fine-grained attributes & Material, color, state, height, and reflectance & Attribute recognition \\
+Existence checking & Whether an object appears, or appears only at certain times & Hallucination suppression \\
+Scene text and OCR & Signs, labels, screens, prices, and dates & General retention \\
+Chart and data analysis & Charts, arithmetic, and geometric quantities & General retention \\
+Science and technical knowledge & Physics, chemistry, circuits, and domain problems & Knowledge retention \\
+Visual logic & Pattern completion, Raven-style reasoning, and forensics & Abstract reasoning \\
+\bottomrule
+\label{tab:qa_families}
+\end{longtable}
+}

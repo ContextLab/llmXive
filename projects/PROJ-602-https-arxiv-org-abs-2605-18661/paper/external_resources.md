@@ -1,0 +1,97 @@
+# External resources
+
+This project was created from an arXiv-submitted paper.
+
+## Source
+
+- **arXiv**: [2605.18661](https://arxiv.org/abs/2605.18661)
+- **License**: arXiv Non-exclusive Distribution License
+
+## Code
+- https://github.com/worldbench/awesome-ai-auto-research
+- https://github.com/DAMO-NLP-SG/CoI-Agent
+- https://github.com/JinheonBaek/ResearchAgent
+- https://github.com/EagleW/CLBD
+- https://github.com/Anikethh/IRIS-Interactive-Research-Ideation-System
+- https://github.com/lamm-mit/SciAgentsDiscovery
+- https://github.com/cheerss/SciPIP
+- https://github.com/kyZhao-1/Deep-Ideation
+- https://github.com/open-sciencelab/Virtual-Scientists
+- https://github.com/yansheng-qiu/AI_Idea_Bench_2025
+- https://github.com/mlbio-epfl/HeurekaBench
+- https://github.com/HKUDS/DeepInnovator
+- https://github.com/princeton-nlp/SWE-bench
+- https://github.com/princeton-nlp/SWE-agent
+- https://github.com/All-Hands-AI/OpenHands
+- https://github.com/google-deepmind/funsearch
+- https://github.com/scicode-bench/SciCode
+- https://github.com/openai/preparedness
+- https://github.com/going-doer/Paper2Code
+- https://github.com/xyzCS/SciReplicate-Bench
+- https://github.com/bioplanner/bioplanner
+- https://github.com/guosyjlu/DS-Agent
+- https://github.com/snap-stanford/MLAgentBench
+- https://github.com/AI9Stars/AutoReproduce
+- https://github.com/Just-Curieous/Curie
+- https://github.com/allenai/discoverybench
+- https://github.com/allenai/discoveryworld
+- https://github.com/Future-House/LAB-Bench
+- https://github.com/ScalingIntelligence/KernelBench
+- https://github.com/thunlp/TritonBench
+- https://github.com/allenai/asta-bench
+- https://github.com/InternScience/ResearchClawBench
+- https://github.com/aisa-group/PostTrainBench
+- https://github.com/princeton-nlp/LitSearch
+- https://github.com/Future-House/paper-qa
+- https://github.com/bytedance/pasa
+- https://github.com/kaixindelele/ChatPaper
+- https://github.com/AutoSurveys/AutoSurvey
+- https://github.com/assafelovic/gpt-researcher
+- https://github.com/stanford-oval/storm
+- https://github.com/HancCui/IterSurvey_Autosurveyv2
+- https://github.com/Alpha-Innovator/SurveyForge
+- https://github.com/TechnicolorGUO/InteractiveSurvey
+- https://github.com/asreview/asreview
+- https://github.com/SkyworkAI/DeepResearchAgent
+- https://github.com/bytedance/deer-flow
+- https://github.com/Alibaba-NLP/DeepResearch
+- https://github.com/TIGER-AI-Lab/OpenResearcher
+- https://github.com/guestrin-lab/deepscholar-bench
+- https://github.com/ByteDance-BandAI/ReportBench
+- https://github.com/openai/mle-bench
+- https://github.com/OSU-NLP-Group/ScienceAgentBench
+- https://github.com/ResearAI/AutoFigure
+- https://github.com/icip-cas/PPTAgent
+- https://github.com/showlab/Paper2Video
+- https://github.com/METR/RE-Bench
+- https://github.com/federicodeponte/opendraft
+- https://github.com/PaperDebugger/PaperDebugger
+- https://github.com/SakanaAI/AI-Scientist
+- https://github.com/ResearAI/AutoFigure-Edit
+- https://github.com/Paper2Poster/Paper2Poster
+- https://github.com/Breesiu/APEX
+- https://github.com/HKUDS/Paper2Slides
+- https://github.com/nusnlp/SlideTailor
+- https://github.com/Gen-Verse/Paper2Video
+- https://github.com/AIGeeksGroup/PresentAgent
+- https://github.com/YuhangChen1/Paper2All
+- https://github.com/nishiwen1214/ChatReviewer
+- https://github.com/poldrack/ai-peer-review
+- https://github.com/Zhitao-He/RebuttalAgent
+- https://github.com/ulab-uiuc/DRPG-RebuttalAgent
+- https://github.com/SakanaAI/AI-Scientist-v2
+- https://github.com/allenai/codescientist
+- https://github.com/InternScience/InternAgent
+- https://github.com/sjtu-sai-agents/X-Master
+- https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep
+- https://github.com/EvoScientist/EvoScientist
+- https://github.com/GAIR-NLP/ASI-Evolve
+- https://github.com/tsinghua-fib-lab/AutoSOTA
+- https://github.com/Human-Agent-Society/CORAL
+- https://github.com/aiming-lab/AutoResearchClaw
+- https://github.com/SakanaAI/ShinkaEvolve
+- https://github.com/jennyzzt/dgm
+- https://github.com/microsoft/RD-Agent
+- https://github.com/karpathy/autoresearch
+- https://github.com/ulab-uiuc/research-town
+- https://github.com/wu-yc/LabClaw

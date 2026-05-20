@@ -1,0 +1,47 @@
+% ==================== Table: Methodology by Stage ====================
+\begin{table*}[!t]
+\centering
+\caption{Dominant methodological families, representative systems, and research maturity across each stage of the four-phase research lifecycle. Notations: \cmark~= ``primary approach'', \pmark~= ``secondary/emerging'', \xmark~= ``not used''.}
+\vspace{-0.2cm}
+\label{tab:method_summary}
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{2.5pt}
+\footnotesize
+\begin{tabular}{l|ccccc|l|c}
+\toprule
+\rowcolor{tableheader!10}
+\textbf{Stage} &
+\rotatebox{70}{\makecell[l]{\scriptsize Prompt\\[-1pt]\scriptsize Eng.}} &
+\rotatebox{70}{\makecell[l]{\scriptsize RAG}} &
+\rotatebox{70}{\makecell[l]{\scriptsize Agentic}} &
+\rotatebox{70}{\makecell[l]{\scriptsize Training}} &
+\rotatebox{70}{\makecell[l]{\scriptsize Hybrid}} &
+\textbf{Representative works} &
+\textbf{Maturity} \\
+\midrule
+% ---- Phase 1: Creation ----
+\rowcolor{P1color!8}
+\multicolumn{8}{l}{\textit{\textbf{Phase~1: Creation}}} \\
+\Sone: Idea Generation   & \cmark & \pmark & \cmark & \xmark & \pmark & AI Scientist~\cite{lu2024aiscientist}, VirSci~\cite{su2024virsci}, Spark~\cite{sanyal2025spark}                          & \textcolor{P1color}{\ding{72}\ding{72}\ding{72}\ding{72}}\textcolor{gray!30}{\ding{72}} \\
+\Stwo: Literature Review  & \pmark & \cmark & \cmark & \xmark & \cmark & PaperQA2~\cite{skarlinski2024paperqa2}, AutoSurvey~\cite{wang2024autosurvey}, STORM~\cite{shao2024storm}                    & \textcolor{P1color}{\ding{72}\ding{72}\ding{72}}\textcolor{gray!30}{\ding{72}\ding{72}} \\
+\Sthree: Coding \& Exp.     & \pmark & \pmark & \cmark & \xmark & \cmark & AIDE~\cite{jiang2025aide}, PaperCoder~\cite{papercoder2025}, R\&D-Agent~\cite{chen2025rdagent}                               & \textcolor{P1color}{\ding{72}\ding{72}\ding{72}\ding{72}}\textcolor{gray!30}{\ding{72}} \\
+\Sfour: Tables \& Fig.     & \cmark & \xmark & \cmark & \pmark & \xmark & MatPlotAgent~\cite{matplotagent2024}, AutoFigure~\cite{autofigure2026}, DeTikZify~\cite{belouadi2024detikzify}               & \textcolor{P1color}{\ding{72}}\textcolor{gray!30}{\ding{72}\ding{72}\ding{72}\ding{72}} \\
+\midrule
+% ---- Phase 2: Writing ----
+\rowcolor{P2color!8}
+\multicolumn{8}{l}{\textit{\textbf{Phase~2: Writing}}} \\
+\Sfive: Paper Writing      & \cmark & \cmark & \pmark & \cmark & \pmark & CycleResearcher~\cite{cycleresearcher2024}, ScholarCopilot~\cite{scholarcop2025}, XtraGPT~\cite{xtragpt2025}                 & \textcolor{P2color}{\ding{72}\ding{72}\ding{72}\ding{72}}\textcolor{gray!30}{\ding{72}} \\
+\midrule
+% ---- Phase 3: Validation ----
+\rowcolor{P3color!8}
+\multicolumn{8}{l}{\textit{\textbf{Phase~3: Validation}}} \\
+\Ssix: Peer Review        & \pmark & \pmark & \cmark & \cmark & \cmark & DeepReviewer~\cite{deepreviewer2025}, MARG~\cite{darcy2024marg}, ReviewAgents~\cite{reviewagents2025}                        & \textcolor{P3color}{\ding{72}\ding{72}\ding{72}}\textcolor{gray!30}{\ding{72}\ding{72}} \\
+\Sseven: Rebuttal           & \pmark & \cmark & \cmark & \xmark & \pmark & RebuttalAgent~\cite{rebuttalagent2026}, Paper2Rebuttal~\cite{paper2rebuttal2026}                                             & \textcolor{P3color}{\ding{72}}\textcolor{gray!30}{\ding{72}\ding{72}\ding{72}\ding{72}} \\
+\midrule
+% ---- Phase 4: Dissemination ----
+\rowcolor{P4color!8}
+\multicolumn{8}{l}{\textit{\textbf{Phase~4: Dissemination}}} \\
+\Seight: Dissemination      & \cmark & \pmark & \cmark & \xmark & \xmark & Paper2Poster~\cite{paper2poster2025}, PPTAgent~\cite{pptagent2025}, SlideGen~\cite{slidegen2025}                             & \textcolor{P4color}{\ding{72}}\textcolor{gray!30}{\ding{72}\ding{72}\ding{72}\ding{72}} \\
+\bottomrule
+\end{tabular}
+\end{table*}

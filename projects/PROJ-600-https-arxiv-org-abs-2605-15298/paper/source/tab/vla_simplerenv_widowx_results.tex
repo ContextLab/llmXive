@@ -1,0 +1,40 @@
+\begin{table*}[!t]
+  \centering
+  \caption{
+    \textbf{Results of evaluating the VLA models with the WidowX robot in the SimplerEnv-WidowX simulation benchmark}. We highlight the best results in \textbf{bold} and the second-best results with \underline{underline}.
+    }
+  \begin{adjustbox}{width=\linewidth}
+  \begin{tabular}{l c c c c c}
+    \toprule
+    \textbf{Method}
+     & \makecell[c]{\textbf{Put Spoon} \\ \textbf{on Towel}} 
+     & \makecell[c]{\textbf{Put Carrot} \\ \textbf{on Plate}} 
+     & \makecell[c]{\textbf{Stack Green Block} \\ \textbf{on Yellow Block}} 
+     & \makecell[c]{\textbf{Put Eggplant} \\ \textbf{in Yellow Basket}} 
+     & \textbf{Average} \\
+    \midrule
+
+    RT-1-X~\citep{OXE_2024_ICRA}         &  0.0  & 4.2   & 0.0   & 0.0   & 1.1 \\
+    Octo-Base~\citep{Octo_2024_arXiv}       & 15.8  & 12.5  & 0.0   & 41.7  & 17.5 \\
+    Octo-Small~\citep{Octo_2024_arXiv}      & 41.7  & 8.2   & 0.0   & 56.7  & 26.7 \\
+    OpenVLA~\citep{OpenVLA_2024_CoRL}         & 4.2   & 0.0   & 0.0   & 12.5   & 4.2 \\
+    OpenVLA-OFT~\citep{OpenVLA-OFT_2025_arXiv}     & 12.5  & 4.2  & 4.2  & 72.5  & 23.4 \\
+    RoboVLM~\citep{RoboVLM_2024_arXiv}         & 50.0  & 37.5  & 0.0   & 83.3  & 42.7 \\ 
+    TraceVLA~\citep{TraceVLA_2025_arXiv}        & 12.5  & 16.6  & 16.6  & 65.0  & 27.7 \\
+    SpatialVLA~\citep{Spatialvla_2025_arXiv}      & 20.8  & 20.8  & 25.0  & 70.8  & 34.4 \\
+    CogACT~\citep{CogACT_2024_arXiv}          & 71.7 &  50.8  & 15.0 & 67.5 & 51.3 \\
+    VideoVLA~\citep{VideoVLA_2025_NeurIPS}        & 75.0 & 20.8   & 45.8 & 70.8 & 53.1 \\
+    $\pi_0$~\citep{PI0_2024_arXiv}         & 29.1 & 0.0 & 16.6 & 62.5 & 27.1 \\
+    $\pi_{0.5}$~\citep{PI05_2025_arXiv} & 49.3 & 64.7 & 44.7 & 69.7 & 57.1 \\
+    Isaac-GR00T-N1.6-Bridge~\citep{GR00T_N1.6}   & 64.5 & 65.5 & 5.5 & 93.0 & 57.1 \\
+    Xiaomi-Robotics-0~\citep{XiaomiRobotics0_2026_arxiv} &  95.8 &  62.5 &  75.0 &  83.3 &  \underline{79.2} \\
+    
+    \cmidrule(lr){1-6}
+
+    \rowcolor{gray!30}\textbf{PhysBrain 1.0} (ours) & 95.8 & 65.5 & 59.4 &  100.0  & \textbf{80.2} \\
+    \bottomrule
+  \end{tabular}
+  \end{adjustbox}
+  \vspace{0.5 em}
+  \label{tab:simplerenv_widowx_results}
+\end{table*}

@@ -1,0 +1,174 @@
+\begin{figure}[!h]
+    \centering
+    \vspace{0.2cm}
+    \includegraphics[width=\linewidth]{figures/teaser.png}
+    \vspace{-0.5cm}
+    \caption{\textbf{AI auto-research across the complete lifecycle.} We organize AI assistance into four phases and eight stages: $^1$\textbf{Creation} spans idea generation, literature review, coding \& experiments, and tables \& figures; $^2$\textbf{Writing} centers on paper writing; $^3$\textbf{Validation} includes peer review and rebuttal \& revision; and $^4$\textbf{Dissemination} transforms papers into posters, slides, videos, social media, project pages, and interactive paper agents.}
+    \label{fig:teaser}
+    \vspace{-1cm}
+\end{figure}
+
+
+
+\clearpage
+\setcounter{tocdepth}{3}
+\tableofcontents
+\clearpage
+
+
+
+\section{Introduction}
+\label{sec:introduction}
+
+AI-assisted research is crossing a threshold. Large language models (LLMs) and their agentic extensions are no longer limited to local writing or coding support; they are beginning to operate across the research lifecycle itself. Recent systems illustrate the scale of this shift: The AI Scientist generated complete research papers at roughly \$15 per paper~\cite{lu2024aiscientist}; FARS ran continuously for $228$ hours, consumed $11.4$ billion tokens, and produced $100$ papers, averaging one every $2.3$ hours~\cite{fars2026_report}; and ARIS reports an overnight workflow that ran $20+$ GPU experiments, pruned unsupported claims, and improved a draft score from $5.0$ to $7.5$ through iterative review and revision~\cite{aris2025}. These systems suggest a new paradigm: AI is moving from assisting individual research tasks to orchestrating multi-stage workflows that generate ideas, search literature, execute experiments, draft manuscripts, simulate critique, and prepare dissemination materials.
+
+This rapid progress also exposes the defining tension of the field. AI systems are increasingly capable of producing research-like artifacts, yet remain far less reliable at verifying whether those artifacts are novel, faithful, executable, and scientifically meaningful. Generated ideas can appear promising but weaken after implementation~\cite{si2025gap}; generated code can run while implementing the wrong algorithm~\cite{researchcodebench2025}; fluent manuscripts can conceal unsupported claims; automated reviews can be coherent yet lenient or vulnerable to manipulation~\cite{llmreviewer2025}; rebuttals can promise revisions that are not later fulfilled~\cite{rebuttalcommitment2026}; and dissemination materials can simplify results beyond the evidence. The core challenge is therefore no longer whether AI can produce the \emph{forms} of research, but whether it can preserve the \emph{substance} of research: evidence, judgment, provenance, and accountability.
+
+A lifecycle view is essential for understanding this challenge. Research is not a collection of independent tasks: ideas become experiments, experiments become claims, claims become manuscripts, reviews become revisions, and papers become public-facing summaries. Errors introduced early can be amplified downstream, especially when AI systems generate plausible outputs without preserving evidence or provenance. Despite the rapid emergence of research agents, writing assistants, scientific coding tools, automated reviewers, rebuttal systems, and Paper2X applications, the field still lacks a unified analysis of AI auto-research across the complete academic lifecycle. Without such a view, it is difficult to determine where AI reliably helps, where it fails systematically, and which deployment modes are scientifically credible.
+
+Surveying developments through April 2026, we present the first end-to-end analysis of AI auto-research across the complete academic research lifecycle. We organize the field into four epistemological phases and eight stages: $^1$\textbf{Creation}, covering idea generation, literature review, coding \& experiments, and tables \& figures; $^2$\textbf{Writing}, covering paper writing; $^3$\textbf{Validation}, covering peer review and rebuttal \& revision; and $^4$\textbf{Dissemination}, covering posters, slides, videos, social media, project pages, and interactive paper agents. This structure follows the temporal sequence of research while making explicit the distinct AI capabilities, risks, and verification requirements introduced by each phase.
+
+Our analysis yields five central findings. First, AI capability is strongest when tasks are structured, grounded, and externally checkable, but drops sharply for open-ended research tasks requiring novelty, implicit domain knowledge, long-horizon reasoning, or scientific judgment. Second, artifact generation consistently outpaces verification: across stages, AI can often produce plausible outputs faster than it can prove that they are correct, faithful, or meaningful. Third, the most reliable deployment mode is human-governed collaboration rather than full autonomy: AI can reduce mechanical friction in retrieval, drafting, coding, visualization, review support, and dissemination, but researchers must retain responsibility for judgment, interpretation, experimental design, argumentation, and accountability. Fourth, effective systems increasingly rely on layered architectures that combine exploration, tool-based execution, and verification, suggesting that orchestration, provenance, and feedback design are as important as model scale. Fifth, AI use in research is becoming a governance problem rather than a detection problem: as AI assistance becomes routine, the key questions are disclosure, attribution, responsibility, and whether scientific integrity is preserved.
+
+This work makes three contributions to the emerging field of AI auto-research:
+
+\begin{itemize}
+
+    \item We provide a unified taxonomy of AI auto-research across four phases and eight stages, covering both mature areas such as writing and coding, and underexplored areas such as rebuttal, scientific visualization, and research dissemination.
+
+    \item We synthesize tools, benchmarks, and methodological families across the lifecycle, showing how systems have evolved from prompt-based assistance to retrieval-augmented, agentic, fine-tuned, and hybrid workflows.
+
+    \item We identify cross-cutting capability boundaries and open challenges, including phase-boundary faithfulness, scientific judgment, reproducibility, citation provenance, governance, cross-domain generalization, and cognitive ownership.
+\end{itemize}
+
+The remainder of this paper is organized as follows. \cref{sec:preliminaries} introduces the lifecycle framework, methodological families, literature-collection scope, and development timeline. \cref{sec:creation} to \cref{sec:dissemination} build the roadmap of the four phases for AI-assisted research in temporal order. \cref{sec:cross_cutting} synthesizes end-to-end systems, evaluation paradigms, cross-cutting insights, and open challenges. \cref{sec:conclusion} concludes the paper.
+
+
+
+
+
+
+\section{Preliminaries}
+\label{sec:preliminaries}
+
+As AI-assisted research tools expand from isolated single stages (such as writing or coding aids) into multi-stage assistants, the field has become increasingly difficult to compare using a single vocabulary. Existing systems differ not only in their technical designs, but also in the research stages they target, the degree of autonomy they assume, and the forms of scientific risk they introduce. 
+
+To support a unified analysis, we first establish \textbf{four foundational elements}: (i) the high-level academic research lifecycle framework that organizes this survey (\cref{sec:lifecycle}), (ii) the methodological families that recur across each stage (\cref{sec:methods_overview}), (iii) the scope and methodology of our literature collection (\cref{sec:scope}), and (iv) a brief timeline of key developments (\cref{sec:timeline}).
+
+
+
+\subsection{Research Lifecycle}
+\label{sec:lifecycle}
+
+We define the research lifecycle as \textbf{eight interconnected stages}, organized into \textbf{four phases}. Each phase groups stages that serve a shared function in the production, validation, and communication of scientific knowledge.
+
+\vspace{6pt}
+\noindent\underline{\textbf{Phase 1: Creation.}} This phase covers the stages through which a research contribution is materially produced, including hypothesis formation, evidence gathering, experimentation, and scientific visualization.
+
+\stagecard{\Sone}{Idea Generation}{P1color}{figures/icons/s1_ideation.png}{%
+Generating, refining, and evaluating research hypotheses. Techniques include direct LLM prompting, retrieval-augmented generation, knowledge-graph reasoning, and multi-agent collaboration for structured hypothesis formation.}
+
+\stagecard{\Stwo}{Literature Review}{P1color}{figures/icons/s2_literature.png}{%
+Retrieving, synthesizing, and organizing prior work into coherent research contexts. Modern systems span semantic retrieval, citation-graph traversal, survey generation, and deep research agents that iteratively explore the literature.}
+
+\stagecard{\Sthree}{Coding \& Experiments}{P1color}{figures/icons/s3_coding.png}{%
+Translating ideas into executable code, running experiments, and analyzing empirical results. This stage includes code generation, paper-to-code translation, autonomous experiment orchestration, and result interpretation.}
+
+\stagecard{\Sfour}{Tables \& Figures}{P1color}{figures/icons/s4_figures.png}{%
+Constructing method diagrams, result plots, comparison tables, mathematical formulas, and algorithmic illustrations. These artifacts transform raw outputs and conceptual designs into structured scientific representations.}
+
+
+
+\vspace{6pt}
+\noindent\underline{\textbf{Phase 2: Writing.}} This phase organizes the outputs of \emph{Creation} into a formal scholarly manuscript for communication and external scrutiny.
+
+\stagecard{\Sfive}{Paper Writing}{P2color}{figures/icons/s5_writing.png}{%
+Drafting, editing, polishing, and structuring academic manuscripts. AI assistance ranges from grammar correction and citation support to section-level drafting and full-paper generation.}
+
+
+
+\vspace{6pt}
+\noindent\underline{\textbf{Phase 3: Validation.}} This phase covers the stages through which the research community scrutinizes, critiques, and iteratively refines a manuscript.
+
+\stagecard{\Ssix}{Peer Review}{P3color}{figures/icons/s6_review.png}{%
+Generating structured reviews, matching reviewers to manuscripts, assessing review quality, and supporting meta-review decisions. These systems aim to assist, rather than replace, the community's evaluative process.}
+
+\stagecard{\Sseven}{Rebuttal \& Revision}{P3color}{figures/icons/s7_rebuttal.png}{%
+Analyzing reviewer comments, identifying required evidence, drafting responses, and supporting manuscript revision. This stage connects external critique with additional analysis, clarification, and experimental follow-up.}
+
+
+
+\vspace{6pt}
+\noindent\underline{\textbf{Phase 4: Dissemination.}} This phase converts the manuscript and its supporting materials into formats accessible to broader research and public audiences.
+
+\stagecard{\Seight}{Paper2X}{P4color}{figures/icons/s8_dissemination.png}{%
+Converting papers into posters, slides, videos, project pages, demos, and social media content. Each output format targets a different audience and requires distinct design choices, fidelity constraints, and communication strategies.}
+
+
+
+\vspace{16pt}
+Although presented in temporal order, the lifecycle is not strictly linear. Reviewer critiques in Phase~3 (\emph{Validation}) may require returning to Phase~1 (\emph{Creation}) for additional experiments, while dissemination outputs in Phase~4 (\emph{Dissemination}) may expose ambiguities or errors that trigger revisions in Phase~2 (\emph{Writing}). These feedback loops are central to research practice and are especially important for AI-assisted workflows, where errors can propagate across stages if not explicitly checked.
+
+This four-phase grouping reflects the functional structure of research. Evidence and artifacts are produced in \levelbadge{P1color}{P1}~\emph{Creation}, organized into a manuscript in \levelbadge{P2color}{P2}~\emph{Writing}, externally scrutinized in \levelbadge{P3color}{P3}~\emph{Validation}, and communicated to broader audiences in \levelbadge{P4color}{P4}~\emph{Dissemination}. 
+
+We separate \emph{Writing} from \emph{Creation} because manuscript construction is not merely a formatting step: it is a rhetorical and evidential organization process that requires different AI capabilities from those used to produce code, experiments, or figures. We group Peer Review and Rebuttal under \emph{Validation} because together they form the community-facing mechanism through which claims are challenged, defended, and revised. Finally, we treat \emph{Dissemination} as a full phase because posters, slides, videos, project pages, and social media summaries are increasingly important knowledge artifacts with their own fidelity and trust requirements.
+
+
+
+\subsection{Methodological Families}
+\label{sec:methods_overview}
+
+Across the research lifecycle, AI-assisted research systems reuse a small set of methodological patterns. We group them into five broad families: $^1$\emph{prompt engineering}, $^2$\emph{retrieval-augmented generation (RAG)}, $^3$\emph{training-free agentic methods}, $^4$\emph{training-based methods}, and $^5$\emph{hybrid approaches}. These families are not mutually exclusive or strictly chronological; rather, they describe how current systems elicit, ground, specialize, and orchestrate LLM behavior. Many practical systems combine several of them, for example using prompts for decomposition, RAG for grounding, tools for execution, and trained modules for scoring or ranking.
+
+\textbf{Prompt engineering} provides the simplest interface for adapting general-purpose LLMs to research tasks~\cite{wei2022chain,yao2023react}. It includes direct prompting, chain-of-thought reasoning, role assignment, structured templates, rubric-based instructions, and output constraints. Because it requires no additional training, it remains widely used for lightweight tasks such as brainstorming, editing, review drafting, rebuttal outlining, and social media generation, but it is sensitive to prompt wording and usually lacks persistent grounding.
+
+\textbf{Retrieval-augmented generation (RAG)} grounds model outputs in external sources, including paper corpora, citation graphs, code repositories, benchmark records, and experimental logs~\cite{lewis2020retrieval}. It is especially important for literature review, citation support, evidence checking, rebuttal generation, and stages where source attribution is required. RAG reduces hallucination by exposing models to evidence at inference time, but does not ensure that selected sources are correct, version-consistent, or faithfully represented.
+
+\textbf{Training-free agentic methods} extend LLMs with planning, tool use, memory, self-reflection, and iterative execution, enabling multi-step workflows without updating model parameters~\cite{yao2023react,schick2023toolformer,shinn2023reflexion}. These methods are central to deep literature exploration, code debugging, experiment orchestration, review-response planning, and Paper2X workflows. Their strength lies in orchestration, while their main risk is error propagation when retrieval, tool use, or self-critique fails.
+
+\textbf{Training-based methods} specialize models for stage-specific distributions, such as peer reviews, scientific manuscripts, code repositories, citation contexts, rebuttal traces, or benchmark trajectories~\cite{ouyang2022training,wang2023selfinstruct}. They include supervised fine-tuning, instruction tuning, preference optimization, reinforcement learning, and domain-specific adaptation. They can improve consistency, format adherence, domain vocabulary, and task-specific judgment, but depend heavily on data quality and may overfit to narrow benchmark or venue distributions.
+
+\textbf{Hybrid approaches} combine multiple families into integrated research systems, for example by coupling RAG with agentic planning, fine-tuning domain-specific submodules, or embedding prompt-based controllers inside larger workflows~\cite{lu2024aiscientist,lala2023paperqa,shao2024storm,openscholar2025}. Hybrid systems are increasingly dominant because research workflows require generation and grounding, autonomy and verification, and flexible reasoning with stage-specific specialization.
+
+\cref{tab:method_summary} maps these methodological families to the eight lifecycle stages, using primary and secondary markers to indicate common design patterns in recent systems. 
+
+\input{tables/method_summary}
+
+
+
+\subsection{Scope \& Literature Collection}
+\label{sec:scope}
+
+This survey focuses on AI tools, methods, and benchmarks that support \emph{human-driven academic research}, with an emphasis on computer science and machine learning. We cover work published or publicly released between 2023 and early 2026, while also referencing earlier foundational methods when they define recurring technical paradigms. Cross-disciplinary systems are included when they demonstrate capabilities relevant to the research lifecycle, such as autonomous experimentation, literature synthesis, scientific coding, or evidence-grounded writing. We exclude general-purpose LLM capabilities that are not explicitly connected to research workflows, as well as closed systems for which insufficient technical or evaluative information is available.
+
+To construct the survey corpus, we combined three complementary collection strategies:
+\begin{itemize}
+    \item \textbf{Systematic keyword search} across Google Scholar, Semantic Scholar, arXiv, and DBLP, using queries related to AI-assisted research, automated research agents, literature review, scientific coding, paper writing, peer review, rebuttal generation, and research dissemination.
+
+    \item \textbf{Snowball citation tracing} from representative seed papers in each lifecycle stage, including both backward tracing to foundational work and forward tracing to recent systems and benchmarks.
+
+    \item \textbf{Community and repository monitoring}, including open-source projects, curated reading lists, and benchmark leaderboards that document emerging tools not yet covered by formal publications.
+\end{itemize}
+
+
+A paper, system, or benchmark was included only if it satisfied all three criteria: (i) it targets at least one stage of the research lifecycle defined in \cref{sec:lifecycle}; (ii) it is publicly accessible through a publication, preprint, open-source repository, benchmark page, or technical report; and (iii) it provides sufficient methodological or evaluative detail to support critical analysis. When multiple versions of the same system exist, we prioritize the most recent or most technically complete version, while noting earlier versions when they mark important historical milestones.
+
+The resulting corpus spans all four phases of the lifecycle, but the distribution is uneven. Most documented systems concentrate on \levelbadge{P1color}{P1}~(\emph{Creation}), especially literature review, coding, and experiment automation, followed by \levelbadge{P2color}{P2}~(\emph{Writing}), \levelbadge{P3color}{P3}~(\emph{Validation}), and \levelbadge{P4color}{P4}~(\emph{Dissemination}). This imbalance reflects both research maturity and publication availability: creation-stage tools are more frequently benchmarked and open-sourced, whereas dissemination-oriented tools are often commercial, workflow-specific, or evaluated through less standardized criteria. The benchmark landscape across stages is summarized in \cref{tab:benchmarks}.
+
+\input{tables/benchmarks}
+
+
+
+\subsection{Development Timeline}
+\label{sec:timeline}
+
+
+The development of AI-assisted research can be understood as a shift from \emph{stage-specific assistance} toward \emph{multi-stage research automation}. Before 2024, most systems targeted isolated research tasks, such as literature search, scientific question answering, code generation, or domain-specific experiment planning. Early demonstrations, including Coscientist~\cite{boiko2023coscientist}, showed that LLM-based agents could plan and execute scientific workflows in constrained laboratory settings, while domain foundation models such as AlphaFold~3~\cite{abramson2024alphafold3} illustrated the broader potential of AI systems to transform specialized scientific discovery.
+
+In 2024, the field began moving from isolated tools toward end-to-end research agents. The AI Scientist~\cite{lu2024aiscientist} provided an early demonstration of an automated pipeline spanning idea generation, experiment execution, paper writing, and review-style evaluation. Around the same period, general coding agents, retrieval-augmented literature systems, and scientific reasoning benchmarks matured rapidly, making it possible to evaluate individual components of the research lifecycle more systematically. This transition marked an important change in emphasis: AI systems were no longer viewed only as assistants for local tasks, but increasingly as orchestrators of multi-step research workflows.
+
+By 2025 and early 2026, the field entered a stage of rapid specialization and benchmarking. Dedicated systems emerged for nearly every lifecycle stage, including literature synthesis, paper-to-code translation, autonomous experiment orchestration, manuscript writing, peer review, rebuttal support, figure generation, and research dissemination. For example, OpenScholar~\cite{openscholar2025} advanced retrieval-augmented scientific synthesis, AI Scientist v2~\cite{yamada2025aiscientistv2} explored stronger forms of end-to-end automated research, and FARS~\cite{fars2026_report} demonstrated large-scale autonomous paper generation. At the same time, previously underexplored stages began receiving dedicated attention, including rebuttal writing (\eg, RebuttalAgent~\cite{rebuttalagent2026}) and scientific visualization (\eg, AutoFigure-Edit~\cite{autofigure2026}). 
+
+These developments suggest that the field is no longer bottlenecked by model capability alone, but also by orchestration, evaluation, reliability, and governance across the full research lifecycle.
+
+% This timeline motivates the structure of the remainder of the survey. \cref{sec:creation} to \cref{sec:dissemination} analyze the four lifecycle phases in temporal order, while \cref{sec:cross_cutting} synthesizes the architectural patterns, benchmark evidence, and open challenges that cut across stages.

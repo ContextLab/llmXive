@@ -1,0 +1,68 @@
+% ==================== Appendix Table: S6 Peer Review ====================
+\begingroup
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\rowcolors{2}{white}{S6color!6}
+\begin{table*}[!ht]
+\centering
+\caption{\textbf{Comprehensive inventory: \Ssix Peer Review.} $^\dagger$Evaluation information uncertain.}
+\vspace{-7pt}
+\label{tab:appendix_s6}
+\stagecard{\Ssix}{Peer Review}{S6color}{figures/icons/s6_review.png}{%
+Automated Review Generation, reviewer--paper matching, and review quality assessment. AI systems can produce structured critiques and predict acceptance decisions, though leniency bias and adversarial vulnerabilities persist.}
+\vspace{2pt}
+\resizebox{\linewidth}{!}{\begin{tabular}{c| >{\centering\arraybackslash}p{3cm} r r |c| >{\centering\arraybackslash}p{2.1cm} |c| p{7.8cm}}
+\toprule
+\rowcolor{tableheader!10}
+\textbf{\#} & \textbf{Method} & \textbf{Ref} & \textbf{Venue} & \textbf{Link} & \textbf{Category} & \textbf{GitHub} & \textbf{Evaluation} \\
+\midrule
+\multicolumn{8}{@{}l}{\cellcolor{S6color!65}\textbf{\textsf{\textcolor{white}{~~Automated Review Generation}}}} \\
+\addlinespace[1pt]
+{1}  & ChatReviewer & \cite{chatreviewer2023} & {\small GitHub'23} & \href{https://github.com/nishiwen1214/ChatReviewer}{\faExternalLink} & Review Gen.       & \githubicon{https://github.com/nishiwen1214/ChatReviewer}                & ChatGPT-based strengths/weaknesses analysis \\
+{2}  & AI-Peer-Review & \cite{poldrack2024aireview} & {\small GitHub'24} & \href{https://github.com/poldrack/ai-peer-review}{\faExternalLink} & Review Gen.       & \githubicon{https://github.com/poldrack/ai-peer-review}                  & Multi-LLM independent reviews + meta-review synthesis \\
+{3}  & MARG & \cite{darcy2024marg} & {\small arXiv'24} & \href{https://arxiv.org/abs/2401.04259}{\faExternalLink} & Review Gen.       & -                                                                     & 3.7 good comments/paper (2.2$\times$ over baseline) \\
+{4}  & Reviewer2 & \cite{reviewer2024} & {\small arXiv'24} & \href{https://arxiv.org/abs/2402.10886}{\faExternalLink} & Review Gen.       & -                                                                     & Two-stage prompt-based review aspect modeling \\
+{5}  & ReviewRL & \cite{reviewrl2025} & {\small EMNLP'25} & \href{https://aclanthology.org/2025.emnlp-main.857/}{\faExternalLink} & Review Gen.       & -                                                                     & RL + RAG; factually grounded reviews \\
+{6}  & DeepReviewer & \cite{deepreviewer2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2503.08569}{\faExternalLink} & Review Gen.       & -                                                                     & 88.21\% win rate vs GPT-o1; 64\% accept/reject acc. \\
+{7}  & OpenReviewer & \cite{openreviewer2025} & {\small NAACL'25} & \href{https://aclanthology.org/2025.naacl-demo.44/}{\faExternalLink} & Review Gen.       & -                                                                     & Llama-8B fine-tuned on 79K expert reviews \\
+{8}  & REMOR & \cite{remor2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2505.11718}{\faExternalLink} & Review Gen.       & -                                                                     & Multi-objective RL review optimization \\
+{9}  & ScholarPeer & \cite{scholarpeer2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2601.22638}{\faExternalLink} & Review Gen.       & -                                                                     & Context-aware multi-agent; literature verification \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S6color!65}\textbf{\textsf{\textcolor{white}{~~Meta-Review \& Reviewer Matching}}}} \\
+\addlinespace[1pt]
+{10} & AgentReview & \cite{agentreview2024} & {\small EMNLP'24} & \href{https://aclanthology.org/2024.emnlp-main.70/}{\faExternalLink} & Meta-Review      & -                                                                     & Full review lifecycle simulation; social/authority bias \\
+{11} & Meta-Review LLMs & \cite{metareviewllm2024} & {\small NAACL'25} & \href{https://aclanthology.org/2025.naacl-long.395/}{\faExternalLink} & Meta-Review      & -                                                                     & 40 ICLR papers; GPT-3.5/LLaMA-2/PaLM-2 compared \\
+{12} & RATE & \cite{rate2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2601.19637}{\faExternalLink} & Matching         & -                                                                     & Expertise-based matching via profile distillation \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S6color!65}\textbf{\textsf{\textcolor{white}{~~Adversarial Attacks \& Bias Analysis}}}} \\
+\addlinespace[1pt]
+{13} & Raina~\etal & \cite{raina2024adversarialjudge} & {\small EMNLP'24} & \href{https://arxiv.org/abs/2402.14016}{\faExternalLink} & Adversarial      & -                                                                     & Benign adjectives as universal adversarial triggers \\
+{14} & AI Review Lottery & \cite{ailottery2024} & {\small arXiv'24} & \href{https://arxiv.org/abs/2405.02150}{\faExternalLink} & Bias Analysis    & -                                                                     & 15.8\% ICLR reviews AI-assisted; +4.9pp borderline \\
+{15} & Ye~\etal & \cite{ye2024peerrisks} & {\small arXiv'24} & \href{https://arxiv.org/abs/2412.01708}{\faExternalLink} & Adversarial      & -                                                                     & Scores inflated to $\sim$8; 5\% manipulation flips 12\% \\
+{16} & Breaking the Reviewer & \cite{breakingreviewer2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2506.11113}{\faExternalLink} & Adversarial     & -                                                                     & Systematic adversarial robustness evaluation \\
+{17} & LLM Reviewer Bias & \cite{llmreviewer2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2509.09912}{\faExternalLink} & Bias Analysis    & -                                                                     & 1,441 papers; 95.8\% rejected misclassified as acceptable \\
+{18} & Prompt Injection & \cite{promptinjectionreview2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2509.10248}{\faExternalLink} & Adversarial     & -                                                                     & White-text injection; up to 100\% acceptance scores \\
+{19} & Sahoo~\etal & \cite{sahoo2025indirect} & {\small arXiv'25} & \href{https://arxiv.org/abs/2512.10449}{\faExternalLink} & Adversarial      & -                                                                     & +13.95 on Mistral; 13 LLMs; 15 attack strategies \\
+{20} & Zhou~\etal & \cite{zhou2025positiveprompt} & {\small arXiv'25} & \href{https://arxiv.org/abs/2511.01287}{\faExternalLink} & Adversarial      & -                                                                     & +1.24 to +2.80 from hype prose; 10.00 under iteration \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S6color!65}\textbf{\textsf{\textcolor{white}{~~Detection \& Policy}}}} \\
+\addlinespace[1pt]
+{21} & AI Detection & \cite{aidetectionreview2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2502.19614}{\faExternalLink} & Detection        & -                                                                     & 788,984 AI-written reviews; 18 detection algorithms \\
+{22} & AI Use Rejects & \cite{aiuserejects2026} & {\small Nature'26} & \href{https://www.nature.com/articles/d41586-026-00893-2}{\faExternalLink} & Policy           & -                                                                     & 497 papers rejected ($\sim$2\% of submissions) \\
+{23} & Nature AI Survey & \cite{aireviewsurvey2025} & {\small Nature'26} & \href{https://www.nature.com/articles/d41586-025-04066-5}{\faExternalLink} & Survey           & -                                                                     & 1,600 academics; 57\% use AI in peer review \\
+{24} & Policy Enforcement & \cite{reviewpolicyenforce2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2603.20450}{\faExternalLink} & Policy          & -                                                                     & All 5 SOTA detectors misclassify LLM-polished reviews \\
+{25} & Reviewer Feedback & \cite{reviewerfeedback2026} & {\small CHI'26} & \href{https://doi.org/10.1145/3772318.3791431}{\faExternalLink} & Empirical        & -                                                                     & ICLR 2025 live process; reviewer engagement study$^\dagger$ \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S6color!65}\textbf{\textsf{\textcolor{white}{~~Review Consistency and Bias Assessment}}}} \\
+\addlinespace[1pt]
+{26} & Review Survey & \cite{zhuang2025asprsurvey} & {\small IF'25} & \href{https://www.sciencedirect.com/science/article/pii/S1566253525004051}{\faExternalLink} & Survey     & -                                                                     & Comprehensive taxonomy of review methods \\
+{27} & Stanford Agentic & \cite{stanfordreviewer2025} & {\small Web'25} & \href{https://paperreview.ai/tech-overview}{\faExternalLink} & Quality          & -                                                                     & $\rho=0.42$ vs human $\rho=0.41$; matches consistency \\
+{28} & ClaimCheck & \cite{claimcheck2025} & {\small EMNLP'25} & \href{https://aclanthology.org/2025.findings-emnlp.1185/}{\faExternalLink} & Quality          & -                                                                     & LLM critique grounding; gaps in factual basis \\
+{29} & ReViewGraph & \cite{reviewgraph2025} & {\small AAAI'26} & \href{https://arxiv.org/abs/2511.08317}{\faExternalLink} & Quality          & -                                                                     & +15.73\% avg improvement via heterogeneous graph \\
+{30} & ReviewAgents & \cite{reviewagents2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2503.08506}{\faExternalLink} & Quality          & -                                                                     & 37,403 papers; 142,324 reviews; Review-CoT dataset \\
+{31} & ICLR 2025 Study & \cite{iclr2025reviewstudy} & {\small NMI'26} & \href{https://www.nature.com/articles/s42256-026-01188-x}{\faExternalLink} & Quality       & -                                                                     & 22,467 reviews; 89\% quality improved; no acceptance effect \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+\endgroup

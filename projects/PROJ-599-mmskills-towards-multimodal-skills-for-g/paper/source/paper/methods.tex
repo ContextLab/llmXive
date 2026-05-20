@@ -1,0 +1,135 @@
+% !TEX root = ../mmskills.tex
+
+\section{Methods}
+\label{sec:methods}
+
+\newcommand{\mfield}[1]{\text{\normalfont\ttfamily #1}}
+
+\subsection{Overview}
+\label{sec:method-overview}
+
+MMSkills are designed around three components: a \emph{multimodal skill package} that stores reusable visual procedural knowledge, a \emph{Skill Generation pipeline} that constructs such packages from public trajectories, and a \emph{branch-loaded multimodal skill agent} that isolates skill-environment grounding in a temporary branch and returns distilled decision support to the main trajectory at inference time. Figure~\ref{fig:method-overview} gives the system overview.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{Full_Figure.pdf}
+    \caption{Overview of the MMSkills framework. A multimodal skill package stores a reusable textual procedure, runtime state cards, and multi-view keyframes. A meta-skill-guided Generator converts public non-test trajectories into a reusable multimodal skill library. At inference time, the main visual agent uses branch loading to inspect selected skill evidence in a temporary branch and receives compact structured guidance before acting.}
+    \label{fig:method-overview}
+\end{figure}
+
+At a high level, the Generator maps non-evaluation trajectories $\mathcal{T}=\{\tau_i\}$ into a multimodal skill library $\mathcal{M}=\{M_i\}_{i=1}^{N}$. Before an episode begins, the runtime agent pre-recalls a task-level candidate set $\mathcal{C}_I \subset \mathcal{M}$ from the instruction $I$ and compact skill descriptors. During execution, the main agent observes the current visual observation $O_t$, maintains a short history $H_t$, and either acts directly or consults a temporary skill branch for some $M_t\in\mathcal{C}_I$:
+\begin{equation}
+\begin{aligned}
+\text{direct}: \quad
+    & A_t = \pi_{\text{main}}(O_t,H_t,\mathcal{C}_I),\\
+\text{branch}: \quad
+    & G_t = \text{Branch}(O_t,H_t,M_t),\quad
+      A_t = \pi_{\text{main}}(O_t,H_t,\mathcal{C}_I,G_t).
+\end{aligned}
+\label{eq:runtime-modes}
+\end{equation}
+The branch output is a structured guidance tuple
+\begin{equation}
+    G_t = (\text{applicable}_t,\text{subgoal}_t,\text{plan}_t,\text{do\_not\_do}_t,\text{verify}_t),
+    \label{eq:branch-summary}
+\end{equation}
+where the fields respectively give the applicability judgment, local subgoal, skill-conditioned plan, negative constraints, and visual verification check. The main agent uses $G_t$ as decision support, while executable action grounding remains tied to the live observation.
+
+\subsection{Multimodal Skill Package}
+\label{sec:method-package}
+
+We represent each MMSkill as a state-conditioned procedure package
+\begin{equation}
+    M=(D,P,S,K),
+    \label{eq:mmskill}
+\end{equation}
+where $D$ is a compact descriptor, $P$ is a reusable textual procedure, $S=\{S_j\}_{j=1}^{m}$ is a set of runtime state cards, and $K=\{K_j\}_{j=1}^{m}$ is a set of keyframe bundles aligned with those cards. Each pair $(S_j,K_j)$ corresponds to one decision-relevant procedural state. The procedure specifies the reusable workflow; the state card specifies when the workflow is valid or invalid; and the keyframes make the state visually recognizable at runtime.
+
+A runtime state card is an agent-facing state node rather than an image caption. It links a point in the procedure to when-to-use conditions, when-not-to-use conditions, visible cues, verification cues, and available views:
+\begin{equation}
+\begin{split}
+S_j = (&
+\text{when\_to\_use}_j,
+\text{when\_not\_to\_use}_j,
+\text{visible\_cues}_j,\\
+&
+\text{verification\_cue}_j,
+\mathcal{V}_j),
+\qquad \mathcal{V}_j=\text{available\_views}_j .
+\end{split}
+\label{eq:state-card}
+\end{equation}
+The first two fields define when the state should be followed or skipped, $\mfield{visible\_cues}_j$ states what evidence to inspect, $\mfield{verification\_cue}_j$ defines the progress or completion check, and $\mathcal{V}_j$ lists which views may be loaded. This schema makes the skill useful for decision making: the agent can decide whether to follow, skip, or verify the procedure.
+
+Each key state is grounded by a small multi-view bundle. Let
+\begin{equation}
+    \mathcal{V}=\{\text{full\_frame},\text{focus\_crop},\text{before},\text{after}\}.
+\end{equation}
+Then
+\begin{equation}
+    K_j=\{K_j^{v}:v\in\mathcal{V}_j,\ v\in\mathcal{V}\}.
+    \label{eq:keyframe-bundle}
+\end{equation}
+The full-frame view preserves global context, the focus crop localizes the visual cue, and optional before/after views expose useful transitions. These images are reference evidence, not coordinates to copy. Under this representation, a text-only skill is the degenerate package $(D,P,\emptyset,\emptyset)$; MMSkills extend it by binding procedure, decision conditions, and visual evidence into one reusable unit.
+
+\subsection{Skill Generator from Public Trajectories}
+\label{sec:method-generator}
+
+We build MMSkills from public interaction trajectories that are separate from evaluation tasks. A trajectory is
+\begin{equation}
+    \tau_i=(I_i,O_{i,1:T_i},A_{i,1:T_i}),
+\end{equation}
+where $I_i$ is the task instruction, $O_{i,t}$ are visual observations, $A_{i,t}$ are executed actions. The Generator is controlled by a reusable multimodal-skill-factory meta-skill $\mathcal{F}$:
+\begin{equation}
+    \mathcal{G}_{\mathcal{F}}:\mathcal{T}_d\mapsto\mathcal{M}_d,
+    \label{eq:meta-generator}
+\end{equation}
+where $\mathcal{T}_d$ is the public trajectory pool for domain $d$ and $\mathcal{M}_d$ is the generated domain skill library. The pipeline comprises five stages:
+\begin{equation}
+\begin{aligned}
+    \mathcal{T}_d
+    &\xrightarrow{\text{Phase 0: embed+cluster}} \mathcal{C}_d
+    \xrightarrow{\text{Phase 1: cluster plan}} \mathcal{A}_d
+    \xrightarrow{\text{Phase 2: merge}} \mathcal{R}_d \\
+    &\xrightarrow{\text{Phase 3: text draft}} \widehat{\mathcal{M}}_d
+    \xrightarrow{\text{Phase 4: image ground+audit}} \mathcal{M}_d .
+\end{aligned}
+\label{eq:generator-pipeline}
+\end{equation}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Phase 0: task embedding and clustering.} The pipeline embeds task instructions and trajectory metadata, then groups a broad domain into semantically focused clusters $\mathcal{C}_d$.
+    \item \textbf{Phase 1: cluster-level skill planning.} For each cluster, an LLM-based agent proposes atomic skills with workflow boundaries, completion conditions, and covered task ids, producing a domain planning table $\mathcal{A}_d$.
+    \item \textbf{Phase 2: skill merging.} Cluster-level plans are deduplicated, merged, and generalized into merged skill specifications $\mathcal{R}_d$, while overly broad umbrella skills are rejected.
+    \item \textbf{Phase 3: text-first drafting.} Without reading images, the Generator selects reference tasks and drafts the descriptor $D$, textual procedure $P$, and planned state cards, yielding $\widehat{\mathcal{M}}_d$.
+    \item \textbf{Phase 4: image grounding and audit.} The Generator reads selected keyframes, grounds focus regions, constructs multi-view bundles, and audits the final packages.
+\end{itemize}
+
+For a merged skill $r\in\mathcal{R}_d$, finalization is written as
+\begin{equation}
+    \widehat{M}_r=(D_r,P_r,\widehat{S}_r,\widehat{K}_r)
+    \xrightarrow{\text{ground+audit}}
+    M_r=(D_r,P_r,S_r,K_r).
+\end{equation}
+The visual grounding policy is conservative: views are added only for state recognition, transition comparison, or completion verification, so the skill stores diagnostic states rather than replaying demonstrations. The meta-skill $\mathcal{F}$ supplies reusable scripts, schemas, and quality gates for the LLM-based Generator, while external services are limited to bounded support steps such as embedding/clustering and grounding.
+
+\subsection{Branch-loaded Multimodal Skills Agent}
+\label{sec:method-branch}
+
+Most skill-using agents load a retrieved skill directly into the main interaction context. For short text skills, this is reasonable: the skill is read as an additional instruction alongside the observation. For MMSkills, direct loading is brittle because state cards, multi-view keyframes, and transition examples add substantial context pressure, and irrelevant reference views can anchor the agent away from the live environment. Figure~\ref{fig:method-overview}(C) illustrates the branch-loaded alternative, which moves skill-environment grounding out of the main trajectory.
+
+\textbf{Stage 1: gated view selection.} Suppose the main agent calls $M_t=(D_t,P_t,S_t,K_t)\in\mathcal{C}_I$. The branch first selects which state cards and view types are relevant to the live observation:
+\begin{equation}
+    (J_t,R_t)=\text{SelectViews}(O_t,H_{t-1},P_t,S_t),
+    \qquad
+    V_t=\{K_j^v:j\in J_t,\ v\in R_{t,j}\},
+    \label{eq:branch-stage1}
+\end{equation}
+where $J_t$ indexes selected state cards and $R_{t,j}\subseteq\mathcal{V}_j$ selects views for state $j$. The selector reads the live observation, recent history, textual procedure, and state-card descriptions before loading images. If text and state cards are sufficient, $R_{t,j}$ may be empty.
+
+\textbf{Stage 2: branch planning.} The branch then aligns the selected evidence with the live state and returns structured guidance:
+\begin{equation}
+    G_t=\text{PlanBranch}(O_t,H_{t-1},P_t,\{S_j:j\in J_t\},V_t),
+    \label{eq:branch-stage2}
+\end{equation}
+where $G_t$ follows Eq.~\ref{eq:branch-summary}. The main agent does not execute $G_t$ mechanically; it uses $G_t$ as an intermediate planning signal and still chooses a grounded action from the live screenshot. This preserves procedural guidance without allowing reference images to override the current observation. Appendix~\ref{app:branch-loaded-algorithm} gives the full runtime loop in Algorithm~\ref{alg:branch-loaded-agent}, and Appendix~\ref{app:mmskillagent-prompts} reports the prompt templates used by the main agent and the two branch stages.

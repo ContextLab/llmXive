@@ -1,0 +1,110 @@
+\section{Phase 2: Writing}
+\label{sec:writing_phase}
+
+This phase consists of a single stage: \emph{Paper Writing} (\Sfive). Writing merits its own phase because it transforms the artifacts produced in Phase~1 into a scholarly argument. It is not merely a formatting step: a manuscript must select evidence, structure claims, situate contributions in the literature, explain methods with sufficient detail for reproducibility, and anticipate objections before external scrutiny in Phase~3 (\emph{Validation}). Compared with Phase~1 (\emph{Creation}), which emphasizes artifact production, Phase~2 (\emph{Writing}) emphasizes rhetorical organization and evidential justification.
+
+This distinction matters for AI-assisted research. Writing tools are among the most widely adopted systems in the AI-for-research ecosystem, spanning grammar correction, sentence polishing, section drafting, citation support, and full-paper generation. At the same time, Writing is one of the most ethically sensitive phases because questions of authorship, attribution, disclosure, and the boundary between assistance and generation remain unresolved. The central challenge is therefore not whether AI can produce fluent academic prose, but whether it can preserve factual grounding, argumentative depth, citation fidelity, and human accountability.
+
+
+
+\subsection{Paper Writing}
+\label{sec:writing}
+
+AI-assisted writing has moved from occasional support to mainstream research practice. Large-scale corpus analyses estimate detectable AI modification in up to $17.5\%$ of computer science abstracts~\cite{liang2024mapping} and $13.5\%$ of biomedical abstracts~\cite{kobak2024delve}, while self-reported adoption is higher: a 2025 Nature survey found that more than half of researchers report seeking AI writing help~\cite{aireviewsurvey2025}. These measurements are imperfect, but together they indicate a clear shift: AI writing assistance is now embedded in everyday scientific workflows. This makes the quality, transparency, and governance of AI-assisted writing increasingly important.
+
+A comprehensive inventory of AI-assisted writing systems is provided in \cref{tab:appendix_s5} (Appendix).
+
+
+
+\subsubsection{Semi-Automated Writing Assistance}
+\label{sec:writing_semi}
+
+Semi-automated writing assistance supports different parts of the manuscript workflow, from planning and drafting to polishing and revision. At the planning stage, systems help generate titles, outlines, section structures, and citation suggestions. ScholarCopilot~\cite{scholarcop2025}, for example, trains LLMs for academic writing with integrated citation recommendation, reflecting a broader trend toward tools that combine text generation with literature grounding.
+
+During drafting, commercial tools such as Grammarly, Writefull, Paperpal, and GPT-based editors support paragraph generation, sentence polishing, citation insertion, and style refinement. Open-source prompt templates~\cite{leey21awesome} provide lightweight alternatives, while CoAuthor~\cite{coauthor2022} studies human--AI collaborative writing workflows. The dominant paradigm is increasingly shifting from \emph{``AI writes for you''} to \emph{``AI writes with you''}: AI handles mechanical or local operations, such as polishing, citation formatting, and initial drafting, while researchers retain responsibility for novelty, argumentation, experimental interpretation, and scientific judgment.
+
+Editor-integrated systems make this collaboration more explicit. PaperDebugger~\cite{paperdebugger2025} embeds a multi-agent system into Overleaf, running Reviewer, Enhancer, Scoring, and Researcher agents within the writing environment. A complementary line of work emphasizes cognitive engagement and transparency. Script\&Shift~\cite{siddiqui2025scriptshift} structures AI-assisted writing around \emph{source transformation} rather than direct text generation, aiming to preserve the writer's active reasoning. DraftMarks~\cite{siddiqui2025draftmarks} provides visual traces of revision intensity and AI-generated content, making the human--AI writing process more transparent to readers and reviewers. Empirical evidence~\cite{siddiqui2025aiwriting} further suggests that purposeful AI support can assist student writing without fully displacing cognitive effort.
+
+Post-writing systems focus on revision, consistency, and style. XtraGPT~\cite{xtragpt2025} provides an open-source LLM suite for instruction-guided scientific paper revision, SciIG~\cite{sciig2025} benchmarks introduction writing using recent NAACL and ICLR papers, OpenDraft~\cite{opendraft2025} uses specialized agents to generate long research drafts with citation support, and LimAgents~\cite{limagents2026} integrates OpenReview comments and citation networks to generate research-limitation statements. Together, these systems show that semi-automated writing assistance is most credible when it augments researcher control rather than replaces the intellectual work of framing, interpreting, and defending a contribution.
+
+
+
+\subsubsection{Fully Automated Paper Generation}
+\label{sec:writing_auto}
+
+Fully automated paper generation attempts to move beyond local assistance toward end-to-end manuscript production. Existing systems can be grouped into three directions. First, end-to-end research systems such as The AI Scientist~\cite{lu2024aiscientist,aiscientistnature2026} and Agent Laboratory~\cite{schmidgall2025agentlab} generate full papers as part of broader automated research pipelines. These systems demonstrate the feasibility of producing complete paper-like artifacts, but their outputs often remain limited by shallow argumentation, weak experimental validation, or insufficient novelty.
+
+Second, benchmarked paper-generation systems aim to approach human review standards. CycleResearcher~\cite{cycleresearcher2024} reports generated papers scoring $5.36$ on the ICLR scale, approaching but still below the reported accepted-paper average of $5.69$. This gap is important because it suggests that the main bottleneck is no longer surface fluency alone. Rather, near-threshold papers often lack the argumentative depth, experimental rigor, and reviewer anticipation that distinguish publishable work from plausible drafts.
+
+Third, rubric-guided and section-specific systems improve parts of the manuscript rather than generating the entire paper from scratch. APRES~\cite{apres2026} discovers rubrics predictive of citation counts and revises papers accordingly, with human experts preferring revised papers $79\%$ of the time. FutureGen~\cite{futuregen2025} targets ``Future Work'' section generation. PaperWritingBench~\cite{paperwritingbench2026}, introduced as part of the PaperOrchestra framework, provides a dedicated benchmark for automated paper writing by evaluating multi-agent systems against reverse-engineered top-tier conference papers. These systems indicate that automated writing is increasingly measurable, but also reinforce that high-quality papers require more than fluent text: they require evidence-grounded reasoning and coherent scientific contribution.
+
+
+
+% TODO: Regenerate figure with corrected threshold (5.69 not 5.39), gap (0.33 not 0.03), remove unverified Kosmos 4.8
+% \begin{figure}[!t]
+% \centering
+% \includegraphics[width=\columnwidth]{figures/writing_quality_landscape.pdf}
+% \caption{\textbf{The writing quality landscape:} ICLR-scale scores of AI-generated papers. CycleResearcher (5.36) sits 0.33 points below the acceptance threshold (5.69), characterizing the ``valley of mediocrity'' where papers are fluent enough to resemble real submissions but lack the argumentative depth for acceptance. AI Scientist v2 and FARS achieve higher best-case scores (6.33 and 6.3) but these represent cherry-picked outcomes, not consistent performance.}
+% \label{fig:writing_quality}
+% \end{figure}
+
+
+
+\subsubsection{Assessment: Writing Quality and AI Detection}
+\label{sec:writing_detection_eval}
+
+Assessment of AI-assisted writing involves two related but distinct questions: whether AI use can be detected, and whether the resulting manuscript is scientifically strong. Detection remains unreliable as a governance mechanism. Current detectors can produce unacceptable false positives, especially for formal, non-native, or highly edited academic prose, motivating a shift at major venues from attempting to \emph{detect} AI use toward requiring authors to \emph{declare} AI use. Watermarking offers a more principled route under controlled settings~\cite{watermarking2025}, but it requires model-provider cooperation and remains vulnerable to paraphrasing, translation, and post-editing.
+
+Quality evaluation is more important, but also harder. Good academic writing must be assessed along multiple dimensions: factual correctness, citation accuracy, argumentative coherence, methodological completeness, novelty of framing, and stylistic appropriateness. LLM-as-Judge frameworks are increasingly used to approximate parts of this evaluation. CycleReviewer~\cite{cycleresearcher2024} reports a $26.89\%$ reduction in Proxy MAE relative to individual human reviewers for score prediction, while the Stanford Agentic Reviewer~\cite{stanfordreviewer2025} achieves review-score correlations comparable to human inter-rater agreement ($\rho=0.42$ vs.\ human $\rho=0.41$). These results suggest that automated evaluators can provide useful review-style signals, but they should not be treated as substitutes for expert assessment: score prediction and agreement metrics only partially capture factual grounding, evidential rigor, novelty, and scientific contribution.
+
+The central failure mode of AI writing is therefore not ungrammatical prose, but unsupported persuasion: text that is fluent, well-structured, and citation-like, yet insufficiently grounded in evidence or scientific judgment. This issue is amplified by the productivity--quality divergence observed in recent studies: AI use can increase publication output, but AI-assisted papers with complex language may be less likely to be accepted~\cite{cornell2025science}. As in Phase~1 (\emph{Creation}), greater artifact production does not necessarily imply stronger research.
+
+
+
+\subsubsection{Findings and Observations}
+\label{sec:s5_findings}
+
+\stageanalysis{~Stage 5: Paper Writing}{S5color}{figures/teasers/s5_l.png}{figures/teasers/s5_r.png}{%
+\posbadge[S5color]{Commercial} \posbadge[S5color]{Near Threshold} \posbadge[S5color]{Cognitive}\par\vspace{2pt}
+\posbadge[S5color]{Collaboration} \posbadge[S5color]{Rubric-Guided} \posbadge[S5color]{Transparency}
+}{%
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Paper writing is among the most widely adopted AI-assisted research stages, with tools supporting planning, drafting, polishing, citation assistance, and manuscript revision~\cite{liang2024mapping,aireviewsurvey2025}.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Strong automated systems score $5.36$ on the ICLR scale (\emph{vs.} $5.69$ accepted~\cite{cycleresearcher2024}); rubric-guided revision achieves $79\%$ expert preference~\cite{apres2026}. The gap to acceptance is argumentative depth, not fluency.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Cognitive engagement and transparency are emerging design principles, aiming to preserve human understanding rather than merely producing polished text~\cite{siddiqui2025scriptshift,siddiqui2025draftmarks}.
+\end{itemize}
+}{%
+\negbadge{Paradox} \negbadge{Mediocrity} \negbadge{Detect Failing}\par\vspace{2pt}
+\negbadge{Shallow Args} \negbadge{Attribution} \negbadge{Deskilling}
+}{%
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Productivity and quality can diverge: AI-assisted workflows may increase output, but more fluent or complex language does not necessarily translate into stronger acceptance outcomes~\cite{cornell2025science}.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Valley of mediocrity: papers are fluent enough to look real but lack argumentative depth, experimental rigor, and reviewer-anticipation, the skills that separate publishable from near-publishable work.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Detection tools have unacceptable false-positive rates, forcing a shift from ``detect'' to ``declare'' policies, while $17.5\%$ of CS papers already carry detectable AI modification~\cite{liang2024mapping}.
+\end{itemize}
+}
+\vspace{8pt}
+
+
+
+\subsection{Summary and Transition: Writing}
+
+\label{sec:writing_summary}
+
+This phase shifts the focus from producing research artifacts to organizing them into a scholarly argument. \Sfive (\emph{Paper Writing}) takes the outputs of Phase~1, including ideas, retrieved literature, experiments, figures, and tables, and converts them into a manuscript that explains what was done, why it matters, and how the evidence supports the claims. Progress in this phase shows that AI systems are increasingly effective at assisting the writing workflow, from planning and drafting to polishing, citation support, revision, and even full-paper generation.
+
+The central limitation is that fluent writing can conceal weak reasoning. AI-generated or AI-assisted text may improve readability and productivity while leaving deeper scientific requirements unresolved: whether claims are grounded, whether citations faithfully support them, whether experiments are sufficient, and whether the contribution is argued with appropriate nuance. This limitation appears both in semi-automated writing assistance and in fully automated paper generation. The former is most credible when it preserves researcher control over framing, interpretation, and final responsibility; the latter increasingly approaches reviewable quality in selected settings, but still struggles with argumentative depth, evidential rigor, and reviewer anticipation.
+
+The output of this phase is a manuscript ready for external scrutiny. We therefore next turn to Phase~3 (\emph{Validation}), where the manuscript is evaluated through peer review and revised through author rebuttal. This transition shifts the role of AI from structuring evidence into a coherent argument to assessing whether that argument is sound, fair, and sufficiently supported.

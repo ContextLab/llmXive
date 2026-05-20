@@ -1,0 +1,72 @@
+% ==================== Appendix Table: S3 Coding & Experiments ====================
+\begingroup
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\rowcolors{2}{white}{S3color!6}
+\begin{table*}[!ht]
+\centering
+\caption{\textbf{Comprehensive inventory: \Sthree Coding \& Experiments.} $^\dagger$Evaluation information uncertain.}
+\vspace{-7pt}
+\label{tab:appendix_s3}
+\stagecard{\Sthree}{Coding \& Experiments}{S3color}{figures/icons/s3_coding.png}{%
+Translating ideas into executable code, running experiments at scale, and analyzing results. This stage spans code generation, Paper-to-Code translation, autonomous experiment orchestration, and result interpretation.}
+\vspace{2pt}
+\resizebox{\linewidth}{!}{\begin{tabular}{c| >{\centering\arraybackslash}p{3cm} r r |c| >{\centering\arraybackslash}p{2.4cm} |c| p{8cm}}
+\toprule
+\rowcolor{tableheader!10}
+\textbf{\#} & \textbf{Method} & \textbf{Ref} & \textbf{Venue} & \textbf{Link} & \textbf{Category} & \textbf{GitHub} & \textbf{Evaluation} \\
+\midrule
+\multicolumn{8}{@{}l}{\cellcolor{S3color!65}\textbf{\textsf{\textcolor{white}{~~Code Generation}}}} \\
+\addlinespace[1pt]
+{1} & SWE-bench & \cite{swebench2024} & {\small ICLR'24} & \href{https://arxiv.org/abs/2310.06770}{\faExternalLink} & Code Gen.        & \githubicon{https://github.com/princeton-nlp/SWE-bench}                                  & 2,294 real GitHub issues; Verified split (500 problems) \\
+{2} & SWE-agent & \cite{yang2024sweagent} & {\small arXiv'24} & \href{https://arxiv.org/abs/2405.15793}{\faExternalLink} & Code Gen.        & \githubicon{https://github.com/princeton-nlp/SWE-agent}                                  & Agent--computer interface paradigm for coding \\
+{3} & OpenHands & \cite{wang2024openhands} & {\small ICLR'25} & \href{https://arxiv.org/abs/2407.16741}{\faExternalLink} & Code Gen.        & \githubicon{https://github.com/All-Hands-AI/OpenHands}                                   & Open platform for generalist coding agents \\
+{4} & SWE-bench Pro & \cite{deng2025swebenchpro} & {\small arXiv'25} & \href{https://arxiv.org/abs/2509.16941}{\faExternalLink} & Code Gen.        & -                                                                                     & 1,865 enterprise problems; best score 23\% \\
+{5} & SWE-EVO & \cite{thai2025sweevo} & {\small arXiv'25} & \href{https://arxiv.org/abs/2512.18470}{\faExternalLink} & Code Gen.        & -                                                                                     & Software evolution benchmark; best score 25\% \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S3color!65}\textbf{\textsf{\textcolor{white}{~~Paper-to-Code}}}} \\
+\addlinespace[1pt]
+{6} & FunSearch & \cite{funsearch2024} & {\small Nature'24} & \href{https://www.nature.com/articles/s41586-023-06924-6}{\faExternalLink} & Paper-to-Code    & \githubicon{https://github.com/google-deepmind/funsearch}                                & New cap-set solutions; evolutionary program search \\
+{7} & SciCode & \cite{scicode2024} & {\small arXiv'24} & \href{https://arxiv.org/abs/2407.13168}{\faExternalLink} & Paper-to-Code    & \githubicon{https://github.com/scicode-bench/SciCode}                                    & Research-level coding across math, physics, chemistry \\
+{8} & PaperBench & \cite{paperbench2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2504.01848}{\faExternalLink} & Paper-to-Code    & \githubicon{https://github.com/openai/preparedness}                                      & 20 ICML'24 papers; 8,316 gradable subtasks \\
+{9} & PaperCoder & \cite{papercoder2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2504.17192}{\faExternalLink} & Paper-to-Code    & \githubicon{https://github.com/going-doer/Paper2Code}                                    & 3-stage multi-agent; ML papers to code repos \\
+{10} & ResearchCodeBench & \cite{researchcodebench2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2506.02314}{\faExternalLink} & Paper-to-Code    & -                                                                                     & 212 novel ML tasks; best 37.3\% (Gemini-2.5-Pro) \\
+{11} & SciReplicate-Bench & \cite{scireplicatebench2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2504.00255}{\faExternalLink} & Paper-to-Code    & \githubicon{https://github.com/xyzCS/SciReplicate-Bench}                                 & 100 tasks from 36 NLP papers; 39\% ceiling \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S3color!65}\textbf{\textsf{\textcolor{white}{~~Experiment Execution \& Orchestration}}}} \\
+\addlinespace[1pt]
+{12} & BioPlanner & \cite{bioplanner2024} & {\small arXiv'23} & \href{https://arxiv.org/abs/2310.10632}{\faExternalLink} & Execution        & \githubicon{https://github.com/bioplanner/bioplanner}                                    & Biological protocol planning evaluation \\
+{13} & CRISPR-GPT & \cite{crisprgpt2024} & {\small arXiv'24} & \href{https://arxiv.org/abs/2404.18021}{\faExternalLink} & Execution        & -                                                                                     & Gene-editing experiment design assistance \\
+{14} & DS-Agent & \cite{dsagent2024} & {\small arXiv'24} & \href{https://arxiv.org/abs/2402.17453}{\faExternalLink} & Execution        & \githubicon{https://github.com/guosyjlu/DS-Agent}                                        & End-to-end data science workflow automation \\
+{15} & MLE-Bench & \cite{chan2024mlebench} & {\small arXiv'24} & \href{https://arxiv.org/abs/2410.07095}{\faExternalLink} & Execution        & -                                                                                     & 75 Kaggle competitions benchmark \\
+{16} & MLAgentBench & \cite{mlagentbench2024} & {\small arXiv'24} & \href{https://arxiv.org/abs/2310.03302}{\faExternalLink} & Execution        & \githubicon{https://github.com/snap-stanford/MLAgentBench}                               & 13 ML experimentation tasks benchmark \\
+{17} & MLR-Copilot & \cite{mlrcopilot2024} & {\small arXiv'24} & \href{https://arxiv.org/abs/2408.14033}{\faExternalLink} & Execution        & -                                                                                     & IdeaAgent + ExperimentAgent dual-agent pipeline \\
+{18} & AIDE & \cite{jiang2025aide} & {\small arXiv'25} & \href{https://arxiv.org/abs/2502.13138}{\faExternalLink} & Execution        & -                                                                                     & SOTA on MLE-Bench + RE-Bench; tree search in code space \\
+{19} & AlphaEvolve & \cite{alphaevolve2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2506.13131}{\faExternalLink} & Execution        & -                                                                                     & LLM-generated mutations + automated evaluators \\
+{20} & AutoReproduce & \cite{autoreproduce2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2505.20662}{\faExternalLink} & Execution        & \githubicon{https://github.com/AI9Stars/AutoReproduce}                                   & Paper lineage algorithm for experiment reproduction \\
+{21} & CURIE & \cite{curie2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2502.16069}{\faExternalLink} & Execution        & \githubicon{https://github.com/Just-Curieous/Curie}                                      & Rigorous automated experimentation framework \\
+{22} & MLGym & \cite{mlgym2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2502.14499}{\faExternalLink} & Execution        & -                                                                                     & AI research agent gym benchmark \\
+{23} & MLR-Bench & \cite{mlrbench2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2505.19955}{\faExternalLink} & Execution        & -                                                                                     & 201 tasks (NeurIPS/ICLR/ICML); 80\% fabrication rate \\
+{24} & Execution-Grounded & \cite{si2026executiongrounded} & {\small arXiv'26} & \href{https://arxiv.org/abs/2601.14525}{\faExternalLink} & Execution       & -                                                                                     & 69.4\% vs 48.0\% GRPO; parallel GPU search \\
+{25} & Learn to Discover & \cite{yuksekgonul2026learntodiscover} & {\small arXiv'26} & \href{https://arxiv.org/abs/2601.16175}{\faExternalLink} & Execution  & -                                                                                     & Test-time training + RL; math, GPU kernel, biology \\
+{26} & SciNav & \cite{scinav2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2603.20256}{\faExternalLink} & Execution        & -                                                                                     & Pairwise tree-search branch selection \\
+{27} & FrontierScience & \cite{wang2026frontierscience} & {\small arXiv'26} & \href{https://arxiv.org/abs/2601.21165}{\faExternalLink} & Execution        & -                                                                                     & Expert-level tasks; Olympiad + PhD difficulty \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S3color!65}\textbf{\textsf{\textcolor{white}{~~Code Correctness and Reproducibility Assessment}}}} \\
+\addlinespace[1pt]
+{28} & DiscoveryBench & \cite{majumder2024discoverybench} & {\small arXiv'24} & \href{https://arxiv.org/abs/2407.01725}{\faExternalLink} & Analysis         & \githubicon{https://github.com/allenai/discoverybench}                                   & Data-driven insight extraction benchmark \\
+{29} & DiscoveryWorld & \cite{discoveryworld2024} & {\small arXiv'24} & \href{https://arxiv.org/abs/2406.06769}{\faExternalLink} & Analysis         & \githubicon{https://github.com/allenai/discoveryworld}                                   & 120 tasks; 8 topics; 3 difficulty levels \\
+{30} & InfiAgent-DABench & \cite{infidabench2024} & {\small arXiv'24} & \href{https://arxiv.org/abs/2401.05507}{\faExternalLink} & Analysis         & -                                                                                     & End-to-end data analysis workflow benchmark \\
+{31} & ScienceAgentBench & \cite{scienceagentbench2024} & {\small arXiv'24} & \href{https://arxiv.org/abs/2410.05080}{\faExternalLink} & Analysis         & -                                                                                     & Rigorous data-driven scientific discovery assessment \\
+{32} & LAB-Bench & \cite{labbench2024} & {\small arXiv'24} & \href{https://arxiv.org/abs/2407.10362}{\faExternalLink} & Execution & \githubicon{https://github.com/Future-House/LAB-Bench} & Multi-domain biology research task benchmark \\
+{33} & KernelBench & \cite{kernelbench2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2502.10517}{\faExternalLink} & Execution & \githubicon{https://github.com/ScalingIntelligence/KernelBench} & GPU kernel generation benchmark \\
+{34} & TritonBench & \cite{tritonbench2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2502.14752}{\faExternalLink} & Execution & \githubicon{https://github.com/thunlp/TritonBench} & Triton operator generation benchmark \\
+{35} & AstaBench & \cite{astabench2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2510.21652}{\faExternalLink} & Execution & \githubicon{https://github.com/allenai/asta-bench} & 2,400+ problems; multi-domain scientific research \\
+{36} & ResearchClawBench & \cite{researchclawbench2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2512.16969}{\faExternalLink} & Execution & \githubicon{https://github.com/InternScience/ResearchClawBench} & Scientist-aligned workflow benchmark \\
+{37} & EXP-Bench & \cite{expbench2025} & {\small ICLR'26} & \href{https://openreview.net/forum?id=KjgyAm383Z}{\faExternalLink} & Execution & \githubicon{https://github.com/Just-Curieous/Curie/tree/main/benchmark/exp_bench} & 461 tasks from 51 AI papers \\
+{38} & PostTrainBench & \cite{posttrainbench2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2603.08640}{\faExternalLink} & Execution & \githubicon{https://github.com/aisa-group/PostTrainBench} & LLM post-training automation benchmark \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+\endgroup

@@ -1,0 +1,382 @@
+\section{Phase 1: Creation}
+\label{sec:creation}
+
+This phase covers the stages through which a research contribution is materially produced: generating an idea (\Sone), situating it within prior work (\Stwo), producing empirical or analytical evidence (\Sthree), and constructing visual representations of methods and results (\Sfour). Together, these stages address two foundational questions: \emph{what is the contribution, and what evidence supports it?}
+
+Among the four phases, \emph{Creation} currently has the richest tool ecosystem and broadest benchmark coverage, but its maturity remains uneven. \Sone (\emph{Idea Generation}) has attracted extensive tooling, yet suffers from an ideation--execution gap in which seemingly novel ideas often weaken after implementation. \Stwo (\emph{Literature Review}) is rapidly improving through retrieval-augmented and agentic synthesis, but citation fidelity, coverage completeness, and multi-paper relational reasoning remain difficult. \Sthree (\emph{Coding and Experiments}) has progressed through code generation, paper-to-code translation, and autonomous experiment orchestration, but performance still drops sharply on genuinely novel research code. \Sfour (\emph{Tables and Figures}) remains comparatively underdeveloped despite its importance in daily research practice. We discuss these four stages in order below.
+
+
+
+\subsection{Idea Generation}
+\label{sec:ideation}
+
+Idea generation is the entry point of the research lifecycle, where candidate hypotheses, research questions, and experimental directions are proposed and refined. Existing approaches range from direct LLM prompting to externally grounded generation, multi-agent collaboration, and dedicated evaluation of novelty, feasibility, diversity, and downstream impact. Across these directions, the central challenge is that LLMs can produce ideas that appear novel and well-motivated, yet often struggle to generate ideas that remain feasible, distinctive, and impactful after execution. 
+
+A comprehensive inventory of ideation systems is provided in \cref{tab:appendix_s1} (Appendix).
+
+
+
+\subsubsection{LLM Internal Knowledge-Based Generation}
+\label{sec:idea_internal}
+
+The simplest form of AI-assisted ideation prompts an LLM directly with a research domain, problem description, or literature context. Si~\etal~\cite{si2024ideas} established an influential baseline through a large-scale human study involving $100+$ NLP researchers, finding that LLM-generated ideas were rated significantly higher in novelty than human ideas ($p<0.05$). This result demonstrates the surface-level generative capacity of LLMs, but it also raises a central question for this stage: whether apparent novelty corresponds to executable and impactful research.
+
+Subsequent work has explored three ways to strengthen direct generation. First, \emph{iterative refinement} uses feedback loops to improve idea specificity and reduce shallow novelty. ResearchAgent~\cite{baek2024researchagent} incorporates academic graph feedback to refine generated ideas, SciMON~\cite{wang2024scimon} iteratively compares candidate ideas against prior work to mitigate the tendency of direct LLM prompting toward shallow contributions, and Chain of Ideas~\cite{li2024chainofideas} organizes literature into progressive reasoning chains that outperform simple prompting baselines. 
+
+Second, \emph{learned quality signals} introduce explicit scoring or optimization objectives. Spark~\cite{sanyal2025spark} combines retrieval-augmented generation with a judge model trained on $600$K OpenReview reviews to estimate creativity, DeepInnovator~\cite{deepinnovator2026} trains a $14$B model under a ``Next Idea Prediction'' paradigm and reports $80$--$94\%$ win rates against frontier models on ideation tasks, and Goel~\etal~\cite{rubricrewards2025} optimize AI co-scientist plans using rubric rewards extracted from existing papers, with RL-optimized plans preferred by human experts $70\%$ of the time. 
+
+Third, \emph{adaptive test-time compute} treats reasoning effort as a controllable resource. IRIS~\cite{iris2025} uses MCTS in a human-in-the-loop ideation platform to allocate search as ideas converge, while FlowPIE~\cite{flowpie2026} evolves scientific ideas at test time through flow-guided literature exploration. 
+
+A recent creativity-centered survey~\cite{shahhosseini2025ideationsurvey} further categorizes these methods into knowledge augmentation, prompt steering, inference-time scaling, multi-agent collaboration, and parameter adaptation.
+
+
+
+\subsubsection{External Signal-Driven Generation}
+\label{sec:idea_external}
+
+Direct LLM generation is limited by the model's parametric knowledge and by its tendency to produce plausible but weakly grounded ideas. External signal-driven methods address this limitation by anchoring ideation in structured knowledge, retrieved literature, or temporal research trends. Three signal sources are especially common, each grounding ideas from a different perspective: relational structure, textual evidence, and temporal opportunity.
+
+\emph{Knowledge graphs} provide relational structure for hypothesis formation. SciAgents~\cite{ghafarollahi2024sciagents} performs multi-agent reasoning over scientific knowledge graphs, while MOOSE-Chem~\cite{yang2024moosechem} decomposes chemistry hypothesis generation into inspiration retrieval, hypothesis composition, and ranking, rediscovering hypotheses from $51$ high-impact papers. MOOSE-Chem2~\cite{yang2025moosechem2} extends this direction toward fine-grained, experimentally actionable hypotheses. \emph{Paper retrieval} grounds ideas in unstructured literature. SciPIP~\cite{wang2024scipip} proposes ideas anchored to retrieved papers, and IdeaSynth~\cite{pu2025ideasynth} represents idea facets as nodes on an interactive canvas for literature-grounded refinement; in a user study with $20$ participants, IdeaSynth encouraged users to explore more alternatives than LLM-only baselines. \emph{Trend analysis} targets the temporal dimension of research opportunity. Nova~\cite{hu2024nova} uses iterative planning and search to identify emerging research directions with improved diversity. Together, these methods suggest that external grounding is not merely an auxiliary feature, but a key mechanism for connecting generated ideas to the research frontier.
+
+
+\subsubsection{Multi-Agent Collaborative Generation}
+\label{sec:idea_multiagent}
+
+Multi-agent ideation systems attempt to improve idea quality by simulating aspects of research-community interaction, such as role specialization, critique, revision, and debate. VirSci~\cite{su2024virsci} constructs a virtual scientific community in which multiple LLM agents participate in structured discussions, reporting higher novelty scores than a single-agent AI Scientist baseline ($5.24$ vs.\ $4.94$). Its analysis suggests that agent diversity and discussion structure matter, with the best configuration using $8$ members over $5$ rounds with $50\%$ diversity.
+
+However, multi-agent scaling is not uniformly beneficial. A SIGDIAL 2025 study~\cite{sigdial2025multiagent} finds that three critique--revision rounds are often sufficient, while additional rounds produce diminishing returns. Other systems explore richer collaboration mechanisms beyond discussion alone: Gu~\etal~\cite{gu2024combinatorial} study \emph{combinatorial creativity} by composing ideas across domains, and Deep Ideation~\cite{zhao2025deepideation} designs agents that navigate scientific concept networks through structured graph exploration. 
+
+Yet recent evidence also points to a deeper limitation: the ``Artificial Hivemind'' study~\cite{jiang2025artificialhivemind} reports that LLM-generated ideas tend to cluster in narrow regions of the idea space, suggesting that diversity collapse may be a structural property of current models rather than a problem solved simply by adding more agents.
+
+
+
+\subsubsection{Assessment: Novelty and Feasibility}
+\label{sec:idea_eval}
+
+Evaluating generated ideas is difficult because strong research ideas must satisfy multiple criteria simultaneously: novelty, feasibility, clarity, significance, and eventual impact. Early benchmarks quantify parts of this space, but the central question is whether an idea remains valuable after it is implemented, tested, and situated against prior work.
+
+IdeaBench~\cite{guo2025ideabench} evaluates idea generation against $2{,}374$ influential papers across eight research domains, while LiveIdeaBench~\cite{liveideabench2024} probes scientific creativity using $1{,}180$ keyword prompts across $22$ domains. Both suggest that scientific creativity is not well predicted by general-purpose benchmarks, with reasoning-focused models often performing better. ResearchBench~\cite{researchbench2025} extends evaluation through inspiration-based task decomposition, and AI Idea Bench 2025~\cite{aiideabench2025} scales assessment to $3{,}495$ papers across two evaluation axes.
+
+A recurring pattern across these benchmarks is the gap between apparent novelty and practical feasibility. IdeaBench reports that many LLMs score above $0.6$ on novelty but below $0.5$ on feasibility~\cite{guo2025ideabench}, indicating that generating plausible-sounding ideas remains easier than generating ideas that can be executed and validated. HindSight~\cite{hindsight2026} sharpens this concern by introducing a time-split, impact-based evaluation, showing that LLM-as-Judge can overvalue novel-sounding ideas that do not later materialize into impactful work. This finding suggests that current evaluation protocols may reward apparent novelty rather than genuine research potential, reinforcing the need for execution-grounded and temporally robust assessment.
+
+
+
+\subsubsection{Findings and Observations}
+\label{sec:s1_findings}
+
+\stageanalysis{~Stage 1: Idea Generation}{S1color}{figures/teasers/s1_l.png}{figures/teasers/s1_r.png}{%
+\posbadge{Maturity} \posbadge{Progression} \posbadge{Grounding}\par\vspace{2pt}
+\posbadge{Collaboration} \posbadge{Training} \posbadge{Benchmarks}
+}{%
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Idea generation is one of the most tool-rich stages in Phase~1 (\emph{Creation}), with systems spanning prompting, retrieval, multi-agent collaboration, learned scoring, and test-time search.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Clear capability progression: prompting $\to$ RAG $\to$ multi-agent $\to$ RL-trained, each generation addressing the weaknesses of its predecessor.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item External grounding is increasingly central: retrieval- and knowledge-graph-based methods better connect generated ideas to the research frontier than LLM-only prompting~\cite{yang2024moosechem,wang2024scipip}.
+\end{itemize}
+}{%
+\negbadge{Execution} \negbadge{Feasibility} \negbadge{Diversity}\par\vspace{2pt}
+\negbadge{Mis-Evaluation} \negbadge{Shallow} \negbadge{Closed-Loop}
+}{%
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Ideas that score well before implementation can degrade substantially after execution ($\Delta=-1.98$ vs.\ $-0.63$ for human ideas~\cite{si2025gap}), exposing a gap between surface novelty and executable substance.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Persistent novelty-feasibility tradeoff ($>0.6$ \emph{vs.} $<0.5$~\cite{guo2025ideabench}) remains unresolved, and diversity collapse is structural, not solvable by scaling~\cite{jiang2025artificialhivemind}.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item LLM-as-Judge evaluation can reward apparent rather than genuine innovation, with reported novelty judgments negatively correlating with later real-world impact ($\rho=-0.29$~\cite{hindsight2026}).
+\end{itemize}
+}
+\vspace{8pt}
+
+
+
+\subsection{Literature Review}
+\label{sec:literature_review}
+
+Literature review anchors research in prior knowledge by retrieving relevant work, synthesizing evidence, and organizing existing findings into a coherent intellectual context. Compared with idea generation, this stage is more grounded and externally verifiable, making it one of the fastest-maturing areas in AI-assisted research. Existing systems have moved from semantic paper retrieval to citation-aware synthesis and long-horizon deep research agents. Yet two limitations remain central: systems can retrieve and summarize individual papers increasingly well, but still struggle with faithful citation, coverage completeness, and multi-paper relational reasoning. 
+
+A comprehensive inventory of literature review systems is provided in \cref{tab:appendix_s2} (Appendix).
+
+
+\subsubsection{Literature Retrieval}
+\label{sec:lit_retrieval}
+
+Retrieval is the foundation of AI-assisted literature review: every downstream synthesis depends on whether the system can surface the right papers from scientific corpora that now contain tens of millions of entries. Existing methods can be grouped into three modes. \emph{Semantic retrieval} forms the baseline, using dense representations and LLM-based query understanding to move beyond keyword matching. LitLLM~\cite{agarwal2024litllm} integrates LLMs with academic databases for dense retrieval, while PaperQA2~\cite{skarlinski2024paperqa2} extends this direction with citation verification and reports strong performance on scientific literature search.
+
+\emph{Citation-graph-augmented retrieval} adds structural signals beyond embeddings. Instead of treating papers as isolated documents, these methods use citation links, paper relations, and graph traversal to improve contextual coverage. OpenResearcher~\cite{li2024openresearcher} combines RAG with graph traversal for accelerated literature exploration. \emph{Agentic multi-step retrieval} further shifts retrieval from a one-shot ranking problem to an iterative search process. PaSa~\cite{pasa2025} deploys an LLM agent that issues follow-up queries and refines candidate sets, approximating how human researchers probe an unfamiliar topic. Alongside these methods, dedicated benchmarks have emerged to audit retrieval quality: LitSearch~\cite{litsearch2024} targets retrieval precision, while CiteME~\cite{citeme2024} focuses on citation fidelity. Together, these efforts show that finding relevant papers is becoming easier, but ensuring that retrieved papers are used faithfully remains difficult.
+
+
+
+\subsubsection{Survey and Related Work Generation}
+\label{sec:related_work}
+
+Synthesis transforms retrieved papers into structured narratives. This marks a shift from retrieval-oriented systems, which optimize paper ranking and coverage, to generation-oriented systems, which must identify themes, compare methods, expose contradictions, and articulate research gaps. The subfield has developed through several increasingly structured designs.
+
+\emph{Single-pass systems} established the feasibility of automated survey drafting. AutoSurvey~\cite{wang2024autosurvey} demonstrated that LLMs can generate surveys of reasonable quality end-to-end, while SurveyX~\cite{liang2025surveyx} improved content quality and approached human-expert performance on selected dimensions. \emph{Structure-aware systems} then elevated outline planning from a formatting step to a core synthesis artifact. STORM~\cite{shao2024storm} introduces multi-perspective question-asking to build comprehensive topic outlines, and SurveyForge~\cite{gao2025surveyforge} learns outline heuristics from human-written surveys together with memory-driven content generation, outperforming AutoSurvey on outline quality.
+
+\emph{Multi-agent decomposition} separates retrieval, verification, organization, and narrative writing into specialized subtasks. LiRA~\cite{lira2025} and Agentic AutoSurvey~\cite{agenticautosurvey2025} employ dedicated agents for different roles, while IterSurvey~\cite{itersurvey2025} treats outline generation as an iterative planning problem with stability checks. InteractiveSurvey~\cite{interactivesurvey2025} further introduces user customization, allowing researchers to refine reference categorization and outline structure through an interactive interface.
+
+\emph{Citation- and editor-aware systems} close the loop between synthesis and the writing environment. SurveyG~\cite{surveyg2025} constructs a three-layer citation graph (Foundation/Development/Frontier) with hierarchical traversal, Citegeist~\cite{beger2025citegeist} builds a dynamic RAG pipeline on the arXiv corpus, and CiteLLM~\cite{citellm2026} embeds hallucination-free reference discovery directly inside a LaTeX editor. Open-source systems such as GPT Researcher~\cite{gptresearcher2024}, PaperQA~\cite{paperqa2024github}, and ChatPaper~\cite{chatpaper2023} further illustrate the growing practical adoption of literature synthesis tools beyond controlled research prototypes. However, citation fidelity remains a bottleneck: ScholarCopilot~\cite{scholarcop2025} reports only $40.1\%$ top-$1$ citation accuracy, suggesting that generating plausible related-work text is still easier than grounding each claim in the correct source.
+
+
+
+\subsubsection{Deep Research Agents}
+\label{sec:deep_research}
+
+Deep research agents differ from single-pass retrieval or survey-generation systems by treating literature exploration as an \emph{iterative, agentic} process. Given an open-ended query, they plan sub-queries, retrieve and read sources, update their internal state, and continue until a report can be synthesized with sufficient confidence. This loop makes deep research agents closer to a workflow for long-horizon information seeking than a single retrieval model.
+
+\emph{Commercial systems} have popularized this paradigm for broad information synthesis. OpenAI Deep Research, Google Deep Research, Perplexity, and Elicit all support multi-source retrieval and report generation, though they differ in latency, citation style, interactivity, and target use cases. \emph{Open-source literature-specific systems} adapt this paradigm to scientific research. OpenScholar~\cite{openscholar2025}, published in Nature, is a retrieval-augmented LM that searches large-scale open-access scientific corpora and outperforms PaperQA2 and Perplexity Pro on scientific literature benchmarks. Tongyi DeepResearch~\cite{tongyi2025deepresearch} from Alibaba is an agentic LLM specialized for long-horizon deep information seeking, achieving strong results on deep research benchmarks.
+
+\emph{Training-era approaches} target the data and optimization bottlenecks that limit long-horizon research agents. O-Researcher~\cite{oresearcher2026} combines multi-agent distillation with agentic reinforcement learning to improve benchmark performance, while OpenResearcher~\cite{li2026openresearcher} addresses the trajectory-data bottleneck by constructing an offline trajectory synthesis pipeline over large document collections. These synthesized trajectories provide long-horizon tool-use supervision for training research agents. \emph{Domain-focused variants} remain important for specialized synthesis tasks: CHIME~\cite{kang2024chime} provides LLM-assisted hierarchical organization of scientific studies, and ASReview~\cite{asreview2020}, published in Nature Machine Intelligence, uses active-learning-based screening to reduce manual effort in systematic reviews while maintaining recall. Collectively, deep research agents span a spectrum from lightweight factual lookup to long-horizon autonomous synthesis, but increasingly converge on the same iterative architecture: plan, retrieve, read, update, and synthesize.
+
+
+
+\subsubsection{Assessment: Retrieval and Synthesis Quality}
+\label{sec:lit_eval}
+
+Evaluation has shifted from \emph{retrieval accuracy} alone (``did the system find the right papers?'') toward broader \emph{synthesis quality} (``did it produce a useful, accurate, and well-organized review?''). At the output level, DeepScholar-Bench~\cite{deepscholar2025} establishes a dedicated benchmark for research synthesis across coverage, coherence, and factual accuracy. ReportBench~\cite{reportbench2025} scales this direction to deep research reports derived from survey-style prompts.
+
+At the process level, ScholarGym~\cite{scholargym2026} isolates the information-gathering stage of deep research by decomposing it into query planning, tool invocation, and relevance assessment. This is an early step toward evaluating \emph{how} a system reaches its answer, rather than judging only the final output. Benchmarks have also begun probing structural and interactive dimensions of literature competence. SciNetBench~\cite{scinetbench2026} introduces a relation-aware benchmark for literature retrieval agents over large-scale AI literature, revealing that relation-aware retrieval accuracy often remains low. IDRBench~\cite{idrbench2026} addresses the human-in-the-loop dimension through interactive deep research tasks with on-demand user interaction.
+
+Across these efforts, four evaluation dimensions have crystallized: \emph{citation accuracy}, whether references are correctly attributed and faithfully support the associated claims; \emph{coverage completeness}, whether the review captures the relevant landscape without major omissions; \emph{narrative coherence}, whether the synthesis has logical flow, thematic organization, and readability; and \emph{factual grounding}, whether claims are supported by cited evidence rather than hallucinated. SurveyX~\cite{liang2025surveyx} exemplifies this multi-dimensional view by evaluating content quality, structure quality, and citation accuracy as separate axes. The main open challenge is to develop automated metrics that correlate with expert judgment on synthesis quality while remaining robust across domains, venues, and writing styles.
+
+
+
+\subsubsection{Findings and Observations}
+\label{sec:s2_findings}
+
+\stageanalysis{~Stage 2: Literature Review}{S2color}{figures/teasers/s2_l.png}{figures/teasers/s2_r.png}{%
+\posbadge[S2color]{Fastest} \posbadge[S2color]{Convergence} \posbadge[S2color]{Open-Source}\par\vspace{2pt}
+\posbadge[S2color]{Retrieval} \posbadge[S2color]{Synthesis} \posbadge[S2color]{DeepResearch}
+}{%
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Fastest-maturing stage: four generations in two years (single-pass $\to$ structure-aware $\to$ multi-agent $\to$ editor-aware), with $35$ systems spanning retrieval, synthesis, and deep research.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Commercial and open-source systems increasingly converge on an iterative architecture: plan $\to$ retrieve $\to$ read $\to$ update $\to$ synthesize.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Recent evidence suggests that trajectory data and long-horizon tool-use supervision can be as important as model scale for improving the performance of deep research systems \cite{li2026openresearcher}.
+\end{itemize}
+}{%
+\negbadge{Relations} \negbadge{Hallucination} \negbadge{Citation}\par\vspace{2pt}
+\negbadge{Cross-Domain} \negbadge{Coherence} \negbadge{Scalability}
+}{%
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Multi-paper relational reasoning remains a core bottleneck: the citation top-$1$ accuracy metric remains largely limited~\cite{scholarcop2025}, and relation-aware retrieval often remains weak~\cite{scinetbench2026}.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Hallucination has shifted from obvious fabrication to subtle misgrounding: generated claims may appear well-cited while not being faithfully supported.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Nearly all benchmarks and systems target ML/NLP literature; cross-domain synthesis (chemistry, biology, physics) remains largely untested and likely requires domain-specific retrieval infrastructure.
+\end{itemize}
+}
+\vspace{8pt}
+
+
+
+\subsection{Coding and Experiments}
+\label{sec:experiment}
+
+This stage translates research ideas into executable implementations, runs experiments, and analyzes the resulting evidence. Compared with literature review, coding and experimentation require AI systems to interact with external environments: repositories, dependencies, datasets, compute resources, test suites, and evaluation scripts. Existing work spans general code generation, paper-to-code translation, experiment orchestration, and result analysis. Across these directions, the central challenge is not whether LLMs can write plausible code, but whether they can produce semantically correct research implementations, execute meaningful experiments, and interpret results reliably. 
+
+A comprehensive inventory of coding and experiment systems is provided in \cref{tab:appendix_s3} (Appendix).
+
+
+
+\subsubsection{Code Generation}
+\label{sec:code_gen}
+
+General-purpose code generation has become one of the most mature capabilities of current LLMs. On SWE-bench Verified~\cite{swebench2024_leaderboard}, which evaluates real-world GitHub issue resolution, frontier systems now exceed $76\%$. Agent frameworks have played a central role in this progress. SWE-agent~\cite{yang2024sweagent} established the \emph{agent--computer interface} paradigm, giving LLMs structured access to files, tests, and tool calls rather than relying on unstructured shell interaction. OpenHands~\cite{wang2024openhands} extends this direction into a general open platform for software engineering agents and has become a common backbone for coding-oriented workflows.
+
+However, high performance on standard software benchmarks does not directly imply readiness for research coding. SWE-bench Verified has been questioned for potential contamination, and more challenging variants expose a sharper limitation: performance drops to $23\%$ on SWE-bench Pro~\cite{deng2025swebenchpro} and $25\%$ on SWE-EVO~\cite{thai2025sweevo}. These results suggest that standard benchmarks may overestimate robustness when tasks are familiar, well-scaffolded, or pattern-matchable. This distinction becomes more pronounced in research settings, where the target is not only to fix existing software but to implement underspecified algorithms, reproduce implicit design choices, and validate scientific claims.
+
+
+
+\subsubsection{Paper-to-Code}
+\label{sec:paper2code}
+
+Paper-to-code translation is a research-specific form of code generation. It is harder than conventional software engineering because research papers often mix natural-language descriptions, equations, pseudocode, ablation details, and domain conventions, while leaving key implementation choices implicit. PaperCoder~\cite{papercoder2025} addresses this setting with a three-stage multi-agent framework for planning, analysis, and code generation, transforming ML papers into executable repositories.
+
+Dedicated benchmarks quantify how difficult this setting remains. ResearchCodeBench~\cite{researchcodebench2025} evaluates LLMs on $212$ novel ML implementation tasks, where the best reported model achieves only $37.3\%$ accuracy; notably, $58.6\%$ of errors are semantic, meaning that the generated code runs but implements the wrong algorithm or behavior. SciReplicate-Bench~\cite{scireplicatebench2025} reports a similar ceiling of $39\%$ across $100$ tasks from $36$ NLP papers. SciCode~\cite{scicode2024} extends research-level coding evaluation to mathematics, physics, and chemistry, while PaperBench~\cite{paperbench2025} decomposes 20 ICML 2024 papers into individually gradable subtasks covering environment setup, experiment execution, and result reproduction. Together, these benchmarks reveal a substantial gap between general software issue resolution and faithful research implementation.
+
+At the high end, FunSearch~\cite{funsearch2024} demonstrates that LLM-generated programs can contribute to genuine mathematical discovery when embedded inside an evolutionary search loop. This result is important, but it also clarifies the boundary of current capability: success comes not from raw one-shot code generation alone, but from coupling generation with aggressive search, evaluation, and selection. The resulting contrast between strong performance on familiar software benchmarks and much lower performance on novel research code defines the capability cliff of this stage.
+
+
+
+\subsubsection{Experiment Execution and Orchestration}
+\label{sec:exp_execution}
+
+Once the code is available, the next challenge is to run experiments systematically and efficiently. Experiment orchestration systems provide infrastructure for planning runs, modifying code, launching jobs, monitoring results, and iterating over failures. MLAgentBench~\cite{mlagentbench2024} evaluates language agents on ML experimentation; MLR-Copilot~\cite{mlrcopilot2024} separates autonomous research into idea and experiment agents; DS-Agent~\cite{dsagent2024} targets end-to-end data-science workflows; and AIDE~\cite{jiang2025aide} frames ML engineering as tree search in code space. Broader evaluation environments, including MLR-Bench~\cite{mlrbench2025}, MLE-Bench~\cite{chan2024mlebench}, MLGym~\cite{mlgym2025}, and CURIE~\cite{curie2025}, provide increasingly standardized testbeds for measuring autonomous experimentation.
+
+Recent systems push this infrastructure toward higher-throughput and closed-loop research workflows. R\&D-Agent~\cite{chen2025rdagent} uses a Researcher-Developer dual-agent design for ML experimentation, while Karpathy's autoresearch~\cite{karpathy2025autoresearch} demonstrates high-throughput experiment iteration. Closed-loop systems such as CodeScientist~\cite{codescientist2025}, Dolphin~\cite{dolphin2025}, and NovelSeek~\cite{novelseek2025} attempt to connect hypothesis generation, implementation, execution, and verification. EvoScientist~\cite{evoscientist2026} further illustrates the ambition of this direction by reporting accepted papers generated through a self-evolving research pipeline. These systems show that experimental throughput and workflow automation are improving rapidly, but their reliability still depends heavily on task scaffolding, benchmark design, and verification quality.
+
+A complementary line of work couples execution with search and learning signals. AlphaEvolve~\cite{alphaevolve2025} improves algorithms through LLM-generated mutations and automated evaluation. Si~\etal~\cite{si2026executiongrounded} use execution-grounded search with large-scale parallel GPU experiments, outperforming GRPO baselines. SciNav~\cite{scinav2026} uses pairwise tree-search judgments to select promising branches, while Yuksekgonul~\etal~\cite{yuksekgonul2026learntodiscover} combine test-time training and reinforcement learning for continuous improvement across mathematics, GPU kernel optimization, and computational biology. AutoReproduce~\cite{autoreproduce2025} addresses a different but related problem: reproducing cited experiments by extracting implicit knowledge from paper lineages.
+
+Domain-specific systems illustrate how orchestration changes when the environment is scientific rather than purely computational. In chemistry, Coscientist~\cite{boiko2023coscientist} and ChemCrow~\cite{bran2024chemcrow} use LLM-driven tools to support autonomous research workflows. In biology, AlphaFold~3~\cite{abramson2024alphafold3} extends protein structure prediction to biomolecular complexes, while CRISPR-GPT~\cite{crisprgpt2024}, BioPlanner~\cite{bioplanner2024}, and LAB-Bench~\cite{labbench2024} target gene-editing design, protocol planning, and biology research evaluation. For systems-level optimization, KernelBench~\cite{kernelbench2025} and TritonBench~\cite{tritonbench2025} evaluate whether LLMs can generate efficient GPU kernels and Triton operators. Cross-domain suites such as AstaBench~\cite{astabench2025} and EXP-Bench~\cite{expbench2025} broaden evaluation to multi-domain scientific tasks and autonomous experiment execution.
+
+Overall, the execution layer has advanced quickly, especially when tasks are well specified and feedback is automated. The harder problem is experiment \emph{planning}: deciding which experiments are worth running, in what order, and how to interpret failures. Many current systems perform well on prescribed task pools, but remain less reliable when asked to choose genuinely novel research directions. In this sense, coding and experimentation expose the same broader pattern as idea generation: execution capability is improving faster than the scientific judgment needed to decide what should be executed.
+
+
+
+\subsubsection{Assessment: Code Correctness and Reproducibility}
+\label{sec:exp_analysis}
+
+Assessing coding and experiment systems requires more than checking whether the generated code runs. Research code must implement the intended algorithm, reproduce reported results, support meaningful ablations, and generate evidence that can be interpreted correctly. This makes semantic correctness and reproducibility central evaluation criteria.
+
+Several benchmarks expose the difficulty of this interpretive layer. DiscoveryBench~\cite{majumder2024discoverybench} and ScienceAgentBench~\cite{scienceagentbench2024} evaluate scientific reasoning over experimental data, showing that LLMs still struggle with multi-step analysis over complex result sets. DiscoveryWorld~\cite{discoveryworld2024} provides a virtual environment with $120$ challenge tasks for automated scientific discovery agents. InfiAgent-DABench~\cite{infidabench2024} benchmarks end-to-end data-analysis workflows, including data cleaning, statistical testing, and visualization generation across diverse domains.
+
+The core bottleneck is moving from raw outputs to trustworthy claims. Current systems can often produce plots, summary statistics, and local interpretations, but they are less reliable at identifying statistically meaningful trends, diagnosing failure modes, designing decisive ablations, and synthesizing results into a coherent empirical argument. This limitation is particularly consequential because coding errors and experimental misinterpretations can propagate into later writing and review stages, where polished narratives may obscure weak or incorrect evidence.
+
+
+
+\subsubsection{Findings and Observations}
+\label{sec:s3_findings}
+
+\stageanalysis{~Stage 3: Coding \& Experiments}{S3color}{figures/teasers/s3_l.png}{figures/teasers/s3_r.png}{%
+\posbadge[S3color]{37\% Ceiling} \posbadge[S3color]{Closed-Loop} \posbadge[S3color]{Search}\par\vspace{2pt}
+\posbadge[S3color]{Throughput} \posbadge[S3color]{Orchestration} \posbadge[S3color]{Cross-Domain}
+}{%
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Sharpest capability boundary across all stages: $76\%$ on pattern-matching \emph{vs.} $37$--$39\%$ on novel research code, consistently reproduced across $4$+ independent benchmarks~\cite{researchcodebench2025,scireplicatebench2025}.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Execution infrastructure is no longer the bottleneck: systems sustain ${\sim}12$ experiments/hour in closed-loop, with generated papers accepted at academic venues~\cite{evoscientist2026,karpathy2025autoresearch}.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Coupling generation with search (evolutionary, tree, RL) consistently outperforms raw code generation~\cite{funsearch2024,alphaevolve2025,jiang2025aide}, suggesting that search strategy matters more than model capability alone.
+\end{itemize}
+}{%
+\negbadge{Semantic} \negbadge{Planning} \negbadge{Fabrication}\par\vspace{2pt}
+\negbadge{Insight Gap} \negbadge{Benchmark Leak} \negbadge{Verification}
+}{%
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Semantic failures are especially problematic: generated code may execute successfully while implementing the wrong algorithm or producing misleading results~\cite{researchcodebench2025}.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Current systems execute prescribed tasks more reliably than they choose meaningful experiments; experiment planning remains strongly dependent on human scientific judgment.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item $80\%$ of fully autonomous results are fabricated~\cite{mlrbench2025}, and downstream review catches only half of methodological issues~\cite{hiddenpitfalls2025}, creating a compounding verification deficit.
+\end{itemize}
+}
+\vspace{8pt}
+
+
+
+
+\subsection{Tables and Figures}
+\label{sec:figure_table}
+
+Tables and figures transform experimental outputs, statistical summaries, algorithms, and conceptual designs into publication-ready research artifacts. Existing systems cover scientific figure generation, data visualization, table construction, formula generation, and algorithmic illustration. Compared with coding and experimentation, this stage is less about producing new evidence than about representing evidence faithfully. Across these artifact types, the central challenge is the gap between \emph{visual plausibility} and \emph{scientific correctness}: AI-generated outputs may look professional while containing incorrect labels, misleading layouts, invalid numerical relationships, or domain-specific notation errors. 
+
+A comprehensive inventory of figure and table generation systems is provided in \cref{tab:appendix_s4} (Appendix).
+
+
+
+\subsubsection{Scientific Figure Generation}
+\label{sec:figure_gen}
+
+Scientific figure generation spans method diagrams, architecture illustrations, result plots, data visualizations, and pipeline figures. Standard result plots are comparatively tractable because they can often be grounded in structured data and executable plotting code. In contrast, method diagrams and framework figures are harder because they require faithful spatial organization, correct information flow, domain-specific symbols, and paper-specific visual conventions.
+
+For \emph{method and architecture diagrams}, AutoFigure-Edit~\cite{autofigure2026} generates editable text-to-SVG scientific illustrations from long-form text, enabling users to revise generated figures rather than treating them as fixed images. Its companion system AutoFigure~\cite{autofigure2026iclr} introduces FigureBench for generating and refining publication-oriented scientific illustrations. PaperBanana~\cite{paperbanana2026} employs multiple specialized agents for retrieval, planning, styling, visualization, and critique, while StarVector~\cite{starVector2025} focuses on scalable vector graphics from textual descriptions. Together, these systems show a shift from static image generation toward editable, structured, and critique-aware figure construction.
+
+For \emph{result plots and data visualization}, MatPlotAgent~\cite{matplotagent2024} uses VLM-based visual feedback to improve data visualization quality, while PlotGen~\cite{plotgen2025} and PlotCraft~\cite{plotcraft2025} study chart generation across diverse plot types and task difficulties. CoDA~\cite{coda2025} explores multi-agent collaboration for visualization, and ChartGPT~\cite{yuan2023chartgpt} decomposes chart generation into sequential reasoning steps for handling abstract natural-language inputs. More recent systems broaden the scope of generation and evaluation: SciFig~\cite{scifig2026} introduces rubric-based evaluation for pipeline figures, VisCoder~\cite{viscoder2025} studies code-based visualization generation at scale, DiagramAgent~\cite{diagramagent2024} targets multiple diagram categories with specialized agents, and SciFlow-Bench~\cite{scifigbench2026} evaluates scientific framework figures through structure-first analysis. These efforts indicate that standard data plots are increasingly tractable, while complex framework figures remain difficult because they require structural consistency rather than only visual appeal.
+
+For \emph{figure editing and optimization}, VIS-Shepherd~\cite{visshepherd2025} provides constructive feedback for LLM-based data visualization, emphasizing critique and revision rather than direct generation alone. \cite{aifigurepolicies2026} surveys publisher policies on AI-generated figures and proposes best-practice guidelines for responsible use. The SAIL framework~\cite{sail2026} separates domain logic from code syntax, allowing researchers to retain scientific oversight while delegating implementation details to AI. Across these systems, the emerging design principle is human-guided refinement: AI can accelerate layout, rendering, styling, and accessibility improvements, but researchers must verify whether the figure faithfully represents the underlying method or data.
+
+
+
+\subsubsection{Table Understanding and Generation}
+\label{sec:table_gen}
+
+Table generation spans two complementary tasks: understanding existing tables and creating new ones. On the understanding side, Chain-of-Table~\cite{chainoftable2024} performs table reasoning through multi-step table transformations, reflecting the fact that many table tasks require sequential operations rather than single-pass extraction. On the generation side, ArxivDIGESTables~\cite{arxivdigestables2024} synthesizes scientific literature into structured comparison tables, ShowTable~\cite{showtable2025} introduces collaborative reflection and refinement for creative table visualization, and Table2LaTeX-RL~\cite{table2latexrl2025} converts table images into LaTeX code using reinforced multimodal language models.
+
+Compared with standard figure generation, table generation remains less mature because scientific tables must satisfy stricter semantic constraints. Comparison tables require consistent axes, fair grouping of methods, complete citation coverage, and correct numerical transcription. Ablation tables are even more demanding because they encode experimental design choices, not only final results. AbGen~\cite{abgen2025} evaluates LLMs on ablation study design using expert-annotated examples from NLP papers, revealing a significant gap between LLM-generated table plans and human expert judgments. This suggests that table generation is not merely a formatting problem; it requires understanding which comparisons are scientifically meaningful and how evidence should be organized.
+
+
+
+\subsubsection{Mathematical Formulas and Algorithm Pseudocode}
+\label{sec:formula_gen}
+
+Mathematical formulas, TikZ diagrams, and algorithm pseudocode are compact representations of scientific reasoning, making them particularly sensitive to small errors. Unlike ordinary prose or standard charts, these artifacts require exact syntax and exact semantics simultaneously: a misplaced symbol, index, operator, arrow, or dependency can change the meaning of the method. As a result, formula and pseudocode generation remain less robust than natural-language polishing or standard visualization.
+
+Recent systems address this challenge through specialized datasets, multimodal inputs, and iterative refinement. AutomaTikZ~\cite{belouadi2024automatikz} introduces DaTikZ, a large-scale TikZ dataset, and shows that fine-tuned models can outperform general-purpose LLMs on scientific vector graphics. DeTikZify~\cite{belouadi2024detikzify} extends this line with multimodal input and MCTS-based iterative refinement over a larger collection of TikZ graphics. TikZilla~\cite{tikzilla2026} further suggests that domain-specific training with supervised fine-tuning and reinforcement learning can make smaller open-source models competitive with larger general-purpose models on TikZ generation. TeXpert~\cite{texpert2025} highlights the remaining difficulty: accuracy drops sharply as LaTeX tasks become more complex, especially for tables with merged cells, nested environments, and nontrivial formatting constraints. These results reinforce the broader pattern of table and figure generation: specialized training and iterative refinement help, but human verification remains necessary when visual or symbolic artifacts carry scientific meaning.
+
+
+
+\subsubsection{Assessment: Visual Fidelity and Scientific Accuracy}
+\label{sec:s4_eval}
+
+Evaluation for table and figure generation must assess both \emph{visual fidelity} and \emph{scientific accuracy}. Visual fidelity asks whether an artifact is readable, aesthetically coherent, and consistent with publication conventions. Scientific accuracy asks whether the artifact faithfully represents the underlying data, method, comparison, or mathematical relation. The distinction is crucial: an AI-generated figure may look professional while containing misaligned arrows, incorrect labels, invalid quantitative relationships, or domain-specific notation errors.
+
+Recent benchmarks increasingly target this gap. SciFlow-Bench~\cite{scifigbench2026} uses inverse-parsing evaluation to detect structurally incorrect but visually plausible framework figures. FigureBench~\cite{autofigure2026iclr} evaluates scientific illustration generation and refinement. PlotCraft~\cite{plotcraft2025} studies chart generation across diverse chart types, while SciFig~\cite{scifig2026} provides a rubric-based evaluation for pipeline figures. TeXpert~\cite{texpert2025} evaluates LaTeX generation across difficulty levels, exposing steep performance degradation on hard cases. AbGen~\cite{abgen2025} extends evaluation to ablation study design, where the challenge is not only formatting a table but selecting scientifically meaningful comparisons.
+
+Across artifact types, maturity remains uneven. Standard result plots are the most tractable because they can be generated from structured data and validated through executable plotting code. Method diagrams and framework figures remain harder because they require spatial organization and semantic consistency. Tables are difficult when they encode comparison logic or ablation design rather than simple formatting. Mathematical formulas, TikZ diagrams, and pseudocode exhibit steep accuracy cliffs because small syntactic errors can alter scientific meaning. Together, these benchmarks show that \Sfour evaluation is moving from appearance-based judgment toward structure-, semantics-, and task-aware assessment.
+
+
+
+\subsubsection{Findings and Observations}
+\label{sec:s4_findings}
+
+\stageanalysis{~Stage 4: Tables \& Figures}{S4color}{figures/teasers/s4_l.png}{figures/teasers/s4_r.png}{%
+\posbadge[S4color]{Emerging} \posbadge[S4color]{Visualization} \posbadge[S4color]{Small Models}\par\vspace{2pt}
+\posbadge[S4color]{Multi-Agent} \posbadge[S4color]{Benchmarks} \posbadge[S4color]{Editing}
+}{%
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Fastest-growing stage from zero: first dedicated tools appeared in late 2025, yet $20$+ systems already span figures, tables, formulas, and editing.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Standard data visualization becomes increasingly tractable: $90\%$+ execution pass rate on Matplotlib/Seaborn~\cite{viscoder2025}, with multi-agent approaches boosting quality $>40\%$ over baselines~\cite{coda2025}.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Domain-specific training and iterative refinement can make smaller specialized models competitive for structured visual languages such as TikZ~\cite{belouadi2024detikzify,tikzilla2026}.
+\end{itemize}
+}{%
+\negbadge{Correctness} \negbadge{Uneven} \negbadge{Tables}\par\vspace{2pt}
+\negbadge{Formulas} \negbadge{Spatial} \negbadge{Symbols}
+}{%
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Visual plausibility $\neq$ scientific correctness: generated artifacts may look polished while misrepresenting data, structure, notation, or information flow.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Maturity is sharply uneven: figures are most advanced, table generation lags with no high-traction LaTeX tool, and formula accuracy drops from $78.8\%$ to $15\%$ with complexity~\cite{texpert2025}.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Tools remain assistants, not producers: AI-generated figures frequently require human modification for domain-specific symbols, spatial relationships, and paper-specific visual languages.
+\end{itemize}
+}
+\vspace{8pt}
+
+
+
+\subsection{Summary and Transition: Creation}
+\label{sec:creation_summary}
+
+The four Creation stages are tightly coupled in practice. \Sone (\emph{Idea Generation}) generates candidate hypotheses, \Stwo (\emph{Literature Review}) situates them within prior work, \Sthree (\emph{Coding and Experiments}) turns them into executable implementations and empirical evidence, and \Sfour (\emph{Tables and Figures}) converts the resulting outputs into visual and structured artifacts for communication. Progress across these stages shows a consistent pattern: AI systems are increasingly effective at producing the artifacts of research, including ideas, literature summaries, code, experiments, figures, and tables, but they remain less reliable at verifying whether these artifacts are novel, faithful, executable, and scientifically meaningful.
+
+This gap appears differently at each stage. In \Sone, plausible novelty often weakens after implementation. In \Stwo, fluent synthesis can conceal citation errors or incomplete coverage. In \Sthree, executable code can still be semantically wrong, and automated runs do not guarantee meaningful experimental design. In \Sfour, polished visual artifacts may misrepresent data, notation, or methodological structure. These failure modes suggest that Creation-stage automation is most credible when coupled with grounding, execution feedback, explicit verification, and human scientific judgment.
+
+The outputs of Phase~1 (\emph{Creation}) constitute the raw material for Phase~2 (\emph{Writing}). Ideas, retrieved literature, validated experiments, statistical summaries, comparison tables, and scientific figures must be organized into a coherent manuscript that explains the contribution, justifies its significance, and prepares it for external scrutiny. We therefore next turn to \emph{Writing}, where AI assistance shifts from producing research artifacts to structuring evidence into a scholarly argument.

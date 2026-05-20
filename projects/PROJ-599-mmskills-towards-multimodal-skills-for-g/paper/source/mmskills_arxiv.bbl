@@ -1,0 +1,338 @@
+\begin{thebibliography}{62}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Agashe et~al.(2024)Agashe, Han, Gan, Yang, Li, and Wang]{agashe2024agents}
+Saaket Agashe, Jiuzhou Han, Shuyu Gan, Jiachen Yang, Ang Li, and Xin~Eric Wang.
+\newblock Agent {S}: An open agentic framework that uses computers like a human, 2024.
+\newblock URL \url{https://arxiv.org/abs/2410.08164}.
+
+\bibitem[Ahn et~al.(2022)Ahn, Brohan, Brown, Chebotar, Cortes, David, Finn, Fu, Gopalakrishnan, Hausman, Herzog, Ho, Hsu, Ibarz, Ichter, Irpan, Jang, Ruano, Jeffrey, Jesmonth, Joshi, Julian, Kalashnikov, Kuang, Lee, Levine, Lu, Luu, Parada, Pastor, Quiambao, Rao, Rettinghouse, Reyes, Sermanet, Sievers, Tan, Toshev, Vanhoucke, Xia, Xiao, Xu, Xu, Yan, and Zeng]{ichter2022saycan}
+Michael Ahn, Anthony Brohan, Noah Brown, Yevgen Chebotar, Omar Cortes, Byron David, Chelsea Finn, Chuyuan Fu, Keerthana Gopalakrishnan, Karol Hausman, Alex Herzog, Daniel Ho, Jasmine Hsu, Julian Ibarz, Brian Ichter, Alex Irpan, Eric Jang, Rosario~Jauregui Ruano, Kyle Jeffrey, Sally Jesmonth, Nikhil~J Joshi, Ryan Julian, Dmitry Kalashnikov, Yuheng Kuang, Kuang-Huei Lee, Sergey Levine, Yao Lu, Linda Luu, Carolina Parada, Peter Pastor, Jornell Quiambao, Kanishka Rao, Jarek Rettinghouse, Diego Reyes, Pierre Sermanet, Nicolas Sievers, Clayton Tan, Alexander Toshev, Vincent Vanhoucke, Fei Xia, Ted Xiao, Peng Xu, Sichun Xu, Mengyuan Yan, and Andy Zeng.
+\newblock Do as i can, not as i say: Grounding language in robotic affordances, 2022.
+\newblock URL \url{https://arxiv.org/abs/2204.01691}.
+
+\bibitem[Alzubi et~al.(2026)Alzubi, Provenzano, Bingham, Chen, and Vu]{alzubi2026evoskill}
+Salaheddin Alzubi, Noah Provenzano, Jaydon Bingham, Weiyuan Chen, and Tu~Vu.
+\newblock Evoskill: Automated skill discovery for multi-agent systems, 2026.
+\newblock URL \url{https://arxiv.org/abs/2603.02766}.
+
+\bibitem[Bai et~al.(2025)Bai, Cai, Chen, Chen, Chen, Cheng, Deng, Ding, Gao, Ge, Ge, Guo, Huang, Huang, Huang, Hui, Jiang, Li, Li, Li, Li, Lin, Lin, Liu, Liu, Liu, Liu, Liu, Liu, Lu, Luo, Lv, Men, Meng, Ren, Ren, Song, Sun, Tang, Tu, Wan, Wang, Wang, Wang, Wang, Xie, Xu, Xu, Xu, Yang, Yang, Yang, Yang, Yu, Zhang, Zhang, Zhang, Zheng, Zhong, Zhou, Zhou, Zhou, Zhu, and Zhu]{bai2025qwen3vltechnicalreport}
+Shuai Bai, Yuxuan Cai, Ruizhe Chen, Keqin Chen, Xionghui Chen, Zesen Cheng, Lianghao Deng, Wei Ding, Chang Gao, Chunjiang Ge, Wenbin Ge, Zhifang Guo, Qidong Huang, Jie Huang, Fei Huang, Binyuan Hui, Shutong Jiang, Zhaohai Li, Mingsheng Li, Mei Li, Kaixin Li, Zicheng Lin, Junyang Lin, Xuejing Liu, Jiawei Liu, Chenglong Liu, Yang Liu, Dayiheng Liu, Shixuan Liu, Dunjie Lu, Ruilin Luo, Chenxu Lv, Rui Men, Lingchen Meng, Xuancheng Ren, Xingzhang Ren, Sibo Song, Yuchong Sun, Jun Tang, Jianhong Tu, Jianqiang Wan, Peng Wang, Pengfei Wang, Qiuyue Wang, Yuxuan Wang, Tianbao Xie, Yiheng Xu, Haiyang Xu, Jin Xu, Zhibo Yang, Mingkun Yang, Jianxin Yang, An~Yang, Bowen Yu, Fei Zhang, Hang Zhang, Xi~Zhang, Bo~Zheng, Humen Zhong, Jingren Zhou, Fan Zhou, Jing Zhou, Yuanzhi Zhu, and Ke~Zhu.
+\newblock Qwen3-{VL} technical report, 2025.
+\newblock URL \url{https://arxiv.org/abs/2511.21631}.
+
+\bibitem[Bai et~al.(2024)Bai, Lv, Zhang, Lyu, Tang, Huang, Du, Liu, Zeng, Hou, Dong, Tang, and Li]{bai2024longbenchbilingualmultitaskbenchmark}
+Yushi Bai, Xin Lv, Jiajie Zhang, Hongchang Lyu, Jiankai Tang, Zhidian Huang, Zhengxiao Du, Xiao Liu, Aohan Zeng, Lei Hou, Yuxiao Dong, Jie Tang, and Juanzi Li.
+\newblock Longbench: A bilingual, multitask benchmark for long context understanding, 2024.
+\newblock URL \url{https://arxiv.org/abs/2308.14508}.
+
+\bibitem[Chen et~al.(2026)Chen, Li, Solodko, Wang, Jiang, Cui, Hao, Ko, Abdali, Xu, Zheng, Fan, Cameron, Wagle, and Koishida]{chen2026cuaskill}
+Tianyi Chen, Yinheng Li, Michael Solodko, Sen Wang, Nan Jiang, Tingyuan Cui, Junheng Hao, Jongwoo Ko, Sara Abdali, Leon Xu, Suzhen Zheng, Hao Fan, Pashmina Cameron, Justin Wagle, and Kazuhito Koishida.
+\newblock {CUA}-skill: Develop skills for computer using agent, 2026.
+\newblock URL \url{https://arxiv.org/abs/2601.21123}.
+
+\bibitem[Cheng et~al.(2024)Cheng, Sun, Chu, Xu, Li, Zhang, and Wu]{cheng2024seeclick}
+Kanzhi Cheng, Qiushi Sun, Yougang Chu, Fangzhi Xu, Yantao Li, Jianbing Zhang, and Zhiyong Wu.
+\newblock Seeclick: Harnessing {GUI} grounding for advanced visual {GUI} agents.
+\newblock In \emph{Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics}, pages 9313--9332. Association for Computational Linguistics, 2024.
+\newblock \doi{10.18653/V1/2024.ACL-LONG.505}.
+\newblock URL \url{https://doi.org/10.18653/v1/2024.acl-long.505}.
+
+\bibitem[Deng et~al.(2023)Deng, Gu, Zheng, Chen, Stevens, Wang, Sun, and Su]{deng2023mind2web}
+Xiang Deng, Yu~Gu, Boyuan Zheng, Shijie Chen, Samuel Stevens, Boshi Wang, Huan Sun, and Yu~Su.
+\newblock Mind2web: Towards a generalist agent for the web, 2023.
+\newblock URL \url{https://arxiv.org/abs/2306.06070}.
+
+\bibitem[Gou et~al.(2025)Gou, Wang, Zheng, Xie, Chang, Shu, Sun, and Su]{gou2025navigatingdigitalworldhumans}
+Boyu Gou, Ruohan Wang, Boyuan Zheng, Yanan Xie, Cheng Chang, Yiheng Shu, Huan Sun, and Yu~Su.
+\newblock Navigating the digital world as humans do: Universal visual grounding for gui agents, 2025.
+\newblock URL \url{https://arxiv.org/abs/2410.05243}.
+
+\bibitem[He et~al.(2024)He, Yao, Ma, Yu, Dai, Zhang, Lan, and Yu]{he2024webvoyager}
+Hongliang He, Wenlin Yao, Kaixin Ma, Wenhao Yu, Yong Dai, Hongming Zhang, Zhenzhong Lan, and Dong Yu.
+\newblock Webvoyager: Building an end-to-end web agent with large multimodal models.
+\newblock In \emph{Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics}, pages 6864--6890. Association for Computational Linguistics, 2024.
+\newblock \doi{10.18653/V1/2024.ACL-LONG.371}.
+\newblock URL \url{https://doi.org/10.18653/v1/2024.acl-long.371}.
+
+\bibitem[Hong et~al.(2024)Hong, Wang, Lv, Xu, Yu, Ji, Wang, Wang, Zhang, Li, Xu, Dong, Ding, and Tang]{hong2024cogagentvisuallanguagemodel}
+Wenyi Hong, Weihan Wang, Qingsong Lv, Jiazheng Xu, Wenmeng Yu, Junhui Ji, Yan Wang, Zihan Wang, Yuxuan Zhang, Juanzi Li, Bin Xu, Yuxiao Dong, Ming Ding, and Jie Tang.
+\newblock Cogagent: A visual language model for gui agents, 2024.
+\newblock URL \url{https://arxiv.org/abs/2312.08914}.
+
+\bibitem[Hu et~al.(2025)Hu, Huo, Zhang, Yu, Xing, Stoica, Rosing, Jin, and Zhang]{hu2025lmgamebenchgoodllmsplaying}
+Lanxiang Hu, Mingjia Huo, Yuxuan Zhang, Haoyang Yu, Eric~P. Xing, Ion Stoica, Tajana Rosing, Haojian Jin, and Hao Zhang.
+\newblock lmgame-bench: How good are llms at playing games?, 2025.
+\newblock URL \url{https://arxiv.org/abs/2505.15146}.
+
+\bibitem[Ijspeert et~al.(2013)Ijspeert, Nakanishi, Hoffmann, Pastor, and Schaal]{ijspeert2013dmp}
+Auke~Jan Ijspeert, Jun Nakanishi, Heiko Hoffmann, Peter Pastor, and Stefan Schaal.
+\newblock Dynamical movement primitives: Learning attractor models for motor behaviors.
+\newblock \emph{Neural Computation}, 25\penalty0 (2):\penalty0 328--373, 2013.
+\newblock \doi{10.1162/NECO_a_00393}.
+\newblock URL \url{https://doi.org/10.1162/NECO_a_00393}.
+
+\bibitem[Jiang et~al.(2026)Jiang, Su, Qu, and Fung]{jiang2026xskillcontinuallearningexperience}
+Guanyu Jiang, Zhaochen Su, Xiaoye Qu, and Yi~R. Fung.
+\newblock Xskill: Continual learning from experience and skills in multimodal agents, 2026.
+\newblock URL \url{https://arxiv.org/abs/2603.12056}.
+
+\bibitem[Koh et~al.(2024)Koh, Lo, Jang, Duvvur, Lim, Huang, Neubig, Zhou, Salakhutdinov, and Fried]{koh2024visualwebarena}
+Jing~Yu Koh, Robert Lo, Lawrence Jang, Vikram Duvvur, Ming~Chong Lim, Po-Yu Huang, Graham Neubig, Shuyan Zhou, Russ Salakhutdinov, and Daniel Fried.
+\newblock Visualwebarena: Evaluating multimodal agents on realistic visual web tasks.
+\newblock In \emph{Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics}, pages 881--905. Association for Computational Linguistics, 2024.
+\newblock \doi{10.18653/V1/2024.ACL-LONG.50}.
+\newblock URL \url{https://doi.org/10.18653/v1/2024.acl-long.50}.
+
+\bibitem[Li et~al.(2025{\natexlab{a}})Li, Meng, Lin, Luo, Tian, Ma, Huang, and Chua]{li2025screenspotproguigroundingprofessional}
+Kaixin Li, Ziyang Meng, Hongzhan Lin, Ziyang Luo, Yuchen Tian, Jing Ma, Zhiyong Huang, and Tat-Seng Chua.
+\newblock Screenspot-pro: Gui grounding for professional high-resolution computer use, 2025{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2504.07981}.
+
+\bibitem[Li et~al.(2025{\natexlab{b}})Li, Xia, Du, Dai, Tang, Wang, Yu, and Zhang]{li2025rethinkmctsrefiningerroneousthoughts}
+Qingyao Li, Wei Xia, Kounianhua Du, Xinyi Dai, Ruiming Tang, Yasheng Wang, Yong Yu, and Weinan Zhang.
+\newblock Rethinkmcts: Refining erroneous thoughts in monte carlo tree search for code generation, 2025{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2409.09584}.
+
+\bibitem[Li et~al.(2026{\natexlab{a}})Li, Dai, Liu, Li, Wang, Tang, Yu, and Zhang]{li2026atgen}
+Qingyao Li, Xinyi Dai, Weiwen Liu, Xiangyang Li, Yasheng Wang, Ruiming Tang, Yong Yu, and Weinan Zhang.
+\newblock {ATG}en: Adversarial reinforcement learning for test case generation.
+\newblock In \emph{The Fourteenth International Conference on Learning Representations}, 2026{\natexlab{a}}.
+\newblock URL \url{https://openreview.net/forum?id=Sxj4o3qXtl}.
+
+\bibitem[Li et~al.(2026{\natexlab{b}})Li, Chen, Liu, Zheng, Chen, He, Li, You, Shen, Sun, Wang, Li, Zeng, Wang, Zhao, Wang, Chaim, Di, Gao, He, He, Jing, Kong, Lan, Li, Li, Li, Lin, Liu, Liu, Lyu, Ma, Wang, Wang, Wang, Ye, Zhang, Xing, Xue, Dillmann, and chung Lee]{li2026skillsbenchbenchmarkingagentskills}
+Xiangyi Li, Wenbo Chen, Yimin Liu, Shenghan Zheng, Xiaokun Chen, Yifeng He, Yubo Li, Bingran You, Haotian Shen, Jiankai Sun, Shuyi Wang, Binxu Li, Qunhong Zeng, Di~Wang, Xuandong Zhao, Yuanli Wang, Roey~Ben Chaim, Zonglin Di, Yipeng Gao, Junwei He, Yizhuo He, Liqiang Jing, Luyang Kong, Xin Lan, Jiachen Li, Songlin Li, Yijiang Li, Yueqian Lin, Xinyi Liu, Xuanqing Liu, Haoran Lyu, Ze~Ma, Bowei Wang, Runhui Wang, Tianyu Wang, Wengao Ye, Yue Zhang, Hanwen Xing, Yiqi Xue, Steven Dillmann, and Han chung Lee.
+\newblock Skillsbench: Benchmarking how well agent skills work across diverse tasks, 2026{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2602.12670}.
+
+\bibitem[Liang et~al.(2023)Liang, Huang, Xia, Xu, Hausman, Ichter, Florence, and Zeng]{liang2023codepolicies}
+Jacky Liang, Wenlong Huang, Fei Xia, Peng Xu, Karol Hausman, Brian Ichter, Pete Florence, and Andy Zeng.
+\newblock Code as policies: Language model programs for embodied control.
+\newblock In \emph{{IEEE} International Conference on Robotics and Automation, {ICRA} 2023}, pages 9493--9500. {IEEE}, 2023.
+\newblock \doi{10.1109/ICRA48891.2023.10160591}.
+\newblock URL \url{https://doi.org/10.1109/ICRA48891.2023.10160591}.
+
+\bibitem[Liu et~al.(2023)Liu, Lin, Hewitt, Paranjape, Bevilacqua, Petroni, and Liang]{liu2023lostmiddlelanguagemodels}
+Nelson~F. Liu, Kevin Lin, John Hewitt, Ashwin Paranjape, Michele Bevilacqua, Fabio Petroni, and Percy Liang.
+\newblock Lost in the middle: How language models use long contexts, 2023.
+\newblock URL \url{https://arxiv.org/abs/2307.03172}.
+
+\bibitem[Liu et~al.(2024{\natexlab{a}})Liu, Zhang, Gu, Iong, Xu, Song, Zhang, Lai, Liu, Zhao, Sun, Yang, Yang, Qi, Yao, Sun, Cheng, Zheng, Yu, Zhang, Hong, Ding, Pan, Gu, Zeng, Du, Song, Su, Dong, and Tang]{liu2024visualagentbench}
+Xiao Liu, Tianjie Zhang, Yu~Gu, Iat~Long Iong, Yifan Xu, Xixuan Song, Shudan Zhang, Hanyu Lai, Xinyi Liu, Hanlin Zhao, Jiadai Sun, Xinyue Yang, Yu~Yang, Zehan Qi, Shuntian Yao, Xueqiao Sun, Siyi Cheng, Qinkai Zheng, Hao Yu, Hanchen Zhang, Wenyi Hong, Ming Ding, Lihang Pan, Xiaotao Gu, Aohan Zeng, Zhengxiao Du, Chan~Hee Song, Yu~Su, Yuxiao Dong, and Jie Tang.
+\newblock Visualagentbench: Towards large multimodal models as visual foundation agents, 2024{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2408.06327}.
+
+\bibitem[Liu et~al.(2024{\natexlab{b}})Liu, Zhang, Ren, Huang, Jin, Qin, Su, Xu, Yu, and Zhang]{liu2024alignrecaligningtrainingmultimodalrecommendations}
+Yifan Liu, Kangning Zhang, Xiangyuan Ren, Yanhua Huang, Jiarui Jin, Yingjie Qin, Ruilong Su, Ruiwen Xu, Yong Yu, and Weinan Zhang.
+\newblock Alignrec: Aligning and training in multimodal recommendations.
+\newblock In \emph{Proceedings of the 33rd ACM International Conference on Information and Knowledge Management}, CIKM '24, pages 1503--1512, New York, NY, USA, 2024{\natexlab{b}}. Association for Computing Machinery.
+\newblock ISBN 9798400704369.
+\newblock \doi{10.1145/3627673.3679626}.
+\newblock URL \url{https://doi.org/10.1145/3627673.3679626}.
+
+\bibitem[Liu et~al.(2026)Liu, Ji, An, Jaakkola, Zhang, and Chang]{liu2026agenticskillsworkwild}
+Yujian Liu, Jiabao Ji, Li~An, Tommi Jaakkola, Yang Zhang, and Shiyu Chang.
+\newblock How well do agentic skills work in the wild: Benchmarking {LLM} skill usage in realistic settings, 2026.
+\newblock URL \url{https://arxiv.org/abs/2604.04323}.
+
+\bibitem[Lu et~al.(2024)Lu, Yang, Shen, and Awadallah]{lu2024omniparserpurevisionbased}
+Yadong Lu, Jianwei Yang, Yelong Shen, and Ahmed Awadallah.
+\newblock Omniparser for pure vision based gui agent, 2024.
+\newblock URL \url{https://arxiv.org/abs/2408.00203}.
+
+\bibitem[Ma et~al.(2026)Ma, Yang, Ji, Wang, Wang, Hu, Huang, and Chu]{ma2026skillclawletskillsevolve}
+Ziyu Ma, Shidong Yang, Yuxiang Ji, Xucong Wang, Yong Wang, Yiming Hu, Tongwen Huang, and Xiangxiang Chu.
+\newblock Skillclaw: Let skills evolve collectively with agentic evolver, 2026.
+\newblock URL \url{https://arxiv.org/abs/2604.08377}.
+
+\bibitem[Mayer(2009)]{mayer2009multimedia}
+Richard~E. Mayer.
+\newblock \emph{Multimedia Learning}.
+\newblock Cambridge University Press, 2009.
+\newblock \doi{10.1017/CBO9780511811678}.
+\newblock URL \url{https://doi.org/10.1017/CBO9780511811678}.
+
+\bibitem[Packer et~al.(2024)Packer, Wooders, Lin, Fang, Patil, Stoica, and Gonzalez]{packer2024memgptllmsoperatingsystems}
+Charles Packer, Sarah Wooders, Kevin Lin, Vivian Fang, Shishir~G. Patil, Ion Stoica, and Joseph~E. Gonzalez.
+\newblock Memgpt: Towards llms as operating systems, 2024.
+\newblock URL \url{https://arxiv.org/abs/2310.08560}.
+
+\bibitem[Park et~al.(2023)Park, O'Brien, Cai, Morris, Liang, and Bernstein]{park2023generativeagentsinteractivesimulacra}
+Joon~Sung Park, Joseph~C. O'Brien, Carrie~J. Cai, Meredith~Ringel Morris, Percy Liang, and Michael~S. Bernstein.
+\newblock Generative agents: Interactive simulacra of human behavior, 2023.
+\newblock URL \url{https://arxiv.org/abs/2304.03442}.
+
+\bibitem[Qin et~al.(2025)Qin, Ye, Fang, Wang, Liang, Tian, Zhang, Li, Li, Huang, Zhong, Li, Yang, Miao, Lin, Liu, Jiang, Ma, Li, Xiao, Cai, Li, Zheng, Jin, Li, Zhou, Wang, Chen, Li, Yang, Liu, Lin, Peng, Liu, and Shi]{qin2025uitars}
+Yujia Qin, Yining Ye, Junjie Fang, Haoming Wang, Shihao Liang, Shizuo Tian, Junda Zhang, Jiahao Li, Yunxin Li, Shijue Huang, Wanjun Zhong, Kuanye Li, Jiale Yang, Yu~Miao, Woyu Lin, Longxiang Liu, Xu~Jiang, Qianli Ma, Jingyu Li, Xiaojun Xiao, Kai Cai, Chuang Li, Yaowei Zheng, Chaolin Jin, Chen Li, Xiao Zhou, Minchao Wang, Haoli Chen, Zhaojian Li, Haihua Yang, Haifeng Liu, Feng Lin, Tao Peng, Xin Liu, and Guang Shi.
+\newblock {UI-TARS}: Pioneering automated {GUI} interaction with native agents, 2025.
+\newblock URL \url{https://arxiv.org/abs/2501.12326}.
+
+\bibitem[Rawles et~al.(2023)Rawles, Li, Rodriguez, Riva, and Lillicrap]{rawles2023androidwild}
+Christopher Rawles, Alice Li, Daniel Rodriguez, Oriana Riva, and Timothy Lillicrap.
+\newblock Android in the wild: A large-scale dataset for android device control, 2023.
+\newblock URL \url{https://arxiv.org/abs/2307.10088}.
+
+\bibitem[Rawles et~al.(2025)Rawles, Clinckemaillie, Chang, Waltz, Lau, Fair, Li, Bishop, Li, Campbell-Ajala, Toyama, Berry, Tyamagundlu, Lillicrap, and Riva]{rawles2025androidworld}
+Christopher Rawles, Sarah Clinckemaillie, Yifan Chang, Jonathan Waltz, Gabrielle Lau, Marybeth Fair, Alice Li, William Bishop, Wei Li, Folawiyo Campbell-Ajala, Daniel Toyama, Robert Berry, Divya Tyamagundlu, Timothy Lillicrap, and Oriana Riva.
+\newblock Androidworld: A dynamic benchmarking environment for autonomous agents, 2025.
+\newblock URL \url{https://arxiv.org/abs/2405.14573}.
+
+\bibitem[Shao et~al.(2026{\natexlab{a}})Shao, Liu, Lu, and Zhang]{shao2026monoscalescalingmultiagentmonotonic}
+Shuai Shao, Yixiang Liu, Bingwei Lu, and Weinan Zhang.
+\newblock Monoscale: Scaling multi-agent system with monotonic improvement, 2026{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2601.23219}.
+
+\bibitem[Shao et~al.(2026{\natexlab{b}})Shao, Ren, Qian, Wei, Guo, Yang, Song, Zhang, Zhang, Liu, and Shao]{shao2026agentmisevolveemergentrisks}
+Shuai Shao, Qihan Ren, Chen Qian, Boyi Wei, Dadi Guo, Jingyi Yang, Xinhao Song, Linfeng Zhang, Weinan Zhang, Dongrui Liu, and Jing Shao.
+\newblock Your agent may misevolve: Emergent risks in self-evolving llm agents, 2026{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2509.26354}.
+
+\bibitem[Shinn et~al.(2023)Shinn, Cassano, Berman, Gopinath, Narasimhan, and Yao]{shinn2023reflexion}
+Noah Shinn, Federico Cassano, Edward Berman, Ashwin Gopinath, Karthik Narasimhan, and Shunyu Yao.
+\newblock Reflexion: language agents with verbal reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems 36}, 2023.
+\newblock URL \url{http://papers.nips.cc/paper_files/paper/2023/hash/1b44b878bb782e6954cd888628510e90-Abstract-Conference.html}.
+
+\bibitem[Sutton et~al.(1999)Sutton, Precup, and Singh]{sutton1999options}
+Richard~S. Sutton, Doina Precup, and Satinder Singh.
+\newblock Between {MDPs} and semi-{MDPs}: A framework for temporal abstraction in reinforcement learning.
+\newblock \emph{Artificial Intelligence}, 112\penalty0 (1--2):\penalty0 181--211, 1999.
+\newblock \doi{10.1016/S0004-3702(99)00052-1}.
+\newblock URL \url{https://doi.org/10.1016/S0004-3702(99)00052-1}.
+
+\bibitem[Team et~al.(2026{\natexlab{a}})Team, Bai, Bai, Bao, Cai, Cao, Charles, Che, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Cheng, Chu, Cui, Deng, Diao, Ding, Dong, Dong, Dong, Dong, Du, Du, Du, Du, Du, Fan, Fang, Feng, Feng, Fu, Fu, Gao, Gao, Ge, Geng, Gong, Gong, Gongque, Gu, Gu, Gu, Guan, Guo, Hao, He, He, He, Hong, Hu, Hu, Hu, Hu, Huang, Huang, Huang, Huang, Jiang, Jiang, Jin, Jing, Lai, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Liao, Lin, Lin, Lin, Lin, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Lu, Lu, Lu, Luo, Luo, Luo, Ma, Ma, Mao, Mei, Men, Meng, Meng, Miao, Ni, Ouyang, Pan, Pang, Qian, Qin, Qin, Qiu, Qu, Shang, Shao, Shen, Shen, Shi, Shi, Shi, Song, Song, Song, Song, Su, Su, Su, Sui, Sun, Sun, Sun, Sung, Tai, Tang, Tang, Tang, Tang, Tao, Teng, Tian, Tian, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wei, Wei, Wen, Wen, Wu, Wu, Wu, Wu, Wu, Wu, Wu, Wu, Wu, Xiao, Xie, Xie, Xie, Xin, Xing, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Yan, Yan, Yang, Yang, Yang, Yang, Yang, Yang, Yang, Yang, Yang, Yang, Yang, Yang, Yang, Yang, Yao, Ye, Ye, Ye, Yin, Yu, Yu, Yu, Yu, Yuan, Yuan, Yuan, Yue, Zeng, Zha, Zhan, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhao, Zhao, Zhao, Zhao, Zhao, Zhao, Zhao, Zheng, Zheng, Zheng, Zheng, Zhong, Zhong, Zhong, Zhou, Zhou, Zhou, Zhou, Zhu, Zhu, Zhu, Zhu, Zhu, Zhuang, Zhuang, Zou, and Zu]{kimiteam2026kimik25visualagentic}
+Kimi Team, Tongtong Bai, Yifan Bai, Yiping Bao, S.~H. Cai, Yuan Cao, Y.~Charles, H.~S. Che, Cheng Chen, Guanduo Chen, Huarong Chen, Jia Chen, Jiahao Chen, Jianlong Chen, Jun Chen, Kefan Chen, Liang Chen, Ruijue Chen, Xinhao Chen, Yanru Chen, Yanxu Chen, Yicun Chen, Yimin Chen, Yingjiang Chen, Yuankun Chen, Yujie Chen, Yutian Chen, Zhirong Chen, Ziwei Chen, Dazhi Cheng, Minghan Chu, Jialei Cui, Jiaqi Deng, Muxi Diao, Hao Ding, Mengfan Dong, Mengnan Dong, Yuxin Dong, Yuhao Dong, Angang Du, Chenzhuang Du, Dikang Du, Lingxiao Du, Yulun Du, Yu~Fan, Shengjun Fang, Qiulin Feng, Yichen Feng, Garimugai Fu, Kelin Fu, Hongcheng Gao, Tong Gao, Yuyao Ge, Shangyi Geng, Chengyang Gong, Xiaochen Gong, Zhuoma Gongque, Qizheng Gu, Xinran Gu, Yicheng Gu, Longyu Guan, Yuanying Guo, Xiaoru Hao, Weiran He, Wenyang He, Yunjia He, Chao Hong, Hao Hu, Jiaxi Hu, Yangyang Hu, Zhenxing Hu, Ke~Huang, Ruiyuan Huang, Weixiao Huang, Zhiqi Huang, Tao Jiang, Zhejun Jiang, Xinyi Jin, Yu~Jing, Guokun Lai, Aidi Li, C.~Li, Cheng Li, Fang Li, Guanghe Li, Guanyu Li, Haitao Li, Haoyang Li, Jia Li, Jingwei Li, Junxiong Li, Lincan Li, Mo~Li, Weihong Li, Wentao Li, Xinhang Li, Xinhao Li, Yang Li, Yanhao Li, Yiwei Li, Yuxiao Li, Zhaowei Li, Zheming Li, Weilong Liao, Jiawei Lin, Xiaohan Lin, Zhishan Lin, Zichao Lin, Cheng Liu, Chenyu Liu, Hongzhang Liu, Liang Liu, Shaowei Liu, Shudong Liu, Shuran Liu, Tianwei Liu, Tianyu Liu, Weizhou Liu, Xiangyan Liu, Yangyang Liu, Yanming Liu, Yibo Liu, Yuanxin Liu, Yue Liu, Zhengying Liu, Zhongnuo Liu, Enzhe Lu, Haoyu Lu, Zhiyuan Lu, Junyu Luo, Tongxu Luo, Yashuo Luo, Long Ma, Yingwei Ma, Shaoguang Mao, Yuan Mei, Xin Men, Fanqing Meng, Zhiyong Meng, Yibo Miao, Minqing Ni, Kun Ouyang, Siyuan Pan, Bo~Pang, Yuchao Qian, Ruoyu Qin, Zeyu Qin, Jiezhong Qiu, Bowen Qu, Zeyu Shang, Youbo Shao, Tianxiao Shen, Zhennan Shen, Juanfeng Shi, Lidong Shi, Shengyuan Shi, Feifan Song, Pengwei Song, Tianhui Song, Xiaoxi Song, Hongjin Su, Jianlin Su, Zhaochen Su, Lin Sui, Jinsong Sun, Junyao Sun, Tongyu Sun, Flood Sung, Yunpeng Tai, Chuning Tang, Heyi Tang, Xiaojuan Tang, Zhengyang Tang, Jiawen Tao, Shiyuan Teng, Chaoran Tian, Pengfei Tian, Ao~Wang, Bowen Wang, Chensi Wang, Chuang Wang, Congcong Wang, Dingkun Wang, Dinglu Wang, Dongliang Wang, Feng Wang, Hailong Wang, Haiming Wang, Hengzhi Wang, Huaqing Wang, Hui Wang, Jiahao Wang, Jinhong Wang, Jiuzheng Wang, Kaixin Wang, Linian Wang, Qibin Wang, Shengjie Wang, Shuyi Wang, Si~Wang, Wei Wang, Xiaochen Wang, Xinyuan Wang, Yao Wang, Yejie Wang, Yipu Wang, Yiqin Wang, Yucheng Wang, Yuzhi Wang, Zhaoji Wang, Zhaowei Wang, Zhengtao Wang, Zhexu Wang, Zihan Wang, Zizhe Wang, Chu Wei, Ming Wei, Chuan Wen, Zichen Wen, Chengjie Wu, Haoning Wu, Junyan Wu, Rucong Wu, Wenhao Wu, Yuefeng Wu, Yuhao Wu, Yuxin Wu, Zijian Wu, Chenjun Xiao, Jin Xie, Xiaotong Xie, Yuchong Xie, Yifei Xin, Bowei Xing, Boyu Xu, Jianfan Xu, Jing Xu, Jinjing Xu, L.~H. Xu, Lin Xu, Suting Xu, Weixin Xu, Xinbo Xu, Xinran Xu, Yangchuan Xu, Yichang Xu, Yuemeng Xu, Zelai Xu, Ziyao Xu, Junjie Yan, Yuzi Yan, Guangyao Yang, Hao Yang, Junwei Yang, Kai Yang, Ningyuan Yang, Ruihan Yang, Xiaofei Yang, Xinlong Yang, Ying Yang, Yi~Yang, Yi~Yang, Zhen Yang, Zhilin Yang, Zonghan Yang, Haotian Yao, Dan Ye, Wenjie Ye, Zhuorui Ye, Bohong Yin, Chengzhen Yu, Longhui Yu, Tao Yu, Tianxiang Yu, Enming Yuan, Mengjie Yuan, Xiaokun Yuan, Yang Yue, Weihao Zeng, Dunyuan Zha, Haobing Zhan, Dehao Zhang, Hao Zhang, Jin Zhang, Puqi Zhang, Qiao Zhang, Rui Zhang, Xiaobin Zhang, Y.~Zhang, Yadong Zhang, Yangkun Zhang, Yichi Zhang, Yizhi Zhang, Yongting Zhang, Yu~Zhang, Yushun Zhang, Yutao Zhang, Yutong Zhang, Zheng Zhang, Chenguang Zhao, Feifan Zhao, Jinxiang Zhao, Shuai Zhao, Xiangyu Zhao, Yikai Zhao, Zijia Zhao, Huabin Zheng, Ruihan Zheng, Shaojie Zheng, Tengyang Zheng, Junfeng Zhong, Longguang Zhong, Weiming Zhong, M.~Zhou, Runjie Zhou, Xinyu Zhou, Zaida Zhou, Jinguo Zhu, Liya Zhu, Xinhao Zhu, Yuxuan Zhu, Zhen Zhu, Jingze Zhuang, Weiyu Zhuang, Ying Zou, and Xinxing Zu.
+\newblock Kimi k2.5: Visual agentic intelligence, 2026{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2602.02276}.
+
+\bibitem[Team et~al.(2026{\natexlab{b}})Team, Hong, Gu, Pan, Yang, Wang, Wang, Yue, Wang, Wang, Wang, Liu, Yu, Wang, Li, Duan, Yang, Lv, Liu, Pan, Ning, Ji, Wang, Chen, Xu, Zhu, Cheng, Qi, Gan, Wang, Yao, Dou, Zhou, Wang, Ge, Li, Hou, Xue, Wang, Qi, He, Zhang, Liu, Cen, Li, Wang, Yang, Liu, Lu, Xu, Wang, Zhao, Wang, Xue, Xu, Zhang, Liu, Liu, Zhao, Li, Tong, Zhang, Zhang, Yan, Zheng, Xu, Bao, lat Long~long, Xu, Fan, Qian, Chen, Lin, Sun, Zheng, Wang, Li, Liu, Xu, Yang, Zhang, Yin, Zhao, Wu, Shi, Lv, Jia, Li, Chen, Wang, Zhang, Liu, Xu, Li, Huang, Dong, and Tang]{vteam2026glm5vturbonativefoundationmodel}
+V~Team, Wenyi Hong, Xiaotao Gu, Ziyang Pan, Zhen Yang, Yuting Wang, Yue Wang, Yuanchang Yue, Yu~Wang, Yanling Wang, Yan Wang, Xijun Liu, Wenmeng Yu, Weihan Wang, Wei Li, Shuaiqi Duan, Sheng Yang, Ruiliang Lv, Mingdao Liu, Lihang Pan, Ke~Ning, Junhui Ji, Jinjiang Wang, Jing Chen, Jiazheng Xu, Jiale Zhu, Jiale Cheng, Ji~Qi, Guobing Gan, Guo Wang, Cong Yao, Zijun Dou, Zihao Zhou, Zihan Wang, Zhiqi Ge, Zhijie Li, Zhenyu Hou, Zhao Xue, Zehui Wang, Zehan Qi, Zehai He, Yutao Zhang, Yusen Liu, Yukuo Cen, Yuchen Li, Yuan Wang, Yu~Yang, Yongbin Liu, Yijian Lu, Yifan Xu, Yanzi Wang, Yanxiao Zhao, Yanfeng Wang, Yadong Xue, Yabo Xu, Xinyu Zhang, Xinyu Liu, Xiao Liu, Wenyi Zhao, Wenkai Li, Tianyu Tong, Tianshu Zhang, Shudan Zhang, Shengdong Yan, Qinkai Zheng, Mingde Xu, Licheng Bao, lat Long~long, Jiaxing Xu, Jiaxin Fan, Jiawen Qian, Jiali Chen, Jiahui Lin, Jiadai Sun, Haozhi Zheng, Haoran Wang, Haochen Li, Hanyu Liu, Han Xu, Fan Yang, Dan Zhang, Da~Yin, Chuangxin Zhao, Chengcheng Wu, Boyan Shi, Bowen Lv, Bowei Jia, Bo~Li, Bin Chen, Baoxu Wang, Peng Zhang, Debing Liu, Bin Xu, Juanzi Li, Minlie Huang, Yuxiao Dong, and Jie Tang.
+\newblock Glm-5v-turbo: Toward a native foundation model for multimodal agents, 2026{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2604.26752}.
+
+\bibitem[Wang et~al.(2026{\natexlab{a}})Wang, Yu, Xie, Yao, Fang, Qiao, Cao, Zheng, Qi, Zhang, and Deng]{wang2026skillx}
+Chenxi Wang, Zhuoyun Yu, Xin Xie, Wuguannan Yao, Runnan Fang, Shuofei Qiao, Kexin Cao, Guozhou Zheng, Xiang Qi, Peng Zhang, and Shumin Deng.
+\newblock Skillx: Automatically constructing skill knowledge bases for agents, 2026{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2604.04804}.
+
+\bibitem[Wang et~al.(2023{\natexlab{a}})Wang, Xie, Jiang, Mandlekar, Xiao, Zhu, Fan, and Anandkumar]{wang2023voyager}
+Guanzhi Wang, Yuqi Xie, Yunfan Jiang, Ajay Mandlekar, Chaowei Xiao, Yuke Zhu, Linxi Fan, and Anima Anandkumar.
+\newblock Voyager: An open-ended embodied agent with large language models, 2023{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2305.16291}.
+
+\bibitem[Wang et~al.(2026{\natexlab{b}})Wang, Wang, and Xu]{wang2026skilltesterbenchmarkingutilitysecurity}
+Leye Wang, Zixing Wang, and Anjie Xu.
+\newblock Skilltester: Benchmarking utility and security of agent skills, 2026{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2603.28815}.
+
+\bibitem[Wang et~al.(2026{\natexlab{c}})Wang, Jin, Fu, Yan, Wang, Hu, Wang, Li, Zhang, Yao, Jiao, Cheng, Lu, and Ge]{wang2026museagentmultimodalreasoningagent}
+Shijian Wang, Jiarui Jin, Runhao Fu, Zexuan Yan, Xingjian Wang, Mengkang Hu, Eric Wang, Xiaoxi Li, Kangning Zhang, Li~Yao, Wenxiang Jiao, Xuelian Cheng, Yuan Lu, and Zongyuan Ge.
+\newblock Museagent: A multimodal reasoning agent with stateful experiences, 2026{\natexlab{c}}.
+\newblock URL \url{https://arxiv.org/abs/2603.27813}.
+
+\bibitem[Wang et~al.(2025{\natexlab{a}})Wang, Wang, Lu, Yang, Xie, Wang, Deng, Guo, Xu, Wu, Shen, Li, Li, Li, Chen, Zheng, Li, Lei, Cao, Fu, Shin, Shin, Hu, Wang, Chen, Ye, Zhang, Du, Hu, Chen, Zhou, Yao, Chen, Gu, Wang, Wang, Yang, Zhong, Sung, Charles, Yang, and Yu]{wang2025opencuaopenfoundationscomputeruse}
+Xinyuan Wang, Bowen Wang, Dunjie Lu, Junlin Yang, Tianbao Xie, Junli Wang, Jiaqi Deng, Xiaole Guo, Yiheng Xu, Chen~Henry Wu, Zhennan Shen, Zhuokai Li, Ryan Li, Xiaochuan Li, Junda Chen, Boyuan Zheng, Peihang Li, Fangyu Lei, Ruisheng Cao, Yeqiao Fu, Dongchan Shin, Martin Shin, Jiarui Hu, Yuyan Wang, Jixuan Chen, Yuxiao Ye, Danyang Zhang, Dikang Du, Hao Hu, Huarong Chen, Zaida Zhou, Haotian Yao, Ziwei Chen, Qizheng Gu, Yipu Wang, Heng Wang, Diyi Yang, Victor Zhong, Flood Sung, Y.~Charles, Zhilin Yang, and Tao Yu.
+\newblock Opencua: Open foundations for computer-use agents, 2025{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2508.09123}.
+
+\bibitem[Wang et~al.(2025{\natexlab{b}})Wang, Wu, Xie, Ding, Yang, Li, Liu, Li, Dong, Chen, Wang, Zhao, Chen, Duan, Xie, Yang, Su, Yu, Huang, Liu, Zhang, Zhang, Yue, Su, Zhu, Shen, Dai, and Wang]{wang2025mmbenchguihierarchicalmultiplatformevaluation}
+Xuehui Wang, Zhenyu Wu, JingJing Xie, Zichen Ding, Bowen Yang, Zehao Li, Zhaoyang Liu, Qingyun Li, Xuan Dong, Zhe Chen, Weiyun Wang, Xiangyu Zhao, Jixuan Chen, Haodong Duan, Tianbao Xie, Chenyu Yang, Shiqian Su, Yue Yu, Yuan Huang, Yiqian Liu, Xiao Zhang, Yanting Zhang, Xiangyu Yue, Weijie Su, Xizhou Zhu, Wei Shen, Jifeng Dai, and Wenhai Wang.
+\newblock Mmbench-gui: Hierarchical multi-platform evaluation framework for gui agents, 2025{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2507.19478}.
+
+\bibitem[Wang et~al.(2023{\natexlab{b}})Wang, Cai, Liu, Jin, Hou, Zhang, Lin, He, Zheng, Yang, Ma, and Liang]{wang2023jarvis}
+Zihao Wang, Shaofei Cai, Anji Liu, Yonggang Jin, Jinbing Hou, Bowei Zhang, Haowei Lin, Zhaofeng He, Zilong Zheng, Yaodong Yang, Xiaojian Ma, and Yitao Liang.
+\newblock Jarvis-1: Open-world multi-task agents with memory-augmented multimodal language models, 2023{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2311.05997}.
+
+\bibitem[Wang et~al.(2024)Wang, Cai, Chen, Liu, Ma, and Liang]{wang2024deps}
+Zihao Wang, Shaofei Cai, Guanzhou Chen, Anji Liu, Xiaojian Ma, and Yitao Liang.
+\newblock Describe, explain, plan and select: Interactive planning with large language models enables open-world multi-task agents, 2024.
+\newblock URL \url{https://arxiv.org/abs/2302.01560}.
+
+\bibitem[Wu et~al.(2024)Wu, Wu, Xu, Wang, Sun, Jia, Cheng, Ding, Chen, Liang, and Qiao]{wu2024osatlas}
+Zhiyong Wu, Zhenyu Wu, Fangzhi Xu, Yian Wang, Qiushi Sun, Chengyou Jia, Kanzhi Cheng, Zichen Ding, Liheng Chen, Paul~Pu Liang, and Yu~Qiao.
+\newblock {OS-ATLAS}: A foundation action model for generalist {GUI} agents, 2024.
+\newblock URL \url{https://arxiv.org/abs/2410.23218}.
+
+\bibitem[Xia et~al.(2026)Xia, Chen, Wang, Liu, Zeng, Wang, Han, Zhou, Zhao, Chen, Zheng, Xie, and Yao]{xia2026skillrlevolvingagentsrecursive}
+Peng Xia, Jianwen Chen, Hanyang Wang, Jiaqi Liu, Kaide Zeng, Yu~Wang, Siwei Han, Yiyang Zhou, Xujiang Zhao, Haifeng Chen, Zeyu Zheng, Cihang Xie, and Huaxiu Yao.
+\newblock Skillrl: Evolving agents via recursive skill-augmented reinforcement learning, 2026.
+\newblock URL \url{https://arxiv.org/abs/2602.08234}.
+
+\bibitem[Xie et~al.(2024)Xie, Zhang, Chen, Li, Zhao, Cao, Hua, Cheng, Shin, Lei, Liu, Xu, Zhou, Savarese, Xiong, Zhong, and Yu]{xie2024osworld}
+Tianbao Xie, Danyang Zhang, Jixuan Chen, Xiaochuan Li, Siheng Zhao, Ruisheng Cao, Toh~Jing Hua, Zhoujun Cheng, Dongchan Shin, Fangyu Lei, Yitao Liu, Yiheng Xu, Shuyan Zhou, Silvio Savarese, Caiming Xiong, Victor Zhong, and Tao Yu.
+\newblock Osworld: Benchmarking multimodal agents for open-ended tasks in real computer environments, 2024.
+\newblock URL \url{https://arxiv.org/abs/2404.07972}.
+
+\bibitem[Xie et~al.(2025)Xie, Li, Shao, Chen, Zhou, Li, Jiang, and Nie]{xie2025mirage}
+Yuquan Xie, Zaijing Li, Rui Shao, Gongwei Chen, Kaiwen Zhou, Yinchuan Li, Dongmei Jiang, and Liqiang Nie.
+\newblock Mirage-1: Augmenting and updating {GUI} agent with hierarchical multimodal skills, 2025.
+\newblock URL \url{https://arxiv.org/abs/2506.10387}.
+
+\bibitem[Xu and Yan(2026)]{xu2026agentskills}
+Renjun Xu and Yang Yan.
+\newblock Agent skills for large language models: Architecture, acquisition, security, and the path forward, 2026.
+\newblock URL \url{https://arxiv.org/abs/2602.12430}.
+
+\bibitem[Xu et~al.(2025)Xu, Yang, Chen, Wang, Chen, and Tang]{xu2025deskvisionlargescaledesktop}
+Yibin Xu, Liang Yang, Hao Chen, Hua Wang, Zhi Chen, and Yaohua Tang.
+\newblock Deskvision: Large scale desktop region captioning for advanced gui agents, 2025.
+\newblock URL \url{https://arxiv.org/abs/2503.11170}.
+
+\bibitem[Yang et~al.(2025{\natexlab{a}})Yang, Shao, Liu, and Shao]{yang2025riosworldbenchmarkingriskmultimodal}
+Jingyi Yang, Shuai Shao, Dongrui Liu, and Jing Shao.
+\newblock Riosworld: Benchmarking the risk of multimodal computer-use agents, 2025{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2506.00618}.
+
+\bibitem[Yang et~al.(2025{\natexlab{b}})Yang, Ci, and Shou]{yang2025macosworld}
+Pei Yang, Hai Ci, and Mike~Zheng Shou.
+\newblock macosworld: A multilingual interactive benchmark for {GUI} agents, 2025{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2506.04135}.
+
+\bibitem[Yang et~al.(2025{\natexlab{c}})Yang, Chai, Shao, Song, Qi, Rui, and Zhang]{yang2025agentnetdecentralizedevolutionarycoordination}
+Yingxuan Yang, Huacan Chai, Shuai Shao, Yuanyi Song, Siyuan Qi, Renting Rui, and Weinan Zhang.
+\newblock Agentnet: Decentralized evolutionary coordination for llm-based multi-agent systems, 2025{\natexlab{c}}.
+\newblock URL \url{https://arxiv.org/abs/2504.00587}.
+
+\bibitem[Yao et~al.(2023)Yao, Zhao, Yu, Du, Shafran, Narasimhan, and Cao]{yao2023react}
+Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik~R. Narasimhan, and Yuan Cao.
+\newblock React: Synergizing reasoning and acting in language models.
+\newblock In \emph{The Eleventh International Conference on Learning Representations, {ICLR} 2023}. OpenReview.net, 2023.
+\newblock URL \url{https://openreview.net/forum?id=WE_vluYUL-X}.
+
+\bibitem[Zhang et~al.(2023)Zhang, Yang, Liu, Han, Chen, Huang, Fu, and Yu]{zhang2023appagentmultimodalagentssmartphone}
+Chi Zhang, Zhao Yang, Jiaxuan Liu, Yucheng Han, Xin Chen, Zebiao Huang, Bin Fu, and Gang Yu.
+\newblock Appagent: Multimodal agents as smartphone users, 2023.
+\newblock URL \url{https://arxiv.org/abs/2312.13771}.
+
+\bibitem[Zhang et~al.(2024)Zhang, Qin, Jin, Liu, Su, Zhang, and Yu]{zhang2024dreamdualrepresentationlearningmodel}
+Kangning Zhang, Yingjie Qin, Jiarui Jin, Yifan Liu, Ruilong Su, Weinan Zhang, and Yong Yu.
+\newblock Dream: A dual representation learning model for multimodal recommendation, 2024.
+\newblock URL \url{https://arxiv.org/abs/2404.11119}.
+
+\bibitem[Zhang et~al.(2025)Zhang, Jiao, Du, Lu, Liu, Zhang, and Yu]{zhang2025looptoolclosingdatatrainingloop}
+Kangning Zhang, Wenxiang Jiao, Kounianhua Du, Yuan Lu, Weiwen Liu, Weinan Zhang, and Yong Yu.
+\newblock Looptool: Closing the data-training loop for robust llm tool calls, 2025.
+\newblock URL \url{https://arxiv.org/abs/2511.09148}.
+
+\bibitem[Zheng et~al.(2024)Zheng, Gou, Kil, Sun, and Su]{zheng2024gpt4visiongeneralistwebagent}
+Boyuan Zheng, Boyu Gou, Jihyung Kil, Huan Sun, and Yu~Su.
+\newblock Gpt-4v(ision) is a generalist web agent, if grounded, 2024.
+\newblock URL \url{https://arxiv.org/abs/2401.01614}.
+
+\bibitem[Zheng et~al.(2025)Zheng, Fatemi, Jin, Wang, Gandhi, Song, Gu, Srinivasa, Liu, Neubig, and Su]{zheng2025skillweaver}
+Boyuan Zheng, Michael~Y. Fatemi, Xiaolong Jin, Zora~Zhiruo Wang, Apurva Gandhi, Yueqi Song, Yu~Gu, Jayanth Srinivasa, Gaowen Liu, Graham Neubig, and Yu~Su.
+\newblock Skillweaver: Web agents can self-improve by discovering and honing skills, 2025.
+\newblock URL \url{https://arxiv.org/abs/2504.07079}.
+
+\bibitem[Zhou et~al.(2024)Zhou, Xu, Zhu, Zhou, Lo, Sridhar, Cheng, Ou, Bisk, Fried, Alon, and Neubig]{zhou2024webarena}
+Shuyan Zhou, Frank~F. Xu, Hao Zhu, Xuhui Zhou, Robert Lo, Abishek Sridhar, Xianyi Cheng, Tianyue Ou, Yonatan Bisk, Daniel Fried, Uri Alon, and Graham Neubig.
+\newblock Webarena: A realistic web environment for building autonomous agents, 2024.
+\newblock URL \url{https://arxiv.org/abs/2307.13854}.
+
+\end{thebibliography}

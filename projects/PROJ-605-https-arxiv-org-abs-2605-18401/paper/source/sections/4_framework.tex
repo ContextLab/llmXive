@@ -1,0 +1,59 @@
+\ours treats Agent Skills as lifecycle artifacts. It first turns heterogeneous open-source skills into a profiled experience substrate, then controls which skills enter the solver agent context before execution and which execution evidence is allowed to update the library after execution.
+
+\subsection{Open-Source Skill Corpus and Profiling}
+
+\subsubsection{Collecting a Million-Scale Agent Skill Corpus}
+Open Agent Skill ecosystems have already reached marketplace scale. SkillsMP and skills.sh aggregate \texttt{SKILL.md} packages from GitHub and expose search, categories, popularity, or installation-based discovery signals \citep{skillsmp2026,skillssh2026}. However, these discovery signals are insufficient for agent execution: a skill's name, description, or popularity does not establish whether it can run in the target environment, whether it describes a coherent capability, whether its referenced resources are complete, or whether its output can be objectively checked. Recent benchmarks likewise show that skill utility depends on the task, domain, and skill corpus quality \citep{li2026skillsbench,zhang2026skillflow}. \ours therefore builds a million-scale open-source corpus from GitHub \texttt{SKILL.md} files and treats each skill as a directory-level package rather than a text chunk. The required \texttt{SKILL.md} defines the capability and usage conditions, while optional \texttt{scripts/}, \texttt{references/}, and \texttt{assets/} directories preserve executable code, supporting documents, and templates.
+
+\subsubsection{Profiling Skill Requirements, Quality, and Verifiability}
+\ours profiles each skill along three dimensions. First, the runtime-requirement profile estimates operating-system assumptions, write permissions, \texttt{sudo} needs, network access, API keys, command-line tools, MCP servers, and environment variables. Second, the quality profile evaluates whether a skill is a stable execution unit through consistency, completeness, and task orientation. Third, the verifiability profile asks whether the skill has a low-ambiguity success condition, a reproducible sandbox environment, and task instances that can be constructed at reasonable cost. Prior ecosystem-level systems emphasize skill organization, multidimensional evaluation, and portability across model-harness combinations \citep{skvm2026,liang2026skillnet,li2026organizing}. \ours instantiates these concerns as execution-readiness profiles for open-source skills.
+
+\subsubsection{Synthesizing Verifiable Tasks from Agent Skills}
+For skills that pass the verifiability profile, \ours synthesizes tasks from the skill itself. Each task contains a clear instruction, a reproducible environment, and an executable verifier, following the Harbor task format \citep{harborFramework}. We then run real agent--model combinations on these tasks and record success rates, costs, execution traces, and verifier outcomes. This process links a static skill description to observed execution behavior. Not every skill is suitable for this step: preference-driven, open-world, or hardware-intensive skills remain profiled corpus items rather than forced benchmark tasks.
+
+\subsection{Skill Recommendation via Agentic Library Search}
+
+Existing skill harnesses commonly rely on progressive disclosure: the solver agent first sees lightweight skill metadata, and the full \texttt{SKILL.md} and supporting resources are loaded only after the skill appears relevant \citep{openai2026codexSkills,anthropic2026claudeCodeSkills,agentSkills}. This design lets many skills coexist in one environment, but it also compresses pre-task selection into short descriptions and limited path cues. SkillRouter further shows that, in large skill pools, the full skill body often carries decisive routing signals \citep{zheng2026skillrouter}. \ours builds on this progressive-disclosure interface by adding a task-conditioned exposure-control layer before the solver agent starts execution.
+
+The motivation extends beyond skill systems. Filesystem-native atomic tools are increasingly used as a general interface for agentic search: DCI lets agents interact directly with corpora in deep-research-style retrieval rather than consuming a fixed top-$k$ interface \citep{li2026beyond}; code-search systems such as CodeScout and SWE-grep train multi-turn localization over ordinary repository tools \citep{sutawika2026codescout,pan2025swegrep}; Vercel's data-agent studies compress query exploration and validation into a small set of file and shell operations \citep{qu2025we,goyal2026testing}; and Letta uses a filesystem backend for agent-memory retrieval \citep{letta2025benchmarking}. These examples motivate treating an evolving skill library as a searchable file-based substrate.
+
+Given a task and a profiled skill library, \ours runs a separate recommendation stage. The agent does not solve the task. It searches the local skill library, selectively reads candidate \texttt{SKILL.md} files and related resources, and selects skills that cover the task, fit the target environment, and provide complementary guidance. The output is a compact set of exposed skills plus a short usage guide for the solver agent, rather than the full library, a metadata-only routing decision, or a single-step top-$k$ chunk list. The recommendation record also anchors later attribution: after execution, \ours can inspect whether exposed skills were actually used and whether they contributed reusable discoveries.
+
+\subsection{Distilling Execution Traces into Evolvable Units}
+Recent work exposes a granularity gap in learning from agent execution. Agent evaluation commonly relies on task-level success signals, which are authoritative but provide sparse supervision for long-horizon tool use and make credit assignment difficult \citep{fan2026agentprocessbench}. Meanwhile, skill-learning systems show that execution trajectories contain reusable experience that can improve future behavior \citep{ni2026trace2skill,fang2026trajectory}. However, these works also suggest that trajectories must be filtered before they become reusable artifacts: a run may mix skill-guided actions, independent exploration, corrected failures, and redundant operational steps. At the other end, process-level benchmarks and failure-diagnosis methods annotate individual agent steps, showing the value of local feedback for analysis \citep{fan2026agentprocessbench,barke2026agentrx}. However, a single tool call rarely constitutes reusable skill knowledge. As shown in Figure~\ref{fig:attribution-granularity}, skill evolution thus requires an intermediate unit between full trajectories and individual steps.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{assets/method_contrast.pdf}
+    \caption{Attribution granularity determines whether trajectory evidence can support skill evolution. Task-level summaries are too coarse for credit assignment, while step-level extraction is too fragmented; \ours uses subtask-level attribution to connect coherent execution segments to skill updates.}
+    \label{fig:attribution-granularity}
+\end{figure}
+
+\ours addresses this mismatch by inserting a subtask-level attribution layer between full trajectories and individual tool calls. \textbf{A subtask is the smallest semantically complete unit that can support library evolution}: it has \textit{one standalone objective}, \textit{one primary evaluation signal}, and \textit{at most one associated skill context}. The primary evaluation signal specifies what kind of evidence can support the subtask outcome, such as environment feedback, human review, or no explicit signal. Trajectories are split only when one of these three boundaries changes, rather than whenever the agent issues another command. This granularity is local enough to assign responsibility, yet abstract enough to capture reusable procedures, constraints, and recovery patterns.
+
+For each subtask, attribution compresses the execution evidence along three axes:
+
+\begin{enumerate}
+    \item \textbf{Outcome evidence.} The system records whether the subtask can be assessed by objective environment feedback, depends on human preference, or lacks an explicit evaluation signal. This prevents verifier-backed outcomes, subjective goals, and unsupported claims from being treated alike.
+    \item \textbf{Responsibility assignment.} The system assigns both the final state and its main cause. Successful subtasks may be credited to skill-guided execution, independent exploration, or exploration after observing an irrelevant skill. Failed or uncertain subtasks are retained as diagnostic evidence, but they do not directly authorize skill evolution.
+    \item \textbf{Reusable delta.} For skill-related subtasks, the system localizes the portions of skill knowledge that actually shaped execution, rather than crediting every exposed skill. It also extracts only reusable discoveries, such as missing procedures, preconditions, or recovery patterns, while discarding ordinary trial-and-error, task-specific constants, and repetitive operational details.
+\end{enumerate}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{assets/attribution_evolve_pipeline.pdf}
+    \caption{\ours distills raw execution traces into evidence-bound evolvable units and routes them to conservative library updates. Only successful subtasks that pass the attribution and reusable-exploration gates can trigger skill edits or new skill creation; external-environment outcomes and other non-admissible units are skipped.}
+    \label{fig:attribution-pipeline}
+\end{figure}
+
+Together, these fields define an evolvable unit for the trajectory evidence in Figure~\ref{fig:attribution-pipeline}: evidence-bound, responsibility-aware, and reusable. These units form the interface to controlled evolution, where only successful subtasks with reusable exploration can propose library updates.
+
+\subsection{Evidence-Based Controlled Skill Evolution}
+
+The attribution layer produces evolvable units, but library evolution still requires explicit control over what evidence is allowed to change persistent skills. \ours formulates this step as evidence-gated update construction with explicit admissibility, aggregation, and routing criteria.
+
+\paragraph{Admissibility.} \ours first filters which units may trigger evolution. A unit is admissible only if it is successful and contains reusable exploration. Failed, uncertain, or weakly supported evidence may remain useful for diagnosis, but it cannot directly authorize a skill update.
+\paragraph{Aggregation.} Admissible units are then grouped before any edit is made. Units that support the same reusable procedure, precondition, workaround, or correction are merged into a single proposed update, so repeated observations strengthen one change rather than producing duplicate or fragmented edits.
+\paragraph{Routing.} Finally, \ours routes each aggregated evidence group to an update action. If the evidence extends a skill that actually shaped execution, the system edits that skill through the smallest justified change: fixing incorrect guidance, adding missing knowledge, or tightening prerequisites. If the evidence reflects an independent reusable capability outside the current skill boundary, the system creates a new skill. When evidence is weak, redundant, or semantically misaligned with the target skill, it skips evolution.
+
+Thus, skill evolution is conservative by design: every library change must be supported by attributed execution evidence, localized to the relevant skill boundary, and expressed as reusable procedural knowledge rather than a trajectory recap.

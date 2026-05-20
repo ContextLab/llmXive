@@ -1,0 +1,53 @@
+{
+  "arxiv_id": "2605.18401",
+  "arxiv_url": "https://arxiv.org/abs/2605.18401",
+  "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution",
+  "authors": [
+    "Hongyi Liu",
+    "Haoyan Yang",
+    "Tao Jiang",
+    "Bo Tang",
+    "Feiyu Xiong",
+    "Zhiyu Li"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Long-horizon LLM agents leave traces that could become reusable experience, but raw trajectories are noisy and hard to govern. We treat Agent Skills as an experience schema that couples executable scripts, with non-executable guidance on procedures. Yet open skill ecosystems contain redundant, uneven, environment-sensitive artifacts, and indiscriminate updates can pollute future context. We present SkillsVote, a lifecycle-governance framework for Agent Skills from collection and recommendation to evolution. SkillsVote profiles a million-scale open-source corpus for environment requirements, quality, and verifiability, then synthesizes tasks for verifiable skills. Before execution, SkillsVote performs agentic library search over structured skill library to expose instructional skill context. After execution, it decomposes trajectories into skill-linked subtasks, attributes outcomes to skill use, agent exploration, environment, and result signals, and admits only successful reusable discoveries to evidence-gated updates. In our evaluation, offline evolution improves GPT-5.2 on Terminal-Bench 2.0 by up to 7.9 pp, while online evolution improves SWE-Bench Pro by up to 2.6 pp. Overall, governed external skill libraries can improve frozen agents without model updates when systems control exposure, credit, and preservation.",
+  "submitted_via": "llmXive dashboard, GitHub issue #205",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/MemTensor/skills-vote"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "paper.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "assets",
+    "assets/attribution_evolve_pipeline.pdf",
+    "assets/evolve_demo.pdf",
+    "assets/evolve_dynamics.pdf",
+    "assets/logo.png",
+    "assets/method_contrast.pdf",
+    "assets/overview.pdf",
+    "assets/results_overview.pdf",
+    "assets/tb2_hard_ablation.pdf",
+    "main.bib",
+    "memtensor.cls",
+    "paper.tex",
+    "sections",
+    "sections/0_abs.tex",
+    "sections/1_intro.tex",
+    "sections/3_review.tex",
+    "sections/4_framework.tex",
+    "sections/5_experiment.tex",
+    "sections/6_conclusion.tex",
+    "sections/7_appendix.tex",
+    "sections/appendix_prompts.tex",
+    "sections/main.tex",
+    "tables",
+    "tables/swebenchpro_main_results.tex",
+    "tables/tb2_main_results.tex"
+  ]
+}

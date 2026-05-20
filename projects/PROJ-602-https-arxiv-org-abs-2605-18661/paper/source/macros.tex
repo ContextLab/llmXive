@@ -1,0 +1,331 @@
+% ==================== Unified Preamble ====================
+% Shared by TPAMI (main.tex) and arXiv (main_arxiv.tex).
+% Usage:
+%   TPAMI:  \documentclass{IEEEtran} → \input{macros}
+%   arXiv:  \documentclass{worldbench} → \newcommand{\arxivpreamble}{} → \input{macros}
+
+\newif\ifarxivmode
+\ifdefined\arxivpreamble \arxivmodetrue \else \arxivmodefalse \fi
+
+
+% ====================================================================
+%  PACKAGES
+% ====================================================================
+
+% --- Common packages (safe to load in both versions) ---
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{colortbl}
+\usepackage{enumitem}
+\usepackage{makecell}
+\usepackage{mathtools}
+\usepackage{multicol}
+\usepackage{pifont}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usetikzlibrary{trees,arrows.meta,positioning,shapes.geometric,calc,decorations.pathmorphing,decorations.pathreplacing,patterns,fit,backgrounds,shadows.blur}
+\usepackage{wrapfig}
+\usepackage{nicefrac}
+\usepackage{xspace}
+
+\usepackage{fontawesome}
+
+\ifarxivmode
+  % --- arXiv only (worldbench.cls already loads: geometry, graphicx, subcaption,
+  %     booktabs, multirow, bm, tcolorbox, xcolor, hyperref, cleveref, natbib,
+  %     titlesec, caption, microtype) ---
+  \tcbuselibrary{breakable}
+  \tcbuselibrary{skins}
+  \usepackage{soul}
+\else
+  % --- TPAMI only (IEEEtran loads very little) ---
+  \usepackage{amsthm}
+  \usepackage{algorithmic}
+  \usepackage{booktabs}
+  \usepackage{graphicx}
+  \usepackage{microtype}
+  \usepackage{multirow}
+  \usepackage{subcaption}
+  \usepackage[most]{tcolorbox}
+  \tcbuselibrary{breakable}
+  \tcbuselibrary{skins}
+  \usepackage{balance}
+\fi
+
+
+% ====================================================================
+%  COLORS
+% ====================================================================
+
+% Stage colors (8-stage lifecycle, grouped by phase color family)
+% Phase I: Creation — Green family (base 119,171,86)
+\definecolor{S1color}{RGB}{58,120,48}     % Dark green     — S1 Ideation
+\definecolor{S2color}{RGB}{42,155,132}    % Teal           — S2 Literature Review
+\definecolor{S3color}{RGB}{119,171,86}    % Medium green   — S3 Coding \& Experiments
+\definecolor{S4color}{RGB}{138,164,38}    % Dark lime      — S4 Tables \& Figures
+% Phase II: Writing — Blue (single stage, matches phase color)
+\definecolor{S5color}{RGB}{79,149,195}    % Blue           — S5 Paper Writing
+% Phase III: Validation — Purple family (base 114,84,141)
+\definecolor{S6color}{RGB}{152,112,182}   % Lavender       — S6 Peer Review
+\definecolor{S7color}{RGB}{82,56,112}     % Deep violet    — S7 Rebuttal
+% Phase IV: Dissemination — Yellow (single stage, matches phase color)
+\definecolor{S8color}{RGB}{232,179,65}    % Yellow         — S8 Dissemination
+
+% Phase colors (4-phase lifecycle)
+\definecolor{P1color}{RGB}{119,171,86}    % Green  — Phase I: Creation
+\definecolor{P2color}{RGB}{79,149,195}    % Blue   — Phase II: Writing
+\definecolor{P3color}{RGB}{114,84,141}    % Purple — Phase III: Validation
+\definecolor{P4color}{RGB}{232,179,65}    % Yellow — Phase IV: Dissemination
+
+% Reference color (warm amber for citations and cross-refs)
+\definecolor{refcolor}{RGB}{205,133,63}
+
+% Table colors
+\definecolor{tableheader}{HTML}{2C3E50}
+\definecolor{tablelight}{HTML}{ECF0F1}
+\definecolor{insightbg}{HTML}{F0F4FF}
+\definecolor{linkcolor}{RGB}{52,152,219}
+
+\ifarxivmode
+  \definecolor{red}{rgb}{0.8,0,0}
+  \definecolor{green}{RGB}{0, 133, 21}
+  \definecolor{grey}{rgb}{0.5,0.5,0.5}
+\fi
+
+
+% ====================================================================
+%  HYPERREF & CLEVEREF
+% ====================================================================
+
+\ifarxivmode
+  % worldbench.cls already loads hyperref and cleveref
+  \hypersetup{citecolor=P2color,linkcolor=P2color}
+  % ToC styling: sections colored P2color, subsections and below refcolor
+  \RequirePackage{titletoc}
+  \titlecontents{section}[0pt]
+    {\addvspace{6pt}\sffamily\bfseries}
+    {\contentslabel{1.5em}}{\hspace*{-1.5em}}
+    {\titlerule*[0.5pc]{.}\contentspage}
+  \titlecontents{subsection}[1.5em]
+    {\hypersetup{linkcolor=P2color}}
+    {\contentslabel{2.3em}}{\hspace*{-2.3em}}
+    {\titlerule*[0.5pc]{.}\contentspage}
+  \titlecontents{subsubsection}[3.8em]
+    {\hypersetup{linkcolor=P2color}\small}
+    {\contentslabel{3.2em}}{\hspace*{-3.2em}}
+    {\titlerule*[0.5pc]{.}\contentspage}
+\else
+  \usepackage[pagebackref=true,colorlinks,linkcolor=linkcolor,citecolor=linkcolor,urlcolor=magenta]{hyperref}
+  \usepackage{url}
+  \usepackage[capitalize]{cleveref}
+  % Autoref fallbacks
+  \def\equationautorefname{Eq.}
+  \def\figureautorefname{Fig.}
+  \def\tableautorefname{Tab.}
+  \def\sectionautorefname{Sec.}
+  \def\subsectionautorefname{Sec.}
+  \def\algorithmautorefname{Alg.}
+\fi
+
+
+% ====================================================================
+%  CUSTOM COMMANDS
+% ====================================================================
+
+\ifarxivmode
+  % \onedot-style abbreviations
+  \makeatletter
+  \DeclareRobustCommand\onedot{\futurelet\@let@token\@onedot}
+  \def\@onedot{\ifx\@let@token.\else.\null\fi\xspace}
+  \makeatother
+  \newcommand*{\eg}{\textit{e.g}\onedot}
+  \newcommand*{\ie}{\textit{i.e}\onedot}
+  \newcommand*{\vs}{\textit{vs}\onedot}
+  \newcommand*{\etal}{\textit{et al}\onedot}
+  \newcommand{\Eg}{\textit{E.g}\onedot}
+  \newcommand{\Ie}{\textit{I.e}\onedot}
+  \newcommand{\etc}{\textit{etc}\onedot}
+  \newcommand{\wrt}{w.r.t\onedot}
+\else
+  \newcommand*{\ie}{\emph{i.e.}\@\xspace}
+  \newcommand*{\eg}{\emph{e.g.}\@\xspace}
+  \newcommand*{\vs}{\emph{vs.}\@\xspace}
+  \newcommand*{\etal}{\emph{et al.}\@\xspace}
+\fi
+
+% Coverage symbols
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\pmark}{$\circ$}
+\newcommand{\xmark}{---}
+\newcommand{\cmarkc}{\textcolor{S3color}{\ding{51}}}
+\newcommand{\pmarkc}{\textcolor{S4color}{$\circ$}}
+\newcommand{\xmarkc}{\textcolor{gray!50}{---}}
+
+% Check badge: levelbadge-style box with checkmark (for phase coverage tables)
+\newcommand{\checkbadge}[1]{%
+  \tcbox[on line, nobeforeafter, tcbox raise base,
+         boxsep=0pt, left=1.5pt, right=1.5pt, top=0.5pt, bottom=0.5pt,
+         arc=1.5pt, boxrule=0.3pt,
+         colback=#1!15, colframe=#1!70]%
+    {\scriptsize\bfseries\textcolor{#1!55!black}{\ding{51}}}%
+}
+
+% Maturity stars
+\newcommand{\fstar}{\textcolor{S4color}{\ding{72}}}
+\newcommand{\estar}{\textcolor{gray!30}{\ding{72}}}
+
+% GitHub icon (clickable hyperlink)
+\newcommand{\githubicon}[1]{\href{#1}{\raisebox{-0.1em}{\includegraphics[height=1em]{figures/icons/github.png}}}}
+% HuggingFace icon (clickable hyperlink)
+\newcommand{\hficon}[1]{\href{#1}{\raisebox{-0.1em}{\includegraphics[height=1em]{figures/icons/hf.png}}}}
+
+% PDF icon (clickable hyperlink)
+\newcommand{\pdficon}[1]{\href{#1}{\tcbox[on line, nobeforeafter, tcbox raise base, boxsep=0pt, left=1.5pt, right=1.5pt, top=0.5pt, bottom=0.5pt, arc=1pt, boxrule=0.2pt, colback=linkcolor!15, colframe=linkcolor!50]{\tiny\bfseries\sffamily\textcolor{linkcolor}{PDF}}}}
+\newcommand{\pdfico}{\textcolor{linkcolor}{\tcbox[on line, nobeforeafter, tcbox raise base, boxsep=0pt, left=1.5pt, right=1.5pt, top=0.5pt, bottom=0.5pt, arc=1pt, boxrule=0.2pt, colback=linkcolor!15, colframe=linkcolor!50]{\tiny\bfseries\sffamily\textcolor{linkcolor}{PDF}}}}
+
+\newcommand{\surveyname}{\textit{From Idea to Impact}\xspace}
+\newcommand{\tablealtcolor}{linkcolor!5}
+
+% --- Stage badges (inline colored boxes matching figure frame colors) ---
+% Implementation note: use \tcbox (not raw tikz) so the macro survives
+% caption/section-title contexts where tikz internals get mangled.
+\newcommand{\levelbadge}[2]{%
+  \tcbox[on line, nobeforeafter, tcbox raise base,
+         boxsep=0pt, left=2pt, right=2pt, top=0.5pt, bottom=0.5pt,
+         arc=1.5pt, boxrule=0.3pt,
+         colback=#1!15, colframe=#1!70]%
+    {\scriptsize\bfseries\sffamily\textcolor{#1!55!black}{#2}}%
+}
+\newcommand{\Sone}{\texorpdfstring{\levelbadge{S1color}{S1}}{S1}\xspace}
+\newcommand{\Stwo}{\texorpdfstring{\levelbadge{S2color}{S2}}{S2}\xspace}
+\newcommand{\Sthree}{\texorpdfstring{\levelbadge{S3color}{S3}}{S3}\xspace}
+\newcommand{\Sfour}{\texorpdfstring{\levelbadge{S4color}{S4}}{S4}\xspace}
+\newcommand{\Sfive}{\texorpdfstring{\levelbadge{S5color}{S5}}{S5}\xspace}
+\newcommand{\Ssix}{\texorpdfstring{\levelbadge{S6color}{S6}}{S6}\xspace}
+\newcommand{\Sseven}{\texorpdfstring{\levelbadge{S7color}{S7}}{S7}\xspace}
+\newcommand{\Seight}{\texorpdfstring{\levelbadge{S8color}{S8}}{S8}\xspace}
+
+% Cleveref customization (shared)
+% Cref format: name in black, number inherits link color (P2color)
+\crefformat{section}{\textcolor{black}{Section~}#2#1#3}
+\crefformat{subsection}{\textcolor{black}{Section~}#2#1#3}
+\crefformat{subsubsection}{\textcolor{black}{Section~}#2#1#3}
+\crefformat{table}{\textcolor{black}{Table~}#2#1#3}
+\crefformat{figure}{\textcolor{black}{Figure~}#2#1#3}
+\crefrangeformat{section}{\textcolor{black}{Sections~}#3#1#4\textcolor{black}{ to~}#5#2#6}
+\Crefformat{section}{\textcolor{black}{Section~}#2#1#3}
+\Crefformat{table}{\textcolor{black}{Table~}#2#1#3}
+\Crefformat{figure}{\textcolor{black}{Figure~}#2#1#3}
+
+% Helper refs
+\def\tabref#1{Table~\ref{#1}}
+\def\figref#1{Figure~\ref{#1}}
+\def\secref#1{Section~\ref{#1}}
+
+
+% ====================================================================
+%  INSIGHT BOXES
+% ====================================================================
+
+\newtcolorbox{insightbox}[1][]{%
+  enhanced, breakable,
+  colback=insightbg, colframe=linkcolor!60, boxrule=0.6pt,
+  left=6pt, right=6pt, top=5pt, bottom=5pt,
+  fonttitle=\small\bfseries, title={#1},
+  before upper={\small}, before skip=6pt, after skip=6pt,
+}
+
+\newtcolorbox{stageinsightbox}[2][]{%
+  enhanced, breakable,
+  colback=#2!5, colframe=#2!60, boxrule=0.6pt,
+  left=6pt, right=6pt, top=5pt, bottom=5pt,
+  fonttitle=\small\bfseries, coltitle=black, title={#1},
+  before upper={\small}, before skip=6pt, after skip=6pt,
+}
+
+\newtcolorbox{stagebox}[2][]{%
+  enhanced,
+  colback=#2!5, colframe=#2!70, boxrule=0.5pt,
+  left=4pt, right=4pt, top=3pt, bottom=3pt,
+  fonttitle=\small\bfseries\sffamily, coltitle=white, colbacktitle=#2!85,
+  title={#1}, before upper={\small}, before skip=3pt, after skip=3pt,
+}
+
+% Stage analysis: dual-panel findings box for each stage
+% Usage: \stageanalysis{<title>}{<stage color>}{<left image>}{<right image>}{<left keywords>}{<left content>}{<right keywords>}{<right content>}
+% Keywords shown as badges next to avatar; content as dotted-line-separated items below
+\newcommand{\anadotrule}{\par\vspace{2pt}\noindent\textcolor{black!20}{\dotfill}\par\vspace{2pt}}
+\newcommand{\anasize}{\fontsize{7.5pt}{9.5pt}\selectfont}
+\newcommand{\posbadge}[2][S1color]{\colorbox{#1!15}{\raisebox{0pt}[\height][1pt]{\scriptsize\strut\textcolor{#1!90}{\textsf{\textbf{#2}}}}}}
+\newcommand{\negbadge}[1]{\colorbox{red!8}{\raisebox{0pt}[\height][1pt]{\scriptsize\strut\textcolor{red!70}{\textsf{\textbf{#1}}}}}}
+\newcommand{\stageanalysis}[8]{%
+\begin{tcolorbox}[
+  enhanced,
+  colback=white, colframe=#2!60, boxrule=0.8pt,
+  left=6pt, right=6pt, top=0pt, bottom=4pt,
+  fonttitle=\small\bfseries\sffamily, coltitle=white, colbacktitle=#2!80,
+  title={\raisebox{-0.1em}{\faLightbulbO}~~#1},
+  before skip=8pt, after skip=8pt,
+  overlay={\draw[#2!80, line width=0.6pt]
+    ([yshift=-2pt]frame.north) -- ([yshift=2pt]frame.south);},
+]
+\small
+\parbox[t]{0.47\linewidth}{%
+\vspace{4pt}
+\noindent
+\begin{minipage}[c]{0.25\linewidth}
+\centering
+\includegraphics[width=\linewidth]{#3}
+\end{minipage}%
+\hfill
+\begin{minipage}[c]{0.70\linewidth}
+\textbf{\textcolor{#2!80}{\faCheckCircle~~State \& Progress}}\par
+\vspace{3pt}
+#5
+\end{minipage}
+\vspace{4pt}
+\anadotrule
+#6
+\vspace{2pt}
+}%
+\hfill
+\parbox[t]{0.47\linewidth}{%
+\vspace{4pt}
+\noindent
+\begin{minipage}[c]{0.25\linewidth}
+\centering
+\includegraphics[width=\linewidth]{#4}
+\end{minipage}%
+\hfill
+\begin{minipage}[c]{0.70\linewidth}
+\textbf{\textcolor{red!70}{\faExclamationTriangle~~Gaps \& Limitations}}\par
+\vspace{3pt}
+#7
+\end{minipage}
+\vspace{4pt}
+\anadotrule
+#8
+\vspace{2pt}
+}%
+\end{tcolorbox}
+}
+
+% Stage card: full-width card with image on left, description on right
+% Usage: \stagecard{<stage badge>}{<stage name>}{<phase color>}{<image path>}{<description>}
+\newcommand{\stagecard}[5]{%
+  \begin{tcolorbox}[
+    enhanced, boxrule=0.8pt,
+    colframe=#3!70, colback=#3!4,
+    left=26pt, right=14pt, top=2pt, bottom=2pt,
+    before skip=5pt, after skip=5pt,
+  ]
+  \begin{minipage}[c]{0.12\columnwidth}
+    \centering
+    \includegraphics[width=\linewidth]{#4}
+  \end{minipage}\hspace{12.5pt}%
+  \begin{minipage}[c]{0.82\columnwidth}
+    {\sffamily\bfseries #1~#2}\par\smallskip
+    {\small #5}
+  \end{minipage}
+  \end{tcolorbox}
+}

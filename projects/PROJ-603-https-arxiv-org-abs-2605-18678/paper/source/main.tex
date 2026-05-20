@@ -1,0 +1,369 @@
+\documentclass[]{bytedance}
+\usepackage[toc,page,header]{appendix}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{minitoc}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{cancel}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{assumption}{Assumption}
+\newtheorem{proof}{Proof}
+
+\usepackage{tabulary,multirow,xspace}
+\usepackage{fixmath,mathtools,nicefrac,mmstyle}
+\usepackage{subcaption}
+\captionsetup{compatibility=false}
+\usepackage{caption}
+% \usepackage{float}
+\usepackage{wrapfig} % for wrapfigure
+% \usepackage[misc]{ifsym} % to use \Letter
+\usepackage{colortbl}
+
+\usepackage{wrapfig}
+% \usepackage{minted}
+\usepackage{multicol}
+\usepackage[most]{tcolorbox}
+\usepackage{pifont}
+
+% \usepackage{geometry}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{boxblue}{RGB}{57,89,163}
+\definecolor{boxbluebg}{RGB}{230,237,250} 
+
+\definecolor{lightgraybox}{RGB}{238,238,238}
+
+% \newcommand{\cmark}{\checkmark}
+\newcommand{\pmark}{\ensuremath{\triangle}}
+\definecolor{rowblue}{RGB}{230,238,255}
+
+% ---------- prompt figure style ----------
+\newtcolorbox{promptfigbox}[1]{
+  enhanced,
+  colback=lightgraybox,
+  colframe=black,
+  boxrule=0.6pt,
+  arc=2mm,
+  left=5mm,
+  right=5mm,
+  top=3mm, %与边框的边界
+  bottom=2mm, %与边框的边界
+  title={#1},
+  colbacktitle=black,
+  coltitle=white,
+  fonttitle=\bfseries\small,
+  boxed title style={
+    colframe=black,
+    colback=black,
+    boxrule=0pt,
+    arc=1mm,
+    left=4mm,
+    right=4mm,
+    top=1.5mm,
+    bottom=1.5mm
+  },
+  attach boxed title to top left={xshift=4mm,yshift=-2mm}
+}
+
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage[table]{xcolor}
+
+\definecolor{rowblue}{RGB}{221,233,252}
+
+
+\newcommand{\todo}[1]{{\color{red}{[TODO]: {#1}}}}
+\newcommand{\vect}[1]{\bm{#1}}
+\newcommand{\tildevect}[1]{\vect{\tilde{#1}}}
+
+\definecolor{mygray1}{gray}{.95}
+\definecolor{mygray2}{gray}{.9}
+\definecolor{mygray3}{gray}{.95}
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+
+
+\newcommand{\cyan}[1]{\textcolor{cyan}{#1}}
+\newcommand{\newgreen}[1]{\textcolor[rgb]{0.0, 0.8, 0.6}{#1}}
+\newcommand{\red}[1]{\textcolor[rgb]{1.0, 0.0, 0.22}{#1}}
+\newcommand{\TBD}[1]{\textcolor{red}{#1}}
+\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
+\newcommand{\myparagraph}[1]{{\noindent\bf #1}}
+
+\newcommand{\twolines}[2]{\begin{tabular}{@{}c@{}}#1 \\ #2\end{tabular}}
+\newlength\savewidth\newcommand\shline{\noalign{\global\savewidth\arrayrulewidth
+  \global\arrayrulewidth 1pt}\hline\noalign{\global\arrayrulewidth\savewidth}}
+\newcolumntype{x}[1]{>{\centering\arraybackslash}p{#1pt}}
+\newcommand{\tablestyle}[2]{\setlength{\tabcolsep}{#1}\renewcommand{\arraystretch}{#2}\centering\small}
+
+\newcommand{\TP}{\mathit{TP}}
+\newcommand{\FN}{\mathit{FN}}
+\newcommand{\FP}{\mathit{FP}}
+\newcommand{\IoU}{\text{IoU}}
+\newcommand{\BN}{\mathbb N}
+\newcommand{\SL}{{\cal L}}
+\newcommand{\things}{\tss{Th}\xspace}
+\newcommand{\stuff}{\tss{St}\xspace}
+\newcommand{\app}{\raise.17ex\hbox{$\scriptstyle\sim$}}
+\newcommand{\tss}[1]{\textsuperscript{#1}}
+\newcommand{\ncdot}{{\mkern 0mu\cdot\mkern 0mu}}
+\newcommand{\dt}[1]{\fontsize{8pt}{.1em}\selectfont \emph{#1}}
+\newcommand{\bd}[1]{\textbf{#1}}
+\newcommand{\x}{$\times$}
+
+\usepackage{xcolor}
+\input{macros}
+\usepackage{listings}
+
+% ====== packages ======
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{array}
+\usepackage[table]{xcolor}
+\usepackage{amssymb}
+\usepackage{wasysym}
+% \usepackage{ifsym}
+
+\usepackage{xcolor}
+\definecolor{titleblue}{RGB}{45,88,165}
+
+\usepackage{eso-pic}
+\usepackage{caption}
+
+% \newcommand{\authorheading}[1]{%
+%   \vspace{0.9em}
+%   {\noindent\sffamily\bfseries\large\color{titleblue} #1\par}
+%   \vspace{0.35em}
+% }
+
+% \newcommand{\authornames}[1]{%
+%   {\noindent\rmfamily\normalsize\linespread{1.08}\selectfont #1\par}
+% }
+
+\newcommand{\authorheading}[1]{%
+  \vspace{0.9em}
+  {\noindent\sffamily\bfseries\large\color{titleblue}\textsc{#1}\par}
+  \vspace{0.35em}
+}
+
+\newcommand{\authornames}[1]{%
+  {\noindent\rmfamily\fontsize{10.3}{14}\selectfont #1\par}
+}
+
+% ====== optional macros ======
+\definecolor{refgreen}{RGB}{30,140,90}
+\definecolor{oursrow}{RGB}{232,240,236}
+
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{arydshln}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\definecolor{myblue}{RGB}{210, 225, 255}
+\definecolor{mytextblue}{RGB}{51, 161, 201}
+\definecolor{mypurple}{RGB}{218, 112, 214}
+
+\definecolor{commentgreen}{rgb}{0.1, 0.4, 0.1}
+\definecolor{keywordblue}{rgb}{0.1, 0.1, 0.7}
+\definecolor{stringred}{rgb}{0.7, 0.1, 0.1}
+
+\lstdefinestyle{mystyle}{
+    commentstyle=\color{commentgreen},
+    keywordstyle=\color{keywordblue},   
+    stringstyle=\color{stringred},
+    basicstyle=\ttfamily\scriptsize, 
+    breaklines=true,
+    keepspaces=true,
+    showstringspaces=false,
+    frame=none,                     
+    language=Python, 
+}
+
+
+\newcommand{\name}{}
+% \title{Lance: Towards Efficient Unified Multimodal Models via \\ Native Multi-Task Synergy}
+% \title{Lance: A Compact Unified Multimodal Model via Multi-Task Synergy}
+\title{Lance: Unified Multimodal Modeling by \\ Multi-Task Synergy}
+
+
+% \title{
+% \texorpdfstring{%
+%   \raisebox{-0.15em}{\includegraphics[height=1.7em]{figs/logo1.png}}%
+% }{Lance}: Unified Multimodal Modeling by \\ Multi-Task Synergy
+% }
+
+% \author{
+% \centerline{
+% Fengyi Fu$^*$ \quad
+% Mengqi Huang$^*$ $^{\ddagger}$ \quad
+% Shaojin Wu$^*$ \quad
+% Yunsheng Jiang$^*$ \quad
+% Yufei Huo \quad
+% }
+% \centerline{
+% Hao Li \quad
+% Yinghang Song \quad
+% Fei Ding \quad
+% Yu Xiao$^{\dagger}$ \quad
+% Qian He \quad
+% Mingyuan Gao \quad
+% }
+% \centerline{
+% Zheren Fu \quad 
+% Zhendong Mao \quad
+% Yongdong Zhang \quad
+% }
+% }
+
+
+% \renewcommand{\thefootnote}{\fnsymbol{footnote}}
+% \footnotetext[1]{Equal contribution.}
+% \footnotetext[2]{Corresponding author.}
+% \footnotetext[3]{Project lead.}
+% \renewcommand{\thefootnote}{\arabic{footnote}}
+
+
+% \author{
+% \vspace{-0.5em}
+% \begin{tabular}{c}
+% Fengyi Fu$^{1*}$ \quad
+% Mengqi Huang$^{1*\dagger}$ \quad
+% Shaojin Wu$^{1*}$ \quad
+% Yunsheng Jiang$^{1*}$ \quad
+% Yufei Huo$^{1}$ \\ 
+
+% Hao Li$^{1}$ \quad
+% Yinghang Song$^{1}$ \quad
+% Fei Ding$^{1}$ \quad
+% Jianzhu Guo$^{1\dagger\S}$ \quad
+% Qian He$^{1}$ \quad
+% Zheren Fu \\
+% Zhendong Mao \quad
+% Yongdong Zhang
+% \end{tabular}
+% \vspace{-0.75em}
+% }
+% \vspace{-0.75em}
+
+% \affiliation{%
+% \parbox{\textwidth}{\centering\small
+% $^1$Intelligent Creation Lab, ByteDance
+% }}
+
+% \contribution[*]{Equal contribution}
+% \contribution[\S]{Corresponding Author}
+% \contribution[\dagger]{Project lead}
+
+% \renewcommand{\thefootnote}{\fnsymbol{footnote}}
+% \footnotetext{* Equal contribution. $^{\dagger}$ Corresponding author. $^{\S}$ Project lead.}
+% \renewcommand{\thefootnote}{\arabic{footnote}}  % Reset for body
+% \vspace{-1em}
+
+\author{
+% 压缩顶部空白
+\vspace{-0.6em}
+\begin{tabular}{c}
+Fengyi Fu$^{1*\ddagger}$ \;
+Mengqi Huang$^{1*\dagger\ddagger}$ \;
+Shaojin Wu$^{1*}$ \;
+Yunsheng Jiang$^{1*}$ \;
+Yufei Huo$^{1\ddagger}$ \\
+Hao Li$^{1}$ \;
+Yinghang Song$^{1}$ \;
+Fei Ding$^{1}$ \;
+Jianzhu Guo$^{1\dagger\S}$ \;
+Qian He$^{1}$ \;
+Zheren Fu \\
+Zhendong Mao \;
+Yongdong Zhang
+\end{tabular}
+% 核心：作者 ↔ 单位 强制收紧（无报错）
+\vspace{-1em}
+}
+
+\affiliation{%
+% \centering\small
+$^1$Intelligent Creation Lab, ByteDance
+}
+% 核心：单位 ↔ 贡献标注 强制收紧（最关键！）
+\vspace{-3.0em}
+
+\contribution[*]{\centering\small Equal contribution}
+\contribution[\dagger]{\centering\small Corresponding Author}
+\contribution[\S]{\centering\small Project lead}
+\contribution[\ddagger]{\centering\small Work was done during their internship.}
+% 底部收紧
+\vspace{-2em}
+
+% \renewcommand{\thefootnote}{\fnsymbol{footnote}}
+% \footnotetext{$^{\ddagger}$Work was done during their internship.}
+% \renewcommand{\thefootnote}{\arabic{footnote}}  % Reset for body
+
+\input{sec/1_abs}
+\date{\today}
+\correspondence{\email{huangmengqi.98@bytedance.com}, \email{ xiaoyu.e@bytedance.com}}
+\checkdata[Project Page]{\url{https://lance-project.github.io}}
+
+% \checkdata[Project Page]{\url{}}
+
+
+\begin{document}
+\maketitle
+
+%%% 支持图1 布局
+%%% 支持图1布局
+\setcounter{figure}{0}
+\refstepcounter{figure}
+\label{fig:benchmark_comparison}
+
+% 关键：立刻冻结当前 figure 编号
+\edef\benchmarkFigNumber{\thefigure}
+
+\AddToShipoutPictureFG*{%
+  \AtPageLowerLeft{%
+    \raisebox{1.6cm}{%
+      \makebox[\paperwidth][c]{%
+        \begin{minipage}{0.92\textwidth}
+          \centering
+          \color{black}
+          \small
+          \vspace{-1em}
+          \textbf{Figure~\benchmarkFigNumber \quad   Comparison of Lance against representative baselines on multimodal benchmarks.}
+        \end{minipage}
+      }%
+    }%
+  }%
+}
+%%%%
+
+\input{sec/2_intro}
+\input{sec/3_related}
+\input{sec/4_methods}
+\input{sec/5_data}
+\input{sec/5_exps}
+\input{sec/6_exps_ab}
+\input{sec/7_conclusion}
+\input{sec/8_author}
+
+\clearpage
+
+\bibliographystyle{plainnat}
+\bibliography{main}
+
+% \clearpage
+% % \beginappendix
+% \input{sec/8_sup}
+\end{document}
+

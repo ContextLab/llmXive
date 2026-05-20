@@ -1,0 +1,334 @@
+
+\vspace*{-2.5em}
+{
+\centering
+\includegraphics[width=0.9\textwidth]{figs/combined_radar_aligned.png}
+\par
+}
+\vspace{-1em}
+
+% \vspace*{-2.5em}
+% {
+% \centering
+% \includegraphics[width=0.9\textwidth]{figs/combined_radar_aligned.png}
+% \par
+% }
+
+% % 将 caption 固定到当前页面底部
+% \begin{tikzpicture}[remember picture, overlay]
+% \node[
+%     anchor=south,
+%     yshift=0.35cm,
+%     text width=0.92\textwidth,
+%     align=center,
+%     inner sep=0pt
+% ] at (current page.south) {%
+%     \begin{minipage}{0.92\textwidth}
+%     \captionof{figure}{
+%         \textbf{Comparison of Lance against representative baselines on multimodal benchmarks.}
+%     }
+%     \label{fig:benchmark_comparison}
+%     \end{minipage}
+% };
+% \end{tikzpicture}
+
+% \vspace{-0.5em}
+
+
+
+\section{Introduction}
+\label{sec:intro}
+
+Multimodal artificial intelligence is increasingly moving toward a native unified paradigm,  where understanding, reasoning, and generation are integrated within a unified framework. Recently, large language models \cite{alayrac2022flamingo,liu2023visual,li2024llava,Qwen2.5-VL,Qwen3-VL,chen2024internvl} have driven rapid advances in image and video understanding, while diffusion- and flow-based models \cite{esser2024scaling,lipman2024flow,blackforestlabs_flux,labs2025flux,seedream2025seedream,hong2022cogvideo,yang2024cogvideox,seedance2026seedance} have advanced high-fidelity image and video generation. However, most existing systems still evolve along two separate paths: understanding models emphasize semantic reasoning and instruction following, while generative models focus on visual synthesis and spatiotemporal dynamics. Unifying these capabilities in a single unified model remains a central challenge in developing multimodal foundation models with greater generality and stronger practical utility.
+
+\begin{figure}[p]
+    \centering
+    \vspace*{-0.12\textwidth}
+    \includegraphics[width=0.95\textwidth]{figs/T2I_teaser.pdf}
+    \vspace*{-0.01\textwidth}
+    \caption{\textbf{Text-to-image generation (T2I) with Lance.}}
+%Lance generates high-quality images from textual prompts, demonstrating strong semantic alignment, visual fidelity, and compositional control.}
+    \label{fig:T2I}
+\end{figure}
+
+\begin{table*}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.3pt}
+\renewcommand{\arraystretch}{1.16}
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{
+l l
+| c c c
+| c c c
+| c c c
+| c c c c
+| c
+}
+\toprule
+\multirow{2}{*}{\textbf{Paradigm}}
+& \multirow{2}{*}{\textbf{Method}}
+& \multicolumn{3}{c|}{\textbf{UND. (Image to Text)}}
+& \multicolumn{3}{c|}{\textbf{UND. (Video to Text)}}
+& \multicolumn{3}{c|}{\textbf{GEN. (Image)}}
+& \multicolumn{4}{c|}{\textbf{GEN. (Video)}}
+& \multirow{2}{*}{\makecell[c]{\textbf{Emergent}\\\textbf{Generalization}}} \\
+\cmidrule(lr){3-5}
+\cmidrule(lr){6-8}
+\cmidrule(lr){9-11}
+\cmidrule(lr){12-15}
+& 
+& \textbf{Cap.} & \textbf{Per.} & \textbf{Rea.}
+& \textbf{Cap.} & \textbf{Per.} & \textbf{Rea.}
+& \textbf{T2I} & \textbf{Edit} & \textbf{S2I}
+& \textbf{T2V} & \textbf{I2V} & \textbf{Edit} & \textbf{S2V}
+& \\
+\midrule
+
+\multirow{6}{*}{\makecell[c]{\textbf{Non-native}\\\textbf{Unified}}}
+& MetaQuery-XL \cite{pan2025transfer}
+& \cmark & \cmark & \cmark
+&  &  &
+& \cmark &  &\cmark
+&  &  &  &
+&  \\
+
+& SEED-X \cite{ge2024seed}
+& \cmark & \cmark & \cmark
+&  &  &
+& \cmark & \cmark &
+&  &  &  &
+&  \\
+
+& TokenFlow-XL \cite{qu2025tokenflow}
+& \cmark & \cmark & \cmark
+&  &  &
+& \cmark &  &
+&  &  &  &
+&  \\
+
+& ILLUME \cite{wang2025illume}
+& \cmark & \cmark & \cmark
+&  &  &
+& \cmark & \cmark &
+&  &  &  &
+&  \\
+
+& InternVL-U \cite{tian2026internvlu}
+& \cmark & \cmark & \cmark
+&  &  &
+& \cmark & \cmark &
+&  &  &  &
+&  \\
+
+& UniVideo \cite{wei2025univideo}
+& \cmark & \cmark & \cmark
+& \cmark & \cmark & \cmark
+& \cmark & \cmark & \cmark
+& \cmark & \cmark & \cmark & \cmark
+& \cmarkgreen \\
+
+\midrule
+
+\multirow{16}{*}{\makecell[c]{\textbf{Native}\\\textbf{Unified}}}
+& Chameleon \cite{team2024chameleon}
+& \cmark & \cmark & \cmark
+&  &  &
+& \cmark &  &
+&  &  &  &
+&  \\
+
+& LWM \cite{liu2024world}
+& \cmark & \cmark & \cmark
+& \cmark & \cmark & \cmark
+& \cmark &  &
+& \cmark &  &  &
+&  \\
+
+
+
+
+
+& Janus \cite{wu2025janus}
+& \cmark & \cmark & \cmark
+&  &  &
+& \cmark &  &
+&  &  &  &
+&  \\
+
+& Janus-Pro \cite{chen2025janus}
+& \cmark & \cmark & \cmark
+&  &  &
+& \cmark &  &
+&  &  &  &
+&  \\
+
+& Transfusion \cite{zhou2024transfusion}
+& \cmark & \cmark & \cmark
+&  &  &
+& \cmark &  &
+&  &  &  &
+&  \\
+
+& Emu3 \cite{wang2024emu3}
+& \cmark & \cmark & \cmark
+& \pmark & \pmark & \pmark
+& \cmark &  &
+& \cmark &  &  &
+&  \\
+
+& Show-o \cite{xie2024show}
+& \cmark & \cmark & \cmark
+&  &  &
+& \cmark & \cmark &
+&  &  &  &
+&  \\
+
+& Show-o2 \cite{xie2025show}
+& \cmark & \cmark & \cmark
+& \cmark & \cmark & \cmark
+& \cmark & \cmark &
+& \pmark &  &  &
+&  \\
+
+& Bagel \cite{deng2025emerging}
+& \cmark & \cmark & \cmark
+&  &  & 
+& \cmark & \cmark & \cmark
+& & &  &
+& \cmarkgreen \\
+
+& Mogao \cite{liao2025mogao}
+& \cmark & \cmark & \cmark
+&  &  &
+& \cmark & \pmark & \pmark
+&  & &  &
+& \\
+
+& HaploOmni \cite{xiao2025haploomni}
+& \cmark & \cmark & \cmark
+& \cmark & \cmark & \cmark
+& \cmark &  &
+& \cmark &  &  &
+&  \\
+
+& VILA-U \cite{wu2024vila}
+& \cmark & \cmark & \cmark
+& \cmark & \cmark & \cmark
+& \cmark &  &
+& \cmark &  &  &
+&  \\
+
+& HunyuanImage 3.0 \cite{cao2025hunyuanimage}
+& \pmark & \pmark & \pmark
+&  &  &
+& \cmark & \cmark &
+&  &  &  &
+&  \\
+
+& Emu3.5 \cite{cui2025emu3}
+& \cmark & \cmark & \cmark
+& \pmark & \pmark & \pmark
+& \cmark & \cmark & \pmark
+& \pmark & \pmark &  &
+& \cmarkgreen \\
+
+& TUNA \cite{liu2025tuna}
+& \cmark & \cmark & \cmark
+& \cmark & \cmark & \cmark
+& \cmark & \cmark &
+& \cmark &  &  &
+&  \\
+
+& TUNA-2 \cite{tuna2}
+& \cmark & \cmark & \cmark
+&  &  & 
+& \cmark & \cmark &
+&  &  &  &
+&  \\
+
+
+\rowcolor{rowblue}
+& \textbf{Lance (Ours)}
+& \cmark & \cmark & \cmark
+& \cmark & \cmark & \cmark
+& \cmark & \cmark & \cmark
+& \cmark & \cmark & \cmark & \cmark
+& \cmarkgreen \\
+
+\bottomrule
+\end{tabular}
+}
+\caption{
+\textbf{Comparison of multimodal unified models by supported task categories.}  $\cmark$ indicates explicit support; $\triangle$ indicates description-only support without official code; blank cells indicate no explicit report.
+{Cap.}, {Per.}, {Rea.} indicate understanding ability on captioning, perception, and reasoning. 
+ The last column denotes whether the model exhibits emergent generalization on unseen tasks.
+Models are categorized as native or non-native unified models based on whether they are jointly pre-trained as a unified architecture or assembled from separately pre-trained components.
+}
+\label{tab:task_support_matrix}
+\end{table*}
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=1\textwidth]{figs/X2I.pdf}
+    \caption{\textbf{Any-to-image generation (X2I) and image understanding (I2T) with Lance.}}
+    \label{fig:X2I}
+\end{figure*}
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=1\textwidth]{figs/T2V.pdf}
+    \caption{\textbf{Text-to-video generation (T2V) with Lance.}}
+    \label{fig:T2V}
+\end{figure*}
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=1\textwidth]{figs/X2V.pdf}
+    \caption{\textbf{Any-to-video generation (X2V) and video understanding (V2T) with Lance.}}
+    \label{fig:X2V}
+\end{figure*}
+
+
+
+Recent unified multimodal models \cite{team2024chameleon,cui2025emu3,deng2025emerging,xie2025show,liao2025mogao,liu2025tuna} have made encouraging progress, yet two fundamental limitations remain. First, the visual-representation requirements of understanding and generation are inherently misaligned: the former benefits from high-level semantic features aligned with language, whereas the latter requires low-level continuous representations that preserve texture, geometry, and temporal dynamics.
+Existing approaches therefore typically follow one of two directions. One line of work \cite{xie2024show,team2024chameleon, wang2024emu3, cui2025emu3, liu2025tuna} attempts to support both tasks with a unified visual representation, yielding a simpler modeling formulation but often struggling to balance semantic reasoning and generation quality. Another line~\cite{deng2025emerging,liao2025mogao,xie2025show} adopts decoupled semantic and generative representations, alleviating representational mismatch at the cost of increased architectural and optimization complexity.
+
+
+%%%0514版本
+Second, and more importantly, existing unified models remain limited in task coverage and training formulation. As summarized in \Cref{tab:task_support_matrix}, most prior methods \cite{team2024chameleon,liu2024world,ge2024seed,qu2025tokenflow,wu2025janus} are still largely confined to text-image domains or partial task combinations, leaving the full image-video understanding and generation space insufficiently explored.
+Although recent unified models \cite{deng2025emerging,xie2025show,liu2025tuna} have progressively extended to the video domain, they typically cover only limited subsets of the full image-video task space, while diverse generation-oriented tasks such as editing and subject-driven generation are often introduced as downstream fine-tuning skills rather than being systematically optimized within a unified multi-task training process.
+Meanwhile, the comparison in \Cref{tab:task_support_matrix} further suggests that models with broader task coverage are more likely to exhibit emergent generalization on unseen tasks. 
+This motivates us to view multi-task learning not simply as capability aggregation, but as a way to promote transfer across modalities and task formulations.
+
+
+
+Based on this observation, we present \textbf{Lance}, a lightweight native unified multimodal model that systematically integrates joint learning across X2T, X2I, and X2V tasks, covering image and video understanding, generation, and editing within a single framework. 
+By unifying these task families in a single native model, Lance aims to better harness cross-task synergy and further advance the potential of unified multimodal modeling.
+Lance is designed to balance \textit{unified context modeling} with \textit{decoupled capability pathways} from both the architectural and training perspectives. 
+Architecturally, it adopts a shared interleaved multimodal sequence representation to enable unified context learning, while employing a dual-stream mixture-of-experts framework to allocate dedicated capacity to semantic reasoning and visual synthesis.
+ To better coordinate heterogeneous visual tokens within the unified context sequence, we further introduce modality-aware rotary positional encoding, MaPE, which mitigates positional interference and improves cross-task contextual alignment.
+In terms of training, Lance follows a staged multi-task training paradigm that casts diverse understanding, generation, and editing tasks into a unified task formulation, and combines capability-oriented objectives with adaptive data scheduling to progressively strengthen semantic understanding and visual synthesis.
+
+Extensive experiments show that Lance achieves strong performance across multimodal understanding and generation benchmarks, with qualitative examples shown in \Cref{fig:T2I,fig:X2I,fig:T2V,fig:X2V}. With only $3$B activated parameters, Lance substantially outperforms existing open-source unified models on image and video generation tasks as shown in \Cref{fig:benchmark_comparison}, while maintaining advanced multimodal understanding ability. Notably, all these gains are achieved within a $128$-GPU training budget, highlighting the feasibility of resource-efficient unified multimodal modeling.
+
+
+
+
+
+
+Our main contributions are summarized as follows:
+
+(1) \textbf{Concepts:} We present Lance, a lightweight native unified multimodal model that explicitly supports the full spectrum of image/video understanding and generation tasks within a single model, extending unified modeling beyond text-image domains and partial task coverage. Lance emphasizes multi-task synergy not as simple capability aggregation, but as a mechanism for promoting transfer across modality-task boundaries.
+
+(2) \textbf{Technique:}
+We develop a dual-stream mixture-of-experts architecture that preserves a shared interleaved multimodal sequence representation while allocating dedicated visual representations and model capacity to understanding and generation. We further introduce a modality-aware positional encoding scheme and a staged multi-task training paradigm to improve heterogeneous visual token coordination and cross-task context modeling.
+
+(3) \textbf{Performance:} Extensive experiments demonstrate that Lance achieves competitive performance across multimodal understanding and generation benchmarks with only $3$B activated parameters. 
+%As shown in \Cref{fig:benchmark_comparison}, Lance substantially outperforms existing open-source unified models on image and video generation while maintaining advanced multimodal understanding ability.
+
+
+
+
+

@@ -1,0 +1,103 @@
+\section{Related Works}
+
+\noindent
+\textbf{Subject-to-Video Customization.}
+%
+Subject-to-Video (S2V) aims to preserve subjects specified by reference images for customized video generation.
+% 
+Early approaches~\cite{wang2026customvideo,chen2024disenstudio} rely on few-shot tuning, while later works~\cite{he2024id,yuan2025identity} improve generalization by fine-tuning U-Net-based models.
+% 
+With the rise of diffusion transformers (DiT)~\cite{peebles2023scalable,bao2023all}, subsequent methods~\cite{vace,fei2025skyreels,xue2025stand,liu2025phantom} focus on human-centric customization, with improved identity preservation, editing flexibility, and text-image alignment.
+% 
+Recent works extend this paradigm to multi-reference customization:
+MAGREF~\cite{deng2025magref} supports any-reference generation via subject disentanglement, while BindWeave~\cite{li2025bindweave} and Kaleido~\cite{zhang2025kaleido} improve multi-entity grounding and reference integration in complex scenes.
+% 
+Despite this progress, they suffer from high inference latency and limited interactivity, which are crucial for practical user experience.
+% 
+In contrast, our \method achieves real-time and interactive customization.
+
+
+
+
+
+\noindent
+\textbf{Hybrid Autoregressive Video Generation.}
+%
+Recent hybrid autoregressive video generation methods~\cite{chen2024diffusion,yin2025slow,huang2025self,zhu2026causal} combine diffusion-based frame modeling~\cite{kong2024hunyuanvideo,yang2024cogvideox,wan2025wan} with autoregressive prediction across frames~\cite{kondratyuk2023videopoet,sun2024autoregressive}, balancing fidelity and efficiency.
+% 
+CausVid~\cite{yin2025slow} leverages distribution matching distillation (DMD)~\cite{yin2024improved} to distill a slow bidirectional teacher into a few-step autoregressive student, avoiding training from scratch.
+% 
+Furthermore, Self Forcing~\cite{huang2025self} conditions the model on its own rolled-out frames instead of ground-truth frames, thereby fundamentally solving the training-inference mismatch.
+% 
+Building on this paradigm, Rolling Forcing~\cite{liu2025rolling} accelerates inference, Reward Forcing~\cite{lu2025reward} improves motion dynamics, Infinity-RoPE~\cite{yesiltepe2025infinity} enables stable long-video generation, and Causal Forcing~\cite{zhu2026causal} reduces distribution mismatch during ODE initialization.
+
+
+
+
+
+\noindent
+\textbf{Applications of Streaming Video Generation.}
+%
+Benefiting from low latency and interactive inference, hybrid autoregressive generation has been adopted in various downstream tasks.
+% 
+LiveAvatar~\cite{huang2025live}, FlashVSR~\cite{zhuang2025flashvsr}, MotionStream~\cite{shin2025motionstream}, and LongLive~\cite{yang2025longlive} extend this paradigm to audio-driven avatar generation, video super-resolution, interactive motion-controlled generation, and interactive prompt-controlled generation, respectively.
+% 
+More recently, popular video world models, such as Vid2World~\cite{huang2025vid2world}, Yume~\cite{mao2025yume}, WorldPlay~\cite{sun2025worldplay}, and Matrix-Game~\cite{zhang2025matrix} further exploit it for interactive virtual worlds.
+% 
+However, these works mainly consider continuous control signals such as audio, motion, or mouse/keyboard inputs. To the best of our knowledge, no research has yet explored streaming applications in customized video generation tasks, particularly those involving discrete control signals like garment manipulation. Our work seeks to address this gap.
+
+
+
+
+
+\section{Preliminary}
+
+
+\noindent
+\textbf{Video Diffusion Models.}
+% 
+The advanced video diffusion generation typically consists of a variational encoder–decoder pair $\langle \mathcal{E}, \mathcal{D} \rangle$ along with a transformer-based predict network $v_{\theta}$.
+% 
+During training, the encoder $\mathcal{E}$ transforms a video with $F$ frames into a latent sequence $\mathbf{z}_{0}^{1:f}$ with $f$ frames, where $f = \frac{F - 1}{4} + 1$.
+% 
+According to flow matching~\cite{lipman2022flow}, the forward process is defined as a linear interpolation between the data distribution and a standard normal distribution, as follows:
+% 
+\begin{equation}
+    z_t^{1:f} = (1 - t) \cdot z_0^{1:f} + t \cdot \epsilon^{1:f},
+\label{eq:1}
+\end{equation}
+% 
+where $t$ is a random timestep and $\epsilon^{1:f} \sim \mathcal{N}(0, I)$.
+For the noisy latent $z_t^{1:f}$, we utilize the predict network $v_{\theta}$ to regress the conditional vector field via conditional flow matching~\cite{lipman2022flow} loss:
+% 
+\begin{equation}
+    \min_{\theta} \mathbb{E}_{t \sim \mathcal{U}(0,1)} \| v_{\theta}(z_{t}^{1:f}, t, c) - v \|_2^2,
+\label{eq:2}
+\end{equation}
+% 
+where $v = \epsilon^{1:f} - z_0^{1:f}$ denotes the target vector field, and $c$ represents the conditional signals.
+
+
+
+\noindent
+\textbf{Hybrid Autoregressive Video Generation.}
+% 
+Given a video with $F$ frames $\mathcal{V}^{1:F} = \langle \mathcal{V}^1, \mathcal{V}^2, \ldots, \mathcal{V}^F \rangle$, CausVid~\cite{yin2025slow} proposes to factorizes the joint distribution as $p(\mathcal{V}^{1:F}) = \prod_{i=1}^{F} p(\mathcal{V}^{i} \mid \mathcal{V}^{<i})$, where each conditional distribution $p(\mathcal{V}^{i} \mid \mathcal{V}^{<i})$ is modeled by the diffusion models where each frame/chunk is generated autoregressively.
+% 
+Self-Forcing~\cite{huang2025self} further improves this paradigm with self-rolling, conditioning on self-generated rather than ground-truth history to better align training with inference.
+% 
+To avoid training from scratch, most methods distill multi-step bidirectional teacher models into few-step autoregressive student models via Distribution Matching Distillation (DMD)~\cite{yin2024improved}.
+% 
+Specifically, DMD minimizes an approximate KL divergence between the student distribution estimated by $s_{\text{fake}}$ and the data distribution estimated by $s_{\text{real}}$. This process can be formulated as follows:
+% 
+\begin{equation}
+\nabla \mathcal{L}_{\text{DMD}} = - \mathbb{E}_{t} \Biggl[ 
+    \int \Bigl( 
+        s_{\text{real}}(\phi(G(\epsilon), t), t) - s_{\text{fake}}(\phi(G(\epsilon), t), t) 
+    \Bigr) \cdot \frac{d G_{\theta}(\epsilon)}{d\theta} \, d\epsilon
+\Biggr],
+\label{eq:3}
+\end{equation}
+% 
+where $\epsilon \sim  \mathcal{N}(0, I)$, $G_{\theta}$ denotes student model, and $\phi(\cdot,t)$ represents forward diffusion at timestep $t$ defined in Eq.\,\ref{eq:1}.
+During distillation, $G_{\theta}$ and $s_{\text{fake}}$ are updated while $s_{\text{real}}$ remains frozen.

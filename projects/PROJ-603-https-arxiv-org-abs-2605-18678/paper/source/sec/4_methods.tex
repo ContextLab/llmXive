@@ -1,0 +1,191 @@
+\section{Methodology}
+\label{sec:Methodology}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.99\textwidth]{figs/Lance_framework.pdf}
+    \caption{
+    \textbf{Overview of Lance.}
+     Given multi-task inputs spanning X2T, X2I, and X2V, Lance encodes all input tokens into a unified MaPE-enhanced multimodal context sequence. The dual-expert backbone performs generalized 3D causal attention over the shared context and produces task-specific hidden states, which are further decoded by an LM head for autoregressive next-token prediction and by a flow head for velocity prediction in the visual latent space.}
+    \label{fig:model_framework}
+\end{figure*}
+
+
+
+The core idea of Lance is that broad multi-task learning can further unlock the potential of unified multimodal models. However, different task families, such as multimodal understanding, generation, and editing, impose substantially different requirements on modeling objectives, visual representations, and optimization dynamics. An effective unified model should therefore enable different tasks to interact within \textit{unified context learning}, while mitigating interference among heterogeneous objectives through \textit{decoupled capability pathways}.
+
+
+\subsection{Design Motivation and Principles}
+
+%Unified multimodal modeling requires reconciling shared cross-modal context learning with task-specific capability specialization. Lance is therefore built upon the principle of \textit{unified context learning} with \textit{decoupled capability pathways}. Unified context learning is enabled by interleaved multimodal sequence modeling and multi-task collaborative optimization, whereas decoupled capability pathways are motivated by the following observations.
+
+
+Lance is built upon two principles: \textit{unified context learning} and \textit{decoupled capability pathways}. 
+Unified context learning is enabled by interleaved multimodal sequence modeling and multi-task collaborative optimization, while decoupled capability pathways are motivated by the following observations.
+
+\textbf{Autoregressive vs. Diffusion.}
+Autoregressive next-token prediction remains the dominant paradigm for language modeling \cite{touvron2023llama,achiam2023gpt,liu2024deepseek} and multimodal understanding \cite{Qwen3-VL,xu2024pllava,li2025videochat}. % as it naturally supports instruction following and textual reasoning.
+In contrast, high-quality image and video synthesis is more effectively modeled in continuous latent spaces with diffusion or flow-matching objectives \cite{ding2021cogview,li2023blip,cai2024diffusion_selfdistill,labs2025flux,wu2025qwen}. % which better capture appearance details and temporal coherence. 
+ Some unified models \cite{team2024chameleon,wu2024vila,wang2024emu3,qu2025tokenflow} also explore fully autoregressive formulations for joint understanding and generation, which may suffer from sequential decoding and limited generation efficiency. 
+We therefore adopt autoregressive language modeling for understanding and flow matching for generation.
+
+
+
+
+
+\textbf{Unified Visual Representations vs. Decoupled Visual Representations.}
+Understanding and generation rely on different forms of visual information. Understanding mainly benefits from high-level semantic visual features that are well aligned with language (\eg, SigLIP 2 \cite{tschannen2025siglip} or Qwen2.5-VL \cite{Qwen2.5-VL}), whereas generation relies on low-level latent representations that preserve appearance and spatiotemporal structure~\cite{wan2025wan}. % (\eg, VAE-based image and video generators \cite{wan2025wan}). 
+Some existing works \cite{liu2025tuna} have explored shared visual representations, but a single representation may be insufficient to simultaneously satisfy semantic reasoning and high-fidelity synthesis.
+Meanwhile, recent studies~\cite{yu2024representation,zheng2025diffusion} suggest that semantic features can also benefit generation modeling. Lance therefore keeps semantic visual tokens and generative latent tokens decoupled, while organizing them within a shared interleaved multimodal sequence for unified context learning.
+
+\textbf{Shared Backbone vs. Specialized Expert Capacity.}
+A fully shared backbone that uses single stream to process various modalities \cite{huang2022dse,xie2025show,liu2025tuna} offers a clean unified architecture, but it forces understanding and generation to compete for the same parameters under substantially different objectives. Recent evidence from Bagel \cite{deng2025emerging} and HunyuanImage 3.0 \cite{cao2025hunyuanimage} further suggests that decoupling generation-oriented parameters and understanding-oriented parameters yields clear advantages over dense shared backbones.
+These observations motivate Lance to preserve a unified multimodal token interface for bottleneck-free context fusion, while allocating specialized expert capacity to understanding and generation pathways.
+
+
+
+\subsection{Overall Architecture}
+
+\textbf{Overall Framework.}
+An overview of our framework is shown in \Cref{fig:model_framework}. 
+Given interleaved inputs of text, images, and videos, Lance first converts each modality into task-appropriate token representations. These heterogeneous tokens are then organized into a shared interleaved multimodal sequence with modality-aware rotary positional encoding, supporting unified context modeling across diverse task formats.
+To reconcile unified context learning with task-specific capability specialization, Lance adopts a dual-expert architecture initialized from Qwen2.5-VL~\cite{Qwen2.5-VL}. The understanding expert, denoted as $\mathrm{LLM}_{\mathrm{UND}}$, processes text and semantic visual tokens for multimodal reasoning and text generation, while the generation expert, denoted as $\mathrm{LLM}_{\mathrm{GEN}}$, processes VAE latent tokens for visual synthesis and editing. The two experts operate over the same interleaved multimodal context, preserving cross-task interaction while avoiding direct competition between heterogeneous objectives. 
+Task-specific heads are further used for autoregressive language modeling and flow-based visual generation, respectively.
+
+
+\textbf{Unified Context Learning.}
+Lance first converts heterogeneous inputs into a shared interleaved multimodal sequence. (1) Text instructions are embedded using the language embedding layer of Qwen2.5-VL~\cite{Qwen2.5-VL}. (2) For understanding-oriented visual inputs, Lance employs the Qwen2.5-VL ViT encoder~\cite{Qwen2.5-VL}, which uses $14\times$ spatial and $2\times$ temporal patching followed by a $2\times2$ spatial merge to produce compact semantic visual tokens. These tokens provide language-aligned visual semantics for multimodal understanding and reasoning. (3) For generation-oriented visual inputs, we encode images or videos into continuous latent representations using the Wan2.2 3D causal VAE encoder \cite{wan2025wan}. This encoder jointly supports image and video modalities through a unified latent space with $16\times$ spatial downsampling and $4\times$ temporal downsampling for videos.
+ The resulting latent features preserve the low-level appearance and temporal structure required for high-fidelity visual generation, and are projected into the hidden space of the generation backbone through a lightweight MLP connector.
+
+%As a result, the input sequence is composed of four types of tokens: text tokens, ViT semantic tokens, clean VAE latent tokens, and noisy VAE latent tokens. They are serialized into a unified interleaved multimodal sequence according to the modality structure of each sample:
+As a result, Lance represents each sample as a unified interleaved multimodal sequence of text tokens, ViT semantic tokens, clean VAE latent tokens, and noisy VAE latent tokens:
+\begin{equation}
+\mathcal{S}
+=
+\cdots \oplus
+\mathcal{B}_{\mathrm{text}}(\mathbf{T})
+\oplus
+\mathcal{B}_{\mathrm{vis}}(\mathbf{V}_{\mathrm{vit}})
+\oplus
+\mathcal{B}_{\mathrm{vis}}(\mathbf{V}_{\mathrm{vae}}^{\mathrm{clean}})
+\oplus
+\mathcal{B}_{\mathrm{vis}}(\mathbf{V}_{\mathrm{vae}}^{\mathrm{noisy}})
+\oplus
+\mathcal{B}_{\mathrm{text}}(\mathbf{T}')
+\oplus \cdots ,
+\end{equation}
+\begin{equation}
+\mathcal{B}_{\mathrm{text}}(\mathbf{T})
+=
+[\texttt{BOT}, \mathbf{T}, \texttt{EOT}],
+\quad
+\mathcal{B}_{\mathrm{vis}}(\mathbf{V})
+=
+[\texttt{BOV}, \mathbf{V}, \texttt{EOV}].
+\end{equation}
+This formulation supports understanding, generation, and mixed interleaved multimodal samples within a single context modeling framework.
+
+
+To handle such heterogeneous sequences, Lance adopts \textit{generalized 3D causal attention}. The sequence is partitioned into modality-specific segments, where each segment attends to preceding clean segments to preserve causal dependencies. Within each segment, text tokens use causal attention, while visual tokens use bidirectional attention to capture spatial and spatiotemporal structure. This provides a unified attention mechanism for multimodal understanding, generation, and conditional editing.
+
+%%%
+\textbf{Decoupled Capability Pathways.}
+Although Lance organizes all modalities within a shared sequence, it processes understanding and generation through specialized expert pathways. The understanding expert $\mathrm{LLM}_{\mathrm{UND}}$ primarily operates on text tokens and semantic visual tokens, and autoregressively predicts target text tokens for multimodal understanding. Its hidden states are mapped by a language modeling head and optimized with the standard next-token prediction loss:
+\begin{equation}
+\mathcal{L}_{\mathrm{UND}}
+= - \sum_i \log p_{\theta_{\mathrm{UND}}}(y_i \mid y_{<i}, \mathcal{S}).
+\end{equation}
+The generation expert $\mathrm{LLM}_{\mathrm{GEN}}$ operates on VAE latent tokens and predicts generation-side hidden states conditioned on the interleaved multimodal context. These hidden states are projected through an LLM-to-VAE connector into the latent space and passed to a flow prediction head. Let $x_1$ denote the clean VAE latent and $x_0 \sim \mathcal{N}(0, I)$ denote Gaussian noise. We construct the interpolated latent as $x_t = t x_1 + (1-t)x_0$, where $t \sim \mathcal{U}(0,1)$, and optimize the generation expert with:
+\begin{equation}
+\mathcal{L}_{\mathrm{GEN}} =
+\mathbb{E}_{x_0, x_1, t}
+\left[
+\left\|
+v_{\theta_{\mathrm{GEN}}}(x_t, \mathcal{S}, t) - (x_1 - x_0)
+\right\|_2^2
+\right].
+\end{equation}
+Here, $\theta_{\mathrm{UND}}$ and $\theta_{\mathrm{GEN}}$ denote the pathway-specific parameters for understanding and generation, respectively, including their Transformer-decoder expert backbones and corresponding prediction heads.
+% Here, $\theta_{\mathrm{UND}}$ and $\theta_{\mathrm{GEN}}$ denote the parameters of the understanding and generation pathways, including their corresponding prediction heads.
+
+The overall objective is:
+\begin{equation}
+\mathcal{L}
+= \lambda_u \mathcal{L}_{\mathrm{UND}}
++ \lambda_g \mathcal{L}_{\mathrm{GEN}}.
+\end{equation}
+
+This design enables Lance to preserve unified context interaction while allowing semantic understanding and visual synthesis to specialize in their own representations, parameters, and objectives.
+
+
+
+
+% \textbf{Generalized 3D Causal Attention.}
+% Within the MoE-style LLM backbone, text and visual tokens from both understanding and generation tasks are interleaved according to the modality structure of the input. To support interleaved multimodal sequence modeling, we adopt a generalized 3D causal attention mechanism. Specifically, the input sequence is first partitioned into a series of contiguous modality-specific segments, each consisting of tokens from a single modality or token type, such as text tokens, ViT tokens, clean VAE tokens, or noisy VAE tokens. Attention is then defined at two levels. At the inter-segment level, tokens in a given segment are allowed to attend to all tokens in preceding segments, thereby preserving the causal structure of the interleaved sequence. At the intra-segment level, we employ modality-dependent attention patterns: text tokens use standard causal attention, while visual tokens adopt bidirectional attention within each segment to enable richer spatial or spatiotemporal interactions.
+
+
+
+\subsection{Modality-Aware Rotary Positional Encoding}
+
+\noindent
+\begin{minipage}[t]{0.58\columnwidth} % 0.53
+\setlength{\parindent}{1em}
+\noindent Unified multimodal training places heterogeneous visual token groups within the same interleaved sequence, including ViT semantic tokens, clean VAE condition tokens, and noisy VAE target tokens. These tokens differ not only in their source encoders, but also in their functional roles: semantic tokens provide language-aligned visual cues for understanding, clean VAE latents serve as visual conditions, and noisy VAE latents are optimized as generation targets. Standard 3D-RoPE can encode spatiotemporal layouts, but it does not explicitly distinguish these heterogeneous token groups, which may lead to positional ambiguity and weaken cross-task alignment.
+
+\noindent In the original 3D-RoPE formulation of Qwen2.5-VL~\cite{Qwen2.5-VL}, text tokens and visual tokens are assigned positional indices in different forms. Given $N$ text tokens, the $i$-th text token is assigned
+$\mathbf{p}^{\mathrm{text}}_i = [i, i, i].$
+For visual tokens with temporal length $T$, height $H$, and width $W$, a token at location $(t,h,w)$ is assigned a 3D position according to its spatiotemporal layout:
+\begin{equation}
+\hat{\mathbf{p}}^{\mathrm{vis}}_{t,h,w}
+= N + [t,\ h,\ w]
+= [N+t,\; N+h,\; N+w],
+\end{equation}
+where $t \in [0,T-1]$, $h \in [0,H-1]$, and $w \in [0,W-1]$.
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.4\columnwidth} % 0.4
+    \centering
+    \vspace{-0.5em}
+    \includegraphics[width=\linewidth]{figs/Lance-Mape1.pdf}
+    \captionof{figure}{\textbf{Illustration of modality-aware rotary positional encoding (MaPE).}}
+    \label{fig:mape}
+\end{minipage}
+
+\medskip
+This design is effective for standard image/video-language modeling. However, in unified multimodal training, a single sequence may contain multiple visual token groups from different modalities $\mathcal{M}=\{\mathbf{V}_{\mathrm{vit}}, \mathbf{V}_{\mathrm{vae}}^{\mathrm{clean}}, \mathbf{V}_{\mathrm{vae}}^{\mathrm{noisy}} \}$.
+%with different semantics and objectives, such as ViT condition tokens, clean VAE condition tokens, and noisy VAE target tokens.
+ Assigning them only according to their spatiotemporal layouts may make their functional boundaries ambiguous in the positional space.
+
+
+
+
+
+To address this issue, we introduce \textbf{Modality-Aware Rotary Positional Encoding} (MaPE),  which injects token-group awareness into the positional indices. As shown in \Cref{fig:mape}, for each modality group $m \in \mathcal{M}$, we first define its base 3D-RoPE as
+%\begin{equation}
+$\hat{\mathbf{p}}^{(m)}_{t,h,w}
+=
+[\hat{t}^{(m)}_{t,h,w},\;
+ \hat{h}^{(m)}_{t,h,w},\;
+ \hat{w}^{(m)}_{t,h,w}],$
+%\end{equation}
+where the base coordinates follow the standard spatiotemporal assignment. MaPE then applies a modality-specific offset $\Delta_m$ only along the temporal dimension:
+\begin{equation}
+\mathbf{p}^{(m)}_{t,h,w}
+=
+\hat{\mathbf{p}}^{(m)}_{t,h,w}
++
+[\Delta_m, 0, 0]
+=
+[
+\hat{t}^{(m)}_{t,h,w}+\Delta_m,\;
+\hat{h}^{(m)}_{t,h,w},\;
+\hat{w}^{(m)}_{t,h,w}
+].
+\end{equation}
+
+Applying modality offsets only to the temporal dimension provides two advantages. First, it explicitly separates different visual token groups in the global positional space, enabling the model to better distinguish the roles of semantic ViT features, clean VAE conditions, and noisy VAE targets. Second, since the spatial coordinates remain unchanged, the intrinsic spatial layouts within images and videos are preserved. 
+Moreover, introducing modality offsets $\Delta_m$ along the $t$-dimension does not disrupt the temporal structure within a video. Since the offset is a shared constant shift for all tokens within the same modality group, the temporal order and relative distances of video latents are fully preserved.
+As a result, the model can better discriminate heterogeneous visual tokens while maintaining spatial consistency and temporal coherence.
+
+
+

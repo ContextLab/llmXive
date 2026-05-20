@@ -1,0 +1,60 @@
+% ==================== Appendix Table: S4 Tables & Figures ====================
+\begingroup
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\rowcolors{2}{white}{S4color!6}
+\begin{table*}[!ht]
+\centering
+\caption{\textbf{Comprehensive inventory: \Sfour Tables \& Figures.} $^\dagger$Evaluation information uncertain.}
+\vspace{-7pt}
+\label{tab:appendix_s4}
+\stagecard{\Sfour}{Tables \& Figures}{S4color}{figures/icons/s4_figures.png}{%
+Creating Method Diagrams, result plots, comparison tables, and LaTeX formulas. Scientific visualization transforms raw experimental outputs into publication-quality charts, illustrations, and structured tables.}
+\vspace{2pt}
+\resizebox{\linewidth}{!}{\begin{tabular}{c|>{\centering\arraybackslash}p{3cm} r r |c| >{\centering\arraybackslash}p{2.7cm} |c| p{6.9cm}}
+\toprule
+\rowcolor{tableheader!10}
+\textbf{\#} & \textbf{Method} & \textbf{Ref} & \textbf{Venue} & \textbf{Link} & \textbf{Category} & \textbf{GitHub} & \textbf{Evaluation} \\
+\midrule
+\multicolumn{8}{@{}l}{\cellcolor{S4color!65}\textbf{\textsf{\textcolor{white}{~~Scientific Figure Generation}}}} \\
+\addlinespace[1pt]
+{1} & ChartGPT & \cite{yuan2023chartgpt} & {\small arXiv'23} & \href{https://arxiv.org/abs/2311.01920}{\faExternalLink} & Data Viz         & -                                                                                     & 6-step reasoning for chart generation \\
+{2} & MatPlotAgent & \cite{matplotagent2024} & {\small arXiv'24} & \href{https://arxiv.org/abs/2402.11453}{\faExternalLink} & Data Viz         & -                                                                                     & +12.3 over GPT-4 base; VLM visual feedback$^\dagger$ \\
+{3} & CoDA & \cite{coda2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2510.03194}{\faExternalLink} & Data Viz         & -                                                                                     & +41.5\% over baselines; multi-agent collaboration \\
+{4} & PlotGen & \cite{plotgen2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2502.00988}{\faExternalLink} & Data Viz         & -                                                                                     & 4--6\% improvement over baselines$^\dagger$ \\
+{5} & VIS-Shepherd & \cite{visshepherd2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2506.13326}{\faExternalLink} & Figure Editing   & -                                                                                     & Constructive critique feedback framework \\
+{6} & DiagramAgent & \cite{diagramagent2024} & {\small CVPR'25} & \href{https://arxiv.org/abs/2411.11916}{\faExternalLink} & Data Viz         & -                                                                                     & 4 specialized agents; 8 diagram categories \\
+{7} & StarVector & \cite{starVector2025} & {\small CVPR'25} & \href{https://arxiv.org/abs/2312.11556}{\faExternalLink} & Method Diagrams  & -                                                                                     & Scalable SVG generation from descriptions$^\dagger$ \\
+{8} & VisCoder & \cite{viscoder2025} & {\small EMNLP'25} & \href{https://arxiv.org/abs/2506.03930}{\faExternalLink} & Data Viz         & -                                                                                     & VisCode-200K dataset; 90\%+ execution pass rate$^\dagger$ \\
+{9} & AI-Generated Figures & \cite{aifigurepolicies2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2603.16159}{\faExternalLink} & Policy           & -                                                                                     & Publisher policy survey (Nature, Science, etc.) \\
+{10} & AutoFigure-Edit & \cite{autofigure2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2603.06674}{\faExternalLink} & Method Diagrams  & \githubicon{https://github.com/ResearAI/AutoFigure-Edit}                & Editable text-to-SVG scientific illustrations$^\dagger$ \\
+{11} & AutoFigure & \cite{autofigure2026iclr} & {\small ICLR'26} & \href{https://arxiv.org/abs/2602.03828}{\faExternalLink} & Method Diagrams  & \githubicon{https://github.com/ResearAI/AutoFigure}                     & FigureBench (3,300 pairs); publication-ready illust. \\
+{12} & PaperBanana & \cite{paperbanana2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2601.23265}{\faExternalLink} & Method Diagrams  & -                                                                                     & 292 test cases; outperforms baselines$^\dagger$ \\
+{13} & SAIL & \cite{sail2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2603.18145}{\faExternalLink} & Figure Editing   & -                                                                                     & Domain logic / code syntax separation \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S4color!65}\textbf{\textsf{\textcolor{white}{~~Table Understanding \& Generation}}}} \\
+\addlinespace[1pt]
+{14} & ArxivDIGESTables & \cite{arxivdigestables2024} & {\small EMNLP'24} & \href{https://arxiv.org/abs/2410.22360}{\faExternalLink} & Table Gen.        & -                                                                                     & Literature comparison table synthesis \\
+{15} & Chain-of-Table & \cite{chainoftable2024} & {\small ICLR'24} & \href{https://arxiv.org/abs/2401.04398}{\faExternalLink} & Table Reasoning  & -                                                                                     & Multi-step table reasoning chains \\
+{16} & ShowTable & \cite{showtable2025} & {\small CVPR'26} & \href{https://arxiv.org/abs/2512.13303}{\faExternalLink} & Table Viz        & -                                                                                     & Collaborative reflection and refinement$^\dagger$ \\
+{17} & Table2LaTeX-RL & \cite{table2latexrl2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2509.17589}{\faExternalLink} & Table Conversion & -                                                                                     & Image-to-LaTeX via reinforced multimodal LM \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S4color!65}\textbf{\textsf{\textcolor{white}{~~Mathematical Formulas \& TikZ}}}} \\
+\addlinespace[1pt]
+{18} & AutomaTikZ & \cite{belouadi2024automatikz} & {\small ICLR'24} & \href{https://arxiv.org/abs/2310.00367}{\faExternalLink} & TikZ             & -                                                                                     & DaTikZ: first large-scale dataset (120K drawings) \\
+{19} & DeTikZify & \cite{belouadi2024detikzify} & {\small NeurIPS'24} & \href{https://arxiv.org/abs/2405.15306}{\faExternalLink} & TikZ            & -                                                                                     & 360K TikZ graphics; MCTS iterative refinement \\
+{20} & TikZilla & \cite{tikzilla2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2603.03072}{\faExternalLink} & TikZ             & -                                                                                     & 3B/8B matches GPT-5; SFT+RL on expanded DaTikZ \\
+\addlinespace[3pt]
+\multicolumn{8}{@{}l}{\cellcolor{S4color!65}\textbf{\textsf{\textcolor{white}{~~Visual Fidelity and Scientific Accuracy Assessment}}}} \\
+\addlinespace[1pt]
+{21} & PlotCraft & \cite{plotcraft2025} & {\small arXiv'25} & \href{https://arxiv.org/abs/2511.00010}{\faExternalLink} & Benchmark         & -                                                                                     & 1K-task benchmark; 48 chart types \\
+{22} & TeXpert & \cite{texpert2025} & {\small SDP'25} & \href{https://aclanthology.org/2025.sdp-1.2/}{\faExternalLink} & Benchmark         & -                                                                                     & 3-level difficulty; 78.8\%/58.7\%/17.5\%$^\dagger$ \\
+{23} & AbGen & \cite{abgen2025} & {\small ACL'25} & \href{https://arxiv.org/abs/2507.13300}{\faExternalLink} & Benchmark         & -                                                                                     & 1,500 ablation studies; 807 NLP papers \\
+{24} & SciFig & \cite{scifig2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2601.04390}{\faExternalLink} & Benchmark         & -                                                                                     & Rubric-based evaluation; 2K+ pipeline figures \\
+{25} & SciFlow-Bench & \cite{scifigbench2026} & {\small arXiv'26} & \href{https://arxiv.org/abs/2602.09809}{\faExternalLink} & Benchmark         & -                                                                                     & 500 framework figures; inverse-parsing evaluation \\
+{26} & FigureBench & \cite{autofigure2026iclr} & {\small ICLR'26} & \href{https://arxiv.org/abs/2602.03828}{\faExternalLink} & Benchmark         & \githubicon{https://github.com/ResearAI/AutoFigure}                     & 3,300 text-figure pairs; publication-ready eval \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+\endgroup

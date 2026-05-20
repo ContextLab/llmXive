@@ -1,0 +1,369 @@
+\section{Cross-Cutting Analysis}
+\label{sec:cross_cutting}
+
+The preceding sections analyzed AI-assisted research stage by stage. We now synthesize patterns that emerge across the complete lifecycle. This cross-cutting view is necessary because many of the most important limitations do not appear within a single stage, but at the boundaries between stages: ideas that weaken after implementation, retrieved evidence that is misrepresented in writing, experiments that produce unsupported claims, reviews that miss methodological flaws, rebuttals that promise revisions without fulfilling them, and dissemination artifacts that simplify results beyond the evidence.
+
+We organize this analysis around \textbf{four} questions. First, how do end-to-end systems integrate multiple stages of the research lifecycle? Second, how should research automation be evaluated across heterogeneous artifacts and long-horizon workflows? Third, what recurring capability boundaries and deployment principles appear across phases? Finally, what open challenges must be addressed before AI systems can be trusted as reliable research collaborators rather than artifact generators?
+
+
+
+\subsection{End-to-End Research Systems}
+\label{sec:e2e_systems}
+
+Some systems discussed earlier, especially in \cref{sec:writing_phase}, also qualify as end-to-end research systems because they generate complete manuscripts. Here, however, we analyze them from a different perspective: not as paper-writing tools, but as lifecycle-scale architectures. The key question is how these systems connect ideation, literature review, coding, experimentation, writing, validation, and dissemination, and where the handoffs between stages remain fragile.
+
+Most current end-to-end systems emphasize Phase~1 (\emph{Creation}) and Phase~2 (\emph{Writing}), connecting idea generation, implementation, experiment execution, and manuscript drafting into a single workflow. Far fewer systems incorporate substantive Phase~3 (\emph{Validation}), such as adversarial review, rebuttal planning, or revision tracking, and Phase~4 (\emph{Dissemination}) remains mostly outside current end-to-end pipelines. This imbalance reflects a broader pattern observed throughout the survey: it is easier to generate research artifacts than to validate, revise, and communicate them with accountable fidelity. 
+
+Existing systems can be grouped into four architectural families: sequential pipelines, search-based and self-improving systems, skill-based and tool-integrated systems, and multi-agent or community-scale frameworks.
+
+
+
+\subsubsection{Sequential and Pipeline-Based Systems}
+
+Sequential systems connect research stages in a mostly linear order, typically moving from idea generation to experiment execution and manuscript drafting. The AI Scientist~\cite{lu2024aiscientist} established this paradigm by demonstrating that hypothesis generation, code execution, experimental analysis, and paper writing can be assembled into a single automated workflow. Agent Laboratory~\cite{schmidgall2025agentlab}, AI-Researcher~\cite{airesearcher2025}, CycleResearcher~\cite{cycleresearcher2024}, Kosmos~\cite{kosmos2025}, Dolphin~\cite{dolphin2025}, CodeScientist~\cite{codescientist2025}, and InternAgent~\cite{novelseek2025} instantiate related pipeline designs with different choices of base models, task scopes, and evaluation targets.
+
+The advantage of sequential architectures is operational simplicity. Each stage produces an artifact that becomes the input to the next stage, making the workflow interpretable and relatively easy to implement. The limitation is error propagation. A weak idea can lead to irrelevant experiments; incorrect code can produce misleading results; and unsupported experimental claims can be polished into a plausible manuscript. Sequential pipelines therefore expose the same phase-boundary risk observed throughout the lifecycle: producing an artifact at one stage does not guarantee that the next stage represents it faithfully or verifies it adequately.
+
+\subsubsection{Search-Based and Self-Improving Systems}
+
+A second family introduces search, evolution, or self-improvement to avoid the brittleness of one-pass generation. AI Scientist v2~\cite{yamada2025aiscientistv2} uses agentic tree search to explore research trajectories more systematically than its predecessor. ASI-Evolve~\cite{asievolve2026}, AutoSOTA~\cite{autosota2026}, CORAL~\cite{coral2026}, and related evolutionary systems search over architectures, algorithms, data curation strategies, or multi-agent behaviors to discover stronger solutions.
+
+Search-based designs are important because research rarely proceeds as a single pass. Strong work typically emerges from branching alternatives, failed experiments, ablation-driven refinement, and selective continuation of promising directions. These systems therefore better match the iterative structure of scientific practice than direct pipelines. However, search alone does not solve validation. Without reliable evaluators, search can optimize toward benchmark-specific artifacts, superficial novelty, or brittle improvements. The core design question is thus not only how broadly a system searches, but what signals guide selection and whether those signals reflect scientific value rather than local metric gains.
+
+\subsubsection{Skill-Based and Tool-Integrated Systems}
+
+Skill-based systems package research workflows as composable capabilities, often built around coding agents, retrieval tools, experiment runners, document editors, and evaluation modules. ARIS~\cite{aris2025} represents this direction by organizing research automation into reusable workflows for idea discovery, auto-review, and paper writing. AutoResearchClaw~\cite{autoresearchclaw2026} similarly implements a multi-stage pipeline with internal agents for coding, benchmarking, and figure generation. Broader tool-integrated systems such as AutoAgent~\cite{tang2025autodeepresearch}, Biomni~\cite{biomni2025}, SciSciGPT~\cite{sciscigpt2025}, and ResearchClaw~\cite{researchclaw2025} emphasize retrieval, analytics, code execution, document understanding, and domain-specific tool use.
+
+The strength of skill-based architectures is modularity. Rather than relying on one monolithic agent to perform all research activities, these systems expose explicit tools and reusable skills for individual operations. This makes it easier to inspect intermediate artifacts, swap components, and insert human checkpoints. The limitation is coordination: modular systems still need reliable state management across stages. If the idea, literature trace, code state, experimental logs, manuscript claims, review feedback, and revision plan are not represented in a shared and updateable workspace, then phase handoffs remain fragile despite the presence of many tools.
+
+\subsubsection{Multi-Agent and Community-Scale Systems}
+
+Multi-agent systems distribute research tasks across specialized agents, such as researchers, engineers, reviewers, analyzers, writers, or simulated community members. FreePhDLabor~\cite{freephdlabor2025}, SciMaster~\cite{scimaster2025}, EvoScientist~\cite{evoscientist2026}, UniScientist~\cite{uniscientist2026}, Medical AI Scientist~\cite{medicalaiscientist2026}, AiScientist-LH~\cite{aiscientistlonghorizon2026}, FARS~\cite{fars2026}, and AutoResearchClaw~\cite{autoresearchclaw2026} illustrate different forms of multi-agent orchestration. Related community-scale systems such as VirSci~\cite{su2024virsci}, AgentRxiv~\cite{schmidgall2025agentrxiv}, and ResearchTown~\cite{researchtown2025} further simulate aspects of scientific collaboration, including idea exchange, manuscript writing, review, and revision.
+
+The motivation for multi-agent architectures is that research requires heterogeneous expertise and adversarial feedback. A single model asked to generate, execute, write, and critique its own work is prone to self-confirmation. Separating roles can reduce this risk by introducing specialization and cross-agent critique. However, multi-agent systems also introduce coordination problems: agents may duplicate work, reinforce shared misconceptions, defer to weak signals, or produce verbose deliberation without improving scientific quality. The strongest multi-agent systems therefore require more than agent count; they require clear role separation, shared memory, grounded tools, and explicit verification mechanisms.
+
+
+
+\subsubsection{Assessment: Lifecycle Coverage and Phase Boundaries}
+\label{sec:e2e_assessment}
+
+End-to-end systems should be evaluated not only by the quality of their final manuscript, but also by lifecycle coverage and phase-boundary reliability. Current systems are strongest at generating ideas, code, experiments, and paper drafts, but weaker at external validation, author-style revision, and audience-adaptive dissemination. This uneven coverage is not accidental: Stage 1 (\emph{Creation}) and Stage 2 (\emph{Writing}) produce artifacts, whereas Stage 3 (\emph{Validation}) and Stage 4 (\emph{Dissemination}) require judgment, accountability, and audience-aware fidelity.
+
+The most important failure mode is not isolated stage failure, but unverified handoff. An idea may appear novel but fail during execution; code may run but implement the wrong algorithm; experimental logs may be summarized into unsupported claims; an automated review may be coherent but lenient; and a rebuttal may promise changes that are not fulfilled. End-to-end systems amplify this risk because errors can propagate silently across stages. A mature lifecycle-scale research system must therefore preserve traceable links between hypotheses, retrieved evidence, code, experiments, figures, manuscript claims, reviews, rebuttals, and revisions.
+
+Reported costs and quality metrics further suggest that the token budget alone is not the decisive factor. Systems vary widely in cost, but stronger results often come from search strategy, tool integration, structured decomposition, and verification design rather than brute-force generation. The central evaluation question is therefore shifting from \emph{Can the system produce a paper?} to \emph{Can the system maintain scientific fidelity across the complete lifecycle?}
+
+
+
+% \input{tables/e2e_comparison}
+
+
+
+\subsubsection{Findings and Observations}
+\label{sec:e2e_findings}
+
+\stageanalysis{~End-to-End Research Systems}{tableheader}{figures/teasers/e2e_l.png}{figures/teasers/e2e_r.png}{%
+
+\posbadge[tableheader]{Pipelines} \posbadge[tableheader]{Search} \posbadge[tableheader]{Skills}\par\vspace{2pt}
+
+\posbadge[tableheader]{Multi-Agent} \posbadge[tableheader]{Validation} \posbadge[tableheader]{Handoffs}
+
+}{%
+
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+
+\item End-to-end systems increasingly move beyond linear pipelines toward search-based, skill-based, and multi-agent architectures that better reflect the iterative structure of research.
+
+\end{itemize}
+
+\anadotrule
+
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+
+\item Phase coverage remains uneven: most systems cover \emph{Creation} and \emph{Writing}, while substantially fewer incorporate \emph{Validation}, and none yet provide mature \emph{Dissemination} coverage.
+
+\end{itemize}
+
+\anadotrule
+
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+
+\item Systems that include review, critique, or revision mechanisms point toward more credible lifecycle automation, but their success depends on verification quality rather than review-like text alone.
+
+\end{itemize}
+
+}{%
+
+\negbadge{Propagation} \negbadge{Self-Critique} \negbadge{Fragmented}\par\vspace{2pt}
+
+\negbadge{Validation Gap} \negbadge{State Loss} \negbadge{Overclaiming}
+
+}{%
+
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+
+\item Error propagation is the main lifecycle risk: weak ideas, semantic code errors, unsupported claims, and lenient reviews can compound when phase handoffs are not explicitly verified.
+
+\end{itemize}
+
+\anadotrule
+
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+
+\item Single-model self-critique remains structurally limited; credible validation usually requires role separation, external evidence, adversarial review, or human oversight.
+
+\end{itemize}
+
+\anadotrule
+
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+
+\item Most existing E2E systems do not maintain a fully traceable, updateable state across hypotheses, literature review, coding, experiments, manuscript claims, reviews, and revisions.
+\end{itemize}
+}
+\vspace{8pt}
+
+
+
+
+\subsection{Evaluation Across the Research Lifecycle}
+\label{sec:lifecycle_eval}
+
+Evaluation is the central bottleneck for AI-assisted research. Each stage produces different artifacts---ideas, literature summaries, code, experiments, figures, manuscripts, reviews, rebuttals, and dissemination materials---so no single metric can capture research quality across the full lifecycle. Existing benchmarks have therefore evolved from narrow task-specific evaluations toward broader, process-aware, and increasingly execution-grounded protocols. 
+\Cref{tab:benchmarks}, introduced in \cref{sec:scope}, summarizes major benchmarks across the eight stages.
+
+Across the benchmark landscape, three trends are clear. First, evaluation is moving from isolated outputs to a multi-dimensional assessment. Early benchmarks often measured a single capability, such as citation prediction, code execution, or writing fluency. Recent benchmarks instead evaluate multiple axes, such as novelty and feasibility in ideation, coverage and citation accuracy in literature synthesis, semantic correctness in research code, review consistency in peer review, and fidelity in Paper2X artifacts. Second, benchmarks are becoming more domain- and workflow-aware. Specialized evaluations now target GPU kernel optimization~\cite{kernelbench2025,tritonbench2025}, biology research~\cite{labbench2024}, scientific experimentation~\cite{expbench2025}, and broader scientist-aligned workflows~\cite{astabench2025,researchclawbench2025}. Third, a persistent gap remains between benchmark performance and real-world research value: systems can perform well on measurable proxies while still producing outputs that experts judge as shallow, incremental, or insufficiently grounded~\cite{llmreviewer2025,cycleresearcher2024}.
+
+
+\subsubsection{Stage-Specific Benchmarks}
+\label{sec:bench_overview}
+
+Stage-specific benchmarks remain necessary because each part of the research lifecycle requires different evaluation criteria. 
+\begin{itemize}
+    \item For \Sone (\emph{Idea Generation}), benchmarks assess novelty, feasibility, diversity, and downstream potential. These evaluations are difficult because apparent novelty may not survive implementation, and expert judgments of research promise are inherently noisy.
+
+    \item For \Stwo (\emph{Literature Review}), benchmarks emphasize retrieval precision, citation fidelity, coverage completeness, and synthesis quality. The central challenge is not only whether the system finds relevant papers, but whether it uses them faithfully when constructing a narrative.
+
+    \item For \Sthree (\emph{Coding and Experiments}), benchmarks increasingly move beyond code execution toward semantic correctness and reproducibility. Research-code benchmarks ask whether generated implementations match the intended algorithm, while broader workflow benchmarks such as EXP-Bench~\cite{expbench2025} evaluate experiment design, execution, and analysis.
+
+    \item For \Sfour (\emph{Tables and Figures}), evaluation must distinguish visual plausibility from scientific correctness: a figure or table may look publication-ready while misrepresenting data, notation, or comparison structure.
+
+    \item For \Sfive (\emph{Paper Writing}), evaluation combines writing quality, citation accuracy, factual grounding, and review-style judgment.
+
+    \item For \Ssix (\emph{Peer Review}), benchmarks assess consistency, grounding, bias, and robustness to manipulation rather than review fluency alone.
+
+    \item For \Sseven (\emph{Rebuttal and Revision}), emerging datasets align reviews, author responses, and manuscript changes, enabling evaluation of whether rebuttals actually address concerns and lead to fulfilled revisions.
+
+    \item For \Seight (\emph{Dissemination}), evaluation centers on fidelity, usability, and audience adaptation across posters, slides, videos, project pages, social media posts, and interactive agents. This stage is especially difficult because dissemination artifacts often circulate independently of the paper and can shape public understanding of the work.
+\end{itemize} 
+
+
+\subsubsection{Evaluation Methodologies}
+\label{sec:eval_methods}
+
+Current evaluation methodologies can be grouped into five families. \emph{Expert evaluation} remains the most credible approach for assessing novelty, significance, correctness, and scientific contribution. Si~\etal~\cite{si2024ideas}, for example, recruited over $100$ NLP researchers to evaluate generated ideas. However, expert evaluation is expensive, slow, and noisy: even peer-review-style judgments show limited inter-rater agreement, with the Stanford Agentic Reviewer study reporting human--human correlation around $\rho=0.41$~\cite{stanfordreviewer2025}. This makes expert evaluation indispensable but difficult to scale.
+
+\emph{LLM-as-Judge and Agent-as-Judge} methods provide scalable approximations of human assessment. CycleReviewer~\cite{cycleresearcher2024} reports a $26.89\%$ reduction in Proxy MAE relative to individual human reviewers for score prediction, while the Stanford Agentic Reviewer~\cite{stanfordreviewer2025} achieves review-score correlations comparable to human inter-rater agreement ($\rho=0.42$ vs.\ human $\rho=0.41$). These results show that automated evaluators can provide useful review-style signals, but they remain imperfect proxies. They can exhibit positivity bias, length bias, authority bias, self-preference, and vulnerability to adversarial prompts~\cite{llmreviewer2025,ye2024llmjudgebias}. As a result, LLM-based evaluation is most reliable when calibrated against expert judgments and combined with task-specific verification.
+
+\emph{Automated metrics} offer objective but narrow signals. Code execution success, unit-test pass rates, citation accuracy, acceptance prediction, and traditional text-generation metrics such as BLEU~\cite{papineni2002bleu}, ROUGE~\cite{lin2004rouge}, and BERTScore~\cite{zhang2020bertscore} are easy to compute, but they capture only fragments of research quality. For example, executable code can still be semantically wrong, accurate citations can still be used to support misleading claims, and fluent text can still lack contribution. Over-optimization on any one metric risks Goodhart's law.
+
+\emph{Execution-grounded evaluation} verifies research outputs by running code, reproducing experiments, or checking claims against generated evidence. This paradigm is especially important for \Sthree, but it also affects Writing and Validation because manuscript claims should be traceable to executed experiments. PaperBench~\cite{paperbench2025}, for example, decomposes papers into individually gradable subtasks that can be checked through implementation and execution. Si~\etal~\cite{si2026executiongrounded} further show that execution-guided search can improve discovery workflows by using empirical feedback rather than textual judgment alone.
+
+\emph{Process- and trace-based evaluation} assesses how a system reaches an output, not only the final artifact. This includes tool-use trajectories in deep research, reviewer-comment decomposition in rebuttal, revision fulfillment after author responses, and fidelity between paper content and dissemination materials. This paradigm is increasingly important because many lifecycle failures occur at handoffs: a system may retrieve the right paper but cite it incorrectly, run an experiment but summarize it inaccurately, or promise a rebuttal revision without implementing it.
+
+
+\subsubsection{Emerging Evaluation Paradigms}
+\label{sec:eval_emerging}
+
+Several emerging paradigms are reshaping evaluation for AI-assisted research. The first is \emph{execution-grounded evaluation}, where claims are checked against executable artifacts rather than judged only from text. This is essential for research coding, paper replication, and experimental analysis, where surface plausibility is insufficient. It also provides a path toward evaluating Writing: a manuscript claim should be traceable to a figure, table, log, or executed experiment.
+
+The second is \emph{adversarial evaluation}. As discussed in \Ssix (\emph{Peer Review}), LLM-based reviewers and judges are vulnerable to prompt injection, lexical triggers, and covert content manipulation. Breaking the Reviewer~\cite{breakingreviewer2025} and related studies show that robustness to manipulation must be treated as an evaluation dimension rather than a peripheral security issue. This is particularly important for Validation, where a manipulated review or judge can affect acceptance decisions.
+
+The third is \emph{long-horizon evaluation}. Many benchmarks remain short-horizon, evaluating tasks that take minutes or hours rather than weeks or months. However, real research involves delayed feedback, failed attempts, changing hypotheses, and evolving evidence. METR's analysis suggests that AI task horizons are rapidly increasing~\cite{metr2025forecasting}, while RE-Bench~\cite{rebench2024} provides open-ended ML R\&D environments that begin to approximate longer research workflows. Still, current long-horizon benchmarks remain far shorter and cleaner than authentic research projects.
+
+The fourth is \emph{lifecycle-level evaluation}. Existing benchmarks usually evaluate one stage at a time, but many important failures occur between stages. A future lifecycle benchmark should test whether an idea remains valid after implementation, whether retrieved literature is faithfully represented in writing, whether experimental evidence supports manuscript claims, whether rebuttal commitments are fulfilled, and whether dissemination artifacts preserve claims and limitations. Such evaluation would better match the real risk profile of end-to-end research automation.
+
+
+\subsubsection{Evaluation Gaps}
+\label{sec:eval_challenges}
+
+Despite rapid progress, several gaps remain unresolved. First, \emph{novelty and significance are still difficult to define}. Expert judgments vary across reviewers, venues, and fields, and automated novelty scores can reward ideas that sound original but fail after execution. Second, \emph{benchmark contamination and temporal validity are persistent concerns}. Many tasks are derived from public papers, code, or reviews that may appear in model training data. Temporal splits help, but they introduce changes in topic, difficulty, and community standards.
+
+Third, \emph{cross-system comparison remains difficult}. Systems are often evaluated with different base models, prompts, tools, datasets, compute budgets, and human-in-the-loop assumptions. This makes reported results hard to compare even when they target the same stage. Fourth, \emph{cross-domain generalization remains under-tested}. Most benchmarks focus on machine learning and NLP, while chemistry, biology, materials science, physics, medicine, and social science require different evidence standards, experimental workflows, and domain-specific tools.
+
+Fifth, \emph{computational cost is itself an evaluation dimension}. Some research tasks, such as paper replication, long-horizon experimentation, and multimodal dissemination, require substantial token, compute, or tool-use budgets. A system that performs well under unlimited sampling may not be practically useful if its cost is prohibitive or its results are not reproducible under realistic constraints.
+
+Finally, \emph{no existing benchmark evaluates the complete research lifecycle with human-equivalent rigor}. PaperBench~\cite{paperbench2025} makes important progress for replication, and process-aware benchmarks are emerging across literature review, coding, peer review, rebuttal, and Paper2X. However, no benchmark yet evaluates the full chain from ideation to dissemination while preserving traceability across artifacts. This lifecycle evaluation gap is central: without it, systems may appear strong within individual stages while failing to maintain scientific fidelity across the research process.
+
+
+
+\subsection{Cross-Cutting Insights}
+\label{sec:insights}
+
+The preceding sections reveal a consistent pattern across the research lifecycle: AI systems are increasingly capable of producing research-like artifacts, but remain less reliable at verifying whether those artifacts are novel, faithful, executable, and scientifically meaningful. We distill five cross-cutting insights from the stage-level analysis. These insights are not tied to a single tool or benchmark; rather, they describe recurring capability boundaries and deployment principles that appear across Creation, Writing, Validation, and Dissemination.
+
+
+\subsubsection{Artifact Generation Outpaces Scientific Verification}
+\label{sec:insight_generation_verification}
+
+Across the lifecycle, AI systems are better at producing artifacts than at verifying their scientific validity. In \Sone (\emph{Idea Generation}), generated ideas can appear novel and well-motivated, yet weaken after implementation. Si~\etal~\cite{si2025gap} show that AI-generated ideas degrade more sharply after execution than human ideas, exposing a gap between apparent novelty and executable substance. In \Sthree (\emph{Coding and Experiments}), generated code may run successfully while implementing the wrong algorithm, with semantic failures forming a major source of error~\cite{researchcodebench2025}. In \Sfour (\emph{Tables and Figures}), generated visual artifacts may look polished while misrepresenting data, notation, or information flow. In \Sfive (\emph{Paper Writing}), fluent prose can conceal weak reasoning or unsupported claims.
+
+This gap also appears in Validation and Dissemination. In \Ssix (\emph{Peer Review}), automated reviews can be coherent and consistent while under-detecting decisive methodological flaws or assigning inflated scores~\cite{llmreviewer2025,claimcheck2025}. In \Sseven (\emph{Rebuttal and Revision}), generated responses may sound persuasive, but their value depends on whether promised evidence or manuscript changes are actually fulfilled~\cite{rebuttalcommitment2026}. In \Seight (\emph{Dissemination}), posters, slides, videos, and social media summaries can simplify a paper in ways that overstate claims or omit limitations. The central lifecycle problem is therefore not artifact production alone, but artifact verification: each output must remain traceable to evidence, assumptions, and limitations.
+
+
+\subsubsection{Human-Governed Collaboration Remains the Most Reliable Deployment Mode}
+\label{sec:insight_collaboration}
+
+The strongest deployment pattern across stages is not full autonomy, but human-governed collaboration. In Writing, semi-automated systems are most credible when they assist planning, drafting, polishing, and citation support while researchers retain control over argumentation, interpretation, and final responsibility. In Peer Review, the strongest validated setting is not standalone AI review, but AI feedback on human reviews: the ICLR 2025 randomized study shows that LLM feedback improved review quality in $89\%$ of cases without affecting acceptance rates~\cite{iclr2025reviewstudy}. In Rebuttal, author-aware systems are more appropriate than generic response generation because rebuttals must reflect the paper's actual contributions and the authors' intended revisions~\cite{ruan2026authorinloop}. In Dissemination, AI-generated posters, slides, videos, and public summaries are best treated as editable drafts whose claims and emphasis remain under author control.
+
+This pattern explains why direct automation is risky in high-stakes research settings. Research requires judgment under uncertainty: deciding whether an idea is worth pursuing, whether an experiment is sufficient, whether a critique is valid, whether a rebuttal promise is feasible, and whether a public-facing summary is faithful. These decisions are precisely where current systems remain fragile. AI assistance is therefore most useful when it expands researcher capacity while preserving human oversight over scientific claims, evidence interpretation, and accountability.
+
+
+\subsubsection{Capability Boundaries Emerge in Open-Ended Research Tasks}
+\label{sec:insight_open_ended}
+
+The sharpest capability boundaries appear when tasks become novel, underspecified, or long-horizon. Current systems perform strongly on structured tasks with clear feedback, such as standard software issue resolution, grammar correction, simple plotting, and format conversion. Performance drops when the task requires interpreting implicit assumptions, designing meaningful experiments, reproducing underspecified methods, or judging scientific contribution. This is most visible in research coding: while frontier systems perform well on familiar software benchmarks, performance falls sharply on novel research-code tasks, with reported ceilings around $37$--$39\%$ on dedicated benchmarks~\cite{researchcodebench2025,scireplicatebench2025}.
+
+Similar boundaries recur elsewhere. Literature review systems retrieve and summarize individual papers increasingly well, but struggle with multi-paper relational reasoning and citation fidelity. Idea-generation systems produce plausible hypotheses but face persistent novelty--feasibility tradeoffs. Paper-writing systems generate fluent manuscripts but remain weaker at argumentative depth and reviewer anticipation. Peer-review systems can approximate review style but remain vulnerable to leniency, bias, and manipulation. These failures share a common structure: the task cannot be solved by pattern matching alone, because success depends on implicit domain knowledge, causal reasoning, long-horizon feedback, and expert judgment.
+
+
+\subsubsection{Effective Systems Converge on Layered Architectures}
+\label{sec:insight_architecture}
+
+Across phases, the most capable systems increasingly combine three layers: \emph{exploration}, \emph{execution}, and \emph{verification}. The exploration layer searches over hypotheses, paper collections, code variants, response plans, or design alternatives. The execution layer interacts with tools: retrieval engines, code interpreters, experiment runners, plotting libraries, document editors, or presentation generators. The verification layer checks whether intermediate outputs are grounded, correct, and useful, through execution feedback, citation validation, critique, reviewer simulation, or human review.
+
+This layered view explains why simple prompting is insufficient for research automation. Research tasks rarely require only one generation step; they require proposing alternatives, testing them, revising based on feedback, and preserving state across iterations. Search-based systems improve exploration, tool-integrated systems strengthen execution, and multi-agent systems can support specialization and critique. However, more agents do not automatically improve performance. Multi-agent systems appear most useful when the task can be decomposed into parallel or role-specialized subtasks; they can degrade on sequential reasoning tasks when coordination overhead and error propagation dominate~\cite{googlemit2025scaling}. Thus, the important design principle is not agent count, but whether the architecture matches the task structure and includes reliable verification.
+
+
+\subsubsection{AI Use Has Become a Governance Problem, Not a Detection Problem}
+\label{sec:insight_governance}
+
+AI assistance is already embedded in the research ecosystem. Corpus-level studies estimate detectable AI modification in a nontrivial fraction of scientific writing, including up to $17.5\%$ of computer science abstracts~\cite{liang2024mapping} and $13.5\%$ of biomedical abstracts~\cite{kobak2024delve}. Self-reported adoption is higher, with many researchers using AI for writing or review-related tasks~\cite{aireviewsurvey2025}. At the same time, linguistic marker studies show that AI-associated words can surge after the introduction of LLMs, but such signals are unreliable for adjudicating individual cases and can change as users and models adapt.
+
+The policy implication is that the community should move from detection-centered enforcement toward disclosure, attribution, and accountability. Detection tools can produce false positives, especially for formal or non-native academic prose, while watermarking remains dependent on provider cooperation and robustness to paraphrasing~\cite{watermarking2025}. The more durable governance questions are therefore: What forms of AI assistance must be disclosed? Which uses are allowed during review? Who is responsible for AI-generated claims, citations, rebuttal commitments, or public summaries? How should venues audit high-risk uses without penalizing legitimate writing support? As AI becomes a routine part of research practice, governance must focus less on whether AI was used at all and more on whether its use preserved scientific integrity.
+
+
+
+\subsection{Open Challenges and Future Directions}
+\label{sec:open_challenges}
+
+Despite rapid progress across the research lifecycle, the preceding analysis shows that the main barriers to reliable AI-assisted research are not merely missing tools. The harder problems concern whether AI systems can preserve faithfulness across phase boundaries, evaluate scientific value, verify evidence, support responsible governance, generalize across domains, and preserve human expertise. We organize the remaining challenges around these six themes.
+
+
+\subsubsection{Faithfulness Across Phase Boundaries}
+
+Many of the most consequential failures occur not within a single stage, but when artifacts move from one phase to the next. An idea that appears promising in \Sone (\emph{Idea Generation}) may weaken after implementation in \Sthree (\emph{Coding and Experiments}); retrieved evidence in \Stwo (\emph{Literature Review}) may be misrepresented in \Sfive (\emph{Paper Writing}); experimental results from \Sthree (\emph{Coding and Experiments}) may be summarized into claims that are stronger than the data support; reviewer concerns in \Ssix (\emph{Peer Review}) may lead to rebuttal promises in \Sseven (\emph{Rebuttal and Revision}) that are not fulfilled; and dissemination outputs in \Seight (\emph{Dissemination}) may simplify the contribution beyond its evidence.
+
+This phase-boundary problem is especially important for end-to-end systems. A lifecycle-scale system must not only generate artifacts, but preserve traceable links between them: hypotheses should connect to retrieved literature, code should connect to experiments, figures should connect to logs, manuscript claims should connect to evidence, rebuttal commitments should connect to revisions, and public-facing summaries should connect to the validated paper. Current systems rarely maintain this level of provenance across the full lifecycle. Future systems should therefore treat phase handoffs as explicit verification checkpoints rather than implicit transitions between modules.
+
+
+\subsubsection{Scientific Judgment and Novelty Assessment}
+
+Scientific judgment remains difficult to automate because research quality is not reducible to surface novelty, fluency, or benchmark score. In ideation, generated proposals can appear novel before execution but fail to remain feasible or impactful after implementation. Diversity is also a persistent concern: LLM-generated ideas may cluster in narrow regions of the idea space, limiting their ability to explore genuinely distinct research directions~\cite{jiang2025artificialhivemind}. In literature review, systems increasingly retrieve and summarize individual papers well, but still struggle with multi-paper relational reasoning, methodological lineage, and cross-paper contradictions.
+
+The deeper challenge is that novelty, significance, and contribution are socially and temporally situated. A good research idea depends on field-specific context, feasibility, timing, community standards, and the availability of evidence. Automated novelty scoring can therefore reward ideas that sound original while missing whether they are executable, important, or meaningfully different from prior work. Future progress will likely require evaluation methods that combine retrieval, temporal splits, expert judgment, execution feedback, and downstream impact analysis, rather than relying on LLM-as-Judge scores alone.
+
+
+\subsubsection{Verification, Reproducibility, and Accountability}
+
+Verification is the central unresolved problem for autonomous research systems. In coding and experiments, generated code may execute successfully while implementing the wrong algorithm, and automated experiment runners can produce outputs that appear quantitative without being scientifically meaningful. Paper replication remains particularly difficult: PaperBench~\cite{paperbench2025} shows that current agents still fall far short of human performance on reproducing research results. This indicates that even verifying existing work is not yet solved, let alone generating new work that is independently reproducible.
+
+Rebuttal and revision expose a parallel accountability problem. A rebuttal is scientifically meaningful only if its claims are supported and its commitments are fulfilled. The commitment--fulfillment gap observed in ICLR 2025~\cite{rebuttalcommitment2026} shows that persuasive response text is insufficient: systems must track whether promised experiments, clarifications, and revisions are actually incorporated. Future AI research systems should therefore include explicit evidence ledgers, experiment provenance, versioned manuscript diffs, and revision-tracking mechanisms. The goal is not only to produce stronger artifacts, but to make every claim auditable.
+
+
+\subsubsection{Citation, Versioning, and Source Provenance}
+
+Citation verification is not solved by adding retrieval or web search. Scientific records are versioned: the same contribution may appear as an arXiv preprint, workshop paper, conference version, journal extension, or revised technical report, with changes to title, authors, venue, year, DOI, and sometimes content. Bibliographic databases may merge or separate these records differently, and prior work on arXiv--publisher citation consolidation shows that version merging is itself a nontrivial bibliometric problem~\cite{gao2020arxivcitationmerging}.
+
+This creates a challenge for AI-assisted literature review, writing, and dissemination. A generated manuscript may cite the correct idea but assemble metadata from inconsistent versions, or quote a claim from one version while citing another. Existing citation-audit tools and benchmarks target fabricated or unsupported references~\cite{citeme2024,scholarcop2025}, but end-to-end research agents also need \emph{version-consistent citation assembly}: title, authors, venue, year, URL/DOI, and quoted claims should come from the same selected record, with provenance preserved. Future systems should therefore treat citation not as a formatting task, but as a versioned source-grounding problem.
+
+
+\subsubsection{Governance, Disclosure, and Research Integrity}
+
+AI use in research is no longer hypothetical. Writing assistance, review support, literature search, code generation, and dissemination drafting are already part of many researchers' workflows. This makes governance a central challenge. Detection-based enforcement is unreliable because AI text detectors can produce false positives, especially for formal academic writing, non-native prose, or heavily edited text. As discussed in \Sfive (\emph{Paper Writing}) and \Ssix (\emph{Peer Review}), the community is therefore shifting from trying to detect every instance of AI use toward requiring disclosure, attribution, and accountability.
+
+The open question is how to define responsible AI use across stages. Assistance with grammar correction is different from generating experimental claims; drafting a rebuttal is different from promising new experiments; using AI to improve a review is different from delegating the review itself. Venues, publishers, and institutions need policies that distinguish low-risk assistance from high-risk substitution, specify what must be disclosed, and clarify who is accountable for AI-generated content. The central governance principle should be that authors remain responsible for claims, citations, experiments, rebuttal commitments, and public-facing summaries, regardless of which AI tools contributed to their production.
+
+
+\subsubsection{Cross-Domain Generalization and Infrastructure Access}
+
+Most current systems and benchmarks are concentrated in computer science, machine learning, and NLP. Extending AI-assisted research to chemistry, biology, medicine, materials science, physics, and social science requires more than retraining on domain papers. These fields differ in evidence standards, experimental infrastructure, safety constraints, data availability, and community norms. Systems such as Google AI Co-scientist~\cite{gottweis2025aicoscientist}, Biomni~\cite{biomni2025}, Medical AI Scientist~\cite{medicalaiscientist2026}, and domain-specific laboratory agents point toward this direction, but broad cross-domain generalization remains unresolved.
+
+Infrastructure access is part of the same challenge. Some domains require specialized instruments, wet-lab protocols, proprietary datasets, or expensive compute. If advanced AI research tools are available only to well-resourced laboratories or companies, they may amplify existing inequalities in scientific production. Future systems should therefore be evaluated not only by performance, but also by accessibility, reproducibility, and deployability under realistic resource constraints. Open-source tools, standardized interfaces, shared benchmarks, and transparent provenance mechanisms will be important for preventing research automation from becoming an infrastructure privilege.
+
+
+\subsubsection{Human Expertise and Cognitive Ownership}
+
+A final challenge concerns the long-term development of researchers themselves. Many AI tools automate the external products of research: summaries, code, plots, manuscripts, reviews, rebuttals, and slides. However, the cognitive value of research lies in forming hypotheses, understanding prior work, diagnosing failures, interpreting results, constructing arguments, and responding to critique. If AI tools bypass these processes too aggressively, they may increase short-term productivity while weakening the skills that define scientific expertise.
+
+This concern is most visible in Writing, where AI assistance is already widely adopted, but it applies across the lifecycle. A junior researcher who delegates literature synthesis may not develop field judgment; one who delegates experiment planning may not learn what makes evidence decisive; one who delegates rebuttal may not learn how to reason from criticism. Tools such as Script\&Shift~\cite{siddiqui2025scriptshift} and DraftMarks~\cite{siddiqui2025draftmarks} suggest a better design direction: AI should support source transformation, process transparency, and reflective revision rather than replacing the user's cognitive engagement. The practical principle is that AI should handle mechanical, repetitive, or scaffolded tasks, while humans retain ownership of judgment, interpretation, argumentation, and accountability.
+
+
+\subsubsection{Toward Reliable AI-Assisted Research}
+
+Taken together, these challenges suggest a shift in the goal of AI-assisted research. The near-term objective should not be fully autonomous science in which AI systems independently generate, validate, publish, and promote research without oversight. A more credible objective is reliable human-governed research automation: systems that expand the scale and speed of research while preserving traceability, verification, expert judgment, and accountability.
+
+Future progress will likely come from systems that integrate four design principles. First, they should maintain provenance across the full lifecycle, linking ideas, evidence, code, figures, claims, reviews, rebuttals, and dissemination artifacts. Second, they should use execution and retrieval grounding wherever possible, replacing purely textual self-judgment with verifiable signals. Third, they should include human checkpoints at phase boundaries, where errors are most likely to propagate. Fourth, they should make AI involvement transparent, so that readers, reviewers, and institutions can assess how a research artifact was produced. These principles define the path from artifact-generating systems toward trustworthy research collaborators.
+
+
+
+% TODO: Regenerate figure: (1) Phase I/II/III/IV → Phase 1/2/3/4, (2) quality lower bound 3.4→3.5, (3) update LLM names to include GPT-4o/GPT-5/Qwen2.5
+% \begin{figure*}[!t]
+% \centering
+% \includegraphics[width=\textwidth]{figures/e2e_architecture.pdf}
+% \caption{\textbf{Generalized architecture of end-to-end AI research systems.}
+% The LLM orchestrator coordinates eight stage-specific agents (\Sone--\Seight), each accessing
+% external tools and knowledge bases. Three dominant architectural patterns emerge:
+% \textit{(a)}~sequential pipelines~\cite{lu2024aiscientist},
+% \textit{(b)}~tree-search exploration~\cite{yamada2025aiscientistv2, jiang2025aide}, and
+% \textit{(c)}~multi-agent collaboration~\cite{su2024virsci, schmidgall2025agentrxiv}.
+% Dashed borders mark human-in-the-loop checkpoints at paper writing (\Sfive) and peer review (\Ssix). Phase bands above the pipeline indicate the four epistemological phases: Creation (\Sone--\Sfour), Writing (\Sfive), Validation (\Ssix--\Sseven), and Dissemination (\Seight).
+% Cost ranges from \$15/paper to \$1{,}000/paper~\cite{fars2026}; quality ranges from $3.5$ to $6.33$ on the ICLR scale.}
+% \label{fig:e2e_arch}
+% \end{figure*}
+% TODO: Regenerate figure with these fixes:
+% (1) Acceptance threshold 5.39 → 5.69 (move dashed line)
+% (2) Remove unverified data points: Kosmos ($200, 4.8), CycleResearcher ($30), AI-Researcher ($50, 5.2)
+% (3) AI Scientist v1 score: verify 4.31 or change to ~4.0
+% (4) Keep only verified costs: AI Scientist v1 ($15), Agent Lab ($2-13), AI Scientist v2 ($25), FARS ($1K)
+% (5) Consider adding: Dolphin ($0.2/idea), InternAgent ($1.3-2.3/idea), AiScientist-LH ($16/task) with different markers for per-idea vs per-paper costs
+% (6) Add EvoScientist (ICAIS 6/6 accepted) as a notable milestone marker
+%
+%
+%
+% \begin{figure}[!t]
+% \centering
+% \includegraphics[width=\columnwidth]{figures/cost_quality_tradeoff.pdf}
+% \caption{\textbf{Cost-quality tradeoff in end-to-end research systems.} Each point represents a system plotted by its cost per paper (log scale) versus quality score on the ICLR 1--10 scale. The dashed line marks the ICLR acceptance threshold ($5.69$). Spending more does not guarantee higher quality: a $40\times$ increase in cost (from \$25 to \$1{,}000) actually \emph{decreases} the average score, revealing strong diminishing returns. Only AI~Scientist~v2~\cite{yamada2025aiscientistv2} has crossed the acceptance threshold ($6.33$) at just \$25/paper, while FARS~\cite{fars2026} at \$1{,}000/paper scores below CycleResearcher~\cite{cycleresearcher2024} ($5.36$), confirming that brute-force cost scaling alone is insufficient. Data points with unverified costs are marked with dashed outlines.}
+% \label{fig:cost_quality}
+% \end{figure}
+%
+%
+% TODO: Verify panel (b) numbers: Human+AI 88%, AI-only 77%, Human-only 68% from Dell'Acqua et al. — these are from consulting tasks, not research. Consider replacing with research-specific collaboration data if available.
+% \begin{figure*}[!t]
+% \centering
+% \includegraphics[width=\textwidth]{figures/automation_paradox.pdf}
+% \caption{\textbf{The Automation Paradox: two deployment modes, opposite outcomes.} (a)~Direct automation systematically degrades validation quality: 80\% of AI-generated experiment results are fabricated~\cite{mlrbench2025}, 95.8\% of rejected papers are misclassified as acceptable~\cite{llmreviewer2025}, and only 51.4\% of methodological issues are detected~\cite{hiddenpitfalls2025}. (b)~Human-AI collaboration consistently outperforms both solo alternatives: LLM feedback on reviews improved quality in 89\% of cases~\cite{iclr2025reviewstudy}, and controlled studies show that human+AI teams substantially outperform either working alone~\cite{managementscience2025}.}
+% \label{fig:automation_paradox}
+% \end{figure*}
+%
+%
+% \input{tables/performance_ceilings}
+%
+%
+%
+% \input{tables/contamination_evidence}
+%
+%
+%
+% TODO: Redesign three_layer_architecture figure to be higher quality. Options:
+% (1) Add system-layer coverage matrix showing which of 21 E2E systems implement which layers
+% (2) Overlay cost-quality correlation: systems with all 3 layers score higher
+% (3) Add Google/MIT scaling data visually: +80.9% parallel, -70% sequential, 3-4 agents optimal
+% (4) Show real implementation details per layer (e.g., MCTS branching, cross-model arrows)
+% \begin{figure}[!t]
+% \centering
+% \includegraphics[width=\columnwidth]{figures/three_layer_architecture.pdf}
+% \caption{\textbf{The emergent three-layer architecture} observed across successful E2E research systems. The Exploration layer searches hypothesis space via tree search or evolutionary methods. The Execution layer runs tight-loop experiments ($\sim$5\,min/iteration). The Collaboration layer manages shared knowledge and adversarial review. Optimal configurations use 3--4 agents with centralized coordination; multi-agent advantage reaches +80.9\% on parallelizable tasks but degrades $-$39\% to $-$70\% on sequential reasoning, with communication overhead growing at exponent 1.724~\cite{googlemit2025scaling}.}
+% \label{fig:three_layer}
+% \end{figure}

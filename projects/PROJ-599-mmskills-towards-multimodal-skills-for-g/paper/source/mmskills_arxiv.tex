@@ -1,0 +1,214 @@
+\PassOptionsToPackage{table}{xcolor}
+\documentclass[]{selfevolagent}
+
+% Package setup follows the arXiv template in /Users/zhangkangning/My_Papers/Muse_arxiv.
+\usepackage{microtype}
+\microtypesetup{expansion=false}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{latexsym}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow}
+\usepackage{balance}
+\usepackage{pifont}
+\usepackage{makecell}
+\usepackage{filecontents}
+\usepackage{bbm}
+\usepackage{pgfplots}
+\usetikzlibrary{patterns}
+\usepackage[inline,shortlabels]{enumitem}
+\usepackage{natbib}
+\usepackage{csquotes}
+\usepackage{url}
+\usepackage{svg}
+\usepackage{bm}
+\usepackage{graphics}
+\usepackage{array}
+\usepackage[english]{babel}
+\usepackage{textcomp}
+\usepackage{siunitx}
+\usepackage[normalem]{ulem}
+\useunder{\uline}{\ul}{}
+\usepackage{titletoc}
+\usepackage{tikz}
+\usepackage{arydshln}
+\usepackage[most]{tcolorbox}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{fontawesome5}
+\usepackage{simpleicons}
+\usepackage{wrapfig}
+\usepackage{adjustbox}
+\usepackage{listings}
+\usepackage[textsize=tiny]{todonotes}
+\usetikzlibrary{tikzmark}
+
+\makeatletter
+\newcommand*\myfontsize{%
+\@setfontsize\myfontsize{7}{8}%
+}
+\makeatother
+\newcommand{\mytextbox}[2]{\tikzmarknode[draw=#1,thick,inner sep=2pt]{test}{\myfontsize #2}}
+
+\graphicspath{{Images/}}
+
+\definecolor{geminiBlue}{HTML}{8E8ED7}
+\definecolor{qwenBlue}{HTML}{78A2E0}
+\definecolor{myred}{rgb}{0.7, 0.3, 0.0}
+\definecolor{myblue}{HTML}{0a41b8}
+\definecolor{mygreen}{HTML}{056b34}
+\definecolor{mypurple}{HTML}{5d1e8b}
+\definecolor{mmskillrow}{RGB}{236,248,241}
+\definecolor{dividergray}{RGB}{240,240,240}
+\definecolor{ourslavender}{RGB}{239,237,255}
+\definecolor{headergray}{RGB}{250,250,250}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{startBlue}{HTML}{1628a7}
+\definecolor{endPurple}{HTML}{8b16aa}
+\definecolor{wx}{RGB}{54, 89, 170}
+
+\newcommand{\gl}[1]{{\color{blue}[gl: #1]}}
+\newcommand{\red}[1]{\mytextbox{myred}{\textbf{\textcolor{myred}{#1}}}}
+\newcommand{\blue}[1]{\mytextbox{myblue}{\textbf{\textcolor{myblue}{#1}}}}
+\newcommand{\green}[1]{\mytextbox{mygreen}{\textbf{\textcolor{mygreen}{#1}}}}
+\newcommand{\purple}[1]{\mytextbox{mypurple}{\textbf{\textcolor{mypurple}{#1}}}}
+\newcommand{\mybluefont}[1]{{\color{myblue}#1}}
+\newcommand{\best}[1]{\textbf{\textcolor{black}{#1}}}
+\newcommand{\secbest}[1]{\textcolor{blue}{#1}}
+\newcommand{\wx}[1]{\textcolor{wx}{#1}}
+\newcommand{\mmskillhl}{\cellcolor{mmskillrow}}
+\newcommand{\revise}[1]{\textcolor{red}{#1}}
+\newcommand{\fixme}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+\newcommand{\huggingfaceicon}{\raisebox{-0.16ex}{\scalebox{0.94}{\simpleicon{huggingface}}}}
+\newcommand{\corrauth}{\text{\raisebox{-0.12ex}{\scalebox{0.78}{\faEnvelope}}}}
+\newcommand{\elegantMuSE}{%
+\textcolor{startBlue}{\textbf{M}}%
+\textcolor{startBlue!60!endPurple}{\textbf{u}}%
+\textcolor{endPurple!60!startBlue}{\textbf{S}}%
+\textcolor{endPurple}{\textbf{E}}%
+}
+
+\renewcommand{\arraystretch}{1.2}
+\lstdefinestyle{pystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4
+}
+\lstset{style=pystyle}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newtcolorbox[auto counter, number within=section]{promptbox}[2][]{%
+  colback=white,
+  colframe=myblue,
+  width=\textwidth,
+  arc=2mm,
+  title={\normalsize\faInfoCircle\hspace{0.5em}#2},
+  breakable,
+  fonttitle=\bfseries\Large,
+  fontupper=\small,
+  drop shadow southeast,
+  top=2mm,
+  bottom=2mm,
+  before skip=3mm,
+  after skip=3mm,
+  boxrule=0.5mm,
+  #1
+}
+
+% Compact float and caption spacing for the main paper and appendix.
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\floatsep}{6pt plus 2pt minus 2pt}
+\setlength{\intextsep}{7pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\dblfloatsep}{6pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{3pt}
+\setlength{\belowcaptionskip}{0pt}
+\setcounter{topnumber}{5}
+\setcounter{totalnumber}{8}
+\renewcommand{\topfraction}{0.99}
+\renewcommand{\bottomfraction}{0.90}
+\renewcommand{\textfraction}{0.01}
+\renewcommand{\floatpagefraction}{0.80}
+
+\title{MMSkills: Towards Multimodal Skills for General Visual Agents}
+\author[1,2\ddagger*]{Kangning Zhang}
+\author[1,2\ddagger*]{~Shuai Shao}
+\author[1,2*]{~Qingyao Li}
+\author[1]{~Jianghao Lin}
+\author[1]{~Lingyue Fu}
+\author[3]{~Shijian Wang}
+\author[2,\corrauth]{\\Wenxiang Jiao}
+\author[2,\corrauth]{~Yuan Lu}
+\author[1,\corrauth]{~Weiwen Liu}
+\author[1,\corrauth]{~Weinan Zhang}
+\author[1,\corrauth]{~Yong Yu}
+
+\affiliation[1]{Shanghai Jiao TongUniversity}
+\affiliation[2]{Xiaohongshu Inc.}
+\affiliation[3]{Southeast University}
+
+\contribution[*]{Work done during internship at Xiaohongshu Inc.}
+\contribution[\ddagger]{Equal contribution}
+\contribution[\corrauth]{Corresponding authors}
+
+\metadata[\raisebox{-0.18ex}{\scalebox{0.89}{\faEnvelope}}~Contact]{zhangkangning@sjtu.edu.cn, wenxiangjiaonju@gmail.com, liuww@sjtu.edu.cn}
+\metadata[{\faGithub}~Code \& Demo]{\href{https://github.com/DeepExperience/MMSkills}{\nolinkurl{https://github.com/DeepExperience/MMSkills}}}
+\metadata[{\huggingfaceicon}~Skill Source]{\href{https://huggingface.co/datasets/zhangkangning/mmskills}{\nolinkurl{huggingface.co/datasets/zhangkangning/mmskills}}}
+\metadata[{\faGlobe}~Website]{\href{https://deepexperience.github.io/MMSkills/}{\nolinkurl{https://deepexperience.github.io/MMSkills/}}}
+
+
+\abstract{
+Reusable skills have become a core substrate for improving agent capabilities, yet most existing skill packages encode reusable behavior primarily as textual prompts, executable code, or learned routines. For visual agents, however, procedural knowledge is inherently multimodal: reuse depends not only on what operation to perform, but also on recognizing the relevant state, interpreting visual evidence of progress or failure, and deciding what to do next. We formalize this requirement as \emph{multimodal procedural knowledge} and address three practical challenges: (I) \textbf{what} a multimodal skill package should contain; (II) \textbf{where} such packages can be derived from public interaction experience; and (III) \textbf{how} agents can consult multimodal evidence at inference time without excessive image context or over-anchoring to reference screenshots. We introduce \emph{MMSkills}, a framework for representing, generating, and using reusable multimodal procedures for runtime visual decision making. Each MMSkill is a compact, state-conditioned package that couples a textual procedure with runtime state cards and multi-view keyframes. To construct these packages, we develop an agentic trajectory-to-skill Generator that transforms public non-evaluation trajectories into reusable multimodal skills through workflow grouping, procedure induction, visual grounding, and meta-skill-guided auditing. To use them, we introduce a branch-loaded multimodal skill agent: selected state cards and keyframes are inspected in a temporary branch, aligned with the live environment, and distilled into structured guidance for the main agent. Experiments across GUI and game-based visual-agent benchmarks show that MMSkills consistently improve both frontier and smaller multimodal agents, suggesting that external multimodal procedural knowledge complements model-internal priors.
+}
+
+\begin{document}
+
+\maketitle
+
+\input{paper/introduction}
+\input{paper/methods}
+\input{paper/experiments}
+\input{paper/related_work}
+\input{paper/conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\newpage
+\beginappendix
+\input{paper/appendix}
+
+\end{document}

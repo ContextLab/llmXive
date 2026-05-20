@@ -1,0 +1,223 @@
+
+\begin{table*}[t]
+\centering
+\caption{Inference efficiency of LongLive-2.0 under progressively enabled optimizations. The experiments are handled on NVIDIA GB200 180GB GPU, another GPU is used under \textit{Async Decoding}; end-to-end (E2E) latency and peak
+memory are reported at different target video lengths.}
+\label{tab:inference_progressive}
+\scriptsize
+\setlength{\tabcolsep}{4.2pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{1\textwidth}{!}{%
+\begin{tabular}{l l r r r r r r}
+\toprule
+\multirow{2}{*}{\raisebox{-5ex}{\shortstack[c]{\textbf{Inference}\\\textbf{Settings}}}} &
+\multirow{2}{*}{\raisebox{-3ex}{\shortstack[c]{\textbf{FPS$\uparrow$}}}} &
+\multicolumn{2}{c}{\textbf{16 s}} &
+\multicolumn{2}{c}{\textbf{32 s}} &
+\multicolumn{2}{c}{\textbf{64 s}} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+& &
+\shortstack{\textbf{E2E Gen.$\downarrow$}\\\textbf{(s)}} &
+\shortstack{\textbf{Total Mem.$\downarrow$}\\\textbf{(GB)}} &
+\shortstack{\textbf{E2E Gen.$\downarrow$}\\\textbf{(s)}} &
+\shortstack{\textbf{Total Mem.$\downarrow$}\\\textbf{(GB)}} &
+\shortstack{\textbf{E2E Gen.$\downarrow$}\\\textbf{(s)}} &
+\shortstack{\textbf{Total Mem.$\downarrow$}\\\textbf{(GB)}} \\
+\midrule
+% Wan2.2-TI2V& 5B & 3.32&  &  &  &  &  &\\
+% Self Forcing& 1.3B & 21.2&  &  &  &  &  &\\
+% Causal Forcing& 1.3B & 21.0&  &  &  &  &  &\\
+% LongLive& 1.3B &  20.7&  &  &  &  &  &\\
+% \cdashline{1-8}
+BF16 & 24.8 & 26.6 & 36.4 & 53.2 & 36.4 & 112.9 & 36.4 \\
+\cdashline{1-8}
+\textbf{NVFP4} & 32.0 & 22.9 & 29.7 & 46.6 & 29.7 & 96.0 & 29.7 \\
++ \textbf{NVFP4 KV Cache} & 29.7 & 23.8 & \textbf{19.4} & 48.9 & \textbf{19.4} & 99.5 & \textbf{19.4} \\
++ \textbf{Async Decoding} & 29.7 &
+15.9 & {\textbf{19.4}} &
+29.1 & {\textbf{19.4}} &
+57.6 & {\textbf{19.4}} \\
+\textbf{3 Steps} & 35.2 &
+12.7 & {\textbf{19.4}} &
+23.2 & {\textbf{19.4}} &
+46.0 & {\textbf{19.4}} \\
+\textbf{2 Steps} & \textbf{45.7} &
+\textbf{11.2} & {\textbf{19.4}} &
+\textbf{19.2} & {\textbf{19.4}} &
+\textbf{36.3} & {\textbf{19.4}} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
+\begin{table*}[t]
+  \centering
+  \caption{Comparison on VBench among LongLive-2.0 and baselines. \#Steps means denoising steps.}
+  \label{tab:baseline_fps}
+  \resizebox{\textwidth}{!}{
+  \begin{tabular}{@{}l c c c c c c c c@{}}
+    \toprule
+    \multirow{2}{*}{\textbf{Model}} &
+    \multirow{2}{*}{\textbf{Precision}} &
+    \multirow{2}{*}{\textbf{\#Steps}} &
+    \multirow{2}{*}{\textbf{\#Params}} &
+    \multirow{2}{*}{\textbf{Resolution}} &
+    \textbf{Throughput} &
+    \multicolumn{3}{c}{\textbf{Evaluation Scores} $\uparrow$} \\
+    & & & & & \textbf{(FPS)} $\uparrow$ & \textbf{Total} & \textbf{Quality} & \textbf{Semantic} \\
+    \midrule
+    Self-Forcing~\cite{huang2025self}        & BF16 & 4  & 1.3B & $832{\times}480$  & 21.2 & 84.31 & 85.07 & 81.28 \\
+    Causal-Forcing~\cite{zhu2026causal}      & BF16 & 4  & 1.3B & $832{\times}480$  & 21.0 & 84.04 & 84.59 & \textbf{81.84} \\
+    Rolling-Forcing~\cite{liu2025rolling}    & BF16 & 4  & 1.3B & $832{\times}480$  & 19.5 & 81.22 & 84.08 & 69.78 \\
+    Context-Forcing~\cite{chen2026context}   & BF16 & 4  & 1.3B & $832{\times}480$  & 17.0 & 83.44 & 84.98 & 77.29 \\
+    CausVid~\cite{yin2024slow}               & BF16 & 4  & 1.3B & $832{\times}480$  & 21.2 & 81.20 & 84.05 & 69.80 \\
+    SANA Video-480P~\cite{chen2025sanavideo} & BF16 & 4  & 2B   & $832{\times}480$  & 13.2 & 84.17 & 84.85 & 81.46 \\
+    SANA Video-720P~\cite{chen2025sanavideo} & BF16 & 4  & 2B   & $1280{\times}720$ & --   & 84.05 & 84.63 & \underline{81.73} \\
+    Wan2.1-T2V-1.3B~\cite{wan}               & BF16 & 50 & 1.3B & $832{\times}480$  & 1.6  & 84.26 & 85.30 & 80.09 \\
+    Wan2.2-TI2V-5B~\cite{wan}                & BF16 & 50 & 5B   & $1280{\times}720$ & 3.3  & 83.32 & 84.95 & 76.81 \\
+    \midrule 
+    LongLive~\cite{yang2025longlive}         & BF16 & 4  & 1.3B & $832{\times}480$  & 20.7 & \underline{84.87} & \textbf{86.97} & 76.47 \\
+    \cdashline{1-9}
+    \multirow{3}{*}{\textbf{LongLive-2.0}}   & BF16  & 4 & 5B & $1280{\times}720$ & 24.8 & \textbf{85.06} & \underline{86.67} & 78.63 \\
+                                             & NVFP4 & 4 & 5B & $1280{\times}720$ & \underline{29.7} & 84.51 & 86.43 & 76.81 \\
+                                             & NVFP4 & 2 & 5B & $1280{\times}720$ & \textbf{45.7} & 83.14 & 85.40 & 74.12 \\
+    \bottomrule
+  \end{tabular}}
+\end{table*}
+\section{Experimental Results}
+\subsection{Training Efficiency}
+\textbf{AR Training Efficiency.}$\;$
+Table~\ref{tab:wan22_ffn1_nvfp4} reports the end-to-end AR training iteration time under BF16, BF16+SP, BF16+Balanced SP, and NVFP4+Balanced SP. Plain BF16 is efficient only at shorter video lengths, taking 75.3s and 202.7s at 16s and 32s but running out of memory (OOM) at 64s. Adding sequence parallelism makes long-video training feasible and reduces the 16s/32s iteration time to 52.2s and 162.7s, respectively, while our Balanced SP further improves the BF16 path to 45.8s, 136.8s, and 1196.5s across the three lengths.
+
+Combining Balanced SP with NVFP4 gives the fastest training configuration. It reduces the iteration time to 40.1s, 119.3s, and 639.5s for 16s, 32s, and 64s videos, corresponding to 1.3$\times$, 1.4$\times$, and 2.1$\times$ speedups over the BF16+SP baseline. The gain becomes most pronounced at the longest sequence length, where NVFP4+Balanced SP nearly halves the iteration time compared with BF16+Balanced SP and more than doubles throughput over BF16+SP. 
+
+\begin{table*}[t]
+\centering
+\caption{Comparison on VBench-Long for 60s video generation. Scores are reported in percentage. Avg. Rank is computed over the six metrics. The best is in bold, and the second-best is underlined.}
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.08}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{Method} &
+\textbf{\makecell{Avg.\\Rank $\downarrow$}} &
+\textbf{\makecell{Subject\\Consistency $\uparrow$}} &
+\textbf{\makecell{Background\\Consistency $\uparrow$}} &
+\textbf{\makecell{Motion\\Smoothness $\uparrow$}} &
+\textbf{\makecell{Dynamic\\Degree $\uparrow$}} &
+\textbf{\makecell{Aesthetic\\Quality $\uparrow$}} &
+\textbf{\makecell{Imaging\\Quality $\uparrow$}} \\
+\midrule
+
+NOVA~\cite{deng2025nova}
+& 8.50
+& 77.50
+& 88.06
+& \underline{98.94}
+& 12.00
+& 47.53
+& 44.97 \\
+
+MAGI-1~\cite{sandai2025magi1}
+& 6.67
+& 79.46
+& 87.76
+& \textbf{99.26}
+& 56.00
+& 52.10
+& 54.54 \\
+
+Causal-Forcing~\cite{zhu2026causal}
+& 6.50
+& 93.52
+& 94.12
+& 95.74
+& \textbf{72.32}
+& 51.24
+& 62.30 \\
+
+SkyReels-V2~\cite{chen2025skyreelsv2}
+& 6.00
+& 84.99
+& 89.95
+& 98.67
+& 44.00
+& 57.64
+& 66.67 \\
+
+Self-Forcing~\cite{huang2025self}
+& 5.83
+& 95.84
+& 95.27
+& 98.20
+& 51.72
+& 56.05
+& 62.22 \\
+
+CausVid~\cite{yin2024slow}
+& 5.33
+& 86.75
+& 89.85
+& 98.47
+& 52.00
+& \underline{62.88}
+& 67.47 \\
+
+Rolling-Forcing~\cite{liu2025rolling}
+& 4.50
+& 94.09
+& 94.47
+& 98.65
+& 36.00
+& \textbf{63.50}
+& \textbf{72.42} \\
+\midrule
+LongLive~\cite{yang2025longlive}
+& 4.17
+& 97.13
+& 95.89
+& 98.61
+& 44.56
+& 58.17
+& \underline{67.56} \\
+%\cdashline{1-8}
+\textbf{LongLive-2.0}
+& \textbf{3.67}
+& \underline{97.48}
+& \textbf{97.00}
+& 98.86
+& \underline{60.62}
+& 53.68
+& 65.51 \\
+\textbf{$\;\;\to$ NVFP4}
+& \underline{3.83}
+& \textbf{97.62}
+& \underline{96.97}
+& 98.94
+& 45.88
+& 53.72
+& 66.24 \\
+
+\bottomrule
+\end{tabular}
+}
+\label{tab:vbench_long_30s_60s}
+\end{table*}
+
+\textbf{NVFP4 DMD Training.} $\;$
+We next study few-step DMD training, where the generator, real-score model, and fake-score model are co-located on each GPU. Table~\ref{tab:dmd_nvfp4_scaling} shows a progressive NVFP4 conversion path, with \texttt{NVFP4} for the frozen real-score branch and \texttt{NVFP4+LoRA} for the trainable branches. Peak per-GPU memory decreases monotonically from 70.5 GB to 49.0 GB, corresponding to a 21.5 GB reduction per GPU, or 0.69$\times$ of the BF16 baseline.
+
+\subsection{Inference Efficiency}
+Tables~\ref{tab:baseline_fps} and~\ref{tab:inference_progressive}
+show that LongLive-2.0 achieves strong throughput with a favorable latency--memory trade-off. The 4-step 5B model reaches 29.7 FPS, surpassing all listed baselines, while the 2-step variant further improves throughput to 45.7 FPS. In the progressive ablation, NVFP4 first improves both speed and memory over BF16, and KV-cache quantization further reduces peak memory from 29.7 GB to 19.4 GB with only a modest latency cost. Asynchronous decoding then lowers E2E latency by overlapping denoising and VAE decoding, and the final 2-step system reaches 36.3s E2E latency for 64s videos while maintaining the 19.4 GB memory footprint.
+
+
+\subsection{Performance}
+\textbf{Short-video generation.} $\;$
+We first evaluate LongLive-2.0 on short-video generation using the official VBench prompts with our prompt augmentation, as shown in Table~\ref{tab:baseline_fps}.
+LongLive-2.0 achieves the strongest performance at the higher $1280{\times}720$ resolution. 
+We evaluate LongLive-2.0 under NVFP4 quantization. Reducing denoising steps further increases speed to 35.2 FPS (3 steps) and 45.7 FPS (2 steps). This shows that NVFP4 with fewer denoising steps enables efficient real-time 720p video generation, achieving up to $2{\times}$ speedup over prior methods.
+
+We note that higher resolution does not always yield higher VBench scores. Since VBench resizes videos and samples frames, results depend on the evaluation protocol. Similar trends appear in Table~\ref{tab:baseline_fps}, where 720p models (\textit{e.g.}, Wan2.2-TI2V-5B, SANA) do not consistently outperform 480p. Thus, slightly lower scores at 720p are expected and do not indicate worse quality.
+
+\textbf{Long Video Generation.} $\;$
+We evaluate LongLive-2.0 with 4 denoising steps on long video generation using MovieGenBench prompts and VBench-Long. As shown in Table~\ref{tab:vbench_long_30s_60s}, LongLive-2.0 achieves the best average rank among all compared methods on 60s generation, demonstrating strong overall long-range generation ability. Its advantage is most pronounced in subject and background consistency: the NVFP4 model obtains the best subject consistency score of 97.62, while the BF16 model obtains the best background consistency score of 97.00.

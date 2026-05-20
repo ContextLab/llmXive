@@ -1,0 +1,96 @@
+\section{Training Infrastructure}
+
+LongLive-2.0 supports a clean training pipeline. We directly fine-tune a bidirectional diffusion model into a long, interactive, multi-shot AR model with long-video data. Meanwhile, we derive standalone LoRA weights via DMD training directly on the original diffusion model. 
+With LoRA weights integrated, our AR model seamlessly gains few-step denoising ability and enables real-time inference.
+
+\begin{figure*}[t]
+\centerline{\includegraphics[width=1.0\textwidth]{figs/fig3-training-pipeline-v7.pdf}}
+\caption{\textbf{Overview of the Training Infrastructure.} \textbf{Traditional SP (Left):} In the efficient teacher-forcing layout, clean history tokens and noisy target tokens are concatenated into one sequence. Naive SP treats this as a general sequence, causing loss computation workload imbalance and leaving VAE encoding replicated across sequence-parallel ranks. 
+\textbf{Balanced SP (Middle):} The same temporal chunk ownership is reused across clean/noisy latent streams, SP attention, VAE encoding, and loss computation. This chunk-aligned layout balances loss-bearing tokens across GPUs while avoiding replicated VAE preparation.
+\textbf{NVFP4 (Right):} NVFP4 training orthogonally accelerates GEMMs and reduces memory footprint.}
+\label{fig:sp-training}
+\end{figure*}
+
+
+
+\subsection{Sequence-Parallel AR Training}\label{sec:sp_training}
+LongLive-2.0 trains a chunk-level AR diffusion model that denoises the current noisy chunk conditioned on clean generated history.
+We use clean-context teacher forcing~\cite{jin2024pyramidal, li2024autoregressive, zhou2025taming, zhang2025test, zhang2025generative} rather than diffusion forcing~\cite{chen2024diffusion} to avoid the train-test gap, but a literal teacher-forcing pass supervises only one target suffix at a time.
+Following the efficient parallel teacher-forcing formulation summarized in Self-Forcing~\cite{huang2025self}, for an $N$-chunk raw video window $\mathbf{X}$ we encode the raw video into VAE latents $\mathbf{Z}$ and form paired streams $[\mathbf{z}_{clean};\,\mathbf{z}_{noisy}]$.
+A block-sparse AR mask lets each noisy chunk attend to preceding clean chunks and its own noisy tokens, so one forward pass supervises all $N$ noisy chunks.
+
+This efficient formulation makes the AR objective practical, but it also creates a structured long sequence that quickly exceeds the memory capacity of a single GPU.
+Naively applying SP to AR video training leaves two inefficiencies.
+First, slicing the concatenated DiT sequence $[\mathbf{z}_{clean};\,\mathbf{z}_{noisy}]$ can create clean-heavy and noisy-heavy ranks, which imbalances the loss-bearing workload.
+Second, the VAE stage still encodes the full video on every SP rank (or on one root rank followed by broadcast), so latent preparation does not benefit from sequence sharding.
+We therefore co-design the AR training layout with the sequence-parallel data layout and instantiate it as Balanced SP on top of DeepSpeed-Ulysses~\cite{jacobs2023deepspeed}.
+Balanced SP shares the same temporal partition across VAE preparation, local clean/noisy latent construction, DiT attention, and loss computation; under this layout, the block-sparse AR attention mask is generated directly on the SP-native token order.
+Balanced SP constructs the paired clean/noisy streams locally on each rank.
+Rather than materializing a full $[\mathbf{z}_{clean};\,\mathbf{z}_{noisy}]$ sequence on one rank and then slicing it, rank $p$ prepares its own clean latent chunk and applies the noise schedule locally to obtain the matched noisy chunk.
+Using $\mathbf{z}$ to denote the DiT sequence after patch embedding, let $P$ be SP group size, $L$ be the total clean-plus-noisy token length, $H$ be the number of attention heads, and $d$ be the head dimension. Rank $p$ owns
+\begin{equation}
+    \mathbf{z}^{(p)} = \left[\mathbf{z}_{clean}^{(p)},\;
+    \mathbf{z}_{noisy}^{(p)}\right]
+    \in \mathbb{R}^{\frac{L}{P} \times H \times d}.
+\end{equation}
+This paired layout gives every rank both context and target tokens from the same temporal range, making the loss computation uniform across ranks.
+
+The same chunk ownership is also applied before the DiT.
+Each rank VAE-encodes only its local raw-video chunk $\mathbf{X}^{(p)}$ plus a left halo that covers the VAE temporal receptive field, then discards the halo latents and keeps the exact local latent chunk $\mathbf{Z}^{(p)}$.
+If $F$ is the number of latent frames and $h$ is the halo size, replicated VAE encoding costs $O(F)$ per rank, while Balanced SP reduces the per-rank VAE cost to $O(F/P+h)$ without changing the DiT training objective.
+After Ulysses All-to-All, the paired layout naturally produces an interleaved global token order.
+Rather than materializing a permutation back to $[\mathrm{all\ clean};\,\mathrm{all\ noisy}]$ at every attention layer, we construct the AR mask directly on this communication-native order and compile it with \texttt{flex\_attention}~\cite{dong2024flex}.
+Appendix~\ref{ap:balanced_sp} gives the exact halo construction, natural-mask index mapping, global-coordinate handling, and SP-sharded error-buffer design.
+
+\begin{figure*}[t]
+\centerline{\includegraphics[width=1.0\textwidth]{figs/Fig-clean-pipeline.pdf}}
+\caption{\textbf{Clean Pipeline for AR Video Generation.} LongLive-2.0 bypasses the complex, multi-stage processes (\textit{e.g.}, ODE initialization, intermediate DMD) required by previous methods. Instead, our first stage directly performs AR training on the base bidirectional model using long-video data. By simply injecting standalone LoRA weights to enable few-step inference, we achieve a streamlined pipeline that uniquely supports long, interactive, multi-shot, and real-time generation all at once.}
+\label{fig:clean-pipeline}
+\end{figure*}
+
+\subsection{NVFP4 Training}
+%AR long-video generation is costly in both training and deployment.
+NVFP4~\cite{nvidia2024blackwell} is attractive for long-video generation, 
+because it reduces memory cost and accelerates low-precision GEMMs, whose share grows as video length increases.
+We therefore use NVFP4 for both AR training and DMD step distillation. To the best of our knowledge, this is the first end-to-end NVFP4 recipe for long video generation.
+
+\textbf{NVFP4 Preliminaries.} $\;$
+NVFP4 represents each tensor element using a 4-bit floating-point value in the E2M1~\cite{ocp2023mx} format together with hierarchical scaling~\cite{abecassis2025pretraining,cook2025four}. For a tensor $\mathbf{X}$, the dequantized tensor can be written as:
+\begin{equation}
+    \hat{\mathbf{X}} = \hat{\mathbf{X}}^{\text{FP4}} \cdot \alpha^{\text{FP8}} \cdot \alpha^{\text{FP32}}, \qquad \hat{\mathbf{X}}^{\text{FP4}} \in \mathbb{F}_{\mathrm{E2M1}},
+\end{equation}
+where $\alpha^{\text{FP8}}$ is a block-wise (16 elements) scale stored in FP8 E4M3 and $\alpha^{\text{FP32}}$ is a tensor-wise global scale stored in FP32. For a tensor $\mathbf{X}$, we set:
+\begin{equation}
+\begin{aligned}
+\hat{\mathbf{X}}
+&=
+\hat{\mathbf{X}}^{\mathrm{FP4}}
+\cdot
+\alpha^{\mathrm{FP8}}
+\cdot
+\alpha^{\mathrm{FP32}}, \\
+\hat{\mathbf{X}}^{\mathrm{FP4}}
+&\in
+\mathbb{F}_{\mathrm{E2M1}}.
+\end{aligned}
+\end{equation}
+
+where $B_i$ denotes the $i$-th 16-element quantization block, $M^{\text{FP8}} = 448$ is the maximum representable magnitude of E4M3, and $M^{\text{FP4}} = 6$ is the maximum representable magnitude of E2M1. Unlike uniform integer quantization, FP4 uses non-uniform dynamic step sizes, providing finer resolution for small values and coarser spacing for large ones. In addition, NVFP4 is natively supported on NVIDIA Blackwell GPUs, enabling more efficient hardware acceleration for low-precision computation.
+
+\textbf{Multi-Shot AR NVFP4 Training.} $\;$
+In AR training, we train the AR long-video generator on real multi-shot data with the AR objective described in \S~\ref{sec:sp_training} and the multi-shot prompting interface in \S~\ref{sec:interactive_training}, using end-to-end NVFP4 quantization. At the 5B scale, this requires custom quantization and dequantization kernels together with dedicated CUDA kernels for NVFP4 GEMMs; for the RHT-enabled branch, we additionally use Triton kernels for the transformed quantization and dequantization path. As shown in Figure~\ref{fig:sp-training}, we apply the standard NVFP4 recipe to the linear layers: 2D block scaling for weights, 1D block scaling for activations and gradients, and higher precision for numerically sensitive operations such as reductions, normalization statistics, and optimizer states. This follows prior NVFP4 training practice and preserves consistency across forward and backward GEMMs~\cite{abecassis2025pretraining,castro2025quartet}. For the most gradient-sensitive path, we use prior stabilization techniques, notably Random Hadamard Transform (RHT) before quantization on the operands of the weight-gradient GEMM. In our 64s training setting, this NVFP4 stack provides an approximately $1.8\times$ training speedup.
+
+\textbf{Few-step Distillation in NVFP4.} $\;$
+In few-step distillation, both teacher and student operate in W4A4 NVFP4, keeping distillation tightly aligned with inference. As shown in Figure~\ref{fig:dmd_training}, the \textit{Real-Score} model is quantized to W4A4 for NVFP4 inference. We use adaptive block scaling via scale search~\cite{cook2025four} to quantize NVFP4 weights and activations: besides the standard target magnitude 6, the quantizer also evaluates 4 and selects the lower-error encoding for each block (Appendix~\ref{ap:4o6}). This adaptive search reduces weight quantization error under W4A4 inference. The trainable \textit{Fake-Score} model and \textit{Generator} use the same W4A4 NVFP4 backbone, freeze the quantized backbone, and optimize only LoRA adapters:
+\begin{equation}
+\begin{aligned}
+\mathbf{W}
+&\simeq
+\operatorname{Dequant}\!\left(Q_{\mathrm{search}}(\mathbf{W}_0)\right)
++ \Delta \mathbf{W}, \\
+\Delta \mathbf{W}
+&=
+\frac{\alpha_{\mathrm{LoRA}}}{r}\mathbf{B}\mathbf{A}.
+\end{aligned}
+\end{equation}
+where $\mathbf{W}_0$ is the pretrained backbone weight, $Q_{\mathrm{search}}$ denotes scale-search-based NVFP4 quantization, $\mathbf{A}$ and $\mathbf{B}$ are trainable low-rank matrices of rank $r$, and $\alpha_{\mathrm{LoRA}}$ is the LoRA scaling factor. Restricting updates to a LoRA subspace follows recent low-bit adapter tuning in LLMs~\cite{dettmers2023qlora,huang2025qerl} and is more stable in our DMD setting than updating the full quantized backbone~\cite{yang2025longlive,zhu2026causal,huang2025self}. The DMD objective is unchanged (\S~\ref{sec:dmd}); only the LoRA weights are trainable. 

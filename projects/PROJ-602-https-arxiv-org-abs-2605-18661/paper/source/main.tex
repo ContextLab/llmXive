@@ -1,0 +1,70 @@
+\documentclass[]{worldbench}
+\newcommand{\arxivpreamble}{}
+\input{macros}
+
+
+% TITLE
+\title{AI for Auto-Research: Roadmap \& User Guide}
+
+
+% AUTHORS
+\author[]{Lingdong~Kong$^{*}$}
+\author[]{Xian~Sun$^{*}$}
+\author[]{Wei~Chow$^{*}$}
+\author[]{Linfeng~Li}
+\author[]{Kevin~Qinghong~Lin}
+\author[]{Xuan~Billy~Zhang}
+\author[]{Song~Wang}
+\author[]{Rong~Li}
+\author[]{Qing~Wu}
+\author[]{Wei~Gao}
+\author[]{Yingshuo~Wang}
+\author[]{Shaoyuan~Xie}
+\author[]{Jiachen~Liu}
+\author[]{Leigang~Qu}
+\author[]{Shijie~Li}
+\author[]{Lai~Xing~Ng}
+\author[]{Benoit~R.~Cottereau}
+\author[]{Ziwei~Liu}
+\author[]{Tat-Seng~Chua}
+\author[]{Wei~Tsang~Ooi}
+
+
+% AFFILIATIONS
+\affiliation[]{Awesome AI Auto-Research Team}
+
+
+% ABSTRACT
+\abstract{AI-assisted research is crossing a threshold: fully automated systems can now generate research papers for as little as \$15, while long-horizon agents can execute experiments, draft manuscripts, and simulate critique with minimal human input. Yet this productivity frontier exposes a deeper integrity problem: under scientific pressure, even frontier LLMs still fabricate results, miss hidden errors, and fail to judge novelty reliably. Studying developments through April 2026, we present an end-to-end analysis of AI across the \emph{complete} research lifecycle, organized into four epistemological phases: $^1$\textbf{Creation} (idea generation, literature review, coding \& experiments, tables \& figures), $^2$\textbf{Writing} (paper writing), $^3$\textbf{Validation} (peer review, rebuttal \& revision), and $^4$\textbf{Dissemination} (posters, slides, videos, social media, project pages, and interactive agents). We identify a sharp, stage-dependent boundary between reliable assistance and unreliable autonomy: AI excels at structured, retrieval-grounded, and tool-mediated tasks, but remains fragile for genuinely novel ideas, research-level experiments, and scientific judgment. Generated ideas often degrade after implementation, research code lags far behind pattern-matching benchmarks, and end-to-end autonomous systems have not yet consistently reached major-venue acceptance standards. We further show that greater automation can obscure rather than eliminate failure modes, making human-governed collaboration the most credible deployment paradigm. Finally, we provide a structured taxonomy, benchmark suite, and tool inventory, cross-stage design principles, and a practitioner-oriented playbook, with resources maintained at our project page.}
+
+
+\metadata[
+\raisebox{-0.2em}{\includegraphics[width=0.025\linewidth]{figures/icons/hf.png}}~~Project Page]{\href{https://worldbench.github.io/awesome-ai-auto-research}{\texttt{https://worldbench.github.io/awesome-ai-auto-research}}
+\\[-1.5ex]}
+
+\metadata[
+\raisebox{-0.2em}{\includegraphics[width=0.025\linewidth]{figures/icons/github.png}}~~GitHub Repo]{\href{https://github.com/worldbench/awesome-ai-auto-research}{\texttt{https://github.com/worldbench/awesome-ai-auto-research}}
+\\[-1.7ex]}
+
+
+\begin{document}
+
+\maketitle
+
+\input{sections/1_intro}
+\clearpage\clearpage
+\input{sections/2_creation}
+\input{sections/3_writing}
+\input{sections/4_validation}
+\input{sections/5_dissemination}
+\input{sections/6_challenges}
+\input{sections/8_conclusion}
+
+\clearpage\clearpage
+\input{sections/appendix}
+
+\clearpage\clearpage
+\bibliographystyle{abbrvnat}
+\bibliography{references}
+
+\end{document}

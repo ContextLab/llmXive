@@ -1,0 +1,438 @@
+\section{Harness Mechanisms: Planning, Memory, Tool Use, Control, and Optimization}
+\label{sec:modules}
+
+
+
+Harness mechanisms form the central systems layer that makes code-harnessed agents reliable beyond a
+single generation step. Once code enters the agent loop, software generation is no longer only a problem of producing correct programs from a prompt. It becomes an interaction among the model, mutable task state, and human-designed harness infrastructure. The model provides judgment: it decomposes goals, selects actions, interprets feedback, and decides when to revise. Mutable state records repository evidence, working context, execution traces, validation results, memories, and intermediate beliefs about the task. The harness infrastructure exposes tools and execution substrates, persists and compacts state, constrains actions through policies and permission tiers, routes feedback, and verifies whether each state transition is acceptable. From this perspective, harness mechanisms are not isolated add-on modules, but coordinated control surfaces that turn model decisions into bounded, observable, and revisable changes in an executable environment.
+In its basic form, code allows the agent to call existing executable interfaces. 
+Further, the agent can dynamically author task-specific executable interfaces. These agent-authored artifacts make the harness more adaptive because they allow the execution environment to be reshaped around the current task. However, dynamically authored code does not replace the broader human-designed harness infrastructure. Reliability still depends on model-side judgment together with human-designed policies, sandbox boundaries, permission tiers, verification oracles, audit logs, and human-review gates. Code therefore serves as an executable medium inside the harness, while the harness remains the larger policy-governed system that decides what code may be executed, trusted, persisted, reused, or promoted into future workflows.
+
+In this section, we review five interacting categories of harness mechanisms for code agents. Planning (\S~\ref{sec:planning}) organizes long-horizon task execution by externalizing goals into decompositions, structural constraints, search trajectories, or workflow-level orchestration. Memory and context engineering (\S~\ref{sec:memory}) manage mutable state across long interactions by preserving working context,
+retrieving repository evidence, storing reusable experience, supporting shared histories, and offloading state beyond the active context window. Tool usage (\S~\ref{sec:tool}) connects the agent to governed executable interfaces, including APIs, repositories, terminals, sandboxes, verification tools, and workflow orchestrators. Harness control through the Plan-Execute-Verify loop (\S~\ref{sec:debug}) reframes feedback-guided debugging as a broader control process: plans form contracts over intended changes, execution applies them inside sandboxed and permissioned environments, and verification uses deterministic sensors and human-review gates to decide whether the state should be accepted, revised, escalated, or rolled back. Finally, agentic harness engineering (\S~\ref{sec:ahe}) studies how the harness itself can be measured and improved through deep telemetry, evolution agents, replay-based evaluation, and governed harness mutation.
+
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/roadmap_sec3_new_2.pdf}
+    \caption{A roadmap overview of agent harness mechanisms.}
+    \label{fig:roadmap_sec3}
+\end{figure}
+
+
+\subsection{Planning for Agent Harness}\label{sec:planning}
+
+
+
+Planning plays a central role in agentic harness because real-world software engineering tasks rarely admit a direct one-shot mapping from natural language intent to correct implementation. From the harness perspective, planning is not merely an internal reasoning capability of the LLM, but a form of \emph{harness control}: it structures how the agent externalizes intent into executable steps, schedules interactions with code artifacts and tools, and regulates the trajectory of reasoning, execution, and revision over time. Beyond generating code tokens, an effective agent harness must organize long-horizon problem solving into a coherent course of action, deciding what intermediate goals to pursue, in what order to execute them, what artifacts to inspect or modify, and how to revise the trajectory when execution feedback reveals errors, missing dependencies, or violated constraints. This need becomes especially pronounced in repository-level editing, web interaction, competitive programming, and hardware design, where the agent must operate over large action spaces, sparse feedback, and deeply interdependent subproblems. In such settings, a fundamental challenge arises \textbf{between the complexity of the target task and the limited reliability of unconstrained agent execution}: without an explicit planning mechanism as harness control, the agent may commit too early to brittle solution paths, overlook latent dependencies, or fail to coordinate reasoning, retrieval, execution, and revision into a stable workflow.
+
+Early planning-oriented systems mainly treated planning as a linear decomposition step, where the model first produced a natural-language solution outline and then translated it into code. As code agents were applied to more complex environments, however, planning gradually evolved from a simple pre-generation scaffold into a richer harness-level control mechanism. It can be grounded in repository structure or external knowledge to constrain the agent's action space, expanded through explicit search over multiple candidate trajectories to improve robustness, or distributed across specialized agent roles and feedback loops to coordinate execution at the system level. Based on the \textbf{primary locus where harness control is realized}, we categorize existing planning methods in code agents into four types: \textit{linear decomposition planning}, \textit{structure-grounded planning}, \textit{search-based planning}, and \textit{orchestration-based planning}.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/sec3_planning.pdf}
+    \caption{Overview of planning mechanisms for agent harnesses.}
+    \label{fig:modules-planning}
+\end{figure}
+
+
+
+
+
+\subsubsection{Linear Decomposition Planning} 
+In this planning paradigm, the agent first produces a single explicit, executable sequence of steps, and then carries out generation by following this decomposition~\cite{huang2024knowledge,jiang2024selfplanning,gur2023webagent,linearplan1,zhang2025linearplan2}. A lightweight precursor of this pattern is ReAct~\cite{yao2023reactsynergizingreasoningacting}, where the agent interleaves thoughts, actions, and observations in a serial trajectory. In this framework, each reasoning step externalizes the current subgoal and constrains the next action, turning the trajectory itself into a stepwise harness for control. 
+This pattern is most directly instantiated in Self-Planning~\cite{jiang2024selfplanning}: the model first decomposes the intent into concise, high-level numbered steps, and then generates code step by step under the guidance of this plan. Plan-And-Act~\cite{erdogan2025plan} further makes this harness explicit by separating a planner, which produces structured high-level plans: the planner repeatedly refreshes the linear scaffold as new observations arrive, allowing the planning strategy to preserve task-level control while adapting to environmental feedback. WebAgent~\cite{gur2023webagent} extends this idea to web automation: it decomposes a user instruction into successive sub-instructions, summarizes task-relevant HTML conditioned on the current subgoal, and then synthesizes executable Python actions from that linear sub-instruction sequence. KareCoder~\cite{huang2024knowledge} follows a similar template in a knowledge-augmented setting, where the model first constructs a knowledge-aware, step-by-step prompt from an external knowledge library and then uses this prompt to generate code, making planning a structured intermediate layer between problem understanding and implementation. 
+Recent industrial practice shows that this linear scaffold can be lifted from an ephemeral prompt artifact to a persistent harness object. In long-horizon coding workflows, files such as \texttt{PLAN.md}, \texttt{Implement.md}, and status logs record milestones, acceptance criteria, validation commands, and recovery rules, allowing the agent to reload, update, verify, and document progress across context resets or multi-session execution~\cite{openai2025execplans,openai2026codexlonghorizon}. In this view, planning is no longer merely an internal reasoning trace, but a filesystem-backed control object: it can be reviewed by humans, versioned with Git, consumed by subagents, and used as the source of truth for implementation. The main limitation remains that these methods typically commit to a single decomposition trajectory: when the initial plan is incomplete or misaligned, the harness can improve persistence and auditability, but it still provides limited exploration beyond the chosen path.
+
+
+\subsubsection{Structure-grounded Planning}
+In this line of work, the agent does not derive its action sequence solely from a free-form natural language prompt, but instead grounds planning in an explicit structured representation of the task environment, such as dependency graphs, repository graphs, circuit graphs, or knowledge graphs. These structures act as natural harness scaffolds: they expose relevant entities, encode dependency relations, and guide the order in which subtasks should be generated, revised, or verified. For example, CodePlan~\cite{bairi2024codeplan} constructs a plan graph over edit obligations and derives new steps through dependency analysis and change-impact propagation. Meanwhile, repository understanding methods ~\cite{luo2025rpg,chen2025locagent,tao2025cgm,luo2025rpg} convert codebases into heterogeneous graphs or text-rich code graphs, then use graph-integrated reasoning to localize relevant entities and condition downstream generation on structural dependencies rather than flat text context. GraphCodeAgent~\cite{li2025graphcodeagent} extends this idea with a dual-graph harness, where a Requirement Graph captures relations among natural-language requirements and a Structural-Semantic Code Graph captures repository dependencies. 
+The same principle also appears in recent agent-native repository practices. Files such as architecture notes, API specifications, and testing guides turn project knowledge into persistent, inspectable, and version-controlled artifacts that the agent can consult before acting~\cite{agentsmd2025,openai2026agentsmd,anthropic2025claudememory}. This broadens structure-grounded planning beyond graph construction: the relevant structure determines explicit rules, build commands, directory boundaries, coding conventions, and design constraints, thereby promoting a coherent and stable harness control over the programs. 
+% Beyond retrieval and generation, SemanticForge~\cite{zhang2025semanticforge}\xl{} introduces a semantic knowledge-graph harness that combines static and dynamic repository semantics with neural graph-query planning and SMT-guided decoding, so that planning is not only structure-aware but also constraint-aware during generation. 
+Specialized domains follow the same pattern~\cite{wang2026domagent,ho2025verilogcoder}. VerilogCoder~\cite{ho2025verilogcoder} grounds subtask planning in a Task and Circuit Relation Graph so that each subtask is enriched with signals, transitions, and examples, while DomAgent~\cite{wang2026domagent} uses knowledge graphs to combine top-down structured knowledge with bottom-up examples for domain-specific code generation. Overall, these works show that structure-grounded planning improves coherence, dependency awareness, and long-horizon consistency by turning project or domain knowledge into explicit and inspectable harness objects that guide the agent's behavior over time.
+
+\subsubsection{Search-based Planning}
+Search-Based Planning allocates inference-time compute to systematically explore, evaluate, and select among multiple candidate solution paths. Rather than committing the agent to a single plan, the key idea is to expand the decision space and use feedback to control which alternatives should be pursued, revised, or discarded. A first group of methods~\cite{wang2024planning,li2025rethinkmcts} instantiates this harness in the thought space. Instead of directly writing code, they first branch over high-level observations, strategies, or reasoning traces, with the goal of increasing conceptual diversity before implementation. In this view, better planning comes from covering a broader idea space and using feedback to refine reasoning itself, rather than merely repairing final code. A second group~\cite{li2025codetree,ni2024treeofcode,dainese2024codegenerating,aggarwal2025dars} performs search in the trajectory space of coding actions: these methods model coding as a branching process over strategy choice, implementation, debugging, and revision, and rely on execution signals or learned critics to decide which nodes to expand. Therefore, long-horizon coding quality improves when the agent can backtrack from suboptimal decisions and compare partial trajectories. Another line of these works, such as ReLoc~\cite{lyu2025reloc} and SFS~\cite{light2025sfs}, treats planning as search in code space. Here the methods iteratively explore neighboring programs through mutation, revision, or local optimization, guided by validation feedback or fine-grained scoring signals.
+Beyond the above methods, recent systems increasingly treat candidate plans, patches, logs, tests, and execution traces as persistent artifacts rather than transient generations. SWE-Search~\cite{sweSearch2024} combines Monte Carlo Tree Search with software-engineering agents to explore alternative repair trajectories, while CodeTree~\cite{li2025codetree} organizes strategy exploration, solution generation, and refinement within a unified tree. More broadly, Meta-Harness~\cite{lee2026metaharness} pushes this idea to the harness level itself: it searches over harness code by giving an agent access to prior source code, scores, and execution traces through a filesystem. These developments suggest that search-based planning is not only a model-side sampling strategy, but also a harness-level state management problem: the runtime must preserve candidates, expose evidence, run validators, and decide which branch deserves further computation.
+% These works therefore operate directly over executable artifacts, using program-level feedback to reshape the candidate space and progressively move toward better implementations.  Across these groups, the unifying feature is that planning is realized through explicit search-and-selection over alternatives, with execution feedback leveraged to continually reshape the search frontier.
+
+\begin{table}[t]
+\centering
+\caption{Representative planning modules for code agents.}
+\label{tab:planning_modules}
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}llllX@{}}
+\toprule
+\textbf{Method} & \textbf{Category} & \textbf{Core Mechanism} & \textbf{Interface} & \textbf{Feedback} \\
+\midrule
+Self-Planning~\cite{jiang2024selfplanning}
+& Linear decomposition
+& Stepwise decomposition
+& Shared prompt
+& None \\
+WebAgent~\cite{gur2023webagent}
+& Linear decomposition
+& Sub-instruction sequencing
+& APIs
+& Runtime exception \\
+% \midrule
+CodePlan~\cite{bairi2024codeplan}
+& Structure-grounded
+& Plan graph
+& Repo graph
+& Critique \\
+VerilogCoder~\cite{ho2025verilogcoder}
+& Structure-grounded
+& Task-circuit relation graph
+& Repo graph
+& Test pass/fail \\
+% \midrule
+Tree-of-Code~\cite{ni2024treeofcode}
+& Search-based
+& Trajectory tree search
+& Execution env
+& Test pass/fail \\
+ReThinkMCTS~\cite{li2025rethinkmcts}
+& Search-based
+& MCTS over reasoning paths
+& Execution env
+& Critique, tests \\
+% \midrule
+MapCoder~\cite{islam2024mapcoder}
+& Orchestration-based
+& Role orchestration
+& APIs
+& Critique, tests \\
+Blueprint2Code~\cite{mao2025blueprint2code}
+& Orchestration-based
+& Blueprint-to-code
+& Repo interface
+& Critique \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+
+\subsubsection{Orchestration-based Planning}
+
+Orchestration-Based Planning refers to a planning paradigm in which the core planning function is realized through a harness design for system-level coordination. In this paradigm, the harness governs how agents or modules specialize roles, execute stages, route feedback, and trigger verification loops, thereby determining what actions should be taken next in long-horizon code generation workflows.
+% Orchestration-Based Planning refers to a planning paradigm in which the core planning function is realized primarily through system-level coordination—such as role specialization, staged execution, feedback routing, and verification loops—rather than through a standalone explicit plan representation. 
+A first common pattern~\cite{huang2023agentcoder,ukai2024adacoder,Nunez2024AutoSafeCoder} is feedback-centered orchestration, where the system distributes coding, testing, analysis, and repair across different modules, so that progress is driven by repeated execution-grounded feedback and adaptive escalation. In this group, planning is not an up-front artifact, but an emergent property of how failures are detected, interpreted, and routed back into subsequent actions. A second pattern~\cite{islam2024mapcoder,Pan2025CodeCoR,mao2025blueprint2code} is staged workflow orchestration, which casts code generation as a structured software-process pipeline, such as comprehension, retrieval or preview, planning or blueprinting, coding, debugging, and repair. The main advantage of this group lies in decomposing complex generation into interpretable stages with explicit handoff rules, and the actual planning power comes from cross-stage control, candidate pruning, and iterative refinement. A third pattern~\cite{khan2025macog,doualgoforge,zhang2026sgagent,lu2025requirements} is controller-centric orchestration, where planning is embedded in the transformation of intermediate artifacts and in the routing substrate itself. Here, systems organize decision-making through mechanisms such as formal-specification pipelines, suggestion stages between localization and repair, typed intermediate representations, shared blackboards, or specialized planner–coder coordination, so that the next plan is determined by the scaffold’s control logic rather than by a single textual prompt.
+
+Recent harness systems make this orchestration view especially explicit. Anthropic's long-running harnesses separate planning, generation, and evaluation into distinct roles, using structured artifacts and independent evaluation to maintain progress across long sessions~\cite{anthropic2025longrunning,anthropic2026longrunningapps}. Cursor's large-scale autonomous coding experiments similarly highlight planner--worker coordination as a way to scale from focused single-agent tasks to many parallel agents working on a shared project~\cite{cursor2026scalingagents}. The most general formulation appears in Natural-Language Agent Harnesses, where high-level harness logic (such as roles, stages, contracts, adapters, state conventions, and failure taxonomies) is written as editable natural language and executed by an Intelligent Harness Runtime~\cite{pan2026nlah}. The IHR interprets these high-level natural-language instructions at runtime and converts them into constrained execution steps under explicit contracts, budgets, tool interfaces, and environment state. This reframes orchestration-based planning as a runtime interpretation problem: the plan is not merely a document, but an executable harness specification that mediates between model outputs, filesystem state, tools, validators, and multi-agent delegation.
+
+
+
+
+% \begin{tcolorbox}[
+% float,
+% floatplacement=t,
+% title={\textbf{Discussion}}
+% ]
+\textbf{\textit{Discussion:}} 
+Planning for code generation can be understood as a core form of \emph{agentic harness}: a control layer that organizes how an LLM agent decomposes tasks, grounds decisions in program structure, explores alternatives at inference time, and coordinates multi-stage software engineering workflows. From this perspective, planning is a set of harness mechanisms centered on one essential question: how to decide what the agent should do next, and how to keep that decision process constrained, inspectable, and coherent across long-horizon coding tasks.
+Notably, planning in code generation cannot be cleanly separated from the evaluation problem. Many current conclusions about the benefits of planning depend heavily on the surrounding execution conditions, including execution environments, feedback quality, tool access, trajectory budgets, and whether the benchmark truly stresses long-range dependency management rather than localized patch generation. If execution signals are weak, revision budgets are unrealistic, or benchmarks fail to expose multi-step coordination errors, then reported planning gains may not reflect genuine improvements in agent-level problem solving. Therefore, planning is not only a method design problem, but also a harness problem between the agent and the environment.
+Looking forward, the central challenge is not merely to build larger planners or longer reasoning traces, but to design more reliable agentic harnesses for planning: adaptive commitment mechanisms that decide when to follow, revise, or abandon a plan; structurally meaningful planning states that expose dependencies and progress; efficient exploration-and-revision strategies that use feedback without excessive computation; and rigorous long-horizon evaluation paradigms that can faithfully measure planning quality beyond final-pass accuracy.
+
+
+
+\subsection{Memory and Context Engineering for Agent Harness}\label{sec:memory}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.85\linewidth]{figures/sec3_memory.pdf}
+    \caption{Overview of memory and context engineering mechanisms for agent harnesses.}
+    \label{fig:modules-memory}
+\end{figure}
+
+
+Memory has become a core infrastructure for code agents, largely because real-world software engineering tasks are inherently long-horizon and state-intensive~\cite{dong2025survey,huang2026rethinking}. Unlike single-turn code completion, practical coding scenarios require an agent to sustain a sequence of interdependent steps across many rounds of interaction, such as requirement understanding, code localization, evidence retrieval, multi-file editing, test execution, bug fixing, and regression verification~\cite{xia2025demystifying,zhang2025survey}. This introduces a fundamental tension \textbf{between the limited context window of the model and the continuously expanding intermediate state of the task}. 
+From a harness perspective, memory is not simply a larger context window or a vector database. It is a state-management layer that decides which information should remain in the active model context, which information should be compacted into summaries, and which information should be offloaded to durable external storage~\cite{zhou2026externalization}.
+Without an effective memory mechanism and context management, an agent can easily lose critical clues during long-range reasoning, repeat searches and analyses that were already completed, or break local consistency established in earlier steps during later modifications~\cite{zhang2025ragsurvey,huang2026rethinking}.
+
+
+
+
+Early systems largely relied on prompts to preserve historical information, treating memory as little more than conversation history or an unstructured scratchpad. However, with the emergence of repository-level repair and other long-horizon coding tasks, it has become increasingly clear that simply accumulating natural language history cannot reliably support complex software engineering loops~\cite{jiang2026survey}. As a result, memory is now increasingly externalized as a system component that is retrievable, governable, and traceable. In this subsection, we categorize memory in code agents according to their \textbf{primary functional role} in the software engineering loop. Under this view, existing approaches can be broadly organized into five types: \textit{working memory, semantic memory, experiential memory, long-term memory, and multi-agent memory}. In addition, we discuss context compaction and state offloading as cross-cutting context-engineering mechanisms that determine how large execution artifacts move between the active model context and durable task state. Representative works are illustrated in Table~\ref{tab:memory_modules}.
+
+
+
+\subsubsection{Working Memory}
+Working memory supports state maintenance along the current coding-task trajectory~\cite{huang2025language}. Its central concern is not how much history to retain, but which pieces of information are most useful for the next action under a limited context budget. In code agents, working memory often appears as structured prompt regions, state summaries, failed-test records, file lists, or critical stack information. Its purpose is to mitigate context explosion, reduce repeated localization, and preserve the local consistency of an ongoing repair or editing trajectory~\cite{yang2024swe,xia2025live,bouzenia2025repairagent,gaurav2025codemem}. 
+From a harness perspective, working memory is the active control surface between the model and the code environment: it determines what the agent observes before choosing the next tool call, edit, or verification step. Representative systems such as SWE-agent~\cite{yang2024swe} and RepairAgent~\cite{bouzenia2025repairagent} show that, even with the same underlying model, repository-level repair performance can vary substantially depending on how interaction state and execution feedback are organized. CodeMem~\cite{gaurav2025codemem} similarly treats context as a managed resource, using budgeted memory slots to stabilize multi-step edits.
+
+
+
+\subsubsection{Semantic Memory}
+Semantic memory provides task-relevant external evidence for the current coding process~\cite{wu2025human,huang2026rethinking}. In code-agent settings, such evidence is usually repository-specific and program-structured, including class definitions, function implementations, call relations, configuration files, documentation, issue descriptions, dependency metadata, and historical implementation patterns. Semantic memory therefore transforms the external codebase into a queryable evidence space that the harness can retrieve from and inject into the active context~\cite{zhang2024autocoderover,zhang2024codeagent,biswal2026agentsm,zhang2025coderag,phan2025repohyper}. 
+Representative works such as AutoCodeRover~\cite{zhang2024autocoderover} and RepoCoder~\cite{zhang2023repocoder} show that repository-level coding tasks benefit not simply from retrieving more content, but from retrieving evidence aligned with program structure. Mechanisms such as AST-based structured chunking, iterative query rewriting, and retrieval strategies conditioned on current localization clues can substantially improve the utility of retrieved context for downstream generation. In this sense, semantic memory turns the codebase into a structured evidence layer for the current decision process.
+
+
+
+
+\begin{table}[t!]
+\centering
+\caption{Representative memory and context management mechanisms for code-agent harnesses.}
+\renewcommand{\arraystretch}{1.00}
+\setlength{\tabcolsep}{3.5pt}
+\scriptsize
+\begin{tabularx}{\textwidth}{p{2.35cm}p{2.5cm}p{3.2cm}p{2.8cm}X}
+\toprule
+\textbf{Method} & \textbf{Role} & \textbf{Managed State} & \textbf{Harness Operation} & \textbf{Primary Use} \\
+\midrule
+SWE-agent~\cite{yang2024swe} 
+& Working Memory 
+& Repair trajectory; runtime state
+& Structured state tracking 
+& Grounds repo repair in files, commands, and tests \\
+
+CodeMem~\cite{gaurav2025codemem} 
+& Working Memory 
+& Context slots; edit state
+& Budgeted slot management
+& Stabilizes multi-step edits under context limits \\
+
+RepairAgent~\cite{bouzenia2025repairagent}
+& Working Memory 
+& Bug evidence; tool outputs
+& Dynamic prompt-state updates
+& Carries evidence across autonomous cycles \\
+\midrule
+
+AutoCodeRover~\cite{zhang2024autocoderover} 
+& Semantic Memory 
+& Repo structure; code evidence
+& Structure-aware retrieval 
+& Grounds localization and patching in repo structure \\
+
+RepoCoder~\cite{zhang2023repocoder} 
+& Semantic Memory 
+& Retrieved repo context; snippets
+& Iterative repo retrieval 
+& Expands evidence for context-aware generation \\
+
+CodeRAG~\cite{zhang2025coderag} 
+& Semantic Memory 
+& Repo knowledge; code paths
+& Querying; multi-path retrieval; reranking
+& Selects repo knowledge for long-context completion \\
+\midrule
+
+MemGovern~\cite{wang2026memgovern} 
+& Experiential Memory 
+& Trajectories; reflections; critiques
+& Governed experience replay
+& Reuses quality experience while filtering noise \\
+
+ExpeL~\cite{zhao2024expel} 
+& Experiential Memory 
+& Reflection traces; learned lessons
+& Reflection replay
+& Reuses reflections as task-solving strategies \\
+\midrule
+
+MemCoder~\cite{deng2026your}
+& Long-term Memory 
+& Commits; root causes; validated fixes
+& Structured memory; self-internalization
+& Learns repo-specific intent-to-code mappings \\
+
+TALM~\cite{shen2025talm}
+& Long-term Memory 
+& Task histories; reasoning traces; validated code
+& Vector retrieval; consolidation
+& Reuses past episodes for tree-structured generation \\
+\midrule
+
+MIRIX~\cite{wang2025mirix} 
+& Multi-agent Memory 
+& Cross-agent state; interaction history
+& Cross-agent memory routing 
+& Routes shared memory across specialized roles \\
+
+ChatDev~\cite{qian2024chatdev}
+& Multi-agent Memory 
+& Dialogue history; software artifacts
+& Phase-level context passing
+& Maintains context across role-based phases \\
+\midrule
+
+LongCodeZip~\cite{shi2025longcodezip} 
+& Context Compaction
+& Long code context; repo snippets
+& Coarse-to-fine compression
+& Compresses code while preserving reasoning cues \\
+
+SWE-Pruner~\cite{wang2026swe} 
+& Context Compaction
+& Interaction context; surrounding code
+& Task-aware pruning
+& Removes irrelevant context before agent decisions \\
+
+SWEZZE~\cite{jia2026compressing} 
+& Context Compaction
+& Issue context; fix ingredients
+& Lightweight learned compression
+& Distills compact, fix-relevant evidence \\
+\bottomrule
+\end{tabularx}
+\label{tab:memory_modules}
+\end{table}
+
+
+
+
+\subsubsection{Experiential Memory}
+As code agents move from single-task completion toward continual repair and cross-project generalization, increasing attention has been paid to experiential or episodic memory~\cite{dong2025towards,huet2025episodic}. Unlike working memory, which maintains the current trajectory, or semantic memory, which retrieves repository evidence, experiential memory captures reusable experience accumulated across tasks, such as repair trajectories, failure cases, debugging records, and higher-level strategy patterns~\cite{zhao2024expel,wei2025evo,liang2026generalizable}. Its main value lies in enabling cross-task transfer. Through mechanisms such as experience cards, reflection buffers, and record-and-replay pipelines, a system can convert past successful or failed debugging processes into reusable units for future problem solving~\cite{wei2025evo,wang2026memgovern,chu2024leveraging}. 
+Works such as MemGovern~\cite{wang2026memgovern} further suggest that the quality of stored experience matters more than its scale. Ungoverned historical records can introduce semantic noise, error propagation, and false retrievals, whereas curated and quality-controlled experiential memory is more likely to become a useful asset for repository-level repair.
+
+
+
+\subsubsection{Long-Term Memory}
+When coding trajectories become longer, working memory and semantic memory alone are insufficient, because the system must also cope with memory growth, compression-induced evidence distortion, and long-term drift. This makes long-term retrieval planning and memory control an increasingly important research direction~\cite{maharana2024evaluating,wang2026memex,bei2026mem,zhao2026papermind,ning2026mcsearch}. The focus therefore shifts from memory capacity to memory governance. Representative systems such as MemGPT~\cite{packer2023memgpt} and MemoryOS~\cite{kang2025memory} move the discussion from what to store toward when to write, when to compress, when to retrieve, and how to avoid contamination.
+Recent code-centric studies further ground this line of work in software engineering workflows. MemCoder~\cite{deng2026your} leverages structured historical commits and human-validated solutions as persistent memory, enabling repository-specific experience accumulation over time. TALM~\cite{shen2025talm} incorporates long-term memory into multi-agent code generation, retrieving prior problem--solution traces and consolidating overlapping memories to control redundancy. These works suggest that, for code agents, long-term memory should not simply accumulate more history, but preserve validated and reusable experience in a compact and controllable form. Otherwise, memory may shift from a resource for long-horizon software engineering into a burden that amplifies noise, staleness, and error.
+
+
+
+
+\subsubsection{Multi-Agent Memory}
+Multi-agent memory extends state management from an individual agent to a shared harness. From a systems perspective, memory in code generation has a strong collaborative dimension~\cite{li2025swe,chen2023gamegpt}. In multi-agent frameworks, memory is not only a container for individual state, but also a medium for information sharing, intention passing, and consistency maintenance across specialized roles~\cite{zhang2025gmemory}. Representative works such as AgentCoder~\cite{huang2023agentcoder}, MapCoder~\cite{islam2024mapcoder}, MIRIX~\cite{wang2025mirix}, ChatDev~\cite{qian2024chatdev}, and G-Memory~\cite{zhang2025gmemory} illustrate how memory supports multi-agent planning, testing, reviewing, and trajectory coordination.
+In this setting, the central challenge is no longer only retrieving relevant content, but controlling the granularity of sharing, preventing information flooding, and supporting bidirectional access between high-level decisions and fine-grained execution traces~\cite{chen2023gamegpt}. Accordingly, memory in multi-agent code generation increasingly resembles a shared blackboard or collaborative state graph rather than a purely individual storage unit~\cite{Ishibashi2024SelfOrganized,yuan2025graphs}.
+
+
+\subsubsection{Context Compaction and State Offloading}
+Context compaction and state offloading are cross-cutting context-engineering mechanisms for memory in code-agent harnesses~\cite{liu2026dive}. Their goal is not to define another memory category, but to control the boundary between active model context and durable task state. Long-horizon software engineering workflows continuously generate high-volume artifacts, such as build logs, execution traces, repository diffs, test outputs, and intermediate plans. Directly placing these artifacts into the prompt can quickly overload the context window, amplify noise, and obscure decision-relevant evidence. A harness must therefore decide which observations should remain in the active context, which should be compacted into concise summaries, and which should be offloaded to external storage with retrievable handles~\cite{zhou2026externalization}.
+Context compaction compresses long interaction histories and massive tool outputs into structured, provenance-preserving summaries. For example, a failing-test report can be reduced to the failing test name, key stack frames, suspected files, and links to the full log~\cite{jia2026compressing,sun2025scaling,shi2025longcodezip,wang2026swe}. State offloading complements this process by preserving full-fidelity artifacts outside the active window, such as in files, databases, trace stores, or protocol-style resource interfaces such as MCP-style servers. The agent then receives compact summaries and resource identifiers rather than raw logs or traces. By separating decision-relevant context from durable evidence, context compaction and state offloading make memory more scalable, auditable, and compatible with execution-time verification.
+
+
+
+\textbf{\textit{Discussion:}} 
+Memory in code-as-agent-harness systems can be understood as a unified state-management layer that connects context management, repository evidence retrieval, experiential transfer, long-term control, and multi-agent synchronization. Rather than being a single data structure, an enlarged context window, or simply a vector database, memory coordinates where task-relevant state should reside and how it should be reused throughout long-horizon software engineering workflows. Working memory keeps the next action grounded; semantic memory exposes repository evidence; experiential memory supports cross-task transfer; long-term memory preserves validated knowledge; and multi-agent memory synchronizes shared state across roles. Context compaction and state offloading further extend this layer by separating decision-relevant active context from durable full-fidelity artifacts, making memory more scalable, auditable, and compatible with execution-time verification. Importantly, memory research in code agents cannot be separated from \textit{evaluation reliability}. Many conclusions about memory gains depend on the quality of evaluation pipelines~\cite{jimenez2024swebench,feng2026longcli}: if tests are insufficient, log parsing is flawed, or benchmarks suffer from memorization and contamination, then reported improvements may not reflect robust long-horizon behavior. Looking forward, the key challenge is not merely to enlarge memory capacity, but to build higher-quality write gates, structurally aligned retrieval keys, provenance-preserving compaction mechanisms, reliable state offloading protocols, and rigorous evaluation paradigms that measure whether memory truly helps agents remain grounded, consistent, and verifiable over extended trajectories.
+
+\subsection{Tool Use for Agent Harness}\label{sec:tool}
+
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/sec3_tool.pdf}
+    \caption{Overview of tool-using mechanisms for agent harnesses.}
+    \label{fig:modules-tool}
+\end{figure}
+
+Tool usage is the action and observation layer of the code-agent harness. Once code is placed inside the agent loop, the model must not only generate text, but also search repositories, edit code, execute tests, call APIs, query documentation, and verify intermediate results~\cite{watanabe2025use,sapkota2025vibe}. Tools therefore expand the agent's action space while also exposing external feedback signals that make the harness executable and inspectable. From the perspective of code as agent harness, tool use is not merely an auxiliary capability for code generation. It is a governed interface between model intent and external systems. A reliable harness must decide which tools are available, how their schemas are exposed, what permissions each tool receives, where execution happens, how results are sanitized or compacted, and when risky actions require human approval. Recent agent SDKs and software-agent platforms make this shift explicit by packaging tools, sessions, guardrails, handoffs, workspaces, and execution environments into reusable harness components~\cite{wang2024openhands,meng2026agent,xi2025agentgym}. In parallel, sandboxed execution environments, including containerized or microVM-based workspaces, isolate agent actions from the host system and make code execution more reproducible and auditable~\cite{cheng2026llm,wang2024executable,wang2025ui}.
+This harness-level view also highlights the importance of \textbf{tool lifecycle control}. Before a tool is executed, the harness may apply permission checks, policy rules, argument validation, or human-in-the-loop gates. After execution, the harness may sanitize outputs, summarize large logs, offload traces to durable storage, update memory, or trigger verification tools. Lifecycle hooks make these control points explicit. They turn tool use from a raw model-selected action into a monitored transition in the agent's execution loop.
+
+
+
+Existing work on tool usage for code agents can therefore be organized according to the primary harness function that tools serve: (1) \textit{function-oriented tool use}, (2) \textit{environment-interaction tool use}, (3) \textit{verification-driven tool use}, and (4) \textit{workflow-orchestration tool use}. 
+Function-oriented tools ground the agent in APIs, libraries, and external documentation. Environment-interaction tools allow the agent to act inside repositories, terminals, IDEs, browsers, and sandboxes. Verification-driven tools provide deterministic feedback through tests, linters, type checkers, static analyzers, and runtime errors. Workflow-orchestration tools coordinate multiple tools, roles, memory updates, and lifecycle policies into a reliable long-horizon execution process.
+Representative works are illustrated in Table~\ref{tab:tool_modules}.
+
+
+
+
+
+\begin{table}[t]
+\centering
+\caption{Representative tool-use mechanisms for code-agent harnesses.}
+\label{tab:tool_modules}
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{3pt}
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}
+  >{\raggedright\arraybackslash}p{2.6cm}
+  >{\raggedright\arraybackslash}p{3.1cm}
+  >{\raggedright\arraybackslash}p{3.0cm}
+  >{\raggedright\arraybackslash}p{3.8cm}
+  >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Method} & \textbf{Role} & \textbf{Tool Boundary} & \textbf{Harness Operation} & \textbf{Primary Use} \\
+\midrule
+ToolCoder~\cite{zhang2023toolcoder}
+& Function-oriented
+& API search tools
+& API selection via trigger prediction
+& Grounds generation in retrieved APIs \\
+%\midrule
+CodeQA~\cite{ahmed2024codeqa}
+& Function-oriented
+& API/doc query tools
+& Tool-augmented API QA
+& Retrieves API evidence for coding \\
+%\midrule
+RAG-for-Code~\cite{zhao2025rag}
+& Function-oriented
+& Repo, docs, API
+& Retrieval-augmented context
+& Knowledge for long-tail libraries \\
+\midrule
+CodeAgent~\cite{zhang2024codeagent}
+& Environment-interaction
+& Repo files, tests
+& Repo navigation, editing, validation
+& Repo-level coding via environment interaction \\
+%\midrule
+SWE-agent~\cite{yang2024swe}
+& Environment-interaction
+& Shell, editor, repo, tests
+& Agent--computer interface loop
+& Resolves GitHub issues via shell commands \\
+\midrule
+AgentCoder~\cite{huang2023agentcoder}
+& Verification-driven
+& Test generation
+& Programmer--tester--executor loop
+& Refines code via generated tests \\
+%\midrule
+VeriGuard~\cite{miculicich2025veriguard}
+& Verification-driven
+& Execution, tests, verifier
+& Verifier-guided tool loop
+& Gates and repairs code via verification \\
+\midrule
+ToolNet~\cite{liu2024toolnet}
+& Workflow-orchestration
+& APIs, tools, execution
+& Learned multi-tool policy routing
+& Routes tool invocations across workflows \\
+%\midrule
+MapCoder~\cite{islam2024mapcoder}
+& Workflow-orchestration
+& Coding agents
+& Multi-agent tool-supported workflow
+& Coordinates planning, generation, debugging \\
+%\midrule
+OpenHands~\cite{wang2024openhands}
+& Workflow-orchestration
+& Workspace, terminal, browser, files, runtime
+& Unified software-agent workspace
+& Long-horizon tasks via reusable interfaces \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+
+\subsubsection{Function-Oriented Tool Use}
+This line of work uses tools primarily to fill gaps in the model's programming knowledge, especially APIs, libraries, documentation, and external coding utilities~\cite{zhang2023toolcoder,ahmed2024codeqa,zhao2025rag,li2025survey,yuan2025easytool, zou2025autotool}. ToolCoder~\cite{zhang2023toolcoder}, for example, starts from a clear bottleneck: code models often hallucinate APIs, choose inappropriate functions, or fail on public and private libraries with sparse training coverage. To address this problem, it integrates API search tools into the code generation process and trains models to decide when to query the tool and how to select APIs from retrieved results. The key contribution is therefore not better syntax generation alone, but better knowledge acquisition and API grounding. More broadly, retrieval-oriented methods reduce dependence on parametric memory and make code generation more adaptable to long-tail APIs, private libraries, and continuously evolving software ecosystems~\cite{zhao2025rag,zhou2023devil}. They are most effective when the main bottleneck is that the model lacks reliable knowledge of which function, API, or library construct should be used. Accordingly, the core design challenges lie in query formulation, result selection, evidence compression, and robust injection of retrieved knowledge into downstream generation. These agentic methods are particularly suitable for API-oriented generation, library migration, and private SDK usage, but retrieval alone is often insufficient when tasks require cross-file understanding and reasoning, runtime debugging, or repository-wide dependency analysis.
+
+
+
+
+
+\subsubsection{Environment-Interaction Tool Use}
+Unlike function-oriented tools, environment-interaction approaches treat tools as the interface through which an agent acts inside the software engineering environment~\cite{li2026environment,chen2026grounded,song2026envscaler,gao2026teaching}. Their central problem is no longer only to obtain missing functions, but to operate effectively over repositories, development artifacts, and execution environments. CodeAgent~\cite{zhang2024codeagent} shows that real-world repository-level code generation is not simply about completing a single function from a prompt. Instead, the model must locate relevant files, understand dependencies, inspect documentation, implement modifications, and validate outcomes through testing. To support this process, CodeAgent integrates programming tools and agent strategies for information retrieval, code-symbol navigation, code implementation, and test interaction over real repositories. SWE-agent~\cite{yang2024swe} pushes this idea further by formalizing the agent-computer interface, where shell commands, file editing, and test execution become the primary interaction channel. RepairAgent~\cite{bouzenia2025repairagent} similarly equips the agent with repair-specific tools for reading code, searching repair ingredients, applying patches, and running tests. Together, these methods define the core trajectory of environment-interaction tool use, which is especially relevant for repository-level generation, issue resolution, and open-ended software engineering tasks.
+
+\subsubsection{Verification-Driven Tool Use}
+A third line of work uses tools primarily for post-generation verification and iterative improvement. Verification-driven tool use treats external tools as deterministic sensors for the harness. Compared with function-oriented and environment-interaction tools, these approaches do not necessarily emphasize external retrieval or broad repository navigation. Instead, they use tests, execution results, compiler errors, runtime traces, type checkers, static analyzers, and verifier feedback as the main signals for improving code quality~\cite{miculicich2025veriguard,liu2026agents4plc,liu2026llm,jin2025reveal}. AgentCoder~\cite{huang2023agentcoder}, for example, uses a programmer agent, a test designer agent, and a test executor agent to form a closed loop of code generation, test construction, execution, and refinement. In this paradigm, the central role of tools is verification rather than retrieval. From the code-as-agent-harness view, verification tools make agent progress inspectable: test failures, stack traces, coverage gaps, type errors, and static-analysis warnings become structured observations that update working memory and guide the next action. The key design issue is how to route these observations back into the loop~\cite{miculicich2025veriguard}. Since raw logs may be too long or noisy for the active context, the harness should parse, summarize, and offload verification traces while preserving full-fidelity artifacts for audit and replay.
+
+\subsubsection{Workflow-Orchestration Tool Use}
+Workflow-orchestration tool use focuses on how multiple tools, roles, and control policies are organized into a coherent agent workflow~\cite{xiong2025self,shi2025flowxpert,lumer2025tool, su2025toolorchestra}. In long-horizon software tasks, the agent may need to retrieve evidence, localize bugs, modify files, run tests, inspect failures, update memory, ask for approval, and repeat this cycle several times. The challenge is not simply adding more tools, but deciding when each tool should be invoked, with what permissions, under which context, and how its result should update the harness state~\cite{liu2024toolnet}. Recent agent SDKs and software-agent platforms make this orchestration layer explicit by packaging typed tool schemas, session state, workspaces, guardrails, handoffs, tracing, and human-review mechanisms into reusable harness components. Lifecycle hooks further refine this boundary: pre-use hooks can validate arguments, enforce permission policies, or block risky commands, while post-use hooks can sanitize outputs, compact logs, update memory, or trigger follow-up verification. Representative systems such as MapCoder~\cite{islam2024mapcoder} exemplify workflow orchestration by assigning agents to example recall, planning, code generation, and debugging, thereby decomposing a difficult coding problem into coordinated subproblems. CodeAgent~\cite{zhang2024codeagent} also studies how tool calls should be scheduled and structured in repository-level workflows. This class is particularly important for long-horizon code agents, where realistic software tasks require demand decomposition, context selection, candidate exploration, execution-based verification, and final repair under explicit control policies~\cite{liu2024toolnet,liu2024controlllm}.
+
+
+\textbf{\textit{Discussion}}: Tool usage in code agents has evolved from isolated API retrieval to a full harness mechanism for action, observation, verification, and governance. Function-oriented tools ground implementation choices in external knowledge; environment-interaction tools allow agents to act over repositories and execution environments; verification-driven tools provide deterministic feedback; and workflow-orchestration tools coordinate these capabilities through SDKs, sandboxes, guardrails, and lifecycle hooks. The core challenge is no longer whether a model can call a tool, but whether the harness can make tool use safe, auditable, and useful for long-horizon execution. Future code-agent harnesses should support typed tool schemas, permission-aware invocation, sandboxed execution, lifecycle hooks, result sanitization, context compaction, state offloading, and reproducible traces. These mechanisms ensure that tools expand the agent's action space without sacrificing reliability, safety, or verifiability.

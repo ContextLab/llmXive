@@ -1,0 +1,339 @@
+\appendix
+\section{Related Work}
+\subsection{Long Video Generation}
+Recent video generation research has shifted from short-clip bidirectional diffusion transformers to causal autoregressive (AR) synthesis, where videos are generated frame-by-frame or chunk-by-chunk.
+CausVid~\cite{yin2024slow} converts a pretrained bidirectional video diffusion model into a causal AR generator and distills it into a few-step streaming model.
+MAGI-1~\cite{sandai2025magi1} scales chunk-level AR generation with nearly constant peak inference cost, while AAPT~\cite{lin2025aapt} explores one-step real-time interactive generation.
+These works establish AR video generation as a promising formulation for streaming synthesis, but also expose challenges such as exposure bias, error accumulation, memory growth, and long-range temporal drift.
+
+A major line of work addresses the train--test mismatch in AR video diffusion.
+Self-Forcing~\cite{huang2025self} trains models under their own rollout distribution rather than only teacher-forced ground-truth contexts~\cite{zhou2025taming, acdit}.
+LongLive~\cite{yang2025longlive}, Self-Forcing++~\cite{cui2025selfforcingminutescalehighqualityvideo}, and Rolling Forcing~\cite{liu2025rolling} extend this idea to real-time long-video generation with causal attention, KV re-cache, attention sinks, long-context tuning, joint denoising, and few-step distillation.
+More recent forcing-based methods analyze finer-grained mismatch: Causal Forcing~\cite{zhu2026causal} studies the architectural gap between bidirectional teachers and causal students; Context Forcing~\cite{chen2026context} uses long-context teachers and Slow-Fast Memory to supervise long-context students; HiAR~\cite{zou2026hiar} performs hierarchical denoising so that future blocks are conditioned on contexts at matched noise levels; and Diagonal Distillation~\cite{liu2026diagonal} exploits both temporal chunks and denoising steps to improve streaming distillation.
+
+Another important direction studies long-range memory and efficient cache management.
+Since dense attention over all generated frames is infeasible, existing methods rely on sliding windows, KV caches, attention sinks, or compressed memory.
+However, naive memory reuse can cause identity drift, temporal repetition, or motion stagnation.
+LoL~\cite{cui2026lol}, Deep Forcing~\cite{yi2025deep}, Relax Forcing~\cite{zhao2026relax}, MemRoPE~\cite{kim2026memrope}, VideoSSM~\cite{yu2025videossm}, and Hybrid Forcing~\cite{li2026hybrid} improve long-horizon stability through RoPE stabilization, deep attention sinks, structured KV memory, evolving memory tokens, state-space memory, and hybrid linear/sparse attention.
+Complementary system-oriented methods reduce the deployment cost of AR video generation: Quant VideoGen~\cite{xi2026quant} compresses KV cache memory, FlowCache~\cite{ma2026flowcache} introduces chunk-wise caching, SCOPE~\cite{cui2026scope} applies selective computation, and Helios~\cite{yuan2026helios} designs a large AR model for real-time long-video generation.
+
+Finally, training-free horizon extension and interactive generation have also emerged.
+FLEX~\cite{li2026flex}, Test-Time Correction~\cite{xiang2026ttc}, FreeLOC~\cite{tian2026freeloc}, and PackForcing~\cite{mao2026packforcing} extend pretrained or short-trained models to longer horizons through positional correction, test-time trajectory calibration, or structured cache partitioning.
+Anchor Forcing~\cite{yang2026anchor} targets prompt-switching in streaming diffusion~\cite{shotadapter}, while ShotStream~\cite{luo2026shotstream} extends AR generation to multi-shot interactive storytelling.
+Overall, AR long video generation has evolved from simply causalizing diffusion models into a broader problem involving rollout alignment, memory design, positional extrapolation, distillation, and efficient deployment.
+
+\subsection{FP4 Quantization}
+Low-bit quantization has become a central tool for reducing the cost of large generative models. A substantial body of work studies post-training quantization (PTQ) and quantization-aware training (QAT) for LLMs and diffusion models~\cite{zandieh2025turboquant,li2024svdquant,zhao2024vidit}. Representative techniques improve robustness by correcting outlier channels, smoothing activation ranges, reconstructing layer outputs, or using low-rank compensation~\cite{frantar2022gptq,lin2024awq,xiao2023smoothquant,li2024svdquant,huang2024mixture,huang2026mc}. These methods are highly effective for deployment compression, but most of them still assume integer-style quantization or focus on PTQ, leaving a mismatch between low-precision inference and the precision regime used during training.
+
+Recent work has therefore moved beyond FP8~\cite{micikevicius2022fp8} toward FP4 floating-point training and inference. FP4 is attractive because it can reduce memory traffic and matrix-multiplication cost more aggressively than FP8, but the E2M1 value set is extremely coarse and requires careful scaling. Block-scaled formats such as MXFP4~\cite{ocp2023mx,rouhani2023microscaling} and NVFP4~\cite{nvidia2024blackwell,alvarez2025nvfp4} address this issue through microscaling factors shared by small groups of values. Compared with MXFP4, NVFP4 uses finer 16-element blocks, FP8 E4M3 block scales, and a tensor-level global scale, which improves local dynamic-range tracking and has been shown to offer a favorable accuracy-efficiency trade-off in large-scale studies~\cite{abecassis2025pretraining,chmiel2025fp4}.
+
+Stable end-to-end FP4 training also depends on algorithmic choices beyond the numeric format. Prior studies show that weights, activations, and gradients must be quantized consistently, while numerically sensitive operations such as reductions, normalization statistics, and optimizer states often remain in higher precision~\cite{abecassis2025pretraining,chmiel2025fp4}. Random Hadamard transforms and rotation-based quantization help disperse block-level outliers, stochastic rounding reduces bias in low-precision gradient updates, and adaptive block-scale selection such as Four Over Six further lowers NVFP4 quantization error~\cite{ashkboos2024quarot,abecassis2025pretraining,chmiel2025fp4,cook2025four}. Complementary low-bit adapter methods show that quantized backbones can be paired with trainable low-rank updates for efficient finetuning and reinforcement learning~\cite{dettmers2023qlora,huang2025qerl}.
+
+However, existing FP4 studies are primarily centered on LLM pretraining, LLM finetuning, or general low-bit inference. Autoregressive long-video generation introduces different system pressures: spatio-temporal sequences are much longer, denoising repeatedly stresses the same GEMM and attention paths, KV caches grow with generated history, and quality is sensitive to any mismatch between training, distillation, and deployment precision. Our work studies NVFP4 in this setting, aiming to jointly align stable training, W4A4 inference, KV-cache compression, and long-video deployment.
+
+
+
+\subsection{Sequence Parallelism}
+To overcome single-device memory limits, sequence parallelism (SP) distributes long sequences across multiple devices. Existing SP techniques primarily follow two paradigms. Ring-style systems~\cite{li2023sequence, liu2023ring, liu2024startrail, gu2024loongtrain, longvila, longrl} partition sequences into chunks, overlapping point-to-point communication with attention computation. Conversely, DeepSpeed-Ulysses~\cite{jacobs2023deepspeed} partitions along the attention head dimension, utilizing All-to-All communication to gather full sequences. This strictly decouples communication from the core attention arithmetic. At extreme scales, hybrid approaches like USP~\cite{fang2024usp} integrate both methods, using Ulysses intra-node and Ring inter-node.
+
+As generative modeling expands from LLMs to Diffusion Transformers (DiTs)~\cite{peebles2023scalable, ma2024latte}, computational bottlenecks shift toward the massive spatio-temporal sequences inherent in video generation. 
+Consequently, recent infrastructures customize fundamental SP paradigms for multi-dimensional data. 
+For instance, StreamFusion~\cite{yang2026streamfusion} tailors hybrid SP communication to the unique memory profiles of DiTs. 
+At the lowest infrastructure level, Dynamic Sequence Parallelism (DSP)~\cite{zhao2024dsp} re-engineers 1D SP by dynamically switching communication across spatial and temporal axes, reducing All-to-All overhead. 
+Furthermore, systems like Megatron Core introduce Dynamic Context Parallelism~\cite{nvidia2026dynamiccp} to optimize sequence sharding and activation memory specifically for variable-length video pre-training.
+
+
+In AR video training, efficient mask-based teacher forcing introduces a structure that is absent from ordinary long-context modeling: the same temporal chunk appears once as clean context and once as a noisy prediction target, and training relies on complex spatio-temporal masks compiled via FlexAttention~\cite{dong2024flex}.
+Simply combining this clean/noisy teacher-forcing layout with an existing SP backend is therefore insufficient.
+Ring-style methods are difficult to apply directly because their load-balancing assumptions do not align with these irregular block-sparse masks, while a naive Ulysses partition can separate clean-only and noisy-only ranks and leave VAE latent preparation replicated across SP ranks.
+We therefore build on DeepSpeed-Ulysses but co-design the AR training layout with sequence-parallel execution. In the current instantiation, Balanced SP lets each rank locally construct paired clean/noisy latents from its temporal chunk, builds a natural teacher-forcing mask on the post-All-to-All order, and shards VAE encoding with an exact left-halo scheme.
+This distinguishes our method from prior SP systems, which mainly optimize communication schedules or activation memory for generic long sequences rather than the clean/noisy pairing and latent-preparation bottleneck specific to teacher-forced video DiT training.
+
+
+\section{Multi-shot Long-video Dataset}
+We curate a large-scale long-video dataset for training LongLive-2.0. We split raw long videos into independent shots and annotate each with structured captions spanning visual, scene, character, action, and cinematography aspects. After completing shot-level captioning, we merge the captions of all segmented shots from the same full-length video and further refine the integrated descriptions to ensure temporal coherence and logical consistency across consecutive frames and scenes.
+
+Subsequently, we conduct rigorous data filtering and quality cleaning to remove low-quality and invalid samples. We remove videos with excessively short shot duration, content containing logos, watermarks or prominent text, footage with severe camera shake, abnormal playback speed such as fast-forward and slow-motion, overexposed or underexposed frames, blurry and out-of-focus visuals, and low-motion clips with frozen frames or only trivial zoom effects. For further quality control, we adopt the MANIQA~\cite{maniqa} metric to evaluate the visual quality of sampled video frames, and the average score is adopted as the overall quality score for each video. Only top-ranked high-quality videos are retained. In the final version, our dataset contains 120K long videos with abundant segmented shots. The videos are evenly distributed in three duration groups: 16–32 seconds, 32–64 seconds, and over 64 seconds, each accounting for one-third of the total data volume.
+
+
+\section{Balanced SP Details}\label{ap:balanced_sp}
+
+\textbf{Hybrid parallelism and global coordinates.} $\;$
+We use a hybrid scheme with $\texttt{world\_size}=\texttt{dp\_size}\times\texttt{sp\_size}$.
+Ranks in the same SP group share the same sample and prompt, while only the temporal token dimension is partitioned.
+To match non-parallel training, Rotary Position Embedding (RoPE) uses global frame indices and sequence offsets rather than local rank indices.
+The attention mask, supervision mask, and loss mask are also evaluated in global coordinates, and the loss is normalized by the global number of valid tokens.
+Consequently, the SP implementation preserves the same training objective as the non-parallel formulation while reducing per-rank activation memory.
+Inside each DiT attention block, we use $\mathbf{z}$ to denote the hidden sequence corresponding to the clean/noisy latent streams. Let $P$ be the SP group size, $L$ be the total clean-plus-noisy token length, $H$ be the number of attention heads, and $d$ be the head dimension. The Ulysses backend exchanges the sequence and head dimensions:
+\begin{equation}
+    \mathbf{z}^{(p)} \in \mathbb{R}^{\frac{L}{P} \times H \times d}
+    \xrightarrow{\text{All-to-All}}
+    \widetilde{\mathbf{z}}^{(p)} \in
+    \mathbb{R}^{L \times \frac{H}{P} \times d},
+\end{equation}
+so that each device computes full-sequence attention over its assigned $H/P$ heads.
+A second All-to-All restores the original sequence-sharded layout before the following FFN.
+
+\textbf{Exact SP-aware VAE encoding.} $\;$
+In a naive SP pipeline, each rank either encodes the full video independently or waits for a root rank to encode and broadcast the complete latent sequence.
+This makes VAE latent preparation scale with the full video length on every rank, even though the following DiT sequence is already sharded.
+Balanced SP keeps the pre-DiT clean/noisy construction local to each rank: each rank VAE-encodes only its local raw-video chunk $\mathbf{X}^{(p)}$ plus a left halo that covers the temporal receptive field of the VAE encoder.
+After encoding, the rank discards halo latents, keeps only the local latent chunk $\mathbf{Z}^{(p)}$, and locally forms the matched clean/noisy latent streams.
+As long as the halo covers the encoder's left temporal dependency, these local latents are identical to those obtained from full-video encoding, while the per-rank VAE cost is reduced from $O(F)$ to $O(F/P+h)$ for $F$ latent frames, SP size $P$, and halo size $h$.
+
+\textbf{Natural teacher-forcing mask.} $\;$
+The standard teacher-forcing mask is defined over the logical DiT sequence layout $[\mathbf{z}_{clean};\,\mathbf{z}_{noisy}]$, where all clean chunks are placed before all noisy chunks.
+However, after local paired clean/noisy construction and the Ulysses All-to-All exchange, the communication-native global order becomes
+\begin{equation}
+    [\mathbf{z}_{clean}^{(0)},\mathbf{z}_{noisy}^{(0)},\ldots,
+    \mathbf{z}_{clean}^{(P-1)},\mathbf{z}_{noisy}^{(P-1)}].
+\end{equation}
+A conventional mask would therefore require an explicit permutation that gathers all clean chunks before all noisy chunks, applies attention in that logical order, and scatters the output back to the SP layout at every attention layer.
+We instead evaluate the original teacher-forcing visibility rule directly on the interleaved Ulysses order.
+Let $L_{\mathrm{loc}}=L/(2P)$ be the number of clean or noisy tokens contributed by each rank.
+For a token index $i$ in the interleaved order,
+\begin{equation}
+    p(i)=\left\lfloor \frac{i}{2L_{\mathrm{loc}}} \right\rfloor,\quad
+    r(i)=i\bmod 2L_{\mathrm{loc}},\quad
+    t(i)=p(i)L_{\mathrm{loc}} + (r(i)\bmod L_{\mathrm{loc}}).
+\end{equation}
+Here $p(i)$ is the rank block, $r(i)$ is the within-rank offset, and $t(i)$ is the original temporal position.
+The condition $r(i)<L_{\mathrm{loc}}$ identifies clean tokens, while $r(i)\ge L_{\mathrm{loc}}$ identifies noisy tokens.
+Thus each interleaved token has a deterministic logical identity, allowing us to define
+\begin{equation}
+    M_{\mathrm{nat}}(i,j)=M_{\mathrm{TF}}(\pi(i),\pi(j)),
+\end{equation}
+where $\pi(\cdot)$ denotes the recovered clean/noisy identity and temporal position.
+$\pi$ is never materialized on Q/K/V tensors; the block-sparse mask predicate computes it from token indices and \texttt{flex\_attention} compiles the predicate into the fused attention kernel.
+This preserves the conventional teacher-forcing visibility while keeping attention in the communication-native SP order.
+
+\textbf{SP-aware error recycling.} $\;$
+A pure teacher-forcing setup still leaves residual exposure bias: during training, the clean prefix is drawn from ground truth, while at inference it consists of the model's own rollout.
+We therefore maintain an error-recycling buffer of past latent prediction errors and stochastically inject them into $\mathbf{z}_{clean}$ during training~\cite{li2025stable}.
+Under Balanced SP, this buffer must follow the same temporal partition as the DiT sequence; otherwise errors from one SP rank would be replayed at positions that are not reachable by another rank.
+
+Concretely, we use a two-dimensional bucket layout indexed by local block position and diffusion timestep.
+The position dimension is sharded by SP: if the full sequence has $N_{\mathrm{blk}}$ temporal blocks and SP size $P$, each rank stores only $N_{\mathrm{blk}}/P$ local block positions together with its global block offset.
+This preserves the position-dependent nature of rollout errors while reducing per-rank buffer memory.
+For context corruption, the clean prefix error is sampled by matching the local position and marginalizing over timestep, since rollout errors accumulate across the denoising trajectory.
+For latent and noise corruption, both local position and timestep are matched.
+
+During warming-up, we gather buffer entries across data-parallel ranks with the same SP rank, rather than across the full world group.
+This fills each local position bucket faster using different batch samples, while avoiding cross-SP communication whose positions would be invalid for the current rank.
+We shard timestep buckets by SP rank and save one buffer checkpoint per SP rank, which keeps checkpoint size bounded and prevents position-bucket misalignment when resuming training.
+
+\begin{figure}[t]
+\centering
+\begin{minipage}[t]{0.48\columnwidth}
+\vspace{0pt}
+\centering
+    \IfFileExists{figs/sp_1.pdf}
+  {\includegraphics[width=\linewidth]{figs/sp_1.pdf}}
+  {\fbox{\rule{0pt}{1.38in}\rule{0.95\linewidth}{0pt}}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\columnwidth}
+\vspace{0pt}
+\centering
+\IfFileExists{figs/sp_2.pdf}
+  {\includegraphics[width=\linewidth]{figs/sp_2.pdf}}
+  {\fbox{\rule{0pt}{1.38in}\rule{0.95\linewidth}{0pt}}}
+\end{minipage}
+\caption{Iteration speed and peak memory for sequence parallelism (SP), tensor parallelism (TP), and data parallelism (DP) in interactive AR video generation training on 4 NVIDIA GB200 GPUs. Left: iteration speed. Right: peak memory. SP is fastest at all tested sequence lengths and becomes the most memory-efficient method at long contexts.}
+\label{fig:interactive_ar_parallel_scaling}
+\end{figure}
+
+Figure~\ref{fig:interactive_ar_parallel_scaling} compares iteration speed and peak memory for sequence parallelism (SP), tensor parallelism (TP), and data parallelism (DP) in interactive AR training with 4 NVIDIA GB200 GPUs.
+SP is consistently the fastest, yielding 1.12$\times$--1.41$\times$ speedup over TP and 3.40$\times$--3.86$\times$ over DP.
+TP is slightly more memory-efficient at short contexts, but SP becomes the most memory-efficient at long contexts, reducing peak memory to 51.24/62.85 GB at sequence lengths 128/192, compared with 70.26/101.70 GB for TP and 97.75/142.69 GB for DP.
+Overall, SP provides the best throughput and memory scaling for long-context interactive AR training.
+
+
+\section{Sequence Parallelism Inference}\label{ap:sp_inference}
+
+To reduce memory and latency during extreme long-video generation, we extend the DeepSpeed-Ulysses~\cite{jacobs2023deepspeed} sequence parallelism (SP) strategy from training (\S~\ref{sec:sp_training}) to inference, as illustrated in Figure~\ref{fig:sp_inference_appendix}. Let $P$ denote the SP group size, $L$ the total token sequence length, $H$ the number of attention heads, and $d$ the head dimension. Although SP reduces the per-device memory footprint to $\mathcal{O}(L/P)$, its efficiency is bottlenecked by the \textbf{All-to-All} communication required to transpose the sequence and head dimensions before attention. In a standard BF16 pipeline, exchanging the Query ($\mathbf{Q}$), Key ($\mathbf{K}$), and Value ($\mathbf{V}$) tensors incurs a payload of $\mathcal{O}(L \times H \times d \times 2 \text{ bytes})$ per layer, which heavily stresses interconnect bandwidth.
+
+
+
+To mitigate this bottleneck, we combine SP with NVFP4 communication. Since the historical $\mathbf{K}$ and $\mathbf{V}$ tensors are already retrieved from the chunkwise NVFP4 KV cache (\S~\ref{sec:nvfp4_inference}) in compressed form, we also cast the runtime $\mathbf{Q}$ to NVFP4 immediately before the pre-attention All-to-All. Thus, for any tensor $\mathbf{M} \in \{\mathbf{Q}, \mathbf{K}, \mathbf{V}\}$, communication is performed entirely in the low-precision space:
+\begin{equation}
+\mathbf{M}^{(p)} \in \mathbb{R}^{\frac{L}{P} \times H \times d}_{\text{(NVFP4)}} \xrightarrow{\text{All-to-All}} \widetilde{\mathbf{M}}^{(p)} \in \mathbb{R}^{L \times \frac{H}{P} \times d}_{\text{(NVFP4)}},
+\end{equation}
+where $p \in \{0, \dots, P-1\}$ is the device index. Executing this transposition natively on NVFP4 data reduces the effective payload from 16 bits to roughly 4.5 bits per element. After accounting for micro-block scaling overhead, the empirical communication volume is reduced by roughly $3.6\times$. This NVFP4-accelerated collective alleviates the bandwidth bottleneck and improves the scalability of SP for long-context AR inference. 
+\begin{wrapfigure}{r}{0.60\columnwidth}
+\vspace{-5pt}
+\centering
+\includegraphics[width=\linewidth]{figs/sp_inference.pdf}
+\caption{\textbf{Sequence Parallelism (SP) Inference.} Inference uses a W4A4 model with SP. KV-cache quantization significantly reduces communication overhead during the All-to-All exchange.}
+\label{fig:sp_inference_appendix}
+\vspace{-10pt}
+\end{wrapfigure}
+More generally, SP is compatible with a broad range of compression techniques beyond NVFP4 KV-cache quantization, including other low-bit KV compression schemes~\cite{xi2026quant} and attention-pruning methods such as TriAttention~\cite{mao2026triattention}. These methods are complementary to SP: by reducing the tensors exchanged around the pre-attention communication path, they can further lower communication overhead and accelerate inference on non-Blackwell GPUs. We leave a systematic comparison of these alternatives to future work.
+
+\begin{table*}[t]
+\centering
+\caption{SP inference latency and communication overhead on NVIDIA H100 GPUs. We report end-to-end generation latency and total communication time for BF16 and 4-bit KV-cache settings across different SP group sizes and video lengths. The 64s numbers are estimated from measured shorter-length runs.}
+\label{tab:sp_inference_h100}
+\scriptsize
+\setlength{\tabcolsep}{4.0pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{l l r r r r r r}
+\toprule
+\rowcolor{gray!12}
+& &
+\multicolumn{2}{c}{\textbf{16 s}} &
+\multicolumn{2}{c}{\textbf{32 s}} &
+\multicolumn{2}{c}{\textbf{64 s}} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+\rowcolor{gray!12}
+\shortstack{\textbf{SP}\\\textbf{Size}} &
+\shortstack{\textbf{KV}\\\textbf{Precision}} &
+\shortstack{\textbf{E2E Gen.}$\downarrow$\\\textbf{(s)}} &
+\shortstack{\textbf{Comm.}$\downarrow$\\\textbf{(s)}} &
+\shortstack{\textbf{E2E Gen.}$\downarrow$\\\textbf{(s)}} &
+\shortstack{\textbf{Comm.}$\downarrow$\\\textbf{(s)}} &
+\shortstack{\textbf{E2E Gen.}$\downarrow$\\\textbf{(s)}} &
+\shortstack{\textbf{Comm.}$\downarrow$\\\textbf{(s)}} \\
+\midrule
+1 & BF16 & 31.0 & --  & 50.2 & --  & 85.0 & --  \\
+\cdashline{1-8}
+2 & BF16 & 19.3 & 1.8 & 38.1 & 3.2 & 62.5 & 5.4 \\
+2 & 4-bit KV Cache & 18.3 & 1.1 & 36.0 & 2.3 & 53.3 & 3.6 \\
+\cdashline{1-8}
+4 & BF16 & 26.2 & 12.8 & 38.6 & 12.2 & 65.4 & 20.6 \\
+4 & 4-bit KV Cache & 21.1 & 7.8 & 32.3 & 9.7 & 54.8 & 16.4 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Table~\ref{tab:sp_inference_h100} verifies that SP inference also provides a practical acceleration path on non-Blackwell GPUs. On H100, moving from single-GPU inference to SP=2 reduces BF16 end-to-end latency from 31.0s/50.2s/85.0s to 19.3s/38.1s/62.5s for 16s/32s/64s videos, respectively. Quantizing the KV cache further reduces the tensors exchanged by SP collectives, cutting communication time from 1.8s to 1.1s for 16s videos at SP=2 and from 12.8s to 7.8s at SP=4. This translates into lower end-to-end latency across the reported lengths, showing that low-bit KV cache compression is an effective way to mitigate the communication overhead introduced by multi-GPU SP inference.
+
+
+\section{Visual Ablation of Multi-Shot Attention Sink}\label{ap:shot_sink_ablation}
+
+Figure~\ref{fig:shot_level_sink_ablation} provides a qualitative ablation of the multi-shot attention sink introduced in \S~\ref{sec:multi_shot_attention_sink}.
+Without the multi-shot sink, sliding-window generation can lose shot-local anchors once earlier frames leave the active KV window, causing the later part of a shot to drift in subject appearance and scene layout.
+With the proposed multi-shot attention sink, the global sink preserves video-level identity while the shot-level sink keeps the current shot anchored, producing a more stable continuation from the start to the end of the second shot.
+
+\begin{figure*}[t]
+\centering
+\IfFileExists{figs/shot-level-sink-ablation.pdf}
+  {\includegraphics[width=0.92\textwidth]{figs/shot-level-sink-ablation.pdf}}
+  {\fbox{\rule{0pt}{1.85in}\rule{0.92\textwidth}{0pt}}}
+\caption{\textbf{Visual ablation of the multi-shot attention sink.} Without the multi-shot attention sink, the generated content drifts. With the multi-shot attention sink stabilizes shot-level appearance.}
+\label{fig:shot_level_sink_ablation}
+\end{figure*}
+
+
+\section{Scale Search NVFP4 Quantization}\label{ap:4o6}
+
+The DMD teacher is quantized for W4A4 NVFP4 inference. For teacher weights, we adopt Four Over Six (4/6) adaptive block scaling~\cite{cook2025four}. NVFP4 stores each value in the E2M1 FP4 set
+$\{0,\pm0.5,\pm1,\pm1.5,\pm2,\pm3,\pm4,\pm6\}$, together with an E4M3 FP8 scale for every 16-value block and a tensor-level FP32 scale. The standard NVFP4 rule maps the largest absolute value in each block to the largest FP4 magnitude, $6$, which avoids saturation and maximizes dynamic range. However, because FP4 has non-uniform spacing, this choice creates a large representational gap near the block maximum: when the maximum maps to $6$, values between roughly $4/6$ and $1$ of the maximum can only be rounded to $4$ or $6$. As a result, near-maximal values, especially those around $75\%$ of the block maximum, can dominate the quantization error.
+
+Four-Over-Six addresses this issue by also considering a second encoding in which the block maximum is mapped to $4$ rather than $6$. This sacrifices the ability to use the FP4 values $\pm6$ for that block, but makes the high-magnitude region more evenly represented; for example, the FP4 value $3$ then corresponds to $75\%$ of the block maximum. Since this is beneficial only for some blocks and harmful for others, the scale is selected adaptively by explicitly comparing reconstruction error.
+
+Let $\bar{\mathbf{U}}_{B_i} = \mathbf{U}_{B_i} / \alpha^{\text{FP32}}$ denote the globally normalized values in block $B_i$. We define two candidate FP8 block scales:
+\begin{equation}
+    \alpha^{\text{FP8}}_{i(6)} =
+    \operatorname{cast}_{\mathrm{E4M3}}\!\left(
+    \frac{\operatorname{max}|\bar{\mathbf{U}}_{B_i}|}{6}
+    \right),\qquad
+    \alpha^{\text{FP8}}_{i(4)} =
+    \operatorname{cast}_{\mathrm{E4M3}}\!\left(
+    \frac{\operatorname{max}|\bar{\mathbf{U}}_{B_i}|}{4}
+    \right).
+\end{equation}
+For each candidate scale, the block is quantized to E2M1 FP4 and dequantized back to the original scale. We then select the candidate with lower mean-squared reconstruction error:
+\begin{equation}\label{eq:4o6}
+\alpha_i^\star=\arg\min_{\alpha \in \{\alpha^{\text{FP8}}_{i(6)}, \alpha^{\text{FP8}}_{i(4)}\}}
+\left\|
+\mathbf{U}_{B_i} - \hat{\mathbf{U}}_{B_i}(\alpha)
+\right\|_2^2,
+\end{equation}
+where $\hat{\mathbf{U}}_{B_i}(\alpha)$ denotes the dequantized block under block scale $\alpha$. This per-block scale search keeps the standard $6$-based encoding for blocks that require larger dynamic range, while switching to the $4$-based encoding for blocks whose error is dominated by near-maximal values. Because NVFP4 uses E4M3 block scales, the $4$ and $6$ choices can be represented with sufficient fractional precision, enabling this adaptive selection with small quantization-kernel overhead on Blackwell GPUs.
+
+
+\section{Ablation of NVFP4 Quantization}
+\begin{table}[t]
+  \centering
+  \caption{\textbf{LongLive-2.0 Precision Settings.} We compare BF16 and W4A4 NVFP4 precision under different quantization methods on VBench. \#Step means the number of denoising steps.}
+  \label{tab:appendix_ll2_precision_settings}
+  \scriptsize
+  \begin{tabular}{c c c c c c c c}
+    \toprule
+    \textbf{Precision} &
+    \textbf{Quant.} &
+    \textbf{\#Step} &
+    \textbf{\#Params} &
+    \textbf{Resolution} &
+    \textbf{Total$\uparrow$} &
+    \textbf{Quality$\uparrow$} &
+    \textbf{Semantic$\uparrow$} \\
+    \midrule
+    BF16 & -- & 4 & 5B & $1280{\times}720$ & 85.06 & 86.67 & 78.63 \\
+    NVFP4 & PTQ & 4 & 5B & $1280{\times}720$ & 84.04 & 85.76 & 77.15 \\
+    NVFP4 & Pre-trained & 4 & 5B & $1280{\times}720$ & 84.51 & 86.43 & 76.81 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure*}[t]
+\centering
+\IfFileExists{figs/ptq_nvfp4.pdf}
+  {\includegraphics[width=0.98\textwidth]{figs/ptq_nvfp4.pdf}}
+  {\fbox{\rule{0pt}{1.85in}\rule{0.92\textwidth}{0pt}}}
+\caption{\textbf{Comparison of PTQ and Pre-trained NVFP4.} Top: PTQ. Bottom: pre-trained NVFP4. The first column shows the initial frame, while the following frames compare temporal visual quality. PTQ leads to blurred eyes, whereas pre-trained NVFP4 preserves much clearer facial details.}
+\label{fig:ptq_nvfp4_comparison}
+\end{figure*}
+
+Figure~\ref{fig:ptq_nvfp4_comparison} provides a qualitative comparison between PTQ and pre-trained NVFP4. The top row shows PTQ results and the bottom row shows pre-trained NVFP4 results; the first column gives the initial frame, and the following frames compare temporal visual quality. PTQ introduces visible degradation, especially blurred eye regions, while pre-trained NVFP4 preserves sharper details.
+
+Table~\ref{tab:appendix_ll2_precision_settings} further isolates the effect of W4A4 NVFP4 quantization on LongLive-2.0 under the same short-video evaluation protocol. The BF16 model serves as the full-precision reference, while direct PTQ converts the trained model to W4A4 NVFP4 only at deployment time. The results show that this direct PTQ path introduces a clear quality drop, indicating a non-negligible mismatch between BF16 training and low-precision W4A4 inference. In contrast, the pre-trained W4A4 NVFP4 setting keeps the model aligned with the target deployment precision and remains close to the BF16 baseline, supporting our design choice of using NVFP4 as a training- and inference-aligned precision rather than only a post-training compression.
+
+\begin{figure*}[t]
+\centerline{\includegraphics[width=1.0\textwidth]{figs/DMD_comparison.png}}
+\caption{
+\textbf{Comparison of two DMD fine-tuning strategies.}
+\textbf{(1) Direct DMD fine-tuning of the AR model.}
+In this strategy, the student, teacher, and critic are all initialized from the multi-step AR DiT obtained after AR training. This is the most straightforward way to perform DMD fine-tuning, similar to Self-Forcing~\cite{huang2025self}.
+\textbf{(2) Standalone LoRA injection.}
+In this strategy, the student, critic, and teacher are initialized from the original diffusion model, \emph{e.g.}, Wan2.2-TI2V-5B, while the AR mask is applied to the teacher. DMD fine-tuning is then performed with LoRA.
+This strategy is more flexible and convenient: the resulting LoRA weights can be injected into different AR models trained on various types of video data. It also allows DMD fine-tuning to be conducted in parallel with AR training, without waiting for AR training to finish.
+As shown in the qualitative comparison, the two strategies lead to different visual characteristics. Direct DMD fine-tuning tends to produce videos with higher contrast and a more synthetic appearance, while standalone LoRA injection yields more natural visual quality. Therefore, we adopt the standalone LoRA injection strategy in our framework.
+For a fair comparison, we also use LoRA with the same configuration in the direct DMD fine-tuning setting.
+}
+\label{fig:dmd_comparison}
+\end{figure*}
+
+\section{DMD Training Strategies}\label{ap:dmd_comparison}
+We investigate two strategies for DMD fine-tuning to our AR video generation framework, as illustrated in Figure~\ref{fig:dmd_comparison}. 
+The first strategy is to directly perform DMD fine-tuning on the AR model. Specifically, the student, teacher, and critic are all initialized from the multi-step AR DiT obtained after AR training. This design is straightforward and follows a similar spirit to Self-Forcing~\cite{huang2025self}. 
+The second strategy is standalone LoRA injection, where the student, teacher, and critic are initialized from the original diffusion model, \emph{e.g.}, Wan2.2-TI2V-5B, and the AR mask is applied to the teacher during DMD training. We then train a LoRA module for DMD and inject the LoRA weights into the AR model.
+
+Compared with direct DMD fine-tuning, standalone LoRA injection is more flexible and convenient in practice. Since the LoRA module is trained independently from a specific AR checkpoint, it can be inserted into different AR models trained on various types of video data. Moreover, this strategy allows DMD fine-tuning to be conducted in parallel with AR training, without waiting for the AR training stage to finish. 
+
+Empirically, we also observe different visual characteristics between the two strategies. For a fair comparison, we also apply LoRA with the same configuration in the direct DMD fine-tuning setting. Direct DMD fine-tuning tends to produce videos with higher contrast and a more synthetic appearance, while standalone LoRA injection yields more natural visual quality. 
+We note that visual preference can be subjective: the higher-contrast results produced by direct DMD fine-tuning may be appealing in some cases, while we prefer the more natural visual style of standalone LoRA injection and therefore adopt it as our default strategy.
+
+\section{Implementation Details}\label{ap:implementation_details}
+
+We build LongLive-2.0 on Wan2.2-TI2V-5B~\cite{wan}. The text encoder and VAE are kept frozen throughout training. Unless otherwise stated, we use BF16 mixed precision, gradient checkpointing, and AdamW with weight decay $0.01$. For the NVFP4 setting, the GEMM operands in the forward, backward, and weight-gradient paths are quantized to NVFP4, while numerically sensitive operations and optimizer states remain in higher precision.
+
+\textbf{AR training.} $\;$
+This stage performs AR training with sequence parallelism. 
+We train on $32$ NVIDIA GB200 GPUs with SP size $4$ and hybrid-full FSDP.
+The local batch size is $1$ per SP group, with gradient accumulation $2$, giving a global batch size of $16$.
+We train for $600$ iterations.
+The generator is optimized with learning rate $1.0{\times}10^{-5}$ and AdamW betas $(0.0,0.999)$. We maintain an EMA with decay $0.99$ starting from step $100$.
+NVFP4 AR training uses $1920$ NVIDIA GB200 GPU hours.
+
+\textbf{DMD LoRA distillation.} $\;$
+This stage distills the AR model with DMD while keeping the pretrained backbone frozen and training LoRA adapters. 
+We train on $16$ NVIDIA GB200 GPUs with local batch size $2$ and gradient accumulation $1$, giving a global batch size of $32$.
+We train for $5000$ iterations. 
+The generator learning rate is $1.0{\times}10^{-5}$ and the critic learning rate is $2.0{\times}10^{-6}$, both with AdamW betas $(0.0,0.999)$. 
+The critic is updated every step, and the generator is updated every five steps. 
+We use LoRA rank $128$, alpha $128$, dropout $0$, and BF16 adapter weights. 
+LoRA is applied to both the generator and fake-score critic, targeting Linear layers inside the causal Wan attention blocks.
+NVFP4 DMD LoRA distillation uses $60$ NVIDIA GB200 GPU hours.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

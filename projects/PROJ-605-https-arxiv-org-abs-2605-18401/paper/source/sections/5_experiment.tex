@@ -1,0 +1,67 @@
+\subsection{Experimental Setup}
+We organize the evaluation around three questions that correspond to the main control points in the \ours lifecycle:
+\begin{enumerate}
+    \item \textbf{Offline evolution.} Can historical trajectories be distilled into a cold-start skill library that transfers to unseen tasks?
+    \item \textbf{Online evolution.} Can the library accumulate useful experience over a sequential task stream?
+    \item \textbf{Recommendation.} Given a skill library, does task-conditioned recommendation outperform exposing the library wholesale?
+\end{enumerate}
+
+\paragraph{Benchmarks.}
+We evaluate \ours with Harbor on Terminal-Bench 2.0 and SWE-Bench Pro public \citep{harborFramework,merrill2026terminal,deng2025swe}. Terminal-Bench 2.0 contains 89 difficult terminal tasks inspired by real workflows; SWE-Bench Pro public contains 731 long-horizon software-engineering tasks from 11 public repositories. Following the leaderboards, we report avg@5 Accuracy and avg@1 Resolve Rate, respectively, ordering SWE-Bench Pro tasks by repository. Terminal-Bench Pro supplies offline data: we retain 48 public software-engineering and system-administration tasks, excluding 2 environment-unstable tasks \citep{wang2025let}.
+
+\paragraph{Configurations.}
+All settings use Codex with \texttt{GPT-5.2} or \texttt{GPT-5.4 mini} \citep{openai2025gpt52,openai2026gpt54MiniNano}. Both benchmarks include a no-skill baseline and an online setting that starts empty and evolves with task-level recommendation. Terminal-Bench 2.0 also includes an offline setting: a library is first built from 48 Terminal-Bench Pro historical tasks, with evolution triggered after every 4 tasks; the frozen library is then transferred to Terminal-Bench 2.0 for recommendation only.
+
+\subsection{Main Results}
+Tables~\ref{tab:main-results-tb2} and~\ref{tab:main-results-swebenchpro} report the main performance. On Terminal-Bench 2.0, \ours improves Accuracy in both offline and online settings. Offline evolution gives the clearest signal: a frozen library distilled from 48 Terminal-Bench Pro trajectories transfers to unseen tasks, improving GPT-5.2 by \svgain{+7.9 pp} and GPT-5.4 mini by \svgain{+5.8 pp}. This suggests that trajectory-derived skills can form a useful cold-start library rather than merely capturing source-task artifacts.
+
+Online evolution yields smaller but positive gains. Starting from an empty library, \ours improves Terminal-Bench 2.0 Accuracy by \svgain{+2.7 pp} with GPT-5.2 and \svgain{+1.1 pp} with GPT-5.4 mini. On SWE-Bench Pro, online evolution improves Resolve Rate for both backbones: GPT-5.2 rises from 47.6 to 50.2, a \svgain{+2.6 pp} gain, and GPT-5.4 mini rises from 46.9 to 49.0, a \svgain{+2.1 pp} gain. These gains are heterogeneous across difficulties and repositories, indicating that online skill accumulation is useful but sensitive to the evidence observed early in the task stream.
+
+\input{tables/tb2_main_results.tex}
+\input{tables/swebenchpro_main_results.tex}
+
+\subsection{Analysis}
+
+\noindent
+The main results show that \ours improves frozen agents on both terminal and software-engineering tasks, but the gains are not uniform across settings. We therefore analyze where the gains come from and when skills become harmful. The analysis follows the three control points of the \ours lifecycle: pre-task exposure control, post-task evolution from historical evidence, and cross-task transfer of the evolved procedures.
+
+\Needspace{0.50\textheight}
+\subsubsection{Recommendation Controls Negative Transfer}
+\begin{wrapfigure}{r}{0.40\columnwidth}
+    \vspace{-0.8\baselineskip}
+    \centering
+    \includegraphics[width=\linewidth]{assets/tb2_hard_ablation.pdf}
+    \caption{Recommendation ablation on Terminal-Bench 2.0 Hard subset. Each cell shows task-level avg@5 change over the no-skill baseline; recommendation filters harmful skill exposure and improves the gain/loss balance.}
+    \label{fig:tb2-hard-rec-ablation}
+\end{wrapfigure}
+
+Figure~\ref{fig:tb2-hard-rec-ablation} studies whether a skill library should be exposed directly or mediated by task-conditioned recommendation. The central observation is that skill exposure is not neutral. When the online library is exposed without recommendation, negative task-level deltas outweigh positive ones: the mean gain/loss contribution is \svgain{$+3.3$}/\svloss{$-6.7$}. With recommendation, the early online library is still not a strong source of improvement, but the net negative effect disappears, yielding \svgain{$+6.0$}/\svloss{$-6.0$}. This suggests that, in the early online regime, recommendation mainly acts as a noise filter: it prevents sparse, under-specified, or weakly related skills from entering the solver context.
+
+The offline setting gives a cleaner view of the same mechanism. The transferred library is already useful without recommendation, but recommendation increases the mean positive contribution from \svgain{$+11.3$} to \svgain{$+15.3$} and reduces the loss from \svloss{$-3.3$} to \svloss{$-2.0$}. Thus, evolution and recommendation play complementary roles. Evolution creates potentially reusable procedural knowledge, while recommendation decides whether that knowledge should be exposed to the current task. This also explains why the average gains in Tables~\ref{tab:main-results-tb2} and~\ref{tab:main-results-swebenchpro} are moderate despite large improvements on some tasks: skills create a heavy-tailed effect, helping substantially when matched well but causing regressions when exposed indiscriminately.
+
+\FloatBarrier
+\subsubsection{Offline Evolution Accumulates Transferable Procedures}
+\begin{figure}[!b]
+    \centering
+    \includegraphics[width=.8\linewidth]{assets/evolve_dynamics.pdf}
+    \caption{Evolution dynamics of the offline skill library on Terminal-Bench Pro. Left: checkpointed libraries are evolved on Terminal-Bench Pro and transferred frozen to Terminal-Bench 2.0 Hard subset; curves report avg@3. Right: library growth includes both new skill creation and edits to existing skills.}
+    \label{fig:evolve-dynamics}
+\end{figure}
+
+Offline evolution does not optimize the source benchmark score directly. Ground-truth and verifier signals are used only after task completion to support attribution: they help determine which parts of the trajectory were successful, reusable, and properly attributable. The evolution stage then consumes the attributed subtask records rather than oracle answers, and benchmark-specific constants or gold outputs are excluded from reusable exploration.
+
+Figure~\ref{fig:evolve-dynamics} reflects this separation. Terminal-Bench Pro performance fluctuates across checkpoints, whereas the frozen libraries transfer increasingly well to unseen Terminal-Bench 2.0 Hard tasks. The non-monotonic source-side curve separates source-task performance from transfer-side library utility: \ours is not simply fitting the source benchmark. The transfer-side improvement suggests that the library accumulates reusable operational procedures that survive task distribution shift. The library-growth panel further shows that evolution is not append-only trajectory storage. New skills are created, but existing skills are also edited, indicating that \ours consolidates repeated evidence into persistent skill artifacts.
+
+\subsubsection{Case Study: What Transfers Across Tasks}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=.8\linewidth]{assets/evolve_demo.pdf}
+    \caption{Representative offline-transfer case. A skill evolved from an Apache website task transfers persistent-service setup and end-to-end validation to an unseen Git-server deployment task.}
+    \label{fig:offline-transfer-case}
+\end{figure}
+
+Figure~\ref{fig:offline-transfer-case} provides a representative example of what is transferred by offline evolution; the source offline-evolution trajectories are shown in Appendix~\ref{app:case-apache-logging-rat} and~\ref{app:case-apache-analytics-virtu}. The source trajectories implement Apache-backed websites and contribute reusable knowledge about persistent Apache configuration, service installation, and end-to-end runtime validation. These lessons are distilled into the \texttt{ubuntu-apache-vhost} skill rather than stored as raw trajectories.
+
+On the unseen Git-server task, whose trajectory is shown in Appendix~\ref{app:case-apache-git}, the evolved run does not copy the source solution. Instead, it reuses the operational pattern: deploy the web endpoint with a stable Apache service, connect the Git post-receive hook to the served directory, and validate the full path by requesting the final URL. The baseline run builds a bare repository and a lightweight Node server, but it lacks persistent service setup and final runtime validation. The case illustrates the type of transfer that \ours is designed to preserve: not task-specific constants or answers, but reusable execution invariants that improve reliability on a different task.
+
+\FloatBarrier

@@ -1,0 +1,43 @@
+% !TEX root = ../mmskills.tex
+
+\section{Introduction}
+\label{sec:introduction}
+
+Skills have become one of the central abstractions for building useful agents: recent systems store reusable behaviors as prompts, code, execution graphs, or learned routines that can be retrieved and composed later \citep{wang2023voyager,zheng2025skillweaver,chen2026cuaskill,wang2026skillx}. Despite differences in implementation, these skills largely share a common representational assumption: reusable knowledge can be expressed as a textual or code-level specification of actions. This design is effective when the relevant state can be adequately abstracted in language, but it is insufficient for multimodal agents whose decisions depend on visual evidence. For such agents, reusable experience must specify not only what operation to perform, but also how to recognize the relevant state, and how visual evidence should guide the next decision.
+A desktop agent may know the correct operation but fail to recognize that a dialog is not yet ready; a game agent may know the intended goal but still require visual cues to distinguish progress from completion.
+This observation is consistent with human procedural learning, where visual information can complement verbal explanations \citep{mayer2009multimedia}.
+Consequently, text-only skills become verbose yet underspecified, whereas demonstrations preserve visual context but are lengthy, instance-specific, and difficult to adapt.
+
+This gap suggests the need for \emph{multimodal procedural knowledge}: reusable guidance that binds action procedures to the visual evidence and state-dependent decisions required for applying them.
+Such knowledge is not simply a text skill with screenshots attached.
+To be reusable, it must specify what procedure is being reused, when the procedure should or should not be used, which visible cues matter, and which evidence verifies progress, failure, or completion.
+Turning this requirement into practical multimodal skill libraries raises three central challenges:
+%\review{换成 item的分点形式}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Representation.} What should a multimodal skill package contain, and how should it bind procedures, visible, and verification cues into a coherent reusable unit?
+    \item \textbf{Generation.} Where can such packages be derived from, if they must use public non-evaluation interaction experience rather than hand-written examples or raw demonstration replay?
+    \item \textbf{Utilization.} How can an agent consult multimodal skill evidence at inference time while avoiding excessive image context, distracting state descriptions, and over-anchoring to reference screenshots?
+\end{itemize}
+
+We propose \textbf{MMSkills}, a framework for representing, generating, and utilizing reusable multimodal procedures for runtime visual decision making. Each MMSkill couples a \textit{textual procedure}, which describes the reusable action pattern, with \textit{runtime state cards}, which encode when-to-use and when-not-to-use conditions, visible cues, verification cues, and available views, and \textit{multi-view keyframes}, which ground critical states through full-frame, focused, and optional before/after views. The resulting package is not a text instruction with illustrative images attached. It is a state-conditioned procedure whose visual evidence helps the agent decide when to follow, skip, or verify the procedure.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{introduction.pdf}
+    \caption{A concrete MMSkills example. A multimodal skill package combines a textual procedure, runtime state cards, and multi-view visual evidence. For the same chart-creation task, text-only guidance can miss the active sheet state, while branch-loaded MMSkills align skill evidence with the live screen and return state-aware guidance for the main agent.}
+    \label{fig:intro-mmskill-example}
+\end{figure}
+
+To \textbf{generate} the multimodal skill package, we introduce an \textit{\textbf{automated trajectory-to-skill Generator}} built around an agentic, meta-skill-guided pipeline. This generation problem is substantially harder than text-skill extraction: while prior pipelines can often compress successful rollouts, failure analyses, or accumulated traces into reusable instructions or action abstractions \citep{zheng2025skillweaver,wang2026skillx,alzubi2026evoskill,ma2026skillclawletskillsevolve,xia2026skillrlevolvingagentsrecursive,li2026skillsbenchbenchmarkingagentskills}, generating MMSkills must also identify reusable visual states, select diagnostic frames, and bind each visual cue to the decision rule it supports. Our Generator operates on public trajectories that are \textbf{separate from evaluation tasks}: it groups related workflows, induces candidate procedures, merges overlapping candidates, grounds them in real non-test trajectory frames, and audits the resulting packages with reusable multimodal-skill-factory meta-skills. This process converts public interaction data into compact visual procedural knowledge without storing raw demonstrations as the skill.
+
+For effective \textbf{utilization}, we introduce \textit{\textbf{branch loading}} to consult the multimodal skills without injecting the entire package into the main trajectory. Existing skill agents commonly insert retrieved skills directly into the main interaction context. This loading pattern becomes problematic for MMSkills: a single package may contain several state cards together with multi-view screenshots, so direct insertion creates substantial context pressure and makes reference images compete with the live observation. More importantly, the main agent can become visually anchored to superficially similar reference screenshots, planning around the skill example rather than the current environment. Branch loading addresses this issue as a multimodal form of progressive disclosure over skill evidence \citep{xu2026agentskills}. When the main agent considers a skill, it opens a temporary branch that selects the needed state cards and keyframe views, aligns them with the live screen or scene, and returns compact structured guidance with applicability judgments, subgoals, and next-step plans. The main trajectory receives distilled decision support rather than the full skill package, as illustrated by the example in Figure~\ref{fig:intro-mmskill-example}.
+
+We evaluate MMSkills across GUI and game-based visual agent tasks, including OSWorld \citep{xie2024osworld}, macOSWorld \citep{yang2025macosworld}, VAB-Minecraft from VisualAgentBench \citep{liu2024visualagentbench}, and Super-Mario in LMGame-Bench \citep{hu2025lmgamebenchgoodllmsplaying}. Across frontier and smaller multimodal models, MMSkills improve performance over no-skill and text-only skill conditions, suggesting that external visual procedural knowledge complements model-internal priors.
+
+Our main contributions are summarized as follows:
+\begin{itemize}[leftmargin=*]
+    \item To the best of our knowledge, we are the first to introduce the \textbf{multimodal skill package}, formulating reusable skills for general visual agents as multimodal procedural knowledge: compact, state-conditioned units that organize textual procedures, runtime state cards, and multi-view keyframes for visual decision making.
+    \item We develop an agentic trajectory-to-skill \textbf{Generator} that turns public, non-evaluation trajectories into multimodal skill packages through workflow grouping, procedure induction, visual grounding, and meta-skill-guided auditing.
+    \item We propose \textbf{branch loading}, a runtime mechanism that selects and aligns multimodal skill evidence in a temporary branch before returning structured decision support to the main agent.
+    \item We demonstrate significant gains across GUI and game-based visual-agent benchmarks and multiple model families, showing that external multimodal procedural knowledge complements model-internal priors.
+\end{itemize}

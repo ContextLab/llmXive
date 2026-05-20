@@ -1,0 +1,122 @@
+\begin{table}[!ht]
+\centering
+\vspace{-0.2cm}
+\caption{\textbf{Summary of datasets and benchmarks for AI-assisted research}, organized by phases and stages.}
+\vspace{-0.2cm}
+\label{tab:benchmarks}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\resizebox{\linewidth}{!}{\begin{tabular}{c|l|crr|c|c|l|l|c}
+\toprule
+\textbf{\#} & \textbf{Stage} & \textbf{Benchmark} & \textbf{Ref.} & \textbf{Year} & \textbf{GitHub} & \textbf{HF} & \textbf{Evaluation Focus} & \textbf{Scale} & \textbf{Link}
+\\
+\midrule\midrule
+\multicolumn{10}{@{}l}{\cellcolor{P1color!8}\textbf{\textsf{~~Phase 1: Creation}}} \\
+\addlinespace[1pt]
+{1} & \Sone: Idea Gen. & IdeaBench & \cite{guo2025ideabench} & 2024 & - & - & Novelty, feasibility & Multiple LLMs & \href{https://arxiv.org/abs/2411.02429}{\faExternalLink} \\
+\rowcolor{P1color!6}
+{2} & \Sone: Idea Gen. & LiveIdeaBench & \cite{liveideabench2024} & 2024 & - & - & Real-time model comparison & 40+ models & \href{https://arxiv.org/abs/2412.17596}{\faExternalLink} \\
+{3} & \Sone: Idea Gen. & AI Idea Bench 2025 & \cite{aiideabench2025} & 2025 & \githubicon{https://github.com/yansheng-qiu/AI_Idea_Bench_2025} & - & Multi-dimensional assessment & 3,495 papers & \href{https://arxiv.org/abs/2504.14191}{\faExternalLink} \\
+\rowcolor{P1color!6}
+{4} & \Sone: Idea Gen. & ResearchBench & \cite{researchbench2025} & 2025 & - & - & Inspiration-based task decomp. & - & \href{https://arxiv.org/abs/2503.21248}{\faExternalLink} \\
+{5} & \Sone: Idea Gen. & Scientist-Bench & \cite{airesearcher2025} & 2025 & - & - & Guided \& open-ended AI research & Multi-domain & \href{https://arxiv.org/abs/2505.18705}{\faExternalLink} \\
+\rowcolor{P1color!6}
+{6} & \Sone: Idea Gen. & HindSight & \cite{hindsight2026} & 2026 & - & - & Impact-based idea evaluation & - & \href{https://arxiv.org/abs/2603.15164}{\faExternalLink} \\
+{7} & \Sone: Idea Gen. & HeurekaBench & \cite{heurekabench2026} & 2026 & \githubicon{https://github.com/mlbio-epfl/HeurekaBench} & - & Open-ended data-driven science & Multi-domain & \href{https://arxiv.org/abs/2601.01678}{\faExternalLink}
+\\\midrule
+\addlinespace[2pt]
+\rowcolor{P1color!6}
+{8} & \Stwo: Lit.\ Rev. & LitSearch & \cite{litsearch2024} & 2024 & \githubicon{https://github.com/princeton-nlp/LitSearch} & \hficon{https://huggingface.co/datasets/princeton-nlp/LitSearch} & Literature retrieval & - & \href{https://arxiv.org/abs/2407.18940}{\faExternalLink} \\
+{9} & \Stwo: Lit.\ Rev. & DeepScholar-Bench & \cite{deepscholar2025} & 2025 & \githubicon{https://github.com/guestrin-lab/deepscholar-bench} & - & Research synthesis quality & - & \href{https://arxiv.org/abs/2508.20033}{\faExternalLink} \\
+\rowcolor{P1color!6}
+{10} & \Stwo: Lit.\ Rev. & ReportBench & \cite{reportbench2025} & 2025 & \githubicon{https://github.com/ByteDance-BandAI/ReportBench} & - & Deep research report quality & 100 prompts & \href{https://arxiv.org/abs/2508.15804}{\faExternalLink} \\
+{11} & \Stwo: Lit.\ Rev. & ScholarGym & \cite{scholargym2026} & 2026 & - & - & Information-gathering evaluation & 2,536 queries & \href{https://arxiv.org/abs/2601.21654}{\faExternalLink} \\
+\rowcolor{P1color!6}
+{12} & \Stwo: Lit.\ Rev. & SciNetBench & \cite{scinetbench2026} & 2026 & - & - & Relation-aware retrieval & 18M papers & \href{https://arxiv.org/abs/2601.03260}{\faExternalLink} \\
+{13} & \Stwo: Lit.\ Rev. & IDRBench & \cite{idrbench2026} & 2026 & - & - & Interactive deep research & 100 tasks & \href{https://arxiv.org/abs/2601.06676}{\faExternalLink}
+\\\midrule
+\addlinespace[2pt]
+\rowcolor{P1color!6}
+{14} & \Sthree: Coding & SWE-bench & \cite{swebench2024} & 2024 & \githubicon{https://github.com/princeton-nlp/SWE-bench} & \hficon{https://huggingface.co/datasets/princeton-nlp/SWE-bench_Verified} & GitHub issue resolution & 500 problems & \href{https://arxiv.org/abs/2310.06770}{\faExternalLink} \\
+{15} & \Sthree: Coding & MLAgentBench & \cite{mlagentbench2024} & 2024 & \githubicon{https://github.com/snap-stanford/MLAgentBench} & - & ML experimentation & 13 tasks & \href{https://arxiv.org/abs/2310.03302}{\faExternalLink} \\
+\rowcolor{P1color!6}
+{16} & \Sthree: Coding & LAB-Bench & \cite{labbench2024} & 2024 & \githubicon{https://github.com/Future-House/LAB-Bench} & \hficon{https://huggingface.co/datasets/futurehouse/lab-bench} & Biology research tasks & Multi-domain & \href{https://arxiv.org/abs/2407.10362}{\faExternalLink} \\
+{17} & \Sthree: Coding & DiscoveryBench & \cite{majumder2024discoverybench} & 2024 & \githubicon{https://github.com/allenai/discoverybench} & \hficon{https://huggingface.co/datasets/allenai/discoverybench} & Data-driven discovery & - & \href{https://arxiv.org/abs/2407.01725}{\faExternalLink} \\
+\rowcolor{P1color!6}
+{18} & \Sthree: Coding & DiscoveryWorld & \cite{discoveryworld2024} & 2024 & \githubicon{https://github.com/allenai/discoveryworld} & - & Virtual discovery environment & 120 tasks & \href{https://arxiv.org/abs/2406.06769}{\faExternalLink} \\
+{19} & \Sthree: Coding & MLE-Bench & \cite{chan2024mlebench} & 2024 & \githubicon{https://github.com/openai/mle-bench} & \hficon{https://huggingface.co/datasets/TIGER-Lab/mle-bench} & Kaggle ML competitions & 75 tasks & \href{https://arxiv.org/abs/2410.07095}{\faExternalLink} \\
+\rowcolor{P1color!6}
+{20} & \Sthree: Coding & ScienceAgentBench & \cite{scienceagentbench2024} & 2024 & \githubicon{https://github.com/OSU-NLP-Group/ScienceAgentBench} & \hficon{https://huggingface.co/datasets/osunlp/ScienceAgentBench} & Scientific data analysis & - & \href{https://arxiv.org/abs/2410.05080}{\faExternalLink} \\
+{21} & \Sthree: Coding & KernelBench & \cite{kernelbench2025} & 2025 & \githubicon{https://github.com/ScalingIntelligence/KernelBench} & \hficon{https://huggingface.co/datasets/ScalingIntelligence/KernelBench} & GPU kernel generation & - & \href{https://arxiv.org/abs/2502.10517}{\faExternalLink} \\
+\rowcolor{P1color!6}
+{22} & \Sthree: Coding & TritonBench & \cite{tritonbench2025} & 2025 & \githubicon{https://github.com/thunlp/TritonBench} & - & Triton operator generation & - & \href{https://arxiv.org/abs/2502.14752}{\faExternalLink} \\
+{23} & \Sthree: Coding & ResearchCodeBench & \cite{researchcodebench2025} & 2025 & - & - & Novel ML code implementation & 212 tasks & \href{https://arxiv.org/abs/2506.02314}{\faExternalLink} \\
+\rowcolor{P1color!6}
+{24} & \Sthree: Coding & SciReplicate-Bench & \cite{scireplicatebench2025} & 2025 & \githubicon{https://github.com/xyzCS/SciReplicate-Bench} & - & Algorithm reproduction & 100 tasks & \href{https://arxiv.org/abs/2504.00255}{\faExternalLink} \\
+{25} & \Sthree: Coding & MLR-Bench & \cite{mlrbench2025} & 2025 & - & \hficon{https://huggingface.co/datasets/chchenhui/mlrbench-tasks} & Open-ended ML research & 201 tasks & \href{https://arxiv.org/abs/2505.19955}{\faExternalLink} \\
+\rowcolor{P1color!6}
+{26} & \Sthree: Coding & MLGym & \cite{mlgym2025} & 2025 & - & - & AI research agent framework & - & \href{https://arxiv.org/abs/2502.14499}{\faExternalLink} \\
+{27} & \Sthree: Coding & CURIE & \cite{curie2025} & 2025 & \githubicon{https://github.com/Just-Curieous/Curie} & - & Rigorous experimentation & - & \href{https://arxiv.org/abs/2502.16069}{\faExternalLink} \\
+\rowcolor{P1color!6}
+{28} & \Sthree: Coding & PaperBench & \cite{paperbench2025} & 2025 & \githubicon{https://github.com/openai/preparedness} & \hficon{https://huggingface.co/datasets/josancamon/paperbench} & Paper replication & 20 ICML papers & \href{https://arxiv.org/abs/2504.01848}{\faExternalLink} \\
+{29} & \Sthree: Coding & AstaBench & \cite{astabench2025} & 2025 & \githubicon{https://github.com/allenai/asta-bench} & \hficon{https://huggingface.co/datasets/allenai/asta-bench} & Scientific research suite & 2,400+ problems & \href{https://arxiv.org/abs/2510.21652}{\faExternalLink} \\
+\rowcolor{P1color!6}
+{30} & \Sthree: Coding & ResearchClawBench & \cite{researchclawbench2025} & 2025 & \githubicon{https://github.com/InternScience/ResearchClawBench} & - & Scientist-aligned workflows & Multi-domain & \href{https://arxiv.org/abs/2512.16969}{\faExternalLink} \\
+{31} & \Sthree: Coding & EXP-Bench & \cite{expbench2025} & 2026 & \githubicon{https://github.com/Just-Curieous/Curie/tree/main/benchmark/exp_bench} & \hficon{https://huggingface.co/datasets/Just-Curieous/EXP-Bench} & AI conducting experiments & 461 tasks/51 papers & \href{https://openreview.net/forum?id=KjgyAm383Z}{\faExternalLink} \\
+\rowcolor{P1color!6}
+{32} & \Sthree: Coding & FrontierScience & \cite{wang2026frontierscience} & 2026 & - & - & Expert-level scientific tasks & Olympiad + PhD & \href{https://arxiv.org/abs/2601.21165}{\faExternalLink} \\
+{33} & \Sthree: Coding & PostTrainBench & \cite{posttrainbench2026} & 2026 & \githubicon{https://github.com/aisa-group/PostTrainBench} & \hficon{https://huggingface.co/datasets/aisa-group/PostTrainBench-Trajectories} & LLM post-training automation & - & \href{https://arxiv.org/abs/2603.08640}{\faExternalLink}
+\\\midrule
+\addlinespace[2pt]
+\rowcolor{P1color!6}
+{34} & \Sfour: Tab.~\&~Fig. & MatPlotBench & \cite{matplotagent2024} & 2024 & - & - & Data visualization & - & \href{https://arxiv.org/abs/2402.11453}{\faExternalLink} \\
+{35} & \Sfour: Tab.~\&~Fig. & PlotCraft & \cite{plotcraft2025} & 2025 & - & - & Complex visualization & 1K tasks & \href{https://arxiv.org/abs/2511.00010}{\faExternalLink} \\
+\rowcolor{P1color!6}
+{36} & \Sfour: Tab.~\&~Fig. & TeXpert & \cite{texpert2025} & 2025 & - & - & LaTeX code generation & 3 difficulty levels & \href{https://arxiv.org/abs/2506.16990}{\faExternalLink} \\
+{37} & \Sfour: Tab.~\&~Fig. & PaperBananaBench & \cite{paperbanana2026} & 2026 & - & - & Scientific illustration quality & 292 test cases & \href{https://arxiv.org/abs/2601.23265}{\faExternalLink} \\
+\rowcolor{P1color!6}
+{38} & \Sfour: Tab.~\&~Fig. & SciFlow-Bench & \cite{scifigbench2026} & 2026 & - & - & Framework figure evaluation & 500 figures & \href{https://arxiv.org/abs/2602.09809}{\faExternalLink} \\
+{39} & \Sfour: Tab.~\&~Fig. & Figure-Bench & \cite{autofigure2026iclr} & 2026 & \githubicon{https://github.com/ResearAI/AutoFigure} & \hficon{https://huggingface.co/datasets/WestlakeNLP/FigureBench} & Text-to-illustration generation & 3,300 pairs & \href{https://arxiv.org/abs/2602.03828}{\faExternalLink}
+\\\midrule
+\addlinespace[3pt]
+\multicolumn{10}{@{}l}{\cellcolor{P2color!8}\textbf{\textsf{~~Phase 2: Writing}}} \\
+\addlinespace[1pt]
+{40} & \Sfive: Writing & ScholarCopilot & \cite{scholarcop2025} & 2025 & - & - & Citation accuracy & 40.1\% top-1 acc. & \href{https://arxiv.org/abs/2504.00824}{\faExternalLink} \\
+\rowcolor{P2color!6}
+{41} & \Sfive: Writing & SciIG & \cite{sciig2025} & 2025 & - & - & Introduction writing quality & NAACL/ICLR papers & \href{https://arxiv.org/abs/2508.14273}{\faExternalLink} \\
+{42} & \Sfive: Writing & PaperWritingBench & \cite{paperwritingbench2026} & 2026 & - & - & AI paper writing quality & 200 papers & \href{https://arxiv.org/abs/2604.05018}{\faExternalLink}
+\\\midrule
+\addlinespace[3pt]
+\multicolumn{10}{@{}l}{\cellcolor{P3color!8}\textbf{\textsf{~~Phase 3: Validation}}}
+\\
+\addlinespace[1pt]
+{43} & \Ssix: Peer Rev. & ClaimCheck & \cite{claimcheck2025} & 2025 & - & - & Grounded LLM critiques & - & \href{https://arxiv.org/abs/2503.21717}{\faExternalLink} \\
+\rowcolor{P3color!6}
+{44} & \Ssix: Peer Rev. & Review-CoT & \cite{reviewagents2025} & 2025 & - & - & Review reasoning chains & 142K reviews & \href{https://arxiv.org/abs/2503.08506}{\faExternalLink} \\
+{45} & \Ssix: Peer Rev. & AI Detection Bench & \cite{aidetectionreview2025} & 2025 & - & - & AI review detection & 788K reviews & \href{https://arxiv.org/abs/2502.19614}{\faExternalLink}
+\\\midrule
+\addlinespace[2pt]
+\rowcolor{P3color!6}
+{46} & \Sseven: Rebuttal & ReviewMT & \cite{reviewmt2024} & 2024 & - & - & Multi-turn review dialogue & 26,841 papers & \href{https://arxiv.org/abs/2406.05688}{\faExternalLink} \\
+{47} & \Sseven: Rebuttal & Re$^2$ & \cite{re2dataset2025} & 2025 & - & - & Full-stage review + rebuttal & 19,926 papers & \href{https://arxiv.org/abs/2505.07920}{\faExternalLink} \\
+\rowcolor{P3color!6}
+{48} & \Sseven: Rebuttal & Commitment Checklist & \cite{rebuttalcommitment2026} & 2026 & - & - & Unfulfilled rebuttal commitments & ICLR 2025 & \href{https://arxiv.org/abs/2603.00003}{\faExternalLink}
+\\\midrule
+\addlinespace[3pt]
+\multicolumn{10}{@{}l}{\cellcolor{P4color!8}\textbf{\textsf{~~Phase 4: Dissemination}}} \\
+\addlinespace[1pt]
+{49} & \Seight: P2Slides & PPTEval & \cite{pptagent2025} & 2025 & \githubicon{https://github.com/icip-cas/PPTAgent} & - & Slide content, design, coherence & 10K+ presentations & \href{https://arxiv.org/abs/2501.03936}{\faExternalLink} \\
+\rowcolor{P4color!6}
+{50} & \Seight: P2Video & PresentQuiz & \cite{paper2video2025} & 2025 & \githubicon{https://github.com/showlab/Paper2Video} & - & Video faithfulness & 101 paper-video pairs & \href{https://arxiv.org/abs/2510.05096}{\faExternalLink}
+\\\midrule
+\addlinespace[3pt]
+\multicolumn{10}{@{}l}{\cellcolor{tableheader!5}\textbf{\textsf{~~Cross-Phase}}} \\
+\addlinespace[1pt]
+{51} & Cross-Phase & RE-Bench & \cite{rebench2024} & 2024 & \githubicon{https://github.com/METR/RE-Bench} & - & Open-ended ML R\&D & 7 environments & \href{https://arxiv.org/abs/2411.15114}{\faExternalLink} \\
+\rowcolor{tableheader!6}
+{52} & Cross-Phase & PaperBench & \cite{paperbench2025} & 2025 & \githubicon{https://github.com/openai/preparedness} & \hficon{https://huggingface.co/datasets/josancamon/paperbench} & End-to-end paper replication & 20 ICML papers & \href{https://arxiv.org/abs/2504.01848}{\faExternalLink} \\
+\bottomrule
+\end{tabular}}
+\vspace{-0.7cm}
+\end{table}

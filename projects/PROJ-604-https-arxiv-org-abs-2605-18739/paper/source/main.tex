@@ -1,0 +1,216 @@
+\pdfoutput=1
+\documentclass[10pt, logo, twocolumn, copyright]{nv}
+
+\usepackage{graphicx}
+\definecolor{nvidiagreen}{HTML}{76B900}
+
+\input{preamble}
+
+\usepackage{mdframed}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\def\UrlBreaks{\do\/\do-}
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{tabto}
+\usepackage{xspace}
+\usepackage{amsmath}
+\usepackage{adjustbox}
+\usepackage{enumitem}
+\usepackage{wrapfig}
+%\usepackage{dblfloatfix}
+\usepackage{times}
+%\usepackage{epsfig}
+\usepackage{verbatim}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{array}
+\usepackage{colortbl}
+\usepackage{booktabs}
+\usepackage{bbm}
+\usepackage{makecell}
+\usepackage{float}
+\usepackage{siunitx}
+\usepackage{pifont}
+\usepackage{marvosym}
+\usepackage{listings}
+\usepackage{pdflscape}
+\usepackage{footmisc}
+\usepackage{url}
+\usepackage{tabularx}
+\usepackage{arydshln}
+\usepackage{hhline}
+\usepackage{diagbox}
+\usepackage{tcolorbox}
+\usepackage[nameinlink]{cleveref}
+\usepackage{hyperref}
+\usepackage[square,sort,comma,numbers]{natbib} 
+\usepackage{fp} % Required for floating-point calculations
+\usepackage{authblk}
+\usepackage{xspace}
+\usepackage{xcolor}         % colors
+\usepackage{stfloats}
+\definecolor{DeepRed}{RGB}{150,20,20}
+\newcommand{\cmark}{\ding{51}}  % ✔
+\newcommand{\xmark}{\ding{55}}  % ✘
+
+\crefname{section}{Sec.}{Sec.}
+\crefname{proposition}{Proposition.}{Proposition.}
+\crefname{equation}{Eq.}{Eqs.}
+\crefname{figure}{Fig.}{Figs.}
+\crefname{table}{Tab.}{Tabs.}
+\crefname{algorithm}{Algorithm}{Algorithms}
+\crefname{appendix}{Appendix}{Appendices}
+\Crefname{thm}{Thm}{Thm}
+\setlength{\parindent}{0pt}
+
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\footnotesize,
+    backgroundcolor=\color{codebg},
+    keywordstyle=\color{keywordcolor}\bfseries,
+    commentstyle=\color{commentcolor}\itshape,
+    stringstyle=\color{stringcolor},
+    numbers=none,
+    numberstyle=\color{numbercolor}\tiny,
+    stepnumber=1,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    breaklines=true,
+    frame=none,
+    framesep=8pt,
+    framerule=0.5pt
+}
+\newcommand{\xmarker}{\ding{55}}
+\newcommand{\cmarker}{\ding{51}}
+
+\definecolor{codebg}{RGB}{245, 245, 245}
+\definecolor{keywordcolor}{RGB}{0, 0, 153}
+\definecolor{commentcolor}{RGB}{34, 139, 34}
+\definecolor{stringcolor}{RGB}{163, 21, 21}
+\definecolor{numbercolor}{RGB}{128, 128, 128}
+
+\def\eg{\emph{e.g.}} \def\Eg{\emph{E.g.}}
+\def\ie{\emph{i.e.}} \def\Ie{\emph{I.e.}}
+\def\cf{\emph{c.f.}} \def\Cf{\emph{C.f.}}
+\def\etc{\emph{etc.}} \def\vs{\emph{vs.}}
+\def\wrt{w.r.t.} \def\dof{d.o.f.}
+\def\etal{\emph{et al.}}
+
+\title{LongLive-2.0: An NVFP4 Parallel Infrastructure \\ for Long Video Generation}
+
+\runningtitle{LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation}
+
+%\projectpage{https://github.com/your_repo}
+
+\correspondingauthor={
+$^{*}$ Equal contribution $^{\dagger}$ Project Lead
+}
+\author{%
+\begin{minipage}[t]{\textwidth}
+\centering%\hspace*{-2em}
+Yukang Chen$^{*\dagger}$\quad 
+Luozhou Wang$^{*}$\quad 
+Wei Huang$^{*}$\quad 
+Shuai Yang$^{*}$\quad 
+Bohan Zhang\quad \protect\\[0.1cm]
+Yicheng Xiao\quad 
+Ruihang Chu\quad 
+Weian Mao\quad 
+Qixin Hu\quad
+Shaoteng Liu\quad 
+Yuyang Zhao\quad  \protect\\[0.1cm]
+Huizi Mao\quad 
+Ying-Cong Chen\quad 
+Enze Xie\quad
+Xiaojuan Qi\quad 
+Song Han\protect\\[0.2cm]
+NVIDIA \protect\\[0.2cm]
+\href{https://github.com/NVlabs/LongLive}{\texttt{github.com/NVlabs/LongLive}}
+\end{minipage}
+}
+
+\begin{abstract}\small
+\textbf{Abstract:} We present LongLive-2.0, 
+an NVFP4-based parallel infrastructure throughout the full training and inference workflow of long video generation, addressing speed and memory bottlenecks. 
+(1) For training, we introduce sequence-parallel autoregressive (AR) training, instantiated as Balanced SP, which co-designs the efficient teacher-forcing layout with SP execution by pairing clean-history and noisy-target temporal chunks on each rank, enabling a natural teacher-forcing mask with SP-aware chunked VAE encoding.
+Combined with NVFP4 precision, it reduces GPU memory cost and accelerates GEMM computation during training, the proportion of which increases as video length grows.
+Moreover, we show that a high-quality infrastructure and dataset enable a remarkably clean training pipeline. Unlike existing Self-Forcing series methods that rely on ODE initialization and subsequent distribution matching distillation (DMD), LongLive-2.0 directly tunes a diffusion model into a long, multi-shot, interactive auto-regressive (AR) diffusion model. It can be further converted to real-time generation (4 to 2 denoising steps) with standalone LoRA weights. 
+(2) For inference on Blackwell GPUs, we enable W4A4 NVFP4 inference, quantize KV cache into NVFP4 for memory savings, and boost end-to-end throughput with asynchronous streaming VAE decoding. On non-Blackwell GPU architectures, we deploy SP inference to match the speed on Blackwell GPUs, while the quantized KV cache can lower inter-GPU communication of SP. Experiments show up to 2.15$\times$ speedup in training, and 1.84$\times$ in inference. LongLive-2.0-5B achieves 45.7 FPS inference while attaining strong performance on benchmarks. To our knowledge, LongLive-2.0 is the first NVFP4 training and inference system for long video generation.
+\end{abstract}
+
+
+% Place the teaser as non-floating title material so it appears immediately below the abstract on page 1.
+% In two-column mode, figure* floats can only go to a page top; adding the teaser inside \maketitle's
+% \twocolumn[...] block prevents it from drifting to page 2.
+\newcommand{\llteaserfigure}{%
+  \begin{center}
+    \includegraphics[width=1.0\textwidth]{figs/teaser.pdf}
+    \vskip -2pt%
+    \captionof{figure}{\textbf{LongLive 2.0 supports NVFP4-based multi-shot long-video generation for both training and inference.}
+    {Representative frames from five shots generated with BF16 and NVFP4 (Left):} NVFP4 preserves the overall scene composition, subject structure, and shot-level semantics of the BF16 baseline. Note that LongLive 2.0 allows flexible customization of the duration for each shot.
+    {Efficiency and memory comparison (Right):} NVFP4 achieves 2.15$\times$ faster training and 1.84$\times$ faster inference, reducing training latency from 1372.9 ms per iteration to 639.5 ms per iteration and inference latency from 40.3 to 21.9 ms/frame, \textit{i.e.}, 45.7 FPS, while reducing memory usage from 35.4 GB to 19.4 GB.
+    }\label{fig:teaser}
+  \end{center}%
+}
+
+\makeatletter
+\renewcommand{\maketitle}{%
+  \twocolumn[%
+  \begin{adjustwidth}{0pt}{24pt}
+    \begin{center}
+      {\titlefont \@title\par}%
+      \vskip11pt
+      {\@author\par}%
+      \vskip20pt%
+    \end{center}
+  \end{adjustwidth}
+  \abscontent
+  \vskip12pt%
+  \llteaserfigure
+  \vskip10pt%
+  ]%
+  \thispagestyle{firststyle}%
+  \markboth{\@runningtitle}{\@runningtitle}%
+}
+\makeatother
+
+\begin{document}
+\maketitle
+
+% Teaser moved into \maketitle above to keep it directly below the abstract on page 1.
+\input{sec/01_intro}
+\input{sec/02_training_infra}
+\input{sec/03_inference_infra}
+\input{sec/04_algo}
+\input{sec/05_experiment}
+
+\section{Conclusion}
+In this work, we present LongLive-2.0, a algorithm–infrastructure co-design system for efficient long video generation across training and inference. For training, we propose Balanced SP along with NVFP4 quantization. For inference, we quantize both the model (W4A4) and KV cache to NVFP4 and accelerate execution with parallel dequantization.
+Benefiting from this strong infrastructure, LongLive-2.0 enables a remarkably clean training pipeline that directly fine-tunes diffusion models to long, multi-shot AR without complex ODE initialization or additional long tuning stages. Real-time generation can be further achieved with lightweight LoRA weights. LongLive-2.0 achieves up to 2.1× training speedup and 1.8× inference speedup, with LongLive-2.0-5B supporting 45.7 FPS while maintaining strong benchmark performance. To our knowledge, LongLive-2.0 is the first end-to-end NVFP4 training and inference system tailored for long video generation.
+
+\textbf{Limitations.}$\;$ The acceleration gain from low-bit quantization is hardware-dependent. NVFP4 inference delivers acceleration only on Blackwell GPUs (\textit{e.g.}, GB200), which are equipped with the latest-generation Tensor Cores and optimized kernels. In contrast, non-Blackwell GPUs, like A100 (Ampere architecture) and H100 (Hopper architecture), lack native hardware support for these optimized kernels. To compensate this limitation, we use SP inference as an alternative solution to boost inference efficiency on non-Blackwell platforms (Section~\ref{ap:sp_inference} in the appendix).
+
+\textbf{Broader Impacts.}$\;$
+LongLive-2.0 reduces computational costs and lowers the resource threshold for related research and deployment. It shares the ethical impacts with existing video generation models. The NVFP4 and parallelism infrastructure itself involves no negative social implications.
+
+\clearpage
+{
+  \bibliography{reference}
+  \bibliographystyle{plain}
+}
+\onecolumn
+
+\clearpage
+\input{appendix}
+
+\end{document}

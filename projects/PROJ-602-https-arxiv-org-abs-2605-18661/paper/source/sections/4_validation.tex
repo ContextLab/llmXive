@@ -1,0 +1,216 @@
+\section{Phase 3: Validation}
+\label{sec:validation}
+
+This phase encompasses the stages through which a manuscript produced in Phase~2 (\emph{Writing}) is externally scrutinized and iteratively refined: peer review and rebuttal with revision. Together, these stages address a different question from \emph{Creation} or \emph{Writing}: \emph{does this contribution meet the epistemic standards of the field?}
+
+Validation is distinct because it introduces adversarial evaluation by reviewers who are expected to identify unsupported claims, methodological flaws, missing comparisons, unclear writing, and insufficient novelty. This makes Phase~3 a high-stakes setting for AI assistance. Automated systems can help summarize manuscripts, draft reviews, synthesize reviewer opinions, identify weaknesses, and support rebuttal preparation, but they also risk amplifying leniency, bias, adversarial manipulation, and weakly grounded criticism. The central challenge is therefore not whether AI can produce review-like text, but whether it can support fair, critical, and evidence-grounded evaluation without replacing independent expert judgment. The two stages also form a feedback loop: reviewer critiques in \Ssix (\emph{Peer Review}) may require additional experiments in \Sthree (Coding and Experiments), revised figures in \Sfour (\emph{Tables and Figures}), or manuscript rewrites in \Sfive (\emph{Paper Writing}), while rebuttal and revision in \Sseven (\emph{Rebuttal and Revision}) determine how those critiques are addressed.
+
+
+
+\subsection{Peer Review}
+\label{sec:peer_review}
+
+Peer review is the gateway to validation. It evaluates whether a manuscript is technically sound, sufficiently novel, clearly presented, and supported by appropriate evidence. Existing systems span automated review generation, meta-review drafting, reviewer--paper matching, and review quality assessment. Across these directions, the central limitation is that LLMs can often produce structured and plausible critiques, but may under-detect methodological flaws, over-score weak submissions, and remain vulnerable to adversarial manipulation. 
+
+A comprehensive inventory of automated review systems is provided in \cref{tab:appendix_s6} (Appendix).
+
+
+
+\subsubsection{Automated Review Generation}
+\label{sec:review_gen}
+
+Automated review generation aims to produce structured critiques of manuscripts, including summaries, strengths, weaknesses, questions, and rating recommendations. Existing approaches can be grouped into four broad families. \emph{Fine-tuned reviewer models} specialize LLMs on expert review data to improve domain alignment and review format. DeepReviewer-$14$B~\cite{deepreviewer2025} reports strong performance against GPT-o1 and on ICLR 2024 accept/reject prediction, while OpenReviewer~\cite{openreviewer2025} fine-tunes Llama-$8$B on $79$K expert reviews. These systems show that supervised review data can improve review-style generation, but acceptance prediction remains a narrow proxy for review quality.
+
+\emph{Multi-agent review systems} decompose reviewing into specialized roles. MARG~\cite{darcy2024marg} uses multi-agent collaboration to generate multiple substantive comments per manuscript, the open-source ai-peer-review tool~\cite{poldrack2024aireview} uses multiple LLMs to produce independent reviews followed by meta-review synthesis, and ScholarPeer~\cite{scholarpeer2026} extends this paradigm with literature search and claim verification. Such decomposition is useful because high-quality reviewing requires several distinct operations: understanding the manuscript, checking related work, evaluating claims, identifying weaknesses, and producing actionable feedback.
+
+\emph{RL-optimized review systems} attempt to improve review quality through more explicit training signals. REMOR~\cite{remor2025} optimizes review generation with multi-objective reinforcement learning, while ReviewRL~\cite{reviewrl2025} combines retrieval-augmented context with RL to produce more comprehensive and grounded reviews. \emph{Prompt-based systems} provide a lighter-weight alternative. Reviewer2~\cite{reviewer2024} introduces a two-stage framework that models the distribution of review aspects, while ChatReviewer~\cite{chatreviewer2023} provides a deployed ChatGPT-based tool for analyzing strengths, weaknesses, and possible improvements. Overall, automated review generation has become increasingly structured, but review-like prose should not be mistaken for reliable validation: the core difficulty is whether critiques are accurate, calibrated, and grounded in the manuscript and relevant literature.
+
+
+
+\subsubsection{Meta-Review Generation}
+\label{sec:metareview}
+
+Meta-review generation synthesizes multiple reviewer opinions into a coherent area-chair-style assessment. This task differs from single-review generation because it must compare reviewer concerns, resolve disagreements, identify consensus, and justify a final recommendation. Bhatia~\etal~\cite{metareviewllm2024} evaluate GPT-3.5, LLaMA-2, and PaLM-2 on composing meta-review drafts from 40 ICLR papers, finding that LLMs are useful for multi-perspective summarization but struggle with nuanced judgment calls. AgentReview~\cite{agentreview2024} simulates the full review lifecycle, including meta-review and final decisions, and shows that social influence and authority bias can affect outcomes.
+
+The main challenge is not summarization alone, but decision-making under disagreement. When reviewers fundamentally disagree about a manuscript's contribution, LLMs often produce diluted compromises rather than taking a defensible substantive position. This limitation reflects a broader issue in AI-assisted validation: current systems are better at consolidating stated opinions than at independently adjudicating technical disputes.
+
+
+
+\subsubsection{Reviewer Matching}
+\label{sec:reviewer_matching}
+
+Reviewer--paper matching supports the editorial process by assigning manuscripts to reviewers with relevant expertise while accounting for conflicts of interest. This task is less visible than review generation, but it is crucial for review quality at scale: even a well-written review is less useful if the reviewer lacks appropriate domain expertise. RelevAI-Reviewer~\cite{relevaireviewer2024} has been deployed at major venues, while RATE~\cite{rate2026} improves expertise-based matching through profile distillation, aiming to capture a reviewer's competence signature beyond keyword overlap.
+
+Compared with automated reviewing, reviewer matching is a more appropriate setting for operational AI support because it assists the allocation process rather than replacing expert judgment. However, matching systems still require transparent conflict handling, robust expertise modeling, and human oversight, especially in interdisciplinary areas where surface-level keyword similarity can be misleading.
+
+
+
+\subsubsection{Assessment: Review Consistency, Bias, and Robustness}
+
+\label{sec:review_quality}
+
+Assessing AI-assisted peer review requires more than measuring whether generated reviews resemble human reviews. A useful review must be consistent, critical, fair, grounded, and robust to manipulation. On consistency, recent systems show measurable progress. The Stanford Agentic Reviewer~\cite{stanfordreviewer2025} achieves Spearman correlation of $0.42$, comparable to human--human correlation of $0.41$. ReviewAgents~\cite{reviewagents2025} uses a multi-agent framework trained on a Review-CoT dataset of $37{,}403$ papers and $142{,}324$ reviews. The reviewer component reported in the Nature version of The AI Scientist~\cite{aiscientistnature2026} reaches $69\%$ balanced accuracy on ICLR acceptance prediction, while ClaimCheck~\cite{claimcheck2025} evaluates whether LLM critiques are grounded in the reviewed manuscript. ReViewGraph~\cite{reviewgraph2025} further models multi-round reviewer--author debates as heterogeneous graphs, improving debate outcome prediction without LLM fine-tuning.
+
+However, consistency is not sufficient. A reviewer can be consistent while being systematically lenient, biased, or shallow. LLM-based reviewers have been shown to assign inflated scores relative to humans, and in some settings to misclassify rejected papers as acceptable~\cite{llmreviewer2025}. This makes standalone AI review risky: it may produce coherent critiques while failing to identify decisive methodological weaknesses. A more credible deployment mode is to use LLMs to improve human reviews rather than to replace reviewers. In a randomized ICLR 2025 study across $22{,}467$ reviews, LLM feedback on reviews improved review quality in $89\%$ of cases, with reviewers updating their reviews $26.6\%$ of the time, without affecting acceptance rates~\cite{iclr2025reviewstudy}. Chen~\etal~\cite{reviewerfeedback2026} further study how reviewers engage with AI-generated feedback during a live ICLR 2025 process, and Zhuang~\etal~\cite{zhuang2025asprsurvey} provide a broader taxonomy of automated scholarly paper review methods.
+
+Robustness and governance remain major concerns. The ``AI Review Lottery''~\cite{ailottery2024} estimates that at least $15.8\%$ of ICLR 2024 reviews were AI-assisted, with $49.4\%$ of submissions receiving at least one AI-assisted review. A 2025 Nature survey similarly reports that many academics use AI in peer review despite restrictive venue policies~\cite{aireviewsurvey2025}, and a major 2026 conference rejected $497$ papers for AI-use policy violations~\cite{aiuserejects2026}. These trends indicate that AI involvement in peer review is already widespread, while enforceable governance remains immature.
+
+Adversarial manipulation further complicates deployment. Breaking the Reviewer~\cite{breakingreviewer2025} studies adversarial robustness of LLM-based review assessments, while Keuper~\cite{promptinjectionreview2025} shows that simple prompt injections, such as white text on a white background, can manipulate LLM reviews. Ye~\etal~\cite{ye2024peerrisks} show that covert content injection can substantially raise review scores and that manipulating a small fraction of reviews can alter rankings. Zhou~\etal~\cite{zhou2025positiveprompt} further demonstrate that in-paper prompt injection can raise LLM scores under static and iterative attacks. At the lexical level, Raina~\etal~\cite{raina2024adversarialjudge} show that benign adjectives can function as adversarial triggers, while Sahoo~\etal~\cite{sahoo2025indirect} evaluate indirect manipulation across multiple LLMs and attack strategies, with frontier models beginning to show stronger resistance in some settings. Finally, detection-based policy enforcement remains fragile: Saha~\etal~\cite{reviewpolicyenforce2026} show that state-of-the-art AI text detectors misclassify LLM-polished reviews, and Yu~\etal~\cite{aidetectionreview2025} evaluate $18$ detection algorithms on $788{,}984$ AI-written peer reviews, highlighting the difficulty of identifying AI-generated review text at the individual-review level.
+
+
+
+% \begin{figure*}[!t]
+% \centering
+% \includegraphics[width=\textwidth]{figures/review_bias.pdf}
+% \caption{\textbf{LLM review bias and the correct deployment paradigm.}
+% (a)~Score distributions for \emph{rejected} ICLR papers: LLMs assign an average score of 8.2
+% versus the human average of 5.7 ($\Delta\!=\!+2.48$), misclassifying 95.8\% of rejected papers
+% as acceptable~\cite{llmreviewer2025}.
+% (b)~The validated alternative: ICLR 2025's randomized experiment~\cite{iclr2025reviewstudy}
+% shows that using LLMs to provide feedback on \emph{reviews} (not papers) improves quality
+% in 89\% of cases across 22,467 reviews, without affecting acceptance rates.}
+% \label{fig:review_bias}
+% \end{figure*}
+
+
+
+\subsubsection{Findings and Observations}
+\label{sec:s6_findings}
+
+\stageanalysis{~Stage 6: Peer Review}{S6color}{figures/teasers/s6_l.png}{figures/teasers/s6_r.png}{%
+\posbadge[S6color]{Deployment} \posbadge[S6color]{Consistency} \posbadge[S6color]{Mapped Risks}\par\vspace{2pt}
+\posbadge[S6color]{Multi-Agent} \posbadge[S6color]{RL-Trained} \posbadge[S6color]{Matching}
+}{%
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item The strongest validated deployment mode is LLM feedback on \emph{reviews}, not standalone AI review: in ICLR 2025, review feedback improved quality in $89\%$ of cases without affecting acceptance rates~\cite{iclr2025reviewstudy}.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Automated reviewers can approach human-level consistency on selected metrics, with the Stanford Agentic Reviewer matching human inter-rater agreement ($\rho=0.42$ \emph{vs.} $0.41$)~\cite{stanfordreviewer2025}.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Reviewer matching and meta-review generation are promising support tasks because they assist editorial coordination and opinion synthesis rather than directly replacing expert judgment.
+\end{itemize}
+}{%
+\negbadge{Leniency} \negbadge{Fragility} \negbadge{Policy}\par\vspace{2pt}
+\negbadge{Inflation} \negbadge{Injection} \negbadge{Undetectable}
+}{%
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Standalone AI-generated review remains unsafe: LLMs assign inflated scores (AI $6.86$ \emph{vs.} human $5.70$~\cite{llmreviewer2025}), misclassifying $95.8\%$ of rejected papers as acceptable.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Adversarial fragility persists: prompt injection reaches $10$ scores~\cite{zhou2025positiveprompt}; benign adjectives function as universal triggers~\cite{raina2024adversarialjudge}; $5\%$ manipulation flips $12\%$ of rankings~\cite{ye2024peerrisks}.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Governance is difficult because AI-assisted reviewing is already prevalent \cite{ailottery2024}, yet all five SOTA detectors fail on polished reviews~\cite{reviewpolicyenforce2026}. Prevalence has outpaced governance.
+\end{itemize}
+}
+\vspace{8pt}
+
+
+
+
+\subsection{Rebuttal and Revision}
+\label{sec:rebuttal}
+
+Rebuttal and revision form the second stage of Phase~3 (\emph{Validation}), where authors respond to external critique and revise the manuscript before a final decision or camera-ready submission. This stage is epistemologically important because it is the only point in the publication process where authors engage directly with reviewers' objections. Existing work spans reviewer-comment analysis, automated rebuttal generation, and revision tracking. Across these directions, the central challenge is not merely generating persuasive responses, but ensuring that rebuttals are evidence-grounded, faithful to the manuscript, and followed by actual revisions.
+
+A comprehensive inventory of rebuttal systems is provided in \cref{tab:appendix_s7} (Appendix).
+
+
+
+\subsubsection{Reviewer Comment Analysis}
+\label{sec:rebuttal_analysis}
+
+Reviewer-comment analysis decomposes critiques into actionable concerns, such as missing experiments, unclear motivation, insufficient baselines, unsupported claims, or presentation issues. This analysis is a prerequisite for effective rebuttal generation because reviewer comments are often long, mixed in priority, and partially overlapping across reviews. ReviewMT~\cite{reviewmt2024} models peer review as multi-turn, long-context dialogue with role-based interactions, covering $26{,}841$ papers and $92{,}017$ reviews from ICLR and Nature Communications. Re$^2$~\cite{re2dataset2025} further provides a consistency-ensured dataset for full-stage peer review and multi-turn rebuttal, covering $19{,}926$ submissions, $70{,}668$ reviews, and $53{,}818$ rebuttals from 24 conferences.
+
+Empirical studies show that rebuttal can materially affect outcomes, especially for borderline submissions. Analysis of ICLR 2024--2025~\cite{iclr_rebuttal2025} reports that $75$--$81\%$ of scores remain unchanged after rebuttal, $17$--$23\%$ improve, and only approximately $1\%$ decrease, with the most common transition being $5 \rightarrow 6$ from borderline to acceptable. These numbers suggest that rebuttal is not a universal remedy, but it is consequential for the subset of papers where reviewer concerns can be clarified, corrected, or supported with additional evidence.
+
+
+
+\subsubsection{Automated Rebuttal Generation}
+\label{sec:rebuttal_gen}
+
+Automated rebuttal generation attempts to produce author responses that address reviewer concerns clearly and strategically. Early systems treated rebuttal as direct text generation, but this formulation is prone to hallucination, missed reviewer points, and unverifiable claims. More recent systems therefore decompose rebuttal into intermediate steps such as concern extraction, evidence retrieval, response planning, and final generation.
+
+RebuttalAgent~\cite{rebuttalagent2026} uses Theory-of-Mind modeling to craft strategically persuasive responses, reporting an average $18.3\%$ improvement over the base model. Paper2Rebuttal~\cite{paper2rebuttal2026} introduces evidence-centric planning by decomposing reviewer comments into atomic concerns and retrieving supporting literature, improving Coverage and Specificity by up to $+0.78$ and $+1.33$. ReviewerToo~\cite{reviewertoo2025} includes a rebuttal module within a broader modular framework and reports $81.8\%$ accept/reject accuracy.
+
+A newer direction emphasizes planning and author control. DRPG~\cite{drpg2026} proposes a four-step Decompose--Retrieve--Plan--Generate pipeline, reporting $98\%$+ planning accuracy and stronger-than-average human rebuttal quality with an $8$B model. Author-in-the-Loop~\cite{ruan2026authorinloop} integrates author expertise and intent into response generation, aiming to ensure that rebuttals reflect the paper's actual contributions rather than generic LLM output. These systems indicate that rebuttal automation is moving from fluent response generation toward evidence-grounded and author-aware revision support.
+
+
+
+\subsubsection{Assessment: Rebuttal Effectiveness}
+\label{sec:rebuttal_effectiveness}
+
+Assessing rebuttal systems requires measuring both immediate effectiveness and downstream accountability. Immediate effectiveness concerns whether a rebuttal addresses reviewer concerns, clarifies misunderstandings, provides evidence, and improves reviewer confidence. ICLR 2024--2025 analysis shows that papers whose scores improve after rebuttal achieve acceptance rates of $55.7$--$57.6\%$, compared to $7.8$--$12.4\%$ for papers with unchanged scores~\cite{iclr_rebuttal2025}. This makes rebuttal especially important for borderline papers, where small changes in reviewer confidence can affect final outcomes.
+
+However, effective rebuttal is not only persuasion. Many reviewer requests require new experiments, additional ablations, corrected figures, or manuscript restructuring, creating a feedback loop from \Sseven back to \Sthree, \Sfour, and \Sfive. Ruan and Gurevych~\cite{ruan2026authorinloop} provide large-scale aligned review--response--revision triplets, enabling the study of how rebuttals translate into actual manuscript changes. Current rebuttal systems can retrieve evidence and draft responses, but they generally cannot generate new experimental evidence in response to reviewer requests. This makes the rebuttal--experiment loop one of the most practically important gaps in current auto-research pipelines.
+
+The second evaluation dimension is accountability. A recent audit~\cite{rebuttalcommitment2026} finds that ICLR 2025 authors make an average of $11.8$ commitments per paper during rebuttal, but approximately $25\%$ of these commitments are not fulfilled in the camera-ready version, with missing experiments among the most common unfulfilled promises. This gap exposes the same capability-versus-integrity tension observed throughout the survey: AI systems may generate plausible and persuasive responses, but the scientific validity of a rebuttal depends on whether its claims are supported and its promises are later implemented. Rebuttal systems should therefore be evaluated not only by response quality, but also by concern coverage, evidence grounding, revision traceability, and fulfillment of author commitments.
+
+
+
+% TODO: Consider reinstating if we add our own cross-study synthesis to this figure
+% \begin{figure}[!t]
+% \centering
+% \includegraphics[width=\columnwidth]{figures/rebuttal_flow.pdf}
+% \caption{\textbf{Rebuttal effectiveness analysis based on ICLR 2024--2025 data.}
+% Flow widths represent the proportion of papers experiencing each score transition type.
+% Papers whose scores improve after rebuttal achieve acceptance rates of 55.7--57.6\%,
+% compared to 7.8--12.4\% for papers with unchanged scores, making rebuttal decisive
+% for approximately 20\% of borderline submissions.}
+% \label{fig:rebuttal_flow}
+% \end{figure}
+
+
+
+\subsubsection{Findings and Observations}
+\label{sec:s7_findings}
+
+\stageanalysis{~Stage 7: Rebuttal \& Revision}{S7color}{figures/teasers/s7_l.png}{figures/teasers/s7_r.png}{%
+\posbadge[S7color]{Newest} \posbadge[S7color]{Human-Level} \posbadge[S7color]{Decomposition}\par\vspace{2pt}
+\posbadge[S7color]{Decisive} \posbadge[S7color]{Evidence} \posbadge[S7color]{Planning}
+}{%
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Rebuttal automation is emerging as a distinct stage, with recent systems moving from direct response generation toward decomposition, evidence retrieval, response planning, and author-aware generation.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Rebuttal is consequential for borderline submissions: $17$--$23\%$ of ICLR 2024--2025 submissions improve scores after rebuttal, and improved-score papers achieve much higher acceptance rates~\cite{iclr_rebuttal2025}.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Evidence-centric planning helps address common failures of direct generation, including missed reviewer concerns, unsupported responses, and generic rebuttal text~\cite{rebuttalagent2026,paper2rebuttal2026}.
+\end{itemize}
+}{%
+\negbadge{No New Expts} \negbadge{Commitment} \negbadge{Overlooked}\par\vspace{2pt}
+\negbadge{Accountability} \negbadge{Only 10 Tools} \negbadge{Loop Gap}
+}{%
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Current systems cannot reliably generate new experimental evidence in response to reviewer requests; the \Sseven (\emph{Rebuttal and Revision}) $\to $\Sthree (\emph{Coding}) feedback loop remains a major unautomated gap.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item The quality of the rebuttal process must be tied to revision fulfillment: approximately $25\%$ of ICLR 2025 rebuttal commitments are not fulfilled in camera-ready versions~\cite{rebuttalcommitment2026}.
+\end{itemize}
+\anadotrule
+\begin{itemize}[leftmargin=8pt, itemsep=0pt, topsep=0pt, parsep=0pt]
+\item Rebuttal remains under-served relative to its practical importance, despite being the stage where authors directly negotiate reviewer concerns before final decisions.
+\end{itemize}
+}
+\vspace{8pt}
+
+
+
+\subsection{Summary and Transition: Validation}
+
+\label{sec:validation_summary}
+
+This phase shifts the focus from constructing a manuscript to testing whether its claims withstand external scrutiny. \Ssix (\emph{Peer Review}) evaluates the manuscript through independent critique, while \Sseven (\emph{Rebuttal and Revision}) gives authors an opportunity to clarify, defend, and revise the work in response. Together, these stages form a feedback loop rather than a one-way checkpoint: reviewer comments can trigger new experiments, revised analyses, updated figures, and substantial manuscript rewriting.
+
+Progress in Validation shows a consistent pattern. AI systems are increasingly capable of producing review-like critiques, summarizing reviewer opinions, supporting reviewer matching, and drafting rebuttal responses. However, the hard part of validation is not producing plausible evaluative text; it is making fair, critical, evidence-grounded judgments and ensuring that critique leads to accountable revision. In peer review, standalone AI reviewers may be consistent but lenient, biased, or vulnerable to manipulation, while the strongest validated deployment mode is to use AI to improve human reviews. In rebuttal, AI can help decompose concerns and draft evidence-aware responses, but cannot yet generate missing experimental evidence or guarantee that author commitments are fulfilled.
+
+The output of this phase is a manuscript that has been externally challenged, defended, and revised. Once validated, the research must be communicated beyond the review process through posters, slides, videos, project pages, and social media. We therefore next turn to Phase~4 (\emph{Dissemination}), where AI assistance shifts from evaluating scholarly claims to adapting validated research artifacts for different audiences, formats, and communication goals.

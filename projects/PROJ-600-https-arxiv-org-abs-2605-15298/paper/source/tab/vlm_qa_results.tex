@@ -1,0 +1,27 @@
+\begin{table*}[t]
+  \centering
+  \small
+  \setlength{\tabcolsep}{4.5pt}
+  \renewcommand{\arraystretch}{1.15}
+  \caption{
+    \textbf{Multimodal question-answering benchmark results.}
+    We compare PhysBrain 1.0 models with their Qwen3-VL base models and representative multimodal baselines.
+    Higher is better for all benchmarks. We highlight the best result in \textbf{bold} and the second-best result with \underline{underline}.
+  }
+  \begin{adjustbox}{width=\textwidth}
+  \begin{tabular}{l c c c c c c c}
+    \toprule
+    \textbf{Model} & \textbf{ERQA} & \textbf{PhysBench} & \textbf{MME} & \textbf{MMMU} & \textbf{OCRBench} & \textbf{RealWorldQA} & \textbf{TextVQA} \\
+    \midrule
+    Qwen3-VL-8B (Base) & 43.0 & 48.5 & 2373.3 & 53.2 & \underline{84.4} & 69.4 & \underline{82.1} \\
+    Qwen3-VL-4B (Base) & 39.8 & 45.7 & 2297.5 & 48.4 & 82.8 & \underline{70.5} & 80.1 \\
+    RoboBrain2.5-8B & \underline{43.3} & \underline{49.2} & 2410.0 & \underline{54.6} & \underline{84.4} & 70.1 & 80.8 \\
+    VST-7B-RL & 40.3 & 46.4 & 2036.6 & 47.9 & 82.7 & 67.3 & 81.9 \\
+    MiMo-VL-7B-RL & 38.5 & 39.4 & \underline{2413.6} & 41.0 & 81.4 & 29.8 & 76.4 \\
+    \textbf{PhysBrain 4B (ours)} & 41.0 & 48.1 & 2385.1 & 49.9 & 83.0 & \textbf{72.7} & 81.1 \\
+    \textbf{PhysBrain 8B (ours)} & \textbf{45.5} & \textbf{50.2} & \textbf{2431.1} & \textbf{55.2} & \textbf{85.7} & 68.8 & \textbf{83.3} \\
+    \bottomrule
+  \end{tabular}
+  \end{adjustbox}
+  \label{tab:vlm_qa_results}
+\end{table*}
