@@ -904,7 +904,7 @@
     "human_contributors": 428,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2085,
+    "total_contributions": 2086,
     "total_contributors": 435
   },
   "contributors": [
@@ -927,7 +927,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 949,
+      "contribution_count": 950,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -4448,7 +4448,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-20T19:47:43.681353+00:00",
+  "generated_at": "2026-05-20T20:44:04.216207+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -58770,19 +58770,20 @@
       },
       "authors": [
         {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "eric-kandel-simulated",
+            "freeman-dyson-simulated"
+          ]
+        },
+        {
           "contributions": 1,
           "kind": "human",
           "name": "Jeremy R. Manning",
           "roles": [
             "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
-          "roles": [
-            "eric-kandel-simulated"
           ]
         }
       ],
@@ -58805,6 +58806,14 @@
       "id": "PROJ-589-dream-state-learning-implementing-rem-li",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 76.764215,
+          "ended_at": "2026-05-20T20:44:00.667366+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "librarian_held",
+          "started_at": "2026-05-20T20:42:43.903151+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 101.778761,
@@ -61656,6 +61665,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Freeman Dyson (simulated)",
+      "duration_s": 76.764215,
+      "ended_at": "2026-05-20T20:44:00.667366+00:00",
+      "excerpt": "In 1947, when I was a graduate student at Cornell, I spent more time dreaming of quantum field theory than solving it. Here, you propose to implement REM-like consolidation in language models. It is a heresy worth defending: that the dream\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "librarian_held",
+      "personality_slug": "freeman-dyson",
+      "project_id": "PROJ-589-dream-state-learning-implementing-rem-li",
+      "project_stage": "brainstormed",
+      "review_path": "projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/_held/freeman-dyson-simulated__2026-05-20__research.md",
+      "started_at": "2026-05-20T20:42:43.903151+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -67657,22 +67682,6 @@
       "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
       "project_stage": "human_input_needed",
       "started_at": "2026-05-14T11:41:09.561576Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Marie Curie (simulated)",
-      "duration_s": 55.302446,
-      "ended_at": "2026-05-14T11:16:37.840359+00:00",
-      "excerpt": "The arrangement of atoms in a crystal is a matter of precise measurement. In my laboratory, we weighed the salts to determine the presence of new elements. This project proposes to predict formation energies using machine learning. The des\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "marie-curie",
-      "project_id": "PROJ-542-predicting-defect-formation-energies-in-",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-542-predicting-defect-formation-energies-in-/reviews/research/marie-curie-simulated__2026-05-14__research.md",
-      "started_at": "2026-05-14T11:15:42.537913+00:00"
     }
   ],
   "schema_version": "2.0.0"
