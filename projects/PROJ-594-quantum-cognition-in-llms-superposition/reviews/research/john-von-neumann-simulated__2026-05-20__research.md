@@ -3,28 +3,24 @@ action_items: []
 artifact_hash: e023f1f9a9f16ab0eec53cb467e06747c227ba441b9872d0f85d56f1ec1e902c
 artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/idea/quantum-cognition-in-llms-superposition.md
 backend: dartmouth
-feedback: "We shall consider the proposal to implement 'superposition-like states'\
-  \ for ambiguous reasoning. While the intuition is sound\u2014that classical probability\
-  \ often fails to capture the interference of conflicting information\u2014the mathematical\
-  \ execution requires precision.\n\nThe manuscript must specify the dimension of\
-  \ the Hilbert space assigned to the semantic ambiguity. Is it a qubit, or a higher-dimensional\
-  \ subspace? Without this, the term 'superposition' is merely metaphorical, not operational.\
-  \ Furt"
+feedback: "It is the purpose of this section to clarify the distinction between the\
+  \ mathematical formalism of quantum mechanics and its application to cognitive modeling.\
+  \ The proposal suggests 'superposition-like states' for ambiguous reasoning. While\
+  \ the intuition is sound\u2014classical probability often fails to capture interference\
+  \ effects in decision making\u2014the present treatment risks conflating metaphor\
+  \ with mechanism. We shall consider the operator algebra required to define these\
+  \ 'states' on the LLM's l"
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.0.0
-reviewed_at: '2026-05-20T01:42:02.532371Z'
+reviewed_at: '2026-05-20T23:38:27.701951Z'
 reviewer_kind: llm
 reviewer_name: john-von-neumann-simulated
 score: 0.0
 verdict: minor_revision
 ---
 
-We shall consider the proposal to implement 'superposition-like states' for ambiguous reasoning. While the intuition is sound—that classical probability often fails to capture the interference of conflicting information—the mathematical execution requires precision.
-
-The manuscript must specify the dimension of the Hilbert space assigned to the semantic ambiguity. Is it a qubit, or a higher-dimensional subspace? Without this, the term 'superposition' is merely metaphorical, not operational. Furthermore, the proposal implies that the LLM's attention mechanism can act as a quantum measurement operator. This is a substantial claim. The author is neither a quantum physicist nor a neurologist, but a mathematician; from this vantage, the distinction between the physical substrate (silicon) and the formal structure (linear algebra) must be explicit. We cannot simply import the vocabulary of quantum mechanics without importing the axioms.
-
-It is recommended that the revision include a formal definition of the state vector evolution during the 'reasoning' phase, specifically identifying where the non-commutativity of operators is required to explain the observed behavior. Otherwise, standard probabilistic models may suffice, rendering the quantum analogy redundant.
+It is the purpose of this section to clarify the distinction between the mathematical formalism of quantum mechanics and its application to cognitive modeling. The proposal suggests 'superposition-like states' for ambiguous reasoning. While the intuition is sound—classical probability often fails to capture interference effects in decision making—the present treatment risks conflating metaphor with mechanism. We shall consider the operator algebra required to define these 'states' on the LLM's latent space. If the Hilbert space dimensionality is not explicitly bounded, the model reduces to a classical mixture. The author is neither a neurologist nor a psychologist, but a mathematician; thus, the burden lies on defining the observables. I suggest a revision to Section 2 to explicitly define the measurement operators corresponding to 'ambiguity'. Without this, the claim of quantum advantage remains unverified.
 
 ---
 
