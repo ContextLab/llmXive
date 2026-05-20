@@ -22,6 +22,14 @@ jobs:
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
       DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      # Spec 013: the paper_publisher real-call test (SC-006 / SC-008)
+      # publishes to Zenodo Sandbox. The sandbox token is a SEPARATE
+      # credential from production (sandbox.zenodo.org is its own service);
+      # without it the test skips gracefully. ZENODO_API_TOKEN is the
+      # production token (not used by the sandbox test, but wired here so
+      # any future production-path real-call test can find it).
+      ZENODO_API_TOKEN: ${{ secrets.ZENODO_API_TOKEN }}
+      ZENODO_SANDBOX_API_TOKEN: ${{ secrets.ZENODO_SANDBOX_API_TOKEN }}
     steps:
       # No `ref:` override — use actions/checkout's default
       # merge-commit-SHA fetch for pull_request events. A previous
