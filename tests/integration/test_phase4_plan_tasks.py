@@ -272,6 +272,16 @@ class TestUrlReachability:
         set_status(200)
         assert_urls_reachable(f"See dataset at {base}/data for details.")
 
+    def test_backtick_wrapped_url_extracted_without_backtick(self) -> None:
+        """Regression (PROJ-262): a URL or doi written in markdown `backticks`
+        must NOT capture the closing backtick into its path — that produced a
+        false 404 (e.g. '.../realKnownCause/`')."""
+        from llmxive.speckit._research_guard import _extract_references
+        refs = _extract_references("Dataset at `https://example.com/data/dir/` here.")
+        assert refs == ["https://example.com/data/dir/"], refs
+        refs2 = _extract_references("See `doi:10.1234/abc.def` for details.")
+        assert refs2 == ["https://doi.org/10.1234/abc.def"], refs2
+
     def test_404_raises(self, http_server) -> None:
         from llmxive.speckit._research_guard import (
             UnreachableReference,

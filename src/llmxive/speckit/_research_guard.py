@@ -43,14 +43,18 @@ _USER_AGENT = (
 # pattern (≥1 contracts/*.yaml key), handled separately below.
 _REQUIRED_PLAIN_ARTIFACTS = ("plan.md", "research.md", "data-model.md", "quickstart.md")
 
-# References we extract from research.md (FR-006).
-_URL_RE = re.compile(r"https?://[^\s<>\)\]\"'}]+", re.IGNORECASE)
+# References we extract from research.md (FR-006). The negated character class
+# excludes markdown delimiters that commonly wrap or terminate a URL — notably
+# the backtick (a URL written as `https://…/` must not capture the closing
+# backtick into its path, which would create a false 404).
+_URL_RE = re.compile(r"https?://[^\s<>\)\]\"'}`]+", re.IGNORECASE)
 _ARXIV_RE = re.compile(r"\barxiv:\s*([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?|[a-z\-]+(?:\.[A-Z]{2})?/[0-9]{7})", re.IGNORECASE)
-_DOI_RE = re.compile(r"\bdoi:\s*(10\.[0-9]{4,9}/[^\s<>\)\]\"'}]+)", re.IGNORECASE)
+_DOI_RE = re.compile(r"\bdoi:\s*(10\.[0-9]{4,9}/[^\s<>\)\]\"'}`]+)", re.IGNORECASE)
 
-# Trailing punctuation that markdown commonly glues onto a URL (e.g. a URL at
-# the end of a sentence). Stripped before the reachability probe.
-_TRAILING_PUNCT = ".,;:!?"
+# Trailing punctuation/markup that markdown commonly glues onto a URL (e.g. a
+# URL at the end of a sentence, or wrapped in `backticks`). Stripped before the
+# reachability probe.
+_TRAILING_PUNCT = ".,;:!?`"
 
 
 class IncompleteArtifactSet(RuntimeError):
