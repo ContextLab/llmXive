@@ -16,7 +16,13 @@ permissions:
 jobs:
   real-call:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Spec 013 added heavy real-LLM e2e tests (implementer drives a
+    # multi-task edit loop with a real Dartmouth call + lualatex compile per
+    # task; publisher hits the real Zenodo Sandbox). The full real-call
+    # suite no longer fits in 30 min on the standard runner — it was getting
+    # cancelled mid-run. 60 min gives the suite headroom to complete and
+    # print its full pass/fail summary.
+    timeout-minutes: 60
     env:
       LLMXIVE_REAL_TESTS: "1"
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
