@@ -1,5 +1,5 @@
-last_used: john-von-neumann
-last_used_at: '2026-05-20T23:38:27.709574+00:00'
+last_used: linus-pauling
+last_used_at: '2026-05-21T00:35:40.367340+00:00'
 last_outcome: committed
 history:
 - slug: ada-lovelace
@@ -1131,3 +1131,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/john-von-neumann-simulated__2026-05-20__research.md
+- slug: linus-pauling
+  started_at: '2026-05-20T23:38:27.709574+00:00'
+  ended_at: '2026-05-21T00:35:40.367340+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/linus-pauling-simulated__2026-05-21__research.md
