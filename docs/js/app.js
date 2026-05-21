@@ -553,6 +553,8 @@
     "paper_planner", "paper_tasker", "paper_implementer",
     "latex_build", "latex_fix", "reference_validator",
     "submission_intake", "status_reporter", "repository_hygiene",
+    // Spec 013: the new LLM-driven implementer + deterministic publisher.
+    "llmxive_implementer", "paper_publisher",
   ]);
 
   function _activityCategory(entry) {
