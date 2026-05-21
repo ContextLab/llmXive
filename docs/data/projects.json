@@ -937,11 +937,11 @@
   "aggregates": {
     "active_projects": 619,
     "ai_contributors": 7,
-    "human_contributors": 463,
+    "human_contributors": 485,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2130,
-    "total_contributors": 470
+    "total_contributions": 2152,
+    "total_contributors": 492
   },
   "contributors": [
     {
@@ -1457,6 +1457,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Chenxiao Zhao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Chenxu Yang"
     },
     {
@@ -1597,6 +1605,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Dongcheng Zhao"
+    },
+    {
+      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -1713,6 +1729,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Francisco Nattero"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Frank Hutter"
     },
     {
@@ -1802,6 +1826,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Guiquan Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Guobin Shen"
     },
     {
       "areas": [
@@ -2121,6 +2153,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Jerem\u00edas Figueiredo Paschmann"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Ji Luo"
     },
     {
@@ -2285,6 +2325,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jindong Li"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -2346,6 +2394,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Josh Ying"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Juan Kaplan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Juan Wisznia"
     },
     {
       "areas": [
@@ -2553,6 +2617,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Lei Huang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Leigang Qu"
     },
     {
@@ -2745,6 +2817,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Luciano del Corro"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Luozhou Wang"
     },
     {
@@ -2865,6 +2945,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Muhao Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Murphy Zhuang"
     },
     {
@@ -2970,6 +3058,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Peng Fu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Peng Qi"
     },
     {
       "areas": [
@@ -3149,6 +3245,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Rui Cai"
+    },
+    {
+      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -3210,6 +3314,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Saiyong Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Santiago Barron"
     },
     {
       "areas": [
@@ -3529,6 +3641,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Tinghui Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Tong He"
     },
     {
@@ -3709,11 +3829,27 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Wendi Li"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Wenhu Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Wenjie Jacky Mo"
     },
     {
       "areas": [
@@ -3761,6 +3897,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Xiang Cheng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Xiang Liu"
     },
     {
@@ -3794,6 +3938,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xiao Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiaofei Wen"
     },
     {
       "areas": [
@@ -3877,11 +4029,27 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xing Yu"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Xingxuan Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xingyu Fu"
     },
     {
       "areas": [
@@ -4034,6 +4202,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yan Shu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yanan Xie"
     },
     {
       "areas": [
@@ -4764,7 +4940,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-21T10:50:08.902158+00:00",
+  "generated_at": "2026-05-21T11:08:30.183899+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -5004,17 +5180,17 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
           "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "https://arxiv.org/abs/2605.11609"
+          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
           "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "https://arxiv.org/abs/2605.16403"
+          "title": "When Vision Speaks for Sound"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
           "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "https://arxiv.org/abs/2605.14236"
+          "title": "Active Learners as Efficient PRP Rerankers"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
@@ -5048,17 +5224,17 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
           "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "https://arxiv.org/abs/2605.11609"
+          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
           "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "https://arxiv.org/abs/2605.16403"
+          "title": "When Vision Speaks for Sound"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
           "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "https://arxiv.org/abs/2605.14236"
+          "title": "Active Learners as Efficient PRP Rerankers"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
@@ -5092,17 +5268,17 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
           "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "https://arxiv.org/abs/2605.11609"
+          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
           "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "https://arxiv.org/abs/2605.16403"
+          "title": "When Vision Speaks for Sound"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
           "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "https://arxiv.org/abs/2605.14236"
+          "title": "Active Learners as Efficient PRP Rerankers"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
@@ -5136,17 +5312,17 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
           "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "https://arxiv.org/abs/2605.11609"
+          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
           "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "https://arxiv.org/abs/2605.16403"
+          "title": "When Vision Speaks for Sound"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
           "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "https://arxiv.org/abs/2605.14236"
+          "title": "Active Learners as Efficient PRP Rerankers"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
@@ -5179,17 +5355,17 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
           "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "https://arxiv.org/abs/2605.11609"
+          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
           "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "https://arxiv.org/abs/2605.16403"
+          "title": "When Vision Speaks for Sound"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
           "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "https://arxiv.org/abs/2605.14236"
+          "title": "Active Learners as Efficient PRP Rerankers"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
@@ -5222,17 +5398,17 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
           "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "https://arxiv.org/abs/2605.11609"
+          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
           "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "https://arxiv.org/abs/2605.16403"
+          "title": "When Vision Speaks for Sound"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
           "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "https://arxiv.org/abs/2605.14236"
+          "title": "Active Learners as Efficient PRP Rerankers"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
@@ -5268,17 +5444,17 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
           "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "https://arxiv.org/abs/2605.11609"
+          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
           "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "https://arxiv.org/abs/2605.16403"
+          "title": "When Vision Speaks for Sound"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
           "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "https://arxiv.org/abs/2605.14236"
+          "title": "Active Learners as Efficient PRP Rerankers"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
@@ -5320,17 +5496,17 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
           "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "https://arxiv.org/abs/2605.11609"
+          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
           "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "https://arxiv.org/abs/2605.16403"
+          "title": "When Vision Speaks for Sound"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
           "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "https://arxiv.org/abs/2605.14236"
+          "title": "Active Learners as Efficient PRP Rerankers"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
@@ -5364,17 +5540,17 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
           "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "https://arxiv.org/abs/2605.11609"
+          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
           "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "https://arxiv.org/abs/2605.16403"
+          "title": "When Vision Speaks for Sound"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
           "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "https://arxiv.org/abs/2605.14236"
+          "title": "Active Learners as Efficient PRP Rerankers"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
@@ -5407,17 +5583,17 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
           "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "https://arxiv.org/abs/2605.11609"
+          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
           "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "https://arxiv.org/abs/2605.16403"
+          "title": "When Vision Speaks for Sound"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
           "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "https://arxiv.org/abs/2605.14236"
+          "title": "Active Learners as Efficient PRP Rerankers"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
@@ -5451,17 +5627,17 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
           "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "https://arxiv.org/abs/2605.11609"
+          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
           "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "https://arxiv.org/abs/2605.16403"
+          "title": "When Vision Speaks for Sound"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
           "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "https://arxiv.org/abs/2605.14236"
+          "title": "Active Learners as Efficient PRP Rerankers"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
@@ -5494,17 +5670,17 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
           "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "https://arxiv.org/abs/2605.11609"
+          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
           "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "https://arxiv.org/abs/2605.16403"
+          "title": "When Vision Speaks for Sound"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
           "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "https://arxiv.org/abs/2605.14236"
+          "title": "Active Learners as Efficient PRP Rerankers"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
@@ -5545,17 +5721,17 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
           "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "https://arxiv.org/abs/2605.11609"
+          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
           "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "https://arxiv.org/abs/2605.16403"
+          "title": "When Vision Speaks for Sound"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
           "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "https://arxiv.org/abs/2605.14236"
+          "title": "Active Learners as Efficient PRP Rerankers"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
@@ -5591,17 +5767,17 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
           "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "https://arxiv.org/abs/2605.11609"
+          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
           "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "https://arxiv.org/abs/2605.16403"
+          "title": "When Vision Speaks for Sound"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
           "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "https://arxiv.org/abs/2605.14236"
+          "title": "Active Learners as Efficient PRP Rerankers"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
@@ -5646,17 +5822,17 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
           "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "https://arxiv.org/abs/2605.11609"
+          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
           "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "https://arxiv.org/abs/2605.16403"
+          "title": "When Vision Speaks for Sound"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
           "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "https://arxiv.org/abs/2605.14236"
+          "title": "Active Learners as Efficient PRP Rerankers"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
@@ -63127,7 +63303,56 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jerem\u00edas Figueiredo Paschmann",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Juan Kaplan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Francisco Nattero",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Santiago Barron",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Juan Wisznia",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Luciano del Corro",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -63142,8 +63367,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.14236 Submitted by: github-actions[bot] (Intake from human-submission issue #213.)",
-      "field": "other",
+      "description": "Pairwise Ranking Prompting (PRP) elicits pairwise preference judgments from an LLM, which are then aggregated into a ranking, usually via classical sorting algorithms. However, judgments are noisy, order-sensitive, and sometimes intransitive, so sorting assumptions do not match the setting. Because sorting aims to\u2026",
+      "field": "computer science",
       "id": "PROJ-609-https-arxiv-org-abs-2605-14236",
       "keywords": [],
       "last_run_log": [
@@ -63165,8 +63390,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.14236",
-      "updated_at": "2026-05-21T09:10:16.875500+00:00",
+      "title": "Active Learners as Efficient PRP Rerankers",
+      "updated_at": "2026-05-21T11:06:54.356107+00:00",
       "upstream_feedback": null
     },
     {
@@ -63189,7 +63414,80 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiaofei Wen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wenjie Jacky Mo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xingyu Fu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Rui Cai",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tinghui Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wendi Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yanan Xie",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Muhao Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Peng Qi",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -63204,8 +63502,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.16403 Submitted by: github-actions[bot] (Intake from human-submission issue #212.)",
-      "field": "other",
+      "description": "Despite rapid progress in video-capable MLLMs, we find that their apparent audio understanding in videos is often vision-driven: models rely on visual cues to infer or hallucinate acoustic information, rather than verifying the audio stream. This issue appears across both state-of-the-art open-source omni models and\u2026",
+      "field": "computer science",
       "id": "PROJ-610-https-arxiv-org-abs-2605-16403",
       "keywords": [],
       "last_run_log": [
@@ -63227,8 +63525,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.16403",
-      "updated_at": "2026-05-21T09:10:20.535905+00:00",
+      "title": "When Vision Speaks for Sound",
+      "updated_at": "2026-05-21T11:06:54.508051+00:00",
       "upstream_feedback": null
     },
     {
@@ -63251,7 +63549,64 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Guobin Shen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiang Cheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chenxiao Zhao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lei Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jindong Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dongcheng Zhao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xing Yu",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -63266,8 +63621,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.11609 Submitted by: github-actions[bot] (Intake from human-submission issue #211.)",
-      "field": "other",
+      "description": "On-policy self-distillation, where a student is pulled toward a copy of itself conditioned on privileged context (e.g., a verified solution or feedback), offers a promising direction for advancing reasoning capability without a stronger external teacher. Yet in math reasoning the gains are inconsistent, even when the\u2026",
+      "field": "computer science",
       "id": "PROJ-611-https-arxiv-org-abs-2605-11609",
       "keywords": [],
       "last_run_log": [
@@ -63289,8 +63644,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.11609",
-      "updated_at": "2026-05-21T09:10:37.442234+00:00",
+      "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information",
+      "updated_at": "2026-05-21T11:06:54.673802+00:00",
       "upstream_feedback": null
     }
   ],
