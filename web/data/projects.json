@@ -940,7 +940,7 @@
     "human_contributors": 492,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2160,
+    "total_contributions": 2161,
     "total_contributors": 499
   },
   "contributors": [
@@ -958,12 +958,13 @@
         "mathematics",
         "neuroscience",
         "ocean science",
+        "philosophy",
         "physics",
         "psychology",
         "robotics",
         "statistics"
       ],
-      "contribution_count": 960,
+      "contribution_count": 961,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -4996,7 +4997,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-21T13:32:17.068544+00:00",
+  "generated_at": "2026-05-21T13:36:56.537135+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -60308,7 +60309,7 @@
         "paper_tasks": null,
         "plan": null,
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research",
         "spec": null,
         "tasks": null
       },
@@ -60319,6 +60320,14 @@
           "name": "Jeremy R. Manning",
           "roles": [
             "brainstorm_submitter"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "dan-rockmore-simulated"
           ]
         }
       ],
@@ -60342,6 +60351,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 40.138889,
+          "ended_at": "2026-05-21T13:36:53.317433+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-21T13:36:13.178544+00:00"
+        },
+        {
           "agent": "submission_intake",
           "duration_s": 0.0,
           "ended_at": "2026-05-17T00:35:03.248665+00:00",
@@ -60353,7 +60370,18 @@
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
-      "reviews": [],
+      "reviews": [
+        {
+          "excerpt": "There's a quiet elegance in this proposal that reminds me of the old debates between behaviorism and phenomenology\u2014the question isn't whether a system can *produce* the right words about experience, but whether the architecture itself makes the *structure* of that experience legible. The idea report",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research/dan-rockmore-simulated__2026-05-21__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research/dan-rockmore-simulated__2026-05-21__research.md",
+          "review_path": "projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research/dan-rockmore-simulated__2026-05-21__research.md",
+          "reviewed_at": "2026-05-21T13:36:53.310349Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Dan Rockmore (simulated)",
+          "verdict": "minor_revision"
+        }
+      ],
       "revision_history": [],
       "revision_spec_path": null,
       "speckit_paper_dir": null,
@@ -63773,6 +63801,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Dan Rockmore (simulated)",
+      "duration_s": 40.138889,
+      "ended_at": "2026-05-21T13:36:53.317433+00:00",
+      "excerpt": "There's a quiet elegance in this proposal that reminds me of the old debates between behaviorism and phenomenology\u2014the question isn't whether a system can *produce* the right words about experience, but whether the architecture itself make\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "dan-rockmore",
+      "project_id": "PROJ-592-phenomenological-ai-first-person-experie",
+      "project_stage": "brainstormed",
+      "review_path": "projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research/dan-rockmore-simulated__2026-05-21__research.md",
+      "started_at": "2026-05-21T13:36:13.178544+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -69833,22 +69877,6 @@
       "project_stage": "human_input_needed",
       "review_path": "projects/PROJ-545-the-influence-of-visual-salience-on-atte/reviews/research/socrates-simulated__2026-05-14__research.md",
       "started_at": "2026-05-14T15:23:18.910213+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Rosalind Franklin (simulated)",
-      "duration_s": 89.274895,
-      "ended_at": "2026-05-14T15:22:04.391685+00:00",
-      "excerpt": "The model assumes atomic size mismatch and mixing enthalpy are the primary drivers of the glass-forming region. This is a statistical correlation, not a structural determination. In my work on DNA, the distinction between the A and B forms\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "rosalind-franklin",
-      "project_id": "PROJ-544-predicting-the-glass-forming-region-of-m",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-544-predicting-the-glass-forming-region-of-m/reviews/research/rosalind-franklin-simulated__2026-05-14__research.md",
-      "started_at": "2026-05-14T15:20:35.116790+00:00"
     }
   ],
   "schema_version": "2.0.0"
