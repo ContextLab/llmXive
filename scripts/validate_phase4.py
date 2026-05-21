@@ -42,7 +42,7 @@ import re
 import shutil
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -314,12 +314,12 @@ def _run_pipeline(project_id: str) -> dict[str, Any]:
     insp_subdir = INSPECTIONS_DIR / project_id
     insp_subdir.mkdir(parents=True, exist_ok=True)
     env = {**os.environ, "LLMXIVE_INSPECTION_DIR": str(insp_subdir)}
-    started = datetime.now(timezone.utc)
+    started = datetime.now(UTC)
     proc = subprocess.run(
         [sys.executable, "-m", "llmxive", "run", "--project", project_id, "--max-tasks", "2"],
         capture_output=True, text=True, cwd=str(REPO_ROOT), env=env, timeout=1900,
     )
-    ended = datetime.now(timezone.utc)
+    ended = datetime.now(UTC)
     run_id = None
     m = re.search(r"run[_-]?id[=: ]+([0-9a-fA-F-]{8,})", (proc.stdout or "") + (proc.stderr or ""))
     if m:
@@ -500,7 +500,7 @@ def emit_carry_forward(results: list[dict[str, Any]]) -> Path:
     head = _git_head()
     manifest: dict[str, Any] = {
         "spec": "014-phase4-plan-tasks-testing",
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "final_commit": head,
         "projects": [],
     }

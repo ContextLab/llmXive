@@ -123,7 +123,7 @@ def assert_artifact_set_complete(files: dict[str, str]) -> None:
     """
     if not files:
         raise IncompleteArtifactSet(
-            list(_REQUIRED_PLAIN_ARTIFACTS) + ["contracts/*.yaml"],
+            [*_REQUIRED_PLAIN_ARTIFACTS, "contracts/*.yaml"],
             "no artifacts produced (empty split)",
         )
 
@@ -352,9 +352,9 @@ def assert_data_model_contracts_consistent(files: dict[str, str]) -> None:
 
 __all__ = [
     "IncompleteArtifactSet",
-    "UnreachableReference",
     "InconsistentDataModel",
+    "UnreachableReference",
     "assert_artifact_set_complete",
-    "assert_urls_reachable",
     "assert_data_model_contracts_consistent",
+    "assert_urls_reachable",
 ]
