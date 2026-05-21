@@ -81,10 +81,19 @@ def _make_planner_ctx(tmp_path: Path):
     from llmxive.speckit.slash_command import SlashCommandContext
     from llmxive.types import BackendName
 
+    import shutil
+
     proj_id = "PROJ-TEST-plan"
     proj_dir = tmp_path / "projects" / proj_id
     feature_dir = proj_dir / "specs" / "001-test"
     feature_dir.mkdir(parents=True)
+    # Mirror production: write_artifacts computes repo_root = proj_dir.parent.parent
+    # (= tmp_path) and the template-vs-real guard reads <repo>/.specify/templates.
+    # Copy the real templates in so Rule 1 (learned-phrase detection) runs exactly
+    # as it does in a real repo — otherwise the guard is artificially weakened.
+    tmpl_dst = tmp_path / ".specify" / "templates"
+    tmpl_dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(REPO_ROOT / ".specify" / "templates", tmpl_dst)
     (feature_dir / "spec.md").write_text(
         "# Feature Specification: Test\n\n## Functional Requirements\n\n"
         "- **FR-001**: System MUST do a thing.\n",

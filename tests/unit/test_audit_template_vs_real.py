@@ -175,6 +175,47 @@ class TestClassifyFixtures(unittest.TestCase):
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
+    def test_fenced_flowchart_bracket_labels_not_template(self):
+        """Spec 014 regression: bracketed node labels inside a fenced block
+        (a mermaid/ASCII data-flow chart, e.g. '[Dataset Download] -> ...') are
+        diagram CONTENT, not unfilled [PLACEHOLDER] markers, and must not trip
+        the bracket-density rule. A doc saturated with standalone bracket
+        placeholders in prose must still classify template."""
+        tmp = Path(tempfile.mkdtemp(prefix="flow_test_"))
+        try:
+            ok = tmp / "data-model.md"
+            ok.write_text(textwrap.dedent("""\
+                # Data Model: Example
+
+                ## Widget
+
+                | field | type |
+                |-------|------|
+                | id | string |
+
+                ## Data Flow
+
+                ```
+                [Dataset Download] -> data/raw/
+                [Clone Detection] -> data/processed/clones.csv
+                [Perplexity Compute] -> data/processed/ppl.csv
+                [Bug Detection Eval] -> data/results/bugs.csv
+                [Correlation] -> data/results/corr.csv
+                [Plotting] -> data/results/plots/
+                ```
+            """))
+            self.assertEqual(classify(ok, templates_dir=TEMPLATES_DIR)[0], "real")
+
+            # Standalone bracket placeholders in PROSE still flag template.
+            bad = tmp / "bad.md"
+            bad.write_text(
+                "# Doc\n\nFill these: [Alpha Value] [Beta Value] [Gamma Value] "
+                "[Delta Value] [Epsilon Value] [Zeta Value] [Eta Value].\n"
+            )
+            self.assertEqual(classify(bad, templates_dir=TEMPLATES_DIR)[0], "template")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
     def test_genuinely_empty_sections_still_partial(self):
         """The body-density rule must still flag headings-with-no-content so the
         bug-fix above does not weaken genuine partial detection."""

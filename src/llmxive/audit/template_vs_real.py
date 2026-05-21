@@ -68,9 +68,34 @@ def _load_template_phrases(templates_dir: Path) -> list[str]:
     return out
 
 
+def _placeholder_scan_text(text: str) -> str:
+    """Return ``text`` with content that legitimately contains brackets removed,
+    so template-placeholder detection (Rules 1 & 2) sees only standalone
+    ``[PLACEHOLDER]`` tokens in prose.
+
+    Strips fenced code/diagram blocks (```...``` and ~~~...~~~ — e.g. a mermaid
+    ER diagram or an ASCII data-flow chart whose node labels look like
+    ``[Dataset Download]``), HTML comments, and markdown link/image targets
+    (``[text](url)``, ``[text][ref]``). Brackets in those constructs are
+    CONTENT, not fill-in placeholders, and previously caused real planner
+    artifacts to mis-classify ``template`` (spec 014).
+    """
+    t = re.sub(r"```.*?```", "", text, flags=re.S)
+    t = re.sub(r"~~~.*?~~~", "", t, flags=re.S)
+    t = re.sub(r"<!--.*?-->", "", t, flags=re.S)
+    t = re.sub(r"!?\[[^\]]*\]\([^)]*\)", "", t)   # [text](url) / ![alt](url)
+    t = re.sub(r"!?\[[^\]]*\]\[[^\]]*\]", "", t)  # [text][ref]
+    return t
+
+
 def classify(path: Path, templates_dir: Path | None = None) -> tuple[str, list[RuleFired]]:
     """Classify one artifact as real | partial | template."""
     text = Path(path).read_text()
+    # Rule 2 (raw bracket density) operates on a "scan" view with fenced blocks,
+    # HTML comments, and markdown links removed — brackets there are content
+    # (mermaid labels, code, link text), not placeholders. Rule 1 (learned
+    # phrases) uses the full text.
+    scan = _placeholder_scan_text(text)
     rules: list[RuleFired] = []
 
     # Rule 0: legacy migration with substantive body -> always real
@@ -86,6 +111,11 @@ def classify(path: Path, templates_dir: Path | None = None) -> tuple[str, list[R
     hits = 0
     sample_hits: list[str] = []
     for phrase in template_phrases:
+        # Rule 1 matches LEARNED template phrases (e.g. "[REMOVE IF UNUSED]",
+        # "[FEATURE]") against the FULL text — they are genuine template signals
+        # wherever they appear, including inside a template's fenced examples.
+        # (Structural task labels like "[US1]" are already excluded at learn
+        # time, so a real tasks.md does not trip this rule.)
         if phrase and phrase in text:
             hits += 1
             if len(sample_hits) < 3:
@@ -103,8 +133,11 @@ def classify(path: Path, templates_dir: Path | None = None) -> tuple[str, list[R
             ))
         return "template", rules
 
-    # Rule 2: unfilled bracket density
-    brackets = PLACEHOLDER_BRACKET_RE.findall(text)
+    # Rule 2: unfilled bracket density (on the scan view, structural labels excluded)
+    brackets = [
+        b for b in PLACEHOLDER_BRACKET_RE.findall(scan)
+        if not STRUCTURAL_LABEL_RE.match(b)
+    ]
     if brackets and len(brackets) >= 6:
         # treat >=6 unfilled bracket placeholders as template
         rules.append(RuleFired(
