@@ -62,7 +62,7 @@ A researcher can apply permutation importance to the Random Forest and saliency 
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and cache the QM9 dataset (DOI: 10.6084/m9.figshare.9981994) with integrity verification
+- **FR-001**: System MUST download and cache the QM9 dataset (DOI: 10.1038/sdata.2014.22) with integrity verification
 - **FR-002**: System MUST extract 3D coordinates, atom types, and bond connectivity from the dataset
 - **FR-003**: System MUST generate 2D descriptors (Morgan fingerprints, Coulomb matrices) for baseline comparison
 - **FR-004**: System MUST implement a lightweight SchNet-style GNN using PyTorch Geometric in CPU-only mode
