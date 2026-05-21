@@ -74,6 +74,86 @@ class TestClassifyFixtures(unittest.TestCase):
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
+    def test_table_and_diagram_heavy_data_model_classifies_real(self):
+        """Spec 014 regression: a substantive data-model.md whose sections are
+        an ER mermaid diagram, per-entity attribute tables, fenced CSV schemas,
+        and parent headings must classify 'real' — NOT 'partial'. The previous
+        body-density rule stripped fenced blocks before measuring and counted
+        table/diagram-heavy sections as empty, blocking the Planner forever."""
+        tmp = Path(tempfile.mkdtemp(prefix="dm_test_"))
+        try:
+            dm = tmp / "data-model.md"
+            dm.write_text(textwrap.dedent("""\
+                # Data Model: Example
+
+                ## Entity Relationships
+
+                ```mermaid
+                erDiagram
+                    CodeSegment ||--o{ CloneDensityMetric : "has"
+                    CodeSegment ||--o{ ModelMetric : "has"
+                ```
+
+                ## Entity Definitions
+
+                ### CodeSegment
+
+                Represents a discrete unit of Python code extracted from the corpus.
+
+                | Attribute | Type | Required | Description |
+                |-----------|------|----------|-------------|
+                | segment_id | string | YES | Unique identifier |
+                | file_path | string | YES | Original file path |
+                | ast_hash | string | YES | SHA256 of canonical AST |
+
+                ### CloneDensityMetric
+
+                Computed syntactic clone density for a segment.
+
+                | Attribute | Type | Required | Description |
+                |-----------|------|----------|-------------|
+                | metric_id | string | YES | Unique identifier |
+                | density_score | float | YES | matched / total |
+
+                ## CSV File Schemas
+
+                ### clone_density_metrics.csv
+
+                ```csv
+                segment_id,threshold,density_score
+                abc123,0.8,0.42
+                ```
+
+                ## Data Flow
+
+                Segments are extracted, hashed, scored for density, then evaluated
+                by the model; the correlation step joins density and model metrics.
+            """))
+            cls, rules = classify(dm, templates_dir=TEMPLATES_DIR)
+            self.assertEqual(
+                cls, "real",
+                msg=f"table/diagram data-model misclassified {cls}; rules: {[r.rule_id for r in rules]}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_genuinely_empty_sections_still_partial(self):
+        """The body-density rule must still flag headings-with-no-content so the
+        bug-fix above does not weaken genuine partial detection."""
+        tmp = Path(tempfile.mkdtemp(prefix="empty_test_"))
+        try:
+            empty = tmp / "data-model.md"
+            empty.write_text(
+                "# Doc\n\n## Alpha\n\n## Beta\n\n## Gamma\n\n## Delta\n\n## Epsilon\n"
+            )
+            cls, rules = classify(empty, templates_dir=TEMPLATES_DIR)
+            self.assertEqual(
+                cls, "partial",
+                msg=f"empty-section doc should be partial; got {cls}; rules: {[r.rule_id for r in rules]}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
 
 class TestAuditEndToEnd(unittest.TestCase):
     def setUp(self):

@@ -119,19 +119,46 @@ def classify(path: Path, templates_dir: Path | None = None) -> tuple[str, list[R
 
 
 def _body_density(text: str) -> tuple[int, int]:
-    """Count (short, total) section bodies between H2+ headings."""
+    """Count (short, total) section bodies between H2+ headings.
+
+    A section counts as "short" only when it has essentially no content of any
+    kind. Markdown tables, fenced code/diagram blocks (```...``` — including
+    mermaid), and list items all count as real content: a data-model.md that
+    specifies entities via attribute tables or an ER diagram is NOT "partial".
+    A parent heading whose immediate body is empty because its content lives in
+    deeper subsections (e.g. ``## Entity Definitions`` followed by ``### Foo``)
+    is structural, not missing content, and is likewise not short.
+
+    Spec 014 bug-fix: the previous implementation stripped fenced blocks before
+    measuring, so a legitimately diagram/table/code-heavy artifact (mermaid ER
+    diagram, per-entity tables, fenced CSV schemas) was mis-classified
+    ``partial`` and the Planner could never advance any project past
+    ``clarified``. Genuinely empty/stub sections (headings with no content) are
+    still flagged; literal-template artifacts are still caught earlier by the
+    template-phrase and bracket-density rules.
+    """
     headings = list(HEADING_RE.finditer(text))
     if not headings:
         return 0, 0
     short = 0
     total = 0
     for i, h in enumerate(headings):
+        level = len(h.group(1))
         body_start = h.end()
         body_end = headings[i + 1].start() if i + 1 < len(headings) else len(text)
-        body = text[body_start:body_end].strip()
-        # strip code fences + HTML comments
-        body = re.sub(r"```.*?```", "", body, flags=re.S)
-        body = re.sub(r"<!--.*?-->", "", body, flags=re.S)
+        raw_body = text[body_start:body_end]
+        # Parent heading: the next heading is deeper and the immediate body is
+        # whitespace-only -> content lives in the children; not "missing".
+        if (
+            i + 1 < len(headings)
+            and len(headings[i + 1].group(1)) > level
+            and not raw_body.strip()
+        ):
+            total += 1
+            continue
+        # Strip only template meta-instruction comments. KEEP fenced blocks,
+        # tables, and lists — they are real content.
+        body = re.sub(r"<!--.*?-->", "", raw_body, flags=re.S)
         body_clean = re.sub(r"\s+", " ", body).strip()
         if len(body_clean) < 20:
             short += 1
