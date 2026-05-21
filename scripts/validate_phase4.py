@@ -304,32 +304,64 @@ def _snapshot_spec_md(project_id: str) -> str:
     return spec.read_text(encoding="utf-8") if (spec and spec.is_file()) else ""
 
 
+# Phase-4 stages we still step OUT of (run the mapped agent), and the terminal
+# stages where Phase-4 is done. The Tasker occupies TWO runner steps
+# (PLANNED->TASKED then TASKED->ANALYZED), so a fixed --max-tasks 2 is
+# insufficient. We step ONE agent at a time and STOP at 'analyzed' — never
+# stepping into the implementer (Phase 5).
+_PHASE4_STEP_STAGES = {"clarified", "planned", "tasked", "analyze_in_progress"}
+_PHASE4_TERMINAL_STAGES = {"analyzed", "human_input_needed", "held", "blocked"}
+_PHASE4_STEP_CAP = 6  # safety bound: planner + up to a few tasker steps
+
+
 def _run_pipeline(project_id: str) -> dict[str, Any]:
-    """Run `python -m llmxive run --project <id> --max-tasks 2`.
+    """Step `python -m llmxive run --project <id> --max-tasks 1` until the
+    project reaches a terminal Phase-4 stage.
 
     Sets LLMXIVE_INSPECTION_DIR so the planner+tasker write inspection records.
-    --max-tasks 2 = one Planner step + one Tasker step (the Tasker's internal
-    analyze loop runs within its single invocation).
+    Stepping one agent at a time (rather than a fixed --max-tasks) is required
+    because the Tasker advances the project across two stages (PLANNED->TASKED,
+    TASKED->ANALYZED) in two separate runner steps; it also lets us STOP at
+    'analyzed' so the Implementer (Phase 5) never runs. A non-zero step holds
+    the stage — we stop and let _verify report the finding.
     """
     insp_subdir = INSPECTIONS_DIR / project_id
     insp_subdir.mkdir(parents=True, exist_ok=True)
     env = {**os.environ, "LLMXIVE_INSPECTION_DIR": str(insp_subdir)}
     started = datetime.now(UTC)
-    proc = subprocess.run(
-        [sys.executable, "-m", "llmxive", "run", "--project", project_id, "--max-tasks", "2"],
-        capture_output=True, text=True, cwd=str(REPO_ROOT), env=env, timeout=1900,
-    )
+    run_id: str | None = None
+    last_rc = 0
+    steps = 0
+    last_stderr = ""
+    last_stdout = ""
+    while steps < _PHASE4_STEP_CAP:
+        stage = _read_state_stage(project_id)
+        if stage in _PHASE4_TERMINAL_STAGES or stage not in _PHASE4_STEP_STAGES:
+            break
+        proc = subprocess.run(
+            [sys.executable, "-m", "llmxive", "run", "--project", project_id, "--max-tasks", "1"],
+            capture_output=True, text=True, cwd=str(REPO_ROOT), env=env, timeout=1900,
+        )
+        steps += 1
+        last_rc = proc.returncode
+        last_stderr = proc.stderr or ""
+        last_stdout = proc.stdout or ""
+        m = re.search(r"run[_-]?id[=: ]+([0-9a-fA-F-]{8,})", last_stdout + last_stderr)
+        if m:
+            run_id = m.group(1)
+        if proc.returncode != 0:
+            break
+        # If a successful step did not change the stage, stop (avoid spinning).
+        if _read_state_stage(project_id) == stage:
+            break
     ended = datetime.now(UTC)
-    run_id = None
-    m = re.search(r"run[_-]?id[=: ]+([0-9a-fA-F-]{8,})", (proc.stdout or "") + (proc.stderr or ""))
-    if m:
-        run_id = m.group(1)
     return {
-        "returncode": proc.returncode,
+        "returncode": last_rc,
         "run_id": run_id,
+        "steps": steps,
         "duration_s": (ended - started).total_seconds(),
-        "stderr_tail": (proc.stderr or "").splitlines()[-15:],
-        "stdout_tail": (proc.stdout or "").splitlines()[-15:],
+        "stderr_tail": last_stderr.splitlines()[-15:],
+        "stdout_tail": last_stdout.splitlines()[-15:],
     }
 
 

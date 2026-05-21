@@ -13,7 +13,7 @@ A real project used as validation input.
 | speckit_research_dir | str | Path to `projects/<id>/specs/001-<slug>` (where Planner/Tasker write) |
 | field | str | Domain (`computer science`, `chemistry`) — drives domain-specific artifacts |
 
-Reference set for this feature: PROJ-261 (CS) and PROJ-262 (Chemistry). State transitions during a run: `clarified → planned → tasked → analyze_in_progress → analyzed` (or `→ human_input_needed` on cap-hit).
+Reference set for this feature: PROJ-261 (CS) and PROJ-262 (Chemistry). State transitions during a run: `clarified → planned → tasked → analyze_in_progress → analyzed` (cap-hit without convergence still advances to `analyzed` best-effort; `→ human_input_needed` only on an explicit Mode-B `escalate` verdict or backend failure).
 
 ## Plan Artifact Set
 
@@ -42,7 +42,7 @@ One Mode-A→Mode-B iteration of the Tasker loop (`tasks_cmd.py:188`).
 | files_rewritten | list[str] | which of spec.md/plan.md/tasks.md were rewritten this round |
 | diffs | object | path → unified diff (before/after) for each rewritten file |
 
-Bounded by `TASKER_MAX_REVISION_ROUNDS` (config default 5). 0 rounds = clean on first analyze (success, not failure). Cap-hit = `escalate` → `human_input_needed.yaml`.
+Bounded by `TASKER_MAX_REVISION_ROUNDS` (config default 5). 0 rounds = clean on first analyze (success). Cap-hit WITHOUT convergence → best-effort advance to `analyzed`, recording `converged: false` in `tasker_rounds.yaml`. An explicit Mode-B `verdict: escalate` writes `human_input_needed.yaml` (per the 2026-05-21 decision).
 
 ## Inspection Record
 

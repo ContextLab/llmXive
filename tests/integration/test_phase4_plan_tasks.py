@@ -577,6 +577,43 @@ class TestAnalyzeLoopEscalation:
         assert agent._inspection_rounds, "no inspection rounds captured"
         assert agent._inspection_rounds[-1]["verdict"] == "escalate"
 
+    def test_cap_hit_without_escalate_advances_best_effort(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Per the 2026-05-21 decision: when the analyze loop hits the round cap
+        WITHOUT a clean report AND WITHOUT an explicit escalate verdict, the
+        Tasker accepts tasks.md as best-effort (records converged:false) and does
+        NOT write human_input_needed.yaml — the project is allowed to advance to
+        'analyzed'. (human_input_needed is reserved for explicit escalate.)"""
+        import llmxive.speckit.tasks_cmd as tasks_cmd
+        from llmxive.backends.base import ChatResponse
+        from llmxive.config import TASKER_MAX_REVISION_ROUNDS
+        from llmxive.speckit.tasks_cmd import TaskerAgent
+
+        ctx, mech, feature_dir = _make_tasker_project(tmp_path)
+        monkeypatch.setattr(
+            tasks_cmd, "run_analyze",
+            lambda **kw: "- (severity: MEDIUM) (tasks.md) advisory nitpick",
+        )
+        monkeypatch.setattr(tasks_cmd, "is_clean", lambda report: False)
+
+        def fake_chat(messages, **kwargs):
+            # Never escalate — every round is a benign needs-rerun no-op patch.
+            doc = {"issues_resolved": [], "issues_remaining": ["x"], "verdict": "needs-rerun"}
+            return ChatResponse(text=json.dumps(doc), model="m", backend="dartmouth")
+
+        monkeypatch.setattr(tasks_cmd, "chat_with_fallback", fake_chat)
+        monkeypatch.setattr(tasks_cmd, "render_prompt", lambda *a, **k: "stub system prompt")
+
+        agent = TaskerAgent()
+        resp = ChatResponse(text=_real_tasks_md(), model="m", backend="dartmouth")
+        agent.write_artifacts(ctx, mech, resp)  # must NOT raise
+
+        mem = feature_dir.parent.parent / ".specify" / "memory"
+        assert not (mem / "human_input_needed.yaml").is_file(), \
+            "cap-hit without escalate must NOT write human_input_needed.yaml"
+        rounds = yaml.safe_load((mem / "tasker_rounds.yaml").read_text(encoding="utf-8"))
+        assert rounds.get("converged") is False
+        assert rounds.get("rounds_used") == TASKER_MAX_REVISION_ROUNDS
+
 
 # ──────────────────────────────────────────────────────────────────────
 # T025 — ordering unit test + inspection-record schema + carry-forward schema
