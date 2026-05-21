@@ -92,10 +92,14 @@ _NEVER_PICK: set[Stage] = {
     # the planning loop is the only entity that should advance such
     # projects.
     Stage.PAPER_REVISION_IN_PROGRESS,
-    # Spec 012: blocked-or-waiting-for-implementer states. The dedicated
-    # implementer agent (out of scope for this spec) picks these up.
-    Stage.READY_FOR_IMPLEMENTATION,
+    # Spec 013: PAPER_REVISION_BLOCKED + PUBLISH_BLOCKED are operator-action
+    # states (3 consecutive zero-success implementer rounds; 5 consecutive
+    # Zenodo failures). Cleared via `llmxive project republish`.
+    # READY_FOR_IMPLEMENTATION is now PICKABLE — the `llmXive-implementer`
+    # agent introduced in spec 013 consumes those projects (was an
+    # explicit out-of-scope item in spec 012; now in scope).
     Stage.PAPER_REVISION_BLOCKED,
+    Stage.PUBLISH_BLOCKED,
 }
 
 

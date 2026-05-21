@@ -35,6 +35,7 @@
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
 \providecommand{\aistatsfinalcopy}{}
+\providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
@@ -53,6 +54,7 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\tablecite}[1]{\cite{#1}}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -82,30 +84,21 @@
 \definecolor{darkorange}{rgb}{1.0, 0.55, 0.0}
 \definecolor{forestgreen}{rgb}{0.0, 0.5, 0.0}
 \definecolor{ashgrey}{rgb}{0.7, 0.75, 0.71}
+\newtcolorbox[auto counter]{promptbox}[2][]{
+  colback=gray!5,
+  colframe=gray!40,
+  title=\textbf{Box~\thetcbcounter: #2},
+  fonttitle=\bfseries,
+  breakable,
+  sharp corners,
+  boxrule=0.8pt,
+  #1
+}
 \makeatother
 
 %% ── llmXive paper metadata ──────────────────────────────────
 \title{\bench~\&~\rmbench: A Unified Benchmark for Image Editing and Reward Modeling}
-\author{Xuehai Bai$^{1}$\thanks{Equal Contribution} \,\,\,
-    Yang Shi$^{2,3}$\footnotemark[1] \,\,\,
-    Yi-Fan Zhang$^{4}$\footnotemark[1]\,\,\thanks{Project Lead} \,\,\,
-    Xuanyu Zhu$^{2}$ \,
-    Yuran Wang$^{2}$ \,
-    \\
-    \bfseries
-    Yifan Dai$^{3}$ \,
-    Xinyu Liu$^{3}$ \,
-    Yiyan Ji$^{3}$ \,
-    Xiaoling Gu$^{1}$\thanks{Corresponding Author} \,\,\,
-    Yuanxing Zhang$^{3}$\footnotemark[3] \,\,\,
-                                        \\ 
-    $^1$HDU\quad
-    $^2$PKU\quad
-    $^3$Kling Team\quad
-    $^4$CASIA\quad
-                \\
-                        {\centering}
-    \url{https://github.com/bxhsort/Edit-Compass-and-EditReward-Compass}}
+\author{Xuehai Bai \and Yang Shi \and Yi-Fan Zhang \and Xuanyu Zhu \and Yuran Wang \and Yifan Dai \and Xinyu Liu \and Yiyan Ji \and Xiaoling Gu \and Yuanxing Zhang}
 \paperid{arXiv:2605.13062}
 \paperstatus{Preprint}
 
@@ -382,12 +375,12 @@ In the first stage, three annotators independently review sampled outputs to con
             & $\mathcal{IA}\uparrow$ & $\mathcal{VC}\uparrow$ & $\mathcal{VQ}\uparrow$
             & \cellcolor[HTML]{C8C8C8}\textbf{AVG} \\ \hline
 
-InstructPix2Pix~\cite{brooks2023instructpix2pix} & \ding{55}
+InstructPix2Pix~\cite{brooks2023instructpix2pix} & 
 & 1.98 & 1.34 & 2.33 & 1.72 & 1.61 & 2.23 & 1.51 & 1.56
 & 2.57 & 1.09 & 1.66 & 3.26 & - & - & - & 1.91 & 1.15 &  2.07
 & \cellcolor[HTML]{C8C8C8}1.19 \\
 
-UltraEdit~\cite{zhao2024ultraedit} & \ding{55}
+UltraEdit~\cite{zhao2024ultraedit} & 
 & 2.23 & 1.80 & 2.44 & 1.82 & 2.37 & 2.44 & 1.56 & 2.32 & 2.89
 & 1.04 & 3.34 & 3.71 & - & - & - & 1.82  & 1.31 & 2.11
 & \cellcolor[HTML]{C8C8C8}1.28 \\
@@ -397,13 +390,13 @@ AnyEdit~\cite{yu2025anyedit} & \icohalfno
 & 2.95 & 1.03 & 3.21 & 3.44 & - & - & - & 1.34 & 1.78 & 2.07
 & \cellcolor[HTML]{C8C8C8}1.31 \\
 
-MagicBrush~\cite{zhang2023magicbrush} & \ding{55}
+MagicBrush~\cite{zhang2023magicbrush} & 
 & 2.21  & 2.11 & 2.28 & 1.75 & 2.42 & 2.29 & 1.51 & 2.58 & 2.49  & 1.05
 & 1.69 & 2.37 & - & - & - & 1.53 & 1.66 & 2.10
 & \cellcolor[HTML]{C8C8C8}1.33 \\
 
 
-FLUX.1 Kontext Dev~\cite{labs2025flux} & \ding{55}
+FLUX.1 Kontext Dev~\cite{labs2025flux} & 
 & 3.53 & 2.98 & 3.09 & 2.41 & 2.93 & 2.81 & 1.65 & 3.22 & 3.32 & 1.27
 & 3.98 & \textbf{4.78} & - & - & - & 2.41 & 2.32 & 2.63
 & \cellcolor[HTML]{C8C8C8}1.93 \\
@@ -414,7 +407,7 @@ FLUX.2 Dev~\cite{flux-2-2025} & $\checkmark$
 & \cellcolor[HTML]{C8C8C8} 2.61 \\
 \hline
 
-OneCAT~\cite{li2025onecat} & \ding{55}
+OneCAT~\cite{li2025onecat} & 
 & 2.23 & 1.12 & 2.12
 & 1.67 & 1.26 & 2.15
 & 1.41 & 1.29 & 2.09
@@ -423,7 +416,7 @@ OneCAT~\cite{li2025onecat} & \ding{55}
 & 1.79 & 1.03 & 1.99
 & \cellcolor[HTML]{C8C8C8}1.21 \\
 
-Lumina-DiMOO~\cite{xin2025lumina} & \ding{55}
+Lumina-DiMOO~\cite{xin2025lumina} & 
 & 2.37 & 2.00 & 2.33
 & 1.73 & 2.31 & 2.40
 & 1.50 & 2.89 & 2.93
@@ -432,7 +425,7 @@ Lumina-DiMOO~\cite{xin2025lumina} & \ding{55}
 & 1.70 & 1.54 & 2.08
 & \cellcolor[HTML]{C8C8C8}1.33 \\
 
-Nextstep-V1~\cite{han2025nextstep} & \ding{55}
+Nextstep-V1~\cite{han2025nextstep} & 
 & 3.31 & 1.73 & 2.29
 & 2.35 & 1.81 & 2.23
 & 1.74 & 1.81 & 2.28
@@ -441,7 +434,7 @@ Nextstep-V1~\cite{han2025nextstep} & \ding{55}
 & 2.14 & 1.22 & 2.09
 & \cellcolor[HTML]{C8C8C8}1.45 \\
 
-InternVL-U~\cite{tian2026internvl} & \ding{55}
+InternVL-U~\cite{tian2026internvl} & 
 & 3.84 & 2.13 & 2.69
 & 2.54 & 1.91 & 2.40
 & 1.82 & 2.35 & 2.69
@@ -455,7 +448,7 @@ UniWorld-V1~\cite{lin2025uniworld} & $\checkmark$
 & 1.06 & 1.59 & 3.59 & 1.74 & 2.02 & 2.81 & 1.74 & 2.65 & 2.41
 & \cellcolor[HTML]{C8C8C8}1.71 \\
 
-HiDream-E1~\cite{cai2025hidream} & \ding{55}
+HiDream-E1~\cite{cai2025hidream} & 
 & 3.29 & 2.42 & 2.75
 & 2.66 & 2.65 & 2.68
 & 1.77 & 2.54 & 2.80
@@ -465,7 +458,7 @@ HiDream-E1~\cite{cai2025hidream} & \ding{55}
 & \cellcolor[HTML]{C8C8C8}1.76 \\
 
 
-ChronoEdit~\cite{wu2025chronoedit} & \ding{55}
+ChronoEdit~\cite{wu2025chronoedit} & 
 & 2.63 & 3.63 & 3.49
 & 2.85 & 3.84 & 3.22
 & 1.61 & 3.26 & 3.35
@@ -484,7 +477,7 @@ OmniGen2~\cite{wu2025omnigen2} & $\checkmark$
 & 2.27 & 2.73 & 2.73
 & \cellcolor[HTML]{C8C8C8}1.88 \\
 
-DeepGen 1.0~\cite{wang2026deepgen} & \ding{55}
+DeepGen 1.0~\cite{wang2026deepgen} & 
 & 3.85 & 2.45 & 2.94
 & 2.88 & 2.50 & 2.62
 & 2.30 & 2.68 & 3.13
@@ -541,7 +534,7 @@ UniWorld-V2~\cite{li2025uniworld} & $\checkmark$
 & 2.91 & 2.73 & 2.82
 & \cellcolor[HTML]{C8C8C8}2.53 \\
 
-Step1X-Edit-v1p2~\cite{liu2025step1x} & \ding{55}
+Step1X-Edit-v1p2~\cite{liu2025step1x} & 
 & 4.26 & 4.31 & 3.64
 & 3.16 & 4.15 & 3.12
 & 2.30 & \textbf{4.09} & 3.49
@@ -551,7 +544,7 @@ Step1X-Edit-v1p2~\cite{liu2025step1x} & \ding{55}
 & \cellcolor[HTML]{C8C8C8}2.58 \\
 
 
-Longcat-Image-Edit~\cite{team2025longcat} & \ding{55}
+Longcat-Image-Edit~\cite{team2025longcat} & 
 & 4.51 & \textbf{4.48} & 3.90
 & 3.54 & 4.14 & 3.38
 & 1.98 & 3.94 & 3.49
@@ -566,7 +559,7 @@ EMU3.5~\cite{cui2025emu3} & $\checkmark$
 & \cellcolor[HTML]{C8C8C8}2.66 \\
 
 
-JoyAI-Image-Edit~\cite{joyaiimage2026} & \ding{55}
+JoyAI-Image-Edit~\cite{joyaiimage2026} & 
 & 4.56 & 4.35 & 3.61
 & 3.65 & 4.14 & 3.17
 & 2.35 & 3.87 & 3.46
@@ -688,23 +681,23 @@ AnyEdit~\cite{yu2025anyedit} & \icohalfno
 & 1.00 & 2.75 & 3.13 & - & - & - & 1.15 & 1.89 & 2.15
 & \cellcolor[HTML]{C8C8C8}1.13 \\
 
-MagicBrush~\cite{zhang2023magicbrush} & \ding{55}
+MagicBrush~\cite{zhang2023magicbrush} & 
 & 1.47  & 1.94 & 2.31 & 1.27 & 1.42 & 2.22 & 2.28 & 2.00 & 2.54  & 1.00
 & 1.30 & 2.34 & - & - & - & 1.29 & 1.62 & 2.09
 & \cellcolor[HTML]{C8C8C8}1.14 \\
 
-UltraEdit~\cite{zhao2024ultraedit} & \ding{55}
+UltraEdit~\cite{zhao2024ultraedit} & 
 & 2.23 & 1.80 & 2.44 & 1.82 & 2.37 & 2.44 & 1.56 & 2.32 & 2.89
 & 1.04 & 3.34 & 3.71 & - & - & - & 1.82 & 1.31 & 2.11
 & \cellcolor[HTML]{C8C8C8}1.15 \\
 
-InstructPix2Pix~\cite{brooks2023instructpix2pix} & \ding{55}
+InstructPix2Pix~\cite{brooks2023instructpix2pix} & 
 & 1.48 & 2.40 & 2.68 & 1.44 & 2.8 & 2.69  & 1.37 & 2.85
 & 3.22 & 1.00 & 1.65 & 2.64 & - & - & - & 1.19 & 1.98 &  2.14
 & \cellcolor[HTML]{C8C8C8}1.17 \\
 
 
-FLUX.1 Kontext Dev~\cite{labs2025flux} & \ding{55}
+FLUX.1 Kontext Dev~\cite{labs2025flux} & 
 & 1.47 & 3.05 & 3.14 & 1.35 & 3.02 & 2.91 & 1.29 & 3.33 & 3.51
 & 1.01 & \textbf{4.43} & 4.85 & - & - & - & 1.16 & 2.93 & 2.67
 & \cellcolor[HTML]{C8C8C8}1.18 \\
@@ -715,7 +708,7 @@ FLUX.2 Dev~\cite{flux-2-2025} & $\checkmark$
 &  \cellcolor[HTML]{C8C8C8}2.60  \\
 \hline
 
-OneCAT~\cite{li2025onecat} & \ding{55}
+OneCAT~\cite{li2025onecat} & 
 & 2.22 & 1.08 & 2.09
 & 1.63 & 1.24 & 2.11
 & 1.45 & 1.26 & 2.12
@@ -733,7 +726,7 @@ UniWorld-V1~\cite{lin2025uniworld} & $\checkmark$
 & 1.25 & 3.00 & 2.57
 & \cellcolor[HTML]{C8C8C8}1.21 \\
 
-Lumina-DiMOO~\cite{xin2025lumina} & \ding{55}
+Lumina-DiMOO~\cite{xin2025lumina} & 
 & 2.21 & 1.97 & 2.34
 & 1.59 & 2.21 & 2.38
 & 1.47 & 2.73 & 2.86
@@ -742,7 +735,7 @@ Lumina-DiMOO~\cite{xin2025lumina} & \ding{55}
 & 1.57 & 1.56 & 2.09
 & \cellcolor[HTML]{C8C8C8}1.32 \\\
 
-Nextstep-V1~\cite{han2025nextstep} & \ding{55}
+Nextstep-V1~\cite{han2025nextstep} & 
 & 3.22 & 1.77 & 2.28
 & 2.33 & 1.74 & 2.25
 & 1.70 & 1.81 & 2.25
@@ -751,7 +744,7 @@ Nextstep-V1~\cite{han2025nextstep} & \ding{55}
 & 2.12 & 1.21 & 2.10
 & \cellcolor[HTML]{C8C8C8}1.44 \\
 
-InternVL-U~\cite{tian2026internvl} & \ding{55}
+InternVL-U~\cite{tian2026internvl} & 
 & 3.89 & 1.98 & 2.85
 & 2.75 & 1.78 & 2.53
 & 1.86 & 2.10 & 2.67
@@ -760,7 +753,7 @@ InternVL-U~\cite{tian2026internvl} & \ding{55}
 & 2.41 & 1.36 & 2.30
 & \cellcolor[HTML]{C8C8C8}1.59 \\
 
-HiDream-E1~\cite{cai2025hidream} & \ding{55}
+HiDream-E1~\cite{cai2025hidream} & 
 & 3.09 & 2.20 & 2.53
 & 2.47 & 2.21 & 2.42
 & 1.72 & 2.20 & 2.55
@@ -778,7 +771,7 @@ UniReason1.0~\cite{wang2026unireason} & $\checkmark$
 & 2.18 & 1.47 & 2.24
 & \cellcolor[HTML]{C8C8C8}1.67 \\
 
-DeepGen 1.0~\cite{wang2026deepgen} & \ding{55}
+DeepGen 1.0~\cite{wang2026deepgen} & 
 & 3.71 & 1.96 & 2.76
 & 2.80 & 1.98 & 2.45
 & 2.16 & 2.31 & 2.85
@@ -796,7 +789,7 @@ OmniGen2~\cite{wu2025omnigen2} & $\checkmark$
 & 2.19 & 2.86 & 2.78
 & \cellcolor[HTML]{C8C8C8}1.88 \\
 
-ChronoEdit~\cite{wu2025chronoedit} & \ding{55}
+ChronoEdit~\cite{wu2025chronoedit} & 
 & 2.74 & 3.52 & 3.42
 & 2.84 & 3.70 & 3.16
 & 1.66 & 3.43 & 3.15
@@ -833,7 +826,7 @@ Unipic3~\cite{wei2026skywork} & $\checkmark$
 & 2.76 & 2.98 & 2.74
 & \cellcolor[HTML]{C8C8C8}2.47 \\
 
-Step1X-Edit-v1p2~\cite{liu2025step1x} & \ding{55}
+Step1X-Edit-v1p2~\cite{liu2025step1x} & 
 & 4.20 & 4.35 & 3.66
 & 3.16 & 4.14 & 3.12
 & 2.14 & \textbf{3.93} & 3.47
@@ -858,7 +851,7 @@ EMU3.5~\cite{cui2025emu3} & $\checkmark$
 & 1.42 & 3.59 & 3.94 & \textbf{3.39} & 3.36 & 2.84 & 2.71 & 3.31 & 2.89
 & \cellcolor[HTML]{C8C8C8}2.63 \\
 
-JoyAI-Image-Edit~\cite{joyaiimage2026} & \ding{55}
+JoyAI-Image-Edit~\cite{joyaiimage2026} & 
 & 4.54 & 4.31 & 3.68
 & 3.59 & 4.20 & 3.15
 & 2.26 & 3.89 & 3.46
@@ -867,7 +860,7 @@ JoyAI-Image-Edit~\cite{joyaiimage2026} & \ding{55}
 & \textbf{3.02} & 3.31 & 2.90
 & \cellcolor[HTML]{C8C8C8}2.63 \\
 
-Longcat-Image-Edit~\cite{team2025longcat} & \ding{55}
+Longcat-Image-Edit~\cite{team2025longcat} & 
 & 4.53 & \textbf{4.47} & 3.85
 & 3.58 & \textbf{4.26} & 3.36
 & 2.11 & 3.88 & 3.53

@@ -16,20 +16,24 @@
 
   // Stage → tab mapping (FR-005). Mirrors src/llmxive/web_data.py.
   const TAB_STAGE_SETS = {
-    // Published papers: spec 012 — paper_accepted is the published state
-    // for arxiv-intake papers (frozen source; nothing else to do after
-    // review accepts). For home-grown papers, paper_accepted → posted
-    // when the pipeline finalizes; both should surface on this tab.
-    papers:     new Set(["posted", "paper_accepted"]),
+    // Published papers (FR-029): only `posted` qualifies as published.
+    // Spec 013 made `paper_accepted` a transient pre-publication state —
+    // the `paper_publisher` agent picks those up and transitions them
+    // to `posted` once Zenodo confirms the DOI. So `paper_accepted` no
+    // longer belongs on the published tab.
+    papers:     new Set(["posted"]),
     paper:      new Set([
       "paper_drafting_init", "paper_specified", "paper_clarified", "paper_planned",
       "paper_tasked", "paper_analyzed", "paper_in_progress", "paper_complete",
       "paper_review", "paper_minor_revision", "paper_major_revision_writing",
       "paper_major_revision_science", "paper_fundamental_flaws",
-      // Spec 012 convergence-pipeline stages (in-flight; NOT on the
+      // Spec 012/013 convergence-pipeline stages (in-flight; NOT on the
       // published papers tab):
       "paper_revision_in_progress", "ready_for_implementation",
       "paper_revision_blocked",
+      // Spec 013: paper_accepted is transient (waiting for publisher);
+      // publish_blocked is operator-action-needed.
+      "paper_accepted", "publish_blocked",
     ]),
     inProgress: new Set([
       "in_progress", "research_complete", "research_review",
@@ -88,6 +92,11 @@
     paper_major_revision_science: "Paper revision (science)",
     paper_fundamental_flaws: "Fundamental flaws",
     posted: "Posted",
+    // Spec 012/013 convergence + publication stages
+    ready_for_implementation: "Ready for implementer",
+    paper_revision_in_progress: "Revision planning",
+    paper_revision_blocked: "Revision blocked",
+    publish_blocked: "Publish blocked",
     human_input_needed: "Human input needed",
     blocked: "Blocked",
   };

@@ -16,7 +16,7 @@
 \usepackage{lipsum}
 \usepackage{graphicx}
 \usepackage{enumitem}
-\usepackage[numbers]{natbib}
+\usepackage{natbib}
 \usepackage{fontawesome5}
 \usepackage{amsmath}
 \usepackage{multirow}
@@ -41,6 +41,7 @@
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
 \providecommand{\aistatsfinalcopy}{}
+\providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
@@ -59,6 +60,7 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\tablecite}[1]{\cite{#1}}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -82,11 +84,88 @@
 \definecolor{DarkBlue}{HTML}{1F1A47}
 \definecolor{Violet}{HTML}{8E24AA}
 \definecolor{VioletLight}{HTML}{FAF5FB}
+\tcbset{
+  agentdef/.style={
+    colback=AgentTealLight,
+    colframe=AgentTeal,
+    colbacktitle=AgentTeal!20!white,
+    coltitle=black,
+    boxrule=0.9pt, arc=2mm,
+    left=3mm, right=3mm, top=2mm, bottom=2mm,
+    fonttitle=\bfseries,
+    title=Definition of Agentic Reasoning
+  },
+  agentscope/.style={
+    colback=AgentIndigoLight,
+    colframe=AgentIndigo,
+    colbacktitle=AgentIndigo!20!white,
+    coltitle=AgentIndigo,
+    boxrule=0.9pt, arc=2mm,
+    left=3mm, right=3mm, top=2mm, bottom=2mm,
+    fonttitle=\bfseries,
+    title=Survey Scope
+  },
+  agentcontrib/.style={
+    colback=AgentAmberLight,
+    colframe=AgentAmber,
+    colbacktitle=AgentAmber!20!white,
+    coltitle=black,
+    boxrule=0.9pt, arc=2mm,
+    left=3mm, right=3mm, top=2mm, bottom=2mm,
+    fonttitle=\bfseries,
+    title=Contributions
+  },
+   agentstruct/.style={
+      colback=LARGBlue!12!white,
+      colframe=LARGBlue,
+      colbacktitle=LARGBlue!20!white,
+      coltitle=LARGBlue,
+    boxrule=0.9pt, arc=2mm,
+    left=3mm, right=3mm, top=2mm, bottom=2mm,
+    fonttitle=\bfseries,
+    title=Survey Structure
+  }
+}
+\tcbset{
+    titlebox/.style={
+                colback=VioletLight,
+        colframe=DarkBlue,           
+        boxrule=2pt,                 
+        arc=0mm,                     
+        leftrule=0pt,
+        rightrule=0pt,
+        left=5mm,
+        right=5mm,
+        top=3mm,
+        bottom=3mm
+    }
+}
+\newtcolorbox{takeawaybox}[1]{
+  colback=white!98!black,
+  colframe=white!86!black,
+  title={\textcolor{black}{#1}},
+  boxrule=0.8pt,
+  arc=2pt,
+  left=6pt,
+  right=6pt,
+  top=0pt,
+  bottom=0pt,
+  before skip=5pt,
+}
+\newtcolorbox{definitionbox}{
+  colback=gray!10,
+  colframe=black!70,
+  boxrule=0.5pt,
+  arc=4pt,
+  left=6pt,
+  right=6pt,
+  top=6pt,
+  bottom=6pt
+}
 \makeatother
 
 %% ── llmXive paper metadata ──────────────────────────────────
-\title{\textbf{Heterogeneous Scientific Foundation Model Collaboration}\\
-\vspace{0.3em}}
+\title{Heterogeneous Scientific Foundation Model Collaboration}
 \author{Zihao Li \and Jiaru Zou \and Feihao Fang \and Xuying Ning \and Mengting Ai \and Tianxin Wei \and Sirui Chen \and Xiyuan Yang \and Jingrui He}
 \paperid{arXiv:2604.27351}
 \paperstatus{Preprint}
@@ -94,7 +173,6 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-\textbf{\large Abstract:} 
 Agentic large language model systems have demonstrated strong capabilities.
 However, their reliance on language as the universal interface fundamentally limits their applicability to many real-world problems, especially in scientific domains where 
 domain-specific foundation models have been developed to address specialized tasks beyond natural language. 
@@ -104,7 +182,7 @@ We evaluate Eywa across a diverse set of scientific domains spanning physical, l
 Experimental results demonstrate that Eywa improves performance on tasks involving structured and domain-specific data, while reducing reliance on language-based reasoning through effective collaboration with specialized foundation models.
 
 \vspace{2mm}
-${\coloremojicode{2709}}$ \textbf{Contact}: \href{mailto:zihaoli5@illinois.edu}{{\color{blue}zihaoli5@illinois.edu}}, \href{mailto:jingrui@illinois.edu}{{\color{blue}jingrui@illinois.edu}}
+${}$ \textbf{Contact}: \href{mailto:zihaoli5@illinois.edu}{{\color{blue}zihaoli5@illinois.edu}}, \href{mailto:jingrui@illinois.edu}{{\color{blue}jingrui@illinois.edu}}
 \end{abstract}
 \author{
     \normalfont 
@@ -121,12 +199,6 @@ ${\coloremojicode{2709}}$ \textbf{Contact}: \href{mailto:zihaoli5@illinois.edu}{
    \vspace{6pt}
 
    \raisebox{1.0ex}{\includegraphics[height=1.1ex]{arxiv/figs/illinois_logo.png}}\,University of Illinois Urbana-Champaign  \\
-
-   \faGithub~\textbf{Code}: \href{https://github.com/Violet24K/Eywa}{https://github.com/Violet24K/Eywa} 
-   \quad
-   {\href{https://www.zihao.website/eywa.github.io/}{ [\faLink~Project Page]}}
-   \vspace{-3mm}
-}
 
 
 
@@ -840,7 +912,7 @@ Finally, Section ~\ref{app:efficiency} provides a token-complexity analysis that
 We collect, in Table~\ref{tab:notation}, the notation used throughout the main text and this appendix. 
 
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \renewcommand{\arraystretch}{1.15}
@@ -1304,7 +1376,7 @@ Therefore, we have the strict inequality,
 \end{proof}
 
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \renewcommand{\arraystretch}{1.2}
@@ -1522,7 +1594,7 @@ In this work, we sample 200 task instances from the four benchmark sources to fo
 
 \subsection{Data Schema}
 
-\begin{table}[h]
+\begin{table}[!htbp]
     \centering
     \resizebox{0.9\linewidth}{!}{
     \begin{tabular}{lll}
@@ -1572,7 +1644,7 @@ The released split contains $N{=}200$ task samples. The underlying construction 
 every one of the nine sub-domains carries a non-trivial mix of all three modalities, yielding $100\%$ cross-modal coverage of the taxonomy. This ensures that conclusions about modality-specific agent behaviour drawn from \textit{Eywabench} generalise across scientific fields rather than conflating modality effects with domain effects. We provide a modality visualization in Figure \ref{fig:eywa_hierarchy}.
 
 % ----------------- Detailed sub-domain table ------------------------
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \resizebox{0.85\linewidth}{!}{%
 \begin{tabular}{llccccc}
@@ -1770,7 +1842,7 @@ Overall, these case studies show three complementary points. First, language-onl
 
 
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \resizebox{\textwidth}{!}{
 \begin{tcolorbox}[colback=gray!5!white, colframe=red!60, 
@@ -1841,7 +1913,7 @@ Case study of a language-only LLM agent on a representative \textit{EywaBench-V1
 
 
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \resizebox{\textwidth}{!}{
 \begin{tcolorbox}[colback=gray!5!white, colframe=orange!60, 
@@ -1903,7 +1975,7 @@ Case study of \textit{EywaAgent} on the same \textit{EywaBench-V1} instance as C
 
 
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \resizebox{\textwidth}{!}{
 \begin{tcolorbox}[colback=gray!5!white, colframe=pink!90, 
@@ -2081,7 +2153,7 @@ The planner prompt formulates orchestration as a constrained configuration-gener
 % This design enables \textit{EywaOrchestra} to adapt across heterogeneous tasks. For language-centric reasoning problems, the planner can choose language-only execution or multi-agent collaboration. For structured prediction problems, the planner can route the task to an \textit{Eywa}-augmented agent equipped with an appropriate domain-specific foundation model. Thus, the planner prompt serves as the interface between high-level task diagnosis and executable heterogeneous-agent composition.
 
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \resizebox{\textwidth}{!}{
 \begin{tcolorbox}[
@@ -2142,7 +2214,7 @@ General prompt template used in \textit{EywaBench-V1}. The template separates ta
 
 
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \begin{tcolorbox}[
 colback=gray!5!white,

@@ -11,7 +11,7 @@
 
 
 %% ── Packages forwarded from original preamble ─────────────────
-\usepackage[numbers,compress]{natbib}
+\usepackage{natbib}
 \usepackage[export]{adjustbox}
 \usepackage[ruled]{algorithm2e}
 \usepackage[inline, shortlabels]{enumitem}
@@ -37,6 +37,7 @@
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
 \providecommand{\aistatsfinalcopy}{}
+\providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
@@ -55,6 +56,7 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\tablecite}[1]{\cite{#1}}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -79,30 +81,17 @@
 \providecommand{\answerNA}[1][]{[N/A]#1}
 \definecolor{softred}{RGB}{200,60,60}
 \definecolor{softredbg}{RGB}{253,232,232}
+\newtcolorbox{promptbox}[2][]{
+  enhanced, sharp corners, breakable,
+  fonttitle=\bfseries,
+  left=4pt, right=4pt, top=3pt, bottom=3pt,
+  #1,
+}
 \makeatother
 
 %% ── llmXive paper metadata ──────────────────────────────────
 \title{\bench{}: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models}
-\author{Xiyu Ren$^{1}$ \quad
-  Zhaowei Wang$^{1}$ \quad
-  Yiming Du$^{2}$ \quad
-  Zhongwei Xie$^{1}$ \\
-  \textbf{
-  Chi Liu$^{1}$ \quad
-  Xinlin Yang$^{1}$ \quad
-  Haoyue Feng$^{1}$ \quad
-  Wenjun Pan$^{1}$ \quad
-  Tianshi Zheng$^{1}$} \\
-  \textbf{Baixuan Xu$^{1}$ \quad
-  Zhengnan Li$^{3}$ \quad
-  Yangqiu Song$^{1}$ \quad
-  Ginny Wong$^{4}$ \quad
-  Simon See$^{4}$} \\[6pt]
-  $^{1}$CSE Deparment, HKUST \quad $^{2}$CUHK \\
-  $^{3}$OmniMemory (Shenzhen) Intelligent Technology Co., Ltd. \\
-  $^{4}$ NVIDIA AI Technology Center (NVAITC), NVIDIA, Santa Clara, USA \\[4pt]
-  \texttt{\{xrenaf, zwanggy, yqsong\}@cse.ust.hk} \\
-    \texttt{ydu@se.cuhk.edu.hk} \quad \texttt{lzhengnan389@gmail.com}}
+\author{Xiyu Ren \and Zhaowei Wang \and Yiming Du \and Zhongwei Xie \and Chi Liu \and Xinlin Yang \and Haoyue Feng \and Wenjun Pan \and Tianshi Zheng \and Baixuan Xu \and Zhengnan Li \and Yangqiu Song \and Ginny Wong \and Simon See}
 \paperid{arXiv:2605.14906}
 \paperstatus{Preprint}
 
@@ -333,7 +322,7 @@ Per-type accuracy ceilings range from 97.78\% on AR down to 44.06\% on MSR (Kimi
 
 \vspace{-8pt}
 \centering
-\includegraphics[width=\linewidth]{figures/specialization_heatmap_unified.pdf}
+\includegraphics[width=0.3\linewidth]{figures/specialization_heatmap_unified.pdf}
 \caption{\small Memory-ability specialization across representative LVLMs and memory agents.}
 \label{fig:specialization}
 \vspace{-6pt}
@@ -375,7 +364,7 @@ Figure~\ref{fig:context_degradation} plots accuracy across five abilities from 3
 \begin{figure}[t]
 \vspace{-8pt}
 \centering
-\includegraphics[width=\linewidth]{figures/type_correlation_heatmap_32k.pdf}
+\includegraphics[width=0.3\linewidth]{figures/type_correlation_heatmap_32k.pdf}
 \caption{\small Spearman rank correlation ($\rho$) at 32K across all 34 evaluated LVLMs and memory agents.}
 \label{fig:type_correlation}
 \vspace{-6pt}
@@ -524,7 +513,7 @@ For agents that include RL-finetuned or LoRA-adapted models (Memory-T1, MemAgent
 \paragraph{Agent evaluation protocol.}
 Because agent pipelines are substantially slower than direct LVLM inference (M2A takes roughly $60\times$ longer per question), we evaluate all agents on a stratified 195-question subset ($\sim$1/4 of the benchmark; derivation in Appendix~\ref{app:canonical195}). LVLMs are evaluated at 32K, 64K, and 128K; agents are evaluated at all four context lengths including 256K. The four text-only agents receive BLIP-2~\cite{li2023blip2} generated image captions in place of actual images as text input. Among the three multimodal agents, M3-Agent is a video-based model that does not natively support interleaved image-text conversations; we render each session as a composite image and feed sessions as a sequence of images. M2A and M3C process the multimodal input directly. Table~\ref{tab:new_model_list} lists the full model specifications.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{lrcr}
@@ -586,7 +575,7 @@ Qwen3-VL-2B (I) & 262,144 & Dynamic-Resolution ViT & 2B \\
 \paragraph{Agent input-format adapters and protocol asymmetry.}
 Memory agents and direct LVLMs do not consume the same input. Each agent ingests the conversation through an adapter that depends on its architecture: the four text-only agents see BLIP-2~\cite{li2023blip2} captions in place of every evidence image, M3-Agent sees one composite image per session because its video-style backbone does not natively accept interleaved image-text sequences, and only M2A and M3C process the original interleaved messages directly. At answer time the asymmetry persists: the text-only agents have no path back to pixel evidence, M3-Agent re-attends a session-level composite, while M2A and M3C retrieve embedding-based memory entries (no raw pixels at query time). Direct LVLMs, in contrast, attend over the original conversation pixel-for-pixel within the model's context window. Table~\ref{tab:agent_adapters} lists each adapter explicitly. We do not normalize this asymmetry because the adapter is part of the system being evaluated---released checkpoints assume the input format their authors trained on, and any uniform substitute would either degrade architectures that depend on caption-only memory (Mem0, MemOS, MemAgent-7B, Memory-T1) or block agents whose backbones cannot accept interleaved input (M3-Agent). Reported deficits relative to direct LVLMs therefore conflate adapter-induced visual information loss with retrieval and reading quality. The matched-backbone contrast in Appendix~\ref{app:agent_underperformance} (M2A vs.\ direct Qwen3-VL-8B-Instruct on identical weights) and the backbone ablations for Mem0 and MemOS (Table~\ref{tab:backbone_ablation}) isolate the architectural component, while the BLIP-2 captioning step bounds the visual-information ceiling for text-only agents from above.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{llll}
@@ -701,7 +690,7 @@ Each of the four answerable memory abilities (IE, MSR, TR, KU) is backed by a de
 
 Table~\ref{tab:subtype_detail} provides the complete subtype taxonomy of \bench{}, listing the 8 answerable subtypes plus Answer Refusal with per-subtype question counts, the visual skill or reasoning operation each subtype isolates, and a representative example. Across the benchmark, 65.7\% of questions are image-essential (the evidence image is required to recover the answer), 14.7\% are image-supportive (the image confirms or disambiguates a textual fact that a strong text-only model could otherwise guess), and 19.6\% are text-sufficient (all AR questions plus a subset of MSR items retained by design). The image-essential share is highest in IE and MSR, substantial in KU, and lower in TR, where a portion of items renders the temporal cue as explicit textual dates or session-boundary timestamps. The cross-subtype correlation structure (Figure~\ref{fig:subtype_correlation}) confirms that the nine subtypes do not consistently correlate with each other, supporting per-type evaluation rather than a single aggregate.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}llcp{6.2cm}@{}}
@@ -735,7 +724,7 @@ Refusal & AR & 90 & Decline to answer when the evidence image has been deliberat
 
 Table~\ref{tab:question_examples} presents representative examples from each question type, illustrating the cross-modal reasoning chain required to reach the correct answer.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}lp{5.0cm}lp{4.8cm}@{}}
@@ -758,7 +747,7 @@ AR & How many vertical cables are visible on one side of the bridge? & \texttt{N
 \end{table}
 
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.85\linewidth]{figures/subtype_correlation_heatmap.pdf}
 \caption{Cross-subtype Spearman rank correlation across the evaluated models ($n=789$, 9 reporting subtypes). IE Entity and IE PrevInfo form the only near-ceiling pair ($\rho = 0.87$ at 32K, $0.94$ at 128K), reflecting their shared retrieval skill. MSR-internal correlation is weak at 32K (mean pairwise $\rho = 0.20$) and rises to $0.38$ at 128K as a shared-failure artifact of MSR collapsing toward the floor; TR-internal correlation stays near zero at both contexts ($\rho = 0.06$). The heterogeneity supports evaluating all five major types separately rather than reporting a single aggregate (\S\ref{subsec:analysis}).}
@@ -853,7 +842,7 @@ retrieved per topic rather than per target proportion. As a result,
 perceptual regimes, and avoids the narrow object-centric or OCR-only focus
 of prior benchmarks.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabularx}{\linewidth}{@{}l X l@{}}
@@ -899,14 +888,14 @@ Evidence sessions are inserted into the full conversation history with positions
 \subsection{Information Extraction}
 \label{app:examples_ie}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/ie_entity_candidates.pdf}
 \caption{Sampled IE-Entity questions. The visually grounded entity is abstracted in the question text, so the agent must first identify the entity from the evidence image before retrieving the relevant fact.}
 \label{fig:samples_ie_entity}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/ie_previnfo_candidates.pdf}
 \caption{Sampled IE-PrevInfo questions. The answer is a visual detail (color, count, layout, on-screen text) of an image shared in an earlier session, requiring multi-session image recall.}
@@ -916,21 +905,21 @@ Evidence sessions are inserted into the full conversation history with positions
 \subsection{Multi-Session Reasoning}
 \label{app:examples_msr}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/msr_arithmetic_candidates.pdf}
 \caption{Sampled MSR-Arithmetic questions. The agent sums or computes over prices, durations, or quantities scattered across sessions; at least one operand is visible only in an image.}
 \label{fig:samples_msr_arithmetic}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/msr_counting_candidates.pdf}
 \caption{Sampled MSR-Counting questions. The agent counts how many sessions or items match a given criterion across the conversation history.}
 \label{fig:samples_msr_counting}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/msr_entity_candidates.pdf}
 \caption{Sampled MSR-Entity Resolution questions. The agent decides whether two cross-session references denote the same entity, either via Yes/No identity matching or by counting distinct entities.}
@@ -940,14 +929,14 @@ Evidence sessions are inserted into the full conversation history with positions
 \subsection{Temporal Reasoning}
 \label{app:examples_tr}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/tr_duration_candidates.pdf}
 \caption{Sampled TR-Duration Comparison questions. The agent compares two time spans whose endpoints come from a mixture of textual dates, session timestamps, and visual cues.}
 \label{fig:samples_tr_duration}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/tr_dateorder_candidates.pdf}
 \caption{Sampled TR-Temporal Grounding questions, including chronological ordering and absolute date extraction. The temporal cue is sometimes available only as an image of a clock face or a calendar page.}
@@ -957,7 +946,7 @@ Evidence sessions are inserted into the full conversation history with positions
 \subsection{Knowledge Update}
 \label{app:examples_ku}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/ku_update.pdf}
 \caption{Sampled KU-Update questions. A four-step preference chain is anchored by a different image at each step; the gold answer is always the most recent state.}
@@ -967,7 +956,7 @@ Evidence sessions are inserted into the full conversation history with positions
 \subsection{Answer Refusal}
 \label{app:examples_ar}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/ar_refusal_candidates.pdf}
 \caption{Sampled AR-Refusal questions. The supporting evidence has been deliberately removed from the conversation history, so the gold answer is a refusal phrase rather than a content answer.}
@@ -1056,7 +1045,7 @@ Table~\ref{tab:judge_per_type} reports Qwen3-VL-235B judge vs GPT-5.4-mini accur
 The Qwen3-VL-235B judge is equally or slightly more lenient across every question type; the gap is largest on IE ($-$6.50\%), driven by partial-match acceptances, and zero on MSR.
 No type reverses the ranking direction between judges.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}lcccc@{}}
@@ -1080,7 +1069,7 @@ Two observations matter.
 First, 9 of the 10 AR false positives live in pre-retest runs that no longer feed any production leaderboard; on canonical retest runs, a deterministic substring rule for the canonical refusal phrase reaches 95.90\% agreement with the human consensus (consistent with the AR row of the deterministic typed-accuracy audit; Table~\ref{tab:det_audit}).
 Second, the 11 IE false positives reflect the same partial-match leniency observed in the aggregate cross-judge analysis---the Qwen3-VL-235B judge accepts short factual answers that GPT and the human consensus both reject---which is a judge-personality trait rather than a family-specific bias.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}lcl@{}}
@@ -1108,7 +1097,7 @@ Item-level agreement ranges from 87.4\% on TR Order Ranking to 98.5\% on MSR Ari
 The disagreement is systematically leniency-biased: the LLM judge credits a deterministically-wrong answer (\textit{J-FP}) on a weighted 5.4\% of items, against only 1.0\% deterministically-correct answers rejected (\textit{J-FN}). The largest leniency channels are TR Order Ranking (12.6\% J-FP, partial credit on near-correct tuples), TR Date Extraction (8.6\% J-FP, format-flexible date matching), and AR (5.7\% J-FP, hedge phrases credited as refusal)---the same partial-match and hedge-phrase patterns identified on the 484-item human subset, but estimated here at $25{\times}$ the sample size.
 At the model-leaderboard level, the Spearman rank correlation between the LLM- and the deterministic-aggregated per-model accuracy across the 34 rosters is $\rho = 0.78$, the top-10 sets overlap on 7 of 10 entries, and within the LLM-top-10 the rank correlation is $\rho = 0.82$. The top-5 (Kimi-K2.5, Qwen3-VL-30B-Instruct, Qwen3.5-122B, Qwen3-VL-235B-Instruct, Qwen3-VL-8B-Instruct) is preserved under both metrics. The three rosters that drop out of the top-10 under deterministic rescoring---GLM-4.6V, Qwen3-VL-235B-Thinking, and Mem0 (GPT-4.1-mini backbone)---all produce verbose justifications that the LLM judge credits but the rule-based check rejects, consistent with the format-dependent leniency already corrected for short outputs in this section. The takeaway is that LLM-judge leniency inflates closed-form accuracy by approximately 5\% in absolute terms but does not reorder the leaderboard top, which is the same conclusion reached by the cross-family and human-consensus audits above on a much smaller sample.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}lrccccc@{}}
@@ -1760,7 +1749,7 @@ Return JSON:
 \subsection{Extended Results Tables}
 \label{app:extended}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \scriptsize
 \setlength{\tabcolsep}{2.5pt}
@@ -1810,7 +1799,7 @@ Qwen3-VL-2B (I) & 32.52 & 16.78 & 50.52 & 20.69 & 72.22 & 36.88 & 32.52 & 21.68 
 \label{tab:per_type_full_vlm}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \scriptsize
 \setlength{\tabcolsep}{2.0pt}
@@ -1848,7 +1837,7 @@ The 195-question (a quarter of the original dataset) canonical subset is constru
 \paragraph{Per-type composition matches the full benchmark.}
 Table~\ref{tab:canonical195_strat} compares the 195-subset's per-type proportions against the full 789-question benchmark. Differences are below 0.2 percentage points for every type, so rankings computed on the subset transfer to the full benchmark without systematic bias.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}lccc@{}}
@@ -1871,7 +1860,7 @@ Total                            & 100.00 & 195 & 100.00 \\
 \paragraph{Direct-LVLM overlay on the 195-subset.}
 To enable apples-to-apples comparison with the seven memory agents, we re-score every direct-LVLM run used elsewhere in the paper on exactly the 195 canonical qids. Table~\ref{tab:agent_vs_vlm_195} reports overall and per-type accuracy for six representative LVLMs at 32K/64K/128K and the four agents at 32K/64K/128K/256K. This is the matched-subset version of Figure~\ref{fig:per_type_heatmap}; rankings transfer between the subset and the full benchmark at 32K with Spearman $\rho = 0.94$ ($p < 0.01$, $n = 6$ direct LVLMs), so conclusions drawn on the 195-subset are not an artifact of subset choice.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
@@ -1934,7 +1923,7 @@ The accuracies in Table~\ref{tab:agent_vs_vlm_195} and Table~\ref{tab:per_type_f
 \subsection{Coverage and Per-Answer Accuracy}
 \label{app:coverage_full}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}llcccc@{}}
@@ -2065,14 +2054,14 @@ total-miss shift are stable under that default assignment.
 
 
 \label{app:wrong_answer_figures}
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.70\linewidth]{figures/wrong_answer_pie.pdf}
 \caption{Distribution of wrong-answer types at 32K context ($n=5{,}592$ attempted-but-incorrect LVLM answers, out of $27 \times 789 = 21{,}303$ evaluations). Near-miss errors (evidence located before erring) account for 69.44\% of wrong answers; total-miss errors (no correct evidence anchor) for 30.57\%.}
 \label{fig:wrong_answer_pie}
 \end{figure}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}llll@{}}
@@ -2107,7 +2096,7 @@ attempted-but-incorrect answer; Table~\ref{tab:modality_mapping} gives the exact
 \item \textbf{Output.} Non-answer pathology (empty or non-extractable response).
 \end{itemize}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}lccc@{}}
@@ -2129,7 +2118,7 @@ Non-answer pathology    & \multicolumn{3}{c}{Output} \\
 
 The seven-label and five-modality views are two lenses on the same wrong-answer set. The seven-label view records what \emph{kind} of error the model made (e.g., right answer set but wrong element); the five-modality view records which \emph{evidence channel} the error relied on. Reading the two together explains the per-type asymmetries in Figure~\ref{fig:visual_error}: a question type whose closed-set or arithmetic structure makes computation-slips and selection-swaps the dominant Phase-1 labels (e.g., MSR Counting/Arithmetic, MSR Yes/No, TR Duration A/B, TR order-ranking) will accordingly show a large Reasoning share regardless of how reliably the model retrieves evidence---which is why the Reasoning share in MSR/TR should be cross-checked against the oracle-retrieval diagnostic in \S\ref{app:msr_ceiling} before being interpreted as a reasoning bottleneck.
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.96\linewidth]{figures/context_delta_heatmap.pdf}
 \caption{Wrong-answer error-type shift from 32K to 128K by question type ($n=789$). Unsupported answer (+10.23\%) replaces grounding failure ($-$5.38\%) and computation slip ($-$4.82\%).}
@@ -2357,7 +2346,7 @@ In summary, the expected monotonic degradation holds across the benchmark: no co
 
 AR accuracy degrades monotonically with context length across all Qwen3-VL sizes, but the rate depends on both scale and decoding mode (Table~\ref{tab:ar_degrade}). At the 235B Instruct tier the drop is modest ($-$5.6\% from 32K to 128K), whereas 2B-Thinking collapses from 87.8\% to 14.4\% ($-$73.3\%): truncated reasoning traces produce substantive answers instead of refusals.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}llccc|c@{}}
@@ -2382,7 +2371,7 @@ AR accuracy degrades monotonically with context length across all Qwen3-VL sizes
 
 
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.85\linewidth]{figures/scaling_curves.pdf}
 \caption{Model-size scaling within the Qwen3-VL Instruct family ($n=789$). Dense scaling from 2B to 8B is monotone; the 30B (3B-active) MoE outperforms the 8B dense variant, indicating that active-parameter efficiency drives short-context performance more than total size.}
@@ -2406,7 +2395,7 @@ The cross-agent comparison above is confounded by architecture, training recipe,
 
 Per-type profiles shift markedly across backbones. In Mem0, the default Qwen3-8B reaches 77.27\% AR while the Qwen2.5-7B variant achieves perfect refusal (100\%), indicating that the backbone's intrinsic calibration against hallucination propagates through the memory pipeline. Conversely, Qwen3-8B leads on TR (50.00\% vs.\ 32.69\%) within the same FAISS architecture, suggesting complementary strengths that the pipeline cannot arbitrate. Crucially, all backbone variants preserve the context-length invariance observed for the default configurations: the 32K-to-256K range stays below 5\% for every variant, confirming that flatness is an architectural property independent of backbone quality.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{@{}llcccccc@{}}
@@ -2440,7 +2429,7 @@ On the shared answerable subset at 32K, 52\% of the questions are answered incor
 
 
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.85\linewidth]{figures/retrieval_decomposition_stacked_bar.pdf}
 \caption{Retrieval attribution for three agents with retrieval logs at 32K, decomposed by question type. Each bar partitions outcomes into correct (green), comprehension failure (yellow, evidence retrieved but answer wrong), and retrieval failure (red, evidence not retrieved). M3C is retrieval-dominated across all types; Mem0 and Memory-T1 are comprehension-dominated despite high evidence recall.}
@@ -2453,7 +2442,7 @@ On the shared answerable subset at 32K, 52\% of the questions are answered incor
 
 % All Thinking-vs-Instruct claims in this appendix are conditioned on a fixed 16{,}384-token generation budget (\S\ref{subsec:infra}), matched across Instruct and Thinking runs at every size except 30B (excluded; see Appendix~\ref{app:limitations}). Thinking mode consistently underperforms direct answering on overall accuracy across all Qwen3-VL model sizes and input lengths we evaluate.
 
-% \begin{table}[h]
+% \begin{table}[!htbp]
 % \centering
 % \caption{Instruct vs.\ Thinking mode decomposition for Qwen3-VL ($n=699$ answerable). $\Delta_{\text{ov}}$: overall accuracy gap (Thinking $-$ Instruct). $\Delta_{\text{PA}}$: per-attempted accuracy gap. Degen: fraction of Thinking outputs that hit the token budget without producing an answer. Thinking improves per-answer quality for $\leq$8B models but overall scores collapse due to degenerate output loss.}
 % \label{tab:thinking}
@@ -2483,7 +2472,7 @@ On the shared answerable subset at 32K, 52\% of the questions are answered incor
 
 
 
-% \begin{figure}[h]
+% \begin{figure}[!htbp]
 % \centering
 % \includegraphics[width=0.85\linewidth]{figures/degenerate_comparison.pdf}
 % \caption{Degenerate-output rate (\% of generations that hit the maximum token budget without producing a final answer) for Qwen3-VL Instruct vs.\ Thinking modes across sizes ($n=789$). Thinking mode triggers a generation-budget confound that explains its leaderboard regression in Table~\ref{tab:thinking}; once degenerate outputs are excluded, Thinking gains a positive per-attempted accuracy delta for models up to 8B, while 235B shows a quality loss at longer contexts.}

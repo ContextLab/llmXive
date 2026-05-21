@@ -330,8 +330,18 @@ class TestForwardedPackages:
         assert not any("geometry" in line for line in out)
 
     def test_options_preserved(self, ex) -> None:
-        out = ex._forwarded_packages(r"\usepackage[round,authoryear]{natbib}")
-        assert any("[round,authoryear]" in line for line in out)
+        # Options ARE preserved for normal forwarded packages.
+        out = ex._forwarded_packages(r"\usepackage[ruled,lined]{algorithm}")
+        assert any("[ruled,lined]" in line for line in out)
+
+    def test_natbib_options_stripped(self, ex) -> None:
+        # natbib is special-cased: llmxive.cls always loads it with the
+        # house options, so forwarding it WITH options causes a fatal
+        # `! Option clash for package natbib` (PROJ-603). We forward a
+        # bare \usepackage{natbib} instead — a no-op re-request.
+        out = ex._forwarded_packages(r"\usepackage[numbers, sort&compress]{natbib}")
+        natbib_lines = [l for l in out if "natbib" in l]
+        assert natbib_lines == [r"\usepackage{natbib}"]
 
     def test_dedupe_across_sources(self, ex) -> None:
         out = ex._forwarded_packages(
@@ -496,3 +506,226 @@ class TestBodyCleanupPasses:
         )
         assert "wrapfigure" not in out
         assert r"\begin{figure}" in out
+
+
+# ──────────────────────────────────────────────────────────────────────
+# General paper-rendering fixes (PROJ-579/598/605, 580/606, 603, 570/572)
+# ──────────────────────────────────────────────────────────────────────
+
+class TestWrapfigureWidthCrash:
+    """Fix A: a wrapfigure width like `\\columnwidth` / `\\linewidth` must not
+    crash the conversion — it was used as a regex *replacement template* and
+    raised `re.error: bad escape \\c` (PROJ-579/598/605 all fell back to the
+    raw arXiv PDF)."""
+
+    def test_columnwidth_wrapfigure_does_not_crash(self, ex) -> None:
+        body = (r"\begin{wrapfigure}{r}{\columnwidth}"
+                r"\includegraphics[width=\linewidth]{fig.pdf}"
+                r"\end{wrapfigure}")
+        out = ex._body_cleanup_passes(body)  # must not raise
+        assert "wrapfigure" not in out
+        assert r"\begin{figure}" in out
+
+    def test_linewidth_wraptable_does_not_crash(self, ex) -> None:
+        body = (r"\begin{wraptable}{l}{0.4\linewidth}"
+                r"\includegraphics[width=\columnwidth]{t.pdf}"
+                r"\end{wraptable}")
+        out = ex._body_cleanup_passes(body)  # must not raise
+        assert "wraptable" not in out
+
+
+class TestCleanTitle:
+    """Fix B: a styled \\title with a baked-in subtitle / decorations falls
+    back to the clean metadata.json title (PROJ-580, PROJ-606)."""
+
+    def _md(self, tmp_path: Path, title: str) -> Path:
+        src = tmp_path / "paper" / "source"
+        src.mkdir(parents=True)
+        (tmp_path / "paper" / "metadata.json").write_text(
+            '{"title": "%s"}' % title, encoding="utf-8")
+        return src
+
+    def test_subtitle_title_uses_metadata(self, ex, tmp_path: Path) -> None:
+        src = self._md(tmp_path, "Code as Agent Harness")
+        styled = (r"\textbf{Code as Agent Harness}\\ "
+                  r"$\lozenge$~Toward Executable Systems~$\lozenge$")
+        assert ex._clean_title(styled, src) == "Code as Agent Harness"
+
+    def test_plain_title_unchanged(self, ex, tmp_path: Path) -> None:
+        src = self._md(tmp_path, "Whatever")
+        assert ex._clean_title("Co-Evolving Policy Distillation", src) == \
+            "Co-Evolving Policy Distillation"
+
+    def test_no_metadata_keeps_raw(self, ex, tmp_path: Path) -> None:
+        src = tmp_path / "paper" / "source"
+        src.mkdir(parents=True)  # no metadata.json
+        styled = r"Title\\ subtitle"
+        assert ex._clean_title(styled, src) == styled
+
+
+class TestResourceLines:
+    """Fix C: Keywords:/Github:/Code: metadata + bare link lines are stripped
+    from the abstract / leading body, while real prose and structure stay."""
+
+    def test_keyword_line_dropped_prose_kept(self, ex) -> None:
+        text = ("Real abstract prose.\n\n"
+                r"\vspace{5mm}"
+                "\n"
+                r"\textbf{Keywords}: A, B, C \\"
+                "\n"
+                r"\textbf{Github}: \url{https://github.com/x/y}")
+        text = ex._strip_icons_and_emoji(text)
+        text = ex._strip_textcolor(text)
+        out = ex._strip_resource_lines(text)
+        assert "Real abstract prose." in out
+        assert "Keywords" not in out
+        assert "github.com" not in out
+
+    def test_structural_command_never_dropped(self, ex) -> None:
+        seg = r"\faGithub~\textbf{Github}: \url{https://x}" + "\n" + r"\end{abstract}"
+        assert ex._is_resource_line(seg) is False
+
+    def test_bare_link_line_in_leading_body_dropped(self, ex) -> None:
+        body = (r"\textbf{Project Page}: \url{https://github.com/CiteVQA/lab}\\"
+                "\n\n" r"\section{Introduction}" "\nReal body text.")
+        out = ex._strip_resource_lines(body, only_leading_chars=2500)
+        assert "CiteVQA" not in out
+        assert r"\section{Introduction}" in out
+        assert "Real body text." in out
+
+
+class TestDisabledMacroForwarding:
+    """Fix (PROJ-603): a \\providecommand whose body is entirely commented out
+    must not leak an unclosed brace ("File ended while scanning \\@argdef")."""
+
+    def test_commented_body_macro_balanced(self, ex) -> None:
+        source = (
+            r"\providecommand{\authornames}[1]{%" "\n"
+            r"%   {\noindent #1\par}" "\n"
+            r"% }" "\n"
+            r"\providecommand{\vect}[1]{\bm{#1}}" "\n"
+        )
+        out = ex._forwarded_newcommands(source)
+        joined = "\n".join(out)
+        # Every emitted line must be brace-balanced.
+        for line in out:
+            nb = __import__("re").sub(r"\\[{}]", "", line)
+            assert nb.count("{") == nb.count("}"), line
+        # The good macro still comes through.
+        assert any(r"\vect" in l for l in out)
+
+
+class TestAlgorithmConflict:
+    """Fix (PROJ-571): algorithm2e must never be forwarded alongside
+    algpseudocode/algorithmic — the clash leaks a ~1-inch text column over
+    the whole document (107-page blowup). Keep the family the body uses."""
+
+    PKGS = [r"\usepackage{algorithm}", r"\usepackage{algpseudocode}",
+            r"\usepackage[ruled]{algorithm2e}"]
+
+    def test_algorithmicx_body_drops_algorithm2e(self, ex) -> None:
+        body = r"\State x \For{i}{} \EndFor \Require y \Return z"
+        out = ex._resolve_algorithm_conflict(self.PKGS, body)
+        assert not any("algorithm2e" in p for p in out)
+        assert any("algpseudocode" in p for p in out)
+
+    def test_algorithm2e_body_drops_algpseudocode(self, ex) -> None:
+        body = r"\KwIn{x}\SetAlgoLined\DontPrintSemicolon\eIf{a}{b}{c}\BlankLine"
+        out = ex._resolve_algorithm_conflict(self.PKGS, body)
+        assert any("algorithm2e" in p for p in out)
+        assert not any("algpseudocode" in p for p in out)
+
+    def test_no_conflict_passthrough(self, ex) -> None:
+        pkgs = [r"\usepackage{algorithm}", r"\usepackage{algpseudocode}"]
+        out = ex._resolve_algorithm_conflict(pkgs, r"\State x")
+        assert out == pkgs
+
+
+class TestResourceEnvs:
+    """Fix (PROJ-581): a centered row of resource links (Project Page · Code
+    · Models) under the title/abstract is removed; figure/prose centers stay."""
+
+    def test_center_link_row_removed(self, ex) -> None:
+        block = (r"\begin{center}\vspace{-1em}"
+                 r"~\projectpage~\href{http://x.io/SU}{{\text{Project Page}}}"
+                 r"\quad~\github~\href{https://github.com/x/SU}{{\text{Code}}}"
+                 r"\end{center}")
+        out = ex._strip_resource_envs("Intro.\n\n" + block + "\n\nBody.")
+        assert "Project Page" not in out and "github" not in out
+        assert "Intro." in out and "Body." in out
+
+    def test_figure_center_kept(self, ex) -> None:
+        fig = r"\begin{center}\includegraphics[width=\linewidth]{fig.pdf}\end{center}"
+        assert ex._strip_resource_envs(fig) == fig
+
+    def test_prose_center_kept(self, ex) -> None:
+        prose = r"\begin{center}\textbf{Table 1: Results across benchmarks}\end{center}"
+        assert ex._strip_resource_envs(prose) == prose
+
+
+class TestShipoutAndCodeFences:
+    """General handling of venue page-overlay banners (PROJ-603) and embedded
+    markdown code fences (PROJ-601)."""
+
+    def test_shipout_banner_stripped(self, ex) -> None:
+        banner = (r"\AddToShipoutPictureFG*{%"
+                  r"\AtPageLowerLeft{\makebox[\paperwidth][c]{"
+                  r"\begin{minipage}{0.9\textwidth}Preprint\end{minipage}}}}")
+        out = ex._strip_shipout_overlays("Before.\n" + banner + "\nAfter.")
+        assert "AddToShipoutPicture" not in out and "Preprint" not in out
+        assert "Before." in out and "After." in out
+
+    def test_background_setup_stripped(self, ex) -> None:
+        out = ex._strip_shipout_overlays(r"x \backgroundsetup{scale=1,contents={DRAFT}} y")
+        assert "backgroundsetup" not in out and "DRAFT" not in out
+        assert "x" in out and "y" in out
+
+    def test_markdown_fence_to_lstlisting(self, ex) -> None:
+        md = ("Text.\n\n```json\n{\"k\": \"a very long value that overflows\"}\n```\n\nMore.")
+        out = ex._convert_markdown_code_fences(md)
+        assert r"\begin{lstlisting}" in out and r"\end{lstlisting}" in out
+        assert "```" not in out
+        assert "a very long value" in out and "Text." in out and "More." in out
+
+    def test_fence_without_language(self, ex) -> None:
+        out = ex._convert_markdown_code_fences("```\nplain code\n```")
+        assert r"\begin{lstlisting}" in out and "plain code" in out
+
+    def test_non_fence_backticks_left_alone(self, ex) -> None:
+        # A single inline backtick run is not a fenced block.
+        txt = "Use the `foo` function here."
+        assert ex._convert_markdown_code_fences(txt) == txt
+
+
+class TestTcolorboxForwarding:
+    """Fix (PROJ-565/601/606): custom tcolorbox callout/prompt boxes defined
+    in the discarded preamble are forwarded so content stays boxed/wrapped."""
+
+    def test_forwards_library_set_and_def(self, ex) -> None:
+        src = (r"\tcbuselibrary{skins,breakable}" "\n"
+               r"\tcbset{agentscope/.style={colback=blue!5,colframe=blue}}" "\n"
+               r"\newtcolorbox[auto counter]{promptbox}[2][]{colback=gray!5,title=#2,#1}")
+        out = ex._forwarded_tcolorbox(src)
+        joined = "\n".join(out)
+        assert r"\tcbuselibrary{skins,breakable}" in joined
+        assert "agentscope/.style" in joined
+        assert r"\newtcolorbox[auto counter]{promptbox}[2][]" in joined
+        # library must come before the definition that may rely on it
+        assert out.index(next(p for p in out if "tcbuselibrary" in p)) < \
+               out.index(next(p for p in out if "newtcolorbox" in p))
+
+    def test_scoped_bare_tcbset_not_forwarded(self, ex) -> None:
+        # Bare \tcbset option-setting (often scoped inside another macro)
+        # must NOT be forwarded globally (PROJ-601 set these in \mymaketitle).
+        src = r"\newcommand{\mymaketitle}{\tcbset{enhanced,frame hidden}\tcbset{colback=odlbg}}"
+        out = ex._forwarded_tcolorbox(src)
+        assert out == []
+
+    def test_no_tcolorbox_returns_empty(self, ex) -> None:
+        assert ex._forwarded_tcolorbox(r"\section{x} plain text") == []
+
+    def test_balanced_body_capture(self, ex) -> None:
+        # nested braces in the body must be captured fully
+        src = r"\newtcolorbox{b}{colback=red, title={A {nested} title}}"
+        out = ex._forwarded_tcolorbox(src)
+        assert len(out) == 1 and out[0].count("{") == out[0].count("}")

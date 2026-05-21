@@ -36,6 +36,7 @@
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
 \providecommand{\aistatsfinalcopy}{}
+\providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
@@ -54,6 +55,7 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\tablecite}[1]{\cite{#1}}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -61,22 +63,20 @@
 \makeatother
 
 %% ── User-defined macros forwarded from original preamble ─────
+\makeatletter
 \providecommand{\theHalgorithm}{\arabic{algorithm}}
 \providecommand{\STATE}{\ALC@it}
-\providecommand{\IF}[2][default]{\ALC@it\algorithmicif\ ##2\ \algorithmicthen%
-\ALC@com{##1}\begin{ALC@if}}
-\providecommand{\FOR}[2][default]{\ALC@it\algorithmicfor\ ##2\ \algorithmicdo%
-\ALC@com{##1}\begin{ALC@for}}
-\providecommand{\FORALL}[2][default]{\ALC@it\algorithmicforall\ ##2\ %
-\algorithmicdo%
-\ALC@com{##1}\begin{ALC@for}}
+\providecommand{\IF}[2][default]{\ALC@it\algorithmicif\ ##2\ \algorithmicthen\ALC@com{##1}\begin{ALC@if}}
+\providecommand{\FOR}[2][default]{\ALC@it\algorithmicfor\ ##2\ \algorithmicdo\ALC@com{##1}\begin{ALC@for}}
+\providecommand{\FORALL}[2][default]{\ALC@it\algorithmicforall\ ##2\ \algorithmicdo\ALC@com{##1}\begin{ALC@for}}
 \providecommand{\ENDIF}{\end{ALC@if}}
 \providecommand{\ENDFOR}{\end{ALC@for}}
 \definecolor{mydarkblue}{rgb}{0,0.08,0.45}
+\makeatother
 
 %% ── llmXive paper metadata ──────────────────────────────────
 \title{Many-Shot CoT-ICL: Making In-Context Learning Truly Learn}
-\author{Tsz Ting Chung², Lemao Liu³, Mo Yu⁴, Dit-Yan Yeung² \\ \small ²Hong Kong University of Science and Technology · ³Fudan Univeristy · ⁴Wechat AI, Tencent}
+\author{Tsz Ting Chung \and Lemao Liu \and Mo Yu \and Dit-Yan Yeung}
 \paperid{arXiv:2605.13511}
 \paperstatus{Preprint}
 
@@ -769,7 +769,7 @@ Although the retrieved demonstration question is highly similar under embedding 
 When the LLM is conditioned on this demonstration, it tends to reuse the same intermediate steps, leading to an incorrect conclusion.
 In contrast, a less similar (but structurally closer) demonstration encourages the correct decomposition and improves accuracy.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \tiny
 \begin{tabular}{p{0.97\linewidth}}
@@ -877,7 +877,7 @@ Result in Figures~\ref{fig:sim_nr} and \ref{fig:sim_r} shows the performance com
 We compute the mean and standard deviation across five random demonstration-ordering seeds, and repeat the analysis on a newly sampled ICL subset.
 These results strengthen the claims in Figures~\ref{fig:modelr}, \ref{fig:modelfr}, and~\ref{fig:std}: the observed trends persist beyond a single ordering or candidate pool.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \small
 \resizebox{0.82\linewidth}{!}{%
@@ -898,7 +898,7 @@ Qwen3-8B & 16 & $83.48 \pm 0.81$ & $\textbf{83.63} \pm 0.79$ \\
 \label{tab:stat_reasoning_number_theory}
 \end{table}
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \small
 \resizebox{0.85\linewidth}{!}{%
@@ -919,7 +919,7 @@ Qwen2.5-14B & 16 & $58.37 \pm 0.83$ & $\textbf{61.05} \pm 1.19$ \\
 \label{tab:stat_nonreasoning_geometry}
 \end{table}
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \small
 \setlength{\tabcolsep}{4pt}

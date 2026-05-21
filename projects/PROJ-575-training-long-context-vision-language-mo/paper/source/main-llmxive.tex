@@ -35,7 +35,7 @@
 \usepackage{bm}
 \usepackage[most]{tcolorbox}
 \usepackage[capitalize,noabbrev,nameinlink]{cleveref}
-\usepackage[numbers, sort&compress]{natbib}
+\usepackage{natbib}
 
 %% ── Shim layer (venue macros made into no-ops) ────────────────
 \makeatletter
@@ -44,6 +44,7 @@
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
 \providecommand{\aistatsfinalcopy}{}
+\providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
@@ -62,6 +63,7 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\tablecite}[1]{\cite{#1}}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -69,6 +71,7 @@
 \makeatother
 
 %% ── User-defined macros forwarded from original preamble ─────
+\makeatletter
 \providecommand{\emph}[1]{\textit{#1}}
 \providecommand{\posdiff}[1]{{{+#1}}}
 \providecommand{\negdiff}[1]{{{-#1}}}
@@ -85,10 +88,11 @@
 \definecolor{MidnightBlue}{RGB}{25,25,112}
 \definecolor{seedbg}{HTML}{2E5AA8}
 \definecolor{seedblue}{HTML}{2E5AA8}
+\makeatother
 
 %% ── llmXive paper metadata ──────────────────────────────────
 \title{Training Long-Context Vision-Language Models Effectively with Generalization Beyond 128K Context}
-\author{Zhaowei~Wang \and Lishu~Luo \and Haodong~Duan \and Weiwei~Liu \and Sijin~Wu \and Ji~Luo \and Shen~Yan \and Shuai~Peng \and Sihang~Yuan \and Chaoyi~Huang \and Yi~Lin \and Yangqiu~Song}
+\author{Zhaowei Wang \and Lishu Luo \and Haodong Duan \and Weiwei Liu \and Sijin Wu \and Ji Luo \and Shen Yan \and Shuai Peng \and Sihang Yuan \and Chaoyi Huang \and Yi Lin \and Yangqiu Song}
 \paperid{arXiv:2605.13831}
 \paperstatus{Preprint}
 
@@ -611,7 +615,7 @@ We hope our study provides a practical foundation for building future LVLMs with
 We summarize the final LongPT recipe used for the main results.
 The recipe is derived from the design choices studied in \cref{sec:curation,sec:mixing}: we use long-document VQA as the primary source of synthesizing data, naturally sample training sequences over the target length range of 32K--128K, and use an $8:2$ extraction-to-reasoning mixture. We list the full configuration of the final LongPT recipe in \cref{tab:final_recipe}.
 
-\begin{table}[h]
+\begin{table}[!htbp]
     \centering
     \small
     \setlength{\tabcolsep}{5pt}
@@ -684,7 +688,7 @@ For simple answer formats, such as string, integer, float answers, and ``not ans
 For list-style answers, the evaluator first extracts the predicted list and then computes an F1 score based on the overlap between the predicted list and the reference list. We show this prompt in \cref{tab:list_judge_prompt}.
 For each context length, the AVG. column is the macro average over the three datasets, and the overall AVG. is the macro average over the 64K and 128K results.
 
-\begin{table}[h]
+\begin{table}[!htbp]
     \centering
     \begin{tabular}{p{0.96\linewidth}}
     \toprule
@@ -727,7 +731,7 @@ For each context length, the AVG. column is the macro average over the three dat
 \label{tab:binary_judge_prompt}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[!htbp]
     \centering
     \begin{tabular}{p{0.96\linewidth}}
     \toprule
@@ -831,7 +835,7 @@ These parsed blocks serve two purposes in our pipeline:
 \item the recognized text blocks provide the target text for constructing OCR transcription baselines.
 \end{inparaenum}
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.7\linewidth]{figures/app_1_doc_pool_topic_distribution_cropped.pdf}
     \caption{
@@ -840,7 +844,7 @@ These parsed blocks serve two purposes in our pipeline:
     \label{fig:doc_pool_domain_distribution}
 \end{figure}
 
-\begin{table}[h]
+\begin{table}[!htbp]
     \centering
     \small
     \setlength{\tabcolsep}{6pt}
@@ -872,7 +876,7 @@ These parsed blocks serve two purposes in our pipeline:
 We summarize the statistics of the long-document VQA training data in \cref{tab:longvqa_uniform_data_stats}, with the corresponding token-length distribution shown in \cref{fig:longvqa_uniform_token_distribution}.
 This data corresponds to the \emph{pool-native} length distribution used by our final LongPT recipe, covering samples from 32 to 50 rendered PDF pages and approximately 32K--128K multimodal tokens.
 
-\begin{table}[h]
+\begin{table}[!htbp]
     \centering
     \setlength{\tabcolsep}{2.5pt}
     \small
@@ -996,7 +1000,7 @@ We instantiate the same core prompt with different task descriptions and page co
 More concretely, \cref{tab:qa_generation_prompt} shows the prompt template used in our data sourcing process, and \cref{tab:qa_generation_task_fields} summarizes the task description and extra restriction inserted for each task type.
 
 
-\begin{table}[H]
+\begin{table}[!htbp]
     \centering
     \begin{adjustbox}{max width=\textwidth, max totalheight=0.95\textheight}
     \begin{tabular}{p{0.96\linewidth}}
@@ -1064,7 +1068,7 @@ More concretely, \cref{tab:qa_generation_prompt} shows the prompt template used 
 \end{table}
 
 
-\begin{table}[H]
+\begin{table}[!htbp]
     \centering
     \small
     \setlength{\tabcolsep}{4pt}
@@ -1128,7 +1132,7 @@ We download the single-image and multi-image subsets from the LLaVA-OneVision Hu
 \label{app:complementary_experiment_results:length_distribution}
 We provide the full dataset-level results for the sequence-length distribution ablation in \cref{tab:length_distribution}.
 
-\begin{table}[H]
+\begin{table}[!htbp]
     \centering
     \setlength{\tabcolsep}{4pt}
     \resizebox{0.95\textwidth}{!}{%
@@ -1157,7 +1161,7 @@ We provide the full dataset-level results for the sequence-length distribution a
 \label{app:complementary_experiment_results:short_mix_long_vqa}
 We provide the full per-dataset long-document VQA results for the short-data mixing ablation in \cref{tab:short_mix_long_vqa}, complementing the AVG-only summary plotted in \cref{fig:short_mix_long_vqa_avg}.
 
-\begin{table}[H]
+\begin{table}[!htbp]
     \centering
     \setlength{\tabcolsep}{4pt}
     \resizebox{0.85\textwidth}{!}{%
@@ -1200,7 +1204,7 @@ Further increasing the base to $8\times 10^6$ improves some individual metrics, 
 These results suggest that moderate mRoPE-base scaling is sufficient for extending LVLMs to longer contexts, while overly aggressive scaling is unnecessary.
 Based on this observation and to maintain consistency with the Dynamic-NTK heuristic, we set $4\times 10^6$ as the mRoPE base in our main experiments.
 
-\begin{table}[H]
+\begin{table}[!htbp]
     \centering
     \setlength{\tabcolsep}{4pt}
     \resizebox{0.95\textwidth}{!}{%
@@ -1238,7 +1242,7 @@ Based on this observation and to maintain consistency with the Dynamic-NTK heuri
 \label{app:complementary_experiment_results:generalization_niah}
 We provide the full 64K and 128K MM-NIAH results in \cref{tab:generalization_niah}, complementing the averaged main-text summary in \cref{fig:generalization_niah}.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \scriptsize
 \captionsetup[subtable]{font=footnotesize,labelformat=parens,justification=centering,skip=1pt}
@@ -1288,7 +1292,7 @@ We provide the full 64K and 128K MM-NIAH results in \cref{tab:generalization_nia
 \label{app:complementary_experiment_results:generalization_vtc}
 We provide the full VTCBench-Wild results in \cref{tab:generalization_vtc}. We report retrieval, reasoning, memory, and the sample-count weighted overall score following VTCBench-Wild.
 
-\begin{table}[H]
+\begin{table}[!htbp]
     \centering
     \scriptsize
     \begin{tabular*}{0.7\linewidth}{@{\extracolsep{\fill}}lcccc@{}}
@@ -1312,7 +1316,7 @@ We provide the full VTCBench-Wild results in \cref{tab:generalization_vtc}. We r
 \label{app:complementary_experiment_results:generalization_video}
 We provide the numeric long-video generalization results in \cref{tab:generalization_video}, complementing the main-text summary in \cref{fig:generalization_video}.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \scriptsize
 \begin{tabular*}{0.7\linewidth}{@{\extracolsep{\fill}}lccc@{}}
@@ -1327,7 +1331,7 @@ Qwen2.5-VL-7B & 65.1 & 70.2 & 60.43 \\
 \label{tab:generalization_video}
 \end{table}
 
-\begin{table}[H]
+\begin{table}[!htbp]
     \centering
     \setlength{\tabcolsep}{4pt}
     \resizebox{0.9\textwidth}{!}{%

@@ -27,6 +27,7 @@
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
 \providecommand{\aistatsfinalcopy}{}
+\providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
@@ -45,6 +46,7 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\tablecite}[1]{\cite{#1}}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -52,11 +54,13 @@
 \makeatother
 
 %% ── User-defined macros forwarded from original preamble ─────
+\makeatletter
 \providecommand{\arraystretch}{0.5}
 \providecommand{\answerYes}[1][]{[Yes]#1}
 \providecommand{\answerNo}[1][]{[No]#1}
 \providecommand{\answerNA}[1][]{[N/A]#1}
 \definecolor{darkgreen}{rgb}{0.0, 0.45, 0.0}
+\makeatother
 
 %% ── llmXive paper metadata ──────────────────────────────────
 \title{MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image}

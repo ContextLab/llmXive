@@ -11,7 +11,7 @@
 
 
 %% ── Packages forwarded from original preamble ─────────────────
-\usepackage[sort&compress]{natbib}
+\usepackage{natbib}
 \usepackage{amsmath}
 \usepackage{graphicx}
 
@@ -22,6 +22,7 @@
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
 \providecommand{\aistatsfinalcopy}{}
+\providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
@@ -40,6 +41,7 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\tablecite}[1]{\cite{#1}}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -47,6 +49,7 @@
 \makeatother
 
 %% ── User-defined macros forwarded from original preamble ─────
+\makeatletter
 \providecommand{\crossentropyContent}{{1}}
 \providecommand{\crossentropyFunction}{{2}}
 \providecommand{\crossentropyPOS}{{3}}
@@ -58,14 +61,11 @@
 \providecommand{\authortableContent}{{1}}
 \providecommand{\authortableFunction}{{2}}
 \providecommand{\authortablePOS}{{3}}
+\makeatother
 
 %% ── llmXive paper metadata ──────────────────────────────────
 \title{A Stylometric Application of Large Language Models}
-\author{Harrison F. Stropkay, Jiayi Chen, Mohammad J. Latifi,\\
-Daniel N. Rockmore, and Jeremy R. Manning\\
-Dartmouth College \\
-Hanover, NH 03755, USA \\
-\texttt{\{harrison.f.stropkay.25, jiayi.chen.gr, mohammad.javad.latifi.jebelli}\\\texttt{daniel.n.rockmore, jeremy.r.manning\}@dartmouth.edu}}
+\author{Harrison F. Stropkay \and Jiayi Chen \and Mohammad J. Latifi \and Daniel N. Rockmore \and Jeremy R. Manning}
 \paperid{arXiv:2510.21958}
 \paperstatus{Preprint}
 
@@ -295,7 +295,7 @@ estimate of the performance we might expect to see in the general case (e.g.,
 across a larger set of authors). Table~\ref{tab:t-tests} summarizes the results
 of the $t$-tests for each author's model after training is complete.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{lccc}

@@ -217,6 +217,152 @@ class TestTexConcatPrefersEntryPoint:
         assert "MemLens" in out or "\\bench" in out
 
 
+class TestChunkedSummarization:
+    """Spec 013: when the raw `.tex` corpus exceeds the reviewer's
+    context budget, we chunk the source and summarize each chunk via
+    LLM instead of truncating to a marker. The reviewer sees lossy-but-
+    full coverage of the paper.
+
+    These tests pass a deterministic `summarize_fn` to exercise the
+    orchestration logic (chunking, caching, output framing). A real
+    LLM-call test lives in `tests/real_call/`.
+    """
+
+    def test_chunk_corpus_splits_on_section_boundaries(self) -> None:
+        from llmxive.agents.paper_reviewer import _chunk_corpus
+        text = ""
+        for i in range(8):
+            text += f"\n\\section{{Section {i}}}\n" + ("body line\n" * 100)
+        chunks = _chunk_corpus(text, max_chunk_size=4_000)
+        # Every chunk after the first should start at a \section boundary
+        # (i.e., the chunker preferred the strong boundary over a hard cut).
+        for c in chunks[1:]:
+            assert c.lstrip().startswith("\\section"), (
+                f"expected section boundary, got: {c[:60]!r}"
+            )
+
+    def test_chunk_corpus_falls_back_to_paragraph_breaks(self) -> None:
+        from llmxive.agents.paper_reviewer import _chunk_corpus
+        # No \section anywhere; chunker must use paragraph breaks.
+        body = "paragraph A.\n\n" + "x " * 500 + "\n\nparagraph B.\n\n" + "y " * 500
+        chunks = _chunk_corpus(body, max_chunk_size=1_200)
+        assert len(chunks) > 1
+        # No chunk should exceed the budget (paragraphs gave a valid cut).
+        assert all(len(c) <= 1_200 for c in chunks)
+
+    def test_chunk_corpus_hard_cuts_when_no_natural_boundary(self) -> None:
+        from llmxive.agents.paper_reviewer import _chunk_corpus
+        # No section, no paragraph breaks — single long run.
+        text = "x" * 30_000
+        chunks = _chunk_corpus(text, max_chunk_size=10_000)
+        assert len(chunks) == 3
+        assert all(len(c) <= 10_000 for c in chunks)
+
+    def test_build_corpus_returns_verbatim_when_under_budget(
+        self, tmp_path: Path,
+    ) -> None:
+        from llmxive.agents.paper_reviewer import _build_corpus_with_summaries
+        src = tmp_path / "source"
+        src.mkdir()
+        (src / "main.tex").write_text(
+            r"\documentclass{article}\begin{document}HELLO\end{document}",
+            encoding="utf-8",
+        )
+        calls: list[int] = []
+
+        def fake_summarize(chunk: str) -> str:
+            calls.append(len(chunk))
+            return "(summary)"
+
+        out = _build_corpus_with_summaries(
+            src, final_budget=10_000, summarize_fn=fake_summarize,
+        )
+        assert "HELLO" in out
+        assert calls == [], "no summarization should fire when under budget"
+
+    def test_build_corpus_summarizes_when_over_budget(
+        self, tmp_path: Path,
+    ) -> None:
+        from llmxive.agents.paper_reviewer import _build_corpus_with_summaries
+        src = tmp_path / "source"
+        src.mkdir()
+        # 60KB main.tex — exceeds the test budget below.
+        big = ""
+        for i in range(5):
+            big += f"\n\\section{{Section {i}}}\n" + ("X" * 10_000)
+        (src / "main.tex").write_text(
+            r"\documentclass{article}\begin{document}" + big + r"\end{document}",
+            encoding="utf-8",
+        )
+
+        def fake_summarize(chunk: str) -> str:
+            return f"<<summary of {len(chunk)}>>"
+
+        out = _build_corpus_with_summaries(
+            src,
+            final_budget=20_000,
+            chunk_size=15_000,
+            summarize_fn=fake_summarize,
+        )
+        assert "AUTO-SUMMARIZED CHUNK" in out
+        assert "NOTICE: The full paper source exceeded" in out
+        assert "<<summary of " in out
+        # Output must be substantially smaller than the raw corpus.
+        assert len(out) < 10_000
+
+    def test_build_corpus_caches_summaries_across_calls(
+        self, tmp_path: Path,
+    ) -> None:
+        from llmxive.agents.paper_reviewer import _build_corpus_with_summaries
+        src = tmp_path / "source"
+        src.mkdir()
+        big = ("\\section{X}\n" + "Y" * 12_000) * 3
+        (src / "main.tex").write_text(
+            r"\documentclass{article}\begin{document}" + big + r"\end{document}",
+            encoding="utf-8",
+        )
+        cache = tmp_path / "cache"
+        call_count = [0]
+
+        def fake_summarize(chunk: str) -> str:
+            call_count[0] += 1
+            return "(s)"
+
+        a = _build_corpus_with_summaries(
+            src, final_budget=2_000, chunk_size=10_000,
+            summarize_fn=fake_summarize, cache_dir=cache,
+        )
+        first_calls = call_count[0]
+        assert first_calls >= 2
+        b = _build_corpus_with_summaries(
+            src, final_budget=2_000, chunk_size=10_000,
+            summarize_fn=fake_summarize, cache_dir=cache,
+        )
+        assert call_count[0] == first_calls, (
+            "second call must hit cache; expected 0 new calls, got "
+            f"{call_count[0] - first_calls}"
+        )
+        assert a == b, "cached output must be byte-identical to first run"
+
+    def test_build_corpus_falls_back_to_truncation_without_summarizer(
+        self, tmp_path: Path,
+    ) -> None:
+        """When `summarize_fn=None`, we fall back to the truncation
+        behavior of `_concat_tex` so callers without a backend (e.g.,
+        unit tests) still get a usable corpus."""
+        from llmxive.agents.paper_reviewer import _build_corpus_with_summaries
+        src = tmp_path / "source"
+        src.mkdir()
+        big = "X" * 60_000
+        (src / "main.tex").write_text(
+            r"\documentclass{article}\begin{document}" + big + r"\end{document}",
+            encoding="utf-8",
+        )
+        out = _build_corpus_with_summaries(src, final_budget=10_000)
+        # Truncation marker from _concat_tex.
+        assert "truncated to fit budget" in out
+
+
 class TestBibSummary:
     """For arXiv-intake papers, ``state/citations/<PROJ>.yaml`` is never
     populated — only the .bib file under paper/source/ exists. The

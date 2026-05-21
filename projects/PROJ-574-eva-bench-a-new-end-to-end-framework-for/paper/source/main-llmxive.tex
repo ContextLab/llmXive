@@ -37,6 +37,7 @@
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
 \providecommand{\aistatsfinalcopy}{}
+\providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
@@ -55,6 +56,7 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\tablecite}[1]{\cite{#1}}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -62,6 +64,7 @@
 \makeatother
 
 %% ── User-defined macros forwarded from original preamble ─────
+\makeatletter
 \providecommand{\figleft}{{\em (Left)}}
 \providecommand{\figcenter}{{\em (Center)}}
 \providecommand{\figright}{{\em (Right)}}
@@ -117,24 +120,11 @@
 \providecommand{\passatone}{pass@1}
 \providecommand{\passat}[1]{\text{pass@}#1}
 \providecommand{\heatcell}[2]{\cellcolor{#1}#2}
-\providecommand{\expshade}[1]{%
-  \ifdim#1pt<0.2pt expA%
-  \else\ifdim#1pt<0.4pt expB%
-  \else\ifdim#1pt<0.6pt expC%
-  \else\ifdim#1pt<0.8pt expD%
-  \else expE\fi\fi\fi\fi%
-}
-\providecommand{\accshade}[1]{%
-  \ifdim#1pt<0.2pt accA%
-  \else\ifdim#1pt<0.4pt accB%
-  \else\ifdim#1pt<0.6pt accC%
-  \else\ifdim#1pt<0.8pt accD%
-  \else accE\fi\fi\fi\fi%
-}
+\providecommand{\expshade}[1]{  \ifdim#1pt<0.2pt expA  \else\ifdim#1pt<0.4pt expB  \else\ifdim#1pt<0.6pt expC  \else\ifdim#1pt<0.8pt expD  \else expE\fi\fi\fi\fi}
+\providecommand{\accshade}[1]{  \ifdim#1pt<0.2pt accA  \else\ifdim#1pt<0.4pt accB  \else\ifdim#1pt<0.6pt accC  \else\ifdim#1pt<0.8pt accD  \else accE\fi\fi\fi\fi}
 \providecommand{\EC}[1]{\cellcolor{\expshade{#1}}#1}
 \providecommand{\AC}[1]{\cellcolor{\accshade{#1}}#1}
-\providecommand{\agentturn}[1]{%
-  \noindent\hfill
+\providecommand{\agentturn}[1]{  \noindent\hfill
   \begin{minipage}[t]{0.80\textwidth}
     \begin{tcolorbox}[agentstyle]
       #1
@@ -142,8 +132,7 @@
   \end{minipage}\par
   \vspace{1pt}
 }
-\providecommand{\userturn}[1]{%
-  \noindent
+\providecommand{\userturn}[1]{  \noindent
   \begin{minipage}[t]{0.80\textwidth}
     \begin{tcolorbox}[userstyle]
       #1
@@ -151,8 +140,7 @@
   \end{minipage}\par
   \vspace{1pt}
 }
-\providecommand{\toolturn}[1]{%
-  \noindent\hfill
+\providecommand{\toolturn}[1]{  \noindent\hfill
   \begin{minipage}[t]{0.80\textwidth}
     \begin{tcolorbox}[toolstyle]
       #1
@@ -160,8 +148,7 @@
   \end{minipage}\par
   \vspace{1pt}
 }
-\providecommand{\toolturnfail}[1]{%
-  \noindent\hfill
+\providecommand{\toolturnfail}[1]{  \noindent\hfill
   \begin{minipage}[t]{0.80\textwidth}
     \begin{tcolorbox}[toolstyle, colback=crimson!10, colframe=crimson]
       #1
@@ -659,10 +646,53 @@
 \definecolor{pertaccent}{HTML}{00C49A}
 \definecolor{pertbgnoise}{HTML}{F8E16C}
 \definecolor{pertboth}{HTML}{156064}
+\tcbuselibrary{breakable}
+\tcbuselibrary{skins}
+\tcbset{
+  promptbox/.style={
+    breakable,
+    colback=gray!10,
+    colframe=gray!40,
+    boxrule=0.5pt,
+    arc=3pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    fontupper=\small\ttfamily
+  }
+}
+\tcbset{
+  agentstyle/.style={
+    colback=blue!6,
+    colframe=blue!30,
+    boxrule=0.4pt,
+    arc=4pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    before upper={\textbf{\footnotesize Voice Agent}\\\small},
+    fontupper=\footnotesize
+  },
+  userstyle/.style={
+    colback=orange!8,
+    colframe=orange!35,
+    boxrule=0.4pt,
+    arc=4pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    before upper={\textbf{\footnotesize User Simulator}\\\small},
+    fontupper=\footnotesize
+  },
+  toolstyle/.style={
+    colback=green!5,
+    colframe=green!30,
+    boxrule=0.4pt,
+    arc=4pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    before upper={\textbf{\footnotesize Tool Calls}\\\small\ttfamily},
+    fontupper=\footnotesize\ttfamily
+  }
+}
+\makeatother
 
 %% ── llmXive paper metadata ──────────────────────────────────
 \title{\framework: A New End-to-end Framework for Evaluating Voice Agents}
-\author{Tara Bogavelli \and Gabrielle Gauthier Melançon \and Katrina Stankiewicz \and Oluwanifemi Bamgbose \and Fanny Riols \and Hoang H. Nguyen \and Raghav Mehndiratta \and Lindsay Devon Brin \and Hari Subramani \and Joseph Marinier \and Anil Madamala \and Sridhar Krishna Nemala \and Srinivas Sunkara}
+\author{Tara Bogavelli \and Gabrielle Gauthier Melançon \and Katrina Stankiewicz \and Oluwanifemi Bamgbose \and Fanny Riols \and Hoang H. Nguyen \and Raghav Mehndiratta \and Lindsay Devon Brin \and Joseph Marinier \and Hari Subramani \and Anil Madamala \and Sridhar Krishna Nemala \and Srinivas Sunkara}
 \paperid{arXiv:2605.13841}
 \paperstatus{Preprint}
 
@@ -905,7 +935,7 @@ We measure inter-annotator agreement (IAA) between the judge and/or human annota
 \definecolor{pnk6}{HTML}{b82d5c}
 \definecolor{pnk7}{HTML}{8c1f44}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering\small
 \captionsetup{font=small}
 \resizebox{\textwidth}{!}{%
@@ -1132,7 +1162,7 @@ All self-hosted models were served on NVIDIA H100 GPUs. Models served via vLLM u
 \textbf{\qwenfull} was called with \texttt{temperature=1.0}, \texttt{top\_p=0.95}, \texttt{top\_k=20}, \texttt{min\_p=0.0}, \texttt{presence\_penalty=1.5}, and \texttt{repetition\_penalty=1.0}. Thinking mode was likewise disabled via \texttt{enable\_thinking=false}.
 
 %%%% Starting from Table 3 %%%%%%%%%
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \captionsetup{font=small}
 \resizebox{\linewidth}{!}{%
@@ -1160,7 +1190,7 @@ All self-hosted models were served on NVIDIA H100 GPUs. Models served via vLLM u
 
 For ElevenLabs, we used ElevenAgents with the following models: \scribefull, \geminiflashfull, and \conversationalfull. We used the default agent parameters, listed in Table~\ref{tab:elevenlabs-params}.
 
-\begin{table}[h]
+\begin{table}[!htbp]
       \centering
       \captionsetup{font=small}
       \resizebox{\linewidth}{!}{%
@@ -1217,7 +1247,7 @@ We use the default turn detection configurations for each framework in our exper
 
 \framework{} makes turn detection parameters and options configurable via the CLI, so practitioners can run experiments using the turn detection settings available to their chosen framework. The only exception is ElevenAgents, where users must register and configure their agents separately prior to evaluation.
 
-\begin{table}[h]
+\begin{table}[!htbp]
     \centering
     \captionsetup{font=small}
     \resizebox{\textwidth}{!}{%
@@ -1281,7 +1311,7 @@ The \textbf{Enterprise ITSM} domain covers 80 scenarios across 21 workflows back
 
 %%%% Starting from Table 6 %%%%%%%%%
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \captionsetup{font=small}
@@ -1348,7 +1378,7 @@ We created four ElevenLabs agents for the user simulator, covering two accents (
 
 %%%% Starting from Table 7 %%%%%%%%%
 
-\begin{table}[h]
+\begin{table}[!htbp]
     \centering
     \begin{tabular}{ll}
     \toprule
@@ -1374,7 +1404,7 @@ We created four ElevenLabs agents for the user simulator, covering two accents (
 \label{tab:elevenlabs-config}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \begin{tabular}{lll}
 \toprule
@@ -1414,7 +1444,7 @@ Once the agent is configured, click \texttt{Publish} in the top-right corner. Th
 
 The simulator is prompted in ~\framework~with a specific user goal and is instructed to stay on task, communicate all required named entities clearly, and terminate the conversation when the goal is accomplished, or the task is clearly unlikely to succeed. The system prompts are provided in Appendix \ref{app:simulator-prompts}.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \captionsetup{font=small}
@@ -1480,7 +1510,7 @@ We adapt the same prompt used to evaluate agent speech fidelity (Section~\ref{ap
 Because this prompt is closely derived from the agent speech fidelity judge, we inherit its validation. That judge achieved high inter-annotator agreement with human linguists ($\kappa =  0.777$, 95\% CI [0.704, 0.835]), and the core capability it requires—accurately parsing audio and detecting entity-level errors—is shared. The rating scale and its interpretation are sufficiently well-defined that additional annotation studies were not deemed necessary. See table \ref{tab:judge-agreement} for more details on human-judge agreement.
 
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \captionsetup{font=small}
@@ -1504,7 +1534,7 @@ Duplicate modifications &   0 &    0\% \\
 \section{Metric Details}
 \label{app:metric-details}
 %%%% Starting from Table 11 %%%%%%%%%
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \captionsetup{font=small}
@@ -1558,7 +1588,7 @@ The available streams are concatenated and sorted by timestamp into a single tim
 
 \paragraph{Extracted Variables} For each turn we extract four per-role variables:  \texttt{intended\_*\_turns}, \texttt{transcribed\_*\_turns}, \texttt{audio\_timestamps\_*\_turns}, and entries of a linearised \texttt{conversation\_trace} that interleaves user/assistant turns with tool calls. The default mapping from log source to variable is given in Table~\ref{tab:log-mapping}. Crucially, the table distinguishes the per-turn text fields (which are sourced directly from a single stream) from the \texttt{conversation\_trace} (which is built from the audit log and post-hoc reconciled against the other streams). The \texttt{conversation\_trace} is the linear, tool-call-interleaved view used by judge metrics that need a faithful chronological transcript, while the per-turn fields are useful for specific metrics that need intermediate states, such as  \textsc{TranscriptionAccuracyKeyEntities}. \texttt{audio\_start}/\texttt{audio\_end} pairs are matched greedily by speaker, and used to compute any latency measurements.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{ll}
@@ -1678,7 +1708,7 @@ For \metricfidelity, Gemini 3.1 Pro achieved the highest
 performance, but we selected Gemini 3 Flash for deployment: it achieved
 nearly identical performance at substantially lower inference cost.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \captionsetup{font=small}
@@ -2009,7 +2039,7 @@ Unlike prior works \citep{ray2026tauvoicebenchmarkingfullduplexvoice, lin2026ful
 \label{app:turn-taking-scoring-regime}
 Rather than aggregating flat scalars across all turns, each turn is first classified by its interrupt condition and then routed to a semantically appropriate scoring function. This ensures that qualitatively distinct turn-taking events — agent interruptions, user interruptions, and uninterrupted exchanges — are each evaluated according to the behavioral properties that matter most for that event type. The major event types and their corresponding score functions are summarized in Table \ref{tab:tt-regime}.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \captionsetup{font=small}
@@ -2054,7 +2084,7 @@ slow but not yet conversation-ending. Score ramps linearly from $1$ to $0$.
 \item \textbf{Hard-zero late} ($\ell > \ell_{\text{hard-late}}$): The silence is long enough to cause conversational breakdown, likely prompting the user to disengage from the conversation any further \cite{skantze2021turntaking}. Score is hard-clamped to $0$.
 \end{itemize}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \captionsetup{font=small}
@@ -2086,7 +2116,7 @@ When the agent interrupts the user, the score is governed by three sub-dimension
     s_{\text{count}},\; s_{\text{post}}\right)
 \end{equation}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \captionsetup{font=small}
@@ -2202,7 +2232,7 @@ $\tau_{\text{tt}} = 0.75$ and $r = 0.995$ at $\tau_{\text{tt}} = 0.85$;
 $r$ never falls below $0.910$ across the entire $[0.50, 0.95]$ range (minimum at
 $\tau_{\text{tt}} = 0.50$).
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering\small
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lcccccccccc}
@@ -2304,7 +2334,7 @@ Transcription accuracy on entities is not sufficient on its own to predict task 
 
 \definecolor{acc7}{HTML}{3b3060}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering\small
 \captionsetup{font=small}
 \begin{tabular}{l@{\hskip 8pt}>{\centering\arraybackslash}p{2.4cm}@{\hskip 8pt}>{\centering\arraybackslash}p{2.4cm}@{\hskip 8pt}>{\centering\arraybackslash}p{1.6cm}}
@@ -2358,7 +2388,7 @@ Given the small number of systems per pipeline type, the analysis is descriptive
       \label{fig:arch-comparison}
   \end{figure}   
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \resizebox{\textwidth}{!}{%
@@ -2398,7 +2428,7 @@ Table~\ref{tab:pipeline-comparison-summary} reports the per-pipeline-type means 
     \item Policy violations ($\downarrow$) — the most variable facet within both pipeline classes. \emph{\gptrealtimefull~} ($0.69$, the lowest S2S violation rate) lands in the same range as several cascades (e.g., \emph{\coherefull~+ \gemmaAfull~+ \voxtralfull~}at $0.60$, \emph{\scribefull~+ \geminiflashfull~+ \conversationalfull~} and \emph{\parakeetfull~+ \gemmaBfull~+ \kokorofull~} at $0.61$); the other two S2S systems sit higher. The lowest cascade violation rate comes from \emph{\novafull~+ \gptfull~+ \sonicfull~} ($0.28$), and remains the lowest after conditioning on completed conversations ($0.32$). Conditioning matters here for the cascades that hang often: \emph{\inkfull~+ \haikufull~+ \sonicfull~} rises from $0.48$ to $0.63$ ($+15$ pp), revealing that its low raw rate partly reflects fewer opportunities to violate rather than stronger instruction-following. No S2S system reaches the conditional violation rate of \emph{\novafull~+ \gptfull~+ \sonicfull}, suggesting a tension between latency and instruction-following accuracy that none of the systems we evaluated fully resolves.
 \end{itemize}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \resizebox{\textwidth}{!}{%
@@ -2438,7 +2468,7 @@ Raw \texttt{authentication\_success} mixes two distinct phenomena: how often the
 
 S2S systems are essentially unchanged: they finish $95$--$99\%$ of clean conversations, so the raw and conditional rates coincide ($\Delta \leq 0.8$ pp). Several cascades, by contrast, move substantially: \emph{\novafull~+ \gptfull~+ \sonicfull~} rises from $0.85$ to $0.94$, matching the best S2S (\emph{\gptrealtimefull~} at $0.94$); \emph{\inkfull~+ \haikufull~+ \sonicfull~} from $0.65$ to $0.86$ ($+20$ pp); and \emph{\whisperfull~+ \qwenfull~+ \voxtralfull~} from $0.60$ to $0.73$ ($+13$ pp). The cascade authentication deficit visible in Table~\ref{tab:pipeline-comparison-summary} is therefore in large part a completion artifact: when a cascade gets through the authentication exchange without timing out, several configurations authenticate at rates comparable to S2S systems. Among the systems we evaluated, \emph{\gptrealtimefull~} stands out for combining both axes: it finishes $99\%$ of clean conversations and authenticates correctly $93\%$ of the time when it does, the highest values in the table on both axes.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \resizebox{\textwidth}{!}{%
@@ -2483,7 +2513,7 @@ A turn can match more than one pattern.
 
 Table~\ref{tab:pipeline-comparison-failure-modes-bysystem} breaks the timeouts down per system. Five of the seven cascade systems show short-turn shares of $52$--$68\%$ of their timeouts; a substantial fraction of those short turns also begin with a confirmation token (e.g., ``Yes, that's correct''), after which the agent fails to produce a follow-up turn. Several pipelines do not exhibit this pattern: \emph{\scribefull~+ \geminiflashfull~+ \conversationalfull}, \emph{\parakeetfull~+ \gemmaBfull~+ \kokorofull}, \emph{\ultravoxfull}, and all three S2S systems. With the exception of \emph{\ultravoxfull}, all of these have an overall conversation failure rate below $5\%$. Spelled-content failures, by contrast, persist across all pipelines and are the dominant timeout cause among the systems that handle short turns well. These spelled-content hangs occur predominantly during the authentication exchange, which is also why the cascade authentication deficit shrinks substantially under the completion-conditional view (Sec.~\ref{app:pipeline-comparison-auth-conditional}).
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \resizebox{\textwidth}{!}{%
@@ -2564,7 +2594,7 @@ A character is replaced by one that sounds similar when spoken aloud.
 \definecolor{acc6}{HTML}{584981}
 \definecolor{acc7}{HTML}{3b3060}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering\small
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}}
@@ -2631,7 +2661,7 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 \definecolor{tel6}{HTML}{0f6b6b}
 \definecolor{tel7}{HTML}{075656}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering\small
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}}
@@ -2678,7 +2708,7 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 \definecolor{tel6}{HTML}{0f6b6b}
 \definecolor{tel7}{HTML}{075656}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering\small
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}}
@@ -2724,7 +2754,7 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 \definecolor{tel6}{HTML}{0f6b6b}
 \definecolor{tel7}{HTML}{075656}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering\small
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}}
@@ -2758,7 +2788,7 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 % Auto-generated by analysis/eva-bench-stats/run_paper.py
 % Requires: booktabs, multirow, array
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering\small
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}}
@@ -2805,7 +2835,7 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 \definecolor{pnk6}{HTML}{b82d5c}
 \definecolor{pnk7}{HTML}{8c1f44}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering\small
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}}
@@ -2852,7 +2882,7 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 \definecolor{pnk6}{HTML}{b82d5c}
 \definecolor{pnk7}{HTML}{8c1f44}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering\small
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}}
@@ -2897,7 +2927,7 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 \definecolor{pnk6}{HTML}{b82d5c}
 \definecolor{pnk7}{HTML}{8c1f44}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering\small
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}}
@@ -2929,7 +2959,7 @@ Within accuracy, \metricfaithfulness~is the most domain-coupled metrics. Mean st
 % Auto-generated by analysis/eva-bench-stats/run_paper.py
 % Requires: booktabs, multirow, array
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering\small
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 4pt}!{\vrule width 0pt}@{\hskip 4pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}@{\hskip 8pt}!{\vrule}@{\hskip 8pt}>{\centering\arraybackslash}p{1.8cm}}
@@ -3549,7 +3579,7 @@ estimates are reused across scatter plots and Pareto frontiers and
 the marginal CI shrinkage from $k{=}4$ to $k{=}5$ ($\sim\!0.02$
 absolute, by construction terminating at zero) is worth the cost.
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{figures/trial_count/trial_count_grid_ci_width.pdf}
 \caption{Model-level 95\% empirical CI width as a function of trial
@@ -3560,7 +3590,7 @@ is identically zero (single-anchor draw).}
 \label{fig:trial_count_ci}
 \end{figure}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering\small
 \begin{tabular}{lccccc}
 \toprule
@@ -5129,7 +5159,7 @@ Is there anything else I can help you with regarding your leave?}
 
 \framework~employs three domain-specific system prompts for the user simulator, presented in Sections~\ref{appendix:prompt-airline}, \ref{appendix:prompt-itsm}, and \ref{appendix:prompt-medical-hr}, each tailored to a distinct vertical: Airline CSM, Enterprise ITSM, and Healthcare HRSD. Despite their domain differences, all three prompts share a common set of input variables that are populated at runtime from the scenario definition, described in Table~\ref{tab:simulator-variables}.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \begin{tabular}{lp{9cm}}
 \toprule
@@ -5571,7 +5601,7 @@ We provide the system prompts passed to the agent across the three system archit
 Each system prompt is a template whose dynamic fields are resolved at runtime before being sent to the model.
 Table~\ref{tab:prompt-variables} describes each variable.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{lp{9.5cm}}
@@ -8413,7 +8443,7 @@ follow-up actions, user objections — show the agent was internally operating o
 Full license texts are available in the anonymized repository's 
 \texttt{THIRD\_PARTY\_NOTICES} file.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
 \small
 \captionsetup{font=small}

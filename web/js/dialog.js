@@ -257,6 +257,34 @@
     }).join("");
   }
 
+  // Spec 013 / FR-020: per-round implementer revision history, surfaced
+  // from project.revision_history (built by web_data._project_revision_history).
+  function _revisionHistoryHTML(rounds) {
+    if (!rounds || !rounds.length) return "";
+    const rows = rounds.map((r) => {
+      const pdfLink = r.pdf_url
+        ? '<a href="' + escapeHtml(r.pdf_url) + '" target="_blank" rel="noopener">PDF</a>'
+        : '';
+      const logLink = r.changelog_url
+        ? '<a href="' + escapeHtml(r.changelog_url) + '" target="_blank" rel="noopener">changelog</a>'
+        : '';
+      const links = [pdfLink, logLink].filter(Boolean).join(" · ");
+      const when = r.ran_at ? new Date(r.ran_at).toLocaleDateString() : "";
+      return '<div class="ad-row" style="flex-direction:column; align-items:flex-start; gap:2px;">' +
+        '<div style="font-weight:600;">Round ' + escapeHtml(String(r.round_number)) +
+        ' <span style="color:var(--muted); font-weight:normal; font-size:11px;">' + escapeHtml(when) + '</span></div>' +
+        '<div style="font-size:11px; color:var(--muted);">' + escapeHtml(r.implementer_agent || "") + '</div>' +
+        '<div style="font-size:11px;">' +
+        escapeHtml(String(r.tasks_done)) + ' done · ' +
+        escapeHtml(String(r.tasks_failed)) + ' failed · ' +
+        escapeHtml(String(r.tasks_skipped)) + ' skipped' +
+        (links ? ' &nbsp;|&nbsp; ' + links : '') +
+        '</div>' +
+        '</div>';
+    }).join("");
+    return '<h4>Revision history</h4>' + rows;
+  }
+
   function _renderListColumn(project, comments) {
     const links = project.artifact_links || {};
     const artifacts = ARTIFACT_ROWS
@@ -274,6 +302,7 @@
       '<h4>Artifacts</h4>' +
       (artifacts || '<div style="color:var(--muted); font-size:11px;">No artifacts produced yet.</div>') +
       reviewsBlock +
+      _revisionHistoryHTML(project.revision_history) +
       '<h4>Authors</h4>' +
       _authorsHTML(project.authors) +
       '<h4>Citations</h4>' +

@@ -65,6 +65,23 @@ def save(project: Project, *, repo_root: Path | None = None) -> Path:
     return path
 
 
+def update(
+    project_id: str, fields: dict, *, repo_root: Path | None = None,
+) -> Project:
+    """Load a project, apply `fields` as a partial update, save, return
+    the new Project. Pydantic re-validates the merged document; any
+    field whose value doesn't satisfy the schema raises.
+
+    Used by the spec-013 implementer + publisher to advance stages.
+    """
+    proj = load(project_id, repo_root=repo_root)
+    data = proj.model_dump(mode="json")
+    data.update(fields)
+    new_proj = Project.model_validate(data)
+    save(new_proj, repo_root=repo_root)
+    return new_proj
+
+
 def list_all(*, repo_root: Path | None = None) -> list[Project]:
     state_dir = (repo_root / "state") if repo_root else _state_root()
     proj_dir = state_dir / "projects"

@@ -840,3 +840,34 @@ agents:
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
+- name: llmxive_implementer
+  purpose: "Spec 013: LLM-driven implementer (display: llmXive-implementer-v1.0). Applies revision-spec tasks to paper/source/main.tex with per-task compile gate and rollback, then routes to paper_review."
+  inputs:
+  - paper
+  - implementation_plan
+  outputs:
+  - paper
+  - review
+  prompt_path: agents/prompts/implementer.md
+  prompt_version: 1.0.0
+  default_backend: dartmouth
+  fallback_backends:
+  - huggingface
+  default_model: qwen.qwen3.5-122b
+  tools: []
+  wall_clock_budget_seconds: 1800
+  paid_opt_in: false
+- name: paper_publisher
+  purpose: "Spec 013: deterministic (no-LLM) publisher. Pre-reserves Zenodo DOI, recompiles PDF with final byline + appendix, uploads + publishes, writes publication.yaml, transitions paper_accepted to posted."
+  inputs:
+  - paper
+  outputs:
+  - paper
+  prompt_path: agents/prompts/implementer.md
+  prompt_version: 1.0.0
+  default_backend: dartmouth
+  fallback_backends: []
+  default_model: deterministic-no-llm
+  tools: []
+  wall_clock_budget_seconds: 600
+  paid_opt_in: false
