@@ -80,22 +80,25 @@ class UnreachableReference(RuntimeError):
 
 
 class InconsistentDataModel(RuntimeError):
-    """Raised on a data-model.md <-> contracts/ mismatch (FR-007)."""
+    """Raised on a data-model.md <-> contracts/ inconsistency (FR-007).
 
-    def __init__(self, missing_schemas: list[str], orphan_schemas: list[str]):
-        self.missing_schemas = list(missing_schemas)
-        self.orphan_schemas = list(orphan_schemas)
-        parts: list[str] = []
-        if self.missing_schemas:
-            parts.append(
-                f"entities with no contracts/ schema: {sorted(self.missing_schemas)}"
-            )
-        if self.orphan_schemas:
-            parts.append(
-                f"contracts/ schemas with no data-model.md entity: {sorted(self.orphan_schemas)}"
-            )
+    The check is structural and robust rather than a 1:1 name match: the
+    Planner's own contract (``agents/prompts/planner.md``) requires *at least
+    one* schema for a computational project, not one schema per entity, and
+    schema filenames legitimately differ from entity headings (e.g.
+    ``code_duplication_metrics.schema.yaml`` describing a ``CloneDensityMetric``
+    entity). Fragile name-matching produced false positives on real planner
+    output, so FR-007 now verifies that (a) ``data-model.md`` actually defines
+    entities and (b) every emitted ``contracts/*.yaml`` is a real, non-empty,
+    parseable schema.
+    """
+
+    def __init__(self, reason: str, *, invalid_schemas: list[str] | None = None):
+        self.reason = reason
+        self.invalid_schemas = list(invalid_schemas or [])
+        detail = f": {sorted(self.invalid_schemas)}" if self.invalid_schemas else ""
         super().__init__(
-            "data-model.md <-> contracts/ mismatch (FR-007): " + "; ".join(parts)
+            f"data-model.md <-> contracts/ inconsistency (FR-007): {reason}{detail}"
         )
 
 
@@ -291,63 +294,73 @@ def _data_model_entities(text: str) -> set[str]:
     return entities
 
 
-def _schema_names(files: dict[str, str]) -> set[str]:
-    """Parse schema names from contracts/*.yaml filenames + yaml title/$id."""
-    names: set[str] = set()
-    for key in _contracts_keys(files):
-        stem = key.replace("\\", "/").split("/")[-1]
-        for suffix in (".schema.yaml", ".schema.yml", ".yaml", ".yml"):
-            if stem.lower().endswith(suffix):
-                stem = stem[: -len(suffix)]
-                break
-        norm = _normalize(stem)
-        if norm:
-            names.add(norm)
-        # Also mine the YAML body for title / $id.
-        try:
-            doc = yaml.safe_load(files[key])
-        except yaml.YAMLError:
-            doc = None
-        if isinstance(doc, dict):
-            for field in ("title", "$id", "name"):
-                val = doc.get(field)
-                if isinstance(val, str) and val.strip():
-                    val_norm = _normalize(val.split("/")[-1])
-                    if val_norm:
-                        names.add(val_norm)
-    return names
+_TABLE_ROW_RE = re.compile(r"^\s*\|.*\|\s*$", re.MULTILINE)
+
+
+def _has_entity_structure(text: str) -> bool:
+    """True if data-model.md defines real entities, not just prose.
+
+    Real data models always carry at least one of: an attribute/markdown table,
+    a mermaid/ER diagram, or one or more entity (sub)headings beyond the title.
+    """
+    if _data_model_entities(text):
+        return True
+    if _TABLE_ROW_RE.search(text):
+        return True
+    if re.search(r"```mermaid|erDiagram", text, re.IGNORECASE):
+        return True
+    return False
 
 
 def assert_data_model_contracts_consistent(files: dict[str, str]) -> None:
-    """FR-007: every data-model.md entity has a contracts/ schema and vice versa.
+    """FR-007: data-model.md defines real entities and every contracts/ schema
+    is a real, non-empty, parseable schema.
 
-    No-op when there is no ``data-model.md`` in ``files`` (the FR-005 guard
-    already requires its presence; this guard only runs the consistency check
-    when both sides exist).
+    This is a STRUCTURAL consistency check, not a 1:1 entity↔schema name match
+    (see :class:`InconsistentDataModel` for why). It verifies:
+
+    1. ``data-model.md`` actually defines entities (an attribute table, a
+       mermaid/ER diagram, or entity headings) rather than empty prose; and
+    2. every emitted ``contracts/*.yaml`` parses as a non-empty YAML mapping/
+       sequence — a real schema, not an empty file or prose stub.
+
+    No-op when there is no ``data-model.md`` in ``files`` (FR-005 already
+    requires its presence; this runs only when it exists). Cardinality between
+    entities and schemas is intentionally NOT constrained — the Planner
+    contract requires ≥1 schema, not one per entity.
 
     Raises:
-        InconsistentDataModel: with the missing-schema / orphan-schema lists.
+        InconsistentDataModel: with an actionable reason.
     """
     data_model = files.get("data-model.md")
     if data_model is None or not data_model.strip():
         return
 
-    entities = _data_model_entities(data_model)
-    schemas = _schema_names(files)
+    if not _has_entity_structure(data_model):
+        raise InconsistentDataModel(
+            "data-model.md defines no entities (no attribute table, ER diagram, "
+            "or entity headings) — it cannot back any contracts/ schema"
+        )
 
-    # A schema name is satisfied by an entity if either contains the other
-    # (handles "Plan Artifact Set" entity vs "plan-artifact" schema stems).
-    def _matched(target: str, pool: set[str]) -> bool:
-        for other in pool:
-            if target == other or target in other or other in target:
-                return True
-        return False
+    invalid: list[str] = []
+    for key in _contracts_keys(files):
+        body = files.get(key, "")
+        if not body.strip():
+            invalid.append(f"{key} (empty)")
+            continue
+        try:
+            doc = yaml.safe_load(body)
+        except yaml.YAMLError as exc:
+            invalid.append(f"{key} (invalid YAML: {exc})")
+            continue
+        if not isinstance(doc, (dict, list)) or len(doc) == 0:
+            invalid.append(f"{key} (not a non-empty schema mapping/sequence)")
 
-    missing_schemas = sorted(e for e in entities if not _matched(e, schemas))
-    orphan_schemas = sorted(s for s in schemas if not _matched(s, entities))
-
-    if missing_schemas or orphan_schemas:
-        raise InconsistentDataModel(missing_schemas, orphan_schemas)
+    if invalid:
+        raise InconsistentDataModel(
+            "one or more contracts/ schemas are empty or not valid schemas",
+            invalid_schemas=invalid,
+        )
 
 
 __all__ = [

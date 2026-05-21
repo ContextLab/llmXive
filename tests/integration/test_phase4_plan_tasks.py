@@ -319,45 +319,75 @@ class TestUrlReachability:
 # ──────────────────────────────────────────────────────────────────────
 
 class TestDataModelConsistency:
+    """FR-007 (corrected to the robust, structural form): data-model.md must
+    define real entities and every contracts/*.yaml must be a real schema.
+    Entity↔schema cardinality and naming are intentionally NOT constrained —
+    the Planner contract requires ≥1 schema, not one per entity, and schema
+    filenames legitimately differ from entity headings."""
+
     def test_aligned_passes(self) -> None:
         from llmxive.speckit._research_guard import assert_data_model_contracts_consistent
         files = {
             "data-model.md": "# Data Model\n\n## Widget\n\nA widget.\n\n## Gadget\n\nA gadget.\n",
-            "contracts/widget.schema.yaml": "title: Widget",
-            "contracts/gadget.schema.yaml": "title: Gadget",
+            "contracts/widget.schema.yaml": "title: Widget\ntype: object",
+            "contracts/gadget.schema.yaml": "title: Gadget\ntype: object",
         }
         assert_data_model_contracts_consistent(files)
 
-    def test_entity_without_schema_raises(self) -> None:
-        from llmxive.speckit._research_guard import (
-            InconsistentDataModel,
-            assert_data_model_contracts_consistent,
-        )
+    def test_cardinality_and_naming_mismatch_passes(self) -> None:
+        """The previously-rejected real-world case: 4 entities, 1 schema, with a
+        schema name that differs from every entity heading. MUST now pass."""
+        from llmxive.speckit._research_guard import assert_data_model_contracts_consistent
         files = {
-            "data-model.md": "# Data Model\n\n## Widget\n\nx\n\n## Gadget\n\ny\n",
-            "contracts/widget.schema.yaml": "title: Widget",  # no gadget schema
+            "data-model.md": (
+                "# Data Model\n\n## Entity Definitions\n\n"
+                "### CodeSegment\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n"
+                "### CloneDensityMetric\n\nx\n\n### ModelMetric\n\ny\n\n"
+                "### CorrelationResult\n\nz\n\n## Data Flow\n\nflows...\n"
+            ),
+            "contracts/code_duplication_metrics.schema.yaml": "title: Code Duplication Metrics\ntype: object",
         }
-        with pytest.raises(InconsistentDataModel) as ei:
-            assert_data_model_contracts_consistent(files)
-        assert any("gadget" in s for s in ei.value.missing_schemas)
+        assert_data_model_contracts_consistent(files)
 
-    def test_schema_without_entity_raises(self) -> None:
+    def test_no_entities_raises(self) -> None:
         from llmxive.speckit._research_guard import (
             InconsistentDataModel,
             assert_data_model_contracts_consistent,
         )
         files = {
-            "data-model.md": "# Data Model\n\n## Widget\n\nx\n",
-            "contracts/widget.schema.yaml": "title: Widget",
-            "contracts/orphan.schema.yaml": "title: Orphan",  # no entity
+            "data-model.md": "# Data Model\n\nThis document describes the data but defines nothing concrete.\n",
+            "contracts/x.schema.yaml": "title: X\ntype: object",
         }
-        with pytest.raises(InconsistentDataModel) as ei:
+        with pytest.raises(InconsistentDataModel):
             assert_data_model_contracts_consistent(files)
-        assert any("orphan" in s for s in ei.value.orphan_schemas)
+
+    def test_empty_schema_raises(self) -> None:
+        from llmxive.speckit._research_guard import (
+            InconsistentDataModel,
+            assert_data_model_contracts_consistent,
+        )
+        files = {
+            "data-model.md": "# Data Model\n\n## Widget\n\n| a | b |\n|---|---|\n| 1 | 2 |\n",
+            "contracts/widget.schema.yaml": "   ",  # empty
+        }
+        with pytest.raises(InconsistentDataModel):
+            assert_data_model_contracts_consistent(files)
+
+    def test_non_mapping_schema_raises(self) -> None:
+        from llmxive.speckit._research_guard import (
+            InconsistentDataModel,
+            assert_data_model_contracts_consistent,
+        )
+        files = {
+            "data-model.md": "# Data Model\n\n## Widget\n\n| a | b |\n|---|---|\n| 1 | 2 |\n",
+            "contracts/widget.schema.yaml": "just a prose sentence, not a schema",
+        }
+        with pytest.raises(InconsistentDataModel):
+            assert_data_model_contracts_consistent(files)
 
     def test_no_data_model_is_noop(self) -> None:
         from llmxive.speckit._research_guard import assert_data_model_contracts_consistent
-        assert_data_model_contracts_consistent({"contracts/x.schema.yaml": "title: X"})
+        assert_data_model_contracts_consistent({"contracts/x.schema.yaml": "title: X\ntype: object"})
 
 
 # ──────────────────────────────────────────────────────────────────────
