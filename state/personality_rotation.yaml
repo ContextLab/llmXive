@@ -1,6 +1,6 @@
 last_used: john-von-neumann
-last_used_at: '2026-05-21T23:24:21.273003+00:00'
-last_outcome: committed
+last_used_at: '2026-05-21T23:48:45.170652+00:00'
+last_outcome: model_error
 history:
 - slug: ada-lovelace
   started_at: '1970-01-01T00:00:00+00:00'
@@ -1259,3 +1259,7 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-600-https-arxiv-org-abs-2605-15298/paper/reviews/john-von-neumann-simulated__2026-05-21__paper.md
+- slug: linus-pauling
+  started_at: '2026-05-21T23:24:21.273003+00:00'
+  ended_at: '2026-05-21T23:48:45.170652+00:00'
+  outcome: model_error
