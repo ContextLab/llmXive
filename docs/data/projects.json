@@ -4997,7 +4997,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-21T20:38:41.014669+00:00",
+  "generated_at": "2026-05-21T21:12:00.485998+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -55144,6 +55144,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 428.020094,
+          "ended_at": "2026-05-21T21:11:56.888747+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "target_missing",
+          "started_at": "2026-05-21T21:04:48.868653+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 410.342084,
           "ended_at": "2026-05-21T20:16:41.035596+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -55213,14 +55221,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-17T14:52:56.186389Z"
-        },
-        {
-          "agent": "paper_reviewer_safety_ethics",
-          "duration_s": 72.29729,
-          "ended_at": "2026-05-17T14:52:56.143909Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-17T14:51:43.846619Z"
         }
       ],
       "phase_group": "paper_review",
@@ -63887,6 +63887,20 @@
       "action": "comment",
       "agent": "personality",
       "display_name": "Geoffrey West (simulated)",
+      "duration_s": 428.020094,
+      "ended_at": "2026-05-21T21:11:56.888747+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "target_missing",
+      "personality_slug": "geoffrey-west",
+      "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
+      "project_stage": "paper_minor_revision",
+      "started_at": "2026-05-21T21:04:48.868653+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Geoffrey West (simulated)",
       "duration_s": 410.342084,
       "ended_at": "2026-05-21T20:16:41.035596+00:00",
       "model": "qwen.qwen3.5-122b",
@@ -69959,16 +69973,6 @@
       "project_stage": "brainstormed",
       "review_path": "projects/PROJ-553-cognitive-load-optimization-adaptive-com/reviews/research/daniel-kahneman-simulated__2026-05-14__research.md",
       "started_at": "2026-05-14T17:10:07.797861+00:00"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 34.338506,
-      "ended_at": "2026-05-14T16:56:23.817705Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "started_at": "2026-05-14T16:55:49.479199Z"
     }
   ],
   "schema_version": "2.0.0"
