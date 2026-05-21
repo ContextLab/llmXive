@@ -221,15 +221,27 @@ def _preflight(project_id: str) -> dict[str, Any]:
         _exit_2(f"preflight (c) [{project_id}]: state YAML not found at {proj_state}")
     ydata = yaml.safe_load(proj_state.read_text(encoding="utf-8")) or {}
     stage = ydata.get("current_stage")
-    if stage != "clarified":
-        if stage in TERMINAL_OK_STAGES or stage in {
-            "planned", "tasked", "analyze_in_progress", "in_progress",
-        }:
-            _exit_2(
-                f"preflight (c) [{project_id}]: current_stage={stage!r} — already "
-                f"past this phase (FR-019). Phase 4 entry stage is 'clarified'; "
-                f"decline to re-run. Roll the project back to 'clarified' to re-validate."
-            )
+    _RESUME_STAGES = {"planned", "tasked", "analyze_in_progress"}
+    if stage == "clarified":
+        pass  # fresh run from the Phase-4 entry stage
+    elif stage in _RESUME_STAGES:
+        # An interrupted run left the project mid-Phase-4. Resume from here
+        # (no reset — preserve the work already done) and step to a terminal
+        # stage. This is distinct from FR-019, which declines projects that
+        # have COMPLETED Phase 4 (analyzed+).
+        print(
+            f"[validate_phase4] {project_id}: resuming from mid-Phase-4 stage "
+            f"{stage!r} (no reset; stepping to a terminal stage). Use --force to "
+            f"roll back to 'clarified' and re-validate from scratch.",
+            file=sys.stderr,
+        )
+    elif stage in TERMINAL_OK_STAGES or stage == "in_progress":
+        _exit_2(
+            f"preflight (c) [{project_id}]: current_stage={stage!r} — at or past a "
+            f"terminal Phase-4 stage (FR-019); decline to re-run. Use --force to roll "
+            f"back to 'clarified' and re-validate from scratch."
+        )
+    else:
         _exit_2(
             f"preflight (c) [{project_id}]: current_stage={stage!r}, expected "
             f"'clarified'. The project has not completed Phase 3."
@@ -259,7 +271,7 @@ def _preflight(project_id: str) -> dict[str, Any]:
 
     print(f"[validate_phase4] preflight ok (5/5) for {project_id} (stage={stage})",
           file=sys.stderr)
-    return {"feature_dir": fdir, "state_yaml_pre": ydata}
+    return {"feature_dir": fdir, "state_yaml_pre": ydata, "stage": stage}
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -340,7 +352,7 @@ def _run_pipeline(project_id: str) -> dict[str, Any]:
             break
         proc = subprocess.run(
             [sys.executable, "-m", "llmxive", "run", "--project", project_id, "--max-tasks", "1"],
-            capture_output=True, text=True, cwd=str(REPO_ROOT), env=env, timeout=1900,
+            capture_output=True, text=True, cwd=str(REPO_ROOT), env=env, timeout=3600,
         )
         steps += 1
         last_rc = proc.returncode
@@ -505,8 +517,12 @@ def _rollback_to_clarified(project_id: str) -> bool:
 def _run_one_project(project_id: str, *, reset: bool, force: bool = False) -> dict[str, Any]:
     if force:
         _rollback_to_clarified(project_id)
-    _preflight(project_id)
-    reset_artifacts = reset_phase4_outputs(project_id) if reset else []
+    pf = _preflight(project_id)
+    # Only reset Phase-4 outputs on a fresh run from 'clarified'; when resuming
+    # a mid-Phase-4 stage (planned/tasked/analyze_in_progress) we preserve the
+    # work already done and just step to a terminal stage.
+    do_reset = reset and pf.get("stage") == "clarified"
+    reset_artifacts = reset_phase4_outputs(project_id) if do_reset else []
     print(f"[validate_phase4] {project_id}: reset removed {len(reset_artifacts)} Phase-4 output(s)",
           file=sys.stderr)
 
