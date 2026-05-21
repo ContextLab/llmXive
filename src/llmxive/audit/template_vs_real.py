@@ -24,6 +24,12 @@ from .manifest import ManifestItem, RuleFired, add_item, new_manifest
 # Literal placeholder strings drawn from .specify/templates/*.md
 # We extract them at runtime so we stay in sync with template evolution.
 PLACEHOLDER_BRACKET_RE = re.compile(r"\[[A-Z][^\]]{2,80}\]")  # [FEATURE NAME], [Brief Title], etc.
+
+# Structural task-format labels (e.g. "[US1]", "[Story]", "[TaskID]") appear
+# VERBATIM in a *real* tasks.md ("- [ ] T001 [P] [US1] ...") — they are required
+# format markers, not fill-in placeholders. They MUST NOT be learned as template
+# phrases, or every correctly-formatted tasks.md would mis-classify 'template'.
+STRUCTURAL_LABEL_RE = re.compile(r"^\[(Story\??|US\d+|TaskID|ID|P\??)\]$")
 ACTION_REQUIRED_RE = re.compile(r"ACTION REQUIRED:", re.IGNORECASE)
 META_INSTRUCTION_RE = re.compile(
     r"(fill (?:them|it|this|out|in) (?:out )?with the right|placeholders\?|REMOVE IF UNUSED)",
@@ -43,8 +49,12 @@ def _load_template_phrases(templates_dir: Path) -> list[str]:
     phrases: list[str] = []
     for tmpl in sorted(templates_dir.glob("*.md")):
         text = tmpl.read_text()
-        # Take [Bracketed Placeholder] strings
-        phrases.extend(PLACEHOLDER_BRACKET_RE.findall(text))
+        # Take [Bracketed Placeholder] strings, excluding structural task-format
+        # labels that legitimately survive into a real tasks.md.
+        phrases.extend(
+            p for p in PLACEHOLDER_BRACKET_RE.findall(text)
+            if not STRUCTURAL_LABEL_RE.match(p)
+        )
         # Take meta-instruction sentences
         for m in META_INSTRUCTION_RE.finditer(text):
             phrases.append(m.group(0))

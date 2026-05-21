@@ -137,6 +137,44 @@ class TestClassifyFixtures(unittest.TestCase):
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
+    def test_real_tasks_md_with_format_labels_classifies_real(self):
+        """Spec 014 regression: a real tasks.md uses the required structural
+        labels [P]/[US1]/[Story], which are ALSO present in tasks-template.md.
+        They must NOT be learned as template placeholders, or every correctly
+        formatted tasks.md would mis-classify 'template'. The tasks-template
+        itself must still classify 'template' (it has real placeholders)."""
+        tmp = Path(tempfile.mkdtemp(prefix="tasks_test_"))
+        try:
+            tasks = tmp / "tasks.md"
+            tasks.write_text(textwrap.dedent("""\
+                # Tasks: Evaluating Code Duplication Impact
+
+                **Input**: Design documents from specs/001-x/
+
+                ## Phase 1: Setup
+
+                - [ ] T001 Create project structure in src/dup/
+                - [ ] T002 [P] Configure pytest in pyproject.toml
+
+                ## Phase 3: User Story 1 (Priority: P1)
+
+                - [ ] T003 [P] [US1] Implement AST parser in src/dup/parser.py
+                - [ ] T004 [US1] Implement clone scorer in src/dup/score.py
+                - [ ] T005 [P] [US2] Add perplexity probe in src/dup/probe.py
+                - [ ] T006 [US2] Wire correlation in src/dup/correlate.py
+                - [ ] T007 [US3] Emit results to data/results/out.csv
+            """))
+            cls, rules = classify(tasks, templates_dir=TEMPLATES_DIR)
+            self.assertEqual(
+                cls, "real",
+                msg=f"real tasks.md misclassified {cls}; rules: {[r.rule_id for r in rules]}",
+            )
+            # The template itself must still be caught.
+            tmpl_cls, _ = classify(TEMPLATES_DIR / "tasks-template.md", templates_dir=TEMPLATES_DIR)
+            self.assertEqual(tmpl_cls, "template")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
     def test_genuinely_empty_sections_still_partial(self):
         """The body-density rule must still flag headings-with-no-content so the
         bug-fix above does not weaken genuine partial detection."""
