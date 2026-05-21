@@ -44,15 +44,21 @@ _SECRETS_ENV_VARS = (
 )
 
 # Accepted outcome values — matches the per-agent base-class vocabulary
-# used elsewhere in the pipeline.
-_VALID_OUTCOMES = frozenset({"committed", "abstained", "failed", "held", "no-op"})
+# used elsewhere in the pipeline. ``escalated`` (spec 014 / FR-014) covers
+# the Tasker's analyze-loop cap-hit hand-off to human_input_needed.
+_VALID_OUTCOMES = frozenset(
+    {"committed", "abstained", "failed", "held", "no-op", "escalated"}
+)
 
 # Required schema keys (top-level). See contracts/inspection-record.md.
+# ``rounds`` (spec 014 / FR-004) is appended; spec-011 records that predate it
+# remain readable because the loader tolerates a missing key — but every
+# record this writer EMITS includes it (default ``[]``).
 _REQUIRED_KEYS = frozenset({
     "project_id", "agent_name", "agent_version", "model", "backend",
     "started_at", "ended_at", "duration_s", "outcome",
     "reset_artifacts", "prompts", "raw_response", "parsed_output",
-    "file_diffs", "error",
+    "file_diffs", "error", "rounds",
 })
 
 
@@ -105,6 +111,7 @@ def capture(
     reset_artifacts: list[str],
     error: str | None,
     spec_root: Path,
+    rounds: list[dict[str, Any]] | None = None,
 ) -> Path:
     """Write one inspection record JSON file and return its path.
 
@@ -133,6 +140,10 @@ def capture(
         error: non-None iff outcome == "failed".
         spec_root: the spec directory under which to write
             ``inspections/<project_id>/<agent_name>.json``.
+        rounds: spec 014 / FR-004 — one dict per Tasker analyze round
+            (``round_index``, ``analyze_report``, ``mode_b_patch``,
+            ``verdict``, ``files_rewritten``, ``diffs``). ``None``/empty for
+            the Planner and every non-looping agent; persisted as ``[]``.
 
     Returns:
         Absolute path to the written JSON file.
@@ -182,6 +193,9 @@ def capture(
             for d in file_diffs
         ],
         "error": error,
+        # spec 014 / FR-004: one sub-record per Tasker analyze round; ``[]``
+        # for the Planner (and every spec-011-era agent).
+        "rounds": list(rounds) if rounds else [],
     }
 
     # Schema sanity — every required key present at this point.

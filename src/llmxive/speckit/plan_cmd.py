@@ -129,20 +129,51 @@ class PlannerAgent(SlashCommandAgent):
         feature_dir.mkdir(parents=True, exist_ok=True)
 
         from llmxive.speckit._real_only_guard import guard_emit, TemplateRefused
+        from llmxive.speckit._research_guard import (
+            assert_artifact_set_complete,
+            assert_data_model_contracts_consistent,
+            assert_urls_reachable,
+        )
 
         files = _split_multi_file(llm_response.text)
+
+        # FR-005: fail closed on an incomplete/partial multi-file split BEFORE
+        # any per-file work, so a malformed response never leaves partial
+        # artifacts on disk.
+        assert_artifact_set_complete(files)
+
         written: list[str] = []
+        written_targets: list[Path] = []
+
+        def _unlink_all_written() -> None:
+            # Parity with guard_emit's unlink-on-fail: remove every artifact
+            # this invocation wrote so a refused set never pollutes the tree.
+            for t in written_targets:
+                if t.exists():
+                    t.unlink()
+
         from llmxive.speckit._diff_guard import refuse_if_diff
-        for relpath, content in files.items():
-            target = feature_dir / relpath
-            target.parent.mkdir(parents=True, exist_ok=True)
-            # Spec 010 fix: refuse diff-shaped content per file before write.
-            refuse_if_diff(content, artifact_kind=relpath)
-            target.write_text(content + "\n", encoding="utf-8")
-            # FR-009: refuse to commit template artifacts; unlink + raise
-            if target.suffix == ".md":
-                guard_emit(target, repo_root=repo)
-            written.append(str(target.relative_to(repo)))
+        try:
+            for relpath, content in files.items():
+                target = feature_dir / relpath
+                target.parent.mkdir(parents=True, exist_ok=True)
+                # Spec 010 fix: refuse diff-shaped content per file before write.
+                refuse_if_diff(content, artifact_kind=relpath)
+                target.write_text(content + "\n", encoding="utf-8")
+                written_targets.append(target)
+                # FR-009: refuse to commit template artifacts; unlink + raise
+                if target.suffix == ".md":
+                    guard_emit(target, repo_root=repo)
+                written.append(str(target.relative_to(repo)))
+
+            # FR-007 then FR-006: data-model<->contracts consistency, then
+            # research.md URL reachability. Both run after the per-file write
+            # loop so they see the full, committed artifact set.
+            assert_data_model_contracts_consistent(files)
+            assert_urls_reachable(files.get("research.md", ""))
+        except Exception:
+            _unlink_all_written()
+            raise
         return written
 
 
