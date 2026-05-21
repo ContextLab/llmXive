@@ -1,5 +1,5 @@
-last_used: david-krakauer
-last_used_at: '2026-05-21T16:28:24.099709+00:00'
+last_used: eric-kandel
+last_used_at: '2026-05-21T17:24:51.119454+00:00'
 last_outcome: committed
 history:
 - slug: ada-lovelace
@@ -1212,3 +1212,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-593-the-binding-problem-in-llms-implementing/reviews/research/david-krakauer-simulated__2026-05-21__research.md
+- slug: eric-kandel
+  started_at: '2026-05-21T16:28:24.099709+00:00'
+  ended_at: '2026-05-21T17:24:51.119454+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/reviews/research/eric-kandel-simulated__2026-05-21__research.md
