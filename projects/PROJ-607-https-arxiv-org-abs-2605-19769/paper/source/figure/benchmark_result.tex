@@ -1,0 +1,28 @@
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.12}
+\caption{Performance and efficiency comparison across computer-use agents on our benchmark, with OSWorld-Verified reported as an external reference when available. The OSWorld column summarizes the publicly reported OSWorld-Verified score for the corresponding model. Success rate reports the fraction of tasks completed successfully. Average steps and time (seconds) per step capture interaction efficiency. Average reward measures the mean checklist-based score over all tasks.}
+\vspace{-0.5em}
+\begin{tabular}{l|r|rrrr}
+\toprule
+\textbf{Model} 
+& \textbf{OSWorld} 
+& \textbf{Success Rate} 
+& \textbf{Avg. Steps} 
+& \textbf{Time/Step} 
+& \textbf{Avg. Reward} \\
+\midrule
+GPT-5.4           & 75.0\% & 68.3\% & 19.0 & 16.5 s  & 88.4\% \\
+Claude-Sonnet-4.6 & 72.5\% & 64.4\% & 31.5 & 20.8 s  & 76.6\% \\
+Kimi-K2.6         & 73.1\% & 58.8\% & 35.7 & 33.0 s  & 70.7\% \\
+Qwen-3.5-27B      & 56.2\% & 32.3\% & 33.1 & 57.3 s  & 59.4\% \\
+Gemini-3-Flash    & --     & 16.4\% & 25.4 & 9.0 s   & 37.0\% \\
+EvoCUA-8B         & 46.1\% & 10.9\% & 67.0 & 9.7 s   & 38.1\% \\
+Qwen-3.5-9B       & 41.8\% & 7.8\%  & 39.3 & 17.8 s  & 31.7\% \\
+GUI-OWL-1.5-8B    & 52.3\% & 5.7\%  & 73.6 & 9.43 s  & 27.8\% \\
+\bottomrule
+\end{tabular}
+\label{tab:model_results}
+\end{table}

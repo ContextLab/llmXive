@@ -1,0 +1,47 @@
+{
+  "arxiv_id": "2605.16403",
+  "arxiv_url": "https://arxiv.org/abs/2605.16403",
+  "title": "https://arxiv.org/abs/2605.16403",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #212",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/rakanWen/wvs-code"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "neurips_2026.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "Fig",
+    "Fig/DataDPO_splitAv3.pdf",
+    "Fig/DataDPO_splitB_reduced.pdf",
+    "Fig/fig1_headline_accuracy.pdf",
+    "Fig/fig1_hero_combined_narrow.pdf",
+    "Fig/fig2_v2.pdf",
+    "Fig/fig3_pareto_det_vs_falsealarm.pdf",
+    "Fig/fig3_vgg_difficulty_curve.pdf",
+    "Fig/fig4_offset_coverage.pdf",
+    "Fig/heatmap_v2.pdf",
+    "Fig/motivation_fig_3.pdf",
+    "Fig/prediction_breakdown_v2.pdf",
+    "logo",
+    "logo/GitHub_Invertocat_Black.png",
+    "logo/hf-logo.png",
+    "neurips_2026.sty",
+    "neurips_2026.tex",
+    "sections",
+    "sections/00_Abstract.tex",
+    "sections/01_Introduction.tex",
+    "sections/02_Related_Work.tex",
+    "sections/03_InterAlign.tex",
+    "sections/04_Experiment.tex",
+    "sections/05_Conclusion.tex",
+    "sections/Appendix.tex",
+    "sections/nips2026_conference.bib"
+  ]
+}

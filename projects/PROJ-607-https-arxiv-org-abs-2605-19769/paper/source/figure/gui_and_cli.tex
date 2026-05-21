@@ -1,0 +1,22 @@
+\begin{wraptable}{r}{0.45\columnwidth}
+\centering
+\setlength{\tabcolsep}{3pt}
+% \vspace{-1.3em}
+\caption{Overall GUI\textendash CLI pass-rate and execution-time (per task) comparison. For the CLI Agent, we use Claude Code (v2.1.129).}
+\label{tab:gui_cli_overall}
+\vspace{-0.5em}
+
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}llcc@{}}
+\toprule
+\textbf{Setting} & \textbf{Model} & \textbf{Success Rate (\%)} & \textbf{Time (s)} \\
+\midrule
+GUI & GPT-5.4 & 75.2 & 288 \\
+GUI & Claude Sonnet 4.6 & 73.0 & 622 \\
+\midrule
+CLI & Claude Sonnet 4.6 & 67.2 & 141 \\
+\bottomrule
+\end{tabular}%
+}
+
+\end{wraptable}

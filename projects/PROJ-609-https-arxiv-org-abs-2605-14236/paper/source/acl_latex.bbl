@@ -1,0 +1,182 @@
+\begin{thebibliography}{21}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{Agarwal et~al.(2022)Agarwal, Khanna, and Patil}]{agarwal2022pac}
+Arpit Agarwal, Sanjeev Khanna, and Prathamesh Patil. 2022.
+\newblock \href {https://proceedings.mlr.press/v151/agarwal22a.html} {Pac
+  top-$k$ identification under sst in limited rounds}.
+\newblock In \emph{Proceedings of The 25th International Conference on
+  Artificial Intelligence and Statistics}, volume 151 of \emph{Proceedings of
+  Machine Learning Research}, pages 6814--6839. PMLR.
+
+\bibitem[{Chen et~al.(2024)Chen, Liu, Zhang, Sun, Shi, Mao, and
+  Yin}]{chen2024tourrank}
+Yiqun Chen, Qi~Liu, Yi~Zhang, Weiwei Sun, Daiting Shi, Jiaxin Mao, and Dawei
+  Yin. 2024.
+\newblock \href {https://doi.org/10.48550/arXiv.2406.11678} {Tourrank:
+  Utilizing large language models for documents ranking with a
+  tournament-inspired strategy}.
+\newblock \emph{CoRR}, abs/2406.11678.
+
+\bibitem[{Dong et~al.(2024)Dong, Fatemi, Perozzi, Yang, and
+  Tsitsulin}]{dong2024grag}
+Jialin Dong, Bahare Fatemi, Bryan Perozzi, Lin~F. Yang, and Anton Tsitsulin.
+  2024.
+\newblock \href {https://doi.org/10.48550/arXiv.2405.18414} {Don't forget to
+  connect! improving rag with graph-based reranking}.
+\newblock \emph{arXiv preprint arXiv:2405.18414}.
+
+\bibitem[{Heckel et~al.(2016)Heckel, Shah, Ramchandran, and
+  Wainwright}]{heckel2016activeranking}
+Reinhard Heckel, Nihar~B. Shah, Kannan Ramchandran, and Martin~J. Wainwright.
+  2016.
+\newblock \href {https://doi.org/10.48550/arXiv.1606.08842} {Active ranking
+  from pairwise comparisons and when parametric assumptions don't help}.
+\newblock \emph{arXiv preprint arXiv:1606.08842}.
+
+\bibitem[{Huang et~al.(2025)Huang, Madala, Niu, Hockenmaier, and
+  Zhang}]{huang2025tssetrank}
+Jerry Huang, Siddarth Madala, Cheng Niu, Julia Hockenmaier, and Tong Zhang.
+  2025.
+\newblock \href {https://doi.org/10.48550/arXiv.2511.01208} {Contextual
+  relevance and adaptive sampling for {LLM}-based document reranking}.
+\newblock \emph{CoRR}, abs/2511.01208.
+
+\bibitem[{Jeong et~al.(2025)Jeong, Park, Hong, Lee, and
+  Choo}]{jeong2025comparativetrap}
+Hawon Jeong, ChaeHun Park, Jimin Hong, Hojoon Lee, and Jaegul Choo. 2025.
+\newblock \href {https://doi.org/10.18653/v1/2025.blackboxnlp-1.5} {The
+  comparative trap: Pairwise comparisons amplifies biased preferences of {LLM}
+  evaluators}.
+\newblock In \emph{Proceedings of the 8th BlackboxNLP Workshop: Analyzing and
+  Interpreting Neural Networks for NLP}, pages 79--108, Suzhou, China.
+  Association for Computational Linguistics.
+
+\bibitem[{Luo et~al.(2024)Luo, Chen, He, and Sun}]{luo-etal-2024-prp}
+Jian Luo, Xuanang Chen, Ben He, and Le~Sun. 2024.
+\newblock \href {https://doi.org/10.18653/v1/2024.acl-long.313} {{PRP}-graph:
+  Pairwise ranking prompting to {LLM}s with graph aggregation for effective
+  text re-ranking}.
+\newblock In \emph{Proceedings of the 62nd Annual Meeting of the Association
+  for Computational Linguistics (Volume 1: Long Papers)}, pages 5766--5776,
+  Bangkok, Thailand. Association for Computational Linguistics.
+
+\bibitem[{Mohajer et~al.(2017)Mohajer, Suh, and Elmahdy}]{mohajer2017active}
+Soheil Mohajer, Changho Suh, and Adel Elmahdy. 2017.
+\newblock \href {https://proceedings.mlr.press/v70/mohajer17a.html} {Active
+  learning for top-$k$ rank aggregation from noisy comparisons}.
+\newblock In \emph{Proceedings of the 34th International Conference on Machine
+  Learning}, volume~70 of \emph{Proceedings of Machine Learning Research},
+  pages 2488--2497. PMLR.
+
+\bibitem[{Qin et~al.(2024)Qin, Jagerman, Hui, Zhuang, Wu, Yan, Shen, Liu, Liu,
+  Metzler, Wang, and Bendersky}]{qin2024pairwise}
+Zhen Qin, Rolf Jagerman, Kai Hui, Honglei Zhuang, Junru Wu, Le~Yan, Jiaming
+  Shen, Tianqi Liu, Jialu Liu, Donald Metzler, Xuanhui Wang, and Michael
+  Bendersky. 2024.
+\newblock \href {https://doi.org/10.18653/v1/2024.findings-naacl.97} {Large
+  language models are effective text rankers with pairwise ranking prompting}.
+\newblock In \emph{Findings of the Association for Computational Linguistics:
+  NAACL 2024}, pages 1504--1518, Mexico City, Mexico. Association for
+  Computational Linguistics.
+
+\bibitem[{Ren et~al.(2020)Ren, Liu, and Shroff}]{ren2020bestk}
+Wenbo Ren, Jia Liu, and Ness Shroff. 2020.
+\newblock \href {https://proceedings.mlr.press/v119/ren20a.html} {The sample
+  complexity of best-$k$ items selection from pairwise comparisons}.
+\newblock In \emph{Proceedings of the 37th International Conference on Machine
+  Learning}, volume 119 of \emph{Proceedings of Machine Learning Research},
+  pages 8051--8072.
+
+\bibitem[{Shah and Wainwright(2018)}]{shah2018simplerobust}
+Nihar~B. Shah and Martin~J. Wainwright. 2018.
+\newblock \href {https://jmlr.org/papers/v18/16-206.html} {Simple, robust and
+  optimal ranking from pairwise comparisons}.
+\newblock \emph{Journal of Machine Learning Research}, 18(199):1--38.
+
+\bibitem[{Shi et~al.(2024)Shi, Ma, Liang, Diao, Ma, and
+  Vosoughi}]{shi2024judges}
+Lin Shi, Chiyu Ma, Wenhua Liang, Xingjian Diao, Weicheng Ma, and Soroush
+  Vosoughi. 2024.
+\newblock \href {https://doi.org/10.48550/arXiv.2406.07791} {Judging the
+  judges: A systematic study of position bias in llm-as-a-judge}.
+\newblock \emph{arXiv preprint arXiv:2406.07791}.
+
+\bibitem[{Sun et~al.(2025)Sun, Zhong, Zhou, and Han}]{sun2025dynamicrag}
+Jiashuo Sun, Xianrui Zhong, Sizhe Zhou, and Jiawei Han. 2025.
+\newblock \href {https://doi.org/10.48550/arXiv.2505.07233} {Dynamicrag:
+  Leveraging outputs of large language model as feedback for dynamic reranking
+  in retrieval-augmented generation}.
+\newblock \emph{arXiv preprint arXiv:2505.07233}.
+
+\bibitem[{Sun et~al.(2023)Sun, Yan, Ma, Wang, Ren, Chen, Yin, and
+  Ren}]{sun2023chatgptsearch}
+Weiwei Sun, Lingyong Yan, Xinyu Ma, Shuaiqiang Wang, Pengjie Ren, Zhumin Chen,
+  Dawei Yin, and Zhaochun Ren. 2023.
+\newblock \href {https://doi.org/10.18653/v1/2023.emnlp-main.923} {Is
+  {C}hat{GPT} good at search? investigating large language models as re-ranking
+  agents}.
+\newblock In \emph{Proceedings of the 2023 Conference on Empirical Methods in
+  Natural Language Processing}, pages 14918--14937, Singapore. Association for
+  Computational Linguistics.
+
+\bibitem[{Wang et~al.(2025)Wang, Xia, Liao, Wang, and Liu}]{wang2025realm}
+Pinhuan Wang, Zhiqiu Xia, Chunhua Liao, Feiyi Wang, and Hang Liu. 2025.
+\newblock \href {https://doi.org/10.18653/v1/2025.emnlp-main.1218} {{REALM}:
+  Recursive relevance modeling for {LLM}-based document re-ranking}.
+\newblock In \emph{Proceedings of the 2025 Conference on Empirical Methods in
+  Natural Language Processing}, pages 23875--23889, Suzhou, China. Association
+  for Computational Linguistics.
+
+\bibitem[{Wisznia et~al.(2025)Wisznia, Bola{\~n}os, Tollo, Marraffini,
+  Gianolini, Hsueh, and Del~Corro}]{wisznia2025batchingcaching}
+Juan Wisznia, Cecilia Bola{\~n}os, Juan Tollo, Giovanni Franco~Gabriel
+  Marraffini, Agust{\'i}n~Andr{\'e}s Gianolini, Noe~Fabian Hsueh, and Luciano
+  Del~Corro. 2025.
+\newblock \href {https://doi.org/10.18653/v1/2025.acl-short.83} {Are optimal
+  algorithms still optimal? rethinking sorting in {LLM}-based pairwise ranking
+  with batching and caching}.
+\newblock In \emph{Proceedings of the 63rd Annual Meeting of the Association
+  for Computational Linguistics (Volume 2: Short Papers)}, pages 1064--1072,
+  Vienna, Austria. Association for Computational Linguistics.
+
+\bibitem[{Wu et~al.(2025)Wu, Shrivastava, Zhu, Samuel, Kumar, and
+  Liu}]{wu2025realtimeprp}
+Jingyu Wu, Aditya Shrivastava, Jing Zhu, Alfy Samuel, Anoop Kumar, and Daben
+  Liu. 2025.
+\newblock \href {https://doi.org/10.48550/arXiv.2511.07555} {Llm optimization
+  unlocks real-time pairwise reranking}.
+\newblock \emph{arXiv preprint arXiv:2511.07555}.
+
+\bibitem[{Yin et~al.(2025)Yin, Vardi, and Choudhary}]{yin2025fragile}
+Haonan Yin, Shai Vardi, and Vidyanand Choudhary. 2025.
+\newblock \href {https://doi.org/10.48550/arXiv.2506.14092} {Fragile
+  preferences: A deep dive into order effects in large language models}.
+\newblock \emph{arXiv preprint arXiv:2506.14092}.
+
+\bibitem[{Zhou et~al.(2025)Zhou, Luo, Feng, and Wang}]{zhou2025large}
+Yinxin Zhou, Qin Luo, Bin Feng, and Bang Wang. 2025.
+\newblock \href {https://doi.org/10.36227/techrxiv.176300630.01740917/v1}
+  {Large language models for reranking: A survey}.
+\newblock \url{https://doi.org/10.36227/techrxiv.176300630.01740917/v1}.
+\newblock TechRxiv preprint.
+
+\bibitem[{Zhu et~al.(2023)Zhu, Yuan, Wang, Liu, Liu, Deng, Chen, Liu, Dou, and
+  Wen}]{zhu2023llmir}
+Yutao Zhu, Huaying Yuan, Shuting Wang, Jiongnan Liu, Wenhan Liu, Chenlong Deng,
+  Haonan Chen, Zheng Liu, Zhicheng Dou, and Ji-Rong Wen. 2023.
+\newblock \href {https://doi.org/10.48550/arXiv.2308.07107} {Large language
+  models for information retrieval: A survey}.
+\newblock \emph{arXiv preprint arXiv:2308.07107}.
+
+\bibitem[{Zhuang et~al.(2024)Zhuang, Zhuang, Koopman, and
+  Zuccon}]{zhuang2024setwise}
+Shengyao Zhuang, Honglei Zhuang, Bevan Koopman, and Guido Zuccon. 2024.
+\newblock \href {https://doi.org/10.1145/3626772.3657813} {A setwise approach
+  for effective and highly efficient zero-shot ranking with large language
+  models}.
+\newblock In \emph{Proceedings of the 47th International ACM SIGIR Conference
+  on Research and Development in Information Retrieval (SIGIR '24)}, pages
+  38--47. ACM.
+
+\end{thebibliography}

@@ -1,0 +1,23 @@
+\section{Related Work}
+\label{sec:related-work}
+\paragraph{Benchmarks for Computer-Use Agents.}
+Prior benchmarks for computer-use agents fall into two main categories: static trajectory datasets and interactive task environments. Static datasets such as
+Mind2Web~\citep{deng2023mind2web} and Android in the Wild~\citep{rawles2023androidinthewild} provide broad coverage of web or mobile interfaces through human demonstrations, but primarily evaluate offline action
+prediction. Interactive benchmarks more directly evaluate agents through environment feedback, including OSWorld~\citep{xie2024osworld} and Windows Agent Arena~\citep{bonatti2024windows} for desktop operating-system tasks, BEARCUBS~\citep{song2025bearcubs}, RealWebAssist~\citep{ye2026realwebassist}
+for web tasks, WebArena~\citep{zhou2023webarena} and VisualWebArena~\citep{koh2024visualwebarena} for realistic web navigation, WorkArena~\citep{drouin2024workarena} and Scuba~\citep{dai2025scuba} for enterprise web workflows, and AndroidWorld~\citep{rawles2024androidworld} for mobile control.
+However, these benchmarks are still largely human-curated and often limited by the number of task instances, application domains, or manually written reward checks. In contrast, \ours focuses on scaling computer-use environment construction itself.
+
+
+\paragraph{Synthetic Environments for Agents.}
+Recent work increasingly treats environment construction as a key bottleneck for
+training interactive agents. In tool-use and function-calling settings,
+AgentScaler builds simulated, database-backed API environments~\citep{fang2025towards},
+Agent World Model scales code-driven multi-turn environments for RL~\citep{wang2026agent},
+and Simia uses reasoning models to simulate environment feedback~\citep{li2025simulating}.
+These systems demonstrate the value of scalable interactive worlds, but primarily target
+abstract APIs or model-simulated feedback rather than native desktop software. Concurrent work synthesizes GUI and computer-use environments: InfiniteWeb builds
+functional websites with task-centric tests~\citep{zhang2026infiniteweb}, GUI-Genesis
+reconstructs mobile apps into lightweight web environments with code-native rewards~\citep{cao2026gui},
+Gym-Anything~\citep{aggarwal2026gym} uses an agentic creation-and-audit loop across software applications,
+and TermiGen~\citep{zhu2026termigen} and Scale-SWE~\citep{zhao2026immersion} automate executable environments for terminal and software-engineering agents. OpenComputer differs by making synthesis reward-aware from the outset: each generated desktop task is paired with verifiable reward implemented as executable checkers over inspectable application state,
+rather than relying on visual proxies or LLM judgments.

@@ -1,0 +1,39 @@
+{
+  "arxiv_id": "2605.11609",
+  "arxiv_url": "https://arxiv.org/abs/2605.11609",
+  "title": "https://arxiv.org/abs/2605.11609",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #211",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/FloyedShen/AntiSD"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "arxiv.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "arxiv.tex",
+    "figures",
+    "figures/fig1a_overview.pdf",
+    "figures/fig_pass_k_hmmt.pdf",
+    "figures/fig2b_heatmap.pdf",
+    "figures/fig1b_qn_hmmt25.pdf",
+    "figures/fig_train_dynamics.pdf",
+    "figures/fig_failure_modes.pdf",
+    "figures/fig2a_trace_main_pid24_y20.pdf",
+    "neurips_2026.sty",
+    "refs.bib",
+    "tables",
+    "tables/continual_q4_table.tex",
+    "tables/continual_qn_table.tex",
+    "tables/main_table.tex",
+    "tables/code_table.tex",
+    "tables/ablation_q4_table.tex",
+    "tables/ablation_qn_table.tex"
+  ]
+}

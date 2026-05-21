@@ -1,0 +1,76 @@
+\section{Analysis}
+\label{sec:analysis}
+\subsection{Agentic LLM-as-Judge vs. Hard-Coded Verification}
+\label{sec:llm-as-judge-comparison}
+We use LLM-as-judge as a two-stage agentic pipeline. The judge first reads the
+reasoning and action trace to identify a small set of steps that are most
+likely to contain evidence for each criterion. It then scores each criterion
+from these steps' corresponding screenshots, with the option to retrieve more screenshots when existing ones are not sufficient. This setup makes long trajectories tractable to
+inspect and is useful for diagnosing failures during task synthesis.
+To quantify the gap between these two evaluation strategies, we sample 120
+tasks and send the same completed trajectories to human annotators. We then
+score the 120 trajectories with two automated evaluators: an LLM judge and our
+final hard-coded verifier. We use the same per-item checklist for both methods.
+For each task, the item-level decisions are aggregated into a task-level
+verdict, and we compare that verdict against the human label. 
+
+\input{figure/compare_with_llm_as_judge.tex}
+Figure~\ref{fig:judge-vs-checker-human-alignment}
+shows that the hard-coded verifier aligns much better with human judgment at
+both levels: it matches human verdicts on 113 out of 120 tasks, whereas the LLM
+judge reaches 95 out of 120, and it also achieves higher per-item checklist
+agreement with human annotations (97.3\% versus 92.2\%).
+In dense
+desktop interfaces, semantically important mistakes are often visually tiny: a
+model may type two tokens into one spreadsheet cell instead of two adjacent
+cells, apply a formatting change to the wrong selection, or edit a field inside a collapsed panel that is only partially visible. These runs can look approximately correct from pixels alone. A hard-coded verifier instead reads the exact application state and can thus distinguish near-miss visual outputs from true task completion.
+
+The gap is even larger for applications with heavy terminal usage or agents with mixed action spaces. In environments such as Blender or developer tools, success often depends on scrollback logs or intermediate artifacts that are not simultaneously visible on screen. An LLM judge only sees a narrow window of
+the terminal and must infer the rest from partial evidence, while a programmatic verifier can directly inspect post-execution application state. Appendix~\ref{app:llm-as-judge-problem} presents two concrete visual examples of these failure modes.
+
+% Overall, LLM-as-judge is valuable as a debugging signal: it helps us detect
+% whether a criterion is underspecified or whether a verifier is reading the wrong
+% application state. Hard-coded verifiers remain necessary for final benchmark
+% evaluation because they are auditable, reproducible, and sensitive to the exact
+% state that the task requires.
+
+
+
+\subsection{Comparing GUI Agents with CLI Agents}
+Because \ours verifies final application state rather than a particular interaction trace, it can in principle evaluate agents that reach the same target state through different control interfaces. We therefore compare GUI and CLI agents on a shared CLI-compatible subset to test whether \ours’s verifier-grounded tasks transfer beyond screenshot-action GUI control, and to quantify the trade-off between visual grounding and programmatic execution efficiency.
+Since many OpenComputer applications are inherently GUI-centric and cannot be meaningfully executed from a terminal alone, we
+construct a controlled subset by removing applications whose tasks are not
+suitable for CLI execution. This leaves 14 applications and 343 tasks that are
+compatible with both GUI and CLI settings. For the CLI setting, we use Claude
+Sonnet 4.6 with Claude Code, where the agent can combine CLI-Anything skills~\citep{hkuds2026clianything},
+Bash commands, and Python scripts to inspect files, manipulate artifacts, and
+execute application-specific operations.
+
+\input{figure/gui_and_cli}
+Table~\ref{tab:gui_cli_overall} shows the comparison. On this shared subset,
+GUI agents still achieve higher pass rates than the CLI agent. This suggests that even when tasks are selected to be CLI-solvable, visual interaction provides useful grounding for many desktop workflows. At the same time, the CLI agent is substantially faster. Claude Code completes
+tasks in 141 seconds on average, compared with 288 seconds for GPT-5.4 GUI
+control and 622 seconds for Claude Sonnet 4.6 GUI control. This reflects the efficiency advantage of command-line
+execution: the agent can bypass slow screenshot-action interaction loops and directly manipulate files, run scripts, or invoke application-level tools.
+\subsection{Ablation: Self-Evolving Verification}
+\input{figure/ablation_of_self_evolving.tex}
+We ablate the contribution of the self-evolving verification layer by measuring how often it can
+identify and repair checker-side errors. We generate 450 simple calibration tasks and run the
+self-evolution procedure with a maximum repair budget of three iterations per task. These tasks are
+used only to probe verifier reliability, not to measure agent capability.
+
+Among the
+450 calibration executions, 159 tasks exhibit at least one disagreement between the programmatic
+checker and the reference evaluation. After categorizing the disagreement source, we find that
+76 cases are attributable to checker-side errors rather than agent failures.
+The self-evolution procedure repairs 68 of these 76 checker-side cases, corresponding to an 89.4\%
+repair rate.
+
+Table~\ref{tab:self_evolution_rounds} further breaks down the repair process. Most checker-side
+errors are fixed quickly: 47 cases are repaired after one iteration, 15 after two iterations, and only
+6 require the full three-iteration budget. The remaining 8 cases are not resolved within the budget.
+We compare the pre- and post-evolution checkers on the
+same 120-task human-annotated comparison set used in
+Section~\ref{sec:llm-as-judge-comparison}. As a result, human-checker agreement improves from 85.2\% before self-evolution to 94.1\% after
+self-evolution. This suggests that the self-evolving layer provides a useful debugging signal for
+improving verifier reliability while preserving programmatic, auditable evaluation.

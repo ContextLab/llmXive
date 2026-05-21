@@ -1,0 +1,765 @@
+% \newpage
+
+\section{Full Stage Definitions}
+\label{app:stages}
+
+Table~\ref{tab:all_stages} provides the complete specification of all 23 pipeline
+stages. The 23-stage design reflects a tension between granularity and overhead.
+Early prototypes used a coarser 12-stage pipeline, but bundling too many
+responsibilities into a single LLM call (\eg{} ``search the literature, screen it,
+and extract knowledge'' as one stage) led to poor intermediate quality that
+compounded downstream. Conversely, very fine-grained pipelines (we experimented
+with 30+) incurred excessive context-reconstruction overhead. The current 23-stage
+design was arrived at iteratively. Each stage defines a formal \emph{contract}: a
+JSON schema specifying required input fields (with types and validation), expected
+output fields, acceptance criteria (\eg{} ``at least 2 hypotheses must be marked
+falsifiable''), and an error-code namespace (\eg{} \texttt{E-HYPO-*}).
+
+\begin{table}[h]
+\centering
+\caption{Complete 23-stage pipeline specification.}
+\label{tab:all_stages}
+\small
+\begin{tabular}{@{}c l l l@{}}
+\toprule
+\textbf{\#} & \textbf{Stage Name} & \textbf{Key Output} & \textbf{Special} \\
+\midrule
+1 & \textsc{Topic\_Init} & SMART goal, hardware profile & Domain detect \\
+2 & \textsc{Problem\_Decompose} & Problem tree & \\
+3 & \textsc{Search\_Strategy} & Search queries, sources.json & \\
+4 & \textsc{Literature\_Collect} & candidates.jsonl & API calls \\
+5 & \textsc{Literature\_Screen} & Shortlisted papers & HITL Gate \\
+6 & \textsc{Knowledge\_Extract} & Knowledge cards & \\
+7 & \textsc{Synthesis} & Gap analysis & \\
+8 & \textsc{Hypothesis\_Gen} & 2--4 hypotheses & Debate ($K{=}3$) \\
+9 & \textsc{Experiment\_Design} & exp\_plan.yaml + benchmarks & HITL Gate \\
+10 & \textsc{Code\_Generation} & Multi-file experiment code & Cascade$^\dagger$ \\
+11 & \textsc{Resource\_Planning} & Time/resource estimates & \\
+12 & \textsc{Experiment\_Run} & results.json per condition & Docker sandbox \\
+13 & \textsc{Iterative\_Refine} & Improved code + metrics & Self-heal \\
+14 & \textsc{Result\_Analysis} & analysis.md + charts & Debate ($K{=}3$) \\
+15 & \textsc{Research\_Decision} & \textsc{Proceed}/\textsc{Refine}/\textsc{Pivot} & Decision \\
+16 & \textsc{Paper\_Outline} & Section outline & \\
+17 & \textsc{Paper\_Draft} & Full paper draft & Verified tables \\
+18 & \textsc{Peer\_Review} & Review feedback & Multi-agent \\
+19 & \textsc{Paper\_Revision} & Revised paper & Length guard \\
+20 & \textsc{Quality\_Gate} & quality\_report.json & HITL Gate \\
+21 & \textsc{Knowledge\_Archive} & Lessons extracted & Noncritical \\
+22 & \textsc{Export\_Publish} & \LaTeX{} + sanitized BibTeX & Anti-fabrication \\
+23 & \textsc{Citation\_Verify} & verification\_report.json & 4-layer API \\
+\bottomrule
+\end{tabular}
+\vspace{0.3em}
+
+\noindent{\footnotesize $^\dagger$Cascade: Beast Mode (external AI agent) $\to$ CodeAgent (multi-phase,
+blueprint, sequential, AST gates) $\to$ Legacy single-shot. Each tier falls back
+to the next on failure.}
+\end{table}
+
+\begin{algorithm}[t]
+\caption{\system{}: Autonomous Research Pipeline with Domain-Aware Routing}
+\label{alg:pipeline}
+\small
+\begin{algorithmic}[1]
+\REQUIRE Research idea $\mathcal{I}$, lesson store $\mathcal{L}$, max pivots $N_p{=}2$, max refines $N_r{=}10$
+\ENSURE Verified paper $\mathcal{P}$, updated lesson store $\mathcal{L}'$
+\STATE Detect hardware profile; detect research domain $D$ via three-level cascade
+       (forced override $\to$ keyword matching $\to$ LLM classification)
+\STATE Select domain prompt bank $\mathcal{B}(D)$; instantiate \textsc{PromptManager}$(D)$
+       and domain adapter $\mathcal{A}(D)$; inject relevant lessons from $\mathcal{L}$
+\STATE Scope topic from $\mathcal{I}$ using $\mathcal{B}(D)$.\textsc{topic\_init};
+       retrieve \& screen literature; synthesise knowledge cards
+\STATE $n_p \gets 0$
+\REPEAT
+    \STATE \textbf{[Debate]} $K{=}3$ domain-specialised agents via $\mathcal{A}(D)$.\texttt{debate\_roles\_hypothesis}
+           $\to$ hypotheses $\mathcal{H}$ (e.g.\ Innovator/Pragmatist/Contrarian for ML;
+           Theorist/Phenomenologist/Experimentalist for HEP-ph)
+    \STATE Design experiments from $\mathcal{H}$ with $\mathcal{A}(D)$-injected condition
+           terminology, paradigm constraints, and compute budget
+    \STATE Score complexity $c$; select generator via cascade (Beast\,$\to$\,Agent\,$\to$\,Legacy)
+    \STATE Validate code: AST checks, import verification, ablation-identity detection
+    \STATE $n_r \gets 0$
+    \REPEAT
+        \STATE Execute in Docker sandbox (three-phase network isolation) with
+               domain-specific image and pre-cached datasets
+        \WHILE{experiment fails \AND repair budget remains}
+            \STATE Parse failure signature; generate targeted fix; re-execute
+        \ENDWHILE
+        \STATE \textbf{[Debate]} $K{=}3$ agents via $\mathcal{A}(D)$.\texttt{debate\_roles\_analysis}
+               $\to$ result analysis
+        \STATE Decide $d \in \{\textsc{Proceed}, \textsc{Refine}, \textsc{Pivot}\}$; $n_r \gets n_r + 1$
+    \UNTIL{$d \neq \textsc{Refine}$ \OR $n_r \geq N_r$}
+    \STATE $n_p \gets n_p + 1$
+\UNTIL{$d \neq \textsc{Pivot}$ \OR $n_p \geq N_p$}
+\STATE Build verified registry $\mathcal{R}$ from experiment results
+\STATE Draft paper with pre-built tables from $\mathcal{R}$ using $\mathcal{A}(D)$.\texttt{preferred\_template};
+       review $\to$ revise
+\STATE Verify: reject if unverified numbers appear in strict sections
+\STATE Verify citations via 4-layer API pipeline (CrossRef, OpenAlex, arXiv, S2)
+\STATE Extract lessons; update $\mathcal{L} \to \mathcal{L}'$ with time-decayed weights
+\RETURN $\mathcal{P}$ with verification reports
+\end{algorithmic}
+\end{algorithm}
+
+% \section{Prompt Design}
+% \label{app:prompts}
+
+% The prompt system is organized into three layers. The \emph{primary layer} defines 23 stage-specific prompts, each with a system message, a user template, an optional \texttt{json\_mode} flag, and a \texttt{max\_tokens} override. The \emph{reusable block layer} provides shared text fragments (\texttt{academic\_style\_guide}, \texttt{anti\_hedging\_rules}, \texttt{writing\_structure}, \texttt{dataset\_guidance}, \texttt{hp\_reporting}) injected into multiple stages to enforce consistent writing quality and experimental rigor. The \emph{sub-prompt layer} defines specialized prompts for intra-stage operations: \texttt{architecture\_planning}, \texttt{generate\_single\_file}, \texttt{code\_repair}, \texttt{hypothesis\_synthesize}, \texttt{analysis\_synthesize}, \texttt{iterative\_improve}. Total prompt text is approximately 46K tokens. Users can override any prompt via \texttt{prompts.default.yaml}; the manager safely renders \texttt{\{word\_chars\}} placeholders while leaving JSON syntax untouched. Section-level word-count targets are enforced post-generation: abstract 150--200, introduction 800--1000, related work 600--800, method 1000--1500, experiments 800--1200, results 600--800, discussion 400--600, conclusion 200--300.
+
+\section{Prompt Design}
+\label{app:prompts}
+
+\subsection{Prompt Architecture}
+\label{app:prompt-arch}
+
+The prompt system is organised into three nested layers.
+
+\paragraph{Primary layer.}
+Twenty-three stage-specific prompts, each comprising a system message, a structured user template, an optional \texttt{json\_mode} flag, and a \texttt{max\_tokens} override.
+Section-level word-count targets are enforced post-generation: abstract 150--200, introduction 800--1000, related work 600--800, method 1000--1500, experiments 800--1200, results 600--800, discussion 400--600, conclusion 200--300.
+
+\paragraph{Reusable block layer.}
+Shared text fragments injected into multiple stages to enforce consistent writing quality and experimental rigour: \texttt{academic\_style\_guide}, \texttt{anti\_hedging\_rules}, \texttt{writing\_structure}, \texttt{dataset\_guidance}, and \texttt{hp\_reporting}.
+
+\paragraph{Sub-prompt layer.}
+Specialised prompts for intra-stage operations: \texttt{architecture\_planning}, \texttt{generate\_single\_file}, \texttt{code\_repair}, \texttt{hypothesis\_synthesize}, \texttt{analysis\_synthesize}, and \texttt{iterative\_improve}.
+Total prompt text across all three layers is approximately 46K tokens.
+Users can override any prompt via \texttt{prompts.default.yaml}; the \textsc{PromptManager} safely renders \texttt{\{word\_chars\}} placeholders while leaving JSON schema syntax untouched.
+
+\paragraph{Domain-aware prompt selection.}
+The \textsc{PromptManager} accepts a \texttt{domain} argument at instantiation and selects the corresponding stage bank.
+Two native banks exist: an ML bank (default) and a HEP-ph phenomenology bank.
+All other domains receive the ML bank augmented with a domain-adapter overlay.
+Both banks expose the same 23 stage keys and the same \texttt{\{placeholder\}} variables, enforced by a parity test suite, so all downstream pipeline logic is bank-agnostic.
+
+Domain detection runs a three-level cascade at pipeline start.
+\emph{Level~0}: a forced override via \texttt{project.profile} in \texttt{config.yaml} skips all detection and ensures cross-stage consistency.
+\emph{Level~1}: fast keyword matching against 350+ domain-specific rules ordered most-specific-first.
+\emph{Level~2}: LLM classification for topics not resolved by keywords, outputting one of 24 domain IDs.
+\emph{Level~3}: generic \texttt{\_generic.yaml} fallback.
+
+Beyond the two native banks, \system{} supports 20+ domains through a profile-and-adapter system in \texttt{researchclaw/domains/}.
+Each domain profile (a YAML file) specifies the experiment paradigm, condition terminology, standard baselines, typical file structure, core libraries, Docker image, metric types, statistical tests, output formats, and prompt guidance blocks.
+Each domain adapter injects domain-specific content into stage prompts via \texttt{\{domain\_context\}} and related placeholders.
+Table~\ref{tab:domain-support} lists domains with complete end-to-end configuration.
+
+\begin{table}[h]
+\centering
+\caption{Domain support matrix. \emph{Bank}: native 23-stage prompt bank. \emph{Profiles}: YAML profiles with experiment-paradigm configuration. \emph{Adapter}: Python adapter with stage-level prompt injection. \emph{Template}: preferred journal \LaTeX{} template.}
+\label{tab:domain-support}
+\small
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Domain} & \textbf{Bank} & \textbf{Profiles} & \textbf{Adapter} & \textbf{Template} \\
+\midrule
+Machine Learning        & ML            & 8  & \checkmark & NeurIPS/ICML/ICLR \\
+High-Energy Physics     & HEP-ph        & 1  & \checkmark & JHEP / PRD \\
+Computational Biology   & Bio  & 3  & \checkmark & Bioinformatics \\
+Computational Chemistry & Chem  & 2  & \checkmark & JCTC / JCIM \\
+Theoretical Physics     & Phy  & 1  & \checkmark & PRX / J.\ Comp.\ Phys. \\
+Empirical Economics     & ML + adapter  & 1  & \checkmark & AER / JEEA \\
+Mathematics             & ML + adapter  & 2  & \checkmark & Math.\ Comp. \\
+Computational Neuroscience & ML + adapter & 1 & \checkmark & PLoS Comp.\ Bio. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Domain-differentiated debate roles.}
+The most consequential domain-level difference is in multi-agent debate personas.
+For hypothesis generation (Stage~8), the ML bank uses \emph{Innovator} (cross-domain analogies, high-risk hypotheses), \emph{Pragmatist} (computational feasibility, incremental gains), and \emph{Contrarian} (challenges assumptions, finds failure modes).
+The HEP-ph bank replaces these with \emph{Theorist} (BSM Lagrangians, symmetries, UV completions), \emph{Phenomenologist} (testable observable signatures, analytical cross-section estimates), and \emph{Experimentalist} (detector acceptances, background shapes, overlooked systematics).
+For result analysis (Stage~14), ML uses Optimist / Skeptic / Methodologist; HEP-ph uses Model-Builder / Phenomenologist / Experimentalist, with all verdicts stated in natural units with explicit experimental bound citations.
+
+\subsection{Per-Stage Prompt Breakdown}
+\label{app:prompt-stages}
+
+Table~\ref{tab:ml-prompts} lists all 23 ML-bank stages with their system role, key prompt requirements, and output format.
+The full bank is approximately 28K tokens.
+Two stages with the highest prompt engineering load are detailed below the table.
+
+\begin{table}[htbp]
+\centering
+\caption{ML prompt bank: per-stage system role, key user requirements, and output format.}
+\label{tab:ml-prompts}
+\small
+\begin{tabular}{@{}clp{5.5cm}l@{}}
+\toprule
+\textbf{\#} & \textbf{Stage} & \textbf{Key requirements} & \textbf{Output} \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Phase A: Research Scoping}} \\
+1 & \textsc{Topic\_Init}
+  & Novel angle, SMART goal, trend validation, benchmark specification
+  & Markdown \\
+2 & \textsc{Problem\_Decompose}
+  & $\geq$4 prioritised sub-questions, risks
+  & Markdown \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Phase B: Literature Discovery}} \\
+3 & \textsc{Search\_Strategy}
+  & Merged search plan, source manifest
+  & JSON \\
+4 & \textsc{Literature\_Collect}
+  & $\geq$8 candidate papers with abstract, year, source
+  & JSON \\
+5 & \textsc{Literature\_Screen}
+  & Domain-match filter, recency preference, quality floor
+  & JSON \\
+6 & \textsc{Knowledge\_Extract}
+  & Structured knowledge cards: problem, method, data, metrics, findings
+  & JSON \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Phase C: Knowledge Synthesis}} \\
+7 & \textsc{Synthesis}
+  & Cluster overview, gap list, prioritised opportunities
+  & Markdown \\
+8 & \textsc{Hypothesis\_Gen}
+  & $\geq$2 falsifiable hypotheses; novelty argument, measurable prediction, failure condition, required baselines
+  & Markdown \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Phase D: Experiment Design}} \\
+9 & \textsc{Experiment\_Design}
+  & YAML plan: objectives, datasets, baselines, proposed methods, ablations, metrics, risks, compute budget
+  & YAML \\
+10 & \textsc{Code\_Generation}
+  & Multi-file Python; algorithm integrity; calibration loop; PyTorch detach rules; condition breadth-first ordering
+  & Multi-file code \\
+11 & \textsc{Resource\_Planning}
+  & GPU/CPU time estimates, parallelism plan, fallback strategy
+  & JSON \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Phase E: Experiment Execution}} \\
+12 & \textsc{Experiment\_Run} & Execution stage; no LLM call & \emph{metrics.json} \\
+13 & \textsc{Iterative\_Refine}
+  & Targeted fix based on failure signature; repair budget tracking
+  & Patched code \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Phase F: Analysis \& Decision}} \\
+14 & \textsc{Result\_Analysis}
+  & Per-hypothesis verdict; effect sizes; methodology audit; quality rating 1--10; $K{=}3$ debate consensus
+  & Markdown \\
+15 & \textsc{Research\_Decision}
+  & \textsc{Proceed} / \textsc{Refine} / \textsc{Pivot} with evidence-based justification
+  & Markdown \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Phase G: Paper Writing}} \\
+16 & \textsc{Paper\_Outline}
+  & Section structure, 3 title candidates, per-section content plan
+  & Markdown \\
+17 & \textsc{Paper\_Draft}
+  & Full 8--10 page draft; verified-registry tables only; no fabricated numbers in strict sections
+  & Markdown \\
+18 & \textsc{Peer\_Review}
+  & $\geq$3 reviewer perspectives; soundness, novelty, presentation, significance
+  & Markdown \\
+19 & \textsc{Paper\_Revision}
+  & Point-by-point response to reviews; section-length guard
+  & Markdown \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Phase H: Finalization}} \\
+20 & \textsc{Quality\_Gate} & Quality report; noncritical warnings do not block & JSON \\
+21 & \textsc{Knowledge\_Archive} & Lesson extraction; time-decayed update & Markdown \\
+22 & \textsc{Export\_Publish}
+  & \LaTeX{} + sanitised BibTeX; domain-template selection; anti-fabrication pass
+  & \LaTeX{} \\
+23 & \textsc{Citation\_Verify}
+  & 4-layer API pipeline; reject unresolvable DOI in strict sections
+  & JSON \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{tcolorbox}[
+  title={Stage~1 Deep Dive: \textsc{Topic\_Init}},
+  colback=blue!3!white,
+  colframe=blue!50!black,
+  fonttitle=\bfseries\small,
+  breakable,
+  label={box:stage1-prompt},
+]
+Stage~1 illustrates the prompt structure shared across all stages.
+The \emph{system} message defines the agent role and novelty principles:
+
+\smallskip
+\begin{quote}\small\itshape
+``You are a rigorous research planner who identifies NOVEL, TIMELY research angles.
+You follow recent trends from top venues in the relevant domain and propose research that advances the frontier rather than repeating known results.
+NOVELTY PRINCIPLES: A good research angle addresses a GAP not yet covered by existing work.
+Avoid pure benchmark/comparison studies unless the methodology is novel.
+The research must be FEASIBLE with limited compute (single GPU, hours not days).
+Check: would a reviewer say `this is already well-known'? If so, find a sharper angle.''
+\end{quote}
+\smallskip
+
+The \emph{user} template is parameterised by \texttt{\{topic\}}, \texttt{\{domains\}}, \texttt{\{project\_name\}}, and \texttt{\{quality\_threshold\}}, and requires six output sections:
+\textbf{Topic}, \textbf{Novel Angle} (specific unexplored aspect with trend validation---no fabricated paper titles), \textbf{Scope}, \textbf{SMART Goal}, \textbf{Constraints}, and \textbf{Success Criteria}.
+\end{tcolorbox}
+
+\begin{tcolorbox}[
+  title={Stage~10 Deep Dive: \textsc{Code\_Generation}},
+  colback=blue!3!white,
+  colframe=blue!50!black,
+  fonttitle=\bfseries\small,
+  breakable,
+  label={box:stage10-prompt},
+]
+Stage~10 carries the highest prompt engineering load at approximately 1700 lines of specification.
+Four mandatory requirements are enforced at prompt level.
+
+\smallskip
+\noindent\textbf{Algorithm integrity.}
+A method labelled ``Bayesian Optimisation'' must include a surrogate model, acquisition function, and model updates.
+A method labelled ``PPO'' must include a clipped surrogate objective, learned value baseline, and \texttt{clip\_eps} in the loss.
+Dead parameters (declared but never consumed) are forbidden.
+
+\smallskip
+\noindent\textbf{Calibration loop.}
+A pilot run (3--5 seeds, 2 conditions) checks that the primary metric has nonzero variance across conditions.
+If all conditions score identically, the system prints \texttt{WARNING: DEGENERATE\_METRICS} and applies difficulty adjustments before the full run proceeds.
+
+\smallskip
+\noindent\textbf{PyTorch detach rules.}
+Any tensor from a previous forward pass used in the current loss must be \texttt{.detach()}'d.
+This prevents the ``backward through the graph a second time'' crash that causes near-total failure in naive RL implementations.
+
+\smallskip
+\noindent\textbf{Condition breadth-first ordering.}
+One repetition per condition executes before any parameter sweep begins, so partial completions remain scientifically informative if execution is interrupted.
+\end{tcolorbox}
+
+\section{Sandbox Security Model}
+\label{app:sandbox}
+
+Each experiment executes inside a dedicated Docker container that is automatically removed after execution (\texttt{-{}-rm}). The container runs as the host user's UID:GID (not root). Resource limits: 8~GB memory, 2~GB shared memory, configurable wall-clock timeout (default 300--600~s). The Docker image pre-installs 80+ scientific Python packages including PyTorch (with torchvision, torchaudio, torchdiffeq), transformers, datasets, accelerate, gymnasium, scipy, sklearn, pandas, seaborn, networkx, timm, einops, albumentations, kornia. Frequently used datasets (CIFAR-10, CIFAR-100, FashionMNIST) are pre-cached as read-only mounts at \texttt{/opt/datasets}.
+
+\paragraph{Three-phase network model.} The sandbox implements four network policies, with \texttt{setup\_only} as the default. Phase~0 (Dependency Installation) and Phase~1 (Data Acquisition) enable network access; Phase~2 (Experiment Execution) disables network via \texttt{iptables} rules applied inside the container before the experiment script starts. Alternative policies are \texttt{none}, \texttt{full}, and \texttt{pip\_only}.
+
+\paragraph{Code validation pipeline.} (1) AST parsing for syntactic correctness; (2) AST security checks for forbidden function calls (\texttt{os.system}, \texttt{os.popen}, \texttt{subprocess.run}, \texttt{shutil.rmtree}) and banned builtins (\texttt{eval}, \texttt{exec}, \texttt{compile}, \texttt{\_\_import\_\_}); (3) module blacklist (\texttt{subprocess}, \texttt{socket}, \texttt{http}, \texttt{urllib}, \texttt{requests}, \texttt{ftplib}, \texttt{smtplib}, \texttt{ctypes}, \texttt{signal}); (4) import validation against an allowlist. Violations are classified as errors (block) or warnings (log). The evaluation harness (\texttt{report\_metric()}, \texttt{finalize()}) is injected as a read-only Python module.
+
+% \section{ARC-Bench Details}
+% \label{app:arcbench}
+% \label{app:arcbench-pertopic}
+
+% \paragraph{Topic list.} ARC-Bench T01--T25 covers tabular ML (T01 dropout calibration, T09 RandomForest tuning, T15 feature selection, T19 semi-supervised learning), optimization and search (T03 gradient-free optimization, T13 GP kernel choice, T21 causal discovery), dimensionality reduction (T05), text and topic models (T07 text feature extraction, T17 topic modeling), anomaly detection (T11), learning-to-rank (T23), AutoML/hyperparameter tuning (T09), and dynamical systems (T25 reservoir computing on Lorenz-63). The full topic specifications are released with the benchmark in \texttt{topics.yaml}.
+
+% \paragraph{Rubrics.} Each topic ships with a \texttt{rubrics/T*.json} that decomposes scoring into Code Execution and Result Analysis leaves. Result Analysis leaves typically map to per-hypothesis verdicts (H1/H2/H3) and to limitations/scope discipline. Under results-only mode, Code Development leaves are explicitly set to \texttt{null} and excluded from weighted aggregation.
+
+% \paragraph{Judge.} The LLM judge reads \texttt{stage-14/experiment\_summary.json} (or the \texttt{summary} field embedded in \texttt{submission/results/metrics.json}), \texttt{submission/README.md}, and \texttt{judge\_debug.json}'s \texttt{injected\_artifact\_metadata}. Inputs are capped at 8000 chars (summary) and 6000 chars (README). The judge does not read code in results-only mode.
+
+% \paragraph{Per-topic results (audit subset).} Table~\ref{tab:arcbench-pertopic} reports per-topic results for the 9-topic odd audit subset. Source run identifiers and the additional sanity-check topics (T11, T15, T21, T23) are summarized in Table~\ref{tab:arcbench-sanity}. Across the 4 sanity-check topics, RC wins 3/4 strictly and ties on T23 (0.400/0.400).
+
+% \begin{table}[h]
+% \centering
+% \caption{ARC-Bench per-topic scores on the 9-topic audit subset. RC wins all 9.}
+% \label{tab:arcbench-pertopic}
+% \small
+% \begin{tabular}{@{}clrrr@{}}
+% \toprule
+% \textbf{Topic} & \textbf{Research question} & \textbf{RC} & \textbf{AISv2} & \textbf{$\Delta$} \\
+% \midrule
+% T01 & Dropout regularization \& calibration & 0.575 & 0.463 & +0.113 \\
+% T03 & Gradient-free optimization (NM, Powell, CMA-ES) & 0.325 & 0.275 & +0.050 \\
+% T05 & PCA / t-SNE / UMAP for cluster preservation & 0.412 & 0.387 & +0.025 \\
+% T07 & Text feature extraction (TF-IDF / Hashing / Count) & 0.863 & 0.175 & +0.688 \\
+% T09 & RandomForest tuning (grid / random / Bayes) & 0.589 & 0.256 & +0.333 \\
+% T13 & GP kernel choice on 1-D / 5-D & 0.475 & 0.275 & +0.200 \\
+% T17 & Topic modeling (LDA / NMF / LSA) & 0.750 & 0.300 & +0.450 \\
+% T19 & Semi-supervised learning at 10\% labels & 0.637 & 0.112 & +0.525 \\
+% T25 & Reservoir computing (ESN / MLP / GP) on Lorenz-63 & 0.320 & 0.140 & +0.180 \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+% \begin{table}[h]
+% \centering
+% \caption{ARC-Bench sanity-check topics (not expanded to full audit depth).}
+% \label{tab:arcbench-sanity}
+% \small
+% \begin{tabular}{@{}clrrr@{}}
+% \toprule
+% \textbf{Topic} & \textbf{Research question} & \textbf{RC} & \textbf{AISv2} & \textbf{$\Delta$} \\
+% \midrule
+% T11 & Anomaly detection (ROC-AUC / PR-AUC / runtime) & 0.575 & 0.262 & +0.312 \\
+% T15 & Feature selection vs.\ noise injection & 0.650 & 0.387 & +0.263 \\
+% T21 & Causal discovery (PC / GES / NOTEARS) & 0.450 & 0.175 & +0.275 \\
+% T23 & Learning-to-rank (NDCG@10 / MAP@10) & 0.400 & 0.400 & +0.000 \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+% \paragraph{Source-run manifest.} The 9-topic audit uses RC runs \texttt{ab-rc\_full-T*-20260419/20260420-*} and AISv2 runs from \texttt{20260420--20260421}. The full manifest, including run timestamps and configuration files, is shipped with the benchmark.
+
+% \section{Judge and Rubric Issues}
+% \label{app:judge-issues}
+
+% The results-only judge has known limitations that we disclose to support reproducibility and follow-up auditing.
+
+% \paragraph{(i) README-to-summary traceability.} Several topics expose gaps where the README reports values not present in \texttt{experiment\_summary.json}. T09 reports test-accuracy claims while the summary emphasizes \texttt{best\_cv\_score}. T25 reports MLP/GP and $N{=}2000$ values while only \texttt{esn\_N200} appears in the summary. We propose adding a deterministic cross-check that demands README numbers be machine-traceable to summary metrics. Unsupported entries should receive little or no credit.
+
+% \paragraph{(ii) Implementation-truth blind spot.} Results-only judging cannot certify protocol-level correctness (true MC-dropout stochastic forward passes, CMA-ES vs.\ random, Bayesian-vs-grid distinctness, semi-supervised label masking, VPT first-crossing). We recommend separating \texttt{execution\_artifact} leaves (machine-readable grids, seeds, runtime) from \texttt{execution\_protocol} leaves (semantic correctness), and labeling protocol leaves \texttt{not\_evaluated} under results-only.
+
+% \paragraph{(iii) Seed dispersion thresholds.} Rubric language often says ``more seeds are better,'' but practice rewards $\geq 5$. We recommend a banded scale: 1 seed (0.0--0.3), 3 seeds + std (0.5--0.7), $\geq 5$ seeds + std/CI (1.0).
+
+% \paragraph{(iv) Topic-difficulty calibration.} T25 demands ESN+MLP+GP $\times$ multi-$N$ sweep within a 300--600~s budget; partial-grid credit (\texttt{all\_three\_methods\_one\_N}, \texttt{one\_method\_multi\_N}, \texttt{full\_grid}) would stabilize scoring without easing the topic.
+
+% \paragraph{(v) Truncation and schema mismatch.} The judge's \texttt{\_SUMMARY\_CAP} of 8000 characters can truncate complex topics. Replacing raw JSON with a deterministically generated compact table (condition $\times$ dataset $\times$ seed $\times$ metric) would reduce judge variance. It would also reduce schema-mismatch penalties for AISv2, since AISv2 uses \texttt{baseline} and \texttt{research\_best} naming while RC uses ARC-style condition keys.
+
+% \paragraph{(vi) Style bias.} RC writeups are usually rubric-aware replication reports while AISv2 writeups are research-narrative-style. Some of RC's apparent advantage may reflect adapter/finalizer style alignment with the rubric. A blind, normalized-writeup or metric-table-only judge would be a useful ablation.
+
+\section{ARC-Bench Details}
+\label{app:arcbench}
+
+\subsection{Benchmark Architecture}
+\label{app:arcbench-arch}
+
+\paragraph{Topic specification.}
+ARC-Bench consists of 25 CPU-executable ML research topics (T01--T25).
+Topics T01--T10 are shared with the HITL ablation, enabling end-to-end scenario from idea to paper.
+Each topic is a YAML entry in \texttt{config/topics.yaml} with five fields: \texttt{id}, \texttt{topic}, \texttt{domains}, \texttt{metric\_key}, and \texttt{metric\_direction}.
+Topic selection criteria: (1)~CPU-executable in under 10~minutes on a single core using standard \texttt{numpy}/\texttt{scipy}/\texttt{sklearn} primitives; (2)~involves a genuine scientific comparison with at least two distinct algorithmic approaches; (3)~produces structured quantitative output that an LLM judge can evaluate without code execution.
+
+\paragraph{Topic list.}
+\begin{table}[htbp]
+\centering
+\caption{ARC-Bench topic list (T01--T25).}
+\label{tab:arcbench-topics}
+\small
+\begin{tabular}{@{}clp{7cm}l@{}}
+\toprule
+\textbf{ID} & \textbf{Topic} & \textbf{Algorithms / Methods} & \textbf{Primary Metric} \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Tabular ML}} \\
+T01 & Dropout regularisation    & MC-Dropout, standard Dropout, no Dropout        & ECE / Accuracy \\
+T02 & Ensemble methods          & Bagging, Boosting, Stacking                     & Accuracy \\
+T04 & Feature scaling on KNN    & StandardScaler, MinMax, Robust, None            & Accuracy \\
+T08 & Class imbalance handling  & SMOTE, class weights, threshold tuning          & F1 (macro) \\
+T09 & RandomForest tuning       & Grid search, random search, Bayes               & CV score \\
+T10 & Cross-validation          & K-fold, stratified, leave-one-out              & Accuracy \\
+T14 & Sparse linear models      & Lasso, ElasticNet                               & MSE \\
+T15 & Feature selection         & SelectKBest, RFE, noise injection               & Accuracy \\
+T18 & Transfer learning         & Fine-tune, feature extract, from scratch        & Accuracy \\
+T19 & Semi-supervised learning  & Label propagation, self-training (10\% labels)  & Accuracy \\
+T20 & Active learning           & Uncertainty, margin, random sampling            & Accuracy \\
+T22 & Multi-label classification & BR, CC, label powerset                         & F1 (micro) \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Optimisation \& Search}} \\
+T03 & Gradient-free optimisation & Nelder-Mead, Powell, CMA-ES                    & Regret \\
+T06 & Adaptive LR schedules     & StepLR, CosineAnnealing, ReduceOnPlateau        & Loss \\
+T13 & GP kernel choice          & RBF, Matérn, periodic (1-D / 5-D)              & NLPD \\
+T21 & Causal discovery          & PC, GES, NOTEARS                                & SHD \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Dimensionality Reduction \& Clustering}} \\
+T05 & Dimensionality reduction  & PCA, t-SNE, UMAP                                & Silhouette \\
+T12 & Clustering algorithms     & K-means, DBSCAN, GMM on synthetic shapes        & ARI \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Text \& Topic Models}} \\
+T07 & Text feature extraction   & TF-IDF, Hashing, Count vectoriser               & Accuracy \\
+T17 & Topic modelling           & LDA, NMF, LSA                                   & Coherence \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Specialised Tasks}} \\
+T11 & Anomaly detection         & IsolationForest, LOF, OCSVM                     & ROC-AUC \\
+T16 & Time-series forecasting   & ARIMA, exponential smoothing, MLP               & RMSE \\
+T23 & Learning-to-rank          & RankSVM, LambdaMART, listwise                   & NDCG@10 \\
+T24 & GP regression             & RBF, Matérn, ARD kernels                        & RMSE \\
+T25 & Reservoir computing       & ESN, MLP, GP on Lorenz-63                       & NRMSE \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Rubric structure.}
+Each topic ships with a \texttt{rubrics/T*.json} defining a hierarchical tree of 8--11 leaf criteria across three categories:
+\begin{itemize}[nosep,leftmargin=*]
+\item \textbf{Code Development (CD)}, weight~25: correctness and completeness of algorithm implementation.
+\item \textbf{Code Execution (CE)}, weight~25: whether the code ran successfully and produced machine-readable metric artefacts with multi-seed dispersion reporting.
+\item \textbf{Result Analysis (RA)}, weight~50: quality of scientific writeup---per-hypothesis verdicts supported by reported numbers, appropriate caveats, no fabricated values.
+\end{itemize}
+Each leaf carries a weight in $[0,100]$ summing to~100 within its category and a score in $[0,1]$.
+Aggregate scores are:
+\begin{align}
+\texttt{overall\_strict} &= \textstyle\sum_{\ell} w_\ell \cdot s_\ell \;/\; 100 \label{eq:strict} \\
+\texttt{results\_only}   &= \textstyle\sum_{\ell \in \text{CE} \cup \text{RA}} w_\ell \cdot s_\ell \;/\; 75 \label{eq:results-only}
+\end{align}
+Under results-only mode (default for framework comparison), CD leaves are excluded from aggregation.
+The complete rubric for T01 is shown in Box~\ref{box:rubric-t01}.
+
+\paragraph{Judge system.}
+Each (framework $\times$ topic) cell is graded against five artefact sources:
+(1)~agent-produced code; (2)~execution artefacts (CSVs, JSON metric files, stdout logs); (3)~the agent-written README and claims file; (4)~the topic rubric; (5)~the topic manifest defining the research question, conditions, metrics, datasets, and hypotheses.
+The judge outputs per-leaf scores, rationale strings, and the two aggregates in Equations~\ref{eq:strict}--\ref{eq:results-only}.
+
+\subsection{Strict Judge Protocol}
+\label{app:strict-judge}
+
+The strict judge is designed to produce the same scoring distribution under three independent reviewer modes: a Claude Code subagent (Opus~4.7), a Codex CLI agent (GPT-5.4), and a human expert.
+Each reviewer operates from the same prompt and produces the same JSON output schema, enabling direct per-leaf cross-validation.
+Artefact sources and rubric structure follow Section~\ref{app:arcbench-arch}.
+
+\paragraph{Strict criteria.}
+Four criteria apply uniformly to every leaf.
+(1)~\textbf{Implementation correctness}: the algorithm is verified by reading code, not by label.
+Common failure patterns include MC-dropout that disables dropout at eval time, CMA-ES without covariance update, and NOTEARS implemented as plain Lasso.
+(2)~\textbf{Number grounding}: every numerical claim in the writeup must trace to a captured artefact; fabricated numbers penalise the relevant leaf to 0.1--0.3.
+(3)~\textbf{Verdict-data consistency}: a claimed supported hypothesis must be backed by measured evidence in the same direction; inverted verdicts score 0.1--0.3 regardless of prose quality.
+(4)~\textbf{Coverage}: missing conditions, datasets, or seeds penalise execution leaves proportionally to manifest coverage.
+
+\paragraph{Timeout rule.}
+If a run exceeded its wall-clock budget and the writing phase never executed, CE leaves are forced to 0.0 with no partial credit, CD retains rubric-correct credit, and RA leaves are capped at 0.1.
+
+\paragraph{Cross-validation.}
+Two agent reviewers grade each cell independently.
+Per-leaf scores with $|\Delta| > 0.20$ are flagged and re-adjudicated; final scores are the mean of the two passes.
+Human expert scores follow the same protocol on a held-out subset.
+Mean per-leaf $|\Delta| < 0.10$ across the audited subset, with disagreements concentrated on partial-implementation cases where code reading is ambiguous.
+
+An example of the rubric is presented as follows:
+
+\begin{tcolorbox}[
+  title={ARC-Bench Sample Rubric \textemdash{} T01: Dropout Regularization \& Calibration},
+  colback=blue!3!white,
+  colframe=blue!50!black,
+  fonttitle=\bfseries\small,
+  breakable,
+  label={box:rubric-t01},
+]
+\small
+\textbf{Research question.}
+Comparing dropout regularization strategies (standard, spatial, variational)
+for preventing overfitting in shallow MLPs on tabular classification benchmarks.
+Does dropout-variant choice affect calibration more than accuracy?
+
+\smallskip
+\textbf{Code Development (CD) \textemdash{} weight~25}
+\begin{description}[nosep,leftmargin=1.2em,labelsep=0.4em,font=\ttfamily\small]
+\item[t01-code-variants \normalfont{[10.0]}]
+Implement the main dropout variants---no-dropout baseline, standard element-wise
+dropout at one or more rates, and at least one stochastic-test-time / MC-style
+variant---as \emph{distinct code paths} within a shared MLP architecture.
+\item[t01-code-mlp \normalfont{[5.0]}]
+Shallow tabular MLP (small number of hidden layers, modest width) trained with
+a standard supervised classification objective on sklearn benchmarks.
+\item[t01-code-datasets \normalfont{[5.0]}]
+Load multiple tabular sklearn datasets (\eg{}
+\texttt{breast\_cancer}, \texttt{wine}, \texttt{digits}) with a reasonable
+train/test split.
+\item[t01-code-mc-pass \normalfont{[5.0]}]
+MC-dropout performs \emph{multiple} stochastic forward passes at test time and
+averages predicted probabilities; a single deterministic pass does not qualify.
+\end{description}
+
+\smallskip
+\textbf{Code Execution (CE) \textemdash{} weight~25}
+\begin{description}[nosep,leftmargin=1.2em,labelsep=0.4em,font=\ttfamily\small]
+\item[t01-exec-metrics \normalfont{[16.67]}]
+Machine-readable artifact (\texttt{results/metrics.json} or
+\texttt{stage-14/experiment\_summary.json}) with numeric accuracy \emph{and}
+a calibration metric (ECE, NLL, or Brier score) covering all conditions on
+at least one dataset.
+\item[t01-exec-seeds \normalfont{[8.33]}]
+Metrics aggregated over multiple random seeds per (condition,~dataset) cell
+with dispersion reporting: std, stderr, CI, or min/max across seeds.
+A small-but-honest seed count with reported variance is preferable to a single
+deterministic run.
+\end{description}
+
+\smallskip
+\textbf{Result Analysis (RA) \textemdash{} weight~50}
+\begin{description}[nosep,leftmargin=1.2em,labelsep=0.4em,font=\ttfamily\small]
+\item[t01-result-h1 \normalfont{[20.0]}]
+Compare calibration (ECE or analogous) between MC-style and standard dropout
+across evaluated datasets; convey whether MC calibration tends to be better
+(H1 supported / refuted / inconclusive).
+\item[t01-result-h2 \normalfont{[10.0]}]
+Discuss whether accuracy differences among variants are small---i.e.\ calibration
+is the discriminative axis, not accuracy. Qualitative comparison grounded in
+reported numbers suffices; exact percentage-point thresholds are not required.
+\item[t01-result-h3 \normalfont{[10.0]}]
+Compare no-dropout baseline vs.\ at least one dropout variant on calibration;
+convey whether baseline is clearly worse, comparable, or better.
+\item[t01-result-writeup \normalfont{[10.0]}]
+README or writeup describes setup, presents key accuracy and calibration numbers,
+and conveys per-hypothesis outcomes (supported / refuted / inconclusive) with
+appropriate caveats on seed count, dataset scope, or calibration-metric choice.
+\end{description}
+
+\smallskip
+\textit{Judging note.} Score on scientific substance and directional correctness
+of evidence, not on exact threshold satisfaction. Partial but well-motivated
+evidence deserves partial credit; rigid wording or name mismatches should not
+penalise a substantively correct experiment. Aggregate:
+$\texttt{overall} = \textstyle\sum_\ell w_\ell s_\ell / 100$;
+$\texttt{results\_only} = \textstyle\sum_{\ell \in \mathrm{CE}\cup\mathrm{RA}}
+w_\ell s_\ell / 75$.
+\end{tcolorbox}
+
+\section{HITL Ablation Details}
+\label{app:hitl-setup}
+
+\paragraph{Topic and mode design.} 10 topics (T01--T10) span tabular ML, RL, MoE, NLP, physics-informed ML, and finance. The 7 modes vary the schedule of scripted expert interventions. The mapping between modes and stage-injection sets is shown in Table~\ref{tab:mode-mapping}.
+
+\begin{table}[h]
+\centering
+\caption{Mode-to-intervention mapping. CoPilot receives the most \emph{targeted} interventions; Step-by-Step receives the most \emph{total} interventions (mostly approve actions).}
+\label{tab:mode-mapping}
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Mode} & \textbf{Receives Stages} & \textbf{Key Characteristic} \\
+\midrule
+Full-Auto & none & No guidance injected \\
+Gate-Only & 5, 9, 20 & Gate-only checkpoints \\
+CoPilot & 5, 8, 9, 14, 17, 20 (+ smart pauses) & Full intervention with auto-approve \\
+Thorough & Phase boundaries (8 stages) & Broad but less targeted \\
+Step-by-Step & All 23 stages & Every stage; mostly approve actions \\
+Pre-Experiment & 5, 8, 9 & Early-pipeline only \\
+Post-Experiment & 14, 17, 20 & Late-pipeline only \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Design-Space Exploration}
+\label{app:agent_count}
+
+\paragraph{Number of debate agents ($K$).}
+We tested $K \in \{2, 3, 5\}$ across 10 runs each. $K{=}2$ degenerates into a
+pro/con dynamic with $-23\%$ hypothesis diversity. $K{=}5$ raises tokens by $+67\%$
+for only $+8\%$ diversity over $K{=}3$, since the additional agents largely echo
+the core three. $K{=}3$ is the diversity-per-token sweet spot for ML topics;
+specialised $K{=}5$ may help in domains requiring a dedicated domain expert
+(e.g.\ the HEP-ph bank already uses three distinct discipline perspectives).
+
+\paragraph{Evolution half-life ($T_{1/2}$).}
+We tested $T_{1/2} \in \{7, 15, 30, 60, \infty\}$ days. $T_{1/2}{=}7$ expires
+useful lessons too fast; $T_{1/2}{=}\infty$ accumulates contradictory advice past
+15 runs. $T_{1/2}{=}30$ gave the best quality trajectory, persisting long enough to
+influence 3--5 subsequent runs while gradually fading.
+
+\section{Case study Details}
+\label{app:casestudy}
+Here we present the detailed comparison between Full-Auto and CoPilot mode of \system{} on Topic 10 in ARC-Bench, manifested in Table~\ref{tab:case_study}.
+
+\begin{table*}[t]
+\centering
+\caption{Case study on T10 (cross-validation strategies, small-sample model selection). Both runs complete a manuscript, but their evidence quality
+differs sharply. CoPilot reaches a score of 8.0 by targeting human input
+at the experimental bottleneck; Full-Auto scores 4.0 despite producing a
+paper.}
+\label{tab:case_study}
+\small
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{} l p{5.2cm} p{5.2cm} @{}}
+\toprule
+& \textbf{Full-Auto (score: 4.0)} & \textbf{CoPilot (score: 8.0)} \\
+\cmidrule(lr){2-2}\cmidrule(lr){3-3}
+Debate
+& Hypotheses are generated and accepted without checking whether the
+  planned CV strategies will produce distinguishable outcomes under the
+  available compute budget.
+& Pragmatist flags that LOOCV may exceed time budget; Contrarian questions
+  whether the ablation design can detect meaningful differences.
+  Synthesizer incorporates both objections into a narrowed hypothesis set. \\[3pt]
+HITL
+& None.
+& Intervention at literature, hypothesis, design, writing, and quality
+  stages. Human guidance explicitly asks the system to verify that CV
+  strategies produce nonzero contrasts, handle LOOCV within budget, and
+  avoid claiming metrics absent from the execution logs. \\[3pt]
+Execution
+& Plans eight CV strategies but every strategy reports identical zero
+  estimation bias and zero variance. The ablation checker flags
+  pairwise-identical conditions and a zero-variance warning; the run
+  continues regardless.
+& Logs nine selection pipelines with nonzero contrasts across strategies.
+  LOOCV, repeated stratified k-fold, and nested CV each produce
+  distinguishable bias estimates. Ablation warnings are recorded as
+  limitations rather than suppressed. \\[3pt]
+Verification
+& Artifact contains 51 metric keys with no empirical contrast between
+  conditions. Registry is populated but scientifically uninformative.
+  Claims pass the numeric gate but cannot support the paper's
+  research question.
+& Artifact contains 57 metric keys with differentiated values across
+  nine conditions. Pre-built tables are injected from the verified
+  registry. All numerical claims in strict sections trace to logged
+  measurements. \\[3pt]
+Output
+& Paper is not fabricated in the strict sense but reports an all-zero
+  result that cannot answer which CV strategy is preferable.
+  Stage-20 score: 4.0.
+& Paper presents a calibrated exploratory result: comparisons are bounded,
+  limitations are stated explicitly, and the Stage-20 gate accepts the
+  manuscript because claims align with the logs. Stage-20 score: 8.0. \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+% ============================================================
+
+\section{Failure Analysis}
+\label{app:failures}
+
+11 of 13 invalid canonical HITL runs fail at stage 17 (\texttt{paper\_draft}).
+Stage 17 is the first hard anti-fabrication checkpoint and refuses to draft a paper
+when no usable metric exists upstream. The four recurring stage-17 failure subtypes
+are: (a)~\emph{No real metrics}: stages 10--14 do not produce a usable metric
+table; (b)~\emph{Environment / dependency breakage}: missing \texttt{imblearn},
+\texttt{LightGBM}, etc.; (c)~\emph{Dataset / resource failure}: planned benchmark
+(\eg{} FashionMNIST) cannot be loaded in sandbox; (d)~\emph{Design / aggregation
+pathology}: planned design too ambitious for the budget, invalid CV configuration
+(\texttt{k must be in [2, 34]}), only a tiny fraction of conditions complete. The
+stage-17 hard block is correct as a safety check but currently conflates
+heterogeneous causes; we propose graceful degradation that surfaces upstream cause
+in the draft header and limitations.
+
+% ============================================================
+
+\section{Writing-Quality Audit}
+\label{app:writing-quality}
+
+We audited 20 canonical \texttt{full-auto} + \texttt{step-by-step} deliverables
+across T01--T10 for export defects:
+
+\begin{itemize}[nosep,leftmargin=*]
+\item \texttt{abstract} appears before \texttt{\textbackslash maketitle} (20/20):
+  consistent template misalignment.
+\item Markdown-style \texttt{\textbackslash section\{![Figure ...]\}} (17/20):
+  image captions promoted to section headings.
+\item Duplicated figure file (16/20): figure inserted twice.
+\item ``Learned Skills'' / a-evolve content leaks into body (9/20).
+\item Bracket-style pseudo-citations like \texttt{[ray2021various; nanga2021review]}
+  (2/20).
+\item Citation voids (\texttt{,,}) where keys were stripped without prose repair
+  (small count).
+\end{itemize}
+
+Local single-pass \texttt{pdflatex} compile rate across the 10 audited
+deliverables: 4/5 step-by-step pass, 3/5 full-auto pass. Note that local
+single-pass \texttt{pdflatex} differs from Overleaf's \texttt{latexmk}-driven
+multi-pass with reference resolution; an Overleaf compile is not equivalent to a
+clean source. We treat compile-pass as necessary, not sufficient, for submission
+readiness.
+
+\paragraph{Citation count.}
+Across the 5 audited topics, full-auto totals 94 citations and step-by-step totals
+59. Per-paper minima can fall below NeurIPS norms (\eg{} T03 step-by-step 2
+citations, T05 full-auto 4, T09 step-by-step 7, T01 step-by-step 13). HITL
+improves citation \emph{discipline} more reliably than \emph{breadth}; we discuss
+mitigations (literature-retrieval rate-limit handling, related-work depth target
+enforcement) in the next section.
+
+\section{Ethical Considerations and Broader Impact}
+\label{sec:ethics}
+
+Autonomous research systems raise important questions about scientific integrity, academic labor, credit attribution, and the boundary between human and machine contributions to knowledge. We address these issues both through system design and through a conservative framing of \system{} as a research amplifier rather than a replacement for human scientific judgment.
+
+\noindent \textbf{Positive broader impact.}
+\system{} can accelerate early-stage scientific exploration by automating routine parts of the research cycle: literature scoping, experiment implementation, repair, result aggregation, drafting, and verification. This can help researchers test more hypotheses under limited time and compute budgets, expose negative or failed directions earlier, and preserve intermediate lessons that would otherwise be lost across attempts. The system may be especially useful for rapid prototyping, educational research workflows, benchmark construction, and preliminary feasibility studies. By combining execution logs, verified result registries, and explicit claim grounding, \system{} can also encourage more transparent and reproducible research artifacts.
+
+\noindent \textbf{Scientific integrity.}
+The main risk of autonomous paper generation is that fabricated results or hallucinated citations could enter the scientific record. We treat this as a first-order design constraint. The verified result registry blocks ungrounded numerical claims in strict sections such as the Abstract, Experiments, and Results, while the citation verification pipeline removes references that cannot be resolved or validated before export. These safeguards do not guarantee that a scientific conclusion is correct, nor do they guarantee submission-ready formatting, but they reduce the risk that unsupported numbers or non-existent references are presented as evidence. Our ablation confirms the need for these safeguards: removing verification raises apparent acceptance, but manual inspection shows that several accepted papers then contain values absent from any measurement record.
+
+\noindent \textbf{Impact on researchers and academic norms.}
+We position \system{} as a tool for accelerating exploration and preliminary investigation, not as an autonomous substitute for expert researchers. Our HITL ablation supports this framing: the best outputs come from targeted human input at critical decision points, not from full automation alone. We therefore recommend that such systems be used to augment researchers by handling routine execution and verification, while humans remain responsible for problem selection, interpretation, final claims, and submission decisions. We also encourage explicit disclosure when autonomous research tools are used, and we discourage their use for generating bulk low-quality submissions.
+
+\noindent \textbf{Risks and safeguards.}
+A system that lowers the cost of paper generation could contribute to submission flooding, superficial novelty claims, or over-reliance on automated judgments. \system{} mitigates these risks through sandboxed execution, network isolation, read-only evaluation harnesses, numeric claim verification, citation checks, and HITL gates. All generated code executes in isolated Docker containers with security checks. In our current implementation, each run costs approximately \$3--15 in LLM usage, which makes large-scale misuse nonzero but still resource-constrained. The HITL experiments in this paper use scripted interventions rather than live human participants; future studies with live researchers would require appropriate IRB review.
+

@@ -1,0 +1,134 @@
+\vspace{-0.5em}
+\section{\system{}}
+\label{sec:method}
+\vspace{-0.5em}
+
+\vspace{-0.3em}
+\subsection{Overview}
+\label{sec:overview}
+\vspace{-0.3em}
+
+\system{} is organized as a 23-stage pipeline across three phases (Figure~\ref{fig:pipeline}):
+\textbf{Discovery} (scoping, literature search, multi-agent hypothesis generation),
+\textbf{Experimentation} (self-healing code execution, result analysis, autonomous \textsc{Pivot}/\textsc{Refine} decisions),
+and \textbf{Writing} (drafting, multi-agent review, revision, citation verification).
+Five mechanisms span all three phases.
+Multi-agent debate stress-tests hypotheses and conclusions from complementary perspectives.
+Self-healing execution treats experiment failures as diagnostic information rather than termination signals.
+Verifiable result reporting enforces that only grounded numbers and verified citations reach the final output.
+Human-in-the-loop (HITL) collaboration allows researchers to intervene at high-leverage decision points without managing the full pipeline.
+Cross-run evolution converts past failures into reusable safeguards through a persistent, time-decayed lesson store.
+Each stage declares a formal input/output contract and supports checkpoint-based resumption; full stage definitions and hardware adaptation details are in Appendix~\ref{app:stages}.
+
+\vspace{-0.3em}
+\subsection{Multi-Agent Debate}
+\label{sec:debate}
+\vspace{-0.3em}
+
+A single LLM agent naturally tends to confirm the hypotheses it generates, because the same model that proposes an idea has no structural incentive to disconfirm it.
+\system{} addresses this by instantiating structured debate at two pipeline stages.
+Each debate panel uses $K{=}3$ agents with complementary epistemic roles and a synthesizer that integrates their outputs into a single structured artifact.
+
+\noindent \textbf{Hypothesis-stage debate.}
+During hypothesis formulation, an \emph{Innovator} proposes high-risk hypotheses that challenge conventional assumptions, a \emph{Pragmatist} evaluates feasibility given hardware and time budgets, and a \emph{Contrarian} actively seeks weaknesses and confounds.
+The synthesizer distills these perspectives into 2--4 falsifiable hypotheses, each annotated with testability criteria and required baselines.
+
+\noindent \textbf{Result-stage debate.}
+After experiments complete, a second panel evaluates the results.
+An \emph{Optimist} surfaces strong findings, a \emph{Skeptic} challenges statistical significance and flags potential confounds, and a \emph{Methodologist} evaluates reproducibility and checks for data leakage.
+The synthesizer produces a structured assessment that distinguishes supported claims from unsupported ones before any writing stage begins.
+
+\vspace{-0.3em}
+\subsection{Self-Healing Execution}
+\label{sec:selfheal}
+\vspace{-0.3em}
+
+Experiment failure is common in real research.
+Existing autonomous systems treat failure as a termination condition and discard all intermediate progress.
+\system{} instead treats failure as diagnostic information: the system identifies what went wrong, decides whether to fix the current approach or change direction, and preserves all recoverable artifacts.
+
+\noindent \textbf{Cascading code generation.}
+Research experiments range from single-file scripts to multi-file systems with custom architectures.
+A scoring function rates each experiment plan along six dimensions: architectural depth, file count, domain difficulty, dependency chains, historical failure rate, and control-flow complexity, and produces a complexity scalar $c \in [0,1]$.
+Experiments above a fixed threshold $\tau$ (set to $0.6$ in all experiments) are dispatched to an external AI coding agent.
+Experiments below $\tau$ are handled by a built-in multi-phase code agent that first emits a per-file blueprint, then generates files in dependency order using AST-derived summaries to maintain cross-file consistency.
+Static validation gates check for detectable defects including identical ablation implementations and hardcoded metric values before any execution budget is spent.
+A dedicated \emph{benchmark agent} handles dataset and baseline discovery; a \emph{figure agent} produces publication-quality visualizations.
+
+\noindent \textbf{Sandboxed execution.}
+All generated code runs in Docker containers under a three-phase network policy.
+Phase~0 enables network access for dependency installation.
+Phase~1 enables network access for data acquisition.
+Phase~2 disables network access entirely during experiment execution, preventing both result exfiltration and pre-computed-result downloading.
+Metric reporting is handled exclusively through a read-only evaluation harness, so generated code cannot redefine its own measurement infrastructure (Appendix~\ref{app:sandbox}).
+
+\noindent \textbf{\textsc{Pivot}/\textsc{Refine} decisions.}
+When an experiment fails or produces degenerate results, an automated repair loop captures the failure signature and generates targeted fixes.
+The system then makes one of three decisions: \textsc{Proceed} when evidence supports the hypothesis, \textsc{Refine} when results are weak but the experimental direction is sound, or \textsc{Pivot} when the approach is fundamentally flawed, returning to hypothesis generation with the failure recorded as new evidence.
+Systems that terminate on any failure avoid ambitious experiments by design.
+By making failure recoverable, \system{} can pursue higher-risk hypotheses that would be abandoned under a brittle execution model.
+
+\vspace{-0.3em}
+\subsection{Verifiable Result Reporting}
+\label{sec:verification}
+\vspace{-0.3em}
+
+LLM-generated papers face two integrity problems: fabricated experimental results and hallucinated citations.
+Both arise from the same behavior---the model produces plausible-looking content with no grounding in actual evidence.
+\system{} addresses both through deterministic verification gates applied at two granularities.
+
+\noindent \textbf{Numeric registry.}
+During execution, the system constructs a \emph{verified registry}: a whitelist of every value produced by experiment runs, storing per-condition means, standard deviations, and individual seed measurements.
+At drafting time, pre-built \LaTeX{} tables populated exclusively from the registry are injected into the generation prompt.
+After generation, a post-hoc verifier re-extracts every numeric claim and checks it against the registry, scoped per condition to prevent cross-condition false positives.
+Claims in strict sections (Abstract, Results, Experiments) that cannot be matched to a registry entry trigger document rejection.
+Claims in other sections are replaced with visible placeholders.
+The writing agent can read the registry but cannot modify it.
+
+\noindent \textbf{Citation verification.}
+Every reference passes through a four-layer pipeline: DOI resolution via CrossRef, fuzzy title matching against OpenAlex, arXiv identifier lookup, and Semantic Scholar as a final fallback.
+An LLM-based relevance check then classifies each reference as \textsc{Verified}, \textsc{Suspicious}, or \textsc{Hallucinated}.
+References classified as \textsc{Hallucinated} are removed before any draft is finalized.
+
+\vspace{-0.3em}
+\subsection{Human-in-the-Loop Collaboration}
+\label{sec:hitl}
+\vspace{-0.3em}
+
+Full automation reduces output quality at critical junctures where domain judgment matters.
+Exhaustive step-by-step oversight eliminates the efficiency gains of automation.
+The useful region lies between these extremes: human expertise is most valuable at a small number of high-leverage decision points rather than distributed uniformly across the pipeline.
+\system{} provides seven intervention modes that let researchers select their operating point along this spectrum.
+
+\noindent \textbf{Intervention modes.}
+\emph{Full-Auto} runs the entire pipeline without human input.
+\emph{Gate-Only} pauses at three fixed checkpoints: literature screening, experiment design, and final quality review.
+\emph{Thorough} pauses at all phase boundaries, giving researchers visibility without requiring approval at every substep.
+\emph{CoPilot} targets six high-leverage decision points, including hypothesis co-creation (\emph{Idea Workshop}), experiment design review (\emph{Baseline Navigator}), and collaborative paper drafting (\emph{Paper Co-Writer}).
+\emph{Step-by-Step} requires explicit approval at every stage.
+Two further regimes decompose CoPilot for the ablation in Section~\ref{sec:hitl_exp}: \emph{Pre-Experiment} retains intervention only at literature screening, hypothesis generation, and experiment design (early-pipeline), while \emph{Post-Experiment} retains intervention only at result analysis, paper draft, and quality gate (late-pipeline).
+Our HITL ablation in Section~\ref{sec:hitl_exp} evaluates all seven modes empirically.
+
+\noindent \textbf{SmartPause.}
+Rather than relying on fixed checkpoints, SmartPause monitors the system's estimated uncertainty at each stage.
+When uncertainty exceeds a learned threshold, the system pauses and presents the decision to the researcher.
+The threshold adapts based on historical approval patterns: stages where the researcher frequently overrides the system are paused more often, while stages with consistently high approval rates proceed autonomously.
+
+\vspace{-0.3em}
+\subsection{Cross-Run Evolution}
+\label{sec:evolution}
+\vspace{-0.3em}
+
+Existing autonomous research systems are stateless across runs: every run begins without knowledge of previous attempts, repeating failures that earlier runs already encountered.
+\system{} maintains a persistent lesson store that converts past failures into future safeguards.
+
+At the end of each run, the system extracts structured lessons from repair attempts, \textsc{Pivot}/\textsc{Refine} decisions, HITL gate feedback, and verification results.
+Each lesson records a category, a severity score $s(l) \in (0, 1]$, and a recommended mitigation.
+When a new run begins, relevant lessons are retrieved by category and ranked by a time-decayed weight:
+\begin{equation}
+w(l) \;=\; s(l) \cdot \exp\!\left(-\ln 2 \cdot \frac{\Delta t}{T_{1/2}}\right),
+\label{eq:lesson-weight}
+\end{equation}
+where $\Delta t$ is the elapsed time since the lesson was recorded and $T_{1/2}$ is a half-life hyperparameter controlling how quickly older lessons lose influence (default $T_{1/2} = 30$ days).
+Lessons are injected into prompts as natural-language overlays, requiring no model retraining and remaining applicable to any LLM backbone.
+This design means that recent failures strongly constrain subsequent runs, while lessons from completed, successful lines of work gradually fade from prominence.

@@ -1,0 +1,56 @@
+\section{Experiment}
+\label{sec:experiment}
+\subsection{Experimental Setup}
+\label{sec:experimental-setup}
+We design our experiments to evaluate whether OpenComputer provides reliable and challenging
+software-world environments for computer-use agents. Our evaluation focuses on two questions:
+(1) whether current frontier and open-source agents can complete the synthesized tasks, and
+(2) whether our verifier-grounded reward computation can measure both exact success and
+partial progress across heterogeneous desktop applications.
+\input{figure/benchmark_result}
+\paragraph{Benchmark.}
+We evaluate agents on the finalized OpenComputer task suite. Each task consists of a natural-language
+instruction, an executable sandbox initialization, and a set of machine-checkable success criteria.
+The benchmark spans 33 desktop applications. For each task, the agent is placed in a fresh desktop sandbox initialized with the required files, profiles, configuration state, and application artifacts. The agent then interacts with the live GUI
+through screenshots and desktop actions until it stops or reaches the step budget. We include OSWorld-Verified~\citep{xie2024osworld} as an external reference to contextualize model performance against a widely used desktop-agent benchmark.
+
+\paragraph{Models.}
+We evaluate a mixture of frontier proprietary agents and open-source computer-use models. The
+main models include GPT-5.4~\citep{openai2026gpt54}, Claude-Sonnet-4.6~\citep{anthropic2026sonnet46}, Kimi-K2.6~\citep{moonshot2026kimi26}, Gemini-3-Flash~\citep{google2025gemini3flash}, Qwen-3.5-27B~\citep{qwen2026qwen35},
+Qwen-3.5-9B~\citep{qwen2026qwen35}, EvoCUA-8B~\citep{xue2026evocua}, and GUI-OWL-1.5-8B~\citep{xu2026mobile}. For Gemini-3-Flash, which does not
+provide a built-in desktop action space in our evaluation setting, we prompt the model to emit actions in a Qwen-style computer-use format. All open-source models except Kimi-K2.6 (which we use the official APIs) are deployed with two H100 GPUs.
+
+\paragraph{Metrics.}
+We report both task-level and criterion-level metrics. The primary task-level metric is \emph{success
+rate}, defined as the fraction of tasks for which all required criteria are satisfied. Because many desktop
+tasks contain multiple independent requirements, we also report \emph{average reward}, defined as
+the mean fraction of passed verifier checks, this metric gives partial credit when an agent completes some but not all required subtasks. To measure
+efficiency, we additionally report the average number of interaction steps and the average wall-clock
+time per step.
+
+
+\subsection{Main Results Analysis}
+
+Table~\ref{tab:model_results} reports the overall performance and efficiency of representative 
+% frontier and open-source
+computer-use agents on OpenComputer. The results show that OpenComputer is challenging even
+for the strongest current agents. GPT-5.4 achieves the best overall performance, with an average
+reward of 88.4\% and a task success rate of 68.3\%, but it still fails to completely solve nearly one
+third of the benchmark tasks. Claude-Sonnet-4.6 and Kimi-K2.6 follow closely, reaching success
+rates of 64.4\% and 58.8\%, respectively. This indicates that frontier models can often make
+substantial partial progress, but reliable end-to-end task completion in realistic desktop software
+remains far from saturated.
+
+GPT-5.4 is also the most efficient agent in terms of interaction length. It completes tasks in only
+19.0 steps on average, substantially fewer than Claude-Sonnet-4.6, Kimi-K2.6, and the open-source
+models. One reason is that GPT-5.4 frequently combines multiple low-level operations into a single
+computer-control step, reducing the number of interaction rounds needed to complete a task. In
+addition, GPT-5.4 does not emit long reasoning traces in our evaluation setting but only the executable actions, which reduces output overhead and improves per-step execution efficiency. This combination of shorter trajectories
+and lower textual overhead makes it particularly effective for controlling computer environments.
+
+The external OSWorld-Verified scores provide additional context. Several open-source models have moderate reported OSWorld performance, but their success rates drop substantially on OpenComputer.
+For example, GUI-OWL-1.5-8B has a reported OSWorld score of 52.3\%, but achieves only 5.7\%
+success on our benchmark; EvoCUA-8B similarly drops from 46.1\% on OSWorld to 10.9\% on
+\ours. This gap suggests that these models have limited cross-benchmark generalization,
+and that strong performance on existing desktop benchmarks does not necessarily transfer to the
+broader and more heterogeneous software settings covered by \ours.

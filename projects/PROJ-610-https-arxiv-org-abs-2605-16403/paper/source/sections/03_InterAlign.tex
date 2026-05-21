@@ -1,0 +1,178 @@
+% \section{Intervention-Driven Alignment for Audio-Visual Grounding}
+\section{How Can We Align Models Beyond Visual Shortcuts?}
+\label{sec:method}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{Fig/fig2_v2.pdf}
+    \vspace{-1em}
+    \caption{
+    \textcolor{failurered}{\textbf{Representative failure cases}} under \textit{Shift}, \textit{Mute}, and \textit{Swap} interventions.
+    Gemini and Qwen3-Omni often rely on visual priors rather than verifying the audio stream, leading to missed temporal shifts, hallucinated sounds, and visually biased predictions.
+    }
+    \label{fig:pilot_cases}
+    \vspace{-1em}
+\end{figure}
+
+\Cref{fig:pilot_cases} illustrates that even native multimodal models such as Gemini and Qwen3-Omni can produce plausible acoustic interpretation from visual actions alone, rather than verifying %audio presence, timing, or source consistency. 
+whether the corresponding sound is present, temporally aligned, or consistent with its visual source.
+These failures motivate our intervention-driven diagnostic protocol, which deliberately breaks natural audio-visual correlations to expose models' reliance on visual-semantic shortcuts.
+
+To align models beyond visual shortcuts, we construct training signals that task them to compare visible events against the actual audio stream rather than rely on visual priors. Our recipe turns physical audio-visual interventions into alignment data in three steps. First, we source videos with salient acoustic consequences and break natural correlations (\Cref{sec:dspi}). Second, we annotate event-time labels and construct chosen--rejected preference pairs (\Cref{sec:AAPC}). And third, we combine intervention data with general video instruction data to preserve overall comprehension (\Cref{sec:MGVID}).
+
+\subsection{Data Sourcing and Physical Interventions}
+\label{sec:dspi}
+
+To build intervention data for audio-visual grounding, we use the Oops dataset~\cite{Epstein2019OopsPU}, a collection of in-the-wild videos centered on unintentional human actions. As shown in \Cref{app:data-construction-pipeline}, Oops contains many failure-centered events, such as slipping, skiing crashes, and objects breaking, that naturally induce strong expectations about the accompanying sound. This property makes it a suitable source for constructing Clever Hans-style cases: the visual content often suggests a plausible acoustic event, while the audio track determines whether that event is actually present, temporally aligned, and physically consistent with the observed action.
+
+\paragraph{Formalizing interventions.}
+Let a video be represented as $v=(x_{1:T}, a_{1:T})$, where $x_{1:T}$ denotes the visual stream and $a_{1:T}$ denotes the audio track. We construct intervened videos by applying one of three operators:
+\begin{equation}
+\tilde{v} =
+\mathcal{I}_{k}(v), \quad
+k \in \{\shift, \mute, \swap\}.
+\end{equation}
+For \shift, the audio track is displaced by a temporal offset $\Delta$:
+\begin{equation}
+\mathcal{I}_{\textsc{Shift}}(v;\Delta) = (x_{1:T}, a_{1:T}^{+\Delta}),
+\quad \Delta \in [-\Delta_{\max}, \Delta_{\max}].
+\end{equation}
+Here, $\Delta<0$ corresponds to an \textit{early} audio event, while $\Delta>0$ corresponds to a \textit{delayed} audio event. This intervention requires the model to compare the timing of the visible event with the timing of its acoustic consequence.
+
+
+For \mute, the audio signal is replaced with silence:
+\begin{equation}
+\mathcal{I}_{\textsc{Mute}}(v) = (x_{1:T}, \varnothing).
+\end{equation}
+For \swap, the original audio is replaced with an audio track $a'_{1:T}$ from another video:
+\begin{equation}
+    \mathcal{I}_{\textsc{Swap}}(v, v')
+    =
+    (x_{1:T}, a'_{1:T}),
+    \qquad
+    v' = (x'_{1:T}, a'_{1:T}).
+\end{equation}
+The substituted audio is acoustically plausible but physically inconsistent with the visible event, forcing the model to verify audio-visual consistency rather than rely on the most likely sound implied by vision alone.
+Overall, these interventions convert naturally correlated videos into controlled counterfactual cases that target temporal synchronization, sound presence, and physical consistency; a detailed summary is provided in \Cref{app:intervention_summary}.
+
+% \begin{table}[t]
+% \caption{
+% Summary of our three physical interventions. Each intervention breaks a different natural audio-visual correlation and poses a diagnostic question about audio-visual grounding.
+% }
+% \label{tab:intervention-summary}
+
+% \centering
+% \begin{tabular}{lccc}
+% \toprule
+% \textbf{Intervention} 
+% & \textbf{Operation} 
+% & \textbf{Broken correlation}
+% & \textbf{Diagnostic question} \\
+% \midrule
+% \shift
+% & $a_{1:T} \rightarrow a_{1:T}^{+\Delta}$ 
+% & temporal synchrony
+% & Is the sound synchronized? \\
+% \mute 
+% & $a_{1:T} \rightarrow \varnothing$ 
+% & sound existence
+% & Is any sound present? \\
+% \swap
+% & $a_{1:T} \rightarrow a'_{1:T}$ 
+% & source consistency
+% & Does the sound match the event? \\
+% \bottomrule
+% \end{tabular}
+
+% \vspace{-0.5em}
+% \end{table}
+
+\subsection{Annotation and Preference Pair Construction}
+\label{sec:AAPC}
+
+We annotate each source video with event-time labels used to evaluate audio-visual interventions:
+\begin{equation}
+    z_i = (e_i^v, t_i^v, e_i^a, t_i^a),
+\end{equation}
+where $e_i^v$ and $t_i^v$ denote the visual event and its timestamp, $e_i^a$ and $t_i^a$ denote the corresponding acoustic event and timestamp. These fields correspond to the visual event, visual time, audio event, and audio time labels in \Cref{fig:data-construction} (\Cref{app:data-construction-pipeline}).
+
+\paragraph{Cross-model verification.}
+We use Gemini to generate initial event-time annotations because it supports direct video ingestion and can inspect both visual and audio streams. For visual timestamps, we further verify Gemini's annotations with GPT and Claude by decomposing each video into $N$ temporally ordered frame units and asking the models to locate the visual event within the frame sequence. For audio timestamps, which require access to the acoustic stream, we cross-verify Gemini's predictions with human inspection.
+
+Let $\mathcal{M}_v$ denote the set of visual annotator models and let $\mathcal{M}_a=\{\mathrm{Gemini}, \mathrm{Human}\}$ denote the audio verification sources.
+\begin{equation}
+    z_i^{(m)} = 
+    \left(
+    e_i^{v,m}, t_i^{v,m},
+    e_i^{a,m}, t_i^{a,m}
+    \right),
+\end{equation}
+where visual fields are available for $m \in \mathcal{M}_v$ and audio fields are available for $m \in \mathcal{M}_a$. A sample is automatically retained when both visual and acoustic timestamps agree within strict tolerances:
+\begin{equation}
+    \max_{m,m' \in \mathcal{M}_v}
+    \left|t_i^{v,m} - t_i^{v,m'}\right|
+    \leq \epsilon_v,
+    \qquad
+    \max_{m,m' \in \mathcal{M}_a}
+    \left|t_i^{a,m} - t_i^{a,m'}\right|
+    \leq \epsilon_a.
+\end{equation}
+Here, $\epsilon_v$ and $\epsilon_a$ denote the tolerance thresholds for visual and acoustic timestamps, respectively. Cases with model disagreement are manually inspected and corrected to ensure reliable event-time labels. We provide the annotation prompts, frame-unit construction details, agreement criteria, and manual verification protocol in \Cref{app:annotation}.
+
+
+
+
+\paragraph{Preference pair construction.}
+The annotated intervention cases are converted into chosen--rejected preference pairs:
+\begin{equation}
+    \mathcal{D}_{\mathrm{pref}}
+    =
+    \left\{
+    \left(
+    \tilde{v}_i, q_i, y_i^+, y_i^-
+    \right)
+    \right\}_{i=1}^{N},
+\end{equation}
+where $\tilde{v}_i$ is the intervened video, $q_i$ is the diagnostic prompt, $y_i^+$ is the chosen response, and $y_i^-$ is the rejected response. The chosen response explicitly verifies the audio-visual relation, while the rejected response is visually plausible but inconsistent with the audio evidence, approximating the shortcut behavior we aim to suppress. The overall annotation and intervention pipeline is summarized in \Cref{fig:data-construction} (\Cref{app:data-construction-pipeline}).
+
+For \shift, chosen responses detect early or delayed audio, while rejected responses claim synchronization or the wrong temporal direction. For \mute, chosen responses identify silence, while rejected responses hallucinate expected sounds. For \swap, chosen responses flag audio-visual source inconsistency, while rejected responses accept the mismatched sound. These pairs train the model to verify audio evidence rather than follow visually plausible shortcuts. Examples are provided in \Cref{app:preference_examples}.
+
+
+
+
+
+
+
+
+
+\subsection{Two-Stage Alignment with General Video Data}
+\label{sec:MGVID}
+
+Intervention data provides targeted supervision for detecting \shift, \mute, and \swap failures, but may over-specialize the model to counterfactual cases. We therefore mix it with general video instruction data, whose temporally segmented annotations expose ordinary audio-visual correspondences at the event level. \Cref{app:alignment-pipeline} summarizes this two-stage alignment pipeline.
+
+
+We use FineVideo~\cite{Farre2024FineVideo} as the source of general video data because its annotations are organized around time segments, describing what occurs from one timestamp range to the next. We re-annotate selected FineVideo clips with Gemini and apply human agreement checks, enriching the original segment annotations with both visual and audible event-level information. The resulting annotations are used to construct four instruction types summarized in \Cref{app:finevideo-data}.
+
+% \begin{tcolorbox}[
+% colback=gray!3,
+% colframe=gray!35,
+% boxrule=0.6pt,
+% arc=2pt,
+% left=5pt,
+% right=5pt,
+% top=4pt,
+% bottom=4pt
+% ]
+% \small
+% \textbf{FineVideo-derived instruction data.}
+% We construct four complementary data types:
+% \textit{description} for visible and audible content,
+% \textit{localization} for event timestamps,
+% \textit{attribution} for source or material cues,
+% and \textit{audio-dependent QA} for questions requiring audio evidence.
+% \end{tcolorbox}
+
+
+Our training follows the standard post-training recipe of Supervised Fine Tuning (SFT) followed by preference alignment~\cite{DBLP:conf/nips/ChristianoLBMLA17, DBLP:journals/corr/abs-1909-08593, DBLP:conf/nips/Ouyang0JAWMZASR22}. 
+We use SFT warm-up on intervention-derived data to establish audio-aware response patterns, and then apply DPO on intervention preference pairs mixed with general video data to favor audio-verified responses over visually plausible shortcuts. The general video mixture is included to reduce over-specialization to intervention cases and preserve broad video understanding. The overall two-stage alignment pipeline is summarized in \Cref{fig:preference_optimization} (\Cref{app:alignment-pipeline}).
+

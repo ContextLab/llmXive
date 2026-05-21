@@ -1,0 +1,54 @@
+\section{Case Study: Comparison between LLM as Judge and Hard-Coded Verifier}
+\label{app:llm-as-judge-problem}
+
+This appendix illustrates why we use LLM-as-judge only as a reference signal for
+verifier debugging, rather than as the final benchmark reward.
+
+\paragraph{Failure mode 1: dense interfaces hide exact state.}
+In spreadsheet-like applications, the difference between success and failure may
+be encoded in a single cell boundary, a hidden formula, or a small formatting
+change. Figure~\ref{fig:llm-judge-dense-ui} shows a representative example in
+which the agent types \texttt{alpha beta} into one cell, although the task
+requires \texttt{alpha} and \texttt{beta} to be entered into two adjacent cells.
+To a screenshot-based judge, the rendered sheet still looks broadly plausible,
+especially when grid lines are thin or the screenshot is downsampled. A
+hard-coded verifier can instead read the workbook state directly and determine
+exactly which cell contains which value.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.98\linewidth]{image/llm_as_judge_error_1.png}
+    \caption{A dense spreadsheet-style interface where the visual output looks
+    almost correct, but the state is wrong: the agent typed one long token into a
+    single cell instead of filling two adjacent cells. This is difficult to judge
+    reliably from pixels alone, but trivial to detect from the underlying
+    workbook state.}
+    \label{fig:llm-judge-dense-ui}
+\end{figure}
+
+\paragraph{Failure mode 2: terminal-heavy tasks exceed screenshot context.}
+For terminal-centric or mixed GUI-and-terminal workloads, the problem is not just
+fine-grained visual ambiguity but limited observability. Figure~\ref{fig:llm-judge-terminal}
+shows a case where the terminal contains the decisive evidence: an error line and
+a missing output artifact. A screenshot captures only one scroll position and one
+pane layout, so the judge must infer whether earlier logs, filesystem state, and
+intermediate outputs are consistent with task completion.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.98\linewidth]{image/llm_as_judge_error_2.png}
+    \caption{A terminal-heavy workflow where the decisive evidence lives in log
+    lines, exit codes, and filesystem artifacts rather than in a clean final
+    screenshot. Programmatic verifiers can inspect these sources directly,
+    whereas screenshot-based judges only observe a narrow and potentially
+    misleading window.}
+    \label{fig:llm-judge-terminal}
+\end{figure}
+
+\paragraph{Implication for OpenComputer.}
+These examples motivate the separation of roles in OpenComputer. We use
+LLM-as-judge as a flexible, high-level reference that helps detect verifier bugs,
+underspecified criteria, and other pipeline issues during task construction. But
+we reserve final scoring for hard-coded verifiers that inspect application-grounded
+state directly. This choice makes rewards reproducible, auditable, and sensitive
+to the exact success conditions that the benchmark is meant to evaluate.

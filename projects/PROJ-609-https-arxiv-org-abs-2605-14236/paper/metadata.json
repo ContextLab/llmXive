@@ -1,0 +1,34 @@
+{
+  "arxiv_id": "2605.14236",
+  "arxiv_url": "https://arxiv.org/abs/2605.14236",
+  "title": "https://arxiv.org/abs/2605.14236",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #213",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/jerecoder/IReranker"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "acl_latex.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "acl_latex.bbl",
+    "acl_latex.tex",
+    "acl_natbib.bst",
+    "acl.sty",
+    "custom.bib",
+    "figs",
+    "figs/limit_comparisons_time_all_flan_a100_randomized.png",
+    "figs/limit_comparisons_time_all_flan_a100_both.png",
+    "figs/limit_comparisons_time_all_flan_h100_both.png",
+    "figs/limit_comparisons_time_all_flan_h200_both.png",
+    "figs/limit_comparisons_time_all_qwen_a100_both.png",
+    "figs/limit_comparisons_time_all_qwen_h100_both.png",
+    "figs/limit_comparisons_time_all_qwen_h200_both.png"
+  ]
+}

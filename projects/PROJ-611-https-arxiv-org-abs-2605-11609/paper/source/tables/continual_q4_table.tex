@@ -1,0 +1,17 @@
+\begin{table}[h]
+  \caption{\textbf{Continual AntiSD on Qwen3-4B-IT-2507.} Same setup as Table~\ref{tab:continual} on the smaller model. \textbf{Bold} = column best.}
+  \label{tab:continual-q4}
+  \centering
+  \small
+  \setlength{\tabcolsep}{6pt}
+  \renewcommand{\arraystretch}{1.0}
+  \begin{tabular}{l|c|ccccc|c|c}
+    \toprule
+    \textbf{Method}                       & \textbf{Steps} & \textbf{AIME24} & \textbf{AIME25} & \textbf{AIME26} & \textbf{HMMT25} & \textbf{Minerva} & \textbf{Average}                  & \textbf{Speedup}      \\
+    \midrule
+    GRPO                                  & 200            & 67.8            & 57.7            & 63.5            & 34.1            & 33.2             & 51.3\textsubscript{@200}          & 1.0$\times$           \\
+    +AntiSD                               & 200            & \textbf{76.6}   & \textbf{70.2}   & \textbf{74.4}   & \textbf{46.7}   & 46.4             & \textbf{62.8\textsubscript{@100}} & \textbf{10.0$\times$} \\
+    \rowcolor{antisdrow} +AntiSD$^{\dag}$ & +50            & 76.2            & 69.7            & 73.3            & 43.2            & \textbf{47.0}    & 61.9\textsubscript{@20}           & \textbf{10.0$\times$} \\
+    \bottomrule
+  \end{tabular}
+\end{table}

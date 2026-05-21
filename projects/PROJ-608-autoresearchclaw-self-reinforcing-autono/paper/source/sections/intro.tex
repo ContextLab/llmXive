@@ -1,0 +1,54 @@
+\vspace{-0.5em}
+\section{Introduction}
+\label{sec:intro}
+\vspace{-0.5em}
+
+Automating scientific discovery is a major goal of artificial intelligence.
+Recent LLM-based systems have shown that agents can generate hypotheses, run experiments, and draft papers~\citep{lu2024aiscientist, yamada2025aiscientistv2, schmidgall2025agentlab, tang2025airesearcher}.
+Real research, however, does not proceed in a straight line from idea to paper.
+A researcher proposes a hypothesis, designs an experiment, observes what fails, revises the plan based on that failure, and tries again iteratively.
+This loop depends on three capabilities: challenging one's own hypotheses from multiple angles, recovering from failed experiments without losing partial progress, and carrying lessons from past attempts into future ones.
+
+Existing systems handle each of these capabilities poorly.
+On hypothesis quality, single-agent systems such as AI Scientist~\citep{lu2024aiscientist, yamada2025aiscientistv2} use the same model to generate and evaluate hypotheses, which makes it harder to surface weak assumptions or overly easy directions.
+On execution robustness, systems such as AIDE ML~\citep{aide2025} stop after an execution failure and discard partial results that could still be informative.
+On experience accumulation, multi-agent systems such as Agent Laboratory~\citep{schmidgall2025agentlab} allow collaboration within a single run but do not carry lessons across runs, so each attempt starts from scratch.
+The result is that research is treated as a one-off process rather than an iterative cycle.
+
+Our key observation is that these three challenges are not independent.
+Better hypotheses reduce the need for major revisions during execution.
+More robust execution preserves intermediate results that can inform analysis.
+Lessons from past runs can improve both hypothesis generation and experiment design in later attempts.
+Improving one challenge therefore helps the others, which means they need to be addressed together in a unified framework.
+
+We present \system{}, a multi-agent research pipeline built around five mechanisms that address these challenges jointly.
+\textit{Structured multi-agent debate} assigns agents roles such as innovator, pragmatist, and contrarian, and has them critique each other during hypothesis generation and result analysis; a synthesizer then integrates their outputs into a single structured artifact.
+\textit{A self-healing executor} uses a \textsc{Pivot}/\textsc{Refine} decision loop to treat failures as information rather than stopping points: after a failure, the system diagnoses the cause, then either adjusts the current experiment and retries (\textsc{Refine}) or moves to a new direction based on what the failure revealed (\textsc{Pivot}).
+\textit{Verifiable result reporting} ties all reported numbers to a registry of executed outputs and checks every citation through a four-layer verification pipeline before anything appears in a draft.
+\textit{Human-in-the-loop collaboration} provides seven intervention modes spanning full autonomy to step-by-step approval, with a confidence-driven SmartPause mechanism that routes decisions to the researcher only when system uncertainty is high.
+\textit{Cross-run evolution} stores structured lessons from previous runs and injects them as guidance in future attempts through a time-decayed weighting scheme.
+These mechanisms interact: past lessons inform debate, debate improves experiment choices, self-healing keeps the pipeline moving, and verification ensures outputs are grounded in actual results.
+
+In summary, our main contribution is \system{}, an open-source multi-agent system for autonomous research that addresses hypothesis quality, execution robustness, and experience accumulation together.
+We introduce \bench, a 25-topic benchmark focused on the experiment stage, evaluated with a rubric-assisted LLM judge.
+On this benchmark, \system{} outperforms AI Scientist v2 by 54.7\%.
+A human-in-the-loop ablation across seven intervention modes shows that targeted human input at high-leverage decision points consistently outperforms both full autonomy and dense step-by-step oversight.
+Further analysis shows that the modular design of \system{} can connect to domain-specific scientific experiments, including high-energy theory.
+We discuss safeguards for responsible use, including citation verification, claim grounding, and transparency requirements, in Appendix~\ref{sec:ethics}.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/main_figure.png}
+\caption{Overview of the \system{} pipeline. Given a research idea, the 
+system progresses through three stages: \textbf{Discovery} (scoping, 
+literature search, multi-agent debate for hypothesis generation), 
+\textbf{Experimentation} (self-healing code execution, result analysis with 
+a second debate panel, and \textsc{Pivot}/\textsc{Refine} decisions), and 
+\textbf{Writing} (drafting, review, revision, four-layer citation 
+verification). Optional human-in-the-loop gates (orange) allow oversight 
+at key checkpoints. The cross-run evolution system (bottom) injects 
+time-decayed lessons from prior runs into all phases.}
+\label{fig:pipeline}
+\vspace{-1.5em}
+\end{figure}
+\vspace{-1em}

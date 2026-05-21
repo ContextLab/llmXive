@@ -1,0 +1,196 @@
+\vspace{-0.5em}
+\section{Experiments}
+\label{sec:experiments}
+\vspace{-0.5em}
+
+We evaluate \system{} through three complementary studies. First, we benchmark against existing systems on \bench{} using an experiment-stage evaluation, because most baselines cannot reliably produce complete papers without human supervision (\S\ref{sec:arcbench}). Second, we conduct an end-to-end evaluation from idea to paper on 10 \bench{} topics across seven human-in-the-loop regimes, assessing full paper quality under varying levels of intervention (\S\ref{sec:hitl_exp}). Third, we run a component ablation that isolates the contribution of each mechanism (\S\ref{sec:component_abl}). We close with a case study illustrating how the mechanisms interact on a single topic (\S\ref{sec:casestudy}).
+
+
+\subsection{Experimental Setup}
+\label{sec:setup}
+\vspace{-0.3em}
+
+\noindent \textbf{Benchmark.} We introduce \bench, a 25-topic ML benchmark (\textsc{ML01}--\textsc{ML25}) spanning tabular ML, optimization, dimensionality reduction, NLP, AutoML, GP kernels, topic modeling, semi-supervised learning, dynamical systems, anomaly detection, feature selection, causal discovery, and learning-to-rank, together with a 20-topic scientific-domain extension covering 10 high-energy physics (\textsc{P01}--\textsc{P10}), 7 systems biology (\textsc{B01}--\textsc{B07}), and 3 statistics (\textsc{S01}--\textsc{S03}) tasks. Each topic specifies a research question, a target dataset (or reference figure/simulation, for science topics), and expected experimental deliverables (code, results, analysis writeup). \bench{} supports three evaluation modes. The \emph{experiment-stage} mode evaluates systems at the experiment stage using a rubric-assisted strict judge, enabling fair comparison across systems with different end-to-end capabilities. The \emph{end-to-end} mode evaluates the full pipeline from research idea to completed paper, assessing overall paper quality on a 1--10 scale with accept rate ($\geq 5$) as the primary metric. The end-to-end mode is used both for the HITL ablation on 10 \textsc{ML} topics (\S\ref{sec:hitl_exp}) and the scientific-domain coverage study (\S\ref{sec:scidomain}). The \emph{scientific-domain} mode reuses the same code/exec/results/repro rubric on the 20 physics/biology/statistics topics, since most existing baselines cannot produce science-domain papers at all under fair-input conditions.
+
+\noindent \textbf{Experiment-stage evaluation protocol.} The strict judge grades each (framework $\times$ topic) cell along three dimensions weighted as CD:CE:RA = 25:25:50. Code Development (CD) assesses whether the implementation correctly instantiates the proposed method and baselines. Code Execution (CE) verifies that experiments run to completion and produce valid outputs. Result Analysis (RA) evaluates whether conclusions are grounded in actual measurements, hypotheses receive explicit verdicts, and limitations are honestly reported. RA receives double weight because it captures the scientific reasoning quality that distinguishes autonomous research from automated scripting. Two independent agent reviewers run the strict judge in parallel; per-leaf disagreements exceeding $|\Delta| > 0.20$ are re-adjudicated and final scores are averaged. Details and inter-rater agreement are in Appendix~\ref{app:strict-judge}.
+
+\noindent \textbf{Baselines and implementation.} We compare against AI Scientist v2~\citep{yamada2025aiscientistv2} and AIDE-ML~\citep{aide2025}, the two systems that provide end-to-end execution paths comparable to \system{} (Table~\ref{tab:comparison}). Agent Laboratory~\citep{schmidgall2025agentlab} is excluded because it does not deliver end-to-end execution under fair-input conditions. All frameworks use the same LLM backbone (GPT-5.3-codex) and the same sandboxed execution environment with identical per-experiment time budgets. This controlled setup isolates the contribution of system design from backbone capability.
+
+\vspace{-0.3em}
+\subsection{Main Results: Experiment-Stage Comparison}
+\label{sec:arcbench}
+\vspace{-0.3em}
+
+Table~\ref{tab:arcbench-aggregate} reports mean scores across all 25 topics under the experiment-stage evaluation mode.
+
+
+\begin{table}[t]
+\centering
+\caption{\bench{} experiment-stage results (25 topics, CD:CE:RA = 25:25:50).}
+\label{tab:arcbench-aggregate}
+\small
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccc@{}}
+\toprule
+\textbf{Framework} & \textbf{Code Dev} & \textbf{Code Exec}
+  & \textbf{Result Analysis} & \textbf{Overall} \\
+\midrule
+\system{} (CoPilot)   & 0.968 & 0.578 & 0.523 & \textbf{0.648} \\
+\system{} (Full-Auto) & 0.938 & 0.562 & 0.442 & 0.596 \\
+AIDE-ML               & 0.958 & 0.415 & 0.336 & 0.511 \\
+AI Scientist v2       & 0.712 & 0.442 & 0.261 & 0.419 \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+
+\begin{table}[t]
+\centering
+\caption{End-to-end HITL ablation across 10 topics and 7 intervention regimes.
+Paper quality scored 1--10; accept $=$ score $\geq 5$.}
+\label{tab:hitl-summary}
+\small
+\begin{tabularx}{\textwidth}{@{}lCCCC@{}}
+\toprule
+\textbf{Mode} & \textbf{Valid} & \textbf{Mean Q} & \textbf{Accept} & \textbf{Interventions} \\
+\midrule
+Full-Auto        & 8/10  & 4.03          & 25.0\%          & 0  \\
+Gate-Only        & 10/10 & 5.03          & 50.0\%          & 3  \\
+\textbf{CoPilot} & 8/10  & \textbf{7.27} & \textbf{87.5\%} & 6 \\
+Thorough         & 7/10  & 4.86          & 42.9\%          & 8 \\
+Step-by-Step     & 10/10 & 5.19          & 50.0\%          & 23 \\
+Pre-Experiment   & 8/10  & 4.28          & 37.5\%          & 3 \\
+Post-Experiment  & 6/10  & 5.08          & 50.0\%          & 3 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\noindent \textbf{\system{} outperforms all baselines across all dimensions.} \system{} (CoPilot) achieves the highest overall strict score (0.648), outperforming AI Scientist v2 (0.419) by 54.7\% and AIDE-ML (0.511) by 26.8\%. Even in Full-Auto mode without human intervention, \system{} (0.596) substantially exceeds both baselines, indicating that the gains are primarily driven by system design rather than human input.
+
+\noindent \textbf{The largest advantage is on Result Analysis.} The performance gap is most pronounced on Result Analysis, where \system{} (CoPilot) scores 0.523 against AI Scientist v2's 0.261, a 100.4\% relative improvement. This dimension evaluates whether conclusions are hypothesis-aligned, tables contain only verified numbers, and limitations are honestly reported. The advantage directly reflects multi-agent debate at the result analysis stage and the verified result registry: debate forces explicit per-hypothesis verdicts with critical scrutiny, and the registry ensures every reported number traces to an actual measurement. In contrast, AI Scientist v2's single-agent analysis tends to oversell weak findings without cross-examination.
+
+\noindent \textbf{Code Development is competitive; execution separates the systems.} All systems score above 0.70 on Code Development, with AIDE-ML (0.958) nearly matching \system{} (0.968). The differentiator is what happens after code is written. AIDE-ML's execution success rate (0.415) is substantially lower, reflecting its lack of self-healing: experiments that encounter runtime errors are discarded rather than repaired. \system{}'s self-healing executor raises execution success to 0.562 (Full-Auto) and 0.578 (CoPilot) by diagnosing failures and applying targeted fixes through the \textsc{Pivot}/\textsc{Refine} loop.
+
+\noindent \textbf{Failure mode analysis.} Among the 25 topics, \system{} (Full-Auto) fails to produce valid results on 2 topics, both involving complex multi-file implementations with cascading dependencies. AI Scientist v2 fails on 6 topics, with failures concentrated in topics requiring iterative experiment refinement (dynamical systems, causal discovery) where single-attempt execution without recovery is insufficient. This pattern confirms that self-healing is most valuable on topics where the first implementation attempt is unlikely to succeed.
+
+\vspace{-0.3em}
+\subsection{Cross-Domain Coverage: Physics, Biology, and Statistics}
+\label{sec:scidomain}
+\vspace{-0.3em}
+
+The \bench{} core (\textsc{ML01}--\textsc{ML25}) is intentionally ML-focused to enable a fair comparison against AIDE-ML and AI Scientist v2, both of which target ML pipelines.
+Autonomous research systems must, however, operate across scientific domains.
+We therefore extend \bench{} with 20 \emph{scientific-domain} tasks that each require domain-specific software stacks: \textsc{MadGraph5\_aMC@NLO}~\citep{Alwall2014} / \textsc{Pythia8} / \textsc{Delphes} / \textsc{FeynRules} / \textsc{MadAnalysis5} for high-energy physics; \textsc{COBRApy}~\citep{Ebrahim2013} / \textsc{BiGG}~\citep{King2016} genome-scale models / \textsc{optlang} / GLPK for systems biology; and double-machine-learning~\citep{Chernozhukov2018}, bootstrap~\citep{Efron1979}, and selective-inference machinery for statistics.
+
+\system{} routes each topic through a \emph{sandboxed, domain-specialized agent} during the experiment stage.
+The HEP agent is equipped with the FeynRules, MadGraph, and MadAnalysis skills drawn from \citet{qiu2026endtoendarchitecturecolliderphysics}, which introduced the ColliderAgent architecture we directly adopt here; the biology agent is equipped with GEM-builder, flux-balance analysis, and flux-analyzer skills; the statistics agent is equipped with Monte Carlo simulation and semiparametric inference skills.
+Each specialized agent runs inside a Claude Code subprocess with the requisite packages pre-installed, so the top-level orchestrator requires no domain-specific knowledge.
+This design is what enables \system{} to reproduce experiments across heterogeneous scientific fields without per-domain engineering effort.
+
+Each task is graded with the same code / execution / results / repro rubric used in Table~\ref{tab:arcbench-aggregate}, with leaf criteria rewritten to reflect domain-appropriate targets (e.g., ``loaded the correct \textsc{iJO1366} model and set anaerobic medium bounds'' for biology; ``computed cross-section ratios within 3\% of the published reference'' for HEP).
+Per-task scores are aggregated to a column mean per domain.
+Table~\ref{tab:scidomain} reports the results.
+AIDE-ML and AI Scientist v2 fail to install the required HEP and biology stacks under fair-input conditions and produce no valid output on \textsc{P01}--\textsc{P10} and \textsc{B01}--\textsc{B07}; on the statistics tasks both systems execute but their generic ML scaffolding yields incomplete implementations that miss the inferential targets (e.g., bias and coverage metrics not computed, no Neyman-orthogonal score, no estimand writeup).
+
+\begin{table}[t]
+\centering
+\caption{Scientific-domain coverage. Scores are computed with the same
+code:exec:results:repro rubric as Table~\ref{tab:arcbench-aggregate}.
+We evaluate biology on \textsc{B01}--\textsc{B07}, statistics on
+\textsc{S01}--\textsc{S03}, and HEP-ph on \textsc{P01}--\textsc{P10}
+. A red cross indicates a code-execution failure caused by
+missing or unusable domain-specific software.
+Statistics tasks do not require specialized simulation stacks, so all systems
+are scored normally.
+Failed runs are counted as zero when computing the run-weighted overall mean
+over the 20 science-domain tasks.}
+\label{tab:scidomain}
+\small
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccc@{}}
+\toprule
+\textbf{Framework} & \textbf{Biology} & \textbf{Statistics}
+  & \textbf{HEP-ph} & \textbf{Overall} \\
+\midrule
+\system{} (CoPilot) & \textbf{0.912} & \textbf{0.898} & \textbf{0.489} & \textbf{0.867} \\
+AIDE-ML             & \xmark        & 0.452          & \xmark        & 0.090 \\
+AI Scientist v2     & \xmark        & 0.418          & \xmark        & 0.084 \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+\noindent \textbf{Sandboxed domain agents are necessary for cross-domain coverage.}
+The biology column (mean 0.912 ranging from \emph{E.~coli} succinate knockout screens to \emph{M.~tuberculosis} essentiality and drug-target prioritization) is supported entirely by COBRApy-skilled sub-agents operating over BiGG genome-scale models; the orchestrator is never required to manipulate stoichiometric matrices directly.
+The statistics column (mean 0.898 on bootstrap confidence-interval coverage and DML/AIPW estimation) is supported by the Monte Carlo and semiparametric-inference skill bundle; the third statistics run completed the pipeline but failed the requirements judge on missing metric artifacts and is therefore excluded from the column mean.
+The HEP column requires Lagrangian-to-UFO translation, MadGraph parton-level generatio, and quantitative reproduction of a published cross-section curve; \system{} correctly reproduces the predicted shape and numerical cross-section values, but incurs scoring penalties for insufficient deliverable content and minor unsupported meta-claims.
+The qualitative conclusion of Table~\ref{tab:scidomain} is that both baselines score zero on physics and biology because their sandboxes do not include the required scientific software; \system{}'s domain-skill installation step closes this gap.
+
+\vspace{-0.3em}
+\subsection{End-to-End HITL Ablation}
+\label{sec:hitl_exp}
+\vspace{-0.3em}
+
+\bench{}'s experiment-stage mode enables fair cross-system comparison but does not evaluate the full research pipeline. To assess end-to-end quality from idea to completed paper, we run a HITL ablation on 10 \bench{} topics across seven intervention regimes, ranging from \textbf{Full-Auto} (zero interventions) to \textbf{Step-by-Step} (every stage). \textbf{CoPilot} targets six high-leverage decision points; \textbf{Pre-Experiment} and \textbf{Post-Experiment} isolate early-stage and late-stage contributions respectively. Each mode receives the same payload at its covered stages. Setup details are in Appendix~\ref{app:hitl-setup}.
+
+\noindent \textbf{More intervention does not monotonically improve quality.} Table~\ref{tab:hitl-summary} reports mode-level summaries. CoPilot achieves the highest mean paper-quality score (7.27) and accept rate (87.5\%) with 19 targeted interventions. Step-by-Step requires 29 interventions but achieves only 5.19 and 50\%. On matched topics, CoPilot beats Full-Auto by $+3.21$ and beats Step-by-Step by $+2.16$. The explanation is that Step-by-Step's approve actions at non-critical stages add noise without information, while CoPilot concentrates expert judgment where it has the highest marginal impact.
+
+
+\noindent \textbf{Pre-Experiment and Post-Experiment HITL address different failure modes.} Splitting CoPilot reveals two complementary contributions. Pre-Experiment HITL (stages 5, 8, 9) fixes research design feasibility: on T02, it compresses a 240-cell factorial design to a feasible 60-cell layout and prescribes appropriate statistical tests. Pre-Experiment alone is widely valid (8/10) but rarely lifts quality (mean 4.28, 37.5\% accept), because correct scoping alone does not fix downstream claim discipline. Post-Experiment HITL (stages 14, 17, 20) fixes claim faithfulness, ensuring conclusions match actual measurements and scope is honestly delimited. Post-Experiment produces some of the strongest individual papers but is valid on only 6/10 topics, because late-stage HITL cannot generate experimental evidence from nothing. CoPilot is best because it spans both halves: fixing feasibility early and faithfulness late.
+
+\noindent \textbf{Gate-Only provides a cost-effective middle ground.} Gate-Only (3 interventions) raises accept rate from 25\% to 50\% and is the only mode achieving 10/10 validity. For practitioners seeking minimal human involvement with meaningful quality improvement, Gate-Only represents an attractive operating point between Full-Auto and CoPilot.
+
+\vspace{-0.3em}
+\subsection{Component Ablation}
+\label{sec:component_abl}
+\vspace{-0.3em}
+
+To isolate the contribution of each mechanism, we run a system-level ablation on the same 10 ARC-BENCH topics under Full-Auto mode. Each row in Table~\ref{tab:component-abl} removes one mechanism and keeps the others intact.
+
+\noindent \textbf{Best-of-$N$ protocol.}
+Autonomous research agents are stochastic and path-dependent: a single unlucky branch in hypothesis generation, code repair, or drafting can dominate the final outcome. We therefore adopt a best-of-$N$ protocol; Full-Auto numbers in this ablation reflect this setting and should be read against Table~\ref{tab:component-abl} rather than the single-run HITL results. Detailed ablations of design-space exploration parameters appear in Appendix~\ref{app:agent_count}.
+
+\begin{table}[t]
+\centering
+\caption{Component ablation in Full-Auto mode on the same 10 ARC-BENCH topics using a best-of-3 protocol over three reruns per configuration--topic pair. Completion counts topics for which at least one rerun completed a manuscript. Quality is the mean of the selected best scores over completed topics, and Accept counts selected completed outputs with score $\ge 5$. Fabrication is determined by manual audit of the selected outputs. $^{\ddagger}$~Score inflated by removing the verification gate.}
+\label{tab:component-abl}
+\small
+\begin{tabularx}{\textwidth}{@{}lCCCC@{}}
+\toprule
+\textbf{Configuration} & \textbf{Completion} & \textbf{Quality} & \textbf{Accept} & \textbf{Fabrication} \\
+\midrule
+Full \system{}              & \textbf{10/10} & \textbf{5.62} & \textbf{3/10}             & \xmark \\
+\quad w/o Debate            & 10/10          & 4.25          & 1/10                      & \xmark \\
+\quad w/o Self-Healing      & 6/10           & 4.83          & 1/6                       & \xmark \\
+\quad w/o Evolution         & 9/10           & 5.14          & 2/10                      & \xmark \\
+\quad w/o Verification      & 10/10          & $5.48^{\ddagger}$ & $5/10^{\ddagger}$     & \cmark \\
+\quad w/o Debate \& Healing & 4/10           & 3.47          & 0/4                       & \xmark \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\noindent \textbf{Each mechanism addresses a distinct failure mode, even under a favorable rerun budget.}
+Multi-agent debate is the largest quality contributor ($-1.37$, $p{=}0.003$): without the Pragmatist filtering infeasible hypotheses and the Skeptic scrutinizing weak findings, both hypothesis quality and result analysis degrade. Self-healing is the largest completion contributor: removing it reduces completion from 10/10 to 6/10 even with three attempts per topic, because the first unrecovered runtime error terminates the run and surviving topics are disproportionately easier. Cross-run evolution provides a moderate reliability gain ($-0.48$ quality, $-1$ completion) by injecting lessons from prior failures, primarily avoiding known failure modes rather than raising the quality ceiling.
+
+\noindent \textbf{Verification is the integrity backstop.}
+Removing the verified registry raises apparent acceptance from 3/10 to 5/10, but manual inspection reveals that 3 of those 5 papers contain values absent from any measurement record. The verification gate correctly separates genuine from fabricated results; its cost to acceptance rate is the price of scientific integrity.
+
+\noindent \textbf{The mechanisms interact super-additively.}
+Combined removal of debate and self-healing drops completion to 4/10, mean quality to 3.47, and acceptance to zero. The interaction is intuitive: debate without self-healing produces ambitious hypotheses that crash on first failure, while self-healing without debate repairs experiments that test poorly formulated questions.
+
+\vspace{-0.3em}
+\subsection{Case Study: Topic T10}
+\label{sec:casestudy}
+\vspace{-0.3em}
+
+Figure~\ref{fig:case-study} compares Full-Auto and CoPilot on Topic T10, which studies cross-validation strategies for small-sample model selection. Both runs produce complete-looking manuscripts, but Full-Auto fails in a way that runtime metrics do not capture: its experiment collapses to identical outputs across conditions. A detailed artifact-level comparison is provided in Appendix~\ref{app:casestudy}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/casestudy.png}
+    \caption{Case study comparing Full-Auto and CoPilot on Topic T10. Full-Auto suffers a silent semantic collapse: all cross-validation strategies report identical zero-bias outputs. CoPilot produces differentiated results, enabling a meaningful comparison across strategies.}
+    \label{fig:case-study}
+\end{figure}
+
+The T10 case shows why execution success alone is not enough. Full-Auto completes a manuscript, but all eight cross-validation strategies collapse to identical zero-bias outputs. As a result, the paper cannot support a substantive comparison. CoPilot avoids this failure because the human guidance targets the experimental bottleneck directly. It asks the system to check whether cross-validation strategies produce different outcomes, whether leave-one-out cross-validation fits the time budget, and whether the manuscript's claims stay within the logged results. The final CoPilot paper remains exploratory, but it reports nonzero contrasts across nine pipelines and states its limitations clearly. The Stage-20 quality gate therefore accepts it.
+
+Three observations follow. First, debate quality matters even when execution succeeds: the Contrarian's concern about distinguishable ablations helps flag the collapsed design before it becomes the final experiment. Second, verification is necessary but not sufficient. Full-Auto passes the numeric gate because the zero values are real logged measurements, not fabricated numbers. However, the gate cannot tell whether those measurements answer the research question. Third, CoPilot improves quality not by adding more intervention, but by placing intervention at the right decision points. Guidance about experimental semantics produces evidence-grounded output, while late writing-stage guidance cannot recover missing experimental evidence.
+
+This pattern is consistent with the HITL results in Table~\ref{tab:hitl-summary}: partial or mistimed intervention improves some failure modes, but does not match CoPilot's combination of early experimental guidance and late claim checking. Broader failure and writing-quality audits are reported in Appendices~\ref{app:failures} and~\ref{app:writing-quality}.

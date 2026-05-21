@@ -1,0 +1,19 @@
+\begin{table}[ht]
+  \caption{\textbf{Continual AntiSD on Qwen3-8B.} \emph{+AntiSD$^{\dag}$} resumes from GRPO@$200$; \emph{Steps} counts post-resume only. \emph{Speedup} as in Table~\ref{tab:main}. \textbf{Bold} = column best.}
+  \vspace{-0.5em}
+  \label{tab:continual}
+  \centering
+  \small
+  \setlength{\tabcolsep}{5pt}
+  \renewcommand{\arraystretch}{0.95}
+  \begin{tabular}{l|c|ccccc|c|c}
+    \toprule
+    \textbf{Method}                       & \textbf{Steps} & \textbf{AIME24} & \textbf{AIME25} & \textbf{AIME26} & \textbf{HMMT25} & \textbf{Minerva} & \textbf{Average}                  & \textbf{Speedup}     \\
+    \midrule
+    GRPO                                  & 200            & 73.5            & 65.2            & 64.2            & 39.2            & 45.1             & 57.4\textsubscript{@200}          & 1.0$\times$          \\
+    +AntiSD                               & 200            & \textbf{78.4}   & \textbf{73.4}   & \textbf{73.7}   & \textbf{54.4}   & 48.5             & \textbf{65.7\textsubscript{@180}} & \textbf{5.0$\times$} \\
+    \rowcolor{antisdrow} +AntiSD$^{\dag}$ & +50            & 74.9            & 72.4            & 73.0            & 54.0            & \textbf{50.6}    & 65.0\textsubscript{@30}           & \textbf{5.0$\times$} \\
+    \bottomrule
+  \end{tabular}
+  \vspace{-.5em}
+\end{table}
