@@ -51,6 +51,38 @@ jobs:
       - name: Install package and dev deps
         run: pip install -e ".[dev]"
 
+      # The publisher real-call test (SC-006) and any compile-dependent
+      # e2e test need a real TeX toolchain: the llmxive.cls full compile
+      # runs lualatex + bibtex + fontspec. Without TeX Live the publisher's
+      # `_compile_full` fails, the deposit never happens, and the test can't
+      # reach `posted`. Install lualatex + the package set llmxive.cls pulls
+      # in (fontspec, geometry, xcolor, microtype, adjustbox, tabularray,
+      # tcolorbox, caption, booktabs, listings, natbib, hyperref, fancyhdr,
+      # fontawesome5, tikz, algorithms, …) via the texlive-* meta-packages.
+      - name: Install TeX Live (lualatex + bibtex) for paper compiles
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-luatex texlive-latex-recommended texlive-latex-extra \
+            texlive-fonts-recommended texlive-fonts-extra texlive-science \
+            texlive-bibtex-extra texlive-pictures texlive-plain-generic \
+            texlive-lang-english fonts-noto-core
+          lualatex --version | head -1
+          bibtex --version | head -1
+
+      # Install the house fonts (Fraunces serif + JetBrains Mono) so
+      # fontspec resolves them and the real-call compile renders the true
+      # llmXive style. The class falls back to TeX Gyre Pagella / Inconsolata
+      # via \IfFontExistsTF when these are absent, but the published PDF
+      # should match production.
+      - name: Install llmXive house fonts
+        run: |
+          mkdir -p "$HOME/.fonts"
+          cp papers/.style/fonts/*.ttf "$HOME/.fonts/"
+          fc-cache -f >/dev/null
+          fc-list | grep -iE "fraunces|jetbrains" | head || \
+            echo "WARN: house fonts not registered (class will fall back)"
+
       # FR-031 / T114: Per-PR pre-checks BEFORE running real-call tests.
       # If any of these fail, the gate fails fast — saving real-LLM minutes.
       - name: Prompt existence check (every prompt referenced by registry exists and parses)

@@ -137,29 +137,18 @@ def test_publisher_sandbox_e2e_first_publication() -> None:
         )
         result = agent.run(ctx)
 
-        # Stage advanced.
+        # Stage advanced to `posted`. The CI runner installs TeX Live + the
+        # house fonts (see the workflow) so the publisher's full llmxive.cls
+        # compile + real Zenodo Sandbox publish runs for real here, exactly
+        # as it does locally. If it does NOT reach `posted`, that's a genuine
+        # failure — surface the agent's outcome + reason in the message
+        # rather than skipping.
         proj = project_state.load(pid, repo_root=_REPO)
         assert proj is not None
-        # The publisher is deterministic and verified end-to-end LOCALLY
-        # (~10s: full llmxive.cls compile + real Zenodo Sandbox publish).
-        # When the real publish can't complete in THIS environment, the
-        # agent records a FAILED outcome and leaves the stage at
-        # paper_accepted. The two environmental gaps that hit the CI
-        # real-call runner are: (1) no TeX Live / house fonts for the
-        # llmxive.cls full compile (the runner installs neither — the
-        # implementer e2e fixture deliberately uses \documentclass{article}
-        # to avoid this), and (2) Zenodo Sandbox being transiently
-        # unreachable. Mirror the missing-creds skip above and treat an
-        # un-posted result as a skip-with-diagnostic rather than a hard
-        # failure; publisher LOGIC is covered by tests/unit/test_publisher.py
-        # and the real sandbox path is exercised locally.
-        if proj.current_stage != Stage.POSTED:
-            pytest.skip(
-                "sandbox publish could not complete in this environment "
-                f"(outcome={result.outcome.value!r}, "
-                f"reason={result.failure_reason!r}) — verified locally."
-            )
-        assert proj.current_stage == Stage.POSTED
+        assert proj.current_stage == Stage.POSTED, (
+            f"publisher did not reach 'posted' "
+            f"(outcome={result.outcome.value!r}, reason={result.failure_reason!r})"
+        )
 
         # Publication metadata written; DOI is sandbox-prefixed.
         pub = pub_state.load(pid, repo_root=_REPO)
