@@ -445,7 +445,34 @@ def _verify(project_id: str, spec_md_before: str) -> tuple[list[str], dict[str, 
 # Per-project orchestration
 # ──────────────────────────────────────────────────────────────────────
 
-def _run_one_project(project_id: str, *, reset: bool) -> dict[str, Any]:
+def _rollback_to_clarified(project_id: str) -> bool:
+    """--force re-validation helper: roll a project that has advanced past
+    'clarified' (e.g. a prior partial run left it at 'planned') back to the
+    Phase-4 entry stage so the FULL planner→tasker chain can be re-validated
+    from the canonical starting state. The transition is logged to the
+    project's history.jsonl by ``project_store.save``. Returns True if a
+    rollback was performed. Does NOT weaken the default FR-019 decline — it is
+    an explicit, opt-in re-validation action.
+    """
+    from llmxive.state import project as project_store
+
+    proj = project_store.load(project_id, repo_root=REPO_ROOT)
+    if proj.current_stage.value == "clarified":
+        return False
+    prev = proj.current_stage.value
+    project_store.update(
+        project_id,
+        {"current_stage": "clarified", "failed_stage": None},
+        repo_root=REPO_ROOT,
+    )
+    print(f"[validate_phase4] {project_id}: --force rolled back {prev} -> clarified "
+          f"for re-validation", file=sys.stderr)
+    return True
+
+
+def _run_one_project(project_id: str, *, reset: bool, force: bool = False) -> dict[str, Any]:
+    if force:
+        _rollback_to_clarified(project_id)
     _preflight(project_id)
     reset_artifacts = reset_phase4_outputs(project_id) if reset else []
     print(f"[validate_phase4] {project_id}: reset removed {len(reset_artifacts)} Phase-4 output(s)",
@@ -650,6 +677,10 @@ def main(argv: list[str] | None = None) -> int:
     grp.add_argument("--project", help="Run Phase 4 on a single canonical")
     grp.add_argument("--all", action="store_true", help="Run Phase 4 on both canonicals")
     ap.add_argument("--no-reset", action="store_true", help="Skip the FR-018 reset")
+    ap.add_argument("--force", action="store_true",
+                    help="Roll a project that advanced past 'clarified' (e.g. a prior "
+                         "partial run) back to 'clarified' before validating — for "
+                         "reproducible re-validation. Does not change default FR-019 behavior.")
     ap.add_argument("--emit-carry-forward", action="store_true",
                     help="Also emit carry-forward.yaml + phase-report.md (implicit with --all)")
     args = ap.parse_args(argv)
@@ -661,7 +692,7 @@ def main(argv: list[str] | None = None) -> int:
     reset = not args.no_reset
     results: list[dict[str, Any]] = []
     for pid in project_ids:
-        results.append(_run_one_project(pid, reset=reset))
+        results.append(_run_one_project(pid, reset=reset, force=args.force))
 
     if args.all or args.emit_carry_forward:
         cf = emit_carry_forward(results)
