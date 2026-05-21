@@ -1,10 +1,17 @@
 {
   "arxiv_id": "2605.14236",
   "arxiv_url": "https://arxiv.org/abs/2605.14236",
-  "title": "https://arxiv.org/abs/2605.14236",
-  "authors": [],
+  "title": "Active Learners as Efficient PRP Rerankers",
+  "authors": [
+    "Jerem\u00edas Figueiredo Paschmann",
+    "Juan Kaplan",
+    "Francisco Nattero",
+    "Santiago Barron",
+    "Juan Wisznia",
+    "Luciano del Corro"
+  ],
   "submitter": "github-actions[bot]",
-  "abstract": null,
+  "abstract": "Pairwise Ranking Prompting (PRP) elicits pairwise preference judgments from an LLM, which are then aggregated into a ranking, usually via classical sorting algorithms. However, judgments are noisy, order-sensitive, and sometimes intransitive, so sorting assumptions do not match the setting. Because sorting aims to recover a full permutation, truncating it to meet a call budget does not produce a dependable top-K. We thus reframe PRP reranking as active learning from noisy pairwise comparisons and show that active rankers are drop-in replacements that improve NDCG@10 per call in the call-constrained regime. Our noise-robust framework also introduces a randomized-direction oracle that uses a single LLM call per pair. This approach converts systematic position bias into zero-mean noise, enabling unbiased aggregate ranking without the cost of bidirectional calls.",
   "submitted_via": "llmXive dashboard, GitHub issue #213",
   "license": "arXiv Non-exclusive Distribution License",
   "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
