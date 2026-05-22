@@ -1,0 +1,465 @@
+\section{Evaluation}
+\label{sec:evaluation}
+
+
+This section transitions from the analysis of trustworthiness dimensions to their quantitative measurement. As illustrated in Fig.~\ref{fig:eval-overview}, we organize trustworthy LALM evaluation into a three-pillar hierarchical taxonomy: \textbf{Fidelity}, \textbf{Stability}, and \textbf{Alignment}. \textbf{Fidelity and Grounding} (Sec.~\ref{sec:5.1}) establishes cognitive trust by mitigating \textit{hallucination} through grounding model responses in acoustic reality. \textbf{Stability and Robustness} (Sec.~\ref{sec:5.2}) measures behavioral consistency across temporal extensions, instructional variations, and conflicting modalities. \textbf{Safety and Alignment} (Sec.~\ref{sec:5.3}) assesses adherence to human values, \textit{privacy}, \textit{fairness}, and \textit{authentication} under adversarial, spoofing, and socially sensitive risks. Finally, Sec.~\ref{sec:5.4} discusses future evaluation paradigms, while Table~\ref{tab:audiollm_eval_summary} provides a comprehensive benchmark-level summary across both general capabilities and trustworthy dimensions.
+
+\begin{figure}[t] 
+    \centering
+    \includegraphics[width=\columnwidth]{figure/eval-overview.png}
+    \caption{
+Conceptual taxonomy of trustworthy LALM evaluation. We group existing evaluations into three complementary pillars: fidelity and grounding, which examines whether models faithfully perceive and reason over acoustic evidence; stability and robustness, which measures consistency under temporal, instructional, acoustic, and conversational perturbations; and safety and alignment, which evaluates resistance to adversarial misuse, privacy leakage, bias, and spoofing.
+}
+    \label{fig:eval-overview} 
+\end{figure} 
+
+\renewcommand{\TableCols}{12}
+\begin{table*}[htbp]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.18}
+\caption{Overview of LALM evaluation benchmarks across general capabilities and trustworthy dimensions.}
+\label{tab:audiollm_eval_summary}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}lclccccccccc@{}}
+\toprule
+
+\multirow{2}{*}{\textbf{Benchmark}} &
+\multirow{2}{*}{\textbf{Release}} &
+\multirow{2}{*}{\textbf{Metrics}} &
+\multicolumn{3}{c}{\textbf{General}$^\dagger$} &
+\multicolumn{6}{c}{\textbf{Trustworthy}$^\ddagger$} \\
+\cmidrule(lr){4-6} \cmidrule(lr){7-12}
+
+& & &
+\textbf{P} & \textbf{R} & \textbf{I} &
+\textbf{H} & \textbf{P} & \textbf{A} & \textbf{S} & \textbf{R} & \textbf{F} \\
+\midrule
+\YearRow{Year 2024}
+AudioBench\cite{wang2025audiobench}        & Jan 2024 & WER, METEOR, LLM-as-a-Judge & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+MMAU\cite{sakshi2024mmau}                  & Oct 2024 & Accuracy & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+VoiceBench\cite{chen2026voicebench}             & Oct 2024 & LLM-as-a-Judge, Accuracy, Refusal Rate & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+\midrule
+\YearRow{Year 2025}
+Jailbreak-AudioBench\cite{cheng2025jailbreak}  & Jan 2025 & ASR & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark \\
+URO-Bench\cite{yan2025uro}             & Feb 2025 & LLM-as-a-Judge, UTMOS, WER/CER, First Packet Latency & \cmark & \cmark & \cmark & \xmark & \cmark & \cmark & \cmark & \xmark & \xmark \\
+S2S-Arena\cite{jiang2025s2s}                     & Mar 2025 & ELO Rating, Win Rate, Inter-Annotator Agreement & \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+Talking Turns\cite{arora2025talking}             & Mar 2025 & Agreement, Accuracy, ROC-AUC, F1 (judge model) & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+MMAR\cite{ma2025mmar}                  & May 2025 & Accuracy & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+SAKURA\cite{yang2025sakura}                  & May 2025 & Accuracy, LLM-as-a-Judge & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+VocalBench\cite{liu2025vocalbench}             & May 2025 & Accuracy, LLM-as-a-Judge, UTMOS, WER, Refusal Rate, Preserve Rate & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\
+JALMBench\cite{peng2025jalmbench}             & May 2025 & ASR, Attack Efficiency & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark \\
+AHaBench\cite{cheng2026aha}             & May 2025 & AHa-Score, m-AHa, GPT-4-Judge Consistency, POPE & \xmark & \xmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+AudioJailbreak\cite{chen2025audiojailbreak}  & May 2025 & ASR & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark \\
+AJailBench\cite{song2025audio}            & May 2025 & ASR, TS, PV, Relevance, Similarity & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark \\
+VocalAgent\cite{kim2025vocalagent}            & May 2025 & macro-F1, Accuracy, FPR, Refusal Rate, Goodness@0.1 & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+AudioTrust\cite{li2025audiotrust}            & May 2025 & GPT-4o Score, CM-WER, CCR, DSR, HRR, FAR, SES, Refusal Rate, Group Unfairness Score & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark \\
+MMSU\cite{wang2025mmsu}      & Jun 2025 & Accuracy & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+SOVA-Bench\cite{hou2025sova}                    & Jun 2025 & Accuracy, WER, GPTEval, LLM-as-a-Judge, UTMOSv2 & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+WildSpeech-Bench\cite{zhang2025wildspeechbench}       & Jun 2025 & LLM-as-a-Judge, UTMOS, Query-Aware Checklist & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+ContextASR-Bench\cite{wang2025contextasr}      & Jul 2025 & WER, NE-WER, NE-FNR & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+C\textsuperscript{3}\cite{ma2025c3}      & Jul 2025 & LLM-as-a-Judge, Human Evaluation Score & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+WoW-Bench\cite{kim2025wow}             & Aug 2025 & Accuracy & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+MMAU-Pro\cite{kumar2025mmau}              & Aug 2025 & Accuracy & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+MCR-BENCH\cite{wang2025audio}             & Aug 2025 & Accuracy, Norm Acc, Macro Acc, TIR, MRS & \cmark & \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+SpeechR\cite{yang2025speechr}               & Aug 2025 & Accuracy, Logical Consistency Score & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+AudioSafe\cite{lin2025hidden}   & Aug 2025 & Accuracy, ASR & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\
+VoiceAssistant-Eval\cite{wang2025voiceassistant} & Sep 2025 & LLM-as-a-Judge, UTMOS, WER, Speaker Similarity & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\
+MUSE\cite{carone2025muse}                  & Oct 2025 & Accuracy & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+LISTEN\cite{chen2025audio}                & Oct 2025 & Accuracy & \cmark & \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+AudioMarathon\cite{he2025audiomarathon}         & Oct 2025 & F1, WAR & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+ISA-Bench\cite{li2025isa}             & Oct 2025 & IFR, WER, BLEU, ACC, METEOR, RPS & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark \\
+Hearing the Order\cite{lin2025hearing}     & Oct 2025 & Accuracy, CKLD & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+Safety under Emotional Variations\cite{feng2025investigating}
+                      & Oct 2025 & NRR, Unsafe Rate & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\
+Gender Bias in SpeechLLMs\cite{satish2025bias}
+                      & Oct 2025 & MCQA Selection Rate, LLM-as-a-Judge & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\
+BRACE\cite{guo2025brace}                & Dec 2025 & F1 & \cmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+Spoken DialogSum\cite{lu2025spoken}      & Dec 2025 & ROUGE-L & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+MAC-SLU\cite{peng2025mac}               & Dec 2025 & Accuracy, F1 & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+SH-Bench\cite{zhan2025protecting}      & Dec 2025 & SE (Selective Efficacy), Accuracy & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark \\
+\midrule
+\YearRow{Year 2026}
+WESR\cite{yang2026wesr}                  & Jan 2026 & Precision, Recall, F1, WER & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+RSA-Bench\cite{zhang2026rsa}             & Jan 2026 & WER, Accuracy, LLM-as-a-Judge & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+PALM-Bench\cite{wang2026palm}            & Jan 2026 & BLEU, F1-score, BERTScore, LLM-as-a-Judge & \xmark & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+ChronosAudio\cite{luo2026chronosaudio}          & Jan 2026 & WER, BERTScore, Acc\_dict, LS, TS, MS, LLM-as-a-Judge & \cmark & \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+HearSay\cite{wang2026hearsay}               & Jan 2026 & IAR, ARR, BBR & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark \\
+AGL1K\cite{zhang2026sonar}      & Jan 2026 & Accuracy, Geoscore, Mean Distance Error, Thresholded Accuracy, Reject Rate & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\
+BiasInEar\cite{wei2026bias} & Feb 2026 & Accuracy, Entropy, APES, Fleiss' $\kappa$ & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\
+DailyTalkEdit\cite{xu2026holiantispoof}           & Feb 2026 & Accuracy, EER, F1, Seg-F1, LLM-as-a-Judge & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark \\
+HumDial-EIBench\cite{wang2026humdialeibenchhumanrecordedmultiturnemotional}               & Apr 2026 & Accuracy, LLM-as-Judge & \xmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+VoxSafeBench\cite{wang2026voxsafebench}               & Apr 2026 & Safety Awareness Score, JSR, Perception Probing Accuracy & \cmark & \xmark & \cmark & \xmark & \cmark & \xmark & \cmark & \xmark & \cmark \\
+HalluAudio\cite{zhao2026halluaudiocomprehensivebenchmarkhallucination} 
+& Apr 2026 
+& Accuracy, Hallucination Rate, Yes/No Bias, Error-type Analysis, FRR 
+& \cmark & \cmark & \xmark 
+& \cmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\vspace{0.8ex}
+\parbox{\textwidth}{%
+\scriptsize
+$^\dagger$ \textbf{General}: Perception (P), Reasoning (R), Interaction (I). \\
+$^\ddagger$ \textbf{Trustworthy}: Hallucination (H), Privacy (P), Authentication (A), Safety (S), Robustness (R), Fairness (F).
+}
+\end{table*}
+
+
+
+% \subsection{Fidelity and Grounding}
+% \label{sec:5.1}
+% The cornerstone of a trustworthy LALM is its fidelity to acoustic reality. In the auditory domain, we define \textbf{Perceptual Hallucination} as the model's inability to accurately ground its outputs in the physical signal, leading to fabricated events or misinterpreted physical properties. Models lacking grounding often prioritize linguistic priors over acoustic evidence. This section reviews evaluation paradigms quantifying this fidelity across three granularities: fine-grained localization (Sec.~\ref{sec:5.1.1}), cross-modal grounding (Sec.~\ref{sec:5.1.2}), and contextual reasoning (Sec.~\ref{sec:5.1.3}).
+
+
+% \subsubsection{From Classification to Disentanglement}
+% \label{sec:5.1.1}
+% Addressing the limitations of coarse tagging, \textbf{WESR}\cite{yang2026wesr} redefines detection as \textit{Word-level Event-Speech Recognition}, utilizing a position-aware protocol to disentangle ASR errors from event localization failures ($S_{fidelity}$). Beyond temporal precision, \textbf{WoW-Bench}\cite{kim2025wow} and \textbf{MUSE}\cite{carone2025muse} expose a ``Semantic Shortcut'' phenomenon. By testing on marine vocalizations and structured music, these benchmarks reveal that models often hallucinate logic without genuine physical perception, with CoT prompting degrading performance.
+
+% Fidelity in complex environments is evaluated by \textbf{MMAU} \cite{sakshi2024mmau} and \textbf{MMAU-Pro} \cite{kumar2025mmau}, which prioritize \textit{Disentanglement Efficiency} in overlapping acoustic scenes. Extending this to real-world degradation, \textbf{RSA-Bench} \cite{zhang2026rsa} utilizes diverse acoustic ecologies to reveal a \textit{Perception-Cognition Gap}, where higher-order reasoning collapses despite resilient low-level recognition. Notably, its \textit{Denoising Paradox} indicates that standard enhancement often exacerbates degradation, necessitating architectural noise invariance over signal-level preprocessing. Furthermore, \textbf{AudioBench} \cite{wang2025audiobench} establishes a universal perceptual landscape, identifying a \textit{Modality Fusion Paradox} where modality integration fails to guarantee disentanglement in speech-intensive tasks. These findings collectively motivate a transition from coarse classification toward fine-grained perceptual modeling.4
+
+
+% \subsubsection{From Textual Bias to Genuine Listening}
+% \label{sec:5.1.2}
+% A pervasive vulnerability is \textit{Textual Dominance}, where models prioritize linguistic priors over sensory evidence. Genuine trustworthiness requires \textbf{Cross-Modal Grounding} to resolve conflicting inputs. \textbf{MCR-BENCH}\cite{wang2025audio} diagnoses this through \textit{Modal Conflict Resolution} tasks. Metrics like the \textit{Text Influence Rate (TIR)} reveal that in adversarial settings, model accuracy collapses while confidence remains high, indicating a failure to suppress erroneous textual signals. Complementing this, \textbf{LISTEN}\cite{chen2025audio} investigates the decoupling of semantics from paralinguistics. By constructing controlled conditions ranging from neutral text to sarcasm (mismatched cues), it exposes that current models operate primarily as ``transcribers,'' performing near random chance when lexical cues are absent.
+
+% Extending the investigation of paralinguistic processing to speech2speech protocols, \textbf{S2S-Arena}\cite{jiang2025s2s} evaluates instruction-following with paralinguistic information in both input and output. Using an arena-style evaluation across 4 domains and 21 tasks, it reveals that cascaded pipeline models (ASR, LLM, and TTS) outperform jointly trained end-to-end models, and that while models can understand paralinguistic cues in speech input, generating appropriate paralinguistic output remains a fundamental challenge, confirming that textual dominance persists beyond comprehension into generation.
+
+
+
+
+% Beyond explicit modal conflicts, hallucination can also manifest in generative settings. \textbf{BRACE}\cite{guo2025brace} evaluates audio caption alignment quality in a reference-free setting, with BRACE-Hallucination probing whether models generate content ungrounded in the acoustic input. Results showing that even the best LALM achieves only 63.19 F1 on BRACE-Hallucination confirm that textual dominance persists beyond classification tasks into open-ended generation.
+
+
+
+% \subsubsection{From Fact Retrieval to Persona Alignment}
+% \label{sec:5.1.3}
+% Cognitive fidelity extends from perception to reasoning within complex contexts. \textbf{ContextASR-Bench}\cite{wang2025contextasr} isolates linguistic competence by providing hierarchical contexts to assess knowledge integration for error correction. Beyond knowledge integration, contextual fidelity demands resolving ambiguities inherent in spoken language. \textbf{C}\textsuperscript{3}\cite{ma2025c3} constructs a bilingual benchmark that systematically probes phonological ambiguity (tone-only distinctions, homophones, heteronyms), semantic ambiguity (lexical and syntactic), and context-dependency phenomena (omission, coreference resolution, multi-turn interaction). The benchmark reveals that current SDMs struggle significantly with speech-level disambiguation, particularly in scenarios where lexical cues are insufficient and acoustic-prosodic information must be leveraged, exposing a critical gap between text-level and speech-level pragmatic competence.
+
+% Moving to higher-order logic, \textbf{SpeechR}\cite{yang2025speechr} and \textbf{MMAR}\cite{ma2025mmar} establish frameworks for factual, procedural, and abductive reasoning. These benchmarks highlight a significant ``reasoning gap,'' where high transcription accuracy does not translate to robust multi-step deduction. Extending this reasoning gap to multi-hop inference, \textbf{SAKURA}\cite{yang2025sakura} systematically evaluates LALMs across four dimensions---speaker gender, spoken language, speaker emotion, and animal sounds---with each dimension containing single-hop and multi-hop sub-tracks. Results reveal that even when models correctly extract relevant information in single-hop perception, accuracy drops drastically in multi-hop sub-tracks, indicating a fundamental failure to integrate extracted attributes for compositional reasoning. Crucially, most LALMs perform significantly better in text-based reasoning than in speech/audio-based reasoning, suggesting that their reasoning capabilities remain predominantly text-driven and lack genuine multimodal integration.
+
+% Furthermore, trustworthiness demands pragmatic alignment. Beyond general reasoning, fine-grained linguistic perception remains underexplored. \textbf{MMSU}\cite{wang2025mmsu} provides 5,000 audio-question-answer triplets spanning 47 tasks across linguistic (e.g., semantics and phonology) and paralinguistic (e.g., speaker traits and speaking style) dimensions. Covering phenomena such as phonetics, prosody, rhetoric, and syntax, the benchmark reveals that models perform well on semantic tasks but achieve only 53.60\% and 39.35\% accuracy on phonology and paralinguistics, respectively, with sarcasm detection and couplet matching remaining particularly challenging.
+
+% \textbf{Spoken DialogSum}\cite{lu2025spoken} and \textbf{MAC-SLU}\cite{peng2025mac} evaluate fidelity to emotional tones and multi-intent instructions, respectively. Extending emotional fidelity to multi-turn settings, \textbf{HumDial-EIBench}\cite{wang2026humdialeibenchhumanrecordedmultiturnemotional} evaluates Emotional Intelligence through Trajectory Detection, Emotional Reasoning, and Empathy Assessment. While models achieve near-ceiling performance in emotional tracking and reasoning, they struggle significantly with generating empathetic vocal and textual responses, exposing a critical bottleneck for trustworthy interaction. Finally, \textbf{PALM-Bench}\cite{wang2026palm} formalizes \textit{Personalized LALMs}, identifying a ``personalization gap'' where models fail to align reasoning with user-specific persona profiles in multi-speaker scenarios.
+
+\subsection{Fidelity and Grounding}
+\label{sec:5.1}
+% The cornerstone of trustworthy LALMs is fidelity to acoustic reality. We define \textbf{Perceptual Hallucination} as the failure to ground model outputs \cite{cheng2026aha, nwulist2026aabench, nwulist2026speechjailbreaker, zhao2026halluaudiocomprehensivebenchmarkhallucination} in physical acoustic signals, leading to fabricated events, misinterpreted properties, or over-reliance on linguistic priors. Existing evaluations quantify such grounding fidelity at three levels: fine-grained localization (Sec.~\ref{sec:5.1.1}), cross-modal grounding (Sec.~\ref{sec:5.1.2}), and contextual reasoning (Sec.~\ref{sec:5.1.3}).
+
+The cornerstone of trustworthy LALMs is fidelity to acoustic reality. We define \textbf{Perceptual Hallucination} as the failure to ground model outputs \cite{cheng2026aha, nwulist2026aabench, nwulist2026speechjailbreaker, zhao2026halluaudiocomprehensivebenchmarkhallucination} in physical acoustic signals, leading to fabricated events, misinterpreted properties, or over-reliance on linguistic priors. Existing evaluations quantify such grounding fidelity through general hallucination diagnosis and three more specific levels: fine-grained localization (Sec.~\ref{sec:5.1.1}), cross-modal grounding (Sec.~\ref{sec:5.1.2}), and contextual reasoning (Sec.~\ref{sec:5.1.3}).
+
+As a dedicated benchmark for this problem, \textbf{HalluAudio} \cite{zhao2026halluaudiocomprehensivebenchmarkhallucination} provides a large-scale evaluation of hallucination in LALMs across speech, environmental sound, and music. It contains over 5K human-verified QA pairs spanning binary judgments, multi-choice reasoning, attribute verification, and open-ended QA, and further induces hallucinations through adversarial prompts and mixed-audio conditions. Beyond task accuracy, HalluAudio reports hallucination rate, yes/no bias, error-type distributions, and refusal rate, enabling a more diagnostic analysis of whether model responses are semantically correct and acoustically supported. Its results reveal persistent failures in acoustic grounding, temporal reasoning, and music attribute understanding, suggesting that hallucination in LALMs is not merely a language-generation artifact but a cross-modal fidelity failure between auditory evidence and linguistic output.
+
+\subsubsection{From Classification to Disentanglement}
+\label{sec:5.1.1}
+Early audio evaluations based on coarse tagging are insufficient for diagnosing whether LALMs truly perceive acoustic events. \textbf{WESR} \cite{yang2026wesr} reframes detection as \textit{Word-level Event-Speech Recognition}, using a position-aware protocol to separate ASR errors from event localization failures. Beyond temporal precision, \textbf{WoW-Bench} \cite{kim2025wow} and \textbf{MUSE} \cite{carone2025muse} reveal a ``Semantic Shortcut'' phenomenon: models may infer plausible answers from linguistic or structural priors rather than genuine acoustic perception, and CoT prompting can even degrade performance.
+
+For complex acoustic scenes, \textbf{MMAU} \cite{sakshi2024mmau} and \textbf{MMAU-Pro} \cite{kumar2025mmau} emphasize \textit{Disentanglement Efficiency} under overlapping events. \textbf{RSA-Bench} \cite{zhang2026rsa} further exposes a \textit{Perception-Cognition Gap}, where low-level recognition remains relatively robust but higher-order reasoning collapses under real-world degradation; its \textit{Denoising Paradox} suggests that standard enhancement may worsen downstream reasoning. \textbf{AudioBench} \cite{wang2025audiobench} identifies a \textit{Modality Fusion Paradox}, showing that multimodal fusion does not improve disentanglement, especially in speech-dominant settings. Together, these benchmarks motivate a shift from coarse classification toward fine-grained perceptual modeling.
+
+\subsubsection{From Textual Bias to Genuine Listening}
+\label{sec:5.1.2}
+A central grounding failure is \textit{Textual Dominance}, where models rely more on linguistic priors than acoustic evidence. \textbf{MCR-BENCH} \cite{wang2025audio} evaluates this problem through \textit{Modal Conflict Resolution}, showing that under adversarial text-audio conflicts, accuracy drops sharply while confidence remains high; metrics such as \textit{Text Influence Rate} quantify the degree of textual bias. \textbf{LISTEN} \cite{chen2025audio} further decouples lexical semantics from paralinguistic cues, revealing that many models behave as ``transcribers'' and approach random performance when lexical cues are unavailable.
+
+This limitation also appears in speech-to-speech interaction. \textbf{S2S-Arena} \cite{jiang2025s2s} evaluates paralinguistic instruction following across 4 domains and 21 tasks, finding that cascaded ASR--LLM--TTS systems still outperform end-to-end models, and that generating appropriate paralinguistic output is harder than understanding such cues. In open-ended generation, \textbf{BRACE} \cite{guo2025brace} assesses reference-free audio caption alignment; its BRACE-Hallucination split shows that even the best LALM reaches only 63.19 F1, indicating that hallucinated, acoustically ungrounded content remains common beyond classification tasks.
+
+\subsubsection{From Fact Retrieval to Personal Alignment}
+\label{sec:5.1.3}
+Fidelity also concerns whether models reason correctly over spoken contexts. \textbf{ContextASR-Bench} \cite{wang2025contextasr} evaluates how hierarchical context helps error correction, while \textbf{C}\textsuperscript{3} \cite{ma2025c3} probes phonological, semantic, and discourse-level ambiguities in bilingual speech. These studies show that current speech dialogue models even still struggle when lexical cues are insufficient and acoustic-prosodic information is strongly needed for disambiguation.
+
+Higher-level reasoning benchmarks further reveal a gap between transcription and cognition. \textbf{SpeechR} \cite{yang2025speechr} and \textbf{MMAR} \cite{ma2025mmar} assess factual, procedural, and abductive reasoning, showing that strong ASR does not guarantee reliable multi-step inference. \textbf{SAKURA} \cite{yang2025sakura} extends this to multi-hop reasoning over speaker gender, language, emotion, and animal sounds; performance drops substantially from single-hop perception to multi-hop integration, and remains much stronger in text-only settings than in speech/audio settings. This indicates that LALM reasoning is still largely text-driven rather than genuinely multimodal.
+
+Finally, trustworthy grounding requires pragmatic and user-level alignment. \textbf{MMSU} \cite{wang2025mmsu} covers 47 linguistic and paralinguistic tasks, revealing strong semantic performance but weak phonological and paralinguistic understanding. \textbf{Spoken DialogSum} \cite{lu2025spoken} and \textbf{MAC-SLU} \cite{peng2025mac} evaluate emotional fidelity and multi-intent instruction following, while \textbf{HumDial-EIBench} \cite{wang2026humdialeibenchhumanrecordedmultiturnemotional} shows that models can track and reason about emotions yet struggle to generate empathetic responses. \textbf{PALM-Bench} \cite{wang2026palm} identifies a ``personalization gap,'' where LALMs fail to align responses with user-specific persona profiles in multi-speaker scenarios.
+
+% \subsection{Stability and Robustness}
+% \label{sec:5.2}
+
+% While perceptual fidelity ensures that a model accurately interprets acoustic signals in static isolation, genuine trustworthiness necessitates \textbf{Behavioral Stability}—the capacity to maintain performance integrity across dynamic, real-world constraints. In the context of LALMs, we define stability as the model's invariance to non-semantic variations: a trustworthy system should not suffer from cognitive degradation as audio duration extends (temporal entropy), nor should its decisions be swayed by trivial perturbations in instruction phrasing or option ordering (interactional fragility). This section reviews evaluation paradigms designed to quantify this consistency, focusing on the model's resistance to \textbf{Long-Context Collapse} (Sec.~\ref{sec:5.2.1}) and \textbf{Instructional Sensitivity} (Sec.~\ref{sec:5.2.2}).
+
+% \subsubsection{Temporal Robustness in Long-Form Context}
+% \label{sec:5.2.1}
+
+% Current LALMs exhibit a critical vulnerability where reliability degrades precipitously as input duration extends, despite their excellence in processing short clips. We define \textbf{Temporal Robustness} as the capacity to maintain cognitive integrity and attention span against temporal entropy. Recent benchmarks diagnose a widespread \textbf{Long-Context Collapse}, characterized by severe information loss and reasoning degradation in document-level audio scenarios.
+
+% \textbf{ChronosAudio}\cite{luo2026chronosaudio} provides the first systematic quantification of this failure mode. To capture degradation nuances across 36,000 test instances, the benchmark employs a multi-dimensional metric suite comprising mWER combined with BERTScore for verbatim tasks, Time-Deviation Penalties for localization precision, and an ensemble LLM-as-a-Judge approach for high-level comprehension. By stratifying performance across short, middle, and long durations, the benchmark reveals a non-linear collapse where specific tasks witness a performance drop exceeding 90\% in long-context transitions. The study identifies the underlying mechanism as \textbf{Structural Attention Dilution}, wherein attention heads fail to sustain temporal locality, thereby necessitating a shift in evaluation focus from aggregate accuracy to Degradation Rate Analysis.
+
+% Complementing this cognitive assessment, \textbf{AudioMarathon}\cite{he2025audiomarathon} formalizes the tension between long-context understanding and computational constraints. It introduces a dual-metric framework evaluating Task Accuracy via WAR and Macro-F1 alongside Inference Efficiency metrics such as Latency and Peak GPU Memory. This approach highlights the quadratic cost of attention mechanisms and rigorously tests trade-offs in acceleration techniques such as token pruning. Crucially, these metrics expose a \textbf{Restorative Ceiling} where mitigation strategies like sparse attention effectively recover retrieval capabilities but fail to restore high-fidelity reasoning scores, salvaging only approximately 50\% of performance. This implies that achieving temporal robustness requires optimizing the Accuracy-Efficiency Pareto Frontier rather than merely extending context windows.
+
+% \subsubsection{Interaction and Instruction Robustness}
+% \label{sec:5.2.2}
+
+% Beyond temporal constraints, a trustworthy model must demonstrate \textbf{Cognitive Conviction}, where its outputs remain invariant to semantically equivalent but syntactically distinct inputs. However, evaluations uncover severe \textbf{Interactional Fragility}, indicating that current LALMs function more as probabilistic mimics than reasoners, susceptible to trivial perturbations in the surface form of interaction.
+
+% \textbf{ISA-Bench}\cite{li2025isa} systematically profiles this vulnerability through the lens of Instruction Sensitivity. By generating diverse instruction variants across three dimensions—Description (phrasing), Format (output constraints), and Number (task composition)—it reveals that even state-of-the-art models exhibit significant performance degradation when prompts deviate from standard templates. The study highlights a critical weakness in Format Compliance, particularly with structured outputs like JSON, where adherence rates frequently drop below 50\%. To quantify this, ISA-Bench introduces the \textbf{Instruction-Following Rate (IFR)} and \textbf{Relative Performance Score (RPS)}, which normalize model performance against its own best-case scenario. Crucially, the benchmark uncovers a plasticity-stability dilemma: while Supervised Fine-Tuning on diverse instructions improves compliance, it often triggers catastrophic forgetting of previously mastered acoustic tasks.
+
+
+
+
+% Corroborating this plasticity-stability tension from the end-to-end SDM perspective, \textbf{URO-Bench}\cite{yan2025uro} benchmarks SDMs across multilingualism, multi-round dialogues, and paralinguistics with two difficulty tiers. Evaluations reveal that while open-source SDMs perform adequately on daily QA, their instruction-following lags behind backbone LLMs with severe catastrophic forgetting in paralinguistic and audio comprehension, confirming that acquiring conversational skills often comes at the expense of acoustic perception fidelity.
+
+% Extending interactional fragility to the acoustic dimension, \textbf{VoiceBench}\cite{chen2026voicebench} evaluates LLM-based voice assistants on general knowledge, instruction-following, and safety under speaker variability, environmental noise, and content shifts. Results demonstrate that acoustic variability introduces significant instruction-following perturbations, revealing that fragility permeates the entire audio-text pipeline rather than being confined to textual surface form.
+
+% \textbf{VoiceAssistant-Eval}\cite{wang2025voiceassistant} offers a comprehensive benchmark spanning 13 task categories across listening, speaking, and viewing with 10,497 examples evaluated across 22 models. It reveals that proprietary models do not universally outperform open-source ones, that models excel at speaking but lag significantly in audio understanding, and that well-designed smaller models can rival much larger ones, while multimodal integration and role-play voice imitation remain particularly challenging.
+
+
+% Decomposing conversational robustness multi-dimensionally, \textbf{VocalBench}\cite{liu2025vocalbench} proposes a four-dimensional framework spanning semantic quality, acoustic performance, conversational ability, and robustness. Its analysis reveals compound fragility: models may preserve semantic coherence while failing in acoustic naturalness, or maintain single-turn quality while collapsing in multi-turn consistency, underscoring the need for holistic assessment across semantic, acoustic, and interaction dimensions.
+
+% \textbf{SOVA-Bench}\cite{hou2025sova} provides one of the most systematic evaluation frameworks for speech LLM conversation ability, benchmarking both understanding (general knowledge, speech recognition) and generation (semantic content and acoustic quality). It reveals that current models produce semantically coherent but acoustically deficient speech, underscoring that conversational robustness requires assessing both \textit{what} is said and \textit{how} it sounds.
+
+% Most fundamentally, turn-taking dynamics expose basic interactional fragility. \textbf{Talking Turns}\cite{arora2025talking} benchmarks audio foundation models on turn-taking event prediction, including yielding, backchanneling, interrupting, and floor-holding. Evaluations against human-human baselines reveal that systems frequently miss user turn yields, interrupt overly aggressively, rarely employ backchannels, and cannot signal floor-holding intent, with foundation models performing near random on backchannel understanding. This exposes a core deficiency in natural interaction flow control that instruction perturbation studies cannot capture.
+
+% Complementing this, \textbf{Hearing the Order}\cite{lin2025hearing} investigates ``Selection Bias'' in multiple-choice evaluations, challenging the reliability of standard leaderboards. The study demonstrates that merely permuting the order of answer options can cause accuracy fluctuations of up to 24\%, effectively altering model rankings. This implies that models still often rely on positional heuristics rather than genuine semantic understanding. To rigorously decouple true capability from positional bias, the study proposes permutation-based evaluation protocols, such as Cyclic or Full Permutation strategies. These findings suggest that robust evaluation requires dynamic testing paradigms that actively perturb interaction artifacts to verify whether the model is reasoning or merely pattern-matching.
+
+% Finally, \textbf{WildSpeech-Bench}\cite{zhang2025wildspeechbench} introduces a comprehensive evaluation designed for end-to-end speech LLMs in realistic settings, augmenting real-world chat data with speech-specific phenomena (prosody, homophones, stuttering) and speaker diversity. Using a query-aware evaluation method with customized checklists, it reveals significant performance variation across speech scenarios, highlighting interactional fragility to non-ideal acoustic conditions that text-based evaluations systematically overlook.
+
+\subsection{Stability and Robustness}
+\label{sec:5.2}
+
+While perceptual fidelity concerns accurate grounding in static acoustic inputs, trustworthy LALMs must also exhibit \textbf{Behavioral Stability}: the ability to maintain reliable performance under dynamic real-world variations. In this context, stability refers to invariance against non-semantic changes, including extended audio duration, prompt phrasing, output format, option ordering, speaker variability, and conversational dynamics. Existing evaluations mainly diagnose two failure modes: \textbf{Long-Context Collapse} in extended audio understanding (Sec.~\ref{sec:5.2.1}) and \textbf{Instructional Sensitivity} in interactive use (Sec.~\ref{sec:5.2.2}).
+
+\subsubsection{Temporal Robustness in Long-Form Context}
+\label{sec:5.2.1}
+
+LALMs often perform well on short clips but degrade sharply as audio duration increases. We define \textbf{Temporal Robustness} as the capacity to preserve attention, memory, and reasoning quality under long-form acoustic contexts. Recent benchmarks reveal a widespread \textbf{Long-Context Collapse}, where document-level audio understanding suffers severe information loss and reasoning degradation.
+
+\textbf{ChronosAudio} \cite{luo2026chronosaudio} systematically quantifies this failure across 36,000 test instances and multiple task types, using metrics for verbatim transcription, temporal localization, and high-level comprehension. By stratifying inputs into short, medium, and long durations, it reveals a non-linear degradation pattern, with some tasks dropping by over 90\% in long-context settings. The benchmark attributes this to \textbf{Structural Attention Dilution}, where attention mechanisms fail to preserve temporal locality, motivating evaluation beyond aggregate accuracy toward degradation-rate analysis.
+
+\textbf{AudioMarathon} \cite{he2025audiomarathon} further examines the trade-off between long-context understanding and computational efficiency. Its dual evaluation framework combines task accuracy with latency and memory measurements, exposing the quadratic cost of attention-based processing. Although acceleration methods such as token pruning or sparse attention can partially recover retrieval performance, they often fail to restore high-fidelity reasoning, revealing a \textbf{Restorative Ceiling}. These findings suggest that temporal robustness cannot be achieved by enlarging context windows; instead, models must optimize the accuracy--efficiency Pareto frontier while preserving long-range reasoning.
+
+\subsubsection{Interaction and Instruction Robustness}
+\label{sec:5.2.2}
+
+Beyond temporal stability, trustworthy LALMs should display \textbf{Cognitive Conviction}: semantically equivalent inputs should yield consistent outputs despite changes in phrasing, format, ordering, speaker, or dialogue context. However, existing evaluations reveal severe \textbf{Interactional Fragility}, indicating that current systems remain sensitive to superficial interaction artifacts.
+
+\textbf{ISA-Bench} \cite{li2025isa} evaluates instruction sensitivity by varying prompt description, output format, and task composition. It shows that even strong models degrade when instructions deviate from standard templates, with structured-output compliance such as JSON often falling below 50\%. Its \textbf{Instruction-Following Rate} and \textbf{Relative Performance Score} quantify robustness relative to each model's best-case behavior. Importantly, ISA-Bench reveals a plasticity--stability dilemma: instruction tuning improves compliance but can cause catastrophic forgetting of acoustic capabilities. \textbf{URO-Bench}  \cite{yan2025uro} corroborates this finding for end-to-end speech dialogue models, showing that conversational instruction-following gains often come at the cost of paralinguistic and audio comprehension.
+
+Interactional fragility also emerges from acoustic variability and multimodal conversation. \textbf{VoiceBench} \cite{chen2026voicebench} evaluates voice assistants under speaker variation, noise, and content shifts, showing that acoustic changes significantly perturb instruction following. \textbf{VoiceAssistant-Eval}\ cite{wang2025voiceassistant} broadens the evaluation to listening, speaking, and viewing tasks, revealing that models often speak fluently but lag in audio understanding and multimodal integration. Similarly, \textbf{VocalBench} \cite{liu2025vocalbench} decomposes robustness into semantic quality, acoustic performance, conversational ability, and robustness, showing that models may preserve semantic coherence while failing in acoustic naturalness or multi-turn consistency. \textbf{SOVA-Bench} \cite{hou2025sova} reaches a similar conclusion: current speech LLMs can generate semantically plausible responses, but their acoustic quality and speech-level conversational robustness remain limited.
+
+More fine-grained interaction studies expose failures in natural dialogue flow. \textbf{Talking Turns} \cite{arora2025talking} benchmarks turn-taking prediction, including yielding, backchanneling, interruption, and floor-holding. Compared with human-human interaction, current systems often miss turn yields, interrupt too aggressively, rarely produce backchannels, and perform near randomly on backchannel understanding. These results show that robust spoken interaction requires modeling real-time conversational dynamics, not only following explicit instructions.
+
+Finally, robustness must also be tested against evaluation artifacts. \textbf{Hearing the Order} \cite{lin2025hearing} identifies selection bias in multiple-choice audio evaluations: simply permuting answer options can change accuracy by up to 24\% and alter model rankings. It advocates permutation-based protocols to separate true understanding from positional heuristics. \textbf{WildSpeech-Bench} \cite{zhang2025wildspeechbench} evaluates end-to-end speech LLMs on realistic speech phenomena such as prosody, homophones, stuttering, and speaker diversity, showing large performance variation across non-ideal conditions. Together, these benchmarks indicate that robust evaluation must actively perturb interaction forms, acoustic conditions, and dialogue structures to determine whether LALMs genuinely reason or merely exploit superficial patterns.
+
+% \subsection{Safety and Alignment} \label{sec:5.3}
+
+% The final pillar of trustworthiness evaluation necessitates a rigorous examination of Safety and Alignment. This domain transcends simple performance metrics to assess the adherence of models to human ethical standards and their resilience against malicious exploitation. The incorporation of the auditory modality introduces unique vulnerabilities where acoustic signals can function as adversarial vectors or sources of sensitive biometric leakage. Consequently, we structure the evaluation of these societal risks into two critical dimensions. Section~\ref{sec:5.3.1} investigates Defensive Security by analyzing resistance to multimodal jailbreaks and acoustic backdoors. Section~\ref{sec:5.3.2} addresses Privacy, Fairness, and Authentication by quantifying risks related to unauthorized voice profiling and demographic bias in critical applications.
+
+% \subsubsection{Jailbreaks and Acoustic Backdoors}
+% \label{sec:5.3.1}
+
+% The high-dimensional nature of audio input significantly expands the adversarial attack surface beyond the textual domain, requiring trustworthy models to defend against both semantic manipulation and malicious acoustic signals. The primary threat vector involves translating established textual attacks into the auditory domain or leveraging audio-specific properties to bypass safety guardrails. \textbf{JALMBench}\cite{peng2025jalmbench} systematizes this by contrasting text-transferred attacks with audio-originated attacks across a massive dataset exceeding 245,000 samples. Utilizing the Attack Success Rate as the core metric, the study reveals that audio modalities inherently exhibit higher vulnerability compared to text, with a baseline attack success rate of 21.5\% versus 17.0\% for text. It further highlights that prompt-level defenses like AdaShield can reduce the success rate by nearly 20 percentage points, though this often comes at the cost of model utility. Complementing this macro-level analysis, \textbf{Jailbreak-AudioBench}\cite{cheng2025jailbreak} provides a granular examination of vulnerability to audio editing. By constructing a dataset based on seven edit categories such as speed, pitch, and celebrity accents, it introduces a rigorous Query-based Attack Protocol where success is defined by any single variant triggering a violation. Results indicate that models like SALMONN are highly fragile to timbre and emotion edits, with attack success rates increasing by over 20\%, confirming that non-semantic audio features can serve as potent jailbreak catalysts. Moving beyond editing-based attacks, \textbf{AudioJailbreak}\cite{chen2025audiojailbreak} targets end-to-end LALMs with attacks featuring asynchrony, universality, stealthiness, and over-the-air robustness. It introduces the more realistic \textit{weak adversary} scenario, achieving nearly 100\% ASR for sample-specific attacks and at least 76\% for universal attacks, revealing attack vectors fundamentally distinct from TTS-transferred textual jailbreaks.
+
+% Beyond explicit edits, models face threats from imperceptible or ostensibly harmless acoustic noise. \textbf{AJailBench}\cite{song2025audio} evaluates susceptibility to signal-level perturbations using an Audio Perturbation Toolkit driven by Bayesian optimization. By measuring metrics including Toxicity Score and Policy Violation Rate, the benchmark demonstrates that perturbations like time stretching or fading can dramatically lower safety barriers while remaining semantically consistent according to transcription similarity verification. This finding indicates that safety mechanisms often rely excessively on clean transcriptions and fail to detect adversarial patterns hidden within non-normative acoustic signals.
+
+% The most insidious vulnerabilities involve triggers that are functionally invisible or socially manipulative. \textbf{AudioSafe}\cite{lin2025hidden} exposes the risk of acoustic backdoors where specific features like background noise or prosodic shifts act as triggers for malicious behavior. Evaluating on a dataset spanning nine risk categories, the study finds that emotion and speaking rate triggers are frighteningly effective, achieving an attack success rate exceeding 90\% with only 3\% poisoning in the training data. This proves that harmless ambient sounds can be engineered into latent switches for unsafe outputs. Furthermore, \textbf{Safety under Emotional Variations}\cite{feng2025investigating} investigates a uniquely human-centric vulnerability known as Emotional Hijacking. By synthesizing malicious queries across diverse emotions and intensities to measure the Non-Refusal Rate, the study uncovers a non-monotonic intensity effect where medium-intensity emotions are often more effective at bypassing defenses than high-intensity ones. This suggests that the empathy mechanisms of the model may inadvertently override safety protocols when confronted with affect-rich inputs, necessitating a new paradigm of affect-aware safety evaluation.
+
+% \subsubsection{Privacy, Fairness, and Authentication}
+% \label{sec:5.3.2}
+
+% LALMs inherently function as biometric profilers which creates an inevitable tension between personalization capabilities and ethical constraints. The evaluation of this domain must quantify risks across the interconnected dimensions of unauthorized attribute extraction, demographic bias propagation, and identity spoofing vulnerability. The core privacy risk lies in Unintended Attribute Inference where models extract sensitive user information from acoustic features without explicit consent. \textbf{HearSay}\cite{wang2026hearsay} formalizes this risk by evaluating the ability of models to infer eight sensitive attributes including socioeconomic status and health conditions from short voice clips. Utilizing the Inference Accuracy Rate and Blind Bias Rate as metrics, the study reveals that models can infer gender with accuracy exceeding 92\% and effectively predict social class, often bypassing safety filters designed solely for textual content. The study further highlights that Chain-of-Thought reasoning exacerbates this risk by enabling models to deduce deeper correlations from acoustic cues. Extending privacy concerns to the physical world, \textbf{AGL1K}\cite{zhang2026sonar} benchmarks the capability of Audio Geo-Localization. By introducing the Audio Localizability metric, it assesses how models combine environmental sounds such as traffic density and reverberation with linguistic cues to predict precise GPS coordinates. While beneficial for navigation, high-precision acoustic location inference poses a significant surveillance threat particularly when models demonstrate superior geographical knowledge without user authorization.
+
+% Beyond single-speaker attribute inference, real-world deployment introduces bystander privacy risks. \textbf{SH-Bench}\cite{zhan2025protecting} evaluates selective hearing via 3,968 multi-speaker mixtures with 77k questions, introducing \textit{Selective Efficacy (SE)} as a unified metric for comprehension and privacy protection, revealing that strong audio understanding does not translate into effective bystander privacy protection.
+
+% Unauthorized profiling directly fuels algorithmic bias as models may condition their responses on inferred demographic attributes. \textbf{Gender Bias in SpeechLLMs}\cite{satish2025bias} investigates whether bias in multiple-choice questions generalizes to open-ended tasks. The study employs LoRA Fine-tuning to induce specific stereotype behaviors and tests their persistence across tasks. Results indicate that SpeechLLMs automatically inherit identity information from acoustic signals which makes bias implicit and harder to mitigate than in text-only models. Expanding bias analysis to multilingual settings, \textbf{BiasInEar}\cite{wei2026bias} spans English, Chinese, and Korean with 70.8 hours of speech and 11{,}200 questions, using accuracy, entropy, APES, and Fleiss' $\kappa$ to evaluate linguistic, demographic, and structural perturbations. Findings reveal that while models are robust to demographic factors, they are highly sensitive to language and option order, suggesting speech amplifies existing structural biases. In high-stakes domains like healthcare, \textbf{VocalAgent}\cite{kim2025vocalagent} evaluates fairness in Vocal Health Diagnostics. Utilizing a Safety-Aware Evaluation Framework, it measures Misclassification Risk and Over-Refusal Rate across diverse datasets including Korean, English, and Portuguese. The study warns that demographic biases could lead to disparate medical advice as commercial models like GPT-4o Audio exhibit severe class imbalances compared to specialized systems.
+
+% Finally, rigorous authentication is required to ensure that the model serves as a secure interface rather than a vector for impersonation. \textbf{AudioTrust}\cite{li2025audiotrust} provides the first comprehensive benchmark covering six trustworthiness dimensions with a specific focus on Identity Authentication. It evaluates susceptibility to Voice Cloning Spoofing and Identity Verification Bypass using metrics like the Attack Success Rate. The benchmark reveals that while closed-source models show some resilience with a low bypass rate for social engineering, open-source models are highly vulnerable with average bypass rates exceeding 35\%. Furthermore, advanced voice cloning techniques achieve a spoofing success rate of approximately 55\% which confirms that current LALMs lack robust mechanisms to distinguish synthetic voices from authentic human speech. This underscores the need for rigorous authentication protocols to prevent the model from becoming an accomplice in deepfake exploitation. Complementing vulnerability assessment with holistic defense, \textbf{DailyTalkEdit}\cite{xu2026holiantispoof} reformulates anti-spoofing as a unified generation task enabling joint reasoning over spoofing methods, affected attributes, and semantic impacts. It simulates realistic conversational manipulations with semantic influence annotations, demonstrating that the holistic objective outperforms conventional binary classification and improves out-of-domain generalization.
+\subsection{Safety and Alignment}
+\label{sec:5.3}
+
+Safety and alignment evaluate whether LALMs adhere to human values and resist malicious exploitation. Compared with text-only systems, the auditory modality introduces additional risks: acoustic signals can serve as adversarial carriers, backdoor triggers, biometric identifiers, or sources of demographic bias. Existing work mainly examines two aspects: defensive security against jailbreaks and acoustic backdoors (Sec.~\ref{sec:5.3.1}), and broader risks in privacy, fairness, and authentication (Sec.~\ref{sec:5.3.2}).
+
+\subsubsection{Jailbreaks and Acoustic Backdoors}
+\label{sec:5.3.1}
+
+Audio input substantially expands the attack surface of LALMs, enabling both text-transferred jailbreaks and audio-native attacks. \textbf{JALMBench} \cite{peng2025jalmbench} provides a large-scale comparison between textual and auditory jailbreaks, showing that audio attacks achieve higher success rates than text attacks and that prompt-level defenses can reduce but not eliminate vulnerabilities, often at the cost of utility. \textbf{Jailbreak-AudioBench} \cite{cheng2025jailbreak} further shows that simple audio edits, such as changes in speed, pitch, emotion, or accent, can significantly increase attack success, indicating that non-semantic acoustic features can bypass safety guardrails. Moving beyond editing-based attacks, \textbf{AudioJailbreak} \cite{chen2025audiojailbreak} targets end-to-end LALMs with stealthy, universal, and over-the-air robust adversarial audio, achieving high success rates even under weak-adversary assumptions. These studies show that jailbreaks are not spoken versions of textual attacks but exploit modality-specific vulnerabilities.
+
+Signal-level perturbations create another safety risk. \textbf{AJailBench} \cite{song2025audio} uses optimized audio perturbations such as time stretching and fading to lower refusal rates while preserving semantic transcription similarity. This suggests that current safety mechanisms often rely too heavily on clean ASR-like representations and fail to detect adversarial information embedded in non-standard acoustic patterns.
+
+More insidious threats arise from hidden or socially natural triggers. \textbf{AudioSafe} \cite{lin2025hidden} studies acoustic backdoors where background noise, prosody, emotion, or speaking rate can trigger unsafe behavior. It shows that highly effective backdoors can be implanted with only small amounts of poisoned data, implying that seemingly harmless acoustic conditions may become latent switches for malicious outputs. \textbf{Safety under Emotional Variations} \cite{feng2025investigating} further reveals \textit{Emotional Hijacking}: malicious requests expressed with certain emotional intensities are more likely to bypass refusal mechanisms. This indicates that affective cues may interfere with safety alignment, motivating affect-aware safety evaluation and defense.
+
+\subsubsection{Privacy, Fairness, and Authentication}
+\label{sec:5.3.2}
+
+Because speech carries rich biometric and contextual information, LALMs naturally face a tension between personalization and privacy \cite{wang2026voxsafebench}. A core risk is \textit{Unintended Attribute Inference}, where models infer sensitive traits from voice without consent. \textbf{HearSay} \cite{wang2026hearsay} evaluates inference of attributes such as gender, socioeconomic status, and health conditions from short speech clips, showing that models can recover sensitive information with high accuracy and that chain-of-thought reasoning may further amplify privacy leakage. \textbf{AGL1K} \cite{zhang2026sonar} extends this concern to audio geo-localization, demonstrating that environmental sounds and linguistic cues can be combined to infer user location, raising surveillance risks. In multi-speaker settings, \textbf{SH-Bench} \cite{zhan2025protecting} evaluates selective hearing and shows that strong audio comprehension does not necessarily translate into effective protection of bystander privacy.
+
+Privacy leakage can also amplify fairness risks, as models may implicitly condition responses on inferred demographic attributes. \textbf{Gender Bias in SpeechLLMs} \cite{satish2025bias} shows that SpeechLLMs inherit identity cues directly from acoustic signals, making bias more implicit and harder to control than in text-only settings. \textbf{BiasInEar} \cite{wei2026bias} broadens the analysis to multilingual speech and finds that models are particularly sensitive to language and option ordering, suggesting that speech interfaces can amplify structural biases in evaluation. In high-stakes domains, \textbf{VocalAgent} \cite{kim2025vocalagent} evaluates vocal health diagnostics and warns that demographic and class imbalance may lead to unfair or unsafe medical recommendations, especially for general-purpose commercial audio models.
+
+Finally, LALMs must authenticate speaker identity rather than become tools for impersonation. \textbf{AudioTrust} \cite{li2025audiotrust} evaluates identity verification bypass and voice-cloning spoofing, showing that open-source models remain highly vulnerable and that advanced cloning systems can successfully impersonate speakers with substantial success rates. \textbf{DailyTalkEdit} \cite{xu2026holiantispoof} complements this by reformulating anti-spoofing as a holistic generation task, jointly reasoning over spoofing methods, manipulated attributes, and semantic impacts. Together, these benchmarks indicate that safe deployment of LALMs requires not only refusal policies but also robust defenses against acoustic attacks, privacy leakage, demographic bias, and synthetic-voice impersonation.
+\subsection{Future Horizons of LALMs' Evaluation} \label{sec:5.4}
+
+Current evaluation methodologies primarily offer phenomenological snapshots that measure performance errors without elucidating underlying failure mechanisms. To bridge the gap toward intrinsically trustworthy Audio General Intelligence, the field must transition from static behavioral testing to rigorous structural verification across four paradigmatic shifts.
+
+\textbf{1.Causal Auditory World Modeling.}  Evaluation must move beyond statistical correlation to assess if models comprehend the physical dynamics governing auditory scenes. Future benchmarks should prioritize counterfactual reasoning to ensure reasoning is grounded in a coherent internal physics engine rather than superficial pattern recognition.
+
+\textbf{2.Agent-Based Dynamic Red-Teaming.} To mitigate the contamination and overfitting risks of static datasets, stability assessments should evolve into real-time ecosystems where adaptive adversarial agents probe decision boundaries via noise injection or language switching. Metrics must shift from static accuracy to attack-defense curves that quantify the interaction turns to break consistency.
+
+\textbf{3.Intrinsic Representation Engineering.} Rather than relying on post-hoc behavioral suppression, safety evaluations should verify information disentanglement at the neural level. Utilizing mutual information minimization ensures that internal representations are mathematically orthogonal to sensitive biometric attributes, establishing a privacy-by-design architecture structurally incapable of leaking identity-related information.
+
+\textbf{4.Mechanistic Interpretability.} To move beyond "opaque behaviorism," audio mechanistic interpretability tools must map specific neural circuits to auditory functions. Future benchmarks should incorporate internal consistency checks that monitor states for uncertainty or conflict before generation, transforming evaluation from probabilistic guessing into predictive failure detection.
+
+% \begin{table*}[htbp]
+% \centering
+% \scriptsize
+% \caption{Overview of LALM evaluation benchmarks across general capabilities and trustworthy dimensions.}
+% \label{tab:audiollm_eval_summary}
+% \renewcommand{\arraystretch}{1.2}
+
+% \resizebox{\textwidth}{!}{%
+% \begin{tabular}{l c c c c c c c c c c c}
+% \toprule
+% \multirow{2}{*}{\textbf{Benchmark}} &
+% \multirow{2}{*}{\textbf{Release}} &
+% \multirow{2}{*}{\textbf{Metrics}} &
+% \multicolumn{3}{c}{\textbf{General}$^\dagger$} &
+% \multicolumn{6}{c}{\textbf{Trustworthy}$^\ddagger$} \\
+% \cmidrule(lr){4-6} \cmidrule(lr){7-12}
+% & & & \textbf{P} & \textbf{R} & \textbf{I}
+% & \textbf{H} & \textbf{P} & \textbf{A} & \textbf{S} & \textbf{R} & \textbf{F} \\
+% \midrule
+% WESR\cite{yang2026wesr}                  & Jan 2026 & Precision, Recall, F1, WER & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% WoW-Bench\cite{kim2025wow}             & Aug 2025 & Accuracy & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% MUSE\cite{carone2025muse}                  & Oct 2025 & Accuracy & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% MMAU\cite{sakshi2024mmau}                  & Oct 2024 & Accuracy & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% MMAU-Pro\cite{kumar2025mmau}              & Aug 2025 & Accuracy & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% RSA-Bench\cite{zhang2026rsa}             & Jan 2026 & WER, Accuracy, LLM-as-a-Judge & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% AudioBench\cite{wang2025audiobench}        & Jan 2024 & WER, METEOR, LLM-as-a-Judge & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% MCR-BENCH\cite{wang2025audio}             & Aug 2025 & Accuracy, Norm Acc, Macro Acc, TIR, MRS & \cmark & \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% LISTEN\cite{chen2025audio}                & Oct 2025 & Accuracy & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% S2S-Arena\cite{jiang2025s2s}                     & Mar 2025 & ELO Rating, Win Rate, Inter-Annotator Agreement & \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% BRACE\cite{guo2025brace}                & Dec 2025 & F1 & \cmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% ContextASR-Bench\cite{wang2025contextasr}      & Jul 2025 & WER, NE-WER, NE-FNR & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% C\textsuperscript{3}\cite{ma2025c3}      & Jul 2025 & LLM-as-a-Judge, Human Evaluation Score & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% SpeechR\cite{yang2025speechr}               & Aug 2025 & Accuracy, Logical Consistency Score & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% MMAR\cite{ma2025mmar}                  & May 2025 & Accuracy & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% SAKURA\cite{yang2025sakura}                  & May 2025 & Accuracy, LLM-as-a-Judge & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% MMSU\cite{wang2025mmsu}      & Jun 2025 & Accuracy & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% Spoken DialogSum\cite{lu2025spoken}      & Dec 2025 & ROUGE-L & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% MAC-SLU\cite{peng2025mac}               & Dec 2025 & Accuracy, F1 & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% HumDial-EIBench\cite{wang2026humdialeibenchhumanrecordedmultiturnemotional}               & Apr 2026 & Accuracy, LLM-as-Judge & \xmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% PALM-Bench\cite{wang2026palm}            & Jan 2026 & BLEU, F1-score, BERTScore, LLM-as-a-Judge & \xmark & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% ChronosAudio\cite{luo2026chronosaudio}          & Jan 2026 & WER, BERTScore, Acc\_dict, LS, TS, MS, LLM-as-a-Judge & \cmark & \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% AudioMarathon\cite{he2025audiomarathon}         & Oct 2025 & F1, WAR & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% ISA-Bench\cite{li2025isa}             & Oct 2025 & IFR, WER, BLEU, ACC, METEOR, RPS & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% URO-Bench\cite{yan2025uro}             & Feb 2025 & LLM-as-a-Judge, UTMOS, WER/CER, First Packet Latency & \cmark & \cmark & \cmark & \xmark & \cmark & \cmark & \cmark & \xmark & \xmark \\
+% VoiceBench\cite{chen2026voicebench}             & Oct 2024 & LLM-as-a-Judge, Accuracy, Refusal Rate & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% VoiceAssistant-Eval\cite{wang2025voiceassistant} & Sep 2025 & LLM-as-a-Judge, UTMOS, WER, Speaker Similarity & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\
+
+% VocalBench\cite{liu2025vocalbench}             & May 2025 & Accuracy, LLM-as-a-Judge, UTMOS, WER, Refusal Rate, Preserve Rate & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\
+% SOVA-Bench\cite{hou2025sova}                    & Jun 2025 & Accuracy, WER, GPTEval, LLM-as-a-Judge, UTMOSv2 & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% Talking Turns\cite{arora2025talking}             & Mar 2025 & Agreement, Accuracy, ROC-AUC, F1 (judge model) & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% Hearing the Order\cite{lin2025hearing}     & Oct 2025 & Accuracy, CKLD & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% WildSpeech-Bench\cite{zhang2025wildspeechbench}       & Jun 2025 & LLM-as-a-Judge, UTMOS, Query-Aware Checklist & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+
+% JALMBench\cite{peng2025jalmbench}             & May 2025 & ASR, Attack Efficiency & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark \\
+% Jailbreak-AudioBench\cite{cheng2025jailbreak}  & Jan 2025 & ASR & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\
+% AudioJailbreak\cite{chen2025audiojailbreak}  & May 2025 & ASR & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\
+% AJailBench\cite{song2025audio}            & May 2025 & ASR, TS, PV, Relevance, Similarity & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\
+% AudioSafe\cite{lin2025hidden}   & Aug 2025 & Accuracy, ASR & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \cmark & \cmark & \xmark \\
+% Safety under Emotional Variations\cite{feng2025investigating}
+%                       & Oct 2025 & NRR, Unsafe Rate & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\
+% HearSay\cite{wang2026hearsay}               & Jan 2026 & IAR, ARR, BBR & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark \\
+% AGL1K\cite{zhang2026sonar}      & Jan 2026 & Accuracy, Geoscore, Mean Distance Error, Thresholded Accuracy, Reject Rate & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\
+% SH-Bench\cite{zhan2025protecting}      & Dec 2025 & SE (Selective Efficacy), Accuracy & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark \\
+% Gender Bias in SpeechLLMs\cite{satish2025bias}
+%                       & Oct 2025 & MCQA Selection Rate, LLM-as-a-Judge & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\
+% BiasInEar\cite{wei2026bias} & Feb 2026 & Accuracy, Entropy, APES, Fleiss' $\kappa$ & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark \\
+% VocalAgent\cite{kim2025vocalagent}            & May 2025 & macro-F1, Accuracy, FPR, Refusal Rate, Goodness@0.1 & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% AudioTrust\cite{li2025audiotrust}            & May 2025 & GPT-4o Score, CM-WER, CCR, DSR, HRR, FAR, SES, Refusal Rate, Group Unfairness Score & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark \\
+% DailyTalkEdit\cite{xu2026holiantispoof}           & Feb 2026 & Accuracy, EER, F1, Seg-F1, LLM-as-a-Judge & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark \\
+% \bottomrule
+% \end{tabular}%
+% }
+
+% \vspace{1ex}
+% \raggedright
+% $^\dagger$ \textbf{General}: Perception (P), Reasoning (R), Interaction (I). \\
+% $^\ddagger$ \textbf{Trustworthy}: Hallucination (H), Privacy (P), Authentication (A), Safety (S), Robustness (R), Fairness (F).
+% \end{table*}
+
+
+% \renewcommand{\TableCols}{12}
+% \begin{table*}[htbp]
+% \centering
+% \scriptsize
+% \setlength{\tabcolsep}{4pt}
+% \renewcommand{\arraystretch}{1.18}
+% \caption{Overview of LALM evaluation benchmarks across general capabilities and trustworthy dimensions.}
+% \label{tab:audiollm_eval_summary}
+% \begin{adjustbox}{max width=\textwidth}
+% \begin{tabular}{@{}lclccccccccc@{}}
+% \toprule
+
+% \multirow{2}{*}{\textbf{Benchmark}} &
+% \multirow{2}{*}{\textbf{Release}} &
+% \multirow{2}{*}{\textbf{Metrics}} &
+% \multicolumn{3}{c}{\textbf{General}$^\dagger$} &
+% \multicolumn{6}{c}{\textbf{Trustworthy}$^\ddagger$} \\
+% \cmidrule(lr){4-6} \cmidrule(lr){7-12}
+
+% & & &
+% \textbf{P} & \textbf{R} & \textbf{I} &
+% \textbf{H} & \textbf{P} & \textbf{A} & \textbf{S} & \textbf{R} & \textbf{F} \\
+% \midrule
+% \YearRow{Year 2024}
+% AudioBench\cite{wang2025audiobench}        & Jan 2024 & WER, METEOR, LLM-as-a-Judge & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% MMAU\cite{sakshi2024mmau}                  & Oct 2024 & Accuracy & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% VoiceBench\cite{chen2026voicebench}             & Oct 2024 & LLM-as-a-Judge, Accuracy, Refusal Rate & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% \midrule
+% \YearRow{Year 2025}
+% Jailbreak-AudioBench\cite{cheng2025jailbreak}  & Jan 2025 & ASR & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\
+% URO-Bench\cite{yan2025uro}             & Feb 2025 & LLM-as-a-Judge, UTMOS, WER/CER, First Packet Latency & \cmark & \cmark & \cmark & \xmark & \cmark & \cmark & \cmark & \xmark & \xmark \\
+% S2S-Arena\cite{jiang2025s2s}                     & Mar 2025 & ELO Rating, Win Rate, Inter-Annotator Agreement & \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% Talking Turns\cite{arora2025talking}             & Mar 2025 & Agreement, Accuracy, ROC-AUC, F1 (judge model) & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% MMAR\cite{ma2025mmar}                  & May 2025 & Accuracy & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% SAKURA\cite{yang2025sakura}                  & May 2025 & Accuracy, LLM-as-a-Judge & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% VocalBench\cite{liu2025vocalbench}             & May 2025 & Accuracy, LLM-as-a-Judge, UTMOS, WER, Refusal Rate, Preserve Rate & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\
+% JALMBench\cite{peng2025jalmbench}             & May 2025 & ASR, Attack Efficiency & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark \\
+% AudioJailbreak\cite{chen2025audiojailbreak}  & May 2025 & ASR & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\
+% AJailBench\cite{song2025audio}            & May 2025 & ASR, TS, PV, Relevance, Similarity & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\
+% VocalAgent\cite{kim2025vocalagent}            & May 2025 & macro-F1, Accuracy, FPR, Refusal Rate, Goodness@0.1 & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% AudioTrust\cite{li2025audiotrust}            & May 2025 & GPT-4o Score, CM-WER, CCR, DSR, HRR, FAR, SES, Refusal Rate, Group Unfairness Score & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark \\
+% MMSU\cite{wang2025mmsu}      & Jun 2025 & Accuracy & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% SOVA-Bench\cite{hou2025sova}                    & Jun 2025 & Accuracy, WER, GPTEval, LLM-as-a-Judge, UTMOSv2 & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% WildSpeech-Bench\cite{zhang2025wildspeechbench}       & Jun 2025 & LLM-as-a-Judge, UTMOS, Query-Aware Checklist & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% ContextASR-Bench\cite{wang2025contextasr}      & Jul 2025 & WER, NE-WER, NE-FNR & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% C\textsuperscript{3}\cite{ma2025c3}      & Jul 2025 & LLM-as-a-Judge, Human Evaluation Score & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% WoW-Bench\cite{kim2025wow}             & Aug 2025 & Accuracy & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% MMAU-Pro\cite{kumar2025mmau}              & Aug 2025 & Accuracy & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% MCR-BENCH\cite{wang2025audio}             & Aug 2025 & Accuracy, Norm Acc, Macro Acc, TIR, MRS & \cmark & \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% SpeechR\cite{yang2025speechr}               & Aug 2025 & Accuracy, Logical Consistency Score & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% AudioSafe\cite{lin2025hidden}   & Aug 2025 & Accuracy, ASR & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \cmark & \cmark & \xmark \\
+% VoiceAssistant-Eval\cite{wang2025voiceassistant} & Sep 2025 & LLM-as-a-Judge, UTMOS, WER, Speaker Similarity & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\
+% MUSE\cite{carone2025muse}                  & Oct 2025 & Accuracy & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% LISTEN\cite{chen2025audio}                & Oct 2025 & Accuracy & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% AudioMarathon\cite{he2025audiomarathon}         & Oct 2025 & F1, WAR & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% ISA-Bench\cite{li2025isa}             & Oct 2025 & IFR, WER, BLEU, ACC, METEOR, RPS & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% Hearing the Order\cite{lin2025hearing}     & Oct 2025 & Accuracy, CKLD & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% Safety under Emotional Variations\cite{feng2025investigating}
+%                       & Oct 2025 & NRR, Unsafe Rate & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\
+% Gender Bias in SpeechLLMs\cite{satish2025bias}
+%                       & Oct 2025 & MCQA Selection Rate, LLM-as-a-Judge & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\
+% BRACE\cite{guo2025brace}                & Dec 2025 & F1 & \cmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% Spoken DialogSum\cite{lu2025spoken}      & Dec 2025 & ROUGE-L & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% MAC-SLU\cite{peng2025mac}               & Dec 2025 & Accuracy, F1 & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% SH-Bench\cite{zhan2025protecting}      & Dec 2025 & SE (Selective Efficacy), Accuracy & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark \\
+% \midrule
+% \YearRow{Year 2026}
+% WESR\cite{yang2026wesr}                  & Jan 2026 & Precision, Recall, F1, WER & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% RSA-Bench\cite{zhang2026rsa}             & Jan 2026 & WER, Accuracy, LLM-as-a-Judge & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% PALM-Bench\cite{wang2026palm}            & Jan 2026 & BLEU, F1-score, BERTScore, LLM-as-a-Judge & \xmark & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% ChronosAudio\cite{luo2026chronosaudio}          & Jan 2026 & WER, BERTScore, Acc\_dict, LS, TS, MS, LLM-as-a-Judge & \cmark & \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+% HearSay\cite{wang2026hearsay}               & Jan 2026 & IAR, ARR, BBR & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark \\
+% AGL1K\cite{zhang2026sonar}      & Jan 2026 & Accuracy, Geoscore, Mean Distance Error, Thresholded Accuracy, Reject Rate & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\
+% BiasInEar\cite{wei2026bias} & Feb 2026 & Accuracy, Entropy, APES, Fleiss' $\kappa$ & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark \\
+% DailyTalkEdit\cite{xu2026holiantispoof}           & Feb 2026 & Accuracy, EER, F1, Seg-F1, LLM-as-a-Judge & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark \\
+% HumDial-EIBench\cite{wang2026humdialeibenchhumanrecordedmultiturnemotional}               & Apr 2026 & Accuracy, LLM-as-Judge & \xmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+% \bottomrule
+% \end{tabular}
+% \end{adjustbox}
+% \vspace{0.8ex}
+% \parbox{\textwidth}{%
+% \scriptsize
+% $^\dagger$ \textbf{General}: Perception (P), Reasoning (R), Interaction (I). \\
+% $^\ddagger$ \textbf{Trustworthy}: Hallucination (H), Privacy (P), Authentication (A), Safety (S), Robustness (R), Fairness (F).
+% }
+% \end{table*}

@@ -1,0 +1,198 @@
+\documentclass[10pt,journal,compsoc,lettersize]{IEEEtran}
+\usepackage{amsmath,amsfonts}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{array}
+\usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{graphicx} 
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{cite}
+\newcommand{\tablogo}[1]{\makebox[1.2cm][c]{\raisebox{-0.1cm}{\includegraphics[width=1.2cm, height=0.35cm, keepaspectratio]{#1}}}}
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+\usepackage{enumitem}
+\usepackage{pdfpages}
+
+
+
+\usepackage{adjustbox}
+\usepackage{pifont}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+% \newcommand{\cmark}{\ding{51}}
+% \newcommand{\xmark}{\ding{55}}
+
+
+\newcommand{\YearRow}[1]{%
+    \addlinespace[0.45em]
+    \rowcolor{gray!12}
+    \multicolumn{\TableCols}{@{}l@{}}{\hspace{0.4em}\textbf{\textit{#1}}} \\
+    \addlinespace[0.15em]
+}
+
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs} % 提供更好的表格横线
+\usepackage{multirow} % 合并单元格
+\usepackage{amssymb}  % 提供 \checkmark
+\usepackage{pifont}   % 提供 \ding{55} (叉号)
+\usepackage{graphicx} % 提供 \resizebox
+\newcommand{\cmark}{\checkmark}
+\newcommand{\xmark}{\ding{55}}
+\usepackage[table]{xcolor}
+
+
+% updated with editorial comments 8/9/2021
+
+% \newcommand{\insightbox}[1]{%
+%     \begin{tcolorbox}[colframe=black!70, colback=yellow!5, boxrule=1pt, arc=4mm]
+%         \includegraphics[width=0.5cm]{figure/insight.png}
+%         \textbf{\small#1}
+%     \end{tcolorbox}
+% }
+
+%%%
+
+\definecolor{shiqian-red}{RGB}{220, 239, 252}
+\definecolor{shiqian-red-dark}{RGB}{114, 154, 202}
+\definecolor{shiqian-red-light}{RGB}{235, 244, 255}
+\newcommand*{\belowrulesepcolor}[1]{% 
+  \noalign{% 
+    \kern-\belowrulesep 
+    \begingroup 
+      \color{#1}% 
+      \hrule height\belowrulesep 
+    \endgroup 
+    % \vskip -0.15mm%
+    \vspace{-0.03mm}
+  }%
+} 
+\newcommand*{\aboverulesepcolor}[1]{% 
+  \noalign{% 
+  \vspace{-0.03mm}
+    \begingroup 
+      \color{#1}% 
+    \endgroup 
+    \kern-\aboverulesep 
+  }%
+}
+%%%
+
+\begin{document}
+
+
+
+\includepdf[pages={1}]{abstract}
+
+
+
+\title{ A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook}
+
+% The paper headers
+\markboth{Journal of \LaTeX\ Class Files,~Vol.~14, No.~8, August~2021}%
+{Shell \MakeLowercase{\textit{et al.}}: A Sample Article Using IEEEtran.cls for IEEE Journals}
+
+
+\author{
+Kaiwen Luo\textsuperscript{1,}\IEEEauthorrefmark{1},
+Zhenhong Zhou\textsuperscript{1,}\IEEEauthorrefmark{1},
+Leo Wang\textsuperscript{2,}\IEEEauthorrefmark{1},
+Liang Lin\textsuperscript{1,}\IEEEauthorrefmark{1},
+Yang Xiao\textsuperscript{3},
+Tianyu Shao\textsuperscript{4},
+Yuanhe Zhang\textsuperscript{5},\\
+Yuxuan Li\textsuperscript{6},
+Miao Yu\textsuperscript{7},
+Kailin Lyu \textsuperscript{8},
+Jiaming Zhang\textsuperscript{1},
+Dongrui Liu\textsuperscript{9},
+Li Sun\textsuperscript{5},
+Yueming Wu\textsuperscript{10},
+Kai Li\textsuperscript{11},
+Ting Dang\textsuperscript{3},
+Xiaojun Jia\textsuperscript{1},
+Rohan Kumar Das\textsuperscript{12},
+Xinfeng Li\textsuperscript{1},
+Siyuan Liang\textsuperscript{1},
+Qiufeng Wang\textsuperscript{13},
+Xingjun Ma\textsuperscript{14},\\
+Jing Chen\textsuperscript{15},
+Kun Wang\textsuperscript{1,}\IEEEauthorrefmark{2}
+Junhao Dong\textsuperscript{1,}\IEEEauthorrefmark{2}\thanks{Corresponding author: wang.kun@ntu.edu.sg, junhao003@ntu.edu.sg},
+Deqing Zou\textsuperscript{10},
+Yu Cheng\textsuperscript{16},
+Xia Hu\textsuperscript{9},
+Zhigang Zeng\textsuperscript{10},\\
+Sen Su\textsuperscript{17},
+Yang Liu\textsuperscript{1},
+Yu-Gang Jiang\textsuperscript{14},
+Philip S. Yu\textsuperscript{18},
+Yew-Soon Ong\textsuperscript{1}
+\\[1\baselineskip]
+\textsuperscript{1}Nanyang Technological University
+\textsuperscript{2}Independent Researcher
+\textsuperscript{3}The University of Melbourne\\
+\textsuperscript{4}North China Electric Power University
+\textsuperscript{5}Beijing University of Posts and Telecommunications\\
+\textsuperscript{6}University of Chinese Academy of Sciences
+\textsuperscript{7}University of Science and Technology of China\\
+\textsuperscript{8} Institute of Automation, Chinese Academy of Sciences
+\textsuperscript{9}Shanghai AI Laboratory\\
+\textsuperscript{10}Huazhong University of Science and Technology
+\textsuperscript{11}Tsinghua University
+\textsuperscript{12}Fortemedia Singapore
+\textsuperscript{13}Tencent
+\textsuperscript{14}Fudan University
+\textsuperscript{15}Wuhan University
+\textsuperscript{16}Chinese University of Hong Kong\\
+\textsuperscript{17}Chongqing University of Posts and Telecommunications
+\textsuperscript{18}University of Illinois Chicago
+
+\IEEEcompsocitemizethanks{
+\IEEEcompsocthanksitem[\IEEEauthorrefmark{1}]
+These authors contributed equally.
+    }
+}
+
+\IEEEtitleabstractindextext{%
+\begin{abstract}
+The foundational capabilities established by Large Language Models (LLMs) have paved the way for Multimodal Large Language Models (MLLMs), within which Large Audio Language Models (LALMs) are essential for realizing universal auditory intelligence. Despite their remarkable performance, the escalation of LALMs' capabilities has significantly outpaced the development of systemic frameworks to ensure their trustworthiness. This survey provides a comprehensive investigation into the endogenous mechanisms of LALMs, detailing the architectural innovations and alignment algorithms that facilitate emergent reasoning. Specifically, we analyze how the transition to unified end-to-end frameworks and the integration of continuous acoustic signals inherently expand the attack surface. To rigorously evaluate the risks within these paradigms, we establish a comprehensive taxonomy of trustworthiness, categorizing critical vulnerabilities such as cross-modal jailbreaking, latent acoustic backdoors, and biometric privacy leakage. We review the state-of-the-art through six analytical pillars: hallucination, robustness, safety, privacy, fairness, and authentication. The profound imbalance between a mature offensive landscape and underdeveloped defenses further validates the critical trustworthiness gaps and multidimensional risks facing audio-centric intelligence. Finally, we propose a strategic roadmap advocating for "Defense-in-Depth" architectures, causal auditory world modeling, and intrinsic representation engineering to bridge the gap between empirical performance and intrinsically trustworthy audio intelligence. Our project has been uploaded to GitHub \url{https://github.com/Kwwwww74/Awesome-Trustworthy-AudioLLMs}.
+\end{abstract}
+
+% Note that keywords are not normally used for peerreview papers.
+\begin{IEEEkeywords}
+Large Audio Language Models (LALMs), Trustworthiness, Multimodal Safety, Auditory Reasoning, Cross-modal Alignment, Artificial Intelligence Security.
+\end{IEEEkeywords}}
+
+% make the title area
+\maketitle
+\IEEEdisplaynontitleabstractindextext
+\IEEEpeerreviewmaketitle
+
+
+\input{passage/introduction}
+\input{passage/instrnsic}
+\input{passage/performance}
+\input{passage/safety}
+\input{passage/evaluation}
+\input{passage/conclusion}
+
+
+
+
+
+\newpage
+
+\bibliographystyle{IEEEtran}  
+\bibliography{references} 
+
+\vfill
+
+\end{document}
+
+

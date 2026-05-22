@@ -1,0 +1,46 @@
+{
+  "arxiv_id": "2605.19833",
+  "arxiv_url": "https://arxiv.org/abs/2605.19833",
+  "title": "Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world Acoustic Simulation",
+  "authors": [
+    "Zhifei Xie",
+    "Kaiyu Pang",
+    "Haobin Zhang",
+    "Deheng Ye",
+    "Xiaobin Hu",
+    "Shuicheng Yan",
+    "Chunyan Miao"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Despite rapid advances in automatic speech recognition (ASR) and large audio-language models, robust recognition in real-world environments remains limited by an \"acoustic robustness bottleneck\": models often lose acoustic grounding and produce omissions or hallucinations under severe, compositional distortions. We propose Mega-ASR, a unified ASR-in-the-wild framework that combines scalable compound-data construction with progressive acoustic-to-semantic optimization. We introduce Voices-in-the-Wild-2M, covering 7 classic acoustic phenomena and 54 physically plausible compound scenarios, and train Mega-ASR with Acoustic-to-Semantic Progressive Supervised Fine-Tuning and Dual-Granularity WER-Gated Policy Optimization. Extensive experiments demonstrate that Mega-ASR achieves significant advantages over prior state-of-the-art systems on adverse-condition ASR benchmarks (45.69% vs. 54.01% on VOiCES R4-B-F, and 21.49% vs. 29.34% on NOIZEUS Sta-0). On complex compositional acoustic scenarios, Mega-ASR further delivers over 30% relative WER reduction against strong open- and closed-source baselines, establishing a scalable paradigm for robust ASR in-the-wild.",
+  "submitted_via": "llmXive dashboard, GitHub issue #219",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/xzf-thu/Voices-in-the-Wild-Bench"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "main__3_.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "ASR_fig",
+    "ASR_fig/case_study.png",
+    "ASR_fig/combined_left8_right_sampling_v7.png",
+    "ASR_fig/distribution.png",
+    "ASR_fig/logo.png",
+    "fig",
+    "fig/Figure-inference.pdf",
+    "fig/figure-casestudy.pdf",
+    "fig/figure-dataset-overview.pdf",
+    "fig/figure1-new.pdf",
+    "fig/figure3.pdf",
+    "fig/github.png",
+    "fig/huggingface.png",
+    "fig/logo.png",
+    "main__3_.tex",
+    "main.bib",
+    "neurips_2026.sty"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "arxiv_id": "2605.14747",
+  "arxiv_url": "https://arxiv.org/abs/2605.14747",
+  "title": "Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining",
+  "authors": [
+    "Weimin Xiong",
+    "Shuhao Gu",
+    "Bowen Ye",
+    "Zihao Yue",
+    "Lei Li",
+    "Feifan Song",
+    "Sujian Li",
+    "Hao Tian"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Recent advances in multimodal large language models have driven growing interest in graphical user interface (GUI) agents, yet their generalization remains constrained by the scarcity of large-scale training data spanning diverse real-world applications. Existing datasets rely heavily on costly manual annotations and are typically confined to narrow domains. To address this challenge, we propose Video2GUI, a fully automated framework that extracts grounded GUI interaction trajectories directly from unlabeled Internet videos. Video2GUI employs a coarse-to-fine filtering strategy to identify high-quality GUI tutorial videos and convert them into structured agent trajectories. Applying this pipeline to 500 million video metadata entries, we construct WildGUI, a large-scale dataset containing 12 million interaction trajectories spanning over 1,500 applications and websites. Pre-training Qwen2.5-VL and Mimo-VL on WildGUI yields consistent improvements of 5-20% across multiple GUI grounding and action benchmarks, matching or surpassing state-of-the-art performance. We will release both the WildGUI dataset and the Video2GUI pipeline to support future research of GUI agents.",
+  "submitted_via": "llmXive dashboard, GitHub issue #218",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "example_paper.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "55BzMmeagwU_task_0.png",
+    "algorithmic.sty",
+    "algorithm.sty",
+    "combined_results_icml.pdf",
+    "EF-Qh1ydNgk_task_4.png",
+    "example_paper.bib",
+    "example_paper.tex",
+    "fancyhdr.sty",
+    "figure3_hatched_style.pdf",
+    "figure_detailed_stats_icml_adjusted.pdf",
+    "figure_distributions_donut_no_others.pdf",
+    "icml2026.bst",
+    "icml2026.sty",
+    "method_light.pdf",
+    "oXoXz11H4Q4_task_0.png",
+    "scaling_law_center_acc_icml_v2.pdf",
+    "selected_tasks_comparison.pdf",
+    "ZvNgczioehg_task_0.png"
+  ]
+}
