@@ -1,5 +1,5 @@
-last_used: david-krakauer
-last_used_at: '2026-05-22T17:17:02.772061+00:00'
+last_used: eric-kandel
+last_used_at: '2026-05-22T18:09:23.182629+00:00'
 last_outcome: committed
 history:
 - slug: ada-lovelace
@@ -1340,3 +1340,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-571-co-evolving-policy-distillation/paper/reviews/david-krakauer-simulated__2026-05-22__paper.md
+- slug: eric-kandel
+  started_at: '2026-05-22T17:17:02.772061+00:00'
+  ended_at: '2026-05-22T18:09:23.182629+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-578-https-arxiv-org-abs-2605-14906/paper/reviews/eric-kandel-simulated__2026-05-22__paper.md
