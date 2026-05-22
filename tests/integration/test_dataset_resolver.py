@@ -46,3 +46,21 @@ def test_sniff_format_rejects_html_as_unparseable(file_server):
     (root / "page.html").write_text("<html><body>not a dataset</body></html>")
     rep = sniff_format(f"{base}/page.html")
     assert rep.parsed is False
+
+
+def test_verify_candidate_reachable_csv(file_server):
+    from llmxive.librarian.dataset_sources import DatasetCandidate
+    from llmxive.librarian.dataset_resolver import verify_candidate
+    root, base = file_server
+    (root / "d.csv").write_text("x,y\n1,2\n")
+    c = DatasetCandidate("D", f"{base}/d.csv", "D", "figshare")
+    v = verify_candidate(c)
+    assert v is not None and v.format == "csv"
+
+
+def test_verify_candidate_404_returns_none(file_server):
+    from llmxive.librarian.dataset_sources import DatasetCandidate
+    from llmxive.librarian.dataset_resolver import verify_candidate
+    root, base = file_server
+    c = DatasetCandidate("D", f"{base}/missing.csv", "D", "figshare")
+    assert verify_candidate(c) is None

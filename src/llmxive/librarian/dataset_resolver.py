@@ -90,3 +90,34 @@ def sniff_format(url: str) -> FormatReport:
         return FormatReport(False, None, 0, str(exc))
     ok, fmt = _detect_and_parse(sample, url)
     return FormatReport(ok, fmt, len(sample), None if ok else "unrecognized/non-dataset content")
+
+
+from llmxive.librarian import verify as _verify
+
+
+@dataclass(frozen=True)
+class VerifiedDataset:
+    intent: str
+    url: str
+    source: str
+    format: str
+    relevance: float
+    downloaded_bytes: int
+    hf_id: str | None = None
+
+
+def verify_candidate(c: DatasetCandidate, *, relevance: float = 0.0) -> VerifiedDataset | None:
+    """Return a VerifiedDataset iff the candidate is reachable AND a sample
+    parses as a recognized dataset format; else None."""
+    head = _verify._head_with_get_fallback(c.url, timeout=20.0)
+    if head.outcome == "unreachable":
+        return None
+    # Sniff the final (post-redirect) URL.
+    rep = sniff_format(head.final_url)
+    if not rep.parsed or rep.format is None:
+        return None
+    return VerifiedDataset(
+        intent=c.intent, url=head.final_url, source=c.source,
+        format=rep.format, relevance=relevance,
+        downloaded_bytes=rep.downloaded_bytes, hf_id=c.hf_id,
+    )
