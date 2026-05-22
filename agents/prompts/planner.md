@@ -63,13 +63,14 @@ $schema: ...
   a dataset URL. If the block says a dataset has NO verified source, describe the
   dataset by name but do NOT fabricate a URL.
 - For DATASETS specifically: `research.md`'s "Dataset Strategy"
-  table MUST name only real, programmatically-fetchable sources.
-  If the spec calls for "UCI Electricity" but the canonical UCI
-  endpoint requires browser navigation, plan for the `ucimlrepo`
-  Python package OR substitute a comparable open dataset that has
-  a known-stable raw URL (e.g., NAB benchmark CSVs at
-  `https://raw.githubusercontent.com/numenta/NAB/master/data/realKnownCause/`,
-  or HuggingFace `datasets.load_dataset(...)`).
+  table MUST reference ONLY the sources in the "# Verified datasets"
+  block above — cite each dataset by its verified URL, or load that
+  SAME dataset via a well-known programmatic loader (e.g.
+  `datasets.load_dataset(...)` for a verified HuggingFace dataset, or
+  `ucimlrepo` for a UCI dataset). Do NOT substitute a different dataset
+  and do NOT invent or guess a raw URL. If a dataset the spec needs has
+  NO verified source in the block, state that explicitly rather than
+  fabricating one.
 - For COMPUTATIONAL TASK ORDERING: the plan MUST order phases so
   data is downloaded BEFORE any task that consumes it, models are
   fitted BEFORE any task that evaluates them, and figures are
