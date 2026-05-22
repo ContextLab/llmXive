@@ -48,6 +48,43 @@ def test_sniff_format_rejects_html_as_unparseable(file_server):
     assert rep.parsed is False
 
 
+def test_sniff_format_detects_xyz(file_server):
+    # XYZ molecular geometry: atom-count line, comment line, then "<El> x y z".
+    # QM9 is natively .xyz, so this must be sniffable (FIX 1).
+    from llmxive.librarian.dataset_resolver import sniff_format
+    root, base = file_server
+    (root / "mol.xyz").write_text(
+        "3\nwater\n"
+        "O  0.0000  0.0000  0.0000\n"
+        "H  0.7570  0.5860  0.0000\n"
+        "H -0.7570  0.5860  0.0000\n"
+    )
+    rep = sniff_format(f"{base}/mol.xyz")
+    assert rep.parsed is True
+    assert rep.format == "xyz"
+    assert rep.downloaded_bytes > 0
+
+
+def test_sniff_format_detects_sdf(file_server):
+    # SDF/MOL: V2000 connection-table marker + "$$$$" record delimiter (FIX 1).
+    from llmxive.librarian.dataset_resolver import sniff_format
+    root, base = file_server
+    (root / "mol.sdf").write_text(
+        "methane\n"
+        "  -OEChem-01010000003D\n"
+        "\n"
+        "  5  4  0     0  0  0  0  0  0999 V2000\n"
+        "    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n"
+        "    0.6300    0.6300    0.6300 H   0  0  0  0  0  0  0  0  0  0  0  0\n"
+        "M  END\n"
+        "$$$$\n"
+    )
+    rep = sniff_format(f"{base}/mol.sdf")
+    assert rep.parsed is True
+    assert rep.format == "sdf"
+    assert rep.downloaded_bytes > 0
+
+
 def test_verify_candidate_reachable_csv(file_server):
     from llmxive.librarian.dataset_sources import DatasetCandidate
     from llmxive.librarian.dataset_resolver import verify_candidate
@@ -85,6 +122,44 @@ def test_resolve_datasets_real_qm9(tmp_path):
     top = verified[0]
     assert 1 <= len(top.candidates) <= 3
     assert top.candidates[0]["url"].startswith("http")
+
+
+def test_resolve_datasets_candidates_tried_granularity(file_server, monkeypatch):
+    """FIX 2: candidates_tried distinguishes unreachable (404) vs wrong_format
+    (reachable HTML) vs verified, with precise per-candidate status+reason."""
+    import llmxive.librarian.dataset_resolver as dr
+    from llmxive.librarian.dataset_sources import DatasetCandidate
+
+    root, base = file_server
+    (root / "good.csv").write_text("a,b\n1,2\n3,4\n")
+    (root / "page.html").write_text("<html><body>not a dataset</body></html>")
+
+    cands = [
+        DatasetCandidate(" DS", f"{base}/missing.csv", "missing", "figshare"),
+        DatasetCandidate("DS", f"{base}/page.html", "html page", "zenodo"),
+        DatasetCandidate("DS", f"{base}/good.csv", "good", "huggingface"),
+    ]
+    monkeypatch.setattr(dr, "_gather_candidates", lambda intent: cands)
+    # Force the intent extractor to yield exactly one intent.
+    monkeypatch.setattr(dr, "extract_dataset_intents", lambda spec: ["DS"])
+
+    result = dr.resolve_datasets(
+        "the DS dataset", project_dir=root, repo_root=root, top_n=3,
+    )
+    tried = result.datasets[0].candidates_tried
+    by_status = {t["status"] for t in tried}
+    assert "unreachable" in by_status, tried
+    assert "wrong_format" in by_status, tried
+    assert "verified" in by_status, tried
+    # The 404 candidate is recorded as unreachable.
+    miss = next(t for t in tried if t["url"].endswith("missing.csv"))
+    assert miss["status"] == "unreachable" and miss.get("reason")
+    # The reachable-but-HTML candidate is recorded as wrong_format.
+    html = next(t for t in tried if t["url"].endswith("page.html"))
+    assert html["status"] == "wrong_format" and html.get("reason")
+    # The CSV candidate is verified, and verified-selection still works.
+    assert result.datasets[0].status == "verified"
+    assert result.datasets[0].candidates[0]["url"].endswith("good.csv")
 
 
 def test_write_manifest_roundtrip(tmp_path):

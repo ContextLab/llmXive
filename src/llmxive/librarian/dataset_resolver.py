@@ -9,6 +9,7 @@ from __future__ import annotations
 import csv as _csv
 import io
 import json
+import re
 import zipfile
 from dataclasses import dataclass, field
 
@@ -43,6 +44,11 @@ def _detect_and_parse(sample: bytes, url: str) -> tuple[bool, str | None]:
         return True, "hdf5"
     if sample[:4] == b"PAR1":
         return True, "parquet"
+    # tar: the POSIX "ustar" magic lives at byte offset 257 (the 256 KB sample
+    # always includes it for a real tar). gzip-wrapped tars are caught above by
+    # the gzip magic. FIX 1: keeps the picker (._HF_DATA_EXTS) and sniffer in sync.
+    if len(sample) >= 263 and sample[257:262] == b"ustar":
+        return True, "tar"
     # Text formats.
     try:
         text = sample.decode("utf-8")
@@ -61,6 +67,16 @@ def _detect_and_parse(sample: bytes, url: str) -> tuple[bool, str | None]:
             return False, None
     if "<html" in stripped[:200].lower():
         return False, None
+    # SDF/MOL chemical tables: V2000/V3000 connection-table marker or a "$$$$"
+    # record delimiter. Checked before CSV so molecule files aren't mis-sniffed.
+    # FIX 1: SDF/MOL are advertised in _HF_DATA_EXTS, so they must be detectable.
+    if "V2000" in text or "V3000" in text or "$$$$" in text:
+        return True, "sdf"
+    # XYZ molecular geometry: first non-empty line is an integer atom count, OR a
+    # data line looks like "<Element> <float> <float> <float>". QM9 is natively
+    # .xyz, which _HF_DATA_EXTS advertises, so the sniffer must recognize it.
+    if _looks_like_xyz(text):
+        return True, "xyz"
     # CSV/TSV: csv.Sniffer + >=2 columns on the first full row.
     try:
         dialect = _csv.Sniffer().sniff(text[:4096])
@@ -70,6 +86,28 @@ def _detect_and_parse(sample: bytes, url: str) -> tuple[bool, str | None]:
     except _csv.Error:
         pass
     return False, None
+
+
+_XYZ_ATOM_RE = re.compile(
+    r"^\s*[A-Za-z]{1,3}\d?\s+"
+    r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\s+"
+    r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\s+"
+    r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\s*$"
+)
+
+
+def _looks_like_xyz(text: str) -> bool:
+    lines = [ln for ln in text.splitlines() if ln.strip()]
+    if not lines:
+        return False
+    # Standard XYZ: first non-empty line is a bare integer atom count, and at
+    # least one subsequent line matches the "<El> x y z" coordinate pattern.
+    first = lines[0].strip()
+    if first.isdigit():
+        return any(_XYZ_ATOM_RE.match(ln) for ln in lines[1:])
+    # Headerless XYZ-like coordinate block: a run of "<El> x y z" lines.
+    atom_lines = sum(1 for ln in lines if _XYZ_ATOM_RE.match(ln))
+    return atom_lines >= 2 and atom_lines == len(lines)
 
 
 def _is_json(line: str) -> bool:
@@ -106,24 +144,61 @@ class VerifiedDataset:
     hf_id: str | None = None
 
 
+@dataclass(frozen=True)
+class VerifyResult:
+    """Outcome of probing a single candidate (FIX 2: audit granularity).
+
+    ``status`` is one of:
+      - "verified"     : reachable AND a sample parsed as a known dataset format.
+      - "unreachable"  : the reachability step (verify._head_with_get_fallback)
+                         failed (404/timeout/DNS/etc.).
+      - "wrong_format" : reachable, but the sample did not sniff as a dataset.
+    ``dataset`` is populated only when ``status == "verified"``; ``url`` is the
+    final (post-redirect) URL when known, else the candidate URL; ``reason`` is a
+    human-readable explanation for the manifest's ``candidates_tried`` audit.
+    """
+    status: str
+    url: str
+    reason: str | None = None
+    dataset: VerifiedDataset | None = None
+
+
 def verify_candidate(c: DatasetCandidate, *, relevance: float = 0.0) -> VerifiedDataset | None:
     """Return a VerifiedDataset iff the candidate is reachable AND a sample
-    parses as a recognized dataset format; else None."""
+    parses as a recognized dataset format; else None.
+
+    Thin wrapper over :func:`probe_candidate` preserving the original return
+    contract (callers/tests that only need the verified result).
+    """
+    return probe_candidate(c, relevance=relevance).dataset
+
+
+def probe_candidate(c: DatasetCandidate, *, relevance: float = 0.0) -> VerifyResult:
+    """Probe a candidate and report the precise outcome (FIX 2).
+
+    Distinguishes "unreachable" (reachability failed) from "wrong_format"
+    (reachable but the sample didn't sniff as a dataset) so the resolver can
+    record an accurate per-candidate status in ``candidates_tried``.
+    """
     head = _verify._head_with_get_fallback(c.url, timeout=20.0)
     if head.outcome == "unreachable":
-        return None
+        detail = head.error or (f"HTTP {head.http_status}" if head.http_status else "no response")
+        return VerifyResult("unreachable", c.url, f"reachability failed: {detail}")
     # Sniff the final (post-redirect) URL.
     rep = sniff_format(head.final_url)
     if not rep.parsed or rep.format is None:
-        return None
-    return VerifiedDataset(
+        return VerifyResult(
+            "wrong_format", head.final_url,
+            rep.error or "reachable but sample did not parse as a dataset",
+        )
+    dataset = VerifiedDataset(
         intent=c.intent, url=head.final_url, source=c.source,
         format=rep.format, relevance=relevance,
         downloaded_bytes=rep.downloaded_bytes, hf_id=c.hf_id,
     )
+    return VerifyResult("verified", head.final_url, None, dataset)
 
 
-import re
 from pathlib import Path
 
 from llmxive.librarian import dataset_sources as _sources
@@ -171,6 +246,14 @@ def extract_dataset_intents(spec_text: str) -> list[str]:
 
 
 def _gather_candidates(intent: str) -> list[DatasetCandidate]:
+    # FIX 4 / design "out of scope / future": the Semantic Scholar + arXiv
+    # paper-linked-data source sketched in the design is intentionally DEFERRED.
+    # Those APIs yield *paper pages* (HTML landing pages), not directly
+    # sample-streamable dataset files, so they would fail the format sniff and
+    # add no verified candidates today. The four registries below (HF Hub,
+    # figshare, Zenodo, DataCite) cover the in-scope cases (e.g. QM9). A
+    # paper-linked source can be appended here later without changing any
+    # interface (see design "Out of scope / future").
     cands: list[DatasetCandidate] = []
     for fn in (_sources.search_huggingface, _sources.search_figshare,
                _sources.search_zenodo, _sources.search_datacite):
@@ -183,6 +266,11 @@ def _gather_candidates(intent: str) -> list[DatasetCandidate]:
 
 def resolve_datasets(spec_text: str, *, project_dir: Path, repo_root: Path,
                      top_n: int = 3, budget_s: int = 300) -> ResolvedDatasets:
+    # ``repo_root`` is intentionally retained (Task 7's plan_cmd.mechanical_step
+    # passes it) even though it is currently unused: it is RESERVED for the
+    # deferred Semantic Scholar/arXiv paper-linked-data source (see
+    # _gather_candidates and the design's "Out of scope / future"), which would
+    # resolve repo-relative source-paper links. Do not remove it.
     import time
     deadline = time.monotonic() + budget_s
     resolved: list[ResolvedIntent] = []
@@ -193,14 +281,19 @@ def resolve_datasets(spec_text: str, *, project_dir: Path, repo_root: Path,
             if time.monotonic() > deadline:
                 break
             rel = query_relevance_score(intent, f"{c.title} {c.hf_id or ''}")
-            v = verify_candidate(c, relevance=rel)
-            if v is None:
-                tried.append({"url": c.url, "source": c.source, "status": "rejected",
-                              "reason": "unreachable or wrong format"})
-            else:
+            # FIX 2: probe_candidate distinguishes "unreachable" (reachability
+            # failed) from "wrong_format" (reachable but unrecognized) so the
+            # audit records the precise status+reason rather than a generic
+            # "rejected". Verified-selection behavior is unchanged.
+            pr = probe_candidate(c, relevance=rel)
+            if pr.status == "verified" and pr.dataset is not None:
+                v = pr.dataset
                 tried.append({"url": v.url, "source": v.source, "status": "verified",
                               "format": v.format})
                 verified.append(v)
+            else:
+                tried.append({"url": pr.url, "source": c.source,
+                              "status": pr.status, "reason": pr.reason})
         verified.sort(key=lambda v: (_AUTHORITY.get(v.source, 0), v.relevance), reverse=True)
         top = verified[:top_n]
         resolved.append(ResolvedIntent(
