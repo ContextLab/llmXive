@@ -5542,7 +5542,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-22T10:34:38.290338+00:00",
+  "generated_at": "2026-05-22T10:37:00.232901+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -64555,7 +64555,7 @@
         "data": null,
         "idea": "projects/PROJ-612-a-survey-of-large-audio-language-models/idea/a-survey-of-large-audio-language-models.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-612-a-survey-of-large-audio-language-models/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-612-a-survey-of-large-audio-language-models/paper/source/main.tex",
         "paper_spec": null,
@@ -64850,10 +64850,10 @@
       },
       "created_at": "2026-05-22T09:07:41.192955+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-612-a-survey-of-large-audio-language-models/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-612-a-survey-of-large-audio-language-models/paper/source/main.tex",
-        "repo_path": "projects/PROJ-612-a-survey-of-large-audio-language-models/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-612-a-survey-of-large-audio-language-models/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-612-a-survey-of-large-audio-language-models/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-612-a-survey-of-large-audio-language-models/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "The foundational capabilities established by Large Language Models (LLMs) have paved the way for Multimodal Large Language Models (MLLMs), within which Large Audio Language Models (LALMs) are essential for realizing universal auditory intelligence. Despite their remarkable performance, the escalation of LALMs'\u2026",
@@ -64890,7 +64890,7 @@
         "data": null,
         "idea": "projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i/idea/indusagent-reinforcing-open-vocabulary-i.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -65017,10 +65017,10 @@
       },
       "created_at": "2026-05-22T09:07:44.523081+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i/idea/indusagent-reinforcing-open-vocabulary-i.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i/idea/indusagent-reinforcing-open-vocabulary-i.md",
-        "repo_path": "projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i/idea/indusagent-reinforcing-open-vocabulary-i.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Multimodal large language models (MLLMs) have shown remarkable capability in bridging visual perception and textual reasoning, enabling zero-shot understanding across diverse industrial scenarios. However, their performance in open-vocabulary industrial anomaly detection (IAD) is often limited by domain-misaligned\u2026",
@@ -65057,7 +65057,7 @@
         "data": null,
         "idea": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/idea/enhancing-train-free-infinite-frame-gene.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -65152,10 +65152,10 @@
       },
       "created_at": "2026-05-22T09:07:46.774974+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/idea/enhancing-train-free-infinite-frame-gene.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/idea/enhancing-train-free-infinite-frame-gene.md",
-        "repo_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/idea/enhancing-train-free-infinite-frame-gene.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Without incurring significant computational overhead, train-free long video generation aims to enable foundation video generation models to produce longer videos. Frame-level autoregressive frameworks, e.g., FIFO-diffusion, offer the advantage of generating infinitely long videos with constant memory consumption.\u2026",
@@ -65192,7 +65192,7 @@
         "data": null,
         "idea": "projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/idea/mega-asr-towards-in-the-wild-2-speech-re.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/paper/pdf/2605.19833.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -65271,10 +65271,10 @@
       },
       "created_at": "2026-05-22T09:07:50.248308+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/idea/mega-asr-towards-in-the-wild-2-speech-re.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/idea/mega-asr-towards-in-the-wild-2-speech-re.md",
-        "repo_path": "projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/idea/mega-asr-towards-in-the-wild-2-speech-re.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/paper/pdf/2605.19833.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/paper/pdf/2605.19833.pdf",
+        "repo_path": "projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/paper/pdf/2605.19833.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Despite rapid advances in automatic speech recognition (ASR) and large audio-language models, robust recognition in real-world environments remains limited by an \"acoustic robustness bottleneck\": models often lose acoustic grounding and produce omissions or hallucinations under severe, compositional distortions. We\u2026",
@@ -65311,7 +65311,7 @@
         "data": null,
         "idea": "projects/PROJ-616-video2gui-synthesizing-large-scale-inter/idea/video2gui-synthesizing-large-scale-inter.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-616-video2gui-synthesizing-large-scale-inter/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -65398,10 +65398,10 @@
       },
       "created_at": "2026-05-22T09:07:52.562054+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter/idea/video2gui-synthesizing-large-scale-inter.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter/idea/video2gui-synthesizing-large-scale-inter.md",
-        "repo_path": "projects/PROJ-616-video2gui-synthesizing-large-scale-inter/idea/video2gui-synthesizing-large-scale-inter.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-616-video2gui-synthesizing-large-scale-inter/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Recent advances in multimodal large language models have driven growing interest in graphical user interface (GUI) agents, yet their generalization remains constrained by the scarcity of large-scale training data spanning diverse real-world applications. Existing datasets rely heavily on costly manual annotations and\u2026",
