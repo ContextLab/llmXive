@@ -64,3 +64,24 @@ def test_verify_candidate_404_returns_none(file_server):
     root, base = file_server
     c = DatasetCandidate("D", f"{base}/missing.csv", "D", "figshare")
     assert verify_candidate(c) is None
+
+
+def test_extract_dataset_intents_finds_doi_and_name():
+    from llmxive.librarian.dataset_resolver import extract_dataset_intents
+    spec = ("## FR\n- **FR-001**: download the QM9 dataset "
+            "(DOI: 10.1038/sdata.2014.22) with integrity verification\n")
+    intents = extract_dataset_intents(spec)
+    assert "10.1038/sdata.2014.22" in intents          # DOI captured
+    assert any("qm9" in i.lower() for i in intents)      # named dataset captured
+
+
+def test_resolve_datasets_real_qm9(tmp_path):
+    """Real-call: QM9 must resolve to >=1 verified candidate across the sources."""
+    from llmxive.librarian.dataset_resolver import resolve_datasets
+    spec = "- **FR-001**: download the QM9 dataset (DOI: 10.1038/sdata.2014.22)\n"
+    result = resolve_datasets(spec, project_dir=tmp_path, repo_root=tmp_path, top_n=3)
+    verified = [d for d in result.datasets if d.status == "verified"]
+    assert verified, f"QM9 did not resolve; tried: {result.datasets}"
+    top = verified[0]
+    assert 1 <= len(top.candidates) <= 3
+    assert top.candidates[0]["url"].startswith("http")

@@ -121,3 +121,95 @@ def verify_candidate(c: DatasetCandidate, *, relevance: float = 0.0) -> Verified
         format=rep.format, relevance=relevance,
         downloaded_bytes=rep.downloaded_bytes, hf_id=c.hf_id,
     )
+
+
+import re
+from pathlib import Path
+
+from llmxive.librarian import dataset_sources as _sources
+from llmxive.librarian.verify import query_relevance_score
+
+_DOI_RE = re.compile(r"\b(10\.\d{4,9}/[^\s)\]\"'>}]+)", re.IGNORECASE)
+# Capitalized/alnum dataset-name tokens, e.g. QM9, ImageNet, CIFAR-10, MD17.
+_NAME_RE = re.compile(r"\b([A-Z][A-Za-z]*\d[\w-]*|[A-Z]{2,}[A-Za-z0-9-]*)\b")
+# Source authority for tie-breaking (higher = preferred).
+_AUTHORITY = {"huggingface": 4, "zenodo": 3, "figshare": 3, "datacite": 2, "semantic_scholar": 1}
+
+
+@dataclass
+class ResolvedIntent:
+    intent: str
+    status: str                       # "verified" | "unresolved"
+    candidates: list[dict] = field(default_factory=list)        # top-N verified
+    candidates_tried: list[dict] = field(default_factory=list)  # audit
+
+
+@dataclass
+class ResolvedDatasets:
+    datasets: list[ResolvedIntent]
+
+
+def extract_dataset_intents(spec_text: str) -> list[str]:
+    """Deterministic-first extraction of dataset intents from spec.md: DOIs +
+    capitalized dataset-name tokens near the word 'dataset'."""
+    intents: list[str] = []
+    for m in _DOI_RE.finditer(spec_text):
+        intents.append(m.group(1).rstrip(".,);]"))
+    for line in spec_text.splitlines():
+        if "dataset" in line.lower():
+            for nm in _NAME_RE.findall(line):
+                if nm.lower() not in {"doi", "fr", "sc", "us"} and len(nm) >= 3:
+                    intents.append(nm)
+    # De-dup, preserve order.
+    seen: set[str] = set()
+    out: list[str] = []
+    for i in intents:
+        if i not in seen:
+            seen.add(i)
+            out.append(i)
+    return out
+
+
+def _gather_candidates(intent: str) -> list[DatasetCandidate]:
+    cands: list[DatasetCandidate] = []
+    for fn in (_sources.search_huggingface, _sources.search_figshare,
+               _sources.search_zenodo, _sources.search_datacite):
+        try:
+            cands.extend(fn(intent, limit=5))
+        except Exception:
+            continue
+    return cands
+
+
+def resolve_datasets(spec_text: str, *, project_dir: Path, repo_root: Path,
+                     top_n: int = 3, budget_s: int = 300) -> ResolvedDatasets:
+    import time
+    deadline = time.monotonic() + budget_s
+    resolved: list[ResolvedIntent] = []
+    for intent in extract_dataset_intents(spec_text):
+        tried: list[dict] = []
+        verified: list[VerifiedDataset] = []
+        for c in _gather_candidates(intent):
+            if time.monotonic() > deadline:
+                break
+            rel = query_relevance_score(intent, f"{c.title} {c.hf_id or ''}")
+            v = verify_candidate(c, relevance=rel)
+            if v is None:
+                tried.append({"url": c.url, "source": c.source, "status": "rejected",
+                              "reason": "unreachable or wrong format"})
+            else:
+                tried.append({"url": v.url, "source": v.source, "status": "verified",
+                              "format": v.format})
+                verified.append(v)
+        verified.sort(key=lambda v: (_AUTHORITY.get(v.source, 0), v.relevance), reverse=True)
+        top = verified[:top_n]
+        resolved.append(ResolvedIntent(
+            intent=intent,
+            status="verified" if top else "unresolved",
+            candidates=[{"url": v.url, "source": v.source, "format": v.format,
+                         "relevance": round(v.relevance, 3),
+                         "sample_check": {"downloaded_bytes": v.downloaded_bytes, "parsed": True}}
+                        for v in top],
+            candidates_tried=tried,
+        ))
+    return ResolvedDatasets(datasets=resolved)

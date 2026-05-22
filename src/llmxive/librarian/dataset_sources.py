@@ -25,6 +25,47 @@ class DatasetCandidate:
     hf_id: str | None = None
 
 
+# Data-file extensions the resolver can sample-stream + sniff. The HF dataset
+# landing page is HTML (rejected by the sniffer), so the candidate URL must
+# point at an actual data file via the HF resolve URL (design: "HF resolve URL"
+# / "stream first rows"). Order encodes preference (most sniffable first).
+_HF_DATA_EXTS = (
+    ".parquet", ".csv", ".tsv", ".jsonl", ".json",
+    ".h5", ".hdf5", ".zip", ".gz", ".npz", ".npy",
+    ".arrow", ".feather", ".xyz", ".sdf", ".txt",
+)
+
+
+def _hf_pick_data_file(api, ds_id: str) -> str | None:
+    """Deterministically pick the best sample-able data file in an HF dataset.
+
+    Returns the in-repo path (e.g. ``data/train-...parquet``) or ``None`` when
+    the dataset exposes no recognizable data file.
+    """
+    try:
+        info = api.dataset_info(ds_id)
+    except Exception:
+        return None
+    files = [
+        getattr(s, "rfilename", None)
+        for s in (getattr(info, "siblings", None) or [])
+    ]
+    files = [f for f in files if f and not f.startswith(".")]
+    candidates = [f for f in files if f.lower().endswith(_HF_DATA_EXTS)]
+    if not candidates:
+        return None
+    # Stable, deterministic order: by extension preference, then path.
+    def _rank(path: str) -> tuple[int, str]:
+        lower = path.lower()
+        for i, ext in enumerate(_HF_DATA_EXTS):
+            if lower.endswith(ext):
+                return (i, path)
+        return (len(_HF_DATA_EXTS), path)
+
+    candidates.sort(key=_rank)
+    return candidates[0]
+
+
 def search_huggingface(intent: str, *, limit: int = 5) -> list[DatasetCandidate]:
     from huggingface_hub import HfApi
 
@@ -38,9 +79,12 @@ def search_huggingface(intent: str, *, limit: int = 5) -> list[DatasetCandidate]
         ds_id = getattr(d, "id", None)
         if not ds_id:
             continue
+        data_file = _hf_pick_data_file(api, ds_id)
+        if not data_file:
+            continue
         out.append(DatasetCandidate(
             intent=intent,
-            url=f"https://huggingface.co/datasets/{ds_id}",
+            url=f"https://huggingface.co/datasets/{ds_id}/resolve/main/{data_file}",
             title=ds_id,
             source="huggingface",
             hf_id=ds_id,
