@@ -85,3 +85,30 @@ def test_resolve_datasets_real_qm9(tmp_path):
     top = verified[0]
     assert 1 <= len(top.candidates) <= 3
     assert top.candidates[0]["url"].startswith("http")
+
+
+def test_write_manifest_roundtrip(tmp_path):
+    import yaml
+    from llmxive.librarian.dataset_resolver import (
+        ResolvedDatasets, ResolvedIntent, write_manifest,
+    )
+    rd = ResolvedDatasets(datasets=[
+        ResolvedIntent("QM9", "verified",
+                       candidates=[{"url": "https://x/y", "source": "huggingface",
+                                    "format": "parquet", "relevance": 0.9,
+                                    "sample_check": {"downloaded_bytes": 10, "parsed": True}}],
+                       candidates_tried=[]),
+    ])
+    path = write_manifest(rd, project_dir=tmp_path)
+    doc = yaml.safe_load(path.read_text())
+    assert doc["datasets"][0]["intent"] == "QM9"
+    assert doc["datasets"][0]["candidates"][0]["url"] == "https://x/y"
+
+
+def test_unresolved_intents_lists(tmp_path):
+    from llmxive.librarian.dataset_resolver import ResolvedDatasets, ResolvedIntent, unresolved_intents
+    rd = ResolvedDatasets(datasets=[
+        ResolvedIntent("QM9", "verified", candidates=[{"url": "u"}], candidates_tried=[]),
+        ResolvedIntent("BogusSet", "unresolved", candidates=[], candidates_tried=[]),
+    ])
+    assert unresolved_intents(rd) == ["BogusSet"]

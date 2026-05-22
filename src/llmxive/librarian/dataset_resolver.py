@@ -213,3 +213,41 @@ def resolve_datasets(spec_text: str, *, project_dir: Path, repo_root: Path,
             candidates_tried=tried,
         ))
     return ResolvedDatasets(datasets=resolved)
+
+
+from datetime import datetime, timezone
+
+import yaml
+
+
+def write_manifest(rd: ResolvedDatasets, *, project_dir: Path) -> Path:
+    out = Path(project_dir) / ".specify" / "memory" / "resolved_datasets.yaml"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    doc = {
+        "resolved_at": datetime.now(timezone.utc).isoformat(),
+        "datasets": [
+            {"intent": d.intent, "status": d.status,
+             "candidates": d.candidates, "candidates_tried": d.candidates_tried}
+            for d in rd.datasets
+        ],
+    }
+    out.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
+    return out
+
+
+def unresolved_intents(rd: ResolvedDatasets) -> list[str]:
+    return [d.intent for d in rd.datasets if d.status == "unresolved"]
+
+
+def render_planner_block(rd: ResolvedDatasets) -> str:
+    """The 'cite ONLY these' block injected into the Planner user prompt."""
+    if not rd.datasets:
+        return ""
+    lines = ["# Verified datasets (cite ONLY these URLs in research.md — do NOT invent any dataset URL)"]
+    for d in rd.datasets:
+        if d.status != "verified":
+            lines.append(f"- {d.intent}: NO verified source found (do NOT cite a URL for it).")
+            continue
+        urls = ", ".join(c["url"] for c in d.candidates)
+        lines.append(f"- {d.intent} ({d.candidates[0]['format']}): {urls}")
+    return "\n".join(lines)
