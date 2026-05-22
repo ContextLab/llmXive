@@ -133,13 +133,20 @@ def classify(path: Path, templates_dir: Path | None = None) -> tuple[str, list[R
             ))
         return "template", rules
 
-    # Rule 2: unfilled bracket density (on the scan view, structural labels excluded)
+    # Rule 2: unfilled bracket density (on the scan view).
+    # Count ONLY multi-word descriptive placeholders ("[FEATURE NAME]",
+    # "[e.g., ...]", "[Brief Title]") — the genuine "saturated unfilled
+    # template" signal. Single-token brackets are excluded: they are either
+    # real template placeholders ("[FEATURE]", "[DATE]"), which Rule 1 already
+    # catches from the learned set, OR LLM-emitted labels/annotations
+    # ("[P]", "[US1]", "[REVISION]", "[X]") that legitimately appear in a real
+    # tasks.md and must not be mistaken for unfilled placeholders.
     brackets = [
         b for b in PLACEHOLDER_BRACKET_RE.findall(scan)
-        if not STRUCTURAL_LABEL_RE.match(b)
+        if not STRUCTURAL_LABEL_RE.match(b) and " " in b[1:-1].strip()
     ]
     if brackets and len(brackets) >= 6:
-        # treat >=6 unfilled bracket placeholders as template
+        # treat >=6 unfilled multi-word bracket placeholders as template
         rules.append(RuleFired(
             rule_id="unfilled_bracket_density",
             evidence_snippet=f"{len(brackets)} bracket markers; sample={brackets[:3]}",

@@ -233,6 +233,34 @@ class TestClassifyFixtures(unittest.TestCase):
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
+    def test_single_token_bracket_annotations_not_template(self):
+        """Spec 014 regression: a real tasks.md the Tasker annotates with
+        single-token brackets ([REVISION], [P], [US1]) must NOT trip the
+        bracket-density rule (those are labels/annotations, not unfilled
+        placeholders). Only multi-word descriptive placeholders count. A doc
+        saturated with multi-word descriptive placeholders still classifies."""
+        tmp = Path(tempfile.mkdtemp(prefix="anno_test_"))
+        try:
+            tasks = tmp / "tasks.md"
+            tasks.write_text(
+                "# Tasks: Dipole Prediction\n\n## Phase 1\n\n"
+                + "".join(
+                    f"- [ ] T{i:03d} [P] [US1] [REVISION] Implement step {i} in src/m{i}.py\n"
+                    for i in range(1, 9)
+                )
+            )
+            self.assertEqual(classify(tasks, templates_dir=TEMPLATES_DIR)[0], "real")
+
+            # Multi-word descriptive placeholders in prose still flag template.
+            bad = tmp / "bad.md"
+            bad.write_text(
+                "# Doc\n\nFill: [Alpha Value Here] [Beta Value Here] [Gamma Value Here] "
+                "[Delta Value Here] [Epsilon Value Here] [Zeta Value Here] [Eta Value Here].\n"
+            )
+            self.assertEqual(classify(bad, templates_dir=TEMPLATES_DIR)[0], "template")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
 
 class TestAuditEndToEnd(unittest.TestCase):
     def setUp(self):
