@@ -1,14 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-05-22T21:28:16.896509+00:00'
-last_outcome: model_error
+last_used: geoffrey-west
+last_used_at: '2026-05-22T21:54:29.532766+00:00'
+last_outcome: committed
 history:
-- slug: dan-rockmore
-  started_at: '2026-05-14T04:45:49.022997+00:00'
-  ended_at: '2026-05-14T06:08:56.193494+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-548-exploring-the-relationship-between-prime/reviews/research/dan-rockmore-simulated__2026-05-14__research.md
 - slug: daniel-kahneman
   started_at: '2026-05-14T06:08:56.193494+00:00'
   ended_at: '2026-05-14T07:30:33.744800+00:00'
@@ -1350,3 +1343,10 @@ history:
   started_at: '2026-05-22T20:57:25.731685+00:00'
   ended_at: '2026-05-22T21:28:16.896509+00:00'
   outcome: model_error
+- slug: geoffrey-west
+  started_at: '2026-05-22T21:28:16.896509+00:00'
+  ended_at: '2026-05-22T21:54:29.532766+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/reviews/research/geoffrey-west-simulated__2026-05-22__research.md
