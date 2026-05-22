@@ -187,3 +187,54 @@ def test_unresolved_intents_lists(tmp_path):
         ResolvedIntent("BogusSet", "unresolved", candidates=[], candidates_tried=[]),
     ])
     assert unresolved_intents(rd) == ["BogusSet"]
+
+
+def test_verify_candidate_stores_stable_url_not_redirect_target():
+    """Regression (PROJ-262): a URL that redirects to a short-lived target (HF
+    resolve URL -> presigned cas-bridge URL with X-Amz-Expires) MUST store the
+    STABLE original URL, not the expiring redirect target (which 403s once the
+    signature expires). The sniff may use the redirect target; the stored url
+    must be the durable one."""
+    import http.server
+    import socketserver
+    import threading
+
+    from llmxive.librarian.dataset_resolver import verify_candidate
+    from llmxive.librarian.dataset_sources import DatasetCandidate
+
+    class _H(http.server.BaseHTTPRequestHandler):
+        def log_message(self, *a):  # silence
+            pass
+
+        def _route(self):
+            if self.path == "/redir":
+                self.send_response(302)
+                self.send_header("Location", "/data.csv")
+                self.end_headers()
+            elif self.path == "/data.csv":
+                body = b"a,b,c\n1,2,3\n4,5,6\n"
+                self.send_response(200)
+                self.send_header("Content-Type", "text/csv")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                if self.command == "GET":
+                    self.wfile.write(body)
+            else:
+                self.send_response(404)
+                self.end_headers()
+
+        do_HEAD = _route
+        do_GET = _route
+
+    httpd = socketserver.TCPServer(("127.0.0.1", 0), _H)
+    port = httpd.server_address[1]
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    try:
+        base = f"http://127.0.0.1:{port}"
+        c = DatasetCandidate("D", f"{base}/redir", "D", "huggingface", hf_id="x/y")
+        v = verify_candidate(c)
+        assert v is not None, "redirect-to-csv candidate should verify"
+        assert v.url == f"{base}/redir", f"stored redirect target, not stable url: {v.url}"
+        assert v.format == "csv"
+    finally:
+        httpd.shutdown()

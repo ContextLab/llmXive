@@ -191,12 +191,18 @@ def probe_candidate(c: DatasetCandidate, *, relevance: float = 0.0) -> VerifyRes
             "wrong_format", head.final_url,
             rep.error or "reachable but sample did not parse as a dataset",
         )
+    # Store the STABLE original URL (c.url), NOT head.final_url. For a
+    # HuggingFace resolve URL, head.final_url is a short-lived presigned
+    # cas-bridge URL (X-Amz-Expires=3600); citing it produces a 403 once it
+    # expires (observed on PROJ-262). The stable resolve URL is re-signed by HF
+    # on every access, so a downstream FR-006 reachability check passes
+    # durably. The sniff above used the live final_url for the sample.
     dataset = VerifiedDataset(
-        intent=c.intent, url=head.final_url, source=c.source,
+        intent=c.intent, url=c.url, source=c.source,
         format=rep.format, relevance=relevance,
         downloaded_bytes=rep.downloaded_bytes, hf_id=c.hf_id,
     )
-    return VerifyResult("verified", head.final_url, None, dataset)
+    return VerifyResult("verified", c.url, None, dataset)
 
 
 from pathlib import Path
