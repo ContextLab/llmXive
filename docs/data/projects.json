@@ -935,13 +935,13 @@
     }
   ],
   "aggregates": {
-    "active_projects": 619,
+    "active_projects": 624,
     "ai_contributors": 7,
-    "human_contributors": 492,
+    "human_contributors": 560,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2172,
-    "total_contributors": 499
+    "total_contributions": 2243,
+    "total_contributors": 567
   },
   "contributors": [
     {
@@ -1102,6 +1102,15 @@
     },
     {
       "areas": [
+        "computer science",
+        "linguistics"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Liang Lin"
+    },
+    {
+      "areas": [
         "linguistics",
         "other"
       ],
@@ -1161,6 +1170,22 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "Yangqiu Song"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Yi Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Yu Cheng"
     },
     {
       "areas": [
@@ -1374,11 +1399,27 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Bowen Ye"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Bowen Zhou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "C. Chen"
     },
     {
       "areas": [
@@ -1522,6 +1563,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Chunyan Miao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Cihang Xie"
     },
     {
@@ -1578,7 +1627,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Deheng Ye"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Deqing Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Deqing Zou"
     },
     {
       "areas": [
@@ -1627,6 +1692,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Dongqi Fu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Dongrui Liu"
     },
     {
       "areas": [
@@ -1682,7 +1755,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "F. Mao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Fancy Kong"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Fangfang Lin"
     },
     {
       "areas": [
@@ -1707,6 +1796,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Fei Ding"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Feifan Song"
     },
     {
       "areas": [
@@ -1858,6 +1955,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "H. Guo"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Haifeng Chen"
     },
     {
@@ -1939,6 +2044,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Hao Sun"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Hao Tian"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Haobin Zhang"
     },
     {
       "areas": [
@@ -2130,6 +2251,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Huawei Cao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Huaxiu Yao"
     },
     {
@@ -2155,6 +2284,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Irvine Lu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "J. Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "J. Zhu"
     },
     {
       "areas": [
@@ -2227,6 +2372,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jiaheng Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jiaming Zhang"
     },
     {
       "areas": [
@@ -2358,6 +2511,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jing Chen"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -2403,6 +2564,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jinyang Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jiyuan Wang"
     },
     {
       "areas": [
@@ -2474,6 +2643,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Junhao Dong"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Junsong Chen"
     },
     {
@@ -2490,7 +2667,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "K. Huang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Kai Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Kai Li"
     },
     {
       "areas": [
@@ -2522,7 +2715,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Kailin Lyu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Kairus Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Kaiwen Luo"
     },
     {
       "areas": [
@@ -2539,6 +2748,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Kaixuan Fan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Kaiyu Pang"
     },
     {
       "areas": [
@@ -2590,6 +2807,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Kejin Cui"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -2626,6 +2851,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Kun Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Kun Yan"
     },
     {
@@ -2651,6 +2884,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Lei Huang"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Lei Li"
     },
     {
       "areas": [
@@ -2682,15 +2923,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Leo Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Letian Zhang"
     },
     {
       "areas": [
-        "linguistics"
+        "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Liang Lin"
+      "name": "Li Sun"
     },
     {
       "areas": [
@@ -2866,6 +3115,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "M. Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Maeve Luo"
     },
     {
@@ -2898,6 +3155,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Mengmeng Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Mengqi Huang"
     },
     {
@@ -2914,6 +3179,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Miao Yu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Mike Zheng Shou"
     },
     {
@@ -2923,6 +3196,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Miles Jiang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Min Qiu"
     },
     {
       "areas": [
@@ -3122,6 +3403,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Philip S. Yu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Pony Ma"
     },
     {
@@ -3187,6 +3476,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Qingyi Si"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qiufeng Wang"
     },
     {
       "areas": [
@@ -3274,6 +3571,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Rohan Kumar Das"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Roi Reichart"
     },
     {
@@ -3283,6 +3588,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Rong Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Rongbin Tan"
     },
     {
       "areas": [
@@ -3363,6 +3676,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Santiago Barron"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Sen Su"
     },
     {
       "areas": [
@@ -3498,6 +3819,30 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Shuhan Song\u00a7"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shuhao Gu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shuicheng Yan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Shunkai Zhang"
     },
     {
@@ -3554,6 +3899,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Siyuan Liang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Song Cao"
     },
     {
@@ -3603,6 +3956,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Sueky Zhang"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Sujian Li"
     },
     {
       "areas": [
@@ -3667,6 +4028,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Tianxiang Zhao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Tianyu Shao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ting Dang"
     },
     {
       "areas": [
@@ -3822,6 +4199,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Weimin Xiong"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -3930,6 +4315,30 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "X. Chu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "X. Feng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xia Hu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Xian Sun"
     },
     {
@@ -3994,7 +4403,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Xiaobin Hu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Xiaofei Wen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiaojun Jia"
     },
     {
       "areas": [
@@ -4082,7 +4507,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Xinfeng Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Xing Yu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xingjun Ma"
     },
     {
       "areas": [
@@ -4274,7 +4715,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yang Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yang Shi"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yang Xiao"
     },
     {
       "areas": [
@@ -4306,7 +4763,7 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Yi Lin"
+      "name": "Yew-Soon Ong"
     },
     {
       "areas": [
@@ -4314,7 +4771,7 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Yi Wang"
+      "name": "Yi Lin"
     },
     {
       "areas": [
@@ -4498,14 +4955,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Yu Cheng"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Yu Gao"
     },
     {
@@ -4530,6 +4979,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yu-Gang Jiang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yuan Lu"
     },
     {
@@ -4539,6 +4996,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yuanchen Bei"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuanhe Zhang"
     },
     {
       "areas": [
@@ -4579,6 +5044,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yucheng Su"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yue Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yueming Wu"
     },
     {
       "areas": [
@@ -4722,6 +5203,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yuxuan Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yuxuan Tian"
     },
     {
@@ -4834,6 +5323,22 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Zhenhong Zhou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhenlong Yuan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Zheren Fu"
     },
     {
@@ -4843,6 +5348,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zhichen Zeng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhifei Xie"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhigang Zeng"
     },
     {
       "areas": [
@@ -4875,6 +5396,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zhiyu Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhiyuan Wang"
     },
     {
       "areas": [
@@ -4950,6 +5479,22 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zihao Yue"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zijian Song"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -4997,7 +5542,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-22T09:06:39.244627+00:00",
+  "generated_at": "2026-05-22T09:09:28.761217+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -5235,29 +5780,29 @@
       "description": "A one-paragraph idea seed \u2014 a research question and a hint of how it might be tackled. Generated by the brainstorm agent (or submitted by a human).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-607-https-arxiv-org-abs-2605-19769",
-          "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
-          "title": "OpenComputer: Verifiable Software Worlds for Computer-Use Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "project_id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "title": "Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
-          "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "project_id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "title": "Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world Acoustic Simulation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
-          "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "When Vision Speaks for Sound"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
-          "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "Active Learners as Efficient PRP Rerankers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "project_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "project_id": "PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "title": "AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI Collaboration"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-612-a-survey-of-large-audio-language-models",
+          "project_id": "PROJ-612-a-survey-of-large-audio-language-models",
+          "title": "A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook"
         }
       ],
       "inputs": [
@@ -5279,29 +5824,29 @@
       "description": "The raw seed is expanded into a structured idea grounded in primary literature: motivation, prior work, the precise question, a sketch of an approach, and what success would look like. A research-question validator then audits it for phenomenon-vs-method confusion, circularity, and triviality.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-607-https-arxiv-org-abs-2605-19769",
-          "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
-          "title": "OpenComputer: Verifiable Software Worlds for Computer-Use Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "project_id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "title": "Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
-          "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "project_id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "title": "Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world Acoustic Simulation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
-          "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "When Vision Speaks for Sound"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
-          "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "Active Learners as Efficient PRP Rerankers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "project_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "project_id": "PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "title": "AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI Collaboration"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-612-a-survey-of-large-audio-language-models",
+          "project_id": "PROJ-612-a-survey-of-large-audio-language-models",
+          "title": "A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook"
         }
       ],
       "inputs": [
@@ -5323,29 +5868,29 @@
       "description": "The project gets its own Spec Kit scaffold and a `spec.md` \u2014 user stories, functional requirements, success criteria \u2014 written by the specifier agent (the agentic equivalent of `/speckit-specify`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-607-https-arxiv-org-abs-2605-19769",
-          "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
-          "title": "OpenComputer: Verifiable Software Worlds for Computer-Use Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "project_id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "title": "Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
-          "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "project_id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "title": "Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world Acoustic Simulation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
-          "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "When Vision Speaks for Sound"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
-          "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "Active Learners as Efficient PRP Rerankers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "project_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "project_id": "PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "title": "AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI Collaboration"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-612-a-survey-of-large-audio-language-models",
+          "project_id": "PROJ-612-a-survey-of-large-audio-language-models",
+          "title": "A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook"
         }
       ],
       "inputs": [
@@ -5367,29 +5912,29 @@
       "description": "Open questions and ambiguities in the spec are surfaced and resolved (the agentic `/speckit-clarify`). Each clarification is recorded back into `spec.md`.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-607-https-arxiv-org-abs-2605-19769",
-          "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
-          "title": "OpenComputer: Verifiable Software Worlds for Computer-Use Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "project_id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "title": "Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
-          "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "project_id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "title": "Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world Acoustic Simulation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
-          "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "When Vision Speaks for Sound"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
-          "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "Active Learners as Efficient PRP Rerankers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "project_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "project_id": "PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "title": "AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI Collaboration"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-612-a-survey-of-large-audio-language-models",
+          "project_id": "PROJ-612-a-survey-of-large-audio-language-models",
+          "title": "A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook"
         }
       ],
       "inputs": [
@@ -5410,29 +5955,29 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-607-https-arxiv-org-abs-2605-19769",
-          "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
-          "title": "OpenComputer: Verifiable Software Worlds for Computer-Use Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "project_id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "title": "Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
-          "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "project_id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "title": "Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world Acoustic Simulation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
-          "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "When Vision Speaks for Sound"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
-          "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "Active Learners as Efficient PRP Rerankers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "project_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "project_id": "PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "title": "AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI Collaboration"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-612-a-survey-of-large-audio-language-models",
+          "project_id": "PROJ-612-a-survey-of-large-audio-language-models",
+          "title": "A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook"
         }
       ],
       "inputs": [
@@ -5453,29 +5998,29 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-607-https-arxiv-org-abs-2605-19769",
-          "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
-          "title": "OpenComputer: Verifiable Software Worlds for Computer-Use Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "project_id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "title": "Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
-          "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "project_id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "title": "Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world Acoustic Simulation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
-          "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "When Vision Speaks for Sound"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
-          "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "Active Learners as Efficient PRP Rerankers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "project_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "project_id": "PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "title": "AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI Collaboration"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-612-a-survey-of-large-audio-language-models",
+          "project_id": "PROJ-612-a-survey-of-large-audio-language-models",
+          "title": "A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook"
         }
       ],
       "inputs": [
@@ -5499,29 +6044,29 @@
       "description": "The implementer agent executes the task list \u2014 writing code, running real tests, collecting data \u2014 ticking tasks off until the plan is complete. The librarian agent verifies citations along the way.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-607-https-arxiv-org-abs-2605-19769",
-          "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
-          "title": "OpenComputer: Verifiable Software Worlds for Computer-Use Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "project_id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "title": "Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
-          "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "project_id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "title": "Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world Acoustic Simulation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
-          "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "When Vision Speaks for Sound"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
-          "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "Active Learners as Efficient PRP Rerankers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "project_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "project_id": "PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "title": "AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI Collaboration"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-612-a-survey-of-large-audio-language-models",
+          "project_id": "PROJ-612-a-survey-of-large-audio-language-models",
+          "title": "A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook"
         }
       ],
       "inputs": [
@@ -5551,29 +6096,29 @@
       "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist. Human reviews count double.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-607-https-arxiv-org-abs-2605-19769",
-          "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
-          "title": "OpenComputer: Verifiable Software Worlds for Computer-Use Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "project_id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "title": "Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
-          "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "project_id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "title": "Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world Acoustic Simulation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
-          "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "When Vision Speaks for Sound"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
-          "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "Active Learners as Efficient PRP Rerankers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "project_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "project_id": "PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "title": "AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI Collaboration"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-612-a-survey-of-large-audio-language-models",
+          "project_id": "PROJ-612-a-survey-of-large-audio-language-models",
+          "title": "A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook"
         }
       ],
       "inputs": [
@@ -5595,29 +6140,29 @@
       "description": "A research-accepted project gets a second Spec Kit scaffold \u2014 for the paper that reports the work.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-607-https-arxiv-org-abs-2605-19769",
-          "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
-          "title": "OpenComputer: Verifiable Software Worlds for Computer-Use Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "project_id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "title": "Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
-          "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "project_id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "title": "Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world Acoustic Simulation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
-          "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "When Vision Speaks for Sound"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
-          "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "Active Learners as Efficient PRP Rerankers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "project_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "project_id": "PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "title": "AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI Collaboration"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-612-a-survey-of-large-audio-language-models",
+          "project_id": "PROJ-612-a-survey-of-large-audio-language-models",
+          "title": "A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook"
         }
       ],
       "inputs": [
@@ -5638,29 +6183,29 @@
       "description": "The paper's specification: which sections, which figures, which claims, what evidence each rests on.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-607-https-arxiv-org-abs-2605-19769",
-          "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
-          "title": "OpenComputer: Verifiable Software Worlds for Computer-Use Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "project_id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "title": "Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
-          "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "project_id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "title": "Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world Acoustic Simulation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
-          "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "When Vision Speaks for Sound"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
-          "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "Active Learners as Efficient PRP Rerankers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "project_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "project_id": "PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "title": "AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI Collaboration"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-612-a-survey-of-large-audio-language-models",
+          "project_id": "PROJ-612-a-survey-of-large-audio-language-models",
+          "title": "A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook"
         }
       ],
       "inputs": [
@@ -5682,29 +6227,29 @@
       "description": "The paper plan and contracts (clarify + plan for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-607-https-arxiv-org-abs-2605-19769",
-          "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
-          "title": "OpenComputer: Verifiable Software Worlds for Computer-Use Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "project_id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "title": "Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
-          "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "project_id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "title": "Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world Acoustic Simulation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
-          "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "When Vision Speaks for Sound"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
-          "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "Active Learners as Efficient PRP Rerankers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "project_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "project_id": "PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "title": "AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI Collaboration"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-612-a-survey-of-large-audio-language-models",
+          "project_id": "PROJ-612-a-survey-of-large-audio-language-models",
+          "title": "A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook"
         }
       ],
       "inputs": [
@@ -5725,29 +6270,29 @@
       "description": "Writing, figure-generation, and statistics sub-tasks (tasks + analyze for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-607-https-arxiv-org-abs-2605-19769",
-          "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
-          "title": "OpenComputer: Verifiable Software Worlds for Computer-Use Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "project_id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "title": "Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
-          "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "project_id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "title": "Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world Acoustic Simulation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
-          "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "When Vision Speaks for Sound"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
-          "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "Active Learners as Efficient PRP Rerankers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "project_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "project_id": "PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "title": "AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI Collaboration"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-612-a-survey-of-large-audio-language-models",
+          "project_id": "PROJ-612-a-survey-of-large-audio-language-models",
+          "title": "A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook"
         }
       ],
       "inputs": [
@@ -5776,29 +6321,29 @@
       "description": "The paper-writing, figure-generation, and statistics agents draft the LaTeX, generate figures from the data, and run the analyses; LaTeX is built and citations are verified.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-607-https-arxiv-org-abs-2605-19769",
-          "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
-          "title": "OpenComputer: Verifiable Software Worlds for Computer-Use Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "project_id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "title": "Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
-          "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "project_id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "title": "Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world Acoustic Simulation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
-          "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "When Vision Speaks for Sound"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
-          "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "Active Learners as Efficient PRP Rerankers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "project_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "project_id": "PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "title": "AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI Collaboration"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-612-a-survey-of-large-audio-language-models",
+          "project_id": "PROJ-612-a-survey-of-large-audio-language-models",
+          "title": "A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook"
         }
       ],
       "inputs": [
@@ -5822,29 +6367,29 @@
       "description": "The draft compiles cleanly, all citations are verified, and the proofreader is satisfied \u2014 ready for paper review.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-607-https-arxiv-org-abs-2605-19769",
-          "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
-          "title": "OpenComputer: Verifiable Software Worlds for Computer-Use Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "project_id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "title": "Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
-          "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "project_id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "title": "Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world Acoustic Simulation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
-          "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "When Vision Speaks for Sound"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
-          "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "Active Learners as Efficient PRP Rerankers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "project_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "project_id": "PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "title": "AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI Collaboration"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-612-a-survey-of-large-audio-language-models",
+          "project_id": "PROJ-612-a-survey-of-large-audio-language-models",
+          "title": "A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook"
         }
       ],
       "inputs": [
@@ -5877,29 +6422,29 @@
       "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-607-https-arxiv-org-abs-2605-19769",
-          "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
-          "title": "OpenComputer: Verifiable Software Worlds for Computer-Use Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "project_id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
+          "title": "Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-611-https-arxiv-org-abs-2605-11609",
-          "project_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "project_id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+          "title": "Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world Acoustic Simulation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-610-https-arxiv-org-abs-2605-16403",
-          "project_id": "PROJ-610-https-arxiv-org-abs-2605-16403",
-          "title": "When Vision Speaks for Sound"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+          "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-609-https-arxiv-org-abs-2605-14236",
-          "project_id": "PROJ-609-https-arxiv-org-abs-2605-14236",
-          "title": "Active Learners as Efficient PRP Rerankers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "project_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+          "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "project_id": "PROJ-608-autoresearchclaw-self-reinforcing-autono",
-          "title": "AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI Collaboration"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-612-a-survey-of-large-audio-language-models",
+          "project_id": "PROJ-612-a-survey-of-large-audio-language-models",
+          "title": "A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook"
         }
       ],
       "inputs": [
@@ -64002,9 +64547,952 @@
       "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information",
       "updated_at": "2026-05-21T11:06:54.673802+00:00",
       "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-612-a-survey-of-large-audio-language-models/idea/a-survey-of-large-audio-language-models.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-612-a-survey-of-large-audio-language-models/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kaiwen Luo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhenhong Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Leo Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Liang Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yang Xiao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tianyu Shao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuanhe Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuxuan Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Miao Yu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kailin Lyu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiaming Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dongrui Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Li Sun",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yueming Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kai Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ting Dang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiaojun Jia",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Rohan Kumar Das",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xinfeng Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Siyuan Liang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qiufeng Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xingjun Ma",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jing Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kun Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Junhao Dong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Deqing Zou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yu Cheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xia Hu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhigang Zeng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sen Su",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yang Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yu-Gang Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Philip S. Yu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yew-Soon Ong",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-22T09:07:41.192955+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-612-a-survey-of-large-audio-language-models/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-612-a-survey-of-large-audio-language-models/paper/source/main.tex",
+        "repo_path": "projects/PROJ-612-a-survey-of-large-audio-language-models/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "The foundational capabilities established by Large Language Models (LLMs) have paved the way for Multimodal Large Language Models (MLLMs), within which Large Audio Language Models (LALMs) are essential for realizing universal auditory intelligence. Despite their remarkable performance, the escalation of LALMs'\u2026",
+      "field": "computer science",
+      "id": "PROJ-612-a-survey-of-large-audio-language-models",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 3.614693,
+          "ended_at": "2026-05-22T09:07:44.079843+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-22T09:07:40.465150+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook",
+      "updated_at": "2026-05-22T09:07:42.718458+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i/idea/indusagent-reinforcing-open-vocabulary-i.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Rongbin Tan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Fangfang Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhenlong Yuan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Min Qiu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kejin Cui",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mengmeng Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yi Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zijian Song",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhiyuan Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiyuan Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yue Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shuhan Song\u00a7",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Huawei Cao",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-22T09:07:44.523081+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i/idea/indusagent-reinforcing-open-vocabulary-i.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i/idea/indusagent-reinforcing-open-vocabulary-i.md",
+        "repo_path": "projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i/idea/indusagent-reinforcing-open-vocabulary-i.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "Multimodal large language models (MLLMs) have shown remarkable capability in bridging visual perception and textual reasoning, enabling zero-shot understanding across diverse industrial scenarios. However, their performance in open-vocabulary industrial anomaly detection (IAD) is often limited by domain-misaligned\u2026",
+      "field": "computer science",
+      "id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 2.220313,
+          "ended_at": "2026-05-22T09:07:46.300495+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-22T09:07:44.080182+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools",
+      "updated_at": "2026-05-22T09:07:44.767354+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/idea/enhancing-train-free-infinite-frame-gene.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "X. Feng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "J. Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "M. Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "C. Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "F. Mao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "H. Guo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "J. Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "X. Chu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "K. Huang",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-22T09:07:46.774974+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/idea/enhancing-train-free-infinite-frame-gene.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/idea/enhancing-train-free-infinite-frame-gene.md",
+        "repo_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/idea/enhancing-train-free-infinite-frame-gene.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "Without incurring significant computational overhead, train-free long video generation aims to enable foundation video generation models to produce longer videos. Frame-level autoregressive frameworks, e.g., FIFO-diffusion, offer the advantage of generating infinitely long videos with constant memory consumption.\u2026",
+      "field": "computer science",
+      "id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 3.441871,
+          "ended_at": "2026-05-22T09:07:49.742594+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-22T09:07:46.300723+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos",
+      "updated_at": "2026-05-22T09:07:48.010834+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/idea/mega-asr-towards-in-the-wild-2-speech-re.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhifei Xie",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kaiyu Pang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haobin Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Deheng Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiaobin Hu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shuicheng Yan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chunyan Miao",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-22T09:07:50.248308+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/idea/mega-asr-towards-in-the-wild-2-speech-re.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/idea/mega-asr-towards-in-the-wild-2-speech-re.md",
+        "repo_path": "projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/idea/mega-asr-towards-in-the-wild-2-speech-re.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "Despite rapid advances in automatic speech recognition (ASR) and large audio-language models, robust recognition in real-world environments remains limited by an \"acoustic robustness bottleneck\": models often lose acoustic grounding and produce omissions or hallucinations under severe, compositional distortions. We\u2026",
+      "field": "computer science",
+      "id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 2.304695,
+          "ended_at": "2026-05-22T09:07:52.047527+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-22T09:07:49.742832+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world Acoustic Simulation",
+      "updated_at": "2026-05-22T09:07:50.523127+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-616-video2gui-synthesizing-large-scale-inter/idea/video2gui-synthesizing-large-scale-inter.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Weimin Xiong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shuhao Gu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bowen Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zihao Yue",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lei Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Feifan Song",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sujian Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hao Tian",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-22T09:07:52.562054+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter/idea/video2gui-synthesizing-large-scale-inter.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-616-video2gui-synthesizing-large-scale-inter/idea/video2gui-synthesizing-large-scale-inter.md",
+        "repo_path": "projects/PROJ-616-video2gui-synthesizing-large-scale-inter/idea/video2gui-synthesizing-large-scale-inter.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "Recent advances in multimodal large language models have driven growing interest in graphical user interface (GUI) agents, yet their generalization remains constrained by the scarcity of large-scale training data spanning diverse real-world applications. Existing datasets rely heavily on costly manual annotations and\u2026",
+      "field": "linguistics",
+      "id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 2.353795,
+          "ended_at": "2026-05-22T09:07:54.401557+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-22T09:07:52.047762+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining",
+      "updated_at": "2026-05-22T09:07:53.009174+00:00",
+      "upstream_feedback": null
     }
   ],
   "recent_activity": [
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 2.353795,
+      "ended_at": "2026-05-22T09:07:54.401557+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-22T09:07:52.047762+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 2.304695,
+      "ended_at": "2026-05-22T09:07:52.047527+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-22T09:07:49.742832+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 3.441871,
+      "ended_at": "2026-05-22T09:07:49.742594+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-22T09:07:46.300723+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 2.220313,
+      "ended_at": "2026-05-22T09:07:46.300495+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-22T09:07:44.080182+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 3.614693,
+      "ended_at": "2026-05-22T09:07:44.079843+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-612-a-survey-of-large-audio-language-models",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-22T09:07:40.465150+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -70030,66 +71518,6 @@
       "project_stage": "brainstormed",
       "review_path": "projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research/geoffrey-west-simulated__2026-05-14__research.md",
       "started_at": "2026-05-14T19:08:01.889685+00:00"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 29.852887,
-      "ended_at": "2026-05-14T18:54:11.743806Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "started_at": "2026-05-14T18:53:41.890919Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 26.118228,
-      "ended_at": "2026-05-14T18:47:36.627250Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "started_at": "2026-05-14T18:47:10.509022Z"
-    },
-    {
-      "action": "propose_arxiv",
-      "agent": "personality",
-      "display_name": "David Krakauer (simulated)",
-      "duration_s": 35.383495,
-      "ended_at": "2026-05-14T18:08:57.153969+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "david-krakauer",
-      "project_id": null,
-      "project_stage": "",
-      "started_at": "2026-05-14T18:08:21.770474+00:00"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 32.250803,
-      "ended_at": "2026-05-14T17:42:06.569878Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "started_at": "2026-05-14T17:41:34.319075Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Socrates (simulated)",
-      "duration_s": 202.957769,
-      "ended_at": "2026-05-14T17:39:07.142178+00:00",
-      "excerpt": "My friend, you propose that recursive self-modeling might lead to emergent self-awareness in these language models. A bold claim indeed.\n\nBut tell me\u2014what do you mean by \"self-awareness\"? Is it the capacity to model one's own architecture,\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "socrates",
-      "project_id": "PROJ-558-consciousness-bootstrapping-self-aware-a",
-      "project_stage": "brainstormed",
-      "review_path": "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/reviews/research/socrates-simulated__2026-05-14__research.md",
-      "started_at": "2026-05-14T17:35:44.184409+00:00"
     }
   ],
   "schema_version": "2.0.0"
