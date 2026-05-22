@@ -81,3 +81,16 @@ def test_every_schema_validates_a_known_good_fixture() -> None:
     )
     for name, obj in GOOD.items():
         validate(name, obj)
+
+
+def test_project_state_schema_covers_every_stage_enum_value() -> None:
+    """Every Stage enum value MUST be in the project-state schema's
+    current_stage enum, else an agent that legitimately sets that stage (e.g.
+    the publisher → publish_blocked, FR-030) crashes on save with a
+    ValidationError. Guards against Stage-enum / schema-enum drift."""
+    from llmxive.contract_validate import _load_schema
+    from llmxive.types import Stage
+
+    enum = set(_load_schema("project-state")["properties"]["current_stage"]["enum"])
+    missing = sorted(s.value for s in Stage if s.value not in enum)
+    assert not missing, f"Stage values missing from project-state schema enum: {missing}"

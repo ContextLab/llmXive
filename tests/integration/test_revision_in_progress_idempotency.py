@@ -37,14 +37,18 @@ def _save_project(repo: Path, project_id: str, *, stage: Stage) -> Project:
 
 class TestSchedulerIdempotency:
     def test_paper_revision_in_progress_is_in_never_pick(self) -> None:
-        """The scheduler's _NEVER_PICK set MUST include the three spec-012
-        stages so paper_revision_in_progress (the in-flight auto-plan),
-        ready_for_implementation (waiting for implementer agent), and
-        paper_revision_blocked (waiting for human) are all skipped by the
-        regular tick-scheduler."""
+        """_NEVER_PICK MUST include the still-locked revision states so the
+        regular tick-scheduler skips them: paper_revision_in_progress (the
+        in-flight auto-plan) and paper_revision_blocked (waiting for human).
+
+        Spec 013 deliberately made READY_FOR_IMPLEMENTATION *pickable* — the
+        `llmXive-implementer` agent (``agents/implementer.py``) consumes
+        projects at that stage via the scheduler — so it MUST NOT be in
+        _NEVER_PICK (this was an explicit out-of-scope item in spec 012 that
+        spec 013 brought in scope)."""
         assert Stage.PAPER_REVISION_IN_PROGRESS in _NEVER_PICK
-        assert Stage.READY_FOR_IMPLEMENTATION in _NEVER_PICK
         assert Stage.PAPER_REVISION_BLOCKED in _NEVER_PICK
+        assert Stage.READY_FOR_IMPLEMENTATION not in _NEVER_PICK
 
     def test_in_progress_project_not_picked_over_runnable(self, tmp_path: Path) -> None:
         """Pick a project at PAPER_REVISION_IN_PROGRESS and one at BRAINSTORMED;
@@ -58,9 +62,12 @@ class TestSchedulerIdempotency:
 
     def test_only_in_progress_returns_none(self, tmp_path: Path) -> None:
         """If every project is in a _NEVER_PICK state, pick_next returns
-        None (the scheduler doesn't pick anything to advance)."""
+        None (the scheduler doesn't pick anything to advance). Uses only
+        genuinely-locked stages — READY_FOR_IMPLEMENTATION is intentionally
+        excluded here because spec 013 made it pickable (the implementer agent
+        consumes it)."""
         _save_project(tmp_path, "PROJ-100-locked-a", stage=Stage.PAPER_REVISION_IN_PROGRESS)
-        _save_project(tmp_path, "PROJ-200-locked-b", stage=Stage.READY_FOR_IMPLEMENTATION)
+        _save_project(tmp_path, "PROJ-200-locked-b", stage=Stage.PUBLISH_BLOCKED)
         _save_project(tmp_path, "PROJ-300-locked-c", stage=Stage.PAPER_REVISION_BLOCKED)
         picked = pick_next(repo_root=tmp_path)
         assert picked is None
