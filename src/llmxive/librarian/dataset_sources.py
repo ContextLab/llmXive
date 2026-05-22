@@ -46,3 +46,55 @@ def search_huggingface(intent: str, *, limit: int = 5) -> list[DatasetCandidate]
             hf_id=ds_id,
         ))
     return out
+
+
+def _get_json(url: str, *, params: dict | None = None) -> dict | list | None:
+    try:
+        r = requests.get(url, params=params, headers={"User-Agent": USER_AGENT}, timeout=_TIMEOUT)
+        if r.status_code != 200:
+            return None
+        return r.json()
+    except (requests.RequestException, ValueError, OSError):
+        return None
+
+
+def search_figshare(intent: str, *, limit: int = 5) -> list[DatasetCandidate]:
+    data = _get_json("https://api.figshare.com/v2/articles", params={"search_for": intent, "page_size": limit})
+    out: list[DatasetCandidate] = []
+    for item in data or []:
+        url = item.get("url_public_html") or item.get("url")
+        if url:
+            out.append(DatasetCandidate(intent, url, item.get("title", ""), "figshare"))
+    return out
+
+
+def search_zenodo(intent: str, *, limit: int = 5) -> list[DatasetCandidate]:
+    data = _get_json("https://zenodo.org/api/records", params={"q": intent, "size": limit})
+    hits = ((data or {}).get("hits") or {}).get("hits") or []
+    out: list[DatasetCandidate] = []
+    for h in hits:
+        url = (h.get("links") or {}).get("html") or h.get("doi_url")
+        if url:
+            out.append(DatasetCandidate(intent, url, (h.get("metadata") or {}).get("title", ""), "zenodo"))
+    return out
+
+
+def search_datacite(intent: str, *, limit: int = 5) -> list[DatasetCandidate]:
+    # intent may be a DOI (resolve) or a free-text query (search).
+    looks_doi = intent.strip().lower().startswith("10.")
+    params = {"query": intent, "page[size]": limit} if not looks_doi else None
+    url = f"https://api.datacite.org/dois/{intent}" if looks_doi else "https://api.datacite.org/dois"
+    data = _get_json(url, params=params)
+    records = []
+    if looks_doi and isinstance(data, dict) and "data" in data:
+        records = [data["data"]]
+    elif isinstance(data, dict):
+        records = data.get("data") or []
+    out: list[DatasetCandidate] = []
+    for rec in records:
+        attrs = rec.get("attributes") or {}
+        doi = attrs.get("doi")
+        if doi:
+            titles = attrs.get("titles") or [{}]
+            out.append(DatasetCandidate(intent, f"https://doi.org/{doi}", titles[0].get("title", ""), "datacite"))
+    return out
