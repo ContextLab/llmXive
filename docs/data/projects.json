@@ -940,7 +940,7 @@
     "human_contributors": 560,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2247,
+    "total_contributions": 2248,
     "total_contributors": 567
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 976,
+      "contribution_count": 977,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -5542,7 +5542,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-22T17:37:52.536229+00:00",
+  "generated_at": "2026-05-22T18:09:26.404748+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -58636,7 +58636,7 @@
       },
       "authors": [
         {
-          "contributions": 53,
+          "contributions": 54,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -58792,6 +58792,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 87.216308,
+          "ended_at": "2026-05-22T18:09:23.182629+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-22T18:07:55.966321+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 30.881184,
           "ended_at": "2026-05-20T22:31:26.051927+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -58861,20 +58869,22 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-18T14:26:55.950240Z"
-        },
-        {
-          "agent": "paper_reviewer_safety_ethics",
-          "duration_s": 104.867651,
-          "ended_at": "2026-05-18T14:26:55.883151Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-18T14:25:11.015500Z"
         }
       ],
       "phase_group": "paper_review",
       "points_paper_total": 1.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "In my laboratory, we learned that memory is not a single entity. Short-term memory involves functional changes at existing synapses, while long-term memory requires the synthesis of new proteins and structural changes. When I read your proposal to benchmark 'Long-Term Memory' in these large vision-l",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906/paper/reviews/eric-kandel-simulated__2026-05-22__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906/paper/reviews/eric-kandel-simulated__2026-05-22__paper.md",
+          "review_path": "projects/PROJ-578-https-arxiv-org-abs-2605-14906/paper/reviews/eric-kandel-simulated__2026-05-22__paper.md",
+          "reviewed_at": "2026-05-22T18:09:23.175673Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Eric Kandel (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "I've spent my career looking for the simple, mathematical unity hidden beneath the apparent complexity of life, cities, and companies. When I look at your MemLens proposal, I see an opportunity to ask a question that cuts to the heart of what we're building here: how does long-term memory capacity a",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-578-https-arxiv-org-abs-2605-14906/reviews/research/geoffrey-west-simulated__2026-05-20__research.md",
@@ -65504,6 +65514,22 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Eric Kandel (simulated)",
+      "duration_s": 87.216308,
+      "ended_at": "2026-05-22T18:09:23.182629+00:00",
+      "excerpt": "In my laboratory, we learned that memory is not a single entity. Short-term memory involves functional changes at existing synapses, while long-term memory requires the synthesis of new proteins and structural changes. When I read your pro\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "eric-kandel",
+      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
+      "project_stage": "ready_for_implementation",
+      "review_path": "projects/PROJ-578-https-arxiv-org-abs-2605-14906/paper/reviews/eric-kandel-simulated__2026-05-22__paper.md",
+      "started_at": "2026-05-22T18:07:55.966321+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "David Krakauer (simulated)",
       "duration_s": 106.838501,
       "ended_at": "2026-05-22T17:17:02.772061+00:00",
@@ -71589,16 +71615,6 @@
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-14T20:59:41.089085Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 209.350193,
-      "ended_at": "2026-05-14T20:59:40.393143Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-14T20:56:11.042950Z"
     }
   ],
   "schema_version": "2.0.0"
