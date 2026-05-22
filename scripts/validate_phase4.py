@@ -98,9 +98,17 @@ def _feature_dir(project_id: str) -> Path | None:
 # ──────────────────────────────────────────────────────────────────────
 
 def fr_sc_counts(spec_md_text: str) -> tuple[int, int]:
-    """Return (FR-NNN count, SC-NNN count) in a spec.md (FR-012)."""
-    fr = len(re.findall(r"\bFR-\d+\b", spec_md_text))
-    sc = len(re.findall(r"\bSC-\d+\b", spec_md_text))
+    """Return (#distinct FR ids, #distinct SC ids) in a spec.md (FR-012).
+
+    Counts DISTINCT requirement identifiers — matching the Tasker's Mode-B
+    FR-012 guard — NOT every occurrence. Counting occurrences is wrong: a benign
+    rewrite that drops a cross-reference in prose (e.g. an acceptance scenario
+    that stops citing SC-003) would look like a deleted requirement even though
+    the SC-003 definition is untouched. Only an actual drop in distinct
+    requirement IDs signals a deleted constraint.
+    """
+    fr = len(set(re.findall(r"\bFR-\d+\b", spec_md_text)))
+    sc = len(set(re.findall(r"\bSC-\d+\b", spec_md_text)))
     return fr, sc
 
 
@@ -514,6 +522,39 @@ def _rollback_to_clarified(project_id: str) -> bool:
     return True
 
 
+def _verify_only_project(project_id: str) -> dict[str, Any]:
+    """Re-verify a project's EXISTING Phase-4 artifacts in place — no rollback,
+    no reset, no pipeline run. For the spec-014 wrap-up and re-checking after a
+    verifier fix. ``spec_md_before`` (the FR-012 baseline) is taken from the
+    committed pre-Phase-4 spec.md at git HEAD."""
+    fdir = _feature_dir(project_id)
+    spec_before = ""
+    if fdir is not None:
+        rel = (fdir / "spec.md").relative_to(REPO_ROOT)
+        gp = subprocess.run(
+            ["git", "show", f"HEAD:{rel}"],
+            capture_output=True, text=True, cwd=str(REPO_ROOT),
+        )
+        if gp.returncode == 0:
+            spec_before = gp.stdout
+    findings, evidence = _verify(project_id, spec_before)
+    final_state = evidence.get("final_state", "<unknown>")
+    passed = len(findings) == 0 and final_state == "analyzed"
+    status = "passed" if passed else ("held" if final_state in {"human_input_needed", "held"} else "failed")
+    print(f"[validate_phase4] {project_id}: verify-only -> {status} (final={final_state}, "
+          f"{len(findings)} finding(s))", file=sys.stderr)
+    return {
+        "project_id": project_id,
+        "final_state": final_state,
+        "status": status,
+        "findings": findings,
+        "evidence": evidence,
+        "reset_artifacts": [],
+        "run_info": {"returncode": 0, "duration_s": 0.0, "steps": 0,
+                     "run_id": None, "verify_only": True},
+    }
+
+
 def _run_one_project(project_id: str, *, reset: bool, force: bool = False) -> dict[str, Any]:
     if force:
         _rollback_to_clarified(project_id)
@@ -731,6 +772,10 @@ def main(argv: list[str] | None = None) -> int:
                          "reproducible re-validation. Does not change default FR-019 behavior.")
     ap.add_argument("--emit-carry-forward", action="store_true",
                     help="Also emit carry-forward.yaml + phase-report.md (implicit with --all)")
+    ap.add_argument("--verify-only", action="store_true",
+                    help="Re-verify each project's EXISTING Phase-4 artifacts in place "
+                         "(no rollback/reset/pipeline run) and emit the manifests. For the "
+                         "wrap-up and for re-checking after a verifier fix.")
     args = ap.parse_args(argv)
 
     if not args.project and not args.all:
@@ -740,9 +785,12 @@ def main(argv: list[str] | None = None) -> int:
     reset = not args.no_reset
     results: list[dict[str, Any]] = []
     for pid in project_ids:
-        results.append(_run_one_project(pid, reset=reset, force=args.force))
+        if args.verify_only:
+            results.append(_verify_only_project(pid))
+        else:
+            results.append(_run_one_project(pid, reset=reset, force=args.force))
 
-    if args.all or args.emit_carry_forward:
+    if args.all or args.emit_carry_forward or args.verify_only:
         cf = emit_carry_forward(results)
         pr = emit_phase_report(results)
         print(f"[validate_phase4] carry-forward → {cf.relative_to(REPO_ROOT)}", file=sys.stderr)

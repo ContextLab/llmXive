@@ -1,0 +1,61 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Molecule Schema
+description: Schema for molecular data in QM9 dipole prediction pipeline
+type: object
+properties:
+  mol_id:
+    type: string
+    pattern: "^QM9_[a-f0-9]+$"
+    description: "Unique molecule identifier"
+  formula:
+    type: string
+    pattern: "^[CHONF]+[0-9]*$"
+    description: "Molecular formula (e.g., C6H6)"
+  num_atoms:
+    type: integer
+    minimum: 1
+    description: "Total atom count"
+  num_heavy:
+    type: integer
+    minimum: 1
+    description: "Heavy atom count (non-hydrogen)"
+  dipole_ref:
+    type: number
+    minimum: 0
+    description: "Reference dipole moment in Debye from QM9 DFT calculations"
+  conformer_id:
+    type: string
+    description: "Conformer identifier (single lowest-energy conformer)"
+  coordinates:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+      minItems: 3
+      maxItems: 3
+    description: "3D atomic coordinates (N×3 array)"
+  atom_types:
+    type: array
+    items:
+      type: integer
+      enum: [1, 6, 7, 8, 9]  # H, C, N, O, F
+    description: "Atomic numbers"
+  bonds:
+    type: array
+    items:
+      type: array
+      items:
+        type: integer
+      minItems: 2
+      maxItems: 2
+    description: "Bond connectivity as edge list"
+required:
+  - mol_id
+  - formula
+  - num_atoms
+  - dipole_ref
+  - coordinates
+  - atom_types
+  - bonds
+additionalProperties: false

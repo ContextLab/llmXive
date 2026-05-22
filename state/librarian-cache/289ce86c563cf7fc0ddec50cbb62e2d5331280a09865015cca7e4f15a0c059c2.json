@@ -1,0 +1,678 @@
+{
+  "fetched_at": "2026-05-21T12:40:55Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "---\nfield: computer science\nsubmitter: jeremymanning\ngithub_issue: https://github.com/ContextLab/llmXive/issues/1\n---\n\n# Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall\n\nInvestigate whether LLMs can be trained to use spatial memory techniques similar to human 'method of loci' for improved information retention and recall. This project would explore creating virtual spatial environments within LLM architectures that could organize and retrieve information based on spatial-semantic relationships.\n\nKey innovations:\n- Develop a spatial embedding layer that maps semantic concepts to virtual 3D coordinates\n- Train models to navigate these spaces during retrieval tasks\n- Compare performance with human memory palace users on complex recall tasks\n- Explore whether spatial organization improves long-context understanding\n\nThis bridges cognitive psychology's memory techniques with modern LLM architectures.\n",
+      "target_n": 5
+    },
+    "duration_seconds": 334.762,
+    "ended_at": "2026-05-21T12:40:55Z",
+    "expansion": null,
+    "extracted_queries": [
+      "associative memory spatial embeddings LLM",
+      "needle haystack retrieval benchmark",
+      "external memory attention mechanism",
+      "context window recall accuracy metrics",
+      "positional encoding inductive bias"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.48550/arXiv.2601.15311"
+      ]
+    },
+    "per_query_hit_count": {
+      "Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall": 3,
+      "associative memory spatial embeddings LLM": 6,
+      "context window recall accuracy metrics": 6,
+      "external memory attention mechanism": 6,
+      "needle haystack retrieval benchmark": 6,
+      "positional encoding inductive bias": 6
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2506.02700",
+          "rationale": "The paper is off-domain entirely, focusing on human cognitive load and VR environments rather than Large Language Models or AI architectures. It relies on distinct constructs sharing only homonym keywords (\"Memory Palaces\") without addressing the relevant mechanism or empirical setting for LLMs.",
+          "title": "Cognitive Load-Driven VR Memory Palaces: Personalizing Focus and Recall Enhancement"
+        },
+        {
+          "primary_pointer": "2601.05960",
+          "rationale": "The paper focuses on external file-based memory retrieval and feedback distillation, which is a distinct construct from the user's focus on spatial reasoning and mnemonic \"Memory Palace\" techniques, sharing only the homonym keyword \"Memory\". It does not measure spatial mechanisms, episodic recall via spatial mapping, or any variable relevant to the specific cognitive architecture the user is investigating.",
+          "title": "Distilling Feedback into Memory-as-a-Tool"
+        },
+        {
+          "primary_pointer": "2504.04150",
+          "rationale": "The paper focuses on long-context retrieval and logical multi-hop reasoning (NIAH task), whereas the user's question specifically targets spatial reasoning techniques (Memory Palaces) for episodic recall. These represent distinct mechanisms sharing only general keywords like 'reasoning' and 'memory' without addressing the specific spatial mnemonic methodology or episodic memory construct.",
+          "title": "Reasoning on Multiple Needles In A Haystack"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.3390/s24206604",
+          "rationale": "This paper is off-domain entirely, focusing on computer vision for driver monitoring rather than LLM architectures or mnemonic spatial reasoning for episodic recall. The shared keywords (\"Spatial\", \"Memory\" in LSTM) represent distinct constructs unrelated to the user's specific research question.",
+          "title": "Depth Video-Based Secondary Action Recognition in Vehicles via Convolutional Neural Network and Bidirectional Long Short-Term Memory with Spatial Enhanced Attention Mechanism"
+        },
+        {
+          "primary_pointer": "2402.11821",
+          "rationale": "This paper shares keywords like \"recall\" and \"LLMs\" but measures a fundamentally different construct. The user's question is about Memory Palace techniques (a spatial mnemonic method for episodic memory), while the paper studies graph structure reconstruction from text—a distinct cognitive mechanism that does not satisfy any acceptance criteria (a-f) for literature review inclusion.",
+          "title": "Microstructures and Accuracy of Graph Recall by Large Language Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-21T12:35:21Z",
+    "term_input": {
+      "normalized": "memory palaces in llms: spatial reasoning for enhanced episodic recall",
+      "raw": "Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-05-21T12:36:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Continual Learning (CL) is an emerging machine learning paradigm that aims to learn from a continuous stream of tasks without forgetting knowledge learned from the previous tasks. To avoid performance decrease caused by forgetting, prior studies exploit episodic memory (EM), which stores a subset of the past observed samples while learning from new non-i.i.d. data. Despite the promising results, since CL is often assumed to execute on mobile or IoT devices, the EM size is bounded by the small hardware memory capacity and makes it infeasible to meet the accuracy requirements for real-world applications. Specifically, all prior CL methods discard samples overflowed from the EM and can never retrieve them back for subsequent training steps, incurring loss of information that would exacerbate catastrophic forgetting. We explore a novel hierarchical EM management strategy to address the forgetting issue. In particular, in mobile and IoT devices, real-time data can be stored not just in high-speed RAMs but in internal storage devices as well, which offer significantly larger capacity than the RAMs. Based on this insight, we propose to exploit the abundant storage to preserve past experiences and alleviate the forgetting by allowing CL to efficiently migrate samples between memory and storage without being interfered by the slow access speed of the storage. We call it Carousel Memory (CarM). As CarM is complementary to existing CL methods, we conduct extensive evaluations of our method with seven popular CL methods and show that CarM significantly improves the accuracy of the methods across different settings by large margins in final average accuracy (up to 28.4%) while retaining the same training efficiency.",
+          "claimed_authors": [
+            "Soobee Lee",
+            "Minindu Weerakoon",
+            "Jonghyun Choi",
+            "Minjia Zhang",
+            "Di Wang",
+            "Myeongjae Jeon"
+          ],
+          "claimed_title": "Carousel Memory: Rethinking the Design of Episodic Memory for Continual Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.07276"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Carousel Memory: Rethinking the Design of Episodic Memory for Continual Learning')",
+        "failed_at": "2026-05-21T12:36:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Long-term memory is a critical challenge for Large Language Model agents, as fixed context windows cannot preserve coherence across extended interactions. Existing memory systems represent conversation history as unstructured embedding vectors, retrieving information through semantic similarity. This paradigm fails to capture the associative structure of human memory, wherein related experiences progressively strengthen interconnections through repeated co-activation. Inspired by cognitive neuroscience, we identify three mechanisms central to biological memory: association, consolidation, and spreading activation, which remain largely absent in current research. To bridge this gap, we propose HeLa-Mem, a bio-inspired memory architecture that models memory as a dynamic graph with Hebbian learning dynamics. HeLa-Mem employs a dual-level organization: (1) an episodic memory graph that evolves through co-activation patterns, and (2) a semantic memory store populated via Hebbian Distillation, wherein a Reflective Agent identifies densely connected memory hubs and distills them into structured, reusable semantic knowledge. This dual-path design leverages both semantic similarity and learned associations, mirroring the episodic-semantic distinction in human cognition. Experiments on LoCoMo demonstrate superior performance across four question categories while using significantly fewer context tokens. Code is available on GitHub: https://github.com/ReinerBRO/HeLa-Mem",
+          "claimed_authors": [
+            "Jinchan Zhu",
+            "Jindong Li",
+            "Cheng Zhang",
+            "Jiahong Liu",
+            "Menglin Yang"
+          ],
+          "claimed_title": "HeLa-Mem: Hebbian Learning and Associative Memory for LLM Agents",
+          "claimed_venue": "",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.16839"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='HeLa-Mem: Hebbian Learning and Associative Memory for LLM Agents')",
+        "failed_at": "2026-05-21T12:36:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, large language models (LLMs) have made remarkable progress in natural language processing. The most representative ability of LLMs is in-context learning (ICL), which enables LLMs to learn patterns from in-context exemplars without training. The performance of ICL greatly depends on the exemplars used. However, how to choose exemplars remains unclear due to the lack of understanding of how in-context learning works. In this paper, we present a novel perspective on ICL by conceptualizing it as contextual retrieval from a model of associative memory. We establish a theoretical framework of ICL based on Hopfield Networks. Based on our framework, we look into how in-context exemplars influence the performance of ICL and propose more efficient active exemplar selection. Our study sheds new light on the mechanism of ICL by connecting it to memory retrieval, with potential implications for advancing the understanding of LLMs.",
+          "claimed_authors": [
+            "Jiachen Zhao"
+          ],
+          "claimed_title": "In-Context Exemplars as Clues to Retrieving from Large Associative Memory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.03498"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='In-Context Exemplars as Clues to Retrieving from Large Associative Memory')",
+        "failed_at": "2026-05-21T12:36:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dense Associative Memory (DAM) generalizes Hopfield networks through higher-order interactions and achieves storage capacity that scales as $O(N^{n-1})$ under suitable pattern separation conditions. Existing dynamical analyses primarily study the thermodynamic limit $N\\to\\infty$ with randomly sampled patterns and therefore do not provide finite-size guarantees or explicit convergence rates.\n  We develop an algorithmic analysis of DAM retrieval dynamics that yields finite-$N$ guarantees under explicit, verifiable pattern conditions. Under a separation assumption and a bounded-interference condition at high loading, we prove geometric convergence of asynchronous retrieval dynamics, which implies $O(\\log N)$ convergence time once the trajectory enters the basin of attraction. We further establish adversarial robustness bounds expressed through an explicit margin condition that quantifies the number of corrupted bits tolerable per sweep, and derive capacity guarantees that scale as $Θ(N^{n-1})$ up to polylogarithmic factors in the worst case, while recovering the classical $Θ(N^{n-1})$ scaling for random pattern ensembles. Finally, we show that DAM retrieval dynamics admit a potential-game interpretation that ensures convergence to pure Nash equilibria under asynchronous updates.\n  Complete proofs are provided in the appendices, together with preliminary experiments that illustrate the predicted convergence, robustness, and capacity scaling behavior.",
+          "claimed_authors": [
+            "Madhava Gaikwad"
+          ],
+          "claimed_title": "Algorithmic Analysis of Dense Associative Memory: Finite-Size Guarantees and Adversarial Robustness",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.12811"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Algorithmic Analysis of Dense Associative Memory: Finite-Size Guarantees and Adversarial Robustness')",
+        "failed_at": "2026-05-21T12:36:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Large Multimodal Models (LMMs) have made significant strides in visual question-answering for single images. Recent advancements like long-context LMMs have allowed them to ingest larger, or even multiple, images. However, the ability to process a large number of visual tokens does not guarantee effective retrieval and reasoning for multi-image question answering (MIQA), especially in real-world applications like photo album searches or satellite imagery analysis. In this work, we first assess the limitations of current benchmarks for long-context LMMs. We address these limitations by introducing a new vision-centric, long-context benchmark,\"Visual Haystacks (VHs)\". We comprehensively evaluate both open-source and proprietary models on VHs, and demonstrate that these models struggle when reasoning across potentially unrelated images, perform poorly on cross-image reasoning, as well as exhibit biases based on the placement of key information within the context window. Towards a solution, we introduce MIRAGE (Multi-Image Retrieval Augmented Generation), an open-source, lightweight visual-RAG framework that processes up to 10k images on a single 40G A100 GPU -- far surpassing the 1k-image limit of contemporary models. MIRAGE demonstrates up to 13% performance improvement over existing open-source LMMs on VHs, sets a new state-of-the-art on the RetVQA multi-image QA benchmark, and achieves competitive performance on single-image QA with state-of-the-art LMMs. Our dataset, model, and code are available at: https://visual-haystacks.github.io.",
+          "claimed_authors": [
+            "Tsung-Han Wu",
+            "Giscard Biamby",
+            "Jerome Quenum",
+            "Ritwik Gupta",
+            "Joseph Gonzalez",
+            "Trevor Darrell",
+            "David M. Chan"
+          ],
+          "claimed_title": "Visual Haystacks: A Vision-Centric Needle-In-A-Haystack Benchmark",
+          "claimed_venue": "International Conference on Learning Representations",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.13766"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Visual Haystacks: A Vision-Centric Needle-In-A-Haystack Benchmark')",
+        "failed_at": "2026-05-21T12:36:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Multimodal Large Language Models (MLLMs) have shown significant promise in various applications, leading to broad interest from researchers and practitioners alike. However, a comprehensive evaluation of their long-context capabilities remains underexplored. To address these gaps, we introduce the MultiModal Needle-in-a-haystack (MMNeedle) benchmark, specifically designed to assess the long-context capabilities of MLLMs. Besides multi-image input, we employ image stitching to further increase the input context length, and develop a protocol to automatically generate labels for sub-image level retrieval. Essentially, MMNeedle evaluates MLLMs by stress-testing their capability to locate a target sub-image (needle) within a set of images (haystack) based on textual instructions and descriptions of image contents. This setup necessitates an advanced understanding of extensive visual contexts and effective information retrieval within long-context image inputs. With this benchmark, we evaluate state-of-the-art MLLMs, encompassing both API-based and open-source models. The findings reveal that GPT-4o consistently surpasses other models in long-context scenarios, but suffers from hallucination problems in negative samples, i.e., when needles are not in the haystacks. Our comprehensive long-context evaluation of MLLMs also sheds lights on the considerable performance gap between API-based and open-source models. All the code, data, and instructions required to reproduce the main results are available at https://github.com/Wang-ML-Lab/multimodal-needle-in-a-haystack.",
+          "claimed_authors": [
+            "Hengyi Wang",
+            "Haizhou Shi",
+            "Shiwei Tan",
+            "Weiyi Qin",
+            "Wenyuan Wang",
+            "Tunyu Zhang",
+            "A. Nambi",
+            "Tanuja Ganu",
+            "Hao Wang"
+          ],
+          "claimed_title": "Multimodal Needle in a Haystack: Benchmarking Long-Context Capability of Multimodal Large Language Models",
+          "claimed_venue": "North American Chapter of the Association for Computational Linguistics",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.48550/arXiv.2406.11230"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Multimodal Needle in a Haystack: Benchmarking Long-Context Capability of Multimodal Large Language Models')",
+        "failed_at": "2026-05-21T12:36:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "With the rapid advancement of multimodal large language models (MLLMs), their evaluation has become increasingly comprehensive. However, understanding long multimodal content, as a foundational ability for real-world applications, remains underexplored. In this work, we present Needle In A Multimodal Haystack (MM-NIAH), the first benchmark specifically designed to systematically evaluate the capability of existing MLLMs to comprehend long multimodal documents. Our benchmark includes three types of evaluation tasks: multimodal retrieval, counting, and reasoning. In each task, the model is required to answer the questions according to different key information scattered throughout the given multimodal document. Evaluating the leading MLLMs on MM-NIAH, we observe that existing models still have significant room for improvement on these tasks, especially on vision-centric evaluation. We hope this work can provide a platform for further research on long multimodal document comprehension and contribute to the advancement of MLLMs. Code and benchmark are released at https://github.com/OpenGVLab/MM-NIAH.",
+          "claimed_authors": [
+            "Weiyun Wang",
+            "Shuibo Zhang",
+            "Yiming Ren",
+            "Yuchen Duan",
+            "Tiantong Li",
+            "Shuo Liu",
+            "Mengkang Hu",
+            "Zhe Chen",
+            "Kaipeng Zhang",
+            "Lewei Lu",
+            "Xizhou Zhu",
+            "Ping Luo",
+            "Yu Qiao",
+            "Jifeng Dai",
+            "Wenqi Shao",
+            "Wenhai Wang"
+          ],
+          "claimed_title": "Needle In A Multimodal Haystack",
+          "claimed_venue": "Neural Information Processing Systems",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.48550/arXiv.2406.07230"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Needle In A Multimodal Haystack')",
+        "failed_at": "2026-05-21T12:36:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tool learning aims to augment large language models (LLMs) with diverse tools, enabling them to act as agents for solving practical tasks. Due to the limited context length of tool-using LLMs, adopting information retrieval (IR) models to select useful tools from large toolsets is a critical initial step. However, the performance of IR models in tool retrieval tasks remains underexplored and unclear. Most tool-use benchmarks simplify this step by manually pre-annotating a small set of relevant tools for each task, which is far from the real-world scenarios. In this paper, we propose ToolRet, a heterogeneous tool retrieval benchmark comprising 7.6k diverse retrieval tasks, and a corpus of 43k tools, collected from existing datasets. We benchmark six types of models on ToolRet. Surprisingly, even the models with strong performance in conventional IR benchmarks, exhibit poor performance on ToolRet. This low retrieval quality degrades the task pass rate of tool-use LLMs. As a further step, we contribute a large-scale training dataset with over 200k instances, which substantially optimizes the tool retrieval ability of IR models.",
+          "claimed_authors": [
+            "Zhengliang Shi",
+            "Yuhan Wang",
+            "Lingyong Yan",
+            "Pengjie Ren",
+            "Shuaiqiang Wang",
+            "Dawei Yin",
+            "Zhaochun Ren"
+          ],
+          "claimed_title": "Retrieval Models Aren't Tool-Savvy: Benchmarking Tool Retrieval for Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.01763"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title=\"Retrieval Models Aren't Tool-Savvy: Benchmarking Tool Retrieval for Large Language Models\")",
+        "failed_at": "2026-05-21T12:36:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Time Series Language Models (TSLMs) promise reasoning over real-world temporal data, but their ability to retrieve and reason over long time-series remains largely untested. We introduce TS-Haystack, a multi-domain retrieval benchmark with ten event-grounded question-answering tasks over contexts from 100 seconds to 24 hours, spanning direct retrieval, temporal reasoning, multi-step reasoning, and contextual anomaly detection. Existing TSLMs exhibit severe long-context degradation: accuracy declines with context length, direct-tokenization models run out of memory beyond 100 seconds on high-rate signals, and time-interval-grounded tasks collapse toward near-zero accuracy when increasing the time-series lengths, aligning with existing literature on text and multi-modal long context retrieval. An agentic retrieval framework using specialized time-series classifier tools matches or outperforms SoTA TSLMs on 9 of 10 tasks, highlighting agentic retrieval as a promising approach for long-context TSLMs.",
+          "claimed_authors": [
+            "Nicolas Zumarraga",
+            "Thomas Kaar",
+            "Ning Wang",
+            "William Tennien",
+            "Alpay Hasanli",
+            "Max Rosenblattl",
+            "Fan Wu",
+            "Kevin Riehl",
+            "Maxwell A. Xu",
+            "Markus Kreft",
+            "Kevin O'Sullivan",
+            "Elgar Fleisch",
+            "Paul Schmiedmayer",
+            "Robert Jakob",
+            "Patrick Langer"
+          ],
+          "claimed_title": "TS-Haystack: A Multi-Task Retrieval Benchmark for Long-Context Time-Series Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.14200"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='TS-Haystack: A Multi-Task Retrieval Benchmark for Long-Context Time-Series Reasoning')",
+        "failed_at": "2026-05-21T12:36:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "This paper considers the modulation classification of radio frequency (RF) signals. An external attention mechanism-based convolution neural network (EACNN) is proposed. Thanks to the external attention layers, the EACNN network can capture the potential correlations of different modulation data, which helps reduce computational consumption and memory costs efficiently during training. Moreover, to account for the variation of the signals induced by channel fading, we further propose a customized batch normalization (BN) layer in EACNN to improve the classification accuracy with less training time. Numerical experiments on RML2016.a dataset shows that the proposed method outperforms the baseline method CNN2 by 7% in terms of classification accuracy.",
+          "claimed_authors": [
+            "X. Tao",
+            "H. Shao",
+            "Qiang Li",
+            "Ye Pan",
+            "Zhongqi Fu"
+          ],
+          "claimed_title": "External Attention Mechanism-Based Modulation Classification",
+          "claimed_venue": "Journal of Physics: Conference Series",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.1088/1742-6596/2425/1/012051"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='External Attention Mechanism-Based Modulation Classification')",
+        "failed_at": "2026-05-21T12:37:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Visual reasoning is a long-term goal of vision research. In the last decade, several works have attempted to apply deep neural networks (DNNs) to the task of learning visual relations from images, with modest results in terms of the generalization of the relations learned. In recent years, several innovations in DNNs have been developed in order to enable learning abstract relation from images. In this work, we systematically evaluate a series of DNNs that integrate mechanism such as slot attention, recurrently guided attention, and external memory, in the simplest possible visual reasoning task: deciding whether two objects are the same or different. We found that, although some models performed better than others in generalizing the same-different relation to specific types of images, no model was able to generalize this relation across the board. We conclude that abstract visual reasoning remains largely an unresolved challenge for DNNs.",
+          "claimed_authors": [
+            "Guillermo Puebla",
+            "J. Bowers"
+          ],
+          "claimed_title": "The role of object-centric representations, guided attention, and external memory on generalizing visual relations",
+          "claimed_venue": "2023 Conference on Cognitive Computational Neuroscience",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.48550/arXiv.2304.07091"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='The role of object-centric representations, guided attention, and external memory on generalizing visual relations')",
+        "failed_at": "2026-05-21T12:37:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Attention mechanisms, especially self-attention, have played an increasingly important role in deep feature representation for visual tasks. Self-attention updates the feature at each position by computing a weighted sum of features using pair-wise affinities across all positions to capture the long-range dependency within a single sample. However, self-attention has quadratic complexity and ignores potential correlation between different samples. This paper proposes a novel attention mechanism which we call external attention, based on two external, small, learnable, shared memories, which can be implemented easily by simply using two cascaded linear layers and two normalization layers; it conveniently replaces self-attention in existing popular architectures. External attention has linear complexity and implicitly considers the correlations between all data samples. We further incorporate the multi-head mechanism into external attention to provide an all-MLP architecture, external attention MLP (EAMLP), for image classification. Extensive experiments on image classification, object detection, semantic segmentation, instance segmentation, image generation, and point cloud analysis reveal that our method provides results comparable or superior to the self-attention mechanism and some of its variants, with much lower computational and memory costs.",
+          "claimed_authors": [
+            "Meng-Hao Guo",
+            "Zheng-Ning Liu",
+            "Tai-Jiang Mu",
+            "Shi-Min Hu"
+          ],
+          "claimed_title": "Beyond Self-attention: External Attention using Two Linear Layers for Visual Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.02358"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Beyond Self-attention: External Attention using Two Linear Layers for Visual Tasks')",
+        "failed_at": "2026-05-21T12:37:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Predicting users' preferences based on their sequential behaviors in history is challenging and crucial for modern recommender systems. Most existing sequential recommendation algorithms focus on transitional structure among the sequential actions, but largely ignore the temporal and context information, when modeling the influence of a historical event to current prediction.\n  In this paper, we argue that the influence from the past events on a user's current action should vary over the course of time and under different context. Thus, we propose a Contextualized Temporal Attention Mechanism that learns to weigh historical actions' influence on not only what action it is, but also when and how the action took place. More specifically, to dynamically calibrate the relative input dependence from the self-attention mechanism, we deploy multiple parameterized kernel functions to learn various temporal dynamics, and then use the context information to determine which of these reweighing kernels to follow for each input. In empirical evaluations on two large public recommendation datasets, our model consistently outperformed an extensive set of state-of-the-art sequential recommendation methods.",
+          "claimed_authors": [
+            "Jibang Wu",
+            "Renqin Cai",
+            "Hongning Wang"
+          ],
+          "claimed_title": "Déjà vu: A Contextualized Temporal Attention Mechanism for Sequential Recommendation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.00741"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Déjà vu: A Contextualized Temporal Attention Mechanism for Sequential Recommendation')",
+        "failed_at": "2026-05-21T12:37:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we propose and investigate a novel memory architecture for neural networks called Hierarchical Attentive Memory (HAM). It is based on a binary tree with leaves corresponding to memory cells. This allows HAM to perform memory access in O(log n) complexity, which is a significant improvement over the standard attention mechanism that requires O(n) operations, where n is the size of the memory.\n  We show that an LSTM network augmented with HAM can learn algorithms for problems like merging, sorting or binary searching from pure input-output examples. In particular, it learns to sort n numbers in time O(n log n) and generalizes well to input sequences much longer than the ones seen during the training. We also show that HAM can be trained to act like classic data structures: a stack, a FIFO queue and a priority queue.",
+          "claimed_authors": [
+            "Marcin Andrychowicz",
+            "Karol Kurach"
+          ],
+          "claimed_title": "Learning Efficient Algorithms with Hierarchical Attentive Memory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.03218"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Learning Efficient Algorithms with Hierarchical Attentive Memory')",
+        "failed_at": "2026-05-21T12:37:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "This research proposes a multi-stage feature fusion network (MSFF) for medical image classification. In view of the problems existing in medical images, such as noise, diversity, and similarity among different classes, MSFF enhances the global context perception in the window partitioning framework through Context Modulation Attention (CMA). Meanwhile, it extracts fine-grained local information via the multi-stage Contextual Information Refinement (CIR) module and gradually fuses multi-stage local and global features to generate richer semantic representations. The experimental results demonstrate that MSFF significantly outperforms existing methods in multiple performance metrics (including accuracy, precision, recall, F1-score, Matthews Correlation Coefficient (MCC), Kappa coefficient, Area Under the Curve (AUC), balanced accuracy, and geometric mean) on four datasets (Endoscopic Bladder Tissue, Kvasir, SARS-COV-2 Ct-Scan, and Thyroid Nodule), showing its excellent performance in the task of medical image classification.",
+          "claimed_authors": [
+            "Renhan Zhang",
+            "Xuegang Luo",
+            "Junrui Lv",
+            "Junyang Cao",
+            "Yangping Zhu",
+            "Juan Wang",
+            "Bochuan Zheng"
+          ],
+          "claimed_title": "Enhancing Medical Image Classification With Context Modulated Attention and Multi-Scale Feature Fusion",
+          "claimed_venue": "IEEE Access",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1109/ACCESS.2025.3532354"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Enhancing Medical Image Classification With Context Modulated Attention and Multi-Scale Feature Fusion')",
+        "failed_at": "2026-05-21T12:37:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "This study introduces Sliding-Window Batched RAG (SWB-RAG), a novel framework that optimizes both efficiency and contextual accuracy in retrieval-augmented text generation for lengthy and complex documents in terms of leveraging Trustworthy AI. Building upon foundational RAG research (Lewis et al., 2020) and sliding-window techniques (Beltagy et al., 2020), we conducted a two-phase comparative evaluation. In Phase One, when processing a 144-page legal document, SWB-RAG achieved statistical equivalence to Classic Contextual RAG (CC-RAG) across all RAGAS quality metrics while reducing runtime by 92.7% and costs by 97.9%. In Phase Two, across 56 diverse documents, totaling 5,965 pages, SWB-RAG significantly outperformed Traditional RAG (T-RAG) in context of recall (p < 0.001) and context precision (p = 0.008). The framework's innovation lies in its three-component architecture: a global document summarization to capture overarching themes, a batch processing to optimize computational efficiency, and a sliding-window context enrichment to preserve local contextual richness. Our results—including a Human-in-the-Loop expert evaluation—position SWB-RAG as a scalable, cost-effective solution for especially legal, technical, and scientific document processing, effectively addressing the fundamental efficiency-quality tradeoff that has limited the practical application of RAG systems for complex documents in resource-constrained environments.",
+          "claimed_authors": [
+            "Daniel Danter",
+            "Heidrun Mühle"
+          ],
+          "claimed_title": "A Sliding-Window Batched Framework: Optimizing Retrieval-Augmented Generation (RAG) for Trustworthy AI under the EU AI Act",
+          "claimed_venue": "AHFE International",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.54941/ahfe1006031"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='A Sliding-Window Batched Framework: Optimizing Retrieval-Augmented Generation (RAG) for Trustworthy AI under the EU AI Act')",
+        "failed_at": "2026-05-21T12:37:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "To ensure safety, autonomy, and context-aware control, reliable state recognition is still a challenge for stair-climbing wheelchairs, which offer mobility in environments with steps, curbs, and landings. This study uses instantaneous Inertial Measurement Unit (IMU) data to develop a simplified, window-free method for classifying wheelchair stair-related activities. Instead of sliding-window preprocessing or temporal sequence modeling, this study uses an 18-channel feature set that includes orientation, gyroscope, accelerometer, magnetometer, linear acceleration, and gravity signals. Stratified evaluation and several metrics, such as accuracy, macro-F1, Matthews Correlation Coefficient (MCC), ROC-AUC, and per-class precision-recall, were used to systematically benchmark eight classifiers: Multinomial Logistic Regression (MLR), Gaussian Naïve Bayes (GNB), K-Nearest Neighbors (KNN), Decision Tree (DT), Random Forest (RF), RBF-kernel Support Vector Classifier (SVC), a compact Multilayer Perceptron (MLP), and an adaptive CatBoost configuration. The results show that CatBoost performed almost flawlessly (Accuracy = 0.999, MCC = 0.999), closely followed by compact MLP. RF, KNN, and SVC formed a solid middle tier. In a window-free regime, feature importance analysis showed that instantaneous gyroscope and linear acceleration made very little contribution, while orientation and magnetometer channels were found to be the most crucial features. These results show that accurate and computationally efficient recognition of stair-climbing wheelchair states is possible by features driven by posture and heading. The proposed method facilitates low-latency embedded deployment and identifies areas for future development, such as lightweight temporal enhancements, angle encoding, and magnetometer calibration.",
+          "claimed_authors": [
+            "Pharan Chawaphan",
+            "D. Maneetham",
+            "Padma Nyoman Crisnapati"
+          ],
+          "claimed_title": "Window-Free IMU-Based Classification of Stair-Climbing Wheelchair Activities Using Machine Learning and Adaptive Boosting",
+          "claimed_venue": "Engineering, Technology &amp; Applied Science Research",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.48084/etasr.15555"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Window-Free IMU-Based Classification of Stair-Climbing Wheelchair Activities Using Machine Learning and Adaptive Boosting')",
+        "failed_at": "2026-05-21T12:37:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Interpretation of natural language is inherently context-sensitive. Most words in natural language are ambiguous and their meanings are heavily dependent on the linguistic context in which they are used. The study of lexical semantics can not be separated from the notion of context. This paper takes a contextual approach to lexical semantics and studies the linguistic context of lexical atoms, or \"sticky\" phrases such as \"hot dog\". Since such lexical atoms may occur frequently in unrestricted natural language text, recognizing them is crucial for understanding naturally-occurring text. The paper proposes several heuristic approaches to exploiting the linguistic context to identify lexical atoms from arbitrary natural language text.",
+          "claimed_authors": [
+            "Chengxiang Zhai"
+          ],
+          "claimed_title": "Exploiting Context to Identify Lexical Atoms -- A Statistical View of Linguistic Context",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "cmp-lg/9701001"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Exploiting Context to Identify Lexical Atoms -- A Statistical View of Linguistic Context')",
+        "failed_at": "2026-05-21T12:37:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the window mean-payoff objective, given an infinite path, instead of considering a long run average, we consider the minimum payoff that can be ensured at every position of the path over a finite window that slides over the entire path. Chatterjee et al. studied the problem to decide if in a two-player game, Player 1 has a strategy to ensure a window mean-payoff of at least 0.\n  In this work, we consider a function that given a path returns the supremum value of the window mean-payoff that can be ensured over the path and we show how to compute its expected value in Markov chains and Markov decision processes. We consider two variants of the function: Fixed window mean-payoff in which a fixed window length $l_{max}$ is provided; and Bounded window mean-payoff in which we compute the maximum possible value of the window mean-payoff over all possible window lengths. Further, for both variants, we consider (i) a direct version of the problem where for each path, the payoff that can be ensured from its very beginning and (ii) a non-direct version that is the prefix independent counterpart of the direct version of the problem.",
+          "claimed_authors": [
+            "Benjamin Bordais",
+            "Shibashis Guha",
+            "Jean-François Raskin"
+          ],
+          "claimed_title": "Expected Window Mean-Payoff",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.09298"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Expected Window Mean-Payoff')",
+        "failed_at": "2026-05-21T12:37:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "SinGAN shows impressive capability in learning internal patch distribution despite its limited effective receptive field. We are interested in knowing how such a translationinvariant convolutional generator could capture the global structure with just a spatially i.i.d. input. In this work, taking SinGAN and StyleGAN2 as examples, we show that such capability, to a large extent, is brought by the implicit positional encoding when using zero padding in the generators. Such positional encoding is indispensable for generating images with high fidelity. The same phenomenon is observed in other generative architectures such as DCGAN and PGGAN. We further show that zero padding leads to an unbalanced spatial bias with a vague relation between locations. To offer a better spatial inductive bias, we investigate alternative positional encodings and analyze their effects. Based on a more flexible positional encoding explicitly, we propose a new multi-scale training strategy and demonstrate its effectiveness in the state-of-the-art unconditional generator StyleGAN2. Besides, the explicit spatial inductive bias substantially improves SinGAN for more versatile image manipulation. 1",
+          "claimed_authors": [
+            "Rui Xu",
+            "Xintao Wang",
+            "Kai Chen",
+            "Bolei Zhou",
+            "Chen Change Loy"
+          ],
+          "claimed_title": "Positional Encoding as Spatial Inductive Bias in GANs",
+          "claimed_venue": "Computer Vision and Pattern Recognition",
+          "claimed_year": 2020,
+          "primary_pointer": "https://doi.org/10.1109/CVPR46437.2021.01336"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Positional Encoding as Spatial Inductive Bias in GANs')",
+        "failed_at": "2026-05-21T12:37:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The local inductive bias of message-passing graph neural networks (GNNs) hampers their ability to exploit key structural information (e.g., connectivity and cycles). Positional encoding (PE) and Persistent Homology (PH) have emerged as two promising approaches to mitigate this issue. PE schemes endow GNNs with location-aware features, while PH methods enhance GNNs with multiresolution topological features. However, a rigorous theoretical characterization of the relative merits and shortcomings of PE and PH has remained elusive. We bridge this gap by establishing that neither paradigm is more expressive than the other, providing novel constructions where one approach fails but the other succeeds. Our insights inform the design of a novel learnable method, PiPE (Persistence-informed Positional Encoding), which is provably more expressive than both PH and PE. PiPE demonstrates strong performance across a variety of tasks (e.g., molecule property prediction, graph classification, and out-of-distribution generalization), thereby advancing the frontiers of graph representation learning. Code is available at https://github.com/Aalto-QuML/PIPE.",
+          "claimed_authors": [
+            "Yogesh Verma",
+            "Amauri H. Souza",
+            "Vikas Garg"
+          ],
+          "claimed_title": "Positional Encoding meets Persistent Homology on Graphs",
+          "claimed_venue": "International Conference on Machine Learning",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.48550/arXiv.2506.05814"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Positional Encoding meets Persistent Homology on Graphs')",
+        "failed_at": "2026-05-21T12:37:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Existing spatio-temporal prediction networks that rely on recurrent neural networks face significant parallelization challenges, leading to high computational costs and prolonged training durations. In contrast, recurrent-free methods, particularly convolutional neural networks (CNNs), have attracted significant attention because of their lightweight models and straightforward architectures. Traditional CNNs, however, are limited by their inherent weight-sharing property, which imposes a strong inductive bias and restricts their ability to capture spatial heterogeneity. To overcome these challenges, we propose a novel trainable positional encoding convolutional neural network (TPE-CNN). TPE-CNN incorporates a positional encoding module to dynamically learn location-specific spatio-temporal correlations and temporal evolution patterns, addressing the inability of CNNs to handle absolute positional dependencies effectively. Additionally, we integrate large-kernel convolutions and inception modules, significantly enhancing global information awareness. This design enables the incorporation of global attention mechanisms while maintaining a low parameter count, achieving an optimal balance between performance and computational efficiency. To validate the effectiveness of TPE-CNN, we performed extensive experiments on three real-world datasets. Experimental results demonstrate that TPE-CNN delivers superior prediction accuracy while maintaining low computational complexity.",
+          "claimed_authors": [
+            "Yuan Xu",
+            "Yizhou Zhang",
+            "Dazhi Sun",
+            "Kai Li",
+            "Qun Zhu",
+            "Wei Ke",
+            "Yang Zhang",
+            "Mingqing Zhang"
+          ],
+          "claimed_title": "Convolutional Spatio-Temporal Prediction Network with Trainable Positional Encoding",
+          "claimed_venue": "Chinese Control and Decision Conference",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1109/CCDC65474.2025.11090881"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Convolutional Spatio-Temporal Prediction Network with Trainable Positional Encoding')",
+        "failed_at": "2026-05-21T12:37:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Positional games are a mathematical class of two-player games comprising Tic-tac-toe and its generalizations. We propose a novel encoding of these games into Quantified Boolean Formulas (QBFs) such that a game instance admits a winning strategy for the first player if and only if the corresponding formula is true. Our approach improves over previous QBF encodings of games in multiple ways. First, it is generic and lets us encode other positional games, such as Hex. Second, the structural properties of positional games, together with careful treatment of illegal moves, let us generate more compact instances that can be solved faster by state-of-the-art QBF solvers. We establish the latter fact through extensive experiments. Finally, the compactness of our new encoding makes it feasible to translate realistic game problems. We identify a few such problems of historical significance and put them forward to the QBF community as milestones of increasing difficulty.",
+          "claimed_authors": [
+            "Valentin Mayer-Eichberger",
+            "Abdallah Saffidine"
+          ],
+          "claimed_title": "Positional Games and QBF: A Polished Encoding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.05098"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Positional Games and QBF: A Polished Encoding')",
+        "failed_at": "2026-05-21T12:37:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "SinGAN shows impressive capability in learning internal patch distribution despite its limited effective receptive field. We are interested in knowing how such a translation-invariant convolutional generator could capture the global structure with just a spatially i.i.d. input. In this work, taking SinGAN and StyleGAN2 as examples, we show that such capability, to a large extent, is brought by the implicit positional encoding when using zero padding in the generators. Such positional encoding is indispensable for generating images with high fidelity. The same phenomenon is observed in other generative architectures such as DCGAN and PGGAN. We further show that zero padding leads to an unbalanced spatial bias with a vague relation between locations. To offer a better spatial inductive bias, we investigate alternative positional encodings and analyze their effects. Based on a more flexible positional encoding explicitly, we propose a new multi-scale training strategy and demonstrate its effectiveness in the state-of-the-art unconditional generator StyleGAN2. Besides, the explicit spatial inductive bias substantially improve SinGAN for more versatile image manipulation.",
+          "claimed_authors": [
+            "Rui Xu",
+            "Xintao Wang",
+            "Kai Chen",
+            "Bolei Zhou",
+            "Chen Change Loy"
+          ],
+          "claimed_title": "Positional Encoding as Spatial Inductive Bias in GANs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.05217"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Positional Encoding as Spatial Inductive Bias in GANs')",
+        "failed_at": "2026-05-21T12:37:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "From CNNs to attention mechanisms, encoding inductive biases into neural networks has been a fruitful source of improvement in machine learning. Adding auxiliary losses to the main objective function is a general way of encoding biases that can help networks learn better representations. However, since auxiliary losses are minimized only on training data, they suffer from the same generalization gap as regular task losses. Moreover, by adding a term to the loss function, the model optimizes a different objective than the one we care about. In this work we address both problems: first, we take inspiration from \\textit{transductive learning} and note that after receiving an input but before making a prediction, we can fine-tune our networks on any unsupervised loss. We call this process {\\em tailoring}, because we customize the model to each input to ensure our prediction satisfies the inductive bias. Second, we formulate {\\em meta-tailoring}, a nested optimization similar to that in meta-learning, and train our models to perform well on the task objective after adapting them using an unsupervised loss. The advantages of tailoring and meta-tailoring are discussed theoretically and demonstrated empirically on a diverse set of examples.",
+          "claimed_authors": [
+            "Ferran Alet",
+            "Maria Bauza",
+            "Kenji Kawaguchi",
+            "Nurullah Giray Kuru",
+            "Tomas Lozano-Perez",
+            "Leslie Pack Kaelbling"
+          ],
+          "claimed_title": "Tailoring: encoding inductive biases by optimizing unsupervised objectives at prediction time",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.10623"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall', candidate_title='Tailoring: encoding inductive biases by optimizing unsupervised objectives at prediction time')",
+        "failed_at": "2026-05-21T12:37:01Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hanqi Jiang",
+            "Junhao Chen",
+            "Yi Pan",
+            "Ling-Hao Chen",
+            "Weihang You",
+            "Yifan Zhou",
+            "Ruidong Zhang",
+            "Lin Zhao",
+            "Y. Abate",
+            "Tianming Liu"
+          ],
+          "title": "SYNAPSE: Empowering LLM Agents with Episodic-Semantic Memory via Spreading Activation",
+          "venue": "arXiv.org",
+          "year": 2026
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2601.02744",
+        "summary": "While Large Language Models (LLMs) excel at generalized reasoning, standard retrieval-augmented approaches fail to address the disconnected nature of long-term agentic memory. To bridge this gap, we introduce Synapse (Synergistic Associative Processing Semantic Encoding), a unified memory architecture that transcends static vector similarity. Drawing from cognitive science, Synapse models memory as a dynamic graph where relevance emerges from spreading activation rather than pre-computed links. By integrating lateral inhibition and temporal decay, the system dynamically highlights relevant sub-graphs while filtering interference. We implement a Triple Hybrid Retrieval strategy that fuses geometric embeddings with activation-based graph traversal. Comprehensive evaluations on the LoCoMo benchmark show that Synapse significantly outperforms state-of-the-art methods in complex temporal and multi-hop reasoning tasks, offering a robust solution to the\"Contextual Tunneling\"problem. Our code and data will be made publicly available upon acceptance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2601.02744",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2601.02744"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T12:36:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mustafa Arslan"
+          ],
+          "title": "Aeon: High-Performance Neuro-Symbolic Memory Management for Long-Horizon LLM Agents",
+          "venue": "arXiv.org",
+          "year": 2026
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2601.15311",
+        "summary": "Large Language Models (LLMs) are fundamentally constrained by the quadratic computational cost of self-attention and the\"Lost in the Middle\"phenomenon, where reasoning capabilities degrade as context windows expand. Existing solutions, primarily\"Flat RAG\"architectures relying on vector databases, treat memory as an unstructured bag of embeddings, failing to capture the hierarchical and temporal structure of long-horizon interactions. This paper presents Aeon, a Neuro-Symbolic Cognitive Operating System that redefines memory as a managed OS resource. Aeon structures memory into a Memory Palace (a spatial index implemented via Atlas, a SIMD-accelerated Page-Clustered Vector Index) and a Trace (a neuro-symbolic episodic graph). This architecture introduces three advances: (1) Symmetric INT8 Scalar Quantization, achieving 3.1x spatial compression and 5.6x math acceleration via NEON SDOT intrinsics; (2) a decoupled Write-Ahead Log (WAL) ensuring crash-recoverability with statistically negligible overhead (<1%); and (3) a Sidecar Blob Arena eliminating the prior 440-character text ceiling via an append-only mmap-backed blob file with generational garbage collection. The Semantic Lookaside Buffer (SLB) exploits conversational locality to achieve sub-5us retrieval latencies, with INT8 vectors dequantized to FP32 on cache insertion to preserve L1-resident lookup performance. Benchmarks on Apple M4 Max demonstrate that the combined architecture achieves 4.70ns INT8 dot product latency, 3.09us tree traversal at 100K nodes (3.4x over FP32), and P99 read latency of 750ns under hostile 16-thread contention via epoch-based reclamation.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2601.15311",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2601.15311"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T12:36:59Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "memory palaces in llms: spatial reasoning for enhanced episodic recall",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,651 @@
+{
+  "fetched_at": "2026-05-21T13:08:10Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "---\nfield: neuroscience\nsubmitter: jeremymanning\ngithub_issue: https://github.com/ContextLab/llmXive/issues/2\n---\n\n# Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension\n\nDevelop a computational model that mimics how the human brain processes and generates narratives, incorporating hippocampal-like episodic memory structures and prefrontal planning mechanisms. This system would generate stories that follow neurologically plausible narrative construction patterns.\n\nResearch components:\n- Model hippocampal pattern separation/completion for narrative elements\n- Implement prefrontal-like executive control for plot coherence\n- Create 'narrative engrams' that encode story structures\n- Test whether brain-inspired architectures produce more human-like narratives\n- Validate against fMRI data of humans reading/creating stories\n\nThis unifies neuroscience of memory, narrative psychology, and language models.\n",
+      "target_n": 5
+    },
+    "duration_seconds": 566.161,
+    "ended_at": "2026-05-21T13:08:10Z",
+    "expansion": null,
+    "extracted_queries": [
+      "cognitive modeling narrative generation",
+      "naturalistic stimuli fMRI narrative",
+      "hierarchical processing event boundaries",
+      "neural decoding narrative comprehension",
+      "predictive coding narrative processing"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.3758/s13423-023-02334-x"
+      ]
+    },
+    "per_query_hit_count": {
+      "Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension": 5,
+      "cognitive modeling narrative generation": 5,
+      "hierarchical processing event boundaries": 6,
+      "naturalistic stimuli fMRI narrative": 5,
+      "neural decoding narrative comprehension": 5,
+      "predictive coding narrative processing": 4
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2212.06370",
+          "rationale": "This paper is about uncertainty quantification and prediction intervals in regression tasks, which is an off-domain topic entirely from the user's question about brain-inspired neural networks for story generation and comprehension. There is no connection to narrative processing, brain-inspired architectures, or story-related mechanisms that would make this relevant for a literature review on this topic.",
+          "title": "Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1609/aiide.v21i1.36841",
+          "rationale": "This paper shares the narrative/story generation vocabulary but addresses a fundamentally different construct — it presents an LLM-based cognitive framework for agent modeling without any brain-inspired or neuroscience-derived mechanisms, which is the core focus of the user's \"Neural Narrative Networks: Brain-Inspired\" question. This falls under the \"Distinct construct sharing only homonym keywords\" rejection rule (both discuss narrative generation but one is about neuroscience-inspired neural n",
+          "title": "Steering Narrative Agents Through a Dynamic Cognitive Framework for Guided Emergent Storytelling"
+        },
+        {
+          "primary_pointer": "2010.07375",
+          "rationale": "The paper focuses on standard deep learning decoding strategies (e.g., nucleus sampling in GPT-2) for story generation, whereas the user's question specifically targets \"Brain-Inspired\" mechanisms and comprehension. This constitutes a distinct construct sharing only homonym keywords (\"Neural\", \"Narrative\") without addressing the core biological or cognitive inspiration mechanism required by the query.",
+          "title": "Decoding Methods for Neural Narrative Generation"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1523/JNEUROSCI.1143-24.2025",
+          "rationale": "This paper studies biological neural processing of speech in the human brain (MEG recordings), while the user's question appears to be about computational/artificial neural networks for story generation and comprehension. The overlap is primarily in the term \"neural\" which has distinct meanings (biological neurons vs. artificial neural networks), representing a homonym keyword overlap rather than a shared mechanism or domain. While the paper addresses narrative comprehension at a biological leve",
+          "title": "Neural Dynamics of the Processing of Speech Features: Evidence for a Progression of Features from Acoustic to Sentential Processing"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-21T12:58:44Z",
+    "term_input": {
+      "normalized": "neural narrative networks: brain-inspired story generation and comprehension",
+      "raw": "Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "R. Mason"
+          ],
+          "claimed_title": "A Theoretical Account of Generation and Integration Component Processes Utilizing Both Cerebral Hemispheres",
+          "claimed_venue": "",
+          "claimed_year": 2003,
+          "primary_pointer": "https://www.semanticscholar.org/paper/c1d81edbaeaf36d161836368ed5f676f62e31bc3"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='A Theoretical Account of Generation and Integration Component Processes Utilizing Both Cerebral Hemispheres')",
+        "failed_at": "2026-05-21T13:00:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Sreejan Kumar",
+            "T. Sumers",
+            "Takateru Yamakoshi",
+            "Ariel Goldstein",
+            "U. Hasson",
+            "K. Norman",
+            "T. Griffiths",
+            "Robert D. Hawkins",
+            "Samuel A. Nastase"
+          ],
+          "claimed_title": "Reconstructing the cascade of language processing in the brain using the internal computations of a transformer-based language model",
+          "claimed_venue": "",
+          "claimed_year": null,
+          "primary_pointer": "https://www.semanticscholar.org/paper/2e4babcb96e25915d7087084bd6153f8ecfdcf3c"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='Reconstructing the cascade of language processing in the brain using the internal computations of a transformer-based language model')",
+        "failed_at": "2026-05-21T13:00:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-05-21T13:00:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a novel approach to classify causal micro-narratives from text. These narratives are sentence-level explanations of the cause(s) and/or effect(s) of a target subject. The approach requires only a subject-specific ontology of causes and effects, and we demonstrate it with an application to inflation narratives. Using a human-annotated dataset spanning historical and contemporary US news articles for training, we evaluate several large language models (LLMs) on this multi-label classification task. The best-performing model--a fine-tuned Llama 3.1 8B--achieves F1 scores of 0.87 on narrative detection and 0.71 on narrative classification. Comprehensive error analysis reveals challenges arising from linguistic ambiguity and highlights how model errors often mirror human annotator disagreements. This research establishes a framework for extracting causal micro-narratives from real-world data, with wide-ranging applications to social science research.",
+          "claimed_authors": [
+            "Mourad Heddaya",
+            "Qingcheng Zeng",
+            "Chenhao Tan",
+            "Rob Voigt",
+            "Alexander Zentefis"
+          ],
+          "claimed_title": "Causal Micro-Narratives",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.05252"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='Causal Micro-Narratives')",
+        "failed_at": "2026-05-21T13:00:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Une part importante de l’activité de communication humaine est dédiée au récit d’événements (fictifs ou non). Ces récits doivent être cohérents et intéressants pour être pertinents. Dans le domaine de la génération automatique de récits, la question de l’intérêt a souvent été négligée, ou traitée via l’utilisation de méthodes ad hoc, au profit de la cohérence des structures narratives produites. Nous proposons d’aborder le processus de création des récits sous l’angle de la modélisation quantitative de critères de pertinence narrative via l’application d’un modèle cognitif de l’intérêt événementiel. Nous montrerons que cet effort de modélisation peut servir de guide pour concevoir un modèle cognitivement plausible de génération de narrations.",
+          "claimed_authors": [
+            "Antoine Saillenfest"
+          ],
+          "claimed_title": "Modélisation cognitive de la pertinence narrative en vue de l'évaluation et de la génération de récits. (Cognitive modeling of narrative relevance : towards the evaluation and the generation of stories)",
+          "claimed_venue": "",
+          "claimed_year": 2015,
+          "primary_pointer": "https://doi.org/10.70675/f86c7615za912z4d87z9518z9207b2b416e2"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title=\"Modélisation cognitive de la pertinence narrative en vue de l'évaluation et de la génération de récits. (Cognitive modeling of narrative relevance : towards the evaluation and the generation of stories)\")",
+        "failed_at": "2026-05-21T13:00:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We position a narrative-centred computational model for high-level knowledge representation and reasoning in the context of a range of assistive technologies concerned with \"visuo-spatial perception and cognition\" tasks. Our proposed narrative model encompasses aspects such as \\emph{space, events, actions, change, and interaction} from the viewpoint of commonsense reasoning and learning in large-scale cognitive systems. The broad focus of this paper is on the domain of \"human-activity interpretation\" in smart environments, ambient intelligence etc. In the backdrop of a \"smart meeting cinematography\" domain, we position the proposed narrative model, preliminary work on perceptual narrativisation, and the immediate outlook on constructing general-purpose open-source tools for perceptual narrativisation.\n  ACM Classification: I.2 Artificial Intelligence: I.2.0 General -- Cognitive Simulation, I.2.4 Knowledge Representation Formalisms and Methods, I.2.10 Vision and Scene Understanding: Architecture and control structures, Motion, Perceptual reasoning, Shape, Video analysis\n  General keywords: cognitive systems; human-computer interaction; spatial cognition and computation; commonsense reasoning; spatial and temporal reasoning; assistive technologies",
+          "claimed_authors": [
+            "Mehul Bhatt",
+            "Jakob Suchan",
+            "Carl Schultz"
+          ],
+          "claimed_title": "Cognitive Interpretation of Everyday Activities: Toward Perceptual Narrative Based Visuo-Spatial Scene Interpretation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1306.5308"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='Cognitive Interpretation of Everyday Activities: Toward Perceptual Narrative Based Visuo-Spatial Scene Interpretation')",
+        "failed_at": "2026-05-21T13:00:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The primary tasks of a cognitive system is to survive and to maximize a life-long utility function, like the number of offsprings. A direct computational maximization of life-long utility is however not possible in complex environments, especially in the context, of real-world time constraints. The central role of emotions is to serve as an intermediate layer in the space of policies available to agents and animals, leading to a large dimensional reduction of complexity.\n  We review our current understanding of the functional role of emotions, stressing the role of the neuromodulators mediating emotions for the diffusive homeostatic control system of the brain. We discuss a recent proposal, that emotional diffusive control is characterized, in contrast to neutral diffusive control, by interaction effects, viz by interferences between emotional arousal and reward signaling. Several proposals for the realization of synthetic emotions are discussed in this context, together with key open issues regarding the interplay between emotional motivational drives and diffusive control.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Cognition and Emotion: Perspectives of a Closing Gap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.3035"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='Cognition and Emotion: Perspectives of a Closing Gap')",
+        "failed_at": "2026-05-21T13:00:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neural mechanisms of touch are typically studied in laboratory settings using robotic or other types of well-controlled devices. Such stimuli are very different from highly complex naturalistic human-to-human touch interactions. The lack of scientifically useful naturalistic stimuli hampers progress, particularly in social touch research. Vision science, on the other hand, has benefitted from inventions such as virtual reality systems that have provided researchers with precision control of naturalistic stimuli. In the field of touch research, producing and manipulating stimuli is particularly challenging due to the complexity of skin mechanics. Here we review the history of touch neuroscience focusing on the contrast between strictly controlled and naturalistic stimuli and compare with vision science. We discuss new methods that may overcome the obstacles with precision-controlled tactile stimuli, and recent successes in naturalistic texture production. In social touch research, precise tracking and measurement of naturalistic human-to-human touch interactions offers exciting new possibilities.",
+          "claimed_authors": [
+            "Anne Margarette S. Maallo",
+            "Basil Duvernoy",
+            "Håkan Olausson",
+            "Sarah McIntyre"
+          ],
+          "claimed_title": "Naturalistic stimuli in touch research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.11868"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='Naturalistic stimuli in touch research')",
+        "failed_at": "2026-05-21T13:00:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose an end-to-end deep neural encoder-decoder model to encode and decode brain activity in response to naturalistic stimuli using functional magnetic resonance imaging (fMRI) data. Leveraging temporally correlated input from consecutive film frames, we employ temporal convolutional layers in our architecture, which effectively allows to bridge the temporal resolution gap between natural movie stimuli and fMRI acquisitions. Our model predicts activity of voxels in and around the visual cortex and performs reconstruction of corresponding visual inputs from neural activity. Finally, we investigate brain regions contributing to visual decoding through saliency maps. We find that the most contributing regions are the middle occipital area, the fusiform area, and the calcarine, respectively employed in shape perception, complex recognition (in particular face perception), and basic visual features such as edges and contrasts. These functions being strongly solicited are in line with the decoder's capability to reconstruct edges, faces, and contrasts. All in all, this suggests the possibility to probe our understanding of visual processing in films using as a proxy the behaviour of deep learning models such as the one proposed in this paper.",
+          "claimed_authors": [
+            "Florian David",
+            "Michael Chan",
+            "Elenor Morgenroth",
+            "Patrik Vuilleumier",
+            "Dimitri Van De Ville"
+          ],
+          "claimed_title": "Deep Neural Encoder-Decoder Model to Relate fMRI Brain Activity with Naturalistic Stimuli",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.12009"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='Deep Neural Encoder-Decoder Model to Relate fMRI Brain Activity with Naturalistic Stimuli')",
+        "failed_at": "2026-05-21T13:00:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Online video understanding requires models to perform continuous perception and long-range reasoning within potentially infinite visual streams. Its fundamental challenge lies in the conflict between the unbounded nature of streaming media input and the limited context window of Multimodal Large Language Models (MLLMs). Current methods primarily rely on passive processing, which often face a trade-off between maintaining long-range context and capturing the fine-grained details necessary for complex tasks. To address this, we introduce EventMemAgent, an active online video agent framework based on a hierarchical memory module. Our framework employs a dual-layer strategy for online videos: short-term memory detects event boundaries and utilizes event-granular reservoir sampling to process streaming video frames within a fixed-length buffer dynamically; long-term memory structuredly archives past observations on an event-by-event basis. Furthermore, we integrate a multi-granular perception toolkit for active, iterative evidence capture and employ Agentic Reinforcement Learning (Agentic RL) to end-to-end internalize reasoning and tool-use strategies into the agent's intrinsic capabilities. Experiments show that EventMemAgent achieves competitive results on online video benchmarks. The code will be released here: https://github.com/lingcco/EventMemAgent.",
+          "claimed_authors": [
+            "Siwei Wen",
+            "Zhangcheng Wang",
+            "Xingjian Zhang",
+            "Lei Huang",
+            "Wenjun Wu"
+          ],
+          "claimed_title": "EventMemAgent: Hierarchical Event-Centric Memory for Online Video Understanding with Adaptive Tool Use",
+          "claimed_venue": "arXiv.org",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.48550/arXiv.2602.15329"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='EventMemAgent: Hierarchical Event-Centric Memory for Online Video Understanding with Adaptive Tool Use')",
+        "failed_at": "2026-05-21T13:00:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Huidong Xue",
+            "Filipp Dokienko",
+            "Francesco Gentile",
+            "Bernadette M. Jansma"
+          ],
+          "claimed_title": "Harry Potter meets Markov: Neural event representation in the reading network during narrative processing",
+          "claimed_venue": "bioRxiv",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1101/2025.10.13.682063"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='Harry Potter meets Markov: Neural event representation in the reading network during narrative processing')",
+        "failed_at": "2026-05-21T13:00:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Understanding the neural correlates of perception of hierarchical structure in music presents a direct window into auditory organization. To examine the hypothesis that high-level and low-level structures—i.e. phrases and notes—elicit different neural responses, we collected intracranial electroencephalography (iEEG) data from eight subjects during exposure to Mozart’s K448 and directly compared Event-related potentials (ERPs) due to note onsets and those elicited by phrase boundaries. Cluster-level permutation tests revealed that note-onset-related ERPs and phrase-boundary-related ERPs were significantly different at -150\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$-150$$\\end{document}, 200, and 450 ms relative to note onset and phrase markers. We also observed increased activity in frontal brain regions when processing phrase boundaries. We relate these observations to (1) a process which syntactically binds notes together hierarchically to form larger phrases; (2) positive emotions induced by successful prediction of forthcoming phrase boundaries and violations of melodic expectations at phrase boundaries.",
+          "claimed_authors": [
+            "Yijing Feng",
+            "Robert J. Quon",
+            "B. Jobst",
+            "M. Casey"
+          ],
+          "claimed_title": "Evoked responses to note onsets and phrase boundaries in Mozart's K448",
+          "claimed_venue": "Scientific Reports",
+          "claimed_year": 2022,
+          "primary_pointer": "https://doi.org/10.1038/s41598-022-13710-3"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title=\"Evoked responses to note onsets and phrase boundaries in Mozart's K448\")",
+        "failed_at": "2026-05-21T13:00:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reaction RuleML is a general, practical, compact and user-friendly XML-serialized language for the family of reaction rules. In this white paper we give a review of the history of event / action /state processing and reaction rule approaches and systems in different domains, define basic concepts and give a classification of the event, action, state processing and reasoning space as well as a discussion of relevant / related work",
+          "claimed_authors": [
+            "Adrian Paschke"
+          ],
+          "claimed_title": "The Reaction RuleML Classification of the Event / Action / State Processing and Reasoning Space",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "cs/0611047"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='The Reaction RuleML Classification of the Event / Action / State Processing and Reasoning Space')",
+        "failed_at": "2026-05-21T13:00:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Hierarchical forecasting problems arise when time series have a natural group structure, and predictions at multiple levels of aggregation and disaggregation across the groups are needed. In such problems, it is often desired to satisfy the aggregation constraints in a given hierarchy, referred to as hierarchical coherence in the literature. Maintaining coherence while producing accurate forecasts can be a challenging problem, especially in the case of probabilistic forecasting. We present a novel method capable of accurate and coherent probabilistic forecasts for time series when reliable hierarchical information is present. We call it Deep Poisson Mixture Network (DPMN). It relies on the combination of neural networks and a statistical model for the joint distribution of the hierarchical multivariate time series structure. By construction, the model guarantees hierarchical coherence and provides simple rules for aggregation and disaggregation of the predictive distributions. We perform an extensive empirical evaluation comparing the DPMN to other state-of-the-art methods which produce hierarchically coherent probabilistic forecasts on multiple public datasets. Comparing to existing coherent probabilistic models, we obtain a relative improvement in the overall Continuous Ranked Probability Score (CRPS) of 11.8% on Australian domestic tourism data, and 8.1% on the Favorita grocery sales dataset, where time series are grouped with geographical hierarchies or travel intent hierarchies. For San Francisco Bay Area highway traffic, where the series' hierarchical structure is randomly assigned, and their correlations are less informative, our method does not show significant performance differences over statistical baselines.",
+          "claimed_authors": [
+            "Kin G. Olivares",
+            "O. Nganba Meetei",
+            "Ruijun Ma",
+            "Rohan Reddy",
+            "Mengfei Cao",
+            "Lee Dicker"
+          ],
+          "claimed_title": "Probabilistic Hierarchical Forecasting with Deep Poisson Mixtures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.13179"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='Probabilistic Hierarchical Forecasting with Deep Poisson Mixtures')",
+        "failed_at": "2026-05-21T13:00:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Event-driven automation of reactive functionalities for complex event processing is an urgent need in today's distributed service-oriented architectures and Web-based event-driven environments. An important problem to be addressed is how to correctly and efficiently capture and process the event-based behavioral, reactive logic embodied in reaction rules, and combining this with other conditional decision logic embodied, e.g., in derivation rules. This paper elaborates a homogeneous integration approach that combines derivation rules, reaction rules and other rule types such as integrity constraints into the general framework of logic programming, the industrial-strength version of declarative programming. We describe syntax and semantics of the language, implement a distributed web-based middleware using enterprise service technologies and illustrate its adequacy in terms of expressiveness, efficiency and scalability through examples extracted from industrial use cases. The developed reaction rule language provides expressive features such as modular ID-based updates with support for external imports and self-updates of the intensional and extensional knowledge bases, transactions including integrity testing and roll-backs of update transition paths. It also supports distributed complex event processing, event messaging and event querying via efficient and scalable enterprise middleware technologies and event/action reasoning based on an event/action algebra implemented by an interval-based event calculus variant as a logic inference formalism.",
+          "claimed_authors": [
+            "Adrian Paschke",
+            "Alexander Kozlenkov",
+            "Harold Boley"
+          ],
+          "claimed_title": "A Homogeneous Reaction Rule Language for Complex Event Processing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1008.0823"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='A Homogeneous Reaction Rule Language for Complex Event Processing')",
+        "failed_at": "2026-05-21T13:00:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Morteza Dehghani",
+            "Reihane Boghrati",
+            "K. Man",
+            "J. Hoover",
+            "Sarah I. Gimbel",
+            "Ashish Vaswani",
+            "J. Zevin",
+            "M. Immordino‐Yang",
+            "A. Gordon",
+            "A. Damasio",
+            "J. Kaplan"
+          ],
+          "claimed_title": "Decoding the neural representation of story meanings across languages",
+          "claimed_venue": "Human Brain Mapping",
+          "claimed_year": 2017,
+          "primary_pointer": "https://doi.org/10.1002/hbm.23814"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='Decoding the neural representation of story meanings across languages')",
+        "failed_at": "2026-05-21T13:00:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Computational narrative understanding studies the identification, description, and interaction of the elements of a narrative: characters, attributes, events, and relations. Narrative research has given considerable attention to defining and classifying character types. However, these character-type taxonomies do not generalize well because they are small, too simple, or specific to a domain. We require robust and reliable benchmarks to test whether narrative models truly understand the nuances of the character's development in the story. Our work addresses this by curating the CHATTER dataset that labels whether a character portrays some attribute for 88124 character-attribute pairs, encompassing 2998 characters, 12967 attributes and 660 movies. We validate a subset of CHATTER, called CHATTEREVAL, using human annotations to serve as a benchmark to evaluate the character attribution task in movie scripts. \\evaldataset{} also assesses narrative understanding and the long-context modeling capacity of language models.",
+          "claimed_authors": [
+            "Sabyasachee Baruah",
+            "Shrikanth Narayanan"
+          ],
+          "claimed_title": "CHATTER: A Character Attribution Dataset for Narrative Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.05227"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='CHATTER: A Character Attribution Dataset for Narrative Understanding')",
+        "failed_at": "2026-05-21T13:00:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Positive psychotic symptoms, such as hallucinations and de-lusions, re ﬂ ect profound disruptions in the way that the brain forms and updates beliefs about the world. Predictive coding theories posit that this process approximates Bayesian inference on the latent causes of sensory data; observations (likelihoods) are weighed against expectations (priors) to arrive at better beliefs (posterior probabilities) (1,2). Prediction errors signal the discrepancy between likelihoods and priors, guiding adaptive belief updating. Re ﬂ ecting the brain ’ s hierarchical organization, beliefs become more abstract and spatiotem-porally extended as we ascend a putative cortical processing hierarchy, analogous to the levels of abstraction inherent in comprehending a passage of text (letters , words , sentences , paragraphs , narrative events). In psychosis, predictive coding accounts assert that abnormal prediction error – mediated belief updating underlies delusions and hallucinations, both construed as false inferences. While speci ﬁ c proposals differ in their details, a common theme implicates the arbitration between priors and likelihoods — a process termed “ precision weighting ”— at speci ﬁ c hierarchical levels. This miscalibration in turn results in cognitive and perceptual abnormalities either as a direct result of abnormal inference or secondary to compensatory neuro-computational mechanisms (2). This framework has been enormously in ﬂ uential in the computational psychiatry of psychosis. However, empirical progress has arguably been sty-mied by dif ﬁ culties in formulating experimental tests. It can be hard to pin down a model with so many moving parts.",
+          "claimed_authors": [
+            "Valentina Mancini",
+            "Matthew M. Nour"
+          ],
+          "claimed_title": "If Mismatch Negativity Is the Answer, What Is the Question? On the Nature of Predictive Coding Abnormalities in Psychosis",
+          "claimed_venue": "Biological Psychiatry Global Open Science",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1016/j.bpsgos.2024.100412"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='If Mismatch Negativity Is the Answer, What Is the Question? On the Nature of Predictive Coding Abnormalities in Psychosis')",
+        "failed_at": "2026-05-21T13:00:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Research has shown that semantic analysis occurs at early stages of word processing (less than 200 ms). While traditional studies have focused on isolated words/sentences, our research explores rapid semantic processing during reading stories using event-related potentials and magnetoencephalography. We employed the rapid serial visual presentation paradigm to present texts word by word. Each word presentation lasted 150 ms, enhancing rapid semantic processing. We computed semantic dissimilarity (SD) values for each word and categorized them into quartiles to investigate their effect on brain responses. Our analysis revealed significant ERP differences within early time windows (120-132 ms). Two distinct clusters were identified: positive in the right occipital region and negative in the left temporal region. In both clusters less pronounced responses were registered for words with lowest SD which corresponds to theories of predictive coding. These findings broaden our understanding of rapid semantic processing and suggest new methodology.",
+          "claimed_authors": [
+            "A. Neklyudova",
+            "G. Soghoyan",
+            "O. Martynova",
+            "Olga Sysoeva"
+          ],
+          "claimed_title": "Rapid Semantic Processing: An MEG Study of Narrative Text Reading",
+          "claimed_venue": "bioRxiv",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1080/23273798.2025.2493205"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='Rapid Semantic Processing: An MEG Study of Narrative Text Reading')",
+        "failed_at": "2026-05-21T13:00:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Although a great deal of attention has been paid to how conspiracy theories circulate on social media and their factual counterpart conspiracies, there has been little computational work done on describing their narrative structures. We present an automated pipeline for the discovery and description of the generative narrative frameworks of conspiracy theories on social media, and actual conspiracies reported in the news media. We base this work on two separate repositories of posts and news articles describing the well-known conspiracy theory Pizzagate from 2016, and the New Jersey conspiracy Bridgegate from 2013. We formulate a graphical generative machine learning model where nodes represent actors/actants, and multi-edges and self-loops among nodes capture context-specific relationships. Posts and news items are viewed as samples of subgraphs of the hidden narrative network. The problem of reconstructing the underlying structure is posed as a latent model estimation problem. We automatically extract and aggregate the actants and their relationships from the posts and articles. We capture context specific actants and interactant relationships by developing a system of supernodes and subnodes. We use these to construct a network, which constitutes the underlying narrative framework. We show how the Pizzagate framework relies on the conspiracy theorists' interpretation of \"hidden knowledge\" to link otherwise unlinked domains of human interaction, and hypothesize that this multi-domain focus is an important feature of conspiracy theories. While Pizzagate relies on the alignment of multiple domains, Bridgegate remains firmly rooted in the single domain of New Jersey politics. We hypothesize that the narrative framework of a conspiracy theory might stabilize quickly in contrast to the narrative framework of an actual one, which may develop more slowly as revelations come to light.",
+          "claimed_authors": [
+            "Timothy R. Tangherlini",
+            "Shadi Shahsavari",
+            "Behnam Shahbazi",
+            "Ehsan Ebrahimzadeh",
+            "Vwani Roychowdhury"
+          ],
+          "claimed_title": "An automated pipeline for the discovery of conspiracy and conspiracy theory narrative frameworks: Bridgegate, Pizzagate and storytelling on the web",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.09961"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension', candidate_title='An automated pipeline for the discovery of conspiracy and conspiracy theory narrative frameworks: Bridgegate, Pizzagate and storytelling on the web')",
+        "failed_at": "2026-05-21T13:00:38Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "H. Calvo",
+            "B. Herrera-González",
+            "Mayte H. Laureano"
+          ],
+          "title": "Integrating Cognitive, Symbolic, and Neural Approaches to Story Generation: A Review on the METATRON Framework",
+          "venue": "Mathematics",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.3390/math13233885",
+        "summary": "The human ability to imagine alternative realities has long supported reasoning, communication, and creativity through storytelling. By constructing hypothetical scenarios, people can anticipate outcomes, solve problems, and generate new knowledge. This link between imagination and reasoning has made storytelling an enduring topic in artificial intelligence, leading to the field of automatic story generation. Over the decades, different paradigms—symbolic, neural, and hybrid—have been proposed to address this task. This paper reviews key developments in story generation and identifies elements that can be integrated into a unified framework. Building on this analysis, we introduce the METATRON framework for neuro-symbolic generation of fiction stories. The framework combines a classical taxonomy of dramatic situations, used for symbolic narrative planning, with fine-tuned language models for text generation and coherence filtering. It also incorporates cognitive mechanisms such as episodic memory, emotional modeling, and narrative controllability, and explores multimodal extensions for text–image–audio storytelling. Finally, the paper discusses cognitively grounded evaluation methods, including theory-of-mind and creativity assessments, and outlines directions for future research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://www.mdpi.com/2227-7390/13/23/3885",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [
+            "https://doi.org/10.3390/math13233885"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T13:00:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "C. Haines",
+            "K. Sullivan",
+            "K. Klamer",
+            "J. Craig",
+            "C. Ekstrand"
+          ],
+          "title": "Mapping the Changing Neural Architecture of Narrative Processing Using Naturalistic Stimuli: an fMRI Study",
+          "venue": "bioRxiv",
+          "year": 2023
+        },
+        "primary_pointer": "https://doi.org/10.1101/2023.09.15.557976",
+        "summary": "A narrative is a coherent representation of actual or fictional events designed to connect experiences. Narratives provide a unique opportunity to investigate brain functions in scenarios more closely resembling real-world experiences. However, most neuroimaging studies examining narrative formation have utilized static stimuli that fail to capture the intricacies of narrative construction in everyday life, particularly how cognitive demands change over the course of narrative processing. The current research uses functional magnetic resonance imaging (fMRI) to examine dynamic narrative processing over the course of a full-length audiovisual narrative. We examined changes in neural synchrony (as quantified by intersubject correlations) in areas related to semantic memory, episodic memory, and visuospatial attention between the beginning, middle, and end of the narrative. Results from two experiments identified two core narrative processing networks responsible for constructing coherent representations across extended timescales. The first network is associated with the early narrative construction, and includes the right intraparietal sulcus/superior parietal lobule, bilateral angular gyrus, bilateral precuneus, and left fusiform gyrus. The second network consists of the right ventral frontal cortex and bilateral parahippocampal cortices, and is associated with longer term narrative integration. Together, these regions provide the framework for successful narrative processing during naturalistic stimuli.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://www.biorxiv.org/lookup/doi/10.1101/2023.09.15.557976",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [
+            "https://doi.org/10.1101/2023.09.15.557976",
+            "http://biorxiv.org/lookup/doi/10.1101/2023.09.15.557976"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T13:00:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Qianyi He",
+            "Yuan Chang Leong"
+          ],
+          "title": "A Multimodal Seq2Seq Transformer for Predicting Brain Responses to Naturalistic Stimuli",
+          "venue": "arXiv.org",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2507.18104",
+        "summary": "The Algonauts 2025 Challenge called on the community to develop encoding models that predict whole-brain fMRI responses to naturalistic multimodal movies. In this submission, we propose a sequence-to-sequence Transformer that autoregressively predicts fMRI activity from visual, auditory, and language inputs. Stimulus features were extracted using pretrained models including VideoMAE, HuBERT, Qwen, and BridgeTower. The decoder integrates information from prior brain states and current stimuli via dual cross-attention mechanisms that attend to both perceptual information extracted from the stimulus as well as narrative information provided by high-level summaries of the content. One core innovation of our approach is the use of sequences of multimodal context to predict sequences of brain activity, enabling the model to capture long-range temporal structure in both stimuli and neural responses. Another is the combination of a shared encoder with partial subject-specific decoder, which leverages common representational structure across subjects while accounting for individual variability. Our model achieves strong performance on both in-distribution and out-of-distribution data, demonstrating the effectiveness of temporally-aware, multimodal sequence modeling for brain activity prediction. The code is available at https://github.com/Angelneer926/Algonauts_challenge.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2507.18104",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2507.18104"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T13:00:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jianxiong Gao",
+            "Yichang Liu",
+            "Baofeng Yang",
+            "Jianfeng Feng",
+            "Yanwei Fu"
+          ],
+          "title": "CineBrain: A Large-Scale Multi-Modal Brain Dataset During Naturalistic Audiovisual Narrative Processing",
+          "venue": "arXiv.org",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2503.06940",
+        "summary": "Most research decoding brain signals into images, often using them as priors for generative models, has focused only on visual content. This overlooks the brain's natural ability to integrate auditory and visual information, for instance, sound strongly influences how we perceive visual scenes. To investigate this, we propose a new task of reconstructing continuous video stimuli from multimodal brain signals recorded during audiovisual stimulation. To enable this, we introduce CineBrain, the first large-scale dataset that synchronizes fMRI and EEG during audiovisual viewing, featuring six hours of \\textit{The Big Bang Theory} episodes for cross-modal alignment. We also conduct the first systematic exploration of combining fMRI and EEG for video reconstruction and present CineSync, a framework for reconstructing dynamic video using a Multi-Modal Fusion Encoder and a Neural Latent Decoder. CineSync achieves state-of-the-art performance in dynamic reconstruction, leveraging the complementary strengths of fMRI and EEG to improve visual fidelity. Our analysis shows that auditory cortical activations enhance decoding accuracy, highlighting the role of auditory input in visual perception. Project Page: https://jianxgao.github.io/CineBrain.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2503.06940",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2503.06940"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T13:00:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "S. Oota",
+            "R. Bapi"
+          ],
+          "title": "Language Models and Brain Alignment: Brain Encoding and Decoding",
+          "venue": "COMAD/CODS",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1145/3703323.3704280",
+        "summary": "Can we obtain insights about the brain using AI models? How is the information in deep learning models related to brain recordings? Can we improve AI models with the help of brain recordings? Such questions can be tackled by studying brain recordings like functional magnetic resonance imaging (fMRI). As a first step, the neuroscience community has contributed several large cognitive neuroscience datasets related to passive reading/listening/viewing of concept words, and narrative stories. Encoding and decoding models using recent advances in deep learning have opened new opportunities for modelling brain activity and exploring the convergent representations underlying language comprehension in the human brain and in neural language models (LM). Using encoding and decoding, what insights can we draw from recent, largely task-free neuroimaging datasets for theories of language and the brain? This tutorial will provide a working knowledge of stimulus representations, popular naturalistic neuroscience datasets, and state-of-the-art methods for brain encoding and decoding. It will also offer a better understanding of the benefits and limitations of encoding and decoding with deep learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://dl.acm.org/doi/10.1145/3703323.3704280",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [
+            "https://doi.org/10.1145/3703323.3704280"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T13:00:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "E. Coderre",
+            "Neil Cohn"
+          ],
+          "title": "Individual differences in the neural dynamics of visual narrative comprehension: The effects of proficiency and age of acquisition",
+          "venue": "Psychonomic Bulletin & Review",
+          "year": 2023
+        },
+        "primary_pointer": "https://doi.org/10.3758/s13423-023-02334-x",
+        "summary": "Understanding visual narrative sequences, as found in comics, is known to recruit similar cognitive mechanisms to verbal language. As measured by event-related potentials (ERPs), these manifest as initial negativities (N400, LAN) and subsequent positivities (P600). While these components are thought to index discrete processing stages, they differentially arise across participants for any given stimulus. In language contexts, proficiency modulates brain responses, with smaller N400 effects and larger P600 effects appearing with increasing proficiency. In visual narratives, recent work has also emphasized the role of proficiency in neural response patterns. We thus explored whether individual differences in proficiency modulate neural responses to visual narrative sequencing in similar ways as in language. We combined ERP data from 12 studies examining semantic and/or grammatical processing of visual narrative sequences. Using linear mixed effects modeling, we demonstrate differential effects of visual language proficiency and “age of acquisition” on N400 and P600 responses. Our results align with those reported in language contexts, providing further evidence for the similarity of linguistic and visual narrative processing, and emphasize the role of both proficiency and age of acquisition in visual narrative comprehension.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://link.springer.com/article/10.3758/s13423-023-02334-x",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [
+            "https://doi.org/10.3758/s13423-023-02334-x",
+            "https://link.springer.com/10.3758/s13423-023-02334-x",
+            "https://link.springer.com/article/10.3758/s13423-023-02334-x",
+            "https://idp.springer.com/authorize?response_type=cookie&client_id=springerlink&redirect_uri=https%3A%2F%2Flink.springer.com%2Farticle%2F10.3758%2Fs13423-023-02334-x"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T13:00:32Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "neural narrative networks: brain-inspired story generation and comprehension",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

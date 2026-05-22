@@ -1,0 +1,74 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Model Output Schema
+description: Schema for model predictions and metrics
+type: object
+properties:
+  model_id:
+    type: string
+    description: "Unique model identifier"
+  model_type:
+    type: string
+    enum:
+      - schnet
+      - random_forest
+    description: "Model architecture type"
+  seed:
+    type: integer
+    enum: [42, 123, 456, 789, 101112]
+    description: "Random seed used for reproducibility"
+  predictions:
+    type: array
+    items:
+      type: object
+      properties:
+        mol_id:
+          type: string
+        pred_dipole:
+          type: number
+        true_dipole:
+          type: number
+        error:
+          type: number
+      required:
+        - mol_id
+        - pred_dipole
+        - true_dipole
+        - error
+  metrics:
+    type: object
+    properties:
+      MAE:
+        type: number
+        minimum: 0
+        description: "Mean Absolute Error in Debye"
+      RMSE:
+        type: number
+        minimum: 0
+        description: "Root Mean Square Error in Debye"
+      R2:
+        type: number
+        minimum: -1
+        maximum: 1
+        description: "Coefficient of determination"
+    required:
+      - MAE
+      - RMSE
+  trained_at:
+    type: string
+    format: date-time
+    description: "Training completion timestamp (ISO 8601)"
+  checkpoint_path:
+    type: string
+    description: "Path to model checkpoint file"
+  checkpoint_checksum:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA-256 checksum of checkpoint"
+required:
+  - model_id
+  - model_type
+  - seed
+  - predictions
+  - metrics
+  - trained_at
+additionalProperties: false

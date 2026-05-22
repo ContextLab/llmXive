@@ -1,0 +1,644 @@
+{
+  "fetched_at": "2026-05-21T13:33:12Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "---\nfield: psychology\nsubmitter: jeremymanning\ngithub_issue: https://github.com/ContextLab/llmXive/issues/11\n---\n\n# Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs\n\nStudy how memories are shared, distorted, and consolidated across networks of interacting LLMs, mimicking human social memory processes. This project would explore collective intelligence and memory convergence in AI systems.\n\nResearch components:\n- Implement memory sharing protocols between LLM agents\n- Study how narratives evolve through retelling chains\n- Model social contagion of false memories\n- Test collaborative recall and transactive memory\n- Explore emergence of 'cultural' memories in agent societies\n\nApplies social psychology of memory to multi-agent AI systems.\n",
+      "target_n": 5
+    },
+    "duration_seconds": 619.045,
+    "ended_at": "2026-05-21T13:33:12Z",
+    "expansion": null,
+    "extracted_queries": [
+      "transactive memory systems distributed cognition",
+      "generative agents multi-agent environments",
+      "information diffusion consensus formation",
+      "collective recall consistency fidelity",
+      "social learning memory consolidation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.48550/arXiv.2510.19299"
+      ]
+    },
+    "per_query_hit_count": {
+      "Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs": 2,
+      "collective recall consistency fidelity": 6,
+      "generative agents multi-agent environments": 6,
+      "information diffusion consensus formation": 6,
+      "social learning memory consolidation": 6,
+      "transactive memory systems distributed cognition": 6
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "https://doi.org/10.1007/s10670-020-00258-9",
+          "rationale": "This paper is in the domain of social epistemology and philosophy of knowledge (human group cognition, virtue reliabilism), not computational multi-agent LLM systems. While it discusses conceptually related terms like \"transactive memory systems\" and \"distributed cognition,\" it does not measure the same mechanism, operate in the same domain, or establish any baseline for AI/ML modeling of collective remembering in language model agents—this violates the \"distinct construct sharing only homonym k",
+          "title": "Epistemic Collaborations: Distributed Cognition and Virtue Reliabilism"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.48550/arXiv.2507.15815",
+          "rationale": "This paper focuses on economic mechanism design and utility optimization rather than memory mechanisms or collective remembering, satisfying the rejection rule for distinct constructs sharing only high-level domain keywords (Multi-Agent LLMs, Social). It does not measure the user's specific variables (memory networks, collective remembering) nor provide a canonical baseline for that specific phenomenon.",
+          "title": "LLM Economist: Large Population Models and Mechanism Design in Multi-Agent Generative Simulacra"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1109/MeditCom64437.2025.11104374",
+          "rationale": "This paper does not address the user's research question about social memory networks and collective remembering in multi-agent LLMs. While both involve multi-agent LLM systems, the candidate paper focuses on network simulation automation (6G/5G, ns-3 code generation) rather than any mechanism related to social memory, collective remembering, or shared knowledge dynamics. This is an off-domain paper where the only shared keyword is \"multi-agent LLMs\" as a broad technical category, but the actual",
+          "title": "Toward Generative 6G Simulation: An Experimental Multi-Agent LLM and ns-3 Integration"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1098/rstb.2024.0449",
+          "rationale": "The paper is off-domain entirely, focusing on human social evolution and consensus decision-making in small-scale societies rather than Multi-Agent LLM systems or collective memory mechanisms in AI. It studies a distinct construct (consensus) in a different empirical population (humans) that does not map to the user's LLM-based research question.",
+          "title": "Social structure shapes consensus decision-making norms in small-scale societies"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-21T13:22:53Z",
+    "term_input": {
+      "normalized": "social memory networks: modeling collective remembering in multi-agent llms",
+      "raw": "Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Georg Theiner"
+          ],
+          "claimed_title": "Making sense of group cognition: the curious case of transactive memory systems",
+          "claimed_venue": "",
+          "claimed_year": 2010,
+          "primary_pointer": "https://doi.org/10.5096/ASCS200951"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='Making sense of group cognition: the curious case of transactive memory systems')",
+        "failed_at": "2026-05-21T13:26:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Michael D. Kirchhoff"
+          ],
+          "claimed_title": "Composition and transactive memory systems",
+          "claimed_venue": "",
+          "claimed_year": 2016,
+          "primary_pointer": "https://doi.org/10.1080/13869795.2016.1085593"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='Composition and transactive memory systems')",
+        "failed_at": "2026-05-21T13:26:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a novel approach to representing task assignments for partitioned agents (respectively, tasks) in distributed systems. A partition of agents (respectively, tasks) is represented by a Young tableau, which is one of the main tools in studying symmetric groups and combinatorics. In this paper we propose a task, agent, and assignment tableau in order to represent a task assignment for partitioned agents (respectively, tasks) in a distributed system. This paper is concerned with representations of task assignments rather than finding approximate or near optimal solutions for task assignments. A Young tableau approach allows us to raise the expressiveness of partitioned agents (respectively, tasks) and their task assignments.",
+          "claimed_authors": [
+            "Dohan Kim"
+          ],
+          "claimed_title": "Representations of task assignments in distributed systems using Young tableaux and symmetric groups",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1012.1288"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='Representations of task assignments in distributed systems using Young tableaux and symmetric groups')",
+        "failed_at": "2026-05-21T13:26:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Opacity of Transactional Memory is proposed to be established by incremental validation. Quiescence in terms of epoch-based memory reclamation is applied to deal with doomed transactions causing memory access violations. This method unfortunately involves increased memory consumption and does not cover reclamations outside of transactions. This paper introduces a different method which combines incremental validation with elements of sandboxing to solve these issues.",
+          "claimed_authors": [
+            "Holger Machens",
+            "Volker Turau"
+          ],
+          "claimed_title": "Opacity of Memory Management in Software Transactional Memory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1308.2881"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='Opacity of Memory Management in Software Transactional Memory')",
+        "failed_at": "2026-05-21T13:26:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Combinatorial algorithms such as those that arise in graph analysis, modeling of discrete systems, bioinformatics, and chemistry, are often hard to parallelize. The Combinatorial BLAS library implements key computational primitives for rapid development of combinatorial algorithms in distributed-memory systems. During the decade since its first introduction, the Combinatorial BLAS library has evolved and expanded significantly.\n  This paper details many of the key technical features of Combinatorial BLAS version 2.0, such as communication avoidance, hierarchical parallelism via in-node multithreading, accelerator support via GPU kernels, generalized semiring support, implementations of key data structures and functions, and scalable distributed I/O operations for human-readable files. Our paper also presents several rules of thumb for choosing the right data structures and functions in Combinatorial BLAS 2.0, under various common application scenarios.",
+          "claimed_authors": [
+            "Ariful Azad",
+            "Oguz Selvitopi",
+            "Md Taufique Hussain",
+            "John R. Gilbert",
+            "Aydin Buluc"
+          ],
+          "claimed_title": "Combinatorial BLAS 2.0: Scaling combinatorial algorithms on distributed-memory systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.14402"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='Combinatorial BLAS 2.0: Scaling combinatorial algorithms on distributed-memory systems')",
+        "failed_at": "2026-05-21T13:26:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+          "claimed_authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "claimed_title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.08975"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='A Survey of Multi-Agent Deep Reinforcement Learning with Communication')",
+        "failed_at": "2026-05-21T13:26:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The card game Hanabi is considered a strong medium for the testing and development of multi-agent reinforcement learning (MARL) algorithms, due to its cooperative nature, partial observability, limited communication and remarkable complexity. Previous research efforts have explored the capabilities of MARL algorithms within Hanabi, focusing largely on advanced architecture design and algorithmic manipulations to achieve state-of-the-art performance for various number of cooperators. However, this often leads to complex solution strategies with high computational cost and requiring large amounts of training data. For humans to solve the Hanabi game effectively, they require the use of conventions, which often allows for a means to implicitly convey ideas or knowledge based on a predefined, and mutually agreed upon, set of \"rules\" or principles. Multi-agent problems containing partial observability, especially when limited communication is present, can benefit greatly from the use of implicit knowledge sharing. In this paper, we propose a novel approach to augmenting an agent's action space using conventions, which act as a sequence of special cooperative actions that span over and include multiple time steps and multiple agents, requiring agents to actively opt in for it to reach fruition. These conventions are based on existing human conventions, and result in a significant improvement on the performance of existing techniques for self-play and cross-play for various number of cooperators within Hanabi.",
+          "claimed_authors": [
+            "F. Bredell",
+            "H. A. Engelbrecht",
+            "J. C. Schoeman"
+          ],
+          "claimed_title": "Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.06333"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi')",
+        "failed_at": "2026-05-21T13:26:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generalization is a major challenge for multi-agent reinforcement learning. How well does an agent perform when placed in novel environments and in interactions with new co-players? In this paper, we investigate and quantify the relationship between generalization and diversity in the multi-agent domain. Across the range of multi-agent environments considered here, procedurally generating training levels significantly improves agent performance on held-out levels. However, agent performance on the specific levels used in training sometimes declines as a result. To better understand the effects of co-player variation, our experiments introduce a new environment-agnostic measure of behavioral diversity. Results demonstrate that population size and intrinsic motivation are both effective methods of generating greater population diversity. In turn, training with a diverse set of co-players strengthens agent performance in some (but not all) cases.",
+          "claimed_authors": [
+            "Kevin R. McKee",
+            "Joel Z. Leibo",
+            "Charlie Beattie",
+            "Richard Everett"
+          ],
+          "claimed_title": "Quantifying the effects of environment and population diversity in multi-agent reinforcement learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.08370"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='Quantifying the effects of environment and population diversity in multi-agent reinforcement learning')",
+        "failed_at": "2026-05-21T13:26:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "In this paper, we propose an agent-based model of information spread, grounded on psychological insights on the formation and spread of beliefs. In our model, we consider a network of individuals who share two opposing types of information on a specific topic (e.g., pro- vs. anti-vaccine stances), and the accumulation of evidence supporting either type of information is modelled by means of a drift-diffusion process. After formalising the model, we put forward a campaign of Monte Carlo simulations to identify population-wide behaviours emerging from agents' exposure to different sources of information, investigating the impact of the number and persistence of such sources, and the role of the network structure through which the individuals interact. We find similar emergent behaviours for all network structures considered. When there is a single type of information, the main observed emergent behaviour is consensus. When there are opposing information sources, both consensus or polarisation can result; the latter occurs if the number and persistence of the sources exceeds some threshold values. Importantly, we find the emergent behaviour is mainly influenced by how long the information sources are present for, as opposed to how many sources there are.",
+          "claimed_authors": [
+            "Julien Corsin",
+            "Lorenzo Zino",
+            "Mengbin Ye"
+          ],
+          "claimed_title": "An evidence-accumulating drift-diffusion model of competing information spread on networks",
+          "claimed_venue": "Chaos, Solitons &amp; Fractals",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1016/j.chaos.2024.115935"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='An evidence-accumulating drift-diffusion model of competing information spread on networks')",
+        "failed_at": "2026-05-21T13:26:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Fei Xiong",
+            "Yun Liu",
+            "Zhenjiang Zhang"
+          ],
+          "claimed_title": "Correlation between information diffusion and opinion evolution on social media",
+          "claimed_venue": "",
+          "claimed_year": 2014,
+          "primary_pointer": "https://doi.org/10.1088/1742-5468/2014/12/P12026"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='Correlation between information diffusion and opinion evolution on social media')",
+        "failed_at": "2026-05-21T13:26:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article addresses the problem of average consensus in a multi-agent system when the desired consensus quantity is a time varying signal. Although this problem has been addressed in existing literature by linear schemes, only bounded steady-state errors have been achieved. Other approaches have used first order sliding modes to achieve zero steady-state error, but suffer from the chattering effect. In this work, we propose a new exact dynamic consensus algorithm which leverages high order sliding modes, in the form of a distributed differentiator to achieve zero steady-state error of the average of time varying reference signals in a group of agents. Moreover, our proposal is also able to achieve consensus to high order derivatives of the average signal, if desired. An in depth formal study on the stability and convergence for EDCHO is provided for undirected connected graphs. Finally, the effectiveness and advantages of our proposal are shown with concrete simulation scenarios.",
+          "claimed_authors": [
+            "Rodrigo Aldana-López",
+            "Rosario Aragüés",
+            "Carlos Sagüés"
+          ],
+          "claimed_title": "EDCHO: High Order Exact Dynamic Consensus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.03012"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='EDCHO: High Order Exact Dynamic Consensus')",
+        "failed_at": "2026-05-21T13:26:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article addresses the problem of average consensus in a multi-agent system when the desired consensus quantity is a time varying signal. Recently, the EDCHO protocol leveraged high order sliding modes to achieve exact consensus under a constrained set of initial conditions, limiting its applicability to static networks. In this work, we propose REDCHO, an extension of the previous protocol which is robust to mismatch in the initial conditions, making it suitable to use cases in which connection and disconnection of agents is possible. The convergence properties of the protocol are formally explored. Finally, the effectiveness and advantages of our proposal are shown with concrete simulation examples showing the benefits of REDCHO against other methods in the literature.",
+          "claimed_authors": [
+            "Rodrigo Aldana-López",
+            "Rosario Aragüés",
+            "Carlos Sagüés"
+          ],
+          "claimed_title": "REDCHO: Robust Exact Dynamic Consensus of High Order",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.12344"
+        },
+        "details": "title token-overlap 0.000 < 0.7 (claimed='REDCHO: Robust Exact Dynamic Consensus of High Order', fetched='')",
+        "failed_at": "2026-05-21T13:28:30Z",
+        "reason": "title_mismatch"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we informally introduce the Pulsar proof of stake consensus paper and discuss the relevant design decisions and considerations. The Pulsar protocol we propose is designed to facilitate the creation of a proof of stake sidechain for a proof of work blockchain. We present an overview of a novel composable density-based chain selection rule for proof of stake systems which can be seen as a superset of some standard existing longest chain rules for proof of stake protocols. We discuss the Pulsar protocol in comparison to existing proof of stake protocols and define its benefits over existing designs while defining the limitations of the work. Pulsar is currently implemented in the Mintlayer proof of stake Bitcoin sidechain.",
+          "claimed_authors": [
+            "Samer Afach",
+            "Benjamin Marsh",
+            "Enrico Rubboli"
+          ],
+          "claimed_title": "Pulsar Consensus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.14245"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='Pulsar Consensus')",
+        "failed_at": "2026-05-21T13:28:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Aquatic ecosystems host diverse organisms across all six life kingdoms, yet their complex interactions remain poorly understood, primarily due to limitations in transkingdom species detection methods. To address this limitation, we developed HiMBar (https://github.com/Xchenkai2019/HIFI_barcoding), a high‐fidelity (HiFi) metagenomic barcoding approach that utilises long, highly accurate reads to extract multiple full‐length marker genes (such as rRNA genes, COI, rbcL) directly from environmental DNA sequencing reads. These genes are subsequently clustered into operational taxonomic units (OTUs) for species identification, eliminating the need for PCR amplification or sequence assembly. HiMBar outperforms existing DNA‐based methods in accuracy, recall and consistency. Applying HiMBar, we identified a stable interaction network among Cyanobacteria, Planctomycetota, Verrucomicrobiota and Fungi. Further analysis revealed that glucose metabolism plays a key role in maintaining these interactions. Our study offers a powerful tool for transkingdom species monitoring and provides a case study for exploring transkingdom interactions and their molecular mechanisms.",
+          "claimed_authors": [
+            "Kai Chen",
+            "Shuai Luo",
+            "Chuanqi Jiang",
+            "Siyu Gu",
+            "Fangdian Yang",
+            "Xuehua Liu",
+            "Su Wang",
+            "Xiao Qu",
+            "Qi Zhang",
+            "Peng Zhang",
+            "Yingchun Gong",
+            "Honghui Zeng",
+            "Dongru Qiu",
+            "Wei Miao",
+            "Jie Xiong"
+          ],
+          "claimed_title": "HiMBar: A High‐Fidelity Metagenomic Barcoding Approach for Transkingdom Species Detection and Interaction Analysis in Aquatic Ecosystems",
+          "claimed_venue": "Molecular Ecology Resources",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.1111/1755-0998.70092"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='HiMBar: A High‐Fidelity Metagenomic Barcoding Approach for Transkingdom Species Detection and Interaction Analysis in Aquatic Ecosystems')",
+        "failed_at": "2026-05-21T13:28:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Accurate anomaly detection in GPS trajectory data is critical for Intelligent Transportation Systems (ITS), enabling reliable travel time estimation, congestion monitoring, and downstream analytics. Existing approaches, including classical outlier detectors and black-box deep learning models, often suffer from low recall, poor interpretability, or lack of robustness to noisy device streams. This paper proposes a multi-level trajectory cleaning framework that integrates rule-based logic, machine learning, and causal inference for reliable outlier detection in intelligent transportation systems (ITS). The framework operates hierarchically from point-level filtering to trip-level segmentation and network-level map matching and introduces a hybrid Rule-symbolic + causal fusion model that unifies interpretability with predictive accuracy. Unlike previous single-stage detectors, the proposed design ensures cross-level consistency and supports real-time scalability. Experiments on an internal GPS dataset (38 k points) and a public SCATS benchmark confirm high robustness, achieving 97.6% valid-point retention and $ {\\rm F}1 = 0.846 $ F1=0.846, $ {\\rm AUC} = 1.0 $ AUC=1.0 on public data. The average processing throughput exceeds 800 points/s, confirming suitability for online ITS deployment.",
+          "claimed_authors": [
+            "Garima Rathi",
+            "Shailesh Kamble",
+            "Nonita Sharma"
+          ],
+          "claimed_title": "Road Traffic Outlier Detection for Reliable ITS: A Multi-Level Framework from Point to Network Fidelity",
+          "claimed_venue": "IETE Technical Review",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.1080/02564602.2025.2608748"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='Road Traffic Outlier Detection for Reliable ITS: A Multi-Level Framework from Point to Network Fidelity')",
+        "failed_at": "2026-05-21T13:28:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "\n \n This study aimed to develop and validate a practice profile to document speech-language pathologists' (SLPs') fidelity in comprehensive evaluation practices. The study tested the internal consistency of practice profile items, differences in fidelity scores across assessment methods, and discrepancies between fidelity and adoption measures.\n \n \n \n The study involved 212 SLPs from six Wisconsin school districts participating in the Wisconsin Collective for Comprehensive Assessment implementation project. Participants completed self-ratings of their adoption and fidelity with eight assessment tasks.\n \n \n \n The practice profile demonstrated strong internal consistency, with Duhachek's alpha values exceeding 0.70 for most sets of items. Significant differences in fidelity scores were observed across assessment methods, with the following hierarchy: stimulability > norm-referenced = observation > academic standards > language sample analysis = dynamic assessment. Adoption scores were significantly higher than fidelity scores for five of the six assessment tasks, indicating a gap between intended and actual practices.\n \n \n \n The findings suggest the need for targeted training and development of tools to support high-fidelity implementation of assessment tasks, particularly for academic standards, language sample analysis, and dynamic assessment. Further research should explore how adoption and fidelity measures can support implementation efforts to promote best practices in speech-language pathology.\n",
+          "claimed_authors": [
+            "John J Heilmann",
+            "A. Wojtyna",
+            "Dawn Merth-Johnson",
+            "Jessica Bizub",
+            "Joseph Chase"
+          ],
+          "claimed_title": "Development of a Practice Profile to Examine Two Implementation Outcomes in Speech-Language Pathologists' Comprehensive Evaluations: Adoption and Fidelity",
+          "claimed_venue": "Language, Speech & Hearing Services in Schools",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.1044/2026_lshss-25-00117"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title=\"Development of a Practice Profile to Examine Two Implementation Outcomes in Speech-Language Pathologists' Comprehensive Evaluations: Adoption and Fidelity\")",
+        "failed_at": "2026-05-21T13:28:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graphs data is crucial for many applications, and much of it exists in the relations described in textual format. As a result, being able to accurately recall and encode a graph described in earlier text is a basic yet pivotal ability that LLMs need to demonstrate if they are to perform reasoning tasks that involve graph-structured information. Human performance at graph recall has been studied by cognitive scientists for decades, and has been found to often exhibit certain structural patterns of bias that align with human handling of social relationships. To date, however, we know little about how LLMs behave in analogous graph recall tasks: do their recalled graphs also exhibit certain biased patterns, and if so, how do they compare with humans and affect other graph reasoning tasks? In this work, we perform the first systematical study of graph recall by LLMs, investigating the accuracy and biased microstructures (local structural patterns) in their recall. We find that LLMs not only underperform often in graph recall, but also tend to favor more triangles and alternating 2-paths. Moreover, we find that more advanced LLMs have a striking dependence on the domain that a real-world graph comes from -- by yielding the best recall accuracy when the graph is narrated in a language style consistent with its original domain.",
+          "claimed_authors": [
+            "Yanbang Wang",
+            "Hejie Cui",
+            "Jon Kleinberg"
+          ],
+          "claimed_title": "Microstructures and Accuracy of Graph Recall by Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.11821"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='Microstructures and Accuracy of Graph Recall by Large Language Models')",
+        "failed_at": "2026-05-21T13:28:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We use the fidelity approach to quantum critical points to study the zero temperature phase diagram of the one-dimensional Hubbard model. Using a variety of analytical and numerical techniques, we analyze the fidelity metric in various regions of the phase diagram, with particular care to the critical points. Specifically we show that close to the Mott transition, taking place at on-site repulsion U=0 and electron density n=1, the fidelity metric satisfies an hyper-scaling form which we calculate. This implies that in general, as one approaches the critical point U=0, n=1, the fidelity metric tends to a limit which depends on the path of approach. At half filling, the fidelity metric is expected to diverge as U^{-4} when U is sent to zero.",
+          "claimed_authors": [
+            "L. Campos Venuti",
+            "M. Cozzini",
+            "P. Buonsante",
+            "F. Massel",
+            "N. Bray-Ali",
+            "P. Zanardi"
+          ],
+          "claimed_title": "The fidelity approach to the Hubbard model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0801.2473"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='The fidelity approach to the Hubbard model')",
+        "failed_at": "2026-05-21T13:28:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multi-fidelity surrogate modeling aims to learn an accurate surrogate at the highest fidelity level by combining data from multiple sources. Traditional methods relying on Gaussian processes can hardly scale to high-dimensional data. Deep learning approaches utilize neural network based encoders and decoders to improve scalability. These approaches share encoded representations across fidelities without including corresponding decoder parameters. This hinders inference performance, especially in out-of-distribution scenarios when the highest fidelity data has limited domain coverage. To address these limitations, we propose Multi-fidelity Residual Neural Processes (MFRNP), a novel multi-fidelity surrogate modeling framework. MFRNP explicitly models the residual between the aggregated output from lower fidelities and ground truth at the highest fidelity. The aggregation introduces decoders into the information sharing step and optimizes lower fidelity decoders to accurately capture both in-fidelity and cross-fidelity information. We show that MFRNP significantly outperforms state-of-the-art in learning partial differential equations and a real-world climate modeling task. Our code is published at: https://github.com/Rose-STL-Lab/MFRNP",
+          "claimed_authors": [
+            "Ruijia Niu",
+            "Dongxia Wu",
+            "Kai Kim",
+            "Yi-An Ma",
+            "Duncan Watson-Parris",
+            "Rose Yu"
+          ],
+          "claimed_title": "Multi-Fidelity Residual Neural Processes for Scalable Surrogate Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.18846"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='Multi-Fidelity Residual Neural Processes for Scalable Surrogate Modeling')",
+        "failed_at": "2026-05-21T13:28:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Sriranjani Manivasagam",
+            "Anne Schacht"
+          ],
+          "claimed_title": "Social learning of emotion and its implication for memory: An ERP Study",
+          "claimed_venue": "bioRxiv",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1101/2025.10.02.678576"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='Social learning of emotion and its implication for memory: An ERP Study')",
+        "failed_at": "2026-05-21T13:28:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "A short period of post-encoding waking rest has been shown to benefit subsequent memory performance. For example, past research suggests that waking rest after learning Icelandic-German word pairs boosts subsequent recall relative to an equally long period of social media use. Such findings are typically interpreted as evidence in favor of diversion retroactive interference. According to this account, non-specific cognitive processing inhibits consolidation and thus impairs storage of information encoded previously. However, the effect might alternatively be explained by similarity retroactive interference according to which retrieval is hampered by information processed during retention. Here, we report two experiments that shed light on the mechanisms underlying the waking rest effect. In both experiments, participants either wakefully rested, used social media, or engaged in additional Norwegian-German vocabulary learning after the original learning phase. We performed multinomial processing tree (MPT) analyses to disentangle latent storage and retrieval contributions to cued recall and recognition performance. We did not find any memory differences between the waking rest and social media conditions in either experiment. Moreover, storage, but not retrieval, was reliably impaired in the vocabulary condition. Thereby, the present research provides direct behavioral evidence for a dominant role of consolidation in the waking rest effect.",
+          "claimed_authors": [
+            "J. Quevedo Pütter",
+            "E. Erdfelder"
+          ],
+          "claimed_title": "Waking rest during retention facilitates memory consolidation, but so does social media use",
+          "claimed_venue": "Scientific Reports",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1038/s41598-025-88363-z"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='Waking rest during retention facilitates memory consolidation, but so does social media use')",
+        "failed_at": "2026-05-21T13:28:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Abstract Social learning of emotional salience from surrounding social cues is particularly advantageous under conditions of uncertainty. Yet, the neural mechanisms underlying this process and its consolidation into long-term memory remain poorly understood. In this two-day EEG study, we examined whether emotional salience from social cues (facial expressions) transfers to perceptually uncertain target images, and whether such learned salience is preserved in memory even after the social cues are removed. On Day 1 (learning session), preregistered analyses provided no evidence for an automatic emotional salience transfer across trials under the task’s uniform perceptual uncertainty. Instead, exploratory ERP analyses indicated that the use of social cues depended on subjective perceptual uncertainty, indexed by participants’ classification accuracy of the target image. P1 amplitudes in the learning session reflected this modulation. On Day 2 (test session), recognition performance and ERPs revealed evidence for additive emotional salience effects. EPN amplitudes were enhanced for accurately classified positive target images previously paired with social cues. In contrast, LPC amplitudes were reduced for negative target images in the social cue condition, independent of classification accuracy. Together, these findings suggest that the influence of social cues is contingent on subjective uncertainty. When internal valence judgments were strong (positive images), social cues added to emotional salience; when internal valence judgments were weaker (negative images), participants relied more heavily on the social cue, resulting in weaker memory encoding. Protocol registration The stage 1 protocol for this Registered Report was accepted in principle on 08/11/2023. The protocol, as accepted by the journal, can be found at: 10.17605/OSF.IO/TYQ84. Supplementary Information The online version contains supplementary material available at 10.1038/s41598-026-42906-0.",
+          "claimed_authors": [
+            "Sriranjani Manivasagam",
+            "Anne Schacht"
+          ],
+          "claimed_title": "Social learning of emotion and its implication for memory: an ERP study",
+          "claimed_venue": "Scientific Reports",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.1038/s41598-026-42906-0"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='Social learning of emotion and its implication for memory: an ERP study')",
+        "failed_at": "2026-05-21T13:28:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "All online sharing systems gather data that reflects users' collective behaviour and their shared activities. This data can be used to extract different kinds of relationships, which can be grouped into layers, and which are basic components of the multidimensional social network proposed in the paper. The layers are created on the basis of two types of relations between humans, i.e. direct and object-based ones which respectively correspond to either social or semantic links between individuals. For better understanding of the complexity of the social network structure, layers and their profiles were identified and studied on two, spanned in time, snapshots of the Flickr population. Additionally, for each layer, a separate strength measure was proposed. The experiments on the Flickr photo sharing system revealed that the relationships between users result either from semantic links between objects they operate on or from social connections of these users. Moreover, the density of the social network increases in time. The second part of the study is devoted to building a social recommender system that supports the creation of new relations between users in a multimedia sharing system. Its main goal is to generate personalized suggestions that are continuously adapted to users' needs depending on the personal weights assigned to each layer in the multidimensional social network. The conducted experiments confirmed the usefulness of the proposed model.",
+          "claimed_authors": [
+            "Przemyslaw Kazienko",
+            "Katarzyna Musial",
+            "Tomasz Kajdanowicz"
+          ],
+          "claimed_title": "Multidimensional Social Network in the Social Recommender System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0093"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='Multidimensional Social Network in the Social Recommender System')",
+        "failed_at": "2026-05-21T13:28:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Stress and depression are prevalent nowadays across people of all ages due to the quick paces of life. People use social media to express their feelings. Thus, social media constitute a valuable form of information for the early detection of stress and depression. Although many research works have been introduced targeting the early recognition of stress and depression, there are still limitations. There have been proposed multi-task learning settings, which use depression and emotion (or figurative language) as the primary and auxiliary tasks respectively. However, although stress is inextricably linked with depression, researchers face these two tasks as two separate tasks. To address these limitations, we present the first study, which exploits two different datasets collected under different conditions, and introduce two multitask learning frameworks, which use depression and stress as the main and auxiliary tasks respectively. Specifically, we use a depression dataset and a stressful dataset including stressful posts from ten subreddits of five domains. In terms of the first approach, each post passes through a shared BERT layer, which is updated by both tasks. Next, two separate BERT encoder layers are exploited, which are updated by each task separately. Regarding the second approach, it consists of shared and task-specific layers weighted by attention fusion networks. We conduct a series of experiments and compare our approaches with existing research initiatives, single-task learning, and transfer learning. Experiments show multiple advantages of our approaches over state-of-the-art ones.",
+          "claimed_authors": [
+            "Loukas Ilias",
+            "Dimitris Askounis"
+          ],
+          "claimed_title": "Multitask learning for recognizing stress and depression in social media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.18907"
+        },
+        "details": "title token-overlap 0.000 < 0.7 (claimed='Multitask learning for recognizing stress and depression in social media', fetched='')",
+        "failed_at": "2026-05-21T13:29:36Z",
+        "reason": "title_mismatch"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In 2016, a network of social media accounts animated by Russian operatives attempted to divert political discourse within the American public around the presidential elections. This was a coordinated effort, part of a Russian-led complex information operation. Utilizing the anonymity and outreach of social media platforms Russian operatives created an online astroturf that is in direct contact with regular Americans, promoting Russian agenda and goals. The elusiveness of this type of adversarial approach rendered security agencies helpless, stressing the unique challenges this type of intervention presents. Building on existing scholarship on the functions within influence networks on social media, we suggest a new approach to map those types of operations. We argue that pretending to be legitimate social actors obliges the network to adhere to social expectations, leaving a social footprint. To test the robustness of this social footprint we train artificial intelligence to identify it and create a predictive model. We use Twitter data identified as part of the Russian influence network for training the artificial intelligence and to test the prediction. Our model attains 88% prediction accuracy for the test set. Testing our prediction on two additional models results in 90.7% and 90.5% accuracy, validating our model. The predictive and validation results suggest that building a machine learning model around social functions within the Russian influence network can be used to map its actors and functions.",
+          "claimed_authors": [
+            "Ori Swed",
+            "Sachith Dassanayaka",
+            "Dimitri Volchenkov"
+          ],
+          "claimed_title": "Keeping it Authentic: The Social Footprint of the Trolls Network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.07720"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs', candidate_title='Keeping it Authentic: The Social Footprint of the Trolls Network')",
+        "failed_at": "2026-05-21T13:29:36Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Qingbin Zeng",
+            "Bingbing Fan",
+            "Zhiyu Chen",
+            "Sijian Ren",
+            "Zhilun Zhou",
+            "Xuhua Zhang",
+            "Yuanyi Zhen",
+            "Fengli Xu",
+            "Y. Li",
+            "Tie-Yan Liu"
+          ],
+          "title": "MirrorMind: Empowering OmniScientist with the Expert Perspectives and Collective Knowledge of Human Scientists",
+          "venue": "arXiv.org",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2511.16997",
+        "summary": "The emergence of AI Scientists has demonstrated remarkable potential in automating scientific research. However, current approaches largely conceptualize scientific discovery as a solitary optimization or search process, overlooking that knowledge production is inherently a social and historical endeavor. Human scientific insight stems from two distinct yet interconnected sources. First is the individual cognitive trajectory, where a researcher's unique insight is shaped by their evolving research history and stylistic preferences; another is the collective disciplinary memory, where knowledge is sedimented into vast, interconnected networks of citations and concepts. Existing LLMs still struggle to represent these structured, high-fidelity cognitive and social contexts. To bridge this gap, we introduce MirrorMind, a hierarchical cognitive architecture that integrates dual-memory representations within a three-level framework. The Individual Level constructs high-fidelity cognitive models of individual researchers by capturing their episodic, semantic, and persona memories; the Domain Level maps collective knowledge into structured disciplinary concept graphs; and the Interdisciplinary Level that acts as an orthogonal orchestration engine. Crucially, our architecture separates memory storage from agentic execution, enabling AI scientist agents to flexibly access individual memories for unique perspectives or collective structures to reason. We evaluate MirrorMind across four comprehensive tasks, including author-level cognitive simulation, complementary reasoning, cross-disciplinary collaboration promotion, and multi-agent scientific problem solving. The results show that by integrating individual cognitive depth with collective disciplinary breadth, MirrorMind moves beyond simple fact retrieval toward structural, personalized, and insight-generating scientific reasoning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2511.16997",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7778,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2511.16997"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T13:26:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Philipp J. Schneider",
+            "Lin Tian",
+            "Marian-Andrei Rizoiu"
+          ],
+          "title": "Learning to Make Friends: Coaching LLM Agents toward Emergent Social Ties",
+          "venue": "arXiv.org",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2510.19299",
+        "summary": "Can large language model (LLM) agents reproduce the complex social dynamics that characterize human online behavior -- shaped by homophily, reciprocity, and social validation -- and what memory and learning mechanisms enable such dynamics to emerge? We present a multi-agent LLM simulation framework in which agents repeatedly interact, evaluate one another, and adapt their behavior through in-context learning accelerated by a coaching signal. To model human social behavior, we design behavioral reward functions that capture core drivers of online engagement, including social interaction, information seeking, self-presentation, coordination, and emotional support. These rewards align agent objectives with empirically observed user motivations, enabling the study of how network structures and group formations emerge from individual decision-making. Our experiments show that coached LLM agents develop stable interaction patterns and form emergent social ties, yielding network structures that mirror properties of real online communities. By combining behavioral rewards with in-context adaptation, our framework establishes a principled testbed for investigating collective dynamics in LLM populations and reveals how artificial agents may approximate or diverge from human-like social behavior.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2510.19299",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5556,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2510.19299"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T13:26:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hanzhong Zhang",
+            "Muhua Huang",
+            "Jindong Wang"
+          ],
+          "title": "Computational Multi-Agents Society Experiments: Social Modeling Framework Based on Generative Agents",
+          "venue": "",
+          "year": 2025
+        },
+        "primary_pointer": "2508.17366",
+        "summary": "This paper introduces CMASE, a framework for Computational Multi-Agent Society Experiments that integrates generative agent-based modeling with virtual ethnographic methods to support researcher embedding, interactive participation, and mechanism-oriented intervention in virtual social environments. By transforming the simulation into a simulated ethnographic field, CMASE shifts the researcher from an external operator to an embedded participant. Specifically, the framework is designed to achieve three core capabilities: (1) enabling real-time human-computer interaction that allows researchers to dynamically embed themselves into the system to characterize complex social intervention processes; (2) reconstructing the generative logic of social phenomena by combining the rigor of computational experiments with the interpretative depth of traditional ethnography; and (3) providing a predictive foundation with causal explanatory power to make forward-looking judgments without sacrificing empirical accuracy. Experimental results show that CMASE can not only simulate complex phenomena, but also generate behavior trajectories consistent with both statistical patterns and mechanistic explanations. These findings demonstrate CMASE's methodological value for intervention modeling, highlighting its potential to advance interdisciplinary integration in the social sciences. The official code is available at: https://github.com/armihia/CMASE .",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2508.17366",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T13:26:03Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "social memory networks: modeling collective remembering in multi-agent llms",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

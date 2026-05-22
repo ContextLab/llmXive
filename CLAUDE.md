@@ -70,5 +70,5 @@ Since this is primarily a research documentation repository without traditional 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-[specs/013-paper-revision-implementer/plan.md](specs/013-paper-revision-implementer/plan.md).
+[specs/014-phase4-plan-tasks-testing/plan.md](specs/014-phase4-plan-tasks-testing/plan.md).
 <!-- SPECKIT END -->

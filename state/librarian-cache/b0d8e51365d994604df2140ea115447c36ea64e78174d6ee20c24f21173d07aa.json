@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-05-12T19:14:23Z",
+  "fetched_at": "2026-05-21T12:47:04Z",
   "field": "materials science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,15 +9,15 @@
       "idea_body_excerpt": "---\nfield: materials science\nsubmitter: google.gemma-3-27b-it\n---\n\n# Predicting the Glass Forming Region of Multi-Component Alloys via Machine Learning\n\n**Field**: materials science\n\n## Research question\n\nHow do atomic size mismatch and mixing enthalpy descriptors determine the boundaries of the glass-forming region in multi-component metallic systems?\n\n## Motivation\n\nExperimentally mapping the glass-forming region (GFR) for multi-component alloys requires extensive trial-and-error synthesis, which is resource-intensive and slow. While machine learning has been applied to glass-forming ability in oxide systems, its application to metallic multi-component alloys remains under-explored. This project addresses the gap by quantifying the relationship between compositional descriptors and glass stability to accelerate materials discovery.\n\n## Literature gap analysis\n\n### What we searched\n\nWe queried Semantic Scholar and arXiv using terms including \"machine learning glass forming ability,\" \"",
       "target_n": 5
     },
-    "duration_seconds": 472.984,
-    "ended_at": "2026-05-12T19:14:23Z",
+    "duration_seconds": 368.364,
+    "ended_at": "2026-05-21T12:47:04Z",
     "expansion": null,
     "extracted_queries": [
-      "atomic radius difference mixing enthalpy GFA",
-      "Zr Cu Ti bulk metallic glass",
-      "Inoue criteria critical cooling rate amorphous",
-      "critical casting thickness reduced glass transition",
-      "thermodynamic stability kinetic barrier deep eutectic"
+      "atomic size difference mixing enthalpy",
+      "high entropy alloys bulk metallic glasses",
+      "glass forming ability GFA criteria",
+      "critical casting thickness amorphous fraction",
+      "thermodynamic driving force kinetic suppression"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -31,16 +31,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "1505.06771"
+        "https://doi.org/10.1016/J.MATCHEMPHYS.2021.124241"
       ]
     },
     "per_query_hit_count": {
       "How do atomic size mismatch and mixing enthalpy descriptors determine the boundaries of the glass-forming region in multi-component metallic systems": 3,
-      "Inoue criteria critical cooling rate amorphous": 6,
-      "Zr Cu Ti bulk metallic glass": 6,
-      "atomic radius difference mixing enthalpy GFA": 6,
-      "critical casting thickness reduced glass transition": 6,
-      "thermodynamic stability kinetic barrier deep eutectic": 6
+      "atomic size difference mixing enthalpy": 6,
+      "critical casting thickness amorphous fraction": 6,
+      "glass forming ability GFA criteria": 5,
+      "high entropy alloys bulk metallic glasses": 6,
+      "thermodynamic driving force kinetic suppression": 6
     },
     "relevance_judge": {
       "enabled": true,
@@ -49,13 +49,13 @@
       "rejections": [
         {
           "primary_pointer": "2512.05895",
-          "rationale": "The paper focuses on ternary oxide glasses rather than the user's specified multi-component metallic systems, constituting a significant domain mismatch in materials science where the thermodynamic descriptors (e.g., mixing enthalpy vs. cohesive energy) and bonding physics differ substantially. Additionally, the paper identifies electronegativity and cohesive energy as primary features rather than validating mixing enthalpy, which is a central variable in the user's question.",
+          "rationale": "The paper focuses on ternary oxide glasses, which constitutes an off-domain mismatch for a question specifically about multi-component metallic systems; while both involve glass formation, the thermodynamic descriptors (e.g., mixing enthalpy) and physical mechanisms governing the glass-forming region differ significantly between oxides and metals.",
           "title": "A Machine Learning Framework for Predicting Glass-Forming Ability in Ternary Alloy Systems"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-05-12T19:06:30Z",
+    "started_at": "2026-05-21T12:40:56Z",
     "term_input": {
       "normalized": "how do atomic size mismatch and mixing enthalpy descriptors determine the boundaries of the glass-forming region in multi-component metallic systems",
       "raw": "How do atomic size mismatch and mixing enthalpy descriptors determine the boundaries of the glass-forming region in multi-component metallic systems"
@@ -148,7 +148,7 @@
           "primary_pointer": "1710.05833"
         },
         "details": "query-relevance 0.200 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Multi-messenger Observations of a Binary Neutron Star Merger')",
-        "failed_at": "2026-05-12T19:09:59Z",
+        "failed_at": "2026-05-21T12:42:35Z",
         "reason": "query_irrelevant"
       },
       {
@@ -156,15 +156,19 @@
           "backend": "semantic_scholar",
           "claimed_abstract": null,
           "claimed_authors": [
-            "Zbigniew Śniadecki"
+            "Y. Zhang",
+            "Y. J. Zhou",
+            "J. P. Lin",
+            "G. L. Chen",
+            "P. Liaw"
           ],
-          "claimed_title": "Influence of transition metal on glass formability of Y–TM–B (TM = Fe, Ni) system",
+          "claimed_title": "Solid‐Solution Phase Formation Rules for Multi‐component Alloys",
           "claimed_venue": "",
-          "claimed_year": 2014,
-          "primary_pointer": "https://doi.org/10.1016/J.JALLCOM.2013.12.051"
+          "claimed_year": 2008,
+          "primary_pointer": "https://doi.org/10.1002/ADEM.200700240"
         },
-        "details": "query-relevance 0.067 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Influence of transition metal on glass formability of Y–TM–B (TM = Fe, Ni) system')",
-        "failed_at": "2026-05-12T19:09:59Z",
+        "details": "query-relevance 0.133 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Solid‐Solution Phase Formation Rules for Multi‐component Alloys')",
+        "failed_at": "2026-05-21T12:42:38Z",
         "reason": "query_irrelevant"
       },
       {
@@ -183,7 +187,7 @@
           "primary_pointer": "1305.2313"
         },
         "details": "query-relevance 0.000 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Accelerated Thermalisation of 39K atoms in a Magnetic Trap with Superimposed Optical Potential')",
-        "failed_at": "2026-05-12T19:10:00Z",
+        "failed_at": "2026-05-21T12:42:38Z",
         "reason": "query_irrelevant"
       },
       {
@@ -201,57 +205,29 @@
           "primary_pointer": "physics/9902072"
         },
         "details": "query-relevance 0.000 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Optical dipole traps for neutral atoms')",
-        "failed_at": "2026-05-12T19:10:00Z",
+        "failed_at": "2026-05-21T12:42:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We give a pedagogical description of the method to extract the charge radii and Rydberg constant from laser spectroscopy in regular hydrogen (H) and deuterium (D) atoms, that is part of the CODATA least-squares adjustment (LSA) of the fundamental physical constants. We give a deuteron charge radius Rd from D spectroscopy alone of 2.1415(45) fm. This value is independent of the measurements that lead to the proton charge radius, and five times more accurate than the value found in the CODATA Adjustment 10. The improvement is due to the use of a value for the 1S->2S transition in atomic deuterium which can be inferred from published data or found in a PhD thesis.",
+          "claimed_abstract": "Numerical simulations of neutron star mergers represent an essential step toward interpreting the full complexity of multimessenger observations and constraining the properties of supranuclear matter. Currently, simulations are limited by an array of factors, including computational performance and input physics uncertainties, such as the neutron star equation of state. In this work, we expand the range of nuclear phenomenology efficiently available to simulations by introducing a new analytic parametrization of cold, beta-equilibrated matter that is based on the relativistic enthalpy. We show that the new \\emph{enthalpy parametrization} can capture a range of nuclear behavior, including strong phase transitions. We implement the enthalpy parametrization in the \\texttt{SpECTRE} code, simulate isolated neutron stars, and compare performance to the commonly used spectral and polytropic parametrizations. We find comparable computational performance for nuclear models that are well represented by either parametrization, such as simple hadronic EoSs. We show that the enthalpy parametrization further allows us to simulate more complicated hadronic models or models with phase transitions that are inaccessible to current parametrizations.",
           "claimed_authors": [
-            "Randolf Pohl",
-            "François Nez",
-            "Thomas Udem",
-            "Aldo Antognini",
-            "Axel Beyer",
-            "Hélène Fleurbaey",
-            "Alexey Grinin",
-            "Theodor W. Hänsch",
-            "Lucile Julien",
-            "Franz Kottmann",
-            "Julian J. Krauth",
-            "Lothar Maisenbacher",
-            "Arthur Matveev",
-            "François Biraben"
+            "Isaac Legred",
+            "Yoonsoo Kim",
+            "Nils Deppe",
+            "Katerina Chatziioannou",
+            "Francois Foucart",
+            "François Hébert",
+            "Lawrence E. Kidder"
           ],
-          "claimed_title": "Deuteron charge radius and Rydberg constant from spectroscopy data in atomic deuterium",
+          "claimed_title": "Simulating neutron stars with a flexible enthalpy-based equation of state parametrization in SpECTRE",
           "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1607.03165"
+          "claimed_year": 2023,
+          "primary_pointer": "2301.13818"
         },
-        "details": "query-relevance 0.067 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Deuteron charge radius and Rydberg constant from spectroscopy data in atomic deuterium')",
-        "failed_at": "2026-05-12T19:10:00Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "semantic_scholar",
-          "claimed_abstract": "The deformation behavior of metallic glasses has been shown in prior studies to be often dependent on its structural state, namely higher energy “rejuvenated” state versus lower energy “relaxed” state. Here, the deformation behavior of thermally rejuvenated Zr-Cu-Al-(Ti) bulk metallic glasses (BMGs) was evaluated. Rejuvenation was achieved by cryogenic thermal cycling with increase of free volume measured in terms of enthalpy of relaxation. Hardness, stiffness, and yield strength of the BMGs were all found to decrease while plasticity increased after rejuvenation. More free volume in the rejuvenated BMG resulted in homogeneous plastic deformation as was evident from the high strain rate sensitivity and more pronounced shear band multiplication during uniaxial compression. Shear transformation zone (STZ) volume was calculated by cooperative shear model and correlated well with the change in structural state after rejuvenation. The enhanced plasticity with the addition of 1 at. % Ti as well as after cryogenic thermal cycling was explained by lower activation energy for shear flow initiation due to increased heterogeneity induced in the system. Molecular dynamics simulation demonstrated that the variation in plastic deformation behavior is correlated with local atomic structure changes.",
-          "claimed_authors": [
-            "Nandita Ghodki",
-            "Shristy Jha",
-            "Siva Shankar Alla",
-            "Yu-Chia Yang",
-            "G. Pharr",
-            "S. Mukherjee"
-          ],
-          "claimed_title": "Deformation behavior of thermally rejuvenated Zr-Cu-Al-(Ti) bulk metallic glass",
-          "claimed_venue": "Scientific Reports",
-          "claimed_year": 2024,
-          "primary_pointer": "https://doi.org/10.1038/s41598-024-71658-y"
-        },
-        "details": "query-relevance 0.267 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Deformation behavior of thermally rejuvenated Zr-Cu-Al-(Ti) bulk metallic glass')",
-        "failed_at": "2026-05-12T19:10:00Z",
+        "details": "query-relevance 0.067 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Simulating neutron stars with a flexible enthalpy-based equation of state parametrization in SpECTRE')",
+        "failed_at": "2026-05-21T12:42:38Z",
         "reason": "query_irrelevant"
       },
       {
@@ -259,413 +235,411 @@
           "backend": "semantic_scholar",
           "claimed_abstract": null,
           "claimed_authors": [
-            "Hongqi Shi",
-            "Hao Zhou",
-            "Zheng-you Zhou",
-            "Yi Ding",
-            "Wenjuan Liu",
-            "Jin-Long Ji"
+            "Yin Du",
+            "Zhou Qing",
+            "W. Haifeng"
           ],
-          "claimed_title": "Improved mechanical properties and corrosion resistance of Zr-Cu-Al-Ni-Ti bulk metallic glass by Fe substitution for Ni",
-          "claimed_venue": "Journal of Non-Crystalline Solids",
+          "claimed_title": "High-Entropy Alloys: Bulk Metallic Glasses",
+          "claimed_venue": "",
+          "claimed_year": 2020,
+          "primary_pointer": "https://doi.org/10.1016/b978-0-12-819726-4.00025-9"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='High-Entropy Alloys: Bulk Metallic Glasses')",
+        "failed_at": "2026-05-21T12:42:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Tougher, lighter, and more formable and machinable metals for broader ranges of applications at higher temperatures are needed now more than ever. High-performance computing, high-resolution microscopy, and advanced spectroscopy methods, including neutrons and synchrotron x-rays, together with advances in metallurgy and metal mixology, reveal the potential of multicomponent advanced metals, such as multicomponent bulk metallic glasses and advanced high-entropy alloys. The development of new experimental approaches relates bulk properties and voxel-associated optimized properties throughout structures with high resolution. The correlations from in situ measurements greatly improve crystal plasticity-based models. This issue of MRS Bulletin overviews recent progress in the field, and this article highlights the importance of these new perspectives. The latest progress and directions in the science and technology for prospective high-temperature metals for structural applications are reported.",
+          "claimed_authors": [
+            "E. Huang",
+            "P. Liaw"
+          ],
+          "claimed_title": "High-temperature materials for structural applications: New perspectives on high-entropy alloys, bulk metallic glasses, and nanomaterials",
+          "claimed_venue": "MRS bulletin",
+          "claimed_year": 2019,
+          "primary_pointer": "https://doi.org/10.1557/mrs.2019.257"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='High-temperature materials for structural applications: New perspectives on high-entropy alloys, bulk metallic glasses, and nanomaterials')",
+        "failed_at": "2026-05-21T12:42:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "This paper describes high-entropy alloys (HEAs), bulk metallic glasses (BMGs) and high-entropy bulk metallic glasses (HEBMGs) for their alloy design based on the quantities corresponding to the difference in atomic size and heat of mixing. The contents started with describing the differences between HEAs and BMGs, followed by the features of HEBMGs by focusing on the universalities underlying these three alloys. The significance of thermodynamics with ability to describe the necessary quantities for designing these alloys as a function of alloy composition was argued by referring to the early studies. Furthermore, future prospects of these alloys in terms of alloy design are described for their further progress in researches. [doi:10.2320/jinstmet.J2014046]",
+          "claimed_authors": [
+            "A. Takeuchi"
+          ],
+          "claimed_title": "Alloy Designs for High-Entropy Alloys, Bulk Metallic Glasses and High-Entropy Bulk Metallic Glasses",
+          "claimed_venue": "",
+          "claimed_year": 2015,
+          "primary_pointer": "https://doi.org/10.2320/jinstmet.J2014046"
+        },
+        "details": "query-relevance 0.267 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Alloy Designs for High-Entropy Alloys, Bulk Metallic Glasses and High-Entropy Bulk Metallic Glasses')",
+        "failed_at": "2026-05-21T12:42:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We have investigated the plastic deformation properties of non-equiatomic single phase Zr-Nb-Ti-Ta-Hf high-entropy alloys from room temperature up to 300 °C. Uniaxial deformation tests at a constant strain rate of 10$^{-4}$ s$^{-1}$ were performed including incremental tests such as stress-relaxations, strain-rate- and temperature changes in order to determine the thermodynamic activation parameters of the deformation process. The microstructure of deformed samples was characterized by transmission electron microscopy. The strength of the investigated Zr-Nb-Ti-Ta-Hf phase is not as high as the values frequently reported for high-entropy alloys in other systems. We find an activation enthalpy of about 1 eV and a stress dependent activation volume between 0.5 and 2 nm$^3$. The measurement of the activation parameters at higher temperatures is affected by structural changes evolving in the material during plastic deformation.",
+          "claimed_authors": [
+            "M. Feuerbacher",
+            "M. Heidelmann",
+            "C. Thomas"
+          ],
+          "claimed_title": "Plasticity of Zr-Nb-Ti-Ta-Hf high-entropy alloys",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1401.3997"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Plasticity of Zr-Nb-Ti-Ta-Hf high-entropy alloys')",
+        "failed_at": "2026-05-21T12:42:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Introductory chapter for the book \"Halfmetallic Alloys - Fundamentals and Applications\" to be published in the series Springer Lecture Notes on Physics, P. H. Dederichs and I. Galanakis (eds). It contains a review of the theoretical work on the half-metallic Heusler alloys.",
+          "claimed_authors": [
+            "I. Galanakis",
+            "P. H. Dederichs"
+          ],
+          "claimed_title": "Half-metallicity and Slater-Pauling behavior in the ferromagnetic Heusler alloys",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "cond-mat/0408068"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Half-metallicity and Slater-Pauling behavior in the ferromagnetic Heusler alloys')",
+        "failed_at": "2026-05-21T12:42:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This chapter introduces the use of X-ray absorption spectroscopy (XAS) in studying the local electronic and atomic structure of high-entropy materials. The element selectivity of XAS makes it particularly suitable to address the challenges posed by the study of multicomponent compounds. By analysing different parts of the X-ray absorption spectra for each element, one can obtain information on its chemical state from the X-ray absorption near-edge structure (XANES) and its local environment, distortions, and lattice dynamics from the extended X-ray absorption fine structure (EXAFS). The theoretical background underlying X-ray absorption spectra and existing data analysis procedures are briefly described, with particular emphasis on advanced atomistic modelling techniques that enable more reliable extraction of structural information. Finally, an overview of the applications of the XAS technique in studying high-entropy materials is presented.",
+          "claimed_authors": [
+            "Alexei Kuzmin"
+          ],
+          "claimed_title": "6 -- X-ray absorption spectroscopy in high-entropy material research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.05944"
+        },
+        "details": "query-relevance 0.067 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='6 -- X-ray absorption spectroscopy in high-entropy material research')",
+        "failed_at": "2026-05-21T12:42:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Lu Ke"
+          ],
+          "claimed_title": "STRUCTURE AND GLASS FORMING ABILITY(GFA)OF AMORPHOUS ALLOYS",
+          "claimed_venue": "",
+          "claimed_year": 1992,
+          "primary_pointer": "https://www.semanticscholar.org/paper/8466daeb41453415671c9f7c3ad0b5f8673266b6"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='STRUCTURE AND GLASS FORMING ABILITY(GFA)OF AMORPHOUS ALLOYS')",
+        "failed_at": "2026-05-21T12:42:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "A series of Zr-based glasses has been obtained by rapid melt quenching and their thermal characteristics ( T _g, T _x, T _l) were determined by DSC/DTA. Some of the most recognized glass forming ability (GFA) criteria were applied to predict the glass forming ability of the alloys and to study its dependence on the alloy composition. As a result, the best glass forming compositions among the studied alloys could be selected. It was found that as a general trend an increase of the Zr content results in T _x and Δ T _x (=  T _x −  T _g) decrease. The determined liquidus temperatures of chosen compositions with substantially different Δ T _x were found to vary relatively little. Therefore, it was concluded that the variation in the GFA of the studied alloys is mainly due to difficulties in the crystallization process, rather than to different stability of the melts.",
+          "claimed_authors": [
+            "L. Lyubenova",
+            "V. Rangelova",
+            "M. Spassova",
+            "T. Spassov"
+          ],
+          "claimed_title": "Glass forming ability of Zr-based Zr–Cu–Ni–Al–(Ag) alloys",
+          "claimed_venue": "Journal of Thermal Analysis and Calorimetry",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.1007/s10973-023-12044-0"
+        },
+        "details": "query-relevance 0.133 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Glass forming ability of Zr-based Zr–Cu–Ni–Al–(Ag) alloys')",
+        "failed_at": "2026-05-21T12:42:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Metallic glasses (MGs) are widely used in various fields due to their superior physical properties. Glass-forming ability (GFA) represents the difficulty of forming MGs. Therefore, understanding and establishing the connection between materials characteristics and GFA is a great challenge in MGs research. In this work, to generate a new criterion to characterize GFA, symbolic regression and artificial neural network (ANN) were employed built on 7795 pieces of data. A completely new criterion was proposed and revealed the relationship between three characteristic temperatures (wherein Tg is the glass transition temperature, Tx is the onset crystallization temperature, and Tl is the liquidus temperature) and GFA. The new criterion not only exhibits a higher correlation to the critical casting diameter ( Dmax) than the other 11 reported criteria but also illustrates the importance of high power ( Tx  −  Tg)/( Tl  −  Tx) in characterizing GFA. Moreover, to test the criterion on unreported data, three models that can, respectively, perform GFA classification, predict Dmax, and three characteristic temperatures were built through artificial neural networks. Then, 439 new data generated by the ANN model were generated by models applied on Zr–Co–Al–X (X = W, Si, and Ni) alloys. On the testing data, the new criterion shows stronger generalization than other criteria, which proves its reliability and effectiveness.",
+          "claimed_authors": [
+            "Baofeng Tan",
+            "Yong-chao Liang",
+            "Qian Chen",
+            "Li Zhang",
+            "Jiawei Ma"
+          ],
+          "claimed_title": "Discovery of a new criterion for predicting glass-forming ability based on symbolic regression and artificial neural network",
+          "claimed_venue": "Journal of Applied Physics",
           "claimed_year": 2022,
-          "primary_pointer": "https://doi.org/10.1016/j.jnoncrysol.2021.121246"
+          "primary_pointer": "https://doi.org/10.1063/5.0105445"
         },
-        "details": "query-relevance 0.133 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Improved mechanical properties and corrosion resistance of Zr-Cu-Al-Ni-Ti bulk metallic glass by Fe substitution for Ni')",
-        "failed_at": "2026-05-12T19:10:00Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "semantic_scholar",
-          "claimed_abstract": null,
-          "claimed_authors": [
-            "Hao Su",
-            "Wenqi Chen",
-            "Xiaohui Yang",
-            "Shuyan Zhang",
-            "Tuo Wang"
-          ],
-          "claimed_title": "Tailoring the structural heterogeneity and plasticity of Zr-Cu-Ni-Al-Ti bulk metallic glass by controlling the molten temperature",
-          "claimed_venue": "Journal of Alloys and Compounds",
-          "claimed_year": 2026,
-          "primary_pointer": "https://doi.org/10.1016/j.jallcom.2026.187491"
-        },
-        "details": "query-relevance 0.133 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Tailoring the structural heterogeneity and plasticity of Zr-Cu-Ni-Al-Ti bulk metallic glass by controlling the molten temperature')",
-        "failed_at": "2026-05-12T19:10:00Z",
+        "details": "query-relevance 0.200 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Discovery of a new criterion for predicting glass-forming ability based on symbolic regression and artificial neural network')",
+        "failed_at": "2026-05-21T12:42:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Metallic glasses deform elastically under stress. However, the atomic-level origin of elastic properties of metallic glasses remain unclear. In this paper using {\\em ab initio} molecular dynamics simulations of the Cu$_{50}$Zr$_{50}$ metallic glass under shear strain, we show that the heterogeneous stress relaxation results in the increased charge transfer from Zr to Cu atoms, enhancing the softening of the shear modulus. Changes in compositional short-range order and atomic position shifts due to the non-affine deformation are discussed. It is shown that the Zr subsystem exhibits a stiff behavior, whereas the displacements of Cu atoms from their initial positions, induced by the strain, provide the stress drop and softening.",
+          "claimed_abstract": "Glass forming ability (GFA) is a property of utmost importance in glass science and technology. In this paper, we used a statistical methodology---involving bootstrap sampling and the Wilcoxon test---to find out which glass stability parameters can better predict the glass forming ability. We collected or measured the necessary data for twelve stoichiometric oxide glasses that underwent predominant heterogeneous nucleation (the most common case). We found that some GS parameters could predict the GFA of these oxide glasses quite well, whereas others perform poorly. Parameter $K_w$ was the top ranked, closely followed by the $K_H$, $γ$, $H^{'}$, $ΔT_{rg}$, and $K_{cr}$. Our results corroborate previous reports carried out using a smaller number of glasses, much less GS parameters, and less rigorous statistics. We also found that using $T_c$ instead of $T_x$ improved the predictive power of these parameters. Finally, the Jezica, the only parameter considered here that predicts the GFA without requiring the production of a glass piece (i.e., without relying on any crystallization information), ranked reasonably well in our analysis.",
           "claimed_authors": [
-            "I. Lobzenko",
-            "Y. Shiihara",
-            "T. Iwashita"
+            "Jeanini Jiusti",
+            "Daniel R. Cassar",
+            "Edgar D. Zanotto"
           ],
-          "claimed_title": "Local stress analysis in Cu$_{50\\%}$Zr$_{50\\%}$ metallic glass under shear strain by means of first principle modeling",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1811.01223"
-        },
-        "details": "query-relevance 0.200 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Local stress analysis in Cu$_{50\\\\%}$Zr$_{50\\\\%}$ metallic glass under shear strain by means of first principle modeling')",
-        "failed_at": "2026-05-12T19:10:00Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In this work, the single-component Cu metallic glass was fabricated by the physical vapor deposition on the Zr (0001) crystal substrate at 100 K using the classical molecular dynamic simulation. The same deposition process was performed on the Cu (1 0 0) and Ni (1 0 0) crystal substrate for comparison, only the Cu crystal deposited layer with the fcc structure can be obtained. When depositing the Cu atoms on the Zr substrate at 300 K, the crystal structure was formed, which indicates that except the suitable substrate, low temperature is also a key factor for the amorphous structure formation. The Cu liquid quenching from 2000 K to 100 K were also simulated with the cooling rate 1012 K/s to form the Cu glass film in this work. The Cu metallic glass from the two different processes (physical vapor deposition and rapid thermal quenching from liquid) revealed the same radial distribution function and X-ray diffraction pattern, but the different microstructure from the coordination number and Voronoi tessellation analysis.",
-          "claimed_authors": [
-            "Yang Yu",
-            "Yunyun Chen",
-            "Fenping Cui"
-          ],
-          "claimed_title": "Molecular dynamics simulation of fabrication of Cu mono-component metallic glass by physical vapor deposition on Zr substrate",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1607.05950"
-        },
-        "details": "query-relevance 0.200 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Molecular dynamics simulation of fabrication of Cu mono-component metallic glass by physical vapor deposition on Zr substrate')",
-        "failed_at": "2026-05-12T19:10:00Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Understanding the formation of bulk metallic glasses (BMG) in metallic systems and finding a reliable criterion for selection of BMG compositions are among the most important issues in condensed matter physics and material science. Using the results of magnetic susceptibility measurements performed on both amorphous and crystallized Cu-Hf alloys (30-70 at% Cu) we find a correlation between the difference in magnetic susceptibilities of corresponding glassy and crystalline alloys and the variation in the glass forming ability (GFA) in these alloys. Since the same correlation can be inferred from data for the properties associated with the electronic structure of Cu-Zr alloys, it seems quite general and may apply to other glassy alloys based on early and late transition metals. This correlation is plausible from the free energy considerations and provides a simple way to select the compositions with high GFA.",
-          "claimed_authors": [
-            "Ramir Ristić",
-            "Krešo Zadro",
-            "Damir Pajić",
-            "Ignacio A. Figueroa",
-            "Emil Babić"
-          ],
-          "claimed_title": "On the origin of bulk glass forming ability in Cu-Hf, Zr alloys",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1601.07397"
-        },
-        "details": "query-relevance 0.267 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='On the origin of bulk glass forming ability in Cu-Hf, Zr alloys')",
-        "failed_at": "2026-05-12T19:10:00Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "semantic_scholar",
-          "claimed_abstract": null,
-          "claimed_authors": [
-            "Z. Long",
-            "Hongqing Wei",
-            "Yanhua Ding",
-            "Ping Zhang",
-            "G. Xie",
-            "A. Inoue"
-          ],
-          "claimed_title": "A new criterion for predicting the glass-forming ability of bulk metallic glasses",
-          "claimed_venue": "",
-          "claimed_year": 2009,
-          "primary_pointer": "https://doi.org/10.1016/J.JALLCOM.2008.07.087"
-        },
-        "details": "query-relevance 0.200 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='A new criterion for predicting the glass-forming ability of bulk metallic glasses')",
-        "failed_at": "2026-05-12T19:10:00Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "semantic_scholar",
-          "claimed_abstract": null,
-          "claimed_authors": [
-            "C. Suryanarayana",
-            "A. Inoue"
-          ],
-          "claimed_title": "Bulk Metallic Glasses",
-          "claimed_venue": "",
-          "claimed_year": 2010,
-          "primary_pointer": "https://doi.org/10.1201/9781420085976"
-        },
-        "details": "query-relevance 0.067 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Bulk Metallic Glasses')",
-        "failed_at": "2026-05-12T19:10:00Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We consider a situation in which a brightest cluster galaxy (BCG) moves in ambient hot gas in the central region of a cool core cluster of galaxies, following the study by Inoue (2014, PASJ, 66, 60). In the rest frame of the BCG, the hot gas is supposed to flow toward the BCG in parallel from a sufficiently large distance. Then, it is expected that only the gas flowing with the impact parameter less than a critical value is trapped by the gravitation field of the BCG because of the efficient radiative cooling, getting a cooling flow, and that the remaining outer gas can get over the potential well. In such a circumstance, we can draw the following picture: A boundary layer between the out-flowing gas and the trapped gas arises around the stagnation point at the back side of the BCG. Since the boundary temperature is so low as to be X-ray dim, the boundary could be observed as the cold front in X-rays. The trapped gas once stagnates on the inner side of the boundary and starts in-falling toward the BCG. Since the wandering motion of the BCG is likely to have a rotational component, the Coriolis force induces a rotational motion in the in-falling flow from the stagnation place to the BCG, forming a spiral structure around the BCG. The spiraling flow turns the BCG on the up stream side of the main flow from the far outside, and arises another boundary layer having contact discontinuity with the main hot gas flow. These pictures well reproduce the observed features such as cool cores, cold fronts, and spiral structures. It can also be resolved how the cooling flow is suppressed from what the cooling flow hypothesis predicts, without any heating mechanism.",
-          "claimed_authors": [
-            "Hajime Inoue"
-          ],
-          "claimed_title": "Origin of cool cores, cold fronts and spiral structures in cool core clusters of galaxies",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2112.10940"
-        },
-        "details": "query-relevance 0.200 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Origin of cool cores, cold fronts and spiral structures in cool core clusters of galaxies')",
-        "failed_at": "2026-05-12T19:10:00Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We prove that any Inoue surface admits a unique holomorphic connection. Using this result we show that two Inoue surfaces $S=H\\times\\mathbb{C}/G$, $S'=H\\times\\mathbb{C}/G'$ are biholomorphic if and only if $G$, $G'$ are conjugate in the group of affine transformations of $H\\times\\mathbb{C}$. This result allows us to prove explicit classification theorems for Inoue surfaces: Let $\\mathcal{M}$ be the set of ${\\rm SL}(3,\\mathbb{Z})$-matrices $M$ with a real eigenvalue $α>1$ and two non-real eigenvalues, and $\\mathcal{N}^\\pm $ the set of ${\\rm GL}(2,\\mathbb{Z})$-matrices $N$ with a real eigenvalue $α>1$ and $\\det(N)=\\pm 1$.\n  We prove that:\n  For any ${\\rm GL}(3,\\mathbb{Z})$-similarity class $\\mathfrak{M}\\in \\mathcal{M}/\\sim$, there exists exactly two biholomorphism classes of type I Inoue surfaces.\n  For any ${\\rm GL}(2,\\mathbb{Z})$ similarity class $\\mathfrak{N}=[N]\\in \\mathcal{N}^+/\\sim$ and positive integer $r\\in\\mathbb{N}^*$, we have a finite set of deformation classes of type II Inoue surfaces. This set is parameterised by the quotient of $\\mathbb{Z}^2/(I_2-N)\\mathbb{Z}^2+r\\mathbb{Z}^2$ by an action of the \"positive centraliser\" $Z^+_{{\\rm GL}(2,\\mathbb{Z})}(N)$ of $N$ in ${\\rm GL}(2,\\mathbb{Z})$. The set of biholomorphism types corresponding to a deformation class, endowed with its natural topology, can be identified with either $\\mathbb{C}^*$ or $\\mathbb{C}$.\n  For any ${\\rm GL}(2,\\mathbb{Z})$-similarity class $\\mathfrak{N}=[N]\\in \\mathcal{N}^-/\\sim$ and positive integer $r\\in\\mathbb{N}^*$, we have a finite set of biholomorphism classes of type III Inoue surfaces. This set is parameterised by the quotient of $\\mathbb{Z}^2/(I_2+N)\\mathbb{Z}^2+r\\mathbb{Z}^2$ by an action of $Z^+_{{\\rm GL}(2,\\mathbb{Z})}(N)$.\n  In both cases the group $Z^+_{{\\rm GL}(2,\\mathbb{Z})}(N)$ is infinite cyclic (see section 5).",
-          "claimed_authors": [
-            "Zahraa Khaled",
-            "Andrei Teleman"
-          ],
-          "claimed_title": "On the classification of Inoue surfaces",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2406.15158"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='On the classification of Inoue surfaces')",
-        "failed_at": "2026-05-12T19:10:00Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Amorphous complexions in nanocrystalline metals have the potential to improve mechanical properties and radiation tolerance, as well as resistance to grain growth. In this study, the stability of amorphous complexions in binary and ternary Cu-based alloys is investigated by observing the effect of cooling rate from high temperature on the occurrence of amorphous-to-ordered complexion transitions. Bulk Cu-Zr and Cu-Zr-Hf alloy samples were annealed to induce boundary premelting and then quenched through a procedure that induces a gradient of local cooling rate through the sample height. Amorphous complexion thickness distributions were found to be invariant to local cooling rate in the Cu-Zr-Hf alloy, demonstrating enhanced stability of the amorphous complexion structure compared to the Cu-Zr alloy, which had thinner amorphous complexions in the regions that were slowly cooled. The experimental results are used to construct time-temperature-transformation diagrams of the amorphous-to-ordered complexion transition for both the binary and ternary alloys, enabling a deeper understanding of the influence of cooling rate and grain boundary chemistry on complexion transitions. The critical cooling rate necessary to avoid complexion transitions in the ternary alloy is found to be at least three orders of magnitude slower than that for the binary alloy.",
-          "claimed_authors": [
-            "Charlette M. Grigorian",
-            "Timothy J. Rupert"
-          ],
-          "claimed_title": "Critical cooling rates for amorphous-to-ordered complexion transitions in Cu-rich nanocrystalline alloys",
+          "claimed_title": "Which glass stability parameters can assess the glass-forming ability of oxide systems?",
           "claimed_venue": "arXiv",
           "claimed_year": 2020,
-          "primary_pointer": "2008.00292"
+          "primary_pointer": "2001.01113"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Critical cooling rates for amorphous-to-ordered complexion transitions in Cu-rich nanocrystalline alloys')",
-        "failed_at": "2026-05-12T19:10:00Z",
+        "details": "query-relevance 0.200 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Which glass stability parameters can assess the glass-forming ability of oxide systems?')",
+        "failed_at": "2026-05-21T12:42:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
-          "backend": "semantic_scholar",
-          "claimed_abstract": "Abstract A correlation between the change in magnetic susceptibility (Δχexp) upon crystallisation of Cu–Zr and Hf metallic glasses (MG) with their glass forming ability (GFA) observed recently, is found to apply to Cu–Ti and Zr–Ni alloys, too. In particular, small Δχexp, which reflects similar electronic structures, ES, of glassy and corresponding crystalline alloys, corresponds to high GFA. Here, we studied Δχexp for five Cu–Ti and four Cu–Zr and Ni–Zr MGs. The fully crystalline final state of all alloys was verified from X-ray diffraction patterns. The variation of GFA with composition in Cu–Ti, Cu–Zr and Cu–Hf MGs was established from the variation of the corresponding critical casting thickness, dc. Due to the absence of data for dc in Ni–Zr MGs their GFA was described using empirical criteria, such as the reduced glass transition temperature. A very good correlation between Δχexp and dc (and/or other criteria for GFA) was observed for all alloys studied. The correlation between the ES and GFA showed up best for Cu–Zr and NiZr2 alloys where direct data for the change in ES (ΔES) upon crystallisation are available. The applicability of the Δχexp (ΔES) criterion for high GFA (which provides a simple way to select the compositions with high GFA) to other metal-metal MGs (including ternary and multicomponent bulk MGs) is briefly discussed.",
+          "backend": "arxiv",
+          "claimed_abstract": "We explore the use of characteristic temperatures derived from molecular dynamics to predict aspects of metallic Glass Forming Ability (GFA). Temperatures derived from cooling curves of self-diffusion, viscosity, and energy were used as features for machine learning models of GFA. Multiple target and model combinations with these features were explored. First, we use the logarithm of critical casting thickness, $log_{10}(D_{max})$, as the target and trained regression models on 21 compositions. Application of 3-fold cross-validation on the 21 $log_{10}(D_{max})$ alloys showed only weak correlation between the model predictions and the target values. Second, the GFA of alloys were quantified by melt-spinning or suction casting amorphization behavior, with alloys that showed crystalline phases after synthesis classified as Poor GFA and those with pure amorphous phases as Good GFA. Binary GFA classification was then modeled using decision tree-based methods (random forest and gradient boosting models) and were assessed with nested-cross validation. The maximum F1 score for the precision-recall with Good Glass Forming Ability as the positive class was $0.82 \\pm 0.01$ for the best model type. We also compared using simple functions of characteristic temperatures as features in place of the temperatures themselves and found no statistically significant difference in predictive abilities. Although the predictive ability of the models developed here are modest, this work demonstrates clearly that one can use molecular dynamics simulations and machine learning to predict metal glass forming ability.",
           "claimed_authors": [
-            "Emil Babić",
-            "R. Ristić",
-            "I. Figueroa",
-            "D. Pajić",
-            "Ž. Skoko",
-            "K. Zadro"
+            "Lane E. Schultz",
+            "Benjamin Afflerbach",
+            "Izabela Szlufarska",
+            "Dane Morgan"
           ],
-          "claimed_title": "Electronic structure and glass forming ability in early and late transition metal alloys",
-          "claimed_venue": "",
-          "claimed_year": 2017,
-          "primary_pointer": "https://doi.org/10.1080/14786435.2017.1415467"
+          "claimed_title": "Molecular Dynamic Characteristic Temperatures for Predicting Metallic Glass Forming Ability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.13342"
         },
-        "details": "query-relevance 0.200 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Electronic structure and glass forming ability in early and late transition metal alloys')",
-        "failed_at": "2026-05-12T19:10:00Z",
+        "details": "query-relevance 0.200 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Molecular Dynamic Characteristic Temperatures for Predicting Metallic Glass Forming Ability')",
+        "failed_at": "2026-05-21T12:42:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "semantic_scholar",
-          "claimed_abstract": null,
+          "claimed_abstract": "Abstract Fe-based bulk metallic glasses (BMG) are of increasing research interest, driven in part by a unique combination of mechanical, magnetic and chemical properties. However, the maximum thickness and geometry of BMGs achievable in traditional manufacturing processes is limited. This work examines the capabilities of laser based powder bed additive manufacturing (AM) to produce relatively large Fe-based bulk metallic glass specimens. AM fabricated specimens exceed the critical casting thickness of the material by a factor of 15 or more in all dimensions. Resulting microstructural and mechanical properties are reported. Despite decreasing quench effect with increasing build thickness, X-ray diffraction analysis suggests that a fully amorphous structure was maintained throughout the build. However, a low concentration of sparsely distributed nano-grain clusters was discovered using a high-resolution electron backscatter diffraction scan. The results pave the way for novel applications of metallic glasses achievable through appropriate material design and optimization of existing additive manufacturing processes.",
           "claimed_authors": [
-            "L. Xia",
-            "C. Jo",
-            "Y. Dong"
+            "Z. Mahbooba",
+            "L. Thorsson",
+            "M. Unosson",
+            "P. Skoglund",
+            "H. West",
+            "T. Horn",
+            "C. Rock",
+            "E. Vogli",
+            "O. Harrysson"
           ],
-          "claimed_title": "GLASS FORMING ABILITY OF HARD MAGNETIC Nd55Al20Fe25 BULK GLASSY ALLOY WITH DISTINCT GLASS TRANSITION",
-          "claimed_venue": "",
-          "claimed_year": 2005,
-          "primary_pointer": "https://doi.org/10.1142/S021797920503219X"
+          "claimed_title": "Additive manufacturing of an iron-based bulk metallic glass larger than the critical casting thickness",
+          "claimed_venue": "Applied Materials Today",
+          "claimed_year": 2018,
+          "primary_pointer": "https://doi.org/10.1016/J.APMT.2018.02.011"
         },
-        "details": "query-relevance 0.133 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='GLASS FORMING ABILITY OF HARD MAGNETIC Nd55Al20Fe25 BULK GLASSY ALLOY WITH DISTINCT GLASS TRANSITION')",
-        "failed_at": "2026-05-12T19:10:00Z",
+        "details": "query-relevance 0.133 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Additive manufacturing of an iron-based bulk metallic glass larger than the critical casting thickness')",
+        "failed_at": "2026-05-21T12:42:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "semantic_scholar",
-          "claimed_abstract": null,
+          "claimed_abstract": "New Ni-based bulk metallic glasses were synthesized in NixCua−xTiyZrb−yAl10 (a~b~45 at.%) system, based on a ternary alloy, Ni45Ti20Zr35. The additions of Al and Cu greatly increase the glass-forming ability (GFA). The best GFA is located around Ni40Cu5Ti16.5Zr28.5Al10, from which fully amorphous samples of up to 5 mm thickness were successfully fabricated by an injection mold casting method. These alloys exhibit high glass-transition temperatures Tg ~ 760 to 780 K, and relatively wide undercooled-liquid regions ΔT (defined by the difference between Tg and the first crystallization temperature Tx1 upon heating) ~ 40–50 K. Mechanical tests on these alloys show quite high Vicker's Hardness ~ 780 to 862 kg/mm^2, Young's modulus ~ 111 to 134 GPa, shear modulus ~ 40 to 50 GPa and high fracture strength ~ 2.3 to 2.4 GPa. The effect of small Si-addition and a discrepancy between GFA and ΔT are also reported. The exceptional GFA and the all-metallic compositions give these new alloys excellent promise for both scientific and engineering applications.",
           "claimed_authors": [
             "Donghua Xu",
-            "B. Lohwongwatana",
             "G. Duan",
             "W. Johnson",
             "C. Garland"
           ],
-          "claimed_title": "Bulk metallic glass formation in binary Cu-rich alloy series – Cu100−xZrx (x=34, 36, 38.2, 40 at.%) and mechanical properties of bulk Cu64Zr36 glass",
+          "claimed_title": "Formation and properties of new Ni-based amorphous alloys with critical casting thickness up to 5 mm",
           "claimed_venue": "",
           "claimed_year": 2004,
-          "primary_pointer": "https://doi.org/10.1016/J.ACTAMAT.2004.02.009"
+          "primary_pointer": "https://doi.org/10.1016/J.ACTAMAT.2004.04.001"
         },
-        "details": "query-relevance 0.133 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Bulk metallic glass formation in binary Cu-rich alloy series – Cu100−xZrx (x=34, 36, 38.2, 40 at.%) and mechanical properties of bulk Cu64Zr36 glass')",
-        "failed_at": "2026-05-12T19:10:00Z",
+        "details": "query-relevance 0.200 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Formation and properties of new Ni-based amorphous alloys with critical casting thickness up to 5 mm')",
+        "failed_at": "2026-05-21T12:42:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We provide here a brief perspective on the glass transition field. It is an assessment, written from the point of view of theory, of where the field is and where it seems to be heading. We first give an overview of the main phenomenological characteristics, or \"stylised facts\", of the glass transition problem, i.e. the central observations that a theory of the physics of glass formation should aim to explain in a unified manner. We describe recent developments, with a particular focus on real space properties, including dynamical heterogeneity and facilitation, the search for underlying spatial or structural correlations, and the relation between the thermal glass transition and athermal jamming. We then discuss briefly how competing theories of the glass transition have adapted and evolved to account for such real space issues. We consider in detail two conceptual and methodological approaches put forward recently, that aim to access the fundamental critical phenomenon underlying the glass transition, be it thermodynamic or dynamic in origin, by means of biasing of ensembles, of configurations in the thermodynamic case, or of trajectories in the dynamic case. We end with a short outlook.",
+          "claimed_abstract": "The Critical Assessment of Genome Interpretation (CAGI) aims to advance the state of the art for computational prediction of genetic variant impact, particularly those relevant to disease. The five complete editions of the CAGI community experiment comprised 50 challenges, in which participants made blind predictions of phenotypes from genetic data, and these were evaluated by independent assessors. Overall, results show that while current methods are imperfect, they have major utility for research and clinical applications. Missense variant interpretation methods are able to estimate biochemical effects with increasing accuracy. Performance is particularly strong for clinical pathogenic variants, including some difficult-to-diagnose cases, and extends to interpretation of cancer-related variants. Assessment of methods for regulatory variants and complex trait disease risk is less definitive, and indicates performance potentially suitable for auxiliary use in the clinic. Emerging methods and increasingly large, robust datasets for training and assessment promise further progress ahead.",
           "claimed_authors": [
-            "Giulio Biroli",
-            "Juan P. Garrahan"
+            "The Critical Assessment of Genome Interpretation Consortium"
           ],
-          "claimed_title": "Perspective: The Glass Transition",
+          "claimed_title": "CAGI, the Critical Assessment of Genome Interpretation, establishes progress and prospects for computational genetic variant interpretation methods",
           "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1303.3542"
+          "claimed_year": 2022,
+          "primary_pointer": "2205.05897"
         },
-        "details": "query-relevance 0.067 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Perspective: The Glass Transition')",
-        "failed_at": "2026-05-12T19:10:00Z",
+        "details": "query-relevance 0.000 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='CAGI, the Critical Assessment of Genome Interpretation, establishes progress and prospects for computational genetic variant interpretation methods')",
+        "failed_at": "2026-05-21T12:42:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Most of the liquid-state theories, including glass-transition theories, are constructed on the basis of two-body density correlations. However, we have recently shown that many-body correlations, in particular bond orientational correlations, play a key role in both the glass transition and the crystallization transition. Here we show, with numerical simulations of supercooled polydisperse hard spheres systems, that the lengthscale associated with any two-point spatial correlation function does not increase toward the glass transition. A growing lengthscale is instead revealed by considering many-body correlation functions, such as correlators of orientational order, which follows the lengthscale of the dynamic heterogeneities. Despite the growing of crystal-like bond orientational order, we reveal that the stability against crystallization with increasing polydispersity is due to an increasing population of icosahedral arrangements of particles. Our results suggest that, for this type of systems, many-body correlations are a manifestation of the link between the vitrification and the crystallization phenomena. Whether a system is vitrified or crystallized can be controlled by the degree of frustration against crystallization, polydispersity in this case.",
+          "claimed_abstract": "We study theoretically the equilibrium structure, as well as the response under external load, of characteristic carbon-based materials. The materials considered include diamond, amorphous carbon (a-C), ``amorphous diamond'' and nanocomposite amorphous carbon (na-C). A universal bulk-modulus versus density curve is obeyed by all structures we consider. We calculate the dependence of elastic constants on the density. The strength of a-C was found to increase in roughly a linear manner, with increasing concentration of four-fold atoms, with the maximum stress of the strongest a-C sample being about half that of diamond. The response of na-C to external load is essentially identical to the response of the embedding a-C matrix.",
           "claimed_authors": [
-            "Mathieu Leocmach",
-            "John Russo",
-            "Hajime Tanaka"
+            "Ioannis N. Remediakis",
+            "Maria G. Fyta",
+            "Christos Mathioudakis",
+            "Georgios Kopidakis",
+            "Pantelis C. Kelires"
           ],
-          "claimed_title": "Importance of many-body correlations in glass transition: an example from polydisperse hard spheres",
+          "claimed_title": "Structure, elastic properties and strength of amorphous and nanocomposite carbon",
           "claimed_venue": "arXiv",
-          "claimed_year": 2012,
-          "primary_pointer": "1211.6819"
+          "claimed_year": 2006,
+          "primary_pointer": "cond-mat/0611368"
         },
-        "details": "query-relevance 0.133 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Importance of many-body correlations in glass transition: an example from polydisperse hard spheres')",
-        "failed_at": "2026-05-12T19:10:00Z",
+        "details": "query-relevance 0.000 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Structure, elastic properties and strength of amorphous and nanocomposite carbon')",
+        "failed_at": "2026-05-21T12:42:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "There are deep analogies between the melting dynamics in systems with a first order phase transition and the dynamics from equilibrium in super-cooled liquids. For a class of Ising spin models undergoing a first order transition - namely p-spin models on the so-called Nishimori line - it can be shown that the melting dynamics can be exactly mapped to the equilibrium dynamics. In this mapping the dynamical -or mode-coupling- glass transition corresponds to the spinodal point, while the Kauzmann transition corresponds to the first order phase transition itself. Both in mean field and finite dimensional models this mapping provides an exact realization of the random first order theory scenario for the glass transition. The corresponding glassy phenomenology can then be understood in the framework of a standard first order phase transition.",
+          "claimed_abstract": "We have studied the effects of oxygen on hydrogenated amorphous/crystalline silicon films in terms of their structural and optical properties. Different hydrogenated silicon oxide (SiO:H) and silicon (Si:H) films are fabricated between microcrystalline and amorphous transition region. X-ray diffraction, Raman, FTIR and UV-Vis emission spectrometry have been used to characterize different films. A comparison of the results with those of different types of films like hydrogenated amorphous silicon oxide (a-SiO:H), hydrogenated amorphous silicon (a-Si:H) and microcrystalline silicon ($μ$c-Si:H) films reveal their superiority as an excellent substance for solar cell. X-ray diffraction, FTIR and Raman spectral analysis show that difference of the H dilution effect has a major effect on the structure of the film and the optical properties. Photoluminescence analysis of amorphous silicon-oxygen and silicon-hydride alloy films has established their efficient application appropriate as Si based light emitting devices. A large optical band gap of 1.83 eV and appearance of strong photo luminescence at 2.0 eV validates the applicability of a-SiO:H film as a better alternative for the solar cells.",
           "claimed_authors": [
-            "Florent Krzakala",
-            "Lenka Zdeborová"
+            "Meenakshi Rana",
+            "Chandan Banerjee",
+            "Papia Chowdhury"
           ],
-          "claimed_title": "Glassy dynamics as a melting process (On melting dynamics and the glass transition, Part II)",
+          "claimed_title": "Studies on optical signal due to oxygen effect on hydrogenated amorphous/crystalline silicon thin-films",
           "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1006.2479"
+          "claimed_year": 2020,
+          "primary_pointer": "2011.03930"
         },
-        "details": "query-relevance 0.133 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Glassy dynamics as a melting process (On melting dynamics and the glass transition, Part II)')",
-        "failed_at": "2026-05-12T19:10:00Z",
+        "details": "query-relevance 0.067 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Studies on optical signal due to oxygen effect on hydrogenated amorphous/crystalline silicon thin-films')",
+        "failed_at": "2026-05-21T12:42:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "semantic_scholar",
-          "claimed_abstract": "Enzyme-Assisted Extraction (EAE) in Natural Deep Eutectic Solvents (NaDES) was investigated as a green approach to extract bioactive compounds from the pseudofruit of Rosa canina L. Initially, the thermal stability of protease (Neutrase®) was evaluated at different temperatures (30-80 °C) in the NaDES Choline Chloride: Glycerol (1:2 molar ratio) (ChCl: Gly) with 20% (w/w) water as a cosolvent and in a buffer solution of the same pH. Kinetic and thermodynamic analyses revealed that ChCl:Gly markedly enhanced enzyme stability, extending half-life by up to 13-fold at 30-50 °C by increasing the enthalpic barrier to deactivation. EAE in NADES parameters, including enzyme loadings and extraction time, were optimized based on total phenolic (TPC) and flavonoid content (TFC), yielding maximum values of 135.75 ± 0.33 mg GAE/g DW and 65.05 ± 0.58 mg CAE/g DW, respectively. Extracts obtained under optimal conditions exhibited enhanced antioxidant, antidiabetic (α-amylase and α-glucosidase inhibition), anti-aging (tyrosinase inhibition), and antibacterial (inhibition of Escherichia coli growth) activities, outperforming enzyme-free extracts in all cases. The optimum extract also significantly reduced A431 cell viability (27-40%, p < 0.05). Overall, EAE in NaDES improved both enzyme stability and extraction efficiency, offering a sustainable and effective alternative for producing bioactive plant extracts.",
+          "claimed_abstract": "Coordination self‐assembly offers a powerful yet mechanistically underexplored route to manipulate excited‐state intramolecular proton transfer (ESIPT). Herein, its profound impact is demonstrated by constructing a Cd2+‐based coordination polymer (LIFM‐110) that unlocks an ultrafast and efficient ESIPT process, starkly contrasting with the dual emission of its free ligand. We reveal a dual enhancement mechanism: i) suppression of an ESIPT‐inhibiting intermolecular proton migration pathway and ii) creation of a rigid framework, directed by coordination bonds and reinforced by multiple supramolecular interactions, which significantly strengthens the key intramolecular hydrogen bond. This pre‐organized environment provides a substantial thermodynamic driving force (ΔE = −0.29 eV) and a minimal kinetic barrier (Ea = 0.01 eV), leading to an exceptionally fast proton transfer rate. The synergistically enhanced ESIPT results in exclusive keto emission with a high quantum yield and excellent multiphoton absorption. This work establishes coordination self‐assembly as a powerful and rational strategy for manipulating excited‐state reaction pathways, going beyond traditional synthesis to enable precise control over photophysical properties.",
           "claimed_authors": [
-            "Lemoni Zafeiria",
-            "Tzani Andromachi",
-            "Karagianni Alexandra",
-            "Stavropoulos Georgios",
-            "Lymperopoulou Theopisti",
-            "Alexandratou Eleni",
-            "Detsi Anastasia",
-            "Mamma Diomi"
+            "Pengyan Fu",
+            "Shao‐Zhe Yi",
+            "Yu Fang",
+            "Mei Pan"
           ],
-          "claimed_title": "Enzyme-Assisted Extraction of Bioactive Compounds from Rosa canina L. Pseudofruit in Natural Deep Eutectic Solvents: Protease Stability and Biological Activities.",
-          "claimed_venue": "Plants",
+          "claimed_title": "Manipulating Excited‐State Intramolecular Proton Transfer (ESIPT) Thermodynamics and Kinetics through Coordination Self‐assembly",
+          "claimed_venue": "Advanced Optical Materials",
           "claimed_year": 2026,
-          "primary_pointer": "https://doi.org/10.3390/plants15050751"
+          "primary_pointer": "https://doi.org/10.1002/adom.202503663"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Enzyme-Assisted Extraction of Bioactive Compounds from Rosa canina L. Pseudofruit in Natural Deep Eutectic Solvents: Protease Stability and Biological Activities.')",
-        "failed_at": "2026-05-12T19:10:00Z",
+        "details": "query-relevance 0.000 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Manipulating Excited‐State Intramolecular Proton Transfer (ESIPT) Thermodynamics and Kinetics through Coordination Self‐assembly')",
+        "failed_at": "2026-05-21T12:42:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "semantic_scholar",
-          "claimed_abstract": "Enzymes' structural and functional integrity is highly sensitive to temperature and pH in numerous industrial processes, often reducing efficiency; thus, alternative solvent systems are needed to provide a stabilizing microenvironment that sustains enzymatic activity under demanding process conditions. This study investigates the thermal and thermodynamic stability of a commercial xylanase (Viscoferm®) in selected Natural Deep Eutectic Solvents (NADES) compared to conventional aqueous buffer systems. The enzyme was incubated at six temperatures (30-80 °C) in three NADES, Betaine:Glycerol (1:3, Bet:Gly), Choline chloride:Glycerol (1:2, ChCl:Gly), and L-proline:Glycerol (1:2, Pro:Gly), each containing 20% (w/w) water as cosolvent. Parallel tests were conducted in buffers at pH values corresponding to each NADES. Kinetic parameters (kd, t1/2, D, z-value) and thermodynamic properties (Eαd, ΔΗD∗, ΔGD∗, ΔSD∗) were calculated to elucidate deactivation mechanisms and solvent-enzyme interactions. Results indicated enhanced thermal stability in all NADES, while thermodynamic analysis revealed consistently higher ΔGD∗ values and lower ΔΗD∗, ΔSD∗ values in NADES, suggesting improved resistance to thermal unfolding. Fluorescence spectroscopy supported these findings, indicating better retention of tertiary structure. Among the NADES, Bet:Gly induced the greatest thermodynamic stabilization. These findings demonstrate that NADES significantly enhance enzyme thermal stability, supporting their use as green and tunable media in industrial biocatalysis.",
+          "claimed_abstract": null,
           "claimed_authors": [
-            "Zafeiria Lemoni",
-            "Evanthia Seinti",
-            "Styliani Kalantzi",
-            "T. Lymperopoulou",
-            "Andromachi Tzani",
-            "G. Stavropoulos",
-            "D. Hatzinikolaou",
-            "Anastasia Detsi",
-            "D. Mamma"
+            "Z. Mao",
+            "C. Sudbrack",
+            "K. E. Yoon",
+            "G. Martin",
+            "D. Seidman"
           ],
-          "claimed_title": "Thermal stability and thermodynamic analysis of a commercial xylanase in natural deep eutectic solvents (NADES).",
-          "claimed_venue": "International Journal of Biological Macromolecules",
+          "claimed_title": "The mechanism of morphogenesis in a phase-separating concentrated multicomponent alloy.",
+          "claimed_venue": "Nature Materials",
+          "claimed_year": 2007,
+          "primary_pointer": "https://doi.org/10.1038/NMAT1845"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='The mechanism of morphogenesis in a phase-separating concentrated multicomponent alloy.')",
+        "failed_at": "2026-05-21T12:42:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "K. Nagashio",
+            "C. Lee",
+            "T. Nishimura",
+            "K. Kita",
+            "A. Toriumi"
+          ],
+          "claimed_title": "Thermodynamics and Kinetics for Suppression of GeO Desorption by High Pressure Oxidation of Ge",
+          "claimed_venue": "",
+          "claimed_year": 2009,
+          "primary_pointer": "https://doi.org/10.1557/PROC-1155-C06-02"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Thermodynamics and Kinetics for Suppression of GeO Desorption by High Pressure Oxidation of Ge')",
+        "failed_at": "2026-05-21T12:42:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Defect related disorder during InN growth is a major challenge for making high performance electronic and optoelectronic devices. This is partly because film quality is often described using reactor specific settings instead of general physical variables. In this study, we show that plasma assisted MOCVD growth of InN can be described using a single thermodynamic driving force coordinate. This coordinate brings together growth kinetics, defect sensitive Raman response and structural coherence across different process conditions. When we use this coordinate, the incorporation rate follows a universal activated trend with a kinetic scale of about 0.08 eV. Raman measurements show a clear crossover between a defect sparse and a defect rich regime, a disorder activated Raman metric increases quickly after the crossover, while an A1-LO control metric stays mostly the same. This suggests that short range lattice disorder, not long range polar coupling, dominates the defect activation process. X-ray diffraction shows that the out of plane coherence length stays the same for samples with the same driving force, even if reactor settings are very different. This supports the idea that structural coherence is organized by thermodynamics in this growth window. Finally, a simple kinetic Monte Carlo model using driving force biased incorporation and defect activation events matches the observed exponential trends and the two regimes, supporting the driving force approach. These results show that a transferable driving force coordinate can be used for plasma assisted InN growth and offer a quantitative way to achieve defect sparse growth conditions.",
+          "claimed_authors": [
+            "Zaheer Ahmad",
+            "Osama A. Rana",
+            "Shakeel Ahmad",
+            "Mark Vernon",
+            "Brendan Cross",
+            "Alexander Kozhanov"
+          ],
+          "claimed_title": "Thermodynamic Driving Force Activated Phonon Scattering in InN",
+          "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "https://doi.org/10.1016/j.ijbiomac.2026.150891"
+          "primary_pointer": "2601.07207"
         },
-        "details": "query-relevance 0.067 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Thermal stability and thermodynamic analysis of a commercial xylanase in natural deep eutectic solvents (NADES).')",
-        "failed_at": "2026-05-12T19:10:00Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "semantic_scholar",
-          "claimed_abstract": "The aim of this study was to use novel polypyrrole (PPy)/zinc ferrite@magnetite (PPy/ZnFe2O4@Fe3O4) and PPy compounds as adsorbents to remove azithromycin (AZM) from aqueous solutions. These adsorbents were made by chemical polymerization in a deep eutectic solvent (DES) known as oxaline. A range of techniques, such as Fourier transform infrared (FTIR), X-ray diffraction (XRD), scanning electron microscopy (SEM), energy-dispersive X-ray (EDX), vibrating sample magnetometer (VSM), Brunauer-Emmett-Teller (BET), and zeta potential, were employed to comprehensively evaluate the synthesized adsorbents. Additionally, adsorption tests were conducted to examine the influences of AZM concentration, pH, contact duration, and adsorbent dose. The ideal results indicate that AZM removal effectiveness was 62.3% for PPy and 98.5% for PPy/ZnFe2O4@Fe3O4 under the following conditions: pH 6, with 80 mg of PPy and 60 mg of PPy/ZnFe2O4@Fe3O4 adsorbents, a drug concentration of 100 mg/L, and stirring for 180 min. The adsorption process was thoroughly investigated using the kinetic and isothermal models. The pseudo-second-order kinetic and Langmuir models were identified as the most accurate representations of AZM adsorption for both adsorbents at 298 K. Additionally, the data demonstrated that pure PPy had an adsorption capacity of 80.13 mg/g, but the PPy/ZnFe2O4@Fe3O4 nanocomposite had a high adsorption capacity of 183.73 mg/g. Thermodynamic analysis revealed that the adsorption process was spontaneous and endothermic. The adsorbent exhibited exceptional regenerative properties, allowing for reuse throughout five cycles. The study also investigated the adsorption of AZM medicines from real tablet samples utilizing the PPy/ZnFe2O4@Fe3O4 nanocomposite. These results showed the good absorbent capacity of PPy/ZnFe2O4@Fe3O4 in the efficient removal of AZM from water sources.",
-          "claimed_authors": [
-            "Ahmad F. Hamasdiq",
-            "Hani K. Ismail",
-            "R. A. Omer"
-          ],
-          "claimed_title": "Adsorption of azithromycin pharmaceutical by polypyrrole and polypyrrole/zinc ferrite@magnetite (PPy/ZnFe2O4@Fe3O4) adsorbents synthesized from deep eutectic solvent: Kinetic, isothermic, and thermodynamic studies",
-          "claimed_venue": "Arabian Journal of Chemistry",
-          "claimed_year": 2025,
-          "primary_pointer": "https://doi.org/10.25259/ajc_635_2025"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Adsorption of azithromycin pharmaceutical by polypyrrole and polypyrrole/zinc ferrite@magnetite (PPy/ZnFe2O4@Fe3O4) adsorbents synthesized from deep eutectic solvent: Kinetic, isothermic, and thermodynamic studies')",
-        "failed_at": "2026-05-12T19:10:00Z",
+        "details": "query-relevance 0.000 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Thermodynamic Driving Force Activated Phonon Scattering in InN')",
+        "failed_at": "2026-05-21T12:42:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "These notes were compiled as lecture notes for a course developed and taught at the University of the Southern California. They should be accessible to a typical engineering graduate student with a strong background in Applied Mathematics.\n  The main objective of these notes is to introduce a student who is familiar with concepts in linear algebra and partial differential equations to select topics in deep learning. These lecture notes exploit the strong connections between deep learning algorithms and the more conventional techniques of computational physics to achieve two goals. First, they use concepts from computational physics to develop an understanding of deep learning algorithms. Not surprisingly, many concepts in deep learning can be connected to similar concepts in computational physics, and one can utilize this connection to better understand these algorithms. Second, several novel deep learning algorithms can be used to solve challenging problems in computational physics. Thus, they offer someone who is interested in modeling a physical phenomena with a complementary set of tools.",
+          "claimed_abstract": "This paper investigates the thermodynamic driving force of transient negative capacitance (NC) in the series circuit of the resistor and ferroelectric capacitor (R-FEC). We find that the widely used Landau-Khalatnikov (L-K) theory, that is, the minimum of the Gibbs free energy, is inapplicable to explain the transient NC. The thermodynamic driving force of the transient NC phenomenon is the minimum of the difference between the elastic Gibbs free energy and the electric polarization work. The appearance of the transient NC phenomenon is not due to the widely accepted view that the ferroelectric polarization goes through the negative curvature region of elastic Gibbs free energy landscape (Ga). Instead, the transient NC phenomenon appears when the energy barrier of Ga disappears. The transient NC is dependent on both the intrinsic ferroelectric material parameters and extrinsic factors in the R-FEC circuit.",
           "claimed_authors": [
-            "Deep Ray",
-            "Orazio Pinti",
-            "Assad A. Oberai"
+            "Yuanyuan Zhang",
+            "Xiaoqing Sun",
+            "Junshuai Chai",
+            "Hao Xu",
+            "Xueli Ma",
+            "Jinjuan Xiang",
+            "Kai Han",
+            "Xiaolei Wang",
+            "Wenwu Wang"
           ],
-          "claimed_title": "Deep Learning and Computational Physics (Lecture Notes)",
+          "claimed_title": "Thermodynamic driving force of transient negative capacitance of ferroelectric capacitors",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2301.00942"
+          "claimed_year": 2020,
+          "primary_pointer": "2010.03262"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Deep Learning and Computational Physics (Lecture Notes)')",
-        "failed_at": "2026-05-12T19:10:00Z",
+        "details": "query-relevance 0.067 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Thermodynamic driving force of transient negative capacitance of ferroelectric capacitors')",
+        "failed_at": "2026-05-21T12:42:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Deep Neural Networks, often owing to the overparameterization, are shown to be capable of exactly memorizing even randomly labelled data. Empirical studies have also shown that none of the standard regularization techniques mitigate such overfitting. We investigate whether the choice of the loss function can affect this memorization. We empirically show, with benchmark data sets MNIST and CIFAR-10, that a symmetric loss function, as opposed to either cross-entropy or squared error loss, results in significant improvement in the ability of the network to resist such overfitting. We then provide a formal definition for robustness to memorization and provide a theoretical explanation as to why the symmetric losses provide this robustness. Our results clearly bring out the role loss functions alone can play in this phenomenon of memorization.",
+          "claimed_abstract": "We consider general convolutional derivatives and related fractional statistical dynamics of continuous interacting particle systems. We apply the subordination principle to construct kinetic fractional statistical dynamics in the continuum in terms of solutions to Vlasov-type hierarchies. Conditions for the intermittency property of fractional kinetic dynamics are obtained.",
           "claimed_authors": [
-            "Deep Patel",
-            "P. S. Sastry"
+            "Anatoly N. Kochubei",
+            "Yuri Kondratiev"
           ],
-          "claimed_title": "Memorization in Deep Neural Networks: Does the Loss Function matter?",
+          "claimed_title": "Fractional kinetic hierarchies and intermittency",
           "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2107.09957"
+          "claimed_year": 2016,
+          "primary_pointer": "1604.03807"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Memorization in Deep Neural Networks: Does the Loss Function matter?')",
-        "failed_at": "2026-05-12T19:10:00Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Deep neural networks and the ENO procedure are both efficient frameworks for approximating rough functions. We prove that at any order, the ENO interpolation procedure can be cast as a deep ReLU neural network. This surprising fact enables the transfer of several desirable properties of the ENO procedure to deep neural networks, including its high-order accuracy at approximating Lipschitz functions. Numerical tests for the resulting neural networks show excellent performance for approximating solutions of nonlinear conservation laws and at data compression.",
-          "claimed_authors": [
-            "Tim De Ryck",
-            "Siddhartha Mishra",
-            "Deep Ray"
-          ],
-          "claimed_title": "On the approximation of rough functions with deep neural networks",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1912.06732"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='On the approximation of rough functions with deep neural networks')",
-        "failed_at": "2026-05-12T19:10:00Z",
+        "details": "query-relevance 0.067 < 0.3 (query='How do atomic size mismatch and mixing enthalpy descriptors determine the bounda', candidate_title='Fractional kinetic hierarchies and intermittency')",
+        "failed_at": "2026-05-21T12:42:38Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -691,103 +665,102 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/1505.06771",
           "http_status": 200,
-          "pdf_sample_score": 0.2746,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.6,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-12T19:09:59Z"
+          "verified_at": "2026-05-21T12:42:35Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Haibo Huang",
-            "Xiaoqiang Yao",
-            "Jiangtong Yu",
-            "Yong Huang",
-            "Jintao Li",
-            "Xiaoqiang Wang"
+            "Z. Leong",
+            "N. Morley",
+            "R. Goodall"
           ],
-          "title": "Effect of Ta on Microstructure, Mechanical Properties, and Soft Magnetic Performance of Fe-Based Amorphous Coatings Prepared by High-Speed Laser Cladding",
-          "venue": "Coatings",
-          "year": 2026
-        },
-        "primary_pointer": "https://doi.org/10.3390/coatings16040442",
-        "summary": "High-speed laser cladding (HLC) technology can provide high cooling rates and low dilution rates for the preparation of metastable Fe-based amorphous phases. In this work, the effects of Ta content on the microstructure, mechanical properties, and soft magnetic performance of Fe-based amorphous alloys were systematically investigated. The results indicated that Ta remained uniformly dispersed within the FeSiB amorphous powder, and no new phases were formed after mechanical ball milling. The higher mixing enthalpy of Ta and its atomic radius difference from other elements (such as Fe, Si, B) were beneficial in improving glass-forming ability (GFA), and with an increase in Ta element content from 0% to 2%, 4% and 6%, the amorphous phase content was 48.6%, 51.5%, 60.4% and 54.8%, respectively. The average microhardness of the coating with a Ta content of 4% was 1310 HV0.2, which was 50HV0.2 higher than before; in addition, the wear rate reduced from 2.21 × 10−4 mg·N−1·m−1 to 2.06 × 10−4 mg·N−1·m−1. Also, corrosion tests showed that the coating with a Ta content of 4% displayed superior corrosion resistance compared to that before the Ta addition. However, because the element Ta could alter the local electronic environment and enhance the local magnetic anisotropy of FeSiB, the saturation magnetic flux density (Ms) decreased from 1.64 T to 1.56 T, and the coercivity (Hc) increased from 0.9 A/m to 1.3 A/m, which caused degradation of the soft magnetic properties.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "semantic_scholar",
-          "final_url": "https://www.mdpi.com/2079-6412/16/4/442",
-          "http_status": 403,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3333,
-          "redirect_chain": [
-            "https://doi.org/10.3390/coatings16040442"
-          ],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-05-12T19:09:59Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Erfan Lotfi-khojasteh",
-            "H. Elmkhah",
-            "M. Nouri",
-            "P. Mayrhofer"
-          ],
-          "title": "Atomic Radius Mismatch: A Key Parameter for Design and Synthesis of High‐Entropy Physical Vapor Deposition Coatings—Review",
-          "venue": "Advanced Engineering Materials",
-          "year": 2024
-        },
-        "primary_pointer": "https://doi.org/10.1002/adem.202301934",
-        "summary": "High‐entropy metal sublattice coatings (HESCs) prepared by physical vapor deposition (PVD) have received attention due to their diverse range of properties and applications. One of the most critical requirements for their synthesis is the prediction and control of their widespread properties, and several efforts have been undertaken using various thermodynamical parameters. The majority of these predictions concentrate on high‐entropy alloys (HEAs) while high‐entropy ceramics receive little attention. One of the most important parameters to control the structure and properties of HEAs is their atomic radius mismatch (δr), which is applied to crystalline, amorphous, and composite (amorphous matrix, crystalline matrix, and multilayer) HESCs. Based on the relationships between δr and structure, mixing enthalpy (ΔHmix), electronegativity difference (Δχ), ion bonding percentage (IBPHE), mechanical properties (including hardness, H, and Young's modulus, E), and wear performance descriptors (H/E and H3/E2 ratios), a δr‐based map to aid the design and selection of elements for HESCs is provided.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "semantic_scholar",
-          "final_url": "https://advanced.onlinelibrary.wiley.com/doi/10.1002/adem.202301934",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3333,
-          "redirect_chain": [
-            "https://doi.org/10.1002/adem.202301934"
-          ],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-05-12T19:09:59Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "N. Nishiyama",
-            "A. Inoue"
-          ],
-          "title": "Flux Treated Pd–Cu–Ni–P Amorphous Alloy Having Low Critical Cooling Rate",
+          "title": "Dilatational strain biplots against enthalpy of mixing for predicting high-entropy alloys and complex concentrated alloys phase stability",
           "venue": "",
-          "year": 1997
+          "year": 2021
         },
-        "primary_pointer": "https://doi.org/10.2320/MATERTRANS1989.38.464",
-        "summary": "A Pd 40 Cu 30 Ni 10 P 20 alloy subjected to B 2 O 3 flux treatment was found to have a low critical cooling rate (R c ) of 0.100 K/s for glass formation and a large sample thickness (t max ) of 72 mm by the water quenching process. The R c and t maX exceed largely those (R c =1.57 K/s, t max =40 mm) for the Pd-Cu-Ni-P alloy without the flux treatment. It is concluded that the flux treatment causes a significant increase in the thermal stability of the supercooled liquid. The glass transition temperature (Tg) remains unchanged in the fluxed state, but the crystallization temperature (T x ) increases by 7 K, leading to the extension of the supercooled liquid region defined by ΔT x (= T x - T g ) to 98 K which is larger than that (91 K) for the non-fluxed sample. The decrease in R c and the increases in t max and Δ T x for the fluxed sample are presumably due to the suppression of heterogeneous nucleation for crystallization resulting from the increase in the degree of cleanness of the molten alloy. Besides, the Pd-Cu-Ni-P amorphous alloy has lower R c and melting temperature (T m ) and larger t max , ΔT x and T g / T m values, as compared with those for Pd 40 Ni 40 P 20 alloy. The larger glass-forming ability for the Pd-Cu-Ni-P alloy is presumably due to the increase in the degree of the satisfaction of the three empirical rules for the achievement of larger glass-forming ability resulting from the more systematic change in atomic size in the order Pd » Cu > Ni » P and the generation of Cu-Pd and Cu-P atomic pairs with negative heats of mixing. There is no appreciable difference in the Tg, T x and crystallization behavior between the cast 72 mm Φ amorphous ingot and melt-spun amorphous ribbon. The finding of the fluxed Pd 40 Cu 30 Ni 10 P 20 alloy with the lower R c and larger t max values is promising for the future development of bulk amorphous alloys.",
-        "summary_grounded_pdf": false,
+        "primary_pointer": "https://doi.org/10.1016/J.MATCHEMPHYS.2021.124241",
+        "summary": "Abstract Multiple principal component alloy systems are a new class of alloys that can provide interesting combinations of functional and mechanical properties. Due to the multiple principal components, their interactions are complex, and their structural stabilities are often not easily predicted. Prediction parameter biplots offer a good way to distinguish between structural stabilities of different compositions. The enthalpy of mixing is one parameter that is often used in such biplots. Although it does not accurately follow quantum principles, it is nevertheless this deviation that gives it its predictive power when combined with other parameters in a biplot. This deviation can be in part attributed to the mechanical strain energy (from large atomic size difference) that may be present in alloy systems. Such a biplot can leverage on their expected deviations to provide a prediction scheme. Here, we investigate the predictive efficacy of enthalpy-of-mixing/strain-energy biplots using cluster analysis. The results are validated against enthalpy-of-mixing/valence electron concentration biplots. The investigated biplot not only maintains the ability to distinguish between the intermetallic and solid solutions phases but offers enhanced ability to distinguish between individual intermetallic phases (Sigma, Laves, Mu, and B2).",
+        "summary_grounded_pdf": null,
         "verification_log": {
           "backend": "semantic_scholar",
-          "final_url": "https://www.jstage.jst.go.jp/article/matertrans1989/38/5/38_5_464/_article",
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S0254058421000249",
           "http_status": 200,
           "pdf_sample_score": null,
           "query_relevance_score": 0.4,
           "redirect_chain": [
-            "https://doi.org/10.2320/MATERTRANS1989.38.464"
+            "https://doi.org/10.1016/J.MATCHEMPHYS.2021.124241"
           ],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-12T19:10:00Z"
+          "verified_at": "2026-05-21T12:42:36Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sheng Guo",
+            "C. Liu"
+          ],
+          "title": "Phase stability in high entropy alloys: Formation of solid-solution phase or amorphous phase",
+          "venue": "",
+          "year": 2011
+        },
+        "primary_pointer": "https://doi.org/10.1016/S1002-0071(12)60080-X",
+        "summary": "The alloy design for equiatomic multi-component alloys was rationalized by statistically analyzing the atomic size difference, mixing enthalpy, mixing entropy, electronegativity, valence electron concentration among constituent elements in solid solutions forming high entropy alloys and amorphous alloys. Solid solution phases form and only form when the requirements of the atomic size difference, mixing enthalpy and mixing entropy are all met. The most significant difference between the solid solution forming high entropy alloys and bulk metallic glasses lies in the atomic size difference. These rules provide valuable guidance for the future development of high entropy alloys and bulk metallic glasses.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S100200711260080X",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5333,
+          "redirect_chain": [
+            "https://doi.org/10.1016/S1002-0071(12)60080-X"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T12:42:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kai Zhang",
+            "Meng Fan",
+            "Yanhui Liu",
+            "J. Schroers",
+            "M. Shattuck",
+            "C. O’Hern"
+          ],
+          "title": "Beyond packing of hard spheres: The effects of core softness, non-additivity, intermediate-range repulsion, and many-body interactions on the glass-forming ability of bulk metallic glasses.",
+          "venue": "Journal of Chemical Physics",
+          "year": 2015
+        },
+        "primary_pointer": "https://doi.org/10.1063/1.4935002",
+        "summary": "When a liquid is cooled well below its melting temperature at a rate that exceeds the critical cooling rate Rc, the crystalline state is bypassed and a metastable, amorphous glassy state forms instead. Rc (or the corresponding critical casting thickness dc) characterizes the glass-forming ability (GFA) of each material. While silica is an excellent glass-former with small Rc < 10(-2) K/s, pure metals and most alloys are typically poor glass-formers with large Rc > 10(10) K/s. Only in the past thirty years have bulk metallic glasses (BMGs) been identified with Rc approaching that for silica. Recent simulations have shown that simple, hard-sphere models are able to identify the atomic size ratio and number fraction regime where BMGs exist with critical cooling rates more than 13 orders of magnitude smaller than those for pure metals. However, there are a number of other features of interatomic potentials beyond hard-core interactions. How do these other features affect the glass-forming ability of BMGs? In this manuscript, we perform molecular dynamics simulations to determine how variations in the softness and non-additivity of the repulsive core and form of the interatomic pair potential at intermediate distances affect the GFA of binary alloys. These variations in the interatomic pair potential allow us to introduce geometric frustration and change the crystal phases that compete with glass formation. We also investigate the effect of tuning the strength of the many-body interactions from zero to the full embedded atom model on the GFA for pure metals. We then employ the full embedded atom model for binary BMGs and show that hard-core interactions play the dominant role in setting the GFA of alloys, while other features of the interatomic potential only change the GFA by one to two orders of magnitude. Despite their perturbative effect, understanding the detailed form of the intermetallic potential is important for designing BMGs with cm or greater casting thickness.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://pubs.aip.org/jcp/article/143/18/184502/562711/Beyond-packing-of-hard-spheres-The-effects-of-core",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [
+            "https://doi.org/10.1063/1.4935002"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T12:42:38Z"
         }
       }
     ]

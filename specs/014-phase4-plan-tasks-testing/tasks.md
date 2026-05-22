@@ -42,8 +42,8 @@
 - [X] T009 [US1] Add the FR-018 reset to `scripts/validate_phase4.py`: when stage is `clarified`, delete Phase-4 outputs (`plan.md`, `research.md`, `data-model.md`, `quickstart.md`, `contracts/`, `tasks.md`, and `.specify/memory/{tasker_rounds,human_input_needed}.yaml`) under `projects/<id>/specs/001-*/`, PRESERVING `spec.md`; collect removed paths for the inspection `reset_artifacts` field. (depends: T008)
 - [X] T010 [US1] Add the run invocation to `scripts/validate_phase4.py`: export `LLMXIVE_INSPECTION_DIR=specs/014-…/inspections/<id>`, subprocess `python -m llmxive run --project <id> --max-tasks 2`, capture exit code + run-id. (depends: T009)
 - [X] T011 [US1] Add post-run verification to `scripts/validate_phase4.py`: assert the stage chain reached `analyzed` (or `human_input_needed`/`held`) by reading `state/projects/<id>.yaml` + the run-log; assert the five plan artifacts + `tasks.md` exist, that `tasks.md` has ≥10 `^- \[ \] T###` lines (SC-004/FR-009), and that `spec.md` is unchanged (FR-018); run the FR-010 data-flow ordering check (download-before-use, dir-before-write) on the produced `tasks.md`; run the FR-012 constraint-non-deletion check (no `FR-NNN`/`SC-NNN` line count decrease across the Tasker's Mode-B `spec.md` rewrites, read from the inspection `rounds[]`); surface any mismatch as a finding. (depends: T010)
-- [ ] T012 [US1] Run `python scripts/validate_phase4.py --project PROJ-261-evaluating-the-impact-of-code-duplicatio` (REAL Dartmouth call) and confirm it reaches `analyzed`; commit the produced artifacts. (depends: T004, T007, T011)
-- [ ] T013 [US1] Run `python scripts/validate_phase4.py --project PROJ-262-predicting-molecular-dipole-moments-with` (REAL Dartmouth call) and confirm it reaches `analyzed`; commit the produced artifacts. (depends: T012)
+- [X] T012 [US1] Run `python scripts/validate_phase4.py --project PROJ-261-evaluating-the-impact-of-code-duplicatio` (REAL Dartmouth call) and confirm it reaches `analyzed`; commit the produced artifacts. (depends: T004, T007, T011)
+- [X] T013 [US1] Run `python scripts/validate_phase4.py --project PROJ-262-predicting-molecular-dipole-moments-with` (REAL Dartmouth call) and confirm it reaches `analyzed`; commit the produced artifacts. (depends: T012)
 
 **Checkpoint**: Both canonicals at `analyzed` with real plan artifacts + `tasks.md` on disk.
 
@@ -54,8 +54,8 @@
 **Goal**: Every agent invocation (and every Tasker analyze round) leaves a reconstructable inspection record.
 **Independent test**: open the four records; each has verbatim prompts + raw response + diffs; the Tasker records nest one entry per round.
 
-- [ ] T014 [US2] In `scripts/validate_phase4.py`, after each run assert `inspections/<id>/planner.json` and `tasker.json` exist with every required key incl. `rounds` (FR-003/FR-004/SC-005), and that the Tasker record has one `rounds[]` entry per analyze round actually run (cross-check against `tasker_rounds.yaml`). (depends: T012, T013)
-- [ ] T015 [US2] Add an SC-009 reconstruction assertion to `scripts/validate_phase4.py` and `tests/integration/test_phase4_plan_tasks.py`: from a record alone, `prompts.system`, `prompts.user`, `raw_response`, and each round's `analyze_report`+`mode_b_patch` are present and non-empty. (depends: T014)
+- [X] T014 [US2] In `scripts/validate_phase4.py`, after each run assert `inspections/<id>/planner.json` and `tasker.json` exist with every required key incl. `rounds` (FR-003/FR-004/SC-005), and that the Tasker record has one `rounds[]` entry per analyze round actually run (cross-check against `tasker_rounds.yaml`). (depends: T012, T013)
+- [X] T015 [US2] Add an SC-009 reconstruction assertion to `scripts/validate_phase4.py` and `tests/integration/test_phase4_plan_tasks.py`: from a record alone, `prompts.system`, `prompts.user`, `raw_response`, and each round's `analyze_report`+`mode_b_patch` are present and non-empty. (depends: T014)
 
 **Checkpoint**: 4 inspection records on disk, schema-valid, reconstructable.
 
@@ -84,7 +84,7 @@
 
 - [X] T022 [US4] Implement `carry-forward.yaml` generation in `scripts/validate_phase4.py` per `contracts/carry-forward.md` (per-project `final_state`, `status`, `agents_run` incl. `analyze_rounds`, justification citing inspection path on failure). (depends: T011)
 - [X] T023 [US4] Implement `phase-report.md` generation in `scripts/validate_phase4.py` per `contracts/phase-report.md` (summary, FR→evidence table, quality-gate findings naming inspection paths, Mode-B coverage statement per project — SC-010/SC-011). (depends: T014, T022)
-- [ ] T024 [US4] Generate `carry-forward.yaml` + `phase-report.md` from the real PROJ-261/262 runs; assert SC-008 (recorded `final_state` matches each on-disk `state/projects/<id>.yaml` `current_stage`) and SC-002/FR-020 (each produced `plan.md` contains a Constitution Check section addressing every numbered principle, verified by automated scan). (depends: T013, T022, T023)
+- [X] T024 [US4] Generate `carry-forward.yaml` + `phase-report.md` from the real PROJ-261/262 runs; assert SC-008 (recorded `final_state` matches each on-disk `state/projects/<id>.yaml` `current_stage`) and SC-002/FR-020 (each produced `plan.md` contains a Constitution Check section addressing every numbered principle, verified by automated scan). (depends: T013, T022, T023)
 
 **Checkpoint**: `carry-forward.yaml` + `phase-report.md` written; both projects `passed` at `analyzed`.
 

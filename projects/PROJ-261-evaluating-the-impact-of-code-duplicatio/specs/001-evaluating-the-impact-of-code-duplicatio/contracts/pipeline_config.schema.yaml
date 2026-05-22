@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+description: "Schema for pipeline configuration"
+properties:
+  seed:
+    type: integer
+    minimum: 0
+    description: "Random seed for reproducibility"
+  dataset_subset_size:
+    type: string
+    pattern: "^[0-9]+[MBGB]$"
+    description: "Size of codeparrot/github-code subset"
+  clone_threshold:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Clone detection threshold"
+  model_name:
+    type: string
+    description: "Pre-trained model path"
+  human_eval_subset:
+    type: integer
+    minimum: 1
+    maximum: 164
+    description: "Number of problems to evaluate"
+  memory_limit_gb:
+    type: number
+    minimum: 1
+    description: "Maximum memory usage in GB"
+required:
+  - seed
+  - dataset_subset_size
+  - clone_threshold
+  - model_name
+  - human_eval_subset
+  - memory_limit_gb
+additionalProperties: false

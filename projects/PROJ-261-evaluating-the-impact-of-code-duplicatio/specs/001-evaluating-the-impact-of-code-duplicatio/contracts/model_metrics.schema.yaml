@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+description: "Schema for model performance metrics"
+properties:
+  segment_id:
+    type: string
+    description: "Unique identifier for code segment"
+    pattern: "^[a-zA-Z0-9_.-]+:[0-9]+:[0-9]+$"
+  perplexity:
+    type: number
+    minimum: 0
+    description: "Token-level perplexity value"
+  log_probs:
+    type: array
+    items:
+      type: number
+    description: "Array of log-probability values per token"
+  bug_detected:
+    type: boolean
+    description: "Whether bug was detected (HumanEval)"
+  pass_1:
+    type: boolean
+    description: "Whether pass@1 test passed"
+required:
+  - segment_id
+  - perplexity
+  - log_probs
+  - bug_detected
+  - pass_1
+additionalProperties: false
