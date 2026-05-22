@@ -653,6 +653,45 @@ class TestAnalyzeLoopEscalation:
         assert rounds.get("converged") is False
         assert rounds.get("rounds_used") == TASKER_MAX_REVISION_ROUNDS
 
+    def test_mode_b_refuses_spec_md_patch_that_drops_requirements(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """FR-012 (Tasker guard): a Mode-B patch that gut's spec.md (fewer FR/SC
+        identifiers than the current file) MUST be refused at the source. The
+        LLM otherwise 'converges' analyze by deleting requirements (observed on
+        PROJ-262: 12 FR / 5 SC -> 0 FR / 2 SC). spec.md must stay intact."""
+        import re
+
+        import llmxive.speckit.tasks_cmd as tasks_cmd
+        from llmxive.backends.base import ChatResponse
+        from llmxive.speckit.tasks_cmd import TaskerAgent
+
+        ctx, mech, feature_dir = _make_tasker_project(tmp_path)
+        spec_path = feature_dir / "spec.md"  # _make_tasker_project: 2 FR + 2 SC = 4 ids
+
+        monkeypatch.setattr(tasks_cmd, "run_analyze", lambda **kw: "- (severity: HIGH) finding")
+        # Clean on the 2nd analyze so the loop ends after one Mode-B round.
+        state = {"n": 0}
+        def _is_clean(report):
+            state["n"] += 1
+            return state["n"] >= 2
+        monkeypatch.setattr(tasks_cmd, "is_clean", _is_clean)
+
+        def fake_chat(messages, **kwargs):
+            # Mode-B "resolves" the finding by gutting spec.md to a single FR.
+            gutted = "# Spec\n\n## FR\n\n- **FR-001**: only one left.\n"
+            doc = {"issues_resolved": [{"file": "spec.md", "patch": gutted, "rationale": "x"}],
+                   "issues_remaining": [], "verdict": "needs-rerun"}
+            return ChatResponse(text=json.dumps(doc), model="m", backend="dartmouth")
+
+        monkeypatch.setattr(tasks_cmd, "chat_with_fallback", fake_chat)
+        monkeypatch.setattr(tasks_cmd, "render_prompt", lambda *a, **k: "stub system prompt")
+
+        agent = TaskerAgent()
+        agent.write_artifacts(ctx, mech, ChatResponse(text=_real_tasks_md(), model="m", backend="dartmouth"))
+
+        ids = set(re.findall(r"\b(?:FR|SC)-\d+", spec_path.read_text(encoding="utf-8")))
+        assert ids == {"FR-001", "FR-002", "SC-001", "SC-002"}, \
+            f"spec.md was gutted despite the FR-012 guard: {sorted(ids)}"
+
 
 # ──────────────────────────────────────────────────────────────────────
 # T025 — ordering unit test + inspection-record schema + carry-forward schema

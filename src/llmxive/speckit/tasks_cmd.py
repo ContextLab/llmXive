@@ -321,6 +321,25 @@ class TaskerAgent(SlashCommandAgent):
                             f"no markdown headers. Skipping."
                         )
                         continue
+                if f == "spec.md":
+                    # FR-012 (spec 014): refuse a Mode-B patch that DELETES
+                    # requirements from spec.md. The LLM otherwise "resolves"
+                    # analyze findings by gutting the spec (observed on
+                    # PROJ-262: 12 FR / 5 SC -> 0 FR / 2 SC across rounds) —
+                    # the exact "weaken the constraint to make analyze pass"
+                    # the constitution forbids ("fix the code, not the test").
+                    # The set of distinct FR-/SC- identifiers MUST NOT shrink.
+                    _ids_re = r"\b(?:FR|SC)-\d+"
+                    _cur = spec_path.read_text(encoding="utf-8") if spec_path.exists() else ""
+                    _cur_ids = set(_re_inner.findall(_ids_re, _cur))
+                    _new_ids = set(_re_inner.findall(_ids_re, patch))
+                    if len(_new_ids) < len(_cur_ids):
+                        print(
+                            f"[tasker] refusing Mode-B spec.md patch: it drops "
+                            f"requirements ({len(_cur_ids)} -> {len(_new_ids)} "
+                            f"FR/SC ids); a constraint would be deleted. Skipping."
+                        )
+                        continue
                 # Spec 010 fix: the original escalate branch wrote `patch`
                 # to disk verbatim; if the LLM returned a diff here, it
                 # would pollute the canonical file. Reuse the same
