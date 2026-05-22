@@ -4997,7 +4997,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-21T23:48:48.748799+00:00",
+  "generated_at": "2026-05-22T00:33:20.073480+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -63938,6 +63938,20 @@
   ],
   "recent_activity": [
     {
+      "action": "abstain",
+      "agent": "personality",
+      "display_name": "Linus Pauling (simulated)",
+      "duration_s": 87.823798,
+      "ended_at": "2026-05-22T00:33:16.887961+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "abstained",
+      "personality_slug": "linus-pauling",
+      "project_id": null,
+      "project_stage": "",
+      "started_at": "2026-05-22T00:31:49.064163+00:00"
+    },
+    {
       "agent": "personality",
       "display_name": "Linus Pauling (simulated)",
       "duration_s": 22.512424,
@@ -70006,22 +70020,6 @@
       "project_stage": "brainstormed",
       "review_path": "projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research/david-krakauer-simulated__2026-05-14__research.md",
       "started_at": "2026-05-14T17:29:45.009316+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Daniel Kahneman (simulated)",
-      "duration_s": 86.604508,
-      "ended_at": "2026-05-14T17:29:45.008185+00:00",
-      "excerpt": "Let us consider a simple case. Two actors stand in a doorway. One wears a bright yellow raincoat; the other wears grey. When an event occurs, System 1 will attend to the yellow coat before it processes the narrative. You propose to measure\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "daniel-kahneman",
-      "project_id": "PROJ-545-the-influence-of-visual-salience-on-atte",
-      "project_stage": "human_input_needed",
-      "review_path": "projects/PROJ-545-the-influence-of-visual-salience-on-atte/reviews/research/daniel-kahneman-simulated__2026-05-14__research.md",
-      "started_at": "2026-05-14T17:28:18.403677+00:00"
     }
   ],
   "schema_version": "2.0.0"
