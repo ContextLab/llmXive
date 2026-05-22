@@ -29,6 +29,16 @@ def test_zenodo_search_returns_candidates():
 
 
 def test_datacite_resolves_doi():
-    # The QM9 Scientific Data paper DOI (verified reachable).
-    cands = search_datacite("10.1038/sdata.2014.22", limit=3)
+    # FIX 3: 10.1038/sdata.2014.22 is a *Crossref* DOI (Nature Scientific Data),
+    # not registered in DataCite, so search_datacite returns [] for it -- the old
+    # assertion was vacuously true. Zenodo mints DataCite DOIs, so we use a real
+    # Zenodo record whose DOI returns 200 from https://api.datacite.org/dois/<doi>
+    # (verified by curl on 2026-05-21). This genuinely exercises the resolve path.
+    cands = search_datacite("10.5281/zenodo.1227121", limit=3)
+    assert cands, "expected >=1 DataCite candidate for a Zenodo-minted DOI"
     assert all(c.source == "datacite" and c.url.startswith("http") for c in cands)
+    # The resolved DOI URL must be reachable (doi.org resolves the Zenodo record).
+    import requests
+    r = requests.get(cands[0].url, allow_redirects=True, timeout=30,
+                     headers={"User-Agent": "llmxive-test/1.0"})
+    assert r.status_code == 200, f"{cands[0].url} -> {r.status_code}"
