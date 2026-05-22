@@ -16,6 +16,7 @@ from llmxive.backends.base import (
     ChatResponse,
     PermanentBackendError,
     TransientBackendError,
+    invoke_with_deadline,
 )
 
 
@@ -75,7 +76,17 @@ class HuggingFaceBackend(BaseBackend):
                 msg_objs.append(HumanMessage(content=m.content))
 
         try:
-            reply = client.invoke(msg_objs)
+            # Same socket-hang guard as the Dartmouth backend: HuggingFaceEndpoint
+            # has no enforced HTTP timeout, so a sick connection would block the
+            # whole pipeline. Bound it on a daemon thread; past the deadline the
+            # router falls through to a peer backend.
+            reply = invoke_with_deadline(
+                lambda: client.invoke(msg_objs),
+                timeout=180.0,
+                description=f"HuggingFace model {model!r}",
+            )
+        except TransientBackendError:
+            raise
         except Exception as exc:
             text = str(exc).lower()
             if any(s in text for s in ("rate limit", "quota", "429", "timeout", "5xx")):

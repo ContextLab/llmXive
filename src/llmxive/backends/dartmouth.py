@@ -16,6 +16,7 @@ from llmxive.backends.base import (
     ChatResponse,
     PermanentBackendError,
     TransientBackendError,
+    invoke_with_deadline,
 )
 
 
@@ -141,25 +142,18 @@ class DartmouthBackend(BaseBackend):
         if temperature is not None:
             kwargs["temperature"] = temperature
         try:
-            # Hard-enforce a per-request timeout. ChatDartmouth's
-            # nominal `timeout` model_kwargs gets attached as a chat-
-            # completion param, NOT as an HTTP timeout, so requests
-            # could hang for an hour holding the project lock.
-            # Use ThreadPoolExecutor with a 180s deadline — when it
-            # fires we abandon the worker thread (it'll get GC'd when
-            # the process exits) and raise TransientBackendError so
-            # the router falls through to a peer model.
-            import concurrent.futures as _cf
-
-            with _cf.ThreadPoolExecutor(max_workers=1) as _ex:
-                _fut = _ex.submit(client.invoke, msg_objs, **kwargs)
-                try:
-                    reply = _fut.result(timeout=180.0)
-                except _cf.TimeoutError:
-                    raise TransientBackendError(
-                        f"Dartmouth model {model!r} hung past 180s deadline "
-                        f"(no response received)"
-                    ) from None
+            # Hard-enforce a per-request wall-clock deadline. ChatDartmouth's
+            # nominal `timeout` model_kwarg is forwarded as a chat-completion
+            # body param, NOT as an HTTP/socket timeout, so a sick connection
+            # can block indefinitely (observed in CI as a ~54-min hang). Run
+            # the call on a daemon thread and abandon it past 180s so the
+            # router falls through to a peer model. See invoke_with_deadline's
+            # docstring for why ThreadPoolExecutor would re-create the hang.
+            reply = invoke_with_deadline(
+                lambda: client.invoke(msg_objs, **kwargs),
+                timeout=180.0,
+                description=f"Dartmouth model {model!r}",
+            )
         except TransientBackendError:
             raise
         except Exception as exc:

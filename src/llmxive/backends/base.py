@@ -12,8 +12,9 @@ is_paid=False; the schema asserts this invariant.
 from __future__ import annotations
 
 import abc
+import threading
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Callable, Iterable, TypeVar
 
 
 @dataclass(frozen=True)
@@ -40,6 +41,59 @@ class TransientBackendError(BackendError):
 
 class PermanentBackendError(BackendError):
     """A failure that should not trigger fallback (auth, bad request)."""
+
+
+_T = TypeVar("_T")
+
+
+def invoke_with_deadline(
+    fn: Callable[[], _T],
+    *,
+    timeout: float,
+    description: str,
+) -> _T:
+    """Run ``fn()`` under a hard wall-clock deadline and return its result.
+
+    LLM client libraries (langchain's ``ChatDartmouth`` / ``ChatHuggingFace``,
+    which wrap ``ChatOpenAI`` / ``HuggingFaceEndpoint``) accept a nominal
+    ``timeout`` but forward it as a *chat-completion body parameter*, not as an
+    HTTP/socket timeout. A sick connection therefore blocks the calling thread
+    indefinitely — observed in CI as a backend ``invoke`` hanging for ~54 min
+    until the job-level timeout killed it.
+
+    This helper bounds that. ``fn`` runs on a **daemon** thread; if it blows the
+    deadline we abandon it and raise :class:`TransientBackendError` so the
+    router falls through to a peer backend. A daemon thread never blocks
+    interpreter exit — which is precisely why ``ThreadPoolExecutor`` is the
+    WRONG tool here: its context-manager ``__exit__`` (and ``shutdown(wait=True)``)
+    would itself hang waiting for the stuck worker, re-creating the very hang
+    this guards against.
+
+    On success returns ``fn``'s value. If ``fn`` raises, that exception is
+    re-raised in the calling thread so the backend's own error classifier can
+    decide transient-vs-permanent.
+    """
+    result: list[_T] = []
+    error: list[BaseException] = []
+
+    def _runner() -> None:
+        try:
+            result.append(fn())
+        except BaseException as exc:  # noqa: BLE001 — carried to caller thread
+            error.append(exc)
+
+    worker = threading.Thread(
+        target=_runner, name=f"llmxive-backend-{description}", daemon=True
+    )
+    worker.start()
+    worker.join(timeout)
+    if worker.is_alive():
+        raise TransientBackendError(
+            f"{description} hung past {timeout:.0f}s deadline (no response received)"
+        )
+    if error:
+        raise error[0]
+    return result[0]
 
 
 class BaseBackend(abc.ABC):
@@ -75,4 +129,5 @@ __all__ = [
     "ChatResponse",
     "PermanentBackendError",
     "TransientBackendError",
+    "invoke_with_deadline",
 ]
