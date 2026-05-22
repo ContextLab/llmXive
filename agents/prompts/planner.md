@@ -57,11 +57,11 @@ $schema: ...
 - For computational projects, `contracts/` MUST include at least one
   schema (e.g., dataset schema, output schema) that the
   Implementer's tests can validate against.
-- NEVER invent URLs or citations. If the spec/idea has cited URLs,
-  copy them verbatim; do not add new ones, do not fabricate
-  `(verified YYYY-MM-DD)` annotations. The Reference-Validator
-  fetches every cited URL — fabricated URLs flip the verdict to
-  mismatch.
+- For dataset/code/paper references in research.md, cite ONLY the URLs listed in
+  the "# Verified datasets" block of the user message (these have been
+  web-searched and reachability/format-verified for you). NEVER invent or guess
+  a dataset URL. If the block says a dataset has NO verified source, describe the
+  dataset by name but do NOT fabricate a URL.
 - For DATASETS specifically: `research.md`'s "Dataset Strategy"
   table MUST name only real, programmatically-fetchable sources.
   If the spec calls for "UCI Electricity" but the canonical UCI

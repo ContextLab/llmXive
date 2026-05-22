@@ -19,6 +19,11 @@ from typing import Any
 
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.librarian.dataset_resolver import (
+    render_planner_block,
+    resolve_datasets,
+    write_manifest,
+)
 from llmxive.speckit.runner import run_script
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 
@@ -70,10 +75,19 @@ class PlannerAgent(SlashCommandAgent):
             cwd=ctx.project_dir,
             expect_json=True,
         )
+        spec_path = feature_dir / "spec.md"
+        spec_text = spec_path.read_text(encoding="utf-8") if spec_path.exists() else ""
+        resolved = resolve_datasets(
+            spec_text,
+            project_dir=ctx.project_dir,
+            repo_root=ctx.project_dir.parent.parent,
+        )
+        write_manifest(resolved, project_dir=ctx.project_dir)
         return {  # type: ignore[no-any-return]
             "feature_dir": str(feature_dir),
-            "spec_path": str(feature_dir / "spec.md"),
+            "spec_path": str(spec_path),
             "script_result": result,
+            "dataset_block": render_planner_block(resolved),
         }
 
     def build_prompt(
@@ -104,10 +118,22 @@ class PlannerAgent(SlashCommandAgent):
         )
         from llmxive.speckit._comments_context import render_recent_comments_block
         comments_block = render_recent_comments_block(ctx.project_dir)
+        # Verified-datasets block: produced by mechanical_step in production.
+        # When absent (e.g. a hand-built mechanical_output), resolve here so the
+        # Planner still receives the cite-only block instead of nothing.
+        dataset_block = mechanical_output.get("dataset_block")
+        if dataset_block is None:
+            resolved = resolve_datasets(
+                spec_text,
+                project_dir=ctx.project_dir,
+                repo_root=repo,
+            )
+            dataset_block = render_planner_block(resolved)
         user = (
             f"# spec.md\n\n{spec_text}\n\n"
             f"# Project constitution\n\n{project_constitution}\n\n"
             f"# Plan template\n\n{plan_template}\n\n"
+            + (dataset_block + "\n\n" if dataset_block else "")
             + (comments_block + "\n\n" if comments_block else "")
             + "# Task\n\nProduce all five documents per the output contract."
         )
