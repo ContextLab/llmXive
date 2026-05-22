@@ -34,17 +34,45 @@ _FILE_MARKER_RE = re.compile(
 )
 
 
+_FENCE_LINE_RE = re.compile(r"^```[\w.-]*\s*$")
+
+
+def _strip_wrapping_fences(content: str) -> str:
+    """Strip markdown code fences the LLM commonly wraps around emitted file
+    content. Two cases: (1) the whole file is wrapped (first line ```lang, last
+    line ```), and (2) a stray unmatched fence (odd number of ``` lines), e.g. a
+    trailing ``` appended after a YAML schema — which makes the file invalid
+    YAML. A balanced set of fences (legit code blocks inside a .md) is left
+    untouched."""
+    c = content.strip()
+    lines = c.splitlines()
+    if (
+        len(lines) >= 2
+        and _FENCE_LINE_RE.match(lines[0].strip())
+        and lines[-1].strip() == "```"
+    ):
+        return "\n".join(lines[1:-1]).strip()
+    fence_idxs = [i for i, ln in enumerate(lines) if ln.strip().startswith("```")]
+    if len(fence_idxs) % 2 == 1:  # unmatched stray fence
+        if lines and lines[-1].strip().startswith("```"):
+            lines = lines[:-1]
+        elif lines and lines[0].strip().startswith("```"):
+            lines = lines[1:]
+        return "\n".join(lines).strip()
+    return c
+
+
 def _split_multi_file(text: str) -> dict[str, str]:
     """Return mapping of relative path → content from a multi-file LLM reply."""
     parts: dict[str, str] = {}
     matches = list(_FILE_MARKER_RE.finditer(text))
     if not matches:
         # Single-file reply; assume plan.md.
-        return {"plan.md": text.strip()}
+        return {"plan.md": _strip_wrapping_fences(text)}
     for i, m in enumerate(matches):
         start = m.end()
         end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
-        parts[m.group("path").strip()] = text[start:end].strip()
+        parts[m.group("path").strip()] = _strip_wrapping_fences(text[start:end])
     return parts
 
 

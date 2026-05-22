@@ -130,6 +130,35 @@ class TestFileMarkerSplit:
         files = _split_multi_file("just prose, no FILE markers here")
         assert set(files.keys()) == {"plan.md"}
 
+    def test_split_strips_wrapping_and_stray_code_fences(self) -> None:
+        """Regression (PROJ-262): the LLM wraps file content in ```fences``` or
+        appends a stray trailing ``` — which makes a contracts/*.yaml invalid
+        YAML. The splitter must strip both so the emitted file is clean."""
+        from llmxive.speckit.plan_cmd import _split_multi_file
+        block = (
+            "<!-- FILE: contracts/a.schema.yaml -->\n"
+            "title: A\ntype: object\n```\n"                       # stray trailing fence
+            "<!-- FILE: contracts/b.schema.yaml -->\n"
+            "```yaml\ntitle: B\ntype: object\n```\n"               # fully wrapped
+        )
+        files = _split_multi_file(block)
+        assert "```" not in files["contracts/a.schema.yaml"], files["contracts/a.schema.yaml"]
+        assert "```" not in files["contracts/b.schema.yaml"], files["contracts/b.schema.yaml"]
+        # Content survives intact.
+        import yaml
+        assert yaml.safe_load(files["contracts/a.schema.yaml"])["title"] == "A"
+        assert yaml.safe_load(files["contracts/b.schema.yaml"])["title"] == "B"
+
+    def test_split_keeps_balanced_fences_in_markdown(self) -> None:
+        """A .md file with a balanced (closed) code block keeps its fences."""
+        from llmxive.speckit.plan_cmd import _split_multi_file
+        block = (
+            "<!-- FILE: plan.md -->\n"
+            "# Plan\n\nRun this:\n\n```bash\npython x.py\n```\n\nDone.\n"
+        )
+        files = _split_multi_file(block)
+        assert "```bash" in files["plan.md"]
+
 
 class TestArtifactSetComplete:
     def test_full_set_passes(self) -> None:
