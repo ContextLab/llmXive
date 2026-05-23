@@ -5807,7 +5807,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-23T09:11:53.886889+00:00",
+  "generated_at": "2026-05-23T09:15:06.264020+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -65945,7 +65945,7 @@
         "data": null,
         "idea": "projects/PROJ-617-full-attention-strikes-back-transferring/idea/full-attention-strikes-back-transferring.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-617-full-attention-strikes-back-transferring/paper/pdf/2605.16928.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-617-full-attention-strikes-back-transferring/paper/source/main.tex",
         "paper_spec": null,
@@ -66040,10 +66040,10 @@
       },
       "created_at": "2026-05-23T08:43:38.623279+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-617-full-attention-strikes-back-transferring/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-617-full-attention-strikes-back-transferring/paper/source/main.tex",
-        "repo_path": "projects/PROJ-617-full-attention-strikes-back-transferring/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-617-full-attention-strikes-back-transferring/paper/pdf/2605.16928.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-617-full-attention-strikes-back-transferring/paper/pdf/2605.16928.pdf",
+        "repo_path": "projects/PROJ-617-full-attention-strikes-back-transferring/paper/pdf/2605.16928.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Long-context inference in large language models is bottlenecked by the quadratic cost of full attention. Existing efficient alternatives often rely either on native sparse training or on heuristic token eviction, creating an undesirable trade-off among efficiency, training cost, and accuracy. In this work, we show\u2026",
@@ -66080,7 +66080,7 @@
         "data": null,
         "idea": "projects/PROJ-618-bench-evaluating-proactive-personal-assi/idea/bench-evaluating-proactive-personal-assi.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-618-bench-evaluating-proactive-personal-assi/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -66215,10 +66215,10 @@
       },
       "created_at": "2026-05-23T08:43:40.149563+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-618-bench-evaluating-proactive-personal-assi/idea/bench-evaluating-proactive-personal-assi.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-618-bench-evaluating-proactive-personal-assi/idea/bench-evaluating-proactive-personal-assi.md",
-        "repo_path": "projects/PROJ-618-bench-evaluating-proactive-personal-assi/idea/bench-evaluating-proactive-personal-assi.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-618-bench-evaluating-proactive-personal-assi/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-618-bench-evaluating-proactive-personal-assi/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-618-bench-evaluating-proactive-personal-assi/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "The rise of personal assistant agents, e.g., OpenClaw, highlights the growing potential of large language models to support users across everyday life and work. A core challenge in these settings is proactive assistance, since users often begin with underspecified requests and leave important needs, constraints, or\u2026",
@@ -66255,7 +66255,7 @@
         "data": null,
         "idea": "projects/PROJ-619-delta-discriminative-token-credit-assign/idea/delta-discriminative-token-credit-assign.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-619-delta-discriminative-token-credit-assign/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -66302,10 +66302,10 @@
       },
       "created_at": "2026-05-23T08:43:41.759201+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-619-delta-discriminative-token-credit-assign/idea/delta-discriminative-token-credit-assign.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-619-delta-discriminative-token-credit-assign/idea/delta-discriminative-token-credit-assign.md",
-        "repo_path": "projects/PROJ-619-delta-discriminative-token-credit-assign/idea/delta-discriminative-token-credit-assign.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-619-delta-discriminative-token-credit-assign/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Reinforcement learning from verifiable rewards (RLVR) has emerged as a central technique for improving the reasoning capabilities of large language models. Despite its effectiveness, how response-level rewards translate into token-level probability changes remains poorly understood. We introduce a discriminator view\u2026",
@@ -66342,7 +66342,7 @@
         "data": null,
         "idea": "projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/idea/perception-or-prejudice-can-mllms-go-bey.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -66453,10 +66453,10 @@
       },
       "created_at": "2026-05-23T08:43:43.343638+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/idea/perception-or-prejudice-can-mllms-go-bey.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/idea/perception-or-prejudice-can-mllms-go-bey.md",
-        "repo_path": "projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/idea/perception-or-prejudice-can-mllms-go-bey.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Multimodal Large Language Models (MLLMs) are increasingly deployed in human-facing roles where personality perception is critical, yet existing benchmarks evaluate this capability solely on numerical Big Five score prediction, leaving open whether models truly perceive personality through behavioral understanding or\u2026",
@@ -66493,7 +66493,7 @@
         "data": null,
         "idea": "projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc/idea/transitlm-a-large-scale-dataset-and-benc.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -66564,10 +66564,10 @@
       },
       "created_at": "2026-05-23T08:43:44.888553+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc/idea/transitlm-a-large-scale-dataset-and-benc.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc/idea/transitlm-a-large-scale-dataset-and-benc.md",
-        "repo_path": "projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc/idea/transitlm-a-large-scale-dataset-and-benc.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Public transit route planning traditionally depends on structured map infrastructure and complex routing engines, and no existing dataset supports training models to bypass this dependency. We present TransitLM, a large-scale dataset of over 13 million transit route planning records from four Chinese cities covering\u2026",
