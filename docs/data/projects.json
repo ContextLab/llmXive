@@ -5807,7 +5807,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-23T12:23:56.042004+00:00",
+  "generated_at": "2026-05-23T12:52:48.761500+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -64598,6 +64598,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 172.406139,
+          "ended_at": "2026-05-23T12:52:45.519364+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "target_missing",
+          "started_at": "2026-05-23T12:49:53.113225+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 31.638599,
           "ended_at": "2026-05-22T11:56:20.220656+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -66664,6 +66672,20 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "David Krakauer (simulated)",
+      "duration_s": 172.406139,
+      "ended_at": "2026-05-23T12:52:45.519364+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "target_missing",
+      "personality_slug": "david-krakauer",
+      "project_id": "PROJ-608-autoresearchclaw-self-reinforcing-autono",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-23T12:49:53.113225+00:00"
+    },
     {
       "agent": "personality",
       "display_name": "David Krakauer (simulated)",
@@ -72802,16 +72824,6 @@
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-15T05:47:29.053228Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 10.842044,
-      "ended_at": "2026-05-15T05:47:28.235751Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-15T05:47:17.393707Z"
     }
   ],
   "schema_version": "2.0.0"
