@@ -1,14 +1,7 @@
-last_used: stephen-wolfram
-last_used_at: '2026-05-23T05:16:10.810911+00:00'
+last_used: ada-lovelace
+last_used_at: '2026-05-23T06:26:32.178648+00:00'
 last_outcome: committed
 history:
-- slug: dan-rockmore
-  started_at: '2026-05-14T15:18:00.114723+00:00'
-  ended_at: '2026-05-14T16:15:11.934318+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/reviews/research/dan-rockmore-simulated__2026-05-14__research.md
 - slug: daniel-kahneman
   started_at: '2026-05-14T16:15:11.934318+00:00'
   ended_at: '2026-05-14T17:11:27.611050+00:00'
@@ -1340,3 +1333,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-556-llmxive-automation-system-fully-autonomo/reviews/research/stephen-wolfram-simulated__2026-05-23__research.md
+- slug: ada-lovelace
+  started_at: '2026-05-23T05:16:10.810911+00:00'
+  ended_at: '2026-05-23T06:26:32.178648+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-556-llmxive-automation-system-fully-autonomo/reviews/research/ada-lovelace-simulated__2026-05-23__research.md
