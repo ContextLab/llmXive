@@ -1,14 +1,7 @@
 last_used: marie-curie
-last_used_at: '2026-05-23T21:49:20.272223+00:00'
-last_outcome: committed
+last_used_at: '2026-05-23T22:17:51.918205+00:00'
+last_outcome: model_error
 history:
-- slug: david-krakauer
-  started_at: '2026-05-15T11:18:45.862135+00:00'
-  ended_at: '2026-05-15T12:09:48.405065+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-558-consciousness-bootstrapping-self-aware-a/reviews/research/david-krakauer-simulated__2026-05-15__research.md
 - slug: geoffrey-west
   started_at: '2026-05-15T12:09:48.405065+00:00'
   ended_at: '2026-05-15T13:08:43.681575+00:00'
@@ -1309,3 +1302,7 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/marie-curie-simulated__2026-05-23__research.md
+- slug: richard-feynman
+  started_at: '2026-05-23T21:49:20.272223+00:00'
+  ended_at: '2026-05-23T22:17:51.918205+00:00'
+  outcome: model_error
