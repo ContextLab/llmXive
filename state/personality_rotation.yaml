@@ -1,14 +1,7 @@
 last_used: daniel-kahneman
-last_used_at: '2026-05-23T12:19:34.813447+00:00'
-last_outcome: model_error
+last_used_at: '2026-05-23T12:52:45.519364+00:00'
+last_outcome: target_missing
 history:
-- slug: ada-lovelace
-  started_at: '2026-05-14T21:54:46.731035+00:00'
-  ended_at: '2026-05-14T22:23:46.986440+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research/ada-lovelace-simulated__2026-05-14__research.md
 - slug: aristotle
   started_at: '2026-05-14T22:23:46.986440+00:00'
   ended_at: '2026-05-14T22:49:23.929430+00:00'
@@ -1331,3 +1324,8 @@ history:
   started_at: '2026-05-23T11:56:27.880129+00:00'
   ended_at: '2026-05-23T12:19:34.813447+00:00'
   outcome: model_error
+- slug: david-krakauer
+  started_at: '2026-05-23T12:19:34.813447+00:00'
+  ended_at: '2026-05-23T12:52:45.519364+00:00'
+  outcome: target_missing
+  action: comment
