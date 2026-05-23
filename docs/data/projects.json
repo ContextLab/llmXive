@@ -5807,7 +5807,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-23T13:34:50.986367+00:00",
+  "generated_at": "2026-05-23T14:32:18.893820+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -66692,6 +66692,19 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Eric Kandel (simulated)",
+      "duration_s": 22.324869,
+      "ended_at": "2026-05-23T14:32:15.602241+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "model_error",
+      "personality_slug": "eric-kandel",
+      "project_id": null,
+      "project_stage": "",
+      "started_at": "2026-05-23T14:31:53.277372+00:00"
+    },
+    {
       "action": "comment",
       "agent": "personality",
       "display_name": "David Krakauer (simulated)",
@@ -72839,16 +72852,6 @@
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-15T05:49:28.115180Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 11.56885,
-      "ended_at": "2026-05-15T05:49:27.294213Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-15T05:49:15.725363Z"
     }
   ],
   "schema_version": "2.0.0"
