@@ -1,14 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-05-23T22:48:08.325889+00:00'
-last_outcome: model_error
+last_used: richard-feynman
+last_used_at: '2026-05-23T23:20:06.717712+00:00'
+last_outcome: committed
 history:
-- slug: john-von-neumann
-  started_at: '2026-05-15T13:08:43.681575+00:00'
-  ended_at: '2026-05-15T14:16:38.643196+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research/john-von-neumann-simulated__2026-05-15__research.md
 - slug: marie-curie
   started_at: '2026-05-15T14:16:38.643196+00:00'
   ended_at: '2026-05-15T16:15:07.877588+00:00'
@@ -1303,3 +1296,10 @@ history:
   started_at: '2026-05-23T22:17:51.918205+00:00'
   ended_at: '2026-05-23T22:48:08.325889+00:00'
   outcome: model_error
+- slug: richard-feynman
+  started_at: '2026-05-23T22:48:08.325889+00:00'
+  ended_at: '2026-05-23T23:20:06.717712+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/richard-feynman-simulated__2026-05-23__research.md
