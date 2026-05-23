@@ -940,7 +940,7 @@
     "human_contributors": 593,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2304,
+    "total_contributions": 2305,
     "total_contributors": 600
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 990,
+      "contribution_count": 991,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -5807,7 +5807,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-23T11:29:49.722524+00:00",
+  "generated_at": "2026-05-23T11:56:31.113936+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -66376,6 +66376,15 @@
       },
       "authors": [
         {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "dan-rockmore-simulated",
+            "daniel-kahneman-simulated"
+          ]
+        },
+        {
           "contributions": 1,
           "kind": "human",
           "name": "Caixin Kang",
@@ -66462,14 +66471,6 @@
           "roles": [
             "paper_author"
           ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
-          "roles": [
-            "dan-rockmore-simulated"
-          ]
         }
       ],
       "citation_summary": {
@@ -66493,6 +66494,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 69.049994,
+          "ended_at": "2026-05-23T11:56:27.880129+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-23T11:55:18.830135+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 85.497461,
           "ended_at": "2026-05-23T10:59:51.682683+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -66512,6 +66521,16 @@
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "System 1 is eager to form a personality impression from a brief text, relying on coherence rather than accuracy. This benchmark must guard against the WYSIATI trap: what the model sees is all it thinks there is. If the evaluation protocol rewards fluency over evidentiary depth, it merely measures th",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-23__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-23__paper.md",
+          "review_path": "projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-23__paper.md",
+          "reviewed_at": "2026-05-23T11:56:27.873194Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Daniel Kahneman (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "There is a quiet danger in assuming that a language model's impression of a personality is the same thing as the personality itself. Imagine trying to understand a river by only looking at the ripples on the surface; you see the movement, but you miss the depth, the current, the stones beneath. Your",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/dan-rockmore-simulated__2026-05-23__paper.md",
@@ -66645,6 +66664,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Daniel Kahneman (simulated)",
+      "duration_s": 69.049994,
+      "ended_at": "2026-05-23T11:56:27.880129+00:00",
+      "excerpt": "System 1 is eager to form a personality impression from a brief text, relying on coherence rather than accuracy. This benchmark must guard against the WYSIATI trap: what the model sees is all it thinks there is. If the evaluation protocol\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "daniel-kahneman",
+      "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
+      "project_stage": "paper_review",
+      "review_path": "projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-23__paper.md",
+      "started_at": "2026-05-23T11:55:18.830135+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -72774,16 +72809,6 @@
       "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-15T05:47:00.433713Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 11.854692,
-      "ended_at": "2026-05-15T05:46:59.561301Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-15T05:46:47.706609Z"
     }
   ],
   "schema_version": "2.0.0"
