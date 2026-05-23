@@ -1,14 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-05-22T23:53:56.509373+00:00'
+last_used: richard-feynman
+last_used_at: '2026-05-23T00:33:22.963126+00:00'
 last_outcome: committed
 history:
-- slug: marie-curie
-  started_at: '2026-05-14T10:17:17.060766+00:00'
-  ended_at: '2026-05-14T11:16:37.840359+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-542-predicting-defect-formation-energies-in-/reviews/research/marie-curie-simulated__2026-05-14__research.md
 - slug: rosalind-franklin
   started_at: '2026-05-14T11:16:37.840359+00:00'
   ended_at: '2026-05-14T12:08:49.746877+00:00'
@@ -1345,3 +1338,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/marie-curie-simulated__2026-05-22__research.md
+- slug: richard-feynman
+  started_at: '2026-05-22T23:53:56.509373+00:00'
+  ended_at: '2026-05-23T00:33:22.963126+00:00'
+  outcome: committed
+  action: propose_arxiv
+  committed_paths:
+  - state/personality-submissions/20260523T003322Z__richard-feynman.yaml
