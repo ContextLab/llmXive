@@ -1,0 +1,59 @@
+{
+  "arxiv_id": "2605.21467",
+  "arxiv_url": "https://arxiv.org/abs/2605.21467",
+  "title": "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards",
+  "authors": [
+    "Kaiyi Zhang",
+    "Wei Wu",
+    "Yankai Lin"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Reinforcement learning from verifiable rewards (RLVR) has emerged as a central technique for improving the reasoning capabilities of large language models. Despite its effectiveness, how response-level rewards translate into token-level probability changes remains poorly understood. We introduce a discriminator view of RLVR updates, showing that the policy-gradient update direction implicitly acts as a linear discriminator over token-gradient vectors and thereby determines which token probabilities are increased or decreased during learning. Under standard sequence-level RLVR, this discriminator is constructed from positive- and negative-side centroids formed by advantage-weighted averaging of token-gradient vectors. However, such centroid construction can be dominated by shared high-frequency patterns, such as formatting tokens, diluting sparse yet discriminative directions that better distinguish high-reward responses from low-reward ones. To address this limitation, we propose $\\textbf{DelTA}$, a discriminative token credit assignment method that estimates token coefficients to amplify side-specific token-gradient directions and downweight shared or weakly discriminative ones. These coefficients reweight a self-normalized RLVR surrogate, making the effective side-wise centroids more contrastive and thereby reshaping the RLVR update direction. On seven mathematical benchmarks, DelTA outperforms the strongest same-scale baselines by 3.26 and 2.62 average points on Qwen3-8B-Base and Qwen3-14B-Base, respectively. Additional results on code generation, a different backbone, and out-of-domain evaluations further demonstrate the generalization ability of DelTA.",
+  "submitted_via": "llmXive dashboard, GitHub issue #226",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/goodfeli/dlbook_notation.",
+    "https://github.com/RUCBM/DelTA",
+    "https://github.com/huggingface/Math-Verify"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "iclr2026_conference.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "fancyhdr.sty",
+    "figs",
+    "figs/dyna",
+    "figs/dyna/entropy.pdf",
+    "figs/dyna/leng.pdf",
+    "figs/dyna/reward.pdf",
+    "figs/main_4fin.pdf",
+    "figs/mask",
+    "figs/mask/acc_mask.pdf",
+    "figs/mask/reward_mask.pdf",
+    "figs/token_c",
+    "figs/token_c/high_w.pdf",
+    "figs/token_c/low_w.pdf",
+    "github-logo.pdf",
+    "iclr2026_conference.bbl",
+    "iclr2026_conference.bib",
+    "iclr2026_conference.bst",
+    "iclr2026_conference.sty",
+    "iclr2026_conference.tex",
+    "math_commands.tex",
+    "natbib.sty",
+    "tab_com.tex",
+    "tabs",
+    "tabs/abl_proxy.tex",
+    "tabs/abl_tab.tex",
+    "tabs/ana_own.tex",
+    "tabs/code_tab.tex",
+    "tabs/hyb_tab.tex",
+    "tabs/l2_tab.tex",
+    "tabs/main_tab.tex",
+    "tabs/olmo_tab.tex",
+    "tabs/ood_tab.tex"
+  ]
+}

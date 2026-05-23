@@ -1,0 +1,77 @@
+\clearpage
+\section{Case Study}
+\label{app:case_study}
+
+\subsection{Hidden Intents}
+
+\paragraph{Failure case: Researcher -- Claude 4.6 Opus.}
+Fig.~\ref{fig:case_zhanghaoran_1_hidden_intent_trigger} and Fig.~\ref{fig:case_zhanghaoran_1_hidden_intent_resolution} show a representative hidden-intent case from the Researcher user episode evaluated with Claude 4.6 Opus.
+The session begins from an environment-triggered paper recommendation feed, where the relevant requirement is not stated as a direct user instruction.
+The agent first handles the feed as a broad recommendation task, and only later focuses on the OpenClaw-related subset after the user explicitly asks for it.
+The key signal is the hidden-intent assignment: several intents are marked as {\provided} rather than {\completed} or {\inferred}, indicating that the user had to surface requirements that the agent did not proactively resolve.
+Although the final trajectory has moderate completeness, this case mainly illustrates weak proactive intent resolution under an underspecified trigger.
+
+\input{0.0-figure/case_zhanghaoran_1}
+
+\paragraph{Contrast case: Researcher -- DeepSeek V3.2 and Claude 4.6 Opus.}
+Fig.~\ref{fig:case_zhangshunkai_1_deepseek_task} and Fig.~\ref{fig:case_zhangshunkai_1_deepseek_trajectory} show the DeepSeek V3.2 trace, while Fig.~\ref{fig:case_zhangshunkai_1_claude_task} and Fig.~\ref{fig:case_zhangshunkai_1_claude_trajectory} show the Claude 4.6 Opus trace for the same Researcher meal-planning task.
+Both runs receive the same initial request, which explicitly mentions only a one-week meal plan and the RMB 20--30 price constraint, while the user's body profile, macro accounting, table structure, and Plan B requirements remain hidden but recoverable from prior context.
+We focus on the first assistant turn because it occurs before the user reveals any hidden requirements and therefore best isolates proactive recovery from visible-request following.
+DeepSeek V3.2 mostly follows the visible budget and availability cue in this first response; although it recognizes campus-accessible food options, it does not recover the prior-session body profile, table preference, per-meal macro requirement, or Plan B preference, so the user has to reveal several requirements across later turns.
+Claude 4.6 Opus captures more task structure immediately: it goes beyond the visible price constraint by imposing a readable table, listing concrete foods for each day and meal, and grounding choices in campus or nearby meal availability.
+However, Claude still requires later user turns for macro totals, per-meal P/F/C values, and fallback meals.
+The contrast is a stronger-versus-weaker proactivity comparison rather than a binary success-failure case: both trajectories improve after user intervention, but their scores differ according to how much hidden intent is resolved before the user supplies it.
+
+\input{0.0-figure/case_zhangshunkai_1}
+
+\paragraph{Success case: Marketer -- GPT-5.4.}
+Fig.~\ref{fig:case_zhangshunkai_2_targeted_followup_task} and Fig.~\ref{fig:case_zhangshunkai_2_targeted_followup_trajectory} show a targeted-followup success case from a Marketer crisis-communication episode evaluated with GPT-5.4.
+The initial trigger is a system webhook requesting a final X apology letter after a prior client-alignment session, but it does not restate the approved engineering cause, compensation language, or full incident scale.
+Instead of fabricating a publishable statement from incomplete context, the agent asks focused questions about the missing approval facts.
+The user-agent tracking marks the matched targeted-followup indexes for the engineering explanation and compensation as {\inferred}, meaning the agent's clarification directly elicited hidden intents that would otherwise have remained unstated.
+After the user supplies those two requirements, the next response states the approved cause and compensation while also incorporating the incident-scale facts recovered from the prior context, reaching perfect \textsc{Comp} and \textsc{Proc}.
+This case illustrates a successful proactive pattern: a targeted clarification can count as intent inference when it asks for the specific missing fact needed to complete a high-stakes artifact.
+
+\input{0.0-figure/case_zhangshunkai_2}
+
+\paragraph{Success case: Pharmacist -- Kimi K2.5.}
+Fig.~\ref{fig:case_zhangshunkai_3_targeted_followup_task} and Fig.~\ref{fig:case_zhangshunkai_3_targeted_followup_trajectory} show a targeted-followup case from a Pharmacist sandbox-Gmail workflow evaluated with Kimi K2.5.
+The initial request asks the agent to read a local booking brief, send a simulated Gmail message, and verify the send, but the available tool set reported by the agent does not expose Gmail functions.
+In the first turn, the agent asks a focused question about which email-sending method to use, and the user-agent marks the direct-send workflow intent as {\inferred}.
+The same response also recovers key brief-derived message requirements by drafting an instrument-availability request with Tuesday/Thursday afternoon availability, the 4-hour LC-MS slot, and the 30-minute sample-preparation note, although later checklist scoring still penalizes exact block content and tool evidence.
+This case is useful because it separates hidden-intent proactivity from final task success: the targeted follow-up and partial brief-detail recovery raise \textsc{Proc}, while the final checklist remains low because the Gmail login, direct send, and outbox confirmation are not supported by tool evidence.
+
+\input{0.0-figure/case_zhangshunkai_3}
+
+\subsection{Checklist}
+% 找一个适合展示的 task turn + 1 个 checklist 较高的 model output +  1 个 checklist 较低的  model output（同一 task turn 的不同模型 output）
+\paragraph{Success case: Law Trainee -- GPT-5.4.}
+Fig.~\ref{fig:case_leihaodi_1_checklist_task} shows the shared task and checklist targets, and Fig.~\ref{fig:case_leihaodi_1_gpt54_trajectory} shows the higher-scoring GPT-5.4 trajectory from the Law Trainee user episode.
+The GPT-5.4 run shows a high-completeness checklist pattern: after the missing handover details are surfaced during interaction, the agent sends a consolidated SMS that covers the pickup slot, required originals, reply deadline, and risk-flag instruction, while also creating and deleting the temporary Todoist board with the required reminder content.
+The remaining misses are mainly strict tool-string checks, so this case illustrates how checklist evaluation can separate strong end-task completion from exact tool-evidence failures.
+
+\paragraph{Failure case: Law Trainee -- Kimi K2.5.}
+Fig.~\ref{fig:case_leihaodi_1_kimi_trajectory} shows the lower-scoring Kimi K2.5 trajectory on the same Yuehai court-side handover task.
+The Kimi K2.5 trajectory completes some visible actions, including sending SMS messages and briefly using Todoist, but it leaves several checklist requirements unsupported by the final trace.
+The handover information is split across messages rather than preserved as one compact phone-readable SMS, the reply deadline and risk-flag instruction are absent, and the Todoist reminder content does not cover the annotated 10:45 packet-completeness and stamped-page checks.
+This contrast highlights why checklist-based grading is necessary in addition to surface-level task progress: both agents interact with the same tools, but only the higher-scoring trajectory preserves the operational details needed for a reliable handover.
+
+\input{0.0-figure/case_leihaodi_1}
+
+\subsection{Cross-Session Dependency Design}
+% 找一个适合展示的 task group + 1 个 proactivity and completeness 较高的 model trace + 1 个 proactivity and completenes 较低的 model trace（同一 task 的不同模型 trace，包含多条 input / output）
+% 其中一个 trace 很好地捕捉到了铺垫任务的 intents 而更好更快地完成了该条测试任务，另一个 trace 则没有很好地完成这一点
+\paragraph{Success case: Researcher -- Claude 4.6 Opus.}
+Fig.~\ref{fig:case_leihaodi_2_dependency_task} shows a cross-session dependency case from the Researcher user episode, where the current request refers only to the user's research theme.
+The relevant theme and output conventions were established in earlier sessions: the user had explored think-with-image multimodal agents, preferred a small batch of papers, and expected links, open-source status, and concrete follow-up paths.
+As shown in Fig.~\ref{fig:case_leihaodi_2_claude_trajectory}, Claude 4.6 Opus carries over the research theme and several output conventions, allowing it to complete much of the target paper-selection and metadata checklist within three turns.
+
+\paragraph{Failure case: Researcher -- Kimi K2.5.}
+Fig.~\ref{fig:case_leihaodi_2_kimi_trajectory} shows the lower-scoring Kimi K2.5 trajectory on the same task.
+Instead of recovering the user's research theme and presentation preferences from prior sessions, the agent repeatedly waits for the user to restate them.
+The resulting conversation is longer, and the selected papers drift away from the annotated target set, leading to low proactivity and zero checklist completion despite several rounds of user-provided requirements.
+
+\input{0.0-figure/case_leihaodi_2}
+
+% \subsection{Edge Cases}
+% 边界情况怎么处理，例如 agent asks a generic question 是否算 inferred，agent partially satisfies an intent 是否算 completed，agent produces an artifact before asking 是否优先 counted as completed，user reveals intent after irrelevant response 是否 counted as provided

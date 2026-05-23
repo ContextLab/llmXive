@@ -1,0 +1,42 @@
+\begin{wraptable}{r}{0.65\textwidth}
+%\vspace{-10pt}
+\centering
+\caption{
+Ablation study of DelTA. The best results are in \textbf{bold}, and the second-best results are \underline{underlined}.
+}
+\label{tab:ablation}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.06}
+
+% 修改点：将 p{0.34\linewidth} 替换为 l，去掉多余的段落对齐命令
+\begin{tabularx}{\linewidth}{@{}l*{5}{>{\centering\arraybackslash}X}@{}}
+\toprule
+\textbf{Method}
+& AIME25
+& AIME26
+& HMMT25
+& HMMT26
+& Avg. \\
+\midrule
+
+\rowcolor{cyan!10}
+\bodystrut \textbf{Full DelTA}
+& \textbf{26.46} & \textbf{28.12} & \textbf{18.54} & \textbf{20.27} & \textbf{23.27} \\
+
+\midrule
+\bodystrut w/o adaptive \(\gamma\)
+& \underline{25.00} & 26.04 & \underline{16.04} & 17.99 & 21.19 \\
+\bodystrut w/o \(h(\alpha)\)
+& 24.37 & \underline{26.87} & 15.42 & 17.42 & 20.93 \\
+\bodystrut w/o \(\lambda\)-norm
+& 24.37 & 26.25 & 15.83 & \underline{19.32} & \underline{21.39} \\
+\bodystrut w/o range map
+& 24.79 & 25.83 & 15.83 & 17.05 & 20.78 \\
+\bodystrut w/o refinement
+& 23.13 & 25.42 & 15.42 & 16.29 & 19.97 \\
+
+\bottomrule
+\end{tabularx}
+\vspace{-10pt}
+\end{wraptable}

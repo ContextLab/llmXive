@@ -1,0 +1,28 @@
+\begin{wraptable}{r}{0.48\textwidth}
+\vspace{-10pt}
+\centering
+\caption{Code generation results. DelTA consistently improves performance across all benchmarks.}
+\label{tab:results_on_Code}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.85}
+
+\begin{tabularx}{\linewidth}{
+@{}>{\small\raggedright\arraybackslash}l
+*{4}{>{\small\centering\arraybackslash}X}
+@{}}
+\toprule
+{\scriptsize\textbf{Method}}
+& {\scriptsize\textbf{HumanEval+}}
+& {\scriptsize\textbf{MBPP+}}
+& {\scriptsize\textbf{LCB}}
+& {\scriptsize\textbf{Avg.}} \\
+\midrule
+
+DAPO & 83.0 & 72.1 & 33.4 & 47.7 \\
+\rowcolor{cyan!10}
+\textbf{DelTA} & \textbf{84.6} & \textbf{73.2} & \textbf{35.6} & \textbf{49.5} \\
+\bottomrule
+\end{tabularx}
+\vspace{-10pt}
+\end{wraptable}

@@ -1,0 +1,40 @@
+\begin{table}[t]
+\centering
+\caption{
+Hyperparameter sensitivity study of DelTA. 
+The best results are in \textbf{bold}, and the second-best results are \underline{underlined}.
+}
+\label{tab:sens}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.06}
+
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}*{5}{>{\centering\arraybackslash}X}@{}}
+\toprule
+\textbf{Method}
+& AIME25
+& AIME26
+& HMMT25
+& HMMT26
+& Avg. \\
+\midrule
+
+\rowcolor{cyan!10}
+\bodystrut \textbf{Base DelTA}
+& \textbf{26.46} & \underline{28.12} & \underline{18.54} & \textbf{20.27} & \textbf{23.27} \\
+
+\midrule
+\bodystrut \(\lambda_{\min} = 0.5\)
+& 25.42 & \textbf{28.96} & \textbf{19.17} & 19.70 & \underline{23.22} \\
+\bodystrut \(\lambda_{\max} = 1.5\)
+& \underline{26.46} & 26.25 & 18.75 & 19.89 & 22.77 \\
+\bodystrut \(\lambda_{\min} = 0.5, \lambda_{\max} = 1.5\)
+& 25.62 & 27.92 & 18.96 & \underline{20.08} & 23.07 \\
+\bodystrut \(K=2\)
+& 25.00 & 27.08 & 18.33 & 18.56 & 22.15 \\
+\bodystrut \(K=3\)
+& 26.04 & 26.67 & 18.12 & 18.37 & 22.20 \\
+
+\bottomrule
+\end{tabularx}
+\end{table}

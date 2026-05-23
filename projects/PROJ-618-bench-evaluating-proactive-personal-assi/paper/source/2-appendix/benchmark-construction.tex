@@ -1,0 +1,67 @@
+\section{Benchmark Construction and Annotation}
+\label{app:data_construction}
+
+\subsection{Task Sources and Workflow Collection}
+\label{app:task_sources}
+
+\paragraph{Workflow sources.}
+
+% \haodi{below five user roles is "AI PhD, content creator, lawyer, medical researcher, and finance professional", but in main text, five user roles is "researcher、marketer、law trainee、pharmacist、financier"}
+Tasks are derived from realistic workflows associated with the five user roles in {\bench}: researcher, marketer, law trainee, pharmacist, and financier. For each role, we first collect representative work routines, common deliverables, and supporting materials from domain experts and public task patterns. These sources cover both professional work and everyday knowledge work, such as experiment analysis, paper writing, content planning, document review, literature organization, financial reconciliation, and report generation.
+
+\paragraph{Selection criteria.}
+During collection, we focus on workflows that are artifact-centric and naturally require interaction. We also require the workflow to contain realistic underspecification. In other words, the task should not be fully determined by the first user message. Instead, correct completion should depend on constraints, preferences, prior decisions, or workspace context that the agent needs to recover through proactive behavior.
+
+\paragraph{Data sanitization.}
+We do not directly use private or sensitive real-world data. When a workflow is inspired by actual work practice, annotators rewrite and normalize the materials into synthetic but realistic task instances. This includes replacing private names, removing sensitive details, simplifying irrelevant background, and ensuring that all required information can be accessed through the provided workspace, memory, or interaction protocol.
+
+\subsection{Task Construction Procedure}
+\label{app:task_construction_procedure}
+
+\paragraph{Task goal selection.}
+For each candidate workflow, annotators first define a task goal that is realistic, checkable, and well-scoped. The goal should reflect a plausible need of the corresponding user role, cover a meaningful part of the workflow, and admit clear evidence for whether the agent has completed it. We avoid goals that are either too narrow to require interaction or too broad to support reliable evaluation.
+
+\paragraph{Task specification.}
+Annotators then convert the workflow into a concrete task specification. This process includes:
+\begin{itemize}[leftmargin=10pt, topsep=0pt, itemsep=1pt, partopsep=1pt, parsep=1pt]
+    \item Decide what information should appear in the initial request and what information should remain implicit as hidden intents.
+    \item Prepare the workspace state and supporting materials, such as input files, prior artifacts, structured records, or tool-accessible information.
+    \item Specify cross-session dependencies when earlier decisions, files, or user preferences should influence the current session.
+\end{itemize}
+The initial request must be underspecified enough to test proactivity, while still being concrete enough for the agent to begin useful work.
+
+\paragraph{Intent and checklist annotation.}
+Annotators next define the hidden intents and checklist items. Hidden intents capture latent requirements that should affect the agent's behavior during the interaction, such as constraints, preferences, output conventions, or dependencies on prior context. Checklist items capture final completion requirements that can be verified from the trajectory, produced artifacts, or tool records.
+
+\paragraph{Feasibility validation.}
+After annotation, annotators validate each task before inclusion in the benchmark. This step checks whether the task is solvable with the provided context, whether the required tools and files are correctly connected, and whether the evaluation criteria can be applied reliably. The validation process includes:
+\begin{itemize}[leftmargin=10pt, topsep=0pt, itemsep=1pt, partopsep=1pt, parsep=1pt]
+    \item Construct a reference workflow that describes a plausible completion path using the available workspace, tools, and interaction protocol.
+    \item Create expected artifacts when the task requires concrete outputs, such as documents, tables, code files, or structured records.
+    \item Bind required tools, input files, and workspace paths to ensure that the agent can access the information needed for completion.
+    \item Run pilot executions to identify missing context, broken tool paths, unclear instructions, unstable graders, or checklist items that are difficult to judge.
+\end{itemize}
+Tasks are revised or removed when validation reveals ambiguity or infeasibility. Revisions may include rewriting the initial request, refining hidden intents, splitting checklist items, adding missing workspace context, or adjusting graders for more stable verification.
+
+\subsection{Annotation Guidelines}
+\label{app:annotation_guidelines}
+
+\paragraph{Initial requests.}
+The initial request defines the user-facing starting point of a session. Annotators write it to be natural and actionable, while deliberately leaving some task-relevant requirements unstated so that proactive behavior can be evaluated. Tab.~\ref{tab:annotation_initial_request} summarizes the main annotation rules.
+
+\input{0.1-table/guideline_initial_requests}
+
+\paragraph{Hidden intents.}
+Hidden intents specify unstated requirements that should shape the agent's behavior during interaction. Annotators use them to define what a proactive assistant should complete directly or elicit through a targeted question. Tab.~\ref{tab:annotation_hidden_intents} summarizes the main rules.
+
+\input{0.1-table/guideline_hidden_intents}
+
+\paragraph{Checklists and graders.}
+Checklist items define verifiable outcome criteria for completeness evaluation. Annotators write them separately from hidden intents so that proactive intent resolution and final task completion can be measured independently. Tab.~\ref{tab:annotation_checklists} summarizes the main rules.
+
+\input{0.1-table/guideline_checklists_graders}
+
+\subsection{Quality Control}
+\label{app:data_quality_control}
+
+Before inclusion in the final benchmark, each task undergoes iterative checks and revisions. Annotators inspect the task package for leakage and recoverability, ensuring that hidden intents are not directly exposed in the initial request while still being recoverable from prior sessions, workspace artifacts, memory, tool results, or targeted clarification. They also run pilot executions to detect setup issues, including missing files, invalid tool bindings, broken workspace paths, and infeasible task flows. Finally, they validate the evaluation resources by checking that rubric-based criteria can be judged from the selected evidence and that rule-based graders behave correctly on expected cases. Tasks are revised or removed when these checks reveal ambiguity, infeasibility, or unstable evaluation.

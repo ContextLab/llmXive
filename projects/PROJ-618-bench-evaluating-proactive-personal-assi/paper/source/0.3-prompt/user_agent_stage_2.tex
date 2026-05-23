@@ -1,0 +1,67 @@
+
+
+% \newcommand{\tcolorboxPromptUserAgentStageTwoTitleText}{\fontsize{10}{12}\selectfont}
+% \newcommand{\tcolorboxPromptUserAgentStageTwoCommonText}{\fontsize{7.5}{9}\selectfont}
+% \newcommand{\tcolorboxPromptUserAgentStageTwoTitleBeforeVspace}{\vspace{10 pt}}
+% \newcommand{\tcolorboxPromptUserAgentStageTwoCommonTextLineSkip}{\setlength{\baselineskip}{5 pt}}
+
+\newcommand{\tcolorboxPromptUserAgentStageTwoTitleText}{}
+\newcommand{\tcolorboxPromptUserAgentStageTwoCommonText}{}
+\newcommand{\tcolorboxPromptUserAgentStageTwoTitleBeforeVspace}{}
+\newcommand{\tcolorboxPromptUserAgentStageTwoCommonTextLineSkip}{}
+
+\tcolorboxPrompt{Prompt -- Clarification Checking
+}{
+% \tcolorboxPromptUserAgentStageTwoCommonTextLineSkip
+% \tcolorboxPromptUserAgentStageTwoCommonText
+\ttfamily
+\#\# Assistant Response
+
+<assistant\_message>
+
+\{assistant\_message\}
+
+</assistant\_message> \\
+
+\#\# Hidden Intents Still Not Provided
+
+Judge only the hidden intents listed here.
+
+\{status\_hidden\_intents\_xml\} \\
+
+\#\# Objective
+
+Decide whether the assistant response contains a clear follow-up question that is specifically about each listed hidden intent. \\
+
+\#\# Evaluation Policy
+
+1. Judge from the assistant response. Consider all follow-up questions, requests, and action suggestions inside it, not only the last sentence.
+
+2. YES means the assistant explicitly asks about that hidden intent, asks a very close confirmation question about it, or proposes concrete next steps that directly correspond to it.
+
+3. NO means the question is missing, vague, generic, or does not clearly target that hidden intent.
+
+4. Generic prompts such as ``anything else?'' or ``do you want to add more?'' must be NO.
+
+5. A question must clearly get the point. Broad topic overlap is not enough. \\
+
+\#\# Output Format
+
+Output only XML blocks in the following shape.
+
+<c1>
+
+<content>
+
+\{hidden\_intent\_content\}
+
+</content>
+
+<decision>
+
+YES or NO
+
+</decision>
+
+</c1>
+}

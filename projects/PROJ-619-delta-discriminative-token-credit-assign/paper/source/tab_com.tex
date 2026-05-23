@@ -1,0 +1,76 @@
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{makecell}
+\usepackage[table]{xcolor}
+\usepackage{tikz}
+\usepackage{wrapfig}
+\usepackage{booktabs}
+
+\newlength{\rightheight}
+
+\definecolor{uclablue}{rgb}{0.15, 0.45, 0.68}
+
+
+
+\definecolor{lightgreen}{RGB}{0,150,0}
+\definecolor{myred}{RGB}{200,0,0} % 你也可以用 red!70 之类
+
+% 下标版本：\cimp{main}{delta} / \cdec{main}{delta}
+\newcommand{\cimp}[2]{%
+  \tikz[baseline=(n.base)]{
+    \node[inner sep=0pt, outer sep=0pt] (n) {\(#1\)};
+    \node[
+      anchor=north west,
+      inner sep=0pt,
+      outer sep=0pt,
+      xshift=-0.05em,
+      yshift=0.15ex,
+      text=green!60!black,
+      font=\tiny
+    ] at (n.south east) {#2};
+  }%
+}
+
+\newcommand{\cgain}[2]{%
+  \mathbf{#1}{\;\tiny\textcolor{green!60!black}{(+#2)}}%
+}
+
+\newcommand{\cdec}[2]{%
+  \ensuremath{%
+    #1%
+    \mathrlap{_{\scriptscriptstyle\textcolor{myred}{#2}}}%
+  }%
+}
+
+% 更小（0.5倍缩放）的下标版本：\scimp / \scdec
+\newcommand{\scimp}[2]{%
+  \ensuremath{%
+    #1%
+    \mathrlap{_{\textcolor{lightgreen}{\scalebox{0.5}{#2}}}}%
+  }%
+}
+
+\newcommand{\scdec}[2]{%
+  \ensuremath{%
+    #1%
+    \mathrlap{_{\textcolor{myred}{\scalebox{0.5}{#2}}}}%
+  }%
+}
+
+
+\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
+\usepackage{tabularx}
+\robustify\bfseries
+\usepackage{subcaption}
+\usepackage{cleveref}
+\renewcommand{\UrlFont}{\ttfamily\small}
+
+
+\definecolor{linkColor}{rgb}{0.2,0.4,0.6}
+\definecolor{myblue}{HTML}{0379AC}
+\definecolor{myred}{HTML}{A50E50}
+\definecolor{myorange}{RGB}{238, 133, 74}
+\definecolor{latentcolor}{named}{cyan}
+\definecolor{normalcolor}{RGB}{0, 0, 0}
+\usepackage{marvosym}

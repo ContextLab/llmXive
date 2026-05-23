@@ -1,0 +1,32 @@
+\section{User Agent Protocol}
+\label{app:user_agent}
+
+\subsection{Overview}
+\label{app:user_agent_overview}
+The user agent is instantiated with GPT-5.4 as the base model and simulates the user side of each session. It controls how hidden requirements are revealed during interaction. Given the current dialogue, the latest agent response, and the task-level hidden intents, it updates the intent tracking state and produces the next user message when the session should continue. This protocol separates user simulation from final task grading. Specifically, the user agent determines whether hidden intents have been proactively resolved or need to be revealed, while checklist-based graders evaluate whether the final artifacts satisfy the task requirements.
+
+To support stable trajectory-level evaluation, we decompose the user agent protocol into two stages rather than relying on a single free-form user simulator to both judge the agent response and generate the next message. The first stage checks whether the agent has already satisfied any hidden intents through its response, tool use, or workspace updates. The second stage determines whether the agent has asked a targeted clarification question and, if needed, generates the next user message. This design makes terminal intent assignment more explicit while preserving natural multi-turn interaction.
+
+\subsection{Two-Stage Intent Assignment}
+\label{app:user_agent_assignment}
+
+At each turn, the user agent only considers hidden intents that have not yet received a terminal status. Once an intent is assigned $\completed$, $\inferred$, or $\provided$, it is removed from subsequent tracking within the same session.
+
+Assignment is performed in two stages. In the first stage, the user agent checks whether the latest agent response has already satisfied one or more unresolved intents. Evidence may come from the response content, a tool call, or a newly created or modified artifact. If an intent is satisfied without being explicitly stated by the user, it is assigned $\completed$. This stage has priority because it captures the strongest form of proactivity, where the agent directly acts on an unstated requirement rather than asking the user to provide it.
+
+\input{0.3-prompt/user_agent_stage_1}
+
+In the second stage, the user agent checks whether the latest agent response contains a clarification question. If the question directly targets one or more unresolved intents, those intents are assigned $\inferred$, and the user agent answers the corresponding missing requirements in the next message. A question is considered targeted only when it asks for information needed to resolve a specific hidden intent. Generic questions such as asking whether the user has any other preferences are not sufficient unless they clearly identify the missing requirement.
+
+If no targeted clarification question is found, the user agent selects one unresolved intent that is relevant to the current stage of the task and reveals the corresponding information in the next message. The selected intent is then assigned $\provided$. This case reflects a weaker interaction pattern, where the user must supply missing information because the agent neither completed the intent nor elicited it through a focused question.
+
+\input{0.3-prompt/user_agent_stage_2}
+
+This two-stage procedure induces a priority order among terminal statuses. Direct satisfaction is assigned before targeted elicitation, and targeted elicitation is assigned before user-provided information. This order matches the proactivity score in Sec.~\ref{sec:evaluation}, where both $\completed$ and $\inferred$ are treated as proactive behavior, while $\provided$ indicates that the user had to surface the requirement without sufficient agent initiative.
+
+\subsection{Session Termination}
+\label{app:user_agent_termination}
+
+A session terminates after every hidden intent in $\mathcal{I}$ has received a terminal status and the agent has produced its final response. This rule provides a concrete stopping condition for the simulated interaction and avoids requiring the user agent to make a separate subjective judgment about whether the conversation has naturally ended. Once all hidden intents have been completed, inferred, or provided, the user agent has no remaining hidden requirement to reveal, and the session has reached the intended stopping point for proactivity evaluation.
+
+This termination rule is aligned with the metric definition. Since $\textsc{Proc}$ is computed from the partition of hidden intents into $\intentcompleted$, $\intentinferred$, and $\intentprovided$, the session ends only after all intents have been assigned to one of these sets. The final trajectory is then passed to checklist graders for completeness evaluation, which is independent of whether each intent was completed, inferred, or provided during interaction.

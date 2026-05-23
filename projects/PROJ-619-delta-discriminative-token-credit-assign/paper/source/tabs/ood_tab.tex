@@ -1,0 +1,38 @@
+\begin{wraptable}{r}{0.42\textwidth}
+%\vspace{-10pt}
+\centering
+\caption{
+OOD evaluation on GPQA-D and MMLU-Pro.
+The best results are in \textbf{bold}.
+}
+\label{tab:results_on_ood}
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{0.88}
+
+\begin{tabularx}{\linewidth}{
+@{}>{\scriptsize\raggedright\arraybackslash}l
+*{3}{>{\scriptsize\centering\arraybackslash}X}
+@{}}
+\toprule
+\textbf{Method}
+& \textbf{GPQA-D}
+& \textbf{MMLU-Pro}
+& \textbf{Avg.} \\
+\midrule
+
+\multicolumn{4}{@{}l}{\emph{\textbf{Qwen3-8B-Base}}} \\
+DAPO & 43.43 & 63.97 & 58.87 \\
+\rowcolor{cyan!10}
+\textbf{DelTA} & \textbf{50.00} & \textbf{66.47} & \textbf{62.38} \\
+\midrule
+
+\multicolumn{4}{@{}l}{\emph{\textbf{Qwen3-14B-Base}}} \\
+DAPO & 54.55 & 70.80 & 66.77 \\
+\rowcolor{cyan!10}
+\textbf{DelTA} & \textbf{56.67} & \textbf{72.27} & \textbf{68.40} \\
+\bottomrule
+\end{tabularx}
+
+\vspace{-10pt}
+\end{wraptable}

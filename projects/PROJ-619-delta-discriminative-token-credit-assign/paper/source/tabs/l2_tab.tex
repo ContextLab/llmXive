@@ -1,0 +1,35 @@
+\begin{table}[t]
+\centering
+\caption{
+Robust within-side centroid ablation on representative mathematical reasoning benchmarks.
+DAPO corresponds to the original squared-\(\ell_2\) side-wise centroid implied by the local update, while the \(\ell_2\)-centroid variant replaces it with a robust within-side centroid estimator without using the opposite-side centroid.
+The best results are in \textbf{bold}.
+}
+\label{tab:l2}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.06}
+
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}*{5}{>{\centering\arraybackslash}X}@{}}
+\toprule
+\textbf{Method}
+& AIME25
+& AIME26
+& HMMT25
+& HMMT26
+& Avg. \\
+\midrule
+
+\rowcolor{cyan!10}
+\bodystrut \textbf{DelTA}
+& \textbf{26.46} & \textbf{28.12} & \textbf{18.54} & \textbf{20.27} & \textbf{23.27} \\
+
+\midrule
+\bodystrut DAPO (\(\ell^2_2\)-centroid)
+& 23.33  & 24.17 & 12.08 & 16.86 & 19.05 \\
+\bodystrut \(\ell_2\)-centroid
+& 19.38 & 20.00 & 8.54 & 14.58 & 15.60 \\
+
+\bottomrule
+\end{tabularx}
+\end{table}

@@ -1,0 +1,30 @@
+% \newcommand{\tcolorboxPromptExampleToolCallTitleText}{\fontsize{10}{12}\selectfont}
+% \newcommand{\tcolorboxPromptExampleToolCallCommonText}{\fontsize{7.5}{9}\selectfont}
+% \newcommand{\tcolorboxPromptExampleToolCallTitleBeforeVspace}{\vspace{10 pt}}
+% \newcommand{\tcolorboxPromptExampleToolCallCommonTextLineSkip}{\setlength{\baselineskip}{5 pt}}
+
+\newcommand{\tcolorboxPromptExampleToolCallTitleText}{}
+\newcommand{\tcolorboxPromptExampleToolCallCommonText}{}
+\newcommand{\tcolorboxPromptExampleToolCallTitleBeforeVspace}{}
+\newcommand{\tcolorboxPromptExampleToolCallCommonTextLineSkip}{}
+
+\begin{tcbCodeListing}{Example -- Tool Call and Response
+}{json}
+{
+  "tool_name": "mcp_appworld_amazon__show_order",
+  "call": {
+    "order_id": 901
+  },
+  "result": {
+    "response": {
+      "order_id": 901,
+      "order_items": [
+        {
+          "product_id": 1578,
+          "ordered_quantity": 2
+        }
+      ]
+    }
+  }
+}
+\end{tcbCodeListing}

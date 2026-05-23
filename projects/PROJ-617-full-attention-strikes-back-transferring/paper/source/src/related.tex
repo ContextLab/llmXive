@@ -1,0 +1,7 @@
+\section{Related work}
+
+\noindent\textbf{Block-Sparse Attention.} Block-sparse methods reduce long-context cost by selecting only a subset of key--value blocks. QUEST~\citep{Quest} uses query-aware page ranking based on min--max key statistics, while MoBA~\citep{MoBA} treats sparse attention as block-level routing. BLASST~\citep{blasst}, SpargeAttention~\citep{spargeattn}, and Prism~\citep{prism} further improve block selection using softmax-contribution estimates, training-free refinement, or spectral criteria. These methods mainly differ in how they estimate block importance at the block level.
+
+\noindent\textbf{Token-wise Attention.} Token-wise sparse attention first estimates token relevance and then applies exact attention only to the retained tokens. DSA~\citep{dsa} uses a lightweight learned indexer before top-$k$ selection, FASA~\citep{fasa} exploits the frequency structure induced by RoPE, and SnapKV~\citep{snapkv} compresses the KV cache using relevance to recent local queries.
+
+\noindent\textbf{Pattern-Based Sparsity.} Another line of work adapts sparsity to head behavior. MInference~\citep{minference} assigns each head an offline-discovered sparse pattern, while FlexPrefill~\citep{flexprefill} makes the pattern selection context-aware. DuoAttention~\citep{duoattn} and RazorAttention~\citep{razorattn} instead partition heads into retrieval and streaming groups and treat them differently. Our method is most closely related to this line, but further introduces low-dimensional token indexing and dynamic top-$p$ selection for retrieval heads.

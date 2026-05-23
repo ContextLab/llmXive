@@ -1,0 +1,32 @@
+
+\begin{table*}[t]
+\centering
+\caption{Main results on seven mathematical reasoning benchmarks for Olmo3-7B-Base. The best results are in \textbf{bold}.}
+\label{tab:results_olmo}
+\small
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.06}
+
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.16\textwidth}*{8}{>{\centering\arraybackslash}X}@{}}
+\toprule
+\textbf{Method}
+& AIME24
+& AIME25
+& AIME26
+& \makecell[c]{HMMT25\\(Feb.)}
+& \makecell[c]{HMMT25\\(Nov.)}
+& \makecell[c]{HMMT26\\(Feb.)}
+& Brumo25
+& Avg. \\
+\midrule
+
+\multicolumn{9}{@{}l@{}}{\emph{\textbf{Olmo3-7B-Base}}} \\
+\bodystrut DAPO        & 25.62 & 21.88 & 22.08 & 14.58 & 8.75 & 14.02 & 26.67 & 19.01 \\
+
+\rowcolor{cyan!10}
+\bodystrut \textbf{DelTA} & \textbf{30.83} & \textbf{24.79} & \textbf{27.08} & \textbf{16.67}
+              & \textbf{13.96} & \textbf{16.29} & \textbf{30.63} & \textbf{22.80} \\
+
+\bottomrule
+\end{tabularx}
+\end{table*}

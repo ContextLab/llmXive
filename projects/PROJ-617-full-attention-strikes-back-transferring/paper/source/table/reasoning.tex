@@ -1,0 +1,25 @@
+\begin{table}[t]
+    \centering
+    \scriptsize
+    \setlength{\tabcolsep}{3.5pt}
+    \renewcommand{\arraystretch}{0.96}
+    \caption{Accuracy comparison on reasoning benchmarks. The best results among sparse-attention methods are shown in bold, and the second-best results are underlined. Full attention is excluded from this ranking.}
+    \label{tab:reasoning}
+    \resizebox{\linewidth}{!}{%
+    \begin{tabular}{lccccccccc}
+        \toprule
+        \textbf{Method} & \textbf{AIME24} & \textbf{AIME25} & \textbf{MMLU-Bio} & \textbf{MMLU-Bus} & \textbf{MMLU-Chem} & \textbf{MMLU-CS} & \textbf{MMLU-Math} & \textbf{MMLU-Phi} & \textbf{MMLU-Phy}\\
+        \midrule
+        Full Attn & 86.67 & 86.67 & 89.20 & 87.40 & 88.00 & 86.10 & 93.60 & 69.94 & 90.80\\
+        Quest & 46.67 & 46.67 & 88.28 & 84.28 & \underline{84.40} & \underline{82.68} & \underline{93.20} & \underline{69.34} & 87.70\\
+        SnapKV & 43.33 & 46.67 & 88.14 & 81.27 & 76.32 & 80.49 & 90.00 & 66.40 & 84.42\\
+        \addlinespace[3pt]
+        \arrayrulecolor{black!60}\cdashline{1-10}[0.9pt/2pt]\arrayrulecolor{black}
+        \noalign{\vskip 3pt}
+        \multicolumn{10}{l}{\textbf{RTPurbo}}\\[1pt]
+        \shortstack[l]{\hspace{0.8em}w/ top-k} & \underline{80.00} & \underline{80.00} & \underline{88.80} & \underline{86.60} & 51.40 & 50.49 & 71.60 & 51.70 & \underline{90.60}\\
+        \shortstack[l]{\hspace{0.8em}w/ top-$p$} & \SOTA{86.67} & \SOTA{86.67} & \SOTA{89.80} & \SOTA{87.20} & \SOTA{87.80} & \SOTA{85.12} & \SOTA{93.60} & \SOTA{69.54} & \SOTA{91.00} \\
+        \bottomrule
+    \end{tabular}%
+    }
+\end{table}

@@ -1,0 +1,21 @@
+
+\section{Related Work}
+\label{sec:related_work}
+
+\paragraph{Personal Assistant Benchmarks.}
+Personal assistant benchmarks evaluate end-to-end tool use in realistic web and computer environments \citep{mialon2023gaia,zhou2023webarena,drouin2024workarena}, with extensions to multimodal control and stateful planning \citep{xie2024osworld,malay2026enterpriseops}.
+Recently, the rapid rise of OpenClaw \citep{openclaw} has pushed benchmarks toward long-horizon personal assistant workflows grounded in persistent workspaces and artifacts, spanning everyday online tasks and productivity settings \citep{zhang2026clawbench,li2026clawsbench}, including multi-day living-world coworkers \citep{clawmark}, with trustworthy evaluation \citep{ye2026claw} and robustness under evolving and conflicting information \citep{ji2026clawarena}.
+Despite these advances, existing benchmarks rarely evaluate whether agents can proactively track, surface, and resolve hidden intents across multi-session workflows.
+
+\paragraph{Memory Agent Benchmarks.}
+Memory agent benchmarks evaluate whether agents can store, retrieve, and reuse user information across sessions \citep{shen2026mem2actbench,liu2026memgui,zhang2026memorycd}.
+These benchmarks provide useful tests of long-term memory, personalization, and cross-session consistency \citep{he2026memoryarena,kim2026persona2web,liu2026perma}.
+However, they usually treat memory as evidence for completing a known task, rather than as a signal for detecting missing requirements and deciding when to ask for clarification.
+This leaves open how agents should use memory to detect underspecified requirements and resolve hidden intents as workflows evolve through interaction.
+{\bench} addresses this gap with a broader evaluation setting that combines memory, workspace state, and interaction history to assess proactivity and task completeness in long-horizon personal assistant workflows.
+
+\paragraph{Proactive Evaluation.}
+Proactive benchmarks mainly study mobile or GUI agents, where proactivity is framed as using device context, interaction traces, and visual states to infer underspecified needs, ask clarifying questions, or intervene during app usage \citep{chen2026knowu,sun2026ambibench,nathani2026proactive}.
+They often emphasize short-horizon everyday tasks with clear endpoints, such as booking and ordering \citep{kong2026proactivemobile,chai2026pira,nie2026pspa}. 
+This leaves professional workflows and artifact-centered tasks underexplored, especially cases in which missing requirements may affect later edits or project decisions \citep{openclaw,zhang2026clawbench}.
+In contrast, {\bench} focuses on long-horizon personal assistance in persistent workspaces where hidden intents may emerge late and earlier artifacts directly determine downstream decisions.

@@ -1,0 +1,27 @@
+\begin{table}[tb]
+\centering
+\caption{Annotation guidelines for hidden intents.}
+\label{tab:annotation_hidden_intents}
+\small
+\begin{tabular}{p{0.20\linewidth}p{0.36\linewidth}p{0.34\linewidth}}
+\toprule[1.25pt]
+\textbf{Aspect} & \textbf{Do} $\checkmark$ & \textbf{Avoid} $\times$ \\
+\midrule[0.75pt]
+\textsc{Unstated requirement} &
+Each hidden intent must be absent from the initial request. &
+Do not restate information that is already explicitly given to the agent. \\
+\midrule[0.75pt]
+\textsc{Task relevance} &
+Each hidden intent should affect task handling, output quality, or downstream decisions. &
+Do not add arbitrary preferences that have no effect on the task. \\
+\midrule[0.75pt]
+\textsc{Specificity} &
+Write each intent precisely enough to support terminal status assignment during interaction. &
+Do not use vague intents such as ``make it better'' or ``follow best practice'' without a concrete meaning. \\
+\midrule[0.75pt]
+\textsc{Scope} &
+Mark whether the intent is session-local or persistent across sessions when relevant. &
+Do not let persistent intents appear without supporting evidence in prior context or workspace state. \\
+\bottomrule[1.25pt]
+\end{tabular}
+\end{table}

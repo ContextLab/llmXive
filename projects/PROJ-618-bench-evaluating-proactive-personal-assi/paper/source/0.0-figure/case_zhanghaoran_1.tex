@@ -1,0 +1,146 @@
+\providecommand{\caseZhanghaoranOneTag}[3]{%
+    {\setlength{\fboxsep}{1.6pt}\colorbox{#1}{\textcolor{#2}{\scriptsize\textbf{#3}}}}%
+}
+\providecommand{\caseZhanghaoranOneLine}[3]{%
+    \caseZhanghaoranOneTag{#1}{#2}{#3}\hspace{3pt}%
+}
+\providecommand{\caseZhanghaoranOneIO}[3]{%
+    \vspace{2pt}
+    \noindent\caseZhanghaoranOneLine{#1}{white}{#2}\textbf{#3}
+}
+\providecommand{\caseZhanghaoranOneNote}[1]{%
+    \vspace{2pt}
+    \noindent{\scriptsize\color{black!55}\textit{#1}}
+}
+
+\begin{figure}[h]
+    \centering
+    \tcolorboxCase{Case Study -- Researcher -- Claude 4.6 Opus: Task and Trigger}{
+    \small
+    \caseZhanghaoranOneLine{purple!70!black}{white}{$\blacktriangleright$ TASK} Filter papers the user cares about most from a simulated Hugging Face daily-papers feed.
+    The session is started by an environment event, so the agent must decide whether the event is actionable without waiting for a direct user command.
+
+    \vspace{3pt}
+    \caseZhanghaoranOneLine{blue!65!black}{white}{$\rightarrow$ INITIAL REQUEST}
+    \caseZhanghaoranOneNote{This is an environment-triggered initial request. The event lists candidate papers, but does not explicitly state the OpenClaw filter or the link and metadata requirements.}
+    \begin{quote}
+    \tiny
+    \setlength{\baselineskip}{6.2pt}
+    \raggedright
+    \texttt{source=huggingface\_hub; event=paper\_recommendation\_trigger; target=agent; papers=}\par
+    \texttt{paper\_01}: Common Corpus: The Largest Collection of Ethical Data for LLM Pre-Training;\par
+    \texttt{paper\_02}: Q-RAG: Long Context Multi-Step Retrieval via Value-Based Embedder Training;\par
+    \texttt{paper\_03}: From movement to cognitive maps: recurrent neural networks reveal how locomotor development shapes hippocampal spatial coding;\par
+    \texttt{paper\_04}: FIRE: Frobenius-Isometry Reinitialization for Balancing the Stability-Plasticity Tradeoff;\par
+    \texttt{paper\_05}: Exchangeability of GNN Representations with Applications to Graph Retrieval;\par
+    \texttt{paper\_06}: A Trajectory-Based Safety Audit of Clawdbot (OpenClaw);\par
+    \texttt{paper\_07}: Enhancing Generative Auto-bidding with Offline Reward Evaluation and Policy Search;\par
+    \texttt{paper\_08}: Why DPO is a Misspecified Estimator and How to Fix It;\par
+    \texttt{paper\_09}: WebDevJudge: Evaluating (M)LLMs as Critiques for Web Development Quality;\par
+    \texttt{paper\_10}: SafeDPO: A Simple Approach to Direct Preference Optimization with Enhanced Safety;\par
+    \texttt{paper\_11}: MedAgentGym: A Scalable Agentic Training Environment for Code-Centric Reasoning in Biomedical Data Science;\par
+    \texttt{paper\_12}: Optimistic Task Inference for Behavior Foundation Models;\par
+    \texttt{paper\_13}: CounselBench: A Large-Scale Expert Evaluation and Adversarial Benchmarking of Large Language Models in Mental Health Question Answering;\par
+    \texttt{paper\_14}: AstaBench: Rigorous Benchmarking of AI Agents with a Scientific Research Suite;\par
+    \texttt{paper\_15}: MetaClaw: Just Talk An Agent That Meta-Learns and Evolves in the Wild;\par
+    \texttt{paper\_16}: Neon: Negative Extrapolation From Self-Training Improves Image Generation;\par
+    \texttt{paper\_17}: Compositional Diffusion with Guided search for Long-Horizon Planning;\par
+    \texttt{paper\_18}: Visual symbolic mechanisms: Emergent symbol processing in Vision Language Models;\par
+    \texttt{paper\_19}: Addressing divergent representations from causal interventions on neural networks;\par
+    \texttt{paper\_20}: Cross-Domain Lossy Compression via Rate- and Classification-Constrained Optimal Transport;\par
+    \texttt{paper\_21}: Latent Fourier Transform;\par
+    \texttt{paper\_22}: GLASS Flows: Efficient Inference for Reward Alignment of Flow and Diffusion Models;\par
+    \texttt{paper\_23}: Latent Speech-Text Transformer;\par
+    \texttt{paper\_24}: LoongRL: Reinforcement Learning for Advanced Reasoning over Long Contexts;\par
+    \texttt{paper\_25}: Improving Developer Emotion Classification via LLM-Based Augmentation;\par
+    \texttt{paper\_26}: Revisiting Multilingual Data Mixtures in Language Model Pretraining;\par
+    \texttt{paper\_27}: One-Shot Style Personalization for RL Agents via Latent Discriminator;\par
+    \texttt{paper\_28}: OpenClaw-RL: Train Any Agent Simply by Talking;\par
+    \texttt{paper\_29}: Compositional HyperModules for Few-Shot Code Adaptation in Meta-Reinforcement Learning;\par
+    \texttt{paper\_30}: All-in-One: Boosting Basic Capabilities in one Omni-MLLM to Enhance Movie Understanding;\par
+    \texttt{paper\_31}: Contrastive Code Graph Embeddings for Reinforcement Learning-Based Automated Code Refactoring;\par
+    \texttt{paper\_32}: Soft Non-Diagonality Penalty Enables Latent Space-Level Interpretability of pLM at No Performance Cost;\par
+    \texttt{paper\_33}: Adaptive Mixing of Non-Invariant Information for Generalized Diffusion Policy;\par
+    \texttt{paper\_34}: Style2Shape: Image Style Guided 3D Shape Material Generation;\par
+    \texttt{paper\_35}: Contrastive-Aligned Knowledge Distillation for Collaborative Code Completion via Multi-Agent Reinforcement Learning;\par
+    \texttt{paper\_36}: Scaling Laws for Generative Reward Models;\par
+    \texttt{paper\_37}: Contrastive-Online-Meta (COM): A Dynamic Adaptation Mechanism for Instruction-Tuned CodeLLMs;\par
+    \texttt{paper\_38}: FedPAC: Consistent Representation Learning for Federated Unsupervised Learning under Data Heterogeneity;\par
+    \texttt{paper\_39}: Training as Computation: A Resource-Bounded Theory of Continual Self-Play Learning;\par
+    \texttt{paper\_40}: Cross-Modal Syntax-NL Attention for Multi-Agent Reinforcement Learning in Collaborative Coding;\par
+    \texttt{paper\_41}: Less is More: Improving Molecular Force Fields with Minimal Temporal Information;\par
+    \texttt{paper\_42}: Curricular Adversarial Training for Robust Code Generation via Hierarchical Reinforcement Learning;\par
+    \texttt{paper\_43}: ``Humans welcome to observe'': A First Look at the Agent Social Network Moltbook;\par
+    \texttt{paper\_44}: Triple-S: A Sticker Semantic Similarity Benchmark with General Sticker Encoder;\par
+    \texttt{paper\_45}: Unsupervised Dynamic Graph Multi-Model Representation Learning for Temporal Patterns Discovery: Uncovering Parkinson's Disease Stages Using Cerebrospinal Fluid Longitudinal Profiles;\par
+    \texttt{paper\_46}: Causal Reasoning Favors Encoders: Limits of Decoder-Only Models;\par
+    \texttt{paper\_47}: Hierarchies over Pixels: A Benchmark for Cognitive Geospatial Reasoning for Agents;\par
+    \texttt{paper\_48}: But what is your honest answer? Aiding LLM-judges with honest alternatives using steering vectors;\par
+    \texttt{paper\_49}: LaMbDA: Local Latent Embedding Alignment for Cross-modal Time-Series Diffusion.
+    \end{quote}
+
+    \vspace{2pt}
+    \caseZhanghaoranOneLine{orange!80!black}{white}{$\star$ HIDDEN INTENTS}
+    \par
+    \caseZhanghaoranOneTag{red!12}{red!70!black}{$\circ$ I1} List the OpenClaw-related papers from the recommendation trigger.
+    \par
+    \caseZhanghaoranOneTag{red!12}{red!70!black}{$\circ$ I2} Add a short introduction and key technical points for each OpenClaw-related paper.
+    \par
+    \caseZhanghaoranOneTag{red!12}{red!70!black}{$\circ$ I3} Include arXiv links for the OpenClaw-related papers.
+    \par
+    \caseZhanghaoranOneTag{red!12}{red!70!black}{$\circ$ I4} Include GitHub links for the OpenClaw-related papers.
+    \par
+    \caseZhanghaoranOneTag{red!12}{red!70!black}{$\circ$ I5} Give the research institution and authors for each OpenClaw-related paper.
+    }
+    \caption{Task trigger and hidden intents.}
+    \label{fig:case_zhanghaoran_1_hidden_intent_trigger}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \tcolorboxCase{Case Study -- Researcher -- Claude 4.6 Opus: Trajectory and Scores}{
+    \small
+    \caseZhanghaoranOneIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 1.}
+    Environment trigger with the 49-paper payload in Fig.~\ref{fig:case_zhanghaoran_1_hidden_intent_trigger}.
+
+    \caseZhanghaoranOneIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 1.}
+    The agent filters the batch by broad interests: ``think-with-image,'' multimodal reasoning, multimodal tool use, and VLM/MLLM agents. It highlights several adjacent multimodal papers, but does not surface the annotated OpenClaw-related subset.
+
+    \vspace{3pt}
+    \caseZhanghaoranOneIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 2.}
+    \emph{Give list OpenClaw-related papers from this recommendation trigger.}
+    \caseZhanghaoranOneTag{red!15}{red!70!black}{provided: I1}
+
+    \caseZhanghaoranOneIO{green!45!black}{$\Leftarrow$ OUTPUT}{Turn 2.}
+    \emph{From the recommendation batch, here are the OpenClaw-related papers: A Trajectory-Based Safety Audit of Clawdbot (OpenClaw); MetaClaw: Just Talk An Agent That Meta-Learns and Evolves in the Wild; OpenClaw-RL: Train Any Agent Simply by Talking. That's 3 papers referencing the OpenClaw ecosystem.}
+
+    \vspace{3pt}
+    \caseZhanghaoranOneIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 3.}
+    \emph{Give add a short introduction and key technical points for each OpenClaw-related paper.}
+    \caseZhanghaoranOneTag{red!15}{red!70!black}{provided: I2}
+
+    \caseZhanghaoranOneIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 3.}
+    The agent searches web sources, fetches arXiv pages and a project page, and writes introductions plus technical points. It also includes several arXiv and GitHub links. \caseZhanghaoranOneTag{green!12}{green!45!black}{completed: I3}\hspace{2pt}\caseZhanghaoranOneTag{green!12}{green!45!black}{completed: I4}
+
+    \vspace{3pt}
+    \caseZhanghaoranOneIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 4.}
+    \emph{Give the research institution and author for each OpenClaw-related paper.}
+    \caseZhanghaoranOneTag{red!15}{red!70!black}{provided: I5}
+
+    \caseZhanghaoranOneIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 4.}
+    The agent searches for author and affiliation metadata and then reports institutions and authors for the three selected papers.
+
+    \vspace{5pt}
+    \caseZhanghaoranOneLine{purple!70!black}{white}{$\blacktriangleright$ EVALUATION}
+    \caseZhanghaoranOneTag{orange!15}{orange!80!black}{\textsc{Comp}=65.00}
+    \hspace{3pt}
+    \caseZhanghaoranOneTag{cyan!15}{cyan!45!black}{\textsc{Proc}=40.00}
+
+    \vspace{3pt}
+    \noindent\caseZhanghaoranOneLine{orange!80!black}{white}{$\star$ CHECKLIST SIGNALS}
+    Satisfied: several paper recommendations, selected links, and selected author/institution fields.
+    Not satisfied: full annotated paper coverage and some detailed metadata criteria.
+    }
+    \caption{Trajectory and scores; colored intent tags indicate terminal status, e.g., \caseZhanghaoranOneTag{red!15}{red!70!black}{provided: I1} denotes a user-provided intent and \caseZhanghaoranOneTag{green!12}{green!45!black}{completed: I3} denotes an agent-completed intent.}
+    \label{fig:case_zhanghaoran_1_hidden_intent_resolution}
+\end{figure}

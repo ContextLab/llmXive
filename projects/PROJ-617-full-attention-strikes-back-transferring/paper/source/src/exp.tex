@@ -1,0 +1,103 @@
+\section{Experiments}
+
+All experiments are conducted on NVIDIA H20 GPUs with Python 3.14, CUDA 12.8, and PyTorch 2.8. For accuracy evaluation, we use the \texttt{lm-eval} framework~\citep{eval-harness} as the unified evaluation pipeline. 
+% This section is organized as follows. Section~\ref{sec:accuracy_eval} presents the accuracy evaluation, and Section~\ref{sec:efficiency_eval} presents the efficiency evaluation.
+
+% \yy{the experimental results look strong!}
+\subsection{Accuracy Evaluation}
+\label{sec:accuracy_eval}
+
+\noindent\textbf{Benchmarks and Models.} We evaluate \name on two categories of benchmarks. The first category consists of long-context benchmarks, including LongBench~\citep{bai-etal-2024-longbench} and RULER~\citep{hsieh2024ruler}, which evaluate overall long-context processing ability. The second category consists of reasoning benchmarks, including AIME24~\citep{AIME24}, AIME25~\citep{AIME25}, and MMLU-PRO~\citep{mmlupro}, which are used to assess both long-decode performance and the general reasoning ability of the sparsified model. For the first category, we use Qwen3-Coder-30B-A3B, and for the second category, we use Qwen3-30B-A3B-Think, a reasoning-specialized model~\citep{qwen3}.
+
+
+
+\begin{wraptable}[8]{r}{0.30\linewidth}
+    \vspace{-1.0em}
+    \centering
+    \scriptsize
+    \setlength{\tabcolsep}{3pt}
+    \renewcommand{\arraystretch}{0.95}
+    \captionsetup{width=\linewidth, justification=centering, singlelinecheck=true, skip=2pt}
+    \caption{\name config}
+    \label{tab:exp_settings}
+    \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lc@{}}
+        \toprule
+        \textbf{Config} & \textbf{Value} \\
+        \midrule
+        Retrieval head ratio & 15\% \\
+        Sliding window size & 8192 \\
+        Sink tokens & 4 \\
+        Low-dim size & 16 \\
+        Top-$p$ & 0.9 \\
+        Kernel block & 64 \\
+        \bottomrule
+    \end{tabular*}
+    \vspace{-1.0em}
+\end{wraptable}
+\noindent\textbf{Settings.} Table~\ref{tab:exp_settings} summarizes the main configuration of \name. 
+%We set the low-dimension size to 16 because the minimum matrix tile size required by CUDA Tensor Core MMA instructions is 16.Using a smaller dimension would still require padding and thus would not bring additional speedup. 
+ We also conduct ablation studies on several key design settings of \name (see Appendix~\ref{appd:ablation}). For training, we use FineWeb~\citep{fineweb} and Dolma 3 Longmimo Mix~\citep{olmo2026olmo3}, from which we sample documents with lengths between 32K and 80K tokens. In the first stage, we train the low-dimensional projection parameters. In the second stage, we perform end-to-end training on corpora with an average length of 48K for about only 600 steps. The detailed training procedures are provided in Appendix~\ref{appd:training}.
+
+
+\noindent\textbf{Baselines.} We compare \name against five representative sparse-attention baselines: RazorAttn~\citep{razorattn}, Minference~\citep{minference}, FlexPrefill~\citep{flexprefill}, Quest~\citep{Quest}, and SnapKV~\citep{snapkv}. For each method, we align the evaluation setting with both its official configuration and our own setup as much as possible to ensure a fair comparison. In particular, for RazorAttn we use the same 15\% retrieval-head ratio as in \name. For FlexPrefill, we set the cumulative-attention threshold $\gamma$ to 0.9 to match our top-$p$ threshold. For Quest, we strictly follow the official implementation, and do not apply sparse attention to the first two layers. Furthermore, to explicitly isolate and evaluate the advantage of our dynamic token budget, we implement a custom baseline that uses a static top-$k$ selection strategy, with $k$ empirically set to 4096.
+
+\noindent\textbf{Results on LongBench and RULER.} Table~\ref{tab:longbench} and Table~\ref{tab:ruler} summarize the evaluation results. Methods estimating global attention via recent queries (Minference, SnapKV) degrade significantly on multi-hop tasks (e.g., multi-Q and multi-K) where local context diverges from the full sequence. Similarly, the reliance on adjacent blocks of FlexPrefill causes severe drops on dispersed-evidence tasks like multi-V, while coarse block-level sparsity of Quest yields a general accuracy loss. As a training-free approach, RazorAttn also struggles on retrieval-heavy tasks (e.g., HotpotQA, Musique). Crucially, on long-context benchmarks such as RULER 64K, the fixed-budget variant performs poorly because it recalls too few tokens to preserve sufficient attention mass (see Appendix~\ref{appd:head_sparsity_diversity}). Furthermore, we extend our evaluation to ultra-long contexts (up to 512K). As illustrated in Figure~\ref{fig:multi_benchmark}, while baselines experience catastrophic degradation at extreme lengths, \name robustly sustains high accuracy. These comparisons confirm that \name with dynamic top-$p$ selection effectively adapts to varying query complexities, providing a trainable, fine-grained thresholding solution that strictly preserves accuracy. 
+\input{table/longbench.tex}
+\input{table/ruler.tex}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{pic/multi_benchmark.pdf}
+    \caption{Accuracy and sparsity on ultra-long multi-hop tasks (128K--512K). Unlike baselines that collapse at extreme lengths, \name sustains robust accuracy while achieving high sparsity.}
+    \label{fig:multi_benchmark}
+\end{figure}
+
+
+
+\input{table/reasoning.tex} 
+\noindent\textbf{Results on Reasoning Tasks.} Table~\ref{tab:reasoning} summarizes the reasoning benchmark results. These tasks exhibit extreme prompt-generation asymmetry: inputs are extremely short ($<$300 tokens), but generated reasoning traces are massively long (up to 32K tokens on AIME and averaging 10K on MMLU-PRO), shifting the bottleneck entirely to the decoding phase. As shown, \name with dynamic top-$p$ preserves near-lossless accuracy, perfectly matching the dense baseline on AIME (86.67). On the MMLU-PRO subcategories, it also remains consistently close to the full-attention baseline across all reported subjects, indicating that the sparse model retains strong general reasoning ability even under long decoding.
+%  This result confirms that our mechanism robustly handles the ultra-long decoding demands of modern reasoning models.
+
+\subsection{Efficiency Evaluation}
+\label{sec:efficiency_eval}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{pic/sparse_decode_speedup.pdf}
+    \caption{Sparse decoding speedup of \name.}
+    \label{fig:sparse_decode_speedup}
+\end{figure}
+
+% \noindent\textbf{Kernel Design.} We develop a dedicated high-efficiency operator for \name. For our low-dimensional top-$p$ selection pipeline, a conventional implementation would typically launch four separate kernels: low-dimensional GEMV, sorting, cumulative summation, and sparse GEMV. In contrast, we fuse the first three steps into a single kernel that performs top-$p$ selection, and optimize a second kernel for sparse GEMV. We further specialize the implementation for small projection dimensions. Detailed kernel design and implementation are provided in Appendix~\ref{sec:fast_top_p_kernel}.
+
+\noindent\textbf{Sparsity Analysis.} 
+During prefill, our sparsity is deterministic: 15\% retrieval heads ($\mathcal{H}_{ret}$) perform dense attention, while 85\% local heads ($\mathcal{H}_{loc}$) attend only to 4 sink tokens and an 8192-token window. During decode, \name applies dynamic top-$p$ selection. Table~\ref{tab:dynamic_sparsity} profiles Layer 25 of Qwen3-Coder-30B-A3B, demonstrating that the optimal token budget is highly query-dependent. At 32K, \name retains just 468.8 active tokens for niah-S but dynamically expands to 2462.1 for multi-K. This 5$\times$ variance exposes the inherent flaw of rigid static top-$k$ methods, which inevitably suffer recall failure on complex queries or waste computation on simple ones. By adapting on the fly, we maintain high attention mass ($>$0.93) with exceptional sparsity (up to 89.2\% at 64K).
+
+\begin{table}[t]
+\centering
+\small
+\caption{Decode-stage dynamic sparsity of our top-$p$ mechanism. The active token budget adaptively scales with task complexity and context length. \textit{Compute/Memory Sparsity} follow the definitions in Section~\ref{sec:adaptive_sparse_attention}, while \textit{Active Tokens} and \textit{Attention Mass} denote the dynamically retained KV pairs per retrieval head and their preserved cumulative probability.}
+\label{tab:dynamic_sparsity}
+\begin{tabular}{clcccc}
+\toprule
+\textbf{Context} & \textbf{Task} & \textbf{Compute Sparsity} & \textbf{Memory Sparsity} & \textbf{Active Tokens} & \textbf{Attention Mass} \\
+\midrule
+\multirow{2}{*}{32K} & niah-S & 78.7\% & 76.2\% & 468.8 & $>$0.95 \\
+                     & multi-K & 77.8\% & 74.4\% & 2462.1 & $>$0.96 \\
+\midrule
+\multirow{2}{*}{64K} & niah-S & 89.2\% & 87.7\% & 1126.8 & $>$0.93 \\
+                     & multi-K  & 88.7\% & 85.2\% & 3316.1 & $>$0.94 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Furthermore, we extend this decode-stage analysis to ultra-long contexts. As shown in Figure~\ref{fig:multi_benchmark}, \name robustly sustains high accuracy while its dynamic thresholding pushes sparsity to over 97.1\%\footnote{The reported ultra-long context sparsity is calculated as the average compute sparsity across all query heads; actual sparsity levels naturally vary among individual heads. We provide a more detailed analysis of per-head behaviors in Appendix~\ref{appd:headwise}.} at 512K. This confirms that our query-aware mechanism seamlessly extrapolates to extreme context lengths, maximizing efficiency without sacrificing recall. 
+
+% As shown in Table~\ref{tab:dynamic_sparsity}, our mechanism naturally adapts its resource allocation based on both task complexity and context length. In Single-NIAH, where the relevant evidence remains highly concentrated regardless of the document size, the top-$p$ criterion aggressively shrinks the token budget. Notably, as the context length doubles from 32K to 64K, the required active tokens for Single-NIAH remain roughly constant, leading to even higher relative compute and memory sparsity. 
+
+% Conversely, in Multi-NIAH, the requisite attention mass is dispersed across multiple scattered facts. To strictly preserve generation accuracy, the dynamic threshold gracefully expands the active token set. This query-aware flexibility ensures that we maintain the necessary attention mass for complex reasoning while still bypassing a massive portion of the dense computational cost. Fundamentally, this avoids the worst-case memory bandwidth allocation required by rigid static top-$k$ methods, whose budgets must scale linearly or be manually tuned for longer contexts to prevent catastrophic failure.
+% \zyk{the sparsity is highly different between layers and tokens.}
+
+\noindent\textbf{Runtime Analysis.} We measure the speedup of a single attention layer under our sparse execution scheme. The results are shown in the left panel of Figure~\ref{fig:overall}. In the prefill phase, \name delivers substantial acceleration over FlashAttention-2 (FA2)~\citep{dao2024flashattention} across all tested context lengths, with speedups increasing from $2.83\times$ at 32K to $9.36\times$ at 1M. It also consistently outperforms the other sparse baselines in long context prefill. In the decode phase, \name also achieves stable speedups over FA2, improving from about $1.47\times$ at 32K to $2.01\times$ at 1M. 
+
+In addition, we benchmark our single-operator top-$p$ decode kernel against both FA2 and a native PyTorch implementation. As shown in Figure~\ref{fig:sparse_decode_speedup}, our implementation consistently outperforms both baselines, confirming the efficiency of our specially designed top-p decode kernel.

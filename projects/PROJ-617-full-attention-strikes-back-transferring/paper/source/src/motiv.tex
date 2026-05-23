@@ -1,0 +1,172 @@
+\section{Insight Behind \name}
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=0.6\linewidth]{pic/retrieval_head_show.pdf}
+    \caption{Unlike most attention heads that mainly focus on local information, retrieval heads attend to regions that are semantically related to the current query token (e.g. similar pattern), even when those regions are far away in the context.}
+    \label{fig:retrieval_head_show}
+\end{figure}
+
+\subsection{Head Specialization as a Natural Prior for Sparse Attention}
+
+Recent studies suggest that attention heads in pretrained LLMs are not homogeneous, but instead specialize into distinct functional roles. In particular, prior work has shown that only a small subset of heads is responsible for retrieving distant relevant content, while many others mainly process local information~\citep{duoattn,razorattn}. We refer to this subset as \emph{retrieval heads}. Their characteristic behavior is to place strong attention on earlier context surrounding semantically related content, thereby exhibiting an information-retrieval pattern, as illustrated in Figure~\ref{fig:retrieval_head_show}. 
+
+This observation provides an important design motivation for our method: \emph{we can naturally exploit the sparsity structure that the model has already formed.} Concretely, we retain the full KV cache only for retrieval heads, while for the remaining heads, which are already intrinsically sparse, we can safely discard remote tokens.
+
+% This head-level specialization is largely ignored in existing trainable sparse-attention methods~\citep{MoBA,dsa}. If all heads are treated as following a single behavioral pattern, the model must pay a substantial training cost to override the native information-retrieval mechanism that has already emerged in retrieval heads and instead force all heads to conform to a unified sparsification scheme.
+
+% These observations motivate a different design principle: 
+%if the model has already evolved distinct head behaviors, then 
+% a low-cost trainable sparse attention method should align with this specialization. A head-wise sparse architecture is therefore a more natural choice, %since it follows the model's internal division of labor and concentrates sparsification effort where it is actually needed. This perspective 
+% and it forms the basis of our method design.
+% We refer to the heads responsible for long-range content lookup as \emph{retrieval heads}. These heads perform semantic processing by identifying and recalling contextually relevant tokens, and are therefore crucial for context understanding. Compressing the KV cache of retrieval heads risks discarding key contextual evidence; as a result, retrieval heads should retain full attention over all tokens, or at least preserve a mechanism that faithfully approximates such full-context retrieval.
+
+% This functional distinction is also consistent with the behavior illustrated in Figure~\ref{fig:retrieval_head_and_rope}: some heads serve as long-range semantic retrievers, in contrast to heads whose behavior is primarily local or streaming. This head specialization motivates treating retrieval heads separately when designing sparse attention.%\yy{consider to move to appendix if space is not enough}
+
+\subsection{RoPE Induces a Compressible Geometry for Retrieval Heads}
+\label{sec:motiv_lowdim_retrieval}
+
+Retrieval heads should assign high attention to semantically related tokens even when they are far apart. 
+
+
+
+% \begin{figure}[t]
+%     \centering
+%     \begin{subfigure}[t]{0.48\linewidth}
+%         \centering
+%         \includegraphics[width=\linewidth]{pic/attention_retrieval_heads.pdf}
+%         \caption{Retrieval heads attend to contextually relevant tokens over long distances.}
+%         \label{fig:attention_retrieval_heads}
+%     \end{subfigure}\hfill
+%     \begin{subfigure}[t]{0.48\linewidth}
+%         \centering
+%         \includegraphics[width=\linewidth]{pic/rope_high_vs_low.pdf}
+%         \caption{High-frequency RoPE components vary rapidly, while low-frequency components remain smoother over distance.}
+%         \label{fig:rope_high_vs_low}
+%     \end{subfigure}
+%     \caption{Motivation for low-frequency retrieval. Retrieval heads require stable long-range signals, whereas RoPE naturally separates rapidly oscillating high-frequency components from more stable low-frequency ones.}
+%     \label{fig:retrieval_head_and_rope}
+% \end{figure}
+
+However, this property of retrieval heads appears, at first glance, to be in tension with RoPE~\citep{rope}. For a query token at position $m$ and a key token at position $n$ with dimension $d = 2D$, RoPE injects position through a rotation matrix:
+{\setlength{\abovedisplayskip}{4pt}\setlength{\belowdisplayskip}{4pt}\setlength{\abovedisplayshortskip}{2pt}\setlength{\belowdisplayshortskip}{2pt}
+\begin{equation}
+\label{eq:rope_pair_rotation}
+R_i(m)=
+\begin{pmatrix}
+\cos(m\theta_i) & -\sin(m\theta_i)\\
+\sin(m\theta_i) & \cos(m\theta_i)
+\end{pmatrix},
+\qquad
+q_m=R(m)q,\; k_n=R(n)k,
+\end{equation}}
+where $R(m)=\mathrm{diag}(R_1(m),\dots,R_D(m))$, and $\theta_i$ decreases with the channel index. The resulting query--key score depends only on the relative offset $\Delta=m-n$:
+{\setlength{\abovedisplayskip}{4pt}\setlength{\belowdisplayskip}{4pt}\setlength{\abovedisplayshortskip}{2pt}\setlength{\belowdisplayshortskip}{2pt}
+\begin{equation}
+\label{eq:rope_relative_rewrite}
+s(m,n)=q_m^{\top}k_n
+=\sum_{i=1}^{D}\left[a_i(q,k)\cos(\theta_i\Delta) + b_i(q,k)\sin(\theta_i\Delta)\right],
+\end{equation}}
+where $a_i$ and $b_i$ are bilinear coefficients induced by the $i$-th rotary pair. Equation~\eqref{eq:rope_relative_rewrite} reveals the key distinction directly: high-frequency components vary rapidly with $\Delta$ and become distance-sensitive at long range, whereas low-frequency components change smoothly and better preserve retrieval signals. This leads to our second core insight: \emph{we can reconstruct retrieval-head attention in a much lower-dimensional space.}
+
+%  More specifically, the low-frequency components of RoPE carry the main long-range retrieval signal, while high-frequency components mainly inject distance-dependent oscillatory noise. Motivated by this observation, we project retrieval-head $q,k$ features into a compact low-frequency subspace and use the compressed score to approximate the full attention distribution. Our experiments support this view: a projection with only $r=16$ dimensions already recovers over 90\% of relevant tokens, far below the original dimension $d=128$.
+
+% Therefore, we approximate the full attention score by a low-dimensional relevance model:
+% \begin{equation}
+% \label{eq:retrieval_lowdim_model}
+% q_{m,h}^{\top} k_{n,h} \approx \phi_h(q_{m,h})^{\top} \psi_h(k_{n,h}),
+% \qquad
+% \phi_h, \psi_h: \mathbb{R}^{d} \to \mathbb{R}^{r},\; r \ll d.
+% \end{equation}
+We therefore use this low-frequency structure as a compact retrieval subspace, enabling low-cost token selection without full-dimensional scoring.
+
+\subsection{Retrieval Heads Require Dynamic Thresholding}
+
+\begin{figure}[!t]
+    \centering
+    \begin{subfigure}[t]{0.499\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{pic/diffuse_recall.pdf}
+        \caption{Diffuse retrieval triggered by the query token ``Gal\'apagos'' in a long passage.}
+        \label{fig:diffuse_attn}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.499\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{pic/long_recall.pdf}
+        \caption{Concentrated retrieval in a NIAH query.}
+        \label{fig:mass_attn}
+    \end{subfigure}
+    \caption{Retrieval-head behavior is strongly query-dependent. (a) The query token ``Gal\'apagos'' induces diffuse retrieval over many semantically related earlier tokens: about 8k tokens are needed to recover 90\%+ attention mass, while top-4k recovers only about 75\%. (b) For a needle-in-a-haystack query, retrieval is highly concentrated: two tokens recover 96.6\% attention mass, whereas top-4k retains many unnecessary tokens.}
+    % \yy{the font is too small; the figure not easy to interpret}}
+    \label{fig:query_dependent_patterns}
+\end{figure}
+
+The remaining question is how many tokens a retrieval head should preserve once relevance can be estimated efficiently. Our findings suggest that this quantity is fundamentally query-dependent. Even within the same retrieval head, different inputs can induce very different patterns: some queries trigger broad retrieval over many distant tokens, while others lock onto only a few key tokens. The required sparsity level is therefore not a fixed attribute of the head; it changes with the query.
+
+% \begin{wraptable}[10]{r}{0.40\linewidth}
+%     \vspace{-1.2em}
+%     \centering
+%     \scriptsize
+%     \setlength{\tabcolsep}{2.2pt}
+%     \renewcommand{\arraystretch}{0.94}
+%     \captionsetup{width=\linewidth, justification=raggedright, singlelinecheck=false, skip=2pt}
+%     \caption{Fixed top-$k$ trades recall for sparsity: top-16k computes about 8k extra tokens than top-$p$, but recovers only 3.8\% more attention mass.}
+%     \label{tab:topk_topp_inline}
+%     \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcc@{}}
+%         \toprule
+%         \textbf{Method} & \textbf{Tokens Recall} & \textbf{Attn Mass} \\
+%         \midrule
+%         top-2k & 2048 & 64.2\% \\
+%         top-4k & 4096 & 77.6\% \\
+%         top-16k & 16384 & 93.8\% \\
+%         top-$p$ 0.9 & 8504 & 90.0\% \\
+%         Full Attn & 35483 & 100\% \\
+%         \bottomrule
+%     \end{tabular*}
+%     \vspace{-2.0em}
+% \end{wraptable}
+
+Figure~\ref{fig:query_dependent_patterns} illustrates this point. In one case, the query activates a broad semantic field, so the retrieval head must preserve a wide support to recover most of the attention mass. In another, the query only needs to recover a single key fact, so the head is naturally highly concentrated. %Retrieval heads therefore do not follow a fixed-budget retrieval pattern.
+
+\begin{wraptable}[10]{r}{0.40\linewidth}
+    \vspace{-1.2em}
+    \centering
+    \scriptsize
+    \setlength{\tabcolsep}{2.2pt}
+    \renewcommand{\arraystretch}{0.94}
+    \captionsetup{width=\linewidth, justification=raggedright, singlelinecheck=false, skip=2pt}
+    \caption{Fixed top-$k$ trades recall for sparsity: top-16k computes about 8k extra tokens than top-$p$, but recovers only 3.8\% more attention mass.}
+    \label{tab:topk_topp_inline}
+    \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcc@{}}
+        \toprule
+        \textbf{Method} & \textbf{Tokens Recall} & \textbf{Attn Mass} \\
+        \midrule
+        top-2k & 2048 & 64.2\% \\
+        top-4k & 4096 & 77.6\% \\
+        top-16k & 16384 & 93.8\% \\
+        top-$p$ 0.9 & 8504 & 90.0\% \\
+        Full Attn & 35483 & 100\% \\
+        \bottomrule
+    \end{tabular*}
+    \vspace{-2.0em}
+\end{wraptable}
+
+This is exactly where fixed-budget rules such as top-$k$ sampling become problematic. When $k$ is too small, diffuse queries recover too little attention mass and the approximation becomes inaccurate. When $k$ is too large, the retained set is no longer sparse enough and much of the extra computation is wasted. Table~\ref{tab:topk_topp_inline} makes this trade-off concrete: top-16k recovers only 3.8\% more attention mass than dynamic top-$p$, but requires computing about 8k additional tokens. The issue is therefore not choosing a better global $k$; any fixed $k$ is mismatched to the query-dependent nature of retrieval heads.
+
+% This motivates a different sparse-attention paradigm. Instead of forcing every query to keep the same number of tokens, we first estimate token relevance for the current query and then apply a dynamic threshold to determine how many tokens should survive. In this view, low-dimensional relevance estimation answers \emph{which} tokens are important, and dynamic thresholding answers \emph{how many} tokens should be retained. 
+
+
+% \begin{table}[t]
+%     \centering
+%     \caption{Placeholder for comparing fixed-$k$ truncation and dynamic thresholding. Suggested message: small $k$ keeps too few tokens and fails to recover enough attention mass; large $k$ recovers enough attention mass but retains too many tokens; dynamic thresholding achieves high recovered attention mass with a much smaller retained token set.}
+%     \label{tab:dynamic_threshold_vs_topk}
+%     \begin{tabular}{lcccc}
+%         \toprule
+%         Method & Retained Tokens & Recovered Mass & Approx. Error & Metric \\
+%         \midrule
+%         Top-$k$ (small $k$) & -- & low & high & -- \\
+%         Top-$k$ (large $k$) & high & high & low & -- \\
+%         Dynamic threshold & low & high & low & -- \\
+%         \bottomrule
+%     \end{tabular}
+% \end{table}

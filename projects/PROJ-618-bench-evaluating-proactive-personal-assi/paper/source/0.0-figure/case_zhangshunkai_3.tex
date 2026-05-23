@@ -1,0 +1,97 @@
+\providecommand{\caseZhangshunkaiThreeTag}[3]{%
+    {\setlength{\fboxsep}{1.6pt}\colorbox{#1}{\textcolor{#2}{\scriptsize\textbf{#3}}}}%
+}
+\providecommand{\caseZhangshunkaiThreeLine}[3]{%
+    \caseZhangshunkaiThreeTag{#1}{#2}{#3}\hspace{3pt}%
+}
+\providecommand{\caseZhangshunkaiThreeIO}[3]{%
+    \vspace{2pt}
+    \noindent\caseZhangshunkaiThreeLine{#1}{white}{#2}\textbf{#3}
+}
+\providecommand{\caseZhangshunkaiThreeNote}[1]{%
+    \vspace{2pt}
+    \noindent{\scriptsize\color{black!55}\textit{#1}}
+}
+\providecommand{\caseZhangshunkaiThreeBox}[2]{%
+\begin{tcolorbox}[
+    title=#1,
+    colback=casebg,
+    colframe=casetitlebg,
+    rounded corners,
+    sharp corners=northeast,
+    sharp corners=southwest,
+    width=1.00\linewidth,
+    boxsep=2pt,
+    top=2pt,
+    bottom=2pt,
+    enhanced,
+    before=\setlength{\parindent}{0pt},
+]
+
+#2
+\end{tcolorbox}
+}
+
+\begin{figure}[h]
+    \centering
+    \caseZhangshunkaiThreeBox{Case Study -- Pharmacist -- Kimi K2.5: Task and Hidden Intents}{
+    \small
+    \caseZhangshunkaiThreeLine{purple!70!black}{white}{$\blacktriangleright$ TASK} Send a sandbox Gmail follow-up for an LC-MS instrument booking request, then verify the send through the outbox or matching thread.
+    The visible request gives the synthetic login credentials and final response format, while the hidden requirements specify the correct Gmail workflow and brief-derived message details.
+
+    \vspace{3pt}
+    \caseZhangshunkaiThreeLine{blue!65!black}{white}{$\rightarrow$ INITIAL REQUEST SUMMARY}
+    The user asks the agent to read the local instrument booking brief, log into sandbox Gmail with synthetic credentials, send the simulated message rather than stopping at a draft, confirm the send through the outbox or matching thread, and return exactly three final blocks.
+
+    \vspace{2pt}
+    \caseZhangshunkaiThreeLine{orange!80!black}{white}{$\star$ PARTIAL HIDDEN INTENTS}
+    \par
+    \caseZhangshunkaiThreeTag{red!12}{red!70!black}{$\circ$ I2} Use Gmail's direct send-email flow instead of relying only on draft creation.
+    \par
+    \caseZhangshunkaiThreeTag{red!12}{red!70!black}{$\circ$ I4} Include both the request to confirm instrument availability and the Tuesday/Thursday afternoon availability sentence.
+    \par
+    \caseZhangshunkaiThreeTag{red!12}{red!70!black}{$\circ$ I5} Include the 4-hour LC-MS slot request and the note that sample prep can be ready 30 minutes before the run.
+    }
+    \caption{Task trigger and partial hidden intents.}
+    \label{fig:case_zhangshunkai_3_targeted_followup_task}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \caseZhangshunkaiThreeBox{Case Study -- Pharmacist -- Kimi K2.5: Targeted Follow-up and Scores}{
+    \small
+    \caseZhangshunkaiThreeIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 1.}
+    Initial request in Fig.~\ref{fig:case_zhangshunkai_3_targeted_followup_task}.
+
+    \caseZhangshunkaiThreeIO{green!45!black}{$\Leftarrow$ OUTPUT}{Turn 1.}
+    \emph{Could you clarify: Is there a Gmail app tool I should be using that might be named differently? Should I use the message tool instead to simulate the email send?}
+    The focused question directly targets the direct-send workflow.
+    The same response drafts the booking email with the availability request, approximate Tuesday/Thursday afternoon windows, the 4-hour LC-MS slot, and the 30-minute sample-prep note.
+    \caseZhangshunkaiThreeTag{cyan!12}{cyan!55!black}{inferred: I2}
+    \hspace{2pt}
+    \caseZhangshunkaiThreeTag{green!12}{green!45!black}{completed: I4}
+    \hspace{2pt}
+    \caseZhangshunkaiThreeTag{green!12}{green!45!black}{completed: I5}
+
+    \vspace{3pt}
+    \caseZhangshunkaiThreeIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 2.}
+    \emph{Use Gmail's direct send-email flow to send a new email instead of relying only on draft creation.}
+
+    \caseZhangshunkaiThreeIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 2.}
+    The agent repeatedly reports that Gmail tools are unavailable and eventually produces a simulated final response through the chat channel.
+    The required Gmail login, direct send, exact brief block content, and outbox/thread verification remain unsupported by checklist or tool evidence.
+
+    \vspace{5pt}
+    \caseZhangshunkaiThreeLine{purple!70!black}{white}{$\blacktriangleright$ EVALUATION}
+    \caseZhangshunkaiThreeTag{orange!15}{orange!80!black}{\textsc{Comp}=11.11}
+    \hspace{3pt}
+    \caseZhangshunkaiThreeTag{cyan!15}{cyan!45!black}{\textsc{Proc}=42.86}
+
+    \vspace{3pt}
+    \noindent\caseZhangshunkaiThreeLine{orange!80!black}{white}{$\star$ CHECKLIST SIGNALS}
+    Final satisfied: C4.
+    Not satisfied: C1, C2, C3, C5, C6, C7, C8, C9.
+    }
+    \caption{Kimi K2.5 trajectory and scores.}
+    \label{fig:case_zhangshunkai_3_targeted_followup_trajectory}
+\end{figure}

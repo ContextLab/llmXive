@@ -1,0 +1,44 @@
+
+\section{Introduction}
+\label{sec:intro}
+
+The emergence of personal assistant agents such as OpenClaw \citep{openclaw}, Nanobot \citep{nanobot}, and Claude Code \citep{claudecode} reflects a broader shift in large language models from single-turn question answering toward long-horizon assistants that support users across days, projects, and evolving context \citep{mialon2023gaia,li2026clawsbench}. 
+In such settings, users rarely begin with a complete specification of what they actually need. Instead, they typically issue an \textbf{initial request}, a brief and often underspecified instruction that states only the surface goal, while the intended assistance also depends on complex and subtle \textbf{hidden intents} that users do not explicitly state, such as habits, constraints, and preferences. These intents can emerge gradually over long-horizon interactions, where an agent should integrate signals from multiple turns and reason over long information dependencies across sessions with the same user \citep{kim2026persona2web,lyu2026personalalign,liu2026perma}.
+
+% prepare the client update deck
+% format, metrics and terminology
+% e.g., budget, timing, destinations and format metrics terminology
+For instance, when a user asks ``\textit{help me plan a trip for next week}'' or ``\textit{prepare the client update deck}'', a strong assistant may use relevant information from a session three weeks earlier, such as travel preferences (e.g., budget, timing, and destinations) or deck conventions (e.g., format, metrics, and terminology), to proactively infer the user's hidden intents instead of waiting for specific instructions.
+In practical applications, users expect agents to surface what needs clarification and decide what can be inferred, rather than treating underspecification as a reason to remain passive.
+Addressing such requests requires \textbf{proactivity}: \textit{the ability to use goals, context, and prior interactions to anticipate user needs, recognize what remains underspecified, and move the task forward through appropriate action or clarification, while reducing the user’s operational and cognitive effort} \citep{sun2026ambibench,kong2026proactivemobile,kaur2026proper}. 
+This capability shifts the assistant from passively following explicit instructions to actively managing underspecified tasks \citep{xie2026pask}.
+
+However, proactive assistance in long-horizon personal assistant workflows remains underexplored. General agent benchmarks often assume explicit goals at interaction time \citep{liu2023agentbench,kim2026persona2web,zhang2026clawbench}. Memory benchmarks emphasize storing, retrieving, and applying prior information, while placing less focus on its role in uncovering and resolving underspecified requirements in long-horizon personal assistant workflows \citep{shen2026mem2actbench,liu2026memgui,he2026memoryarena}. Proactive benchmarks are mostly built around mobile or GUI settings with device context, visual trajectories, timely clarification, and short consumer tasks \citep{chen2026knowu,chai2026pira,nathani2026proactive}. In OpenClaw-style personal assistants, proactiveness takes a different form. Agents operate over persistent files and workspaces, coordinate tools to produce and revise artifacts, and maintain consistency with cross-session decisions and preferences. Missing requirements may surface only after intermediate deliverables are created, yet they can affect later file edits, artifact quality, and downstream task decisions \citep{vidgen2026apex,ji2026clawarena}.
+
+To address this gap, we introduce \textbf{\bench}, a benchmark for evaluating proactive assistance in long-horizon personal assistant workflows. {\bench} places agents in persistent project environments where tasks unfold through multi-turn interaction, tool use, and iterative artifact creation. Each task begins with a natural but underspecified request, requiring the agent to identify hidden intents that capture user preferences and task dependencies. These intents may be revealed gradually through interaction, persist across sessions, and need to be reused in later tasks. For example, an assistant may need to apply a file format and naming convention established in a prior session to complete a later request without asking the user again. {\bench} captures this structure through \textit{100 multi-turn tasks across 5 domain-specific user personas, organized into multi-session workflows with cross-session dependencies}. We evaluate agents on both proactive assistance (Proactivity) and task completion (Completeness) by testing whether they address hidden intents early enough to support downstream decisions and complete the workflow successfully.
+
+Our systematic experiments on nine frontier models reveal clear gaps in task completion and proactive intent resolution, distinguish task completeness from proactivity, and show substantial variation across domains and task types. Our main contributions:
+\begin{itemize}[leftmargin=10pt, topsep=0pt, itemsep=1pt, partopsep=1pt, parsep=1pt]
+    \item We formalize \emph{proactivity} for long-horizon personal agents.
+
+    \item We introduce {\bench}, a benchmark for proactive assistance with 100 multi-turn tasks spanning five domain-specific personas, jointly evaluating proactivity and task completion via agent trajectories with long-range, cross-session dependencies.
+
+    % \item We introduce {\bench}, a benchmark for proactive assistance with 100 multi-turn tasks spanning five domain-specific personas, featuring cross-session dependencies, artifact-grounded workflows, user agent with hidden intents derived from realistic professional tasks.
+
+    % \item We propose an evaluation framework that explicitly disentangles \emph{proactivity} from task completion through hidden-intent tracking, checklist-based grading, and combined LLM-based and rule-based evaluation protocols.
+
+    \item Extensive experiments show (1) proactive assistance remains challenging for frontier agents, (2) a clear distinction between completing tasks (completeness) and reducing user burden (proactivity), and (3) the value of prior interaction for proactive intent resolution in later tasks.
+\end{itemize}
+% \yangyang{Below is a draft proposal.}
+% \begin{itemize}[leftmargin=10pt, topsep=0pt, itemsep=1pt, partopsep=1pt, parsep=1pt]
+
+%     \item We introduce {\bench}, a benchmark for evaluating proactive long-horizon personal assistant agents in persistent workspace environments, featuring cross-session dependencies, artifact-grounded workflows, and user-agent model with recoverable hidden user intents derived from realistic professional tasks.
+
+
+%     \item We propose an evaluation framework that explicitly disentangles \emph{proactivity} from task completion through hidden-intent tracking, checklist-based grading, and combined LLM-based and rule-based evaluation protocols.
+
+
+
+%     \item Through large-scale experiments on frontier LLMs, we show that proactivity and task completion are related but distinct capabilities. Current models still struggle to proactively infer user requirement from prior interactions for user intent resolution, revealing a substantial gap between completing visible requests and behaving as genuinely proactive assistants.
+    
+% \end{itemize}

@@ -1,0 +1,192 @@
+\providecommand{\caseLeihaodiOneTag}[3]{%
+    {\setlength{\fboxsep}{1.6pt}\colorbox{#1}{\textcolor{#2}{\scriptsize\textbf{#3}}}}%
+}
+\providecommand{\caseLeihaodiOneLine}[3]{%
+    \caseLeihaodiOneTag{#1}{#2}{#3}\hspace{3pt}%
+}
+\providecommand{\caseLeihaodiOneIO}[3]{%
+    \vspace{2pt}
+    \noindent\caseLeihaodiOneLine{#1}{white}{#2}\textbf{#3}
+}
+\providecommand{\caseLeihaodiOneNote}[1]{%
+    \vspace{2pt}
+    \noindent{\scriptsize\color{black!55}\textit{#1}}
+}
+\providecommand{\caseLeihaodiOneBox}[2]{%
+\begin{tcolorbox}[
+    title=#1,
+    colback=casebg,
+    colframe=casetitlebg,
+    rounded corners,
+    sharp corners=northeast,
+    sharp corners=southwest,
+    width=1.00\linewidth,
+    boxsep=2pt,
+    top=2pt,
+    bottom=2pt,
+    enhanced,
+    before=\setlength{\parindent}{0pt},
+]
+
+#2
+\end{tcolorbox}
+}
+
+\begin{figure}[h]
+    \centering
+    \caseLeihaodiOneBox{Case Study -- Law Trainee -- GPT-5.4 / Kimi K2.5: Task and Checklist}{
+    \small
+    \caseLeihaodiOneLine{purple!70!black}{white}{$\blacktriangleright$ TASK} Coordinate a court-side handover for the Yuehai guarantee packet by sending one compact SMS and running a temporary Todoist reminder pass.
+    The task requires both user-facing message quality and exact tool-side cleanup.
+
+    \vspace{3pt}
+    \caseLeihaodiOneLine{blue!65!black}{white}{$\rightarrow$ INITIAL REQUEST}
+    \caseLeihaodiOneNote{Credentials and phone identifiers are omitted here; the trace contains the required phone and Todoist access information.}
+    \begin{quote}
+    \scriptsize
+    \setlength{\baselineskip}{7.2pt}
+    \raggedright
+    The user asks the agent to send one compact SMS for a Yuehai guarantee packet court-side handover, create a temporary Todoist board named ``Temporary Court Handover Reminder Board,'' add one short reminder item covering two pre-handover checks, and remove the temporary board before replying.
+    \end{quote}
+
+    \vspace{2pt}
+    \caseLeihaodiOneLine{orange!80!black}{white}{$\star$ CHECKLIST TARGETS}
+    \par
+    \caseLeihaodiOneTag{orange!12}{orange!80!black}{C1} SMS should identify the Yuehai guarantee dispute court-side handover.
+    \par
+    \caseLeihaodiOneTag{orange!12}{orange!80!black}{C2} SMS should confirm 11:30 a.m. tomorrow at the east gate of Jiangzhou Intermediate People's Court.
+    \par
+    \caseLeihaodiOneTag{orange!12}{orange!80!black}{C3} SMS should list the original notarized power of attorney, two stamped evidence-list copies, and one hearing-notice copy.
+    \par
+    \caseLeihaodiOneTag{orange!12}{orange!80!black}{C4} SMS should include a concrete reply deadline before 8:00 p.m. today.
+    \par
+    \caseLeihaodiOneTag{orange!12}{orange!80!black}{C5} SMS should ask the recipient to flag immediately if documents are not ready or the pickup time or location needs to change.
+    \par
+    \caseLeihaodiOneTag{orange!12}{orange!80!black}{C6} At least one SMS should present the handover slot, packet items, reply-by instruction, and risk-flag instruction in a compact phone-readable format.
+    \par
+    \caseLeihaodiOneTag{orange!12}{orange!80!black}{C7} Todoist reminder coverage should include a 10:45 a.m. packet-completeness recheck.
+    \par
+    \caseLeihaodiOneTag{orange!12}{orange!80!black}{C8} Todoist reminder coverage should include a stamped-page check.
+    \par
+    \caseLeihaodiOneTag{orange!12}{orange!80!black}{C9} The temporary Todoist board should be removed by the end of the task.
+    \par
+    \caseLeihaodiOneNote{In addition to C1--C9, the checklist also includes code-based tool evaluation that inspects the actual SMS payload and Todoist create/delete calls.}
+    }
+    \caption{Task overview and checklist targets.}
+    \label{fig:case_leihaodi_1_checklist_task}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \caseLeihaodiOneBox{Case Study -- Law Trainee -- GPT-5.4: Trajectory and Scores}{
+    \small
+    \caseLeihaodiOneIO{blue!65!black}{$\rightarrow$ GPT-5.4 INPUT}{Turn 1.}
+    Initial request for one compact Yuehai handover SMS and a temporary Todoist reminder board that must be cleared before reply.
+
+    \caseLeihaodiOneIO{green!45!black}{$\Leftarrow$ GPT-5.4 OUTPUT SUMMARY}{Turn 1.}
+    The agent logs into the phone and Todoist tools, but asks for the missing handover details and two pre-handover checks before sending the SMS or creating the final reminder item.
+
+    \vspace{3pt}
+    \caseLeihaodiOneIO{blue!65!black}{$\rightarrow$ GPT-5.4 INPUT}{Turn 2.}
+    \emph{In the SMS, confirm pickup for 11:30 a.m. tomorrow at the east gate of Jiangzhou Intermediate People's Court.}
+
+    \caseLeihaodiOneIO{green!45!black}{$\Leftarrow$ GPT-5.4 OUTPUT SUMMARY}{Turn 2.}
+    The agent sends an SMS with the Yuehai packet, the 11:30 a.m. pickup, and the court east gate. It also creates a temporary Todoist board with a placeholder pre-handover reminder and deletes the board.
+
+    \vspace{3pt}
+    \caseLeihaodiOneIO{blue!65!black}{$\rightarrow$ GPT-5.4 INPUT}{Turn 3.}
+    \emph{Put the handover details into one compact SMS that is easy to read on a phone, instead of splitting the handover across several texts.}
+
+    \caseLeihaodiOneIO{green!45!black}{$\Leftarrow$ GPT-5.4 OUTPUT}{Turn 3.}
+    \begin{quote}
+    \scriptsize
+    \setlength{\baselineskip}{7.2pt}
+    \raggedright
+    I can draft it as one compact SMS, but I need the actual handover details to include.\par
+    Send me the essentials and I'll condense them into a single phone-friendly text:\par
+    - time\par
+    - place\par
+    - recipient/contact\par
+    - packet/material name\par
+    - any check-in phrase or fallback instruction\par
+    Clarify: Please paste the handover details you want included in the single SMS.
+    \end{quote}
+
+    \vspace{3pt}
+    \caseLeihaodiOneIO{blue!65!black}{$\rightarrow$ GPT-5.4 INPUT}{Turn 4.}
+    \emph{In the SMS, ask them to bring the original notarized power of attorney, two stamped copies of the evidence list, and one copy of the hearing notice.}
+
+    \caseLeihaodiOneIO{green!45!black}{$\Leftarrow$ GPT-5.4 OUTPUT SUMMARY}{Turn 4.}
+    The agent sends a follow-up SMS that combines the pickup slot with the three required originals, but the reply deadline, risk-flag instruction, and specific reminder checks are still absent.
+
+    \vspace{3pt}
+    \caseLeihaodiOneIO{blue!65!black}{$\rightarrow$ GPT-5.4 INPUT}{Turn 5.}
+    \emph{In the SMS, ask for a reply before 8:00 p.m. today and ask them to flag immediately if any document is not ready or if the pickup time or location needs to change. In the temporary Todoist board, include a 10:45 a.m. packet-completeness recheck and a stamped-page check.}
+
+    \caseLeihaodiOneIO{green!45!black}{$\Leftarrow$ GPT-5.4 OUTPUT SUMMARY}{Turn 5.}
+    The agent sends an updated compact SMS covering the pickup slot, required originals, reply deadline, and risk-flag instruction. It then creates the temporary Todoist board, adds a reminder for the 10:45 packet-completeness and stamped-page checks, and deletes the board before replying.
+
+    \vspace{3pt}
+    \caseLeihaodiOneLine{purple!70!black}{white}{$\blacktriangleright$ GPT-5.4 EVALUATION}
+    \caseLeihaodiOneTag{orange!15}{orange!80!black}{\textsc{Comp}=83.33}
+    \hspace{3pt}
+    \caseLeihaodiOneTag{cyan!15}{cyan!45!black}{\textsc{Proc}=40.00}
+
+    \vspace{2pt}
+    \noindent\caseLeihaodiOneLine{orange!80!black}{white}{$\star$ GPT-5.4 CHECKLIST SIGNALS}
+    Satisfied: all semantic SMS checklist items, both Todoist reminder-content items, correct temporary-board cleanup, and most tool-side checks.
+    Not satisfied: several strict tool-string checks for the SMS payload.
+    }
+    \caption{GPT-5.4 trajectory and scores.}
+    \label{fig:case_leihaodi_1_gpt54_trajectory}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \caseLeihaodiOneBox{Case Study -- Law Trainee -- Kimi K2.5: Trajectory and Scores}{
+    \small
+    \caseLeihaodiOneIO{blue!65!black}{$\rightarrow$ KIMI K2.5 INPUT}{Turn 1.}
+    Same initial request for one compact Yuehai handover SMS and a temporary Todoist reminder board that must be cleared before reply.
+
+    \caseLeihaodiOneIO{green!45!black}{$\Leftarrow$ KIMI K2.5 OUTPUT SUMMARY}{Turn 1.}
+    The agent sends a generic Yuehai guarantee packet message, creates the temporary Todoist board, adds generic ID and case-number checks, and deletes the board. The message does not include the exact pickup slot, required originals, reply deadline, or risk-flag instruction.
+
+    \vspace{3pt}
+    \caseLeihaodiOneIO{blue!65!black}{$\rightarrow$ KIMI K2.5 INPUT}{Turn 2.}
+    \emph{In the SMS, confirm pickup for 11:30 a.m. tomorrow at the east gate of Jiangzhou Intermediate People's Court.}
+
+    \caseLeihaodiOneIO{green!45!black}{$\Leftarrow$ KIMI K2.5 OUTPUT}{Turn 2.}
+    \begin{quote}
+    \scriptsize
+    \setlength{\baselineskip}{7.2pt}
+    \raggedright
+    Pickup confirmation sent! {\checkmark}\par
+    \textbf{Message to 2873148336:}\par
+    - Tomorrow (Saturday) at 11:30 a.m.\par
+    - East gate, Jiangzhou Intermediate People's Court\par
+    - Yuehai guarantee packet\par
+    All details confirmed -- you're covered for the handover.\par
+    \textbf{Complete}
+    \end{quote}
+
+    \vspace{3pt}
+    \caseLeihaodiOneIO{blue!65!black}{$\rightarrow$ KIMI K2.5 INPUT}{Turn 3.}
+    \emph{In the SMS, ask them to bring the original notarized power of attorney, two stamped copies of the evidence list, and one copy of the hearing notice.}
+
+    \caseLeihaodiOneIO{green!45!black}{$\Leftarrow$ KIMI K2.5 OUTPUT SUMMARY}{Turn 3.}
+    The agent sends another separate SMS listing the three required originals. The final trace still lacks the reply-before-8 p.m. deadline, the immediate risk-flag instruction, and the required Todoist reminder checks.
+
+    \vspace{3pt}
+    \caseLeihaodiOneLine{purple!70!black}{white}{$\blacktriangleright$ KIMI K2.5 EVALUATION}
+    \caseLeihaodiOneTag{orange!15}{orange!80!black}{\textsc{Comp}=38.89}
+    \hspace{3pt}
+    \caseLeihaodiOneTag{cyan!15}{cyan!45!black}{\textsc{Proc}=40.00}
+
+    \vspace{2pt}
+    \noindent\caseLeihaodiOneLine{orange!80!black}{white}{$\star$ KIMI K2.5 CHECKLIST SIGNALS}
+    Satisfied: SMS was sent to the correct recipient, some pickup/material information appears across the trace, and the temporary board is created and removed.
+    Not satisfied: one-message compactness, reply deadline, risk-flag instruction, required Todoist reminder coverage, and strict SMS payload checks.
+    }
+    \caption{Kimi K2.5 trajectory and scores.}
+    \label{fig:case_leihaodi_1_kimi_trajectory}
+\end{figure}

@@ -1,0 +1,71 @@
+
+
+% \newcommand{\tcolorboxPromptEvaluationPromptTitleText}{\fontsize{10}{12}\selectfont}
+% \newcommand{\tcolorboxPromptEvaluationPromptCommonText}{\fontsize{7.5}{9}\selectfont}
+% \newcommand{\tcolorboxPromptEvaluationPromptTitleBeforeVspace}{\vspace{10 pt}}
+% \newcommand{\tcolorboxPromptEvaluationPromptCommonTextLineSkip}{\setlength{\baselineskip}{5 pt}}
+
+\newcommand{\tcolorboxPromptEvaluationPromptTitleText}{}
+\newcommand{\tcolorboxPromptEvaluationPromptCommonText}{}
+\newcommand{\tcolorboxPromptEvaluationPromptTitleBeforeVspace}{}
+\newcommand{\tcolorboxPromptEvaluationPromptCommonTextLineSkip}{}
+
+\tcolorboxPrompt{Prompt -- Checklist-based Rubric Evaluation
+}{
+% \tcolorboxPromptEvaluationPromptCommonTextLineSkip
+% \tcolorboxPromptEvaluationPromptCommonText
+\ttfamily
+\#\# Full Hidden Intent
+
+These are all hidden intents for the current task.
+
+\{hidden\_intents\_xml\} \\
+
+\#\# Interaction History
+
+<history>
+
+\{history\}
+
+</history> \\
+
+\#\# Checklist Criteria
+
+\{criteria\_list\} \\
+
+\#\# Objective
+
+You are a strict evaluator.
+
+For each checklist criterion, decide whether the interaction history clearly satisfies it.\\
+
+\#\# Scoring Rules
+
+1. Use only evidence from the interaction history.
+
+2. Score YES only when the criterion is clearly satisfied.
+
+3. Score NO when evidence is missing, ambiguous, or contradicted.
+
+4. Do not guess.\\
+
+\#\# Output Format
+
+Output only XML blocks in the following shape. Keep each criterion text exactly the same as given. Each score must be YES or NO.
+
+<c1>
+
+<criterion>
+
+\{criterion\_text\}
+
+</criterion>
+
+<score>
+
+YES or NO
+
+</score>
+
+</c1>
+}

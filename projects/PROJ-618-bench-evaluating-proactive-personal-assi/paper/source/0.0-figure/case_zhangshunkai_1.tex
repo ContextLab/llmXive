@@ -1,0 +1,213 @@
+\providecommand{\caseZhangshunkaiOneTag}[3]{%
+    {\setlength{\fboxsep}{1.6pt}\colorbox{#1}{\textcolor{#2}{\scriptsize\textbf{#3}}}}%
+}
+\providecommand{\caseZhangshunkaiOneLine}[3]{%
+    \caseZhangshunkaiOneTag{#1}{#2}{#3}\hspace{3pt}%
+}
+\providecommand{\caseZhangshunkaiOneIO}[3]{%
+    \vspace{2pt}
+    \noindent\caseZhangshunkaiOneLine{#1}{white}{#2}\textbf{#3}
+}
+\providecommand{\caseZhangshunkaiOneNote}[1]{%
+    \vspace{2pt}
+    \noindent{\scriptsize\color{black!55}\textit{#1}}
+}
+
+\begin{figure}[h]
+    \centering
+    \tcolorboxCase{Case Study -- Researcher -- DeepSeek V3.2: Task and Hidden Intents}{
+    \small
+    \caseZhangshunkaiOneLine{purple!70!black}{white}{$\blacktriangleright$ TASK}
+    Design a one-week meal plan with per-meal prices controlled within RMB 20--30.
+    The visible request only asks for a meal plan and prices, while the full task also requires body-profile conditioning, macro accounting, table structure, obtainable foods, and fallback meals.
+
+    \vspace{3pt}
+    \caseZhangshunkaiOneLine{purple!70!black}{white}{$\blacktriangleright$ PRIOR CONTEXT}
+    In a prior muscle-gain gear-selection session, the user had already exposed the same body profile, the muscle-gain goal, and preferences for readable tables and Plan B alternatives.
+
+    \vspace{3pt}
+    \caseZhangshunkaiOneLine{blue!65!black}{white}{$\rightarrow$ INITIAL REQUEST}
+    \begin{quote}
+    \small
+    \raggedright
+    Help me design a one-week meal plan. Provide the price of each meal, controlled within RMB 20--30.
+    \end{quote}
+
+    \vspace{2pt}
+    \caseZhangshunkaiOneLine{orange!80!black}{white}{$\star$ PARTIAL HIDDEN INTENTS}
+    \par
+    \caseZhangshunkaiOneTag{red!12}{red!70!black}{$\circ$ I1} Use the user's body profile: about 175 cm, 68 kg, 17\% body fat, and muscle-gain phase.
+    \par
+    \caseZhangshunkaiOneTag{red!12}{red!70!black}{$\circ$ I2} Provide daily totals for protein, fat, and carbohydrates in grams.
+    \par
+    \caseZhangshunkaiOneTag{red!12}{red!70!black}{$\circ$ I3} Use a readable table format.
+    \par
+    \caseZhangshunkaiOneTag{red!12}{red!70!black}{$\circ$ I4} List specific foods for each meal on each day.
+    \par
+    \caseZhangshunkaiOneTag{red!12}{red!70!black}{$\circ$ I5} Prefer meals obtainable from school cafeterias, nearby shops, or common takeout platforms.
+    \par
+    \caseZhangshunkaiOneTag{red!12}{red!70!black}{$\circ$ I6} Give per-meal protein, fat, and carbohydrate amounts in grams.
+    \par
+    \caseZhangshunkaiOneTag{red!12}{red!70!black}{$\circ$ I7} Provide a substitute option, Plan B, for each meal.
+    }
+    \caption{Task trigger and partial hidden intents.}
+    \label{fig:case_zhangshunkai_1_deepseek_task}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \tcolorboxCase{Case Study -- Researcher -- DeepSeek V3.2: Trajectory and Scores}{
+    \small
+    \caseZhangshunkaiOneIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 1.}
+    Initial request in Fig.~\ref{fig:case_zhangshunkai_1_deepseek_task}.
+
+    \caseZhangshunkaiOneIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 1.}
+    The agent creates a loose day-by-day meal plan with budget notes, Fudan/campus pricing assumptions, and availability-oriented cost-saving tips.
+    It does not yet use the body profile, daily macro targets, per-meal macro values, a compact readable meal-plan table, or per-meal Plan B substitutes.
+    \caseZhangshunkaiOneTag{green!12}{green!45!black}{completed: I5}
+
+    \vspace{3pt}
+    \caseZhangshunkaiOneIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 2.}
+    \emph{Height about 175 cm, weight about 68 kg, body-fat ratio about 17\%; currently in a muscle-gain phase.}
+    \caseZhangshunkaiOneTag{red!15}{red!70!black}{provided: I1}
+
+    \caseZhangshunkaiOneIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 2.}
+    The agent revises the plan for muscle gain, mentions higher protein intake and calorie surplus, and reports rough protein totals, but still does not produce the required daily macro totals, per-meal macro table, or Plan B structure.
+
+    \vspace{3pt}
+    \caseZhangshunkaiOneIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 3.}
+    \emph{Based on the user's body weight, provide the required daily totals of the three macronutrients (protein/fat/carbohydrates) for each day of the week, in grams (g).}
+    \caseZhangshunkaiOneTag{red!15}{red!70!black}{provided: I2}
+
+    \caseZhangshunkaiOneIO{green!45!black}{$\Leftarrow$ OUTPUT}{Turn 3.}
+    \emph{Based on your body weight (68kg) and muscle-gain goals, I'll calculate the daily macronutrient requirements for each day of the week.}
+    The response then gives protein, carbohydrate, and fat targets, distinguishing training from rest days.
+
+    \vspace{3pt}
+    \caseZhangshunkaiOneIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 4.}
+    \emph{For each meal, indicate macronutrient amounts (protein/fat/carbohydrates), in grams (g).}
+    \caseZhangshunkaiOneTag{red!15}{red!70!black}{provided: I6}
+
+    \caseZhangshunkaiOneIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 4.}
+    The agent provides detailed per-meal macro breakdowns for the revised plan, but the response remains verbose and does not yet include the required Plan B substitutes.
+
+    \vspace{3pt}
+    \caseZhangshunkaiOneIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 5.}
+    \emph{Provide a substitute option (Plan B) for each meal to handle unexpected situations.}
+    \caseZhangshunkaiOneTag{red!15}{red!70!black}{provided: I7}
+
+    \caseZhangshunkaiOneIO{green!45!black}{$\Leftarrow$ OUTPUT}{Turn 5.}
+    \emph{I'll provide substitute options (Plan B) for each meal to handle unexpected situations like campus canteen closures, food availability issues, or budget constraints.}
+    The response then adds substitute meals and emergency backup options after the user explicitly asks for Plan B.
+
+    \vspace{5pt}
+    \caseZhangshunkaiOneLine{purple!70!black}{white}{$\blacktriangleright$ EVALUATION}
+    \caseZhangshunkaiOneTag{orange!15}{orange!80!black}{\textsc{Comp}=87.50}
+    \hspace{3pt}
+    \caseZhangshunkaiOneTag{cyan!15}{cyan!45!black}{\textsc{Proc}=42.86}
+
+    \vspace{3pt}
+    \noindent\caseZhangshunkaiOneLine{orange!80!black}{white}{$\star$ CHECKLIST SIGNALS}
+    Final satisfied: C1, C2, C3, C4, C6, C7, C8.
+    Not satisfied: C5, the final table does not reliably list the specific foods for each meal each day.
+    }
+    \caption{DeepSeek trajectory and scores.}
+    \label{fig:case_zhangshunkai_1_deepseek_trajectory}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \tcolorboxCase{Case Study -- Researcher -- Claude 4.6 Opus: Task and Hidden Intents}{
+    \small
+    \caseZhangshunkaiOneLine{purple!70!black}{white}{$\blacktriangleright$ TASK}
+    Design a one-week meal plan with per-meal prices controlled within RMB 20--30.
+    The visible request only asks for a meal plan and prices, while the full task also requires body-profile conditioning, macro accounting, table structure, obtainable foods, and fallback meals.
+
+    \vspace{3pt}
+    \caseZhangshunkaiOneLine{purple!70!black}{white}{$\blacktriangleright$ PRIOR CONTEXT}
+    In a prior muscle-gain gear-selection session, the user had already exposed the same body profile, the muscle-gain goal, and preferences for readable tables and Plan B alternatives.
+
+    \vspace{3pt}
+    \caseZhangshunkaiOneLine{blue!65!black}{white}{$\rightarrow$ INITIAL REQUEST}
+    \begin{quote}
+    \small
+    \raggedright
+    Help me design a one-week meal plan. Provide the price of each meal, controlled within RMB 20--30.
+    \end{quote}
+
+    \vspace{2pt}
+    \caseZhangshunkaiOneLine{orange!80!black}{white}{$\star$ PARTIAL HIDDEN INTENTS}
+    \par
+    \caseZhangshunkaiOneTag{red!12}{red!70!black}{$\circ$ I1} Use the user's body profile: about 175 cm, 68 kg, 17\% body fat, and muscle-gain phase.
+    \par
+    \caseZhangshunkaiOneTag{red!12}{red!70!black}{$\circ$ I2} Provide daily totals for protein, fat, and carbohydrates in grams.
+    \par
+    \caseZhangshunkaiOneTag{red!12}{red!70!black}{$\circ$ I3} Use a readable table format.
+    \par
+    \caseZhangshunkaiOneTag{red!12}{red!70!black}{$\circ$ I4} List specific foods for each meal on each day.
+    \par
+    \caseZhangshunkaiOneTag{red!12}{red!70!black}{$\circ$ I5} Prefer meals obtainable from school cafeterias, nearby shops, or common takeout platforms.
+    \par
+    \caseZhangshunkaiOneTag{red!12}{red!70!black}{$\circ$ I6} Give per-meal protein, fat, and carbohydrate amounts in grams.
+    \par
+    \caseZhangshunkaiOneTag{red!12}{red!70!black}{$\circ$ I7} Provide a substitute option, Plan B, for each meal.
+    }
+    \caption{Task trigger and partial hidden intents.}
+    \label{fig:case_zhangshunkai_1_claude_task}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \tcolorboxCase{Case Study -- Researcher -- Claude 4.6 Opus: Trajectory and Scores}{
+    \small
+    \caseZhangshunkaiOneIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 1.}
+    Initial request in Fig.~\ref{fig:case_zhangshunkai_1_claude_task}.
+
+    \caseZhangshunkaiOneIO{green!45!black}{$\Leftarrow$ OUTPUT}{Turn 1.}
+    \emph{Here's a practical meal plan designed for a student in Shanghai, with each meal priced between RMB 20--30. Since you're on a muscle-gain program, I've emphasized high protein where possible while keeping costs down.}
+    The response then gives a readable seven-day table with concrete meals and prices, but does not yet provide daily macro targets, per-meal macro values, or Plan B.
+    \caseZhangshunkaiOneTag{green!12}{green!45!black}{completed: I3}
+    \hspace{2pt}
+    \caseZhangshunkaiOneTag{green!12}{green!45!black}{completed: I4}
+    \hspace{2pt}
+    \caseZhangshunkaiOneTag{green!12}{green!45!black}{completed: I5}
+
+    \vspace{3pt}
+    \caseZhangshunkaiOneIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 2.}
+    \emph{For each meal, indicate macronutrient amounts (protein/fat/carbohydrates), in grams (g).}
+    \caseZhangshunkaiOneTag{red!15}{red!70!black}{provided: I6}
+
+    \caseZhangshunkaiOneIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 2.}
+    The agent adds protein, fat, carbohydrate, and calorie columns for each meal and states that the plan is designed for a 175 cm, 68 kg student on a muscle-gain program.
+
+    \vspace{3pt}
+    \caseZhangshunkaiOneIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 3.}
+    \emph{Based on the user's body weight, provide the required daily totals of the three macronutrients (protein/fat/carbohydrates) for each day of the week, in grams (g).}
+    \caseZhangshunkaiOneTag{red!15}{red!70!black}{provided: I2}
+
+    \caseZhangshunkaiOneIO{green!45!black}{$\Leftarrow$ OUTPUT}{Turn 3.}
+    \emph{Your daily macro target is constant at 130g protein / 60g fat / 325g carbs regardless of the day.}
+    The response computes this lean-bulk target from 68 kg and about 17\% body fat, then gives a daily target table across the week.
+
+    \vspace{3pt}
+    \caseZhangshunkaiOneIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 4.}
+    \emph{Provide a substitute option (Plan B) for each meal to handle unexpected situations.}
+    \caseZhangshunkaiOneTag{red!15}{red!70!black}{provided: I7}
+
+    \caseZhangshunkaiOneIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 4.}
+    The agent produces a complete Plan A/Plan B table with per-meal P/F/C values and prices, then adds snack guidance to bridge the gap between meals and the lean-bulk targets.
+
+    \vspace{5pt}
+    \caseZhangshunkaiOneLine{purple!70!black}{white}{$\blacktriangleright$ EVALUATION}
+    \caseZhangshunkaiOneTag{orange!15}{orange!80!black}{\textsc{Comp}=100.00}
+    \hspace{3pt}
+    \caseZhangshunkaiOneTag{cyan!15}{cyan!45!black}{\textsc{Proc}=71.43}
+
+    \vspace{3pt}
+    \noindent\caseZhangshunkaiOneLine{orange!80!black}{white}{$\star$ CHECKLIST SIGNALS}
+    Final satisfied: C1, C2, C3, C4, C5, C6, C7, C8.
+    The final checklist score is perfect, while several hidden intents are still marked as user-provided in the trajectory above.
+    }
+    \caption{Claude trajectory and scores.}
+    \label{fig:case_zhangshunkai_1_claude_trajectory}
+\end{figure}

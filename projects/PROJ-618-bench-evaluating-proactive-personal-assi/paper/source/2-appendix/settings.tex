@@ -1,0 +1,12 @@
+
+\section{Reproducibility and Runtime Settings}
+\label{app:exp_settings}
+
+\paragraph{Execution environment.}
+All experiments were run on a Linux server with Ubuntu 24.04.1 LTS. The machine has two CPU sockets, with 16 physical cores per socket and 64 hardware threads in total. The server has 251 GiB of RAM and 1 TB of local storage. In practice, individual task runs used substantially less than 8 GB of memory, and the full project workspace, including task assets, traces, and intermediate outputs, required less than 32 GB of storage. Benchmark execution is containerized with Docker to keep the runtime environment consistent across models and users.
+
+\paragraph{Agent scaffold and app environments.}
+All evaluated models are run under the same agentic scaffold, adapted from Nanobot \citep{nanobot}\footnote{\url{https://github.com/HKUDS/nanobot}} (MIT License). For tasks that require app-backed tools, we construct simulated app environments based on AppWorld \citep{trivedi2024appworld}\footnote{\url{https://github.com/stonybrooknlp/appworld}} (Apache-2.0 License). This setup keeps the interaction protocol, workspace access, and tool interface consistent across models while keeping the benchmark focus on proactive intent resolution rather than infrastructure differences.
+
+\paragraph{Model access.}
+The evaluated models are accessed through hosted model APIs and are all run under the same agent scaffold described above. Model-specific differences are therefore limited to the provider-side model behavior rather than local runtime configuration. API credentials and provider endpoints are configured outside the manuscript and are not embedded in the benchmark artifacts.

@@ -1,0 +1,315 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+    \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2026
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 匿名化
+% 搜索 ANONYMOUS
+% 1. \usepackage[eandd]{neurips_2026}
+% 2. 去除 abstract 下方的链接
+% 3. 去除首页 footnote
+% 4. 找回 checklist
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% The authors should use one of these tracks.
+% Before accepting by the NeurIPS conference, select one of the options below.
+% 0. "default" for submission
+% \usepackage{neurips_2026}
+% the "default" option is equal to the "main" option, which is used for the Main Track with double-blind reviewing.
+% 1. "main" option is used for the Main Track
+%  \usepackage[main]{neurips_2026}
+% 2. "position" option is used for the Position Paper Track
+%  \usepackage[position]{neurips_2026}
+% 3. "eandd" option is used for the Evaluations & Datasets Track
+% ANONYMOUS
+ \usepackage[eandd,preprint]{neurips_2026}
+ % if you need to opt-in for a single-blind submission in the E&D track:
+ %\usepackage[eandd, nonanonymous]{neurips_2026}
+% 4. "creativeai" option is used for the Creative AI Track
+%  \usepackage[creativeai]{neurips_2026}
+% 5. "sglblindworkshop" option is used for the Workshop with single-blind reviewing
+ % \usepackage[sglblindworkshop]{neurips_2026}
+% 6. "dblblindworkshop" option is used for the Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop]{neurips_2026}
+
+% After being accepted, the authors should add "final" behind the track to compile a camera-ready version.
+% 1. Main Track
+ % \usepackage[main, final]{neurips_2026}
+% 2. Position Paper Track
+%  \usepackage[position, final]{neurips_2026}
+% 3. Evaluations & Datasets Track
+ % \usepackage[eandd, final]{neurips_2026}
+% 4. Creative AI Track
+%  \usepackage[creativeai, final]{neurips_2026}
+% 5. Workshop with single-blind reviewing
+%  \usepackage[sglblindworkshop, final]{neurips_2026}
+% 6. Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop, final]{neurips_2026}
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote.
+% For workshops (5., 6.), the authors should add the name of the workshop, "\workshoptitle" command is used to set the workshop title.
+% \workshoptitle{WORKSHOP TITLE}
+
+% "preprint" option is used for arXiv or other preprint submissions
+ % \usepackage[preprint]{neurips_2026}
+
+% to avoid loading the natbib package, add option nonatbib:
+%    \usepackage[nonatbib]{neurips_2026}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{longtable}
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+% \usepackage{xcolor}         % colors
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% USER SETTINGS BEGIN
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[most]{tcolorbox}  % For creating the colored box
+\usepackage{amsmath}    % For advanced math formatting
+\usepackage[table]{xcolor}
+\usepackage{tikz}   
+\usepackage{enumitem} % compact itemize
+\usepackage{caption}
+\usepackage{bbm}
+\usepackage{multirow}
+\usepackage{listings}
+\usepackage{amssymb}
+\usepackage{wrapfig}
+\usepackage{fontawesome5}
+
+% table of content for appendix
+\usepackage{tocbibind}  % For adding things to TOC
+\usepackage{titletoc}   % For partial TOC
+
+\input{myconfig}
+
+\newcommand{\bench}{\textsc{$\pi$-Bench}}
+\newcommand{\todo}[1]{{\color{red}\textbf{TODO}: #1}}
+
+
+% \newcommand{\completed}{\colorbox{green!20}{\textit{completed}}}
+% \newcommand{\inferred}{\colorbox{cyan!20}{\textit{inferred}}}
+% \newcommand{\provided}{\colorbox{red!20}{\textit{provided}}}
+
+\newcommand{\statusbox}[2]{%
+  {\setlength{\fboxsep}{0.8pt}%
+   \raisebox{0pt}[0pt][0pt]{\colorbox{#1}{\textit{#2}}}}%
+}
+
+\newcommand{\completed}{\statusbox{green!20}{completed}}
+\newcommand{\inferred}{\statusbox{cyan!20}{inferred}}
+\newcommand{\provided}{\statusbox{red!20}{provided}}
+
+
+% \newcommand{\intentcompleted}{\colorbox{green!20}{$\mathcal{I}_\text{com}$}}
+% \newcommand{\intentinferred}{\colorbox{cyan!20}{$\mathcal{I}_\text{inf}$}}
+% \newcommand{\intentprovided}{\colorbox{red!20}{$\mathcal{I}_\text{pro}$}}
+
+\newcommand{\intentbox}[2]{%
+  {\setlength{\fboxsep}{0.8pt}%
+   \raisebox{0pt}[0pt][0pt]{{$#2$}}}%
+}
+% \newcommand{\intentbox}[2]{%
+%   {\setlength{\fboxsep}{0.8pt}%
+%    \raisebox{0pt}[0pt][0pt]{\colorbox{#1}{$#2$}}}%
+% }
+\newcommand{\intentcompleted}{\intentbox{green!20}{\mathcal{I}_{\text{com}}}}
+\newcommand{\intentinferred}{\intentbox{cyan!20}{\mathcal{I}_{\text{inf}}}}
+\newcommand{\intentprovided}{\intentbox{red!20}{\mathcal{I}_{\text{pro}}}}
+
+% project github huggingface url
+\newcommand{\projectpage}{\raisebox{-1.5pt}{\faIcon{globe}}}
+\newcommand{\github}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{0.0-figure/icon/github-logo.pdf}}}
+\newcommand{\huggingface}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{0.0-figure/icon/hf-logo.pdf}}}
+
+% yafu
+\NewDocumentCommand{\yafu}
+{ mO{} }{\textcolor{blue}{\textsuperscript{\textit{yafu}}\textsf{\textbf{\small[#1]}}}}
+
+\NewDocumentCommand{\haodi}
+{ mO{} }{\textcolor{blue}{\textsuperscript{\textit{haodi}}\textsf{\textbf{\small[#1]}}}}
+
+\NewDocumentCommand{\shunkai}
+{ mO{} }{\textcolor{blue}{\textsuperscript{\textit{shunkai}}\textsf{\textbf{\small[#1]}}}}
+
+\NewDocumentCommand{\luxin}
+{ mO{} }{\textcolor{blue}{\textsuperscript{\textit{luxin}}\textsf{\textbf{\small[#1]}}}}
+
+\NewDocumentCommand{\runquan}
+{ mO{} }{\textcolor{blue}{\textsuperscript{\textit{runquan}}\textsf{\textbf{\small[#1]}}}}
+
+\NewDocumentCommand{\yangyang}
+{ mO{} }{\textcolor{blue}{\textsuperscript{\textit{yangyang}}\textsf{\textbf{\small[#1]}}}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% USER SETTINGS END
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote. 
+\title{\textsc{$\pi$-Bench}: Evaluating Proactive Personal \\ Assistant Agents in Long-Horizon Workflows}
+
+% \textsc{$\pi$-Bench}: Evaluating Proactive Intent Resolution in Long-Horizon Personal Assistant Workflows
+% \textsc{$\pi$-Bench}: A Benchmark for Proactive Assistance in Long-Horizon Personal Workflows
+% \textsc{$\pi$-Bench}: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+
+% \author{%
+  % David S.~Hippocampus\thanks{Use footnote for providing further information about author (webpage, alternative address)---\emph{not} for acknowledging funding agencies.} \\
+  % Department of Computer Science\\
+  % Cranberry-Lemon University\\
+  % Pittsburgh, PA 15213 \\
+  % \texttt{hippo@cs.cranberry-lemon.edu} \\
+  %
+  % examples of more authors
+  % \And
+  % Coauthor \\
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+  % \AND
+  % Coauthor \\
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+  % \And
+  % Coauthor \\
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+  % \And
+  % Coauthor \\
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+% }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\author{
+\begin{minipage}{\textwidth}
+% \raggedright
+\centering
+\normalfont
+\textbf{Haoran Zhang}\textsuperscript{1,2,*}\hspace{1em}
+\textbf{Luxin Xu}\textsuperscript{3,2,*}\hspace{1em}
+\textbf{Zhilin Wang}\textsuperscript{4,2,*}\hspace{1em}
+\textbf{Runquan Gui}\textsuperscript{4,2,*}\\
+\textbf{Shunkai Zhang}\textsuperscript{5,2}\hspace{1em}
+\textbf{Haodi Lei}\textsuperscript{6,2}\hspace{1em}
+\textbf{Zihao He}\textsuperscript{7}\hspace{1em}
+\textbf{Bingsu He}\textsuperscript{8}\hspace{1em}
+\textbf{Chicheng Qin}\textsuperscript{5}\\
+\textbf{Tong Zhu}\textsuperscript{9,2}\hspace{1em}
+\textbf{Xiaoye Qu}\textsuperscript{2}\hspace{1em}
+\textbf{Yang Yang}\textsuperscript{1,$\dagger$}\hspace{1em}
+\textbf{Yu Cheng}\textsuperscript{10,2,$\dagger$}\hspace{1em}
+\textbf{Yafu Li}\textsuperscript{2,10,$\dagger$}
+\\[0.6em]
+{\small
+\textsuperscript{1} Shanghai Jiao Tong University \quad
+\textsuperscript{2} Shanghai AI Laboratory \quad
+\textsuperscript{3} Fudan University \\
+\textsuperscript{4} University of Science and Technology of China \quad
+\textsuperscript{5} Peking University \quad
+\textsuperscript{6} Nanjing University \\
+\textsuperscript{7} Zhejiang University \quad
+\textsuperscript{8} Tongji University  \quad
+\textsuperscript{9} Soochow University \\
+\textsuperscript{10} The Chinese University of Hong Kong
+}
+\end{minipage}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ANONYMOUS
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\footnotetext[1]{Equal contribution.}
+\footnotetext[2]{Corresponding authors: Yafu Li \texttt{<yafuly@gmail.com>}, Yu Cheng \texttt{<chengyu@cse.cuhk.edu.hk>}, Yang Yang \texttt{<angelayang@sjtu.edu.cn>}.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{abstract}
+The rise of personal assistant agents, e.g., OpenClaw, highlights the growing potential of large language models to support users across everyday life and work. A core challenge in these settings is proactive assistance, since users often begin with underspecified requests and leave important needs, constraints, or preferences unstated. 
+However, existing benchmarks rarely evaluate whether agents can identify and act on such hidden intents before they are explicitly stated, especially in sustained multi-turn interactions where user needs emerge gradually.
+To address this gap, we introduce {\bench}, a benchmark for proactive assistance comprising 100 multi-turn tasks across 5 domain-specific user personas. By incorporating hidden user intents, inter-task dependencies, and cross-session continuity, {\bench} evaluates agents’ ability to anticipate and address user needs over extended interactions, jointly measuring proactivity and task completion in long-horizon trajectories that better reflect real-world use.
+Experiments show (1) proactive assistance remains challenging, (2) a clear distinction between task completion and proactivity, and (3) the value of prior interaction for proactive intent resolution in later tasks.
+\end{abstract}
+
+% The rise of personal assistant agents, e.g., OpenClaw, highlights the growing potential of large language models to support users across everyday life and work. A core challenge in these settings is proactive assistance, since users often begin with underspecified requests and leave important needs, constraints, or preferences unstated. However, existing benchmarks rarely evaluate whether agents can identify and act on such hidden intents before they are explicitly stated, especially in sustained multi-turn interactions where user needs emerge gradually. To address this gap, we introduce $\pi$-Bench, a benchmark for proactive assistance comprising 100 multi-turn tasks across 5 domain-specific user personas. By incorporating hidden user intents, inter-task dependencies, and cross-session continuity, $\pi$-Bench evaluates agents’ ability to anticipate and address user needs over extended interactions, jointly measuring proactivity and task completion in long-horizon trajectories that better reflect real-world use. Experiments show (1) proactive assistance remains challenging, (2) a clear distinction between task completion and proactivity, and (3) the value of prior interaction for proactive intent resolution in later tasks.
+
+% ANONYMOUS
+\begin{center}
+\vspace{-1em}
+~\projectpage~\href{http://simplified-reasoning.github.io/Pi-Bench}{{\text{Project Page}}}
+\quad \quad \quad
+~\github~\href{https://github.com/Simplified-Reasoning/Pi-Bench}{{\text{Code}}}
+% \quad \quad \quad
+% ~\huggingface~\href{https://huggingface.co/Simplified-Reasoning/}{{\text{Models}}}
+\end{center}
+
+\input{1-main/1-introduction}
+\input{1-main/2-related-work}
+\input{1-main/3-benchmark}
+\input{1-main/4-experiments}
+\input{1-main/5-conclusion}
+
+{\small
+\bibliographystyle{plainnat}
+\bibliography{reference}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+\appendix
+
+\part*{Appendix}
+\addcontentsline{toc}{part}{Appendix}  % Add to main TOC
+
+\startcontents[appendix]
+% \printcontents[appendix]{}{1}{\section*{Contents of Appendix}}
+\printcontents[appendix]{}{1}{}
+
+\newpage
+
+\input{2-appendix/benchmark-statistics}
+\input{2-appendix/user-agent}
+\input{2-appendix/evaluation}
+\input{2-appendix/settings}
+\input{2-appendix/societal_impacts}
+\input{2-appendix/experiments}
+\input{2-appendix/task_format}
+\input{2-appendix/intent_checklist_distinction}
+\input{2-appendix/benchmark-construction}
+\input{2-appendix/case_study}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ANONYMOUS
+% \newpage
+% \input{checklist.tex}
+
+
+\end{document}

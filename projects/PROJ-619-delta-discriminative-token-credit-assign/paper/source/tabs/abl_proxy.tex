@@ -1,0 +1,34 @@
+\begin{table}[t]
+\centering
+\caption{
+Proxy ablation study of DelTA. 
+The best results are in \textbf{bold}.
+}
+\label{tab:proxy-ablation}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.06}
+
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}*{5}{>{\centering\arraybackslash}X}@{}}
+\toprule
+\textbf{Method}
+& AIME25
+& AIME26
+& HMMT25
+& HMMT26
+& Avg. \\
+\midrule
+
+\rowcolor{cyan!10}
+\bodystrut \textbf{Base DelTA}
+& 26.46 & \textbf{28.12} & 18.54 & 20.27 & 23.27 \\
+
+\midrule
+\bodystrut Top-\(K\) hidden-gradient proxy
+& \textbf{27.08} & 27.71 & \textbf{20.83} & \textbf{21.78} & \textbf{24.29} \\
+\bodystrut Random \(\lambda\)
+& 22.50 & 22.50 & 11.87 & 16.67 & 18.34 \\
+
+\bottomrule
+\end{tabularx}
+\end{table}

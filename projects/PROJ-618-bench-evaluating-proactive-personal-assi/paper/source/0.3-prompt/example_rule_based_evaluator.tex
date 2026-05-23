@@ -1,0 +1,73 @@
+% \newcommand{\tcolorboxPromptExampleRuleBasedEvaluatorTitleText}{\fontsize{10}{12}\selectfont}
+% \newcommand{\tcolorboxPromptExampleRuleBasedEvaluatorCommonText}{\fontsize{7.5}{9}\selectfont}
+% \newcommand{\tcolorboxPromptExampleRuleBasedEvaluatorTitleBeforeVspace}{\vspace{10 pt}}
+% \newcommand{\tcolorboxPromptExampleRuleBasedEvaluatorCommonTextLineSkip}{\setlength{\baselineskip}{5 pt}}
+
+\newcommand{\tcolorboxPromptExampleRuleBasedEvaluatorTitleText}{}
+\newcommand{\tcolorboxPromptExampleRuleBasedEvaluatorCommonText}{}
+\newcommand{\tcolorboxPromptExampleRuleBasedEvaluatorTitleBeforeVspace}{}
+\newcommand{\tcolorboxPromptExampleRuleBasedEvaluatorCommonTextLineSkip}{}
+
+\begin{tcbCodeListing}{Example -- Rule Based Evaluator
+}{Python}
+from typing import Any
+
+TARGET_PRODUCT_ID = 1578
+TARGET_QUANTITY = 2
+
+
+def _default_scores() -> dict[str, int]:
+    return {
+        "used amazon__place_order successfully": 0,
+        "recovered placed order_id": 0,
+        "show_order confirms target product": 0,
+        "show_order confirms ordered_quantity == 2": 0,
+    }
+
+
+def score(tools_history: list[dict[str, Any]]) -> dict[str, int]:
+    result = _default_scores()
+    order_id: int | None = None
+
+    for item in tools_history:
+        if not isinstance(item, dict):
+            continue
+
+        tool_name = str(item.get("tool_name") or "").strip()
+        call_payload = item.get("call")
+        raw_result = item.get("result")
+        response = raw_result.get("response") if isinstance(raw_result, dict) else None
+
+        if tool_name == "mcp_appworld_amazon__place_order" and isinstance(response, dict):
+            if (
+                isinstance(call_payload, dict)
+                and "payment_card_id" in call_payload
+                and "address_id" in call_payload
+                and isinstance(response.get("order_id"), int)
+            ):
+                result["used amazon__place_order successfully"] = 1
+                order_id = response["order_id"]
+                result["recovered placed order_id"] = 1
+            continue
+
+        if tool_name != "mcp_appworld_amazon__show_order" or not isinstance(response, dict):
+            continue
+        if order_id is not None and response.get("order_id") != order_id:
+            continue
+
+        order_items = response.get("order_items")
+        if not isinstance(order_items, list):
+            continue
+
+        for order_item in order_items:
+            if not isinstance(order_item, dict):
+                continue
+            if order_item.get("product_id") != TARGET_PRODUCT_ID:
+                continue
+            result["show_order confirms target product"] = 1
+            if order_item.get("ordered_quantity") == TARGET_QUANTITY:
+                result["show_order confirms ordered_quantity == 2"] = 1
+            return result
+
+    return result
+\end{tcbCodeListing}
