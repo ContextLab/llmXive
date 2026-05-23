@@ -1,14 +1,7 @@
 last_used: david-krakauer
-last_used_at: '2026-05-23T13:32:35.985149+00:00'
-last_outcome: committed
+last_used_at: '2026-05-23T14:32:15.602241+00:00'
+last_outcome: model_error
 history:
-- slug: dan-rockmore
-  started_at: '2026-05-14T22:49:23.929430+00:00'
-  ended_at: '2026-05-14T23:19:45.284935+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/reviews/research/dan-rockmore-simulated__2026-05-14__research.md
 - slug: daniel-kahneman
   started_at: '2026-05-14T23:19:45.284935+00:00'
   ended_at: '2026-05-14T23:48:59.887185+00:00'
@@ -1329,3 +1322,7 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/david-krakauer-simulated__2026-05-23__paper.md
+- slug: eric-kandel
+  started_at: '2026-05-23T13:32:35.985149+00:00'
+  ended_at: '2026-05-23T14:32:15.602241+00:00'
+  outcome: model_error
