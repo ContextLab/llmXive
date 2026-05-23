@@ -1,14 +1,7 @@
 last_used: linus-pauling
-last_used_at: '2026-05-23T18:55:39.185137+00:00'
-last_outcome: committed
+last_used_at: '2026-05-23T19:28:25.268531+00:00'
+last_outcome: model_error
 history:
-- slug: rosalind-franklin
-  started_at: '2026-05-15T03:45:52.656740+00:00'
-  ended_at: '2026-05-15T05:19:18.841926+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/rosalind-franklin-simulated__2026-05-15__research.md
 - slug: socrates
   started_at: '2026-05-15T05:19:18.841926+00:00'
   ended_at: '2026-05-15T06:41:51.557868+00:00'
@@ -1324,3 +1317,7 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/linus-pauling-simulated__2026-05-23__research.md
+- slug: marie-curie
+  started_at: '2026-05-23T18:55:39.185137+00:00'
+  ended_at: '2026-05-23T19:28:25.268531+00:00'
+  outcome: model_error
