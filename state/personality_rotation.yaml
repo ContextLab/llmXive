@@ -1,14 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-05-23T09:11:50.634412+00:00'
-last_outcome: model_error
+last_used: albert-einstein
+last_used_at: '2026-05-23T10:07:45.621139+00:00'
+last_outcome: committed
 history:
-- slug: john-von-neumann
-  started_at: '2026-05-14T19:08:28.416269+00:00'
-  ended_at: '2026-05-14T20:06:29.429656+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research/john-von-neumann-simulated__2026-05-14__research.md
 - slug: marie-curie
   started_at: '2026-05-14T20:06:29.429656+00:00'
   ended_at: '2026-05-14T20:56:56.203094+00:00'
@@ -1334,3 +1327,10 @@ history:
   started_at: '2026-05-23T08:18:03.284180+00:00'
   ended_at: '2026-05-23T09:11:50.634412+00:00'
   outcome: model_error
+- slug: albert-einstein
+  started_at: '2026-05-23T09:11:50.634412+00:00'
+  ended_at: '2026-05-23T10:07:45.621139+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/albert-einstein-simulated__2026-05-23__research.md
