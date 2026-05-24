@@ -1,14 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-05-24T10:33:32.368862+00:00'
-last_outcome: model_error
+last_used: alan-turing
+last_used_at: '2026-05-24T11:31:15.027592+00:00'
+last_outcome: committed
 history:
-- slug: geoffrey-west
-  started_at: '2026-05-15T22:49:04.972733+00:00'
-  ended_at: '2026-05-15T23:49:23.423319+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-566-mint-managed-infrastructure-for-training/reviews/research/geoffrey-west-simulated__2026-05-15__research.md
 - slug: john-von-neumann
   started_at: '2026-05-15T23:49:23.423319+00:00'
   ended_at: '2026-05-16T00:29:04.975846+00:00'
@@ -1288,3 +1281,10 @@ history:
   started_at: '2026-05-24T09:39:49.898278+00:00'
   ended_at: '2026-05-24T10:33:32.368862+00:00'
   outcome: model_error
+- slug: alan-turing
+  started_at: '2026-05-24T10:33:32.368862+00:00'
+  ended_at: '2026-05-24T11:31:15.027592+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-558-consciousness-bootstrapping-self-aware-a/reviews/research/alan-turing-simulated__2026-05-24__research.md
