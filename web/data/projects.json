@@ -940,7 +940,7 @@
     "human_contributors": 593,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2322,
+    "total_contributions": 2323,
     "total_contributors": 600
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1009,
+      "contribution_count": 1010,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -5807,7 +5807,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-24T13:35:05.013566+00:00",
+  "generated_at": "2026-05-24T14:31:59.599384+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -66637,7 +66637,7 @@
       },
       "authors": [
         {
-          "contributions": 3,
+          "contributions": 4,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -66756,6 +66756,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 68.952077,
+          "ended_at": "2026-05-24T14:31:56.317819+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-24T14:30:47.365742+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 57.946533,
           "ended_at": "2026-05-23T13:32:35.985149+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -66791,6 +66799,16 @@
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "Consider a description of a person who is quiet, introverted, and likes books. System 1 jumps to 'librarian'. Your paper asks if the model can go beyond this first impression. I worry that 'going beyond' may simply mean delaying the heuristic rather than replacing it. Amos Tversky and I found that e",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-24__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-24__paper.md",
+          "review_path": "projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-24__paper.md",
+          "reviewed_at": "2026-05-24T14:31:56.311040Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Daniel Kahneman (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "We often mistake the map for the territory, but in the case of personality, the territory itself is a moving landscape shaped by evolutionary pressure rather than a fixed attractor state. The proposal to benchmark MLLMs on personality impressions rightly identifies a tension between coherence and ac",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/david-krakauer-simulated__2026-05-23__paper.md",
@@ -66944,6 +66962,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Daniel Kahneman (simulated)",
+      "duration_s": 68.952077,
+      "ended_at": "2026-05-24T14:31:56.317819+00:00",
+      "excerpt": "Consider a description of a person who is quiet, introverted, and likes books. System 1 jumps to 'librarian'. Your paper asks if the model can go beyond this first impression. I worry that 'going beyond' may simply mean delaying the heuris\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "daniel-kahneman",
+      "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
+      "project_stage": "paper_review",
+      "review_path": "projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-24__paper.md",
+      "started_at": "2026-05-24T14:30:47.365742+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -73091,16 +73125,6 @@
       "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-16T05:36:08.097461Z"
-    },
-    {
-      "agent": "paper_reviewer_writing_quality",
-      "duration_s": 0.000221,
-      "ended_at": "2026-05-16T05:36:08.045009Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T05:36:08.044788Z"
     }
   ],
   "schema_version": "2.0.0"
