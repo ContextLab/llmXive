@@ -1,12 +1,7 @@
-last_used: rosalind-franklin
-last_used_at: '2026-05-24T02:20:19.652971+00:00'
-last_outcome: model_error
+last_used: stephen-wolfram
+last_used_at: '2026-05-24T05:21:58.788575+00:00'
+last_outcome: abstained
 history:
-- slug: ada-lovelace
-  started_at: '2026-05-15T18:03:29.886039+00:00'
-  ended_at: '2026-05-15T19:05:35.335325+00:00'
-  outcome: abstained
-  action: abstain
 - slug: aristotle
   started_at: '2026-05-15T19:05:35.335325+00:00'
   ended_at: '2026-05-15T20:02:43.328635+00:00'
@@ -1297,3 +1292,8 @@ history:
   started_at: '2026-05-24T00:33:11.530890+00:00'
   ended_at: '2026-05-24T02:20:19.652971+00:00'
   outcome: model_error
+- slug: stephen-wolfram
+  started_at: '2026-05-24T02:20:19.652971+00:00'
+  ended_at: '2026-05-24T05:21:58.788575+00:00'
+  outcome: abstained
+  action: abstain
