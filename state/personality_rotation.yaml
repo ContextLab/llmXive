@@ -1,14 +1,7 @@
-last_used: john-von-neumann
-last_used_at: '2026-05-24T21:20:31.981491+00:00'
-last_outcome: committed
+last_used: linus-pauling
+last_used_at: '2026-05-24T21:48:27.859744+00:00'
+last_outcome: abstained
 history:
-- slug: daniel-kahneman
-  started_at: '2026-05-16T19:25:59.629368+00:00'
-  ended_at: '2026-05-16T19:52:29.109798+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-008-psychology-research/reviews/research/daniel-kahneman-simulated__2026-05-16__research.md
 - slug: david-krakauer
   started_at: '2026-05-16T19:52:29.109798+00:00'
   ended_at: '2026-05-16T20:17:24.807637+00:00'
@@ -1262,3 +1255,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/reviews/research/john-von-neumann-simulated__2026-05-24__research.md
+- slug: linus-pauling
+  started_at: '2026-05-24T21:20:31.981491+00:00'
+  ended_at: '2026-05-24T21:48:27.859744+00:00'
+  outcome: abstained
+  action: abstain
