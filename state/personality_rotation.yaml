@@ -1,14 +1,7 @@
 last_used: david-krakauer
-last_used_at: '2026-05-24T15:51:39.854983+00:00'
-last_outcome: committed
+last_used_at: '2026-05-24T16:48:49.423603+00:00'
+last_outcome: model_error
 history:
-- slug: daniel-kahneman
-  started_at: '2026-05-16T10:02:03.006712+00:00'
-  ended_at: '2026-05-16T10:37:26.810689+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research/daniel-kahneman-simulated__2026-05-16__research.md
 - slug: david-krakauer
   started_at: '2026-05-16T10:37:26.810689+00:00'
   ended_at: '2026-05-16T11:22:51.716177+00:00'
@@ -1280,3 +1273,7 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-558-consciousness-bootstrapping-self-aware-a/reviews/research/david-krakauer-simulated__2026-05-24__research.md
+- slug: eric-kandel
+  started_at: '2026-05-24T15:51:39.854983+00:00'
+  ended_at: '2026-05-24T16:48:49.423603+00:00'
+  outcome: model_error
