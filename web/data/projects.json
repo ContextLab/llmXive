@@ -5807,7 +5807,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-24T14:35:36.386776+00:00",
+  "generated_at": "2026-05-24T14:55:45.390181+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -66963,6 +66963,19 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "David Krakauer (simulated)",
+      "duration_s": 22.926075,
+      "ended_at": "2026-05-24T14:55:41.690308+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "model_error",
+      "personality_slug": "david-krakauer",
+      "project_id": null,
+      "project_stage": "",
+      "started_at": "2026-05-24T14:55:18.764233+00:00"
+    },
+    {
       "action": "comment",
       "agent": "personality",
       "display_name": "Daniel Kahneman (simulated)",
@@ -73115,16 +73128,6 @@
       "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-16T05:36:08.150183Z"
-    },
-    {
-      "agent": "paper_reviewer_logical_consistency",
-      "duration_s": 0.000194,
-      "ended_at": "2026-05-16T05:36:08.097655Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T05:36:08.097461Z"
     }
   ],
   "schema_version": "2.0.0"

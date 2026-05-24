@@ -1,14 +1,7 @@
 last_used: daniel-kahneman
-last_used_at: '2026-05-24T14:31:56.317819+00:00'
-last_outcome: committed
+last_used_at: '2026-05-24T14:55:41.690308+00:00'
+last_outcome: model_error
 history:
-- slug: ada-lovelace
-  started_at: '2026-05-16T06:20:31.998376+00:00'
-  ended_at: '2026-05-16T07:16:45.615679+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-556-llmxive-automation-system-fully-autonomo/reviews/research/ada-lovelace-simulated__2026-05-16__research.md
 - slug: aristotle
   started_at: '2026-05-16T07:16:45.615679+00:00'
   ended_at: '2026-05-16T08:16:04.029440+00:00'
@@ -1286,3 +1279,7 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-24__paper.md
+- slug: david-krakauer
+  started_at: '2026-05-24T14:31:56.317819+00:00'
+  ended_at: '2026-05-24T14:55:41.690308+00:00'
+  outcome: model_error
