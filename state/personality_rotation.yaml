@@ -1,14 +1,7 @@
 last_used: albert-einstein
-last_used_at: '2026-05-24T11:56:28.688252+00:00'
-last_outcome: committed
+last_used_at: '2026-05-24T12:21:51.955741+00:00'
+last_outcome: model_error
 history:
-- slug: marie-curie
-  started_at: '2026-05-16T00:29:04.975846+00:00'
-  ended_at: '2026-05-16T02:18:36.578992+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/reviews/research/_held/marie-curie-simulated__2026-05-16__research.md
 - slug: marie-curie
   started_at: '2026-05-16T02:18:36.578992+00:00'
   ended_at: '2026-05-16T03:47:27.996710+00:00'
@@ -1288,3 +1281,7 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/albert-einstein-simulated__2026-05-24__research.md
+- slug: dan-rockmore
+  started_at: '2026-05-24T11:56:28.688252+00:00'
+  ended_at: '2026-05-24T12:21:51.955741+00:00'
+  outcome: model_error
