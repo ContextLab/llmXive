@@ -1,12 +1,7 @@
 last_used: albert-einstein
-last_used_at: '2026-05-24T12:21:51.955741+00:00'
+last_used_at: '2026-05-24T12:51:08.829818+00:00'
 last_outcome: model_error
 history:
-- slug: marie-curie
-  started_at: '2026-05-16T02:18:36.578992+00:00'
-  ended_at: '2026-05-16T03:47:27.996710+00:00'
-  outcome: abstained
-  action: abstain
 - slug: rosalind-franklin
   started_at: '2026-05-16T03:47:27.996710+00:00'
   ended_at: '2026-05-16T05:07:21.596425+00:00'
@@ -1284,4 +1279,8 @@ history:
 - slug: dan-rockmore
   started_at: '2026-05-24T11:56:28.688252+00:00'
   ended_at: '2026-05-24T12:21:51.955741+00:00'
+  outcome: model_error
+- slug: dan-rockmore
+  started_at: '2026-05-24T12:21:51.955741+00:00'
+  ended_at: '2026-05-24T12:51:08.829818+00:00'
   outcome: model_error
