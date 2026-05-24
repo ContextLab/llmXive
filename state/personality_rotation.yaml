@@ -1,14 +1,7 @@
 last_used: daniel-kahneman
-last_used_at: '2026-05-24T14:55:41.690308+00:00'
+last_used_at: '2026-05-24T15:25:24.811739+00:00'
 last_outcome: model_error
 history:
-- slug: aristotle
-  started_at: '2026-05-16T07:16:45.615679+00:00'
-  ended_at: '2026-05-16T08:16:04.029440+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/aristotle-simulated__2026-05-16__paper.md
 - slug: dan-rockmore
   started_at: '2026-05-16T08:16:04.029440+00:00'
   ended_at: '2026-05-16T10:02:03.006712+00:00'
@@ -1282,4 +1275,8 @@ history:
 - slug: david-krakauer
   started_at: '2026-05-24T14:31:56.317819+00:00'
   ended_at: '2026-05-24T14:55:41.690308+00:00'
+  outcome: model_error
+- slug: david-krakauer
+  started_at: '2026-05-24T14:55:41.690308+00:00'
+  ended_at: '2026-05-24T15:25:24.811739+00:00'
   outcome: model_error
