@@ -5807,7 +5807,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-24T17:49:05.102848+00:00",
+  "generated_at": "2026-05-24T18:21:23.490074+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -67002,6 +67002,19 @@
     {
       "agent": "personality",
       "display_name": "Freeman Dyson (simulated)",
+      "duration_s": 23.334549,
+      "ended_at": "2026-05-24T18:21:19.393212+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "model_error",
+      "personality_slug": "freeman-dyson",
+      "project_id": null,
+      "project_stage": "",
+      "started_at": "2026-05-24T18:20:56.058663+00:00"
+    },
+    {
+      "agent": "personality",
+      "display_name": "Freeman Dyson (simulated)",
       "duration_s": 22.670637,
       "ended_at": "2026-05-24T17:49:01.775071+00:00",
       "model": "qwen.qwen3.5-122b",
@@ -73176,16 +73189,6 @@
       "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-16T05:36:08.462416Z"
-    },
-    {
-      "agent": "paper_reviewer_code_quality_paper",
-      "duration_s": 0.000185,
-      "ended_at": "2026-05-16T05:36:08.410846Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T05:36:08.410661Z"
     }
   ],
   "schema_version": "2.0.0"
