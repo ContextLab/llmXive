@@ -1,14 +1,7 @@
 last_used: eric-kandel
-last_used_at: '2026-05-24T17:23:52.447370+00:00'
-last_outcome: committed
+last_used_at: '2026-05-24T17:49:01.775071+00:00'
+last_outcome: model_error
 history:
-- slug: geoffrey-west
-  started_at: '2026-05-16T11:22:51.716177+00:00'
-  ended_at: '2026-05-16T11:48:32.370236+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-007-energy-systems/reviews/research/geoffrey-west-simulated__2026-05-16__research.md
 - slug: john-von-neumann
   started_at: '2026-05-16T11:48:32.370236+00:00'
   ended_at: '2026-05-16T12:20:31.350997+00:00'
@@ -1277,3 +1270,7 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/reviews/research/eric-kandel-simulated__2026-05-24__research.md
+- slug: freeman-dyson
+  started_at: '2026-05-24T17:23:52.447370+00:00'
+  ended_at: '2026-05-24T17:49:01.775071+00:00'
+  outcome: model_error
