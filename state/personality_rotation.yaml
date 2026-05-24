@@ -1,14 +1,7 @@
-last_used: geoffrey-west
-last_used_at: '2026-05-24T20:47:45.379237+00:00'
-last_outcome: model_error
+last_used: john-von-neumann
+last_used_at: '2026-05-24T21:20:31.981491+00:00'
+last_outcome: committed
 history:
-- slug: dan-rockmore
-  started_at: '2026-05-16T18:51:32.833412+00:00'
-  ended_at: '2026-05-16T19:25:59.629368+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-569-intern-atlas-a-methodological-evolution/reviews/research/dan-rockmore-simulated__2026-05-16__research.md
 - slug: daniel-kahneman
   started_at: '2026-05-16T19:25:59.629368+00:00'
   ended_at: '2026-05-16T19:52:29.109798+00:00'
@@ -1262,3 +1255,10 @@ history:
   started_at: '2026-05-24T20:21:56.361646+00:00'
   ended_at: '2026-05-24T20:47:45.379237+00:00'
   outcome: model_error
+- slug: john-von-neumann
+  started_at: '2026-05-24T20:47:45.379237+00:00'
+  ended_at: '2026-05-24T21:20:31.981491+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/reviews/research/john-von-neumann-simulated__2026-05-24__research.md
