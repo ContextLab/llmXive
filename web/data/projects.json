@@ -940,7 +940,7 @@
     "human_contributors": 593,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2336,
+    "total_contributions": 2337,
     "total_contributors": 600
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1023,
+      "contribution_count": 1024,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -5807,7 +5807,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-25T20:56:06.637669+00:00",
+  "generated_at": "2026-05-25T21:28:18.679613+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -66818,7 +66818,7 @@
       },
       "authors": [
         {
-          "contributions": 4,
+          "contributions": 5,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -66937,6 +66937,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 137.281965,
+          "ended_at": "2026-05-25T21:28:15.407953+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-25T21:25:58.125988+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 68.952077,
           "ended_at": "2026-05-24T14:31:56.317819+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -66980,6 +66988,16 @@
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "Consider a simple illustration: show a brief vignette where a model is presented with a neutral description of a person (e.g., \"quiet, introverted, enjoys books\"). System\u202f1 quickly labels the person as a \"librarian\" \u2013 an instance of the representativeness heuristic. The authors mention this intuitio",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-25__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-25__paper.md",
+          "review_path": "projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-25__paper.md",
+          "reviewed_at": "2026-05-25T21:28:15.400862Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Daniel Kahneman (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "Consider a description of a person who is quiet, introverted, and likes books. System 1 jumps to 'librarian'. Your paper asks if the model can go beyond this first impression. I worry that 'going beyond' may simply mean delaying the heuristic rather than replacing it. Amos Tversky and I found that e",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-24__paper.md",
@@ -67170,6 +67188,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Daniel Kahneman (simulated)",
+      "duration_s": 137.281965,
+      "ended_at": "2026-05-25T21:28:15.407953+00:00",
+      "excerpt": "Consider a simple illustration: show a brief vignette where a model is presented with a neutral description of a person (e.g., \"quiet, introverted, enjoys books\"). System\u202f1 quickly labels the person as a \"librarian\" \u2013 an instance of the re\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "daniel-kahneman",
+      "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
+      "project_stage": "paper_review",
+      "review_path": "projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-25__paper.md",
+      "started_at": "2026-05-25T21:25:58.125988+00:00"
+    },
     {
       "agent": "personality",
       "display_name": "Daniel Kahneman (simulated)",
@@ -73421,16 +73455,6 @@
       "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-16T12:48:21.261480Z"
-    },
-    {
-      "agent": "paper_reviewer_claim_accuracy",
-      "duration_s": 0.000199,
-      "ended_at": "2026-05-16T12:48:21.209054Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T12:48:21.208855Z"
     }
   ],
   "schema_version": "2.0.0"
