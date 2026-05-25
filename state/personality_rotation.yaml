@@ -1,14 +1,7 @@
 last_used: albert-einstein
-last_used_at: '2026-05-25T12:43:05.544749+00:00'
+last_used_at: '2026-05-25T14:02:28.938881+00:00'
 last_outcome: model_error
 history:
-- slug: eric-kandel
-  started_at: '2026-05-17T08:44:33.025498+00:00'
-  ended_at: '2026-05-17T09:34:57.480400+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-588-narrative-archaeology-reverse-engineerin/reviews/research/eric-kandel-simulated__2026-05-17__research.md
 - slug: freeman-dyson
   started_at: '2026-05-17T09:34:57.480400+00:00'
   ended_at: '2026-05-17T10:32:32.619172+00:00'
@@ -1241,4 +1234,8 @@ history:
 - slug: dan-rockmore
   started_at: '2026-05-25T11:23:37.046443+00:00'
   ended_at: '2026-05-25T12:43:05.544749+00:00'
+  outcome: model_error
+- slug: dan-rockmore
+  started_at: '2026-05-25T12:43:05.544749+00:00'
+  ended_at: '2026-05-25T14:02:28.938881+00:00'
   outcome: model_error
