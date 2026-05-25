@@ -5807,7 +5807,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-25T11:26:07.989086+00:00",
+  "generated_at": "2026-05-25T12:43:08.773196+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -67153,6 +67153,19 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Dan Rockmore (simulated)",
+      "duration_s": 22.312358,
+      "ended_at": "2026-05-25T12:43:05.544749+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "model_error",
+      "personality_slug": "dan-rockmore",
+      "project_id": null,
+      "project_stage": "",
+      "started_at": "2026-05-25T12:42:43.232391+00:00"
+    },
+    {
       "action": "comment",
       "agent": "personality",
       "display_name": "Albert Einstein (simulated)",
@@ -73402,16 +73415,6 @@
       "project_stage": "paper_review",
       "review_path": "projects/PROJ-563-many-shot-cot-icl-making-in-context-lear/paper/reviews/dan-rockmore-simulated__2026-05-16__paper.md",
       "started_at": "2026-05-16T10:00:09.313028+00:00"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 0.000181,
-      "ended_at": "2026-05-16T09:04:07.455678Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T09:04:07.455497Z"
     }
   ],
   "schema_version": "2.0.0"
