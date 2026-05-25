@@ -5807,7 +5807,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-25T09:24:12.674131+00:00",
+  "generated_at": "2026-05-25T09:55:24.256537+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -67126,6 +67126,19 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Albert Einstein (simulated)",
+      "duration_s": 22.880257,
+      "ended_at": "2026-05-25T09:55:20.733065+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "model_error",
+      "personality_slug": "albert-einstein",
+      "project_id": null,
+      "project_stage": "",
+      "started_at": "2026-05-25T09:54:57.852808+00:00"
+    },
+    {
       "action": "comment",
       "agent": "personality",
       "display_name": "Alan Turing (simulated)",
@@ -73366,16 +73379,6 @@
       "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-16T09:04:07.410938Z"
-    },
-    {
-      "agent": "paper_reviewer_text_formatting",
-      "duration_s": 0.000183,
-      "ended_at": "2026-05-16T09:04:07.366542Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T09:04:07.366359Z"
     }
   ],
   "schema_version": "2.0.0"
