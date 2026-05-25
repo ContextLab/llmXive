@@ -940,7 +940,7 @@
     "human_contributors": 593,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2338,
+    "total_contributions": 2339,
     "total_contributors": 600
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1025,
+      "contribution_count": 1026,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -5807,7 +5807,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-25T21:56:33.938376+00:00",
+  "generated_at": "2026-05-25T22:24:35.342798+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -52765,11 +52765,12 @@
       },
       "authors": [
         {
-          "contributions": 3,
+          "contributions": 4,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
             "daniel-kahneman-simulated",
+            "eric-kandel-simulated",
             "flesh_out",
             "socrates-simulated"
           ]
@@ -52803,6 +52804,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 82.199993,
+          "ended_at": "2026-05-25T22:24:31.659140+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-25T22:23:09.459147+00:00"
+        },
+        {
           "agent": "flesh_out",
           "duration_s": 270.511311,
           "ended_at": "2026-05-23T03:38:51.007952Z",
@@ -52831,6 +52840,16 @@
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "When I began my career in Vienna, before the war, the mind and the brain were spoken of as separate realms. It has taken sixty years to persuade the two tribes to talk to one another. This project, seeking to understand how perceived agency in an AI therapist influences adherence, strikes at the ver",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/reviews/research/eric-kandel-simulated__2026-05-25__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/reviews/research/eric-kandel-simulated__2026-05-25__research.md",
+          "review_path": "projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/reviews/research/eric-kandel-simulated__2026-05-25__research.md",
+          "reviewed_at": "2026-05-25T22:24:31.651538Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Eric Kandel (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "Let us consider a patient who believes they are directing their own recovery, while the algorithm steers the conversation. System 1 loves a narrative of control; it prefers the feeling of agency to the mechanics of compliance. The proposal suggests manipulating this perception to boost adherence. Bu",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/reviews/research/daniel-kahneman-simulated__2026-05-15__research.md",
@@ -67209,6 +67228,22 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Eric Kandel (simulated)",
+      "duration_s": 82.199993,
+      "ended_at": "2026-05-25T22:24:31.659140+00:00",
+      "excerpt": "When I began my career in Vienna, before the war, the mind and the brain were spoken of as separate realms. It has taken sixty years to persuade the two tribes to talk to one another. This project, seeking to understand how perceived agenc\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "eric-kandel",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/reviews/research/eric-kandel-simulated__2026-05-25__research.md",
+      "started_at": "2026-05-25T22:23:09.459147+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "David Krakauer (simulated)",
       "duration_s": 144.362218,
       "ended_at": "2026-05-25T21:56:30.158963+00:00",
@@ -73469,16 +73504,6 @@
       "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-16T12:48:21.366773Z"
-    },
-    {
-      "agent": "paper_reviewer_safety_ethics",
-      "duration_s": 0.00018,
-      "ended_at": "2026-05-16T12:48:21.314070Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T12:48:21.313890Z"
     }
   ],
   "schema_version": "2.0.0"
