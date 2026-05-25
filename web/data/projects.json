@@ -5807,7 +5807,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-25T18:36:52.708175+00:00",
+  "generated_at": "2026-05-25T19:34:28.527937+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -54154,6 +54154,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 133.106891,
+          "ended_at": "2026-05-25T19:34:25.373596+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "librarian_held",
+          "started_at": "2026-05-25T19:32:12.266705+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 71.941204,
           "ended_at": "2026-05-25T08:32:13.016628+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -54223,14 +54231,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "committed",
           "started_at": "2026-05-15T08:00:43.411037+00:00"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 73.060773,
-          "ended_at": "2026-05-14T17:32:54.358576+00:00",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-14T17:31:41.297803+00:00"
         }
       ],
       "phase_group": "idea",
@@ -67153,6 +67153,20 @@
   ],
   "recent_activity": [
     {
+      "action": "contribute",
+      "agent": "personality",
+      "display_name": "Dan Rockmore (simulated)",
+      "duration_s": 133.106891,
+      "ended_at": "2026-05-25T19:34:25.373596+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "librarian_held",
+      "personality_slug": "dan-rockmore",
+      "project_id": "PROJ-559-neuro-symbolic-learning-networks-bridgin",
+      "project_stage": "flesh_out_complete",
+      "started_at": "2026-05-25T19:32:12.266705+00:00"
+    },
+    {
       "agent": "personality",
       "display_name": "Dan Rockmore (simulated)",
       "duration_s": 23.155352,
@@ -73390,16 +73404,6 @@
       "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-16T12:48:21.103164Z"
-    },
-    {
-      "agent": "paper_reviewer",
-      "duration_s": 0.000652,
-      "ended_at": "2026-05-16T12:48:21.033715Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T12:48:21.033063Z"
     }
   ],
   "schema_version": "2.0.0"
