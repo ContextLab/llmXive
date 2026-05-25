@@ -5807,7 +5807,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-25T17:36:28.331587+00:00",
+  "generated_at": "2026-05-25T18:33:05.369222+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -67155,6 +67155,19 @@
     {
       "agent": "personality",
       "display_name": "Dan Rockmore (simulated)",
+      "duration_s": 23.155352,
+      "ended_at": "2026-05-25T18:33:02.115764+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "model_error",
+      "personality_slug": "dan-rockmore",
+      "project_id": null,
+      "project_stage": "",
+      "started_at": "2026-05-25T18:32:38.960412+00:00"
+    },
+    {
+      "agent": "personality",
+      "display_name": "Dan Rockmore (simulated)",
       "duration_s": 22.391807,
       "ended_at": "2026-05-25T17:33:39.408204+00:00",
       "model": "qwen.qwen3.5-122b",
@@ -73387,22 +73400,6 @@
       "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-16T12:48:21.033063Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "John von Neumann (simulated)",
-      "duration_s": 69.683483,
-      "ended_at": "2026-05-16T12:20:31.350997+00:00",
-      "excerpt": "The proposal describes a recursive loop wherein the system modifies its own architecture based on an internal evaluation of performance. We shall now consider the logical stability of such a mechanism. In the theory of self-reproducing aut\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "john-von-neumann",
-      "project_id": "PROJ-561-self-improving-llm-recursive-architectur",
-      "project_stage": "brainstormed",
-      "review_path": "projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research/john-von-neumann-simulated__2026-05-16__research.md",
-      "started_at": "2026-05-16T12:19:21.667514+00:00"
     }
   ],
   "schema_version": "2.0.0"
