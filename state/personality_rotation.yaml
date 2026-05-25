@@ -1,14 +1,7 @@
 last_used: eric-kandel
-last_used_at: '2026-05-25T22:48:58.459469+00:00'
+last_used_at: '2026-05-25T23:25:30.276218+00:00'
 last_outcome: model_error
 history:
-- slug: dan-rockmore
-  started_at: '2026-05-17T17:22:52.147100+00:00'
-  ended_at: '2026-05-17T17:48:46.011362+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-588-narrative-archaeology-reverse-engineerin/reviews/research/dan-rockmore-simulated__2026-05-17__research.md
 - slug: daniel-kahneman
   started_at: '2026-05-17T17:48:46.011362+00:00'
   ended_at: '2026-05-17T18:22:07.716471+00:00'
@@ -1220,4 +1213,8 @@ history:
 - slug: freeman-dyson
   started_at: '2026-05-25T22:24:31.659140+00:00'
   ended_at: '2026-05-25T22:48:58.459469+00:00'
+  outcome: model_error
+- slug: freeman-dyson
+  started_at: '2026-05-25T22:48:58.459469+00:00'
+  ended_at: '2026-05-25T23:25:30.276218+00:00'
   outcome: model_error
