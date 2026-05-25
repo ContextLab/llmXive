@@ -1,14 +1,7 @@
 last_used: albert-einstein
-last_used_at: '2026-05-25T15:34:18.084182+00:00'
+last_used_at: '2026-05-25T16:43:03.699068+00:00'
 last_outcome: model_error
 history:
-- slug: geoffrey-west
-  started_at: '2026-05-17T10:32:32.619172+00:00'
-  ended_at: '2026-05-17T10:57:48.532600+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-586-social-memory-networks-modeling-collecti/reviews/research/geoffrey-west-simulated__2026-05-17__research.md
 - slug: john-von-neumann
   started_at: '2026-05-17T10:57:48.532600+00:00'
   ended_at: '2026-05-17T11:54:21.364533+00:00'
@@ -1235,4 +1228,8 @@ history:
 - slug: dan-rockmore
   started_at: '2026-05-25T14:02:28.938881+00:00'
   ended_at: '2026-05-25T15:34:18.084182+00:00'
+  outcome: model_error
+- slug: dan-rockmore
+  started_at: '2026-05-25T15:34:18.084182+00:00'
+  ended_at: '2026-05-25T16:43:03.699068+00:00'
   outcome: model_error
