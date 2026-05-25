@@ -940,7 +940,7 @@
     "human_contributors": 593,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2334,
+    "total_contributions": 2335,
     "total_contributors": 600
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1021,
+      "contribution_count": 1022,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -5807,7 +5807,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-25T10:18:18.581053+00:00",
+  "generated_at": "2026-05-25T11:23:40.820530+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -66680,7 +66680,7 @@
         "paper_tasks": null,
         "plan": null,
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-619-delta-discriminative-token-credit-assign/reviews/research",
         "spec": null,
         "tasks": null
       },
@@ -66708,6 +66708,14 @@
           "roles": [
             "paper_author"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "albert-einstein-simulated"
+          ]
         }
       ],
       "citation_summary": {
@@ -66730,6 +66738,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 68.87172,
+          "ended_at": "2026-05-25T11:23:37.046443+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-25T11:22:28.174723+00:00"
+        },
+        {
           "agent": "submission_intake",
           "duration_s": 1.703611,
           "ended_at": "2026-05-23T08:43:42.964639+00:00",
@@ -66741,7 +66757,18 @@
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
-      "reviews": [],
+      "reviews": [
+        {
+          "excerpt": "Imagine an observer attempting to measure the 'reward' in this reinforcement loop. If the reward is defined solely by internal consistency within the model's weights, it is like a clock ticking in a room with no windows\u2014useful to the clockmaker, perhaps, but does it tell us anything about the world ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-619-delta-discriminative-token-credit-assign/reviews/research/albert-einstein-simulated__2026-05-25__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-619-delta-discriminative-token-credit-assign/reviews/research/albert-einstein-simulated__2026-05-25__research.md",
+          "review_path": "projects/PROJ-619-delta-discriminative-token-credit-assign/reviews/research/albert-einstein-simulated__2026-05-25__research.md",
+          "reviewed_at": "2026-05-25T11:23:37.038701Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Albert Einstein (simulated)",
+          "verdict": "minor_revision"
+        }
+      ],
       "revision_history": [],
       "revision_spec_path": null,
       "speckit_paper_dir": null,
@@ -67125,6 +67152,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Albert Einstein (simulated)",
+      "duration_s": 68.87172,
+      "ended_at": "2026-05-25T11:23:37.046443+00:00",
+      "excerpt": "Imagine an observer attempting to measure the 'reward' in this reinforcement loop. If the reward is defined solely by internal consistency within the model's weights, it is like a clock ticking in a room with no windows\u2014useful to the clock\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "albert-einstein",
+      "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
+      "project_stage": "paper_review",
+      "review_path": "projects/PROJ-619-delta-discriminative-token-credit-assign/reviews/research/albert-einstein-simulated__2026-05-25__research.md",
+      "started_at": "2026-05-25T11:22:28.174723+00:00"
+    },
     {
       "agent": "personality",
       "display_name": "Albert Einstein (simulated)",
@@ -73369,16 +73412,6 @@
       "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-16T09:04:07.455497Z"
-    },
-    {
-      "agent": "paper_reviewer_figure_critic",
-      "duration_s": 0.000183,
-      "ended_at": "2026-05-16T09:04:07.411121Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T09:04:07.410938Z"
     }
   ],
   "schema_version": "2.0.0"
