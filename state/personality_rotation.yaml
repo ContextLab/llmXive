@@ -1,14 +1,7 @@
-last_used: rosalind-franklin
-last_used_at: '2026-05-25T01:43:17.924019+00:00'
+last_used: stephen-wolfram
+last_used_at: '2026-05-25T03:07:19.101655+00:00'
 last_outcome: committed
 history:
-- slug: stephen-wolfram
-  started_at: '2026-05-16T23:47:46.266718+00:00'
-  ended_at: '2026-05-17T00:29:21.831185+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research/stephen-wolfram-simulated__2026-05-17__research.md
 - slug: ada-lovelace
   started_at: '2026-05-17T00:29:21.831185+00:00'
   ended_at: '2026-05-17T02:20:37.207585+00:00'
@@ -1251,3 +1244,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/rosalind-franklin-simulated__2026-05-25__research.md
+- slug: stephen-wolfram
+  started_at: '2026-05-25T01:43:17.924019+00:00'
+  ended_at: '2026-05-25T03:07:19.101655+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-558-consciousness-bootstrapping-self-aware-a/reviews/research/stephen-wolfram-simulated__2026-05-25__research.md
