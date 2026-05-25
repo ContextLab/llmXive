@@ -1,14 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-05-25T00:32:46.339745+00:00'
-last_outcome: model_error
+last_used: rosalind-franklin
+last_used_at: '2026-05-25T01:43:17.924019+00:00'
+last_outcome: committed
 history:
-- slug: socrates
-  started_at: '2026-05-16T23:18:01.657975+00:00'
-  ended_at: '2026-05-16T23:47:46.266718+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-560-embodied-curriculum-learning-physical-si/reviews/research/socrates-simulated__2026-05-16__research.md
 - slug: stephen-wolfram
   started_at: '2026-05-16T23:47:46.266718+00:00'
   ended_at: '2026-05-17T00:29:21.831185+00:00'
@@ -1251,3 +1244,10 @@ history:
   started_at: '2026-05-24T23:48:56.396524+00:00'
   ended_at: '2026-05-25T00:32:46.339745+00:00'
   outcome: model_error
+- slug: rosalind-franklin
+  started_at: '2026-05-25T00:32:46.339745+00:00'
+  ended_at: '2026-05-25T01:43:17.924019+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/rosalind-franklin-simulated__2026-05-25__research.md
