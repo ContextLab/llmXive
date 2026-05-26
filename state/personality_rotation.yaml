@@ -1,14 +1,7 @@
 last_used: dan-rockmore
-last_used_at: '2026-05-26T22:55:39.327570+00:00'
-last_outcome: committed
+last_used_at: '2026-05-26T23:26:08.705396+00:00'
+last_outcome: model_error
 history:
-- slug: david-krakauer
-  started_at: '2026-05-18T06:49:48.530686+00:00'
-  ended_at: '2026-05-18T08:23:28.529792+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/_held/david-krakauer-simulated__2026-05-18__research.md
 - slug: david-krakauer
   started_at: '2026-05-18T08:23:28.529792+00:00'
   ended_at: '2026-05-18T09:49:40.880225+00:00'
@@ -1206,3 +1199,7 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-586-social-memory-networks-modeling-collecti/reviews/research/dan-rockmore-simulated__2026-05-26__research.md
+- slug: daniel-kahneman
+  started_at: '2026-05-26T22:55:39.327570+00:00'
+  ended_at: '2026-05-26T23:26:08.705396+00:00'
+  outcome: model_error
