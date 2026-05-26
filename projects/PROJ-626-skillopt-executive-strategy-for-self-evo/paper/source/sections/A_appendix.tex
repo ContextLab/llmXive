@@ -1,0 +1,430 @@
+\section{Additional Method Details and Optimizer Prompts}
+\label{app:method_prompts}
+
+This appendix gives the executable details behind \ourmethod{}. The optimization loop keeps the task-execution model fixed and trains only a text skill document. A separate optimizer model reads rollout evidence, proposes patch-style edits, merges and ranks the edits, and submits each candidate skill to a held-out selection gate. The task-execution model only receives the current skill and the benchmark task; it does not see the optimizer prompts below.
+
+\section{Limitations}
+
+\ourmethod{} studies skill optimization as a lightweight alternative to model-weight adaptation, but it still has several practical limitations. First, the optimization loop relies on scored trajectories and a held-out selection split, so it is most directly applicable when the target task has automatic verifiers, exact-match metrics, executable checks, or otherwise reliable feedback signals. For open-ended domains where success is subjective, multi-dimensional, or costly to judge, the validation gate may require stronger human or model-based evaluation. Second, although the deployed artifact is only a compact \texttt{best\_skill.md}, training the skill requires additional rollout computation and calls to an optimizer model; this cost is amortized when the same skill is reused, but may be less attractive for one-off tasks. Third, \ourmethod{} intentionally optimizes a single portable skill rather than growing a large skill library or changing model weights. This design improves deployment simplicity, but a single skill may be insufficient for highly heterogeneous domains that require many disjoint procedures. Finally, optimized skills can encode domain-specific heuristics from the training distribution, so careful held-out evaluation remains necessary before transferring them to substantially different models, harnesses, or task settings.
+
+\section{Experimental Protocol Details}
+\label{app:experimental_setting}
+
+\paragraph{Benchmarks and metrics.}
+We use each benchmark's native evaluator and report hard success or exact-match accuracy on held-out test examples. SearchQA measures extractive question answering; SpreadsheetBench evaluates spreadsheet-oriented code and tool use; OfficeQA and DocVQA test local-document and multimodal-document reasoning; SealQA stresses noisy retrieval; LiveMathematicianBench evaluates mathematical multiple-choice reasoning; and ALFWorld tests sequential decision making. Dataset-backed benchmarks use deterministic train/selection/test splits, with a default $2{:}1{:}7$ split when no benchmark-specific split is stated. The selection split is used only for model selection over candidate skills; all headline scores are computed on held-out test data.
+
+\paragraph{Baselines.}
+The no-skill baseline evaluates the frozen student without an optimized skill document. Human-skill and LLM-skill baselines use manually written and one-shot generated skills under the same evaluation protocol. Trace2Skill mines skill artifacts from training trajectories and evaluates the frozen student without \ourmethod{}'s iterative validation gate. TextGrad and GEPA are reflective prompt-optimization baselines for direct-chat settings. EvoSkill is included for the harness-backed comparison where a matched completed run is available. Entries not measured under the final aligned protocol are marked as \na rather than mixed with incompatible runs.
+
+\paragraph{Optimization protocol.}
+Unless otherwise stated, \ourmethod{} runs for four epochs with rollout batch size 40, reflection minibatch size 8, textual learning rate 4, cosine learning-rate decay with minimum rate 2, held-out validation gating, slow update enabled with 20 sampled examples, and optimizer-side meta skill enabled. The optimizer analyzes successes and failures separately, proposes patch-style skill edits, merges duplicate or contradictory proposals, ranks edits under the current learning-rate cap, and applies the selected edits to form a candidate skill. The candidate is evaluated on the selection split and is accepted only if it improves the current selection score; the best accepted skill is exported as \texttt{best\_skill.md}. The student model, backend, harness, and benchmark evaluator remain fixed during optimization.
+
+\paragraph{Ablation protocol.}
+One-factor ablations vary a single scalar or component while holding the remaining optimizer configuration fixed. The train-size ablation fixes the train/selection/test split to $2{:}1{:}7$ and varies how much of the training partition is exposed to the optimizer. The 100\% row uses the full training partition under the same split, so it is directly comparable to the smaller-subset rows. Component ablations remove or alter one mechanism at a time, including the edit budget, rejected-edit buffer, and epoch-wise slow/meta update.
+
+\subsection{Optimization Procedure}
+\label{app:algorithm}
+
+Algorithm~\ref{alg:skillopt_appendix} expands the procedure used in the experiments. The central state variables are the current skill $s_\mathrm{cur}$, the best validation-gated skill $s_\mathrm{best}$, a selection-score cache $\mathcal{C}$, a step buffer $\mathcal{B}$ containing rejected edits and observed failure patterns, and an optimizer-side meta skill $m_\mathrm{meta}$ used only to guide future edit generation.
+
+\begin{algorithm}[t]
+\caption{\ourmethod{} skill optimization}
+\label{alg:skillopt_appendix}
+\begin{algorithmic}[1]
+\Require Frozen training model $M$, optimizer model $O$, harness $h$, splits $D_\mathrm{train},D_\mathrm{sel},D_\mathrm{test}$, initial skill $s_0$, epochs $E$, edit-budget schedule $L_t$, rollout batch size $B$, accumulation factor $A$, reflection minibatch size $B_m$
+\Ensure Best validation-gated skill $s_\mathrm{best}$ and held-out test score
+\State $s_\mathrm{cur} \gets s_0$, $s_\mathrm{best} \gets s_0$, $\mathcal{C} \gets \emptyset$, $\mathcal{B} \gets [\ ]$, $m_\mathrm{meta} \gets \emptyset$
+\State $\mathrm{score}_\mathrm{cur} \gets \Call{Evaluate}{M,h,s_0,D_\mathrm{sel}}$; $\mathrm{score}_\mathrm{best} \gets \mathrm{score}_\mathrm{cur}$
+\State $\mathcal{C}[\Call{Hash}{s_0}] \gets \mathrm{score}_\mathrm{cur}$
+\For{$e=1$ to $E$}
+    \State Shuffle $D_\mathrm{train}$ into rollout batches; reset $\mathcal{B} \gets [\ ]$
+    \For{each optimization step in epoch $e$}
+        \State Collect $A$ rollout batches by executing $h(M,x,s_\mathrm{cur})$ for sampled tasks $x$
+        \State Split rollout evidence into failures and successes, then into minibatches of size $B_m$
+        \State Ask $O$ to analyze failure minibatches and produce failure patch proposals
+        \State Ask $O$ to analyze success minibatches and produce success patch proposals
+        \State Ask $O$ to merge failure proposals, merge success proposals, and perform a final failure-prioritized merge
+        \State Ask $O$ to rank merged edits and keep at most $L_t$ edits
+        \State Apply the selected edits to obtain a candidate skill $\tilde{s}$
+        \If{$\Call{Hash}{\tilde{s}} \in \mathcal{C}$}
+            \State $\mathrm{score}_\mathrm{cand} \gets \mathcal{C}[\Call{Hash}{\tilde{s}}]$
+        \Else
+            \State $\mathrm{score}_\mathrm{cand} \gets \Call{Evaluate}{M,h,\tilde{s},D_\mathrm{sel}}$
+            \State $\mathcal{C}[\Call{Hash}{\tilde{s}}] \gets \mathrm{score}_\mathrm{cand}$
+        \EndIf
+        \If{$\mathrm{score}_\mathrm{cand} > \mathrm{score}_\mathrm{cur}$}
+            \State $s_\mathrm{cur} \gets \tilde{s}$; $\mathrm{score}_\mathrm{cur} \gets \mathrm{score}_\mathrm{cand}$
+            \If{$\mathrm{score}_\mathrm{cand} > \mathrm{score}_\mathrm{best}$}
+                \State $s_\mathrm{best} \gets \tilde{s}$; $\mathrm{score}_\mathrm{best} \gets \mathrm{score}_\mathrm{cand}$
+            \EndIf
+        \Else
+            \State Add rejected edits and observed failure patterns to $\mathcal{B}$
+        \EndIf
+    \EndFor
+    \If{$e \geq 2$ and slow update is enabled}
+        \State Compare the same sampled tasks under the previous and current epoch-end skills
+        \State Ask $O$ for protected longitudinal guidance; validate the injected guidance through $D_\mathrm{sel}$
+    \EndIf
+    \If{$e \geq 2$ and optimizer memory is enabled}
+        \State Ask $O$ to update $m_\mathrm{meta}$ for future edit generation and selection
+    \EndIf
+\EndFor
+\State $\mathrm{score}_\mathrm{test} \gets \Call{Evaluate}{M,h,s_\mathrm{best},D_\mathrm{test}}$
+\State \Return $s_\mathrm{best}$, $\mathrm{score}_\mathrm{test}$
+\end{algorithmic}
+\end{algorithm}
+
+% \subsection{Prompt Inventory}
+% \label{app:prompt_inventory}
+
+% Table~\ref{tab:prompt_inventory} lists the optimizer prompts used by the default patch-mode implementation. The autonomous learning-rate controller, \texttt{lr\_autonomous.md}, is excluded from the prompt appendix because the reported default setting uses a scheduled edit budget rather than autonomous budget selection.
+
+
+\subsection{Optimizer Prompt Contracts}
+\label{app:prompt_contracts}
+
+The following blocks reproduce the operational prompt contracts used by the optimizer model, with terminology normalized to the paper's optimizer/training-model framing. The prompts require JSON outputs so that edits can be parsed, filtered, applied, and validated without manual intervention.
+
+\subsubsection{Failure analysis: \texttt{analyst\_error.md}}
+
+{\footnotesize
+\begin{verbatim}
+You are an expert failure-analysis agent for AI agent tasks.
+
+You will be given MULTIPLE failed agent trajectories from a single minibatch
+and the current skill document.
+Your job is to identify the most important COMMON failure patterns across
+the batch and propose a concise set of skill edits.
+
+## Analysis Process
+1. Read ALL trajectories in the minibatch.
+2. Identify the most prevalent, systematic failure patterns across them.
+3. For each pattern, classify its failure type.
+4. Propose skill edits that address the COMMON patterns, not individual edge cases.
+5. Edits must be generalizable; do not hardcode task-specific values.
+6. Only patch gaps in the skill; do not duplicate existing content.
+
+You will be told the maximum number of edits (the budget L). Produce AT MOST L edits,
+focusing on the highest-impact patterns. You may produce fewer if warranted.
+
+Respond ONLY with a valid JSON object (no markdown fences, no extra text):
+{
+  "batch_size": <number of trajectories analysed>,
+  "failure_summary": [
+    {"failure_type": "<type>", "count": <int>, "description": "<one-line>"}
+  ],
+  "patch": {
+    "reasoning": "<why these edits address the batch's common failures>",
+    "edits": [
+      {"op": "append",       "content": "<markdown to add at end of skill>"},
+      {"op": "insert_after", "target": "<exact heading/text to insert after>",
+       "content": "<markdown>"},
+      {"op": "replace",      "target": "<exact text to replace>",
+       "content": "<replacement>"},
+      {"op": "delete",       "target": "<exact text to remove>"}
+    ]
+  }
+}
+Only include edits that are needed. "edits" can be an empty list if no patch is warranted.
+
+IMPORTANT: The skill document may contain a section between
+<!-- SLOW_UPDATE_START --> and <!-- SLOW_UPDATE_END --> markers.
+This is a PROTECTED section managed by a separate slow-update process.
+Do NOT propose any edits that target, modify, or delete content within these markers.
+\end{verbatim}
+}
+
+\subsubsection{Success analysis: \texttt{analyst\_success.md}}
+
+{\footnotesize
+\begin{verbatim}
+You are an expert success-pattern analyst for AI agents.
+
+You will be given MULTIPLE successful agent trajectories from a single minibatch
+and the current skill document. Your job is to identify generalizable behavior
+patterns that are COMMON across the batch and worth encoding in the skill.
+
+## Rules
+- Only propose patches for patterns NOT already covered in the skill.
+- Focus on patterns that appear across MULTIPLE trajectories in the batch.
+- Be concise. Patterns must generalize beyond specific tasks.
+- Prefer reinforcing existing sections over adding new top-level sections.
+
+You will be told the maximum number of edits (the budget L). Produce AT MOST L edits,
+focusing on the most broadly applicable patterns. You may produce fewer if warranted.
+
+Respond ONLY with a valid JSON object:
+{
+  "batch_size": <number of trajectories analysed>,
+  "success_patterns": ["<pattern 1>", "<pattern 2>"],
+  "patch": {
+    "reasoning": "<why these patterns are worth encoding>",
+    "edits": [
+      {"op": "append",       "content": "<markdown>"},
+      {"op": "insert_after", "target": "<heading/text>", "content": "<markdown>"},
+      {"op": "replace",      "target": "<old text>",     "content": "<new text>"},
+      {"op": "delete",       "target": "<exact text to remove>"}
+    ]
+  }
+}
+"edits" may be empty if the skill already covers all observed patterns.
+
+IMPORTANT: The skill document may contain a section between
+<!-- SLOW_UPDATE_START --> and <!-- SLOW_UPDATE_END --> markers.
+This is a PROTECTED section managed by a separate slow-update process.
+Do NOT propose any edits that target, modify, or delete content within these markers.
+\end{verbatim}
+}
+
+\subsubsection{Failure merge: \texttt{merge\_failure.md}}
+
+{\footnotesize
+\begin{verbatim}
+You are a skill-edit coordinator. You receive multiple independently-proposed patches
+from FAILURE analysis of agent trajectories. Merge them into ONE coherent,
+non-redundant patch.
+
+Merge guidelines:
+1. Deduplicate: keep the best-worded version of similar edits.
+2. Resolve conflicts: if patches contradict on the same point,
+   choose the one with stronger justification or synthesize both.
+3. Preserve unique insights: include all non-redundant corrective edits.
+4. Prevalent-pattern bias: edits appearing consistently across multiple patches
+   address systematic failures; preserve them with HIGH priority.
+   Edits from only one patch may be discarded if task-specific.
+5. Independence: no two edits in the merged patch may target the same text region.
+6. Support count: for each merged edit, estimate how many source patches support it.
+7. PROTECTED SECTION: The skill may contain a section between
+   <!-- SLOW_UPDATE_START --> and <!-- SLOW_UPDATE_END --> markers.
+   Do NOT merge or produce any edits that target content within these markers.
+
+Respond ONLY with a valid JSON object:
+{
+  "reasoning": "<summary of key consolidation decisions>",
+  "edits": [
+    {
+      "op": "append|insert_after|replace|delete",
+      "target": "<if insert_after or replace or delete>",
+      "content": "<markdown>",
+      "support_count": <integer>,
+      "source_type": "failure"
+    }
+  ]
+}
+\end{verbatim}
+}
+
+\subsubsection{Success merge: \texttt{merge\_success.md}}
+
+{\footnotesize
+\begin{verbatim}
+You are a skill-edit coordinator. You receive multiple independently-proposed patches
+from SUCCESS analysis of agent trajectories. Merge them into ONE coherent patch
+that reinforces effective patterns.
+
+Merge guidelines:
+1. Deduplicate: keep only the most generalizable version of similar patterns.
+2. Be conservative: success-driven patches reinforce existing behavior.
+   Only include edits for patterns NOT already in the skill.
+3. Prevalent-pattern bias: patterns seen across many successful trajectories
+   are most worth encoding.
+4. Support count: estimate how many source patches support each merged edit.
+5. PROTECTED SECTION: The skill may contain a section between
+   <!-- SLOW_UPDATE_START --> and <!-- SLOW_UPDATE_END --> markers.
+   Do NOT merge or produce any edits that target content within these markers.
+
+Respond ONLY with a valid JSON object:
+{
+  "reasoning": "<summary>",
+  "edits": [
+    {
+      "op": "append|insert_after|replace|delete",
+      "target": "<if needed>",
+      "content": "<markdown>",
+      "support_count": <integer>,
+      "source_type": "success"
+    }
+  ]
+}
+\end{verbatim}
+}
+
+\subsubsection{Final merge: \texttt{merge\_final.md}}
+
+{\footnotesize
+\begin{verbatim}
+You are a skill-edit coordinator performing the FINAL merge. You receive two
+pre-merged patch groups:
+1. Failure-driven patches (corrective, high priority)
+2. Success-driven patches (reinforcement, lower priority)
+
+Merge guidelines:
+1. FAILURE PATCHES TAKE PRIORITY: the primary goal of skill reflection is to
+   fix failures. Failure-driven edits should be preserved unless they directly
+   conflict with a well-supported success pattern.
+2. Deduplicate: if a failure edit and success edit cover the same point,
+   keep the failure version.
+3. Preserve success insights: include success edits that cover patterns
+   NOT addressed by failure edits.
+4. Higher-level merges represent broader consensus: edits that survived
+   previous merge rounds should be given priority.
+5. Carry forward support_count and source_type for each edit.
+6. PROTECTED SECTION: The skill may contain a section between
+   <!-- SLOW_UPDATE_START --> and <!-- SLOW_UPDATE_END --> markers.
+   Do NOT merge or produce any edits that target content within these markers.
+
+Respond ONLY with a valid JSON object:
+{
+  "reasoning": "<summary of priority decisions>",
+  "edits": [
+    {
+      "op": "append|insert_after|replace|delete",
+      "target": "<if needed>",
+      "content": "<markdown>",
+      "support_count": <integer>,
+      "source_type": "failure|success"
+    }
+  ]
+}
+\end{verbatim}
+}
+
+\subsubsection{Ranking and selection: \texttt{ranking.md}}
+
+{\footnotesize
+\begin{verbatim}
+You are an expert edit-ranking optimizer for a skill optimization system. You receive
+a skill document and a pool of proposed edits. Your job is to RANK the edits by
+importance and select the top ones.
+
+Ranking criteria (in order of priority):
+1. Systematic impact: edits that address widespread, recurring failure patterns
+   across many tasks should rank highest. A rule that fixes 50% of failures beats
+   one that fixes a single edge case.
+2. Complementarity: edits that fill gaps in the current skill, not duplicate
+   existing content, rank higher.
+3. Generality: edits phrased as general principles rank higher than those
+   tied to specific question types or entities.
+4. Actionability: edits with clear, concrete guidance rank higher than vague advice.
+
+You will be told how many edits to select (the budget).
+
+Respond ONLY with a valid JSON object:
+{
+  "reasoning": "<brief justification for your ranking decisions>",
+  "selected_indices": [<0-based indices of the top edits, in priority order>]
+}
+\end{verbatim}
+}
+
+\subsubsection{Slow update: \texttt{slow\_update.md}}
+
+{\footnotesize
+\begin{verbatim}
+You are a strategic skill advisor for an AI agent optimization system.
+
+Your role is different from the per-step analyst. The per-step analyst sees
+individual trajectories and proposes local patches. YOU see how the skill has
+evolved across an entire epoch by comparing the SAME tasks under two consecutive
+skill versions. This longitudinal view lets you identify systemic drift,
+regressions, and persistent blind spots that step-level edits cannot catch.
+
+## What You Receive
+
+1. Previous epoch's skill and current epoch's skill, to see what changed.
+2. Longitudinal comparison: the same 20 training tasks rolled out under both skills,
+   categorized into regressions, persistent failures, improvements, and stable successes.
+3. Previous slow update guidance, if any: the guidance written at the end of the
+   last epoch.
+
+## Your Process
+
+1. Reflect on the previous guidance, if provided:
+   - Which parts of the previous guidance were effective?
+   - Which parts failed or backfired?
+   - Were there blind spots the previous guidance missed entirely?
+
+2. Write updated guidance that:
+   - Retains and strengthens parts of the previous guidance that proved effective.
+   - Revises or removes parts that were ineffective or counterproductive.
+   - Adds new instructions to address newly observed regressions and persistent failures.
+
+## Output Requirements
+
+Write a strategic guidance block that will OVERWRITE the previous guidance
+in the protected section of the skill document. This section is READ-ONLY to
+all subsequent step-level optimization; only this epoch-boundary process can
+overwrite it at the next epoch boundary.
+
+Your guidance must:
+- Be written as direct, actionable instructions to the training model.
+- Prioritize: (1) preventing regressions, (2) fixing persistent failures,
+  (3) reinforcing successful patterns.
+- NOT duplicate content already in the main skill body; complement it.
+- Address the training model directly, for example: "When you encounter X, always do Y."
+
+Respond ONLY with a valid JSON object:
+{
+  "reasoning": "<reflection on previous guidance AND analysis of longitudinal comparison>",
+  "slow_update_content": "<the exact guidance text to insert into the protected section>"
+}
+\end{verbatim}
+}
+
+\subsubsection{Optimizer memory: \texttt{meta\_skill.md}}
+
+{\footnotesize
+\begin{verbatim}
+You are an optimizer coach for an AI agent skill optimization system.
+
+Your job is not to solve tasks directly and not to write training-model-facing
+skill rules. Your job is to write a compact optimizer-side meta skill that helps
+future optimizer calls produce better skill edits in this environment.
+
+## What You Receive
+
+1. The previous epoch's last-step skill.
+2. The current epoch's last-step skill.
+3. A longitudinal comparison on the SAME sampled tasks under those two skills.
+4. The previous optimizer memory, if one existed.
+
+## Your Goal
+
+Write a concise optimizer memory that improves future optimizer behavior in stages
+such as failure analysis, success analysis, patch merging, and edit ranking.
+
+This optimizer memory should capture things like:
+- Which kinds of edits tend to help in this environment.
+- Which kinds of edits tend to be too vague, redundant, brittle, or harmful.
+- What level of abstraction works best for rules here.
+- What failure-repair patterns should be prioritized.
+- What regression risks future optimizer calls should guard against.
+
+## Important Constraints
+
+- Address the FUTURE OPTIMIZER directly, not the training model.
+- Focus on how to write better edits and organize better skill updates.
+- Use evidence from the adjacent-epoch comparison, not generic advice.
+- Keep it compact and high-signal. Prefer a few durable principles.
+- Revise or remove parts of the previous optimizer memory if they did not help.
+- Do not output training-model-facing task instructions.
+
+Respond ONLY with a valid JSON object:
+{
+  "reasoning": "<brief reflection on what editing directions helped or hurt>",
+  "meta_skill_content": "<compact optimizer guidance for future edits>"
+}
+\end{verbatim}
+}
+
+\subsection{Patch Representation and Safeguards}
+\label{app:patch_ops}
+
+Patch-mode optimization restricts each update to four atomic operations: \texttt{append}, \texttt{insert\_after}, \texttt{replace}, and \texttt{delete}. Each merged edit also records a support count and a source type, allowing ranking to prefer edits that survive independent analyses and hierarchical merges. The edit budget $L_t$ acts as a textual learning rate: it limits how many proposed edits can be applied at a step, preserving continuity between adjacent skills.
+
+The protected slow-update section, delimited by \texttt{SLOW\_UPDATE\_START} and \texttt{SLOW\_UPDATE\_END}, is off limits to all step-level prompts. Only the epoch-boundary slow-update process may rewrite that section, and the rewritten skill still passes through the same held-out selection gate before it can become the current skill. Rejected candidates are not discarded entirely: their failure patterns and rejected edits are stored in the step buffer so that later optimizer calls can avoid repeating harmful changes.
+
+\subsection{Design Principles}
+\label{app:design_principles}
+
+The implementation follows five design principles. First, the task-execution model is fixed; only the text skill changes. Second, every candidate skill is evaluated on a selection split before acceptance, which prevents unvalidated reflection from accumulating. Third, minibatch analyses are merged hierarchically so that the final edits represent recurring evidence rather than single examples. Fourth, the edit budget serves as a learning-rate analogue, allowing larger early changes and smaller late refinements. Fifth, the deployed skill remains lightweight and inspectable, while the optimizer-side meta skill stays separate from the skill shown to the task-execution model.

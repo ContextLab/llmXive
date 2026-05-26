@@ -1,0 +1,57 @@
+\begin{table*}[!t]
+\small
+\centering
+\caption{Definitions of Unnormalized Edge Weights ($\omega(u,v)$).}
+\renewcommand{\arraystretch}{1.}
+\begin{tabular}{@{} l| p{6cm} p{7cm} @{}}
+\toprule
+\textbf{Edge Type} & \textbf{Weight Formula(s)} & \textbf{Parameter Description} \\ 
+\midrule
+\texttt{HAS\_KEYWORD} & 
+$\begin{aligned}[t]
+&\omega_{\text{HK}}(p,g) = \beta_{hk} \cdot \kappa(g) \cdot \text{rel}_{p,g} \\
+&\kappa(g) = \begin{cases} 
+w_g^{kw}, &\text{if } g \text{ is a seed} \\ 
+\epsilon_{kw}, &\text{otherwise} 
+\end{cases}
+\end{aligned}$ & 
+$\beta_{hk}$: Base weight for keyword association (default $1.20$). \newline
+$\text{rel}_{p,g}$: Importance score from $(p,g)$. \newline
+$\kappa(g)$: Prior weight modulator for the keyword node. \newline
+$w_g^{kw}$: Initial matching score for seed keywords. \newline
+$\epsilon_{kw}$: Smoothing factor for non-seed keywords (default $0.25$). \\
+\midrule
+\texttt{CITES} & 
+$\omega_{\text{CITES}}(u,v) = \beta_{cite}$ & 
+$\beta_{cite}$: Base weight for paper citation relation (default $1.00$). \\
+\midrule
+\texttt{RELATED\_TO} & 
+$\omega_{\text{RELATED}}(u,v) = \beta_{rel}$ & 
+$\beta_{rel}$: Base weight for paper relatedness (default $0.90$). \\
+\midrule
+\texttt{AUTHORED} & 
+$\omega_{\text{AUTHORED}}(u,v) = \beta_{auth}$ & 
+$\beta_{auth}$: Base weight for authorship relation (default $0.80$). \\
+\midrule
+\texttt{COAUTHOR} & 
+$\begin{aligned}[t]
+&\omega_{\text{COA}}(u,v) = \beta_{coauth} \cdot \max(1, \phi(n_{uv})) \\
+&\phi(n_{uv}) = \min(c_{max}, \log(1+n_{uv}))
+\end{aligned}$ & 
+$\beta_{coauth}$: Base weight for co-authorship (default $0.60$). \newline
+$n_{uv}$: Co-authoring frequency. \newline
+$\phi(\cdot)$: Frequency smoothing function. \newline
+$c_{max}$: Logarithmic cap to prevent infinite weight magnification (default $2.0$). \\
+\midrule
+\texttt{COOCCUR} & 
+$\begin{aligned}[t]
+&\omega_{\text{COO}}(u,v) = \beta_{cooc} \cdot \max(1, \phi(m_{uv})) \\
+&\phi(m_{uv}) = \min(c_{max}, \log(1+m_{uv}))
+\end{aligned}$ & 
+$\beta_{cooc}$: Base weight for keyword co-occurrence (default $0.60$). \newline
+$m_{uv}$: Co-occurrence frequency. \newline
+$\phi(\cdot), c_{max}$: Same smoothing function and cap definition as \texttt{COAUTHOR}. \\
+\bottomrule
+\end{tabular}
+\label{tab:edge_weight}
+\end{table*}

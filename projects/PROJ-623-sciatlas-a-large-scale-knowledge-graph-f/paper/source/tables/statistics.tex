@@ -1,0 +1,22 @@
+\begin{table*}
+    \centering
+    \renewcommand\arraystretch{1.}
+    \caption{\textbf{Statistics of {\ours}}. SciMap comprises a total node count reaching tens of millions, with the aggregate number of edges scaling to billions.}
+    \scalebox{.62}{
+    \begin{tabular}{lc|lc|lc|lc}
+        \toprule
+        \multicolumn{4}{c|}{\textbf{Entity} (Total: 157M)} & \multicolumn{4}{c}{\textbf{Relation} (Total: 3B)} \\
+        \midrule
+        \textbf{Type} & \textbf{Num} & \textbf{Type} & \textbf{Num} & \textbf{Type} & \textbf{Num} & \textbf{Type} & \textbf{Num} \\
+        \midrule
+        \texttt{Paper} & 43.30M & \texttt{Author} & 109.70M & (\texttt{Paper}, \texttt{CITES}, \texttt{Paper}) & 213.88M & (\texttt{Paper}, \texttt{HAS\_KEYWORD}, \texttt{Keyword}) & 101.38M \\
+        \texttt{Keyword} & 3.76M & \texttt{Institution} & 0.12M & (\texttt{Paper}, \texttt{HAS\_TOPIC}, \texttt{Topic)} & 105.89M & (\texttt{Author}, \texttt{AFFILIATED\_WITH}, \texttt{Instit}) & 195.94M \\
+        \texttt{Topic} & 4.52K & \texttt{Subfield} & 252 & (\texttt{Author}, \texttt{AUTHORED}, \texttt{Paper}) & 149.00M & (\texttt{Author}, \texttt{COAUTHOR}, \texttt{Author}) & 2.06B \\
+        \texttt{Field} & 26 & & & (\texttt{Keyword}, \texttt{COOCCUR}, \texttt{Keyword}) & 60.37M & (\texttt{Field}, \texttt{DOMAIN\_OF}, \texttt{Domain}) & 26 \\
+        \texttt{Source} & 0.28M & & & (\texttt{Subfield}, \texttt{FIELD\_OF}, \texttt{Field}) & 252 & (\texttt{Paper}, \texttt{RELATED\_TO}, \texttt{Paper}) & 68.38M \\
+        \texttt{Domain} & 4 & & & (\texttt{Topic}, \texttt{SUBFILED\_OF}, \texttt{Subfield}) & 4.52K & (\texttt{Paper}, \texttt{PUBLISH\_IN}, \texttt{Source}) & 40.90M \\
+        \bottomrule
+    \end{tabular}
+    }
+    \label{tab:statistics}
+\end{table*}

@@ -1,0 +1,29 @@
+\section{Limitations and Future Work}
+Our {\ours} is under continuous maintenance and updates.
+To further facilitate automated scientific discovery, we enumerate several important directions for future work.
+
+\paragraph{CLI and Skills.}
+Currently, our KG is primarily accessed through the Neo4j interface.
+Although we provide usage guidelines, users are still required to write Neo4j queries if conducting secondary development.
+To facilitate user adoption, particularly for integration with AI agents, we will encapsulate various KG retrieval and invocation functionalities into Command Line Interfaces (CLI).
+ Additionally, for downstream tasks, we will distill the best practices identified during our experimental process into agentic skills, enabling one-click loading when utilizing agents for automated scientific discovery.
+
+\paragraph{Integrating More Knowledge Forms.}
+Currently, the scientific knowledge in our KG primarily encompasses papers, keywords, authors, and other paper-centric entities.
+However, the complete research workflow extends beyond these elements to include atomic knowledge, theorems and standards, experimental experiences, datasets and code, among others.
+How to acquire such knowledge and establish its associations with papers to form a more extensive and well-organized knowledge network that facilitates agentic utilization and reasoning constitutes a crucial research direction for our future work.
+\textbf{We argue that KG is an indispensable knowledge organization form for scientific discovery} because, although LLMs have achieved remarkable advancements in semantic understanding, they still exhibit substantial deficiencies in capturing logical relationships among knowledge entities, a capability of paramount importance for scientific research that transcends mere semantic associations.
+
+\paragraph{Benchmark and Evaluation.}
+Benchmarks serve as a critical engine driving scientific progress.
+Although automated scientific research has gained considerable popularity, numerous stages within this domain still lack high-quality benchmarks and evaluation metrics that faithfully simulate real-world research scenarios.
+Furthermore, many scientific tasks involve long-form responses, and the evaluation of such outputs is often ambiguous, making it difficult to establish definitive verifiers.
+KGs, as symbolic knowledge repositories, can provide essential reference points for such verification processes.
+Additionally, the knowledge stored within KGs can serve as valuable data sources for benchmark construction.
+In this paper, we merely present running examples of downstream tasks, remaining at the qualitative analysis level.
+In future work, we will develop dedicated benchmarks based on {\ours} to quantitatively assess the downstream application capabilities of agent scientists.
+
+\paragraph{Dynamic Update.}
+Currently, our KG updates primarily rely on periodic manual execution of fixed scripts.
+Although we support user-initiated updates, automated real-time updates are essential to keep pace with the rapidly evolving knowledge landscape.
+In future work, we will systematize the real-time update strategies mentioned in \S\ref{sec:real_time_update} to support daily KG update mechanisms.

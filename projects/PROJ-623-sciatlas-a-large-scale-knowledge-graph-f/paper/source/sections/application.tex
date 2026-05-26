@@ -1,0 +1,104 @@
+\section{Downstream Application of {\ours}}
+\label{sec:application}
+Building upon {\ours} and our search algorithms, in this section, we propose several potential downstream applications of {\ours} to facilitate researchers' scientific endeavors and accelerate automated scientific research. The detailed prompt used in this section can be found in Appx.\ref{app:prompt_downstream}.
+
+\subsection{Literature Review}
+One of the most fundamental applications of scientific search is literature review, which essentially involves retrieving papers relevant to a given research direction and synthesizing a review report.
+We present a basic retrieval pipeline in \S\ref{sec:retrieval}, where users can customize retrieval based on their specific requirements for the retrieved literature.
+For instance, 1) if the retrieved papers are required to be published in top-tier conferences or journals, venue information can be incorporated into the importance score calculation of papers;
+2) If author authority is emphasized, the citation count of authors can be reflected in the weight of \texttt{AUTHORED} edges;
+3) If institutional authority is emphasized, corresponding weights can be assigned to \texttt{AFFILIATED\_WITH} edges based on the reputation of institutions.
+Our algorithm provides flexible hyperparameter selection and functional adaptation to accommodate diverse retrieval focus requirements.
+We will progressively open configuration permissions for various hyperparameters of the retrieval algorithm to support user-customized retrieval.
+With the retrieved paper collection, it can be adapted to various LLM-based automated literature review methods \citep{autosurvey,deepreview,surveyforge,surveyx}.
+
+\subsection{Idea Grounding and Evaluation}
+
+\paragraph{Idea Grounding.}
+By using the idea or paper as the query, we can retrieve a set of highly relevant papers from the KG and segment the full texts of these papers into finer-grained paragraphs.
+Subsequently, we employ an LLM to extract more refined queries or claims from the idea across multiple dimensions, including motivation, methodology, and experimental design, and use these refined queries to retrieve relevant paragraphs.
+Then, through LLM-based analysis, we identify the similarities and differences between the idea and the retrieved paragraphs.
+Through this entire pipeline, we can determine whether prior similar work exists for the idea, find evidence to support it, or identify its real innovative aspects.
+Since grounding may prioritize paper relevance, we can relax the emphasis on paper citations in Eq.\ref{eq:wp}\&\ref{eq:final}.
+We use \citep{innoeval} as a running example in the following:
+\begin{tcolorbox}[breakable,colback=persona!20!white, colframe=persona!60!black, title=\textbf{An Example of Idea Grounding}]
+    \label{box:idea_grounding}
+    \textbf{Target Idea or Paper:} InnoEval: On Research Idea Evaluation as a Knowledge-Grounded, Multi-Perspective Reasoning Problem.\\
+    \textbf{Target Query or Claim from the Idea:} Mainstream approaches directly using LLM-as-a-Judge fossilize the models' inherent biases into de facto evaluation criteria, failing to emulate the deliberation among distinct perspectives needed for fair scientific evaluation.\\
+
+    \textbf{Evidence Paper:} Evaluating LLMs' Divergent Thinking Capabilities for Scientific Idea Generation with Minimal Context \citep{divergent}.\\
+    \textbf{Evidence Paragraph:} Furthermore, we recognize a fundamental challenge in the reliability of LLM-as-a-Judge approaches. When evaluating scientific ideas containing concepts outside the judge models' knowledge boundaries, these models might misunderstand novel concepts and consequently misjudge their originality or feasibility. While our use of a dynamic panel of state-of-the-art judge models likely provides broader...\\
+    
+    \textbf{Matching Aspect:} Limitations of LLM-as-a-Judge approaches.\\
+    \textbf{Similar Point:} Both identify a fundamental challenge or limitation with LLM-as-a-Judge approaches for evaluating scientific ideas. Both imply that LLM judges may produce unreliable or biased evaluations due to inherent model limitations.\\
+    \textbf{Different Point:} Target idea emphasizes failure to emulate multi-perspective deliberation for fair scientific evaluation; evidence focuses on bias and score caused by limited knowledge without addressing deliberation or multi-perspective aspects.
+\end{tcolorbox}
+
+\paragraph{Idea Evaluation.}
+With the grounding results, we can evaluate the idea by assessing its \textit{novelty} based on the existence of prior similar work, its \textit{feasibility} based on theoretical evidence, and its \textit{soundness} based on the experimental designs of related studies.
+The focus of the grounding stage can be adjusted according to the criteria of downstream evaluation.
+This process can serve as a decision-making reference for human experts or be replaced by LLM-as-a-judge, becoming a critical evaluation signal for idea iteration in automated scientific discovery.
+
+\subsection{Idea Generation}
+We can use a research direction as the query, or an idea or a paper as the anchor, where retrieval in the KG functions as a knowledge collection process.
+The collected papers can be utilized for a literature review to identify gaps and propose new ideas, or to synthesize concepts from different domains and generate interdisciplinary ideas.
+Noting that the emergence of novel ideas typically stems from the fusion and refinement of two relatively distant concepts, we can relax the constraints on distant nodes in Eq.\ref{eq:gp} during the search process to make the search more exploratory and the retrieved papers more diverse, thereby enhancing the novelty of generated ideas.
+Here we show an example by using ``Knowledge Editing'' as the query:
+\begin{tcolorbox}[breakable,colback=persona!20!white, colframe=persona!60!black, title=\textbf{An Example of Idea Generation}]
+    \label{box:idea_generation}
+    \textbf{Idea:} Federated and Privacy-Preserving Knowledge Editing\\
+    \textbf{Description :} Design a knowledge editing framework suitable for a federated learning setting, where edits (e.g., corrections from user feedback) are computed locally on client devices and then aggregated to update a central model without exposing raw user data or the specific edits requested by individuals.\\
+    \textbf{Novelty:} All existing editing methods assume centralized access to the full model and edit dataset. This idea introduces the constraints of federated learning—data decentralization, privacy, and communication efficiency—to the knowledge editing problem, a combination not yet explored.\\
+    \textbf{Significance:} Enables large-scale, privacy-respecting model updates from distributed user interactions. This is crucial for applications like personal AI assistants on mobile devices, where users want to correct model errors without compromising their private data or queries.\\
+    \textbf{Key References:}\\
+    - [2024] Knowledge Editing on Black-box Large Language Models\\
+    - [2023] EasyEdit: An Easy-to-use Knowledge Editing Framework for Large Language Models\\
+    - [2025] Massive Editing for Large Language Models Based on Dynamic Weight Generation
+\end{tcolorbox}
+
+\subsection{Research Trend Predicting}
+For trend prediction in a specific research direction, the most critical aspect is understanding the current development status of that direction, which aligns with the objective of idea generation.
+The distinction lies in the fact that trend prediction emphasizes paper influence, as more impactful papers typically signify greater evolution in the research direction.
+Therefore, in this task, we can increase the importance weight of paper citations in Eq.\ref{eq:wp}\&\ref{eq:final} during the search.
+Furthermore, to achieve a more comprehensive understanding of the field, we can relax the constraints on the number of papers retained during the search process and in the final results, making the retrieval outcomes more general.
+We can sort the retrieved papers chronologically and employ an LLM to summarize the developmental trajectory of the research direction, focusing on the discussion or limitation sections of papers to identify critical problems that need to be addressed and propose potential research directions for the future.
+Here is an example of research trend predicting by LLM:
+\begin{tcolorbox}[breakable,colback=persona!20!white, colframe=persona!60!black, title=\textbf{An Example of Research Trend Predicting}]
+    \label{box:trend}
+    \textbf{Research Direction:} Biologically plausible learning in spiking neural networks.\\
+    \textbf{Stage Summary:}\\
+    1. \textbf{2006-2014: Foundational Mechanisms}. Early exploration of biologically plausible learning rules for spiking networks, focusing on gradient estimation through dynamic perturbation, unsupervised learning via STDP, and basic cognitive function implementation.\\
+    2. \textbf{2015-2019: Cognitive and Sequence Learning}. Application of biologically plausible rules to more complex tasks, including goal-directed decision making, sequence learning, and pattern recognition, with growing emphasis on combining multiple plasticity mechanisms.\\
+    3. \textbf{2020-2022: Systematic Framework Development}. Concerted effort to develop learning frameworks as alternatives to backpropagation, addressing credit assignment problems and creating unified approaches that maintain biological plausibility while improving performance.\\
+    4. \textbf{2023-2025: Integration and Efficiency}. Focus on optimizing for efficiency and scalability, incorporating event-driven computation, exploring different neuron models, and developing novel mechanisms like bidirectional distillation for competitive performance.\\
+    \textbf{Future Directions:}\\
+    1. Development of fully event-driven, large-scale learning systems.\\
+    2. Integration of neuromodulation and attention mechanisms into learning frameworks.\\
+    3. Co-design of algorithms and neuromorphic hardware for optimal efficiency.\\
+    4. Exploration of meta-learning and continual learning in biologically plausible SNNs.\\
+    5. Bridging the gap between computational models and experimental neuroscience findings.
+\end{tcolorbox}
+
+\subsection{Related Author Retrieval}
+Given a research direction, retrieving relevant authors in that field can be as straightforward as simply replacing Eq.\ref{eq:spgraph} with:
+\begin{align}
+    s_a^{graph} = r_a, \quad a \in V' \cap \texttt{Author}
+\end{align}
+Subsequently, factors such as the authors' citation counts can serve as critical references for final ranking and filtering.
+During the retrieval process, to emphasize the contribution of authors to papers, we can adjust the weights of \texttt{AUTHORED} edges based on author order (e.g., increasing the transition probabilities for first and last authors relative to other authors) to retrieve the most relevant authors.
+
+\subsection{Researcher Background Review}
+Given an author, we can directly match his/her name to the graph node and collect all the author's published papers from the graph and summarize the author's academic background using an LLM.
+Since an author may simultaneously work on multiple research directions, we can first cluster the collected papers and have the LLM summarize within each cluster, then integrate them into a unified report.
+An LLM-generated researcher profile is shown below:
+\begin{tcolorbox}[breakable,colback=persona!20!white, colframe=persona!60!black, title=\textbf{Researcher Background Review}]
+    \label{box:author_profile}
+    *** is a prolific researcher with an academic trajectory spanning Natural Language Processing, Artificial Intelligence, and Large Language Models. His work demonstrates a strong emphasis on bridging symbolic knowledge (knowledge graphs) with statistical learning (large language models), particularly in the areas of information extraction, reasoning, and agentic systems. A significant recent pivot involves developing methods to understand, control, and align the internal mechanisms and behaviors of large-scale AI models, moving from application-focused to fundamental model analysis and intervention.\\
+    \textbf{Research Trajectory:}\\
+    1. \textbf{Knowledge-Enhanced Language Models \& Information Extraction} (2018-2023)\\
+    Early and sustained focus on integrating structured knowledge (ontologies, knowledge graphs) into NLP models. This includes pioneering work on prompt-tuning for relation extraction (KnowPrompt), generative models for knowledge graph completion (GenKGC), and multimodal knowledge graphs. The goal is to make models more data-efficient, interpretable, and grounded in factual knowledge.\\
+    2. \textbf{Reasoning, Planning, and Agentic AI Systems} (2023-2026)\\
+    A major shift towards enabling LLMs to perform complex, multi-step reasoning and act as autonomous agents. Research focuses on augmenting agents with actionable knowledge (KnowAgent), refining their planning capabilities, and developing benchmarks for evaluation. This theme explores how to equip LLMs with procedural knowledge and reliable world models for task execution.\\
+    3. \textbf{Model Analysis, Control, and Alignment} (2023-2026)\\
+    A cutting-edge direction focused on diagnosing and steering the internal dynamics of LLMs. Work includes developing unified frameworks for understanding parameter dynamics from fine-tuning to activation steering, diagnosing truthfulness via consistency under perturbation, and predicting unintended behaviors from data. This represents foundational research into model interpretability and safety.
+\end{tcolorbox}

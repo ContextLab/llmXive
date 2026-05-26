@@ -1,0 +1,42 @@
+{
+  "arxiv_id": "2605.23463",
+  "arxiv_url": "https://arxiv.org/abs/2605.23463",
+  "title": "https://arxiv.org/abs/2605.23463",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #233",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/lawlict/wenetspeech-testnet-long.git"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "arxiv.sty",
+    "content",
+    "content/tts.tex",
+    "content/conclusion.tex",
+    "content/abstract.tex",
+    "content/introduction.tex",
+    "content/architecture.tex",
+    "content/asr.tex",
+    "content/data.tex",
+    "content/realtime.tex",
+    "content/Contributors.tex",
+    "figures",
+    "figures/stepaudio25-unified-foundation-architecture.png",
+    "figures/stepfun-icon.png",
+    "figures/stepaudio25-tts-arena.png",
+    "figures/stepaudio25-asr-mtp-architecture.png",
+    "figures/stepaudio25-asr-data-pipeline.png",
+    "figures/stepaudio25-realtime-evaluation.png",
+    "main.bbl",
+    "main.tex",
+    "references.bib"
+  ]
+}

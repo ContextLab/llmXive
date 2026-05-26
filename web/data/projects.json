@@ -935,13 +935,13 @@
     }
   ],
   "aggregates": {
-    "active_projects": 629,
+    "active_projects": 634,
     "ai_contributors": 7,
-    "human_contributors": 593,
+    "human_contributors": 638,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2342,
-    "total_contributors": 600
+    "total_contributions": 2389,
+    "total_contributors": 645
   },
   "contributors": [
     {
@@ -1083,12 +1083,28 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Chong Luo"
+    },
+    {
+      "areas": [
         "computer science",
         "linguistics"
       ],
       "contribution_count": 2,
       "kind": "human",
       "name": "Conghui He"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Dongdong Chen"
     },
     {
       "areas": [
@@ -1388,6 +1404,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Baining Guo"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Baixuan Xu"
     },
     {
@@ -1404,7 +1428,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Bei Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Benoit R. Cottereau"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Bin Wu"
     },
     {
       "areas": [
@@ -1485,6 +1525,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Bowen Zhou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Busheng Zhang"
     },
     {
       "areas": [
@@ -1780,6 +1828,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Dong Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Dongcheng Zhao"
     },
     {
@@ -1877,6 +1933,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Fangneng Zhan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Fangyun Wei"
     },
     {
       "areas": [
@@ -2340,6 +2404,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Huajun Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Huan Feng"
     },
     {
@@ -2428,6 +2500,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Ji Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Ji Luo"
     },
     {
@@ -2500,6 +2580,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Jianmin Bao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Jianzhu Guo"
     },
     {
@@ -2517,6 +2605,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jiaqi Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jiawei Zhang"
     },
     {
       "areas": [
@@ -2549,6 +2645,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jiayu Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jiazheng Fan"
     },
     {
       "areas": [
@@ -2653,6 +2757,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jinhang Xu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jinjing Zhao"
     },
     {
       "areas": [
@@ -2797,6 +2909,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Kai Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Kai Qiu"
     },
     {
       "areas": [
@@ -2980,6 +3100,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Keyan Ding"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Kieran Liu"
     },
     {
@@ -3045,6 +3173,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Lei Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Lei Shi"
     },
     {
       "areas": [
@@ -3348,6 +3484,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Mengru Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Mengting Chen"
     },
     {
@@ -3492,6 +3636,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Ningyu Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Ningyuan Tang"
     },
     {
@@ -3604,6 +3756,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Qi Dai"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Qi Gu"
     },
     {
@@ -3620,6 +3780,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Qiang Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Qianjia Cheng"
     },
     {
@@ -3629,6 +3797,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Qianran Ma"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qihao Yang"
     },
     {
       "areas": [
@@ -3661,6 +3837,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Qingyi Si"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qinhong Yang"
     },
     {
       "areas": [
@@ -4040,6 +4224,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shuofei Qiao"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -4069,6 +4261,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Simon See"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Sirui Zhang"
     },
     {
       "areas": [
@@ -4437,6 +4637,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Weiping Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Weiquan Huang"
     },
     {
       "areas": [
@@ -4828,6 +5036,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Xiuyu Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Xiyu Ren"
     },
     {
@@ -4860,7 +5076,31 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Xue Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Xuehai Bai"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xuelu Feng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xuemei Gao"
     },
     {
       "areas": [
@@ -4900,6 +5140,22 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yan Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yan Lu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yan Shu"
     },
     {
@@ -4909,6 +5165,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yanan Xie"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yanchen Dong"
     },
     {
       "areas": [
@@ -4949,6 +5213,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yang Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yang Yue"
     },
     {
       "areas": [
@@ -5060,6 +5332,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yifan Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yifei Huang"
     },
     {
@@ -5141,6 +5421,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yingshuo Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yitong Wang"
     },
     {
       "areas": [
@@ -5436,6 +5724,38 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yunuo Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yunxiang Wei"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuqi Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuqing Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yuran Wang"
     },
     {
@@ -5648,6 +5968,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhiyang Liang"
+    },
+    {
+      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -5792,11 +6120,43 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zisu Huang"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Ziting Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ziwei Zhou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ziyang Gong"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ziyu Wan"
     },
     {
       "areas": [
@@ -5807,7 +6167,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-26T09:08:16.385999+00:00",
+  "generated_at": "2026-05-26T09:13:53.977936+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -6045,29 +6405,29 @@
       "description": "A one-paragraph idea seed \u2014 a research question and a hint of how it might be tackled. Generated by the brainstorm agent (or submitted by a human).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-586-social-memory-networks-modeling-collecti",
-          "project_id": "PROJ-586-social-memory-networks-modeling-collecti",
-          "title": "Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-548-exploring-the-relationship-between-prime",
-          "project_id": "PROJ-548-exploring-the-relationship-between-prime",
-          "title": "Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-559-neuro-symbolic-learning-networks-bridgin",
-          "project_id": "PROJ-559-neuro-symbolic-learning-networks-bridgin",
-          "title": "Neuro-Symbolic Learning Networks: Bridging Neural and Symbolic Reasoning in Education"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
+          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
+          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-558-consciousness-bootstrapping-self-aware-a",
-          "project_id": "PROJ-558-consciousness-bootstrapping-self-aware-a",
-          "title": "Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "project_id": "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "title": "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6089,29 +6449,29 @@
       "description": "The raw seed is expanded into a structured idea grounded in primary literature: motivation, prior work, the precise question, a sketch of an approach, and what success would look like. A research-question validator then audits it for phenomenon-vs-method confusion, circularity, and triviality.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-586-social-memory-networks-modeling-collecti",
-          "project_id": "PROJ-586-social-memory-networks-modeling-collecti",
-          "title": "Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-548-exploring-the-relationship-between-prime",
-          "project_id": "PROJ-548-exploring-the-relationship-between-prime",
-          "title": "Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-559-neuro-symbolic-learning-networks-bridgin",
-          "project_id": "PROJ-559-neuro-symbolic-learning-networks-bridgin",
-          "title": "Neuro-Symbolic Learning Networks: Bridging Neural and Symbolic Reasoning in Education"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
+          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
+          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-558-consciousness-bootstrapping-self-aware-a",
-          "project_id": "PROJ-558-consciousness-bootstrapping-self-aware-a",
-          "title": "Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "project_id": "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "title": "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6133,29 +6493,29 @@
       "description": "The project gets its own Spec Kit scaffold and a `spec.md` \u2014 user stories, functional requirements, success criteria \u2014 written by the specifier agent (the agentic equivalent of `/speckit-specify`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "project_id": "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "title": "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "project_id": "PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "title": "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route Generation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "title": "Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Personality?"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
+          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
+          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-619-delta-discriminative-token-credit-assign",
-          "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
-          "title": "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-618-bench-evaluating-proactive-personal-assi",
-          "project_id": "PROJ-618-bench-evaluating-proactive-personal-assi",
-          "title": "$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6177,29 +6537,29 @@
       "description": "Open questions and ambiguities in the spec are surfaced and resolved (the agentic `/speckit-clarify`). Each clarification is recorded back into `spec.md`.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "project_id": "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "title": "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "project_id": "PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "title": "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route Generation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "title": "Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Personality?"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
+          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
+          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-619-delta-discriminative-token-credit-assign",
-          "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
-          "title": "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-618-bench-evaluating-proactive-personal-assi",
-          "project_id": "PROJ-618-bench-evaluating-proactive-personal-assi",
-          "title": "$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6220,29 +6580,29 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "project_id": "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "title": "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "project_id": "PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "title": "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route Generation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "title": "Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Personality?"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
+          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
+          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-619-delta-discriminative-token-credit-assign",
-          "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
-          "title": "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-618-bench-evaluating-proactive-personal-assi",
-          "project_id": "PROJ-618-bench-evaluating-proactive-personal-assi",
-          "title": "$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6263,29 +6623,29 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "project_id": "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "title": "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "project_id": "PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "title": "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route Generation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "title": "Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Personality?"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
+          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
+          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-619-delta-discriminative-token-credit-assign",
-          "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
-          "title": "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-618-bench-evaluating-proactive-personal-assi",
-          "project_id": "PROJ-618-bench-evaluating-proactive-personal-assi",
-          "title": "$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6309,29 +6669,29 @@
       "description": "The implementer agent executes the task list \u2014 writing code, running real tests, collecting data \u2014 ticking tasks off until the plan is complete. The librarian agent verifies citations along the way.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "project_id": "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "title": "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "project_id": "PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "title": "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route Generation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "title": "Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Personality?"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
+          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
+          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-619-delta-discriminative-token-credit-assign",
-          "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
-          "title": "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-618-bench-evaluating-proactive-personal-assi",
-          "project_id": "PROJ-618-bench-evaluating-proactive-personal-assi",
-          "title": "$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6361,29 +6721,29 @@
       "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist. Human reviews count double.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "project_id": "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "title": "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "project_id": "PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "title": "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route Generation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "title": "Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Personality?"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
+          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
+          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-619-delta-discriminative-token-credit-assign",
-          "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
-          "title": "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-618-bench-evaluating-proactive-personal-assi",
-          "project_id": "PROJ-618-bench-evaluating-proactive-personal-assi",
-          "title": "$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6405,29 +6765,29 @@
       "description": "A research-accepted project gets a second Spec Kit scaffold \u2014 for the paper that reports the work.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "project_id": "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "title": "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "project_id": "PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "title": "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route Generation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "title": "Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Personality?"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
+          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
+          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-619-delta-discriminative-token-credit-assign",
-          "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
-          "title": "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-618-bench-evaluating-proactive-personal-assi",
-          "project_id": "PROJ-618-bench-evaluating-proactive-personal-assi",
-          "title": "$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6448,29 +6808,29 @@
       "description": "The paper's specification: which sections, which figures, which claims, what evidence each rests on.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "project_id": "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "title": "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "project_id": "PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "title": "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route Generation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "title": "Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Personality?"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
+          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
+          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-619-delta-discriminative-token-credit-assign",
-          "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
-          "title": "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-618-bench-evaluating-proactive-personal-assi",
-          "project_id": "PROJ-618-bench-evaluating-proactive-personal-assi",
-          "title": "$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6492,29 +6852,29 @@
       "description": "The paper plan and contracts (clarify + plan for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "project_id": "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "title": "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "project_id": "PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "title": "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route Generation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "title": "Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Personality?"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
+          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
+          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-619-delta-discriminative-token-credit-assign",
-          "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
-          "title": "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-618-bench-evaluating-proactive-personal-assi",
-          "project_id": "PROJ-618-bench-evaluating-proactive-personal-assi",
-          "title": "$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6535,29 +6895,29 @@
       "description": "Writing, figure-generation, and statistics sub-tasks (tasks + analyze for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "project_id": "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "title": "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "project_id": "PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "title": "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route Generation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "title": "Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Personality?"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
+          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
+          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-619-delta-discriminative-token-credit-assign",
-          "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
-          "title": "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-618-bench-evaluating-proactive-personal-assi",
-          "project_id": "PROJ-618-bench-evaluating-proactive-personal-assi",
-          "title": "$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6586,29 +6946,29 @@
       "description": "The paper-writing, figure-generation, and statistics agents draft the LaTeX, generate figures from the data, and run the analyses; LaTeX is built and citations are verified.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "project_id": "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "title": "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "project_id": "PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "title": "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route Generation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "title": "Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Personality?"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
+          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
+          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-619-delta-discriminative-token-credit-assign",
-          "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
-          "title": "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-618-bench-evaluating-proactive-personal-assi",
-          "project_id": "PROJ-618-bench-evaluating-proactive-personal-assi",
-          "title": "$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6632,29 +6992,29 @@
       "description": "The draft compiles cleanly, all citations are verified, and the proofreader is satisfied \u2014 ready for paper review.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "project_id": "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "title": "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "project_id": "PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "title": "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route Generation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "title": "Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Personality?"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
+          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
+          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-619-delta-discriminative-token-credit-assign",
-          "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
-          "title": "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-618-bench-evaluating-proactive-personal-assi",
-          "project_id": "PROJ-618-bench-evaluating-proactive-personal-assi",
-          "title": "$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6687,29 +7047,29 @@
       "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "project_id": "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati",
-          "title": "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "project_id": "PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-          "title": "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route Generation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
-          "title": "Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Personality?"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
+          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
+          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-619-delta-discriminative-token-credit-assign",
-          "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
-          "title": "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-618-bench-evaluating-proactive-personal-assi",
-          "project_id": "PROJ-618-bench-evaluating-proactive-personal-assi",
-          "title": "$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -67286,9 +67646,758 @@
       "title": "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route Generation",
       "updated_at": "2026-05-23T08:43:45.047776+00:00",
       "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-622-https-arxiv-org-abs-2605-23463/idea/https-arxiv-org-abs-2605-23463.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-622-https-arxiv-org-abs-2605-23463/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-26T09:11:38.930928+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463/paper/source/main.tex",
+        "repo_path": "projects/PROJ-622-https-arxiv-org-abs-2605-23463/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.23463 Submitted by: github-actions[bot] (Intake from human-submission issue #233.)",
+      "field": "other",
+      "id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 17.972897,
+          "ended_at": "2026-05-26T09:11:41.346205+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-26T09:11:23.373308+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "https://arxiv.org/abs/2605.23463",
+      "updated_at": "2026-05-26T09:11:39.142329+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/idea/sciatlas-a-large-scale-knowledge-graph-f.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shuofei Qiao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yunxiang Wei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiazheng Fan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bin Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Busheng Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mengru Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuqi Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ningyu Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Keyan Ding",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qiang Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Huajun Chen",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-26T09:11:41.946414+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/source/main.tex",
+        "repo_path": "projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "The exponential growth of global academic output has confronted researchers and AI agents with an unprecedented ``information explosion,'' where fragmented and unstructured knowledge organization impedes deep interdisciplinary integration. Current academic retrieval tools predominantly rely on superficial keyword\u2026",
+      "field": "computer science",
+      "id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 2.590779,
+          "ended_at": "2026-05-26T09:11:43.937293+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-26T09:11:41.346514+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research",
+      "updated_at": "2026-05-26T09:11:42.007383+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-624-lens-rethinking-training-efficiency-for/idea/lens-rethinking-training-efficiency-for.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dong Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Fangyun Wei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ziyu Wan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dongdong Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiawei Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jinjing Zhao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sirui Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yang Yue",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhiyang Liang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Baining Guo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chong Luo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jianmin Bao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ji Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lei Shi",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qinhong Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiuyu Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xuelu Feng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yan Lu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yanchen Dong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yitong Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yunuo Chen",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-26T09:11:48.459110+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/main.tex",
+        "repo_path": "projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "We introduce Lens, a 3.8B-parameter T2I model that achieves performance competitive with, and in several cases surpassing, state-of-the-art models with more than 6B parameters across various benchmarks, while requiring significantly less training compute. For example, Lens requires only about 19.3% of the training\u2026",
+      "field": "computer science",
+      "id": "PROJ-624-lens-rethinking-training-efficiency-for",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 6.890623,
+          "ended_at": "2026-05-26T09:11:50.828163+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-26T09:11:43.937540+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models",
+      "updated_at": "2026-05-26T09:11:49.328521+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-625-https-arxiv-org-abs-2605-20708/idea/https-arxiv-org-abs-2605-20708.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-625-https-arxiv-org-abs-2605-20708/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-26T09:12:06.384810+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708/paper/source/main.tex",
+        "repo_path": "projects/PROJ-625-https-arxiv-org-abs-2605-20708/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.20708 Submitted by: github-actions[bot] (Intake from human-submission issue #230.)",
+      "field": "other",
+      "id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 17.626107,
+          "ended_at": "2026-05-26T09:12:08.454503+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-26T09:11:50.828396+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "https://arxiv.org/abs/2605.20708",
+      "updated_at": "2026-05-26T09:12:06.554000+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/idea/skillopt-executive-strategy-for-self-evo.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yifan Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ziyang Gong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Weiquan Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qihao Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ziwei Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zisu Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yan Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xuemei Gao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qi Dai",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bei Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kai Qiu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuqing Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dongdong Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xue Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chong Luo",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-26T09:12:08.907734+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/source/main.tex",
+        "repo_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "Agent skills today are hand-crafted, generated one-shot, or evolved through loosely controlled self-revision, none of which behaves like a deep-learning optimizer for the skill, and none of which reliably improves over its starting point under feedback. We argue the skill should instead be trained as the external\u2026",
+      "field": "computer science",
+      "id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 2.680567,
+          "ended_at": "2026-05-26T09:12:11.135300+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-26T09:12:08.454733+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills",
+      "updated_at": "2026-05-26T09:12:09.026884+00:00",
+      "upstream_feedback": null
     }
   ],
   "recent_activity": [
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 2.680567,
+      "ended_at": "2026-05-26T09:12:11.135300+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-26T09:12:08.454733+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 17.626107,
+      "ended_at": "2026-05-26T09:12:08.454503+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-26T09:11:50.828396+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 6.890623,
+      "ended_at": "2026-05-26T09:11:50.828163+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-26T09:11:43.937540+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 2.590779,
+      "ended_at": "2026-05-26T09:11:43.937293+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-26T09:11:41.346514+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 17.972897,
+      "ended_at": "2026-05-26T09:11:41.346205+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-26T09:11:23.373308+00:00"
+    },
     {
       "agent": "personality",
       "display_name": "Marie Curie (simulated)",
@@ -73558,56 +74667,6 @@
       "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-16T12:48:23.145463Z"
-    },
-    {
-      "agent": "paper_reviewer_statistical_analysis",
-      "duration_s": 0.000219,
-      "ended_at": "2026-05-16T12:48:23.092750Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T12:48:23.092531Z"
-    },
-    {
-      "agent": "paper_reviewer_scientific_evidence",
-      "duration_s": 0.000226,
-      "ended_at": "2026-05-16T12:48:23.026744Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T12:48:23.026518Z"
-    },
-    {
-      "agent": "paper_reviewer_safety_ethics",
-      "duration_s": 0.00019,
-      "ended_at": "2026-05-16T12:48:22.973331Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T12:48:22.973141Z"
-    },
-    {
-      "agent": "paper_reviewer_overreach",
-      "duration_s": 0.000189,
-      "ended_at": "2026-05-16T12:48:22.921099Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T12:48:22.920910Z"
-    },
-    {
-      "agent": "paper_reviewer_claim_accuracy",
-      "duration_s": 0.000195,
-      "ended_at": "2026-05-16T12:48:22.868401Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T12:48:22.868206Z"
     }
   ],
   "schema_version": "2.0.0"

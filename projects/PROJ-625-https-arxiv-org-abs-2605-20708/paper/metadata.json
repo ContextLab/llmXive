@@ -1,0 +1,38 @@
+{
+  "arxiv_id": "2605.20708",
+  "arxiv_url": "https://arxiv.org/abs/2605.20708",
+  "title": "https://arxiv.org/abs/2605.20708",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #230",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "ant_tech_report.cls",
+    "figs",
+    "figs/DAR.pdf",
+    "figs/PAGE1.pdf",
+    "figs/fid_training_curve.pdf",
+    "figs/fig_baseline_vs_attnres_source_mixing.pdf",
+    "figs/fig_t_decode_agg_only_paper.pdf",
+    "figs/infra_benchmark.pdf",
+    "figs/symptoms.pdf",
+    "fonts",
+    "fonts/Medium.ttf",
+    "fonts/Optimistic.ttf",
+    "fonts/medium.tfm",
+    "fonts/optimistic.tfm",
+    "logos",
+    "logos/comps.pdf",
+    "logos/university_lamda.png",
+    "main.tex",
+    "references.bib"
+  ]
+}

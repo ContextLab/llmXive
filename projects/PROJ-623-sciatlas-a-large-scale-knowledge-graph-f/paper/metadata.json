@@ -1,0 +1,57 @@
+{
+  "arxiv_id": "2605.22878",
+  "arxiv_url": "https://arxiv.org/abs/2605.22878",
+  "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research",
+  "authors": [
+    "Shuofei Qiao",
+    "Yunxiang Wei",
+    "Jiazheng Fan",
+    "Bin Wu",
+    "Busheng Zhang",
+    "Mengru Wang",
+    "Yuqi Zhu",
+    "Ningyu Zhang",
+    "Keyan Ding",
+    "Qiang Zhang",
+    "Huajun Chen"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "The exponential growth of global academic output has confronted researchers and AI agents with an unprecedented ``information explosion,'' where fragmented and unstructured knowledge organization impedes deep interdisciplinary integration. Current academic retrieval tools predominantly rely on superficial keyword matching or vector-space semantic retrieval, which lack the topological reasoning capabilities required to navigate complex logical connections. Agentic deep-research-based frameworks are often prone to logical hallucinations and consuming high inference costs. To bridge this gap, in this report, we introduce SciAtlas, a large-scale, multi-disciplinary, heterogeneous academic resource knowledge graph designed as a panoramic scientific evolution network. By integrating over 43M papers from 26 disciplines, and a total of 157M entities and 3B triplets, SciAtlas provides a structured topological cognitive substrate that dismantles disciplinary barriers and furnishes AI agents with a global perspective. Furthermore, we develop a neuro-symbolic retrieval algorithm featuring tri-path collaborative recall and graph reranking, achieving a seamless transition from simple semantic matching to deterministic association discovery. We also present key application directions of SciAtlas, including literature review, automated research trend synthesis, idea positioning, and academic trajectory exploration, to demonstrate that SciAtlas can serve as an effective ``cognitive map'' to empower the full loop of automated scientific research while significantly reducing reasoning costs. We have released the interfaces for KG retrieval and various downstream tasks in our GitHub repo.",
+  "submitted_via": "llmXive dashboard, GitHub issue #232",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/zjunlp/SciAtlas",
+    "https://github.com/grobidOrg/grobid"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "figures",
+    "figures/field_distribution_pie.pdf",
+    "figures/schema.pdf",
+    "img",
+    "img/ucl.jpg",
+    "img/zju.png",
+    "img/zjukg.jpg",
+    "lumia.cls",
+    "main.tex",
+    "notations.tex",
+    "references.bib",
+    "references.bst",
+    "sections",
+    "sections/appendix.tex",
+    "sections/application.tex",
+    "sections/future.tex",
+    "sections/intro.tex",
+    "sections/related_work.tex",
+    "sections/retrieval.tex",
+    "sections/scimap.tex",
+    "tables",
+    "tables/edge_weight.tex",
+    "tables/statistics.tex"
+  ]
+}

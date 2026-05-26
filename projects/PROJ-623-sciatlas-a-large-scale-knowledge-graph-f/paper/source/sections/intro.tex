@@ -1,0 +1,48 @@
+% \clearpage
+
+\begin{figure*}[h]
+    \centering
+    \vskip -0.1cm
+    \includegraphics[width=.75\textwidth]{figures/field_distribution_pie.pdf}
+    \vskip -0.05in
+    \caption{\textbf{Discipline Distribution in {\ours}.} {\ours} is a large-scale scientific knowledge graph containing 26 disciplines with over 43M academic papers and other heterogeneous entities.}
+    \label{fig:field_distribution}
+    \vskip -0.2in
+\end{figure*}
+
+\section{Introduction}
+\vspace{-0.3em}
+\label{sec:intro}
+
+Automated Scientific Research driven by Large Language Models (LLMs) has emerged as one of the most cutting-edge focal points in the field of artificial intelligence \citep{ai4research-survey,ai-scientist,omniscientist}.
+With the exponential growth of global academic output, researchers and AI agents are jointly confronted with an unprecedented ``information explosion'' challenge.
+Precise literature retrieval and effective knowledge integration not only constitute the logical starting point of the research loop but also serve as the core cornerstone determining the success of subsequent innovation generation and experimental design \citep{innoeval,scholareval,opennovelty,ai-researcher}.
+However, current academic retrieval tools are generally plagued by two major issues.
+
+First is the \textit{organizational form of academic knowledge}.
+Currently, vast amounts of research achievements are scattered across the internet in unstructured textual formats, lacking unified organizational paradigms and association mechanisms.
+This ``knowledge island'' phenomenon not only impedes deep interdisciplinary integration but also renders the intrinsic logical connections between entities latent and inaccessible.
+Novice researchers and AI agents struggle to transcend disciplinary barriers to perceive the global topological structure of scientific knowledge, resulting in cognitive dimensional deficits when addressing cutting-edge interdisciplinary topics \citep{scikg}.
+
+Second is the \textit{retrieval paradigm of academic knowledge}.
+Existing retrieval tools primarily rely on superficial keyword matching or vector-space-based semantic retrieval \citep{scholareval,innoeval,ai-researcher,automind}, both of which are essentially flattened feature comparisons and cannot support genuine topological reasoning.
+Some deep-research-based agentic frameworks attempt to compensate for the deficiency of structured information through iterative knowledge search and integration \citep{wispaper,deepxiv,alphaxiv,opensholar}.
+However, this approach not only incurs high computational costs and response latency but also, due to the absence of deterministic cognitive maps as anchors for LLMs, renders them highly susceptible to logical hallucinations within complex exploratory trajectories.
+
+We introduce \textbf{\ours}\footnote{This project is part of the SciGraph project (\url{http://scigraph.openkg.cn/}) under SciGraph-Scholar.}, a large-scale, multi-disciplinary, heterogeneous academic resource knowledge graph designed to provide a topological cognitive substrate for accelerating scientific discovery.
+In terms of organizational structure, {\ours} features a sophisticated schema (see Fig.\ref{fig:schema}) encompassing 9 categories of entity nodes, including papers, authors, institutions, keywords, research fields, etc.
+Each node type is endowed with comprehensive attribute information (e.g., paper abstracts and PDF URLs, author citations), as well as 12 categories of relational edges, including citations, authorship, co-authorship, keyword co-occurrence, etc.
+This organizational paradigm weaves fragmented knowledge into a self-explanatory, panoramic scientific evolution network.
+Such structured formalization can dismantle disciplinary barriers, elevating scientific research into an interconnected logical topology that furnishes AI agents with a global cognitive perspective for observing scientific advancement.
+
+Building on {\ours}, we develop a neuro-symbolic retrieval algorithm that achieves the transition from semantic matching to topological reasoning.
+By integrating lexical matching, vector retrieval, and well-developed graph propagation algorithms \citep{rwr}, we establish a tri-path collaborative recall and graph reranking mechanism, which enables deep fusion of the semantic relevance of papers, graph topological support, and importance metrics based on global citations, thereby providing deterministic deep association discovery without requiring frequent iterations of LLMs and high reasoning costs.
+% To accommodate the rapid evolution of academia, we additionally provide actionable update mechanisms for {\ours}, along with integration strategies for online search.
+Furthermore, we propose several potential downstream application directions of {\ours} for automated scientific research, including literature review, differentiated positioning and similarity detection of research ideas, idea generation, automated research trend predicting, retrieval of highly relevant academic authors, and academic trajectory exploration for researchers.
+
+Our main contributions are as follows:
+\begin{itemize}[itemsep=1.5ex]
+    \item We introduce {\ours}, a large-scale, multi-disciplinary knowledge graph that organizes fragmented academic resources into a structured logical topology. It serves as a comprehensive, panoramic scientific network that provides AI agents with a global cognitive perspective.
+    \item We develop an efficient neuro-symbolic retrieval algorithm featuring tri-path collaborative recall and graph reranking, achieving the transition from surface-level semantic matching to deterministic topological reasoning.
+    \item We propose application directions for {\ours}, including research trend synthesis, idea positioning, and academic trajectory exploration, etc. These applications demonstrate {\ours}'s capability as a ``cognitive map'' to empower the entire loop of automated scientific research.
+\end{itemize}
