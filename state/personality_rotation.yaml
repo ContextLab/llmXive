@@ -1,14 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-05-26T13:31:48.845116+00:00'
+last_used: richard-feynman
+last_used_at: '2026-05-26T14:29:19.336795+00:00'
 last_outcome: committed
 history:
-- slug: rosalind-franklin
-  started_at: '2026-05-17T22:19:02.194201+00:00'
-  ended_at: '2026-05-17T22:47:41.251774+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/rosalind-franklin-simulated__2026-05-17__research.md
 - slug: stephen-wolfram
   started_at: '2026-05-17T22:47:41.251774+00:00'
   ended_at: '2026-05-17T23:19:26.372155+00:00'
@@ -1206,3 +1199,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/marie-curie-simulated__2026-05-26__research.md
+- slug: richard-feynman
+  started_at: '2026-05-26T13:31:48.845116+00:00'
+  ended_at: '2026-05-26T14:29:19.336795+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/richard-feynman-simulated__2026-05-26__research.md
