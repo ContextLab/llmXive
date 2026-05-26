@@ -6167,7 +6167,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-26T13:31:51.581209+00:00",
+  "generated_at": "2026-05-26T13:35:27.562725+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -67664,7 +67664,7 @@
         "data": null,
         "idea": "projects/PROJ-622-https-arxiv-org-abs-2605-23463/idea/https-arxiv-org-abs-2605-23463.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-622-https-arxiv-org-abs-2605-23463/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-622-https-arxiv-org-abs-2605-23463/paper/source/main.tex",
         "paper_spec": null,
@@ -67686,10 +67686,10 @@
       },
       "created_at": "2026-05-26T09:11:38.930928+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463/paper/source/main.tex",
-        "repo_path": "projects/PROJ-622-https-arxiv-org-abs-2605-23463/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-622-https-arxiv-org-abs-2605-23463/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.23463 Submitted by: github-actions[bot] (Intake from human-submission issue #233.)",
@@ -67726,7 +67726,7 @@
         "data": null,
         "idea": "projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/idea/sciatlas-a-large-scale-knowledge-graph-f.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/pdf/2605.22878.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/source/main.tex",
         "paper_spec": null,
@@ -67837,10 +67837,10 @@
       },
       "created_at": "2026-05-26T09:11:41.946414+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/source/main.tex",
-        "repo_path": "projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/pdf/2605.22878.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/pdf/2605.22878.pdf",
+        "repo_path": "projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/pdf/2605.22878.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "The exponential growth of global academic output has confronted researchers and AI agents with an unprecedented ``information explosion,'' where fragmented and unstructured knowledge organization impedes deep interdisciplinary integration. Current academic retrieval tools predominantly rely on superficial keyword\u2026",
@@ -67877,7 +67877,7 @@
         "data": null,
         "idea": "projects/PROJ-624-lens-rethinking-training-efficiency-for/idea/lens-rethinking-training-efficiency-for.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/main.tex",
         "paper_spec": null,
@@ -68068,10 +68068,10 @@
       },
       "created_at": "2026-05-26T09:11:48.459110+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/main.tex",
-        "repo_path": "projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "We introduce Lens, a 3.8B-parameter T2I model that achieves performance competitive with, and in several cases surpassing, state-of-the-art models with more than 6B parameters across various benchmarks, while requiring significantly less training compute. For example, Lens requires only about 19.3% of the training\u2026",
@@ -68108,7 +68108,7 @@
         "data": null,
         "idea": "projects/PROJ-625-https-arxiv-org-abs-2605-20708/idea/https-arxiv-org-abs-2605-20708.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-625-https-arxiv-org-abs-2605-20708/paper/pdf/2605.20708.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-625-https-arxiv-org-abs-2605-20708/paper/source/main.tex",
         "paper_spec": null,
@@ -68130,10 +68130,10 @@
       },
       "created_at": "2026-05-26T09:12:06.384810+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708/paper/source/main.tex",
-        "repo_path": "projects/PROJ-625-https-arxiv-org-abs-2605-20708/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708/paper/pdf/2605.20708.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708/paper/pdf/2605.20708.pdf",
+        "repo_path": "projects/PROJ-625-https-arxiv-org-abs-2605-20708/paper/pdf/2605.20708.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.20708 Submitted by: github-actions[bot] (Intake from human-submission issue #230.)",
@@ -68170,7 +68170,7 @@
         "data": null,
         "idea": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/idea/skillopt-executive-strategy-for-self-evo.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/source/main.tex",
         "paper_spec": null,
@@ -68313,10 +68313,10 @@
       },
       "created_at": "2026-05-26T09:12:08.907734+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/source/main.tex",
-        "repo_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Agent skills today are hand-crafted, generated one-shot, or evolved through loosely controlled self-revision, none of which behaves like a deep-learning optimizer for the skill, and none of which reliably improves over its starting point under feedback. We argue the skill should instead be trained as the external\u2026",
