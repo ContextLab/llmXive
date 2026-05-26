@@ -1,11 +1,7 @@
 last_used: albert-einstein
-last_used_at: '2026-05-26T21:06:52.960644+00:00'
-last_outcome: committed
+last_used_at: '2026-05-26T22:02:53.497755+00:00'
+last_outcome: model_error
 history:
-- slug: daniel-kahneman
-  started_at: '2026-05-18T03:46:32.429747+00:00'
-  ended_at: '2026-05-18T05:23:04.180700+00:00'
-  outcome: model_error
 - slug: daniel-kahneman
   started_at: '2026-05-18T05:23:04.180700+00:00'
   ended_at: '2026-05-18T06:49:48.530686+00:00'
@@ -1206,3 +1202,7 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/albert-einstein-simulated__2026-05-26__research.md
+- slug: dan-rockmore
+  started_at: '2026-05-26T21:06:52.960644+00:00'
+  ended_at: '2026-05-26T22:02:53.497755+00:00'
+  outcome: model_error
