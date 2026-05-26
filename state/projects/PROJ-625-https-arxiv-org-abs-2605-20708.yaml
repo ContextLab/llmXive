@@ -3,7 +3,7 @@ assigned_agent: null
 created_at: '2026-05-26T09:12:06.384810Z'
 current_stage: paper_review
 failed_stage: null
-field: other
+field: computer science
 human_escalation_reason: null
 id: PROJ-625-https-arxiv-org-abs-2605-20708
 last_run_id: null
@@ -14,5 +14,5 @@ revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
-title: https://arxiv.org/abs/2605.20708
-updated_at: '2026-05-26T09:12:06.554000Z'
+title: Rethinking Cross-Layer Information Routing in Diffusion Transformers
+updated_at: '2026-05-26T14:10:33.928993Z'

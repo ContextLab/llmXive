@@ -937,11 +937,11 @@
   "aggregates": {
     "active_projects": 634,
     "ai_contributors": 7,
-    "human_contributors": 638,
+    "human_contributors": 744,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2390,
-    "total_contributors": 645
+    "total_contributions": 2503,
+    "total_contributors": 751
   },
   "contributors": [
     {
@@ -1040,6 +1040,15 @@
     },
     {
       "areas": [
+        "computer science",
+        "linguistics"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Lin Qu"
+    },
+    {
+      "areas": [
         "astronomy",
         "neuroscience",
         "ocean science"
@@ -1116,6 +1125,15 @@
     },
     {
       "areas": [
+        "computer science",
+        "linguistics"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Hanlin Tang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 2,
@@ -1155,6 +1173,15 @@
       ],
       "contribution_count": 2,
       "kind": "human",
+      "name": "Kan Liu"
+    },
+    {
+      "areas": [
+        "computer science",
+        "linguistics"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
       "name": "Liang Lin"
     },
     {
@@ -1164,7 +1191,7 @@
       ],
       "contribution_count": 2,
       "kind": "human",
-      "name": "Lin Qu"
+      "name": "Maohua Li"
     },
     {
       "areas": [
@@ -1174,6 +1201,15 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "Mengting Ai"
+    },
+    {
+      "areas": [
+        "computer science",
+        "engineering"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Shi Qiu"
     },
     {
       "areas": [
@@ -1254,11 +1290,29 @@
     },
     {
       "areas": [
+        "computer science",
+        "engineering"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Yang Yang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 2,
       "kind": "human",
       "name": "Yangqiu Song"
+    },
+    {
+      "areas": [
+        "computer science",
+        "linguistics"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Yanke Zhou"
     },
     {
       "areas": [
@@ -1440,6 +1494,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Bin Lin"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -1496,6 +1558,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Bo Zhao"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -1525,6 +1595,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Bowen Zhou"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Boyong Wu"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Brian Li"
     },
     {
       "areas": [
@@ -1568,11 +1654,27 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chang Zeng"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Changhai Zhou"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Changlin Zhang"
     },
     {
       "areas": [
@@ -1596,6 +1698,22 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Chao Xu"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chao Yan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Chaoyi Huang"
     },
     {
@@ -1605,6 +1723,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Charles Huang"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chen Geng"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chen Wu"
     },
     {
       "areas": [
@@ -1629,6 +1763,38 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Cheng Tan"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Cheng Yi"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chenghao Dong"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chengli Feng"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chengyuan Yao"
     },
     {
       "areas": [
@@ -1748,6 +1914,30 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Cuifeng Shen"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Daijiao Liu"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Dan Zhou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Daniel N. Rockmore"
     },
     {
@@ -1760,11 +1950,27 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Danni Wan"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "David Holzm\u00fcller"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Daxin Jiang"
     },
     {
       "areas": [
@@ -1792,11 +1998,27 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Di Chen"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Di Zhang"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Die Zhang"
     },
     {
       "areas": [
@@ -1845,6 +2067,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Dongqi Fu"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Dongqing Pang"
     },
     {
       "areas": [
@@ -1960,6 +2190,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Fei Tian"
+    },
+    {
+      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -1981,6 +2219,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Feiyu Xiong"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Feng Tian"
     },
     {
       "areas": [
@@ -2016,11 +2262,27 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Future Li"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Gabrielle Gauthier Melan\u00e7on"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Gang Yu"
     },
     {
       "areas": [
@@ -2061,6 +2323,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Gioia Blayer"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Guanglong Yang"
     },
     {
       "areas": [
@@ -2112,6 +2382,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Guoqiang Hu"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2144,6 +2422,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Haiyang Sun"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2173,14 +2459,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Hanghang Tong"
-    },
-    {
-      "areas": [
-        "linguistics"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Hanlin Tang"
     },
     {
       "areas": [
@@ -2285,6 +2563,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Haoyan Yang"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Haoyang Zhang"
     },
     {
       "areas": [
@@ -2413,6 +2699,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Huan Feng"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Huangxi Zhu"
     },
     {
       "areas": [
@@ -2576,11 +2870,27 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jiangjie Zhen"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Jianmin Bao"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jianzheng Gao"
     },
     {
       "areas": [
@@ -2744,6 +3054,22 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jinghua Liang"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jinglan Gong"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2765,6 +3091,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jinjing Zhao"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jinmei Wan"
     },
     {
       "areas": [
@@ -2832,6 +3166,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jun Chen"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2869,6 +3211,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Junhao Dong"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Junjie Yuan"
     },
     {
       "areas": [
@@ -3024,11 +3374,11 @@
     },
     {
       "areas": [
-        "linguistics"
+        "engineering"
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Kan Liu"
+      "name": "Kang An"
     },
     {
       "areas": [
@@ -3168,6 +3518,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Lei Lei"
+    },
+    {
+      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -3232,6 +3590,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Li Xie"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -3261,6 +3627,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Lihan Jiang"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Limin Zhong"
     },
     {
       "areas": [
@@ -3400,6 +3774,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Lun Cai"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -3448,14 +3830,6 @@
     },
     {
       "areas": [
-        "linguistics"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Maohua Li"
-    },
-    {
-      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -3477,6 +3851,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Mengqi Huang"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Mengqiang Ren"
     },
     {
       "areas": [
@@ -3528,6 +3910,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Min Xu"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -3549,6 +3939,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Mingfang Zhang"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Mingliang Li"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Mingxiao Li"
     },
     {
       "areas": [
@@ -3605,6 +4011,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Mutian Hong"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Na Wang"
     },
     {
       "areas": [
@@ -3696,6 +4110,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Peilin Li"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -3728,11 +4150,27 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Peng Yang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Peng Ye"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Pengfei Tan"
     },
     {
       "areas": [
@@ -3776,6 +4214,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qiang Tong"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -3797,6 +4243,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Qianran Ma"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qiaoling Huang"
     },
     {
       "areas": [
@@ -3824,6 +4278,22 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qingfu Du"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qingjian Lin"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -3845,6 +4315,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Qinhong Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qirui Li"
     },
     {
       "areas": [
@@ -3984,6 +4462,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Rui Wang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -4032,6 +4518,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Runze Li"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -4076,6 +4570,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Shao-Qun Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Shaojin Wu"
     },
     {
@@ -4112,6 +4614,22 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shengchen Zhou"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shenghua Hu"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -4120,11 +4638,11 @@
     },
     {
       "areas": [
-        "computer science"
+        "engineering"
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Shi Qiu"
+      "name": "Shihao Peng"
     },
     {
       "areas": [
@@ -4157,6 +4675,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Shijie Lian"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shiliang Yang"
     },
     {
       "areas": [
@@ -4264,6 +4790,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Siqi Tu"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -4285,6 +4819,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Siwei Han"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Siyi Zhou"
     },
     {
       "areas": [
@@ -4380,6 +4922,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Tao Lan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Tara Bogavelli"
     },
     {
@@ -4413,6 +4963,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Tianhe Wu"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Tianjiao Deng"
     },
     {
       "areas": [
@@ -4456,6 +5014,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ting Xu"
+    },
+    {
+      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -4477,6 +5043,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Tong He"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Tong Wang"
     },
     {
       "areas": [
@@ -4565,6 +5139,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Wei Zhao"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "WeiMing Niu"
     },
     {
       "areas": [
@@ -4720,11 +5302,27 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Wenwen Qu"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Wenxiang Jiao"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Wuxun Xie"
     },
     {
       "areas": [
@@ -4784,6 +5382,46 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiangyu Li"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiangyu Tony Zhang"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiangyu Zhang"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xianwei Zhang"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xianyu Feng"
+    },
+    {
+      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -4837,6 +5475,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xiaofei Wen"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiaojia Liu"
     },
     {
       "areas": [
@@ -4936,6 +5582,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xing Chen"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -5024,6 +5678,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiongbin Wu"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -5104,6 +5766,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xuerui Yang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -5160,6 +5830,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yan Wu"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -5181,6 +5859,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yang Cao"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yang Li"
     },
     {
       "areas": [
@@ -5212,14 +5898,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Yang Yang"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Yang Yue"
     },
     {
@@ -5240,19 +5918,19 @@
     },
     {
       "areas": [
-        "linguistics"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Yanke Zhou"
-    },
-    {
-      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Yanran Zhang"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yechang Huang"
     },
     {
       "areas": [
@@ -5280,11 +5958,27 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yi Liu"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Yi-Fan Zhang"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yibo Zhu"
     },
     {
       "areas": [
@@ -5336,6 +6030,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yifan Zhang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -5349,6 +6051,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yijie Wang"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yile Liu"
     },
     {
       "areas": [
@@ -5444,6 +6154,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yixuan Xu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yiyan Ji"
     },
     {
@@ -5496,11 +6214,35 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yongshen Long"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yu Fu"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Yu Gao"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yu Luo"
     },
     {
       "areas": [
@@ -5552,6 +6294,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuanhao Ding"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -5600,6 +6350,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuchu Luo"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -5645,6 +6403,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yuhan Zhan"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuhao Wang"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuhe Yin"
     },
     {
       "areas": [
@@ -5712,6 +6486,22 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yunfang Xu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yunhe Li"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -5768,6 +6558,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuxiang Yang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -5776,11 +6574,27 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuxin Li"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Yuxin Song"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuxin Zhang"
     },
     {
       "areas": [
@@ -5904,6 +6718,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhengyan Sheng"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -5949,6 +6771,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zhigang Zeng"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhiguo Huang"
     },
     {
       "areas": [
@@ -6000,6 +6830,14 @@
     },
     {
       "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhiyue Wu"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -6037,6 +6875,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zi-Han Wang"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zichao Li"
+    },
+    {
+      "areas": [
+        "engineering"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zichao Zhou"
     },
     {
       "areas": [
@@ -6167,7 +7021,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-26T13:35:27.562725+00:00",
+  "generated_at": "2026-05-26T14:11:51.071963+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -6405,14 +7259,19 @@
       "description": "A one-paragraph idea seed \u2014 a research question and a hint of how it might be tackled. Generated by the brainstorm agent (or submitted by a human).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "StepAudio 2.5 Technical Report"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
           "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
           "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
@@ -6423,11 +7282,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6449,14 +7303,19 @@
       "description": "The raw seed is expanded into a structured idea grounded in primary literature: motivation, prior work, the precise question, a sketch of an approach, and what success would look like. A research-question validator then audits it for phenomenon-vs-method confusion, circularity, and triviality.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "StepAudio 2.5 Technical Report"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
           "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
           "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
@@ -6467,11 +7326,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6493,14 +7347,19 @@
       "description": "The project gets its own Spec Kit scaffold and a `spec.md` \u2014 user stories, functional requirements, success criteria \u2014 written by the specifier agent (the agentic equivalent of `/speckit-specify`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "StepAudio 2.5 Technical Report"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
           "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
           "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
@@ -6511,11 +7370,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6537,14 +7391,19 @@
       "description": "Open questions and ambiguities in the spec are surfaced and resolved (the agentic `/speckit-clarify`). Each clarification is recorded back into `spec.md`.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "StepAudio 2.5 Technical Report"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
           "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
           "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
@@ -6555,11 +7414,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6580,14 +7434,19 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "StepAudio 2.5 Technical Report"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
           "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
           "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
@@ -6598,11 +7457,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6623,14 +7477,19 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "StepAudio 2.5 Technical Report"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
           "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
           "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
@@ -6641,11 +7500,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6669,14 +7523,19 @@
       "description": "The implementer agent executes the task list \u2014 writing code, running real tests, collecting data \u2014 ticking tasks off until the plan is complete. The librarian agent verifies citations along the way.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "StepAudio 2.5 Technical Report"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
           "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
           "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
@@ -6687,11 +7546,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6721,14 +7575,19 @@
       "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist. Human reviews count double.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "StepAudio 2.5 Technical Report"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
           "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
           "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
@@ -6739,11 +7598,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6765,14 +7619,19 @@
       "description": "A research-accepted project gets a second Spec Kit scaffold \u2014 for the paper that reports the work.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "StepAudio 2.5 Technical Report"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
           "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
           "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
@@ -6783,11 +7642,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6808,14 +7662,19 @@
       "description": "The paper's specification: which sections, which figures, which claims, what evidence each rests on.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "StepAudio 2.5 Technical Report"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
           "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
           "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
@@ -6826,11 +7685,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6852,14 +7706,19 @@
       "description": "The paper plan and contracts (clarify + plan for the paper pipeline).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "StepAudio 2.5 Technical Report"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
           "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
           "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
@@ -6870,11 +7729,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6895,14 +7749,19 @@
       "description": "Writing, figure-generation, and statistics sub-tasks (tasks + analyze for the paper pipeline).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "StepAudio 2.5 Technical Report"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
           "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
           "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
@@ -6913,11 +7772,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6946,14 +7800,19 @@
       "description": "The paper-writing, figure-generation, and statistics agents draft the LaTeX, generate figures from the data, and run the analyses; LaTeX is built and citations are verified.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "StepAudio 2.5 Technical Report"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
           "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
           "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
@@ -6964,11 +7823,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -6992,14 +7846,19 @@
       "description": "The draft compiles cleanly, all citations are verified, and the proofreader is satisfied \u2014 ready for paper review.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "StepAudio 2.5 Technical Report"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
           "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
           "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
@@ -7010,11 +7869,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -7047,14 +7901,19 @@
       "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
+          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
+          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
+          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
+          "title": "StepAudio 2.5 Technical Report"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
           "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
           "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "https://arxiv.org/abs/2605.20708"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
@@ -7065,11 +7924,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
           "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "https://arxiv.org/abs/2605.23463"
         }
       ],
       "inputs": [
@@ -67677,7 +68531,816 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bin Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bo Zhao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Boyong Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chao Yan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chen Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Cheng Yi",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chengyuan Yao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Daijiao Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Fei Tian",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Feng Tian",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haiyang Sun",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haoyang Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiangjie Zhen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jinglan Gong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jun Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Li Xie",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Peilin Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Peng Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Pengfei Tan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qingjian Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Runze Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shenghua Hu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Siyi Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wenwen Qu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiangyu Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiangyu Tony Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xuerui Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yang Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yechang Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yu Fu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuchu Luo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuxin Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuxin Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhengyan Sheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Brian Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chang Zeng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Changlin Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chen Geng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chenghao Dong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chengli Feng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dan Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Danni Wan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Di Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Die Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dongqing Pang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Guanglong Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Guoqiang Hu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Huangxi Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jianzheng Gao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jinghua Liang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jinmei Wan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Junjie Yuan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kang An",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lei Lei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Limin Zhong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lun Cai",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mengqiang Ren",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Min Xu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mingliang Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mingxiao Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Na Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qiang Tong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qiaoling Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qingfu Du",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Rui Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shengchen Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shi Qiu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shihao Peng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shiliang Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Siqi Tu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tianjiao Deng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ting Xu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tong Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "WeiMing Niu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wuxun Xie",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xianwei Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xianyu Feng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiaojia Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xing Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiongbin Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yan Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yang Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yi Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yifan Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yile Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yongshen Long",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yu Luo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuanhao Ding",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuhao Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuhe Yin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yunfang Xu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuxiang Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhiguo Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhiyue Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zichao Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zichao Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Daxin Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Future Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Gang Yu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiangyu Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yibo Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -67692,8 +69355,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.23463 Submitted by: github-actions[bot] (Intake from human-submission issue #233.)",
-      "field": "other",
+      "description": "Unified audio-language modeling has emerged as a prominent trend in modern speech systems, promising to bring the reasoning capabilities of large language models to auditory tasks. However, existing unified foundations often struggle to match the depth of specialized systems across automatic speech recognition (ASR),\u2026",
+      "field": "engineering",
       "id": "PROJ-622-https-arxiv-org-abs-2605-23463",
       "keywords": [],
       "last_run_log": [
@@ -67715,8 +69378,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.23463",
-      "updated_at": "2026-05-26T09:11:39.142329+00:00",
+      "title": "StepAudio 2.5 Technical Report",
+      "updated_at": "2026-05-26T14:10:33.472106+00:00",
       "upstream_feedback": null
     },
     {
@@ -68121,7 +69784,104 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chao Xu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Maohua Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qirui Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yixuan Xu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yanke Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yunhe Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Cuifeng Shen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hanlin Tang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kan Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tao Lan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lin Qu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shao-Qun Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -68136,8 +69896,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.20708 Submitted by: github-actions[bot] (Intake from human-submission issue #230.)",
-      "field": "other",
+      "description": "Diffusion Transformers (DiTs) have become a de facto backbone of modern visual generation, and nearly every major axis of their design -- tokenization, attention, conditioning, objectives, and latent autoencoders -- has been extensively revisited. The residual stream that governs how information accumulates across\u2026",
+      "field": "computer science",
       "id": "PROJ-625-https-arxiv-org-abs-2605-20708",
       "keywords": [],
       "last_run_log": [
@@ -68159,8 +69919,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.20708",
-      "updated_at": "2026-05-26T09:12:06.554000+00:00",
+      "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers",
+      "updated_at": "2026-05-26T14:10:33.928993+00:00",
       "upstream_feedback": null
     },
     {
