@@ -940,7 +940,7 @@
     "human_contributors": 744,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2510,
+    "total_contributions": 2509,
     "total_contributors": 751
   },
   "contributors": [
@@ -981,7 +981,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 537,
+      "contribution_count": 536,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -7021,7 +7021,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-26T21:06:56.215835+00:00",
+  "generated_at": "2026-05-26T21:36:27.657259+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -29996,7 +29996,7 @@
         "citations": "state/citations/PROJ-261-evaluating-the-impact-of-code-duplicatio.yaml",
         "code": null,
         "data": null,
-        "idea": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/idea/evaluating-the-impact-of-code-duplicatio.md",
+        "idea": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/idea/research_question_validation.md",
         "paper_figures": null,
         "paper_pdf": null,
         "paper_plan": null,
@@ -30024,14 +30024,6 @@
             "research_question_validator",
             "specifier"
           ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "google.gemma-3-27b-it",
-          "roles": [
-            "brainstorm_submitter"
-          ]
         }
       ],
       "citation_summary": {
@@ -30048,7 +30040,7 @@
         "type": "markdown"
       },
       "current_stage": "clarified",
-      "description": "Field: Computer Science How does the local density of syntactic code clones correlate with the perplexity and bug-detection accuracy of pre-trained language models on open-source Python code? Code duplication is a well-documented liability for human maintainability, yet its influence on Large Language Model (LLM)\u2026",
+      "description": "Verdict: pass The question asks about a relationship between code structural properties (syntactic clone density) and model performance metrics (perplexity, bug detection accuracy), independent of any specific ML architecture or training approach. The phenomenon of interest is how code redundancy affects model\u2026",
       "field": "computer science",
       "id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
       "keywords": [],
@@ -30153,7 +30145,7 @@
       "revision_spec_path": null,
       "speckit_paper_dir": null,
       "speckit_research_dir": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio",
-      "submitter": "google.gemma-3-27b-it",
+      "submitter": null,
       "title": "Evaluating the Impact of Code Duplication on LLM Code Understanding",
       "updated_at": "2026-05-17T04:28:52.579110+00:00",
       "upstream_feedback": null
