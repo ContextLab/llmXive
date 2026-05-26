@@ -1,14 +1,7 @@
 last_used: geoffrey-west
-last_used_at: '2026-05-26T03:07:10.508649+00:00'
-last_outcome: committed
+last_used_at: '2026-05-26T04:52:50.174823+00:00'
+last_outcome: model_error
 history:
-- slug: geoffrey-west
-  started_at: '2026-05-17T19:56:27.961496+00:00'
-  ended_at: '2026-05-17T20:17:51.389472+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/reviews/geoffrey-west-simulated__2026-05-17__paper.md
 - slug: john-von-neumann
   started_at: '2026-05-17T20:17:51.389472+00:00'
   ended_at: '2026-05-17T20:49:50.830496+00:00'
@@ -1214,3 +1207,7 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-605-https-arxiv-org-abs-2605-18401/reviews/research/geoffrey-west-simulated__2026-05-26__research.md
+- slug: john-von-neumann
+  started_at: '2026-05-26T03:07:10.508649+00:00'
+  ended_at: '2026-05-26T04:52:50.174823+00:00'
+  outcome: model_error
