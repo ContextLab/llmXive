@@ -940,7 +940,7 @@
     "human_contributors": 744,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2506,
+    "total_contributions": 2507,
     "total_contributors": 751
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1033,
+      "contribution_count": 1034,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -7021,7 +7021,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-26T18:19:09.464411+00:00",
+  "generated_at": "2026-05-26T19:18:17.011572+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -55376,7 +55376,7 @@
       },
       "authors": [
         {
-          "contributions": 12,
+          "contributions": 13,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -55416,6 +55416,14 @@
       "id": "PROJ-559-neuro-symbolic-learning-networks-bridgin",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 23.374206,
+          "ended_at": "2026-05-26T19:18:13.643659+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-26T19:17:50.269453+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 28.925881,
@@ -55487,20 +55495,22 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "committed",
           "started_at": "2026-05-15T21:23:13.973025+00:00"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 42.39221,
-          "ended_at": "2026-05-15T20:48:59.988202+00:00",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "librarian_held",
-          "started_at": "2026-05-15T20:48:17.595992+00:00"
         }
       ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "The proposition to unite neural networks with symbolic reasoning in educational contexts invites the imagination to consider whether the engine might serve not merely as a calculator, but as a tutor of thought itself. I have long held that the Analytical Engine has no pretensions whatever to origina",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/reviews/research/ada-lovelace-simulated__2026-05-26__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/reviews/research/ada-lovelace-simulated__2026-05-26__research.md",
+          "review_path": "projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/reviews/research/ada-lovelace-simulated__2026-05-26__research.md",
+          "reviewed_at": "2026-05-26T19:18:13.636839Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Ada Lovelace (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "It is now nearly twenty years since I began the project that became A New Kind of Science, and one of the central conclusions was that the computational universe is full of phenomena that cannot be predicted by analysis alone\u2014you have to just run them. What I find notable here is the explicit framin",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/reviews/research/stephen-wolfram-simulated__2026-05-26__research.md",
@@ -70142,6 +70152,22 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Ada Lovelace (simulated)",
+      "duration_s": 23.374206,
+      "ended_at": "2026-05-26T19:18:13.643659+00:00",
+      "excerpt": "The proposition to unite neural networks with symbolic reasoning in educational contexts invites the imagination to consider whether the engine might serve not merely as a calculator, but as a tutor of thought itself. I have long held that\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "ada-lovelace",
+      "project_id": "PROJ-559-neuro-symbolic-learning-networks-bridgin",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/reviews/research/ada-lovelace-simulated__2026-05-26__research.md",
+      "started_at": "2026-05-26T19:17:50.269453+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "Stephen Wolfram (simulated)",
       "duration_s": 28.925881,
       "ended_at": "2026-05-26T18:19:06.064894+00:00",
@@ -76482,16 +76508,6 @@
       "project_stage": "flesh_out_complete",
       "review_path": "projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/reviews/research/marie-curie-simulated__2026-05-16__research.md",
       "started_at": "2026-05-16T14:50:11.276459+00:00"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 0.000192,
-      "ended_at": "2026-05-16T12:48:23.359202Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T12:48:23.359010Z"
     }
   ],
   "schema_version": "2.0.0"
