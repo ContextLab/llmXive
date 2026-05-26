@@ -1,14 +1,7 @@
 last_used: freeman-dyson
-last_used_at: '2026-05-26T00:32:18.352285+00:00'
-last_outcome: committed
+last_used_at: '2026-05-26T01:38:14.607464+00:00'
+last_outcome: model_error
 history:
-- slug: eric-kandel
-  started_at: '2026-05-17T18:50:30.021333+00:00'
-  ended_at: '2026-05-17T19:28:42.492001+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/reviews/research/eric-kandel-simulated__2026-05-17__research.md
 - slug: freeman-dyson
   started_at: '2026-05-17T19:28:42.492001+00:00'
   ended_at: '2026-05-17T19:56:27.961496+00:00'
@@ -1215,3 +1208,7 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/freeman-dyson-simulated__2026-05-26__research.md
+- slug: geoffrey-west
+  started_at: '2026-05-26T00:32:18.352285+00:00'
+  ended_at: '2026-05-26T01:38:14.607464+00:00'
+  outcome: model_error

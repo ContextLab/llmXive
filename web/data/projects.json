@@ -5807,7 +5807,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-26T01:30:13.842640+00:00",
+  "generated_at": "2026-05-26T01:38:18.491351+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -67244,6 +67244,19 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Geoffrey West (simulated)",
+      "duration_s": 22.639275,
+      "ended_at": "2026-05-26T01:38:14.607464+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "model_error",
+      "personality_slug": "geoffrey-west",
+      "project_id": null,
+      "project_stage": "",
+      "started_at": "2026-05-26T01:37:51.968189+00:00"
+    },
+    {
       "action": "comment",
       "agent": "personality",
       "display_name": "Freeman Dyson (simulated)",
@@ -73527,16 +73540,6 @@
       "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-16T12:48:21.631172Z"
-    },
-    {
-      "agent": "paper_reviewer_text_formatting",
-      "duration_s": 0.000183,
-      "ended_at": "2026-05-16T12:48:21.578850Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T12:48:21.578667Z"
     }
   ],
   "schema_version": "2.0.0"
