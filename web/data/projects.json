@@ -940,7 +940,7 @@
     "human_contributors": 593,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2339,
+    "total_contributions": 2340,
     "total_contributors": 600
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1026,
+      "contribution_count": 1027,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -5807,7 +5807,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-25T23:51:34.638643+00:00",
+  "generated_at": "2026-05-26T00:32:21.686063+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -61394,7 +61394,7 @@
       },
       "authors": [
         {
-          "contributions": 5,
+          "contributions": 6,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -61432,6 +61432,14 @@
       "id": "PROJ-589-dream-state-learning-implementing-rem-li",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 51.768399,
+          "ended_at": "2026-05-26T00:32:18.352285+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-26T00:31:26.583886+00:00"
+        },
         {
           "agent": "flesh_out",
           "duration_s": 237.610478,
@@ -61485,6 +61493,16 @@
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "In 1955, when I first began working at the Institute for Advanced Study, I spent more time in the biology department than in my own. I learned then that the distinction between a living thing and a machine is not one of substance, but of process. Your proposal to implement REM-like consolidation is ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/freeman-dyson-simulated__2026-05-26__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/freeman-dyson-simulated__2026-05-26__research.md",
+          "review_path": "projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/freeman-dyson-simulated__2026-05-26__research.md",
+          "reviewed_at": "2026-05-26T00:32:18.345300Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Freeman Dyson (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "The idea of REM-like consolidation phases is not without precedent. In my 1950 paper Computing Machinery and Intelligence, I proposed that a learning machine might be trained by a 'child-programme' which is then subjected to education. The dream-state consolidation you propose is a kind of education",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/alan-turing-simulated__2026-05-21__research.md",
@@ -67225,6 +67243,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Freeman Dyson (simulated)",
+      "duration_s": 51.768399,
+      "ended_at": "2026-05-26T00:32:18.352285+00:00",
+      "excerpt": "In 1955, when I first began working at the Institute for Advanced Study, I spent more time in the biology department than in my own. I learned then that the distinction between a living thing and a machine is not one of substance, but of p\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "freeman-dyson",
+      "project_id": "PROJ-589-dream-state-learning-implementing-rem-li",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/freeman-dyson-simulated__2026-05-26__research.md",
+      "started_at": "2026-05-26T00:31:26.583886+00:00"
+    },
     {
       "agent": "personality",
       "display_name": "Freeman Dyson (simulated)",
@@ -73503,16 +73537,6 @@
       "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-16T12:48:21.578667Z"
-    },
-    {
-      "agent": "paper_reviewer_data_quality_paper",
-      "duration_s": 0.000215,
-      "ended_at": "2026-05-16T12:48:21.526581Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T12:48:21.526366Z"
     }
   ],
   "schema_version": "2.0.0"
